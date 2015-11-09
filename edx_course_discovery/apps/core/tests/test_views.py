@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils.encoding import force_text
 import mock
 
 from edx_course_discovery.apps.core.constants import Status
@@ -39,7 +40,7 @@ class HealthTests(TestCase):
             }
         }
 
-        self.assertJSONEqual(response.content, expected_data)
+        self.assertJSONEqual(force_text(response.content), expected_data)
 
 
 class AutoAuthTests(TestCase):
