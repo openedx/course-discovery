@@ -1,0 +1,12 @@
+# Packages required for testing
+-r base.txt
+
+coverage
+django-dynamic-fixture
+django-nose
+mock
+nose-ignore-docstring
+pep8
+pylint
+
+edx-lint

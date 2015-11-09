@@ -1,0 +1,12 @@
+[run]
+branch = True
+data_file = .coverage
+source=edx_course_discovery
+omit =
+    edx_course_discovery/settings*
+    edx_course_discovery/conf*
+    *wsgi.py
+    *migrations*
+    *admin.py
+    *static*
+    *templates*

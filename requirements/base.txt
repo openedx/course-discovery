@@ -1,0 +1,6 @@
+django>=1.8.6,<1.9
+django-extensions==1.5.9
+django-waffle
+djangorestframework
+edx-auth-backends
+pytz
