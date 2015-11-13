@@ -19,6 +19,7 @@ help:
 	@echo "  requirements               install requirements for local development"
 	@echo "  test                       run tests and generate coverage report"
 	@echo "  validate                   run tests and quality checks"
+	@echo "  develop                    run a local development copy of the server"
 	@echo ""
 
 clean:
@@ -62,3 +63,6 @@ pull_translations:
 
 push_translations:
 	tx push -s
+
+develop:
+	docker-compose --x-networking up
