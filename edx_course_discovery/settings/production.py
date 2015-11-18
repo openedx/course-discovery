@@ -12,7 +12,7 @@ ALLOWED_HOSTS = ['*']
 
 LOGGING = environ.get('LOGGING', LOGGING)
 
-CONFIG_FILE = get_env_setting('EDX_COURSE_DISCOVERY_CFG')
+CONFIG_FILE = get_env_setting('COURSE_DISCOVERY_CFG')
 with open(CONFIG_FILE) as f:
     config_from_yaml = yaml.load(f)
     vars().update(config_from_yaml)
