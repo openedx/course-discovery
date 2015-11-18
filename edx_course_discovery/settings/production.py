@@ -26,5 +26,5 @@ DB_OVERRIDES = dict(
     PORT=environ.get('DB_MIGRATION_PORT', DATABASES['default']['PORT']),
 )
 
-for override, value in DB_OVERRIDES.iteritems():
+for override, value in DB_OVERRIDES.items():
     DATABASES['default'][override] = value
