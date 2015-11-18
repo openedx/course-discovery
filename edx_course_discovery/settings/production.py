@@ -2,7 +2,7 @@ from os import environ
 import yaml
 
 from edx_course_discovery.settings.base import *
-from edx_course_discovery.settings.utils import get_env_setting, get_logger_config
+from edx_course_discovery.settings.utils import get_env_setting
 
 
 DEBUG = False
@@ -10,7 +10,7 @@ TEMPLATE_DEBUG = DEBUG
 
 ALLOWED_HOSTS = ['*']
 
-LOGGING = get_logger_config()
+LOGGING = environ.get('LOGGING', LOGGING)
 
 CONFIG_FILE = get_env_setting('EDX_COURSE_DISCOVERY_CFG')
 with open(CONFIG_FILE) as f:

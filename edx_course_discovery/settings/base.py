@@ -175,3 +175,50 @@ LOGIN_REDIRECT_URL = '/admin/'
 # OPENEDX-SPECIFIC CONFIGURATION 
 PLATFORM_NAME = 'Your Platform Name Here'
 # END OPENEDX-SPECIFIC CONFIGURATION
+
+# Set up logging for development use (logging to stdout)
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s %(levelname)s %(process)d '
+                      '[%(name)s] %(filename)s:%(lineno)d - %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
+            'stream': 'ext://sys.stdout',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'propagate': True,
+            'level': 'INFO'
+        },
+        'requests': {
+            'handlers': ['console'],
+            'propagate': True,
+            'level': 'WARNING'
+        },
+        'factory': {
+            'handlers': ['console'],
+            'propagate': True,
+            'level': 'WARNING'
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'propagate': True,
+            'level': 'WARNING'
+        },
+        '': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+    }
+}
