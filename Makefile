@@ -19,7 +19,8 @@ help:
 	@echo "  requirements               install requirements for local development"
 	@echo "  test                       run tests and generate coverage report"
 	@echo "  validate                   run tests and quality checks"
-	@echo "  develop                    run a local development copy of the server"
+	@echo "  start-devstack             run a local development copy of the server"
+	@echo "  open-devstack              open a shell on the server started by start-devstack"
 	@echo ""
 
 clean:
@@ -27,8 +28,11 @@ clean:
 	coverage erase
 	rm -rf assets
 
-requirements:
+local-requirements:
 	pip install -qr requirements/local.txt --exists-action w
+
+requirements:
+	pip install -qr requirements.txt --exists-action w
 
 test: clean
 	coverage run ./manage.py test edx_course_discovery --settings=edx_course_discovery.settings.test
@@ -64,5 +68,8 @@ pull_translations:
 push_translations:
 	tx push -s
 
-develop:
+start-devstack:
 	docker-compose --x-networking up
+
+open-devstack:
+	docker exec -it course-discovery /edx/app/course_discovery/devstack.sh open
