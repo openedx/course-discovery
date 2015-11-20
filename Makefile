@@ -35,12 +35,12 @@ requirements:
 	pip install -qr requirements.txt --exists-action w
 
 test: clean
-	coverage run ./manage.py test edx_course_discovery --settings=edx_course_discovery.settings.test
+	coverage run ./manage.py test course_discovery --settings=course_discovery.settings.test
 	coverage report
 
 quality:
-	pep8 --config=.pep8 edx_course_discovery *.py
-	pylint --rcfile=pylintrc edx_course_discovery *.py
+	pep8 --config=.pep8 course_discovery *.py
+	pylint --rcfile=pylintrc course_discovery *.py
 
 validate: test quality
 
@@ -55,7 +55,7 @@ extract_translations:
 	python manage.py makemessages -l en -v1 -d djangojs
 
 dummy_translations:
-	cd edx_course_discovery && i18n_tool dummy
+	cd course_discovery && i18n_tool dummy
 
 compile_translations:
 	python manage.py compilemessages

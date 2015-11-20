@@ -4,11 +4,11 @@ __ http://code.edx.org/
 
 Course Discovery Service  |Travis|_ |Coveralls|_
 =====================================================
-.. |Travis| image:: https://travis-ci.org/edx/edx_course_discovery.svg?branch=master
-.. _Travis: https://travis-ci.org/edx/edx_course_discovery
+.. |Travis| image:: https://travis-ci.org/edx/course-discovery.svg?branch=master
+.. _Travis: https://travis-ci.org/edx/course-discovery
 
-.. |Coveralls| image:: https://coveralls.io/repos/edx/edx_course_discovery/badge.svg?branch=master
-.. _Coveralls: https://coveralls.io/r/edx/edx_course_discovery?branch=master
+.. |Coveralls| image:: https://coveralls.io/repos/edx/course-discovery/badge.svg?branch=master
+.. _Coveralls: https://coveralls.io/r/edx/course-discovery?branch=master
 
 The ``README.rst`` file should start with a brief description of the repository,
 which sets it in the context of other repositories under the ``edx``
@@ -29,7 +29,7 @@ Documentation (please modify)
 The ``README.rst`` should include a link to the developer documentation. This documentation should be hosted on
 Read the Docs. An example statement and link are below.
 
-The docs for Course Discovery Service are on Read the Docs:  https://edx_course_discovery.readthedocs.org.
+The docs for Course Discovery Service are on Read the Docs:  https://open-edx-course-discovery.readthedocs.org.
 
 License
 -------

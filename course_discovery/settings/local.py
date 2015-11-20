@@ -1,4 +1,4 @@
-from edx_course_discovery.settings.base import *
+from course_discovery.settings.base import *
 
 DEBUG = True
 

@@ -4,7 +4,7 @@ from django.test import TestCase
 from django_dynamic_fixture import G
 from social.apps.django_app.default.models import UserSocialAuth
 
-from edx_course_discovery.apps.core.models import User
+from course_discovery.apps.core.models import User
 
 
 # pylint: disable=no-member

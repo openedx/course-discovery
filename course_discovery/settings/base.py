@@ -8,7 +8,7 @@ root = lambda *x: join(abspath(PROJECT_ROOT), *x)
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('EDX_COURSE_DISCOVERY_SECRET_KEY', 'insecure-secret-key')
+SECRET_KEY = os.environ.get('COURSE_DISCOVERY_SECRET_KEY', 'insecure-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -33,8 +33,8 @@ THIRD_PARTY_APPS = (
 )
 
 PROJECT_APPS = (
-    'edx_course_discovery.apps.core',
-    'edx_course_discovery.apps.api',
+    'course_discovery.apps.core',
+    'course_discovery.apps.api',
 )
 
 INSTALLED_APPS += THIRD_PARTY_APPS
@@ -53,10 +53,10 @@ MIDDLEWARE_CLASSES = (
     'waffle.middleware.WaffleMiddleware',
 )
 
-ROOT_URLCONF = 'edx_course_discovery.urls'
+ROOT_URLCONF = 'course_discovery.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'edx_course_discovery.wsgi.application'
+WSGI_APPLICATION = 'course_discovery.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
@@ -126,7 +126,7 @@ TEMPLATES = [
                 'django.template.context_processors.static',
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
-                'edx_course_discovery.apps.core.context_processors.core',
+                'course_discovery.apps.core.context_processors.core',
             ),
             'debug': True,  # Django will only display debug pages if the global DEBUG setting is set to True.
         }
@@ -139,9 +139,9 @@ TEMPLATES = [
 # The purpose of customizing the cookie names is to avoid conflicts when
 # multiple Django services are running behind the same hostname.
 # Detailed information at: https://docs.djangoproject.com/en/dev/ref/settings/
-SESSION_COOKIE_NAME = 'edx_course_discovery_sessionid'
-CSRF_COOKIE_NAME = 'edx_course_discovery_csrftoken'
-LANGUAGE_COOKIE_NAME = 'edx_course_discovery_language'
+SESSION_COOKIE_NAME = 'course_discovery_sessionid'
+CSRF_COOKIE_NAME = 'course_discovery_csrftoken'
+LANGUAGE_COOKIE_NAME = 'course_discovery_language'
 # END COOKIE CONFIGURATION
 
 # AUTHENTICATION CONFIGURATION

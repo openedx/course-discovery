@@ -1,4 +1,4 @@
-"""edx_course_discovery URL Configuration
+"""course_discovery URL Configuration
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/1.8/topics/http/urls/
 Examples:
@@ -22,7 +22,7 @@ from django.contrib.auth.views import logout
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import RedirectView
 
-from edx_course_discovery.apps.core import views as core_views
+from course_discovery.apps.core import views as core_views
 
 admin.autodiscover()
 
@@ -32,7 +32,7 @@ login = RedirectView.as_view(url=reverse_lazy('social:begin', args=['edx-oidc'])
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^api/', include('edx_course_discovery.apps.api.urls', namespace='api')),
+    url(r'^api/', include('course_discovery.apps.api.urls', namespace='api')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^auto_auth/$', core_views.AutoAuth.as_view(), name='auto_auth'),
     url(r'^health/$', core_views.health, name='health'),

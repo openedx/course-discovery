@@ -1,8 +1,8 @@
 from os import environ
 import yaml
 
-from edx_course_discovery.settings.base import *
-from edx_course_discovery.settings.utils import get_env_setting
+from course_discovery.settings.base import *
+from course_discovery.settings.utils import get_env_setting
 
 
 DEBUG = False

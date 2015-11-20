@@ -2,7 +2,7 @@
 
 from django.test import TestCase, override_settings, RequestFactory
 
-from edx_course_discovery.apps.core.context_processors import core
+from course_discovery.apps.core.context_processors import core
 
 PLATFORM_NAME = 'Test Platform'
 

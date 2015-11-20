@@ -1,6 +1,6 @@
 import os
 
-from edx_course_discovery.settings.base import *
+from course_discovery.settings.base import *
 
 
 # TEST SETTINGS
