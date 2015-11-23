@@ -1,1 +1,1 @@
-newrelic
+newrelic == 2.58.1.44
