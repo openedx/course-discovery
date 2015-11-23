@@ -7,8 +7,8 @@ Course Discovery Service  |Travis|_ |Coveralls|_
 .. |Travis| image:: https://travis-ci.org/edx/course-discovery.svg?branch=master
 .. _Travis: https://travis-ci.org/edx/course-discovery
 
-.. |Coveralls| image:: https://coveralls.io/repos/edx/course-discovery/badge.svg?branch=master
-.. _Coveralls: https://coveralls.io/r/edx/course-discovery?branch=master
+.. |Codecov| image:: http://codecov.io/github/edx/course-discovery/coverage.svg?branch=master
+.. _Codecov: http://codecov.io/github/edx/course-discovery?branch=master
 
 The ``README.rst`` file should start with a brief description of the repository,
 which sets it in the context of other repositories under the ``edx``
