@@ -15,9 +15,9 @@ memcache:
   image: memcached:1.4.24
   container_name: memcache
 
-rabbitmq:
-  image: rabbitmq:3.5.3
-  container_name: rabbitmq
+# rabbitmq:
+#  image: rabbitmq:3.5.3
+#  container_name: rabbitmq
 
 course-discovery:
   # Uncomment this line to use the official course-discovery base image
