@@ -1,0 +1,8 @@
+[MASTER]
+ignore+= ,migrations, settings, wsgi.py
+
+[BASIC]
+const-rgx = (([A-Z_][A-Z0-9_]*)|(__.*__)|log|urlpatterns|logger|User)$
+
+[MESSAGES CONTROL]
+DISABLE+= ,invalid-name

@@ -1,0 +1,35 @@
+db:
+  image: mysql:5.6
+  container_name: db
+  environment:
+    MYSQL_ROOT_PASSWORD: ""
+    MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+
+es:
+  image: elasticsearch:1.5.2
+  container_name: es
+  volumes:
+    - /tmp/elasticsearch/data:/es-data
+
+memcache:
+  image: memcached:1.4.24
+  container_name: memcache
+
+# rabbitmq:
+#  image: rabbitmq:3.5.3
+#  container_name: rabbitmq
+
+course-discovery:
+  # Uncomment this line to use the official course-discovery base image
+  image: edxops/course-discovery:v1
+
+  # Uncomment the next two lines to build from a local configuration repo
+  #build: ../configuration
+  #dockerfile: docker/build/course_discovery/Dockerfile
+
+  container_name: course-discovery
+  volumes:
+    - .:/edx/app/course_discovery/course_discovery
+  command: /edx/app/course_discovery/devstack.sh start
+  ports:
+    - "18381:18381"
