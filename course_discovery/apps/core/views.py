@@ -31,7 +31,7 @@ def health(_):
         >>> response.status_code
         200
         >>> response.content
-        '{"overall_status": "OK", "detailed_status": {"database_status": "OK", "lms_status": "OK"}}'
+        '{"overall_status": "OK", "detailed_status": {"database_status": "OK"}}'
     """
 
     try:
