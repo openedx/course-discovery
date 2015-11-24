@@ -69,18 +69,18 @@ your settings and created the database (if necessary). Migrations can be run wit
 
 .. code-block:: bash
 
-    $ python manage.py migrate
+    $ make migrate
 
 .. _Django's migrate command: https://docs.djangoproject.com/en/1.8/ref/django-admin/#django-admin-migrate
 
 
 Run the server
 --------------
-The server can be run with `Django's runserver command`_. If you opt to run on a different port, make sure you update
-OIDC client via LMS admin.
+The server can be run with `Docker Compose`_. This will start the Course Discovery service, and all of the
+services that it depends on.
 
 .. code-block:: bash
 
-    $ python manage.py runserver 8003
+    $ make start-devstack
 
-.. _Django's runserver command: https://docs.djangoproject.com/en/1.8/ref/django-admin/#runserver-port-or-address-port
+.. _Docker Compose: https://docs.docker.com/compose/
