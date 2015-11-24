@@ -10,6 +10,6 @@ def get_env_setting(setting):
     try:
         return environ[setting]
     except KeyError:
-        error_msg = "Set the [%s] env variable!" % setting
+        error_msg = "Set the [{}] env variable!".format(setting)
         raise ImproperlyConfigured(error_msg)
 
