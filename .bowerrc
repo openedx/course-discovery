@@ -1,4 +1,4 @@
 {
-  "directory": "edx_course_discovery/static/bower_components",
+  "directory": "course_discovery/static/bower_components",
   "interactive": false
 }
