@@ -25,7 +25,7 @@
 profile = no
 ignore = ,migrations, settings, wsgi.py
 persistent = yes
-load-plugins = edx_lint.pylint,pylint_django
+load-plugins = edx_lint.pylint
 
 [MESSAGES CONTROL]
 disable = 
