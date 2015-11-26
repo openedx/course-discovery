@@ -1,29 +1,40 @@
-from django.test import TestCase
+from django.core.urlresolvers import reverse
+from django.test import TestCase, RequestFactory
 
 from course_discovery.apps.api.serializers import CatalogSerializer, CourseSerializer, ContainedCoursesSerializer
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
+from course_discovery.apps.courses.tests.factories import CourseFactory
 
 
 class CatalogSerializerTests(TestCase):
     def test_data(self):
         catalog = CatalogFactory()
-        serializer = CatalogSerializer(catalog)
+        path = reverse('api:v1:catalog-detail', kwargs={'id': catalog.id})
+        request = RequestFactory().get(path)
+        serializer = CatalogSerializer(catalog, context={'request': request})
+
         expected = {
             'id': catalog.id,
             'name': catalog.name,
             'query': catalog.query,
+            'url': request.build_absolute_uri(),
         }
         self.assertDictEqual(serializer.data, expected)
 
 
 class CourseSerializerTests(TestCase):
     def test_data(self):
-        course = {
-            'id': 'course-v1:edX+DemoX+Demo_Course',
-            'name': 'edX Demo Course',
+        course = CourseFactory()
+        path = reverse('api:v1:course-detail', kwargs={'id': course.id})
+        request = RequestFactory().get(path)
+        serializer = CourseSerializer(course, context={'request': request})
+
+        expected = {
+            'id': course.id,
+            'name': course.name,
+            'url': request.build_absolute_uri(),
         }
-        serializer = CourseSerializer(course)
-        self.assertDictEqual(serializer.data, course)
+        self.assertDictEqual(serializer.data, expected)
 
 
 class ContainedCoursesSerializerTests(TestCase):

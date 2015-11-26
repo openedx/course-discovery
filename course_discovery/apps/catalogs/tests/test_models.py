@@ -1,14 +1,33 @@
+import json
+
 from django.test import TestCase
 
 from course_discovery.apps.catalogs.tests import factories
+from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
+from course_discovery.apps.courses.tests.factories import CourseFactory
 
 
-class CatalogTests(TestCase):
+class CatalogTests(ElasticsearchTestMixin, TestCase):
     """ Catalog model tests. """
 
     def setUp(self):
         super(CatalogTests, self).setUp()
-        self.catalog = factories.CatalogFactory()
+        query = {
+            'query': {
+                'bool': {
+                    'must': [
+                        {
+                            'wildcard': {
+                                'course.name': 'abc*'
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+        self.catalog = factories.CatalogFactory(query=json.dumps(query))
+        self.course = CourseFactory(id='a/b/c', name='ABCs of Ͳҽʂէìղց')
+        self.refresh_index()
 
     def test_unicode(self):
         """ Validate the output of the __unicode__ method. """
@@ -21,14 +40,9 @@ class CatalogTests(TestCase):
 
     def test_courses(self):
         """ Verify the method returns a list of courses contained in the catalog. """
-        # TODO Setup/mock Elasticsearch
-        # TODO Set catalog query
-        # TODO Validate value of catalog.courses()
-        self.assertListEqual(self.catalog.courses(), [])
+        self.assertEqual(self.catalog.courses(), [self.course])
 
     def test_contains(self):
         """ Verify the method returns a mapping of course IDs to booleans. """
-        # TODO Setup/mock Elasticsearch
-        # TODO Set catalog query
-        # TODO Validate value of catalog.contains()
-        self.assertDictEqual(self.catalog.contains([]), {})
+        other_id = 'd/e/f'
+        self.assertDictEqual(self.catalog.contains([self.course.id, other_id]), {self.course.id: True, other_id: False})

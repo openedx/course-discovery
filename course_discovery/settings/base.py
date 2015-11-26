@@ -1,11 +1,13 @@
 import os
 from os.path import join, abspath, dirname
+from sys import path
 
 # PATH vars
 here = lambda *x: join(abspath(dirname(__file__)), *x)
 PROJECT_ROOT = here("..")
 root = lambda *x: join(abspath(PROJECT_ROOT), *x)
 
+path.append(root('apps'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('COURSE_DISCOVERY_SECRET_KEY', 'insecure-secret-key')
@@ -37,6 +39,7 @@ PROJECT_APPS = (
     'course_discovery.apps.core',
     'course_discovery.apps.api',
     'course_discovery.apps.catalogs',
+    'course_discovery.apps.courses',
 )
 
 INSTALLED_APPS += THIRD_PARTY_APPS
@@ -193,7 +196,7 @@ LOGGING = {
     },
     'handlers': {
         'console': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'standard',
             'stream': 'ext://sys.stdout',
@@ -232,10 +235,24 @@ LOGGING = {
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 20,
-    'VIEW_DESCRIPTION_FUNCTION': 'rest_framework_swagger.views.get_restructuredtext'
+    'VIEW_DESCRIPTION_FUNCTION': 'rest_framework_swagger.views.get_restructuredtext',
+    'TEST_REQUEST_RENDERER_CLASSES': (
+        'rest_framework.renderers.MultiPartRenderer',
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    )
 }
 
 SWAGGER_SETTINGS = {
     'api_version': 'v1',
     'doc_expansion': 'list',
 }
+
+ELASTICSEARCH = {
+    'host': 'es',
+    'index': 'course_discovery',
+    'connect_on_startup': True
+}
+
+# TODO Replace with None and document.
+ECOMMERCE_API_URL = 'https://ecommerce.stage.edx.org/api/v2/'

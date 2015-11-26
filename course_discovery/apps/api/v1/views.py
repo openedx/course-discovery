@@ -1,13 +1,17 @@
+import json
 import logging
 
 from rest_framework import viewsets
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import detail_route
-from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
+from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
+from course_discovery.apps.api.pagination import ElasticsearchLimitOffsetPagination
 from course_discovery.apps.api.serializers import CatalogSerializer, CourseSerializer, ContainedCoursesSerializer
 from course_discovery.apps.catalogs.models import Catalog
+from course_discovery.apps.courses.constants import COURSE_ID_REGEX
+from course_discovery.apps.courses.models import Course
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +63,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
         queryset = catalog.courses()
 
         page = self.paginate_queryset(queryset)
-        serializer = CourseSerializer(page, many=True)
+        serializer = CourseSerializer(page, many=True, context={'request': request})
         return self.get_paginated_response(serializer.data)
 
     @detail_route()
@@ -87,3 +91,55 @@ class CatalogViewSet(viewsets.ModelViewSet):
         instance = {'courses': courses}
         serializer = ContainedCoursesSerializer(instance)
         return Response(serializer.data)
+
+
+class CourseViewSet(viewsets.ReadOnlyModelViewSet):
+    """ Course resource. """
+    authentication_classes = (SessionAuthentication,)
+    lookup_field = 'id'
+    lookup_value_regex = COURSE_ID_REGEX
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    serializer_class = CourseSerializer
+    pagination_class = ElasticsearchLimitOffsetPagination
+
+    def get_object(self):
+        """ Return a single course. """
+        return Course.get(self.kwargs[self.lookup_url_kwarg or self.lookup_field])
+
+    def get_queryset(self):
+        # Note (CCB): This is solely here to appease DRF. It is not actually used.
+        return []
+
+    def get_data(self, limit, offset):
+        """ Return all courses. """
+        query = self.request.GET.get('q', None)
+
+        if query:
+            query = json.loads(query)
+            return Course.search(query, limit=limit, offset=offset)
+        else:
+            return Course.all(limit=limit, offset=offset)
+
+    def list(self, request, *args, **kwargs):  # pylint: disable=unused-argument
+        """
+        List all courses.
+        ---
+        parameters:
+            - name: q
+              description: Query to filter the courses
+              required: false
+              type: string
+              paramType: query
+              multiple: false
+        """
+        limit = self.paginator.get_limit(self.request)
+        offset = self.paginator.get_offset(self.request)
+        data = self.get_data(limit, offset)
+
+        page = self.paginate_queryset(data)
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        """ Retrieve details for a course. """
+        return super(CourseViewSet, self).retrieve(request, *args, **kwargs)

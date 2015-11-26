@@ -7,5 +7,6 @@ urlpatterns = []
 
 router = routers.SimpleRouter()
 router.register(r'catalogs', views.CatalogViewSet)
+router.register(r'courses', views.CourseViewSet, base_name='course')
 
 urlpatterns += router.urls
