@@ -34,12 +34,14 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include('course_discovery.apps.api.urls', namespace='api')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^api-docs/', include('rest_framework_swagger.urls')),
     url(r'^auto_auth/$', core_views.AutoAuth.as_view(), name='auto_auth'),
     url(r'^health/$', core_views.health, name='health'),
     url(r'^login/$', login, name='login'),
     url(r'^logout/$', logout, name='logout'),
     url('', include('social.apps.django_app.urls', namespace='social')),
 ]
+
 
 if settings.DEBUG and os.environ.get('ENABLE_DJANGO_TOOLBAR', False):  # pragma: no cover
     import debug_toolbar  # pylint: disable=import-error

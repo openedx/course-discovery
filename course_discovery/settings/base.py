@@ -28,6 +28,7 @@ INSTALLED_APPS = (
 
 THIRD_PARTY_APPS = (
     'rest_framework',
+    'rest_framework_swagger',
     'social.apps.django_app.default',
     'waffle',
 )
@@ -117,6 +118,9 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'APP_DIRS': True,
+        'DIRS': (
+            root('templates'),
+        ),
         'OPTIONS': {
             'context_processors': (
                 'django.contrib.auth.context_processors.auth',
@@ -221,4 +225,15 @@ LOGGING = {
             'propagate': False
         },
     }
+}
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'VIEW_DESCRIPTION_FUNCTION': 'rest_framework_swagger.views.get_restructuredtext'
+}
+
+SWAGGER_SETTINGS = {
+    'api_version': 'v1',
+    'doc_expansion': 'list',
 }
