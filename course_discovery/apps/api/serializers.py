@@ -1,4 +1,20 @@
-# Serializers that can be shared across multiple versions of the API
-# should be created here. As the API evolves, serializers may become more
-# specific to a particular version of the API. In this case, the serializers
-# in question should be moved to versioned sub-package.
+from django.utils.translation import ugettext_lazy as _
+from rest_framework import serializers
+
+from course_discovery.apps.catalogs.models import Catalog
+
+
+class CatalogSerializer(serializers.ModelSerializer):
+    class Meta(object):
+        model = Catalog
+        fields = ('id', 'name', 'query',)
+
+
+class CourseSerializer(serializers.Serializer):
+    id = serializers.CharField(help_text=_('Course ID'))
+    name = serializers.CharField(help_text=_('Course name'))
+
+
+class ContainedCoursesSerializer(serializers.Serializer):
+    courses = serializers.DictField(child=serializers.BooleanField(),
+                                    help_text=_('Dictionary mapping course IDs to boolean values'))
