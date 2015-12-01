@@ -36,6 +36,7 @@ THIRD_PARTY_APPS = (
 PROJECT_APPS = (
     'course_discovery.apps.core',
     'course_discovery.apps.api',
+    'course_discovery.apps.catalogs',
 )
 
 INSTALLED_APPS += THIRD_PARTY_APPS
@@ -230,6 +231,7 @@ LOGGING = {
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 20,
     'VIEW_DESCRIPTION_FUNCTION': 'rest_framework_swagger.views.get_restructuredtext'
 }
 
