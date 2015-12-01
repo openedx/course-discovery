@@ -28,13 +28,13 @@ class UserTests(TestCase):
         """ Test that the user model concatenates first and last name if the full name is not set. """
         full_name = "George Costanza"
         user = G(User, full_name=full_name)
-        self.assertEquals(user.get_full_name(), full_name)
+        self.assertEqual(user.get_full_name(), full_name)
 
         first_name = "Jerry"
         last_name = "Seinfeld"
         user = G(User, full_name=None, first_name=first_name, last_name=last_name)
         expected = "{first_name} {last_name}".format(first_name=first_name, last_name=last_name)
-        self.assertEquals(user.get_full_name(), expected)
+        self.assertEqual(user.get_full_name(), expected)
 
         user = G(User, full_name=full_name, first_name=first_name, last_name=last_name)
-        self.assertEquals(user.get_full_name(), full_name)
+        self.assertEqual(user.get_full_name(), full_name)

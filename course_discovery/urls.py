@@ -42,7 +42,7 @@ urlpatterns = [
     url('', include('social.apps.django_app.urls', namespace='social')),
 ]
 
-
 if settings.DEBUG and os.environ.get('ENABLE_DJANGO_TOOLBAR', False):  # pragma: no cover
-    import debug_toolbar  # pylint: disable=import-error
+    import debug_toolbar  # pylint: disable=wrong-import-position,import-error
+
     urlpatterns.append(url(r'^__debug__/', include(debug_toolbar.urls)))
