@@ -33,3 +33,5 @@ course-discovery:
   command: /edx/app/course_discovery/devstack.sh start
   ports:
     - "18381:18381"
+    - "8381:8381"
+    - "48381:48381"
