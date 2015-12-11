@@ -84,3 +84,15 @@ services that it depends on.
     $ make start-devstack
 
 .. _Docker Compose: https://docs.docker.com/compose/
+
+
+Install elasticsearch-head
+--------------------------
+Navigating Elasticsearch can be challenging if you don't have much experience with it. The `elasticsearch-head`_ plugin
+offers a web-based front end to help with this. The plugin can be installed in the `es` container with the command below.
+
+.. code-block:: bash
+
+    $ docker exec es /usr/share/elasticsearch/bin/plugin -install mobz/elasticsearch-head
+
+.. _elasticsearch-head: https://mobz.github.io/elasticsearch-head/
