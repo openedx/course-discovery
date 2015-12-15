@@ -1,7 +1,5 @@
 import os
-
 from course_discovery.settings.base import *
-
 
 # TEST SETTINGS
 INSTALLED_APPS += (
@@ -31,3 +29,9 @@ DATABASES = {
     },
 }
 # END IN-MEMORY TEST DATABASE
+
+ELASTICSEARCH = {
+    'host': os.environ.get('TEST_ELASTICSEARCH_HOST', 'localhost'),
+    'index': 'course_discovery_test',
+    'connect_on_startup': True
+}
