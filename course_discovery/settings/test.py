@@ -13,6 +13,7 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 NOSE_ARGS = [
     '--with-ignore-docstrings',
     '--logging-level=DEBUG',
+    '--logging-clear-handlers',
 ]
 
 # END TEST SETTINGS
