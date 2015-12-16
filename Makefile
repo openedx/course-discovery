@@ -80,4 +80,5 @@ start-devstack:
 	docker-compose --x-networking up
 
 open-devstack:
-	docker exec -it course-discovery /edx/app/course_discovery/devstack.sh open
+	docker-compose --x-networking up -d
+	docker exec -it course-discovery env TERM=$(TERM) /edx/app/course_discovery/devstack.sh open
