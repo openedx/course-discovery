@@ -8,7 +8,7 @@ class Catalog(TimeStampedModel):
     query = models.TextField(null=False, blank=False, help_text=_('Query to retrieve catalog contents'))
 
     def __str__(self):
-        return 'Catalog #{id}: {name}'.format(id=self.id, name=self.name)
+        return 'Catalog #{id}: {name}'.format(id=self.id, name=self.name)  # pylint: disable=no-member
 
     def courses(self):
         """ Returns the list of courses contained within this catalog.
@@ -18,7 +18,7 @@ class Catalog(TimeStampedModel):
         """
         return []
 
-    def contains(self, course_ids):
+    def contains(self, course_ids):  # pylint: disable=unused-argument
         """ Determines if the given courses are contained in this catalog.
 
         Arguments:

@@ -12,6 +12,7 @@ from course_discovery.apps.catalogs.models import Catalog
 logger = logging.getLogger(__name__)
 
 
+# pylint: disable=no-member
 class CatalogViewSet(viewsets.ModelViewSet):
     """ Catalog resource. """
 
@@ -47,7 +48,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
         return super(CatalogViewSet, self).update(request, *args, **kwargs)
 
     @detail_route()
-    def courses(self, request, id=None):
+    def courses(self, request, id=None):  # pylint: disable=redefined-builtin,unused-argument
         """
         Retrieve the list of courses contained within this catalog.
         ---
@@ -62,7 +63,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
         return self.get_paginated_response(serializer.data)
 
     @detail_route()
-    def contains(self, request, id=None):
+    def contains(self, request, id=None):  # pylint: disable=redefined-builtin,unused-argument
         """
         Determine if this catalog contains the provided courses.
 

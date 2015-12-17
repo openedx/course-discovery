@@ -10,11 +10,13 @@ class CatalogSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'query',)
 
 
-class CourseSerializer(serializers.Serializer):
+class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-method
     id = serializers.CharField(help_text=_('Course ID'))
     name = serializers.CharField(help_text=_('Course name'))
 
 
-class ContainedCoursesSerializer(serializers.Serializer):
-    courses = serializers.DictField(child=serializers.BooleanField(),
-                                    help_text=_('Dictionary mapping course IDs to boolean values'))
+class ContainedCoursesSerializer(serializers.Serializer):  # pylint: disable=abstract-method
+    courses = serializers.DictField(
+        child=serializers.BooleanField(),
+        help_text=_('Dictionary mapping course IDs to boolean values')
+    )

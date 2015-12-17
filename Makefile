@@ -48,7 +48,7 @@ test: clean
 
 quality:
 	pep8 --config=.pep8 course_discovery *.py
-	#pylint --rcfile=pylintrc course_discovery *.py
+	pylint --rcfile=pylintrc course_discovery *.py
 
 validate: test quality
 

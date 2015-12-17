@@ -22,10 +22,9 @@
 #
 # ------------------------------
 [MASTER]
-profile = no
 ignore = ,migrations, settings, wsgi.py
 persistent = yes
-load-plugins = edx_lint.pylint
+load-plugins = edx_lint.pylint,pylint_django
 
 [MESSAGES CONTROL]
 disable = 
@@ -49,17 +48,15 @@ disable =
 	too-many-arguments,
 	too-many-locals,
 	unused-wildcard-import,
-	duplicate-code,invalid-name
+	duplicate-code,invalid-name,missing-docstring
 
 [REPORTS]
 output-format = text
 files-output = no
 reports = no
 evaluation = 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
-comment = no
 
 [BASIC]
-required-attributes = 
 bad-functions = map,filter,apply,input
 module-rgx = (([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
 const-rgx = (([A-Z_][A-Z0-9_]*)|(__.*__)|log|urlpatterns|logger|User)$
@@ -95,8 +92,7 @@ ignore-imports = no
 
 [TYPECHECK]
 ignore-mixin-members = yes
-ignored-classes = SQLObject
-zope = no
+ignored-classes = SQLObject,WSGIRequest,UserFactory,CatalogFactory
 unsafe-load-any-extension = yes
 generated-members = 
 	REQUEST,
@@ -127,7 +123,6 @@ dummy-variables-rgx = _|dummy|unused|.*_unused
 additional-builtins = 
 
 [CLASSES]
-ignore-iface-methods = isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by
 defining-attr-methods = __init__,__new__,setUp
 valid-classmethod-first-arg = cls
 valid-metaclass-classmethod-first-arg = mcs
@@ -153,4 +148,4 @@ int-import-graph =
 [EXCEPTIONS]
 overgeneral-exceptions = Exception
 
-# 304129eed6c04643faf6fa5d5070d2b0f6b44ff0
+# d9dbd5cb8a05067710b776137902855c9ca7f6a6
