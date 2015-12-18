@@ -33,5 +33,4 @@ DATABASES = {
 ELASTICSEARCH = {
     'host': os.environ.get('TEST_ELASTICSEARCH_HOST', 'localhost'),
     'index': 'course_discovery_test',
-    'connect_on_startup': True
 }
