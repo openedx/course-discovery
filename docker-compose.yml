@@ -34,6 +34,8 @@ course-discovery:
   volumes:
     - .:/edx/app/course_discovery/course_discovery
   command: /edx/app/course_discovery/devstack.sh start
+  environment:
+    TEST_ELASTICSEARCH_HOST: "es"
   ports:
     - "18381:18381"
     - "8381:8381"

@@ -9,4 +9,4 @@ class CatalogFactory(factory.DjangoModelFactory):
         model = Catalog
 
     name = FuzzyText(prefix='catalog-name-')
-    query = FuzzyText(prefix='catalog-query-')
+    query = '{"query": {"match_all": {}}}'

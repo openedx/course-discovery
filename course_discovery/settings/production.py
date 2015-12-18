@@ -1,6 +1,7 @@
-from os import environ
 import platform
 import sys
+from os import environ
+
 import yaml
 from logging.handlers import SysLogHandler
 
