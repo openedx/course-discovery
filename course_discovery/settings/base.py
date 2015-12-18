@@ -249,7 +249,7 @@ SWAGGER_SETTINGS = {
 }
 
 ELASTICSEARCH = {
-    'host': 'es',
+    'host': '',
     'index': 'course_discovery',
     'connect_on_startup': True
 }
