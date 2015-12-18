@@ -14,7 +14,7 @@ class CoursesConfig(AppConfig):
     verbose_name = 'Courses'
 
     def ready(self):
-        if settings.ELASTICSEARCH.get('connect_on_startup', True):
+        if settings.ELASTICSEARCH.get('connect_on_startup', False):
             host = settings.ELASTICSEARCH['host']
             index = settings.ELASTICSEARCH['index']
 

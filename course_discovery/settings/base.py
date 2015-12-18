@@ -251,7 +251,6 @@ SWAGGER_SETTINGS = {
 ELASTICSEARCH = {
     'host': '',
     'index': 'course_discovery',
-    'connect_on_startup': True
 }
 
 # TODO Replace with None and document.
