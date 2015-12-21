@@ -1,21 +1,17 @@
 import mock
-from django.apps import AppConfig
 from django.conf import settings
-from django.test import TestCase, override_settings
+from django.test import TestCase
+from django.core.management import call_command
 from elasticsearch import TransportError
 from elasticsearch.client import IndicesClient
 from testfixtures import LogCapture
 
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 
-LOGGER_NAME = 'course_discovery.apps.courses.apps'
+LOGGER_NAME = 'courses.management.commands.install_es_indexes'
 
 
-class CoursesConfigTests(ElasticsearchTestMixin, TestCase):
-    def setUp(self):
-        super(CoursesConfigTests, self).setUp()
-        self.app_config = AppConfig.create('course_discovery.apps.courses')
-
+class CourseInstallEsIndexes(ElasticsearchTestMixin, TestCase):
     def test_ready_create_index(self):
         """ Verify the app does not setup a new Elasticsearch index if one exists already. """
         host = settings.ELASTICSEARCH['host']
@@ -26,7 +22,7 @@ class CoursesConfigTests(ElasticsearchTestMixin, TestCase):
         self.assertFalse(self.es.indices.exists(index=index))
 
         with LogCapture(LOGGER_NAME) as l:
-            self.app_config.ready()
+            call_command('install_es_indexes')
 
             # Verify the index was created
             self.assertTrue(self.es.indices.exists(index=index))
@@ -52,7 +48,7 @@ class CoursesConfigTests(ElasticsearchTestMixin, TestCase):
 
             with LogCapture(LOGGER_NAME) as l:
                 # This call should NOT raise an exception.
-                self.app_config.ready()
+                call_command('install_es_indexes')
 
         # Verify the index still exists
         self.assertTrue(self.es.indices.exists(index=index))
@@ -71,13 +67,4 @@ class CoursesConfigTests(ElasticsearchTestMixin, TestCase):
             mock_create.side_effect = TransportError(500)
 
             with self.assertRaises(TransportError):
-                self.app_config.ready()
-
-    @override_settings(ELASTICSEARCH={'connect_on_startup': False})
-    def test_ready_without_connect_on_startup(self):
-        """
-        Verify the app does not attempt to connect to Elasticsearch if the connect_on_startup setting is not set.
-        """
-        with mock.patch.object(IndicesClient, 'create') as mock_create:
-            self.app_config.ready()
-            mock_create.assert_not_called()
+                call_command('install_es_indexes')

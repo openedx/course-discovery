@@ -48,5 +48,11 @@ DB_OVERRIDES = dict(
     PORT=environ.get('DB_MIGRATION_PORT', DATABASES['default']['PORT']),
 )
 
+ES_OVERRIDES = dict(
+    HOST=environ.get('ES_HOST', ELASTICSEARCH['host']),
+    INDEX=environ.get('ES_INDEX', ELASTICSEARCH['index']),
+)
+
+
 for override, value in DB_OVERRIDES.items():
     DATABASES['default'][override] = value
