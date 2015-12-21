@@ -54,7 +54,7 @@ validate: test quality
 
 migrate:
 	python manage.py migrate --noinput
-	python manage.py install_es_indexes --noinput
+	python manage.py install_es_indexes
 
 html_coverage:
 	coverage html && open htmlcov/index.html
