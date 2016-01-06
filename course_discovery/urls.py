@@ -23,6 +23,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.views.generic import RedirectView
 
 from course_discovery.apps.core import views as core_views
+from course_discovery.apps.courses.views import QueryPreviewView
 
 admin.autodiscover()
 
@@ -40,6 +41,7 @@ urlpatterns = [
     url(r'^login/$', login, name='login'),
     url(r'^logout/$', logout, name='logout'),
     url('', include('social.apps.django_app.urls', namespace='social')),
+    url('^$', QueryPreviewView.as_view()),
 ]
 
 if settings.DEBUG and os.environ.get('ENABLE_DJANGO_TOOLBAR', False):  # pragma: no cover
