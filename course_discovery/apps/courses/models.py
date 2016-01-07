@@ -102,7 +102,7 @@ class Course(object):
         """
         query.setdefault('from', offset)
         query.setdefault('size', limit)
-        query.setdefault('sort', {'id.lowercase_sort': 'asc'})
+        query.setdefault('sort', {'id': 'asc'})
 
         logger.debug('Querying [%s]: %s', cls._index, query)
         response = cls._es_client().search(index=cls._index, doc_type=cls.doc_type, body=query)
