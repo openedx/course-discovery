@@ -2,8 +2,8 @@ Part of `edX code`__.
 
 __ http://code.edx.org/
 
-Course Discovery Service  |Travis|_ |Coveralls|_
-=====================================================
+Course Discovery Service  |Travis|_ |Codecov|_
+==============================================
 .. |Travis| image:: https://travis-ci.org/edx/course-discovery.svg?branch=master
 .. _Travis: https://travis-ci.org/edx/course-discovery
 
