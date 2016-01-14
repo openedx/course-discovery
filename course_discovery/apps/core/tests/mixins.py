@@ -3,7 +3,7 @@ import logging
 from django.conf import settings
 from elasticsearch import Elasticsearch
 
-from course_discovery.apps.courses.config import COURSES_INDEX_CONFIG
+from course_discovery.apps.courses.utils import ElasticsearchUtils
 
 logger = logging.getLogger(__name__)
 
@@ -23,16 +23,22 @@ class ElasticsearchTestMixin(object):
 
     def reset_index(self):
         """ Deletes and re-creates the Elasticsearch index. """
+        self.delete_index(self.index)
+        ElasticsearchUtils.create_alias_and_index(self.es, self.index)
 
-        index = self.index
+    def delete_index(self, index):
+        """
+        Deletes an index.
 
+        Args:
+            index (str): Name of index to delete
+
+        Returns:
+            None
+        """
         logger.info('Deleting index [%s]...', index)
         self.es.indices.delete(index=index, ignore=404)  # pylint: disable=unexpected-keyword-arg
         logger.info('...index deleted.')
-
-        logger.info('Recreating index [%s]...', index)
-        self.es.indices.create(index=index, body=COURSES_INDEX_CONFIG)
-        logger.info('...done!')
 
     def refresh_index(self):
         """
