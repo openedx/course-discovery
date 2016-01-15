@@ -4,13 +4,14 @@
    contain the root `toctree` directive.
 
 Course Discovery Service
-===============================
+========================
 A service for serving course discovery and marketing information to partners, mobile, and edX.org
 
 .. toctree::
    :maxdepth: 2
 
    getting_started
+   elasticsearch
    testing
    features
    internationalization
