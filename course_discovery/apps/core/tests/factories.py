@@ -6,6 +6,7 @@ USER_PASSWORD = 'password'
 
 
 class UserFactory(factory.DjangoModelFactory):
+    username = factory.Sequence(lambda n: 'user_%d' % n)
     password = factory.PostGenerationMethodCall('set_password', USER_PASSWORD)
     is_active = True
     is_superuser = False
