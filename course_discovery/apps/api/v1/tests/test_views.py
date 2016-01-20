@@ -1,8 +1,11 @@
 # pylint: disable=redefined-builtin
 import json
 import urllib
+from time import time
 
 import ddt
+import jwt
+from django.conf import settings
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase, APIRequestFactory
 
@@ -59,6 +62,23 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, APITestCas
         self.course = CourseFactory(id='a/b/c', name='ABC Test Course')
         self.refresh_index()
 
+    def generate_jwt_token_header(self, user):
+        """Generate a valid JWT token header for authenticated requests."""
+        now = int(time())
+        ttl = 5
+        payload = {
+            'iss': settings.JWT_AUTH['JWT_ISSUER'],
+            'aud': settings.JWT_AUTH['JWT_AUDIENCE'],
+            'username': user.username,
+            'email': user.email,
+            'iat': now,
+            'exp': now + ttl
+        }
+
+        token = jwt.encode(payload, settings.JWT_AUTH['JWT_SECRET_KEY']).decode('utf-8')
+
+        return 'JWT {token}'.format(token=token)
+
     def test_create_without_authentication(self):
         """ Verify authentication is required when creating, updating, or deleting a catalog. """
         self.client.logout()
@@ -77,8 +97,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, APITestCas
         response = getattr(self.client, http_method)(url, {}, format='json')
         self.assertEqual(response.status_code, 403)
 
-    def test_create(self):
-        """ Verify the endpoint creates a new catalog. """
+    def assert_catalog_created(self, **headers):
         name = 'The Kitchen Sink'
         query = '*.*'
         data = {
@@ -86,13 +105,22 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, APITestCas
             'query': query
         }
 
-        response = self.client.post(reverse('api:v1:catalog-list'), data, format='json')
+        response = self.client.post(reverse('api:v1:catalog-list'), data, format='json', **headers)
         self.assertEqual(response.status_code, 201)
 
         catalog = Catalog.objects.latest()
         self.assertDictEqual(response.data, self.serialize_catalog(catalog))
         self.assertEqual(catalog.name, name)
         self.assertEqual(catalog.query, query)
+
+    def test_create_with_session_authentication(self):
+        """ Verify the endpoint creates a new catalog when the client is authenticated via session authentication. """
+        self.assert_catalog_created()
+
+    def test_create_with_jwt_authentication(self):
+        """ Verify the endpoint creates a new catalog when the client is authenticated via JWT authentication. """
+        self.client.logout()
+        self.assert_catalog_created(HTTP_AUTHORIZATION=self.generate_jwt_token_header(self.user))
 
     def test_courses(self):
         """ Verify the endpoint returns the list of courses contained in the catalog. """

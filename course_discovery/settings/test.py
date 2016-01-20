@@ -34,3 +34,5 @@ ELASTICSEARCH = {
     'host': os.environ.get('TEST_ELASTICSEARCH_HOST', 'localhost'),
     'index': 'course_discovery_test',
 }
+
+JWT_AUTH['JWT_SECRET_KEY'] = 'course-discovery-jwt-secret-key'

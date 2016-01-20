@@ -243,6 +243,15 @@ REST_FRAMEWORK = {
     )
 }
 
+# NOTE (CCB): JWT_SECRET_KEY is intentionally not set here to avoid production releases with a public value.
+# Set a value in a downstream settings file.
+JWT_AUTH = {
+    'JWT_ALGORITHM': 'HS256',
+    'JWT_AUDIENCE': 'course-discovery',
+    'JWT_ISSUER': 'course-discovery',
+    'JWT_DECODE_HANDLER': 'course_discovery.apps.api.jwt_decode_handler.decode',
+}
+
 SWAGGER_SETTINGS = {
     'api_version': 'v1',
     'doc_expansion': 'list',
