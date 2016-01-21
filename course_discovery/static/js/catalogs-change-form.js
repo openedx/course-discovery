@@ -39,9 +39,6 @@ $(function () {
             e.preventDefault();
 
             if (query) {
-                // Remove all whitespace
-                query = query.replace(/\s/g, "");
-
                 // URL encode
                 query = encodeURIComponent(query);
 
