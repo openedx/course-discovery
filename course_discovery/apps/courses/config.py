@@ -2,7 +2,7 @@ COURSES_INDEX_CONFIG = {
     'settings': {
         'analysis': {
             'analyzer': {
-                'case_insensitive_sort': {
+                'lowercase_keyword': {
                     'tokenizer': 'keyword',
                     'filter': ['lowercase']
                 }
@@ -14,23 +14,11 @@ COURSES_INDEX_CONFIG = {
             'properties': {
                 'id': {
                     'type': 'string',
-                    'analyzer': 'english',
-                    'fields': {
-                        'lowercase_sort': {
-                            'type': 'string',
-                            'analyzer': 'case_insensitive_sort'
-                        }
-                    }
+                    'analyzer': 'lowercase_keyword'
                 },
                 'name': {
                     'type': 'string',
-                    'analyzer': 'english',
-                    'fields': {
-                        'lowercase_sort': {
-                            'type': 'string',
-                            'analyzer': 'case_insensitive_sort'
-                        }
-                    }
+                    'analyzer': 'lowercase_keyword'
                 }
             }
         }

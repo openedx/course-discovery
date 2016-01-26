@@ -239,7 +239,7 @@ class CourseViewSetTests(ElasticsearchTestMixin, SerializationMixin, APITestCase
                     "must": [
                         {
                             "term": {
-                                "course.name.lowercase_sort": name
+                                "course.name": name
                             }
                         }
                     ]
