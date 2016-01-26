@@ -258,9 +258,10 @@ SWAGGER_SETTINGS = {
 }
 
 ELASTICSEARCH = {
-    'host': '',
+    'host': 'localhost:9200',
     'index': 'course_discovery',
 }
 
 # TODO Replace with None and document.
 ECOMMERCE_API_URL = 'https://ecommerce.stage.edx.org/api/v2/'
+COURSES_API_URL = 'https://courses.stage.edx.org/api/courses/v1/'

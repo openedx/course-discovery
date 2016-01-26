@@ -10,11 +10,12 @@ from course_discovery.apps.courses.models import Course
 from course_discovery.apps.courses.tests.factories import CourseFactory
 
 ACCESS_TOKEN = 'secret'
+COURSES_API_URL = 'https://lms.example.com/api/courses/v1'
 ECOMMERCE_API_URL = 'https://ecommerce.example.com/api/v2'
 JSON = 'application/json'
 
 
-@override_settings(ECOMMERCE_API_URL=ECOMMERCE_API_URL)
+@override_settings(ECOMMERCE_API_URL=ECOMMERCE_API_URL, COURSES_API_URL=COURSES_API_URL)
 class CourseTests(ElasticsearchTestMixin, TestCase):
     def assert_course_attrs(self, course, attrs):
         """
@@ -30,14 +31,12 @@ class CourseTests(ElasticsearchTestMixin, TestCase):
     @responses.activate  # pylint: disable=no-member
     def mock_refresh_all(self):
         """
-        Mock the E-Commerce API and refresh all course data.
+        Mock the external APIs and refresh all course data.
 
         Returns:
             [dict]: List of dictionaries representing course content bodies.
         """
 
-        # Mock the call to the E-Commerce API, simulating multiple pages of data
-        url = '{host}/courses/'.format(host=ECOMMERCE_API_URL)
         course_bodies = [
             {
                 'id': 'a/b/c',
@@ -57,30 +56,64 @@ class CourseTests(ElasticsearchTestMixin, TestCase):
             }
         ]
 
-        def request_callback(request):
-            # pylint: disable=redefined-builtin
-            next = None
-            count = len(course_bodies)
+        def ecommerce_api_callback(url, data):
+            def request_callback(request):
+                # pylint: disable=redefined-builtin
+                next = None
+                count = len(course_bodies)
 
-            # Use the querystring to determine which page should be returned. Default to page 1.
-            # Note that the values of the dict returned by `parse_qs` are lists, hence the `[1]` default value.
-            qs = parse_qs(urlparse(request.path_url).query)
-            page = int(qs.get('page', [1])[0])
+                # Use the querystring to determine which page should be returned. Default to page 1.
+                # Note that the values of the dict returned by `parse_qs` are lists, hence the `[1]` default value.
+                qs = parse_qs(urlparse(request.path_url).query)
+                page = int(qs.get('page', [1])[0])
 
-            if page < count:
-                next = '{}?page={}'.format(url, page)
+                if page < count:
+                    next = '{}?page={}'.format(url, page)
 
-            body = {
-                'count': count,
-                'next': next,
-                'previous': None,
-                'results': [course_bodies[page - 1]]
-            }
+                body = {
+                    'count': count,
+                    'next': next,
+                    'previous': None,
+                    'results': [data[page - 1]]
+                }
 
-            return 200, {}, json.dumps(body)
+                return 200, {}, json.dumps(body)
+
+            return request_callback
+
+        def courses_api_callback(url, data):
+            def request_callback(request):
+                # pylint: disable=redefined-builtin
+                next = None
+                count = len(course_bodies)
+
+                # Use the querystring to determine which page should be returned. Default to page 1.
+                # Note that the values of the dict returned by `parse_qs` are lists, hence the `[1]` default value.
+                qs = parse_qs(urlparse(request.path_url).query)
+                page = int(qs.get('page', [1])[0])
+
+                if page < count:
+                    next = '{}?page={}'.format(url, page)
+
+                body = {
+                    'pagination': {
+                        'count': count,
+                        'next': next,
+                        'previous': None,
+                    },
+                    'results': [data[page - 1]]
+                }
+
+                return 200, {}, json.dumps(body)
+
+            return request_callback
 
         # pylint: disable=no-member
-        responses.add_callback(responses.GET, url, callback=request_callback, content_type=JSON)
+        url = '{host}/courses/'.format(host=ECOMMERCE_API_URL)
+        responses.add_callback(responses.GET, url, callback=ecommerce_api_callback(url, course_bodies),
+                               content_type=JSON)
+        url = '{host}/courses/'.format(host=COURSES_API_URL)
+        responses.add_callback(responses.GET, url, callback=courses_api_callback(url, course_bodies), content_type=JSON)
 
         # Refresh all course data
         Course.refresh_all(ACCESS_TOKEN)

@@ -146,12 +146,18 @@ class Course(object):
         Returns:
             None
         """
-        client = EdxRestApiClient(settings.ECOMMERCE_API_URL, oauth_access_token=access_token)
+        cls.refresh_all_ecommerce_data(access_token)
+        cls.refresh_all_course_api_data(access_token)
 
-        logger.info('Refreshing course data from %s....', settings.ECOMMERCE_API_URL)
-
+    @classmethod
+    def refresh_all_ecommerce_data(cls, access_token):
+        ecommerce_api_url = settings.ECOMMERCE_API_URL
+        client = EdxRestApiClient(ecommerce_api_url, oauth_access_token=access_token)
         count = None
         page = 1
+
+        logger.info('Refreshing ecommerce data from %s....', ecommerce_api_url)
+
         while page:
             response = client.courses().get(include_products=True, page=page, page_size=50)
             count = response['count']
@@ -164,9 +170,36 @@ class Course(object):
                 page = None
 
             for body in results:
-                Course(body['id'], body).save()
+                Course(body['id']).update(body)
 
-        logger.info('Retrieved %d courses.', count)
+        logger.info('Retrieved %d courses from %s.', count, ecommerce_api_url)
+
+    @classmethod
+    def refresh_all_course_api_data(cls, access_token):
+        course_api_url = settings.COURSES_API_URL
+        client = EdxRestApiClient(course_api_url, oauth_access_token=access_token)
+
+        count = None
+        page = 1
+
+        logger.info('Refreshing course api data from %s....', course_api_url)
+
+        while page:
+            # TODO Update API to not require username?
+            response = client.courses().get(page=page, page_size=50, username='ecommerce_worker')
+            count = response['pagination']['count']
+            results = response['results']
+            logger.info('Retrieved %d courses...', len(results))
+
+            if response['pagination']['next']:
+                page += 1
+            else:
+                page = None
+
+            for body in results:
+                Course(body['id']).update(body)
+
+        logger.info('Retrieved %d courses from %s.', count, course_api_url)
 
     def __init__(self, id, body=None):  # pylint: disable=redefined-builtin
         if not id:
@@ -202,3 +235,20 @@ class Course(object):
         logger.info('Indexing course %s...', self.id)
         self._es_client().index(index=self._index, doc_type=self.doc_type, id=self.id, body=self.body)
         logger.info('Finished indexing course %s.', self.id)
+
+    def update(self, body):
+        """ Updates (merges) the data in the index with the provided data.
+
+        Args:
+            body (dict): Data to be merged into the index.
+
+        Returns:
+            None
+        """
+        body = {
+            'doc': body,
+            'doc_as_upsert': True,
+        }
+        logger.info('Updating course %s...', self.id)
+        self._es_client().update(index=self._index, doc_type=self.doc_type, id=self.id, body=body)
+        logger.info('Finished updating course %s.', self.id)
