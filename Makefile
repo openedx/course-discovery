@@ -1,7 +1,8 @@
 .DEFAULT_GOAL := test
 
 .PHONY: clean compile_translations dummy_translations extract_translations fake_translations help html_coverage \
-	migrate pull_translations push_translations quality requirements test update_translations validate
+	migrate pull_translations push_translations quality requirements production-requirements test \
+	update_translations validate
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -16,8 +17,8 @@ help:
 	@echo "  pull_translations          pull translations from Transifex"
 	@echo "  push_translations          push source translation files (.po) from Transifex"
 	@echo "  quality                    run PEP8 and Pylint"
-	@echo "  requirements               install requirements for production"
-	@echo "  local-requirements         install requirements for local development"
+	@echo "  production-requirements    install requirements for production"
+	@echo "  requirements               install requirements for local development"
 	@echo "  test                       run tests and generate coverage report"
 	@echo "  validate                   run tests and quality checks"
 	@echo "  static                     gather all static assets for production"
@@ -36,10 +37,10 @@ clean: clean_static
 	find . -name '*.pyc' -delete
 	coverage erase
 
-local-requirements:
+requirements:
 	pip install -qr requirements/local.txt --exists-action w
 
-requirements:
+production-requirements:
 	pip install -qr requirements.txt --exists-action w
 
 test: clean
