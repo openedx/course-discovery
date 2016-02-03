@@ -197,7 +197,7 @@ class Course(object):
                 page = None
 
             for body in results:
-                Course(body['id']).update(body)
+                Course(body['course_id']).update(body)
 
         logger.info('Retrieved %d courses from %s.', count, course_api_url)
 
