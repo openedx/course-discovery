@@ -17,7 +17,7 @@ class Command(BaseCommand):
         alias = settings.ELASTICSEARCH['index']
 
         logger.info('Attempting to establish initial connection to Elasticsearch host [%s]...', host)
-        es = Elasticsearch(host, sniff_on_start=True)
+        es = Elasticsearch(host)
         logger.info('...success!')
 
         ElasticsearchUtils.create_alias_and_index(es, alias)
