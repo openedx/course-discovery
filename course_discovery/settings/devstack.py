@@ -19,3 +19,8 @@ if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
 
 INTERNAL_IPS = ('127.0.0.1',)
 # END TOOLBAR CONFIGURATION
+
+#####################################################################
+# Lastly, see if the developer has any local overrides.
+if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):
+    from .private import *  # pylint: disable=import-error
