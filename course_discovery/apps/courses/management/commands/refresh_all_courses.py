@@ -1,6 +1,8 @@
 import logging
 
-from django.core.management import BaseCommand, CommandError
+from django.conf import settings
+from django.core.management import BaseCommand
+from edx_rest_api_client.client import EdxRestApiClient
 
 from course_discovery.apps.courses.models import Course
 
@@ -23,8 +25,16 @@ class Command(BaseCommand):
         access_token = options.get('access_token')
 
         if not access_token:
-            msg = 'Courses cannot be migrated if no access token is supplied.'
-            logger.error(msg)
-            raise CommandError(msg)
+            logger.info('No access token provided. Retrieving access token using client_credential flow...')
+
+            try:
+                access_token, __ = EdxRestApiClient.get_oauth_access_token(
+                    '{root}/access_token'.format(root=settings.SOCIAL_AUTH_EDX_OIDC_URL_ROOT),
+                    settings.SOCIAL_AUTH_EDX_OIDC_KEY,
+                    settings.SOCIAL_AUTH_EDX_OIDC_SECRET
+                )
+            except Exception:
+                logger.exception('No access token provided or acquired through client_credential flow.')
+                raise
 
         Course.refresh_all(access_token=access_token)
