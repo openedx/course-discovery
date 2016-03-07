@@ -9,7 +9,12 @@ from rest_framework.response import Response
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from course_discovery.apps.api.pagination import ElasticsearchLimitOffsetPagination
-from course_discovery.apps.api.serializers import CatalogSerializer, CourseSerializer, ContainedCoursesSerializer
+from course_discovery.apps.api.serializers import (
+    CatalogSerializer,
+    CourseSerializer,
+    CourseRunSerializer,
+    ContainedCoursesSerializer,
+)
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.courses.constants import COURSE_ID_REGEX
 from course_discovery.apps.courses.models import Course
@@ -143,3 +148,27 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a course. """
         return super(CourseViewSet, self).retrieve(request, *args, **kwargs)
+
+
+class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
+    """Course run resource."""
+    authentication_classes = (SessionAuthentication, JSONWebTokenAuthentication,)
+    lookup_field = 'id'
+    lookup_value_regex = COURSE_ID_REGEX
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    serializer_class = CourseRunSerializer
+    pagination_class = ElasticsearchLimitOffsetPagination
+
+    def get_object(self):
+        pass
+
+    def get_queryset(self):
+        # As above, unused but necessary for DRF.
+        return []
+
+    def list(self, request, *args, **kwargs):  #pylint: disable=unused-argument
+        return []
+
+    def retrieve(self, request, *args, **kwargs):
+        """ Retrieve details for a course run. """
+        return super(CourseRunViewSet, self).retrieve(request, *args, **kwargs)

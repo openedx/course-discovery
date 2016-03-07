@@ -80,33 +80,19 @@ class AdditionalMediaSerializer(serializers.Serializer):  # pylint: disable=abst
 
 
 class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-method
-    id = serializers.CharField(help_text=_('Course run ID'))
-    course_id = serializers.CharField(help_text=_('Course ID'))
-    name = serializers.CharField(help_text=_('Course name'))
-
-    url = serializers.HyperlinkedIdentityField(view_name='api:v1:course-detail', lookup_field='id')
+    id = serializers.CharField(help_text=_('Course ID'))
     uri = serializers.URLField(help_text=_('Link to edX about page for the course'))
-
-    start = serializers.DateTimeField(help_text=_('Course start date'))
-    end = serializers.DateTimeField(help_text=_('Course end date'))
-    enrollment_start = serializers.DateTimeField(help_text=_('Start date for course enrollment'))
-    enrollment_end = serializers.DateTimeField(help_text=_('End date for course enrollment'))
-
+    name = serializers.CharField(help_text=_('Course name'))
     short_description = serializers.CharField(help_text=_('Short description of the course'))
     long_description = serializers.CharField(help_text=_('Long description of the course'))
     expected_learnings = serializers.ListField(
         child=serializers.CharField(),
         help_text=_('List of skills students will learn')
     )
-    pacing_type = serializers.ChoiceField(
-        choices=('self_paced', 'instructor_paced'),
-        help_text=_('Course pacing')
-    )
     level_type = serializers.ChoiceField(
         choices=('introductory', 'intermediate', 'advanced'),
         help_text=_('Course difficulty level')
     )
-
     subjects = serializers.ListField(
         child=LinkSerializer(),
         help_text=_('Related subjects')
@@ -115,23 +101,9 @@ class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-meth
         child=LinkSerializer(),
         help_text=_('Prerequisites for the course')
     )
-
-    seats = serializers.ListField(
-        child=SeatSerializer(),
-        help_text=_('Seats for the course')
-    )
-
     effort = EffortSerializer()
-
     image = ImageSerializer()
     video = VideoSerializer()
-
-    syllabus = SyllabusSerializer()
-
-    staff = serializers.ListField(
-        child=StaffSerializer(),
-        help_text=_('Course staff')
-    )
     orgs = serializers.ListField(
         child=OrgSerializer(),
         help_text=_('Course organizations')
@@ -140,9 +112,35 @@ class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-meth
         child=OrgSerializer(),
         help_text=_('Course sponsors')
     )
-    program = OrgSerializer()
-
     additional_media = AdditionalMediaSerializer()
+
+
+class CourseRunSerializer(serializers.Serializer):  #pylint: disable=abstract-method
+    id = serializers.CharField(help_text=_('Course run ID'))
+    start = serializers.DateTimeField(help_text=_('Course start date'))
+    end = serializers.DateTimeField(help_text=_('Course end date'))
+    enrollment_period_start = serializers.DateTimeField(help_text=_('Start date for course enrollment'))
+    enrollment_period_end = serializers.DateTimeField(help_text=_('End date for course enrollment'))
+    pacing_type = serializers.ChoiceField(
+        choices=('self_paced', 'instructor_paced'),
+        help_text=_('Course pacing')
+    )
+    seats = serializers.ListField(
+        child=SeatSerializer(),
+        help_text=_('Seats for the course run')
+    )
+    content_language = serializers.CharField(help_text=_('Content language for the course run'))
+    transcript_languages = serializers.ListField(
+        child=serializers.CharField(),
+        help_text=_('Languages available for video transcripts')
+    )
+    syllabus = SyllabusSerializer()
+    staff = serializers.ListField(
+        child=StaffSerializer(),
+        help_text=_('Course staff')
+    )
+    program = OrgSerializer()
+    course = CourseSerializer()
 
 
 class ContainedCoursesSerializer(serializers.Serializer):  # pylint: disable=abstract-method
