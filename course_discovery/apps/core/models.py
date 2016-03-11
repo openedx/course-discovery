@@ -25,3 +25,10 @@ class User(AbstractUser):
 
     def get_full_name(self):
         return self.full_name or super(User, self).get_full_name()
+
+
+class UserThrottleRate(models.Model):
+    """Model for configuring a rate limit per-user."""
+
+    user = models.ForeignKey(User)
+    period = models.CharField(max_length=50)

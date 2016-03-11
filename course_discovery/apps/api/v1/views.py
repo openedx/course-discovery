@@ -167,7 +167,15 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
         return []
 
     def list(self, request, *args, **kwargs):  #pylint: disable=unused-argument
-        return []
+        data = {
+            'limit': 0,
+            'offset': 0,
+            'total': 0,
+            'results': []
+        }
+        page = self.paginate_queryset(data)
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a course run. """
