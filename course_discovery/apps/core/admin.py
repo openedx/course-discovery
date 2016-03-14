@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 
-from course_discovery.apps.core.models import User
+from course_discovery.apps.core.models import User, UserThrottleRate
 
 
 class CustomUserAdmin(UserAdmin):
@@ -20,3 +20,4 @@ class CustomUserAdmin(UserAdmin):
 
 
 admin.site.register(User, CustomUserAdmin)
+admin.site.register(UserThrottleRate)
