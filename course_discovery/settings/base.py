@@ -249,7 +249,13 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.MultiPartRenderer',
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
-    )
+    ),
+    'DEFAULT_THROTTLE_CLASSES': (
+        'course_discovery.apps.core.throttles.OverridableUserRateThrottle',
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'user': '100/hour',
+    },
 }
 
 # NOTE (CCB): JWT_SECRET_KEY is intentionally not set here to avoid production releases with a public value.
