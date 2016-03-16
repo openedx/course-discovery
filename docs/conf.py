@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Course Discovery Service documentation build configuration file, created by
+# Course Metadata Service documentation build configuration file, created by
 # sphinx-quickstart on Sun Feb 17 11:46:20 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -48,7 +48,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Course Discovery Service'
+project = u'codename: Au Amber'
 copyright = u'2015, edX'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -191,7 +191,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ('index', 'au_amber.tex', u'Course Discovery Service Documentation',
+    ('index', 'au_amber.tex', u'Course Metadata Service Documentation',
      u'edX', 'manual'),
 ]
 
@@ -221,7 +221,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'Course Discovery Service', u'Course Discovery Service Documentation',
+    ('index', 'Course Metadata Service', u'Course Metadata Service Documentation',
      [u'edX'], 1)
 ]
 
@@ -235,8 +235,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'Course Discovery Service', u'Course Discovery Service Documentation',
-     u'edX', 'Course Discovery Service', 'Course Discovery Service',
+    ('index', 'Course Metadata Service', u'Course Metadata Service Documentation',
+     u'edX', 'Course Metadata Service', 'Course Metadata Service',
      'Miscellaneous'
      ),
 ]
