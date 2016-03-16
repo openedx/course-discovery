@@ -1,0 +1,16 @@
+{% extends 'rest_framework_swagger/base.html' %}
+
+{% load staticfiles %}
+
+{% block style %}
+    {{ block.super }}
+    <link href='{% static "css/edx-swagger.css" %}' media='screen' rel='stylesheet' type='text/css'/>
+{% endblock %}
+
+
+{% block branding %}
+    <span id="api-name">edX Course Metadata API</span>
+{% endblock %}
+
+{% block api_selector %}
+{% endblock %}

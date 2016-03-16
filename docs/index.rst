@@ -1,9 +1,9 @@
-.. course_discovery documentation master file, created by
+.. au_amber documentation master file, created by
    sphinx-quickstart on Sun Feb 17 11:46:20 2013.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Course Discovery Service
+Course Metadata Service
 ========================
 A service for serving course discovery and marketing information to partners, mobile, and edX.org
 

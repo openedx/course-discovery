@@ -2,7 +2,7 @@ Part of `edX code`__.
 
 __ http://code.edx.org/
 
-Course Discovery Service  |Travis|_ |Codecov|_
+Course Metadata Service  |Travis|_ |Codecov|_
 ==============================================
 .. |Travis| image:: https://travis-ci.org/edx/course-discovery.svg?branch=master
 .. _Travis: https://travis-ci.org/edx/course-discovery
@@ -10,7 +10,7 @@ Course Discovery Service  |Travis|_ |Codecov|_
 .. |Codecov| image:: http://codecov.io/github/edx/course-discovery/coverage.svg?branch=master
 .. _Codecov: http://codecov.io/github/edx/course-discovery?branch=master
 
-The Course Discovery API an data aggregator with several purposes:
+The Course Metadata API an data aggregator with several purposes:
 
 1. Allow external parties to access data about Courses in an OpenEdX installation
    from a single central location (no matter which the system of record for that
@@ -23,7 +23,7 @@ The Course Discovery API an data aggregator with several purposes:
    use by other services in the system (such as coupon fulfillment and external
    course discovery filtering).
 
-To aid in these goals, the Course Discovery Service will collect data from
+To aid in these goals, the Course Metadata Service will collect data from
 several systems internal to the OpenEdX installation. Initially, this will
 just be Otto (the Ecommerce service), and in the future will it will also include
 Studio, and in the edX.org implementation, our Drupal marketing site. The design
@@ -32,13 +32,13 @@ intention is that additional systems should be cheap to add to the same framewor
 Overview
 --------
 
-As a standard django application :module:`course_discovery.views` is a useful
+As a standard django application :module:`au_amber.views` is a useful
 entry point, as it defines the APIs that this service will support.
 
 Documentation
 -------------
 
-The docs for Course Discovery Service will be on Read the Docs:  https://open-edx-course-discovery.readthedocs.org.
+The docs for Course Metadata Service will be on Read the Docs:  https://open-edx-course-discovery.readthedocs.org.
 
 License
 -------
