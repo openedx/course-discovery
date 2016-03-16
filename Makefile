@@ -83,4 +83,4 @@ start-devstack:
 
 open-devstack:
 	docker-compose --x-networking up -d
-	docker exec -it course-discovery env TERM=$(TERM) /edx/app/au_amber/devstack.sh open
+	docker exec -it au-amber env TERM=$(TERM) /edx/app/au_amber/devstack.sh open

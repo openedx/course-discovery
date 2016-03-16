@@ -56,7 +56,7 @@ OAUTH2_ACCESS_TOKEN_URL = 'replace-me'
 
 ENABLE_AUTO_AUTH = True
 
-JWT_AUTH['JWT_SECRET_KEY'] = 'course-discovery-jwt-secret-key'
+JWT_AUTH['JWT_SECRET_KEY'] = 'au-amber-jwt-secret-key'
 
 ECOMMERCE_API_URL = 'http://localhost:8002/api/v2/'
 COURSES_API_URL = 'http://localhost:8000/api/courses/v1/'

@@ -22,15 +22,15 @@ memcache:
 #  image: rabbitmq:3.5.3
 #  container_name: rabbitmq
 
-course-discovery:
-  # Uncomment this line to use the official course-discovery base image
-  image: edxops/course-discovery:latest
+au-amber:
+  # Uncomment this line to use the official au-amber base image
+  image: edxops/au-amber:latest
 
   # Uncomment the next two lines to build from a local configuration repo
   #build: ../configuration
   #dockerfile: docker/build/au_amber/Dockerfile
 
-  container_name: course-discovery
+  container_name: au-amber
   volumes:
     - .:/edx/app/au_amber/au_amber
   command: /edx/app/au_amber/devstack.sh start

@@ -35,4 +35,4 @@ ELASTICSEARCH = {
     'index': 'au_amber_test',
 }
 
-JWT_AUTH['JWT_SECRET_KEY'] = 'course-discovery-jwt-secret-key'
+JWT_AUTH['JWT_SECRET_KEY'] = 'au-amber-jwt-secret-key'

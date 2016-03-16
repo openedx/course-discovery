@@ -262,8 +262,8 @@ REST_FRAMEWORK = {
 # Set a value in a downstream settings file.
 JWT_AUTH = {
     'JWT_ALGORITHM': 'HS256',
-    'JWT_AUDIENCE': 'course-discovery',
-    'JWT_ISSUER': 'course-discovery',
+    'JWT_AUDIENCE': 'au-amber',
+    'JWT_ISSUER': 'au-amber',
     'JWT_DECODE_HANDLER': 'au_amber.apps.api.jwt_decode_handler.decode',
 }
 
