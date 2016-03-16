@@ -5,7 +5,9 @@ from time import time
 
 import ddt
 import jwt
+import responses
 from django.conf import settings
+from django.test import override_settings
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase, APIRequestFactory
 
@@ -15,6 +17,30 @@ from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.courses.tests.factories import CourseFactory
+
+OAUTH2_ACCESS_TOKEN_URL = 'http://example.com/oauth2/access_token/'
+
+
+class OAuth2Mixin(object):
+    def get_access_token(self, user):
+        """ Generates an OAuth2 access token for the user. """
+        return user.username
+
+    def generate_oauth2_token_header(self, user):
+        """ Generates a Bearer authorization header to simulate OAuth2 authentication. """
+        return 'Bearer {token}'.format(token=self.get_access_token(user))
+
+    def mock_access_token_response(self, user, status=200):
+        """ Mock the access token endpoint response of the OAuth2 provider. """
+        url = '{root}/{token}'.format(root=OAUTH2_ACCESS_TOKEN_URL.rstrip('/'), token=self.get_access_token(user))
+
+        responses.add(
+            responses.GET,
+            url,
+            body=json.dumps({'username': user.username, 'scope': 'read', 'expires_in': 60}),
+            content_type="application/json",
+            status=status
+        )
 
 
 class SerializationMixin(object):
@@ -35,7 +61,7 @@ class SerializationMixin(object):
 
 
 @ddt.ddt
-class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, APITestCase):
+class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixin, APITestCase):
     """ Tests for the catalog resource.
 
     Read-only (GET) endpoints should NOT require authentication.
@@ -122,6 +148,13 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, APITestCas
         self.client.logout()
         self.assert_catalog_created(HTTP_AUTHORIZATION=self.generate_jwt_token_header(self.user))
 
+    @responses.activate
+    @override_settings(OAUTH2_ACCESS_TOKEN_URL=OAUTH2_ACCESS_TOKEN_URL)
+    def test_create_with_oauth2_authentication(self):
+        self.client.logout()
+        self.mock_access_token_response(self.user)
+        self.assert_catalog_created(HTTP_AUTHORIZATION=self.generate_oauth2_token_header(self.user))
+
     def test_courses(self):
         """ Verify the endpoint returns the list of courses contained in the catalog. """
         url = reverse('api:v1:catalog-courses', kwargs={'id': self.catalog.id})
@@ -184,7 +217,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, APITestCas
         self.assertEqual(catalog.query, query)
 
     def test_partial_update(self):
-        """ Verify the endpoint supports partially updating a catlaog's fields. """
+        """ Verify the endpoint supports partially updating a catalog's fields. """
         url = reverse('api:v1:catalog-detail', kwargs={'id': self.catalog.id})
         name = 'Updated Catalog'
         query = self.catalog.query
@@ -201,7 +234,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, APITestCas
 
 
 @ddt.ddt
-class CourseViewSetTests(ElasticsearchTestMixin, SerializationMixin, APITestCase):
+class CourseViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixin, APITestCase):
     def setUp(self):
         super(CourseViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
@@ -256,8 +289,19 @@ class CourseViewSetTests(ElasticsearchTestMixin, SerializationMixin, APITestCase
 
     def test_retrieve(self):
         """ Verify the endpoint returns a single course. """
+        self.assert_retrieve_success()
+
+    def assert_retrieve_success(self, **headers):
+        """ Asserts the endpoint returns details for a single course. """
         course = CourseFactory()
         url = reverse('api:v1:course-detail', kwargs={'id': course.id})
-        response = self.client.get(url)
+        response = self.client.get(url, format='json', **headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, self.serialize_course(course))
+
+    @responses.activate
+    @override_settings(OAUTH2_ACCESS_TOKEN_URL=OAUTH2_ACCESS_TOKEN_URL)
+    def test_retrieve_with_oauth2_authentication(self):
+        self.client.logout()
+        self.mock_access_token_response(self.user)
+        self.assert_retrieve_success(HTTP_AUTHORIZATION=self.generate_oauth2_token_header(self.user))

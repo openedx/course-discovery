@@ -28,7 +28,7 @@ class CourseTests(ElasticsearchTestMixin, TestCase):
         for attr, value in attrs.items():
             self.assertEqual(getattr(course, attr), value)
 
-    @responses.activate  # pylint: disable=no-member
+    @responses.activate
     def mock_refresh_all(self):
         """
         Mock the external APIs and refresh all course data.
@@ -108,7 +108,6 @@ class CourseTests(ElasticsearchTestMixin, TestCase):
 
             return request_callback
 
-        # pylint: disable=no-member
         url = '{host}/courses/'.format(host=ECOMMERCE_API_URL)
         responses.add_callback(responses.GET, url, callback=ecommerce_api_callback(url, course_bodies),
                                content_type=JSON)
@@ -238,7 +237,7 @@ class CourseTests(ElasticsearchTestMixin, TestCase):
         }
         self.assertEqual(Course.search(query), expected)
 
-    @responses.activate  # pylint: disable=no-member
+    @responses.activate
     def test_refresh(self):
         """ Verify the method refreshes data for a single course. """
         course_id = 'SesameStreetX/Cookies/1T2016'
@@ -250,7 +249,7 @@ class CourseTests(ElasticsearchTestMixin, TestCase):
 
         # Mock the call to the E-Commerce API
         url = '{host}/courses/{course_id}/'.format(host=ECOMMERCE_API_URL, course_id=course_id)
-        responses.add(responses.GET, url, body=json.dumps(body), content_type=JSON)  # pylint: disable=no-member
+        responses.add(responses.GET, url, body=json.dumps(body), content_type=JSON)
 
         # Refresh the course, and ensure the attributes are correct.
         course = Course.refresh(course_id, ACCESS_TOKEN)

@@ -4,7 +4,6 @@ from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
 from edx_rest_api_client.client import EdxRestApiClient
-import httpretty
 from mock import patch
 
 from course_discovery.apps.courses.models import Course
@@ -27,7 +26,6 @@ class RefreshAllCoursesCommandTests(TestCase):
             call_command(self.cmd, access_token=access_token)
             mock_refresh.assert_called_once_with(access_token=access_token)
 
-    @httpretty.activate
     def test_call_with_client_credentials(self):
         """ Verify the management command calls Course.refresh_all() with client credentials. """
         access_token = 'secret'
@@ -38,7 +36,6 @@ class RefreshAllCoursesCommandTests(TestCase):
                 call_command(self.cmd)
                 mock_refresh.assert_called_once_with(access_token=access_token)
 
-    @httpretty.activate
     def test_call_with_client_credentials_error(self):
         """ Verify the command requires an access token to complete. """
         with patch.object(EdxRestApiClient, 'get_oauth_access_token') as mock_access_token:

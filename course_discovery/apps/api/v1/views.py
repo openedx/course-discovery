@@ -2,11 +2,9 @@ import json
 import logging
 
 from rest_framework import viewsets
-from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import detail_route
-from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from course_discovery.apps.api.pagination import ElasticsearchLimitOffsetPagination
 from course_discovery.apps.api.serializers import CatalogSerializer, CourseSerializer, ContainedCoursesSerializer
@@ -21,8 +19,6 @@ logger = logging.getLogger(__name__)
 class CatalogViewSet(viewsets.ModelViewSet):
     """ Catalog resource. """
 
-    authentication_classes = (SessionAuthentication, JSONWebTokenAuthentication,)
-    permission_classes = (DjangoModelPermissionsOrAnonReadOnly,)
     lookup_field = 'id'
     queryset = Catalog.objects.all()
     serializer_class = CatalogSerializer
@@ -95,10 +91,9 @@ class CatalogViewSet(viewsets.ModelViewSet):
 
 class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     """ Course resource. """
-    authentication_classes = (SessionAuthentication, JSONWebTokenAuthentication,)
     lookup_field = 'id'
     lookup_value_regex = COURSE_ID_REGEX
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = CourseSerializer
     pagination_class = ElasticsearchLimitOffsetPagination
 
