@@ -4,10 +4,10 @@ from urllib.parse import urlparse, parse_qs
 import responses
 from django.test import TestCase, override_settings
 
-from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
-from course_discovery.apps.courses.exceptions import CourseNotFoundError
-from course_discovery.apps.courses.models import Course
-from course_discovery.apps.courses.tests.factories import CourseFactory
+from au_amber.apps.core.tests.mixins import ElasticsearchTestMixin
+from au_amber.apps.courses.exceptions import CourseNotFoundError
+from au_amber.apps.courses.models import Course
+from au_amber.apps.courses.tests.factories import CourseFactory
 
 ACCESS_TOKEN = 'secret'
 COURSES_API_URL = 'https://lms.example.com/api/courses/v1'
@@ -195,8 +195,8 @@ class CourseTests(ElasticsearchTestMixin, TestCase):
         # effort to resolve.
         #
         # elasticsearch.exceptions.TransportError: TransportError(503,
-        # 'NoShardAvailableActionException[[course_discovery_test][1] null]; nested:
-        # IllegalIndexShardStateException[[course_discovery_test][1] CurrentState[POST_RECOVERY] operations only
+        # 'NoShardAvailableActionException[[au_amber_test][1] null]; nested:
+        # IllegalIndexShardStateException[[au_amber_test][1] CurrentState[POST_RECOVERY] operations only
         # allowed when started/relocated]; ')
         #
         self.refresh_index()

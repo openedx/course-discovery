@@ -5,8 +5,8 @@ from os import environ
 import yaml
 from logging.handlers import SysLogHandler
 
-from course_discovery.settings.base import *
-from course_discovery.settings.utils import get_env_setting
+from au_amber.settings.base import *
+from au_amber.settings.utils import get_env_setting
 
 
 DEBUG = False
@@ -25,7 +25,7 @@ LOGGING['handlers']['local'] = {
 
 LOGGING['formatters']['syslog_format'] = {
     format: (
-        "[service_variant=course_discovery]"
+        "[service_variant=au_amber]"
         "[%(name)s][env:no_env] %(levelname)s "
         "[{hostname}  %(process)d] [%(filename)s:%(lineno)d] "
         "- %(message)s"
@@ -34,7 +34,7 @@ LOGGING['formatters']['syslog_format'] = {
     )
 }
 
-CONFIG_FILE = get_env_setting('COURSE_DISCOVERY_CFG')
+CONFIG_FILE = get_env_setting('au_amber_CFG')
 with open(CONFIG_FILE) as f:
     config_from_yaml = yaml.load(f)
     vars().update(config_from_yaml)

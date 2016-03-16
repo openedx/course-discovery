@@ -4,7 +4,7 @@ from django.conf import settings
 from edx_rest_api_client.client import EdxRestApiClient
 from elasticsearch import Elasticsearch, NotFoundError
 
-from course_discovery.apps.courses.exceptions import CourseNotFoundError
+from au_amber.apps.courses.exceptions import CourseNotFoundError
 
 logger = logging.getLogger(__name__)
 

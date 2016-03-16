@@ -172,7 +172,7 @@ html_static_path = ['_static']
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'course_discoverydoc'
+htmlhelp_basename = 'au_amberdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -191,7 +191,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ('index', 'course_discovery.tex', u'Course Discovery Service Documentation',
+    ('index', 'au_amber.tex', u'Course Discovery Service Documentation',
      u'edX', 'manual'),
 ]
 

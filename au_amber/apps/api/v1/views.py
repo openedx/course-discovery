@@ -6,11 +6,11 @@ from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from course_discovery.apps.api.pagination import ElasticsearchLimitOffsetPagination
-from course_discovery.apps.api.serializers import CatalogSerializer, CourseSerializer, ContainedCoursesSerializer
-from course_discovery.apps.catalogs.models import Catalog
-from course_discovery.apps.courses.constants import COURSE_ID_REGEX
-from course_discovery.apps.courses.models import Course
+from au_amber.apps.api.pagination import ElasticsearchLimitOffsetPagination
+from au_amber.apps.api.serializers import CatalogSerializer, CourseSerializer, ContainedCoursesSerializer
+from au_amber.apps.catalogs.models import Catalog
+from au_amber.apps.courses.constants import COURSE_ID_REGEX
+from au_amber.apps.courses.models import Course
 
 logger = logging.getLogger(__name__)
 

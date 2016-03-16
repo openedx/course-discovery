@@ -1,6 +1,6 @@
 import factory
 
-from course_discovery.apps.core.models import User
+from au_amber.apps.core.models import User
 
 USER_PASSWORD = 'password'
 

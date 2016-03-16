@@ -2,7 +2,7 @@
 
 from django.test import TestCase, override_settings, RequestFactory
 
-from course_discovery.apps.core.context_processors import core
+from au_amber.apps.core.context_processors import core
 
 PLATFORM_NAME = 'Test Platform'
 

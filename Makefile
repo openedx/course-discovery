@@ -31,7 +31,7 @@ static:
 	python manage.py collectstatic --noinput
 
 clean_static:
-	rm -rf assets/ course_discovery/static/build
+	rm -rf assets/ au_amber/static/build
 
 clean: clean_static
 	find . -name '*.pyc' -delete
@@ -44,12 +44,12 @@ production-requirements:
 	pip install -qr requirements.txt --exists-action w
 
 test: clean
-	coverage run ./manage.py test course_discovery --settings=course_discovery.settings.test
+	coverage run ./manage.py test au_amber --settings=au_amber.settings.test
 	coverage report
 
 quality:
-	pep8 --config=.pep8 course_discovery *.py
-	pylint --rcfile=pylintrc course_discovery *.py
+	pep8 --config=.pep8 au_amber *.py
+	pylint --rcfile=pylintrc au_amber *.py
 
 validate: test quality
 
@@ -65,7 +65,7 @@ extract_translations:
 	python manage.py makemessages -l en -v1 -d djangojs
 
 dummy_translations:
-	cd course_discovery && i18n_tool dummy
+	cd au_amber && i18n_tool dummy
 
 compile_translations:
 	python manage.py compilemessages
@@ -83,4 +83,4 @@ start-devstack:
 
 open-devstack:
 	docker-compose --x-networking up -d
-	docker exec -it course-discovery env TERM=$(TERM) /edx/app/course_discovery/devstack.sh open
+	docker exec -it course-discovery env TERM=$(TERM) /edx/app/au_amber/devstack.sh open

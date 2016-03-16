@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.management import call_command
 from django.test import TestCase
 
-from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
+from au_amber.apps.core.tests.mixins import ElasticsearchTestMixin
 
 LOGGER_NAME = 'courses.management.commands.install_es_indexes'
 

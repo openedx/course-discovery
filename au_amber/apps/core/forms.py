@@ -2,7 +2,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from course_discovery.apps.core.models import UserThrottleRate
+from au_amber.apps.core.models import UserThrottleRate
 
 
 class UserThrottleRateForm(forms.ModelForm):

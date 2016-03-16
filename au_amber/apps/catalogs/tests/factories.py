@@ -1,7 +1,7 @@
 import factory
 from factory.fuzzy import FuzzyText
 
-from course_discovery.apps.catalogs.models import Catalog
+from au_amber.apps.catalogs.models import Catalog
 
 
 class CatalogFactory(factory.DjangoModelFactory):

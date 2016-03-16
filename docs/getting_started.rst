@@ -19,8 +19,8 @@ Dependencies can be installed via the command below.
 Local/Private Settings
 ----------------------
 When developing locally, it may be useful to have settings overrides that you do not wish to commit to the repository.
-If you need such overrides, create a file :file:`course_discovery/settings/private.py`. This file's values are
-read by :file:`course_discovery/settings/local.py`, but ignored by Git.
+If you need such overrides, create a file :file:`au_amber/settings/private.py`. This file's values are
+read by :file:`au_amber/settings/local.py`, but ignored by Git.
 
 
 Configure edX OpenID Connect (OIDC)
@@ -47,7 +47,7 @@ A new OAuth 2.0 client can be created at ``http://127.0.0.1:8000/admin/oauth2/cl
     8. Click :guilabel:`Save`.
 
 Now that you have the client credentials, you can update your settings (ideally in
-:file:`course_discovery/settings/local.py`). The table below describes the relevant settings.
+:file:`au_amber/settings/local.py`). The table below describes the relevant settings.
 
 +-----------------------------------------------------+----------------------------------------------------------------------------+--------------------------------------------------------------------------+
 | Setting                                             | Description                                                                | Value                                                                    |

@@ -9,7 +9,7 @@ from django.test.utils import override_settings
 from django.utils.encoding import force_text
 import mock
 
-from course_discovery.apps.core.constants import Status
+from au_amber.apps.core.constants import Status
 
 
 User = get_user_model()

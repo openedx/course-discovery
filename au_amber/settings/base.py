@@ -10,7 +10,7 @@ root = lambda *x: join(abspath(PROJECT_ROOT), *x)
 path.append(root('apps'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('COURSE_DISCOVERY_SECRET_KEY', 'insecure-secret-key')
+SECRET_KEY = os.environ.get('au_amber_SECRET_KEY', 'insecure-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -36,10 +36,10 @@ THIRD_PARTY_APPS = (
 )
 
 PROJECT_APPS = (
-    'course_discovery.apps.core',
-    'course_discovery.apps.api',
-    'course_discovery.apps.catalogs',
-    'course_discovery.apps.courses',
+    'au_amber.apps.core',
+    'au_amber.apps.api',
+    'au_amber.apps.catalogs',
+    'au_amber.apps.courses',
 )
 
 INSTALLED_APPS += THIRD_PARTY_APPS
@@ -58,10 +58,10 @@ MIDDLEWARE_CLASSES = (
     'waffle.middleware.WaffleMiddleware',
 )
 
-ROOT_URLCONF = 'course_discovery.urls'
+ROOT_URLCONF = 'au_amber.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'course_discovery.wsgi.application'
+WSGI_APPLICATION = 'au_amber.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
@@ -134,7 +134,7 @@ TEMPLATES = [
                 'django.template.context_processors.static',
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
-                'course_discovery.apps.core.context_processors.core',
+                'au_amber.apps.core.context_processors.core',
             ),
             'debug': True,  # Django will only display debug pages if the global DEBUG setting is set to True.
         }
@@ -147,9 +147,9 @@ TEMPLATES = [
 # The purpose of customizing the cookie names is to avoid conflicts when
 # multiple Django services are running behind the same hostname.
 # Detailed information at: https://docs.djangoproject.com/en/dev/ref/settings/
-SESSION_COOKIE_NAME = 'course_discovery_sessionid'
-CSRF_COOKIE_NAME = 'course_discovery_csrftoken'
-LANGUAGE_COOKIE_NAME = 'course_discovery_language'
+SESSION_COOKIE_NAME = 'au_amber_sessionid'
+CSRF_COOKIE_NAME = 'au_amber_csrftoken'
+LANGUAGE_COOKIE_NAME = 'au_amber_language'
 # END COOKIE CONFIGURATION
 
 # AUTHENTICATION CONFIGURATION
@@ -181,7 +181,7 @@ LOGIN_REDIRECT_URL = '/admin/'
 # END AUTHENTICATION CONFIGURATION
 
 
-# OPENEDX-SPECIFIC CONFIGURATION 
+# OPENEDX-SPECIFIC CONFIGURATION
 PLATFORM_NAME = 'Your Platform Name Here'
 # END OPENEDX-SPECIFIC CONFIGURATION
 
@@ -251,7 +251,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
     'DEFAULT_THROTTLE_CLASSES': (
-        'course_discovery.apps.core.throttles.OverridableUserRateThrottle',
+        'au_amber.apps.core.throttles.OverridableUserRateThrottle',
     ),
     'DEFAULT_THROTTLE_RATES': {
         'user': '100/hour',
@@ -264,7 +264,7 @@ JWT_AUTH = {
     'JWT_ALGORITHM': 'HS256',
     'JWT_AUDIENCE': 'course-discovery',
     'JWT_ISSUER': 'course-discovery',
-    'JWT_DECODE_HANDLER': 'course_discovery.apps.api.jwt_decode_handler.decode',
+    'JWT_DECODE_HANDLER': 'au_amber.apps.api.jwt_decode_handler.decode',
 }
 
 SWAGGER_SETTINGS = {
@@ -274,7 +274,7 @@ SWAGGER_SETTINGS = {
 
 ELASTICSEARCH = {
     'host': 'localhost:9200',
-    'index': 'course_discovery',
+    'index': 'au_amber',
 }
 
 # TODO Replace with None and document.

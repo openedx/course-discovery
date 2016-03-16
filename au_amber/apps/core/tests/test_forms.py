@@ -2,8 +2,8 @@
 import ddt
 from django.test import TestCase
 
-from course_discovery.apps.core.forms import UserThrottleRateForm
-from course_discovery.apps.core.tests.factories import UserFactory
+from au_amber.apps.core.forms import UserThrottleRateForm
+from au_amber.apps.core.tests.factories import UserFactory
 
 
 @ddt.ddt

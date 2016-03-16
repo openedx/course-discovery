@@ -10,7 +10,7 @@ from django.http import Http404
 from django.shortcuts import redirect
 from django.views.generic import View
 
-from course_discovery.apps.core.constants import Status
+from au_amber.apps.core.constants import Status
 
 logger = logging.getLogger(__name__)
 User = get_user_model()

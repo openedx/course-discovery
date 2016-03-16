@@ -1,9 +1,9 @@
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
 
-from course_discovery.apps.api.serializers import CatalogSerializer, CourseSerializer, ContainedCoursesSerializer
-from course_discovery.apps.catalogs.tests.factories import CatalogFactory
-from course_discovery.apps.courses.tests.factories import CourseFactory
+from au_amber.apps.api.serializers import CatalogSerializer, CourseSerializer, ContainedCoursesSerializer
+from au_amber.apps.catalogs.tests.factories import CatalogFactory
+from au_amber.apps.courses.tests.factories import CourseFactory
 
 
 class CatalogSerializerTests(TestCase):

@@ -1,4 +1,4 @@
-from course_discovery.settings.production import *
+from au_amber.settings.production import *
 
 DEBUG = True
 

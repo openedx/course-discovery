@@ -1,7 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
-from course_discovery.apps.catalogs.models import Catalog
+from au_amber.apps.catalogs.models import Catalog
 
 
 class CatalogSerializer(serializers.ModelSerializer):

@@ -6,7 +6,7 @@ from django.test.utils import override_settings
 from edx_rest_api_client.client import EdxRestApiClient
 from mock import patch
 
-from course_discovery.apps.courses.models import Course
+from au_amber.apps.courses.models import Course
 
 
 @override_settings(

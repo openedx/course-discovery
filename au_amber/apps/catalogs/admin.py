@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from course_discovery.apps.catalogs.models import Catalog
+from au_amber.apps.catalogs.models import Catalog
 
 
 @admin.register(Catalog)

@@ -3,7 +3,7 @@ import logging
 from django.conf import settings
 from elasticsearch import Elasticsearch
 
-from course_discovery.apps.courses.utils import ElasticsearchUtils
+from au_amber.apps.courses.utils import ElasticsearchUtils
 
 logger = logging.getLogger(__name__)
 

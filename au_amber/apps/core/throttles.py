@@ -1,7 +1,7 @@
 """Custom API throttles."""
 from rest_framework.throttling import UserRateThrottle
 
-from course_discovery.apps.core.models import UserThrottleRate
+from au_amber.apps.core.models import UserThrottleRate
 
 
 class OverridableUserRateThrottle(UserRateThrottle):

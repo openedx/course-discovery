@@ -2,9 +2,9 @@ import json
 
 from django.test import TestCase
 
-from course_discovery.apps.catalogs.tests import factories
-from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
-from course_discovery.apps.courses.tests.factories import CourseFactory
+from au_amber.apps.catalogs.tests import factories
+from au_amber.apps.core.tests.mixins import ElasticsearchTestMixin
+from au_amber.apps.courses.tests.factories import CourseFactory
 
 
 class CatalogTests(ElasticsearchTestMixin, TestCase):

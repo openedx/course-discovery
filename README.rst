@@ -32,7 +32,7 @@ intention is that additional systems should be cheap to add to the same framewor
 Overview
 --------
 
-As a standard django application :module:`course_discovery.views` is a useful
+As a standard django application :module:`au_amber.views` is a useful
 entry point, as it defines the APIs that this service will support.
 
 Documentation

@@ -1,1 +1,1 @@
-default_app_config = 'course_discovery.apps.courses.apps.CoursesConfig'
+default_app_config = 'au_amber.apps.courses.apps.CoursesConfig'

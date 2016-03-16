@@ -1,7 +1,7 @@
 import datetime
 import logging
 
-from course_discovery.apps.courses.config import COURSES_INDEX_CONFIG
+from au_amber.apps.courses.config import COURSES_INDEX_CONFIG
 
 logger = logging.getLogger(__name__)
 
