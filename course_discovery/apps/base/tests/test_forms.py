@@ -1,9 +1,9 @@
-"""Tests for core forms."""
+"""Tests for base forms."""
 import ddt
 from django.test import TestCase
 
-from course_discovery.apps.core.forms import UserThrottleRateForm
-from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.base.forms import UserThrottleRateForm
+from course_discovery.apps.base.tests.factories import UserFactory
 
 
 @ddt.ddt

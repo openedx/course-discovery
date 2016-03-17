@@ -22,8 +22,8 @@ from django.contrib.auth.views import logout
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import RedirectView
 
-from course_discovery.apps.core import views as core_views
-from course_discovery.apps.courses.views import QueryPreviewView
+from course_discovery.apps.base import views as base_views
+from course_discovery.apps.core.views import QueryPreviewView
 
 admin.autodiscover()
 
@@ -36,8 +36,8 @@ urlpatterns = [
     url(r'^api/', include('course_discovery.apps.api.urls', namespace='api')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^api-docs/', include('rest_framework_swagger.urls')),
-    url(r'^auto_auth/$', core_views.AutoAuth.as_view(), name='auto_auth'),
-    url(r'^health/$', core_views.health, name='health'),
+    url(r'^auto_auth/$', base_views.AutoAuth.as_view(), name='auto_auth'),
+    url(r'^health/$', base_views.health, name='health'),
     url(r'^login/$', login, name='login'),
     url(r'^logout/$', logout, name='logout'),
     url('', include('social.apps.django_app.urls', namespace='social')),

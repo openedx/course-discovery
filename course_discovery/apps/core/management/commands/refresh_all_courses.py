@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.management import BaseCommand
 from edx_rest_api_client.client import EdxRestApiClient
 
-from course_discovery.apps.courses.models import Course
+from course_discovery.apps.core.models import Course
 
 logger = logging.getLogger(__name__)
 

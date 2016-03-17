@@ -1,4 +1,4 @@
-"""Test core.views."""
+"""Test base.views."""
 
 from django.db import DatabaseError
 from django.conf import settings
@@ -9,7 +9,7 @@ from django.test.utils import override_settings
 from django.utils.encoding import force_text
 import mock
 
-from course_discovery.apps.core.constants import Status
+from course_discovery.apps.base.constants import Status
 
 
 User = get_user_model()

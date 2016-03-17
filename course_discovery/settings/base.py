@@ -36,10 +36,9 @@ THIRD_PARTY_APPS = (
 )
 
 PROJECT_APPS = (
+    'course_discovery.apps.base',
     'course_discovery.apps.core',
     'course_discovery.apps.api',
-    'course_discovery.apps.catalogs',
-    'course_discovery.apps.courses',
 )
 
 INSTALLED_APPS += THIRD_PARTY_APPS
@@ -134,7 +133,7 @@ TEMPLATES = [
                 'django.template.context_processors.static',
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
-                'course_discovery.apps.core.context_processors.core',
+                'course_discovery.apps.base.context_processors.core',
             ),
             'debug': True,  # Django will only display debug pages if the global DEBUG setting is set to True.
         }
@@ -156,7 +155,7 @@ LANGUAGE_COOKIE_NAME = 'course_discovery_language'
 LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
 
-AUTH_USER_MODEL = 'core.User'
+AUTH_USER_MODEL = 'base.User'
 
 AUTHENTICATION_BACKENDS = (
     'auth_backends.backends.EdXOpenIdConnect',
@@ -181,7 +180,7 @@ LOGIN_REDIRECT_URL = '/admin/'
 # END AUTHENTICATION CONFIGURATION
 
 
-# OPENEDX-SPECIFIC CONFIGURATION 
+# OPENEDX-SPECIFIC CONFIGURATION
 PLATFORM_NAME = 'Your Platform Name Here'
 # END OPENEDX-SPECIFIC CONFIGURATION
 
@@ -251,7 +250,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
     'DEFAULT_THROTTLE_CLASSES': (
-        'course_discovery.apps.core.throttles.OverridableUserRateThrottle',
+        'course_discovery.apps.base.throttles.OverridableUserRateThrottle',
     ),
     'DEFAULT_THROTTLE_RATES': {
         'user': '100/hour',

@@ -1,8 +1,8 @@
-""" Core forms. """
+""" Base forms. """
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from course_discovery.apps.core.models import UserThrottleRate
+from course_discovery.apps.base.models import UserThrottleRate
 
 
 class UserThrottleRateForm(forms.ModelForm):
