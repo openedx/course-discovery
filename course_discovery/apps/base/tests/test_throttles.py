@@ -3,9 +3,9 @@ from django.core.urlresolvers import reverse
 
 from rest_framework.test import APITestCase
 
-from course_discovery.apps.core.models import UserThrottleRate
-from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
-from course_discovery.apps.core.throttles import OverridableUserRateThrottle
+from course_discovery.apps.base.models import UserThrottleRate
+from course_discovery.apps.base.tests.factories import UserFactory, USER_PASSWORD
+from course_discovery.apps.base.throttles import OverridableUserRateThrottle
 
 
 class RateLimitingTest(APITestCase):

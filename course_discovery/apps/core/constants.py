@@ -1,7 +1,2 @@
-""" Constants for the core app. """
-
-
-class Status(object):
-    """Health statuses."""
-    OK = u"OK"
-    UNAVAILABLE = u"UNAVAILABLE"
+COURSE_ID_REGEX = r'[^/+]+(/|\+)[^/+]+(/|\+)[^/]+'
+COURSE_ID_PATTERN = r'(?P<id>{})'.format(COURSE_ID_REGEX)

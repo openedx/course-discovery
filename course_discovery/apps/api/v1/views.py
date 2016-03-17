@@ -8,9 +8,8 @@ from rest_framework.response import Response
 
 from course_discovery.apps.api.pagination import ElasticsearchLimitOffsetPagination
 from course_discovery.apps.api.serializers import CatalogSerializer, CourseSerializer, ContainedCoursesSerializer
-from course_discovery.apps.catalogs.models import Catalog
-from course_discovery.apps.courses.constants import COURSE_ID_REGEX
-from course_discovery.apps.courses.models import Course
+from course_discovery.apps.core.constants import COURSE_ID_REGEX
+from course_discovery.apps.core.models import Catalog, Course
 
 logger = logging.getLogger(__name__)
 
