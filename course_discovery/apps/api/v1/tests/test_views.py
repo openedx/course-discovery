@@ -16,7 +16,7 @@ from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
-from course_discovery.apps.courses.tests.factories import CourseFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 
 OAUTH2_ACCESS_TOKEN_URL = 'http://example.com/oauth2/access_token/'
 

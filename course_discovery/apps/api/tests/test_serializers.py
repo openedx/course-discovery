@@ -3,7 +3,7 @@ from django.test import TestCase, RequestFactory
 
 from course_discovery.apps.api.serializers import CatalogSerializer, CourseSerializer, ContainedCoursesSerializer
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
-from course_discovery.apps.courses.tests.factories import CourseFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 
 
 class CatalogSerializerTests(TestCase):

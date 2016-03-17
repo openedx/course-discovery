@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from course_discovery.apps.catalogs.tests import factories
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
-from course_discovery.apps.courses.tests.factories import CourseFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 
 
 class CatalogTests(ElasticsearchTestMixin, TestCase):

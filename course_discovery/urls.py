@@ -23,7 +23,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.views.generic import RedirectView
 
 from course_discovery.apps.core import views as core_views
-from course_discovery.apps.courses.views import QueryPreviewView
+from course_discovery.apps.course_metadata.views import QueryPreviewView
 
 admin.autodiscover()
 

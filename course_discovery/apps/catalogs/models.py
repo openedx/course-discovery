@@ -4,7 +4,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 
-from course_discovery.apps.courses.models import Course
+from course_discovery.apps.course_metadata.models import Course
 
 
 class Catalog(TimeStampedModel):

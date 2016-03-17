@@ -1,7 +1,7 @@
 import factory
 from factory.fuzzy import FuzzyText
 
-from course_discovery.apps.courses.models import Course
+from course_discovery.apps.course_metadata.models import Course
 
 
 class CourseFactory(factory.Factory):
