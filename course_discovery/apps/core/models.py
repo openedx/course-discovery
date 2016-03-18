@@ -3,6 +3,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django_extensions.db.models import TimeStampedModel
 
 
 class User(AbstractUser):
@@ -37,3 +38,26 @@ class UserThrottleRate(models.Model):
             'The rate of requests to limit this user to. The format is specified by Django'
             ' Rest Framework (see http://www.django-rest-framework.org/api-guide/throttling/).')
     )
+
+
+class Language(TimeStampedModel):
+    """
+    Language model.
+    """
+    iso_code = models.CharField(max_length=2)
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.iso_code
+
+
+class Locale(TimeStampedModel):
+    """
+    Locale model.
+    """
+    iso_code = models.CharField(max_length=5)
+    name = models.CharField(max_length=255)
+    language = models.ForeignKey(Language)
+
+    def __str__(self):
+        return self.iso_code
