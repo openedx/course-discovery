@@ -91,7 +91,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
 
 class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     """ Course resource. """
-    lookup_field = 'id'
+    lookup_field = 'key'
     lookup_value_regex = COURSE_ID_REGEX
     permission_classes = (IsAuthenticated,)
     serializer_class = CourseSerializer
@@ -105,15 +105,20 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
         # Note (CCB): This is solely here to appease DRF. It is not actually used.
         return []
 
-    def get_data(self, limit, offset):
+    def get_data(self, limit=None, offset=None):
         """ Return all courses. """
-        query = self.request.GET.get('q', None)
+        query  = self.request.GET.get('q', None)
+        limit  = 1000 if limit is None else limit
+        offset = 0 if offset is None else offset
+        slice_start = offset
+        slice_end   = offset + limit
 
         if query:
             query = json.loads(query)
-            return Course.search(query, limit=limit, offset=offset)
+            # TODO: Resolve course search.  Maybe haystack? -BD 2016-03-18
+            # return Course.search(query, limit=limit, offset=offset)
         else:
-            return Course.all(limit=limit, offset=offset)
+            return Course.objects.all()[slice_start:slice_end]
 
     def list(self, request, *args, **kwargs):  # pylint: disable=unused-argument
         """

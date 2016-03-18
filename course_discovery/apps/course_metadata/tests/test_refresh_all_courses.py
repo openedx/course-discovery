@@ -6,7 +6,7 @@ from django.test.utils import override_settings
 from edx_rest_api_client.client import EdxRestApiClient
 from mock import patch
 
-from course_discovery.apps.course_metadata.models import Course
+from course_discovery.apps.course_metadata.utils import CourseRunRefreshUtils
 
 
 @override_settings(
@@ -22,7 +22,7 @@ class RefreshAllCoursesCommandTests(TestCase):
         """ Verify the management command calls Course.refresh_all() with access token. """
         access_token = 'secret'
 
-        with patch.object(Course, 'refresh_all') as mock_refresh:
+        with patch.object(CourseRunRefreshUtils, 'refresh_all') as mock_refresh:
             call_command(self.cmd, access_token=access_token)
             mock_refresh.assert_called_once_with(access_token=access_token)
 
@@ -32,7 +32,7 @@ class RefreshAllCoursesCommandTests(TestCase):
 
         with patch.object(EdxRestApiClient, 'get_oauth_access_token') as mock_access_token:
             mock_access_token.return_value = (access_token, None)
-            with patch.object(Course, 'refresh_all') as mock_refresh:
+            with patch.object(CourseRunRefreshUtils, 'refresh_all') as mock_refresh:
                 call_command(self.cmd)
                 mock_refresh.assert_called_once_with(access_token=access_token)
 
