@@ -3,14 +3,20 @@ import logging
 
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api.pagination import ElasticsearchLimitOffsetPagination
-from course_discovery.apps.api.serializers import CatalogSerializer, CourseSerializer, ContainedCoursesSerializer
+from course_discovery.apps.api.serializers import (
+    CatalogSerializer,
+    CourseSerializer,
+    CourseRunSerializer,
+    ContainedCoursesSerializer
+)
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX
-from course_discovery.apps.course_metadata.models import Course
+from course_discovery.apps.course_metadata.models import Course, CourseRun
 
 logger = logging.getLogger(__name__)
 
@@ -143,3 +149,11 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a course. """
         return super(CourseViewSet, self).retrieve(request, *args, **kwargs)
+
+
+class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
+    """ Course run resource."""
+    lookup_field = 'key'
+    lookup_value_regex = COURSE_ID_REGEX
+    serializer_class = CourseRunSerializer
+    queryset = CourseRun.objects.all()
