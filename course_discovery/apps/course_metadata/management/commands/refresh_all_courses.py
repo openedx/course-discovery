@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.management import BaseCommand
 from edx_rest_api_client.client import EdxRestApiClient
 
-from course_discovery.apps.course_metadata.models import Course
+from course_discovery.apps.course_metadata.utils import CourseRunRefreshUtils
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ class Command(BaseCommand):
 
             try:
                 access_token, __ = EdxRestApiClient.get_oauth_access_token(
-                    '{root}/access_token'.format(root=settings.SOCIAL_AUTH_EDX_OIDC_URL_ROOT),
+                    '{root}/access_token'.format(root=settings.SOCIAL_AUTH_EDX_OIDC_URL_ROOT.rstrip('/')),
                     settings.SOCIAL_AUTH_EDX_OIDC_KEY,
                     settings.SOCIAL_AUTH_EDX_OIDC_SECRET
                 )
@@ -37,4 +37,4 @@ class Command(BaseCommand):
                 logger.exception('No access token provided or acquired through client_credential flow.')
                 raise
 
-        Course.refresh_all(access_token=access_token)
+        CourseRunRefreshUtils.refresh_all(access_token=access_token)
