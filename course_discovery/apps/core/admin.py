@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.core.forms import UserThrottleRateForm
-from course_discovery.apps.core.models import User, UserThrottleRate
+from course_discovery.apps.core.models import Language, Locale, User, UserThrottleRate
 
 
 class CustomUserAdmin(UserAdmin):
@@ -26,5 +26,17 @@ class UserThrottleRateAdmin(admin.ModelAdmin):
     raw_id_fields = ('user',)
 
 
+class LocaleAdmin(admin.ModelAdmin):
+    """ Admin configuration for the Locale model. """
+    list_display = ('iso_code', 'name', 'language')
+
+
+class LanguageAdmin(admin.ModelAdmin):
+    """ Admin configuration for the Locale model. """
+    list_display = ('iso_code', 'name',)
+
+
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(UserThrottleRate, UserThrottleRateAdmin)
+admin.site.register(Locale, LocaleAdmin)
+admin.site.register(Language, LanguageAdmin)
