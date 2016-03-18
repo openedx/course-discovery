@@ -1,254 +1,254 @@
 import logging
 
-from django.conf import settings
-from edx_rest_api_client.client import EdxRestApiClient
-from elasticsearch import Elasticsearch, NotFoundError
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
+from django_extensions.db.models import TimeStampedModel
+from simple_history.models import HistoricalRecords
+from sortedm2m.fields import SortedManyToManyField
 
-from course_discovery.apps.course_metadata.exceptions import CourseNotFoundError
+from course_discovery.apps.core.models import Locale, Currency
 
 logger = logging.getLogger(__name__)
 
 
-class Course(object):
-    """
-    Course model.
+class AbstractNamedModel(TimeStampedModel):
+    """ Abstract base class for models with only a name field. """
+    name = models.CharField(max_length=255, unique=True)
 
-    This model is backed by Elasticsearch.
-    """
+    def __str__(self):
+        return self.name
 
-    # Elasticsearch document type for courses.
-    doc_type = 'course'
+    class Meta(object):
+        abstract = True
 
-    # Elasticsearch index where course data is stored
-    _index = settings.ELASTICSEARCH['index']
 
-    @classmethod
-    def _es_client(cls):
-        """ Elasticsearch client. """
-        return Elasticsearch(settings.ELASTICSEARCH['host'])
+class AbstractMediaModel(TimeStampedModel):
+    """ Abstract base class for media-related (e.g. image, video) models. """
+    src = models.URLField(max_length=255, unique=True)
+    description = models.CharField(max_length=255, null=True, blank=True)
 
-    @classmethod
-    def _hit_to_course(cls, hit):
-        return Course(hit['_source']['id'], hit['_source'])
+    def __str__(self):
+        return self.src
 
-    @classmethod
-    def all(cls, limit=10, offset=0):
-        """
-        Return a list of all courses.
 
-        Args:
-            limit (int): Maximum number of results to return
-            offset (int): Starting index from which to return results
+class Image(AbstractMediaModel):
+    """ Image model. """
+    height = models.IntegerField()
+    width = models.IntegerField()
 
-        Returns:
-            dict: Representation of data suitable for pagination
 
-        Examples:
-            {
-                'limit': 10,
-                'offset': 0,
-                'total': 2,
-                'results': [`Course`, `Course`],
-            }
-        """
-        query = {
-            'query': {
-                'match_all': {}
-            }
-        }
+class Video(AbstractMediaModel):
+    """ Video model. """
+    image = models.ForeignKey(Image)
+    type = models.CharField(max_length=255)
 
-        return cls.search(query, limit=limit, offset=offset)
 
-    @classmethod
-    def get(cls, id):  # pylint: disable=redefined-builtin
-        """
-        Retrieve a single course.
+class LevelType(AbstractNamedModel):
+    """ LevelType model. """
+    pass
 
-        Args:
-            id (str): Course ID
 
-        Returns:
-            Course: The course corresponding to the given ID.
+class PacingType(AbstractNamedModel):
+    """ PacingType model. """
+    pass
 
-        Raises:
-            CourseNotFoundError: if the course is not found.
-        """
-        try:
-            response = cls._es_client().get(index=cls._index, doc_type=cls.doc_type, id=id)
-            return cls._hit_to_course(response)
-        except NotFoundError:
-            raise CourseNotFoundError('Course [{}] was not found in the data store.'.format(id))
 
-    @classmethod
-    def search(cls, query, limit=10, offset=0):
-        """
-        Search the data store for courses.
+class Subject(AbstractNamedModel):
+    """ Subject model. """
+    pass
 
-        Args:
-            query (dict): Elasticsearch query used to find courses.
-            limit (int): Maximum number of results to return
-            offset (int): Index of first result to return
 
-        Returns:
-            dict: Representation of data suitable for pagination
+class Prerequisite(AbstractNamedModel):
+    """ Prerequisite model. """
+    pass
 
-        Examples:
-            {
-                'limit': 10,
-                'offset': 0,
-                'total': 2,
-                'results': [`Course`, `Course`],
-            }
-        """
-        query.setdefault('from', offset)
-        query.setdefault('size', limit)
-        query.setdefault('sort', {'id': 'asc'})
 
-        logger.debug('Querying [%s]: %s', cls._index, query)
-        response = cls._es_client().search(index=cls._index, doc_type=cls.doc_type, body=query)
-        hits = response['hits']
-        total = hits['total']
-        logger.info('Course search returned [%d] courses.', total)
+class ExpectedLearningItem(TimeStampedModel):
+    """ ExpectedLearningItem model. """
+    value = models.CharField(max_length=255)
 
-        return {
-            'limit': limit,
-            'offset': offset,
-            'total': total,
-            'results': [cls._hit_to_course(hit) for hit in hits['hits']]
-        }
 
-    @classmethod
-    def refresh(cls, course_id, access_token):
-        """
-        Refresh the course data from the raw data sources.
+class SyllabusItem(TimeStampedModel):
+    """ SyllabusItem model. """
+    parent = models.ForeignKey('self', blank=True, null=True, related_name='children')
+    value = models.CharField(max_length=255)
 
-        Args:
-            course_id (str): Course ID
-            access_token (str): OAuth access token
 
-        Returns:
-            Course
-        """
-        client = EdxRestApiClient(settings.ECOMMERCE_API_URL, oauth_access_token=access_token)
-        body = client.courses(course_id).get(include_products=True)
-        course = Course(course_id, body)
-        course.save()
-        return course
+class Organization(TimeStampedModel):
+    """ Organization model. """
+    key = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    homepage_url = models.URLField(max_length=255, null=True, blank=True)
+    logo_image = models.ForeignKey(Image, null=True, blank=True)
 
-    @classmethod
-    def refresh_all(cls, access_token):
-        """
-        Refresh all course data.
+    history = HistoricalRecords()
 
-        Args:
-            access_token (str): OAuth access token
+    def __str__(self):
+        return '{key}: {name}'.format(key=self.key, name=self.name)
 
-        Returns:
-            None
-        """
-        cls.refresh_all_ecommerce_data(access_token)
-        cls.refresh_all_course_api_data(access_token)
 
-    @classmethod
-    def refresh_all_ecommerce_data(cls, access_token):
-        ecommerce_api_url = settings.ECOMMERCE_API_URL
-        client = EdxRestApiClient(ecommerce_api_url, oauth_access_token=access_token)
-        count = None
-        page = 1
+class Person(TimeStampedModel):
+    """ Person model. """
+    key = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255, null=True, blank=True)
+    title = models.CharField(max_length=255, null=True, blank=True)
+    bio = models.TextField(null=True, blank=True)
+    profile_image = models.ForeignKey(Image, null=True, blank=True)
+    organizations = models.ManyToManyField(Organization, blank=True)
 
-        logger.info('Refreshing ecommerce data from %s....', ecommerce_api_url)
+    history = HistoricalRecords()
 
-        while page:
-            response = client.courses().get(include_products=True, page=page, page_size=50)
-            count = response['count']
-            results = response['results']
-            logger.info('Retrieved %d courses...', len(results))
+    def __str__(self):
+        return '{key}: {name}'.format(key=self.key, name=self.name)
 
-            if response['next']:
-                page += 1
-            else:
-                page = None
+    class Meta(object):
+        verbose_name_plural = 'People'
 
-            for body in results:
-                Course(body['id']).update(body)
 
-        logger.info('Retrieved %d courses from %s.', count, ecommerce_api_url)
+class Course(TimeStampedModel):
+    """ Course model. """
+    key = models.CharField(max_length=255, db_index=True, unique=True)
+    title = models.CharField(max_length=255, default=None, null=True, blank=True)
+    short_description = models.CharField(max_length=255, default=None, null=True, blank=True)
+    full_description = models.TextField(default=None, null=True, blank=True)
+    organizations = models.ManyToManyField('Organization', through='CourseOrganization', blank=True)
+    subjects = models.ManyToManyField(Subject, blank=True)
+    prerequisites = models.ManyToManyField(Prerequisite, blank=True)
+    level_type = models.ForeignKey(LevelType, default=None, null=True, blank=True)
+    expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
+    image = models.ForeignKey(Image, default=None, null=True, blank=True)
+    video = models.ForeignKey(Video, default=None, null=True, blank=True)
 
-    @classmethod
-    def refresh_all_course_api_data(cls, access_token):
-        course_api_url = settings.COURSES_API_URL
-        client = EdxRestApiClient(course_api_url, oauth_access_token=access_token)
+    history = HistoricalRecords()
 
-        count = None
-        page = 1
+    def __str__(self):
+        return '{key}: {title}'.format(key=self.key, title=self.title)
 
-        logger.info('Refreshing course api data from %s....', course_api_url)
 
-        while page:
-            # TODO Update API to not require username?
-            response = client.courses().get(page=page, page_size=50, username='ecommerce_worker')
-            count = response['pagination']['count']
-            results = response['results']
-            logger.info('Retrieved %d courses...', len(results))
+class CourseRun(TimeStampedModel):
+    """ CourseRun model. """
+    course = models.ForeignKey(Course)
+    key = models.CharField(max_length=255, unique=True)
+    title_override = models.CharField(
+        max_length=255, default=None, null=True, blank=True,
+        help_text=_(
+            "Title specific for this run of a course. Leave this value blank to default to the parent course's title."))
+    start = models.DateTimeField(null=True, blank=True)
+    end = models.DateTimeField(null=True, blank=True)
+    enrollment_start = models.DateTimeField(null=True, blank=True)
+    enrollment_end = models.DateTimeField(null=True, blank=True)
+    announcement = models.DateTimeField(null=True, blank=True)
+    short_description_override = models.CharField(
+        max_length=255, default=None, null=True, blank=True,
+        help_text=_(
+            "Short description specific for this run of a course. Leave this value blank to default to "
+            "the parent course's short_description attribute."))
+    full_description_override = models.TextField(
+        default=None, null=True, blank=True,
+        help_text=_(
+            "Full description specific for this run of a course. Leave this value blank to default to "
+            "the parent course's full_description attribute."))
+    instructors = SortedManyToManyField(Person, blank=True, related_name='courses_instructed')
+    staff = SortedManyToManyField(Person, blank=True, related_name='courses_staffed')
+    min_effort = models.PositiveSmallIntegerField(
+        null=True, blank=True,
+        help_text=_('Estimated minimum number of hours per week needed to complete a course run.'))
+    max_effort = models.PositiveSmallIntegerField(
+        null=True, blank=True,
+        help_text=_('Estimated maximum number of hours per week needed to complete a course run.'))
+    locale = models.ForeignKey(Locale, null=True, blank=True)
+    transcript_locales = models.ManyToManyField(Locale, blank=True, related_name='transcript_courses')
+    pacing_type = models.ForeignKey(PacingType, null=True, blank=True)
+    syllabus = models.ForeignKey(SyllabusItem, default=None, null=True, blank=True)
+    image = models.ForeignKey(Image, default=None, null=True, blank=True)
+    video = models.ForeignKey(Video, default=None, null=True, blank=True)
 
-            if response['pagination']['next']:
-                page += 1
-            else:
-                page = None
-
-            for body in results:
-                Course(body['id']).update(body)
-
-        logger.info('Retrieved %d courses from %s.', count, course_api_url)
-
-    def __init__(self, id, body=None):  # pylint: disable=redefined-builtin
-        if not id:
-            raise ValueError('Course ID cannot be empty or None.')
-
-        self.id = id
-        self.body = body or {}
-
-    def __eq__(self, other):
-        """
-        Determine if this Course equals another.
-
-        Args:
-            other (Course): object with which to compare
-
-        Returns: True iff. the two Course objects have the same `id` value; otherwise, False.
-
-        """
-        return self.id is not None \
-            and isinstance(other, Course) \
-            and self.id == getattr(other, 'id', None) \
-            and self.body == getattr(other, 'body', None)
-
-    def __repr__(self):
-        return 'Course {id}: {name}'.format(id=self.id, name=self.name)
+    history = HistoricalRecords()
 
     @property
-    def name(self):
-        return self.body.get('name')
+    def title(self):
+        return self.title_override or self.course.title
 
-    def save(self):
-        """ Save the course to the data store. """
-        logger.info('Indexing course %s...', self.id)
-        self._es_client().index(index=self._index, doc_type=self.doc_type, id=self.id, body=self.body)
-        logger.info('Finished indexing course %s.', self.id)
+    @title.setter
+    def title(self, value):
+        # Treat empty strings as NULL
+        value = value or None
+        self.title_override = value
 
-    def update(self, body):
-        """ Updates (merges) the data in the index with the provided data.
+    @property
+    def short_description(self):
+        return self.short_description_override or self.course.short_description
 
-        Args:
-            body (dict): Data to be merged into the index.
+    @short_description.setter
+    def short_description(self, value):
+        # Treat empty strings as NULL
+        value = value or None
+        self.short_description_override = value
 
-        Returns:
-            None
-        """
-        body = {
-            'doc': body,
-            'doc_as_upsert': True,
-        }
-        logger.info('Updating course %s...', self.id)
-        self._es_client().update(index=self._index, doc_type=self.doc_type, id=self.id, body=body)
-        logger.info('Finished updating course %s.', self.id)
+    @property
+    def full_description(self):
+        return self.full_description_override or self.course.full_description
+
+    @full_description.setter
+    def full_description(self, value):
+        # Treat empty strings as NULL
+        value = value or None
+        self.full_description_override = value
+
+    def __str__(self):
+        return '{key}: {title}'.format(key=self.key, title=self.title)
+
+
+class Seat(TimeStampedModel):
+    """ Seat model. """
+    HONOR = 'honor'
+    AUDIT = 'audit'
+    VERIFIED = 'verified'
+    PROFESSIONAL = 'professional'
+    CREDIT = 'credit'
+
+    SEAT_TYPE_CHOICES = (
+        (HONOR, _('Honor')),
+        (AUDIT, _('Audit')),
+        (VERIFIED, _('Verified')),
+        (PROFESSIONAL, _('Professional')),
+        (CREDIT, _('Credit')),
+    )
+    course_run = models.ForeignKey(CourseRun, related_name='seats')
+    type = models.CharField(max_length=63, choices=SEAT_TYPE_CHOICES)
+    price = models.DecimalField(decimal_places=2, max_digits=10)
+    currency = models.ForeignKey(Currency)
+    upgrade_deadline = models.DateTimeField()
+    credit_provider = models.CharField(max_length=255)
+    credit_hours = models.IntegerField()
+
+    history = HistoricalRecords()
+
+    class Meta(object):
+        unique_together = (
+            ('course_run', 'type', 'currency', 'credit_provider')
+        )
+
+
+class CourseOrganization(TimeStampedModel):
+    """ CourseOrganization model. """
+    OWNER = 'owner'
+    SPONSOR = 'sponsor'
+
+    RELATION_TYPE_CHOICES = (
+        (OWNER, _('Owner')),
+        (SPONSOR, _('Sponsor')),
+    )
+
+    course = models.ForeignKey(Course)
+    organization = models.ForeignKey(Organization)
+    relation_type = models.CharField(max_length=63, choices=RELATION_TYPE_CHOICES)
+
+    class Meta(object):
+        index_together = (
+            ('course', 'relation_type'),
+        )
+        unique_together = (
+            ('course', 'relation_type', 'relation_type'),
+        )

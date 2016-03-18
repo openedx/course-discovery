@@ -1,8 +1,6 @@
 import datetime
 import logging
 
-from course_discovery.apps.course_metadata.config import COURSES_INDEX_CONFIG
-
 logger = logging.getLogger(__name__)
 
 
@@ -18,7 +16,7 @@ class ElasticsearchUtils(object):
             # Create an index with a unique (timestamped) name
             timestamp = datetime.datetime.utcnow().strftime("%Y%m%d%H%M%S")
             index = '{alias}_{timestamp}'.format(alias=alias, timestamp=timestamp)
-            es.indices.create(index=index, body=COURSES_INDEX_CONFIG)
+            es.indices.create(index=index)
             logger.info('...index [%s] created.', index)
 
             # Point the alias to the new index

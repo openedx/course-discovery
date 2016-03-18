@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.management import BaseCommand
 from elasticsearch import Elasticsearch
 
-from course_discovery.apps.course_metadata.utils import ElasticsearchUtils
+from course_discovery.apps.core.utils import ElasticsearchUtils
 
 logger = logging.getLogger(__name__)
 
