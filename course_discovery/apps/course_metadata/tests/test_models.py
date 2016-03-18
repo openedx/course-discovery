@@ -5,9 +5,9 @@ import responses
 from django.test import TestCase, override_settings
 
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
-from course_discovery.apps.courses.exceptions import CourseNotFoundError
-from course_discovery.apps.courses.models import Course
-from course_discovery.apps.courses.tests.factories import CourseFactory
+from course_discovery.apps.course_metadata.exceptions import CourseNotFoundError
+from course_discovery.apps.course_metadata.models import Course
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 
 ACCESS_TOKEN = 'secret'
 COURSES_API_URL = 'https://lms.example.com/api/courses/v1'

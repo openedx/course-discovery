@@ -39,7 +39,7 @@ PROJECT_APPS = (
     'course_discovery.apps.core',
     'course_discovery.apps.api',
     'course_discovery.apps.catalogs',
-    'course_discovery.apps.courses',
+    'course_discovery.apps.course_metadata',
 )
 
 INSTALLED_APPS += THIRD_PARTY_APPS
@@ -181,7 +181,7 @@ LOGIN_REDIRECT_URL = '/admin/'
 # END AUTHENTICATION CONFIGURATION
 
 
-# OPENEDX-SPECIFIC CONFIGURATION 
+# OPENEDX-SPECIFIC CONFIGURATION
 PLATFORM_NAME = 'Your Platform Name Here'
 # END OPENEDX-SPECIFIC CONFIGURATION
 
