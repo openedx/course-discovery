@@ -13,9 +13,9 @@ class CatalogSerializer(serializers.ModelSerializer):
 
 
 class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-method
-    id = serializers.CharField(help_text=_('Course ID'))
+    key = serializers.CharField(help_text=_('Course Key'))
     name = serializers.CharField(help_text=_('Course name'))
-    url = serializers.HyperlinkedIdentityField(view_name='api:v1:course-detail', lookup_field='id')
+    url = serializers.HyperlinkedIdentityField(view_name='api:v1:course-detail', lookup_field='key')
 
 
 class ContainedCoursesSerializer(serializers.Serializer):  # pylint: disable=abstract-method

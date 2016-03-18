@@ -25,12 +25,12 @@ class CatalogSerializerTests(TestCase):
 class CourseSerializerTests(TestCase):
     def test_data(self):
         course = CourseFactory()
-        path = reverse('api:v1:course-detail', kwargs={'id': course.id})
+        path = reverse('api:v1:course-detail', kwargs={'key': course.key})
         request = RequestFactory().get(path)
         serializer = CourseSerializer(course, context={'request': request})
 
         expected = {
-            'id': course.id,
+            'key': course.key,
             'name': course.name,
             'url': request.build_absolute_uri(),
         }
