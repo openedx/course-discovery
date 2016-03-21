@@ -5,6 +5,7 @@ from django.conf import settings
 from edx_rest_api_client.client import EdxRestApiClient
 
 from course_discovery.apps.course_metadata.config import COURSES_INDEX_CONFIG
+from course_discovery.apps.course_metadata.models import Course, CourseRun
 
 logger = logging.getLogger(__name__)
 

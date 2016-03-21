@@ -19,6 +19,7 @@ class Seat(TimeStampedModel):
     credit_provider_key = models.CharField(max_length=255)
     credit_hours = models.IntegerField()
 
+
 class Image(TimeStampedModel):
     """
     Image model.

@@ -171,7 +171,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
     def test_contains(self):
         """ Verify the endpoint returns a filtered list of courses contained in the catalog. """
-        course_id = self.course.id
+        course_id = self.course.id  # pylint: disable=no-member
         qs = urllib.parse.urlencode({'course_id': course_id})
         url = '{}?{}'.format(reverse('api:v1:catalog-contains', kwargs={'id': self.catalog.id}), qs)
 
@@ -300,7 +300,7 @@ class CourseViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixin
     def assert_retrieve_success(self, **headers):
         """ Asserts the endpoint returns details for a single course. """
         course = CourseFactory()
-        url = reverse('api:v1:course-detail', kwargs={'id': course.id})
+        url = reverse('api:v1:course-detail', kwargs={'id': course.id})  # pylint: disable=no-member
         response = self.client.get(url, format='json', **headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, self.serialize_course(course))
