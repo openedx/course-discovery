@@ -61,3 +61,14 @@ class Locale(TimeStampedModel):
 
     def __str__(self):
         return self.iso_code
+
+
+class Currency(TimeStampedModel):
+    """
+    Language model.
+    """
+    iso_code = models.CharField(max_length=2)
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.iso_code
