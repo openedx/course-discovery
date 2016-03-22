@@ -12,10 +12,14 @@ class CatalogSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'query', 'url',)
 
 
-class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-method
+class CourseSerializer(serializers.ModelSerializer):
     key = serializers.CharField(help_text=_('Course Key'))
     name = serializers.CharField(help_text=_('Course name'))
-    url = serializers.HyperlinkedIdentityField(view_name='api:v1:course-detail', lookup_field='key')
+
+
+    class Meta(object):
+        model = Catalog
+        fields = ('key', 'name',)
 
 
 class ContainedCoursesSerializer(serializers.Serializer):  # pylint: disable=abstract-method
