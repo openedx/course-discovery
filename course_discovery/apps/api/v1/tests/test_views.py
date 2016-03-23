@@ -1,4 +1,5 @@
 # pylint: disable=redefined-builtin
+import datetime
 import json
 import urllib
 from time import time
@@ -33,11 +34,12 @@ class OAuth2Mixin(object):
     def mock_access_token_response(self, user, status=200):
         """ Mock the access token endpoint response of the OAuth2 provider. """
         url = '{root}/{token}'.format(root=OAUTH2_ACCESS_TOKEN_URL.rstrip('/'), token=self.get_access_token(user))
+        expires = datetime.datetime.utcnow() + datetime.timedelta(days=1)
 
         responses.add(
             responses.GET,
             url,
-            body=json.dumps({'username': user.username, 'scope': 'read', 'expires_in': 60}),
+            body=json.dumps({'username': user.username, 'scope': 'read', 'expires': expires.isoformat()}),
             content_type="application/json",
             status=status
         )
