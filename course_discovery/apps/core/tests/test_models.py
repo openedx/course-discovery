@@ -4,7 +4,7 @@ from django.test import TestCase
 from django_dynamic_fixture import G
 from social.apps.django_app.default.models import UserSocialAuth
 
-from course_discovery.apps.core.models import User
+from course_discovery.apps.core.models import User, Language, Locale, Currency
 
 
 # pylint: disable=no-member
@@ -38,3 +38,33 @@ class UserTests(TestCase):
 
         user = G(User, full_name=full_name, first_name=first_name, last_name=last_name)
         self.assertEqual(user.get_full_name(), full_name)
+
+
+# pylint: disable=no-member
+class LanguageTests(TestCase):
+    """ Language model tests. """
+
+    def test_str(self):
+        iso_code = "en"
+        language = Language(iso_code=iso_code)
+        self.assertEqual(str(language), iso_code)
+
+
+# pylint: disable=no-member
+class LocaleTests(TestCase):
+    """ Language model tests. """
+
+    def test_str(self):
+        iso_code = "en-US"
+        language = Language(iso_code=iso_code)
+        self.assertEqual(str(language), iso_code)
+
+
+# pylint: disable=no-member
+class CurrencyTests(TestCase):
+    """ Language model tests. """
+
+    def test_str(self):
+        iso_code = "USD"
+        language = Language(iso_code=iso_code)
+        self.assertEqual(str(language), iso_code)

@@ -14,7 +14,8 @@ class Catalog(TimeStampedModel):
 
     @property
     def query_as_dict(self):
-        return json.loads(self.query)
+        # return json.loads(self.query)
+        pass
 
     def courses(self):
         """ Returns the list of courses contained within this catalog.
@@ -25,6 +26,7 @@ class Catalog(TimeStampedModel):
 
         # TODO: Course.search no longer exists.  Figure out what goes here.
         # return Course.search(self.query_as_dict)['results']
+        pass
 
     def contains(self, course_ids):  # pylint: disable=unused-argument
         """ Determines if the given courses are contained in this catalog.
