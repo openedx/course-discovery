@@ -48,4 +48,7 @@ class CatalogTests(ElasticsearchTestMixin, TestCase):
     def test_contains(self):
         """ Verify the method returns a mapping of course IDs to booleans. """
         other_id = 'd/e/f'
-        self.assertDictEqual(self.catalog.contains([self.course.id, other_id]), {self.course.id: True, other_id: False})
+        self.assertDictEqual(
+            self.catalog.contains([self.course.key, other_id]),
+            {self.course.key: True, other_id: False}
+        )

@@ -5,6 +5,7 @@ from django.conf import settings
 from edx_rest_api_client.client import EdxRestApiClient
 
 from course_discovery.apps.course_metadata.config import COURSES_INDEX_CONFIG
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Seat
 
 logger = logging.getLogger(__name__)
 
@@ -148,8 +149,8 @@ class CourseRunRefreshUtils(object):
         course_run_key = body['id']
         course_key = "{org}+{number}".format(org=body['org'], number=body['number'])
 
-        course_run, created = CourseRun.get_or_create(key=course_run_key)
-        course, created = Course.get_or_create(key=course_key)
+        course_run, __ = CourseRun.get_or_create(key=course_run_key)
+        course, __ = Course.get_or_create(key=course_key)
 
         # This is where we will set all of the lms data we want to store.
         course_run.course = course
@@ -198,14 +199,14 @@ class CourseRunRefreshUtils(object):
             if seat['expires'] is not None:
                 upgrade_deadline = datetime.datetime.strptime(seat['expires'], "%Y%m%dT%H%M%SZ")
 
-            # course_run.seat_set.add(
-            #     Seat(
-            #         external_ecommerce_id=seat['id'],
-            #         price=price,
-            #         currency_iso_code=currency_iso_code,
-            #         type=certificate_type,
-            #         upgrade_deadline=upgrade_deadline,
-            #         credit_provider=credit_provider,
-            #         credit_hours=credit_hours
-            #     )
-            # )
+            course_run.seat_set.add(
+                Seat(
+                    external_ecommerce_id=seat['id'],
+                    price=price,
+                    currency_iso_code=currency_iso_code,
+                    type=certificate_type,
+                    upgrade_deadline=upgrade_deadline,
+                    credit_provider=credit_provider,
+                    credit_hours=credit_hours
+                )
+            )
