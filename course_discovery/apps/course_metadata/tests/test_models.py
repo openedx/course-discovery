@@ -15,6 +15,7 @@ COURSES_API_URL = 'https://lms.example.com/api/courses/v1'
 ECOMMERCE_API_URL = 'https://ecommerce.example.com/api/v2'
 JSON = 'application/json'
 
+
 @skip('Skip until search has been resolved')
 @override_settings(ECOMMERCE_API_URL=ECOMMERCE_API_URL, COURSES_API_URL=COURSES_API_URL)
 class CourseTests(ElasticsearchTestMixin, TestCase):

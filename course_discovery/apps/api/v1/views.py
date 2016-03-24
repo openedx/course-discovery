@@ -107,11 +107,11 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_data(self, limit=None, offset=None):
         """ Return all courses. """
-        query  = self.request.GET.get('q', None)
-        limit  = 1000 if limit is None else limit
+        query = self.request.GET.get('q', None)
+        limit = 1000 if limit is None else limit
         offset = 0 if offset is None else offset
         slice_start = offset
-        slice_end   = offset + limit
+        slice_end = offset + limit
 
         if query:
             query = json.loads(query)

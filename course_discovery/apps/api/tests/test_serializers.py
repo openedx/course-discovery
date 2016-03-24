@@ -32,7 +32,6 @@ class CourseSerializerTests(TestCase):
         expected = {
             'key': course.key,
             'name': course.name,
-            'url': request.build_absolute_uri(),
         }
         self.assertDictEqual(serializer.data, expected)
 

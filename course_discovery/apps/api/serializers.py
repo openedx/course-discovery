@@ -16,7 +16,6 @@ class CourseSerializer(serializers.ModelSerializer):
     key = serializers.CharField(help_text=_('Course Key'))
     name = serializers.CharField(help_text=_('Course name'))
 
-
     class Meta(object):
         model = Catalog
         fields = ('key', 'name',)

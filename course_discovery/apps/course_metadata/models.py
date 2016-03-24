@@ -13,11 +13,12 @@ class Seat(TimeStampedModel):
     Seat model.
     """
     type = models.CharField(max_length=255)
-    price = models.DecimalField()
+    price = models.DecimalField(decimal_places=2, max_digits=8)
     currency = models.ForeignKey(Currency)
-    updgrade_deadline = models.DatetimeField()
+    updgrade_deadline = models.DateTimeField()
     credit_provider_key = models.CharField(max_length=255)
     credit_hours = models.IntegerField()
+
 
 class Image(TimeStampedModel):
     """
@@ -61,6 +62,101 @@ class PacingType(TimeStampedModel):
     name = models.CharField(max_length=255)
 
 
+class Course(TimeStampedModel):
+    """
+    Course model.
+    """
+    key = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
+    organizations = models.ManyToManyField('Organization', through='CourseOrganization')
+    title = models.CharField(
+        max_length=255,
+        default=None,
+        null=True
+    )
+    short_description = models.CharField(
+        max_length=255,
+        default=None,
+        null=True
+    )
+    full_description = models.CharField(
+        max_length=255,
+        default=None,
+        null=True
+    )
+    image = models.ForeignKey(
+        Image,
+        default=None,
+        null=True
+    )
+    video = models.ForeignKey(
+        Video,
+        default=None,
+        null=True
+    )
+    level_type = models.ForeignKey(
+        LevelType,
+        default=None,
+        null=True
+    )
+
+
+class CourseRun(TimeStampedModel):
+    """
+    CourseRun model.
+    """
+    key = models.CharField(max_length=255)
+    start = models.DateTimeField(null=True)
+    end = models.DateTimeField(null=True)
+    enrollment_period_start = models.DateTimeField(null=True)
+    enrollment_period_end = models.DateTimeField(null=True)
+    announcment = models.DateTimeField(null=True)
+    title = models.CharField(
+        max_length=255,
+        default=None,
+        null=True
+    )
+    short_description = models.CharField(
+        max_length=255,
+        default=None,
+        null=True
+    )
+    full_description = models.CharField(
+        max_length=255,
+        default=None,
+        null=True
+    )
+    image = models.ForeignKey(
+        Image,
+        default=None,
+        null=True
+    )
+    video = models.ForeignKey(
+        Video,
+        default=None,
+        null=True
+    )
+    locale = models.ForeignKey(
+        Locale,
+        null=True
+    )
+    pacing_type = models.ForeignKey(
+        PacingType,
+        null=True
+    )
+    effort = models.ForeignKey(
+        Effort,
+        null=True
+    )
+    course = models.ForeignKey(
+        Course,
+        db_index=True,
+        default=None,
+        null=False
+    )
+    people = models.ManyToManyField('Person', through='CourseRunPerson')
+
+
 class Subject(TimeStampedModel):
     """
     Subject model.
@@ -73,7 +169,7 @@ class Prerequisite(TimeStampedModel):
     """
     Prerequisite model.
     """
-    course = models.ManyToManyField(Course)
+    courses = models.ManyToManyField(Course)
     name = models.CharField(max_length=255)
 
 
@@ -104,60 +200,15 @@ class TranscriptLocale(TimeStampedModel):
     course_run = models.ForeignKey(CourseRun)
 
 
-class Course(TimeStampedModel):
-    """
-    Course model.
-    """
-    key = models.CharField(max_length=255)
-    name = models.CharField(max_length=255)
-    organizations = models.ManyToManyField('Organization', through='CourseOrganization')
-    title = models.CharField(max_length=255)
-    short_description = models.CharField(max_length=255)
-    full_description = models.CharField()
-    image = models.ForeignKey(Image)
-    video = models.ForeignKey(Video)
-    level_type = models.ForeignKey(LevelType)
-
-
-
-class CourseRun(TimeStampedModel):
-    """
-    CourseRun model.
-    """
-    key = models.CharField(max_length=255)
-    start = models.DatetimeField()
-    end = models.DatetimeField()
-    enrollment_period_start = models.DatetimeField()
-    enrollment_period_end = models.DatetimeField()
-    announcment = models.DatetimeField()
-    title = models.CharField(max_length=255)
-    short_description = models.CharField(max_length=255)
-    full_description = models.CharField()
-    image = models.ForeignKey(Image)
-    video = models.ForeignKey(Video)
-    locale = models.ForeignKey(Locale)
-    pacing_type = models.ForeignKey(PacingType)
-    effort = models.ForeignKey(Effort)
-    course = models.ForeignKey(
-        Course,
-        db_index=True,
-        default=None,
-        null=False
-    )
-    people = models.ManyToManyField('Person', through='CourseRunPerson')
-    name = models.CharField(max_length=255)
-
-
-
 class Organization(TimeStampedModel):
     """
     Organization model.
     """
     key = models.CharField(max_length=255)
-    name = models.CharField(max_length=255)
-    description = models.CharField(max_length=255)
-    homepage_url = models.CharField()
-    logo_image = models.ForeignKey(Image)
+    name = models.CharField(max_length=255, null=True)
+    description = models.CharField(max_length=255, null=True)
+    homepage_url = models.CharField(max_length=255, null=True)
+    logo_image = models.ForeignKey(Image, null=True)
 
 
 class Person(TimeStampedModel):
@@ -165,10 +216,11 @@ class Person(TimeStampedModel):
     Person model.
     """
     key = models.CharField(max_length=255)
-    name = models.CharField(max_length=255)
-    title = models.CharField(max_length=255)
-    bio = models.CharField(max_length=255)
-    profile_image = models.ForeignKey(Image)
+    name = models.CharField(max_length=255, null=True)
+    title = models.CharField(max_length=255, null=True)
+    bio = models.CharField(max_length=255, null=True)
+    profile_image = models.ForeignKey(Image, null=True)
+    organizations = models.ManyToManyField(Organization)
 
 
 class CourseOrganization(TimeStampedModel):
@@ -177,7 +229,7 @@ class CourseOrganization(TimeStampedModel):
     """
     course = models.ForeignKey(Course, related_name='relationship')
     organization = models.ForeignKey(Organization, related_name='relationship')
-    type = models.CharField(max_length=100)
+    relation_type = models.CharField(max_length=100)
 
 
 class CourseRunPerson(TimeStampedModel):
@@ -186,5 +238,5 @@ class CourseRunPerson(TimeStampedModel):
     """
     course_run = models.ForeignKey(CourseRun, related_name='relationship')
     person = models.ForeignKey(Person, related_name='relationship')
-    type = models.CharField(max_length=100)
+    relation_type = models.CharField(max_length=100)
     index = models.IntegerField()
