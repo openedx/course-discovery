@@ -1,0 +1,96 @@
+# Discovery IDA: upstream API definitions, including vendor extensions.
+# Note, while this document is not strictly to Swagger spec, each HTTP method"s
+#  definition _must_ be to spec or the downstream ref will fail.
+
+apigateway_responses: &apigateway_responses
+  default:
+    statusCode: "400"
+  200:
+    statusCode: "200"
+  401:
+    statusCode: "401"
+  403:
+    statusCode: "403"
+  404:
+    statusCode: "404"
+  429:
+      statusCode: "429"
+  500:
+      statusCode: "500"
+
+produces: &produces
+  - "application/json"
+  - "application/csv"
+
+responses: &responses
+  200:
+    description: "OK"
+  400:
+    description: "Bad Request"
+  401:
+    description: "Unauthorized"
+  403:
+    description: "Forbidden"
+  404:
+    description: "Not Found"
+  429:
+    description: "Too Many Requests"
+  500:
+    description: "Internal Server Error"
+
+id_parameter: &id_parameter
+  name: "id"
+  in: "path"
+  required: true
+  type: "number"
+
+auth_header: &auth_header
+  name: "Authorization"
+  in: "header"
+  required: true
+  type: "string"
+
+# AWS API Gateway vendor extension point. This information is used
+#  by https://github.com/awslabs/aws-apigateway-importer.
+x-amazon-apigateway-integration: &apigateway_integration
+  responses: *apigateway_responses
+  httpMethod: "GET"
+  type: "http"
+  requestParameters:
+    integration.request.header.Authorization: "method.request.header.Authorization"
+
+x-amazon-apigateway-integration-with-id: &apigateway_integration_with_id_parameter
+  responses: *apigateway_responses
+  httpMethod: "GET"
+  type: "http"
+  requestParameters:
+    integration.request.header.Authorization: "method.request.header.Authorization"
+    integration.request.path.id: "method.request.path.id"
+
+endpoints:
+  v1:
+
+    # /v1/catalogs
+    catalogs:
+        get:
+          produces: *produces
+          parameters:
+            - *auth_header
+          operationId: "get_catalogs"
+          responses: *responses
+          x-amazon-apigateway-integration:
+            <<: *apigateway_integration
+            uri: "https://${stageVariables.discovery_host}/v1/catalogs/"
+
+    # /v1/catalogs/{id}
+    catalogsById:
+        get:
+          produces: *produces
+          parameters:
+            - *auth_header
+            - *id_parameter
+          operationId: "get_catalogs_by_id"
+          responses: *responses
+          x-amazon-apigateway-integration:
+            <<: *apigateway_integration_with_id_parameter
+            uri: "https://${stageVariables.discovery_host}/v1/catalogs/{id}/"
