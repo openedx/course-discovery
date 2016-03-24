@@ -2,6 +2,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 from course_discovery.apps.catalogs.models import Catalog
+from course_discovery.apps.course_metadata.models import CourseRun, Person
 
 
 class CatalogSerializer(serializers.ModelSerializer):
@@ -27,3 +28,18 @@ class ContainedCoursesSerializer(serializers.Serializer):  # pylint: disable=abs
         child=serializers.BooleanField(),
         help_text=_('Dictionary mapping course IDs to boolean values')
     )
+
+
+class PersonSerializer(serializers.ModelSerializer):
+
+    class Meta(object):
+        fields = ('id', 'key')
+        model = Person
+
+
+class CourseRunSerializer(serializers.ModelSerializer):
+    staff = PersonSerializer(many=True)
+
+    class Meta(object):
+        fields = ('id', 'key', 'course', 'staff')
+        model = CourseRun

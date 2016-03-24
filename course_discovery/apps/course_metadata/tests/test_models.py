@@ -15,6 +15,7 @@ COURSES_API_URL = 'https://lms.example.com/api/courses/v1'
 ECOMMERCE_API_URL = 'https://ecommerce.example.com/api/v2'
 JSON = 'application/json'
 
+
 @skip('Skip until search has been resolved')
 @override_settings(ECOMMERCE_API_URL=ECOMMERCE_API_URL, COURSES_API_URL=COURSES_API_URL)
 class CourseTests(ElasticsearchTestMixin, TestCase):
@@ -142,12 +143,12 @@ class CourseTests(ElasticsearchTestMixin, TestCase):
         self.assertEqual(course, course)
 
         # Two Courses are equal if their id attributes match
-        self.assertEqual(course, Course(id=course.id, body=course.body))
+        self.assertEqual(course, Course(id=course.id, body=course.body))  # pylint: disable=no-member
 
     def test_str(self):
         """ Verify the __str__ method returns a string representation of the Course. """
         course = CourseFactory()
-        expected = 'Course {id}: {name}'.format(id=course.id, name=course.name)
+        expected = 'Course {id}: {name}'.format(id=course.id, name=course.name)  # pylint: disable=no-member
         self.assertEqual(str(course), expected)
 
     def test_all(self):
@@ -185,7 +186,7 @@ class CourseTests(ElasticsearchTestMixin, TestCase):
     def test_get(self):
         """ Verify the method returns a single course. """
         course = CourseFactory()
-        retrieved = Course.get(course.id)
+        retrieved = Course.get(course.id)  # pylint: disable=no-member
         self.assertEqual(course, retrieved)
 
     def test_get_with_missing_course(self):

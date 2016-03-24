@@ -1,7 +1,7 @@
 import factory
 from factory.fuzzy import FuzzyText
 
-from course_discovery.apps.course_metadata.models import Course
+from course_discovery.apps.course_metadata.models import Course, CourseRun
 
 
 class CourseFactory(factory.DjangoModelFactory):
@@ -10,3 +10,11 @@ class CourseFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = Course
+
+
+class CourseRunFactory(factory.DjangoModelFactory):
+    key = FuzzyText(prefix='course-run-id/', suffix='/fake')
+    course = factory.SubFactory(CourseFactory)
+
+    class Meta:
+        model = CourseRun

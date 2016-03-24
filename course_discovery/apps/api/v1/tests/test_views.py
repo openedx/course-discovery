@@ -12,12 +12,12 @@ from django.test import override_settings
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase, APIRequestFactory
 
-from course_discovery.apps.api.serializers import CatalogSerializer, CourseSerializer
+from course_discovery.apps.api.serializers import CatalogSerializer, CourseSerializer, CourseRunSerializer
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory
 
 OAUTH2_ACCESS_TOKEN_URL = 'http://example.com/oauth2/access_token/'
 
@@ -59,6 +59,9 @@ class SerializationMixin(object):
 
     def serialize_course(self, course, many=False, format=None):
         return self._serialize_object(CourseSerializer, course, many, format)
+
+    def serialize_course_run(self, course_run, many=False, format=None):
+        return self._serialize_object(CourseRunSerializer, course_run, many, format)
 
 
 @ddt.ddt
@@ -168,7 +171,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
     def test_contains(self):
         """ Verify the endpoint returns a filtered list of courses contained in the catalog. """
-        course_id = self.course.id
+        course_id = self.course.id  # pylint: disable=no-member
         qs = urllib.parse.urlencode({'course_id': course_id})
         url = '{}?{}'.format(reverse('api:v1:catalog-contains', kwargs={'id': self.catalog.id}), qs)
 
@@ -297,7 +300,7 @@ class CourseViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixin
     def assert_retrieve_success(self, **headers):
         """ Asserts the endpoint returns details for a single course. """
         course = CourseFactory()
-        url = reverse('api:v1:course-detail', kwargs={'id': course.id})
+        url = reverse('api:v1:course-detail', kwargs={'id': course.id})  # pylint: disable=no-member
         response = self.client.get(url, format='json', **headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, self.serialize_course(course))
@@ -308,3 +311,50 @@ class CourseViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixin
         self.client.logout()
         self.mock_access_token_response(self.user)
         self.assert_retrieve_success(HTTP_AUTHORIZATION=self.generate_oauth2_token_header(self.user))
+
+
+class CourseRunViewSetTests(SerializationMixin, OAuth2Mixin, APITestCase):
+
+    def setUp(self):
+        super(CourseRunViewSetTests, self).setUp()
+        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+    def test_list(self):
+        course_runs = sorted(CourseRunFactory.create_batch(10), key=lambda c: c.id, reverse=True)
+        limit = 3
+        offset = 5
+        url = reverse('api:v1:course_run-list')
+        response = self.client.get(url, {'limit': limit, 'offset': offset})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.data['results'],
+            self.serialize_course_run(course_runs[offset:offset + limit], many=True)
+        )
+
+    def assert_retrieve_success(self, **headers):
+        course_run = CourseRunFactory()
+        url = reverse('api:v1:course_run-detail', kwargs={'key': course_run.key})
+        response = self.client.get(url, **headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, self.serialize_course_run(course_run))
+
+    test_retrieve = assert_retrieve_success
+
+    @responses.activate
+    @override_settings(OAUTH2_ACCESS_TOKEN_URL=OAUTH2_ACCESS_TOKEN_URL)
+    def test_retrieve_with_oauth2_authentication(self):
+        self.client.logout()
+        self.mock_access_token_response(self.user)
+        self.assert_retrieve_success(HTTP_AUTHORIZATION=self.generate_oauth2_token_header(self.user))
+
+    def test_unauthenticated(self):
+        self.client.logout()
+        url = reverse('api:v1:course_run-list')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_retrieve_not_found(self):
+        url = reverse('api:v1:course_run-detail', kwargs={'key': 'org/course/run'})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
