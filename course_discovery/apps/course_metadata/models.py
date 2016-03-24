@@ -13,9 +13,9 @@ class Seat(TimeStampedModel):
     Seat model.
     """
     type = models.CharField(max_length=255)
-    price = models.DecimalField()
+    price = models.DecimalField(decimal_places=2, max_digits=10)
     currency = models.ForeignKey(Currency)
-    updgrade_deadline = models.DatetimeField()
+    upgrade_deadline = models.DateTimeField()
     credit_provider_key = models.CharField(max_length=255)
     credit_hours = models.IntegerField()
 
@@ -62,6 +62,21 @@ class PacingType(TimeStampedModel):
     name = models.CharField(max_length=255)
 
 
+class Course(TimeStampedModel):
+    """
+    Course model.
+    """
+    key = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
+    organizations = models.ManyToManyField('Organization', through='CourseOrganization')
+    title = models.CharField(max_length=255)
+    short_description = models.CharField(max_length=255)
+    full_description = models.CharField(max_length=255)
+    image = models.ForeignKey(Image)
+    video = models.ForeignKey(Video)
+    level_type = models.ForeignKey(LevelType)
+
+
 class Subject(TimeStampedModel):
     """
     Subject model.
@@ -87,6 +102,34 @@ class ExpectedLearningItem(TimeStampedModel):
     index = models.IntegerField()
 
 
+class CourseRun(TimeStampedModel):
+    """
+    CourseRun model.
+    """
+    key = models.CharField(max_length=255)
+    start = models.DateTimeField()
+    end = models.DateTimeField()
+    enrollment_period_start = models.DateTimeField()
+    enrollment_period_end = models.DateTimeField()
+    announcment = models.DateTimeField()
+    title = models.CharField(max_length=255)
+    short_description = models.CharField(max_length=255)
+    full_description = models.CharField(max_length=255)
+    image = models.ForeignKey(Image)
+    video = models.ForeignKey(Video)
+    locale = models.ForeignKey(Locale)
+    pacing_type = models.ForeignKey(PacingType)
+    effort = models.ForeignKey(Effort)
+    course = models.ForeignKey(
+        Course,
+        db_index=True,
+        default=None,
+        null=False
+    )
+    people = models.ManyToManyField('Person', through='CourseRunPerson')
+    name = models.CharField(max_length=255)
+
+
 class SyllabusItem(TimeStampedModel):
     """
     SyllabusItem model.
@@ -105,51 +148,6 @@ class TranscriptLocale(TimeStampedModel):
     course_run = models.ForeignKey(CourseRun)
 
 
-class Course(TimeStampedModel):
-    """
-    Course model.
-    """
-    key = models.CharField(max_length=255)
-    name = models.CharField(max_length=255)
-    organizations = models.ManyToManyField('Organization', through='CourseOrganization')
-    title = models.CharField(max_length=255)
-    short_description = models.CharField(max_length=255)
-    full_description = models.CharField()
-    image = models.ForeignKey(Image)
-    video = models.ForeignKey(Video)
-    level_type = models.ForeignKey(LevelType)
-
-
-
-class CourseRun(TimeStampedModel):
-    """
-    CourseRun model.
-    """
-    key = models.CharField(max_length=255)
-    start = models.DatetimeField()
-    end = models.DatetimeField()
-    enrollment_period_start = models.DatetimeField()
-    enrollment_period_end = models.DatetimeField()
-    announcment = models.DatetimeField()
-    title = models.CharField(max_length=255)
-    short_description = models.CharField(max_length=255)
-    full_description = models.CharField()
-    image = models.ForeignKey(Image)
-    video = models.ForeignKey(Video)
-    locale = models.ForeignKey(Locale)
-    pacing_type = models.ForeignKey(PacingType)
-    effort = models.ForeignKey(Effort)
-    course = models.ForeignKey(
-        Course,
-        db_index=True,
-        default=None,
-        null=False
-    )
-    people = models.ManyToManyField('Person', through='CourseRunPerson')
-    name = models.CharField(max_length=255)
-
-
-
 class Organization(TimeStampedModel):
     """
     Organization model.
@@ -157,7 +155,7 @@ class Organization(TimeStampedModel):
     key = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
-    homepage_url = models.CharField()
+    homepage_url = models.CharField(max_length=255)
     logo_image = models.ForeignKey(Image)
 
 
