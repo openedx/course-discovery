@@ -12,8 +12,8 @@ class ElasticsearchTestMixin(object):
     @classmethod
     def setUpClass(cls):
         super(ElasticsearchTestMixin, cls).setUpClass()
-        host = settings.ELASTICSEARCH['host']
-        cls.index = settings.ELASTICSEARCH['index']
+        host = settings.HAYSTACK_CONNECTIONS['default']['URL']
+        cls.index = settings.HAYSTACK_CONNECTIONS['default']['INDEX_NAME']
         cls.es = Elasticsearch(host)
 
     def setUp(self):

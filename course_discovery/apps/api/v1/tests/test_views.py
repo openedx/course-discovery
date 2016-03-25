@@ -2,7 +2,6 @@
 import json
 import urllib
 from time import time
-from unittest import skip
 
 import ddt
 import jwt
@@ -141,7 +140,6 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.mock_user_info_response(self.user)
         self.assert_catalog_created(HTTP_AUTHORIZATION=self.generate_oauth2_token_header(self.user))
 
-    @skip('Re-enable once we switch to Haystack')
     def test_courses(self):
         """ Verify the endpoint returns the list of courses contained in the catalog. """
         url = reverse('api:v1:catalog-courses', kwargs={'id': self.catalog.id})
@@ -151,7 +149,6 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
-    @skip('Re-enable once we switch to Haystack')
     def test_contains(self):
         """ Verify the endpoint returns a filtered list of courses contained in the catalog. """
         course_key = self.course.key
