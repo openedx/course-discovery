@@ -280,3 +280,4 @@ ELASTICSEARCH = {
 # TODO Replace with None and document.
 ECOMMERCE_API_URL = 'https://ecommerce.stage.edx.org/api/v2/'
 COURSES_API_URL = 'https://courses.stage.edx.org/api/courses/v1/'
+DRUPAL_API_URL = 'https://stage.edx.org/api/catalog/v2/'
