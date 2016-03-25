@@ -280,3 +280,7 @@ ELASTICSEARCH = {
 # TODO Replace with None and document.
 ECOMMERCE_API_URL = 'https://ecommerce.stage.edx.org/api/v2/'
 COURSES_API_URL = 'https://courses.stage.edx.org/api/courses/v1/'
+
+EDX_DRF_EXTENSIONS = {
+    'OAUTH2_USER_INFO_URL': 'http://localhost:8000/oauth2/user_info',
+}

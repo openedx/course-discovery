@@ -1,5 +1,4 @@
 # pylint: disable=redefined-builtin
-import datetime
 import json
 import urllib
 from time import time
@@ -8,7 +7,6 @@ import ddt
 import jwt
 import responses
 from django.conf import settings
-from django.test import override_settings
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase, APIRequestFactory
 
@@ -19,28 +17,27 @@ from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWOR
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 
-OAUTH2_ACCESS_TOKEN_URL = 'http://example.com/oauth2/access_token/'
-
 
 class OAuth2Mixin(object):
-    def get_access_token(self, user):
-        """ Generates an OAuth2 access token for the user. """
-        return user.username
-
     def generate_oauth2_token_header(self, user):
         """ Generates a Bearer authorization header to simulate OAuth2 authentication. """
-        return 'Bearer {token}'.format(token=self.get_access_token(user))
+        return 'Bearer {token}'.format(token=user.username)
 
-    def mock_access_token_response(self, user, status=200):
-        """ Mock the access token endpoint response of the OAuth2 provider. """
-        url = '{root}/{token}'.format(root=OAUTH2_ACCESS_TOKEN_URL.rstrip('/'), token=self.get_access_token(user))
-        expires = datetime.datetime.utcnow() + datetime.timedelta(days=1)
+    def mock_user_info_response(self, user, status=200):
+        """ Mock the user info endpoint response of the OAuth2 provider. """
+
+        data = {
+            'family_name': user.last_name,
+            'preferred_username': user.username,
+            'given_name': user.first_name,
+            'email': user.email,
+        }
 
         responses.add(
             responses.GET,
-            url,
-            body=json.dumps({'username': user.username, 'scope': 'read', 'expires': expires.isoformat()}),
-            content_type="application/json",
+            settings.EDX_DRF_EXTENSIONS['OAUTH2_USER_INFO_URL'],
+            body=json.dumps(data),
+            content_type='application/json',
             status=status
         )
 
@@ -151,10 +148,9 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.assert_catalog_created(HTTP_AUTHORIZATION=self.generate_jwt_token_header(self.user))
 
     @responses.activate
-    @override_settings(OAUTH2_ACCESS_TOKEN_URL=OAUTH2_ACCESS_TOKEN_URL)
     def test_create_with_oauth2_authentication(self):
         self.client.logout()
-        self.mock_access_token_response(self.user)
+        self.mock_user_info_response(self.user)
         self.assert_catalog_created(HTTP_AUTHORIZATION=self.generate_oauth2_token_header(self.user))
 
     def test_courses(self):
@@ -302,8 +298,7 @@ class CourseViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixin
         self.assertEqual(response.data, self.serialize_course(course))
 
     @responses.activate
-    @override_settings(OAUTH2_ACCESS_TOKEN_URL=OAUTH2_ACCESS_TOKEN_URL)
     def test_retrieve_with_oauth2_authentication(self):
         self.client.logout()
-        self.mock_access_token_response(self.user)
+        self.mock_user_info_response(self.user)
         self.assert_retrieve_success(HTTP_AUTHORIZATION=self.generate_oauth2_token_header(self.user))
