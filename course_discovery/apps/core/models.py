@@ -3,7 +3,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from django_extensions.db.models import TimeStampedModel
 
 
 class User(AbstractUser):
@@ -40,22 +39,18 @@ class UserThrottleRate(models.Model):
     )
 
 
-class Language(TimeStampedModel):
-    """
-    Language model.
-    """
-    iso_code = models.CharField(max_length=2)
+class Language(models.Model):
+    """ Language model. """
+    iso_code = models.CharField(max_length=2, primary_key=True, unique=True)
     name = models.CharField(max_length=255)
 
     def __str__(self):
         return self.iso_code
 
 
-class Locale(TimeStampedModel):
-    """
-    Locale model.
-    """
-    iso_code = models.CharField(max_length=5)
+class Locale(models.Model):
+    """ Locale model. """
+    iso_code = models.CharField(max_length=5, primary_key=True, unique=True)
     name = models.CharField(max_length=255)
     language = models.ForeignKey(Language)
 
@@ -63,11 +58,9 @@ class Locale(TimeStampedModel):
         return self.iso_code
 
 
-class Currency(TimeStampedModel):
-    """
-    Language model.
-    """
-    iso_code = models.CharField(max_length=2)
+class Currency(models.Model):
+    """ Language model. """
+    iso_code = models.CharField(max_length=3, primary_key=True, unique=True)
     name = models.CharField(max_length=255)
 
     def __str__(self):

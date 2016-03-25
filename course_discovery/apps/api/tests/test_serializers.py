@@ -31,7 +31,7 @@ class CourseSerializerTests(TestCase):
 
         expected = {
             'key': course.key,
-            'name': course.name,
+            'title': course.title,
         }
         self.assertDictEqual(serializer.data, expected)
 

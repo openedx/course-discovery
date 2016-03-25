@@ -2,6 +2,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 from course_discovery.apps.catalogs.models import Catalog
+from course_discovery.apps.course_metadata.models import Course
 
 
 class CatalogSerializer(serializers.ModelSerializer):
@@ -14,11 +15,11 @@ class CatalogSerializer(serializers.ModelSerializer):
 
 class CourseSerializer(serializers.ModelSerializer):
     key = serializers.CharField(help_text=_('Course Key'))
-    name = serializers.CharField(help_text=_('Course name'))
+    title = serializers.CharField(help_text=_('Course title'))
 
     class Meta(object):
-        model = Catalog
-        fields = ('key', 'name',)
+        model = Course
+        fields = ('key', 'title',)
 
 
 class ContainedCoursesSerializer(serializers.Serializer):  # pylint: disable=abstract-method

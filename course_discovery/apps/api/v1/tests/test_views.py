@@ -64,7 +64,6 @@ class SerializationMixin(object):
 
 
 @ddt.ddt
-@skip('Skip until ES search is resolved.')
 class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixin, APITestCase):
     """ Tests for the catalog resource.
 
@@ -81,7 +80,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
                     'must': [
                         {
                             'wildcard': {
-                                'course.name': 'abc*'
+                                'course.title': 'abc*'
                             }
                         }
                     ]
@@ -89,7 +88,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             }
         }
         self.catalog = CatalogFactory(query=json.dumps(query))
-        self.course = CourseFactory(key='a/b/c', name='ABC Test Course')
+        self.course = CourseFactory(key='a/b/c', title='ABC Test Course')
         self.refresh_index()
 
     def generate_jwt_token_header(self, user):
@@ -159,6 +158,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.mock_access_token_response(self.user)
         self.assert_catalog_created(HTTP_AUTHORIZATION=self.generate_oauth2_token_header(self.user))
 
+    @skip('Skip until ES search is resolved.')
     def test_courses(self):
         """ Verify the endpoint returns the list of courses contained in the catalog. """
         url = reverse('api:v1:catalog-courses', kwargs={'id': self.catalog.id})
@@ -168,6 +168,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
+    @skip('Skip until ES search is resolved.')
     def test_contains(self):
         """ Verify the endpoint returns a filtered list of courses contained in the catalog. """
         course_key = self.course.key

@@ -19,7 +19,7 @@ class CatalogTests(ElasticsearchTestMixin, TestCase):
                     'must': [
                         {
                             'wildcard': {
-                                'course.name': 'abc*'
+                                'course.title': 'abc*'
                             }
                         }
                     ]
@@ -27,7 +27,7 @@ class CatalogTests(ElasticsearchTestMixin, TestCase):
             }
         }
         self.catalog = factories.CatalogFactory(query=json.dumps(query))
-        self.course = CourseFactory(key='a/b/c', name='ABCs of Ͳҽʂէìղց')
+        self.course = CourseFactory(key='a/b/c', title='ABCs of Ͳҽʂէìղց')
         self.refresh_index()
 
     def test_unicode(self):
