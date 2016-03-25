@@ -35,7 +35,7 @@ course-discovery:
     - .:/edx/app/course_discovery/discovery
   command: /edx/app/discovery/devstack.sh start
   environment:
-    TEST_ELASTICSEARCH_HOST: "es"
+    TEST_ELASTICSEARCH_URL: "http://es:9200"
   ports:
     - "18381:18381"
     - "8381:8381"

@@ -35,6 +35,7 @@ THIRD_PARTY_APPS = (
     'waffle',
     'sortedm2m',
     'simple_history',
+    'haystack',
 )
 
 PROJECT_APPS = (
@@ -276,10 +277,18 @@ SWAGGER_SETTINGS = {
     'doc_expansion': 'list',
 }
 
-ELASTICSEARCH = {
-    'host': 'localhost:9200',
-    'index': 'course_discovery',
+ELASTICSEARCH_URL = 'http://127.0.0.1:9200/'
+ELASTICSEARCH_INDEX_NAME = 'catalog'
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
+        'URL': ELASTICSEARCH_URL,
+        'INDEX_NAME': ELASTICSEARCH_INDEX_NAME,
+    },
 }
+
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
 # TODO Replace with None and document.
 ECOMMERCE_API_URL = 'https://ecommerce.stage.edx.org/api/v2/'

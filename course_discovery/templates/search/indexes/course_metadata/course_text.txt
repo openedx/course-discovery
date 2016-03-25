@@ -1,0 +1,6 @@
+{{ object.key }}
+{{ object.title }}
+{{ object.organizations.all|default:'' }}
+{{ object.short_description|default:'' }}
+{{ object.full_description|default:'' }}
+{{ object.level_type|default:'' }}

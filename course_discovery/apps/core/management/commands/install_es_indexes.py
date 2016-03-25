@@ -13,8 +13,8 @@ class Command(BaseCommand):
     help = 'Install any required Elasticsearch indexes'
 
     def handle(self, *args, **options):
-        host = settings.ELASTICSEARCH['host']
-        alias = settings.ELASTICSEARCH['index']
+        host = settings.HAYSTACK_CONNECTIONS['default']['URL']
+        alias = settings.HAYSTACK_CONNECTIONS['default']['INDEX_NAME']
 
         logger.info('Attempting to establish initial connection to Elasticsearch host [%s]...', host)
         es = Elasticsearch(host)
