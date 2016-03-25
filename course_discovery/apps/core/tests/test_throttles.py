@@ -15,7 +15,7 @@ class RateLimitingTest(APITestCase):
 
     def setUp(self):
         super(RateLimitingTest, self).setUp()
-        self.url = reverse('api:v1:course-list')
+        self.url = reverse('api:v1:catalog-list')
         self.user = UserFactory()
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 

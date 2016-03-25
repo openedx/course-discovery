@@ -37,3 +37,31 @@ class UserThrottleRate(models.Model):
             'The rate of requests to limit this user to. The format is specified by Django'
             ' Rest Framework (see http://www.django-rest-framework.org/api-guide/throttling/).')
     )
+
+
+class Language(models.Model):
+    """ Language model. """
+    iso_code = models.CharField(max_length=2, primary_key=True, unique=True)
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.iso_code
+
+
+class Locale(models.Model):
+    """ Locale model. """
+    iso_code = models.CharField(max_length=5, primary_key=True, unique=True)
+    name = models.CharField(max_length=255)
+    language = models.ForeignKey(Language)
+
+    def __str__(self):
+        return self.iso_code
+
+
+class Currency(models.Model):
+    """ Language model. """
+    iso_code = models.CharField(max_length=3, primary_key=True, unique=True)
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.iso_code
