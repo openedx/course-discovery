@@ -92,14 +92,6 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     """ Course resource. """
     lookup_field = 'key'
     lookup_value_regex = COURSE_ID_REGEX
+    queryset = Course.objects.all().order_by(Lower('key'))
     permission_classes = (IsAuthenticated,)
     serializer_class = CourseSerializer
-    queryset = Course.objects.all().order_by(Lower('key'))
-
-    def list(self, request, *args, **kwargs):
-        """ List all courses. """
-        return super(CourseViewSet, self).list(request, *args, **kwargs)
-
-    def retrieve(self, request, *args, **kwargs):
-        """ Retrieve details for a course. """
-        return super(CourseViewSet, self).retrieve(request, *args, **kwargs)

@@ -15,6 +15,7 @@ from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory
+from course_discovery.apps.course_metadata.models import Course
 
 
 class OAuth2Mixin(object):
@@ -201,40 +202,25 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
 
 @ddt.ddt
-class CourseViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixin, APITestCase):
+class CourseViewSetTests(SerializationMixin, OAuth2Mixin, APITestCase):
     def setUp(self):
         super(CourseViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.course = CourseFactory()
 
-    @ddt.data('json', 'api')
-    def test_list(self, format):
-        """ Verify the endpoint returns a list of all courses. """
-        courses = CourseFactory.create_batch(10)
-        courses.sort(key=lambda course: course.key.lower())
+    def test_get(self):
+        """ Verify the endpoint returns the details for a single course. """
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, self.serialize_course(self.course))
+
+    def test_list(self):
+        """ Verify the endpoint returns a list of all catalogs. """
         url = reverse('api:v1:course-list')
-        limit = 3
 
-        response = self.client.get(url, {'format': format, 'limit': limit})
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertListEqual(response.data['results'], self.serialize_course(courses[:limit], many=True, format=format))
-
-        response.render()
-
-    def test_retrieve(self):
-        """ Verify the endpoint returns a single course. """
-        self.assert_retrieve_success()
-
-    def assert_retrieve_success(self, **headers):
-        """ Asserts the endpoint returns details for a single course. """
-        course = CourseFactory()
-        url = reverse('api:v1:course-detail', kwargs={'key': course.key})
-        response = self.client.get(url, format='json', **headers)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, self.serialize_course(course))
-
-    @responses.activate
-    def test_retrieve_with_oauth2_authentication(self):
-        self.client.logout()
-        self.mock_user_info_response(self.user)
-        self.assert_retrieve_success(HTTP_AUTHORIZATION=self.generate_oauth2_token_header(self.user))
+        self.assertListEqual(response.data['results'], self.serialize_course(Course.objects.all(), many=True))
