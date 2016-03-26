@@ -36,6 +36,7 @@ THIRD_PARTY_APPS = (
     'sortedm2m',
     'simple_history',
     'haystack',
+    'guardian',
 )
 
 PROJECT_APPS = (
@@ -166,7 +167,12 @@ AUTH_USER_MODEL = 'core.User'
 AUTHENTICATION_BACKENDS = (
     'auth_backends.backends.EdXOpenIdConnect',
     'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
 )
+
+# Guardian settings
+ANONYMOUS_USER_NAME = None  # Do not allow anonymous user access
+GUARDIAN_MONKEY_PATCH = False  # Use the mixin on the User model instead of monkey-patching.
 
 ENABLE_AUTO_AUTH = False
 AUTO_AUTH_USERNAME_PREFIX = 'auto_auth_'

@@ -47,3 +47,9 @@ class Catalog(TimeStampedModel):
             contains[result.get_stored_fields()['key']] = True
 
         return contains
+
+    class Meta(TimeStampedModel.Meta):
+        abstract = False
+        permissions = (
+            ('view_catalog', 'Can view catalog'),
+        )
