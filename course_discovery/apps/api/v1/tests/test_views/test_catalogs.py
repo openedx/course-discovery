@@ -1,15 +1,13 @@
 # pylint: disable=redefined-builtin
-import json
 import urllib
 
 import ddt
 import responses
-from django.conf import settings
 from rest_framework.reverse import reverse
-from rest_framework.test import APITestCase, APIRequestFactory
+from rest_framework.test import APITestCase
 
-from course_discovery.apps.api.serializers import CatalogSerializer, CourseSerializer
 from course_discovery.apps.api.tests.jwt_utils import generate_jwt_header_for_user
+from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin, OAuth2Mixin
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
@@ -17,53 +15,9 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 
 
-class OAuth2Mixin(object):
-    def generate_oauth2_token_header(self, user):
-        """ Generates a Bearer authorization header to simulate OAuth2 authentication. """
-        return 'Bearer {token}'.format(token=user.username)
-
-    def mock_user_info_response(self, user, status=200):
-        """ Mock the user info endpoint response of the OAuth2 provider. """
-
-        data = {
-            'family_name': user.last_name,
-            'preferred_username': user.username,
-            'given_name': user.first_name,
-            'email': user.email,
-        }
-
-        responses.add(
-            responses.GET,
-            settings.EDX_DRF_EXTENSIONS['OAUTH2_USER_INFO_URL'],
-            body=json.dumps(data),
-            content_type='application/json',
-            status=status
-        )
-
-
-class SerializationMixin(object):
-    def _get_request(self, format=None):
-        query_data = {}
-        if format:
-            query_data['format'] = format
-        return APIRequestFactory().get('/', query_data)
-
-    def _serialize_object(self, serializer, obj, many=False, format=None):
-        return serializer(obj, many=many, context={'request': self._get_request(format)}).data
-
-    def serialize_catalog(self, catalog, many=False, format=None):
-        return self._serialize_object(CatalogSerializer, catalog, many, format)
-
-    def serialize_course(self, course, many=False, format=None):
-        return self._serialize_object(CourseSerializer, course, many, format)
-
-
 @ddt.ddt
 class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixin, APITestCase):
-    """ Tests for the catalog resource.
-
-    Read-only (GET) endpoints should NOT require authentication.
-    """
+    """ Tests for the catalog resource. """
 
     def setUp(self):
         super(CatalogViewSetTests, self).setUp()
@@ -72,6 +26,22 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.catalog = CatalogFactory(query='title:abc*')
         self.course = CourseFactory(key='a/b/c', title='ABC Test Course')
         self.refresh_index()
+
+    def assert_catalog_created(self, **headers):
+        name = 'The Kitchen Sink'
+        query = '*.*'
+        data = {
+            'name': name,
+            'query': query
+        }
+
+        response = self.client.post(reverse('api:v1:catalog-list'), data, format='json', **headers)
+        self.assertEqual(response.status_code, 201)
+
+        catalog = Catalog.objects.latest()
+        self.assertDictEqual(response.data, self.serialize_catalog(catalog))
+        self.assertEqual(catalog.name, name)
+        self.assertEqual(catalog.query, query)
 
     def test_create_without_authentication(self):
         """ Verify authentication is required when creating, updating, or deleting a catalog. """
@@ -90,22 +60,6 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
         response = getattr(self.client, http_method)(url, {}, format='json')
         self.assertEqual(response.status_code, 403)
-
-    def assert_catalog_created(self, **headers):
-        name = 'The Kitchen Sink'
-        query = '*.*'
-        data = {
-            'name': name,
-            'query': query
-        }
-
-        response = self.client.post(reverse('api:v1:catalog-list'), data, format='json', **headers)
-        self.assertEqual(response.status_code, 201)
-
-        catalog = Catalog.objects.latest()
-        self.assertDictEqual(response.data, self.serialize_catalog(catalog))
-        self.assertEqual(catalog.name, name)
-        self.assertEqual(catalog.query, query)
 
     def test_create_with_session_authentication(self):
         """ Verify the endpoint creates a new catalog when the client is authenticated via session authentication. """
@@ -198,43 +152,3 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         catalog = Catalog.objects.get(id=self.catalog.id)
         self.assertEqual(catalog.name, name)
         self.assertEqual(catalog.query, query)
-
-
-@ddt.ddt
-class CourseViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixin, APITestCase):
-    def setUp(self):
-        super(CourseViewSetTests, self).setUp()
-        self.user = UserFactory(is_staff=True, is_superuser=True)
-        self.client.login(username=self.user.username, password=USER_PASSWORD)
-
-    @ddt.data('json', 'api')
-    def test_list(self, format):
-        """ Verify the endpoint returns a list of all courses. """
-        courses = CourseFactory.create_batch(10)
-        courses.sort(key=lambda course: course.key.lower())
-        url = reverse('api:v1:course-list')
-        limit = 3
-
-        response = self.client.get(url, {'format': format, 'limit': limit})
-        self.assertEqual(response.status_code, 200)
-        self.assertListEqual(response.data['results'], self.serialize_course(courses[:limit], many=True, format=format))
-
-        response.render()
-
-    def test_retrieve(self):
-        """ Verify the endpoint returns a single course. """
-        self.assert_retrieve_success()
-
-    def assert_retrieve_success(self, **headers):
-        """ Asserts the endpoint returns details for a single course. """
-        course = CourseFactory()
-        url = reverse('api:v1:course-detail', kwargs={'key': course.key})
-        response = self.client.get(url, format='json', **headers)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, self.serialize_course(course))
-
-    @responses.activate
-    def test_retrieve_with_oauth2_authentication(self):
-        self.client.logout()
-        self.mock_user_info_response(self.user)
-        self.assert_retrieve_success(HTTP_AUTHORIZATION=self.generate_oauth2_token_header(self.user))
