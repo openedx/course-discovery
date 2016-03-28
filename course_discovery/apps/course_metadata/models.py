@@ -6,7 +6,8 @@ from django_extensions.db.models import TimeStampedModel
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 
-from course_discovery.apps.core.models import Locale, Currency
+from course_discovery.apps.core.models import Currency
+from course_discovery.apps.ietf_language_tags.models import Locale
 
 logger = logging.getLogger(__name__)
 
