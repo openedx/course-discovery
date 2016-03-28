@@ -51,17 +51,6 @@ class AbstractCodeModel(models.Model):
         abstract = True
 
 
-# TODO (CCB): Determine the specific use cases for Language and Locale. As defined, Locale is actually Language.
-class Language(AbstractCodeModel):
-    """ Table of languages as defined by ISO 639-1. """
-    pass
-
-
-class Locale(AbstractCodeModel):
-    """ Table of locales (region + language). """
-    language = models.ForeignKey(Language)
-
-
 class Currency(AbstractCodeModel):
     """ Table of currencies as defined by ISO-4217. """
     class Meta(object):
