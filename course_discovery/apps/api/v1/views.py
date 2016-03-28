@@ -1,11 +1,13 @@
 import logging
 
 from django.db.models.functions import Lower
+from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from course_discovery.apps.api.filters import PermissionsFilter
 from course_discovery.apps.api.serializers import CatalogSerializer, CourseSerializer, ContainedCoursesSerializer
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX
@@ -18,7 +20,9 @@ logger = logging.getLogger(__name__)
 class CatalogViewSet(viewsets.ModelViewSet):
     """ Catalog resource. """
 
+    filter_backends = (PermissionsFilter,)
     lookup_field = 'id'
+    permission_classes = (DRYPermissions,)
     queryset = Catalog.objects.all()
     serializer_class = CatalogSerializer
 

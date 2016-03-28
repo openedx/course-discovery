@@ -1,4 +1,4 @@
-# pylint: disable=redefined-builtin
+# pylint: disable=redefined-builtin,no-member
 import urllib
 
 import ddt
@@ -10,7 +10,7 @@ from course_discovery.apps.api.tests.jwt_utils import generate_jwt_header_for_us
 from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin, OAuth2Mixin
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
-from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
+from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 
@@ -22,7 +22,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
     def setUp(self):
         super(CatalogViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
-        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.client.force_authenticate(self.user)
         self.catalog = CatalogFactory(query='title:abc*')
         self.course = CourseFactory(key='a/b/c', title='ABC Test Course')
         self.refresh_index()
@@ -42,6 +42,12 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.assertDictEqual(response.data, self.serialize_catalog(catalog))
         self.assertEqual(catalog.name, name)
         self.assertEqual(catalog.query, query)
+
+    def grant_catalog_permission_to_user(self, user, action):
+        """ Grant the user access to view `self.catalog`. """
+        perm = '{action}_catalog'.format(action=action)
+        user.add_obj_perm(perm, self.catalog)
+        self.assertTrue(user.has_perm('catalogs.' + perm, self.catalog))
 
     def test_create_without_authentication(self):
         """ Verify authentication is required when creating, updating, or deleting a catalog. """
@@ -152,3 +158,58 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         catalog = Catalog.objects.get(id=self.catalog.id)
         self.assertEqual(catalog.name, name)
         self.assertEqual(catalog.query, query)
+
+    def test_retrieve_permissions(self):
+        """ Verify only users with the correct permissions can create, read, or modify a Catalog. """
+        # Use an unprivileged user
+        user = UserFactory(is_staff=False, is_superuser=False)
+        self.client.force_authenticate(user)
+        url = reverse('api:v1:catalog-detail', kwargs={'id': self.catalog.id})
+
+        # A user with no permissions should NOT be able to view a Catalog.
+        self.assertFalse(user.has_perm('catalogs.view_catalog', self.catalog))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+        # The permitted user should be able to view the Catalog.
+        self.grant_catalog_permission_to_user(user, 'view')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_list_permissions(self):
+        """ Verify only catalogs accessible to the user are returned in the list view. """
+        user = UserFactory(is_staff=False, is_superuser=False)
+        self.client.force_authenticate(user)
+        url = reverse('api:v1:catalog-list')
+
+        # An user with no permissions should not see any catalogs
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertListEqual(response.data['results'], [])
+
+        # The client should be able to see permissions for which it has access
+        self.grant_catalog_permission_to_user(user, 'view')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertListEqual(response.data['results'], self.serialize_catalog([self.catalog], many=True))
+
+    def test_write_permissions(self):
+        """ Verify only authorized users can update or delete Catalogs. """
+        url = reverse('api:v1:catalog-detail', kwargs={'id': self.catalog.id})
+        user = UserFactory(is_staff=False, is_superuser=False)
+        self.client.force_authenticate(user)
+
+        # Unprivileged users cannot modify Catalogs
+        response = self.client.put(url)
+        self.assertEqual(response.status_code, 403)
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 403)
+
+        # With the right permissions, the user can perform the specified actions
+        self.grant_catalog_permission_to_user(user, 'change')
+        response = self.client.patch(url, {'query': '*:*'})
+        self.assertEqual(response.status_code, 200)
+
+        self.grant_catalog_permission_to_user(user, 'delete')
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 204)

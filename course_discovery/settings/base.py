@@ -37,6 +37,7 @@ THIRD_PARTY_APPS = (
     'simple_history',
     'haystack',
     'guardian',
+    'dry_rest_permissions',
 )
 
 PROJECT_APPS = (
