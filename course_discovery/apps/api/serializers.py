@@ -6,11 +6,9 @@ from course_discovery.apps.course_metadata.models import Course
 
 
 class CatalogSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='api:v1:catalog-detail', lookup_field='id')
-
     class Meta(object):
         model = Catalog
-        fields = ('id', 'name', 'query', 'url',)
+        fields = ('id', 'name', 'query', 'courses_count',)
 
 
 class CourseSerializer(serializers.ModelSerializer):

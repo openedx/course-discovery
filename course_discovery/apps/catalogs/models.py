@@ -32,6 +32,10 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
         results = self._get_query_results().load_all()
         return [result.object for result in results]
 
+    @property
+    def courses_count(self):
+        return self._get_query_results().count()
+
     def contains(self, course_ids):  # pylint: disable=unused-argument
         """ Determines if the given courses are contained in this catalog.
 
