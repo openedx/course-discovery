@@ -4,7 +4,7 @@ from django.test import TestCase
 from django_dynamic_fixture import G
 from social.apps.django_app.default.models import UserSocialAuth
 
-from course_discovery.apps.core.models import User, AbstractCodeModel
+from course_discovery.apps.core.models import User, Currency
 
 
 # pylint: disable=no-member
@@ -40,16 +40,13 @@ class UserTests(TestCase):
         self.assertEqual(user.get_full_name(), full_name)
 
 
-class AbstractCodeModelTests(TestCase):
-    """ Tests for the AbstractCodeModel class. """
+class CurrencyTests(TestCase):
+    """ Tests for the Currency class. """
 
     def test_str(self):
-        """ Verify casting the child model to a string returns a string containing the ID and name of the model. """
+        """ Verify casting an instance to a string returns a string containing the ID and name of the currency. """
 
-        class TestCodeModel(AbstractCodeModel):
-            pass
-
-        code = 'ABC',
-        name = 'Test Instance'
-        instance = TestCodeModel(code=code, name=name)
+        code = 'USD',
+        name = 'U.S. Dollar'
+        instance = Currency(code=code, name=name)
         self.assertEqual(str(instance), '{code} - {name}'.format(code=code, name=name))

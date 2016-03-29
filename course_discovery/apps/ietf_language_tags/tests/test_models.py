@@ -1,4 +1,4 @@
-""" Tests for ietf language tag models. """
+""" Tests for models. """
 
 from django.test import TestCase
 
@@ -9,9 +9,9 @@ class LanguageTagTests(TestCase):
     """ Tests for the LanguageTag class. """
 
     def test_str(self):
-        """ Verify LanguageTag returns a string containing the ID and name of the model. """
+        """ Verify casting a LanguageTag to a string returns a string containing the code and name of the model. """
 
-        lcid = 'te-st',
+        code = 'te-st',
         name = 'Test LanguageTag'
-        langtag = LanguageTag(id=lcid, name=name)
-        self.assertEqual(str(langtag), '{lcid} - {name}'.format(lcid=lcid, name=name))
+        tag = LanguageTag(code=code, name=name)
+        self.assertEqual(str(tag), '{code} - {name}'.format(code=code, name=name))

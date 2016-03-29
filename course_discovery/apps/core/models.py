@@ -39,19 +39,13 @@ class UserThrottleRate(models.Model):
     )
 
 
-class AbstractCodeModel(models.Model):
-    """ Abstract base class for models based on ISO, or similar, standards. """
+class Currency(models.Model):
+    """ Table of currencies as defined by ISO-4217. """
     code = models.CharField(max_length=6, primary_key=True, unique=True)
     name = models.CharField(max_length=255)
 
     def __str__(self):
         return '{code} - {name}'.format(code=self.code, name=self.name)
 
-    class Meta(object):
-        abstract = True
-
-
-class Currency(AbstractCodeModel):
-    """ Table of currencies as defined by ISO-4217. """
     class Meta(object):
         verbose_name_plural = 'Currencies'

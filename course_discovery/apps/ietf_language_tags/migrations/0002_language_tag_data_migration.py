@@ -105,7 +105,6 @@ LANGTAGS = (
     ("Slovak", "sk"),
     ("Sorbian", "sb"),
     ("Spanish – Spain (Modern)", "es-es"),
-    ("Spanish – Spain (Traditional)", "&nbsp;"),
     ("Spanish – Argentina", "es-ar"),
     ("Spanish – Bolivia", "es-bo"),
     ("Spanish – Chile", "es-cl"),
@@ -146,17 +145,15 @@ LANGTAGS = (
 def add_language_tags(apps, schema_editor):
     LanguageTag = apps.get_model('ietf_language_tags', 'LanguageTag')
 
-    for name, lcid in LANGTAGS:
-        langtag, __ = LanguageTag.objects.get_or_create(id=lcid)
-        langtag.name = name
-        langtag.save()
+    for name, code in LANGTAGS:
+        LanguageTag.objects.update_or_create(code=code, defaults={ 'name': name })
 
 
 def drop_language_tags(apps, schema_editor):
     LanguageTag = apps.get_model('ietf_language_tags', 'LanguageTag')
 
-    lcids = [lcid for __, lcid in LANGTAGS]
-    LanguageTag.objects.filter(id__in=lcids).delete()
+    codes = [code for __, code in LANGTAGS]
+    LanguageTag.objects.filter(code__in=codes).delete()
 
 
 class Migration(migrations.Migration):
