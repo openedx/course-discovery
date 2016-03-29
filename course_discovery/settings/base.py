@@ -307,9 +307,8 @@ HAYSTACK_CONNECTIONS = {
 
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
-# TODO Replace with None and document.
-ECOMMERCE_API_URL = 'https://ecommerce.stage.edx.org/api/v2/'
-COURSES_API_URL = 'https://courses.stage.edx.org/api/courses/v1/'
+ECOMMERCE_API_URL = 'http://127.0.0.1:8002/api/v2/'
+ORGANIZATIONS_API_URL = 'http://127.0.0.1:8000/api/organizations/v0/'
 
 EDX_DRF_EXTENSIONS = {
     'OAUTH2_USER_INFO_URL': 'http://localhost:8000/oauth2/user_info',

@@ -58,8 +58,6 @@ ENABLE_AUTO_AUTH = True
 
 JWT_AUTH['JWT_SECRET_KEY'] = 'course-discovery-jwt-secret-key'
 
-ECOMMERCE_API_URL = 'http://localhost:8002/api/v2/'
-COURSES_API_URL = 'http://localhost:8000/api/courses/v1/'
 
 #####################################################################
 # Lastly, see if the developer has any local overrides.
