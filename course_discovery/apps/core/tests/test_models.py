@@ -4,7 +4,7 @@ from django.test import TestCase
 from django_dynamic_fixture import G
 from social.apps.django_app.default.models import UserSocialAuth
 
-from course_discovery.apps.core.models import User
+from course_discovery.apps.core.models import User, AbstractCodeModel
 
 
 # pylint: disable=no-member
@@ -38,3 +38,18 @@ class UserTests(TestCase):
 
         user = G(User, full_name=full_name, first_name=first_name, last_name=last_name)
         self.assertEqual(user.get_full_name(), full_name)
+
+
+class AbstractCodeModelTests(TestCase):
+    """ Tests for the AbstractCodeModel class. """
+
+    def test_str(self):
+        """ Verify casting the child model to a string returns a string containing the ID and name of the model. """
+
+        class TestCodeModel(AbstractCodeModel):
+            pass
+
+        code = 'ABC',
+        name = 'Test Instance'
+        instance = TestCodeModel(code=code, name=name)
+        self.assertEqual(str(instance), '{code} - {name}'.format(code=code, name=name))
