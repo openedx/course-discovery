@@ -2,5 +2,5 @@ from django.apps import AppConfig
 
 
 class CourseMetadataConfig(AppConfig):
-    name = 'course_metadata'
+    name = 'course_discovery.apps.course_metadata'
     verbose_name = 'Course Metadata'

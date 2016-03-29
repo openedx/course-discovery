@@ -1,12 +1,11 @@
-import json
 import logging
 
+from django.db.models.functions import Lower
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from course_discovery.apps.api.pagination import ElasticsearchLimitOffsetPagination
 from course_discovery.apps.api.serializers import CatalogSerializer, CourseSerializer, ContainedCoursesSerializer
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX
@@ -91,49 +90,15 @@ class CatalogViewSet(viewsets.ModelViewSet):
 
 class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     """ Course resource. """
-    lookup_field = 'id'
+    lookup_field = 'key'
     lookup_value_regex = COURSE_ID_REGEX
     permission_classes = (IsAuthenticated,)
     serializer_class = CourseSerializer
-    pagination_class = ElasticsearchLimitOffsetPagination
+    queryset = Course.objects.all().order_by(Lower('key'))
 
-    def get_object(self):
-        """ Return a single course. """
-        return Course.get(self.kwargs[self.lookup_url_kwarg or self.lookup_field])
-
-    def get_queryset(self):
-        # Note (CCB): This is solely here to appease DRF. It is not actually used.
-        return []
-
-    def get_data(self, limit, offset):
-        """ Return all courses. """
-        query = self.request.GET.get('q', None)
-
-        if query:
-            query = json.loads(query)
-            return Course.search(query, limit=limit, offset=offset)
-        else:
-            return Course.all(limit=limit, offset=offset)
-
-    def list(self, request, *args, **kwargs):  # pylint: disable=unused-argument
-        """
-        List all courses.
-        ---
-        parameters:
-            - name: q
-              description: Query to filter the courses
-              required: false
-              type: string
-              paramType: query
-              multiple: false
-        """
-        limit = self.paginator.get_limit(self.request)
-        offset = self.paginator.get_offset(self.request)
-        data = self.get_data(limit, offset)
-
-        page = self.paginate_queryset(data)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+    def list(self, request, *args, **kwargs):
+        """ List all courses. """
+        return super(CourseViewSet, self).list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a course. """
