@@ -37,3 +37,21 @@ class UserThrottleRate(models.Model):
             'The rate of requests to limit this user to. The format is specified by Django'
             ' Rest Framework (see http://www.django-rest-framework.org/api-guide/throttling/).')
     )
+
+
+class AbstractCodeModel(models.Model):
+    """ Abstract base class for models based on ISO, or similar, standards. """
+    code = models.CharField(max_length=6, primary_key=True, unique=True)
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return '{code} - {name}'.format(code=self.code, name=self.name)
+
+    class Meta(object):
+        abstract = True
+
+
+class Currency(AbstractCodeModel):
+    """ Table of currencies as defined by ISO-4217. """
+    class Meta(object):
+        verbose_name_plural = 'Currencies'

@@ -33,10 +33,13 @@ THIRD_PARTY_APPS = (
     'rest_framework_swagger',
     'social.apps.django_app.default',
     'waffle',
+    'sortedm2m',
+    'simple_history',
 )
 
 PROJECT_APPS = (
     'course_discovery.apps.core',
+    'course_discovery.apps.ietf_language_tags',
     'course_discovery.apps.api',
     'course_discovery.apps.catalogs',
     'course_discovery.apps.course_metadata',
@@ -56,6 +59,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
     'waffle.middleware.WaffleMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 )
 
 ROOT_URLCONF = 'course_discovery.urls'
