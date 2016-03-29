@@ -3,6 +3,8 @@ from os.path import join, abspath, dirname
 from sys import path
 
 # PATH vars
+from urllib.parse import urljoin
+
 here = lambda *x: join(abspath(dirname(__file__)), *x)
 PROJECT_ROOT = here("..")
 root = lambda *x: join(abspath(PROJECT_ROOT), *x)
@@ -307,6 +309,7 @@ HAYSTACK_CONNECTIONS = {
 
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
+COURSES_API_URL = 'http://127.0.0.1:8000/api/courses/v1/'
 ECOMMERCE_API_URL = 'http://127.0.0.1:8002/api/v2/'
 ORGANIZATIONS_API_URL = 'http://127.0.0.1:8000/api/organizations/v0/'
 
