@@ -5,26 +5,30 @@ from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.core.forms import UserThrottleRateForm
-from course_discovery.apps.core.models import User, UserThrottleRate
+from course_discovery.apps.core.models import User, UserThrottleRate, Currency
 
 
+@admin.register(User)
 class CustomUserAdmin(UserAdmin):
     """ Admin configuration for the custom User model. """
     list_display = ('username', 'email', 'full_name', 'first_name', 'last_name', 'is_staff')
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {'fields': ('full_name', 'first_name', 'last_name', 'email')}),
-        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
-                                       'groups', 'user_permissions')}),
+        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
 
 
+@admin.register(UserThrottleRate)
 class UserThrottleRateAdmin(admin.ModelAdmin):
     """ Admin configuration for the UserThrottleRate model. """
     form = UserThrottleRateForm
     raw_id_fields = ('user',)
 
 
-admin.site.register(User, CustomUserAdmin)
-admin.site.register(UserThrottleRate, UserThrottleRateAdmin)
+@admin.register(Currency)
+class CurrencyAdmin(admin.ModelAdmin):
+    list_display = ('code', 'name',)
+    ordering = ('code', 'name',)
+    search_fields = ('code', 'name',)

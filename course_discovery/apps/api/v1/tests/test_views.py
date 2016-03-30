@@ -70,21 +70,8 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         super(CatalogViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        query = {
-            'query': {
-                'bool': {
-                    'must': [
-                        {
-                            'wildcard': {
-                                'course.name': 'abc*'
-                            }
-                        }
-                    ]
-                }
-            }
-        }
-        self.catalog = CatalogFactory(query=json.dumps(query))
-        self.course = CourseFactory(id='a/b/c', name='ABC Test Course')
+        self.catalog = CatalogFactory(query='title:abc*')
+        self.course = CourseFactory(key='a/b/c', title='ABC Test Course')
         self.refresh_index()
 
     def generate_jwt_token_header(self, user):
@@ -164,13 +151,13 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
     def test_contains(self):
         """ Verify the endpoint returns a filtered list of courses contained in the catalog. """
-        course_id = self.course.id
-        qs = urllib.parse.urlencode({'course_id': course_id})
+        course_key = self.course.key
+        qs = urllib.parse.urlencode({'course_id': course_key})
         url = '{}?{}'.format(reverse('api:v1:catalog-contains', kwargs={'id': self.catalog.id}), qs)
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, {'courses': {course_id: True}})
+        self.assertEqual(response.data, {'courses': {course_key: True}})
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single catalog. """
@@ -242,48 +229,15 @@ class CourseViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixin
     def test_list(self, format):
         """ Verify the endpoint returns a list of all courses. """
         courses = CourseFactory.create_batch(10)
-        courses.sort(key=lambda course: course.id.lower())
+        courses.sort(key=lambda course: course.key.lower())
         url = reverse('api:v1:course-list')
         limit = 3
-        self.refresh_index()
 
         response = self.client.get(url, {'format': format, 'limit': limit})
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(response.data['results'], self.serialize_course(courses[:limit], many=True, format=format))
 
         response.render()
-
-    def test_list_query(self):
-        """ Verify the endpoint returns a filtered list of courses. """
-        # Create courses that should NOT match our query
-        CourseFactory.create_batch(3)
-
-        # Create courses that SHOULD match our query
-        name = 'query test'
-        courses = [CourseFactory(name=name), CourseFactory(name=name)]
-        courses.sort(key=lambda course: course.id.lower())
-        self.refresh_index()
-
-        query = {
-            "query": {
-                "bool": {
-                    "must": [
-                        {
-                            "term": {
-                                "course.name": name
-                            }
-                        }
-                    ]
-                }
-            }
-        }
-        qs = urllib.parse.urlencode({'q': json.dumps(query)})
-        url = '{}?{}'.format(reverse('api:v1:course-list'), qs)
-
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data['count'], len(courses))
-        self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
     def test_retrieve(self):
         """ Verify the endpoint returns a single course. """
@@ -292,7 +246,7 @@ class CourseViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixin
     def assert_retrieve_success(self, **headers):
         """ Asserts the endpoint returns details for a single course. """
         course = CourseFactory()
-        url = reverse('api:v1:course-detail', kwargs={'id': course.id})
+        url = reverse('api:v1:course-detail', kwargs={'key': course.key})
         response = self.client.get(url, format='json', **headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, self.serialize_course(course))

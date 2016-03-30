@@ -33,10 +33,14 @@ THIRD_PARTY_APPS = (
     'rest_framework_swagger',
     'social.apps.django_app.default',
     'waffle',
+    'sortedm2m',
+    'simple_history',
+    'haystack',
 )
 
 PROJECT_APPS = (
     'course_discovery.apps.core',
+    'course_discovery.apps.ietf_language_tags',
     'course_discovery.apps.api',
     'course_discovery.apps.catalogs',
     'course_discovery.apps.course_metadata',
@@ -56,6 +60,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
     'waffle.middleware.WaffleMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 )
 
 ROOT_URLCONF = 'course_discovery.urls'
@@ -272,10 +277,18 @@ SWAGGER_SETTINGS = {
     'doc_expansion': 'list',
 }
 
-ELASTICSEARCH = {
-    'host': 'localhost:9200',
-    'index': 'course_discovery',
+ELASTICSEARCH_URL = 'http://127.0.0.1:9200/'
+ELASTICSEARCH_INDEX_NAME = 'catalog'
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
+        'URL': ELASTICSEARCH_URL,
+        'INDEX_NAME': ELASTICSEARCH_INDEX_NAME,
+    },
 }
+
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
 # TODO Replace with None and document.
 ECOMMERCE_API_URL = 'https://ecommerce.stage.edx.org/api/v2/'

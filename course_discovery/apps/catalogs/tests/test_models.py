@@ -1,5 +1,3 @@
-import json
-
 from django.test import TestCase
 
 from course_discovery.apps.catalogs.tests import factories
@@ -12,21 +10,8 @@ class CatalogTests(ElasticsearchTestMixin, TestCase):
 
     def setUp(self):
         super(CatalogTests, self).setUp()
-        query = {
-            'query': {
-                'bool': {
-                    'must': [
-                        {
-                            'wildcard': {
-                                'course.name': 'abc*'
-                            }
-                        }
-                    ]
-                }
-            }
-        }
-        self.catalog = factories.CatalogFactory(query=json.dumps(query))
-        self.course = CourseFactory(id='a/b/c', name='ABCs of Ͳҽʂէìղց')
+        self.catalog = factories.CatalogFactory(query='title:abc*')
+        self.course = CourseFactory(key='a/b/c', title='ABCs of Ͳҽʂէìղց')
         self.refresh_index()
 
     def test_unicode(self):
@@ -44,5 +29,8 @@ class CatalogTests(ElasticsearchTestMixin, TestCase):
 
     def test_contains(self):
         """ Verify the method returns a mapping of course IDs to booleans. """
-        other_id = 'd/e/f'
-        self.assertDictEqual(self.catalog.contains([self.course.id, other_id]), {self.course.id: True, other_id: False})
+        uncontained_course = CourseFactory(key='d/e/f', title='ABDEF')
+        self.assertDictEqual(
+            self.catalog.contains([self.course.key, uncontained_course.key]),
+            {self.course.key: True, uncontained_course.key: False}
+        )

@@ -1,4 +1,3 @@
-import os
 from course_discovery.settings.base import *
 
 # TEST SETTINGS
@@ -30,9 +29,12 @@ DATABASES = {
 }
 # END IN-MEMORY TEST DATABASE
 
-ELASTICSEARCH = {
-    'host': os.environ.get('TEST_ELASTICSEARCH_HOST', 'localhost'),
-    'index': 'course_discovery_test',
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
+        'URL': os.environ.get('TEST_ELASTICSEARCH_URL', 'http://127.0.0.1:9200/'),
+        'INDEX_NAME': 'catalog_test',
+    },
 }
 
 JWT_AUTH['JWT_SECRET_KEY'] = 'course-discovery-jwt-secret-key'
