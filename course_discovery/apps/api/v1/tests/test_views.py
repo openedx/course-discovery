@@ -1,16 +1,15 @@
 # pylint: disable=redefined-builtin
 import json
 import urllib
-from time import time
 
 import ddt
-import jwt
 import responses
 from django.conf import settings
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase, APIRequestFactory
 
 from course_discovery.apps.api.serializers import CatalogSerializer, CourseSerializer
+from course_discovery.apps.api.tests.jwt_utils import generate_jwt_header_for_user
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
@@ -74,23 +73,6 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.course = CourseFactory(key='a/b/c', title='ABC Test Course')
         self.refresh_index()
 
-    def generate_jwt_token_header(self, user):
-        """Generate a valid JWT token header for authenticated requests."""
-        now = int(time())
-        ttl = 5
-        payload = {
-            'iss': settings.JWT_AUTH['JWT_ISSUER'],
-            'aud': settings.JWT_AUTH['JWT_AUDIENCE'],
-            'username': user.username,
-            'email': user.email,
-            'iat': now,
-            'exp': now + ttl
-        }
-
-        token = jwt.encode(payload, settings.JWT_AUTH['JWT_SECRET_KEY']).decode('utf-8')
-
-        return 'JWT {token}'.format(token=token)
-
     def test_create_without_authentication(self):
         """ Verify authentication is required when creating, updating, or deleting a catalog. """
         self.client.logout()
@@ -132,7 +114,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
     def test_create_with_jwt_authentication(self):
         """ Verify the endpoint creates a new catalog when the client is authenticated via JWT authentication. """
         self.client.logout()
-        self.assert_catalog_created(HTTP_AUTHORIZATION=self.generate_jwt_token_header(self.user))
+        self.assert_catalog_created(HTTP_AUTHORIZATION=generate_jwt_header_for_user(self.user))
 
     @responses.activate
     def test_create_with_oauth2_authentication(self):
