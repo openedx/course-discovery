@@ -231,6 +231,16 @@ LOGGING = {
             'propagate': True,
             'level': 'WARNING'
         },
+        'elasticsearch': {
+            'handlers': ['console'],
+            'propagate': True,
+            'level': 'WARNING'
+        },
+        'urllib3': {
+            'handlers': ['console'],
+            'propagate': True,
+            'level': 'WARNING'
+        },
         'django.request': {
             'handlers': ['console'],
             'propagate': True,
