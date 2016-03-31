@@ -2,7 +2,7 @@ import ddt
 from django.test import TestCase
 
 from course_discovery.apps.course_metadata.models import(
-    AbstractNamedModel, AbstractMediaModel, CourseOrganization, ExpectedLearningItem
+    AbstractNamedModel, AbstractMediaModel, AbstractValueModel, CourseOrganization
 )
 from course_discovery.apps.course_metadata.tests import factories
 
@@ -124,12 +124,15 @@ class AbstractMediaModelTests(TestCase):
         self.assertEqual(str(instance), src)
 
 
-class ExpectedLearningItemTests(TestCase):
-    """ Tests for ExpectedLearningItem. """
+class AbstractValueModelTests(TestCase):
+    """ Tests for AbstractValueModel. """
 
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the value. """
 
-        value = 'Expected learnings'
-        instance = ExpectedLearningItem(value=value)
+        class TestAbstractValueModel(AbstractValueModel):
+            pass
+
+        value = 'abc'
+        instance = TestAbstractValueModel(value=value)
         self.assertEqual(str(instance), value)

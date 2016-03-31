@@ -201,7 +201,6 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.assertEqual(catalog.query, query)
 
 
-@ddt.ddt
 class CourseViewSetTests(SerializationMixin, OAuth2Mixin, APITestCase):
     def setUp(self):
         super(CourseViewSetTests, self).setUp()
