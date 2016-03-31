@@ -19,15 +19,37 @@ class SeatInline(admin.TabularInline):
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     inlines = (CourseOrganizationInline,)
+    list_display = ('key', 'title',)
+    ordering = ('key', 'title',)
 
 
 @admin.register(CourseRun)
 class CourseRunAdmin(admin.ModelAdmin):
     inlines = (SeatInline,)
+    list_display = ('key', 'title',)
+    ordering = ('key',)
 
 
-# Register all models using basic ModelAdmin classes
-models = (Image, Video, LevelType, Subject, Prerequisite, ExpectedLearningItem, Organization, Person, SyllabusItem)
+class KeyNameAdmin(admin.ModelAdmin):
+    list_display = ('key', 'name',)
+    ordering = ('key', 'name',)
+    search_fields = ('key', 'name',)
 
-for model in models:
+
+class NamedModelAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    ordering = ('name',)
+    search_fields = ('name',)
+
+
+# Register key-name models
+for model in (Organization, Person,):
+    admin.site.register(model, KeyNameAdmin)
+
+# Register children of AbstractNamedModel
+for model in (LevelType, Subject, Prerequisite,):
+    admin.site.register(model, NamedModelAdmin)
+
+# Register remaining models using basic ModelAdmin classes
+for model in (Image, Video, ExpectedLearningItem, SyllabusItem):
     admin.site.register(model)
