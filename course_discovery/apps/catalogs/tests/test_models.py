@@ -34,3 +34,12 @@ class CatalogTests(ElasticsearchTestMixin, TestCase):
             self.catalog.contains([self.course.key, uncontained_course.key]),
             {self.course.key: True, uncontained_course.key: False}
         )
+
+    def test_courses_count(self):
+        """ Verify the method returns the number of courses contained in the Catalog. """
+        self.assertEqual(self.catalog.courses_count, 1)
+
+        # Create a new course that should NOT be contained in the catalog, and one that should
+        CourseFactory()
+        CourseFactory(title='ABCDEF')
+        self.assertEqual(self.catalog.courses_count, 2)

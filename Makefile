@@ -52,7 +52,7 @@ quality:
 	pep8 --config=.pep8 acceptance_tests course_discovery *.py
 	pylint --rcfile=pylintrc acceptance_tests course_discovery *.py
 
-validate: test quality
+validate: quality test
 
 migrate:
 	python manage.py migrate --noinput

@@ -3,9 +3,10 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from guardian.mixins import GuardianUserMixin
 
 
-class User(AbstractUser):
+class User(GuardianUserMixin, AbstractUser):
     """Custom user model for use with OpenID Connect."""
     full_name = models.CharField(_('Full Name'), max_length=255, blank=True, null=True)
 

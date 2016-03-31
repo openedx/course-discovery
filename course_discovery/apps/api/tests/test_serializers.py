@@ -1,5 +1,4 @@
-from django.core.urlresolvers import reverse
-from django.test import TestCase, RequestFactory
+from django.test import TestCase
 
 from course_discovery.apps.api.serializers import CatalogSerializer, CourseSerializer, ContainedCoursesSerializer
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
@@ -8,16 +7,15 @@ from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 
 class CatalogSerializerTests(TestCase):
     def test_data(self):
-        catalog = CatalogFactory()
-        path = reverse('api:v1:catalog-detail', kwargs={'id': catalog.id})
-        request = RequestFactory().get(path)
-        serializer = CatalogSerializer(catalog, context={'request': request})
+        catalog = CatalogFactory(query='*:*')  # We intentionally use a query for all Courses.
+        courses = CourseFactory.create_batch(10)
+        serializer = CatalogSerializer(catalog)
 
         expected = {
             'id': catalog.id,
             'name': catalog.name,
             'query': catalog.query,
-            'url': request.build_absolute_uri(),
+            'courses_count': len(courses)
         }
         self.assertDictEqual(serializer.data, expected)
 
@@ -25,9 +23,7 @@ class CatalogSerializerTests(TestCase):
 class CourseSerializerTests(TestCase):
     def test_data(self):
         course = CourseFactory()
-        path = reverse('api:v1:course-detail', kwargs={'key': course.key})
-        request = RequestFactory().get(path)
-        serializer = CourseSerializer(course, context={'request': request})
+        serializer = CourseSerializer(course)
 
         expected = {
             'key': course.key,

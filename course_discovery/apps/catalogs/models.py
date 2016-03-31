@@ -3,10 +3,11 @@ from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from haystack.query import SearchQuerySet
 
+from course_discovery.apps.core.mixins import ModelPermissionsMixin
 from course_discovery.apps.course_metadata.models import Course
 
 
-class Catalog(TimeStampedModel):
+class Catalog(ModelPermissionsMixin, TimeStampedModel):
     name = models.CharField(max_length=255, null=False, blank=False, help_text=_('Catalog name'))
     query = models.TextField(null=False, blank=False, help_text=_('Query to retrieve catalog contents'))
 
@@ -31,6 +32,10 @@ class Catalog(TimeStampedModel):
         results = self._get_query_results().load_all()
         return [result.object for result in results]
 
+    @property
+    def courses_count(self):
+        return self._get_query_results().count()
+
     def contains(self, course_ids):  # pylint: disable=unused-argument
         """ Determines if the given courses are contained in this catalog.
 
@@ -47,3 +52,9 @@ class Catalog(TimeStampedModel):
             contains[result.get_stored_fields()['key']] = True
 
         return contains
+
+    class Meta(TimeStampedModel.Meta):
+        abstract = False
+        permissions = (
+            ('view_catalog', 'Can view catalog'),
+        )
