@@ -1,17 +1,46 @@
 import ddt
 from django.test import TestCase
 
-from course_discovery.apps.course_metadata.models import AbstractNamedModel, AbstractMediaModel
+from course_discovery.apps.course_metadata.models import(
+    AbstractNamedModel, AbstractMediaModel, CourseOrganization, ExpectedLearningItem
+)
 from course_discovery.apps.course_metadata.tests import factories
 
 
 class CourseTests(TestCase):
     """ Tests for the `Course` model. """
 
+    def setUp(self):
+        super(CourseTests, self).setUp()
+        self.course = factories.CourseFactory()
+        self.owner = factories.OrganizationFactory()
+        self.sponsor = factories.OrganizationFactory()
+        CourseOrganization.objects.create(
+            course=self.course,
+            organization=self.owner,
+            relation_type=CourseOrganization.OWNER
+        )
+        CourseOrganization.objects.create(
+            course=self.course,
+            organization=self.sponsor,
+            relation_type=CourseOrganization.SPONSOR
+        )
+
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the key and title. """
-        course = factories.CourseFactory()
-        self.assertEqual(str(course), '{key}: {title}'.format(key=course.key, title=course.title))
+        self.assertEqual(str(self.course), '{key}: {title}'.format(key=self.course.key, title=self.course.title))
+
+    def test_owners(self):
+        """ Verify that the owners property returns only owner related organizations. """
+        owners = self.course.owners  # pylint: disable=no-member
+        self.assertEqual(len(owners), 1)
+        self.assertEqual(owners[0], self.owner)
+
+    def test_sponsors(self):
+        """ Verify that the sponsors property returns only sponsor related organizations. """
+        sponsors = self.course.sponsors  # pylint: disable=no-member
+        self.assertEqual(len(sponsors), 1)
+        self.assertEqual(sponsors[0], self.sponsor)
 
 
 @ddt.ddt
@@ -85,7 +114,7 @@ class AbstractMediaModelTests(TestCase):
     """ Tests for AbstractMediaModel. """
 
     def test_str(self):
-        """ Verify casting an instance to a string returns a string containing the name. """
+        """ Verify casting an instance to a string returns a string containing the src. """
 
         class TestAbstractMediaModel(AbstractMediaModel):
             pass
@@ -93,3 +122,14 @@ class AbstractMediaModelTests(TestCase):
         src = 'http://example.com/image.jpg'
         instance = TestAbstractMediaModel(src=src)
         self.assertEqual(str(instance), src)
+
+
+class ExpectedLearningItemTests(TestCase):
+    """ Tests for ExpectedLearningItem. """
+
+    def test_str(self):
+        """ Verify casting an instance to a string returns a string containing the value. """
+
+        value = 'Expected learnings'
+        instance = ExpectedLearningItem(value=value)
+        self.assertEqual(str(instance), value)

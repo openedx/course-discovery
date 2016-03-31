@@ -48,25 +48,11 @@ class CourseSerializerTests(TestCase):
             'subjects': [],
             'prerequisites': [],
             'expected_learning_items': [],
-            'image': {
-                'src': image.src,
-                'description': image.description,
-                'height': image.height,
-                'width': image.width
-            },
-            'video': {
-                'src': video.src,
-                'description': video.description,
-                'image': {
-                    'src': video.image.src,
-                    'description': video.image.description,
-                    'height': video.image.height,
-                    'width': video.image.width
-                }
-            },
+            'image': ImageSerializer(image).data,
+            'video': VideoSerializer(video).data,
             'owners': [],
             'sponsors': [],
-            'modified': datetime.strftime(course.modified, "%Y-%m-%dT%H:%M:%S.%fZ")
+            'modified': datetime.strftime(course.modified, "%Y-%m-%dT%H:%M:%S.%fZ")  # pylint: disable=no-member
         }
 
         self.assertDictEqual(serializer.data, expected)
@@ -126,12 +112,7 @@ class VideoSerializerTests(TestCase):
         expected = {
             'src': video.src,
             'description': video.description,
-            'image': {
-                'src': image.src,
-                'description': image.description,
-                'height': image.height,
-                'width': image.width
-            }
+            'image': ImageSerializer(image).data
         }
 
         self.assertDictEqual(serializer.data, expected)

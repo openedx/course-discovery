@@ -1,20 +1,29 @@
-import datetime
-
 import factory
-from factory.fuzzy import FuzzyText
+from factory.fuzzy import BaseFuzzyAttribute, FuzzyText, FuzzyChoice
 
 from course_discovery.apps.course_metadata.models import(
     Course, CourseRun, Organization, Person, Image, Video, Subject, Prerequisite, LevelType
 )
 
 
-class TimestampModelFactory(factory.DjangoModelFactory):
-    created = datetime.datetime.now()
-    modified = created
+class FuzzyURL(BaseFuzzyAttribute):
+    def fuzz(self):
+        protocol = FuzzyChoice(('http', 'https',))
+        subdomain = FuzzyText()
+        domain = FuzzyText()
+        tld = FuzzyChoice(('com', 'net', 'org', 'biz', 'pizza', 'coffee', 'diamonds', 'fail', 'win', 'wtf',))
+        resource = FuzzyText()
+        return "{protocol}://{subdomain}.{domain}.{tld}/{resource}".format(
+            protocol=protocol,
+            subdomain=subdomain,
+            domain=domain,
+            tld=tld,
+            resource=resource
+        )
 
 
 class AbstractMediaModelFactory(factory.DjangoModelFactory):
-    src = FuzzyText()
+    src = FuzzyURL()
     description = FuzzyText()
 
 
@@ -55,7 +64,7 @@ class PrerequisiteFactory(AbstractNamedModelFactory):
         model = Prerequisite
 
 
-class CourseFactory(TimestampModelFactory):
+class CourseFactory(factory.DjangoModelFactory):
     key = FuzzyText(prefix='course-id/')
     title = FuzzyText(prefix="Test çօմɾʂҽ ")
     short_description = FuzzyText(prefix="Test çօմɾʂҽ short description")
@@ -68,7 +77,7 @@ class CourseFactory(TimestampModelFactory):
         model = Course
 
 
-class CourseRunFactory(TimestampModelFactory):
+class CourseRunFactory(factory.DjangoModelFactory):
     key = FuzzyText(prefix='course-run-id/', suffix='/fake')
     course = factory.SubFactory(CourseFactory)
     title_override = None
@@ -79,18 +88,18 @@ class CourseRunFactory(TimestampModelFactory):
         model = CourseRun
 
 
-class OrganizationFactory(TimestampModelFactory):
+class OrganizationFactory(factory.DjangoModelFactory):
     key = FuzzyText(prefix='Org.fake/')
     name = FuzzyText()
     description = FuzzyText()
-    homepage_url = FuzzyText()
+    homepage_url = FuzzyURL()
     logo_image = factory.SubFactory(ImageFactory)
 
     class Meta:
         model = Organization
 
 
-class PersonFactory(TimestampModelFactory):
+class PersonFactory(factory.DjangoModelFactory):
     key = FuzzyText(prefix='Person.fake/')
     name = FuzzyText()
     title = FuzzyText()

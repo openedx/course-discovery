@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.models import(
-    Course, CourseOrganization, Image, Subject, Organization, Prerequisite, Video
+    Course, Image, Organization, Prerequisite, Subject, Video
 )
 
 
@@ -76,16 +76,8 @@ class CourseSerializer(TimestampModelSerializer):
     expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
     image = ImageSerializer()
     video = VideoSerializer()
-    owners = serializers.SerializerMethodField('get_owners_list')
-    sponsors = serializers.SerializerMethodField('get_sponsors_list')
-
-    def get_owners_list(self, obj):
-        owners = obj.organizations.filter(courseorganization__relation_type=CourseOrganization.OWNER)
-        return OrganizationSerializer(owners, many=True).data
-
-    def get_sponsors_list(self, obj):
-        owners = obj.organizations.filter(courseorganization__relation_type=CourseOrganization.SPONSOR)
-        return OrganizationSerializer(owners, many=True).data
+    owners = OrganizationSerializer(many=True)
+    sponsors = OrganizationSerializer(many=True)
 
     class Meta(object):
         model = Course

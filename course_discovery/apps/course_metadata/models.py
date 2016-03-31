@@ -120,6 +120,14 @@ class Course(TimeStampedModel):
 
     history = HistoricalRecords()
 
+    @property
+    def owners(self):
+        return self.organizations.filter(courseorganization__relation_type=CourseOrganization.OWNER)
+
+    @property
+    def sponsors(self):
+        return self.organizations.filter(courseorganization__relation_type=CourseOrganization.SPONSOR)
+
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
 
