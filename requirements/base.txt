@@ -11,4 +11,5 @@ edx-auth-backends==0.1.3
 edx-drf-extensions==0.2.0
 edx-rest-api-client==1.5.0
 elasticsearch>=1.0.0,<2.0.0
+pycountry==1.20
 pytz==2015.7
