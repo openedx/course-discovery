@@ -5,13 +5,19 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
 
 from course_discovery.apps.api.serializers import(
-    CatalogSerializer, CourseSerializer, ContainedCoursesSerializer, ImageSerializer,
-    SubjectSerializer, PrerequisiteSerializer, VideoSerializer, OrganizationSerializer
+    CatalogSerializer, CourseSerializer, CourseRunSerializer, ContainedCoursesSerializer, ImageSerializer,
+    SubjectSerializer, PrerequisiteSerializer, VideoSerializer, OrganizationSerializer,
+    EffortSerializer, SyllabusSerializer, SeatSerializer, PersonSerializer
 )
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, SubjectFactory, PrerequisiteFactory, ImageFactory, VideoFactory, OrganizationFactory
+    CourseFactory, CourseRunFactory, SubjectFactory, PrerequisiteFactory,
+    ImageFactory, VideoFactory, OrganizationFactory, PersonFactory, SyllabusFactory, SeatFactory
 )
+
+
+def json_date_format(datetime_obj):
+    return datetime.strftime(datetime_obj, "%Y-%m-%dT%H:%M:%S.%fZ")
 
 
 class CatalogSerializerTests(TestCase):
@@ -52,7 +58,46 @@ class CourseSerializerTests(TestCase):
             'video': VideoSerializer(video).data,
             'owners': [],
             'sponsors': [],
-            'modified': datetime.strftime(course.modified, "%Y-%m-%dT%H:%M:%S.%fZ")  # pylint: disable=no-member
+            'modified': json_date_format(course.modified)  # pylint: disable=no-member
+        }
+
+        self.assertDictEqual(serializer.data, expected)
+
+
+class CourseRunSerializerTests(TestCase):
+    def test_data(self):
+        self.maxDiff = None
+        course_run = CourseRunFactory()
+        image = course_run.image
+        video = course_run.video
+        path = reverse('api:v1:course_run-detail', kwargs={'key': course_run.key})
+        request = RequestFactory().get(path)
+        serializer = CourseRunSerializer(course_run, context={'request': request})
+
+        expected = {
+            'key': course_run.key,
+            'title': course_run.title,  # pylint: disable=no-member
+            'short_description': course_run.short_description,  # pylint: disable=no-member
+            'full_description': course_run.full_description,  # pylint: disable=no-member
+            'start': json_date_format(course_run.start),
+            'end': json_date_format(course_run.end),
+            'enrollment_start': json_date_format(course_run.enrollment_start),
+            'enrollment_end': json_date_format(course_run.enrollment_end),
+            'announcement': json_date_format(course_run.announcement),
+            'image': ImageSerializer(image).data,
+            'video': VideoSerializer(video).data,
+            'pacing_type': course_run.pacing_type,
+            'content_language': course_run.language.code,
+            'transcript_languages': [],
+            'effort': {
+                'min': course_run.min_effort,
+                'max': course_run.max_effort
+            },
+            'syllabus': None,
+            'instructors': [],
+            'staff': [],
+            'seats': [],
+            'modified': json_date_format(course_run.modified)  # pylint: disable=no-member
         }
 
         self.assertDictEqual(serializer.data, expected)
@@ -71,7 +116,7 @@ class ContainedCoursesSerializerTests(TestCase):
 
 
 @ddt.ddt
-class LinkObjectSerializerTests(TestCase):
+class NamedModelSerializerTests(TestCase):
     @ddt.data(
         (SubjectFactory, SubjectSerializer),
         (PrerequisiteFactory, PrerequisiteSerializer),
@@ -134,6 +179,72 @@ class OrganizationSerializerTests(TestCase):
                 'height': image.height,
                 'width': image.width
             }
+        }
+
+        self.assertDictEqual(serializer.data, expected)
+
+
+class EffortSerializerTests(TestCase):
+    def test_data(self):
+        course_run = CourseRunFactory()
+        serializer = EffortSerializer(course_run)
+
+        expected = {
+            'min': course_run.min_effort,
+            'max': course_run.max_effort
+        }
+
+        self.assertDictEqual(serializer.data, expected)
+
+
+class SyllabusSerializerTests(TestCase):
+    def test_data(self):
+        syllabus = SyllabusFactory()
+        title = SyllabusFactory(parent=syllabus)
+        SyllabusFactory(parent=title)
+        SyllabusFactory(parent=title)
+        SyllabusFactory(parent=title)
+        serializer = SyllabusSerializer(syllabus.children, many=True)  # pylint: disable=no-member
+
+        expected = [
+            {
+                'title': title.value,
+                'contents': [child.value for child in title.children.all()]  # pylint: disable=no-member
+            }
+        ]
+
+        self.assertListEqual(serializer.data, expected)
+
+
+class SeatSerializerTests(TestCase):
+    def test_data(self):
+        course_run = CourseRunFactory()
+        seat = SeatFactory(course_run=course_run)
+        serializer = SeatSerializer(seat)
+
+        expected = {
+            'type': seat.type,
+            'price': str(seat.price),
+            'currency': seat.currency.code,
+            'upgrade_deadline': json_date_format(seat.upgrade_deadline),
+            'credit_provider': seat.credit_provider,  # pylint: disable=no-member
+            'credit_hours': seat.credit_hours  # pylint: disable=no-member
+        }
+
+        self.assertDictEqual(serializer.data, expected)
+
+
+class PersonSerializerTests(TestCase):
+    def test_data(self):
+        person = PersonFactory()
+        image = person.profile_image
+        serializer = PersonSerializer(person)
+
+        expected = {
+            'name': person.name,
+            'title': person.title,
+            'bio': person.bio,
+            'profile_image': ImageSerializer(image).data
         }
 
         self.assertDictEqual(serializer.data, expected)
