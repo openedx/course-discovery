@@ -26,6 +26,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
     queryset = Catalog.objects.all()
     serializer_class = CatalogSerializer
 
+    # The boilerplate methods are required to be recognized by swagger
     def create(self, request, *args, **kwargs):
         """ Create a new catalog. """
         return super(CatalogViewSet, self).create(request, *args, **kwargs)
@@ -96,10 +97,11 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     """ Course resource. """
     lookup_field = 'key'
     lookup_value_regex = COURSE_ID_REGEX
+    queryset = Course.objects.all().order_by(Lower('key'))
     permission_classes = (IsAuthenticated,)
     serializer_class = CourseSerializer
-    queryset = Course.objects.all().order_by(Lower('key'))
 
+    # The boilerplate methods are required to be recognized by swagger
     def list(self, request, *args, **kwargs):
         """ List all courses. """
         return super(CourseViewSet, self).list(request, *args, **kwargs)
