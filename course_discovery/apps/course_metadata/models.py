@@ -23,6 +23,17 @@ class AbstractNamedModel(TimeStampedModel):
         abstract = True
 
 
+class AbstractValueModel(TimeStampedModel):
+    """ Abstract base class for models with only a value field. """
+    value = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.value
+
+    class Meta(object):
+        abstract = True
+
+
 class AbstractMediaModel(TimeStampedModel):
     """ Abstract base class for media-related (e.g. image, video) models. """
     src = models.URLField(max_length=255, unique=True)
@@ -58,18 +69,14 @@ class Prerequisite(AbstractNamedModel):
     pass
 
 
-class ExpectedLearningItem(TimeStampedModel):
+class ExpectedLearningItem(AbstractValueModel):
     """ ExpectedLearningItem model. """
-    value = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.value
+    pass
 
 
-class SyllabusItem(TimeStampedModel):
+class SyllabusItem(AbstractValueModel):
     """ SyllabusItem model. """
     parent = models.ForeignKey('self', blank=True, null=True, related_name='children')
-    value = models.CharField(max_length=255)
 
 
 class Organization(TimeStampedModel):
