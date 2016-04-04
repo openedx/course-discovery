@@ -1,8 +1,15 @@
-import factory
-from factory.fuzzy import BaseFuzzyAttribute, FuzzyText, FuzzyChoice
+from datetime import datetime
 
+import factory
+from factory.fuzzy import(
+    BaseFuzzyAttribute, FuzzyText, FuzzyChoice, FuzzyDateTime, FuzzyInteger, FuzzyDecimal
+)
+from pytz import UTC
+
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.models import(
-    Course, CourseRun, Organization, Person, Image, Video, Subject, Prerequisite, LevelType
+    Course, CourseRun, Organization, Person, Image, Video, Subject, Seat, Prerequisite, LevelType
 )
 
 
@@ -64,6 +71,16 @@ class PrerequisiteFactory(AbstractNamedModelFactory):
         model = Prerequisite
 
 
+class SeatFactory(factory.DjangoModelFactory):
+    type = FuzzyChoice([name for name, __ in Seat.SEAT_TYPE_CHOICES])
+    price = FuzzyDecimal(0.0, 650.0)
+    currency = factory.Iterator(Currency.objects.all())
+    upgrade_deadline = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
+
+    class Meta:
+        model = Seat
+
+
 class CourseFactory(factory.DjangoModelFactory):
     key = FuzzyText(prefix='course-id/')
     title = FuzzyText(prefix="Test çօմɾʂҽ ")
@@ -83,6 +100,17 @@ class CourseRunFactory(factory.DjangoModelFactory):
     title_override = None
     short_description_override = None
     full_description_override = None
+    language = factory.Iterator(LanguageTag.objects.all())
+    start = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
+    end = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC)).end_dt
+    enrollment_start = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
+    enrollment_end = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC)).end_dt
+    announcement = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
+    image = factory.SubFactory(ImageFactory)
+    video = factory.SubFactory(VideoFactory)
+    min_effort = FuzzyInteger(1, 10)
+    max_effort = FuzzyInteger(10, 20)
+    pacing_type = FuzzyChoice([name for name, __ in CourseRun.PACING_CHOICES])
 
     class Meta:
         model = CourseRun
@@ -104,6 +132,7 @@ class PersonFactory(factory.DjangoModelFactory):
     name = FuzzyText()
     title = FuzzyText()
     bio = FuzzyText()
+    profile_image = factory.SubFactory(ImageFactory)
 
     class Meta:
         model = Person

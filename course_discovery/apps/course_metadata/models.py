@@ -153,7 +153,7 @@ class CourseRun(TimeStampedModel):
         (INSTRUCTOR_PACED, _('Instructor-paced')),
     )
 
-    course = models.ForeignKey(Course)
+    course = models.ForeignKey(Course, related_name='course_runs')
     key = models.CharField(max_length=255, unique=True)
     title_override = models.CharField(
         max_length=255, default=None, null=True, blank=True,
@@ -240,13 +240,20 @@ class Seat(TimeStampedModel):
         (PROFESSIONAL, _('Professional')),
         (CREDIT, _('Credit')),
     )
+
+    PRICE_FIELD_CONFIG = {
+        'decimal_places': 2,
+        'max_digits': 10,
+        'null': False,
+        'default': 0.00,
+    }
     course_run = models.ForeignKey(CourseRun, related_name='seats')
     type = models.CharField(max_length=63, choices=SEAT_TYPE_CHOICES)
-    price = models.DecimalField(decimal_places=2, max_digits=10)
+    price = models.DecimalField(**PRICE_FIELD_CONFIG)
     currency = models.ForeignKey(Currency)
-    upgrade_deadline = models.DateTimeField()
-    credit_provider = models.CharField(max_length=255)
-    credit_hours = models.IntegerField()
+    upgrade_deadline = models.DateTimeField(null=True, blank=True)
+    credit_provider = models.CharField(max_length=255, null=True, blank=True)
+    credit_hours = models.IntegerField(null=True, blank=True)
 
     history = HistoricalRecords()
 

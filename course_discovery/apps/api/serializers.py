@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.models import(
-    Course, Image, Organization, Prerequisite, Subject, Video
+    Course, CourseRun, Image, Organization, Person, Prerequisite, Seat, Subject, Video
 )
 
 
@@ -50,11 +50,34 @@ class VideoSerializer(MediaSerializer):
         fields = ('src', 'description', 'image', )
 
 
+class SeatSerializer(serializers.ModelSerializer):
+    type = serializers.ChoiceField(
+        choices=[name for name, __ in Seat.SEAT_TYPE_CHOICES]
+    )
+    price = serializers.DecimalField(
+        decimal_places=Seat.PRICE_FIELD_CONFIG['decimal_places'],
+        max_digits=Seat.PRICE_FIELD_CONFIG['max_digits']
+    )
+    currency = serializers.SlugRelatedField(read_only=True, slug_field='code')
+    upgrade_deadline = serializers.DateTimeField()
+    credit_provider = serializers.CharField()
+    credit_hours = serializers.IntegerField()
+
+    class Meta(object):
+        model = Seat
+        fields = ('type', 'price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours', )
+
+
+class PersonSerializer(serializers.ModelSerializer):
+    profile_image = ImageSerializer()
+
+    class Meta(object):
+        model = Person
+        fields = ('name', 'title', 'bio', 'profile_image',)
+
+
 class OrganizationSerializer(serializers.ModelSerializer):
-    name = serializers.CharField()
     logo_image = ImageSerializer()
-    description = serializers.CharField()
-    homepage_url = serializers.CharField()
 
     class Meta(object):
         model = Organization
@@ -83,6 +106,25 @@ class CourseSerializer(TimestampModelSerializer):
             'key', 'title', 'short_description', 'full_description', 'level_type', 'subjects',
             'prerequisites', 'expected_learning_items', 'image', 'video', 'owners', 'sponsors',
             'modified',
+        )
+
+
+class CourseRunSerializer(TimestampModelSerializer):
+    content_language = serializers.SlugRelatedField(read_only=True, slug_field='code', source='language')
+    transcript_languages = serializers.SlugRelatedField(many=True, read_only=True, slug_field='code')
+    image = ImageSerializer()
+    video = VideoSerializer()
+    seats = SeatSerializer(many=True)
+    instructors = PersonSerializer(many=True)
+    staff = PersonSerializer(many=True)
+
+    class Meta(object):
+        model = CourseRun
+        fields = (
+            'key', 'title', 'short_description', 'full_description', 'start', 'end',
+            'enrollment_start', 'enrollment_end', 'announcement', 'image', 'video', 'seats',
+            'content_language', 'transcript_languages', 'instructors', 'staff',
+            'pacing_type', 'min_effort', 'max_effort', 'modified',
         )
 
 
