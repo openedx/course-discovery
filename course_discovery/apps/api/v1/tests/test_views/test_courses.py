@@ -1,3 +1,4 @@
+from django.db.models.functions import Lower
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
@@ -28,4 +29,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertListEqual(response.data['results'], self.serialize_course(Course.objects.all(), many=True))
+        self.assertListEqual(
+            response.data['results'],
+            self.serialize_course(Course.objects.all().order_by(Lower('key')), many=True)
+        )
