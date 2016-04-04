@@ -51,7 +51,7 @@ class Image(AbstractMediaModel):
 
 class Video(AbstractMediaModel):
     """ Video model. """
-    image = models.ForeignKey(Image)
+    image = models.ForeignKey(Image, null=True, blank=True)
 
 
 class LevelType(AbstractNamedModel):
