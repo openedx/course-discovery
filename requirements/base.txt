@@ -15,6 +15,7 @@ edx-drf-extensions==0.2.0
 edx-opaque-keys==0.3.0
 edx-rest-api-client==1.5.0
 elasticsearch>=1.0.0,<2.0.0
+html2text==2016.4.2
 pycountry==1.20
 python-dateutil==2.5.2
 pytz==2015.7

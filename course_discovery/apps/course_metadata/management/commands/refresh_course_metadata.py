@@ -4,7 +4,11 @@ from django.conf import settings
 from django.core.management import BaseCommand
 from edx_rest_api_client.client import EdxRestApiClient
 
-from course_discovery.apps.course_metadata.data_loaders import OrganizationsApiDataLoader, CoursesApiDataLoader
+from course_discovery.apps.course_metadata.data_loaders import (
+    CoursesApiDataLoader,
+    DrupalApiDataLoader,
+    OrganizationsApiDataLoader,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -39,3 +43,4 @@ class Command(BaseCommand):
 
         OrganizationsApiDataLoader(settings.ORGANIZATIONS_API_URL, access_token).ingest()
         CoursesApiDataLoader(settings.COURSES_API_URL, access_token).ingest()
+        DrupalApiDataLoader(settings.MARKETING_API_URL).ingest()

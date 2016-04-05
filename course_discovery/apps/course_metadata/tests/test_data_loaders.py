@@ -1,20 +1,25 @@
 """ Tests for data loaders. """
 import datetime
 import json
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlparse, urljoin
 
 import ddt
 import responses
 from django.conf import settings
 from django.test import TestCase, override_settings
+from opaque_keys.edx.keys import CourseKey
 
-from course_discovery.apps.course_metadata.data_loaders import OrganizationsApiDataLoader, CoursesApiDataLoader, \
-    AbstractDataLoader
-from course_discovery.apps.course_metadata.models import Organization, Image, Course, CourseRun
+from course_discovery.apps.course_metadata.data_loaders import (
+    OrganizationsApiDataLoader, CoursesApiDataLoader, AbstractDataLoader, DrupalApiDataLoader
+)
+from course_discovery.apps.course_metadata.models import (
+    Course, CourseRun, Image, LanguageTag, Organization, Subject
+)
 
 ACCESS_TOKEN = 'secret'
 COURSES_API_URL = 'https://lms.example.com/api/courses/v1'
 ORGANIZATIONS_API_URL = 'https://lms.example.com/api/organizations/v0'
+MARKETING_API_URL = 'https://example.com/api/catalog/v2/'
 JSON = 'application/json'
 
 
@@ -53,10 +58,11 @@ class DataLoaderTestMixin(object):
         super(DataLoaderTestMixin, self).setUp()
         self.loader = self.loader_class(self.api_url, ACCESS_TOKEN)  # pylint: disable=not-callable
 
-    def assert_api_called(self, expected_num_calls):
+    def assert_api_called(self, expected_num_calls, check_auth=True):
         """ Asserts the API was called with the correct number of calls, and the appropriate Authorization header. """
         self.assertEqual(len(responses.calls), expected_num_calls)
-        self.assertEqual(responses.calls[0].request.headers['Authorization'], 'Bearer {}'.format(ACCESS_TOKEN))
+        if check_auth:
+            self.assertEqual(responses.calls[0].request.headers['Authorization'], 'Bearer {}'.format(ACCESS_TOKEN))
 
     def test_init(self):
         """ Verify the constructor sets the appropriate attributes. """
@@ -287,7 +293,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         expected_num_course_runs = len(data)
         self.assert_api_called(expected_num_course_runs)
 
-        # Verify the Organizations were created correctly
+        # Verify the CourseRuns were created correctly
         self.assertEqual(CourseRun.objects.count(), expected_num_course_runs)
 
         for datum in data:
@@ -350,3 +356,190 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             self.assertEqual(actual.src, expected_video_src)
         else:
             self.assertIsNone(actual)
+
+
+@override_settings(MARKETING_API_URL=MARKETING_API_URL)
+@ddt.ddt
+class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
+
+    EXISTING_COURSE_AND_RUN_DATA = ({
+        'course_run_key': 'course-v1:SC+BreadX+3T2015',
+        'course_key': 'SC+BreadX',
+        'title': 'Bread Baking 101',
+        'current_language': 'en-us',
+    }, {
+        'course_run_key': 'course-v1:TX+T201+3T2015',
+        'course_key': 'TX+T201',
+        'title': 'Testing 201',
+        'current_language': ''
+    })
+
+    # A course which exists, but has no associated runs
+    EXISTING_COURSE = {
+        'course_key': 'PartialX+P102',
+        'title': 'A partial course',
+    }
+
+    api_url = MARKETING_API_URL
+    loader_class = DrupalApiDataLoader
+
+    def setUp(self):
+        super(DrupalApiDataLoaderTests, self).setUp()
+        for course_dict in self.EXISTING_COURSE_AND_RUN_DATA:
+            course = Course.objects.create(key=course_dict['course_key'], title=course_dict['title'])
+            CourseRun.objects.create(
+                key=course_dict['course_run_key'],
+                language=self.loader.get_language_tag(course_dict),
+                course=course
+            )
+
+        Course.objects.create(key=self.EXISTING_COURSE['course_key'], title=self.EXISTING_COURSE['title'])
+
+    def mock_api(self):
+        """Mock out the Drupal API. Returns a list of mocked-out course runs."""
+        body = {
+            'items': [{
+                'title': self.EXISTING_COURSE_AND_RUN_DATA[0]['title'],
+                'level': {
+                    'title': 'Introductory',
+                },
+                'course_about_uri': '/course/bread-baking-101',
+                'course_id': self.EXISTING_COURSE_AND_RUN_DATA[0]['course_run_key'],
+                'subjects': [{
+                    'title': 'Bread baking',
+                }],
+                'current_language': self.EXISTING_COURSE_AND_RUN_DATA[0]['current_language'],
+                'subtitle': 'Learn about Bread',
+                'description': '<p><b>Bread</b> is a <a href="/wiki/Staple_food" title="Staple food">staple food</a>.',
+            }, {
+                'title': self.EXISTING_COURSE_AND_RUN_DATA[1]['title'],
+                'level': {
+                    'title': 'Intermediate',
+                },
+                'course_about_uri': '/course/testing-201',
+                'course_id': self.EXISTING_COURSE_AND_RUN_DATA[1]['course_run_key'],
+                'subjects': [{
+                    'title': 'testing',
+                }],
+                'current_language': self.EXISTING_COURSE_AND_RUN_DATA[1]['current_language'],
+                'subtitle': 'Testing 201',
+                'description': "how to test better",
+            }, {  # Create a course which exists in LMS/Otto, but without course runs
+                'title': self.EXISTING_COURSE['title'],
+                'level': {
+                    'title': 'Advanced',
+                },
+                'course_about_uri': '/course/partial-101',
+                'course_id': 'course-v1:{course_key}+run'.format(course_key=self.EXISTING_COURSE['course_key']),
+                'subjects': [{
+                    'title': 'partially fake',
+                }],
+                'current_language': 'en-us',
+                'subtitle': 'Nope',
+                'description': 'what is fake?',
+            }, {  # Create a fake course run which doesn't exist in LMS/Otto
+                'title': 'A partial course',
+                'level': {
+                    'title': 'Advanced',
+                },
+                'course_about_uri': '/course/partial-101',
+                'course_id': 'course-v1:fakeX+fake+reallyfake',
+                'subjects': [{
+                    'title': 'seriously fake',
+                }],
+                'current_language': 'en-us',
+                'subtitle': 'Nope',
+                'description': 'what is real?',
+            }]
+        }
+
+        responses.add(
+            responses.GET,
+            settings.MARKETING_API_URL + 'courses/',
+            body=json.dumps(body),
+            status=200,
+            content_type='application/json'
+        )
+        return body['items']
+
+    def assert_course_run_loaded(self, body):
+        """
+        Verify that the course run corresponding to `body` has been saved
+        correctly.
+        """
+        course_run_key_str = body['course_id']
+        course_run_key = CourseKey.from_string(course_run_key_str)
+        course_key = '{org}+{course}'.format(org=course_run_key.org, course=course_run_key.course)
+        course = Course.objects.get(key=course_key)
+        course_run = CourseRun.objects.get(key=course_run_key_str)
+
+        self.assertEqual(course_run.course, course)
+
+        self.assert_course_loaded(course, body)
+
+        if course_run.language:
+            self.assertEqual(course_run.language.code, body['current_language'])
+        else:
+            self.assertEqual(body['current_language'], '')
+
+    def assert_course_loaded(self, course, body):
+        """Verify that the course has been loaded correctly."""
+        self.assertEqual(course.title, body['title'])
+        self.assertEqual(course.full_description, self.loader.clean_html(body['description']))
+        self.assertEqual(course.short_description, self.loader.clean_html(body['subtitle']))
+        self.assertEqual(course.marketing_url, urljoin(settings.MARKETING_URL_ROOT, body['course_about_uri']))
+        self.assertEqual(course.level_type.name, body['level']['title'])
+
+        self.assert_subjects_loaded(course, body)
+
+    def assert_subjects_loaded(self, course, body):
+        """Verify that subjects have been loaded correctly."""
+        course_subjects = course.subjects.all()
+        api_subjects = body['subjects']
+        self.assertEqual(len(course_subjects), len(api_subjects))
+        for api_subject in api_subjects:
+            loaded_subject = Subject.objects.get(name=api_subject['title'].title())
+            self.assertIn(loaded_subject, course_subjects)
+
+    @responses.activate
+    def test_ingest(self):
+        """Verify the data loader ingests data from Drupal."""
+        data = self.mock_api()
+        # The faked course should not be loaded from Drupal
+        loaded_data = data[:-2]
+
+        self.loader.ingest()
+
+        # Drupal does not paginate its response or check authorization
+        self.assert_api_called(1, check_auth=False)
+
+        # Assert that the fake course was not created
+        self.assertEqual(CourseRun.objects.count(), len(loaded_data))
+        for datum in loaded_data:
+            self.assert_course_run_loaded(datum)
+
+        Course.objects.get(key=self.EXISTING_COURSE['course_key'], title=self.EXISTING_COURSE['title'])
+
+    @ddt.data(
+        ('', ''),
+        ('<h1>foo</h1>', '# foo'),
+        ('<a href="http://example.com">link</a>', '[link](http://example.com)'),
+        ('<strong>foo</strong>', '**foo**'),
+        ('<em>foo</em>', '_foo_'),
+        ('\nfoo\n', 'foo'),
+        ('<span>foo</span>', 'foo'),
+        ('<div>foo</div>', 'foo'),
+    )
+    @ddt.unpack
+    def test_clean_html(self, to_clean, expected):
+        self.assertEqual(self.loader.clean_html(to_clean), expected)
+
+    @ddt.data(
+        ({'current_language': ''}, None),
+        ({'current_language': 'not-real'}, None),
+        ({'current_language': 'en-us'}, LanguageTag(code='en-us', name='English - United States')),
+        ({'current_language': None}, None),
+    )
+    @ddt.unpack
+    def test_get_language_tag(self, body, expected):
+        self.assertEqual(self.loader.get_language_tag(body), expected)
