@@ -282,5 +282,5 @@ class CourseOrganization(TimeStampedModel):
             ('course', 'relation_type'),
         )
         unique_together = (
-            ('course', 'relation_type', 'relation_type'),
+            ('course', 'organization', 'relation_type'),
         )
