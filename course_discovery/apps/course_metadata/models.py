@@ -42,6 +42,9 @@ class AbstractMediaModel(TimeStampedModel):
     def __str__(self):
         return self.src
 
+    class Meta(object):
+        abstract = True
+
 
 class Image(AbstractMediaModel):
     """ Image model. """
