@@ -312,6 +312,8 @@ HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 COURSES_API_URL = 'http://127.0.0.1:8000/api/courses/v1/'
 ECOMMERCE_API_URL = 'http://127.0.0.1:8002/api/v2/'
 ORGANIZATIONS_API_URL = 'http://127.0.0.1:8000/api/organizations/v0/'
+MARKETING_API_URL = 'http://example.org/api/catalog/v2/'
+MARKETING_URL_ROOT = 'http://example.org/'
 
 EDX_DRF_EXTENSIONS = {
     'OAUTH2_USER_INFO_URL': 'http://localhost:8000/oauth2/user_info',

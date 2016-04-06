@@ -1,13 +1,16 @@
 """ Data loaders. """
 import abc
 import logging
+from urllib.parse import urljoin
 
 from dateutil.parser import parse
+from django.conf import settings
 from edx_rest_api_client.client import EdxRestApiClient
+import html2text
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.models import (
-    Organization, Image, Course, CourseRun, CourseOrganization, Video
+    Course, CourseOrganization, CourseRun, Image, LanguageTag, LevelType, Organization, Subject, Video
 )
 
 logger = logging.getLogger(__name__)
@@ -24,7 +27,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
 
     PAGE_SIZE = 50
 
-    def __init__(self, api_url, access_token):
+    def __init__(self, api_url, access_token=None):
         """
         Arguments:
             api_url (str): URL of the API from which data is loaded
@@ -67,6 +70,21 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
             return parse(date_string)
 
         return None
+
+    @classmethod
+    def convert_course_run_key(cls, course_run_key_str):
+        """
+        Given a serialized course run key, return the corresponding
+        serialized course key.
+
+        Args:
+            course_run_key_str (str): The serialized course run key.
+
+        Returns:
+            str
+        """
+        course_run_key = CourseKey.from_string(course_run_key_str)
+        return '{org}+{course}'.format(org=course_run_key.org, course=course_run_key.course)
 
 
 class OrganizationsApiDataLoader(AbstractDataLoader):
@@ -141,9 +159,10 @@ class CoursesApiDataLoader(AbstractDataLoader):
     def update_course(self, body):
         # NOTE (CCB): Use the data from the CourseKey since the Course API exposes display names for org and number,
         # which may not be unique for an organization.
-        course_run_key = CourseKey.from_string(body['id'])
+        course_run_key_str = body['id']
+        course_run_key = CourseKey.from_string(course_run_key_str)
         organization, __ = Organization.objects.get_or_create(key=course_run_key.org)
-        course_key = '{org}+{course}'.format(org=organization.key, course=course_run_key.course)
+        course_key = self.convert_course_run_key(course_run_key_str)
         defaults = {
             'title': body['name']
         }
@@ -202,3 +221,86 @@ class CoursesApiDataLoader(AbstractDataLoader):
             video, __ = Video.objects.get_or_create(src=video_url)
 
         return video
+
+
+class DrupalApiDataLoader(AbstractDataLoader):
+    """Loads course runs from the Drupal API."""
+
+    def ingest(self):
+        client = EdxRestApiClient(self.api_url)
+        logger.info('Refreshing Courses and CourseRuns from %s...', self.api_url)
+        response = client.courses.get()
+
+        data = response['items']
+        logger.info('Retrieved %d course runs...', len(data))
+
+        for body in data:
+            cleaned_body = self.clean_strings(body)
+            course = self.update_course(cleaned_body)
+            self.update_course_run(course, cleaned_body)
+
+        logger.info('Retrieved %d course runs from %s.', len(data), self.api_url)
+
+    def update_course(self, body):
+        """Create or update a course from Drupal data given by `body`."""
+        course_key = self.convert_course_run_key(body['course_id'])
+        try:
+            course = Course.objects.get(key=course_key)
+        except Course.DoesNotExist:
+            logger.warning('Course not find course [%s]', course_key)
+            return None
+
+        course.full_description = self.clean_html(body['description'])
+        course.short_description = self.clean_html(body['subtitle'])
+        course.marketing_url = urljoin(settings.MARKETING_URL_ROOT, body['course_about_uri'])
+
+        level_type, __ = LevelType.objects.get_or_create(name=body['level']['title'])
+        course.level_type = level_type
+
+        self.set_subjects(course, body)
+
+        course.save()
+        return course
+
+    def set_subjects(self, course, body):
+        """Update `course` with subjects from `body`."""
+        course.subjects.clear()
+        subjects = (s['title'] for s in body['subjects'])
+        for subject_name in subjects:
+            # Normalize subject names with title case
+            subject, __ = Subject.objects.get_or_create(name=subject_name.title())
+            course.subjects.add(subject)
+
+    def update_course_run(self, course, body):
+        """
+        Create or update a run of `course` from Drupal data given by `body`.
+        """
+        course_run_key = body['course_id']
+        try:
+            course_run = CourseRun.objects.get(key=course_run_key)
+        except CourseRun.DoesNotExist:
+            logger.warning('Could not find course run [%s]', course_run_key)
+            return None
+        course_run.language = self.get_language_tag(body)
+        course_run.course = course
+        course_run.save()
+        return course_run
+
+    def get_language_tag(self, body):
+        """Get a language tag from Drupal data given by `body`."""
+        iso_code = body['current_language']
+        if iso_code is None:
+            return None
+        try:
+            return LanguageTag.objects.get(code=iso_code)
+        except LanguageTag.DoesNotExist:
+            logger.warning('Could not find language with ISO code [%s].', iso_code)
+            return None
+
+    def clean_html(self, content):
+        """Cleans HTML from a string and returns a Markdown version."""
+        stripped = content.replace('&nbsp;', '')
+        html_converter = html2text.HTML2Text()
+        html_converter.wrap_links = False
+        html_converter.body_width = None
+        return html_converter.handle(stripped).strip()
