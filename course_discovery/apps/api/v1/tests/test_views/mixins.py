@@ -6,7 +6,9 @@ import responses
 from django.conf import settings
 from rest_framework.test import APIRequestFactory
 
-from course_discovery.apps.api.serializers import CatalogSerializer, CourseSerializer
+from course_discovery.apps.api.serializers import (
+    CatalogSerializer, CourseSerializer, CourseSerializerExcludingClosedRuns
+)
 
 
 class SerializationMixin(object):
@@ -24,6 +26,9 @@ class SerializationMixin(object):
 
     def serialize_course(self, course, many=False, format=None):
         return self._serialize_object(CourseSerializer, course, many, format)
+
+    def serialize_catalog_course(self, course, many=False, format=None):
+        return self._serialize_object(CourseSerializerExcludingClosedRuns, course, many, format)
 
 
 class OAuth2Mixin(object):

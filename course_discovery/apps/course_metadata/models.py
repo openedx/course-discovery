@@ -1,5 +1,7 @@
+import datetime
 import logging
 
+import pytz
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
@@ -7,6 +9,7 @@ from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 
 from course_discovery.apps.core.models import Currency
+from course_discovery.apps.course_metadata.query import CourseQuerySet
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 logger = logging.getLogger(__name__)
@@ -130,6 +133,7 @@ class Course(TimeStampedModel):
     marketing_url = models.URLField(max_length=255, null=True, blank=True)
 
     history = HistoricalRecords()
+    objects = CourseQuerySet.as_manager()
 
     @property
     def owners(self):
@@ -138,6 +142,15 @@ class Course(TimeStampedModel):
     @property
     def sponsors(self):
         return self.organizations.filter(courseorganization__relation_type=CourseOrganization.SPONSOR)
+
+    @property
+    def active_course_runs(self):
+        """ Returns course runs currently open for enrollment, or opening in the future.
+
+        Returns:
+            QuerySet
+        """
+        return self.course_runs.filter(enrollment_end__gt=datetime.datetime.now(pytz.UTC))
 
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)

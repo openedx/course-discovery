@@ -1,7 +1,10 @@
+import datetime
+
 import ddt
+import pytz
 from django.test import TestCase
 
-from course_discovery.apps.course_metadata.models import(
+from course_discovery.apps.course_metadata.models import (
     AbstractNamedModel, AbstractMediaModel, AbstractValueModel, CourseOrganization
 )
 from course_discovery.apps.course_metadata.tests import factories
@@ -41,6 +44,19 @@ class CourseTests(TestCase):
         sponsors = self.course.sponsors  # pylint: disable=no-member
         self.assertEqual(len(sponsors), 1)
         self.assertEqual(sponsors[0], self.sponsor)
+
+    def test_active_course_runs(self):
+        """ Verify the property returns only course runs currently open for enrollment or opening in the future. """
+        # pylint: disable=no-member
+        self.assertListEqual(list(self.course.active_course_runs), [])
+
+        enrollment_end = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1)
+        factories.CourseRunFactory(course=self.course, enrollment_end=enrollment_end)
+        self.assertListEqual(list(self.course.active_course_runs), [])
+
+        enrollment_end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
+        active = factories.CourseRunFactory(course=self.course, enrollment_end=enrollment_end)
+        self.assertListEqual(list(self.course.active_course_runs), [active])
 
 
 @ddt.ddt

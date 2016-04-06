@@ -1,7 +1,9 @@
 # pylint: disable=redefined-builtin,no-member
+import datetime
 import urllib
 
 import ddt
+import pytz
 import responses
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
@@ -12,7 +14,7 @@ from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory
 
 
 @ddt.ddt
@@ -24,7 +26,9 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.force_authenticate(self.user)
         self.catalog = CatalogFactory(query='title:abc*')
-        self.course = CourseFactory(key='a/b/c', title='ABC Test Course')
+        enrollment_end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=30)
+        self.course_run = CourseRunFactory(enrollment_end=enrollment_end, course__title='ABC Test Course')
+        self.course = self.course_run.course
         self.refresh_index()
 
     def assert_catalog_created(self, **headers):
@@ -87,9 +91,14 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         url = reverse('api:v1:catalog-courses', kwargs={'id': self.catalog.id})
         courses = [self.course]
 
+        # These courses/course runs should not be returned because they are no longer open for enrollment.
+        enrollment_end = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=30)
+        CourseRunFactory(enrollment_end=enrollment_end, course__title='ABC Test Course 2')
+        CourseRunFactory(enrollment_end=enrollment_end, course=self.course)
+
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
+        self.assertListEqual(response.data['results'], self.serialize_catalog_course(courses, many=True))
 
     def test_contains(self):
         """ Verify the endpoint returns a filtered list of courses contained in the catalog. """

@@ -8,8 +8,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api.filters import PermissionsFilter
-from course_discovery.apps.api.serializers import(
-    CatalogSerializer, CourseSerializer, CourseRunSerializer, ContainedCoursesSerializer
+from course_discovery.apps.api.serializers import (
+    CatalogSerializer, CourseSerializer, CourseRunSerializer, ContainedCoursesSerializer,
+    CourseSerializerExcludingClosedRuns,
 )
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_RUN_ID_REGEX
@@ -57,15 +58,18 @@ class CatalogViewSet(viewsets.ModelViewSet):
     def courses(self, request, id=None):  # pylint: disable=redefined-builtin,unused-argument
         """
         Retrieve the list of courses contained within this catalog.
+
+        Only courses with active course runs are returned. A course run is considered active if it is currently
+        open for enrollment, or will open in the future.
         ---
-        serializer: CourseSerializer
+        serializer: CourseSerializerExcludingClosedRuns
         """
 
         catalog = self.get_object()
-        queryset = catalog.courses()
+        queryset = catalog.courses().active()
 
         page = self.paginate_queryset(queryset)
-        serializer = CourseSerializer(page, many=True, context={'request': request})
+        serializer = CourseSerializerExcludingClosedRuns(page, many=True, context={'request': request})
         return self.get_paginated_response(serializer.data)
 
     @detail_route()
