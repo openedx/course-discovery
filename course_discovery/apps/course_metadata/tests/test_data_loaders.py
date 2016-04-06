@@ -8,18 +8,21 @@ import responses
 from django.conf import settings
 from django.test import TestCase, override_settings
 from opaque_keys.edx.keys import CourseKey
+from pytz import UTC
 
-from course_discovery.apps.course_metadata.data_loaders import (
-    OrganizationsApiDataLoader, CoursesApiDataLoader, AbstractDataLoader, DrupalApiDataLoader
+from course_discovery.apps.course_metadata.data_loaders import(
+    OrganizationsApiDataLoader, CoursesApiDataLoader, DrupalApiDataLoader, EcommerceApiDataLoader, AbstractDataLoader
 )
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Image, LanguageTag, Organization, Subject
+    Course, CourseRun, Image, LanguageTag, Organization, Seat, Subject
 )
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, SeatFactory
 
 ACCESS_TOKEN = 'secret'
 COURSES_API_URL = 'https://lms.example.com/api/courses/v1'
 ORGANIZATIONS_API_URL = 'https://lms.example.com/api/organizations/v0'
 MARKETING_API_URL = 'https://example.com/api/catalog/v2/'
+ECOMMERCE_API_URL = 'https://ecommerce.example.com/api/v2'
 JSON = 'application/json'
 
 
@@ -543,3 +546,318 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     @ddt.unpack
     def test_get_language_tag(self, body, expected):
         self.assertEqual(self.loader.get_language_tag(body), expected)
+
+
+@ddt.ddt
+@override_settings(ECOMMERCE_API_URL=ECOMMERCE_API_URL)
+class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
+    api_url = ECOMMERCE_API_URL
+    loader_class = EcommerceApiDataLoader
+
+    def mock_api(self):
+        course_run_audit = CourseRunFactory(title='audit')
+        course_run_verified = CourseRunFactory(title='verified')
+        course_run_credit = CourseRunFactory(title='credit')
+        course_run_no_currency = CourseRunFactory(title='no currency')
+
+        # create existing seats to be removed by ingest
+        SeatFactory(course_run=course_run_audit, type=Seat.PROFESSIONAL)
+        SeatFactory(course_run=course_run_verified, type=Seat.PROFESSIONAL)
+        SeatFactory(course_run=course_run_credit, type=Seat.PROFESSIONAL)
+        SeatFactory(course_run=course_run_no_currency, type=Seat.PROFESSIONAL)
+
+        bodies = [
+            {
+                "id": course_run_audit.key,
+                "products": [
+                    {
+                        "structure": "parent",
+                        "price": None,
+                        "expires": None,
+                        "attribute_values": [],
+                        "is_available_to_buy": False,
+                        "stockrecords": []
+                    },
+                    {
+                        "structure": "child",
+                        "price": "0.00",
+                        "expires": None,
+                        "attribute_values": [],
+                        "stockrecords": [
+                            {
+                                "price_currency": "USD",
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": course_run_verified.key,
+                "products": [
+                    {
+                        "structure": "parent",
+                        "price": None,
+                        "expires": None,
+                        "attribute_values": [],
+                        "is_available_to_buy": False,
+                        "stockrecords": []
+                    },
+                    {
+                        "structure": "child",
+                        "price": "0.00",
+                        "expires": None,
+                        "attribute_values": [
+                            {
+                                "name": "certificate_type",
+                                "value": "honor"
+                            }
+                        ],
+                        "stockrecords": [
+                            {
+                                "price_currency": "EUR",
+                            }
+                        ]
+                    },
+                    {
+                        "structure": "child",
+                        "price": "25.00",
+                        "expires": "2017-01-01T12:00:00Z",
+                        "attribute_values": [
+                            {
+                                "name": "certificate_type",
+                                "value": "verified"
+                            }
+                        ],
+                        "stockrecords": [
+                            {
+                                "price_currency": "EUR",
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": course_run_credit.key,
+                "products": [
+                    {
+                        "structure": "parent",
+                        "price": None,
+                        "expires": None,
+                        "attribute_values": [],
+                        "is_available_to_buy": False,
+                        "stockrecords": []
+                    },
+                    {
+                        "structure": "child",
+                        "price": "0.00",
+                        "expires": None,
+                        "attribute_values": [],
+                        "stockrecords": [
+                            {
+                                "price_currency": "USD",
+                            }
+                        ]
+                    },
+                    {
+                        "structure": "child",
+                        "price": "25.00",
+                        "expires": "2017-01-01T12:00:00Z",
+                        "attribute_values": [
+                            {
+                                "name": "certificate_type",
+                                "value": "verified"
+                            }
+                        ],
+                        "stockrecords": [
+                            {
+                                "price_currency": "USD",
+                            }
+                        ]
+                    },
+                    {
+                        "structure": "child",
+                        "price": "250.00",
+                        "expires": "2017-06-01T12:00:00Z",
+                        "attribute_values": [
+                            {
+                                "name": "certificate_type",
+                                "value": "credit"
+                            },
+                            {
+                                "name": "credit_hours",
+                                "value": 2
+                            },
+                            {
+                                "name": "credit_provider",
+                                "value": "asu"
+                            },
+                            {
+                                "name": "verification_required",
+                                "value": False
+                            },
+                        ],
+                        "stockrecords": [
+                            {
+                                "price_currency": "USD",
+                            }
+                        ]
+                    }
+                ]
+            },
+            {  # Course with a currency not found in the database
+                "id": course_run_no_currency.key,
+                "products": [
+                    {
+                        "structure": "parent",
+                        "price": None,
+                        "expires": None,
+                        "attribute_values": [],
+                        "is_available_to_buy": False,
+                        "stockrecords": []
+                    },
+                    {
+                        "structure": "child",
+                        "price": "0.00",
+                        "expires": None,
+                        "attribute_values": [],
+                        "stockrecords": [
+                            {
+                                "price_currency": "123",
+                            }
+                        ]
+                    }
+                ]
+            },
+            {  # Course which does not exist in LMS
+                "id": "fake-course-does-not-exist",
+                "products": [
+                    {
+                        "structure": "parent",
+                        "price": None,
+                        "expires": None,
+                        "attribute_values": [],
+                        "is_available_to_buy": False,
+                        "stockrecords": []
+                    },
+                    {
+                        "structure": "child",
+                        "price": "0.00",
+                        "expires": None,
+                        "attribute_values": [],
+                        "stockrecords": [
+                            {
+                                "price_currency": "USD",
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+
+        def courses_api_callback(url, data):
+            def request_callback(request):
+                # pylint: disable=redefined-builtin
+                next = None
+                count = len(bodies)
+
+                # Use the querystring to determine which page should be returned. Default to page 1.
+                # Note that the values of the dict returned by `parse_qs` are lists, hence the `[1]` default value.
+                qs = parse_qs(urlparse(request.path_url).query)
+                page = int(qs.get('page', [1])[0])
+
+                if page < count:
+                    next = '{}?page={}'.format(url, page)
+
+                body = {
+                    'count': count,
+                    'next': next,
+                    'previous': None,
+                    'results': [data[page - 1]]
+                }
+
+                return 200, {}, json.dumps(body)
+
+            return request_callback
+
+        url = '{host}/courses/'.format(host=settings.ECOMMERCE_API_URL)
+        responses.add_callback(responses.GET, url, callback=courses_api_callback(url, bodies), content_type=JSON)
+
+        return bodies
+
+    def assert_seats_loaded(self, body):
+        """ Assert a Seat corresponding to the specified data body was properly loaded into the database. """
+
+        course_run = CourseRun.objects.get(key=body['id'])
+        products = [p for p in body['products'] if p['structure'] == 'child']
+        # Verify that the old seat is removed
+        self.assertEqual(course_run.seats.count(), len(products))
+
+        # Validate each seat
+        for product in products:
+            price_currency = product['stockrecords'][0]['price_currency']
+            price = float(product.get('price', 0.0))
+            certificate_type = Seat.AUDIT
+            credit_provider = None
+            credit_hours = None
+            if product['expires']:
+                upgrade_deadline = datetime.datetime.strptime(
+                    product['expires'], "%Y-%m-%dT%H:%M:%SZ"
+                ).replace(tzinfo=UTC)
+            else:
+                upgrade_deadline = None
+
+            for att in product['attribute_values']:
+                if att['name'] == 'certificate_type':
+                    certificate_type = att['value']
+                elif att['name'] == 'credit_provider':
+                    credit_provider = att['value']
+                elif att['name'] == 'credit_hours':
+                    credit_hours = att['value']
+
+            seat = course_run.seats.get(type=certificate_type)
+
+            self.assertEqual(seat.course_run, course_run)
+            self.assertEqual(seat.type, certificate_type)
+            self.assertEqual(seat.price, price)
+            self.assertEqual(seat.currency.code, price_currency)
+            self.assertEqual(seat.credit_provider, credit_provider)
+            self.assertEqual(seat.credit_hours, credit_hours)
+            self.assertEqual(seat.upgrade_deadline, upgrade_deadline)
+
+    @responses.activate
+    def test_ingest(self):
+        """ Verify the method ingests data from the Courses API. """
+        data = self.mock_api()
+        loaded_course_run_data = data[:-1]
+        loaded_seat_data = data[:-2]
+
+        self.assertEqual(CourseRun.objects.count(), len(loaded_course_run_data))
+
+        # Verify a seat exists on all courses already
+        for course_run in CourseRun.objects.all():
+            self.assertEqual(course_run.seats.count(), 1)
+
+        self.loader.ingest()
+
+        # Verify the API was called with the correct authorization header
+        expected_num_course_runs = len(data)
+        self.assert_api_called(expected_num_course_runs)
+
+        for datum in loaded_seat_data:
+            self.assert_seats_loaded(datum)
+
+    @ddt.unpack
+    @ddt.data(
+        ({"attribute_values": []}, Seat.AUDIT),
+        ({"attribute_values": [{'name': 'certificate_type', 'value': 'professional'}]}, 'professional'),
+        (
+            {"attribute_values": [
+                {'name': 'other_data', 'value': 'other'},
+                {'name': 'certificate_type', 'value': 'credit'}
+            ]}, 'credit'
+        ),
+        ({"attribute_values": [{'name': 'other_data', 'value': 'other'}]}, Seat.AUDIT),
+    )
+    def test_get_certificate_type(self, product, expected_certificate_type):
+        """ Verify the method returns the correct certificate type"""
+        self.assertEqual(self.loader.get_certificate_type(product), expected_certificate_type)

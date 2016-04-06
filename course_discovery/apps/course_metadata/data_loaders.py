@@ -1,6 +1,7 @@
 """ Data loaders. """
 import abc
 import logging
+from decimal import Decimal
 from urllib.parse import urljoin
 
 from dateutil.parser import parse
@@ -9,8 +10,9 @@ from edx_rest_api_client.client import EdxRestApiClient
 import html2text
 from opaque_keys.edx.keys import CourseKey
 
+from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseOrganization, CourseRun, Image, LanguageTag, LevelType, Organization, Subject, Video
+    Course, CourseOrganization, CourseRun, Image, LanguageTag, LevelType, Organization, Seat, Subject, Video
 )
 
 logger = logging.getLogger(__name__)
@@ -304,3 +306,82 @@ class DrupalApiDataLoader(AbstractDataLoader):
         html_converter.wrap_links = False
         html_converter.body_width = None
         return html_converter.handle(stripped).strip()
+
+
+class EcommerceApiDataLoader(AbstractDataLoader):
+    """ Loads course seats from the E-Commerce API. """
+
+    def ingest(self):
+        client = EdxRestApiClient(self.api_url, oauth_access_token=self.access_token)
+        count = None
+        page = 1
+
+        logger.info('Refreshing course seats from %s...', self.api_url)
+
+        while page:
+            response = client.courses().get(page=page, page_size=self.PAGE_SIZE, include_products=True)
+            count = response['count']
+            results = response['results']
+            logger.info('Retrieved %d course seats...', len(results))
+
+            if response['next']:
+                page += 1
+            else:
+                page = None
+
+            for body in results:
+                body = self.clean_strings(body)
+                self.update_seats(body)
+
+        logger.info('Retrieved %d course seats from %s.', count, self.api_url)
+
+    def update_seats(self, body):
+        course_run_key = body['id']
+        try:
+            course_run = CourseRun.objects.get(key=course_run_key)
+        except CourseRun.DoesNotExist:
+            logger.warning('Could not find course run [%s]', course_run_key)
+            return None
+
+        for product in body['products']:
+            if product['structure'] != 'child':
+                continue
+            product = self.clean_strings(product)
+            self.update_seat(course_run, product)
+
+        # Remove seats which no longer exist for that course run
+        certificate_types = [self.get_certificate_type(product) for product in body['products']
+                             if product['structure'] == 'child']
+        course_run.seats.exclude(type__in=certificate_types).delete()
+
+    def update_seat(self, course_run, product):
+        currency_code = product['stockrecords'][0]['price_currency']
+
+        try:
+            currency = Currency.objects.get(code=currency_code)
+        except Currency.DoesNotExist:
+            logger.warning("Could not find currency [%s]", currency_code)
+            return None
+
+        product_values = {
+            'type': Seat.AUDIT,
+            'currency': currency,
+            'upgrade_deadline': product.get('expires'),
+            'price': Decimal(product.get('price', 0.0)),
+        }
+
+        for att in product['attribute_values']:
+            if att['name'] == 'certificate_type':
+                product_values['type'] = att['value']
+            elif att['name'] == 'credit_provider':
+                product_values['credit_provider'] = att['value']
+            elif att['name'] == 'credit_hours':
+                product_values['credit_hours'] = att['value']
+
+        course_run.seats.update_or_create(type=product.get('type'), defaults=product_values)
+
+    def get_certificate_type(self, product):
+        return next(
+            (att['value'] for att in product['attribute_values'] if att['name'] == 'certificate_type'),
+            Seat.AUDIT
+        )
