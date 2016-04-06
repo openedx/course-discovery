@@ -2,7 +2,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 from course_discovery.apps.catalogs.models import Catalog
-from course_discovery.apps.course_metadata.models import(
+from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Image, Organization, Person, Prerequisite, Seat, Subject, Video
 )
 
@@ -15,7 +15,7 @@ class NamedModelSerializer(serializers.ModelSerializer):
     name = serializers.CharField()
 
     class Meta(object):
-        fields = ('name', )
+        fields = ('name',)
 
 
 class SubjectSerializer(NamedModelSerializer):
@@ -47,7 +47,7 @@ class VideoSerializer(MediaSerializer):
 
     class Meta(object):
         model = Video
-        fields = ('src', 'description', 'image', )
+        fields = ('src', 'description', 'image',)
 
 
 class SeatSerializer(serializers.ModelSerializer):
@@ -65,7 +65,7 @@ class SeatSerializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = Seat
-        fields = ('type', 'price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours', )
+        fields = ('type', 'price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours',)
 
 
 class PersonSerializer(serializers.ModelSerializer):
@@ -73,7 +73,7 @@ class PersonSerializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = Person
-        fields = ('name', 'title', 'bio', 'profile_image',)
+        fields = ('key', 'name', 'title', 'bio', 'profile_image',)
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
@@ -81,7 +81,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = Organization
-        fields = ('name', 'description', 'logo_image', 'homepage_url', )
+        fields = ('key', 'name', 'description', 'logo_image', 'homepage_url',)
 
 
 class CatalogSerializer(serializers.ModelSerializer):
@@ -90,26 +90,8 @@ class CatalogSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'query', 'courses_count',)
 
 
-class CourseSerializer(TimestampModelSerializer):
-    level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
-    subjects = SubjectSerializer(many=True)
-    prerequisites = PrerequisiteSerializer(many=True)
-    expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
-    image = ImageSerializer()
-    video = VideoSerializer()
-    owners = OrganizationSerializer(many=True)
-    sponsors = OrganizationSerializer(many=True)
-
-    class Meta(object):
-        model = Course
-        fields = (
-            'key', 'title', 'short_description', 'full_description', 'level_type', 'subjects',
-            'prerequisites', 'expected_learning_items', 'image', 'video', 'owners', 'sponsors',
-            'modified',
-        )
-
-
 class CourseRunSerializer(TimestampModelSerializer):
+    course = serializers.SlugRelatedField(read_only=True, slug_field='key')
     content_language = serializers.SlugRelatedField(read_only=True, slug_field='code', source='language')
     transcript_languages = serializers.SlugRelatedField(many=True, read_only=True, slug_field='code')
     image = ImageSerializer()
@@ -121,10 +103,29 @@ class CourseRunSerializer(TimestampModelSerializer):
     class Meta(object):
         model = CourseRun
         fields = (
-            'key', 'title', 'short_description', 'full_description', 'start', 'end',
+            'course', 'key', 'title', 'short_description', 'full_description', 'start', 'end',
             'enrollment_start', 'enrollment_end', 'announcement', 'image', 'video', 'seats',
             'content_language', 'transcript_languages', 'instructors', 'staff',
             'pacing_type', 'min_effort', 'max_effort', 'modified',
+        )
+
+
+class CourseSerializer(TimestampModelSerializer):
+    level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
+    subjects = SubjectSerializer(many=True)
+    prerequisites = PrerequisiteSerializer(many=True)
+    expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
+    image = ImageSerializer()
+    video = VideoSerializer()
+    owners = OrganizationSerializer(many=True)
+    sponsors = OrganizationSerializer(many=True)
+    course_runs = CourseRunSerializer(many=True)
+
+    class Meta(object):
+        model = Course
+        fields = (
+            'key', 'title', 'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites',
+            'expected_learning_items', 'image', 'video', 'owners', 'sponsors', 'modified', 'course_runs',
         )
 
 
