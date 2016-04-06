@@ -39,10 +39,8 @@ class CourseSerializerTests(TestCase):
         course = CourseFactory()
         image = course.image
         video = course.video
+        CourseRunFactory.create_batch(3, course=course)
         serializer = CourseSerializer(course)
-        # path = reverse('api:v1:course-detail', kwargs={'key': course.key})
-        # request = RequestFactory().get(path)
-        # serializer = CourseSerializer(course, context={'request': request})
 
         expected = {
             'key': course.key,
@@ -57,7 +55,8 @@ class CourseSerializerTests(TestCase):
             'video': VideoSerializer(video).data,
             'owners': [],
             'sponsors': [],
-            'modified': json_date_format(course.modified)  # pylint: disable=no-member
+            'modified': json_date_format(course.modified),  # pylint: disable=no-member
+            'course_runs': CourseRunSerializer(course.course_runs, many=True).data
         }
 
         self.assertDictEqual(serializer.data, expected)
@@ -71,6 +70,7 @@ class CourseRunSerializerTests(TestCase):
         serializer = CourseRunSerializer(course_run)
 
         expected = {
+            'course': course_run.course.key,
             'key': course_run.key,
             'title': course_run.title,  # pylint: disable=no-member
             'short_description': course_run.short_description,  # pylint: disable=no-member
@@ -163,6 +163,7 @@ class OrganizationSerializerTests(TestCase):
         serializer = OrganizationSerializer(organization)
 
         expected = {
+            'key': organization.key,
             'name': organization.name,
             'description': organization.description,
             'homepage_url': organization.homepage_url,
@@ -202,6 +203,7 @@ class PersonSerializerTests(TestCase):
         serializer = PersonSerializer(person)
 
         expected = {
+            'key': person.key,
             'name': person.name,
             'title': person.title,
             'bio': person.bio,
