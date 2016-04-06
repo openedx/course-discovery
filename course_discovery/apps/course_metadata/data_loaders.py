@@ -97,7 +97,7 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
         count = None
         page = 1
 
-        logger.info('Refreshing Organizations from %s....', self.api_url)
+        logger.info('Refreshing Organizations from %s...', self.api_url)
 
         while page:
             response = client.organizations().get(page=page, page_size=self.PAGE_SIZE)
@@ -138,7 +138,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         count = None
         page = 1
 
-        logger.info('Refreshing Courses and CourseRuns from %s....', self.api_url)
+        logger.info('Refreshing Courses and CourseRuns from %s...', self.api_url)
 
         while page:
             response = client.courses().get(page=page, page_size=self.PAGE_SIZE)
