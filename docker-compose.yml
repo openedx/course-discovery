@@ -1,42 +1,50 @@
-db:
-  image: mysql:5.6
-  container_name: db
-  environment:
-    MYSQL_ROOT_PASSWORD: ""
-    MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+version: "2"
 
-es:
-  image: elasticsearch:1.5.2
-  container_name: es
-  volumes:
-    - /tmp/elasticsearch/data:/es-data
-  ports:
-    - "9200:9200"
-    - "9300:9300"
+services:
+  db:
+    image: mysql:5.6
+    container_name: db
+    environment:
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_USER: "discov001"
+      MYSQL_PASSWORD: "password"
+      MYSQL_DATABASE: "discovery"
+    ports:
+      - "3306:3306"
 
-memcache:
-  image: memcached:1.4.24
-  container_name: memcache
+  es:
+    image: elasticsearch:1.5.2
+    container_name: es
+    volumes:
+      - /tmp/elasticsearch/data:/es-data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
 
-# rabbitmq:
-#  image: rabbitmq:3.5.3
-#  container_name: rabbitmq
+  memcache:
+    image: memcached:1.4.24
+    container_name: memcache
 
-course-discovery:
-  # Uncomment this line to use the official course-discovery base image
-  image: edxops/course-discovery:latest
+  course-discovery:
+    # Uncomment this line to use the official course-discovery base image
+    image: edxops/course-discovery:latest
 
-  # Uncomment the next two lines to build from a local configuration repo
-  #build: ../configuration
-  #dockerfile: docker/build/course_discovery/Dockerfile
+    # Uncomment the next two lines to build from a local configuration repo
+    #build: ../configuration
+    #dockerfile: docker/build/course_discovery/Dockerfile
 
-  container_name: course-discovery
-  volumes:
-    - .:/edx/app/course_discovery/discovery
-  command: /edx/app/discovery/devstack.sh start
-  environment:
-    TEST_ELASTICSEARCH_URL: "http://es:9200"
-  ports:
-    - "18381:18381"
-    - "8381:8381"
-    - "48381:48381"
+    container_name: course-discovery
+    volumes:
+      - .:/edx/app/course_discovery/discovery
+    command: /edx/app/discovery/devstack.sh start
+    depends_on:
+      - "db"
+      - "es"
+      - "memcache"
+    environment:
+      TEST_ELASTICSEARCH_URL: "http://es:9200"
+    ports:
+      - "18381:18381"
+      - "8381:8381"
+      - "48381:48381"
