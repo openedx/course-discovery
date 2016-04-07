@@ -80,10 +80,10 @@ push_translations:
 	tx push -s
 
 start-devstack:
-	docker-compose --x-networking up
+	docker-compose up
 
 open-devstack:
-	docker-compose --x-networking up -d
+	docker-compose up -d
 	docker exec -it course-discovery env TERM=$(TERM) /edx/app/discovery/devstack.sh open
 
 accept:
