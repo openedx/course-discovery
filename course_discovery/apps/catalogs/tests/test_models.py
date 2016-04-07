@@ -24,8 +24,8 @@ class CatalogTests(ElasticsearchTestMixin, TestCase):
         self.assertEqual(str(self.catalog), expected)
 
     def test_courses(self):
-        """ Verify the method returns a list of courses contained in the catalog. """
-        self.assertEqual(self.catalog.courses(), [self.course])
+        """ Verify the method returns a QuerySet of courses contained in the catalog. """
+        self.assertEqual(list(self.catalog.courses()), [self.course])
 
     def test_contains(self):
         """ Verify the method returns a mapping of course IDs to booleans. """

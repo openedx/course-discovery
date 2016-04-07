@@ -27,10 +27,11 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
         """ Returns the list of courses contained within this catalog.
 
         Returns:
-            Course[]
+            QuerySet
         """
-        results = self._get_query_results().load_all()
-        return [result.object for result in results]
+        results = self._get_query_results()
+        ids = [result.pk for result in results]
+        return Course.objects.filter(pk__in=ids)
 
     @property
     def courses_count(self):

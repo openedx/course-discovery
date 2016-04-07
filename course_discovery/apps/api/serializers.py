@@ -129,6 +129,10 @@ class CourseSerializer(TimestampModelSerializer):
         )
 
 
+class CourseSerializerExcludingClosedRuns(CourseSerializer):
+    course_runs = CourseRunSerializer(many=True, source='active_course_runs')
+
+
 class ContainedCoursesSerializer(serializers.Serializer):  # pylint: disable=abstract-method
     courses = serializers.DictField(
         child=serializers.BooleanField(),
