@@ -5,7 +5,7 @@ import pytz
 from django.test import TestCase
 
 from course_discovery.apps.course_metadata.models import (
-    AbstractNamedModel, AbstractMediaModel, AbstractValueModel, CourseOrganization
+    AbstractNamedModel, AbstractMediaModel, AbstractValueModel, CourseOrganization, Course
 )
 from course_discovery.apps.course_metadata.tests import factories
 
@@ -57,6 +57,15 @@ class CourseTests(TestCase):
         enrollment_end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
         active = factories.CourseRunFactory(course=self.course, enrollment_end=enrollment_end)
         self.assertListEqual(list(self.course.active_course_runs), [active])
+
+    def test_search(self):
+        """ Verify the method returns a filtered queryset of courses. """
+        title = 'Some random course'
+        courses = factories.CourseFactory.create_batch(3, title=title)
+        courses = sorted(courses, key=lambda course: course.key)
+        query = 'title:' + title
+        actual = list(Course.search(query).order_by('key'))
+        self.assertEqual(actual, courses)
 
 
 @ddt.ddt

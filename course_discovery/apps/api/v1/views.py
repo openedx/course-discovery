@@ -103,9 +103,14 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     """ Course resource. """
     lookup_field = 'key'
     lookup_value_regex = COURSE_ID_REGEX
-    queryset = Course.objects.all().order_by(Lower('key'))
+    queryset = Course.objects.all()
     permission_classes = (IsAuthenticated,)
     serializer_class = CourseSerializer
+
+    def get_queryset(self):
+        q = self.request.query_params.get('q', None)
+        queryset = Course.search(q) if q else super(CourseViewSet, self).get_queryset()
+        return queryset.order_by(Lower('key'))
 
     # The boilerplate methods are required to be recognized by swagger
     def list(self, request, *args, **kwargs):

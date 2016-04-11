@@ -5,6 +5,7 @@ import pytz
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
+from haystack.query import SearchQuerySet
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 
@@ -151,6 +152,22 @@ class Course(TimeStampedModel):
             QuerySet
         """
         return self.course_runs.filter(enrollment_end__gt=datetime.datetime.now(pytz.UTC))
+
+    @classmethod
+    def search(cls, query):
+        """ Queries the search index.
+
+        Args:
+            query (str) -- Elasticsearch querystring (e.g. `title:intro*`)
+
+        Returns:
+            QuerySet
+        """
+        # NOTE (CCB): Ensure the query is lowercase, since that is how we index our data.
+        query = query.lower()
+        results = SearchQuerySet().models(cls).raw_search(query)
+        ids = [result.pk for result in results]
+        return cls.objects.filter(pk__in=ids)
 
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
