@@ -1,6 +1,26 @@
 {{ object.key }}
 {{ object.title }}
-{{ object.organizations.all|default:'' }}
 {{ object.short_description|default:'' }}
 {{ object.full_description|default:'' }}
 {{ object.level_type|default:'' }}
+{{ object.marketing_url|default:'' }}
+
+{% for course_run in object.course_runs.all %}
+    {{ course_run }}
+{% endfor %}
+
+{% for expected_learning_item in object.expected_learning_items.all %}
+    {{ expected_learning_item.value }}
+{% endfor %}
+
+{% for organization in object.organizations.all %}
+    {{ organization.key }}: {{ organization.name }}
+{% endfor %}
+
+{% for prerequisite in object.prerequisites.all %}
+    {{ prerequisite.name }}
+{% endfor %}
+
+{% for subject in object.subjects.all %}
+    {{ subject.name }}
+{% endfor %}
