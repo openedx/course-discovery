@@ -20,6 +20,7 @@ from course_discovery.apps.course_metadata.tests.factories import CourseRunFacto
 @ddt.ddt
 class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixin, APITestCase):
     """ Tests for the catalog resource. """
+    catalog_list_url = reverse('api:v1:catalog-list')
 
     def setUp(self):
         super(CatalogViewSetTests, self).setUp()
@@ -39,7 +40,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             'query': query
         }
 
-        response = self.client.post(reverse('api:v1:catalog-list'), data, format='json', **headers)
+        response = self.client.post(self.catalog_list_url, data, format='json', **headers)
         self.assertEqual(response.status_code, 201)
 
         catalog = Catalog.objects.latest()
@@ -47,18 +48,19 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.assertEqual(catalog.name, name)
         self.assertEqual(catalog.query, query)
 
-    def grant_catalog_permission_to_user(self, user, action):
+    def grant_catalog_permission_to_user(self, user, action, catalog=None):
         """ Grant the user access to view `self.catalog`. """
+        catalog = catalog or self.catalog
         perm = '{action}_catalog'.format(action=action)
-        user.add_obj_perm(perm, self.catalog)
-        self.assertTrue(user.has_perm('catalogs.' + perm, self.catalog))
+        user.add_obj_perm(perm, catalog)
+        self.assertTrue(user.has_perm('catalogs.' + perm, catalog))
 
     def test_create_without_authentication(self):
         """ Verify authentication is required when creating, updating, or deleting a catalog. """
         self.client.logout()
         Catalog.objects.all().delete()
 
-        response = self.client.post(reverse('api:v1:catalog-list'), {}, format='json')
+        response = self.client.post(self.catalog_list_url, {}, format='json')
         self.assertEqual(response.status_code, 403)
         self.assertEqual(Catalog.objects.count(), 0)
 
@@ -120,9 +122,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
     def test_list(self):
         """ Verify the endpoint returns a list of all catalogs. """
-        url = reverse('api:v1:catalog-list')
-
-        response = self.client.get(url)
+        response = self.client.get(self.catalog_list_url)
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(response.data['results'], self.serialize_catalog(Catalog.objects.all(), many=True))
 
@@ -189,16 +189,15 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         """ Verify only catalogs accessible to the user are returned in the list view. """
         user = UserFactory(is_staff=False, is_superuser=False)
         self.client.force_authenticate(user)
-        url = reverse('api:v1:catalog-list')
 
         # An user with no permissions should not see any catalogs
-        response = self.client.get(url)
+        response = self.client.get(self.catalog_list_url)
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(response.data['results'], [])
 
         # The client should be able to see permissions for which it has access
         self.grant_catalog_permission_to_user(user, 'view')
-        response = self.client.get(url)
+        response = self.client.get(self.catalog_list_url)
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(response.data['results'], self.serialize_catalog([self.catalog], many=True))
 
@@ -222,3 +221,39 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.grant_catalog_permission_to_user(user, 'delete')
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
+
+    def test_username_filter_as_non_staff_user(self):
+        """ Verify HTTP 403 is returned when a non-staff user attempts to filter the Catalog list by username. """
+        user = UserFactory(is_staff=False, is_superuser=False)
+        self.client.force_authenticate(user)
+
+        response = self.client.get(self.catalog_list_url + '?username=jack')
+        self.assertEqual(response.status_code, 403)
+        expected = {'detail': 'Only staff users are permitted to filter by username. Remove the username parameter.'}
+        self.assertDictEqual(response.data, expected)
+
+    def test_username_filter_as_staff_user(self):
+        """ Verify a list of Catalogs accessible by the given user is returned when filtering by username as a
+        staff user. """
+        user = UserFactory(is_staff=False, is_superuser=False)
+        catalog = CatalogFactory()
+
+        path = '{root}?username={username}'.format(root=self.catalog_list_url, username=user.username)
+        response = self.client.get(path)
+        self.assertEqual(response.status_code, 200)
+        self.assertListEqual(response.data['results'], [])
+
+        self.grant_catalog_permission_to_user(user, 'view', catalog)
+
+        response = self.client.get(path)
+        self.assertEqual(response.status_code, 200)
+        self.assertListEqual(response.data['results'], self.serialize_catalog([catalog], many=True))
+
+    def test_username_filter_as_staff_user_with_invalid_username(self):
+        """ Verify HTTP 404 is returned if the given username does not correspond to an actual user. """
+        username = 'jack'
+        path = '{root}?username={username}'.format(root=self.catalog_list_url, username=username)
+        response = self.client.get(path)
+        self.assertEqual(response.status_code, 404)
+        expected = {'detail': 'No user with the username [{username}] exists.'.format(username=username)}
+        self.assertDictEqual(response.data, expected)
