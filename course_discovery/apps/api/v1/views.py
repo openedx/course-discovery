@@ -114,7 +114,16 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
 
     # The boilerplate methods are required to be recognized by swagger
     def list(self, request, *args, **kwargs):
-        """ List all courses. """
+        """ List all courses.
+        ---
+        parameters:
+            - name: q
+              description: Elasticsearch querystring query
+              required: false
+              type: string
+              paramType: query
+              multiple: false
+        """
         return super(CourseViewSet, self).list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
