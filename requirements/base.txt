@@ -5,7 +5,7 @@ django-haystack==2.4.1
 django-simple-history==1.8.1
 django-sortedm2m==1.1.1
 django-waffle==0.11
-djangorestframework==3.3.1
+djangorestframework==3.3.3
 djangorestframework-jwt==1.7.2
 django-rest-swagger[reST]==0.3.4
 dry-rest-permissions==0.1.6
