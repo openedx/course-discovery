@@ -26,6 +26,7 @@ help:
 	@echo "  clean_static               remove all generated static files"
 	@echo "  start-devstack             run a local development copy of the server"
 	@echo "  open-devstack              open a shell on the server started by start-devstack"
+	@echo "  local                      run as a local standalone application"
 	@echo ""
 
 static:
@@ -88,3 +89,6 @@ open-devstack:
 
 accept:
 	nosetests --with-ignore-docstrings -v acceptance_tests
+
+local:
+	python manage.py runserver 8004
