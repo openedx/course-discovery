@@ -7,6 +7,7 @@ class ModelPermissionsMixin:
     Inheriting models should have the default add, change, and delete permissions, as well as the
     custom "view" permission.
     """
+
     @classmethod
     def get_permission(cls, action):
         """
@@ -43,6 +44,14 @@ class ModelPermissionsMixin:
         user = request.user
         perm = cls.get_permission('add')
         return user.is_staff or user.is_superuser or user.has_perm(perm)
+
+    @authenticated_users
+    @allow_staff_or_superuser
+    def has_object_create_permission(self, request):  # pragma: no cover
+        # NOTE (CCB): This method is solely here to ensure object creation and permissions behave appropriately
+        # when using the Browseable API. This is not called when making a JSON request.
+        perm = self.get_permission('add')
+        return request.user.has_perm(perm, self)
 
     @authenticated_users
     @allow_staff_or_superuser

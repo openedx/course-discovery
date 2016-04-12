@@ -9,6 +9,7 @@ from course_discovery.apps.api.serializers import(
     PersonSerializer,
 )
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
+from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, SubjectFactory, PrerequisiteFactory,
     ImageFactory, VideoFactory, OrganizationFactory, PersonFactory, SeatFactory
@@ -21,7 +22,8 @@ def json_date_format(datetime_obj):
 
 class CatalogSerializerTests(TestCase):
     def test_data(self):
-        catalog = CatalogFactory(query='*:*')  # We intentionally use a query for all Courses.
+        user = UserFactory()
+        catalog = CatalogFactory(query='*:*', viewers=[user])  # We intentionally use a query for all Courses.
         courses = CourseFactory.create_batch(10)
         serializer = CatalogSerializer(catalog)
 
@@ -29,7 +31,8 @@ class CatalogSerializerTests(TestCase):
             'id': catalog.id,
             'name': catalog.name,
             'query': catalog.query,
-            'courses_count': len(courses)
+            'courses_count': len(courses),
+            'viewers': [user.username]
         }
         self.assertDictEqual(serializer.data, expected)
 
