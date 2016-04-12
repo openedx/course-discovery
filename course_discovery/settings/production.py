@@ -1,13 +1,12 @@
 import platform
 import sys
+from logging.handlers import SysLogHandler
 from os import environ
 
 import yaml
-from logging.handlers import SysLogHandler
 
 from course_discovery.settings.base import *
 from course_discovery.settings.utils import get_env_setting
-
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -48,11 +47,10 @@ DB_OVERRIDES = dict(
     PORT=environ.get('DB_MIGRATION_PORT', DATABASES['default']['PORT']),
 )
 
-ES_OVERRIDES = dict(
-    HOST=environ.get('ES_HOST', ELASTICSEARCH['host']),
-    INDEX=environ.get('ES_INDEX', ELASTICSEARCH['index']),
-)
-
+HAYSTACK_CONNECTIONS['default'].update({
+    'URL': ELASTICSEARCH_URL,
+    'INDEX_NAME': ELASTICSEARCH_INDEX_NAME,
+})
 
 for override, value in DB_OVERRIDES.items():
     DATABASES['default'][override] = value
