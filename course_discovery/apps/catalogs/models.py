@@ -29,9 +29,7 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
         Returns:
             QuerySet
         """
-        results = self._get_query_results()
-        ids = [result.pk for result in results]
-        return Course.objects.filter(pk__in=ids)
+        return Course.search(self.query)
 
     @property
     def courses_count(self):
