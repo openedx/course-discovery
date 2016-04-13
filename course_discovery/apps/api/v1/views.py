@@ -1,9 +1,13 @@
 import logging
+import os
+from io import StringIO
 
+from django.core.management import call_command
 from django.db.models.functions import Lower
 from dry_rest_permissions.generics import DRYPermissions
+from edx_rest_framework_extensions.permissions import IsSuperuser
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -156,3 +160,45 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a course run. """
         return super(CourseRunViewSet, self).retrieve(request, *args, **kwargs)
+
+
+class ManagementViewSet(viewsets.ViewSet):
+    permission_classes = (IsSuperuser,)
+
+    @list_route(methods=['post'])
+    def refresh_course_metadata(self, request):
+        """ Refresh the course metadata from external data sources.
+        ---
+        parameters:
+            - name: access_token
+              description: OAuth access token to use in lieu of that issued to the service.
+              required: false
+              type: string
+              paramType: form
+              multiple: false
+        """
+        access_token = request.data.get('access_token')
+
+        # Capture all output and logging
+        out = StringIO()
+        err = StringIO()
+        log = StringIO()
+
+        root_logger = logging.getLogger()
+        log_handler = logging.StreamHandler(log)
+        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        log_handler.setFormatter(formatter)
+        root_logger.addHandler(log_handler)
+
+        logger.info('Updating course metadata per request of [%s]...', request.user.username)
+
+        kwargs = {'access_token': access_token} if access_token else {}
+
+        call_command('refresh_course_metadata', settings=os.environ['DJANGO_SETTINGS_MODULE'], stdout=out, stderr=err,
+                     **kwargs)
+
+        # Format the output for display
+        output = 'STDOUT\n{out}\n\nSTDERR\n{err}\n\nLOG\n{log}'.format(out=out.getvalue(), err=err.getvalue(),
+                                                                       log=log.getvalue())
+
+        return Response(output, content_type='text/plain')
