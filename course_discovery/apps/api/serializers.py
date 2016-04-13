@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
@@ -5,6 +6,8 @@ from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Image, Organization, Person, Prerequisite, Seat, Subject, Video
 )
+
+User = get_user_model()
 
 
 class TimestampModelSerializer(serializers.ModelSerializer):
@@ -85,9 +88,21 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
 
 class CatalogSerializer(serializers.ModelSerializer):
+    courses_count = serializers.IntegerField(read_only=True, help_text=_('Number of courses contained in this catalog'))
+    viewers = serializers.SlugRelatedField(slug_field='username', queryset=User.objects.all(), many=True,
+                                           allow_null=True, allow_empty=True, required=False,
+                                           help_text=_('Usernames of users with explicit access to view this catalog'))
+
+    def create(self, validated_data):
+        # Set viewers after the model has been saved
+        viewers = validated_data.pop('viewers')
+        instance = super(CatalogSerializer, self).create(validated_data)
+        instance.viewers = viewers
+        return instance
+
     class Meta(object):
         model = Catalog
-        fields = ('id', 'name', 'query', 'courses_count',)
+        fields = ('id', 'name', 'query', 'courses_count', 'viewers')
 
 
 class CourseRunSerializer(TimestampModelSerializer):

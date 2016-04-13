@@ -1,6 +1,9 @@
+from collections import Iterable
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
+from guardian.shortcuts import get_users_with_perms
 from haystack.query import SearchQuerySet
 
 from course_discovery.apps.core.mixins import ModelPermissionsMixin
@@ -8,6 +11,7 @@ from course_discovery.apps.course_metadata.models import Course
 
 
 class Catalog(ModelPermissionsMixin, TimeStampedModel):
+    VIEW_PERMISSION = 'view_catalog'
     name = models.CharField(max_length=255, null=False, blank=False, help_text=_('Catalog name'))
     query = models.TextField(null=False, blank=False, help_text=_('Query to retrieve catalog contents'))
 
@@ -51,6 +55,52 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
             contains[result.get_stored_fields()['key']] = True
 
         return contains
+
+    @property
+    def viewers(self):
+        """ Returns a QuerySet of users who have been granted explicit access to view this Catalog.
+
+        Returns:
+            QuerySet
+        """
+        # NOTE (CCB): This method actually returns any individual User with *any* permission on the object. It is
+        # safe to assume that those who can create/modify the model can also view it. If that assumption changes,
+        # change this code!
+        return get_users_with_perms(self, with_superusers=False, with_group_users=False)
+
+    @viewers.setter
+    def viewers(self, value):
+        """ Sets the viewers of this model.
+
+        This method utilizes Django permissions to set access. Existing user-specific access permissions will be
+        overwritten. Group permissions will not be affected.
+
+        Args:
+            value (Iterable): Collection of `User` objects.
+
+        Raises:
+            TypeError: The given value is not iterable, or is a string.
+
+        Returns:
+            None
+        """
+        if isinstance(value, str) or not isinstance(value, Iterable):
+            raise TypeError('Viewers must be a non-string iterable containing User objects.')
+
+        new = set(value)
+        existing = set(self.viewers)
+
+        # Remove users who no longer have access
+        to_be_removed = existing - new
+
+        for user in to_be_removed:
+            user.del_obj_perm(self.VIEW_PERMISSION, self)
+
+        # Add new users
+        new = new - existing
+
+        for user in new:
+            user.add_obj_perm(self.VIEW_PERMISSION, self)
 
     class Meta(TimeStampedModel.Meta):
         abstract = False

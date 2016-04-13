@@ -35,9 +35,11 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
     def assert_catalog_created(self, **headers):
         name = 'The Kitchen Sink'
         query = '*.*'
+        viewer = UserFactory()
         data = {
             'name': name,
-            'query': query
+            'query': query,
+            'viewers': [viewer.username]
         }
 
         response = self.client.post(self.catalog_list_url, data, format='json', **headers)
@@ -47,6 +49,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.assertDictEqual(response.data, self.serialize_catalog(catalog))
         self.assertEqual(catalog.name, name)
         self.assertEqual(catalog.query, query)
+        self.assertListEqual(list(catalog.viewers), [viewer])
 
     def grant_catalog_permission_to_user(self, user, action, catalog=None):
         """ Grant the user access to view `self.catalog`. """
