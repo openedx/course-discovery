@@ -343,19 +343,21 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             logger.warning('Could not find course run [%s]', course_run_key)
             return None
 
-        for product in body['products']:
-            if product['structure'] != 'child':
+        for product_body in body['products']:
+            if product_body['structure'] != 'child':
                 continue
-            product = self.clean_strings(product)
-            self.update_seat(course_run, product)
+            product_body = self.clean_strings(product_body)
+            self.update_seat(course_run, product_body)
 
         # Remove seats which no longer exist for that course run
         certificate_types = [self.get_certificate_type(product) for product in body['products']
                              if product['structure'] == 'child']
         course_run.seats.exclude(type__in=certificate_types).delete()
 
-    def update_seat(self, course_run, product):
-        currency_code = product['stockrecords'][0]['price_currency']
+    def update_seat(self, course_run, product_body):
+        stock_record = product_body['stockrecords'][0]
+        currency_code = stock_record['price_currency']
+        price = Decimal(stock_record['price_excl_tax'])
 
         try:
             currency = Currency.objects.get(code=currency_code)
@@ -363,22 +365,23 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             logger.warning("Could not find currency [%s]", currency_code)
             return None
 
-        product_values = {
-            'type': Seat.AUDIT,
-            'currency': currency,
-            'upgrade_deadline': product.get('expires'),
-            'price': Decimal(product.get('price', 0.0)),
+        attributes = {attribute['name']: attribute['value'] for attribute in product_body['attribute_values']}
+
+        seat_type = attributes.get('certificate_type', Seat.AUDIT)
+        credit_provider = attributes.get('credit_provider')
+
+        credit_hours = attributes.get('credit_hours')
+        if credit_hours:
+            credit_hours = int(credit_hours)
+
+        defaults = {
+            'price': price,
+            'upgrade_deadline': self.parse_date(product_body.get('expires')),
+            'credit_hours': credit_hours,
         }
 
-        for att in product['attribute_values']:
-            if att['name'] == 'certificate_type':
-                product_values['type'] = att['value']
-            elif att['name'] == 'credit_provider':
-                product_values['credit_provider'] = att['value']
-            elif att['name'] == 'credit_hours':
-                product_values['credit_hours'] = att['value']
-
-        course_run.seats.update_or_create(type=product.get('type'), defaults=product_values)
+        course_run.seats.update_or_create(type=seat_type, credit_provider=credit_provider, currency=currency,
+                                          defaults=defaults)
 
     def get_certificate_type(self, product):
         return next(

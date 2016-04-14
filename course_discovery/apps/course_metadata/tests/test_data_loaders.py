@@ -1,6 +1,7 @@
 """ Tests for data loaders. """
 import datetime
 import json
+from decimal import Decimal
 from urllib.parse import parse_qs, urlparse, urljoin
 
 import ddt
@@ -10,7 +11,7 @@ from django.test import TestCase, override_settings
 from opaque_keys.edx.keys import CourseKey
 from pytz import UTC
 
-from course_discovery.apps.course_metadata.data_loaders import(
+from course_discovery.apps.course_metadata.data_loaders import (
     OrganizationsApiDataLoader, CoursesApiDataLoader, DrupalApiDataLoader, EcommerceApiDataLoader, AbstractDataLoader
 )
 from course_discovery.apps.course_metadata.models import (
@@ -154,6 +155,9 @@ class OrganizationsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
         for datum in data:
             self.assert_organization_loaded(datum)
+
+        # Verify multiple calls to ingest data do NOT result in data integrity errors.
+        self.loader.ingest()
 
 
 @ddt.ddt
@@ -301,6 +305,9 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
         for datum in data:
             self.assert_course_run_loaded(datum)
+
+        # Verify multiple calls to ingest data do NOT result in data integrity errors.
+        self.loader.ingest()
 
     def test_get_pacing_type_field_missing(self):
         """ Verify the method returns None if the API response does not include a pacing field. """
@@ -523,6 +530,9 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
         Course.objects.get(key=self.EXISTING_COURSE['course_key'], title=self.EXISTING_COURSE['title'])
 
+        # Verify multiple calls to ingest data do NOT result in data integrity errors.
+        self.loader.ingest()
+
     @ddt.data(
         ('', ''),
         ('<h1>foo</h1>', '# foo'),
@@ -555,10 +565,10 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     loader_class = EcommerceApiDataLoader
 
     def mock_api(self):
-        course_run_audit = CourseRunFactory(title='audit')
-        course_run_verified = CourseRunFactory(title='verified')
-        course_run_credit = CourseRunFactory(title='credit')
-        course_run_no_currency = CourseRunFactory(title='no currency')
+        course_run_audit = CourseRunFactory(title_override='audit')
+        course_run_verified = CourseRunFactory(title_override='verified')
+        course_run_credit = CourseRunFactory(title_override='credit')
+        course_run_no_currency = CourseRunFactory(title_override='no currency')
 
         # create existing seats to be removed by ingest
         SeatFactory(course_run=course_run_audit, type=Seat.PROFESSIONAL)
@@ -580,12 +590,12 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                     },
                     {
                         "structure": "child",
-                        "price": "0.00",
                         "expires": None,
                         "attribute_values": [],
                         "stockrecords": [
                             {
                                 "price_currency": "USD",
+                                "price_excl_tax": "0.00",
                             }
                         ]
                     }
@@ -604,7 +614,6 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                     },
                     {
                         "structure": "child",
-                        "price": "0.00",
                         "expires": None,
                         "attribute_values": [
                             {
@@ -615,12 +624,12 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                         "stockrecords": [
                             {
                                 "price_currency": "EUR",
+                                "price_excl_tax": "0.00",
                             }
                         ]
                     },
                     {
                         "structure": "child",
-                        "price": "25.00",
                         "expires": "2017-01-01T12:00:00Z",
                         "attribute_values": [
                             {
@@ -631,12 +640,15 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                         "stockrecords": [
                             {
                                 "price_currency": "EUR",
+                                "price_excl_tax": "25.00",
                             }
                         ]
                     }
                 ]
             },
             {
+                # This credit course has two credit seats to verify we are correctly finding/updating using the credit
+                # provider field.
                 "id": course_run_credit.key,
                 "products": [
                     {
@@ -649,18 +661,17 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                     },
                     {
                         "structure": "child",
-                        "price": "0.00",
                         "expires": None,
                         "attribute_values": [],
                         "stockrecords": [
                             {
                                 "price_currency": "USD",
+                                "price_excl_tax": "0.00",
                             }
                         ]
                     },
                     {
                         "structure": "child",
-                        "price": "25.00",
                         "expires": "2017-01-01T12:00:00Z",
                         "attribute_values": [
                             {
@@ -671,12 +682,12 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                         "stockrecords": [
                             {
                                 "price_currency": "USD",
+                                "price_excl_tax": "25.00",
                             }
                         ]
                     },
                     {
                         "structure": "child",
-                        "price": "250.00",
                         "expires": "2017-06-01T12:00:00Z",
                         "attribute_values": [
                             {
@@ -699,6 +710,35 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                         "stockrecords": [
                             {
                                 "price_currency": "USD",
+                                "price_excl_tax": "250.00",
+                            }
+                        ]
+                    },
+                    {
+                        "structure": "child",
+                        "expires": "2017-06-01T12:00:00Z",
+                        "attribute_values": [
+                            {
+                                "name": "certificate_type",
+                                "value": "credit"
+                            },
+                            {
+                                "name": "credit_hours",
+                                "value": 2
+                            },
+                            {
+                                "name": "credit_provider",
+                                "value": "acme"
+                            },
+                            {
+                                "name": "verification_required",
+                                "value": False
+                            },
+                        ],
+                        "stockrecords": [
+                            {
+                                "price_currency": "USD",
+                                "price_excl_tax": "250.00",
                             }
                         ]
                     }
@@ -717,12 +757,12 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                     },
                     {
                         "structure": "child",
-                        "price": "0.00",
                         "expires": None,
                         "attribute_values": [],
                         "stockrecords": [
                             {
                                 "price_currency": "123",
+                                "price_excl_tax": "0.00",
                             }
                         ]
                     }
@@ -741,12 +781,12 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                     },
                     {
                         "structure": "child",
-                        "price": "0.00",
                         "expires": None,
                         "attribute_values": [],
                         "stockrecords": [
                             {
                                 "price_currency": "USD",
+                                "price_excl_tax": "0.00",
                             }
                         ]
                     }
@@ -794,8 +834,9 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
         # Validate each seat
         for product in products:
-            price_currency = product['stockrecords'][0]['price_currency']
-            price = float(product.get('price', 0.0))
+            stock_record = product['stockrecords'][0]
+            price_currency = stock_record['price_currency']
+            price = Decimal(stock_record['price_excl_tax'])
             certificate_type = Seat.AUDIT
             credit_provider = None
             credit_hours = None
@@ -814,7 +855,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                 elif att['name'] == 'credit_hours':
                     credit_hours = att['value']
 
-            seat = course_run.seats.get(type=certificate_type)
+            seat = course_run.seats.get(type=certificate_type, credit_provider=credit_provider, currency=price_currency)
 
             self.assertEqual(seat.course_run, course_run)
             self.assertEqual(seat.type, certificate_type)
@@ -826,7 +867,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
     @responses.activate
     def test_ingest(self):
-        """ Verify the method ingests data from the Courses API. """
+        """ Verify the method ingests data from the E-Commerce API. """
         data = self.mock_api()
         loaded_course_run_data = data[:-1]
         loaded_seat_data = data[:-2]
@@ -845,6 +886,9 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
         for datum in loaded_seat_data:
             self.assert_seats_loaded(datum)
+
+        # Verify multiple calls to ingest data do NOT result in data integrity errors.
+        self.loader.ingest()
 
     @ddt.unpack
     @ddt.data(
