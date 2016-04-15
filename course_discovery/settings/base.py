@@ -288,7 +288,7 @@ JWT_AUTH = {
     'JWT_ALGORITHM': 'HS256',
     'JWT_AUDIENCE': 'course-discovery',
     'JWT_ISSUER': 'course-discovery',
-    'JWT_DECODE_HANDLER': 'course_discovery.apps.api.jwt_decode_handler.decode',
+    'JWT_DECODE_HANDLER': 'edx_rest_framework_extensions.utils.jwt_decode_handler',
 }
 
 SWAGGER_SETTINGS = {
