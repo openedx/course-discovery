@@ -15,7 +15,7 @@ from course_discovery.apps.course_metadata.data_loaders import (
     OrganizationsApiDataLoader, CoursesApiDataLoader, DrupalApiDataLoader, EcommerceApiDataLoader, AbstractDataLoader
 )
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Image, LanguageTag, Organization, Seat, Subject
+    Course, CourseOrganization, CourseRun, Image, LanguageTag, Organization, Person, Seat, Subject
 )
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, SeatFactory
 
@@ -390,6 +390,9 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         'title': 'A partial course',
     }
 
+    ORPHAN_ORGANIZATION_KEY = 'orphan_org'
+    ORPHAN_STAFF_KEY = 'orphan_staff'
+
     api_url = MARKETING_API_URL
     loader_class = DrupalApiDataLoader
 
@@ -397,13 +400,25 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         super(DrupalApiDataLoaderTests, self).setUp()
         for course_dict in self.EXISTING_COURSE_AND_RUN_DATA:
             course = Course.objects.create(key=course_dict['course_key'], title=course_dict['title'])
-            CourseRun.objects.create(
+            course_run = CourseRun.objects.create(
                 key=course_dict['course_run_key'],
                 language=self.loader.get_language_tag(course_dict),
                 course=course
             )
 
+            # Add some data that doesn't exist in Drupal already
+            person = Person.objects.create(key='orphan_staff_' + course_run.key)
+            course_run.staff.add(person)
+            organization = Organization.objects.create(key='orphan_org_' + course.key)
+            CourseOrganization.objects.create(
+                organization=organization,
+                course=course,
+                relation_type=CourseOrganization.SPONSOR
+            )
+
         Course.objects.create(key=self.EXISTING_COURSE['course_key'], title=self.EXISTING_COURSE['title'])
+        Person.objects.create(key=self.ORPHAN_STAFF_KEY)
+        Organization.objects.create(key=self.ORPHAN_ORGANIZATION_KEY)
 
     def mock_api(self):
         """Mock out the Drupal API. Returns a list of mocked-out course runs."""
@@ -421,6 +436,27 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                 'current_language': self.EXISTING_COURSE_AND_RUN_DATA[0]['current_language'],
                 'subtitle': 'Learn about Bread',
                 'description': '<p><b>Bread</b> is a <a href="/wiki/Staple_food" title="Staple food">staple food</a>.',
+                'sponsors': [{
+                    'uuid': 'abc123',
+                    'title': 'Tatte',
+                    'image': 'http://example.com/tatte.jpg',
+                    'uri': 'sponsor/tatte'
+                }],
+                'staff': [{
+                    'uuid': 'staff123',
+                    'title': 'The Muffin Man',
+                    'image': 'http://example.com/muffinman.jpg',
+                    'display_position': {
+                        'title': 'Baker'
+                    }
+                }, {
+                    'uuid': 'staffZYX',
+                    'title': 'Arthur',
+                    'image': 'http://example.com/kingarthur.jpg',
+                    'display_position': {
+                        'title': 'King'
+                    }
+                }]
             }, {
                 'title': self.EXISTING_COURSE_AND_RUN_DATA[1]['title'],
                 'level': {
@@ -434,6 +470,15 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                 'current_language': self.EXISTING_COURSE_AND_RUN_DATA[1]['current_language'],
                 'subtitle': 'Testing 201',
                 'description': "how to test better",
+                'sponsors': [],
+                'staff': [{
+                    'uuid': '432staff',
+                    'title': 'Test',
+                    'image': 'http://example.com/test.jpg',
+                    'display_position': {
+                        'title': 'Tester'
+                    }
+                }]
             }, {  # Create a course which exists in LMS/Otto, but without course runs
                 'title': self.EXISTING_COURSE['title'],
                 'level': {
@@ -447,6 +492,18 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                 'current_language': 'en-us',
                 'subtitle': 'Nope',
                 'description': 'what is fake?',
+                'sponsors': [{
+                    'uuid': '123abc',
+                    'title': 'Fake',
+                    'image': 'http://example.com/fake.jpg',
+                    'uri': 'sponsor/fake'
+                }, {
+                    'uuid': 'qwertyuiop',
+                    'title': 'Faux',
+                    'image': 'http://example.com/faux.jpg',
+                    'uri': 'sponsor/faux'
+                }],
+                'staff': [],
             }, {  # Create a fake course run which doesn't exist in LMS/Otto
                 'title': 'A partial course',
                 'level': {
@@ -460,6 +517,8 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                 'current_language': 'en-us',
                 'subtitle': 'Nope',
                 'description': 'what is real?',
+                'sponsors': [],
+                'staff': [],
             }]
         }
 
@@ -486,11 +545,21 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         self.assertEqual(course_run.course, course)
 
         self.assert_course_loaded(course, body)
+        self.assert_staff_loaded(course_run, body)
 
         if course_run.language:
             self.assertEqual(course_run.language.code, body['current_language'])
         else:
             self.assertEqual(body['current_language'], '')
+
+    def assert_staff_loaded(self, course_run, body):
+        """Verify that staff have been loaded correctly."""
+        course_run_staff = course_run.staff.all()
+        api_staff = body['staff']
+        self.assertEqual(len(course_run_staff), len(api_staff))
+        for api_staff_member in api_staff:
+            loaded_staff_member = Person.objects.get(key=api_staff_member['uuid'])
+            self.assertIn(loaded_staff_member, course_run_staff)
 
     def assert_course_loaded(self, course, body):
         """Verify that the course has been loaded correctly."""
@@ -501,6 +570,7 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         self.assertEqual(course.level_type.name, body['level']['title'])
 
         self.assert_subjects_loaded(course, body)
+        self.assert_sponsors_loaded(course, body)
 
     def assert_subjects_loaded(self, course, body):
         """Verify that subjects have been loaded correctly."""
@@ -510,6 +580,15 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         for api_subject in api_subjects:
             loaded_subject = Subject.objects.get(name=api_subject['title'].title())
             self.assertIn(loaded_subject, course_subjects)
+
+    def assert_sponsors_loaded(self, course, body):
+        """Verify that sponsors have been loaded correctly."""
+        course_sponsors = course.sponsors.all()
+        api_sponsors = body['sponsors']
+        self.assertEqual(len(course_sponsors), len(api_sponsors))
+        for api_sponsor in api_sponsors:
+            loaded_sponsor = Organization.objects.get(key=api_sponsor['uuid'])
+            self.assertIn(loaded_sponsor, course_sponsors)
 
     @responses.activate
     def test_ingest(self):
@@ -532,6 +611,12 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
         # Verify multiple calls to ingest data do NOT result in data integrity errors.
         self.loader.ingest()
+
+        # Verify that orphan data is deleted
+        self.assertFalse(Person.objects.filter(key=self.ORPHAN_STAFF_KEY).exists())
+        self.assertFalse(Organization.objects.filter(key=self.ORPHAN_ORGANIZATION_KEY).exists())
+        self.assertFalse(Person.objects.filter(key__startswith='orphan_staff_').exists())
+        self.assertFalse(Organization.objects.filter(key__startswith='orphan_org_').exists())
 
     @ddt.data(
         ('', ''),

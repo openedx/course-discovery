@@ -12,7 +12,7 @@ from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseOrganization, CourseRun, Image, LanguageTag, LevelType, Organization, Seat, Subject, Video
+    Course, CourseOrganization, CourseRun, Image, LanguageTag, LevelType, Organization, Person, Seat, Subject, Video
 )
 
 logger = logging.getLogger(__name__)
@@ -241,6 +241,10 @@ class DrupalApiDataLoader(AbstractDataLoader):
             course = self.update_course(cleaned_body)
             self.update_course_run(course, cleaned_body)
 
+        # Clean up orphan data on the end of many-to-many relationships
+        Person.objects.filter(courses_staffed=None).delete()
+        Organization.objects.filter(courseorganization__isnull=True).delete()
+
         logger.info('Retrieved %d course runs from %s.', len(data), self.api_url)
 
     def update_course(self, body):
@@ -260,6 +264,7 @@ class DrupalApiDataLoader(AbstractDataLoader):
         course.level_type = level_type
 
         self.set_subjects(course, body)
+        self.set_sponsors(course, body)
 
         course.save()
         return course
@@ -273,6 +278,23 @@ class DrupalApiDataLoader(AbstractDataLoader):
             subject, __ = Subject.objects.get_or_create(name=subject_name.title())
             course.subjects.add(subject)
 
+    def set_sponsors(self, course, body):
+        """Update `course` with sponsors from `body`."""
+        course.courseorganization_set.filter(relation_type=CourseOrganization.SPONSOR).delete()
+        for sponsor_body in body['sponsors']:
+            image, __ = Image.objects.get_or_create(src=sponsor_body['image'])
+            defaults = {
+                'name': sponsor_body['title'],
+                'logo_image': image,
+                'homepage_url': urljoin(settings.MARKETING_URL_ROOT, sponsor_body['uri'])
+            }
+            organization, __ = Organization.objects.update_or_create(key=sponsor_body['uuid'], defaults=defaults)
+            CourseOrganization.objects.create(
+                course=course,
+                organization=organization,
+                relation_type=CourseOrganization.SPONSOR
+            )
+
     def update_course_run(self, course, body):
         """
         Create or update a run of `course` from Drupal data given by `body`.
@@ -285,8 +307,24 @@ class DrupalApiDataLoader(AbstractDataLoader):
             return None
         course_run.language = self.get_language_tag(body)
         course_run.course = course
+
+        self.set_staff(course_run, body)
+
         course_run.save()
         return course_run
+
+    def set_staff(self, course_run, body):
+        """Update `course_run` with staff from `body`."""
+        course_run.staff.clear()
+        for staff_body in body['staff']:
+            image, __ = Image.objects.get_or_create(src=staff_body['image'])
+            defaults = {
+                'name': staff_body['title'],
+                'profile_image': image,
+                'title': staff_body['display_position']['title'],
+            }
+            person, __ = Person.objects.update_or_create(key=staff_body['uuid'], defaults=defaults)
+            course_run.staff.add(person)
 
     def get_language_tag(self, body):
         """Get a language tag from Drupal data given by `body`."""
