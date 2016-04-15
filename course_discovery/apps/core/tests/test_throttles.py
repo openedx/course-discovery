@@ -15,7 +15,7 @@ class RateLimitingTest(APITestCase):
 
     def setUp(self):
         super(RateLimitingTest, self).setUp()
-        self.url = reverse('api:v1:catalog-list')
+        self.url = reverse('django.swagger.resources.view')
         self.user = UserFactory()
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
@@ -48,3 +48,7 @@ class RateLimitingTest(APITestCase):
         self.user.save()
         response = self._make_requests()
         self.assertEqual(response.status_code, 200)
+
+    def test_anonymous_throttling(self):
+        self.client.logout()
+        self.test_rate_limiting()
