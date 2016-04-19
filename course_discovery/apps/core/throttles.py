@@ -11,11 +11,12 @@ class OverridableUserRateThrottle(UserRateThrottle):
         user = request.user
         if user.is_superuser:
             return True
-        try:
-            # Override this throttle's rate if applicable
-            user_throttle = UserThrottleRate.objects.get(user=user)
-            self.rate = user_throttle.rate
-            self.num_requests, self.duration = self.parse_rate(self.rate)
-        except UserThrottleRate.DoesNotExist:
-            pass
+        if not user.is_anonymous():
+            try:
+                # Override this throttle's rate if applicable
+                user_throttle = UserThrottleRate.objects.get(user=user)
+                self.rate = user_throttle.rate
+                self.num_requests, self.duration = self.parse_rate(self.rate)
+            except UserThrottleRate.DoesNotExist:
+                pass
         return super(OverridableUserRateThrottle, self).allow_request(request, view)
