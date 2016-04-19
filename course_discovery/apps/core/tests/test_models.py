@@ -46,7 +46,7 @@ class CurrencyTests(TestCase):
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the ID and name of the currency. """
 
-        code = 'USD',
+        code = 'USD'
         name = 'U.S. Dollar'
         instance = Currency(code=code, name=name)
         self.assertEqual(str(instance), '{code} - {name}'.format(code=code, name=name))
