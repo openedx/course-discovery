@@ -59,7 +59,8 @@ class CourseSerializerTests(TestCase):
             'owners': [],
             'sponsors': [],
             'modified': json_date_format(course.modified),  # pylint: disable=no-member
-            'course_runs': CourseRunSerializer(course.course_runs, many=True).data
+            'course_runs': CourseRunSerializer(course.course_runs, many=True).data,
+            'marketing_url': course.marketing_url
         }
 
         self.assertDictEqual(serializer.data, expected)

@@ -89,6 +89,7 @@ class CourseFactory(factory.DjangoModelFactory):
     level_type = factory.SubFactory(LevelTypeFactory)
     image = factory.SubFactory(ImageFactory)
     video = factory.SubFactory(VideoFactory)
+    marketing_url = FuzzyText(prefix='https://example.com/test-course-url')
 
     class Meta:
         model = Course
