@@ -141,6 +141,7 @@ class CourseSerializer(TimestampModelSerializer):
         fields = (
             'key', 'title', 'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites',
             'expected_learning_items', 'image', 'video', 'owners', 'sponsors', 'modified', 'course_runs',
+            'marketing_url'
         )
 
 
