@@ -34,3 +34,18 @@ class CourseRunViewSetTests(APITestCase):
             response.data['results'],
             CourseRunSerializer(CourseRun.objects.all().order_by(Lower('key')), many=True).data
         )
+
+    def test_list_query(self):
+        """ Verify the endpoint returns a filtered list of courses """
+        title = 'Some random course'
+        course_runs = CourseRunFactory.create_batch(3, title=title)
+        CourseRunFactory(title='non-matching name')
+        query = 'title:' + title
+        url = '{root}?q={query}'.format(root=reverse('api:v1:course_run-list'), query=query)
+
+        response = self.client.get(url)
+        actual_sorted = sorted(response.data['results'], key=lambda course_run: course_run['key'])
+        expected_sorted = sorted(
+            CourseRunSerializer(course_runs, many=True).data, key=lambda course_run: course_run['key']
+        )
+        self.assertListEqual(actual_sorted, expected_sorted)

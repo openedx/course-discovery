@@ -11,6 +11,7 @@ from sortedm2m.fields import SortedManyToManyField
 
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.query import CourseQuerySet
+from course_discovery.apps.course_metadata.utils import clean_query
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 logger = logging.getLogger(__name__)
@@ -163,8 +164,7 @@ class Course(TimeStampedModel):
         Returns:
             QuerySet
         """
-        # NOTE (CCB): Ensure the query is lowercase, since that is how we index our data.
-        query = query.lower()
+        query = clean_query(query)
         results = SearchQuerySet().models(cls).raw_search(query)
         ids = [result.pk for result in results]
         return cls.objects.filter(pk__in=ids)
@@ -254,6 +254,19 @@ class CourseRun(TimeStampedModel):
         # Treat empty strings as NULL
         value = value or None
         self.full_description_override = value
+
+    @classmethod
+    def search(cls, query):
+        """ Queries the search index.
+
+        Args:
+            query (str) -- Elasticsearch querystring (e.g. `title:intro*`)
+
+        Returns:
+            SearchQuerySet
+        """
+        query = clean_query(query)
+        return SearchQuerySet().models(cls).raw_search(query).load_all()
 
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)

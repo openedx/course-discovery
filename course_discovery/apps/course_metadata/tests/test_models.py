@@ -4,8 +4,9 @@ import ddt
 import pytz
 from django.test import TestCase
 
+from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.models import (
-    AbstractNamedModel, AbstractMediaModel, AbstractValueModel, CourseOrganization, Course
+    AbstractNamedModel, AbstractMediaModel, AbstractValueModel, CourseOrganization, Course, CourseRun
 )
 from course_discovery.apps.course_metadata.tests import factories
 
@@ -101,6 +102,15 @@ class CourseRunTests(TestCase):
         setattr(self.course_run, field_name, None)
         self.assertIsNone(getattr(self.course_run, override_field_name))
         self.assertEqual(getattr(self.course_run, field_name), getattr(self.course_run.course, field_name))
+
+    def test_search(self):
+        """ Verify the method returns a filtered queryset of course runs. """
+        title = 'Some random course run'
+        course_runs = factories.CourseRunFactory.create_batch(3, title=title)
+        query = 'title:' + title
+        actual_sorted = sorted(SearchQuerySetWrapper(CourseRun.search(query)), key=lambda course_run: course_run.key)
+        expected_sorted = sorted(course_runs, key=lambda course_run: course_run.key)
+        self.assertEqual(actual_sorted, expected_sorted)
 
 
 class OrganizationTests(TestCase):

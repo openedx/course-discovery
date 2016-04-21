@@ -19,6 +19,7 @@ from course_discovery.apps.api.serializers import (
 )
 from course_discovery.apps.api.renderers import AffiliateWindowXMLRenderer
 from course_discovery.apps.catalogs.models import Catalog
+from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Seat
 
@@ -124,10 +125,14 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         q = self.request.query_params.get('q', None)
-        queryset = Course.search(q) if q else super(CourseViewSet, self).get_queryset()
+
+        if q:
+            queryset = Course.search(q)
+        else:
+            queryset = super(CourseViewSet, self).get_queryset()
+
         return queryset.order_by(Lower('key'))
 
-    # The boilerplate methods are required to be recognized by swagger
     def list(self, request, *args, **kwargs):
         """ List all courses.
         ---
@@ -154,9 +159,24 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = CourseRunSerializer
 
-    # The boilerplate methods are required to be recognized by swagger
+    def get_queryset(self):
+        q = self.request.query_params.get('q', None)
+        if q:
+            return SearchQuerySetWrapper(CourseRun.search(q))
+        else:
+            return super(CourseRunViewSet, self).get_queryset()
+
     def list(self, request, *args, **kwargs):
-        """ List all course runs. """
+        """ List all courses runs.
+        ---
+        parameters:
+            - name: q
+              description: Elasticsearch querystring query
+              required: false
+              type: string
+              paramType: query
+              multiple: false
+        """
         return super(CourseRunViewSet, self).list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
