@@ -130,7 +130,10 @@ class CatalogSerializer(serializers.ModelSerializer):
 
 class CourseRunSerializer(TimestampModelSerializer):
     course = serializers.SlugRelatedField(read_only=True, slug_field='key')
-    content_language = serializers.SlugRelatedField(read_only=True, slug_field='code', source='language')
+    content_language = serializers.SlugRelatedField(
+        read_only=True, slug_field='code', source='language',
+        help_text=_('Language in which the course is administered')
+    )
     transcript_languages = serializers.SlugRelatedField(many=True, read_only=True, slug_field='code')
     image = ImageSerializer()
     video = VideoSerializer()

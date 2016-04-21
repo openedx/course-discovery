@@ -23,15 +23,7 @@ function getApiResponse(url) {
  * Form submission handler. Sends the query to the server and displays the list of courses.\
  */
 function onSubmit(e) {
-    var query = {
-            "query": {
-                "query_string": {
-                    "query": $query.val(),
-                    "analyze_wildcard": true
-                }
-            }
-        },
-        url = '/api/v1/courses/?q=' + encodeURIComponent(JSON.stringify(query));
+    var url = '/api/v1/course_runs/?q=' + encodeURIComponent($query.val());
 
     e.preventDefault();
 
@@ -56,16 +48,19 @@ function populateQueryWithExample(e) {
  */
 function populateFieldsTable() {
     var data = [
-        ['end', 'Course end date'],
+        ['announcement', 'Date the course is announced to the public'],
+        ['end', 'Course run end date'],
         ['enrollment_start', 'Enrollment start date'],
         ['enrollment_end', 'Enrollment end date'],
-        ['id', 'Course ID'],
-        ['name', 'Course name'],
+        ['key', 'Course run key'],
+        ['language', 'Language in which the course is administered'],
+        ['max_effort', 'Estimated maximum number of hours necessary to complete the course run'],
+        ['min_effort', 'Estimated minimum number of hours necessary to complete the course run'],
         ['number', 'Course number (e.g. 6.002x)'],
         ['org', 'Organization (e.g. MITx)'],
-        ['start', 'Course start date'],
-        ['type', 'Type of course (audit, credit, professional, verified)'],
-        ['verification_deadline', 'Final date to submit identity verification'],
+        ['pacing_type', 'Course run pacing. Options are either "instructor_paced" or "self_paced"'],
+        ['start', 'Course run start date'],
+        ['title', 'Course run title']
     ];
     $("#fields").DataTable({
         info: false,
@@ -90,12 +85,15 @@ $(document).ready(function () {
         paging: true,
         columns: [
             {
-                title: 'Course ID',
-                data: 'id'
+                title: 'Course Run Key',
+                data: 'key',
+                fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
+                    $(nTd).html("<a href='/api/v1/course_runs/" + oData.key + "/' target='_blank'>" + oData.key + "</a>");
+                }
             },
             {
-                title: 'Name',
-                data: 'name'
+                title: 'Title',
+                data: 'title'
             }
         ],
         oLanguage: {
