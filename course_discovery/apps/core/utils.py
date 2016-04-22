@@ -28,3 +28,33 @@ class ElasticsearchUtils(object):
             }
             es.indices.update_aliases(body)
             logger.info('...alias updated.')
+
+
+def get_all_related_field_names(model):
+    """
+    Returns the names of all related fields (e.g. ForeignKey ManyToMany)
+
+    Args:
+        model (Model): Model whose field names should be returned
+
+    Returns:
+        list[str]
+    """
+    fields = model._meta._get_fields(forward=False)  # pylint: disable=protected-access
+    names = set([field.name for field in fields])
+    return list(names)
+
+
+def delete_orphans(model):
+    """
+    Deletes all instances of the given model with no relationships to other models.
+
+    Args:
+        model (Model): Model whose instances should be deleted
+
+    Returns:
+        None
+    """
+    field_names = get_all_related_field_names(model)
+    kwargs = {'{0}__isnull'.format(field_name): True for field_name in field_names}
+    model.objects.filter(**kwargs).delete()
