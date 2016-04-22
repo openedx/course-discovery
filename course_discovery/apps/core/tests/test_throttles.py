@@ -1,6 +1,5 @@
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
-
 from rest_framework.test import APITestCase
 
 from course_discovery.apps.core.models import UserThrottleRate
@@ -48,7 +47,3 @@ class RateLimitingTest(APITestCase):
         self.user.save()
         response = self._make_requests()
         self.assertEqual(response.status_code, 200)
-
-    def test_anonymous_throttling(self):
-        self.client.logout()
-        self.test_rate_limiting()

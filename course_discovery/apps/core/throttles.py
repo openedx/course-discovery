@@ -9,9 +9,10 @@ class OverridableUserRateThrottle(UserRateThrottle):
 
     def allow_request(self, request, view):
         user = request.user
-        if user.is_superuser:
-            return True
-        if not user.is_anonymous():
+
+        if user and user.is_authenticated():
+            if user.is_superuser:
+                return True
             try:
                 # Override this throttle's rate if applicable
                 user_throttle = UserThrottleRate.objects.get(user=user)
@@ -19,4 +20,5 @@ class OverridableUserRateThrottle(UserRateThrottle):
                 self.num_requests, self.duration = self.parse_rate(self.rate)
             except UserThrottleRate.DoesNotExist:
                 pass
+
         return super(OverridableUserRateThrottle, self).allow_request(request, view)
