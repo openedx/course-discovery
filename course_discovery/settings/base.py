@@ -294,6 +294,8 @@ JWT_AUTH = {
 SWAGGER_SETTINGS = {
     'api_version': 'v1',
     'doc_expansion': 'list',
+    'is_authenticated': True,
+    'permission_denied_handler': 'course_discovery.apps.api.views.api_docs_permission_denied_handler'
 }
 
 ELASTICSEARCH_URL = 'http://127.0.0.1:9200/'
