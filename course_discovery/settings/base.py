@@ -185,7 +185,6 @@ SOCIAL_AUTH_EDX_OIDC_KEY = 'replace-me'
 SOCIAL_AUTH_EDX_OIDC_SECRET = 'replace-me'
 SOCIAL_AUTH_EDX_OIDC_URL_ROOT = 'replace-me'
 SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY = SOCIAL_AUTH_EDX_OIDC_SECRET
-OAUTH2_ACCESS_TOKEN_URL = 'replace-me'
 
 # Request the user's permissions in the ID token
 EXTRA_SCOPE = ['permissions']
