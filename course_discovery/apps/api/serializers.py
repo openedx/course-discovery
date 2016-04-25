@@ -154,3 +154,31 @@ class ContainedCoursesSerializer(serializers.Serializer):  # pylint: disable=abs
         child=serializers.BooleanField(),
         help_text=_('Dictionary mapping course IDs to boolean values')
     )
+
+
+class AffiliateWindowSerializer(serializers.ModelSerializer):
+    pid = serializers.SerializerMethodField()
+    name = serializers.CharField(source='course_run.course.title')
+    desc = serializers.CharField(source='course_run.course.short_description')
+    purl = serializers.CharField(source='course_run.course.marketing_url')
+    imgurl = serializers.CharField(source='course_run.image')
+    category = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
+
+    class Meta(object):
+        model = Seat
+        fields = (
+            'name', 'pid', 'desc', 'category', 'purl', 'imgurl', 'price', 'currency'
+        )
+
+    def get_pid(self, obj):
+        return '{}-{}'.format(obj.course_run.key, obj.type)
+
+    def get_price(self, obj):
+        return {
+            'actualp': obj.price
+        }
+
+    def get_category(self, obj):  # pylint: disable=unused-argument
+        # Using hardcoded value for category. This value comes from an Affiliate Window taxonomy.
+        return 'Other Experiences'
