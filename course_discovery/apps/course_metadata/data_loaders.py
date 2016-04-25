@@ -120,7 +120,6 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
         image = None
         image_url = body['logo']
         if image_url:
-            image_url = image_url
             image, __ = Image.objects.get_or_create(src=image_url)
         defaults = {
             'name': body['name'],
@@ -209,7 +208,6 @@ class CoursesApiDataLoader(AbstractDataLoader):
         image_url = body['media'].get('image', {}).get('raw')
 
         if image_url:
-            image_url = image_url
             image, __ = Image.objects.get_or_create(src=image_url)
 
         return image
@@ -219,7 +217,6 @@ class CoursesApiDataLoader(AbstractDataLoader):
         video_url = body['media'].get('course_video', {}).get('uri')
 
         if video_url:
-            video_url = video_url
             video, __ = Video.objects.get_or_create(src=video_url)
 
         return video
