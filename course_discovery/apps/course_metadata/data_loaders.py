@@ -4,13 +4,14 @@ import logging
 from decimal import Decimal
 from urllib.parse import urljoin
 
+import html2text
 from dateutil.parser import parse
 from django.conf import settings
 from edx_rest_api_client.client import EdxRestApiClient
-import html2text
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.core.models import Currency
+from course_discovery.apps.core.utils import delete_orphans
 from course_discovery.apps.course_metadata.models import (
     Course, CourseOrganization, CourseRun, Image, LanguageTag, LevelType, Organization, Person, Seat, Subject, Video
 )
@@ -88,6 +89,12 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         course_run_key = CourseKey.from_string(course_run_key_str)
         return '{org}+{course}'.format(org=course_run_key.org, course=course_run_key.course)
 
+    @classmethod
+    def delete_orphans(cls):
+        """ Remove orphaned objects from the database. """
+        for model in (Image, Person, Video):
+            delete_orphans(model)
+
 
 class OrganizationsApiDataLoader(AbstractDataLoader):
     """ Loads organizations from the Organizations API. """
@@ -115,6 +122,8 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
                 self.update_organization(body)
 
         logger.info('Retrieved %d organizations from %s.', count, self.api_url)
+
+        self.delete_orphans()
 
     def update_organization(self, body):
         image = None
@@ -156,6 +165,8 @@ class CoursesApiDataLoader(AbstractDataLoader):
                 self.update_course_run(course, body)
 
         logger.info('Retrieved %d course runs from %s.', count, self.api_url)
+
+        self.delete_orphans()
 
     def update_course(self, body):
         # NOTE (CCB): Use the data from the CourseKey since the Course API exposes display names for org and number,
@@ -238,9 +249,10 @@ class DrupalApiDataLoader(AbstractDataLoader):
             course = self.update_course(cleaned_body)
             self.update_course_run(course, cleaned_body)
 
-        # Clean up orphan data on the end of many-to-many relationships
-        Person.objects.filter(courses_staffed=None).delete()
+        # Clean Organizations separately from other orphaned instances to avoid removing all orgnaziations
+        # after an initial data load on an empty table.
         Organization.objects.filter(courseorganization__isnull=True).delete()
+        self.delete_orphans()
 
         logger.info('Retrieved %d course runs from %s.', len(data), self.api_url)
 
@@ -369,6 +381,8 @@ class EcommerceApiDataLoader(AbstractDataLoader):
                 self.update_seats(body)
 
         logger.info('Retrieved %d course seats from %s.', count, self.api_url)
+
+        self.delete_orphans()
 
     def update_seats(self, body):
         course_run_key = body['id']

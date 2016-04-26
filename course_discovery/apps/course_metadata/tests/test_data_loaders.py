@@ -17,7 +17,9 @@ from course_discovery.apps.course_metadata.data_loaders import (
 from course_discovery.apps.course_metadata.models import (
     Course, CourseOrganization, CourseRun, Image, LanguageTag, Organization, Person, Seat, Subject
 )
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, SeatFactory
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseRunFactory, SeatFactory, ImageFactory, PersonFactory, VideoFactory
+)
 
 ACCESS_TOKEN = 'secret'
 COURSES_API_URL = 'https://lms.example.com/api/courses/v1'
@@ -52,6 +54,14 @@ class AbstractDataLoaderTest(TestCase):
         # Parse datetime strings
         dt = datetime.datetime.utcnow()
         self.assertEqual(AbstractDataLoader.parse_date(dt.isoformat()), dt)
+
+    def test_delete_orphans(self):
+        """ Verify the delete_orphans method deletes orphaned instances. """
+        instances = (ImageFactory(), PersonFactory(), VideoFactory(),)
+        AbstractDataLoader.delete_orphans()
+
+        for instance in instances:
+            self.assertFalse(instance.__class__.objects.filter(pk=instance.pk).exists())  # pylint: disable=no-member
 
 
 class DataLoaderTestMixin(object):
@@ -371,18 +381,20 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 @override_settings(MARKETING_API_URL=MARKETING_API_URL)
 @ddt.ddt
 class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
-
-    EXISTING_COURSE_AND_RUN_DATA = ({
-        'course_run_key': 'course-v1:SC+BreadX+3T2015',
-        'course_key': 'SC+BreadX',
-        'title': 'Bread Baking 101',
-        'current_language': 'en-us',
-    }, {
-        'course_run_key': 'course-v1:TX+T201+3T2015',
-        'course_key': 'TX+T201',
-        'title': 'Testing 201',
-        'current_language': ''
-    })
+    EXISTING_COURSE_AND_RUN_DATA = (
+        {
+            'course_run_key': 'course-v1:SC+BreadX+3T2015',
+            'course_key': 'SC+BreadX',
+            'title': 'Bread Baking 101',
+            'current_language': 'en-us',
+        },
+        {
+            'course_run_key': 'course-v1:TX+T201+3T2015',
+            'course_key': 'TX+T201',
+            'title': 'Testing 201',
+            'current_language': ''
+        }
+    )
 
     # A course which exists, but has no associated runs
     EXISTING_COURSE = {
