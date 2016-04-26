@@ -83,14 +83,27 @@ endpoints:
             uri: "https://${stageVariables.discovery_host}/v1/catalogs/"
 
     # /v1/catalogs/{id}
-    catalogsById:
+    catalogById:
         get:
           produces: *produces
           parameters:
             - *auth_header
             - *id_parameter
-          operationId: "get_catalogs_by_id"
+          operationId: "get_catalog_by_id"
           responses: *responses
           x-amazon-apigateway-integration:
             <<: *apigateway_integration_with_id_parameter
             uri: "https://${stageVariables.discovery_host}/v1/catalogs/{id}/"
+
+    # /v1/catalogs/{id}/courses
+    catalogCourses:
+        get:
+          produces: *produces
+          parameters:
+            - *auth_header
+            - *id_parameter
+          operationId: "get_catalog_courses"
+          responses: *responses
+          x-amazon-apigateway-integration:
+            <<: *apigateway_integration_with_id_parameter
+            uri: "https://${stageVariables.discovery_host}/v1/catalogs/{id}/courses/"
