@@ -8,6 +8,7 @@ from course_discovery.apps.course_metadata.tests.factories import CourseRunFacto
 
 
 class CourseQuerySetTests(TestCase):
+
     def test_active(self):
         """ Verify the method filters the Courses to those with active course runs. """
         # Create an active course
@@ -18,4 +19,7 @@ class CourseQuerySetTests(TestCase):
         enrollment_end = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=30)
         CourseRunFactory(enrollment_end=enrollment_end, course__title='ABC Test Course 2')
 
-        self.assertListEqual(list(Course.objects.active()), [active_course])
+        # Create a course with unrestricted enrollment
+        course_without_end = CourseRunFactory(enrollment_end=None).course
+
+        self.assertEqual(set(Course.objects.active()), {active_course, course_without_end})
