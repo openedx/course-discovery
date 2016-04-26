@@ -12,6 +12,7 @@ class ApiGatewayTests(TestCase):
     PATHS = (
         'catalogs/',
         'catalogs/{id}/'.format(id=CATALOG_ID),
+        'catalogs/{id}/courses/'.format(id=CATALOG_ID),
     )
 
     def get_discovery_api_gateway_url(self, path):
