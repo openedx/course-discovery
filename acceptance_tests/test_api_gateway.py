@@ -4,7 +4,7 @@ from unittest import TestCase
 import ddt
 import requests
 
-from acceptance_tests.config import API_GATEWAY_DISCOVERY_ROOT, DISCOVERY_API_ACCESS_TOKEN, CATALOG_ID
+from acceptance_tests.config import API_GATEWAY_CATALOG_ROOT, API_ACCESS_TOKEN, CATALOG_ID
 
 
 @ddt.ddt
@@ -17,7 +17,7 @@ class ApiGatewayTests(TestCase):
 
     def get_discovery_api_gateway_url(self, path):
         """ Returns a complete URL for the given path, routed through the API gateway. """
-        return '{root}/{path}'.format(root=API_GATEWAY_DISCOVERY_ROOT.rstrip('/'), path=path)
+        return '{root}/{path}'.format(root=API_GATEWAY_CATALOG_ROOT.rstrip('/'), path=path)
 
     def assert_api_response(self, path, expected_status_code=200, **headers):
         """
@@ -36,7 +36,7 @@ class ApiGatewayTests(TestCase):
     def test_endpoint_ok(self, path):
         """ Verify the endpoint returns HTTP 200 for valid requests. """
         headers = {
-            'Authorization': 'Bearer {token}'.format(token=DISCOVERY_API_ACCESS_TOKEN)
+            'Authorization': 'Bearer {token}'.format(token=API_ACCESS_TOKEN)
         }
         self.assert_api_response(path, **headers)
 
