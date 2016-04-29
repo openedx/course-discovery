@@ -305,6 +305,9 @@ HAYSTACK_CONNECTIONS = {
         'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
         'URL': ELASTICSEARCH_URL,
         'INDEX_NAME': ELASTICSEARCH_INDEX_NAME,
+        'KWARGS': {
+            'verify_certs': True,
+        },
     },
 }
 
