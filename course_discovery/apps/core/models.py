@@ -16,10 +16,12 @@ class User(GuardianUserMixin, AbstractUser):
 
         Assumes user has authenticated at least once with edX Open ID Connect.
         """
-        try:
-            return self.social_auth.first().extra_data[u'access_token']  # pylint: disable=no-member
-        except Exception:  # pylint: disable=broad-except
-            return None
+        social_auth = self.social_auth.first()  # pylint: disable=no-member
+
+        if social_auth:
+            return social_auth.access_token
+
+        return None
 
     class Meta(object):  # pylint:disable=missing-docstring
         get_latest_by = 'date_joined'
