@@ -39,10 +39,10 @@ clean: clean_static
 	coverage erase
 
 requirements:
-	pip install -qr requirements/local.txt --exists-action w
+	pip install -r requirements/local.txt --exists-action w
 
 production-requirements:
-	pip install -qr requirements.txt --exists-action w
+	pip install -r requirements.txt --exists-action w
 
 test: clean
 	coverage run ./manage.py test course_discovery --settings=course_discovery.settings.test
