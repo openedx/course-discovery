@@ -7,7 +7,7 @@ from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404
 from dry_rest_permissions.generics import DRYPermissions
 from edx_rest_framework_extensions.permissions import IsSuperuser
-from rest_framework import viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from course_discovery.apps.api.filters import PermissionsFilter
 from course_discovery.apps.api.serializers import (
     CatalogSerializer, CourseSerializer, CourseRunSerializer, ContainedCoursesSerializer,
-    CourseSerializerExcludingClosedRuns, AffiliateWindowSerializer
+    CourseSerializerExcludingClosedRuns, AffiliateWindowSerializer, ContainedCourseRunsSerializer
 )
 from course_discovery.apps.api.renderers import AffiliateWindowXMLRenderer
 from course_discovery.apps.catalogs.models import Catalog
@@ -182,6 +182,44 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a course run. """
         return super(CourseRunViewSet, self).retrieve(request, *args, **kwargs)
+
+    @list_route()
+    def contains(self, request):
+        """
+        Determine if course runs are found in the query results.
+
+        A dictionary mapping course run keys to booleans,
+        indicating course run presence, will be returned.
+        ---
+        serializer: ContainedCourseRunsSerializer
+        parameters:
+            - name: query
+              description: Elasticsearch querystring query
+              required: true
+              type: string
+              paramType: query
+              multiple: false
+            - name: course_run_ids
+              description: Comma-separated list of course run IDs
+              required: true
+              type: string
+              paramType: query
+              multiple: true
+        """
+        query = request.GET.get('query')
+        course_run_ids = request.GET.get('course_run_ids')
+
+        if query and course_run_ids:
+            course_runs = CourseRun.search(query)
+            contains = {course_run_id: False for course_run_id in course_run_ids.split(',')}
+
+            for course_run in course_runs:
+                contains[course_run.key] = True
+
+            instance = {'course_runs': contains}
+            serializer = ContainedCourseRunsSerializer(instance)
+            return Response(serializer.data)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class ManagementViewSet(viewsets.ViewSet):
