@@ -1,20 +1,26 @@
 # pylint: disable=no-member
+import urllib
+import ddt
+
 from django.db.models.functions import Lower
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
 from course_discovery.apps.api.serializers import CourseRunSerializer
 from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory
 from course_discovery.apps.course_metadata.models import CourseRun
 
 
-class CourseRunViewSetTests(APITestCase):
+@ddt.ddt
+class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
     def setUp(self):
         super(CourseRunViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.force_authenticate(self.user)
         self.course_run = CourseRunFactory()
+        self.refresh_index()
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single course. """
@@ -49,3 +55,34 @@ class CourseRunViewSetTests(APITestCase):
             CourseRunSerializer(course_runs, many=True).data, key=lambda course_run: course_run['key']
         )
         self.assertListEqual(actual_sorted, expected_sorted)
+
+    def test_contains(self):
+        qs = urllib.parse.urlencode({
+            'query': 'id:course*',
+            'course_run_ids': self.course_run.key
+        })
+        url = '{}?{}'.format(reverse('api:v1:course_run-contains'), qs)
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.data,
+            {
+                'course_runs': {
+                    self.course_run.key: True
+                }
+            }
+        )
+
+    @ddt.data(
+        {'params': {'course_run_ids': 'a/b/c'}},
+        {'params': {'query': 'id:course*'}},
+        {'params': {}}
+    )
+    @ddt.unpack
+    def test_contains_missing_parameter(self, params):
+        qs = urllib.parse.urlencode(params)
+        url = '{}?{}'.format(reverse('api:v1:course_run-contains'), qs)
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 400)
