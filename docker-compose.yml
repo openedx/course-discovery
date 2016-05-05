@@ -32,11 +32,11 @@ services:
 
     # Uncomment the next two lines to build from a local configuration repo
     #build: ../configuration
-    #dockerfile: docker/build/course_discovery/Dockerfile
+    #dockerfile: docker/build/discovery/Dockerfile
 
     container_name: course-discovery
     volumes:
-      - .:/edx/app/course_discovery/discovery
+      - .:/edx/app/discovery/discovery
     command: /edx/app/discovery/devstack.sh start
     depends_on:
       - "db"
