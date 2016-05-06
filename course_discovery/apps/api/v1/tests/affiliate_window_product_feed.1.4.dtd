@@ -1,0 +1,333 @@
+<!--
+ * All rights reserved. No part of this code may be reproduced, modified,
+ * amended or retransmitted in any form or by any means for any purpose without
+ * prior written consent of Digital Window.
+ * You must ensure that this copyright notice remains intact at all times
+ *
+ * @category DigitalWindow
+ * @package Merchant
+ * @copyright Copyright (c) Digital Window Limited 2000-2015. All rights reserved.
+ * @version $Id$
+-->
+<!ELEMENT merchant (product*)>
+<!--
+    basic requirements for a product are:pid, name, purl, category and price(actualp).
+     The more data you provide the better an affiliate can promote your products!
+-->
+<!ELEMENT product ( name, pid, desc, category, purl, imgurl?, price, ean?, upc?, isbn?, mpn?, parentpid?, brand?, modelno?, basket_link?, colour?, cg?, condition?, dimensions?, keywords?, lang?, ptype?, weight?, promotext?, spec?, warranty?, currency?, delcost?, delivery_restrictions?, deltime?, instock?, forsale?, preorder?, stockquant?, saving?, validfrom?, validto?, weboffer?, alternate_image?, large_image?, thumburl?, average_rating?, reviews?, rating?, custom1?, custom2?, custom3?, custom4?, custom5?, fashion?, tickets?, travel?, groupbuy?, telco?, giftoptions?, lastupdated?)>
+
+
+<!ATTLIST product
+    weboffer (no|yes|0|1) "no"
+    preorder (no|yes|0|1) "no"
+    instock (no|yes|0|1) "yes"
+    forsale (no|yes|0|1) "yes"
+    >
+
+<!-- Product name. -->
+<!ELEMENT name (#PCDATA)>
+<!-- Unique product ID in Merchants Database. -->
+<!ELEMENT pid (#PCDATA)>
+<!-- Description. -->
+<!ELEMENT desc (#PCDATA)>
+<!-- Default category the product falls in. -->
+<!ELEMENT category (#PCDATA)>
+<!-- Deep link into site to the product. -->
+<!ELEMENT purl (#PCDATA)>
+<!-- Standard product image. -->
+<!ELEMENT imgurl (#PCDATA)>
+
+<!-- Prices for the product -->
+<!ELEMENT price (actualp, rrpp?, storep?)>
+<!-- Textual price for the product (text). -->
+<!ELEMENT actualp (#PCDATA)>
+<!-- prices for the product (float). -->
+<!ELEMENT rrpp (#PCDATA)>
+<!-- In-store price (float). -->
+<!ELEMENT storep (#PCDATA)>
+
+<!-- Universal Article Number - similar to upc - eruopean standard. -->
+<!ELEMENT ean (#PCDATA)>
+<!-- Universal Product Code - a number which uniquely identifys the product. -->
+<!ELEMENT upc (#PCDATA)>
+<!-- A number which uniquely identifies any book. -->
+<!ELEMENT isbn (#PCDATA)>
+<!-- Manufacturer Part Number - similar to upc - assigned by manufacturer. -->
+<!ELEMENT mpn (#PCDATA)>
+<!-- Parent product id. -->
+<!ELEMENT parentpid (#PCDATA)>
+<!-- Manufacture name or brand -->
+<!ELEMENT brand (#PCDATA)>
+<!-- Model Number can be assigned to a product. -->
+<!ELEMENT modelno (#PCDATA)>
+<!-- The link to the basket -->
+<!ELEMENT basket_link (#PCDATA)>
+<!-- The colour of the product -->
+<!ELEMENT colour (#PCDATA)>
+<!-- Commission group. -->
+<!ELEMENT cg (#PCDATA)>
+<!-- Condition - new, very good, good, used, poor, rare, refurbished. -->
+<!ELEMENT condition (#PCDATA)>
+<!-- The dimensions of the product e.g HxWxL -->
+<!ELEMENT dimensions (#PCDATA)>
+<!-- The keywords associated with this product -->
+<!ELEMENT keywords (#PCDATA)>
+<!-- Language the product details are in. -->
+<!ELEMENT lang (#PCDATA)>
+<!-- Product type - main, bundle, accessory, consumer, business, consumer existing customer, consumer upgrade. -->
+<!ELEMENT ptype (#PCDATA)>
+<!-- The delivery weight of the product -->
+<!ELEMENT weight (#PCDATA)>
+<!-- Promotional text, should not include html except <p><br><li><ul><ol>. -->
+<!ELEMENT promotext (#PCDATA)>
+<!-- Specifications. -->
+<!ELEMENT spec (#PCDATA)>
+<!-- Warranty text associated with the product. -->
+<!ELEMENT warranty (#PCDATA)>
+<!-- currency product is sold in -->
+<!ELEMENT currency (#PCDATA)>
+<!-- Delivery cost (float). -->
+<!ELEMENT delcost (#PCDATA)>
+<!-- The delivery restrictions on the shipment of the product -->
+<!ELEMENT delivery_restrictions (#PCDATA)>
+<!-- Delivery period.  -->
+<!ELEMENT deltime (#PCDATA)>
+<!-- Number of items in stock. -->
+<!ELEMENT stockquant (#PCDATA)>
+<!-- The current price saving on this product -->
+<!ELEMENT saving (#PCDATA)>
+<!-- Start of any period for which this product is valid. -->
+<!ELEMENT validfrom (#PCDATA)>
+<!-- End of any period for which this product is valid. -->
+<!ELEMENT validto (#PCDATA)>
+<!-- An extra image URL to associate with the product -->
+<!ELEMENT alternate_image (#PCDATA)>
+<!-- An extra image URL to associate with the product -->
+<!ELEMENT large_image (#PCDATA)>
+<!-- Smaller thumbnail image. -->
+<!ELEMENT thumburl (#PCDATA)>
+<!-- The average consumer rating of the product -->
+<!ELEMENT average_rating (#PCDATA)>
+<!-- Reviews from customers associated with the product -->
+<!ELEMENT reviews (#PCDATA)>
+<!-- The rating for this product -->
+<!ELEMENT rating (#PCDATA)>
+<!-- Custom field 1 -->
+<!ELEMENT custom1 (#PCDATA)>
+<!-- Custom field 2 -->
+<!ELEMENT custom2 (#PCDATA)>
+<!-- Custom field 3 -->
+<!ELEMENT custom3 (#PCDATA)>
+<!-- Custom field 4 -->
+<!ELEMENT custom4 (#PCDATA)>
+<!-- Custom field 5 -->
+<!ELEMENT custom5 (#PCDATA)>
+
+<!-- Fashion specific fields -->
+<!ELEMENT fashion (swatch?, material?, pattern?, size?, suitable_for?)>
+<!-- An image url for the swatches associated with this product -->
+<!ELEMENT swatch (#PCDATA)>
+<!-- The material this item is made from -->
+<!ELEMENT material (#PCDATA)>
+<!-- The pattern on this material e.g. polka dots -->
+<!ELEMENT pattern (#PCDATA)>
+<!-- The size of this item -->
+<!ELEMENT size (#PCDATA)>
+<!-- Who this item suitable for e.g. children, males etc -->
+<!ELEMENT suitable_for (#PCDATA)>
+
+<!-- Ticket specific fields -->
+<!ELEMENT ticket (available_from?, event_date?, event_name?, genre?, max_price?, min_price?, primary_artist?, second_artist?, venue_address?, venue_name?, latitude?, longitude?)>
+<!-- The date that tickets become available from -->
+<!ELEMENT available_from (#PCDATA)>
+<!-- The date of the event -->
+<!ELEMENT event_date (#PCDATA)>
+<!-- The name of the event -->
+<!ELEMENT event_name (#PCDATA)>
+<!-- The category of this event e.g. theatre -->
+<!ELEMENT genre (#PCDATA)>
+<!-- The maximum price of a ticket -->
+<!ELEMENT max_price (#PCDATA)>
+<!-- The minimum price of a ticket -->
+<!ELEMENT min_price (#PCDATA)>
+<!-- The name of the primary artist of this event -->
+<!ELEMENT primary_artist (#PCDATA)>
+<!-- The name of the supporting artist of this event -->
+<!ELEMENT second_artist (#PCDATA)>
+<!-- The address of the venue -->
+<!ELEMENT venue_address (#PCDATA)>
+<!-- The name of the venue the event is being held in -->
+<!ELEMENT venue_name (#PCDATA)>
+
+<!-- Travel specific fields -->
+<!ELEMENT travel (arrival_code?, availability?, board_basis?, cancellation_policy?, check_in_date?, check_in_time?, check_out_date?, check_out_time?, child_policy?, class?, departure_code?, departure_date?, duration?, guests_per_room?, hotel_address?, hotel_features?, hotel_name?, hotel_stars?, inbound_duration?, inbound_stops?, latitude?, location?, longitude?, outbound_duration?, outbound_stops?, return_date?, room_amenities?, room_description?, room_type?, starting_from_price?, ticket_type?)>
+<!-- The arrival airport associated with this airport -->
+<!ELEMENT arrival_code (#PCDATA)>
+<!-- The availability of the item -->
+<!ELEMENT availability (#PCDATA)>
+<!-- The board basis of the accommodation -->
+<!ELEMENT board_basis (#PCDATA)>
+<!-- The cancellation policy of the hotel -->
+<!ELEMENT cancellation_policy (#PCDATA)>
+<!-- The check in date -->
+<!ELEMENT check_in_date (#PCDATA)>
+<!-- The check in from time -->
+<!ELEMENT check_in_time (#PCDATA)>
+<!-- The check out date -->
+<!ELEMENT check_out_date (#PCDATA)>
+<!-- The check out time -->
+<!ELEMENT check_out_time (#PCDATA)>
+<!-- The children policy of the hotel -->
+<!ELEMENT child_policy (#PCDATA)>
+<!-- The class associated with this item -->
+<!ELEMENT class (#PCDATA)>
+<!-- The departure airport associated with this item -->
+<!ELEMENT departure_code (#PCDATA)>
+<!-- The departure date associated with this item -->
+<!ELEMENT departure_date (#PCDATA)>
+<!-- The duration of the stay -->
+<!ELEMENT duration (#PCDATA)>
+<!-- The number of guests -->
+<!ELEMENT guests_per_room (#PCDATA)>
+<!-- The address of the hotel -->
+<!ELEMENT hotel_address (#PCDATA)>
+<!-- The features of the hotel -->
+<!ELEMENT hotel_features (#PCDATA)>
+<!-- The name of the hotel -->
+<!ELEMENT hotel_name (#PCDATA)>
+<!-- The star rating of the hotel -->
+<!ELEMENT hotel_stars (#PCDATA)>
+<!-- The duration of the inbound leg of the journey -->
+<!ELEMENT inbound_duration (#PCDATA)>
+<!-- The number of stop on the inbound leg of the journey -->
+<!ELEMENT inbound_stops (#PCDATA)>
+<!-- The latitude of the hotel -->
+<!ELEMENT latitude (#PCDATA)>
+<!-- The location of the holiday -->
+<!ELEMENT location (#PCDATA)>
+<!-- The longitude of the hotel -->
+<!ELEMENT longitude (#PCDATA)>
+<!-- The duration of the outbound leg of the journey -->
+<!ELEMENT outbound_duration (#PCDATA)>
+<!-- The number of stops on the outbound leg of the journey -->
+<!ELEMENT outbound_stops (#PCDATA)>
+<!-- The return date associated with this item -->
+<!ELEMENT return_date (#PCDATA)>
+<!-- The features of the room -->
+<!ELEMENT room_amenities (#PCDATA)>
+<!-- The description of the room associated with this item -->
+<!ELEMENT room_description (#PCDATA)>
+<!-- The room type associated with this item -->
+<!ELEMENT room_type (#PCDATA)>
+<!-- The price that tickets start from for this item -->
+<!ELEMENT starting_from_price (#PCDATA)>
+<!-- The type of ticket -->
+<!ELEMENT ticket_type (#PCDATA)>
+
+<!-- Group buying specific fields -->
+<!ELEMENT groupbuy (event_address?, event_city?, deal_start?, deal_end?, group_latitude?, group_longitude?, min_required?, number_sessions?, number_sold?, supplier?, terms?)>
+<!-- The address associated with this item -->
+<!ELEMENT event_address (#PCDATA)>
+<!-- The city associated with this item -->
+<!ELEMENT event_city (#PCDATA)>
+<!-- The start date of this deal -->
+<!ELEMENT deal_start (#PCDATA)>
+<!-- The end date of this deal -->
+<!ELEMENT deal_end (#PCDATA)>
+<!-- The group_latitude associated with this item -->
+<!ELEMENT group_latitude (#PCDATA)>
+<!-- The group_longitude associated with this item -->
+<!ELEMENT group_longitude (#PCDATA)>
+<!-- The minimum number to be sold required to make this sale active -->
+<!ELEMENT min_required (#PCDATA)>
+<!-- The number of sessions associated with this item -->
+<!ELEMENT number_sessions (#PCDATA)>
+<!-- The quantity already sold -->
+<!ELEMENT number_sold (#PCDATA)>
+<!-- The supplier of this item -->
+<!ELEMENT supplier (#PCDATA)>
+<!-- The terms and conditions of this offer -->
+<!ELEMENT terms (#PCDATA)>
+
+<!-- Telco specific fields -->
+<!ELEMENT telco (connectivity?, contract_type?, gift?, inc_data?, inc_minutes?, inc_texts?, initial_cost?, network?, month_cost?, operating_system?, special_offer?, storage_size?, tariff?, term?)>
+<!-- The connectivity options associated with this item -->
+<!ELEMENT connectivity (#PCDATA)>
+<!-- The type of contract associated with this item -->
+<!ELEMENT contract_type (#PCDATA)>
+<!-- The free gift associated with this item -->
+<!ELEMENT gift (#PCDATA)>
+<!-- The amount of monthly inclusive data included in this item -->
+<!ELEMENT inc_data (#PCDATA)>
+<!-- The number of monthly inclusive minutes included in this item -->
+<!ELEMENT inc_minutes (#PCDATA)>
+<!-- The number of inclusive texts with this item -->
+<!ELEMENT inc_texts (#PCDATA)>
+<!-- The initial cost associated with this item -->
+<!ELEMENT initial_cost (#PCDATA)>
+<!-- The contract provider of this item -->
+<!ELEMENT network (#PCDATA)>
+<!-- The monthly cost associated with this item -->
+<!ELEMENT month_cost (#PCDATA)>
+<!-- The operating system for the item -->
+<!ELEMENT operating_system (#PCDATA)>
+<!-- The details of any special offer associated with this item -->
+<!ELEMENT special_offer (#PCDATA)>
+<!-- the size of the storage of this item -->
+<!ELEMENT storage_size (#PCDATA)>
+<!-- The tariff associated with this item -->
+<!ELEMENT tariff (#PCDATA)>
+<!-- The term of the contract associated with this item -->
+<!ELEMENT term (#PCDATA)>
+
+<!-- The Gift Finder options for the product. -->
+<!ELEMENT giftoptions (recipientid*, personalityid*, occasionid*)>
+<!-- The recipient associated with the product. -->
+<!ELEMENT recipientid (#PCDATA)>
+<!-- The personality associated with the product. -->
+<!ELEMENT personalityid (#PCDATA)>
+<!-- The occasion associated with the product. -->
+<!ELEMENT occasionid (#PCDATA)>
+<!-- Last Updated timestamp, reference: http://www.gnu.org/software/tar/manual/html_node/Date-input-formats.html  -->
+<!ELEMENT lastupdated (#PCDATA)>
+
+<!ENTITY pound "&#163;">
+<!ENTITY reg "&#174;">
+<!ENTITY trade "&#153;">
+<!ENTITY egrave "&#232;">
+<!ENTITY lsquo "&#8216;">
+<!ENTITY rsquo "&#8217;">
+<!ENTITY ldquo "&#8220;">
+<!ENTITY rdquo "&#8221;">
+<!ENTITY Acirc "&#194;">
+<!ENTITY acirc "&#226;">
+<!ENTITY Atilde "&#195;">
+<!ENTITY atilde "&#227;">
+<!ENTITY ocirc "&#244;">
+<!ENTITY ccedil "&#231;">
+<!ENTITY eacute "&#233;">
+<!ENTITY icirc "&#238;">
+<!ENTITY iacute "&#237;">
+<!ENTITY times "&#215;">
+<!ENTITY bdquo "&#8222;">
+<!ENTITY cent "&#162;">
+<!ENTITY euro "&#8364;">
+<!ENTITY aring "&#229;">
+<!ENTITY nbsp "&#160;">
+<!ENTITY ecirc "&#234;">
+<!ENTITY ouml "&#246;">
+<!ENTITY uuml "&#252;">
+<!ENTITY aacute "&#225;">
+<!ENTITY scaron "&#353;">
+<!ENTITY Scaron "&#352;">
+<!ENTITY uacute "&#250;">
+<!ENTITY euml "&#235;">
+<!ENTITY Eacute "&#201;">
+<!ENTITY oslash "&#248;">
+<!ENTITY hellip "&#8211;">
+<!ENTITY deg "&#176;">
+<!ENTITY ndash "&#8211;">
+<!ENTITY Aring "&#197;">
+<!ENTITY agrave "&#224;">
+<!ENTITY ntilde "&#241;">
+<!ENTITY auml "&#228;">

@@ -4,6 +4,7 @@ from io import StringIO
 
 from django.core.management import call_command
 from django.db.models.functions import Lower
+from django.shortcuts import get_object_or_404
 from dry_rest_permissions.generics import DRYPermissions
 from edx_rest_framework_extensions.permissions import IsSuperuser
 from rest_framework import viewsets
@@ -14,11 +15,12 @@ from rest_framework.response import Response
 from course_discovery.apps.api.filters import PermissionsFilter
 from course_discovery.apps.api.serializers import (
     CatalogSerializer, CourseSerializer, CourseRunSerializer, ContainedCoursesSerializer,
-    CourseSerializerExcludingClosedRuns,
+    CourseSerializerExcludingClosedRuns, AffiliateWindowSerializer
 )
+from course_discovery.apps.api.renderers import AffiliateWindowXMLRenderer
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_RUN_ID_REGEX
-from course_discovery.apps.course_metadata.models import Course, CourseRun
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Seat
 
 logger = logging.getLogger(__name__)
 
@@ -202,3 +204,27 @@ class ManagementViewSet(viewsets.ViewSet):
                                                                        log=log.getvalue())
 
         return Response(output, content_type='text/plain')
+
+
+class AffiliateWindowViewSet(viewsets.ViewSet):
+    """ AffiliateWindow Resource. """
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (AffiliateWindowXMLRenderer,)
+    serializer_class = AffiliateWindowSerializer
+
+    def retrieve(self, request, pk=None):  # pylint: disable=redefined-builtin,unused-argument
+        """
+        Return verified and professional seats of courses against provided catalog id.
+        ---
+        produces:
+            - application/xml
+        """
+
+        catalog = get_object_or_404(Catalog, pk=pk)
+        queryset = catalog.courses().active()
+        seats = Seat.objects.filter(
+            course_run__course__in=queryset, type__in=[Seat.VERIFIED, Seat.PROFESSIONAL]
+        )
+
+        serializer = AffiliateWindowSerializer(seats, many=True)
+        return Response(serializer.data)

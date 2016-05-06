@@ -261,6 +261,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'edx_rest_framework_extensions.authentication.BearerAuthentication',
         'edx_rest_framework_extensions.authentication.JwtAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'DEFAULT_PERMISSION_CLASSES': (

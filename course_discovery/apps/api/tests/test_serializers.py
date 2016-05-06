@@ -6,7 +6,7 @@ from django.test import TestCase
 from course_discovery.apps.api.serializers import(
     CatalogSerializer, CourseSerializer, CourseRunSerializer, ContainedCoursesSerializer, ImageSerializer,
     SubjectSerializer, PrerequisiteSerializer, VideoSerializer, OrganizationSerializer, SeatSerializer,
-    PersonSerializer,
+    PersonSerializer, AffiliateWindowSerializer
 )
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory
@@ -214,4 +214,27 @@ class PersonSerializerTests(TestCase):
             'profile_image': ImageSerializer(image).data
         }
 
+        self.assertDictEqual(serializer.data, expected)
+
+
+class AffiliateWindowSerializerTests(TestCase):
+    def test_data(self):
+        user = UserFactory()
+        CatalogFactory(query='*:*', viewers=[user])
+        course_run = CourseRunFactory()
+        seat = SeatFactory(course_run=course_run)
+        serializer = AffiliateWindowSerializer(seat)
+
+        expected = {
+            'pid': '{}-{}'.format(course_run.key, seat.type),
+            'name': course_run.course.title,
+            'desc': course_run.course.short_description,
+            'purl': course_run.course.marketing_url,
+            'price': {
+                'actualp': seat.price
+            },
+            'currency': seat.currency.code,
+            'imgurl': course_run.image.src,
+            'category': 'Other Experiences'
+        }
         self.assertDictEqual(serializer.data, expected)

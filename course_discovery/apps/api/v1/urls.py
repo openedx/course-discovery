@@ -1,9 +1,16 @@
 """ API v1 URLs. """
 from rest_framework import routers
+from django.conf.urls import include, url
 
 from course_discovery.apps.api.v1 import views
 
-urlpatterns = []
+
+partners_router = routers.SimpleRouter()
+partners_router.register(r'affiliate_window/catalogs', views.AffiliateWindowViewSet, base_name='affiliate_window')
+partners_urls = partners_router.urls
+urlpatterns = [
+    url(r'^partners/', include(partners_urls, namespace='partners')),
+]
 
 router = routers.SimpleRouter()
 router.register(r'catalogs', views.CatalogViewSet)
