@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
@@ -93,11 +94,31 @@ class CatalogSerializer(serializers.ModelSerializer):
                                            allow_null=True, allow_empty=True, required=False,
                                            help_text=_('Usernames of users with explicit access to view this catalog'))
 
+    def is_valid(self, **kwargs):
+        # Ensure that the catalog's viewers actually exist in the
+        # DB. We keep this in a transaction so that users are only
+        # created if the data is valid.
+        sid = transaction.savepoint()
+        for username in self.initial_data.get('viewers', ()):  # pylint: disable=no-member
+            User.objects.get_or_create(username=username)
+        if super().is_valid(**kwargs):
+            # Data is good; commit the transaction.
+            transaction.savepoint_commit(sid)
+            return True
+        else:
+            # Invalid data; roll back the user creation.
+            transaction.savepoint_rollback(sid)
+            return False
+
     def create(self, validated_data):
+        viewers = set()
+        for username in validated_data.pop('viewers'):
+            user = User.objects.get(username=username)
+            viewers.add(user)
         # Set viewers after the model has been saved
-        viewers = validated_data.pop('viewers')
         instance = super(CatalogSerializer, self).create(validated_data)
         instance.viewers = viewers
+        instance.save()
         return instance
 
     class Meta(object):
