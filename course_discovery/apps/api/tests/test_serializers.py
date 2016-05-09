@@ -1,7 +1,9 @@
 from datetime import datetime
+from urllib.parse import urlencode
 
 import ddt
 from django.test import TestCase
+from rest_framework.test import APIRequestFactory
 
 from course_discovery.apps.api.serializers import(
     CatalogSerializer, CourseSerializer, CourseRunSerializer, ContainedCoursesSerializer, ImageSerializer,
@@ -71,8 +73,11 @@ class CourseSerializerTests(TestCase):
         course = CourseFactory()
         image = course.image
         video = course.video
+
+        request = self._make_request()
+
         CourseRunFactory.create_batch(3, course=course)
-        serializer = CourseSerializer(course)
+        serializer = CourseSerializer(course, context={'request': request})
 
         expected = {
             'key': course.key,
@@ -89,10 +94,32 @@ class CourseSerializerTests(TestCase):
             'sponsors': [],
             'modified': json_date_format(course.modified),  # pylint: disable=no-member
             'course_runs': CourseRunSerializer(course.course_runs, many=True).data,
-            'marketing_url': course.marketing_url
+            'marketing_url': '{url}?{params}'.format(
+                url=course.marketing_url,
+                params=urlencode({
+                    'utm_source': request.user.username,
+                    'utm_medium': request.user.referral_tracking_id,
+                })
+            )
         }
 
         self.assertDictEqual(serializer.data, expected)
+
+    def test_data_url_none(self):
+        """
+        Verify that the course serializer does not attempt to add URL
+        parameters if the course has no marketing URL.
+        """
+        course = CourseFactory(marketing_url=None)
+        request = self._make_request()
+        serializer = CourseSerializer(course, context={'request': request})
+        self.assertEqual(serializer.data['marketing_url'], None)
+
+    def _make_request(self):
+        user = UserFactory()
+        request = APIRequestFactory().get('/')
+        request.user = user
+        return request
 
 
 class CourseRunSerializerTests(TestCase):

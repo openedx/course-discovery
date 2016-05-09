@@ -16,7 +16,9 @@ class SerializationMixin(object):
         query_data = {}
         if format:
             query_data['format'] = format
-        return APIRequestFactory().get('/', query_data)
+        request = APIRequestFactory().get('/', query_data)
+        request.user = self.user
+        return request
 
     def _serialize_object(self, serializer, obj, many=False, format=None):
         return serializer(obj, many=many, context={'request': self._get_request(format)}).data
