@@ -9,6 +9,7 @@ from course_discovery.apps.api.serializers import(
     PersonSerializer, AffiliateWindowSerializer
 )
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
+from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, SubjectFactory, PrerequisiteFactory,
@@ -35,6 +36,34 @@ class CatalogSerializerTests(TestCase):
             'viewers': [user.username]
         }
         self.assertDictEqual(serializer.data, expected)
+
+    def test_create_new_user(self):
+        username = 'test-user'
+        data = {
+            'viewers': [username],
+            'id': None,
+            'name': 'test new catalog',
+            'query': '*',
+        }
+        self.assertEqual(User.objects.filter(username=username).count(), 0)  # pylint: disable=no-member
+        serializer = CatalogSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        catalog = serializer.save()
+        self.assertEqual([viewer.username for viewer in catalog.viewers], [username])
+        self.assertEqual(User.objects.filter(username=username).count(), 1)  # pylint: disable=no-member
+
+    def test_invalid_data_user_create(self):
+        """Verify that users are not created if the serializer data is invalid."""
+        username = 'test-user'
+        data = {
+            'viewers': [username],
+            'id': None,
+            'name': '',
+            'query': '',
+        }
+        serializer = CatalogSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(User.objects.filter(username=username).count(), 0)  # pylint: disable=no-member
 
 
 class CourseSerializerTests(TestCase):
