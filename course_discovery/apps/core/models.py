@@ -9,7 +9,7 @@ from guardian.mixins import GuardianUserMixin
 class User(GuardianUserMixin, AbstractUser):
     """Custom user model for use with OpenID Connect."""
     full_name = models.CharField(_('Full Name'), max_length=255, blank=True, null=True)
-    referral_tracking_id = models.CharField(_(''), max_length=255, default='affiliate_partner')
+    referral_tracking_id = models.CharField(_('Referral Tracking ID'), max_length=255, default='affiliate_partner')
 
     @property
     def access_token(self):
