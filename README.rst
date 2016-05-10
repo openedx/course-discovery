@@ -10,7 +10,7 @@ Course Discovery Service  |Travis|_ |Codecov|_
 .. |Codecov| image:: http://codecov.io/github/edx/course-discovery/coverage.svg?branch=master
 .. _Codecov: http://codecov.io/github/edx/course-discovery?branch=master
 
-The Course Discovery API an data aggregator with several purposes:
+The Course Discovery API is a data aggregator with several purposes:
 
 1. Allow external parties to access data about Courses in an OpenEdX installation
    from a single central location (no matter which the system of record for that
@@ -25,7 +25,7 @@ The Course Discovery API an data aggregator with several purposes:
 
 To aid in these goals, the Course Discovery Service will collect data from
 several systems internal to the OpenEdX installation. Initially, this will
-just be Otto (the Ecommerce service), and in the future will it will also include
+just be Otto (the Ecommerce service), and in the future it will also include
 Studio, and in the edX.org implementation, our Drupal marketing site. The design
 intention is that additional systems should be cheap to add to the same framework.
 
