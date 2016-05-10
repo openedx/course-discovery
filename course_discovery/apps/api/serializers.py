@@ -1,3 +1,5 @@
+from urllib.parse import urlencode
+
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
@@ -156,6 +158,7 @@ class CourseSerializer(TimestampModelSerializer):
     owners = OrganizationSerializer(many=True)
     sponsors = OrganizationSerializer(many=True)
     course_runs = CourseRunSerializer(many=True)
+    marketing_url = serializers.SerializerMethodField()
 
     class Meta(object):
         model = Course
@@ -164,6 +167,16 @@ class CourseSerializer(TimestampModelSerializer):
             'expected_learning_items', 'image', 'video', 'owners', 'sponsors', 'modified', 'course_runs',
             'marketing_url'
         )
+
+    def get_marketing_url(self, obj):
+        if obj.marketing_url is None:
+            return None
+        user = self.context['request'].user
+        params = urlencode({
+            'utm_source': user.username,
+            'utm_medium': user.referral_tracking_id,
+        })
+        return '{url}?{params}'.format(url=obj.marketing_url, params=params)
 
 
 class CourseSerializerExcludingClosedRuns(CourseSerializer):
