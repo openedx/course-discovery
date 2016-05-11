@@ -303,7 +303,7 @@ ELASTICSEARCH_INDEX_NAME = 'catalog'
 
 HAYSTACK_CONNECTIONS = {
     'default': {
-        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
+        'ENGINE': 'course_discovery.apps.core.haystack_backends.SimplifiedElasticsearchSearchEngine',
         'URL': ELASTICSEARCH_URL,
         'INDEX_NAME': ELASTICSEARCH_INDEX_NAME,
     },
