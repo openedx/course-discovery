@@ -7,6 +7,7 @@ from urllib.parse import urljoin
 import html2text
 from dateutil.parser import parse
 from django.conf import settings
+from django.utils.functional import cached_property
 from edx_rest_api_client.client import EdxRestApiClient
 from opaque_keys.edx.keys import CourseKey
 
@@ -29,15 +30,40 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
     """
 
     PAGE_SIZE = 50
+    SUPPORTED_TOKEN_TYPES = ('bearer', 'jwt',)
 
-    def __init__(self, api_url, access_token=None):
+    def __init__(self, api_url, access_token, token_type):
         """
         Arguments:
             api_url (str): URL of the API from which data is loaded
             access_token (str): OAuth2 access token
+            token_type (str): The type of access token passed in (e.g. Bearer, JWT)
         """
+        token_type = token_type.lower()
+
+        if token_type not in self.SUPPORTED_TOKEN_TYPES:
+            raise ValueError('The token type {token_type} is invalid!'.format(token_type=token_type))
+
         self.access_token = access_token
         self.api_url = api_url
+        self.token_type = token_type
+
+    @cached_property
+    def api_client(self):
+        """
+        Returns an authenticated API client ready to call the API from which data is loaded.
+
+        Returns:
+            EdxRestApiClient
+        """
+        kwargs = {}
+
+        if self.token_type == 'jwt':
+            kwargs['jwt'] = self.access_token
+        else:
+            kwargs['oauth_access_token'] = self.access_token
+
+        return EdxRestApiClient(self.api_url, **kwargs)
 
     @abc.abstractmethod
     def ingest(self):  # pragma: no cover
@@ -100,7 +126,7 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
     """ Loads organizations from the Organizations API. """
 
     def ingest(self):
-        client = EdxRestApiClient(self.api_url, oauth_access_token=self.access_token)
+        client = self.api_client
         count = None
         page = 1
 
@@ -142,7 +168,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
     """ Loads course runs from the Courses API. """
 
     def ingest(self):
-        client = EdxRestApiClient(self.api_url, oauth_access_token=self.access_token)
+        client = self.api_client
         count = None
         page = 1
 
@@ -237,7 +263,7 @@ class DrupalApiDataLoader(AbstractDataLoader):
     """Loads course runs from the Drupal API."""
 
     def ingest(self):
-        client = EdxRestApiClient(self.api_url)
+        client = self.api_client
         logger.info('Refreshing Courses and CourseRuns from %s...', self.api_url)
         response = client.courses.get()
 
@@ -359,7 +385,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     """ Loads course seats from the E-Commerce API. """
 
     def ingest(self):
-        client = EdxRestApiClient(self.api_url, oauth_access_token=self.access_token)
+        client = self.api_client
         count = None
         page = 1
 
