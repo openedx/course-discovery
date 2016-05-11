@@ -8,6 +8,8 @@ import ddt
 import responses
 from django.conf import settings
 from django.test import TestCase, override_settings
+from edx_rest_api_client.auth import BearerAuth, SuppliedJwtAuth
+from edx_rest_api_client.client import EdxRestApiClient
 from opaque_keys.edx.keys import CourseKey
 from pytz import UTC
 
@@ -22,6 +24,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
 )
 
 ACCESS_TOKEN = 'secret'
+ACCESS_TOKEN_TYPE = 'Bearer'
 COURSES_API_URL = 'https://lms.example.com/api/courses/v1'
 ORGANIZATIONS_API_URL = 'https://lms.example.com/api/organizations/v0'
 MARKETING_API_URL = 'https://example.com/api/catalog/v2/'
@@ -64,13 +67,15 @@ class AbstractDataLoaderTest(TestCase):
             self.assertFalse(instance.__class__.objects.filter(pk=instance.pk).exists())  # pylint: disable=no-member
 
 
+# pylint: disable=not-callable
+@ddt.ddt
 class DataLoaderTestMixin(object):
     api_url = None
     loader_class = None
 
     def setUp(self):
         super(DataLoaderTestMixin, self).setUp()
-        self.loader = self.loader_class(self.api_url, ACCESS_TOKEN)  # pylint: disable=not-callable
+        self.loader = self.loader_class(self.api_url, ACCESS_TOKEN, ACCESS_TOKEN_TYPE)
 
     def assert_api_called(self, expected_num_calls, check_auth=True):
         """ Asserts the API was called with the correct number of calls, and the appropriate Authorization header. """
@@ -82,8 +87,30 @@ class DataLoaderTestMixin(object):
         """ Verify the constructor sets the appropriate attributes. """
         self.assertEqual(self.loader.api_url, self.api_url)
         self.assertEqual(self.loader.access_token, ACCESS_TOKEN)
+        self.assertEqual(self.loader.token_type, ACCESS_TOKEN_TYPE.lower())
+
+    def test_init_with_unsupported_token_type(self):
+        """ Verify the constructor raises an error if an unsupported token type is passed in. """
+        with self.assertRaises(ValueError):
+            self.loader_class(self.api_url, ACCESS_TOKEN, 'not-supported')
+
+    @ddt.unpack
+    @ddt.data(
+        ('Bearer', BearerAuth),
+        ('JWT', SuppliedJwtAuth),
+    )
+    def test_api_client(self, token_type, expected_auth_class):
+        """ Verify the property returns an API client with the correct authentication. """
+        loader = self.loader_class(self.api_url, ACCESS_TOKEN, token_type)
+        client = loader.api_client
+        self.assertIsInstance(client, EdxRestApiClient)
+        # NOTE (CCB): My initial preference was to mock the constructor and ensure the correct auth arguments
+        # were passed. However, that seems nearly impossible. This is the next best alternative. It is brittle, and
+        # may break if we ever change the underlying request class of EdxRestApiClient.
+        self.assertIsInstance(client._store['session'].auth, expected_auth_class)  # pylint: disable=protected-access
 
 
+@ddt.ddt
 @override_settings(ORGANIZATIONS_API_URL=ORGANIZATIONS_API_URL)
 class OrganizationsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     api_url = ORGANIZATIONS_API_URL
@@ -378,8 +405,8 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             self.assertIsNone(actual)
 
 
-@override_settings(MARKETING_API_URL=MARKETING_API_URL)
 @ddt.ddt
+@override_settings(MARKETING_API_URL=MARKETING_API_URL)
 class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     EXISTING_COURSE_AND_RUN_DATA = (
         {
@@ -992,10 +1019,13 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         ({"attribute_values": []}, Seat.AUDIT),
         ({"attribute_values": [{'name': 'certificate_type', 'value': 'professional'}]}, 'professional'),
         (
-            {"attribute_values": [
-                {'name': 'other_data', 'value': 'other'},
-                {'name': 'certificate_type', 'value': 'credit'}
-            ]}, 'credit'
+            {
+                "attribute_values": [
+                    {'name': 'other_data', 'value': 'other'},
+                    {'name': 'certificate_type', 'value': 'credit'}
+                ]
+            },
+            'credit'
         ),
         ({"attribute_values": [{'name': 'other_data', 'value': 'other'}]}, Seat.AUDIT),
     )
