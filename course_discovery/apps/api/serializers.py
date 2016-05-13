@@ -151,6 +151,13 @@ class CourseRunSerializer(TimestampModelSerializer):
         )
 
 
+class ContainedCourseRunsSerializer(serializers.Serializer):  # pylint: disable=abstract-method
+    course_runs = serializers.DictField(
+        child=serializers.BooleanField(),
+        help_text=_('Dictionary mapping course run IDs to boolean values')
+    )
+
+
 class CourseSerializer(TimestampModelSerializer):
     level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
     subjects = SubjectSerializer(many=True)
