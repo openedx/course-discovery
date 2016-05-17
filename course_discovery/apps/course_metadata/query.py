@@ -11,6 +11,9 @@ class CourseQuerySet(models.QuerySet):
         or will be open for enrollment in the future. """
 
         return self.filter(
-            Q(course_runs__enrollment_end__gt=datetime.datetime.now(pytz.UTC)) |
-            Q(course_runs__enrollment_end__isnull=True)
+            Q(course_runs__end__gt=datetime.datetime.now(pytz.UTC)) &
+            (
+                Q(course_runs__enrollment_end__gt=datetime.datetime.now(pytz.UTC)) |
+                Q(course_runs__enrollment_end__isnull=True)
+            )
         )
