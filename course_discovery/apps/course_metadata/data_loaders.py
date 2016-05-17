@@ -271,6 +271,11 @@ class DrupalApiDataLoader(AbstractDataLoader):
         logger.info('Retrieved %d course runs...', len(data))
 
         for body in data:
+            # NOTE (CCB): Some of the entries are empty arrays. We will fix this on the Drupal side of things
+            # later (ECOM-4493). For now, ignore them.
+            if not body:
+                continue
+
             cleaned_body = self.clean_strings(body)
             course = self.update_course(cleaned_body)
             self.update_course_run(course, cleaned_body)
