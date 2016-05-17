@@ -298,14 +298,11 @@ SWAGGER_SETTINGS = {
     'permission_denied_handler': 'course_discovery.apps.api.views.api_docs_permission_denied_handler'
 }
 
-ELASTICSEARCH_URL = 'http://127.0.0.1:9200/'
-ELASTICSEARCH_INDEX_NAME = 'catalog'
-
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'course_discovery.apps.core.haystack_backends.SimplifiedElasticsearchSearchEngine',
-        'URL': ELASTICSEARCH_URL,
-        'INDEX_NAME': ELASTICSEARCH_INDEX_NAME,
+        'URL': 'http://localhost:9200/',
+        'INDEX_NAME': 'catalog',
     },
 }
 
