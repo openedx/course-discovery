@@ -9,6 +9,7 @@ from dry_rest_permissions.generics import DRYPermissions
 from edx_rest_framework_extensions.permissions import IsSuperuser
 from rest_framework import status, viewsets
 from rest_framework.decorators import detail_route, list_route
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -279,9 +280,13 @@ class AffiliateWindowViewSet(viewsets.ViewSet):
         """
 
         catalog = get_object_or_404(Catalog, pk=pk)
-        queryset = catalog.courses().active()
+
+        if not catalog.has_object_read_permission(request):
+            raise PermissionDenied
+
+        courses = catalog.courses().active()
         seats = Seat.objects.filter(
-            course_run__course__in=queryset, type__in=[Seat.VERIFIED, Seat.PROFESSIONAL]
+            course_run__course__in=courses, type__in=[Seat.VERIFIED, Seat.PROFESSIONAL]
         )
 
         serializer = AffiliateWindowSerializer(seats, many=True)
