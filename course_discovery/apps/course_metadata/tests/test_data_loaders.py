@@ -462,103 +462,110 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     def mock_api(self):
         """Mock out the Drupal API. Returns a list of mocked-out course runs."""
         body = {
-            'items': [{
-                'title': self.EXISTING_COURSE_AND_RUN_DATA[0]['title'],
-                'level': {
-                    'title': 'Introductory',
+            'items': [
+                {
+                    'title': self.EXISTING_COURSE_AND_RUN_DATA[0]['title'],
+                    'level': {
+                        'title': 'Introductory',
+                    },
+                    'course_about_uri': '/course/bread-baking-101',
+                    'course_id': self.EXISTING_COURSE_AND_RUN_DATA[0]['course_run_key'],
+                    'subjects': [{
+                        'title': 'Bread baking',
+                    }],
+                    'current_language': self.EXISTING_COURSE_AND_RUN_DATA[0]['current_language'],
+                    'subtitle': 'Learn about Bread',
+                    'description': '<p>Bread is a <a href="/wiki/Staple_food" title="Staple food">staple food</a>.',
+                    'sponsors': [{
+                        'uuid': 'abc123',
+                        'title': 'Tatte',
+                        'image': 'http://example.com/tatte.jpg',
+                        'uri': 'sponsor/tatte'
+                    }],
+                    'staff': [{
+                        'uuid': 'staff123',
+                        'title': 'The Muffin Man',
+                        'image': 'http://example.com/muffinman.jpg',
+                        'display_position': {
+                            'title': 'Baker'
+                        }
+                    }, {
+                        'uuid': 'staffZYX',
+                        'title': 'Arthur',
+                        'image': 'http://example.com/kingarthur.jpg',
+                        'display_position': {
+                            'title': 'King'
+                        }
+                    }]
                 },
-                'course_about_uri': '/course/bread-baking-101',
-                'course_id': self.EXISTING_COURSE_AND_RUN_DATA[0]['course_run_key'],
-                'subjects': [{
-                    'title': 'Bread baking',
-                }],
-                'current_language': self.EXISTING_COURSE_AND_RUN_DATA[0]['current_language'],
-                'subtitle': 'Learn about Bread',
-                'description': '<p><b>Bread</b> is a <a href="/wiki/Staple_food" title="Staple food">staple food</a>.',
-                'sponsors': [{
-                    'uuid': 'abc123',
-                    'title': 'Tatte',
-                    'image': 'http://example.com/tatte.jpg',
-                    'uri': 'sponsor/tatte'
-                }],
-                'staff': [{
-                    'uuid': 'staff123',
-                    'title': 'The Muffin Man',
-                    'image': 'http://example.com/muffinman.jpg',
-                    'display_position': {
-                        'title': 'Baker'
-                    }
-                }, {
-                    'uuid': 'staffZYX',
-                    'title': 'Arthur',
-                    'image': 'http://example.com/kingarthur.jpg',
-                    'display_position': {
-                        'title': 'King'
-                    }
-                }]
-            }, {
-                'title': self.EXISTING_COURSE_AND_RUN_DATA[1]['title'],
-                'level': {
-                    'title': 'Intermediate',
+                {
+                    'title': self.EXISTING_COURSE_AND_RUN_DATA[1]['title'],
+                    'level': {
+                        'title': 'Intermediate',
+                    },
+                    'course_about_uri': '/course/testing-201',
+                    'course_id': self.EXISTING_COURSE_AND_RUN_DATA[1]['course_run_key'],
+                    'subjects': [{
+                        'title': 'testing',
+                    }],
+                    'current_language': self.EXISTING_COURSE_AND_RUN_DATA[1]['current_language'],
+                    'subtitle': 'Testing 201',
+                    'description': "how to test better",
+                    'sponsors': [],
+                    'staff': [{
+                        'uuid': '432staff',
+                        'title': 'Test',
+                        'image': 'http://example.com/test.jpg',
+                        'display_position': {
+                            'title': 'Tester'
+                        }
+                    }]
                 },
-                'course_about_uri': '/course/testing-201',
-                'course_id': self.EXISTING_COURSE_AND_RUN_DATA[1]['course_run_key'],
-                'subjects': [{
-                    'title': 'testing',
-                }],
-                'current_language': self.EXISTING_COURSE_AND_RUN_DATA[1]['current_language'],
-                'subtitle': 'Testing 201',
-                'description': "how to test better",
-                'sponsors': [],
-                'staff': [{
-                    'uuid': '432staff',
-                    'title': 'Test',
-                    'image': 'http://example.com/test.jpg',
-                    'display_position': {
-                        'title': 'Tester'
-                    }
-                }]
-            }, {  # Create a course which exists in LMS/Otto, but without course runs
-                'title': self.EXISTING_COURSE['title'],
-                'level': {
-                    'title': 'Advanced',
+                {  # Create a course which exists in LMS/Otto, but without course runs
+                    'title': self.EXISTING_COURSE['title'],
+                    'level': {
+                        'title': 'Advanced',
+                    },
+                    'course_about_uri': '/course/partial-101',
+                    'course_id': 'course-v1:{course_key}+run'.format(course_key=self.EXISTING_COURSE['course_key']),
+                    'subjects': [{
+                        'title': 'partially fake',
+                    }],
+                    'current_language': 'en-us',
+                    'subtitle': 'Nope',
+                    'description': 'what is fake?',
+                    'sponsors': [{
+                        'uuid': '123abc',
+                        'title': 'Fake',
+                        'image': 'http://example.com/fake.jpg',
+                        'uri': 'sponsor/fake'
+                    }, {
+                        'uuid': 'qwertyuiop',
+                        'title': 'Faux',
+                        'image': 'http://example.com/faux.jpg',
+                        'uri': 'sponsor/faux'
+                    }],
+                    'staff': [],
                 },
-                'course_about_uri': '/course/partial-101',
-                'course_id': 'course-v1:{course_key}+run'.format(course_key=self.EXISTING_COURSE['course_key']),
-                'subjects': [{
-                    'title': 'partially fake',
-                }],
-                'current_language': 'en-us',
-                'subtitle': 'Nope',
-                'description': 'what is fake?',
-                'sponsors': [{
-                    'uuid': '123abc',
-                    'title': 'Fake',
-                    'image': 'http://example.com/fake.jpg',
-                    'uri': 'sponsor/fake'
-                }, {
-                    'uuid': 'qwertyuiop',
-                    'title': 'Faux',
-                    'image': 'http://example.com/faux.jpg',
-                    'uri': 'sponsor/faux'
-                }],
-                'staff': [],
-            }, {  # Create a fake course run which doesn't exist in LMS/Otto
-                'title': 'A partial course',
-                'level': {
-                    'title': 'Advanced',
+                {  # Create a fake course run which doesn't exist in LMS/Otto
+                    'title': 'A partial course',
+                    'level': {
+                        'title': 'Advanced',
+                    },
+                    'course_about_uri': '/course/partial-101',
+                    'course_id': 'course-v1:fakeX+fake+reallyfake',
+                    'subjects': [{
+                        'title': 'seriously fake',
+                    }],
+                    'current_language': 'en-us',
+                    'subtitle': 'Nope',
+                    'description': 'what is real?',
+                    'sponsors': [],
+                    'staff': [],
                 },
-                'course_about_uri': '/course/partial-101',
-                'course_id': 'course-v1:fakeX+fake+reallyfake',
-                'subjects': [{
-                    'title': 'seriously fake',
-                }],
-                'current_language': 'en-us',
-                'subtitle': 'Nope',
-                'description': 'what is real?',
-                'sponsors': [],
-                'staff': [],
-            }]
+                # NOTE (CCB): Some of the entries are empty arrays. Remove this as part of ECOM-4493.
+                [],
+            ]
         }
 
         responses.add(
@@ -633,8 +640,9 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     def test_ingest(self):
         """Verify the data loader ingests data from Drupal."""
         data = self.mock_api()
-        # The faked course should not be loaded from Drupal
-        loaded_data = data[:-2]
+        # Neither the faked course, nor the empty array, should not be loaded from Drupal.
+        # Change this back to -2 as part of ECOM-4493.
+        loaded_data = data[:-3]
 
         self.loader.ingest()
 
