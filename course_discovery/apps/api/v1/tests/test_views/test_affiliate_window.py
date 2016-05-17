@@ -28,7 +28,8 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
         self.catalog = CatalogFactory(query='*:*', viewers=[self.user])
 
         self.enrollment_end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=30)
-        self.course_run = CourseRunFactory(enrollment_end=self.enrollment_end)
+        self.course_end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=60)
+        self.course_run = CourseRunFactory(enrollment_end=self.enrollment_end, end=self.course_end)
 
         self.seat_verified = SeatFactory(course_run=self.course_run, type=Seat.VERIFIED)
         self.course = self.course_run.course
