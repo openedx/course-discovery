@@ -7,7 +7,7 @@ various criteria related to data collected from the E-Commerce Service (Otto) an
 The service is configured to use the `course_discovery` index by default. If you'd like to change the index, or the
 URL of the Elasticsearch service, update the `ELASTICSEARCH` setting.
 
-Elasticsearch has a feature called `aliases`<https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-aliases.html>.
+Elasticsearch has a feature called `aliases     <https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-aliases.html>`_.
 This feature allows indices to be referenced by an alias. For example, the timestamped course_discovery_20160101113005
 index could be assigned the alias course_discovery. It is common practice to reference aliases in code, rather than
 indices, to allow for index swapping, reindex, and other maintenance without affecting service uptime. We recommend
