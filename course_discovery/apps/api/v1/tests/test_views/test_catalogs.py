@@ -28,7 +28,12 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.client.force_authenticate(self.user)
         self.catalog = CatalogFactory(query='title:abc*')
         enrollment_end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=30)
-        self.course_run = CourseRunFactory(enrollment_end=enrollment_end, course__title='ABC Test Course')
+        course_end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=60)
+        self.course_run = CourseRunFactory(
+            enrollment_end=enrollment_end,
+            end=course_end,
+            course__title='ABC Test Course'
+        )
         self.course = self.course_run.course
         self.refresh_index()
 
