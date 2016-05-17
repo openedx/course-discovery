@@ -9,7 +9,7 @@ django-waffle==0.11
 djangorestframework==3.3.3
 djangorestframework-jwt==1.7.2
 djangorestframework-xml==1.3.0
-django-rest-swagger[reST]==0.3.5
+django-rest-swagger[reST]==0.3.6
 dry-rest-permissions==0.1.6
 edx-auth-backends==0.2.3
 edx-ccx-keys==0.2.0

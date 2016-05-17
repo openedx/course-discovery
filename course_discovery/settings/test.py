@@ -32,7 +32,7 @@ DATABASES = {
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
-        'URL': os.environ.get('TEST_ELASTICSEARCH_URL', 'http://127.0.0.1:9200/'),
+        'URL': os.environ.get('TEST_ELASTICSEARCH_URL', 'http://localhost:9200/'),
         'INDEX_NAME': 'catalog_test',
     },
 }
