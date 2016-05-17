@@ -20,6 +20,7 @@ from course_discovery.apps.course_metadata.tests.factories import CourseRunFacto
 @ddt.ddt
 class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, APITestCase):
     """ Tests for the AffiliateWindowViewSet. """
+
     def setUp(self):
         super(AffiliateWindowViewSetTests, self).setUp()
         self.user = UserFactory()
@@ -110,3 +111,23 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
 
         root = etree.XML(response.content)
         self.assertTrue(dtd.validate(root))
+
+    def test_permissions(self):
+        """ Verify only users with the appropriate permissions can access the endpoint. """
+        catalog = CatalogFactory()
+        superuser = UserFactory(is_superuser=True)
+        url = reverse('api:v1:partners:affiliate_window-detail', kwargs={'pk': catalog.id})
+
+        # Superusers can view all catalogs
+        self.client.force_authenticate(superuser)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        # Regular users can only view catalogs belonging to them
+        self.client.force_authenticate(self.user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+        catalog.viewers = [self.user]
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
