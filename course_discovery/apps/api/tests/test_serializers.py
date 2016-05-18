@@ -39,21 +39,6 @@ class CatalogSerializerTests(TestCase):
         }
         self.assertDictEqual(serializer.data, expected)
 
-    def test_create_new_user(self):
-        username = 'test-user'
-        data = {
-            'viewers': [username],
-            'id': None,
-            'name': 'test new catalog',
-            'query': '*',
-        }
-        self.assertEqual(User.objects.filter(username=username).count(), 0)  # pylint: disable=no-member
-        serializer = CatalogSerializer(data=data)
-        self.assertTrue(serializer.is_valid())
-        catalog = serializer.save()
-        self.assertEqual([viewer.username for viewer in catalog.viewers], [username])
-        self.assertEqual(User.objects.filter(username=username).count(), 1)  # pylint: disable=no-member
-
     def test_invalid_data_user_create(self):
         """Verify that users are not created if the serializer data is invalid."""
         username = 'test-user'

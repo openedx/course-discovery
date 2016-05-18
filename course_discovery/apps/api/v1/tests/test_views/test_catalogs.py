@@ -3,6 +3,7 @@ import datetime
 import urllib
 
 import ddt
+from django.contrib.auth import get_user_model
 import pytz
 import responses
 from rest_framework.reverse import reverse
@@ -15,6 +16,8 @@ from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory
+
+User = get_user_model()
 
 
 @ddt.ddt
@@ -95,6 +98,38 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.client.logout()
         self.mock_user_info_response(self.user)
         self.assert_catalog_created(HTTP_AUTHORIZATION=self.generate_oauth2_token_header(self.user))
+
+    def test_create_with_new_user(self):
+        """ Verify that new users are created if the list of viewers includes the usernames of non-existent users. """
+        new_viewer_username = 'new-guy'
+        existing_viewer = UserFactory()
+        viewers = [new_viewer_username, existing_viewer.username]
+        data = {
+            'name': 'Test Catalog',
+            'query': '*:*',
+            'viewers': ','.join(viewers)
+        }
+
+        # NOTE: We explicitly avoid using the JSON data type so that we properly test string parsing.
+        response = self.client.post(self.catalog_list_url, data)
+        self.assertEqual(response.status_code, 201)
+
+        catalog = Catalog.objects.latest()
+        latest_user = User.objects.latest()
+        self.assertEqual(latest_user.username, new_viewer_username)
+        self.assertListEqual(list(catalog.viewers), [existing_viewer, latest_user])
+
+    def test_create_with_new_user_error(self):
+        """ Verify no users are created if an error occurs while processing a create request. """
+        # The missing name and query fields should trigger an error
+        data = {
+            'viewers': ['new-guy']
+        }
+        original_user_count = User.objects.count()
+        response = self.client.post(self.catalog_list_url, data)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(User.objects.count(), original_user_count)
 
     def test_courses(self):
         """ Verify the endpoint returns the list of courses contained in the catalog. """

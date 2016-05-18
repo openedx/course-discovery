@@ -2,7 +2,9 @@ import logging
 import os
 from io import StringIO
 
+from django.contrib.auth import get_user_model
 from django.core.management import call_command
+from django.db import transaction
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404
 from dry_rest_permissions.generics import DRYPermissions
@@ -14,17 +16,18 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api.filters import PermissionsFilter
+from course_discovery.apps.api.renderers import AffiliateWindowXMLRenderer
 from course_discovery.apps.api.serializers import (
     CatalogSerializer, CourseSerializer, CourseRunSerializer, ContainedCoursesSerializer,
     CourseSerializerExcludingClosedRuns, AffiliateWindowSerializer, ContainedCourseRunsSerializer
 )
-from course_discovery.apps.api.renderers import AffiliateWindowXMLRenderer
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Seat
 
 logger = logging.getLogger(__name__)
+User = get_user_model()
 
 
 # pylint: disable=no-member
@@ -37,10 +40,26 @@ class CatalogViewSet(viewsets.ModelViewSet):
     queryset = Catalog.objects.all()
     serializer_class = CatalogSerializer
 
-    # The boilerplate methods are required to be recognized by swagger
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         """ Create a new catalog. """
-        return super(CatalogViewSet, self).create(request, *args, **kwargs)
+        data = request.data.copy()
+        usernames = request.data.get('viewers', ())
+
+        # Add support for parsing a comma-separated list from Swagger
+        if isinstance(usernames, str):
+            usernames = usernames.split(',')
+            data.setlist('viewers', usernames)
+
+        # Ensure the users exist
+        for username in usernames:
+            User.objects.get_or_create(username=username)
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def destroy(self, request, *args, **kwargs):
         """ Destroy a catalog. """
