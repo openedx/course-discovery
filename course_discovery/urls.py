@@ -44,6 +44,11 @@ urlpatterns = [
     url('^$', QueryPreviewView.as_view()),
 ]
 
+if settings.ENABLE_USER_INFO_STUB:  # pragma: no cover
+    from course_discovery.settings.utils import stub_user_info_response
+
+    urlpatterns.append(url(r'^user_info/', stub_user_info_response))
+
 if settings.DEBUG and os.environ.get('ENABLE_DJANGO_TOOLBAR', False):  # pragma: no cover
     import debug_toolbar  # pylint: disable=wrong-import-order,wrong-import-position,import-error
 
