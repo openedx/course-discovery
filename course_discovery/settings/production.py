@@ -3,6 +3,7 @@ import sys
 from logging.handlers import SysLogHandler
 from os import environ
 
+import certifi
 import yaml
 
 from course_discovery.settings.base import *
@@ -63,6 +64,10 @@ DB_OVERRIDES = dict(
 HAYSTACK_CONNECTIONS['default'].update({
     'URL': ELASTICSEARCH_URL,
     'INDEX_NAME': ELASTICSEARCH_INDEX_NAME,
+    'KWARGS': {
+        'verify_certs': True,
+        'ca_certs': certifi.where(),
+    },
 })
 
 for override, value in DB_OVERRIDES.items():
