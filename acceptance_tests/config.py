@@ -18,3 +18,6 @@ ECOMMERCE_URL_ROOT = os.environ.get('ECOMMERCE_URL_ROOT', 'https://ecommerce.sta
 
 BASIC_AUTH_USERNAME = os.environ.get('BASIC_AUTH_USERNAME', '')
 BASIC_AUTH_PASSWORD = os.environ.get('BASIC_AUTH_PASSWORD', '')
+
+AFFILIATE_COOKIE_NAME = os.environ.get('AFFILIATE_COOKIE_NAME', 'affiliate_id')
+COOKIE_DOMAIN = os.environ.get('COOKIE_DOMAIN', '.edx.org')
