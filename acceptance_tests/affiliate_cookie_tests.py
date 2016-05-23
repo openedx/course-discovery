@@ -6,7 +6,8 @@ from unittest import TestCase
 from selenium import webdriver
 
 from acceptance_tests.config import (
-    BASIC_AUTH_USERNAME, BASIC_AUTH_PASSWORD, ECOMMERCE_URL_ROOT, MARKETING_SITE_URL_ROOT, LMS_URL_ROOT
+    AFFILIATE_COOKIE_NAME, BASIC_AUTH_USERNAME, BASIC_AUTH_PASSWORD, COOKIE_DOMAIN, ECOMMERCE_URL_ROOT,
+    LMS_URL_ROOT, MARKETING_SITE_URL_ROOT
 )
 
 
@@ -30,12 +31,13 @@ class AffiliateCookieTestMixin(object):
     which will be used to test cookie tracking.
     """
 
-    cookie_name = "affiliate_id"
     cookie_value = "test_partner"
 
     def setUp(self):
         super().setUp()
         self.browser = webdriver.Firefox()
+        self.cookie_name = AFFILIATE_COOKIE_NAME
+        self.cookie_domain = COOKIE_DOMAIN
 
     def tearDown(self):
         super().tearDown()
@@ -56,6 +58,7 @@ class AffiliateCookieTestMixin(object):
         cookie = self.browser.get_cookie(self.cookie_name)
         self.assertIsNotNone(cookie)
         self.assertEqual(cookie['value'], self.cookie_value)
+        self.assertEqual(cookie['domain'], self.cookie_domain)
 
     def test_with_query_wrong_medium(self):
         """Verify that requests without utm_medium=affiliate_partner do not get a cookie."""
