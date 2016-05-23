@@ -298,7 +298,6 @@ class DrupalApiDataLoader(AbstractDataLoader):
 
         course.full_description = self.clean_html(body['description'])
         course.short_description = self.clean_html(body['subtitle'])
-        course.marketing_url = urljoin(settings.MARKETING_URL_ROOT, body['course_about_uri'])
 
         level_type, __ = LevelType.objects.get_or_create(name=body['level']['title'])
         course.level_type = level_type
@@ -347,6 +346,7 @@ class DrupalApiDataLoader(AbstractDataLoader):
             return None
         course_run.language = self.get_language_tag(body)
         course_run.course = course
+        course_run.marketing_url = urljoin(settings.MARKETING_URL_ROOT, body['course_about_uri'])
 
         self.set_staff(course_run, body)
 

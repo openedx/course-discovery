@@ -2,7 +2,7 @@
 import datetime
 import json
 from decimal import Decimal
-from urllib.parse import parse_qs, urlparse, urljoin
+from urllib.parse import parse_qs, urlparse
 
 import ddt
 import responses
@@ -612,7 +612,6 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         self.assertEqual(course.title, body['title'])
         self.assertEqual(course.full_description, self.loader.clean_html(body['description']))
         self.assertEqual(course.short_description, self.loader.clean_html(body['subtitle']))
-        self.assertEqual(course.marketing_url, urljoin(settings.MARKETING_URL_ROOT, body['course_about_uri']))
         self.assertEqual(course.level_type.name, body['level']['title'])
 
         self.assert_subjects_loaded(course, body)

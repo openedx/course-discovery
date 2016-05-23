@@ -12,6 +12,26 @@ from course_discovery.apps.course_metadata.models import (
 User = get_user_model()
 
 
+def get_marketing_url_for_user(user, marketing_url):
+    """
+    Return the given marketing URL with affiliate query parameters for the user.
+
+    Arguments:
+        user (User): the user to use to construct the query parameters.
+        marketing_url (str | None): the base URL.
+
+    Returns:
+        str | None
+    """
+    if marketing_url is None:
+        return None
+    params = urlencode({
+        'utm_source': user.username,
+        'utm_medium': user.referral_tracking_id,
+    })
+    return '{url}?{params}'.format(url=marketing_url, params=params)
+
+
 class TimestampModelSerializer(serializers.ModelSerializer):
     modified = serializers.DateTimeField()
 
@@ -122,6 +142,7 @@ class CourseRunSerializer(TimestampModelSerializer):
     seats = SeatSerializer(many=True)
     instructors = PersonSerializer(many=True)
     staff = PersonSerializer(many=True)
+    marketing_url = serializers.SerializerMethodField()
 
     class Meta(object):
         model = CourseRun
@@ -129,8 +150,11 @@ class CourseRunSerializer(TimestampModelSerializer):
             'course', 'key', 'title', 'short_description', 'full_description', 'start', 'end',
             'enrollment_start', 'enrollment_end', 'announcement', 'image', 'video', 'seats',
             'content_language', 'transcript_languages', 'instructors', 'staff',
-            'pacing_type', 'min_effort', 'max_effort', 'modified',
+            'pacing_type', 'min_effort', 'max_effort', 'modified', 'marketing_url',
         )
+
+    def get_marketing_url(self, obj):
+        return get_marketing_url_for_user(self.context['request'].user, obj.marketing_url)
 
 
 class ContainedCourseRunsSerializer(serializers.Serializer):  # pylint: disable=abstract-method
@@ -161,14 +185,7 @@ class CourseSerializer(TimestampModelSerializer):
         )
 
     def get_marketing_url(self, obj):
-        if obj.marketing_url is None:
-            return None
-        user = self.context['request'].user
-        params = urlencode({
-            'utm_source': user.username,
-            'utm_medium': user.referral_tracking_id,
-        })
-        return '{url}?{params}'.format(url=obj.marketing_url, params=params)
+        return get_marketing_url_for_user(self.context['request'].user, obj.marketing_url)
 
 
 class CourseSerializerExcludingClosedRuns(CourseSerializer):
