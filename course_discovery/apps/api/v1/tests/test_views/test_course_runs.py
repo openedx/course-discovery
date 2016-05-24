@@ -4,7 +4,7 @@ import ddt
 
 from django.db.models.functions import Lower
 from rest_framework.reverse import reverse
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APIRequestFactory
 
 from course_discovery.apps.api.serializers import CourseRunSerializer
 from course_discovery.apps.core.tests.factories import UserFactory
@@ -21,6 +21,8 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
         self.client.force_authenticate(self.user)
         self.course_run = CourseRunFactory()
         self.refresh_index()
+        self.request = APIRequestFactory().get('/')
+        self.request.user = self.user
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single course. """
@@ -28,7 +30,7 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, CourseRunSerializer(self.course_run).data)
+        self.assertEqual(response.data, CourseRunSerializer(self.course_run, context={'request': self.request}).data)
 
     def test_list(self):
         """ Verify the endpoint returns a list of all catalogs. """
@@ -38,7 +40,11 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(
             response.data['results'],
-            CourseRunSerializer(CourseRun.objects.all().order_by(Lower('key')), many=True).data
+            CourseRunSerializer(
+                CourseRun.objects.all().order_by(Lower('key')),
+                many=True,
+                context={'request': self.request}
+            ).data
         )
 
     def test_list_query(self):
@@ -52,7 +58,12 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
         response = self.client.get(url)
         actual_sorted = sorted(response.data['results'], key=lambda course_run: course_run['key'])
         expected_sorted = sorted(
-            CourseRunSerializer(course_runs, many=True).data, key=lambda course_run: course_run['key']
+            CourseRunSerializer(
+                course_runs,
+                many=True,
+                context={'request': self.request}
+            ).data,
+            key=lambda course_run: course_run['key']
         )
         self.assertListEqual(actual_sorted, expected_sorted)
 

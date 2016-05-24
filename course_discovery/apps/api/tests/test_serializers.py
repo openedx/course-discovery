@@ -23,6 +23,13 @@ def json_date_format(datetime_obj):
     return datetime.strftime(datetime_obj, "%Y-%m-%dT%H:%M:%S.%fZ")
 
 
+def make_request():
+    user = UserFactory()
+    request = APIRequestFactory().get('/')
+    request.user = user
+    return request
+
+
 class CatalogSerializerTests(TestCase):
     def test_data(self):
         user = UserFactory()
@@ -59,7 +66,7 @@ class CourseSerializerTests(TestCase):
         image = course.image
         video = course.video
 
-        request = self._make_request()
+        request = make_request()
 
         CourseRunFactory.create_batch(3, course=course)
         serializer = CourseSerializer(course, context={'request': request})
@@ -78,7 +85,7 @@ class CourseSerializerTests(TestCase):
             'owners': [],
             'sponsors': [],
             'modified': json_date_format(course.modified),  # pylint: disable=no-member
-            'course_runs': CourseRunSerializer(course.course_runs, many=True).data,
+            'course_runs': CourseRunSerializer(course.course_runs, many=True, context={'request': request}).data,
             'marketing_url': '{url}?{params}'.format(
                 url=course.marketing_url,
                 params=urlencode({
@@ -96,23 +103,18 @@ class CourseSerializerTests(TestCase):
         parameters if the course has no marketing URL.
         """
         course = CourseFactory(marketing_url=None)
-        request = self._make_request()
+        request = make_request()
         serializer = CourseSerializer(course, context={'request': request})
         self.assertEqual(serializer.data['marketing_url'], None)
-
-    def _make_request(self):
-        user = UserFactory()
-        request = APIRequestFactory().get('/')
-        request.user = user
-        return request
 
 
 class CourseRunSerializerTests(TestCase):
     def test_data(self):
+        request = make_request()
         course_run = CourseRunFactory()
         image = course_run.image
         video = course_run.video
-        serializer = CourseRunSerializer(course_run)
+        serializer = CourseRunSerializer(course_run, context={'request': request})
 
         expected = {
             'course': course_run.course.key,
@@ -135,10 +137,27 @@ class CourseRunSerializerTests(TestCase):
             'instructors': [],
             'staff': [],
             'seats': [],
-            'modified': json_date_format(course_run.modified)  # pylint: disable=no-member
+            'modified': json_date_format(course_run.modified),  # pylint: disable=no-member
+            'marketing_url': '{url}?{params}'.format(
+                url=course_run.marketing_url,
+                params=urlencode({
+                    'utm_source': request.user.username,
+                    'utm_medium': request.user.referral_tracking_id,
+                })
+            ),
         }
 
         self.assertDictEqual(serializer.data, expected)
+
+    def test_data_url_none(self):
+        """
+        Verify that the course run serializer does not attempt to add URL
+        parameters if the course has no marketing URL.
+        """
+        course_run = CourseRunFactory(marketing_url=None)
+        request = make_request()
+        serializer = CourseRunSerializer(course_run, context={'request': request})
+        self.assertEqual(serializer.data['marketing_url'], None)
 
 
 class ContainedCourseRunsSerializerTests(TestCase):

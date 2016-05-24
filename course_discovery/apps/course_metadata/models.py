@@ -222,6 +222,7 @@ class CourseRun(TimeStampedModel):
     syllabus = models.ForeignKey(SyllabusItem, default=None, null=True, blank=True)
     image = models.ForeignKey(Image, default=None, null=True, blank=True)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
+    marketing_url = models.URLField(max_length=255, null=True, blank=True)
 
     history = HistoricalRecords()
 
