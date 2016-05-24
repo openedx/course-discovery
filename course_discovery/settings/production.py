@@ -1,9 +1,11 @@
 import platform
 import sys
+import warnings
 from logging.handlers import SysLogHandler
 from os import environ
 
 import certifi
+import MySQLdb
 import yaml
 
 from course_discovery.settings.base import *
@@ -72,3 +74,7 @@ HAYSTACK_CONNECTIONS['default'].update({
 
 for override, value in DB_OVERRIDES.items():
     DATABASES['default'][override] = value
+
+# NOTE (CCB): Treat all MySQL warnings as exceptions. This is especially
+# desired for truncation warnings, which hide potential data integrity issues.
+warnings.filterwarnings('error', category=MySQLdb.Warning)
