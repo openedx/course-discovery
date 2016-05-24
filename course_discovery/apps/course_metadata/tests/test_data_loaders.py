@@ -5,6 +5,7 @@ from decimal import Decimal
 from urllib.parse import parse_qs, urlparse
 
 import ddt
+import mock
 import responses
 from django.conf import settings
 from django.test import TestCase, override_settings
@@ -664,6 +665,25 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         self.assertFalse(Organization.objects.filter(key=self.ORPHAN_ORGANIZATION_KEY).exists())
         self.assertFalse(Person.objects.filter(key__startswith='orphan_staff_').exists())
         self.assertFalse(Organization.objects.filter(key__startswith='orphan_org_').exists())
+
+    @responses.activate
+    def test_ingest_exception_handling(self):
+        """ Verify the data loader properly handles exceptions during processing of the data from the API. """
+        data = self.mock_api()
+        # Include all data, except the empty array.
+        # TODO: Remove the -1 after ECOM-4493 is in production.
+        expected_call_count = len(data) - 1
+
+        with mock.patch.object(self.loader, 'clean_strings', side_effect=Exception):
+            with mock.patch('course_discovery.apps.course_metadata.data_loaders.logger') as mock_logger:
+                self.loader.ingest()
+                print(mock_logger.exception.call_args)
+                self.assertEqual(mock_logger.exception.call_count, expected_call_count)
+
+                # TODO: Change the -2 to -1 after ECOM-4493 is in production.
+                mock_logger.exception.call_args(
+                    'An error occurred while updating [%s] from [%s]!', data[-2]['course_id'], MARKETING_API_URL
+                )
 
     @ddt.data(
         ('', ''),

@@ -276,9 +276,13 @@ class DrupalApiDataLoader(AbstractDataLoader):
             if not body:
                 continue
 
-            cleaned_body = self.clean_strings(body)
-            course = self.update_course(cleaned_body)
-            self.update_course_run(course, cleaned_body)
+            course_run_id = body['course_id']
+            try:
+                cleaned_body = self.clean_strings(body)
+                course = self.update_course(cleaned_body)
+                self.update_course_run(course, cleaned_body)
+            except:  # pylint: disable=bare-except
+                logger.exception('An error occurred while updating [%s] from [%s]!', course_run_id, self.api_url)
 
         # Clean Organizations separately from other orphaned instances to avoid removing all orgnaziations
         # after an initial data load on an empty table.
