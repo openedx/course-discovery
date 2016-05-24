@@ -371,6 +371,12 @@ class DrupalApiDataLoader(AbstractDataLoader):
         iso_code = body['current_language']
         if iso_code is None:
             return None
+
+        # NOTE (CCB): Default to U.S. English for edx.org to avoid spewing
+        # unnecessary warnings.
+        if iso_code == 'en':
+            iso_code = 'en-us'
+
         try:
             return LanguageTag.objects.get(code=iso_code)
         except LanguageTag.DoesNotExist:
