@@ -26,10 +26,11 @@ from course_discovery.apps.course_metadata.tests.factories import (
 ACCESS_TOKEN = 'secret'
 ACCESS_TOKEN_TYPE = 'Bearer'
 COURSES_API_URL = 'https://lms.example.com/api/courses/v1'
-ORGANIZATIONS_API_URL = 'https://lms.example.com/api/organizations/v0'
-MARKETING_API_URL = 'https://example.com/api/catalog/v2/'
 ECOMMERCE_API_URL = 'https://ecommerce.example.com/api/v2'
+ENGLISH_LANGUAGE_TAG = LanguageTag(code='en-us', name='English - United States')
 JSON = 'application/json'
+MARKETING_API_URL = 'https://example.com/api/catalog/v2/'
+ORGANIZATIONS_API_URL = 'https://lms.example.com/api/organizations/v0'
 
 
 class AbstractDataLoaderTest(TestCase):
@@ -681,7 +682,8 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     @ddt.data(
         ({'current_language': ''}, None),
         ({'current_language': 'not-real'}, None),
-        ({'current_language': 'en-us'}, LanguageTag(code='en-us', name='English - United States')),
+        ({'current_language': 'en-us'}, ENGLISH_LANGUAGE_TAG),
+        ({'current_language': 'en'}, ENGLISH_LANGUAGE_TAG),
         ({'current_language': None}, None),
     )
     @ddt.unpack
