@@ -348,9 +348,12 @@ class DrupalApiDataLoader(AbstractDataLoader):
         except CourseRun.DoesNotExist:
             logger.warning('Could not find course run [%s]', course_run_key)
             return None
+
         course_run.language = self.get_language_tag(body)
         course_run.course = course
         course_run.marketing_url = urljoin(settings.MARKETING_URL_ROOT, body['course_about_uri'])
+        course_run.start = self.parse_date(body['start'])
+        course_run.end = self.parse_date(body['end'])
 
         self.set_staff(course_run, body)
 
