@@ -1,7 +1,4 @@
-import platform
-import sys
 import warnings
-from logging.handlers import SysLogHandler
 from os import environ
 
 import certifi
@@ -16,25 +13,7 @@ TEMPLATE_DEBUG = DEBUG
 
 ALLOWED_HOSTS = ['*']
 
-LOGGING['handlers']['local'] = {
-    'level': 'INFO',
-    'class': 'logging.handlers.SysLogHandler',
-    # Use a different address for Mac OS X
-    'address': '/var/run/syslog' if sys.platform == "darwin" else '/dev/log',
-    'formatter': 'syslog_format',
-    'facility': SysLogHandler.LOG_LOCAL0,
-}
-
-LOGGING['formatters']['syslog_format'] = {
-    format: (
-        "[service_variant=course_discovery]"
-        "[%(name)s][env:no_env] %(levelname)s "
-        "[{hostname}  %(process)d] [%(filename)s:%(lineno)d] "
-        "- %(message)s"
-    ).format(
-        hostname=platform.node().split(".")[0]
-    )
-}
+LOGGING['handlers']['local']['level'] = 'INFO'
 
 # Keep track of the names of settings that represent dicts. Instead of overriding the values in base.py,
 # the values read from disk should UPDATE the pre-configured dicts.
