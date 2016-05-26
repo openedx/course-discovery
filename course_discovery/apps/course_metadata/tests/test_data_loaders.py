@@ -467,6 +467,8 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             'items': [
                 {
                     'title': self.EXISTING_COURSE_AND_RUN_DATA[0]['title'],
+                    'start': '2015-06-15T13:00:00Z',
+                    'end': '2015-12-15T13:00:00Z',
                     'level': {
                         'title': 'Introductory',
                     },
@@ -502,6 +504,8 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                 },
                 {
                     'title': self.EXISTING_COURSE_AND_RUN_DATA[1]['title'],
+                    'start': '2015-06-15T13:00:00Z',
+                    'end': '2015-12-15T13:00:00Z',
                     'level': {
                         'title': 'Intermediate',
                     },
@@ -525,6 +529,8 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                 },
                 {  # Create a course which exists in LMS/Otto, but without course runs
                     'title': self.EXISTING_COURSE['title'],
+                    'start': '2015-06-15T13:00:00Z',
+                    'end': '2015-12-15T13:00:00Z',
                     'level': {
                         'title': 'Advanced',
                     },
@@ -551,6 +557,8 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                 },
                 {  # Create a fake course run which doesn't exist in LMS/Otto
                     'title': 'A partial course',
+                    'start': '2015-06-15T13:00:00Z',
+                    'end': '2015-12-15T13:00:00Z',
                     'level': {
                         'title': 'Advanced',
                     },
