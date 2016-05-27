@@ -186,9 +186,14 @@ class CoursesApiDataLoader(AbstractDataLoader):
                 page = None
 
             for body in results:
-                body = self.clean_strings(body)
-                course = self.update_course(body)
-                self.update_course_run(course, body)
+                course_run_id = body['id']
+
+                try:
+                    body = self.clean_strings(body)
+                    course = self.update_course(body)
+                    self.update_course_run(course, body)
+                except:  # pylint: disable=bare-except
+                    logger.exception('An error occurred while updating [%s] from [%s]!', course_run_id, self.api_url)
 
         logger.info('Retrieved %d course runs from %s.', count, self.api_url)
 

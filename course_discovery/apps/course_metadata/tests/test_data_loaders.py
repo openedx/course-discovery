@@ -348,6 +348,19 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         # Verify multiple calls to ingest data do NOT result in data integrity errors.
         self.loader.ingest()
 
+    @responses.activate
+    def test_ingest_exception_handling(self):
+        """ Verify the data loader properly handles exceptions during processing of the data from the API. """
+        data = self.mock_api()
+
+        with mock.patch.object(self.loader, 'clean_strings', side_effect=Exception):
+            with mock.patch('course_discovery.apps.course_metadata.data_loaders.logger') as mock_logger:
+                self.loader.ingest()
+                self.assertEqual(mock_logger.exception.call_count, len(data))
+                mock_logger.exception.assert_called_with(
+                    'An error occurred while updating [%s] from [%s]!', data[-1]['id'], self.api_url
+                )
+
     def test_get_pacing_type_field_missing(self):
         """ Verify the method returns None if the API response does not include a pacing field. """
         self.assertIsNone(self.loader.get_pacing_type({}))
@@ -685,12 +698,11 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         with mock.patch.object(self.loader, 'clean_strings', side_effect=Exception):
             with mock.patch('course_discovery.apps.course_metadata.data_loaders.logger') as mock_logger:
                 self.loader.ingest()
-                print(mock_logger.exception.call_args)
                 self.assertEqual(mock_logger.exception.call_count, expected_call_count)
 
                 # TODO: Change the -2 to -1 after ECOM-4493 is in production.
-                mock_logger.exception.call_args(
-                    'An error occurred while updating [%s] from [%s]!', data[-2]['course_id'], MARKETING_API_URL
+                mock_logger.exception.assert_called_with(
+                    'An error occurred while updating [%s] from [%s]!', data[-2]['course_id'], self.api_url
                 )
 
     @ddt.data(
