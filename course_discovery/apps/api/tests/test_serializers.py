@@ -297,11 +297,15 @@ class AffiliateWindowSerializerTests(TestCase):
         seat = SeatFactory(course_run=course_run)
         serializer = AffiliateWindowSerializer(seat)
 
+        # Verify none of the course run attributes are empty; otherwise, Affiliate Window will report errors.
+        # pylint: disable=no-member
+        self.assertTrue(all((course_run.title, course_run.short_description, course_run.marketing_url)))
+
         expected = {
             'pid': '{}-{}'.format(course_run.key, seat.type),
-            'name': course_run.course.title,
-            'desc': course_run.course.short_description,
-            'purl': course_run.course.marketing_url,
+            'name': course_run.title,
+            'desc': course_run.short_description,
+            'purl': course_run.marketing_url,
             'price': {
                 'actualp': seat.price
             },

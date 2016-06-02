@@ -9,6 +9,7 @@ from lxml import etree
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
+from course_discovery.apps.api.serializers import AffiliateWindowSerializer
 from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory
@@ -34,7 +35,6 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
         self.seat_verified = SeatFactory(course_run=self.course_run, type=Seat.VERIFIED)
         self.course = self.course_run.course
         self.affiliate_url = reverse('api:v1:partners:affiliate_window-detail', kwargs={'pk': self.catalog.id})
-        self.affiliate_window_category = 'Other Experiences'
         self.refresh_index()
 
     def test_without_authentication(self):
@@ -95,13 +95,13 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
     def assert_product_xml(self, content, seat):
         """ Helper method to verify product data in xml format. """
         self.assertEqual(content.find('pid').text, '{}-{}'.format(self.course_run.key, seat.type))
-        self.assertEqual(content.find('name').text, self.course_run.course.title)
-        self.assertEqual(content.find('desc').text, self.course_run.course.short_description)
-        self.assertEqual(content.find('purl').text, self.course_run.course.marketing_url)
+        self.assertEqual(content.find('name').text, self.course_run.title)
+        self.assertEqual(content.find('desc').text, self.course_run.short_description)
+        self.assertEqual(content.find('purl').text, self.course_run.marketing_url)
         self.assertEqual(content.find('imgurl').text, self.course_run.image.src)
         self.assertEqual(content.find('price/actualp').text, str(seat.price))
         self.assertEqual(content.find('currency').text, seat.currency.code)
-        self.assertEqual(content.find('category').text, self.affiliate_window_category)
+        self.assertEqual(content.find('category').text, AffiliateWindowSerializer.CATEGORY)
 
     def test_dtd_with_valid_data(self):
         """ Verify the XML data produced by the endpoint conforms to the DTD file. """
