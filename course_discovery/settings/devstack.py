@@ -2,7 +2,10 @@ from course_discovery.settings.production import *
 
 DEBUG = True
 
-del LOGGING['handlers']['local']
+# Docker does not support the syslog socket at /dev/log. Rely on the console.
+LOGGING['handlers']['local'] = {
+    'class': 'logging.NullHandler',
+}
 
 # TOOLBAR CONFIGURATION
 # See: http://django-debug-toolbar.readthedocs.org/en/latest/installation.html
