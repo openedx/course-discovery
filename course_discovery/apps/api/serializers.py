@@ -200,10 +200,15 @@ class ContainedCoursesSerializer(serializers.Serializer):  # pylint: disable=abs
 
 
 class AffiliateWindowSerializer(serializers.ModelSerializer):
+    """ Serializer for Affiliate Window product feeds. """
+
+    # We use a hardcoded value since it is determined by Affiliate Window's taxonomy.
+    CATEGORY = 'Other Experiences'
+
     pid = serializers.SerializerMethodField()
-    name = serializers.CharField(source='course_run.course.title')
-    desc = serializers.CharField(source='course_run.course.short_description')
-    purl = serializers.CharField(source='course_run.course.marketing_url')
+    name = serializers.CharField(source='course_run.title')
+    desc = serializers.CharField(source='course_run.short_description')
+    purl = serializers.CharField(source='course_run.marketing_url')
     imgurl = serializers.CharField(source='course_run.image')
     category = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
@@ -223,5 +228,4 @@ class AffiliateWindowSerializer(serializers.ModelSerializer):
         }
 
     def get_category(self, obj):  # pylint: disable=unused-argument
-        # Using hardcoded value for category. This value comes from an Affiliate Window taxonomy.
-        return 'Other Experiences'
+        return self.CATEGORY
