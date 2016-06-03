@@ -3,6 +3,7 @@ import logging
 
 import pytz
 from django.db import models
+from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from haystack.query import SearchQuerySet
@@ -147,12 +148,22 @@ class Course(TimeStampedModel):
 
     @property
     def active_course_runs(self):
-        """ Returns course runs currently open for enrollment, or opening in the future.
+        """ Returns course runs that have not yet ended and meet the following enrollment criteria:
+            - Open for enrollment
+            - OR will be open for enrollment in the future
+            - OR have no specified enrollment close date (e.g. self-paced courses)
 
         Returns:
             QuerySet
         """
-        return self.course_runs.filter(enrollment_end__gt=datetime.datetime.now(pytz.UTC))
+        now = datetime.datetime.now(pytz.UTC)
+        return self.course_runs.filter(
+            Q(end__gt=now) &
+            (
+                Q(enrollment_end__gt=now) |
+                Q(enrollment_end__isnull=True)
+            )
+        )
 
     @classmethod
     def search(cls, query):

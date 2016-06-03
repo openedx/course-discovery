@@ -21,11 +21,11 @@ class FuzzyURL(BaseFuzzyAttribute):
         tld = FuzzyChoice(('com', 'net', 'org', 'biz', 'pizza', 'coffee', 'diamonds', 'fail', 'win', 'wtf',))
         resource = FuzzyText()
         return "{protocol}://{subdomain}.{domain}.{tld}/{resource}".format(
-            protocol=protocol,
-            subdomain=subdomain,
-            domain=domain,
-            tld=tld,
-            resource=resource
+            protocol=protocol.fuzz(),
+            subdomain=subdomain.fuzz(),
+            domain=domain.fuzz(),
+            tld=tld.fuzz(),
+            resource=resource.fuzz()
         )
 
 

@@ -245,3 +245,88 @@ class AffiliateWindowSerializer(serializers.ModelSerializer):
 
     def get_category(self, obj):  # pylint: disable=unused-argument
         return self.CATEGORY
+
+
+class FlattenedCourseRunWithCourseSerializer(CourseRunSerializer):
+    seats = serializers.SerializerMethodField()
+    owners = serializers.SerializerMethodField()
+    sponsors = serializers.SerializerMethodField()
+    subjects = serializers.SerializerMethodField()
+    prerequisites = serializers.SerializerMethodField()
+    level_type = serializers.SerializerMethodField()
+    expected_learning_items = serializers.SerializerMethodField()
+    course_key = serializers.SerializerMethodField()
+
+    class Meta(object):
+        model = CourseRun
+        fields = (
+            'key', 'title', 'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites',
+            'start', 'end', 'enrollment_start', 'enrollment_end', 'announcement', 'seats', 'content_language',
+            'transcript_languages', 'instructors', 'staff', 'pacing_type', 'min_effort', 'max_effort', 'course_key',
+            'expected_learning_items', 'image', 'video', 'owners', 'sponsors', 'modified', 'marketing_url',
+        )
+
+    def get_seats(self, obj):
+        seats = {
+            'audit': {
+                'type': ''
+            },
+            'honor': {
+                'type': ''
+            },
+            'verified': {
+                'type': '',
+                'currency': '',
+                'price': '',
+                'upgrade_deadline': '',
+            },
+            'professional': {
+                'type': '',
+                'currency': '',
+                'price': '',
+                'upgrade_deadline': '',
+            },
+            'credit': {
+                'type': [],
+                'currency': [],
+                'price': [],
+                'upgrade_deadline': [],
+                'credit_provider': [],
+                'credit_hours': [],
+            },
+        }
+
+        for seat in obj.seats.all():
+            for key in seats[seat.type].keys():
+                if seat.type == 'credit':
+                    seats['credit'][key].append(SeatSerializer(seat).data[key])
+                else:
+                    seats[seat.type][key] = SeatSerializer(seat).data[key]
+
+        for credit_attr in seats['credit'].keys():
+            seats['credit'][credit_attr] = ','.join([str(e) for e in seats['credit'][credit_attr]])
+
+        return seats
+
+    def get_owners(self, obj):
+        return ','.join([owner.key for owner in obj.course.owners.all()])
+
+    def get_sponsors(self, obj):
+        return ','.join([sponsor.key for sponsor in obj.course.sponsors.all()])
+
+    def get_subjects(self, obj):
+        return ','.join([subject.name for subject in obj.course.subjects.all()])
+
+    def get_prerequisites(self, obj):
+        return ','.join([prerequisite.name for prerequisite in obj.course.prerequisites.all()])
+
+    def get_expected_learning_items(self, obj):
+        return ','.join(
+            [expected_learning_item.value for expected_learning_item in obj.course.expected_learning_items.all()]
+        )
+
+    def get_level_type(self, obj):
+        return obj.course.level_type
+
+    def get_course_key(self, obj):
+        return obj.course.key
