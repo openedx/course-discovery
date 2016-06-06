@@ -24,3 +24,11 @@ created; and, the alias will be assigned to the new index.
 .. code-block:: bash
 
     $ ./manage.py install_es_indexes
+
+Query String Syntax
+-------------------
+
+We use the query string syntax to search for courses. See `the Elasticsearch documentation`_ for a guide to the
+query string syntax, and :doc:`course_metadata` for a list of fields which can be searched.
+
+.. _the Elasticsearch documentation: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax

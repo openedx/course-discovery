@@ -33,10 +33,12 @@ def get_marketing_url_for_user(user, marketing_url):
 
 
 class TimestampModelSerializer(serializers.ModelSerializer):
+    """Serializer for timestamped models."""
     modified = serializers.DateTimeField()
 
 
 class NamedModelSerializer(serializers.ModelSerializer):
+    """Serializer for models inheriting from ``AbstractNamedModel``."""
     name = serializers.CharField()
 
     class Meta(object):
@@ -44,21 +46,25 @@ class NamedModelSerializer(serializers.ModelSerializer):
 
 
 class SubjectSerializer(NamedModelSerializer):
+    """Serializer for the ``Subject`` model."""
     class Meta(NamedModelSerializer.Meta):
         model = Subject
 
 
 class PrerequisiteSerializer(NamedModelSerializer):
+    """Serializer for the ``Prerequisite`` model."""
     class Meta(NamedModelSerializer.Meta):
         model = Prerequisite
 
 
 class MediaSerializer(serializers.ModelSerializer):
+    """Serializer for models inheriting from ``AbstractMediaModel``."""
     src = serializers.CharField()
     description = serializers.CharField()
 
 
 class ImageSerializer(MediaSerializer):
+    """Serializer for the ``Image`` model."""
     height = serializers.IntegerField()
     width = serializers.IntegerField()
 
@@ -68,6 +74,7 @@ class ImageSerializer(MediaSerializer):
 
 
 class VideoSerializer(MediaSerializer):
+    """Serializer for the ``Video`` model."""
     image = ImageSerializer()
 
     class Meta(object):
@@ -76,6 +83,7 @@ class VideoSerializer(MediaSerializer):
 
 
 class SeatSerializer(serializers.ModelSerializer):
+    """Serializer for the ``Seat`` model."""
     type = serializers.ChoiceField(
         choices=[name for name, __ in Seat.SEAT_TYPE_CHOICES]
     )
@@ -94,6 +102,7 @@ class SeatSerializer(serializers.ModelSerializer):
 
 
 class PersonSerializer(serializers.ModelSerializer):
+    """Serializer for the ``Person`` model."""
     profile_image = ImageSerializer()
 
     class Meta(object):
@@ -102,6 +111,7 @@ class PersonSerializer(serializers.ModelSerializer):
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
+    """Serializer for the ``Organization`` model."""
     logo_image = ImageSerializer()
 
     class Meta(object):
@@ -110,6 +120,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
 
 class CatalogSerializer(serializers.ModelSerializer):
+    """Serializer for the ``Catalog`` model."""
     courses_count = serializers.IntegerField(read_only=True, help_text=_('Number of courses contained in this catalog'))
     viewers = serializers.SlugRelatedField(slug_field='username', queryset=User.objects.all(), many=True,
                                            allow_null=True, allow_empty=True, required=False,
@@ -131,6 +142,7 @@ class CatalogSerializer(serializers.ModelSerializer):
 
 
 class CourseRunSerializer(TimestampModelSerializer):
+    """Serializer for the ``CourseRun`` model."""
     course = serializers.SlugRelatedField(read_only=True, slug_field='key')
     content_language = serializers.SlugRelatedField(
         read_only=True, slug_field='code', source='language',
@@ -158,6 +170,7 @@ class CourseRunSerializer(TimestampModelSerializer):
 
 
 class ContainedCourseRunsSerializer(serializers.Serializer):  # pylint: disable=abstract-method
+    """Serializer used to represent course runs contained by a catalog."""
     course_runs = serializers.DictField(
         child=serializers.BooleanField(),
         help_text=_('Dictionary mapping course run IDs to boolean values')
@@ -165,6 +178,7 @@ class ContainedCourseRunsSerializer(serializers.Serializer):  # pylint: disable=
 
 
 class CourseSerializer(TimestampModelSerializer):
+    """Serializer for the ``Course`` model."""
     level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
     subjects = SubjectSerializer(many=True)
     prerequisites = PrerequisiteSerializer(many=True)
@@ -189,10 +203,12 @@ class CourseSerializer(TimestampModelSerializer):
 
 
 class CourseSerializerExcludingClosedRuns(CourseSerializer):
+    """A ``CourseSerializer`` which only includes active course runs, as determined by ``CourseQuerySet``."""
     course_runs = CourseRunSerializer(many=True, source='active_course_runs')
 
 
 class ContainedCoursesSerializer(serializers.Serializer):  # pylint: disable=abstract-method
+    """Serializer used to represent courses contained by a catalog."""
     courses = serializers.DictField(
         child=serializers.BooleanField(),
         help_text=_('Dictionary mapping course IDs to boolean values')

@@ -11,6 +11,9 @@ A service for serving course discovery and marketing information to partners, mo
    :maxdepth: 2
 
    getting_started
+   api
+   catalogs
+   course_metadata
    elasticsearch
    testing
    features
