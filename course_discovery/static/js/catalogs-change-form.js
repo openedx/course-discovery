@@ -2,8 +2,7 @@ var $ = django.jQuery;
 
 
 $(function () {
-    var $prettifyBtn,
-        $previewBtn,
+    var $previewBtn,
         $previewRow,
         $queryRow = $('.form-row.field-query'),
         $queryField = $('#id_query');
@@ -12,23 +11,6 @@ $(function () {
     // to align the button witth the text input field.
     $previewRow = $('<div><label></label></div>');
     $queryRow.append($previewRow);
-
-    // Create a prettify button
-    $prettifyBtn = $('<button/>', {
-        // Translators: "Prettify" means formatting the JSON, fixing alignment issues.
-        text: gettext('Prettify'),
-        click: function (e) {
-            var query = $queryField.val();
-            e.preventDefault();
-
-            if (query) {
-                query = JSON.stringify(JSON.parse(query), null, 2);
-                $queryField.val(query);
-            }
-        }
-    });
-
-    $previewRow.append($prettifyBtn);
 
     // Create a preview button
     $previewBtn = $('<button/>', {
