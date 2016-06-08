@@ -84,8 +84,13 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
 
     def test_with_closed_enrollment(self):
         """ Verify that endpoint returns no data if enrollment is close. """
-        self.course_run.enrollment_end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=-100)
+        self.course_run.enrollment_end = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=100)
+        self.course_run.end = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=100)
         self.course_run.save()
+
+        # new course run with future end date and no enrollment_date.
+        CourseRunFactory(end=self.course_end, course=self.course, enrollment_end=None)
+
         response = self.client.get(self.affiliate_url)
 
         self.assertEqual(response.status_code, 200)

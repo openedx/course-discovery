@@ -1,3 +1,4 @@
+import datetime
 import logging
 import os
 from io import StringIO
@@ -5,10 +6,12 @@ from io import StringIO
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.db import transaction
+from django.db.models import Q
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404
 from dry_rest_permissions.generics import DRYPermissions
 from edx_rest_framework_extensions.permissions import IsSuperuser
+import pytz
 from rest_framework import status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import PermissionDenied
@@ -304,8 +307,12 @@ class AffiliateWindowViewSet(viewsets.ViewSet):
             raise PermissionDenied
 
         courses = catalog.courses().active()
+
         seats = Seat.objects.filter(
-            course_run__course__in=courses, type__in=[Seat.VERIFIED, Seat.PROFESSIONAL]
+            (Q(course_run__end__gte=datetime.datetime.now(pytz.UTC)) | Q(course_run__end__isnull=True)) &
+            Q(course_run__course__in=courses) & Q(type__in=[Seat.VERIFIED, Seat.PROFESSIONAL]) &
+            (Q(course_run__enrollment_end__isnull=True) |
+             Q(course_run__enrollment_end__gte=datetime.datetime.now(pytz.UTC)))
         )
 
         serializer = AffiliateWindowSerializer(seats, many=True)
