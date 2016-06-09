@@ -38,7 +38,7 @@ entry point, as it defines the APIs that this service will support.
 Documentation
 -------------
 
-The docs for Course Discovery Service will be on Read the Docs:  https://open-edx-course-discovery.readthedocs.org.
+The docs for Course Discovery Service will be on Read the Docs:  https://open-edx-course-catalog.readthedocs.org.
 
 License
 -------
