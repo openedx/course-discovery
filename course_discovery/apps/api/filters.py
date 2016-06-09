@@ -16,10 +16,10 @@ class PermissionsFilter(DRYPermissionFiltersBase):
 
         Raises:
             PermissionDenied -- If a username querystring parameter is specified, but the user is not a staff user.
-            Http404 -- If no `User` corresponding to the given username exists.
+            Http404 -- If no User corresponding to the given username exists.
 
         Returns:
-            `QuerySet`
+            QuerySet
         """
         perm = queryset.model.get_permission('view')
         user = request.user

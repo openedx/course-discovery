@@ -12,6 +12,7 @@
 # serve to show the default.
 
 import os
+import sys
 
 # on_rtd is whether we are on readthedocs.org
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
@@ -25,6 +26,14 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 # sys.path.insert(0, os.path.abspath('.'))
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(REPO_ROOT)
+
+# Specify settings module (which will be picked up from the sandbox)
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'course_discovery.settings.docs_settings')
+
+import django
+django.setup()
 
 # -- General configuration -----------------------------------------------------
 
@@ -33,7 +42,7 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = []
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
