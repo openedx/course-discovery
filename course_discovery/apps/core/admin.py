@@ -11,9 +11,9 @@ from course_discovery.apps.core.models import User, UserThrottleRate, Currency
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     """ Admin configuration for the custom User model. """
-    list_display = ('username', 'email', 'full_name', 'first_name', 'last_name', 'is_staff')
+    list_display = ('username', 'email', 'full_name', 'first_name', 'last_name', 'is_staff', 'referral_tracking_id')
     fieldsets = (
-        (None, {'fields': ('username', 'password')}),
+        (None, {'fields': ('username', 'password', 'referral_tracking_id')}),
         (_('Personal info'), {'fields': ('full_name', 'first_name', 'last_name', 'email')}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
