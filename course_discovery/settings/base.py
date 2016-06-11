@@ -202,6 +202,7 @@ PLATFORM_NAME = 'Your Platform Name Here'
 level = 'DEBUG' if DEBUG else 'INFO'
 hostname = platform.node().split(".")[0]
 
+# Use a different address for Mac OS X
 syslog_address = '/var/run/syslog' if platform.system().lower() == 'darwin' else '/dev/log'
 syslog_format = '[service_variant=discovery][%(name)s] %(levelname)s [{hostname}  %(process)d] ' \
                 '[%(pathname)s:%(lineno)d] - %(message)s'.format(hostname=hostname)
@@ -225,7 +226,6 @@ LOGGING = {
         'local': {
             'level': level,
             'class': 'logging.handlers.SysLogHandler',
-            # Use a different address for Mac OS X
             'address': syslog_address,
             'formatter': 'syslog_format',
             'facility': SysLogHandler.LOG_LOCAL0,
