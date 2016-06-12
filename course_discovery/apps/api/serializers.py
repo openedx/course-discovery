@@ -1,15 +1,45 @@
+# pylint: disable=abstract-method
+
+import datetime
 from urllib.parse import urlencode
 
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
+from drf_haystack.serializers import HaystackSerializer, HaystackFacetSerializer
 from rest_framework import serializers
 
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Image, Organization, Person, Prerequisite, Seat, Subject, Video
 )
+from course_discovery.apps.course_metadata.search_indexes import CourseIndex, CourseRunIndex
 
 User = get_user_model()
+
+COMMON_IGNORED_FIELDS = ('text',)
+COMMON_SEARCH_FIELD_ALIASES = {
+    'q': 'text',
+}
+COURSE_RUN_FACET_FIELD_OPTIONS = {
+    'level_type': {},
+    'organizations': {},
+    'prerequisites': {},
+    'subjects': {},
+    'language': {},
+    'transcript_languages': {},
+    'pacing_type': {},
+    'start': {
+        "start_date": datetime.datetime.now() - datetime.timedelta(days=365),
+        "end_date": datetime.datetime.now(),
+        "gap_by": "month",
+        "gap_amount": 1,
+    },
+    'content_type': {},
+}
+COURSE_RUN_SEARCH_FIELDS = (
+    'key', 'title', 'short_description', 'full_description', 'start', 'end', 'enrollment_start', 'enrollment_end',
+    'pacing_type', 'language', 'transcript_languages', 'marketing_url', 'text',
+)
 
 
 def get_marketing_url_for_user(user, marketing_url):
@@ -47,12 +77,14 @@ class NamedModelSerializer(serializers.ModelSerializer):
 
 class SubjectSerializer(NamedModelSerializer):
     """Serializer for the ``Subject`` model."""
+
     class Meta(NamedModelSerializer.Meta):
         model = Subject
 
 
 class PrerequisiteSerializer(NamedModelSerializer):
     """Serializer for the ``Prerequisite`` model."""
+
     class Meta(NamedModelSerializer.Meta):
         model = Prerequisite
 
@@ -169,7 +201,7 @@ class CourseRunSerializer(TimestampModelSerializer):
         return get_marketing_url_for_user(self.context['request'].user, obj.marketing_url)
 
 
-class ContainedCourseRunsSerializer(serializers.Serializer):  # pylint: disable=abstract-method
+class ContainedCourseRunsSerializer(serializers.Serializer):
     """Serializer used to represent course runs contained by a catalog."""
     course_runs = serializers.DictField(
         child=serializers.BooleanField(),
@@ -207,7 +239,7 @@ class CourseSerializerExcludingClosedRuns(CourseSerializer):
     course_runs = CourseRunSerializer(many=True, source='active_course_runs')
 
 
-class ContainedCoursesSerializer(serializers.Serializer):  # pylint: disable=abstract-method
+class ContainedCoursesSerializer(serializers.Serializer):
     """Serializer used to represent courses contained by a catalog."""
     courses = serializers.DictField(
         child=serializers.BooleanField(),
@@ -330,3 +362,70 @@ class FlattenedCourseRunWithCourseSerializer(CourseRunSerializer):
 
     def get_course_key(self, obj):
         return obj.course.key
+
+
+class CourseSearchSerializer(HaystackSerializer):
+    content_type = serializers.CharField(source='model_name')
+
+    class Meta:
+        field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        fields = ('key', 'title', 'short_description', 'full_description', 'text',)
+        ignore_fields = COMMON_IGNORED_FIELDS
+        index_classes = [CourseIndex]
+
+
+class CourseFacetSerializer(HaystackFacetSerializer):
+    serialize_objects = True
+
+    class Meta:
+        field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        field_options = {
+            'level_type': {},
+            'organizations': {},
+            'prerequisites': {},
+            'subjects': {},
+        }
+        ignore_fields = COMMON_IGNORED_FIELDS
+
+
+class CourseRunSearchSerializer(HaystackSerializer):
+    content_type = serializers.CharField(source='model_name')
+
+    class Meta:
+        field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        fields = COURSE_RUN_SEARCH_FIELDS
+        ignore_fields = COMMON_IGNORED_FIELDS
+        index_classes = [CourseRunIndex]
+
+
+class CourseRunFacetSerializer(HaystackFacetSerializer):
+    serialize_objects = True
+
+    class Meta:
+        field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        field_options = COURSE_RUN_FACET_FIELD_OPTIONS
+        ignore_fields = COMMON_IGNORED_FIELDS
+
+
+class AggregateSearchSerializer(HaystackSerializer):
+    class Meta:
+        field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        fields = COURSE_RUN_SEARCH_FIELDS
+        ignore_fields = COMMON_IGNORED_FIELDS
+        serializers = {
+            CourseRunIndex: CourseRunSearchSerializer,
+            CourseIndex: CourseSearchSerializer,
+        }
+
+
+class AggregateFacetSearchSerializer(HaystackFacetSerializer):
+    serialize_objects = True
+
+    class Meta:
+        field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        field_options = COURSE_RUN_FACET_FIELD_OPTIONS
+        ignore_fields = COMMON_IGNORED_FIELDS
+        serializers = {
+            CourseRunIndex: CourseRunFacetSerializer,
+            CourseIndex: CourseFacetSerializer,
+        }
