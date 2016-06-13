@@ -6,23 +6,23 @@ The meat of the Course Catalog API is located in this app. ``v1`` is the current
 API Views
 ---------
 
-.. automodule:: course_discovery.apps.api.v1.views
+.. automodule:: course_catalog.apps.api.v1.views
    :members:
 
 Serializers
 -----------
 
-.. automodule:: course_discovery.apps.api.serializers
+.. automodule:: course_catalog.apps.api.serializers
    :members:
 
 Renderers
 ---------
 
-.. automodule:: course_discovery.apps.api.renderers
+.. automodule:: course_catalog.apps.api.renderers
    :members:
 
 Permissions
 -----------
 
-.. autoclass:: course_discovery.apps.api.filters.PermissionsFilter
+.. autoclass:: course_catalog.apps.api.filters.PermissionsFilter
    :members:

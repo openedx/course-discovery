@@ -1,4 +1,4 @@
-# Discovery IDA: upstream API definitions, including vendor extensions.
+# catalog IDA: upstream API definitions, including vendor extensions.
 # Note, while this document is not strictly to Swagger spec, each HTTP method"s
 #  definition _must_ be to spec or the downstream ref will fail.
 
@@ -80,7 +80,7 @@ endpoints:
           responses: *responses
           x-amazon-apigateway-integration:
             <<: *apigateway_integration
-            uri: "https://${stageVariables.discovery_host}/v1/catalogs/"
+            uri: "https://${stageVariables.catalog_host}/v1/catalogs/"
 
     # /v1/catalogs/{id}
     catalogById:
@@ -93,7 +93,7 @@ endpoints:
           responses: *responses
           x-amazon-apigateway-integration:
             <<: *apigateway_integration_with_id_parameter
-            uri: "https://${stageVariables.discovery_host}/v1/catalogs/{id}/"
+            uri: "https://${stageVariables.catalog_host}/v1/catalogs/{id}/"
 
     # /v1/catalogs/{id}/courses
     catalogCourses:
@@ -106,4 +106,4 @@ endpoints:
           responses: *responses
           x-amazon-apigateway-integration:
             <<: *apigateway_integration_with_id_parameter
-            uri: "https://${stageVariables.discovery_host}/v1/catalogs/{id}/courses/"
+            uri: "https://${stageVariables.catalog_host}/v1/catalogs/{id}/courses/"

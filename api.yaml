@@ -51,7 +51,7 @@ endpoints:
             default:
               statusCode: "400"
           type: http
-          uri: "https://${stageVariables.discovery_host}/v1/catalogs/"
+          uri: "https://${stageVariables.catalog_host}/v1/catalogs/"
     catalogById:
       get:
         operationId: get_catalog_by_id
@@ -105,7 +105,7 @@ endpoints:
             default:
               statusCode: "400"
           type: http
-          uri: "https://${stageVariables.discovery_host}/v1/catalogs/{id}/"
+          uri: "https://${stageVariables.catalog_host}/v1/catalogs/{id}/"
     catalogCourses:
       get:
         operationId: get_catalog_courses
@@ -159,4 +159,4 @@ endpoints:
             default:
               statusCode: "400"
           type: http
-          uri: "https://${stageVariables.discovery_host}/v1/catalogs/{id}/courses/"
+          uri: "https://${stageVariables.catalog_host}/v1/catalogs/{id}/courses/"

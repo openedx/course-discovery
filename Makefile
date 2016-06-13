@@ -32,7 +32,7 @@ static:
 	python manage.py collectstatic --noinput
 
 clean_static:
-	rm -rf assets/ course_discovery/static/build
+	rm -rf assets/ course_catalog/static/build
 
 clean: clean_static
 	find . -name '*.pyc' -delete
@@ -45,12 +45,12 @@ production-requirements:
 	pip install -r requirements.txt --exists-action w
 
 test: clean
-	coverage run ./manage.py test course_discovery --settings=course_discovery.settings.test
+	coverage run ./manage.py test course_catalog --settings=course_catalog.settings.test
 	coverage report
 
 quality:
-	pep8 --config=.pep8 acceptance_tests course_discovery *.py
-	pylint --rcfile=pylintrc acceptance_tests course_discovery *.py
+	pep8 --config=.pep8 acceptance_tests course_catalog *.py
+	pylint --rcfile=pylintrc acceptance_tests course_catalog *.py
 
 validate: quality test
 
@@ -66,7 +66,7 @@ extract_translations:
 	python manage.py makemessages -l en -v1 -d djangojs
 
 dummy_translations:
-	cd course_discovery && i18n_tool dummy
+	cd course_catalog && i18n_tool dummy
 
 compile_translations:
 	python manage.py compilemessages
@@ -84,7 +84,7 @@ start-devstack:
 
 open-devstack:
 	docker-compose up -d
-	docker exec -it course-discovery env TERM=$(TERM) /edx/app/discovery/devstack.sh open
+	docker exec -it course-catalog env TERM=$(TERM) /edx/app/catalog/devstack.sh open
 
 accept:
 	nosetests --with-ignore-docstrings -v acceptance_tests

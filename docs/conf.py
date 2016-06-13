@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Course Discovery Service documentation build configuration file, created by
+# Course catalog Service documentation build configuration file, created by
 # sphinx-quickstart on Sun Feb 17 11:46:20 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -30,7 +30,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(REPO_ROOT)
 
 # Specify settings module (which will be picked up from the sandbox)
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'course_discovery.settings.docs_settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'course_catalog.settings.docs_settings')
 
 import django
 django.setup()
@@ -57,7 +57,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Course Discovery Service'
+project = u'Course catalog Service'
 copyright = u'2015, edX'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -181,7 +181,7 @@ html_static_path = ['_static']
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'course_discoverydoc'
+htmlhelp_basename = 'course_catalogdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -200,7 +200,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ('index', 'course_discovery.tex', u'Course Discovery Service Documentation',
+    ('index', 'course_catalog.tex', u'Course catalog Service Documentation',
      u'edX', 'manual'),
 ]
 
@@ -230,7 +230,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'Course Discovery Service', u'Course Discovery Service Documentation',
+    ('index', 'Course catalog Service', u'Course catalog Service Documentation',
      [u'edX'], 1)
 ]
 
@@ -244,8 +244,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'Course Discovery Service', u'Course Discovery Service Documentation',
-     u'edX', 'Course Discovery Service', 'Course Discovery Service',
+    ('index', 'Course catalog Service', u'Course catalog Service Documentation',
+     u'edX', 'Course catalog Service', 'Course catalog Service',
      'Miscellaneous'
      ),
 ]

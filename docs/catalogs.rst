@@ -2,9 +2,9 @@ Catalogs
 ========
 
 A catalog is modeled as an Elasticsearch query (see :doc:`elasticsearch`) returning a
-list of courses. The ``Catalog`` model lives in :file:`course_discovery/apps/catalogs/models.py`.
+list of courses. The ``Catalog`` model lives in :file:`course_catalog/apps/catalogs/models.py`.
 
-.. autoclass:: course_discovery.apps.catalogs.models.Catalog
+.. autoclass:: course_catalog.apps.catalogs.models.Catalog
    :members:
 
 Permissions

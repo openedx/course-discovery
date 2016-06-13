@@ -19,8 +19,8 @@ Dependencies can be installed via the command below.
 Local/Private Settings
 ----------------------
 When developing locally, it may be useful to have settings overrides that you do not wish to commit to the repository.
-If you need such overrides, create a file :file:`course_discovery/settings/private.py`. This file's values are
-read by :file:`course_discovery/settings/local.py`, but ignored by Git.
+If you need such overrides, create a file :file:`course_catalog/settings/private.py`. This file's values are
+read by :file:`course_catalog/settings/local.py`, but ignored by Git.
 
 
 Configure edX OpenID Connect (OIDC)
@@ -29,7 +29,7 @@ This service relies on the edX OIDC (`OpenID Connect`_) authentication provider 
 OAuth 2.0, and this document may use the terms interchangeably. Under our current architecture the LMS serves as our
 authentication provider.
 
-Configuring Course Discovery Service to work with OIDC requires registering a new client with the authentication
+Configuring Course catalog Service to work with OIDC requires registering a new client with the authentication
 provider and updating the Django settings for this project with the client credentials.
 
 .. _OpenID Connect: http://openid.net/specs/openid-connect-core-1_0.html
@@ -39,7 +39,7 @@ A new OAuth 2.0 client can be created at ``http://127.0.0.1:8000/admin/oauth2/cl
 
     1. Click the :guilabel:`Add client` button.
     2. Leave the user field blank.
-    3. Specify the name of this service, ``Course Discovery Service``, as the client name.
+    3. Specify the name of this service, ``Course catalog Service``, as the client name.
     4. Set the :guilabel:`URL` to the root path of this service: ``http://localhost:8003/``.
     5. Set the :guilabel:`Redirect URL` to the OIDC client endpoint: ``https://localhost:8003/complete/edx-oidc/``.
     6. Copy the :guilabel:`Client ID` and :guilabel:`Client Secret` values. They will be used later.
@@ -47,7 +47,7 @@ A new OAuth 2.0 client can be created at ``http://127.0.0.1:8000/admin/oauth2/cl
     8. Click :guilabel:`Save`.
 
 Now that you have the client credentials, you can update your settings (ideally in
-:file:`course_discovery/settings/local.py`). The table below describes the relevant settings.
+:file:`course_catalog/settings/local.py`). The table below describes the relevant settings.
 
 +-----------------------------------------------------+----------------------------------------------------------------------------+--------------------------------------------------------------------------+
 | Setting                                             | Description                                                                | Value                                                                    |
@@ -76,7 +76,7 @@ your settings and created the database (if necessary). Migrations can be run wit
 
 Run the server
 --------------
-The server can be run with `Docker Compose`_. This will start the Course Discovery service, and all of the
+The server can be run with `Docker Compose`_. This will start the Course catalog service, and all of the
 services that it depends on.
 
 .. code-block:: bash

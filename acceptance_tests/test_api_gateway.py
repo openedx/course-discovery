@@ -15,7 +15,7 @@ class ApiGatewayTests(TestCase):
         'catalogs/{id}/courses/'.format(id=CATALOG_ID),
     )
 
-    def get_discovery_api_gateway_url(self, path):
+    def get_catalog_api_gateway_url(self, path):
         """ Returns a complete URL for the given path, routed through the API gateway. """
         return '{root}/{path}'.format(root=API_GATEWAY_CATALOG_ROOT.rstrip('/'), path=path)
 
@@ -28,7 +28,7 @@ class ApiGatewayTests(TestCase):
             expected_status_code (int) -- Expected HTTP status code of the API response.
             headers (dict) -- Headers to pass with the request.
         """
-        url = self.get_discovery_api_gateway_url(path)
+        url = self.get_catalog_api_gateway_url(path)
         response = requests.get(url, headers=headers)
         self.assertEqual(response.status_code, expected_status_code)
 

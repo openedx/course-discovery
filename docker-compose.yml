@@ -9,7 +9,7 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_USER: "discov001"
       MYSQL_PASSWORD: "password"
-      MYSQL_DATABASE: "discovery"
+      MYSQL_DATABASE: "catalog"
     ports:
       - "3306:3306"
 
@@ -26,18 +26,18 @@ services:
     image: memcached:1.4.24
     container_name: memcache
 
-  course-discovery:
-    # Uncomment this line to use the official course-discovery base image
-    image: edxops/course-discovery:latest
+  course-catalog:
+    # Uncomment this line to use the official course-catalog base image
+    image: edxops/course-catalog:latest
 
     # Uncomment the next two lines to build from a local configuration repo
     #build: ../configuration
-    #dockerfile: docker/build/discovery/Dockerfile
+    #dockerfile: docker/build/catalog/Dockerfile
 
-    container_name: course-discovery
+    container_name: course-catalog
     volumes:
-      - .:/edx/app/discovery/discovery
-    command: /edx/app/discovery/devstack.sh start
+      - .:/edx/app/catalog/catalog
+    command: /edx/app/catalog/devstack.sh start
     depends_on:
       - "db"
       - "es"
