@@ -6,6 +6,14 @@ below is executed within the virtualenv.
 
 .. _virtualenv: https://virtualenvwrapper.readthedocs.org/en/latest/
 
+.. note:: Installing virtualenvwrapper with pip on OS X El Capitan may result
+   in a strange OSError due to `a compatibility issue with the six package
+   <https://github.com/pypa/pip/issues/3165>`_. In this case, instruct pip to
+   ignore six:
+
+   .. code-block:: bash
+
+       $ pip install virtualenvwrapper --upgrade --ignore-installed six
 
 Install dependencies
 --------------------
@@ -47,7 +55,7 @@ A new OAuth 2.0 client can be created at ``http://127.0.0.1:8000/admin/oauth2/cl
     8. Click :guilabel:`Save`.
 
 Now that you have the client credentials, you can update your settings (ideally in
-:file:`course_discovery/settings/local.py`). The table below describes the relevant settings.
+:file:`course_discovery/settings/private.py`). The table below describes the relevant settings.
 
 +-----------------------------------------------------+----------------------------------------------------------------------------+--------------------------------------------------------------------------+
 | Setting                                             | Description                                                                | Value                                                                    |

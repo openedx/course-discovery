@@ -22,6 +22,12 @@ The ``refresh_course_metadata`` command in :file:`course_discovery/apps/course_m
 loaders should be idempotent -- that is, running this command once will populate the database, and if nothing has
 changed upstream then running it again should not change the database.
 
+For example, if you use the JWT access token "secret-ecommerce-key" to authenticate API calls, run the following:
+
+.. code-block:: bash
+
+    $ ./manage.py refresh_course_metadata --access_token secret-ecommerce-key --token_type jwt
+
 QuerySets
 ---------
 
