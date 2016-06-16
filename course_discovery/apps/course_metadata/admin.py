@@ -21,6 +21,7 @@ class CourseAdmin(admin.ModelAdmin):
     inlines = (CourseOrganizationInline,)
     list_display = ('key', 'title',)
     ordering = ('key', 'title',)
+    search_fields = ('key', 'title',)
 
 
 @admin.register(CourseRun)
@@ -28,6 +29,7 @@ class CourseRunAdmin(admin.ModelAdmin):
     inlines = (SeatInline,)
     list_display = ('key', 'title',)
     ordering = ('key',)
+    search_fields = ('key', 'title_override', 'course__title',)
 
 
 class KeyNameAdmin(admin.ModelAdmin):
