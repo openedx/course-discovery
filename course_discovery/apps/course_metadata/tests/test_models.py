@@ -51,13 +51,26 @@ class CourseTests(TestCase):
         # pylint: disable=no-member
         self.assertListEqual(list(self.course.active_course_runs), [])
 
+        # Create course with end date in future and enrollment_end in past.
+        end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=2)
         enrollment_end = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1)
-        factories.CourseRunFactory(course=self.course, enrollment_end=enrollment_end)
+        factories.CourseRunFactory(course=self.course, end=end, enrollment_end=enrollment_end)
+
+        # Create course with end date in past and no enrollment_end.
+        end = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=2)
+        factories.CourseRunFactory(course=self.course, end=end, enrollment_end=None)
+
         self.assertListEqual(list(self.course.active_course_runs), [])
 
+        # Create course with end date in future and enrollment_end in future.
+        end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=2)
         enrollment_end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
-        active = factories.CourseRunFactory(course=self.course, enrollment_end=enrollment_end)
-        self.assertListEqual(list(self.course.active_course_runs), [active])
+        active_enrollment_end = factories.CourseRunFactory(course=self.course, end=end, enrollment_end=enrollment_end)
+
+        # Create course with end date in future and no enrollment_end.
+        active_no_enrollment_end = factories.CourseRunFactory(course=self.course, end=end, enrollment_end=None)
+
+        self.assertEqual(set(self.course.active_course_runs), {active_enrollment_end, active_no_enrollment_end})
 
     def test_search(self):
         """ Verify the method returns a filtered queryset of courses. """

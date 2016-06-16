@@ -15,7 +15,7 @@ from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, SeatFactory
 
 User = get_user_model()
 
@@ -148,12 +148,78 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
     def test_contains(self):
         """ Verify the endpoint returns a filtered list of courses contained in the catalog. """
         course_key = self.course.key
-        qs = urllib.parse.urlencode({'course_id': course_key})
-        url = '{}?{}'.format(reverse('api:v1:catalog-contains', kwargs={'id': self.catalog.id}), qs)
+        query_string = urllib.parse.urlencode({'course_id': course_key})
+        url = '{base_url}?{query_string}'.format(
+            base_url=reverse('api:v1:catalog-contains', kwargs={'id': self.catalog.id}),
+            query_string=query_string
+        )
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, {'courses': {course_key: True}})
+
+    def test_csv(self):
+        SeatFactory(type='audit', course_run=self.course_run)
+        SeatFactory(type='verified', course_run=self.course_run)
+        SeatFactory(type='credit', course_run=self.course_run, credit_provider='ASU', credit_hours=9)
+        SeatFactory(type='credit', course_run=self.course_run, credit_provider='Hogwarts', credit_hours=4)
+
+        url = reverse('api:v1:catalog-csv', kwargs={'id': self.catalog.id})
+        response = self.client.get(url)
+
+        course_run = self.serialize_catalog_flat_course_run(self.course_run)
+        course_run_csv = ','.join([
+            course_run['key'],
+            course_run['title'],
+            course_run['pacing_type'],
+            course_run['start'],
+            course_run['end'],
+            course_run['enrollment_start'],
+            course_run['enrollment_end'],
+            course_run['announcement'],
+            course_run['full_description'],
+            course_run['short_description'],
+            course_run['marketing_url'],
+            course_run['image']['src'],
+            course_run['image']['description'],
+            str(course_run['image']['height']),
+            str(course_run['image']['width']),
+            course_run['video']['src'],
+            course_run['video']['description'],
+            course_run['video']['image']['src'],
+            course_run['video']['image']['description'],
+            str(course_run['video']['image']['height']),
+            str(course_run['video']['image']['width']),
+            course_run['content_language'],
+            str(course_run['level_type']),
+            str(course_run['max_effort']),
+            str(course_run['min_effort']),
+            course_run['subjects'],
+            course_run['expected_learning_items'],
+            course_run['prerequisites'],
+            course_run['owners'],
+            course_run['sponsors'],
+            course_run['seats']['audit']['type'],
+            course_run['seats']['honor']['type'],
+            course_run['seats']['professional']['type'],
+            str(course_run['seats']['professional']['price']),
+            course_run['seats']['professional']['currency'],
+            course_run['seats']['professional']['upgrade_deadline'],
+            course_run['seats']['verified']['type'],
+            str(course_run['seats']['verified']['price']),
+            course_run['seats']['verified']['currency'],
+            course_run['seats']['verified']['upgrade_deadline'],
+            '"{}"'.format(course_run['seats']['credit']['type']),
+            '"{}"'.format(str(course_run['seats']['credit']['price'])),
+            '"{}"'.format(course_run['seats']['credit']['currency']),
+            '"{}"'.format(course_run['seats']['credit']['upgrade_deadline']),
+            '"{}"'.format(course_run['seats']['credit']['credit_provider']),
+            '"{}"'.format(course_run['seats']['credit']['credit_hours']),
+            course_run['modified'],
+        ])
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(course_run_csv, response.content.decode('utf-8'))
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single catalog. """

@@ -3,15 +3,16 @@ import logging
 import os
 from io import StringIO
 
+import pytz
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.db import transaction
 from django.db.models import Q
 from django.db.models.functions import Lower
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from dry_rest_permissions.generics import DRYPermissions
 from edx_rest_framework_extensions.permissions import IsSuperuser
-import pytz
 from rest_framework import status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import PermissionDenied
@@ -19,10 +20,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api.filters import PermissionsFilter
-from course_discovery.apps.api.renderers import AffiliateWindowXMLRenderer
+from course_discovery.apps.api.renderers import AffiliateWindowXMLRenderer, CourseRunCSVRenderer
 from course_discovery.apps.api.serializers import (
     CatalogSerializer, CourseSerializer, CourseRunSerializer, ContainedCoursesSerializer,
-    CourseSerializerExcludingClosedRuns, AffiliateWindowSerializer, ContainedCourseRunsSerializer
+    CourseSerializerExcludingClosedRuns, AffiliateWindowSerializer, ContainedCourseRunsSerializer,
+    FlattenedCourseRunWithCourseSerializer
 )
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
@@ -136,6 +138,34 @@ class CatalogViewSet(viewsets.ModelViewSet):
         instance = {'courses': courses}
         serializer = ContainedCoursesSerializer(instance)
         return Response(serializer.data)
+
+    @detail_route()
+    def csv(self, request, id=None):  # pylint: disable=redefined-builtin,unused-argument
+        """
+        Retrieve a CSV containing the course runs contained within this catalog.
+
+        Only active course runs are returned. A course run is considered active if it is currently
+        open for enrollment, or will be open for enrollment in the future.
+        ---
+        serializer: FlattenedCourseRunWithCourseSerializer
+        """
+        catalog = self.get_object()
+        courses = catalog.courses().active()
+        course_runs = []
+
+        for course in courses:
+            active_course_runs = course.active_course_runs
+            for acr in active_course_runs:
+                course_runs.append(acr)
+
+        serializer = FlattenedCourseRunWithCourseSerializer(course_runs, many=True, context={'request': request})
+        data = CourseRunCSVRenderer().render(serializer.data)
+
+        response = HttpResponse(data, content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="catalog_{id}_{date}.csv"'.format(
+            id=id, date=datetime.datetime.utcnow().strftime('%Y-%m-%d-%H-%M')
+        )
+        return response
 
 
 class CourseViewSet(viewsets.ReadOnlyModelViewSet):
