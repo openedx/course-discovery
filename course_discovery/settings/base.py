@@ -184,6 +184,7 @@ AUTO_AUTH_USERNAME_PREFIX = 'auto_auth_'
 SOCIAL_AUTH_EDX_OIDC_KEY = 'replace-me'
 SOCIAL_AUTH_EDX_OIDC_SECRET = 'replace-me'
 SOCIAL_AUTH_EDX_OIDC_URL_ROOT = 'replace-me'
+SOCIAL_AUTH_EDX_OIDC_LOGOUT_URL = 'replace-me'
 SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY = SOCIAL_AUTH_EDX_OIDC_SECRET
 
 # Request the user's permissions in the ID token
@@ -328,7 +329,3 @@ ECOMMERCE_API_URL = 'http://127.0.0.1:8002/api/v2/'
 ORGANIZATIONS_API_URL = 'http://127.0.0.1:8000/api/organizations/v0/'
 MARKETING_API_URL = 'http://example.org/api/catalog/v2/'
 MARKETING_URL_ROOT = 'http://example.org/'
-
-EDX_DRF_EXTENSIONS = {
-    'OAUTH2_USER_INFO_URL': 'http://localhost:8000/oauth2/user_info',
-}
