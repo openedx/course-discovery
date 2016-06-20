@@ -74,7 +74,7 @@ class CourseTests(TestCase):
 
     def test_search(self):
         """ Verify the method returns a filtered queryset of courses. """
-        title = 'Some random course'
+        title = 'Some random title'
         courses = factories.CourseFactory.create_batch(3, title=title)
         courses = sorted(courses, key=lambda course: course.key)
         query = 'title:' + title
@@ -118,7 +118,7 @@ class CourseRunTests(TestCase):
 
     def test_search(self):
         """ Verify the method returns a filtered queryset of course runs. """
-        title = 'Some random course run'
+        title = 'Some random title'
         course_runs = factories.CourseRunFactory.create_batch(3, title=title)
         query = 'title:' + title
         actual_sorted = sorted(SearchQuerySetWrapper(CourseRun.search(query)), key=lambda course_run: course_run.key)

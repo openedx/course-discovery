@@ -49,7 +49,7 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
 
     def test_list_query(self):
         """ Verify the endpoint returns a filtered list of courses """
-        title = 'Some random course'
+        title = 'Some random title'
         course_runs = CourseRunFactory.create_batch(3, title=title)
         CourseRunFactory(title='non-matching name')
         query = 'title:' + title
