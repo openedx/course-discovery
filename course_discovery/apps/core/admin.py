@@ -24,7 +24,9 @@ class CustomUserAdmin(UserAdmin):
 class UserThrottleRateAdmin(admin.ModelAdmin):
     """ Admin configuration for the UserThrottleRate model. """
     form = UserThrottleRateForm
+    list_display = ('user', 'rate',)
     raw_id_fields = ('user',)
+    search_fields = ('user__username',)
 
 
 @admin.register(Currency)

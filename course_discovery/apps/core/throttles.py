@@ -11,7 +11,7 @@ class OverridableUserRateThrottle(UserRateThrottle):
         user = request.user
 
         if user and user.is_authenticated():
-            if user.is_superuser:
+            if user.is_superuser or user.is_staff:
                 return True
             try:
                 # Override this throttle's rate if applicable
