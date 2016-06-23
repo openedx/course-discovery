@@ -14,8 +14,9 @@ from edx_rest_api_client.client import EdxRestApiClient
 from opaque_keys.edx.keys import CourseKey
 from pytz import UTC
 
+from course_discovery.apps.core.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.data_loaders import (
-    OrganizationsApiDataLoader, CoursesApiDataLoader, DrupalApiDataLoader, EcommerceApiDataLoader, AbstractDataLoader
+    OrganizationsApiDataLoader, CoursesApiDataLoader, DrupalApiDataLoader, EcommerceApiDataLoader, DeleteOrphansMixin
 )
 from course_discovery.apps.course_metadata.models import (
     Course, CourseOrganization, CourseRun, Image, LanguageTag, Organization, Person, Seat, Subject
@@ -63,7 +64,7 @@ class AbstractDataLoaderTest(TestCase):
     def test_delete_orphans(self):
         """ Verify the delete_orphans method deletes orphaned instances. """
         instances = (ImageFactory(), PersonFactory(), VideoFactory(),)
-        AbstractDataLoader.delete_orphans()
+        DeleteOrphansMixin.delete_orphans()
 
         for instance in instances:
             self.assertFalse(instance.__class__.objects.filter(pk=instance.pk).exists())  # pylint: disable=no-member

@@ -1,16 +1,13 @@
 """ Data loaders. """
-import abc
 import logging
 from decimal import Decimal
 from urllib.parse import urljoin
 
 import html2text
-from dateutil.parser import parse
 from django.conf import settings
-from django.utils.functional import cached_property
-from edx_rest_api_client.client import EdxRestApiClient
 from opaque_keys.edx.keys import CourseKey
 
+from course_discovery.apps.core.data_loaders import AbstractDataLoader
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.utils import delete_orphans
 from course_discovery.apps.course_metadata.models import (
@@ -20,101 +17,7 @@ from course_discovery.apps.course_metadata.models import (
 logger = logging.getLogger(__name__)
 
 
-class AbstractDataLoader(metaclass=abc.ABCMeta):
-    """ Base class for all data loaders.
-
-    Attributes:
-        api_url (str): URL of the API from which data is loaded
-        access_token (str): OAuth2 access token
-        PAGE_SIZE (int): Number of items to load per API call
-    """
-
-    PAGE_SIZE = 50
-    SUPPORTED_TOKEN_TYPES = ('bearer', 'jwt',)
-
-    def __init__(self, api_url, access_token, token_type):
-        """
-        Arguments:
-            api_url (str): URL of the API from which data is loaded
-            access_token (str): OAuth2 access token
-            token_type (str): The type of access token passed in (e.g. Bearer, JWT)
-        """
-        token_type = token_type.lower()
-
-        if token_type not in self.SUPPORTED_TOKEN_TYPES:
-            raise ValueError('The token type {token_type} is invalid!'.format(token_type=token_type))
-
-        self.access_token = access_token
-        self.api_url = api_url
-        self.token_type = token_type
-
-    @cached_property
-    def api_client(self):
-        """
-        Returns an authenticated API client ready to call the API from which data is loaded.
-
-        Returns:
-            EdxRestApiClient
-        """
-        kwargs = {}
-
-        if self.token_type == 'jwt':
-            kwargs['jwt'] = self.access_token
-        else:
-            kwargs['oauth_access_token'] = self.access_token
-
-        return EdxRestApiClient(self.api_url, **kwargs)
-
-    @abc.abstractmethod
-    def ingest(self):  # pragma: no cover
-        """ Load data for all supported objects (e.g. courses, runs). """
-        pass
-
-    @classmethod
-    def clean_string(cls, s):
-        """ Removes all leading and trailing spaces. Returns None if the resulting string is empty. """
-        if not isinstance(s, str):
-            return s
-
-        return s.strip() or None
-
-    @classmethod
-    def clean_strings(cls, data):
-        """ Iterates over all string values, removing leading and trailing spaces,
-        and replacing empty strings with None. """
-        return {k: cls.clean_string(v) for k, v in data.items()}
-
-    @classmethod
-    def parse_date(cls, date_string):
-        """
-        Returns a parsed date.
-
-        Args:
-            date_string (str): String to be parsed.
-
-        Returns:
-            datetime, or None
-        """
-        if date_string:
-            return parse(date_string)
-
-        return None
-
-    @classmethod
-    def convert_course_run_key(cls, course_run_key_str):
-        """
-        Given a serialized course run key, return the corresponding
-        serialized course key.
-
-        Args:
-            course_run_key_str (str): The serialized course run key.
-
-        Returns:
-            str
-        """
-        course_run_key = CourseKey.from_string(course_run_key_str)
-        return '{org}+{course}'.format(org=course_run_key.org, course=course_run_key.course)
-
+class DeleteOrphansMixin:
     @classmethod
     def delete_orphans(cls):
         """ Remove orphaned objects from the database. """
@@ -122,7 +25,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
             delete_orphans(model)
 
 
-class OrganizationsApiDataLoader(AbstractDataLoader):
+class OrganizationsApiDataLoader(AbstractDataLoader, DeleteOrphansMixin):
     """ Loads organizations from the Organizations API. """
 
     def ingest(self):
@@ -164,7 +67,7 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
         Organization.objects.update_or_create(key=body['short_name'], defaults=defaults)
 
 
-class CoursesApiDataLoader(AbstractDataLoader):
+class CoursesApiDataLoader(AbstractDataLoader, DeleteOrphansMixin):
     """ Loads course runs from the Courses API. """
 
     def ingest(self):
@@ -264,7 +167,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         return video
 
 
-class DrupalApiDataLoader(AbstractDataLoader):
+class DrupalApiDataLoader(AbstractDataLoader, DeleteOrphansMixin):
     """Loads course runs from the Drupal API."""
 
     def ingest(self):
@@ -404,7 +307,7 @@ class DrupalApiDataLoader(AbstractDataLoader):
         return html_converter.handle(stripped).strip()
 
 
-class EcommerceApiDataLoader(AbstractDataLoader):
+class EcommerceApiDataLoader(AbstractDataLoader, DeleteOrphansMixin):
     """ Loads course seats from the E-Commerce API. """
 
     def ingest(self):
@@ -486,33 +389,3 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             (att['value'] for att in product['attribute_values'] if att['name'] == 'certificate_type'),
             Seat.AUDIT
         )
-
-    class ProgramsApiDataLoader(AbstractDataLoader):
-    """ Loads programs from the Programs API. """
-
-    def ingest(self):
-        client = self.api_client
-        count = None
-        page = 1
-
-        logger.info('Refreshing Programs from %s...', self.api_url)
-
-        while page:
-            response = client.programs().get(page=page, page_size=self.PAGE_SIZE)
-            count = response['count']
-            results = response['results']
-            logger.info('Retrieved %d programs...', len(results))
-
-            if response['next']:
-                page += 1
-            else:
-                page = None
-
-            for body in results:
-                body = self.clean_strings(body)
-                self.update_programs(body)
-
-        logger.info('Retrieved %d programs from %s.', count, self.api_url)
-
-    def update_programs(self, body):
-        pass

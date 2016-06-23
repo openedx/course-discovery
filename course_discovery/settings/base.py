@@ -48,6 +48,7 @@ PROJECT_APPS = (
     'course_discovery.apps.catalogs',
     'course_discovery.apps.course_metadata',
     'course_discovery.apps.edx_haystack_extensions',
+    'course_discovery.apps.programs',
 )
 
 
