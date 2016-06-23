@@ -293,7 +293,23 @@ class ManagementViewSet(viewsets.ViewSet):
               multiple: false
         """
         access_token = request.data.get('access_token')
+        kwargs = {'access_token': access_token} if access_token else {}
+        name = 'refresh_course_metadata'
 
+        output = self.run_command(request, name, **kwargs)
+
+        return Response(output, content_type='text/plain')
+
+    @list_route(methods=['post'])
+    def update_index(self, request):
+        """ Update the search index. """
+        name = 'update_index'
+
+        output = self.run_command(request, name)
+
+        return Response(output, content_type='text/plain')
+
+    def run_command(self, request, name, **kwargs):
         # Capture all output and logging
         out = StringIO()
         err = StringIO()
@@ -305,18 +321,13 @@ class ManagementViewSet(viewsets.ViewSet):
         log_handler.setFormatter(formatter)
         root_logger.addHandler(log_handler)
 
-        logger.info('Updating course metadata per request of [%s]...', request.user.username)
-
-        kwargs = {'access_token': access_token} if access_token else {}
-
-        call_command('refresh_course_metadata', settings=os.environ['DJANGO_SETTINGS_MODULE'], stdout=out, stderr=err,
-                     **kwargs)
+        logger.info('Running [%s] per request of [%s]...', name, request.user.username)
+        call_command(name, settings=os.environ['DJANGO_SETTINGS_MODULE'], stdout=out, stderr=err, **kwargs)
 
         # Format the output for display
         output = 'STDOUT\n{out}\n\nSTDERR\n{err}\n\nLOG\n{log}'.format(out=out.getvalue(), err=err.getvalue(),
                                                                        log=log.getvalue())
-
-        return Response(output, content_type='text/plain')
+        return output
 
 
 class AffiliateWindowViewSet(viewsets.ViewSet):

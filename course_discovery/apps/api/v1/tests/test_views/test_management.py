@@ -5,13 +5,13 @@ from rest_framework.test import APITestCase
 from course_discovery.apps.core.tests.factories import UserFactory
 
 
-class RefreshCourseMetadataTests(APITestCase):
-    """ Tests for the refresh_course_metadata management endpoint. """
-    path = reverse('api:v1:management-refresh-course-metadata')
-    call_command_path = 'course_discovery.apps.api.v1.views.call_command'
+class ManagementCommandViewTestMixin(object):
+    call_command_path = None
+    command_name = None
+    path = None
 
     def setUp(self):
-        super(RefreshCourseMetadataTests, self).setUp()
+        super(ManagementCommandViewTestMixin, self).setUp()
         self.superuser = UserFactory(is_superuser=True)
         self.client.force_authenticate(self.superuser)  # pylint: disable=no-member
 
@@ -20,12 +20,8 @@ class RefreshCourseMetadataTests(APITestCase):
         response = self.client.post(self.path)
         self.assertEqual(response.status_code, 403)
 
-    def test_superuser_required(self):
-        """ Verify only superusers can access the endpoint. """
-        with mock.patch(self.call_command_path, return_value=None):
-            response = self.client.post(self.path)
-            self.assertEqual(response.status_code, 200)
-
+    def test_non_superusers_denied(self):
+        """ Verify access is denied to non-superusers. """
         # Anonymous user
         self.client.logout()
         self.assert_access_forbidden()
@@ -42,8 +38,8 @@ class RefreshCourseMetadataTests(APITestCase):
         self.assert_successful_response('abc123')
 
     def assert_successful_response(self, access_token=None):
-        """ Asserts the endpoint called the refresh_course_metadata management command with the correct arguments,
-        and the endpoint returns HTTP 200 with text/plain content type. """
+        """ Asserts the endpoint called the correct management command with the correct arguments, and the endpoint
+        returns HTTP 200 with text/plain content type. """
         data = {'access_token': access_token} if access_token else None
         with mock.patch(self.call_command_path, return_value=None) as mocked_call_command:
             response = self.client.post(self.path, data)
@@ -55,9 +51,26 @@ class RefreshCourseMetadataTests(APITestCase):
         expected = {
             'settings': 'course_discovery.settings.test'
         }
-        if access_token:
-            expected['access_token'] = access_token
 
         self.assertTrue(mocked_call_command.called)
-        self.assertEqual(args[0], 'refresh_course_metadata')
+        self.assertEqual(args[0], self.command_name)
         self.assertDictContainsSubset(expected, kwargs)
+
+
+class RefreshCourseMetadataTests(ManagementCommandViewTestMixin, APITestCase):
+    """ Tests for the refresh_course_metadata management endpoint. """
+    call_command_path = 'course_discovery.apps.api.v1.views.call_command'
+    command_name = 'refresh_course_metadata'
+    path = reverse('api:v1:management-refresh-course-metadata')
+
+    def test_success_response(self):
+        """ Verify a successful response calls the management command and returns the plain text output. """
+        super(RefreshCourseMetadataTests, self).test_success_response()
+        self.assert_successful_response(access_token='abc123')
+
+
+class UpdateIndexTests(ManagementCommandViewTestMixin, APITestCase):
+    """ Tests for the update_index management endpoint. """
+    call_command_path = 'course_discovery.apps.api.v1.views.call_command'
+    command_name = 'update_index'
+    path = reverse('api:v1:management-update-index')
