@@ -486,3 +486,33 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             (att['value'] for att in product['attribute_values'] if att['name'] == 'certificate_type'),
             Seat.AUDIT
         )
+
+    class ProgramsApiDataLoader(AbstractDataLoader):
+    """ Loads programs from the Programs API. """
+
+    def ingest(self):
+        client = self.api_client
+        count = None
+        page = 1
+
+        logger.info('Refreshing Programs from %s...', self.api_url)
+
+        while page:
+            response = client.programs().get(page=page, page_size=self.PAGE_SIZE)
+            count = response['count']
+            results = response['results']
+            logger.info('Retrieved %d programs...', len(results))
+
+            if response['next']:
+                page += 1
+            else:
+                page = None
+
+            for body in results:
+                body = self.clean_strings(body)
+                self.update_programs(body)
+
+        logger.info('Retrieved %d programs from %s.', count, self.api_url)
+
+    def update_programs(self, body):
+        pass
