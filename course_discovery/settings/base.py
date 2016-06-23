@@ -37,7 +37,6 @@ THIRD_PARTY_APPS = (
     'waffle',
     'sortedm2m',
     'simple_history',
-    'haystack',
     'guardian',
     'dry_rest_permissions',
 )
@@ -48,10 +47,16 @@ PROJECT_APPS = (
     'course_discovery.apps.api',
     'course_discovery.apps.catalogs',
     'course_discovery.apps.course_metadata',
+    'course_discovery.apps.edx_haystack_extensions',
 )
+
+
 
 INSTALLED_APPS += THIRD_PARTY_APPS
 INSTALLED_APPS += PROJECT_APPS
+
+# NOTE: Haystack must be installed after core so that we can override Haystack's management commands with our own.
+INSTALLED_APPS += ('haystack',)
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -316,7 +321,7 @@ SWAGGER_SETTINGS = {
 
 HAYSTACK_CONNECTIONS = {
     'default': {
-        'ENGINE': 'course_discovery.apps.core.haystack_backends.SimplifiedElasticsearchSearchEngine',
+        'ENGINE': 'course_discovery.apps.edx_haystack_extensions.backends.EdxElasticsearchSearchEngine',
         'URL': 'http://localhost:9200/',
         'INDEX_NAME': 'catalog',
     },

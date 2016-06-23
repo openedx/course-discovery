@@ -31,7 +31,7 @@ DATABASES = {
 
 HAYSTACK_CONNECTIONS = {
     'default': {
-        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
+        'ENGINE': 'course_discovery.apps.edx_haystack_extensions.backends.EdxElasticsearchSearchEngine',
         'URL': os.environ.get('TEST_ELASTICSEARCH_URL', 'http://localhost:9200/'),
         'INDEX_NAME': 'catalog_test',
     },

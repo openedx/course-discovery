@@ -36,7 +36,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
 
     def test_list_query(self):
         """ Verify the endpoint returns a filtered list of courses """
-        title = 'Some random course'
+        title = 'Some random title'
         courses = CourseFactory.create_batch(3, title=title)
         courses = sorted(courses, key=lambda course: course.key.lower())
         query = 'title:' + title
