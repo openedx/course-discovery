@@ -2,7 +2,7 @@ import os
 
 API_GATEWAY_CATALOG_ROOT = os.environ.get('API_GATEWAY_CATALOG_ROOT')
 if not API_GATEWAY_CATALOG_ROOT:
-    raise RuntimeError('API_GATEWAY_CATALOG_ROOT (e.g. https://api.edx.org/catalog/v1) must be supplied!')
+    raise RuntimeError('API_GATEWAY_CATALOG_ROOT (e.g. https://api.stage.edx.org/catalog/v1) must be supplied!')
 
 API_ACCESS_TOKEN = os.environ.get('API_ACCESS_TOKEN')
 if not API_ACCESS_TOKEN:
@@ -19,5 +19,5 @@ ECOMMERCE_URL_ROOT = os.environ.get('ECOMMERCE_URL_ROOT', 'https://ecommerce.sta
 BASIC_AUTH_USERNAME = os.environ.get('BASIC_AUTH_USERNAME', '')
 BASIC_AUTH_PASSWORD = os.environ.get('BASIC_AUTH_PASSWORD', '')
 
-AFFILIATE_COOKIE_NAME = os.environ.get('AFFILIATE_COOKIE_NAME', 'affiliate_id')
+AFFILIATE_COOKIE_NAME = os.environ.get('AFFILIATE_COOKIE_NAME', 'stage.edx.affiliate_id')
 COOKIE_DOMAIN = os.environ.get('COOKIE_DOMAIN', '.edx.org')

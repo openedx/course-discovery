@@ -36,7 +36,7 @@ class ApiGatewayTests(TestCase):
     def test_endpoint_ok(self, path):
         """ Verify the endpoint returns HTTP 200 for valid requests. """
         headers = {
-            'Authorization': 'Bearer {token}'.format(token=API_ACCESS_TOKEN)
+            'Authorization': 'JWT {token}'.format(token=API_ACCESS_TOKEN)
         }
         self.assert_api_response(path, **headers)
 
