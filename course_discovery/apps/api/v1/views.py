@@ -11,21 +11,21 @@ from django.db.models import Q
 from django.db.models.functions import Lower
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from drf_haystack.filters import HaystackFacetFilter, HaystackFilter
+from drf_haystack.mixins import FacetMixin
+from drf_haystack.viewsets import HaystackViewSet
 from dry_rest_permissions.generics import DRYPermissions
 from edx_rest_framework_extensions.permissions import IsSuperuser
 from rest_framework import status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from course_discovery.apps.api import serializers
 from course_discovery.apps.api.filters import PermissionsFilter
 from course_discovery.apps.api.renderers import AffiliateWindowXMLRenderer, CourseRunCSVRenderer
-from course_discovery.apps.api.serializers import (
-    CatalogSerializer, CourseSerializer, CourseRunSerializer, ContainedCoursesSerializer,
-    CourseSerializerExcludingClosedRuns, AffiliateWindowSerializer, ContainedCourseRunsSerializer,
-    FlattenedCourseRunWithCourseSerializer
-)
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_RUN_ID_REGEX
@@ -43,7 +43,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
     lookup_field = 'id'
     permission_classes = (DRYPermissions,)
     queryset = Catalog.objects.all()
-    serializer_class = CatalogSerializer
+    serializer_class = serializers.CatalogSerializer
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
@@ -103,14 +103,14 @@ class CatalogViewSet(viewsets.ModelViewSet):
         Only courses with active course runs are returned. A course run is considered active if it is currently
         open for enrollment, or will open in the future.
         ---
-        serializer: CourseSerializerExcludingClosedRuns
+        serializer: serializers.CourseSerializerExcludingClosedRuns
         """
 
         catalog = self.get_object()
         queryset = catalog.courses().active()
 
         page = self.paginate_queryset(queryset)
-        serializer = CourseSerializerExcludingClosedRuns(page, many=True, context={'request': request})
+        serializer = serializers.CourseSerializerExcludingClosedRuns(page, many=True, context={'request': request})
         return self.get_paginated_response(serializer.data)
 
     @detail_route()
@@ -120,7 +120,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
 
         A dictionary mapping course IDs to booleans, indicating course presence, will be returned.
         ---
-        serializer: ContainedCoursesSerializer
+        serializer: serializers.ContainedCoursesSerializer
         parameters:
             - name: course_id
               description: Course IDs to check for existence in the Catalog.
@@ -136,7 +136,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
         courses = catalog.contains(course_ids)
 
         instance = {'courses': courses}
-        serializer = ContainedCoursesSerializer(instance)
+        serializer = serializers.ContainedCoursesSerializer(instance)
         return Response(serializer.data)
 
     @detail_route()
@@ -147,7 +147,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
         Only active course runs are returned. A course run is considered active if it is currently
         open for enrollment, or will be open for enrollment in the future.
         ---
-        serializer: FlattenedCourseRunWithCourseSerializer
+        serializer: serializers.FlattenedCourseRunWithCourseSerializer
         """
         catalog = self.get_object()
         courses = catalog.courses().active()
@@ -158,7 +158,9 @@ class CatalogViewSet(viewsets.ModelViewSet):
             for acr in active_course_runs:
                 course_runs.append(acr)
 
-        serializer = FlattenedCourseRunWithCourseSerializer(course_runs, many=True, context={'request': request})
+        serializer = serializers.FlattenedCourseRunWithCourseSerializer(
+            course_runs, many=True, context={'request': request}
+        )
         data = CourseRunCSVRenderer().render(serializer.data)
 
         response = HttpResponse(data, content_type='text/csv')
@@ -174,7 +176,7 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_value_regex = COURSE_ID_REGEX
     queryset = Course.objects.all()
     permission_classes = (IsAuthenticated,)
-    serializer_class = CourseSerializer
+    serializer_class = serializers.CourseSerializer
 
     def get_queryset(self):
         q = self.request.query_params.get('q', None)
@@ -210,7 +212,7 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_value_regex = COURSE_RUN_ID_REGEX
     queryset = CourseRun.objects.all().order_by(Lower('key'))
     permission_classes = (IsAuthenticated,)
-    serializer_class = CourseRunSerializer
+    serializer_class = serializers.CourseRunSerializer
 
     def get_queryset(self):
         q = self.request.query_params.get('q', None)
@@ -244,7 +246,7 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
         A dictionary mapping course run keys to booleans,
         indicating course run presence, will be returned.
         ---
-        serializer: ContainedCourseRunsSerializer
+        serializer: serializers.ContainedCourseRunsSerializer
         parameters:
             - name: query
               description: Elasticsearch querystring query
@@ -270,7 +272,7 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
                 contains[course_run.key] = True
 
             instance = {'course_runs': contains}
-            serializer = ContainedCourseRunsSerializer(instance)
+            serializer = serializers.ContainedCourseRunsSerializer(instance)
             return Response(serializer.data)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -291,7 +293,23 @@ class ManagementViewSet(viewsets.ViewSet):
               multiple: false
         """
         access_token = request.data.get('access_token')
+        kwargs = {'access_token': access_token} if access_token else {}
+        name = 'refresh_course_metadata'
 
+        output = self.run_command(request, name, **kwargs)
+
+        return Response(output, content_type='text/plain')
+
+    @list_route(methods=['post'])
+    def update_index(self, request):
+        """ Update the search index. """
+        name = 'update_index'
+
+        output = self.run_command(request, name)
+
+        return Response(output, content_type='text/plain')
+
+    def run_command(self, request, name, **kwargs):
         # Capture all output and logging
         out = StringIO()
         err = StringIO()
@@ -303,25 +321,20 @@ class ManagementViewSet(viewsets.ViewSet):
         log_handler.setFormatter(formatter)
         root_logger.addHandler(log_handler)
 
-        logger.info('Updating course metadata per request of [%s]...', request.user.username)
-
-        kwargs = {'access_token': access_token} if access_token else {}
-
-        call_command('refresh_course_metadata', settings=os.environ['DJANGO_SETTINGS_MODULE'], stdout=out, stderr=err,
-                     **kwargs)
+        logger.info('Running [%s] per request of [%s]...', name, request.user.username)
+        call_command(name, settings=os.environ['DJANGO_SETTINGS_MODULE'], stdout=out, stderr=err, **kwargs)
 
         # Format the output for display
         output = 'STDOUT\n{out}\n\nSTDERR\n{err}\n\nLOG\n{log}'.format(out=out.getvalue(), err=err.getvalue(),
                                                                        log=log.getvalue())
-
-        return Response(output, content_type='text/plain')
+        return output
 
 
 class AffiliateWindowViewSet(viewsets.ViewSet):
     """ AffiliateWindow Resource. """
     permission_classes = (IsAuthenticated,)
     renderer_classes = (AffiliateWindowXMLRenderer,)
-    serializer_class = AffiliateWindowSerializer
+    serializer_class = serializers.AffiliateWindowSerializer
 
     def retrieve(self, request, pk=None):  # pylint: disable=redefined-builtin,unused-argument
         """
@@ -345,5 +358,63 @@ class AffiliateWindowViewSet(viewsets.ViewSet):
              Q(course_run__enrollment_end__gte=datetime.datetime.now(pytz.UTC)))
         )
 
-        serializer = AffiliateWindowSerializer(seats, many=True)
+        serializer = serializers.AffiliateWindowSerializer(seats, many=True)
         return Response(serializer.data)
+
+
+class BaseCourseHaystackViewSet(FacetMixin, HaystackViewSet):
+    document_uid_field = 'key'
+    facet_filter_backends = [HaystackFacetFilter, HaystackFilter]
+    load_all = True
+    lookup_field = 'key'
+    permission_classes = (IsAuthenticated,)
+
+    # NOTE: We use PageNumberPagination because drf-haytack's facet serializer relies on the page_query_param
+    # attribute, and it is more appropriate for search results than our default limit-offset pagination.
+    pagination_class = PageNumberPagination
+
+    def list(self, request, *args, **kwargs):
+        """
+        Search.
+        ---
+        parameters:
+            - name: q
+              description: Search text
+              paramType: query
+              type: string
+              required: false
+        """
+        return super(BaseCourseHaystackViewSet, self).list(request, *args, **kwargs)
+
+    @list_route(methods=["get"], url_path="facets")
+    def facets(self, request):
+        """
+        Returns faceted search results
+        ---
+        parameters:
+            - name: q
+              description: Search text
+              paramType: query
+              type: string
+              required: false
+        """
+        return super(BaseCourseHaystackViewSet, self).facets(request)
+
+
+class CourseSearchViewSet(BaseCourseHaystackViewSet):
+    facet_serializer_class = serializers.CourseFacetSerializer
+    index_models = (Course,)
+    serializer_class = serializers.CourseSearchSerializer
+
+
+class CourseRunSearchViewSet(BaseCourseHaystackViewSet):
+    facet_serializer_class = serializers.CourseRunFacetSerializer
+    index_models = (CourseRun,)
+    serializer_class = serializers.CourseRunSearchSerializer
+
+
+# TODO Remove the detail routes. They don't work, and make no sense here given that we cannot specify the type.
+class AggregateSearchViewSet(BaseCourseHaystackViewSet):
+    """ Search all content types. """
+    facet_serializer_class = serializers.AggregateFacetSearchSerializer
+    serializer_class = serializers.AggregateSearchSerializer

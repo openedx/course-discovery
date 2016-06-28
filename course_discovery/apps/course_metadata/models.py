@@ -267,6 +267,14 @@ class CourseRun(TimeStampedModel):
         value = value or None
         self.full_description_override = value
 
+    @property
+    def subjects(self):
+        return self.course.subjects
+
+    @property
+    def organizations(self):
+        return self.course.organizations
+
     @classmethod
     def search(cls, query):
         """ Queries the search index.
