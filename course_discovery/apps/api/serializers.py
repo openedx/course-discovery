@@ -38,7 +38,7 @@ COURSE_RUN_FACET_FIELD_OPTIONS = {
 }
 COURSE_RUN_SEARCH_FIELDS = (
     'key', 'title', 'short_description', 'full_description', 'start', 'end', 'enrollment_start', 'enrollment_end',
-    'pacing_type', 'language', 'transcript_languages', 'marketing_url', 'text',
+    'pacing_type', 'language', 'transcript_languages', 'marketing_url', 'content_type', 'text',
 )
 
 
