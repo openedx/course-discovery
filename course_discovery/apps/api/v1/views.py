@@ -19,12 +19,12 @@ from edx_rest_framework_extensions.permissions import IsSuperuser
 from rest_framework import status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api import serializers
 from course_discovery.apps.api.filters import PermissionsFilter
+from course_discovery.apps.api.pagination import PageNumberPagination
 from course_discovery.apps.api.renderers import AffiliateWindowXMLRenderer, CourseRunCSVRenderer
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.utils import SearchQuerySetWrapper

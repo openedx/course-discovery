@@ -3,10 +3,13 @@ import urllib.parse
 
 import ddt
 from django.core.urlresolvers import reverse
+from haystack.query import SearchQuerySet
 from rest_framework.test import APITestCase
 
+from course_discovery.apps.api.serializers import CourseRunSearchSerializer
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
+from course_discovery.apps.course_metadata.models import CourseRun
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory
 
 
@@ -31,28 +34,9 @@ class CourseRunSearchViewSetTests(ElasticsearchTestMixin, APITestCase):
         url = '{path}?{qs}'.format(path=path, qs=qs)
         return self.client.get(url)
 
-    def serialize_date(self, d):
-        return d.strftime('%Y-%m-%dT%H:%M:%S') if d else None
-
-    def serialize_language(self, language):
-        return language.name
-
     def serialize_course_run(self, course_run):
-        return {
-            'transcript_languages': [self.serialize_language(l) for l in course_run.transcript_languages.all()],
-            'short_description': course_run.short_description,
-            'start': self.serialize_date(course_run.start),
-            'end': self.serialize_date(course_run.end),
-            'enrollment_start': self.serialize_date(course_run.enrollment_start),
-            'enrollment_end': self.serialize_date(course_run.enrollment_end),
-            'key': course_run.key,
-            'marketing_url': course_run.marketing_url,
-            'pacing_type': course_run.pacing_type,
-            'language': self.serialize_language(course_run.language),
-            'full_description': course_run.full_description,
-            'title': course_run.title,
-            'content_type': 'courserun'
-        }
+        result = SearchQuerySet().models(CourseRun).filter(key=course_run.key)[0]
+        return CourseRunSearchSerializer(result).data
 
     @ddt.data(True, False)
     def test_authentication(self, faceted):

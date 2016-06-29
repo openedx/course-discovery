@@ -1,6 +1,7 @@
 import datetime
 
 import ddt
+import mock
 import pytz
 from django.test import TestCase
 
@@ -10,6 +11,8 @@ from course_discovery.apps.course_metadata.models import (
 )
 from course_discovery.apps.course_metadata.tests import factories
 
+
+# pylint: disable=no-member
 
 class CourseTests(TestCase):
     """ Tests for the `Course` model. """
@@ -36,19 +39,18 @@ class CourseTests(TestCase):
 
     def test_owners(self):
         """ Verify that the owners property returns only owner related organizations. """
-        owners = self.course.owners  # pylint: disable=no-member
+        owners = self.course.owners
         self.assertEqual(len(owners), 1)
         self.assertEqual(owners[0], self.owner)
 
     def test_sponsors(self):
         """ Verify that the sponsors property returns only sponsor related organizations. """
-        sponsors = self.course.sponsors  # pylint: disable=no-member
+        sponsors = self.course.sponsors
         self.assertEqual(len(sponsors), 1)
         self.assertEqual(sponsors[0], self.sponsor)
 
     def test_active_course_runs(self):
         """ Verify the property returns only course runs currently open for enrollment or opening in the future. """
-        # pylint: disable=no-member
         self.assertListEqual(list(self.course.active_course_runs), [])
 
         # Create course with end date in future and enrollment_end in past.
@@ -93,7 +95,6 @@ class CourseRunTests(TestCase):
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the key and title. """
         course_run = self.course_run
-        # pylint: disable=no-member
         self.assertEqual(str(course_run), '{key}: {title}'.format(key=course_run.key, title=course_run.title))
 
     @ddt.data('title', 'short_description', 'full_description')
@@ -124,6 +125,56 @@ class CourseRunTests(TestCase):
         actual_sorted = sorted(SearchQuerySetWrapper(CourseRun.search(query)), key=lambda course_run: course_run.key)
         expected_sorted = sorted(course_runs, key=lambda course_run: course_run.key)
         self.assertEqual(actual_sorted, expected_sorted)
+
+    def test_seat_types(self):
+        """ Verify the property returns a list of all seat types associated with the course run. """
+        self.assertEqual(self.course_run.seat_types, [])
+
+        seats = factories.SeatFactory.create_batch(3, course_run=self.course_run)
+        expected = sorted([seat.type for seat in seats])
+        self.assertEqual(sorted(self.course_run.seat_types), expected)
+
+    def test_image_url(self):
+        """ Verify the property returns the associated image's URL. """
+        self.assertEqual(self.course_run.image_url, self.course_run.image.src)
+
+        self.course_run.image = None
+        self.assertIsNone(self.course_run.image)
+        self.assertIsNone(self.course_run.image_url)
+
+    @ddt.data(
+        ('obviously-wrong', None,),
+        (('audit',), 'audit',),
+        (('honor',), 'honor',),
+        (('credit', 'verified', 'audit',), 'credit',),
+        (('verified', 'honor',), 'verified',),
+        (('professional',), 'professional',),
+        (('no-id-professional',), 'professional',),
+    )
+    @ddt.unpack
+    def test_type(self, seat_types, expected_course_run_type):
+        """ Verify the property returns the appropriate type string for the CourseRun. """
+        for seat_type in seat_types:
+            factories.SeatFactory(course_run=self.course_run, type=seat_type)
+        self.assertEqual(self.course_run.type, expected_course_run_type)
+
+    def assert_course_run_has_no_type(self, course_run, expected_seats):
+        """ Asserts the given CourseRun has no type value, and a message is logged to that effect. """
+        with mock.patch('course_discovery.apps.course_metadata.models.logger') as mock_logger:
+            self.assertEqual(course_run.type, None)
+            mock_logger.warning.assert_called_with(
+                'Unable to determine type for course run [%s]. Seat types are [%s]',
+                course_run.key,
+                expected_seats
+            )
+
+    def test_type_with_unknown_seat_type(self):
+        """ Verify the property logs a warning if the CourseRun has no Seats or the Seats have an unknown seat type. """
+        self.assert_course_run_has_no_type(self.course_run, set())
+
+        seat_type = 'super-wrong'
+        factories.SeatFactory(course_run=self.course_run, type=seat_type)
+        self.assert_course_run_has_no_type(self.course_run, set([seat_type]))
 
 
 class OrganizationTests(TestCase):

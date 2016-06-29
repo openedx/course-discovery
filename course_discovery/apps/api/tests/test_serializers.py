@@ -3,21 +3,26 @@ from urllib.parse import urlencode
 
 import ddt
 from django.test import TestCase
+from haystack.query import SearchQuerySet
+from opaque_keys.edx.keys import CourseKey
 from rest_framework.test import APIRequestFactory
 
-from course_discovery.apps.api.serializers import(
+from course_discovery.apps.api.serializers import (
     CatalogSerializer, CourseSerializer, CourseRunSerializer, ContainedCoursesSerializer, ImageSerializer,
     SubjectSerializer, PrerequisiteSerializer, VideoSerializer, OrganizationSerializer, SeatSerializer,
-    PersonSerializer, AffiliateWindowSerializer, ContainedCourseRunsSerializer
-)
+    PersonSerializer, AffiliateWindowSerializer, ContainedCourseRunsSerializer,
+    CourseRunSearchSerializer)
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.course_metadata.models import CourseRun
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, SubjectFactory, PrerequisiteFactory,
     ImageFactory, VideoFactory, OrganizationFactory, PersonFactory, SeatFactory
 )
 
+
+# pylint:disable=no-member
 
 def json_date_format(datetime_obj):
     return datetime.strftime(datetime_obj, "%Y-%m-%dT%H:%M:%S.%fZ")
@@ -312,5 +317,44 @@ class AffiliateWindowSerializerTests(TestCase):
             'currency': seat.currency.code,
             'imgurl': course_run.image.src,
             'category': 'Other Experiences'
+        }
+        self.assertDictEqual(serializer.data, expected)
+
+
+class CourseRunSearchSerializerTests(TestCase):
+    def serialize_datetime(self, d):
+        return d.strftime('%Y-%m-%dT%H:%M:%S') if d else None
+
+    def serialize_language(self, language):
+        return language.name
+
+    def test_data(self):
+        course_run = CourseRunFactory()
+        course_run_key = CourseKey.from_string(course_run.key)
+
+        # NOTE: This serializer expects SearchQuerySet results, so we run a search on the newly-created object
+        # to generate such a result.
+        result = SearchQuerySet().models(CourseRun).filter(key=course_run.key)[0]
+        serializer = CourseRunSearchSerializer(result)
+
+        expected = {
+            'transcript_languages': [self.serialize_language(l) for l in course_run.transcript_languages.all()],
+            'short_description': course_run.short_description,
+            'start': self.serialize_datetime(course_run.start),
+            'end': self.serialize_datetime(course_run.end),
+            'enrollment_start': self.serialize_datetime(course_run.enrollment_start),
+            'enrollment_end': self.serialize_datetime(course_run.enrollment_end),
+            'key': course_run.key,
+            'marketing_url': course_run.marketing_url,
+            'pacing_type': course_run.pacing_type,
+            'language': self.serialize_language(course_run.language),
+            'full_description': course_run.full_description,
+            'title': course_run.title,
+            'content_type': 'courserun',
+            'org': course_run_key.org,
+            'number': course_run_key.course,
+            'seat_types': course_run.seat_types,
+            'image_url': course_run.image_url,
+            'type': course_run.type,
         }
         self.assertDictEqual(serializer.data, expected)

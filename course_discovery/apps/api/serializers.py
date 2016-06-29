@@ -29,16 +29,18 @@ COURSE_RUN_FACET_FIELD_OPTIONS = {
     'transcript_languages': {},
     'pacing_type': {},
     'start': {
-        "start_date": datetime.datetime.now() - datetime.timedelta(days=365),
-        "end_date": datetime.datetime.now(),
-        "gap_by": "month",
-        "gap_amount": 1,
+        'start_date': datetime.datetime.now() - datetime.timedelta(days=365),
+        'end_date': datetime.datetime.now(),
+        'gap_by': 'month',
+        'gap_amount': 1,
     },
     'content_type': {},
+    'type': {},
 }
 COURSE_RUN_SEARCH_FIELDS = (
     'key', 'title', 'short_description', 'full_description', 'start', 'end', 'enrollment_start', 'enrollment_end',
-    'pacing_type', 'language', 'transcript_languages', 'marketing_url', 'content_type', 'text',
+    'pacing_type', 'language', 'transcript_languages', 'marketing_url', 'content_type', 'org', 'number', 'seat_types',
+    'image_url', 'type', 'text',
 )
 
 
