@@ -14,7 +14,8 @@ from opaque_keys.edx.keys import CourseKey
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.utils import delete_orphans
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseOrganization, CourseRun, Image, LanguageTag, LevelType, Organization, Person, Seat, Subject, Video
+    Course, CourseOrganization, CourseRun, Image, LanguageTag, LevelType, Organization, Person, Seat, Subject, Video,
+    Program,
 )
 
 logger = logging.getLogger(__name__)
@@ -486,3 +487,51 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             (att['value'] for att in product['attribute_values'] if att['name'] == 'certificate_type'),
             Seat.AUDIT
         )
+
+
+class ProgramsApiDataLoader(AbstractDataLoader):
+    """ Loads programs from the Programs API. """
+
+    def ingest(self):
+        client = self.api_client
+        count = None
+        page = 1
+
+        logger.info('Refreshing programs from %s...', self.api_url)
+
+        while page:
+            response = client.programs.get(page=page, page_size=self.PAGE_SIZE)
+            count = response['count']
+            results = response['results']
+            logger.info('Retrieved %d programs...', len(results))
+
+            if response['next']:
+                page += 1
+            else:
+                page = None
+
+            for program in results:
+                program = self.clean_strings(program)
+                self.update_program(program)
+
+        logger.info('Retrieved %d programs from %s.', count, self.api_url)
+
+    def update_program(self, body):
+        defaults = {
+            'name': body['name'],
+            'subtitle': body['subtitle'],
+            'category': body['category'],
+            'status': body['status'],
+            'marketing_slug': body['marketing_slug'],
+        }
+        program, __ = Program.objects.update_or_create(uuid=body['uuid'], defaults=defaults)
+
+        organizations = []
+        for org in body['organizations']:
+            organization, __ = Organization.objects.get_or_create(
+                key=org['key'], defaults={'name': org['display_name']}
+            )
+            organizations.append(organization)
+
+        program.organizations.clear()
+        program.organizations.add(*organizations)

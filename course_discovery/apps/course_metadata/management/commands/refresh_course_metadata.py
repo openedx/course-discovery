@@ -5,7 +5,7 @@ from django.core.management import BaseCommand, CommandError
 from edx_rest_api_client.client import EdxRestApiClient
 
 from course_discovery.apps.course_metadata.data_loaders import (
-    CoursesApiDataLoader, DrupalApiDataLoader, OrganizationsApiDataLoader, EcommerceApiDataLoader
+    CoursesApiDataLoader, DrupalApiDataLoader, OrganizationsApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader
 )
 
 logger = logging.getLogger(__name__)
@@ -58,6 +58,7 @@ class Command(BaseCommand):
             (CoursesApiDataLoader, settings.COURSES_API_URL,),
             (EcommerceApiDataLoader, settings.ECOMMERCE_API_URL,),
             (DrupalApiDataLoader, settings.MARKETING_API_URL,),
+            (ProgramsApiDataLoader, settings.PROGRAMS_API_URL,),
         )
 
         for loader_class, api_url in loaders:
