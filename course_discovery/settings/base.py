@@ -310,6 +310,7 @@ JWT_AUTH = {
     'JWT_AUDIENCE': 'course-discovery',
     'JWT_ISSUER': 'course-discovery',
     'JWT_DECODE_HANDLER': 'edx_rest_framework_extensions.utils.jwt_decode_handler',
+    'JWT_VERIFY_AUDIENCE': False,
 }
 
 SWAGGER_SETTINGS = {
