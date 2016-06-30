@@ -275,6 +275,35 @@ class CourseRun(TimeStampedModel):
     def organizations(self):
         return self.course.organizations
 
+    @property
+    def seat_types(self):
+        return list(self.seats.values_list('type', flat=True))
+
+    @property
+    def type(self):
+        seat_types = set(self.seat_types)
+        mapping = (
+            ('credit', {'credit'}),
+            ('professional', {'professional', 'no-id-professional'}),
+            ('verified', {'verified'}),
+            ('honor', {'honor'}),
+            ('audit', {'audit'}),
+        )
+
+        for course_run_type, matching_seat_types in mapping:
+            if matching_seat_types & seat_types:
+                return course_run_type
+
+        logger.warning('Unable to determine type for course run [%s]. Seat types are [%s]', self.key, seat_types)
+        return None
+
+    @property
+    def image_url(self):
+        if self.image:
+            return self.image.src
+
+        return None
+
     @classmethod
     def search(cls, query):
         """ Queries the search index.

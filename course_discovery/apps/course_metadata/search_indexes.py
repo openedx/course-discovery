@@ -75,6 +75,9 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     transcript_languages = indexes.MultiValueField(faceted=True)
     pacing_type = indexes.CharField(model_attr='pacing_type', null=True, faceted=True)
     marketing_url = indexes.CharField(model_attr='marketing_url', null=True)
+    seat_types = indexes.MultiValueField(model_attr='seat_types', null=True, faceted=True)
+    type = indexes.CharField(model_attr='type', null=True, faceted=True)
+    image_url = indexes.CharField(model_attr='image_url', null=True)
 
     def _prepare_language(self, language):
         return language.name
