@@ -11,19 +11,19 @@ from django.db.models import Q
 from django.db.models.functions import Lower
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from drf_haystack.filters import HaystackFacetFilter, HaystackFilter
+from drf_haystack.filters import HaystackFilter
 from drf_haystack.mixins import FacetMixin
 from drf_haystack.viewsets import HaystackViewSet
 from dry_rest_permissions.generics import DRYPermissions
 from edx_rest_framework_extensions.permissions import IsSuperuser
 from rest_framework import status, viewsets
 from rest_framework.decorators import detail_route, list_route
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ParseError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api import serializers
-from course_discovery.apps.api.filters import PermissionsFilter
+from course_discovery.apps.api.filters import PermissionsFilter, HaystackFacetFilterWithQueries
 from course_discovery.apps.api.pagination import PageNumberPagination
 from course_discovery.apps.api.renderers import AffiliateWindowXMLRenderer, CourseRunCSVRenderer
 from course_discovery.apps.catalogs.models import Catalog
@@ -364,7 +364,7 @@ class AffiliateWindowViewSet(viewsets.ViewSet):
 
 class BaseCourseHaystackViewSet(FacetMixin, HaystackViewSet):
     document_uid_field = 'key'
-    facet_filter_backends = [HaystackFacetFilter, HaystackFilter]
+    facet_filter_backends = [HaystackFacetFilterWithQueries, HaystackFilter]
     load_all = True
     lookup_field = 'key'
     permission_classes = (IsAuthenticated,)
@@ -397,8 +397,40 @@ class BaseCourseHaystackViewSet(FacetMixin, HaystackViewSet):
               paramType: query
               type: string
               required: false
+            - name: selected_facets
+              description: Field facets
+              paramType: query
+              allowMultiple: true
+              type: array
+              items:
+                pytype: str
+              required: false
+            - name: selected_query_facets
+              description: Query facets
+              paramType: query
+              allowMultiple: true
+              type: array
+              items:
+                pytype: str
+              required: false
         """
         return super(BaseCourseHaystackViewSet, self).facets(request)
+
+    def filter_facet_queryset(self, queryset):
+        queryset = super(BaseCourseHaystackViewSet, self).filter_facet_queryset(queryset)
+
+        facet_serializer_cls = self.get_facet_serializer_class()
+        field_queries = facet_serializer_cls.Meta.field_queries
+
+        for facet in self.request.query_params.getlist('selected_query_facets'):
+            query = field_queries.get(facet)
+
+            if not query:
+                raise ParseError('The selected query facet [{facet}] is not valid.'.format(facet=facet))
+
+            queryset = queryset.raw_search(query['query'])
+
+        return queryset
 
 
 class CourseSearchViewSet(BaseCourseHaystackViewSet):

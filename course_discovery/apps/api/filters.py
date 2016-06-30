@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext as _
+from drf_haystack.filters import HaystackFacetFilter
+from drf_haystack.query import FacetQueryBuilder
 from dry_rest_permissions.generics import DRYPermissionFiltersBase
 from guardian.shortcuts import get_objects_for_user
 from rest_framework.exceptions import PermissionDenied, NotFound
@@ -38,3 +40,15 @@ class PermissionsFilter(DRYPermissionFiltersBase):
                 )
 
         return get_objects_for_user(user, perm)
+
+
+class FacetQueryBuilderWithQueries(FacetQueryBuilder):
+    def build_query(self, **filters):
+        query = super(FacetQueryBuilderWithQueries, self).build_query(**filters)
+        facet_serializer_cls = self.view.get_facet_serializer_class()
+        query['query_facets'] = facet_serializer_cls.Meta.field_queries
+        return query
+
+
+class HaystackFacetFilterWithQueries(HaystackFacetFilter):
+    query_builder_class = FacetQueryBuilderWithQueries
