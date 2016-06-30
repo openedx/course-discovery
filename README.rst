@@ -25,15 +25,10 @@ The Course Discovery API is a data aggregator with several purposes:
 
 To aid in these goals, the Course Discovery Service will collect data from
 several systems internal to the OpenEdX installation. Initially, this will
-just be Otto (the Ecommerce service), and in the future it will also include
+just be Otto (the E-Commerce Service), and in the future it will also include
 Studio, and in the edX.org implementation, our Drupal marketing site. The design
 intention is that additional systems should be cheap to add to the same framework.
 
-Overview
---------
-
-As a standard django application :module:`course_discovery.views` is a useful
-entry point, as it defines the APIs that this service will support.
 
 Documentation
 -------------
