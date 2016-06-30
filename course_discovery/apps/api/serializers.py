@@ -1,6 +1,5 @@
 # pylint: disable=abstract-method
 
-import datetime
 from urllib.parse import urlencode
 
 from django.contrib.auth import get_user_model
@@ -28,12 +27,6 @@ COURSE_RUN_FACET_FIELD_OPTIONS = {
     'language': {},
     'transcript_languages': {},
     'pacing_type': {},
-    'start': {
-        'start_date': datetime.datetime.now() - datetime.timedelta(days=365),
-        'end_date': datetime.datetime.now(),
-        'gap_by': 'month',
-        'gap_amount': 1,
-    },
     'content_type': {},
     'type': {},
 }
