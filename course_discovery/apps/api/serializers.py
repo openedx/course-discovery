@@ -4,15 +4,14 @@ from urllib.parse import urlencode
 
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
-from drf_haystack.serializers import HaystackSerializer, HaystackFacetSerializer
 from rest_framework import serializers
-from rest_framework.fields import DictField
 
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Image, Organization, Person, Prerequisite, Seat, Subject, Video
 )
 from course_discovery.apps.course_metadata.search_indexes import CourseIndex, CourseRunIndex
+from drf_haystack.serializers import HaystackSerializer, HaystackFacetSerializer
 
 User = get_user_model()
 
@@ -367,82 +366,6 @@ class FlattenedCourseRunWithCourseSerializer(CourseRunSerializer):
         return obj.course.key
 
 
-class QueryFacetFieldSerializer(serializers.Serializer):
-    count = serializers.IntegerField()
-    narrow_url = serializers.SerializerMethodField()
-
-    def get_paginate_by_param(self):
-        """
-        Returns the ``paginate_by_param`` for the (root) view paginator class.
-        This is needed in order to remove the query parameter from faceted
-        narrow urls.
-
-        If using a custom pagination class, this class attribute needs to
-        be set manually.
-        """
-        # NOTE (CCB): We use PageNumberPagination. See drf-haystack's FacetFieldSerializer.get_paginate_by_param
-        # for complete code that is applicable to any pagination class.
-        pagination_class = self.context['view'].pagination_class
-        return pagination_class.page_query_param
-
-    def get_narrow_url(self, instance):
-        """
-        Return a link suitable for narrowing on the current item.
-
-        Since we don't have any means of getting the ``view name`` from here,
-        we can only return relative paths.
-        """
-        field = instance['field']
-        request = self.context['request']
-        query_params = request.GET.copy()
-
-        # Never keep the page query parameter in narrowing urls.
-        # It will raise a NotFound exception when trying to paginate a narrowed queryset.
-        page_query_param = self.get_paginate_by_param()
-        if page_query_param in query_params:
-            del query_params[page_query_param]
-
-        selected_facets = set(query_params.pop('selected_query_facets', []))
-        selected_facets.add(field)
-        query_params.setlist('selected_query_facets', sorted(selected_facets))
-
-        path = '{path}?{query}'.format(path=request.path_info, query=query_params.urlencode())
-        url = request.build_absolute_uri(path)
-        return serializers.Hyperlink(url, name='narrow-url')
-
-
-class BaseHaystackFacetSerializer(HaystackFacetSerializer):
-    _abstract = True
-
-    def get_fields(self):
-        query_facet_counts = self.instance.pop('queries')
-
-        field_mapping = super(BaseHaystackFacetSerializer, self).get_fields()
-
-        query_data = self.format_query_facet_data(query_facet_counts)
-
-        field_mapping['queries'] = DictField(query_data, child=QueryFacetFieldSerializer(), required=False)
-
-        if self.serialize_objects:
-            field_mapping.move_to_end('objects')
-
-        self.instance['queries'] = query_data
-
-        return field_mapping
-
-    def format_query_facet_data(self, query_facet_counts):
-        query_data = {}
-        for field, options in self.Meta.field_queries.items():  # pylint: disable=no-member
-            count = query_facet_counts.get(field, 0)
-            if count:
-                query_data[field] = {
-                    'field': field,
-                    'options': options,
-                    'count': count,
-                }
-        return query_data
-
-
 class CourseSearchSerializer(HaystackSerializer):
     content_type = serializers.CharField(source='model_name')
 
@@ -453,7 +376,7 @@ class CourseSearchSerializer(HaystackSerializer):
         index_classes = [CourseIndex]
 
 
-class CourseFacetSerializer(BaseHaystackFacetSerializer):
+class CourseFacetSerializer(HaystackFacetSerializer):
     serialize_objects = True
 
     class Meta:
@@ -477,7 +400,7 @@ class CourseRunSearchSerializer(HaystackSerializer):
         index_classes = [CourseRunIndex]
 
 
-class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
+class CourseRunFacetSerializer(HaystackFacetSerializer):
     serialize_objects = True
 
     class Meta:
@@ -498,7 +421,7 @@ class AggregateSearchSerializer(HaystackSerializer):
         }
 
 
-class AggregateFacetSearchSerializer(BaseHaystackFacetSerializer):
+class AggregateFacetSearchSerializer(HaystackFacetSerializer):
     serialize_objects = True
 
     class Meta:
