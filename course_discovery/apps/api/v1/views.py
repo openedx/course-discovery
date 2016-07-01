@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.db.models.functions import Lower
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from drf_haystack.filters import HaystackFilter
+from drf_haystack.filters import HaystackFilter, HaystackFacetFilter
 from drf_haystack.mixins import FacetMixin
 from drf_haystack.viewsets import HaystackViewSet
 from dry_rest_permissions.generics import DRYPermissions
@@ -23,7 +23,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api import serializers
-from course_discovery.apps.api.filters import PermissionsFilter, HaystackFacetFilterWithQueries
+from course_discovery.apps.api.filters import PermissionsFilter
 from course_discovery.apps.api.pagination import PageNumberPagination
 from course_discovery.apps.api.renderers import AffiliateWindowXMLRenderer, CourseRunCSVRenderer
 from course_discovery.apps.catalogs.models import Catalog
@@ -364,7 +364,7 @@ class AffiliateWindowViewSet(viewsets.ViewSet):
 
 class BaseCourseHaystackViewSet(FacetMixin, HaystackViewSet):
     document_uid_field = 'key'
-    facet_filter_backends = [HaystackFacetFilterWithQueries, HaystackFilter]
+    facet_filter_backends = [HaystackFacetFilter, HaystackFilter]
     load_all = True
     lookup_field = 'key'
     permission_classes = (IsAuthenticated,)
