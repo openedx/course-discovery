@@ -1,3 +1,4 @@
+import datetime
 import json
 import urllib.parse
 
@@ -81,3 +82,69 @@ class CourseRunSearchViewSetTests(ElasticsearchTestMixin, APITestCase):
         self.assertDictContainsSubset(expected, actual)
 
         return course_run, response_data
+
+    def build_facet_url(self, params):
+        return 'http://testserver{path}?{query}'.format(path=self.faceted_path, query=urllib.parse.urlencode(params))
+
+    def test_invalid_query_facet(self):
+        """ Verify the endpoint returns HTTP 400 if an invalid facet is requested. """
+        facet = 'not-a-facet'
+        url = '{path}?selected_query_facets={facet}'.format(path=self.faceted_path, facet=facet)
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 400)
+
+        response_data = json.loads(response.content.decode('utf-8'))
+        expected = {'detail': 'The selected query facet [{facet}] is not valid.'.format(facet=facet)}
+        self.assertEqual(response_data, expected)
+
+    def test_availability_faceting(self):
+        """ Verify the endpoint returns availability facets with the results. """
+        now = datetime.datetime.utcnow()
+        archived = CourseRunFactory(start=now - datetime.timedelta(weeks=2), end=now - datetime.timedelta(weeks=1))
+        current = CourseRunFactory(start=now - datetime.timedelta(weeks=2), end=now + datetime.timedelta(weeks=1))
+        starting_soon = CourseRunFactory(start=now + datetime.timedelta(days=10), end=now + datetime.timedelta(days=90))
+        upcoming = CourseRunFactory(start=now + datetime.timedelta(days=61), end=now + datetime.timedelta(days=90))
+
+        response = self.get_search_response(faceted=True)
+        self.assertEqual(response.status_code, 200)
+        response_data = json.loads(response.content.decode('utf-8'))
+
+        # Verify all course runs are returned
+        self.assertEqual(response_data['objects']['count'], 4)
+        expected = [self.serialize_course_run(course_run) for course_run in
+                    [archived, current, starting_soon, upcoming]]
+        self.assertEqual(response_data['objects']['results'], expected)
+
+        self.assert_response_includes_availability_facets(response_data)
+
+        # Verify the results can be filtered based on availability
+        url = '{path}?page=1&selected_query_facets={facet}'.format(
+            path=self.faceted_path, facet='availability_archived'
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response_data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(response_data['objects']['results'], [self.serialize_course_run(archived)])
+
+    def assert_response_includes_availability_facets(self, response_data):
+        """ Verifies the query facet counts/URLs are properly rendered. """
+        expected = {
+            'availability_archived': {
+                'count': 1,
+                'narrow_url': self.build_facet_url({'selected_query_facets': 'availability_archived'})
+            },
+            'availability_current': {
+                'count': 1,
+                'narrow_url': self.build_facet_url({'selected_query_facets': 'availability_current'})
+            },
+            'availability_starting_soon': {
+                'count': 1,
+                'narrow_url': self.build_facet_url({'selected_query_facets': 'availability_starting_soon'})
+            },
+            'availability_upcoming': {
+                'count': 1,
+                'narrow_url': self.build_facet_url({'selected_query_facets': 'availability_upcoming'})
+            },
+        }
+        self.assertDictContainsSubset(expected, response_data['queries'])
