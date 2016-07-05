@@ -1,0 +1,19 @@
+{# Base template for edX-specific pages. #}
+
+{% load i18n %}
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+<head lang="{{ language_code }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock title %}</title>
+</head>
+
+<body>
+{% block content %}
+
+{% endblock content %}
+</body>
+</html>
