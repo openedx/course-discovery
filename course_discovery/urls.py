@@ -34,6 +34,7 @@ urlpatterns = auth_urlpatterns + [
     url(r'^auto_auth/$', core_views.AutoAuth.as_view(), name='auto_auth'),
     url(r'^health/$', core_views.health, name='health'),
     url('^$', QueryPreviewView.as_view()),
+    url(r'^course-about/', include('course_discovery.apps.course_about.urls', namespace='course_about')),
 ]
 
 if settings.DEBUG and os.environ.get('ENABLE_DJANGO_TOOLBAR', False):  # pragma: no cover
