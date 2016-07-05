@@ -5,6 +5,7 @@ from uuid import uuid4
 
 import pytz
 from django.conf import settings
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
@@ -18,6 +19,7 @@ from course_discovery.apps.course_metadata.query import CourseQuerySet
 from course_discovery.apps.course_metadata.utils import clean_query
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
+COURSE_NUMBER_REGEX = r"[A-z0-9\.]+x"
 logger = logging.getLogger(__name__)
 
 
@@ -55,6 +57,30 @@ class AbstractMediaModel(TimeStampedModel):
         abstract = True
 
 
+class AbstractSocialNetworkModel(TimeStampedModel):
+    """ SocialNetwork model. """
+    FACEBOOK = 'facebook'
+    TWITTER = 'twitter'
+    BLOG = 'blog'
+    OTHERS = 'others'
+
+    SOCIAL_NETWORK_CHOICES = (
+        (FACEBOOK, _('Facebook')),
+        (TWITTER, _('Twitter')),
+        (BLOG, _('Blog')),
+        (OTHERS, _('Others')),
+    )
+
+    type = models.CharField(max_length=15, choices=SOCIAL_NETWORK_CHOICES, db_index=True)
+    value = models.CharField(max_length=500)
+
+    def __str__(self):
+        return '{type}: {value}'.format(type=self.type, value=self.value)
+
+    class Meta(object):
+        abstract = True
+
+
 class Image(AbstractMediaModel):
     """ Image model. """
     height = models.IntegerField(null=True, blank=True)
@@ -64,6 +90,9 @@ class Image(AbstractMediaModel):
 class Video(AbstractMediaModel):
     """ Video model. """
     image = models.ForeignKey(Image, null=True, blank=True)
+    transcript_languages = models.ManyToManyField(
+        LanguageTag, null=True, blank=True, related_name='transcript_videos'
+    )
 
 
 class LevelType(AbstractNamedModel):
@@ -91,6 +120,16 @@ class SyllabusItem(AbstractValueModel):
     parent = models.ForeignKey('self', blank=True, null=True, related_name='children')
 
 
+class Expertise(AbstractNamedModel):
+    """ Expertise model. """
+    pass
+
+
+class MajorWork(AbstractNamedModel):
+    """ MajorWork model. """
+    pass
+
+
 class Organization(TimeStampedModel):
     """ Organization model. """
     key = models.CharField(max_length=255, unique=True)
@@ -113,6 +152,10 @@ class Person(TimeStampedModel):
     bio = models.TextField(null=True, blank=True)
     profile_image = models.ForeignKey(Image, null=True, blank=True)
     organizations = models.ManyToManyField(Organization, blank=True)
+    email = models.EmailField(max_length=255, null=True, blank=True)
+    username = models.CharField(max_length=255, null=True, blank=True)
+    expertises = SortedManyToManyField(Expertise, blank=True)
+    major_works = SortedManyToManyField(MajorWork, blank=True)
 
     history = HistoricalRecords()
 
@@ -137,6 +180,18 @@ class Course(TimeStampedModel):
     image = models.ForeignKey(Image, default=None, null=True, blank=True)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     marketing_url = models.URLField(max_length=255, null=True, blank=True)
+    learner_testimonial = models.CharField(max_length=50, null=True, blank=True, help_text=_(
+        "A quote from a learner in the course, demonstrating the value of taking the course"))
+
+    course_number = models.CharField(
+        max_length=10, validators=[
+            RegexValidator(
+                regex=COURSE_NUMBER_REGEX,
+                message="Alphanumeric characters and dot (.) are allowed. With lower (x) at end.",
+                code="invalid_course_number",
+            )
+        ],
+        null=True, blank=True, help_text=_("Course number format e.g CS002x, BIO1.1x, BIO1.2x"))
 
     history = HistoricalRecords()
     objects = CourseQuerySet.as_manager()
@@ -437,3 +492,27 @@ class Program(TimeStampedModel):
 
     def __str__(self):
         return self.name
+
+
+class PersonSocialNetwork(AbstractSocialNetworkModel):
+    """ Person Social Network model. """
+    person = models.ForeignKey(Person, related_name='person_networks')
+
+    class Meta(object):
+        verbose_name_plural = 'Person SocialNetwork'
+
+        unique_together = (
+            ('person', 'type'),
+        )
+
+
+class CourseRunSocialNetwork(AbstractSocialNetworkModel):
+    """ CourseRun Social Network model. """
+    course_run = models.ForeignKey(CourseRun, related_name='course_run_networks')
+
+    class Meta(object):
+        verbose_name_plural = 'CourseRun SocialNetwork'
+
+        unique_together = (
+            ('course_run', 'type'),
+        )
