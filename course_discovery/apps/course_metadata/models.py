@@ -191,10 +191,6 @@ class CourseRun(TimeStampedModel):
     XSERIES = 'xseries'
     MICRO_MASTERS = 'micromasters'
 
-    INTRODUCTORY = 'introductory'
-    INTERMEDIATE = 'intermediate'
-    ADVANCED = 'advanced'
-
     PACING_CHOICES = (
         # Translators: Self-paced refers to course runs that operate on the student's schedule.
         (SELF_PACED, _('Self-paced')),
@@ -400,13 +396,13 @@ class SocialNetWork(TimeStampedModel):
     """ SocialNetwork model. """
     FACEBOOK = 'facebook'
     TWITTER = 'twitter'
-    Blog = 'blog'
+    BLOG = 'blog'
     OTHERS = 'others'
 
     SOCIAL_NETWORK_CHOICES = (
         (FACEBOOK, _('Facebook')),
         (TWITTER, _('Twitter')),
-        (Blog, _('Blog')),
+        (BLOG, _('Blog')),
         (OTHERS, _('Others')),
     )
 
