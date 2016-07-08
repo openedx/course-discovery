@@ -1,8 +1,8 @@
 from django.contrib import admin
 
 from course_discovery.apps.course_metadata.models import (
-    Seat, Image, Video, LevelType, Subject, Prerequisite, ExpectedLearningItem, Course, CourseRun, Organization, Person,
-    CourseOrganization, SyllabusItem
+    Seat, Image, Video, LevelType, SocialNetWork, Subject, Prerequisite, ExpectedLearningItem, Course, CourseRun,
+    CourseStatus, Organization, Person, CourseOrganization, SyllabusItem
 )
 
 
@@ -15,6 +15,9 @@ class SeatInline(admin.TabularInline):
     model = Seat
     extra = 1
 
+class SocialNetworkInline(admin.TabularInline):
+    model = SocialNetWork
+    extra = 1
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
@@ -26,7 +29,7 @@ class CourseAdmin(admin.ModelAdmin):
 
 @admin.register(CourseRun)
 class CourseRunAdmin(admin.ModelAdmin):
-    inlines = (SeatInline,)
+    inlines = (SeatInline, SocialNetworkInline,)
     list_display = ('key', 'title',)
     ordering = ('key',)
     search_fields = ('key', 'title_override', 'course__title',)
@@ -53,5 +56,5 @@ for model in (LevelType, Subject, Prerequisite,):
     admin.site.register(model, NamedModelAdmin)
 
 # Register remaining models using basic ModelAdmin classes
-for model in (Image, Video, ExpectedLearningItem, SyllabusItem):
+for model in (Image, Video, ExpectedLearningItem, SyllabusItem, SocialNetWork, CourseStatus):
     admin.site.register(model)

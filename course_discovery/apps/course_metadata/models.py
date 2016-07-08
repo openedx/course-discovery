@@ -10,7 +10,7 @@ from haystack.query import SearchQuerySet
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 
-from course_discovery.apps.core.models import Currency
+from course_discovery.apps.core.models import Currency, User
 from course_discovery.apps.course_metadata.query import CourseQuerySet
 from course_discovery.apps.course_metadata.utils import clean_query
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -188,6 +188,8 @@ class CourseRun(TimeStampedModel):
     """ CourseRun model. """
     SELF_PACED = 'self_paced'
     INSTRUCTOR_PACED = 'instructor_paced'
+    XSERIES = 'xseries'
+    MICRO_MASTERS = 'micromasters'
 
     PACING_CHOICES = (
         # Translators: Self-paced refers to course runs that operate on the student's schedule.
@@ -196,6 +198,11 @@ class CourseRun(TimeStampedModel):
         # Translators: Instructor-paced refers to course runs that operate on a schedule set by the instructor,
         # similar to a normal university course.
         (INSTRUCTOR_PACED, _('Instructor-paced')),
+    )
+
+    PROGRAMS_CHOICES = (
+        (XSERIES, _('XSeries')),
+        (MICRO_MASTERS, _('Micro-Masters')),
     )
 
     course = models.ForeignKey(Course, related_name='course_runs')
@@ -234,6 +241,9 @@ class CourseRun(TimeStampedModel):
     image = models.ForeignKey(Image, default=None, null=True, blank=True)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     marketing_url = models.URLField(max_length=255, null=True, blank=True)
+
+    program_type = models.CharField(max_length=255, choices=PROGRAMS_CHOICES, db_index=True, null=True, blank=True)
+    seo_review = models.CharField(max_length=255, db_index=True, null=True, blank=True)
 
     history = HistoricalRecords()
 
@@ -380,3 +390,54 @@ class CourseOrganization(TimeStampedModel):
         unique_together = (
             ('course', 'organization', 'relation_type'),
         )
+
+
+class SocialNetWork(TimeStampedModel):
+    """ SocialNetwork model. """
+    FACEBOOK = 'facebook'
+    TWITTER = 'twitter'
+    BLOG = 'blog'
+    OTHERS = 'others'
+
+    SOCIAL_NETWORK_CHOICES = (
+        (FACEBOOK, _('Facebook')),
+        (TWITTER, _('Twitter')),
+        (BLOG, _('Blog')),
+        (OTHERS, _('Others')),
+    )
+
+    course_run = models.ForeignKey(
+        CourseRun, related_name='networks', db_index=True, null=True, blank=True
+    )
+    network = models.CharField(max_length=50, choices=SOCIAL_NETWORK_CHOICES)
+    value = models.CharField(max_length=500)
+
+    class Meta(object):
+        unique_together = (
+            ('course_run', 'network',),
+        )
+
+    def __str__(self):
+        return '{key}: {network}'.format(key=self.course_run.key, network=self.network)
+
+
+class CourseStatus(TimeStampedModel):
+    """ Course status model. """
+
+    DRAFT = 'draft'
+    REVIEW = 'ready_for_review'
+    PUBLISHED = 'published'
+
+    STATUS_CHOICES = (
+        (DRAFT, _('Draft')),
+        (PUBLISHED, _('Published')),
+        (REVIEW, _('Ready-For-Review')),
+    )
+
+    course_run = models.ForeignKey(CourseRun, related_name='statuses')
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES)
+    last_modified_by = models.ForeignKey(User, related_name='last_modified_by_user')
+
+    def __str__(self):
+        return '{key}: {type}: {user}'.format(key=self.course_run.key, type=self.type, user=self.last_modified_by)
+
