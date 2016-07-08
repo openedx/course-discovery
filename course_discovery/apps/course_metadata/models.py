@@ -401,43 +401,45 @@ class SocialNetWork(TimeStampedModel):
     FACEBOOK = 'facebook'
     TWITTER = 'twitter'
     Blog = 'blog'
+    OTHERS = 'others'
 
     SOCIAL_NETWORK_CHOICES = (
         (FACEBOOK, _('Facebook')),
         (TWITTER, _('Twitter')),
         (Blog, _('Blog')),
+        (OTHERS, _('Others')),
     )
 
     course_run = models.ForeignKey(
         CourseRun, related_name='networks', db_index=True, null=True, blank=True
     )
-    type = models.CharField(max_length=50, choices=SOCIAL_NETWORK_CHOICES)
+    network = models.CharField(max_length=50, choices=SOCIAL_NETWORK_CHOICES)
     value = models.CharField(max_length=500)
 
     class Meta(object):
         unique_together = (
-            ('course_run', 'type',),
+            ('course_run', 'network',),
         )
 
     def __str__(self):
-        return '{key}: {network}'.format(key=self.course_run.key, network=self.type)
+        return '{key}: {network}'.format(key=self.course_run.key, network=self.network)
 
 
 class CourseStatus(TimeStampedModel):
     """ Course status model. """
 
     DRAFT = 'draft'
-    ReadyForReview = 'ready_for_review'
+    REVIEW = 'ready_for_review'
     PUBLISHED = 'published'
 
     STATUS_CHOICES = (
         (DRAFT, _('Draft')),
         (PUBLISHED, _('Published')),
-        (ReadyForReview, _('Ready-For-Review')),
+        (REVIEW, _('Ready-For-Review')),
     )
 
     course_run = models.ForeignKey(CourseRun, related_name='statuses')
-    type = models.CharField(max_length=50, choices=STATUS_CHOICES)
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES)
     last_modified_by = models.ForeignKey(User, related_name='last_modified_by_user')
 
     def __str__(self):
