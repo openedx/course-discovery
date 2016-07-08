@@ -20,3 +20,10 @@ def clean_query(query):
         query = query.replace(old, new)
 
     return query
+
+
+def _choices(*values):
+    """
+    Helper for use with model field 'choices'.
+    """
+    return [(value, ) * 2 for value in values]

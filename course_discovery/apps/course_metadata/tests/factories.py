@@ -8,8 +8,10 @@ from pytz import UTC
 
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.core.models import Currency
+from course_discovery.apps.course_metadata.constants import ProgramCategory, ProgramStatus
 from course_discovery.apps.course_metadata.models import(
-    Course, CourseRun, Organization, Person, Image, Video, Subject, Seat, Prerequisite, LevelType
+    Course, CourseRun, Organization, Person, Image, Video, Subject, Seat, Prerequisite, LevelType, CourseRequirement,
+    Program
 )
 
 
@@ -138,3 +140,25 @@ class PersonFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = Person
+
+
+class CourseRequirementFactory(factory.django.DjangoModelFactory):
+    class Meta(object):
+        model = CourseRequirement
+
+    name = factory.Sequence(lambda n: 'test-program-{}'.format(n))  # pylint: disable=unnecessary-lambda
+    supported_seat_types = FuzzyChoice(
+        [seat[0] for seat in Seat.SEAT_TYPE_CHOICES]
+    )
+
+
+class ProgramFactory(factory.django.DjangoModelFactory):
+    class Meta(object):
+        model = Program
+
+    name = factory.Sequence(lambda n: 'test-program-{}'.format(n))  # pylint: disable=unnecessary-lambda
+    uuid = factory.Sequence(lambda n: n)
+    subtitle = "test-subtitle"
+    category = ProgramCategory.XSERIES
+    status = ProgramStatus.UNPUBLISHED
+    marketing_slug = factory.Sequence(lambda n: 'test-slug-{}'.format(n))  # pylint: disable=unnecessary-lambda

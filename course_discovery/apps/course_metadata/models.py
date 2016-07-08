@@ -1,5 +1,6 @@
 import datetime
 import logging
+from uuid import uuid4
 
 import pytz
 from django.db import models
@@ -7,12 +8,14 @@ from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from haystack.query import SearchQuerySet
+from select_multiple_field.models import SelectMultipleField
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 
 from course_discovery.apps.core.models import Currency
+from course_discovery.apps.course_metadata import constants
 from course_discovery.apps.course_metadata.query import CourseQuerySet
-from course_discovery.apps.course_metadata.utils import clean_query
+from course_discovery.apps.course_metadata.utils import clean_query, _choices
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 logger = logging.getLogger(__name__)
@@ -327,6 +330,7 @@ class Seat(TimeStampedModel):
     AUDIT = 'audit'
     VERIFIED = 'verified'
     PROFESSIONAL = 'professional'
+    NO_ID_PROFESSIONAL = 'no-id-professional'
     CREDIT = 'credit'
 
     SEAT_TYPE_CHOICES = (
@@ -334,6 +338,7 @@ class Seat(TimeStampedModel):
         (AUDIT, _('Audit')),
         (VERIFIED, _('Verified')),
         (PROFESSIONAL, _('Professional')),
+        (NO_ID_PROFESSIONAL, _('Professional (No ID verification)')),
         (CREDIT, _('Credit')),
     )
 
@@ -380,3 +385,77 @@ class CourseOrganization(TimeStampedModel):
         unique_together = (
             ('course', 'organization', 'relation_type'),
         )
+
+
+class CourseRequirement(TimeStampedModel):
+    name = models.CharField(
+        help_text=_('The user-facing display name for this requirement.'),
+        max_length=255,
+        unique=True,
+        blank=True,
+    )
+    courses = models.ManyToManyField(Course)
+    supported_seat_types = SelectMultipleField(
+        choices=Seat.SEAT_TYPE_CHOICES,
+        max_length=255
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class Program(TimeStampedModel):
+    """
+    Representation of a Program.
+    """
+    uuid = models.UUIDField(
+        blank=True,
+        default=uuid4,
+        editable=False,
+        unique=True,
+    )
+
+    name = models.CharField(
+        help_text=_('The user-facing display name for this Program.'),
+        max_length=255,
+        unique=True,
+    )
+
+    subtitle = models.CharField(
+        help_text=_('A brief, descriptive subtitle for the Program.'),
+        max_length=255,
+        blank=True,
+    )
+
+    category = models.CharField(
+        help_text=_('The category / type of Program.'),
+        max_length=32,
+        choices=_choices(constants.ProgramCategory.XSERIES),
+    )
+
+    status = models.CharField(
+        help_text=_('The lifecycle status of this Program.'),
+        max_length=24,
+        choices=_choices(
+            constants.ProgramStatus.UNPUBLISHED,
+            constants.ProgramStatus.ACTIVE,
+            constants.ProgramStatus.RETIRED,
+            constants.ProgramStatus.DELETED,
+        ),
+        default=constants.ProgramStatus.UNPUBLISHED,
+    )
+
+    marketing_slug = models.CharField(
+        help_text=_('Slug used to generate links to the marketing site'),
+        blank=True,
+        max_length=255
+    )
+
+    organizations = models.ManyToManyField(Organization, blank=True)
+    course_requirements = SortedManyToManyField(CourseRequirement)
+
+    class Meta(object):  # pylint: disable=missing-docstring
+        index_together = ('status', 'category')
+
+    def __str__(self):
+        return self.name
