@@ -235,3 +235,14 @@ class AbstractValueModelTests(TestCase):
         value = 'abc'
         instance = TestAbstractValueModel(value=value)
         self.assertEqual(str(instance), value)
+
+
+class ProgramTests(TestCase):
+    """Tests of the Program model."""
+
+    def test_str(self):
+        """Verify that a program is properly converted to a str."""
+        program = factories.ProgramFactory()
+        program_str = program.name
+
+        self.assertEqual(str(program), program_str)

@@ -1,5 +1,6 @@
 import datetime
 import logging
+from uuid import uuid4
 
 import pytz
 from django.db import models
@@ -380,3 +381,48 @@ class CourseOrganization(TimeStampedModel):
         unique_together = (
             ('course', 'organization', 'relation_type'),
         )
+
+
+class Program(TimeStampedModel):
+    """
+    Representation of a Program.
+    """
+    uuid = models.UUIDField(
+        blank=True,
+        default=uuid4,
+        editable=False,
+        unique=True,
+    )
+
+    name = models.CharField(
+        help_text=_('The user-facing display name for this Program.'),
+        max_length=255,
+        unique=True,
+    )
+
+    subtitle = models.CharField(
+        help_text=_('A brief, descriptive subtitle for the Program.'),
+        max_length=255,
+        blank=True,
+    )
+
+    category = models.CharField(
+        help_text=_('The category / type of Program.'),
+        max_length=32,
+    )
+
+    status = models.CharField(
+        help_text=_('The lifecycle status of this Program.'),
+        max_length=24,
+    )
+
+    marketing_slug = models.CharField(
+        help_text=_('Slug used to generate links to the marketing site'),
+        blank=True,
+        max_length=255
+    )
+
+    organizations = models.ManyToManyField(Organization, blank=True)
+
+    def __str__(self):
+        return self.name
