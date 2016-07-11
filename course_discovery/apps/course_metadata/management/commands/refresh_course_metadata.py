@@ -32,7 +32,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        from nose.tools import set_trace; set_trace()
 
         # For each partner defined...
         for partner in settings.PARTNER_CONFIGURATIONS:
