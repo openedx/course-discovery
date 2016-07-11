@@ -9,7 +9,7 @@ from pytz import UTC
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.models import(
-    Course, CourseRun, Organization, Person, Image, Video, Subject, Seat, Prerequisite, LevelType
+    Course, CourseRun, Organization, Person, Image, Video, Subject, Seat, Prerequisite, LevelType, Program
 )
 
 
@@ -138,3 +138,15 @@ class PersonFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = Person
+
+
+class ProgramFactory(factory.django.DjangoModelFactory):
+    class Meta(object):
+        model = Program
+
+    name = factory.Sequence(lambda n: 'test-program-{}'.format(n))  # pylint: disable=unnecessary-lambda
+    uuid = factory.Sequence(lambda n: n)
+    subtitle = 'test-subtitle'
+    category = 'xseries'
+    status = 'unpublished'
+    marketing_slug = factory.Sequence(lambda n: 'test-slug-{}'.format(n))  # pylint: disable=unnecessary-lambda
