@@ -188,7 +188,7 @@ AUTO_AUTH_USERNAME_PREFIX = 'auto_auth_'
 # Set these to the correct values for your OAuth2/OpenID Connect provider (e.g., devstack)
 SOCIAL_AUTH_EDX_OIDC_KEY = 'catalog-key'
 SOCIAL_AUTH_EDX_OIDC_SECRET = 'catalog-secret'
-SOCIAL_AUTH_EDX_OIDC_URL_ROOT = 'http://localhost:8000/oauth'
+SOCIAL_AUTH_EDX_OIDC_URL_ROOT = 'http://localhost:8000/oauth2'
 SOCIAL_AUTH_EDX_OIDC_LOGOUT_URL = 'http://localhost:8000'
 SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY = SOCIAL_AUTH_EDX_OIDC_SECRET
 

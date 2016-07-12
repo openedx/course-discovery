@@ -34,7 +34,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         # For each partner defined...
-        for partner in settings.PARTNER_CONFIGURATIONS:
+        for key, partner_config in settings.PARTNER_CONFIGURATIONS.items():
 
             access_token = options.get('access_token')
             token_type = options.get('token_type')
@@ -58,10 +58,10 @@ class Command(BaseCommand):
                     raise
 
             loaders = (
-                (OrganizationsApiDataLoader, partner['ORGANIZATIONS_API_URL'],),
-                (CoursesApiDataLoader, partner['COURSES_API_URL'],),
-                (EcommerceApiDataLoader, partner['ECOMMERCE_API_URL'],),
-                (DrupalApiDataLoader, partner['MARKETING_API_URL'],),
+                (OrganizationsApiDataLoader, partner_config['ORGANIZATIONS_API_URL'],),
+                (CoursesApiDataLoader, partner_config['COURSES_API_URL'],),
+                (EcommerceApiDataLoader, partner_config['ECOMMERCE_API_URL'],),
+                (DrupalApiDataLoader, partner_config['MARKETING_API_URL'],),
             )
 
             for loader_class, api_url in loaders:

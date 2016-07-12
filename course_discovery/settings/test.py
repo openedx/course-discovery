@@ -45,15 +45,15 @@ EDX_DRF_EXTENSIONS = {
 
 PARTNER_CONFIGURATIONS = {
     "partner1": {
-        "ORGANIZATIONS_API_URL":"",
-        "COURSES_API_URL":"",
-        "ECOMMERCE_API_URL":"",
+        "ORGANIZATIONS_API_URL":"http://127.0.0.1:8000/api/organizations/v0/",
+        "COURSES_API_URL":"http://127.0.0.1:8000/api/courses/v1/",
+        "ECOMMERCE_API_URL":"http://127.0.0.1:8002/api/v2/",
         "MARKETING_API_URL":""
     },
     "partner2": {
-        "ORGANIZATIONS_API_URL":"",
-        "COURSES_API_URL":"",
-        "ECOMMERCE_API_URL":"",
+        "ORGANIZATIONS_API_URL":"http://127.0.0.1:8000/api/organizations/v0/",
+        "COURSES_API_URL":"http://127.0.0.1:8000/api/courses/v1/",
+        "ECOMMERCE_API_URL":"http://127.0.0.1:8002/api/v2/",
         "MARKETING_API_URL":""
     }
 }
