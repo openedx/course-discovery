@@ -34,7 +34,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         # For each partner defined...
-        for key, partner_config in settings.PARTNER_CONFIGURATIONS.items():
+        for __, partner_config in settings.PARTNER_CONFIGURATIONS.items():
 
             access_token = options.get('access_token')
             token_type = options.get('token_type')
@@ -72,5 +72,5 @@ class Command(BaseCommand):
                         token_type,
                         partner_short_code=partner_config['PARTNER_SHORT_CODE']
                     ).ingest()
-                except Exception:
+                except Exception:  # pylint: disable=broad-except
                     logger.exception('%s failed!', loader_class.__name__)

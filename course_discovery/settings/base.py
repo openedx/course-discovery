@@ -335,3 +335,5 @@ ECOMMERCE_API_URL = 'http://127.0.0.1:8002/api/v2/'
 ORGANIZATIONS_API_URL = 'http://127.0.0.1:8000/api/organizations/v0/'
 MARKETING_API_URL = 'http://example.org/api/catalog/v2/'
 MARKETING_URL_ROOT = 'http://example.org/'
+
+PARTNER_CONFIGURATIONS = None

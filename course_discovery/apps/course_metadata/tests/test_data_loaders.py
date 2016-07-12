@@ -7,8 +7,7 @@ from urllib.parse import parse_qs, urlparse
 import ddt
 import mock
 import responses
-from django.conf import settings
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from edx_rest_api_client.auth import BearerAuth, SuppliedJwtAuth
 from edx_rest_api_client.client import EdxRestApiClient
 from opaque_keys.edx.keys import CourseKey
@@ -26,12 +25,18 @@ from course_discovery.apps.course_metadata.tests.factories import (
 
 ACCESS_TOKEN = 'secret'
 ACCESS_TOKEN_TYPE = 'Bearer'
-COURSES_API_URL = 'https://lms.example.com/api/courses/v1'
-ECOMMERCE_API_URL = 'https://ecommerce.example.com/api/v2'
 ENGLISH_LANGUAGE_TAG = LanguageTag(code='en-us', name='English - United States')
 JSON = 'application/json'
-MARKETING_API_URL = 'https://example.com/api/catalog/v2/'
-ORGANIZATIONS_API_URL = 'https://lms.example.com/api/organizations/v0'
+
+PARTNER_CONFIGURATIONS = {
+    'testPartner': {
+        "PARTNER_SHORT_CODE": 'test',
+        "ORGANIZATIONS_API_URL": 'https://lms.example.com/api/organizations/v0',
+        "COURSES_API_URL": 'https://lms.example.com/api/courses/v1',
+        "ECOMMERCE_API_URL": 'https://ecommerce.example.com/api/v2',
+        "MARKETING_API_URL": 'https://example.com/api/catalog/v2/'
+    }
+}
 
 
 class AbstractDataLoaderTest(TestCase):
@@ -113,9 +118,8 @@ class DataLoaderTestMixin(object):
 
 
 @ddt.ddt
-@override_settings(ORGANIZATIONS_API_URL=ORGANIZATIONS_API_URL)
 class OrganizationsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
-    api_url = ORGANIZATIONS_API_URL
+    api_url = PARTNER_CONFIGURATIONS['testPartner']['ORGANIZATIONS_API_URL']
     loader_class = OrganizationsApiDataLoader
 
     def mock_api(self):
@@ -200,9 +204,8 @@ class OrganizationsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
 
 @ddt.ddt
-@override_settings(COURSES_API_URL=COURSES_API_URL)
 class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
-    api_url = COURSES_API_URL
+    api_url = PARTNER_CONFIGURATIONS['testPartner']['COURSES_API_URL']
     loader_class = CoursesApiDataLoader
 
     def mock_api(self):
@@ -297,7 +300,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
             return request_callback
 
-        url = '{host}/courses/'.format(host=settings.COURSES_API_URL)
+        url = '{host}/courses/'.format(host=self.api_url)
         responses.add_callback(responses.GET, url, callback=courses_api_callback(url, bodies), content_type=JSON)
 
         return bodies
@@ -421,7 +424,6 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
 
 @ddt.ddt
-@override_settings(MARKETING_API_URL=MARKETING_API_URL)
 class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     EXISTING_COURSE_AND_RUN_DATA = (
         {
@@ -447,7 +449,7 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     ORPHAN_ORGANIZATION_KEY = 'orphan_org'
     ORPHAN_STAFF_KEY = 'orphan_staff'
 
-    api_url = MARKETING_API_URL
+    api_url = PARTNER_CONFIGURATIONS['testPartner']['MARKETING_API_URL']
     loader_class = DrupalApiDataLoader
 
     def setUp(self):
@@ -593,7 +595,7 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
         responses.add(
             responses.GET,
-            settings.MARKETING_API_URL + 'courses/',
+            self.api_url + 'courses/',
             body=json.dumps(body),
             status=200,
             content_type='application/json'
@@ -732,9 +734,8 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
 
 @ddt.ddt
-@override_settings(ECOMMERCE_API_URL=ECOMMERCE_API_URL)
 class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
-    api_url = ECOMMERCE_API_URL
+    api_url = PARTNER_CONFIGURATIONS['testPartner']['ECOMMERCE_API_URL']
     loader_class = EcommerceApiDataLoader
 
     def mock_api(self):
@@ -992,7 +993,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
             return request_callback
 
-        url = '{host}/courses/'.format(host=settings.ECOMMERCE_API_URL)
+        url = '{host}/courses/'.format(host=self.api_url)
         responses.add_callback(responses.GET, url, callback=courses_api_callback(url, bodies), content_type=JSON)
 
         return bodies

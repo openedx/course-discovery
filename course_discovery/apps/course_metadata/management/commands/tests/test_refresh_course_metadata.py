@@ -2,6 +2,7 @@ from django.test import TestCase
 from course_discovery.apps.course_metadata.management.commands import refresh_course_metadata
 from course_discovery.apps.course_metadata.models import Course
 
+
 class RefreshCourseMetadataTests(TestCase):
     """
     Base test class for refresh_course_metadata command tests.
