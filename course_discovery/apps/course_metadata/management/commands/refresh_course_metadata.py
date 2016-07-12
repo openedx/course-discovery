@@ -66,6 +66,11 @@ class Command(BaseCommand):
 
             for loader_class, api_url in loaders:
                 try:
-                    loader_class(api_url, access_token, token_type).ingest()
+                    loader_class(
+                        api_url,
+                        access_token,
+                        token_type,
+                        partner_short_code=partner_config['PARTNER_SHORT_CODE']
+                    ).ingest()
                 except Exception:
                     logger.exception('%s failed!', loader_class.__name__)

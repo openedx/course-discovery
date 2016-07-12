@@ -1,6 +1,6 @@
 from django.test import TestCase
 from course_discovery.apps.course_metadata.management.commands import refresh_course_metadata
-
+from course_discovery.apps.course_metadata.models import Course
 
 class RefreshCourseMetadataTests(TestCase):
     """
@@ -16,7 +16,11 @@ class RefreshCourseMetadataTests(TestCase):
         command = self.command.Command()
         return command.handle(*args, **kwargs)
 
-    def test_regenerating_certificate(self):
+    def test_refresh_course_metadata(self):
         """
         """
         self._run_command()
+
+        courses = Course.objects.all()
+        for course in courses:
+            self.assertEqual(course.partner_short_code, 'mitpe')

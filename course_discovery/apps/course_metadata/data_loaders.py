@@ -32,7 +32,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
     PAGE_SIZE = 50
     SUPPORTED_TOKEN_TYPES = ('bearer', 'jwt',)
 
-    def __init__(self, api_url, access_token, token_type):
+    def __init__(self, api_url, access_token, token_type, partner_short_code=None):
         """
         Arguments:
             api_url (str): URL of the API from which data is loaded
@@ -47,6 +47,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         self.access_token = access_token
         self.api_url = api_url
         self.token_type = token_type
+        self.partner_short_code = partner_short_code
 
     @cached_property
     def api_client(self):
@@ -207,7 +208,8 @@ class CoursesApiDataLoader(AbstractDataLoader):
         organization, __ = Organization.objects.get_or_create(key=course_run_key.org)
         course_key = self.convert_course_run_key(course_run_key_str)
         defaults = {
-            'title': body['name']
+            'title': body['name'],
+            'partner_short_code': self.partner_short_code
         }
         course, __ = Course.objects.update_or_create(key=course_key, defaults=defaults)
 
