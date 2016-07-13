@@ -415,7 +415,7 @@ class BaseHaystackFacetSerializer(HaystackFacetSerializer):
     _abstract = True
 
     def get_fields(self):
-        query_facet_counts = self.instance.pop('queries')
+        query_facet_counts = self.instance.pop('queries', {})
 
         field_mapping = super(BaseHaystackFacetSerializer, self).get_fields()
 
@@ -432,7 +432,7 @@ class BaseHaystackFacetSerializer(HaystackFacetSerializer):
 
     def format_query_facet_data(self, query_facet_counts):
         query_data = {}
-        for field, options in self.Meta.field_queries.items():  # pylint: disable=no-member
+        for field, options in getattr(self.Meta, 'field_queries', {}).items():  # pylint: disable=no-member
             count = query_facet_counts.get(field, 0)
             if count:
                 query_data[field] = {
@@ -468,8 +468,6 @@ class CourseFacetSerializer(BaseHaystackFacetSerializer):
 
 
 class CourseRunSearchSerializer(HaystackSerializer):
-    content_type = serializers.CharField(source='model_name')
-
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
         fields = COURSE_RUN_SEARCH_FIELDS

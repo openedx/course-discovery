@@ -418,7 +418,7 @@ class BaseCourseHaystackViewSet(FacetMixin, HaystackViewSet):
         queryset = super(BaseCourseHaystackViewSet, self).filter_facet_queryset(queryset)
 
         facet_serializer_cls = self.get_facet_serializer_class()
-        field_queries = facet_serializer_cls.Meta.field_queries
+        field_queries = getattr(facet_serializer_cls.Meta, 'field_queries', {})
 
         for facet in self.request.query_params.getlist('selected_query_facets'):
             query = field_queries.get(facet)
