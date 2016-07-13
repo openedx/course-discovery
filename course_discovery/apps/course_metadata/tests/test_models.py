@@ -3,6 +3,7 @@ import datetime
 import ddt
 import mock
 import pytz
+from django.conf import settings
 from django.test import TestCase
 
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
@@ -243,6 +244,16 @@ class ProgramTests(TestCase):
     def test_str(self):
         """Verify that a program is properly converted to a str."""
         program = factories.ProgramFactory()
-        program_str = program.name
+        self.assertEqual(str(program), program.name)
 
-        self.assertEqual(str(program), program_str)
+    def test_marketing_url(self):
+        """ Verify the property creates a complete marketing URL. """
+        program = factories.ProgramFactory()
+        expected = '{root}/{category}/{slug}'.format(root=settings.MARKETING_URL_ROOT.strip('/'),
+                                                     category=program.category, slug=program.marketing_slug)
+        self.assertEqual(program.marketing_url, expected)
+
+    def test_marketing_url_without_slug(self):
+        """ Verify the property returns None if the Program has no marketing_slug set. """
+        program = factories.ProgramFactory(marketing_slug='')
+        self.assertIsNone(program.marketing_url)

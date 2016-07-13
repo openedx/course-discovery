@@ -11,14 +11,16 @@ from course_discovery.apps.api.serializers import (
     CatalogSerializer, CourseSerializer, CourseRunSerializer, ContainedCoursesSerializer, ImageSerializer,
     SubjectSerializer, PrerequisiteSerializer, VideoSerializer, OrganizationSerializer, SeatSerializer,
     PersonSerializer, AffiliateWindowSerializer, ContainedCourseRunsSerializer,
-    CourseRunSearchSerializer)
+    CourseRunSearchSerializer, ProgramSearchSerializer
+)
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
-from course_discovery.apps.course_metadata.models import CourseRun
+from course_discovery.apps.course_metadata.models import CourseRun, Program
+from course_discovery.apps.course_metadata.search_indexes import OrganizationsMixin
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, SubjectFactory, PrerequisiteFactory,
-    ImageFactory, VideoFactory, OrganizationFactory, PersonFactory, SeatFactory
+    CourseFactory, CourseRunFactory, SubjectFactory, PrerequisiteFactory, ImageFactory, VideoFactory,
+    OrganizationFactory, PersonFactory, SeatFactory, ProgramFactory
 )
 
 
@@ -356,5 +358,28 @@ class CourseRunSearchSerializerTests(TestCase):
             'seat_types': course_run.seat_types,
             'image_url': course_run.image_url,
             'type': course_run.type,
+        }
+        self.assertDictEqual(serializer.data, expected)
+
+
+class ProgramSearchSerializerTests(TestCase):
+    def test_data(self):
+        program = ProgramFactory()
+        organization = OrganizationFactory()
+        program.organizations.add(organization)
+        program.save()
+
+        # NOTE: This serializer expects SearchQuerySet results, so we run a search on the newly-created object
+        # to generate such a result.
+        result = SearchQuerySet().models(Program).filter(uuid=program.uuid)[0]
+        serializer = ProgramSearchSerializer(result)
+
+        expected = {
+            'uuid': str(program.uuid),
+            'name': program.name,
+            'subtitle': program.subtitle,
+            'category': program.category,
+            'marketing_url': program.marketing_url,
+            'organizations': [OrganizationsMixin.format_organization(organization)],
         }
         self.assertDictEqual(serializer.data, expected)

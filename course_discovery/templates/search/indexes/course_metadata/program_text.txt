@@ -1,0 +1,9 @@
+{{ object.uuid }}
+{{ object.name }}
+{{ object.category }}
+{{ object.status }}
+{{ object.marketing_slug|default:'' }}
+
+{% for organization in object.organizations.all %}
+    {{ organization.key }}: {{ organization.name }}
+{% endfor %}

@@ -46,7 +46,7 @@ class FacetQueryBuilderWithQueries(FacetQueryBuilder):
     def build_query(self, **filters):
         query = super(FacetQueryBuilderWithQueries, self).build_query(**filters)
         facet_serializer_cls = self.view.get_facet_serializer_class()
-        query['query_facets'] = facet_serializer_cls.Meta.field_queries
+        query['query_facets'] = getattr(facet_serializer_cls.Meta, 'field_queries', {})
         return query
 
 

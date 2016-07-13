@@ -1,8 +1,10 @@
 import datetime
 import logging
+from urllib.parse import urljoin
 from uuid import uuid4
 
 import pytz
+from django.conf import settings
 from django.db import models
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
@@ -424,6 +426,14 @@ class Program(TimeStampedModel):
     )
 
     organizations = models.ManyToManyField(Organization, blank=True)
+
+    @property
+    def marketing_url(self):
+        if self.marketing_slug:
+            path = '{category}/{slug}'.format(category=self.category, slug=self.marketing_slug)
+            return urljoin(settings.MARKETING_URL_ROOT, path)
+
+        return None
 
     def __str__(self):
         return self.name
