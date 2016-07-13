@@ -10,7 +10,7 @@ from rest_framework.fields import DictField
 
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Image, Organization, Person, Prerequisite, Seat, Subject, Video
+    Course, CourseRun, Image, Organization, Person, Prerequisite, Seat, Subject, Video, Program
 )
 from course_discovery.apps.course_metadata.search_indexes import CourseIndex, CourseRunIndex, ProgramIndex
 
@@ -248,6 +248,13 @@ class ContainedCoursesSerializer(serializers.Serializer):
         child=serializers.BooleanField(),
         help_text=_('Dictionary mapping course IDs to boolean values')
     )
+
+
+class ProgramSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Program
+        fields = ('uuid', 'name', 'subtitle', 'category', 'marketing_slug', 'marketing_url',)
+        read_only_fields = ('uuid', 'marketing_url',)
 
 
 class AffiliateWindowSerializer(serializers.ModelSerializer):
