@@ -49,6 +49,7 @@ PROJECT_APPS = (
     'course_discovery.apps.catalogs',
     'course_discovery.apps.course_metadata',
     'course_discovery.apps.edx_haystack_extensions',
+    'course_discovery.apps.programs',
 )
 
 
@@ -334,5 +335,6 @@ HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 COURSES_API_URL = 'http://127.0.0.1:8000/api/courses/v1/'
 ECOMMERCE_API_URL = 'http://127.0.0.1:8002/api/v2/'
 ORGANIZATIONS_API_URL = 'http://127.0.0.1:8000/api/organizations/v0/'
+PROGRAMS_API_URL = 'http://127.0.0.1:8003/api/v1/'
 MARKETING_API_URL = 'http://example.org/api/catalog/v2/'
 MARKETING_URL_ROOT = 'http://example.org/'

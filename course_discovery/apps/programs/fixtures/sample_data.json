@@ -1,0 +1,337 @@
+[
+{
+    "fields": {
+        "category": "xseries",
+        "status": "unpublished",
+        "subtitle": "A program used for testing purposes",
+        "name": "Test Program A",
+        "created": "2015-10-26T17:52:32.861Z",
+        "modified": "2015-10-26T19:59:22.716Z",
+        "marketing_slug": ""
+    },
+    "model": "programs.program",
+    "pk": 1
+},
+{
+    "fields": {
+        "category": "xseries",
+        "status": "unpublished",
+        "subtitle": "Another program used for testing purposes",
+        "name": "Test Program B",
+        "created": "2015-10-26T19:59:03.064Z",
+        "modified": "2015-10-26T19:59:18.536Z",
+        "marketing_slug": ""
+    },
+    "model": "programs.program",
+    "pk": 2
+},
+{
+    "fields": {
+        "category": "xseries",
+        "status": "unpublished",
+        "subtitle": "An XSeries used for demo purposes.",
+        "name": "Demo Program",
+        "created": "2015-10-27T15:58:05.499Z",
+        "modified": "2015-10-27T15:58:31.286Z",
+        "marketing_slug": ""
+    },
+    "model": "programs.program",
+    "pk": 3
+},
+{
+    "fields": {
+        "display_name": "Test Organization A",
+        "modified": "2015-10-26T19:56:32.346Z",
+        "key": "organization-a",
+        "created": "2015-10-26T17:52:31.298Z"
+    },
+    "model": "programs.organization",
+    "pk": 1
+},
+{
+    "fields": {
+        "display_name": "Test Organization B",
+        "modified": "2015-10-26T19:56:41.922Z",
+        "key": "organization-b",
+        "created": "2015-10-26T19:56:41.916Z"
+    },
+    "model": "programs.organization",
+    "pk": 2
+},
+{
+    "fields": {
+        "display_name": "edX",
+        "modified": "2015-10-27T15:57:07.590Z",
+        "key": "edx",
+        "created": "2015-10-27T15:57:07.584Z"
+    },
+    "model": "programs.organization",
+    "pk": 3
+},
+{
+    "fields": {
+        "organization": 1,
+        "program": 1,
+        "modified": "2015-10-26T17:52:32.873Z",
+        "created": "2015-10-26T17:52:32.867Z"
+    },
+    "model": "programs.programorganization",
+    "pk": 1
+},
+{
+    "fields": {
+        "organization": 2,
+        "program": 2,
+        "modified": "2015-10-26T19:59:03.077Z",
+        "created": "2015-10-26T19:59:03.070Z"
+    },
+    "model": "programs.programorganization",
+    "pk": 2
+},
+{
+    "fields": {
+        "organization": 3,
+        "program": 3,
+        "modified": "2015-10-27T15:58:05.512Z",
+        "created": "2015-10-27T15:58:05.505Z"
+    },
+    "model": "programs.programorganization",
+    "pk": 3
+},
+{
+    "fields": {
+        "organization": 1,
+        "display_name": "Test Course A",
+        "modified": "2015-10-26T17:53:16.118Z",
+        "key": "course-a",
+        "created": "2015-10-26T17:53:16.107Z"
+    },
+    "model": "programs.coursecode",
+    "pk": 1
+},
+{
+    "fields": {
+        "organization": 1,
+        "display_name": "Test Course B",
+        "modified": "2015-10-26T17:53:42.248Z",
+        "key": "course-b",
+        "created": "2015-10-26T17:53:42.238Z"
+    },
+    "model": "programs.coursecode",
+    "pk": 2
+},
+{
+    "fields": {
+        "organization": 2,
+        "display_name": "Test Course C",
+        "modified": "2015-10-26T20:00:02.959Z",
+        "key": "course-c",
+        "created": "2015-10-26T20:00:02.946Z"
+    },
+    "model": "programs.coursecode",
+    "pk": 3
+},
+{
+    "fields": {
+        "organization": 2,
+        "display_name": "Test Course D",
+        "modified": "2015-10-26T20:00:24.826Z",
+        "key": "course-d",
+        "created": "2015-10-26T20:00:24.816Z"
+    },
+    "model": "programs.coursecode",
+    "pk": 4
+},
+{
+    "fields": {
+        "organization": 3,
+        "display_name": "edX Demonstration Course",
+        "modified": "2015-10-27T16:04:04.301Z",
+        "key": "DemoX",
+        "created": "2015-10-27T16:04:04.289Z"
+    },
+    "model": "programs.coursecode",
+    "pk": 5
+},
+{
+    "fields": {
+        "position": 1,
+        "course_code": 1,
+        "program": 1,
+        "modified": "2015-10-26T17:53:16.121Z",
+        "created": "2015-10-26T17:53:16.113Z"
+    },
+    "model": "programs.programcoursecode",
+    "pk": 1
+},
+{
+    "fields": {
+        "position": 2,
+        "course_code": 2,
+        "program": 1,
+        "modified": "2015-10-26T17:53:42.251Z",
+        "created": "2015-10-26T17:53:42.243Z"
+    },
+    "model": "programs.programcoursecode",
+    "pk": 2
+},
+{
+    "fields": {
+        "position": 1,
+        "course_code": 3,
+        "program": 2,
+        "modified": "2015-10-26T20:00:02.964Z",
+        "created": "2015-10-26T20:00:02.953Z"
+    },
+    "model": "programs.programcoursecode",
+    "pk": 3
+},
+{
+    "fields": {
+        "position": 2,
+        "course_code": 4,
+        "program": 2,
+        "modified": "2015-10-26T20:00:24.830Z",
+        "created": "2015-10-26T20:00:24.822Z"
+    },
+    "model": "programs.programcoursecode",
+    "pk": 4
+},
+{
+    "fields": {
+        "position": 1,
+        "course_code": 5,
+        "program": 3,
+        "modified": "2015-10-27T16:04:04.305Z",
+        "created": "2015-10-27T16:04:04.296Z"
+    },
+    "model": "programs.programcoursecode",
+    "pk": 5
+},
+{
+    "fields": {
+        "sku": "",
+        "mode_slug": "verified",
+        "created": "2015-10-26T17:54:25.397Z",
+        "program_course_code": 1,
+        "course_key": "organization-a/course-a/fall",
+        "modified": "2015-10-26T20:00:47.011Z",
+        "lms_url": "",
+        "start_date": "2015-10-27T16:05:11.102Z"
+    },
+    "model": "programs.programcourserunmode",
+    "pk": 1
+},
+{
+    "fields": {
+        "sku": "",
+        "mode_slug": "verified",
+        "created": "2015-10-26T17:54:39.569Z",
+        "program_course_code": 1,
+        "course_key": "organization-a/course-a/winter",
+        "modified": "2015-10-26T20:00:51.728Z",
+        "lms_url": "",
+        "start_date": "2015-10-27T16:05:11.102Z"
+    },
+    "model": "programs.programcourserunmode",
+    "pk": 2
+},
+{
+    "fields": {
+        "sku": "",
+        "mode_slug": "verified",
+        "created": "2015-10-26T17:54:51.065Z",
+        "program_course_code": 2,
+        "course_key": "organization-a/course-b/fall",
+        "modified": "2015-10-26T20:00:57.798Z",
+        "lms_url": "",
+        "start_date": "2015-10-27T16:05:11.102Z"
+    },
+    "model": "programs.programcourserunmode",
+    "pk": 3
+},
+{
+    "fields": {
+        "sku": "",
+        "mode_slug": "verified",
+        "created": "2015-10-26T17:55:08.907Z",
+        "program_course_code": 2,
+        "course_key": "organization-a/course-b/winter",
+        "modified": "2015-10-26T20:01:04.534Z",
+        "lms_url": "",
+        "start_date": "2015-10-27T16:05:11.102Z"
+    },
+    "model": "programs.programcourserunmode",
+    "pk": 4
+},
+{
+    "fields": {
+        "sku": "",
+        "mode_slug": "verified",
+        "created": "2015-10-26T20:01:41.233Z",
+        "program_course_code": 3,
+        "course_key": "organization-b/course-c/fall",
+        "modified": "2015-10-26T20:01:41.236Z",
+        "lms_url": "",
+        "start_date": "2015-10-27T16:05:11.102Z"
+    },
+    "model": "programs.programcourserunmode",
+    "pk": 5
+},
+{
+    "fields": {
+        "sku": "",
+        "mode_slug": "verified",
+        "created": "2015-10-26T20:01:56.971Z",
+        "program_course_code": 3,
+        "course_key": "organization-b/course-c/winter",
+        "modified": "2015-10-26T20:01:56.975Z",
+        "lms_url": "",
+        "start_date": "2015-10-27T16:05:11.102Z"
+    },
+    "model": "programs.programcourserunmode",
+    "pk": 6
+},
+{
+    "fields": {
+        "sku": "",
+        "mode_slug": "verified",
+        "created": "2015-10-26T20:02:08.845Z",
+        "program_course_code": 4,
+        "course_key": "organization-b/course-d/fall",
+        "modified": "2015-10-26T20:02:08.849Z",
+        "lms_url": "",
+        "start_date": "2015-10-27T16:05:11.102Z"
+    },
+    "model": "programs.programcourserunmode",
+    "pk": 7
+},
+{
+    "fields": {
+        "sku": "",
+        "mode_slug": "verified",
+        "created": "2015-10-26T20:02:22.718Z",
+        "program_course_code": 4,
+        "course_key": "organization-b/course-d/winter",
+        "modified": "2015-10-26T20:02:22.721Z",
+        "lms_url": "",
+        "start_date": "2015-10-27T16:05:11.102Z"
+    },
+    "model": "programs.programcourserunmode",
+    "pk": 8
+},
+{
+    "fields": {
+        "sku": "",
+        "mode_slug": "verified",
+        "created": "2015-10-27T16:05:11.099Z",
+        "program_course_code": 5,
+        "course_key": "edX/DemoX/Demo_Course",
+        "modified": "2015-10-27T16:05:11.102Z",
+        "lms_url": "",
+        "start_date": "2015-10-27T16:05:11.102Z"
+    },
+    "model": "programs.programcourserunmode",
+    "pk": 9
+}
+]
