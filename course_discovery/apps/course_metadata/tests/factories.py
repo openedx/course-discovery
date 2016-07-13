@@ -1,16 +1,17 @@
 from datetime import datetime
+from uuid import uuid4
 
 import factory
-from factory.fuzzy import(
+from factory.fuzzy import (
     BaseFuzzyAttribute, FuzzyText, FuzzyChoice, FuzzyDateTime, FuzzyInteger, FuzzyDecimal
 )
 from pytz import UTC
 
-from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.core.models import Currency
-from course_discovery.apps.course_metadata.models import(
+from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Organization, Person, Image, Video, Subject, Seat, Prerequisite, LevelType, Program
 )
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
 class FuzzyURL(BaseFuzzyAttribute):
@@ -54,19 +55,16 @@ class VideoFactory(AbstractMediaModelFactory):
 
 
 class SubjectFactory(AbstractNamedModelFactory):
-
     class Meta:
         model = Subject
 
 
 class LevelTypeFactory(AbstractNamedModelFactory):
-
     class Meta:
         model = LevelType
 
 
 class PrerequisiteFactory(AbstractNamedModelFactory):
-
     class Meta:
         model = Prerequisite
 
@@ -145,7 +143,7 @@ class ProgramFactory(factory.django.DjangoModelFactory):
         model = Program
 
     name = factory.Sequence(lambda n: 'test-program-{}'.format(n))  # pylint: disable=unnecessary-lambda
-    uuid = factory.Sequence(lambda n: n)
+    uuid = factory.LazyFunction(uuid4)
     subtitle = 'test-subtitle'
     category = 'xseries'
     status = 'unpublished'
