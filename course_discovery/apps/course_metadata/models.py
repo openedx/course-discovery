@@ -392,6 +392,7 @@ class Program(TimeStampedModel):
         default=uuid4,
         editable=False,
         unique=True,
+        verbose_name=_('UUID')
     )
 
     name = models.CharField(
