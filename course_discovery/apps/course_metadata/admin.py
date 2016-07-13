@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from course_discovery.apps.course_metadata.models import (
     Seat, Image, Video, LevelType, Subject, Prerequisite, ExpectedLearningItem, Course, CourseRun, Organization, Person,
-    CourseOrganization, SyllabusItem
+    CourseOrganization, SyllabusItem, Program
 )
 
 
@@ -30,6 +30,13 @@ class CourseRunAdmin(admin.ModelAdmin):
     list_display = ('key', 'title',)
     ordering = ('key',)
     search_fields = ('key', 'title_override', 'course__title',)
+
+
+@admin.register(Program)
+class ProgramAdmin(admin.ModelAdmin):
+    list_display = ('uuid', 'name',)
+    ordering = ('uuid', 'name',)
+    search_fields = ('uuid', 'name', 'marketing_slug')
 
 
 class KeyNameAdmin(admin.ModelAdmin):
