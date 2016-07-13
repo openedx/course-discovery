@@ -275,6 +275,15 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
+    """ Program resource. """
+    lookup_field = 'uuid'
+    lookup_value_regex = '[0-9a-f-]+'
+    queryset = Program.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = serializers.ProgramSerializer
+
+
 class ManagementViewSet(viewsets.ViewSet):
     permission_classes = (IsSuperuser,)
 

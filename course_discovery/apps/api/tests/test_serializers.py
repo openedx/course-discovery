@@ -10,8 +10,8 @@ from rest_framework.test import APIRequestFactory
 from course_discovery.apps.api.serializers import (
     CatalogSerializer, CourseSerializer, CourseRunSerializer, ContainedCoursesSerializer, ImageSerializer,
     SubjectSerializer, PrerequisiteSerializer, VideoSerializer, OrganizationSerializer, SeatSerializer,
-    PersonSerializer, AffiliateWindowSerializer, ContainedCourseRunsSerializer,
-    CourseRunSearchSerializer, ProgramSearchSerializer
+    PersonSerializer, AffiliateWindowSerializer, ContainedCourseRunsSerializer, CourseRunSearchSerializer,
+    ProgramSerializer, ProgramSearchSerializer
 )
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import User
@@ -165,6 +165,22 @@ class CourseRunSerializerTests(TestCase):
         request = make_request()
         serializer = CourseRunSerializer(course_run, context={'request': request})
         self.assertEqual(serializer.data['marketing_url'], None)
+
+
+class ProgramSerializerTests(TestCase):
+    def test_data(self):
+        program = ProgramFactory()
+        serializer = ProgramSerializer(program)
+
+        expected = {
+            'uuid': str(program.uuid),
+            'name': program.name,
+            'subtitle': program.subtitle,
+            'category': program.category,
+            'marketing_slug': program.marketing_slug,
+            'marketing_url': program.marketing_url,
+        }
+        self.assertDictEqual(serializer.data, expected)
 
 
 class ContainedCourseRunsSerializerTests(TestCase):
