@@ -1,7 +1,16 @@
 from haystack import indexes
 from opaque_keys.edx.keys import CourseKey
 
-from course_discovery.apps.course_metadata.models import Course, CourseRun
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
+
+
+class OrganizationsMixin:
+    @classmethod
+    def format_organization(cls, organization):
+        return '{key}: {name}'.format(key=organization.key, name=organization.name)
+
+    def prepare_organizations(self, obj):
+        return [self.format_organization(organization) for organization in obj.organizations.all()]
 
 
 class BaseIndex(indexes.SearchIndex):
@@ -23,17 +32,13 @@ class BaseIndex(indexes.SearchIndex):
         return self.model.objects.all()
 
 
-class BaseCourseIndex(BaseIndex):
+class BaseCourseIndex(OrganizationsMixin, BaseIndex):
     key = indexes.CharField(model_attr='key', stored=True)
     title = indexes.CharField(model_attr='title')
     short_description = indexes.CharField(model_attr='short_description', null=True)
     full_description = indexes.CharField(model_attr='full_description', null=True)
     subjects = indexes.MultiValueField(faceted=True)
     organizations = indexes.MultiValueField(faceted=True)
-
-    def prepare_organizations(self, obj):
-        return ['{key}: {name}'.format(key=organization.key, name=organization.name) for organization in
-                obj.organizations.all()]
 
     def prepare_subjects(self, obj):
         return [subject.name for subject in obj.subjects.all()]
@@ -97,3 +102,17 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
 
     def prepare_transcript_languages(self, obj):
         return [self._prepare_language(language) for language in obj.transcript_languages.all()]
+
+
+class ProgramIndex(OrganizationsMixin, BaseIndex, indexes.Indexable):
+    model = Program
+
+    uuid = indexes.CharField(model_attr='uuid')
+    name = indexes.CharField(model_attr='name')
+    subtitle = indexes.CharField(model_attr='subtitle')
+    category = indexes.CharField(model_attr='category', faceted=True)
+    marketing_url = indexes.CharField(model_attr='marketing_url', null=True)
+    organizations = indexes.MultiValueField(faceted=True)
+
+    def prepare_content_type(self, obj):
+        return 'program_{category}'.format(category=obj.category)

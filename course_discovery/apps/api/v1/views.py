@@ -29,7 +29,7 @@ from course_discovery.apps.api.renderers import AffiliateWindowXMLRenderer, Cour
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_RUN_ID_REGEX
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Seat
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Seat, Program
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -360,14 +360,14 @@ class AffiliateWindowViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
 
-class BaseCourseHaystackViewSet(FacetMixin, HaystackViewSet):
+class BaseHaystackViewSet(FacetMixin, HaystackViewSet):
     document_uid_field = 'key'
     facet_filter_backends = [HaystackFacetFilterWithQueries, HaystackFilter]
     load_all = True
     lookup_field = 'key'
     permission_classes = (IsAuthenticated,)
 
-    # NOTE: We use PageNumberPagination because drf-haytack's facet serializer relies on the page_query_param
+    # NOTE: We use PageNumberPagination because drf-haystack's facet serializer relies on the page_query_param
     # attribute, and it is more appropriate for search results than our default limit-offset pagination.
     pagination_class = PageNumberPagination
 
@@ -382,7 +382,7 @@ class BaseCourseHaystackViewSet(FacetMixin, HaystackViewSet):
               type: string
               required: false
         """
-        return super(BaseCourseHaystackViewSet, self).list(request, *args, **kwargs)
+        return super(BaseHaystackViewSet, self).list(request, *args, **kwargs)
 
     @list_route(methods=["get"], url_path="facets")
     def facets(self, request):
@@ -412,10 +412,10 @@ class BaseCourseHaystackViewSet(FacetMixin, HaystackViewSet):
                 pytype: str
               required: false
         """
-        return super(BaseCourseHaystackViewSet, self).facets(request)
+        return super(BaseHaystackViewSet, self).facets(request)
 
     def filter_facet_queryset(self, queryset):
-        queryset = super(BaseCourseHaystackViewSet, self).filter_facet_queryset(queryset)
+        queryset = super(BaseHaystackViewSet, self).filter_facet_queryset(queryset)
 
         facet_serializer_cls = self.get_facet_serializer_class()
         field_queries = getattr(facet_serializer_cls.Meta, 'field_queries', {})
@@ -431,20 +431,27 @@ class BaseCourseHaystackViewSet(FacetMixin, HaystackViewSet):
         return queryset
 
 
-class CourseSearchViewSet(BaseCourseHaystackViewSet):
+class CourseSearchViewSet(BaseHaystackViewSet):
     facet_serializer_class = serializers.CourseFacetSerializer
     index_models = (Course,)
     serializer_class = serializers.CourseSearchSerializer
 
 
-class CourseRunSearchViewSet(BaseCourseHaystackViewSet):
+class CourseRunSearchViewSet(BaseHaystackViewSet):
     facet_serializer_class = serializers.CourseRunFacetSerializer
     index_models = (CourseRun,)
     serializer_class = serializers.CourseRunSearchSerializer
 
 
-# TODO Remove the detail routes. They don't work, and make no sense here given that we cannot specify the type.
-class AggregateSearchViewSet(BaseCourseHaystackViewSet):
+class ProgramSearchViewSet(BaseHaystackViewSet):
+    document_uid_field = 'uuid'
+    lookup_field = 'uuid'
+    facet_serializer_class = serializers.ProgramFacetSerializer
+    index_models = (Program,)
+    serializer_class = serializers.ProgramSearchSerializer
+
+
+class AggregateSearchViewSet(BaseHaystackViewSet):
     """ Search all content types. """
     facet_serializer_class = serializers.AggregateFacetSearchSerializer
     serializer_class = serializers.AggregateSearchSerializer

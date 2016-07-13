@@ -12,7 +12,7 @@ from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Image, Organization, Person, Prerequisite, Seat, Subject, Video
 )
-from course_discovery.apps.course_metadata.search_indexes import CourseIndex, CourseRunIndex
+from course_discovery.apps.course_metadata.search_indexes import CourseIndex, CourseRunIndex, ProgramIndex
 
 User = get_user_model()
 
@@ -485,6 +485,24 @@ class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
         ignore_fields = COMMON_IGNORED_FIELDS
 
 
+class ProgramSearchSerializer(HaystackSerializer):
+    class Meta:
+        field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        fields = ('uuid', 'name', 'subtitle', 'category', 'marketing_url', 'organizations', 'text',)
+        ignore_fields = COMMON_IGNORED_FIELDS
+        index_classes = [ProgramIndex]
+
+
+class ProgramFacetSerializer(BaseHaystackFacetSerializer):
+    serialize_objects = True
+
+    class Meta:
+        field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        fields = ('uuid', 'name', 'subtitle', 'category', 'marketing_url', 'organizations', 'text',)
+        ignore_fields = COMMON_IGNORED_FIELDS
+        index_classes = [ProgramIndex]
+
+
 class AggregateSearchSerializer(HaystackSerializer):
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
@@ -493,6 +511,7 @@ class AggregateSearchSerializer(HaystackSerializer):
         serializers = {
             CourseRunIndex: CourseRunSearchSerializer,
             CourseIndex: CourseSearchSerializer,
+            ProgramIndex: ProgramSearchSerializer,
         }
 
 
@@ -507,4 +526,5 @@ class AggregateFacetSearchSerializer(BaseHaystackFacetSerializer):
         serializers = {
             CourseRunIndex: CourseRunFacetSerializer,
             CourseIndex: CourseFacetSerializer,
+            ProgramIndex: ProgramFacetSerializer,
         }
