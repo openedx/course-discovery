@@ -20,6 +20,7 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.force_authenticate(self.user)
         self.course_run = CourseRunFactory()
+        self.course_run_2 = CourseRunFactory()
         self.refresh_index()
         self.request = APIRequestFactory().get('/')
         self.request.user = self.user
@@ -67,7 +68,7 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
         )
         self.assertListEqual(actual_sorted, expected_sorted)
 
-    def test_contains(self):
+    def test_contains_single_course_run(self):
         qs = urllib.parse.urlencode({
             'query': 'id:course*',
             'course_run_ids': self.course_run.key
@@ -81,6 +82,26 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
             {
                 'course_runs': {
                     self.course_run.key: True
+                }
+            }
+        )
+
+    def test_contains_multiple_course_runs(self):
+        qs = urllib.parse.urlencode({
+            'query': 'id:course*',
+            'course_run_ids': '{},{},{}'.format(self.course_run.key, self.course_run_2.key, 'abc')
+        })
+        url = '{}?{}'.format(reverse('api:v1:course_run-contains'), qs)
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(
+            response.data,
+            {
+                'course_runs': {
+                    self.course_run.key: True,
+                    self.course_run_2.key: True,
+                    'abc': False
                 }
             }
         )

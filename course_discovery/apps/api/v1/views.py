@@ -265,11 +265,9 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
         course_run_ids = request.GET.get('course_run_ids')
 
         if query and course_run_ids:
-            course_runs = CourseRun.search(query)
-            contains = {course_run_id: False for course_run_id in course_run_ids.split(',')}
-
-            for course_run in course_runs:
-                contains[course_run.key] = True
+            course_run_ids = course_run_ids.split(',')
+            course_runs = CourseRun.search(query).filter(key__in=course_run_ids).values_list('key', flat=True)
+            contains = {course_run_id: course_run_id in course_runs for course_run_id in course_run_ids}
 
             instance = {'course_runs': contains}
             serializer = serializers.ContainedCourseRunsSerializer(instance)
