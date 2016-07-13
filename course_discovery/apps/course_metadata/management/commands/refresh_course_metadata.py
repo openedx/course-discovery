@@ -32,36 +32,45 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        access_token = options.get('access_token')
-        token_type = options.get('token_type')
 
-        if access_token and not token_type:
-            raise CommandError('The token_type must be specified when passing in an access token!')
+        # For each partner defined...
+        for __, partner_config in settings.PARTNER_CONFIGURATIONS.items():
 
-        if not access_token:
-            logger.info('No access token provided. Retrieving access token using client_credential flow...')
-            token_type = 'JWT'
+            access_token = options.get('access_token')
+            token_type = options.get('token_type')
 
-            try:
-                access_token, __ = EdxRestApiClient.get_oauth_access_token(
-                    '{root}/access_token'.format(root=settings.SOCIAL_AUTH_EDX_OIDC_URL_ROOT),
-                    settings.SOCIAL_AUTH_EDX_OIDC_KEY,
-                    settings.SOCIAL_AUTH_EDX_OIDC_SECRET,
-                    token_type=token_type
-                )
-            except Exception:
-                logger.exception('No access token provided or acquired through client_credential flow.')
-                raise
+            if access_token and not token_type:
+                raise CommandError('The token_type must be specified when passing in an access token!')
 
-        loaders = (
-            (OrganizationsApiDataLoader, settings.ORGANIZATIONS_API_URL,),
-            (CoursesApiDataLoader, settings.COURSES_API_URL,),
-            (EcommerceApiDataLoader, settings.ECOMMERCE_API_URL,),
-            (DrupalApiDataLoader, settings.MARKETING_API_URL,),
-        )
+            if not access_token:
+                logger.info('No access token provided. Retrieving access token using client_credential flow...')
+                token_type = 'JWT'
 
-        for loader_class, api_url in loaders:
-            try:
-                loader_class(api_url, access_token, token_type).ingest()
-            except Exception:
-                logger.exception('%s failed!', loader_class.__name__)
+                try:
+                    access_token, __ = EdxRestApiClient.get_oauth_access_token(
+                        '{root}/access_token'.format(root=settings.SOCIAL_AUTH_EDX_OIDC_URL_ROOT),
+                        settings.SOCIAL_AUTH_EDX_OIDC_KEY,
+                        settings.SOCIAL_AUTH_EDX_OIDC_SECRET,
+                        token_type=token_type
+                    )
+                except Exception:
+                    logger.exception('No access token provided or acquired through client_credential flow.')
+                    raise
+
+            loaders = (
+                (OrganizationsApiDataLoader, partner_config['ORGANIZATIONS_API_URL'],),
+                (CoursesApiDataLoader, partner_config['COURSES_API_URL'],),
+                (EcommerceApiDataLoader, partner_config['ECOMMERCE_API_URL'],),
+                (DrupalApiDataLoader, partner_config['MARKETING_API_URL'],),
+            )
+
+            for loader_class, api_url in loaders:
+                try:
+                    loader_class(
+                        api_url,
+                        access_token,
+                        token_type,
+                        partner_short_code=partner_config['PARTNER_SHORT_CODE']
+                    ).ingest()
+                except Exception:  # pylint: disable=broad-except
+                    logger.exception('%s failed!', loader_class.__name__)

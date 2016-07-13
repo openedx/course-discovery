@@ -137,6 +137,7 @@ class Course(TimeStampedModel):
     image = models.ForeignKey(Image, default=None, null=True, blank=True)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     marketing_url = models.URLField(max_length=255, null=True, blank=True)
+    partner_short_code = models.CharField(max_length=8, default=None, null=True, blank=True)
 
     history = HistoricalRecords()
     objects = CourseQuerySet.as_manager()
