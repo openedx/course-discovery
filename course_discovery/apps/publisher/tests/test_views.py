@@ -16,16 +16,16 @@ class CourseListing(TestCase):
 
     def _course_listing_url(self):
         """ Helper method to generate the url for a course listing page."""
-        return reverse('course_builder:courses_list')
+        return reverse('publisher:courses_list')
 
     def test_courses_list_page(self):
         """ Verify that the course listing view renders a page. """
 
         # Method should return a 404 if the switch is inactive
-        toggle_switch('enable_course_builder', False)
+        toggle_switch('enable_publisher', False)
         response = self.client.get(self.listing_path)
         self.assertEqual(response.status_code, 404)
 
-        toggle_switch('enable_course_builder', True)
+        toggle_switch('enable_publisher', True)
         response = self.client.get(self.listing_path)
         self.assertEqual(response.status_code, 200)
