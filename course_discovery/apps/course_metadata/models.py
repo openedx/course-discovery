@@ -186,7 +186,7 @@ class Course(TimeStampedModel):
             RegexValidator(
                 regex=COURSE_NUMBER_REGEX,
                 message="Alphanumeric characters and dot (.) are allowed. With lower (x) at end.",
-                code="invalid_provider_id",
+                code="invalid_course_number",
             )
         ],
         null=True, blank=True, help_text=_(
