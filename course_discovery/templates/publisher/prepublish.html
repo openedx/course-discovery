@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}
+    {% trans "Course Run Prepublish Page" %}
+{% endblock title %}
+
+{% block content %}
+    <h1>Course Run Prepublish</h1>
+    <h2>Studio<h2>
+    <h3>New Course</h3>
+    <div>
+        <div>Name:</div>
+        <div>{{ course_run.title }}</div>
+    </div>
+
+    <div>
+        <div>Org:</div>
+        <div>{{ course_run.organizations }}</div>
+    </div>
+
+    <div>
+        <div>Number:</div>
+        <div>{{ course_run.number }}</div>
+    </div>
+
+    <div>
+        <div>Run:</div>
+        <div>{{ course_run.key }}</div>
+    </div>
+
+    <h3>Scheduling and Details</h3>
+    <div>
+        <div>Start Date/Time:</div>
+        <div>{{ course_run.start }}</div>
+    </div>
+
+    <div>
+        <div>End Date/Time:</div>
+        <div>{{ course_run.end }}</div>
+    </div>
+
+    <div>
+        <div>Enrollment Start Date/Time:</div>
+        <div>{{ course_run.enrollment_start }}</div>
+    </div>
+
+    <div>
+        <div>Enrollment End Date/Time:</div>
+        <div>{{ course_run.enrollment_end }}</div>
+    </div>
+
+    <div>
+        <div>Pacing Type:</div>
+        <div>{{ course_run.pacing_type }}</div>
+    </div>
+
+
+    <h2>Course Admin Tool (eCommerce)</h2>
+    <div>
+        <div>ID:</div>
+        <div>{{ course_run.key }}</div>
+    </div>
+
+    <div>
+        <div>Name:</div>
+        <div>{{ course_run.title }}</div>
+    </div>
+
+    <!-- TODO: add seat logic to form object-->
+    <div>
+        <div>Course Type:</div>
+        <div>{{ course_run.seats }}</div>
+    </div>
+
+{% endblock %}
