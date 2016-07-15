@@ -15,11 +15,11 @@ from opaque_keys.edx.keys import CourseKey
 from pytz import UTC
 
 from course_discovery.apps.course_metadata.data_loaders import (
-    OrganizationsApiDataLoader, CoursesApiDataLoader, DrupalApiDataLoader, EcommerceApiDataLoader, AbstractDataLoader
-)
+    OrganizationsApiDataLoader, CoursesApiDataLoader, DrupalApiDataLoader, EcommerceApiDataLoader, AbstractDataLoader,
+    ProgramsApiDataLoader)
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseOrganization, CourseRun, Image, LanguageTag, Organization, Person, Seat, Subject
-)
+    Course, CourseOrganization, CourseRun, Image, LanguageTag, Organization, Person, Seat, Subject,
+    Program)
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseRunFactory, SeatFactory, ImageFactory, PersonFactory, VideoFactory
 )
@@ -32,6 +32,7 @@ ENGLISH_LANGUAGE_TAG = LanguageTag(code='en-us', name='English - United States')
 JSON = 'application/json'
 MARKETING_API_URL = 'https://example.com/api/catalog/v2/'
 ORGANIZATIONS_API_URL = 'https://lms.example.com/api/organizations/v0'
+PROGRAMS_API_URL = 'https://programs.example.com/api/v1'
 
 
 class AbstractDataLoaderTest(TestCase):
@@ -1081,3 +1082,103 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     def test_get_certificate_type(self, product, expected_certificate_type):
         """ Verify the method returns the correct certificate type"""
         self.assertEqual(self.loader.get_certificate_type(product), expected_certificate_type)
+
+
+@ddt.ddt
+@override_settings(PROGRAMS_API_URL=PROGRAMS_API_URL)
+class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
+    api_url = PROGRAMS_API_URL
+    loader_class = ProgramsApiDataLoader
+
+    def mock_api(self):
+        bodies = [
+            {
+                'uuid': 'd9ee1a73-d82d-4ed7-8eb1-80ea2b142ad6',
+                'id': 1,
+                'name': 'Water Management',
+                'subtitle': 'Explore water management concepts and technologies',
+                'category': 'xseries',
+                'status': 'active',
+                'marketing_slug': 'water-management',
+                'organizations': [
+                    {
+                        'display_name': 'Delft University of Technology',
+                        'key': 'DelftX'
+                    }
+                ]
+            },
+            {
+                'uuid': 'b043f467-5e80-4225-93d2-248a93a8556a',
+                'id': 2,
+                'name': 'Supply Chain Management',
+                'subtitle': 'Learn how to design and optimize the supply chain to enhance business performance.',
+                'category': 'xseries',
+                'status': 'active',
+                'marketing_slug': 'supply-chain-management-0',
+                'organizations': [
+                    {
+                        'display_name': 'Massachusetts Institute of Technology',
+                        'key': 'MITx'
+                    }
+                ]
+            },
+        ]
+
+        def programs_api_callback(url, data):
+            def request_callback(request):
+                # pylint: disable=redefined-builtin
+                next = None
+                count = len(bodies)
+
+                # Use the querystring to determine which page should be returned. Default to page 1.
+                # Note that the values of the dict returned by `parse_qs` are lists, hence the `[1]` default value.
+                qs = parse_qs(urlparse(request.path_url).query)
+                page = int(qs.get('page', [1])[0])
+
+                if page < count:
+                    next = '{}?page={}'.format(url, page)
+
+                body = {
+                    'count': count,
+                    'next': next,
+                    'previous': None,
+                    'results': [data[page - 1]]
+                }
+
+                return 200, {}, json.dumps(body)
+
+            return request_callback
+
+        url = '{host}/programs/'.format(host=self.api_url)
+        responses.add_callback(responses.GET, url, callback=programs_api_callback(url, bodies), content_type=JSON)
+
+        return bodies
+
+    def assert_program_loaded(self, body):
+        """ Assert a Program corresponding to the specified data body was properly loaded into the database. """
+        program = Program.objects.get(uuid=AbstractDataLoader.clean_string(body['uuid']))
+
+        for attr in ('name', 'subtitle', 'category', 'status', 'marketing_slug',):
+            self.assertEqual(getattr(program, attr), AbstractDataLoader.clean_string(body[attr]))
+
+        keys = [org['key'] for org in body['organizations']]
+        expected_organizations = list(Organization.objects.filter(key__in=keys))
+        self.assertEqual(keys, [org.key for org in expected_organizations])
+        self.assertListEqual(list(program.organizations.all()), expected_organizations)
+
+    @responses.activate
+    def test_ingest(self):
+        """ Verify the method ingests data from the Organizations API. """
+        data = self.mock_api()
+        self.assertEqual(Program.objects.count(), 0)
+
+        self.loader.ingest()
+
+        expected_num_programs = len(data)
+        self.assert_api_called(expected_num_programs)
+        self.assertEqual(Program.objects.count(), expected_num_programs)
+
+        for datum in data:
+            self.assert_program_loaded(datum)
+
+        self.loader.ingest()
