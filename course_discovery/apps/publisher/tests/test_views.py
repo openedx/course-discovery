@@ -1,5 +1,5 @@
 """
-Tests for course builder views.
+Tests for publisher views.
 """
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -7,11 +7,11 @@ from django.test import TestCase
 from course_discovery.apps.publisher.tests import toggle_switch
 
 
-class CourseListing(TestCase):
-    """ Course builder list view tests. """
+class UnpublishedCourseRunListing(TestCase):
+    """ Tests cases for non-published course run lists view. """
 
     def setUp(self):
-        super(CourseListing, self).setUp()
+        super(UnpublishedCourseRunListing, self).setUp()
         self.listing_path = self._course_listing_url()
 
     def _course_listing_url(self):

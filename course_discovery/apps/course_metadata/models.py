@@ -90,7 +90,9 @@ class Image(AbstractMediaModel):
 class Video(AbstractMediaModel):
     """ Video model. """
     image = models.ForeignKey(Image, null=True, blank=True)
-    languages = models.ManyToManyField(LanguageTag, null=True, blank=True, related_name='videos')
+    transcript_languages = models.ManyToManyField(
+        LanguageTag, null=True, blank=True, related_name='transcript_videos'
+    )
 
 
 class LevelType(AbstractNamedModel):
@@ -189,8 +191,7 @@ class Course(TimeStampedModel):
                 code="invalid_course_number",
             )
         ],
-        null=True, blank=True, help_text=_(
-            "Course number denoted by .1, .2, etc. at the end of the course number before the `x`"))
+        null=True, blank=True, help_text=_("Course number format e.g CS002x, BIO1.1x, BIO1.2x"))
 
     history = HistoricalRecords()
     objects = CourseQuerySet.as_manager()

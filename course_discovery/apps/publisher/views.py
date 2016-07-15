@@ -9,12 +9,12 @@ from course_discovery.apps.course_metadata.models import CourseRun
 from course_discovery.apps.publisher.models import Status
 
 
-class CourseListing(TemplateView):
-    """ Course listing view."""
+class UnpublishedCourseListing(TemplateView):
+    """ Unpublished Course listing view."""
     template_name = 'publisher/unpublished_courses.html'
 
     def get_context_data(self, **kwargs):
-        context = super(CourseListing, self).get_context_data(**kwargs)
+        context = super(UnpublishedCourseListing, self).get_context_data(**kwargs)
 
         context.update({
             'courses_runs': self._get_unpublished_course_runs(),
@@ -26,7 +26,7 @@ class CourseListing(TemplateView):
         """ Get method for list page."""
         if not waffle.switch_is_active('enable_publisher'):
             raise Http404
-        return super(CourseListing, self).get(request, args, **kwargs)
+        return super(UnpublishedCourseListing, self).get(request, args, **kwargs)
 
     def _get_unpublished_course_runs(self):
         """ Helper method to retrieve all course runs whose status is not published."""

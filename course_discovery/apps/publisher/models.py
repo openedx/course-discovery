@@ -36,24 +36,6 @@ class Status(TimeStampedModel):
         return '{course_run}'.format(course_run=self.course_run.key)
 
 
-class WorkflowProgram(TimeStampedModel):
-    """ WorkflowProgram model."""
-    XSERIES = 'xseries'
-    MICRO_MASTERS = 'micromasters'
-
-    PROGRAMS_CHOICES = (
-        (XSERIES, _('XSeries')),
-        (MICRO_MASTERS, _('Micro-Masters')),
-    )
-
-    type = models.CharField(max_length=15, choices=PROGRAMS_CHOICES, db_index=True, help_text=_(
-        "CourseRun association with any program."))
-    name = models.CharField(max_length=255, help_text=_("Name of the program."))
-
-    def __str__(self):
-        return '{type}: {name}'.format(type=self.type, name=self.name)
-
-
 class CourseRunDetail(TimeStampedModel):
     """ CourseRunDetail model. It contains fields related with
     course-run."""
@@ -69,7 +51,9 @@ class CourseRunDetail(TimeStampedModel):
     course_run = models.OneToOneField(CourseRun, related_name='detail')
     is_re_run = models.BooleanField(default=True)
 
-    program = models.ForeignKey(WorkflowProgram, related_name='program_work_flow')
+    program_type = models.CharField(max_length=15, choices=PROGRAMS_CHOICES, db_index=True, help_text=_(
+        "CourseRun associated with any program."))
+    program_name = models.CharField(max_length=255, help_text=_("Name of the program."))
 
     seo_review = models.TextField(default=None, null=True, blank=True, help_text=_(
         "SEO review on your course title and short description"))

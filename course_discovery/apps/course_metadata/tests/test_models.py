@@ -1,6 +1,7 @@
 import datetime
 
 import ddt
+from django.db import IntegrityError
 import mock
 import pytz
 from django.conf import settings
@@ -257,3 +258,47 @@ class ProgramTests(TestCase):
         """ Verify the property returns None if the Program has no marketing_slug set. """
         program = factories.ProgramFactory(marketing_slug='')
         self.assertIsNone(program.marketing_url)
+
+
+class PersonSocialNetworkTests(TestCase):
+    """Tests of the PersonSocialNetwork model."""
+    def setUp(self):
+        super(PersonSocialNetworkTests, self).setUp()
+        self.network = factories.PersonSocialNetworkFactory()
+        self.person = factories.PersonFactory()
+
+    def test_str(self):
+        """Verify that a person-social-network is properly converted to a str."""
+        self.assertEqual(
+            str(self.network), '{type}: {value}'.format(type=self.network.type, value=self.network.value)
+        )
+
+    def test_unique_constraint(self):
+        """Verify that a person-social-network does not allow multiple accounts for same
+        social network.
+        """
+        factories.PersonSocialNetworkFactory(person=self.person, type='facebook')
+        with self.assertRaises(IntegrityError):
+            factories.PersonSocialNetworkFactory(person=self.person, type='facebook')
+
+
+class CourseSocialNetworkTests(TestCase):
+    """Tests of the CourseSocialNetwork model."""
+    def setUp(self):
+        super(CourseSocialNetworkTests, self).setUp()
+        self.network = factories.CourseRunSocialNetworkFactory()
+        self.course_run = factories.CourseRunFactory()
+
+    def test_str(self):
+        """Verify that a course-social-network is properly converted to a str."""
+        self.assertEqual(
+            str(self.network), '{type}: {value}'.format(type=self.network.type, value=self.network.value)
+        )
+
+    def test_unique_constraint(self):
+        """Verify that a course-social-network does not allow multiple accounts for same
+        social network.
+        """
+        factories.CourseRunSocialNetworkFactory(course_run=self.course_run, type='facebook')
+        with self.assertRaises(IntegrityError):
+            factories.CourseRunSocialNetworkFactory(course_run=self.course_run, type='facebook')
