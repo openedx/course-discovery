@@ -86,3 +86,6 @@ class CourseRunDetail(TimeStampedModel):
     priority = models.BooleanField(default=False)
 
     history = HistoricalRecords()
+
+    def __str__(self):
+        return '{course_run}: {program}'.format(course_run=self.course_run, program=self.program)
