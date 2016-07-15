@@ -33,7 +33,7 @@ class Status(TimeStampedModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return '{course_run}'.format(course_run=self.course_run.key)
+        return '{key}: {name}'.format(key=self.course_run.key, name=self.name)
 
 
 class CourseRunDetail(TimeStampedModel):
@@ -72,4 +72,6 @@ class CourseRunDetail(TimeStampedModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return '{course_run}: {program}'.format(course_run=self.course_run, program=self.program)
+        return '{key}: {type}: {program}'.format(
+            key=self.course_run.key, type=self.program_type, program=self.program_name
+        )

@@ -1,5 +1,5 @@
 """
-Course Builder views.
+Publisher views.
 """
 from django.http import Http404
 from django.views.generic import TemplateView

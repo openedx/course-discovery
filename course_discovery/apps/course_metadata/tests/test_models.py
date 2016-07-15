@@ -1,9 +1,9 @@
 import datetime
 
 import ddt
-from django.db import IntegrityError
 import mock
 import pytz
+from django.db import IntegrityError
 from django.conf import settings
 from django.test import TestCase
 
