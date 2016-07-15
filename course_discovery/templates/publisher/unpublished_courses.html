@@ -5,21 +5,27 @@
 {% endblock title %}
 
 {% block content %}
-    Course Listing Page
-    <br>
-    {% for course_run in courses_runs %}
-        Course Name: {{ course_run.course.key }}
-        Organization:
-            {% for owner in course_run.course.owners %}
-                {{ owner.key }}
-            {% endfor %}
 
-        Target Content: {{ course_run.detail.target_content }}
-        Priority: {{ course_run.detail.priority }}
+   {% trans "Draft/Review Course Listing" %}
+   {% if courses_runs %}
+        Course Listing Page
+        <br>
+        {% for course_run in courses_runs %}
+            Course Name: {{ course_run.course.key }}
+            Organization:
+                {% for owner in course_run.course.owners %}
+                    {{ owner.key }}
+                {% endfor %}
 
-        Status: {{ course_run.status.name }}
-        Created Time: {{ course_run.status.created }}
-        Updated Time: {{ course_run.status.modified }}
-    {% endfor %}
+            Target Content: {{ course_run.detail.target_content }}
+            Priority: {{ course_run.detail.priority }}
 
+            Status: {{ course_run.status.name }}
+            Created Time: {{ course_run.status.created}}
+            Updated Time: {{ course_run.status.modified}}
+        {% endfor %}
+
+   {% else %}
+    {% trans "No Data available." %}
+   {% endif%}
 {% endblock %}
