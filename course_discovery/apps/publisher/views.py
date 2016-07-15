@@ -11,13 +11,13 @@ from course_discovery.apps.publisher.models import Status
 
 class CourseListing(TemplateView):
     """ Course listing view."""
-    template_name = 'publisher/course_listing.html'
+    template_name = 'publisher/unpublished_courses.html'
 
     def get_context_data(self, **kwargs):
         context = super(CourseListing, self).get_context_data(**kwargs)
 
         context.update({
-            'courses': self._get_courses(),
+            'courses_runs': self._get_unpublished_course_runs(),
         })
 
         return context
@@ -28,6 +28,6 @@ class CourseListing(TemplateView):
             raise Http404
         return super(CourseListing, self).get(request, args, **kwargs)
 
-    def _get_courses(self):
+    def _get_unpublished_course_runs(self):
         """ Helper method to retrieve all course runs whose status is not published."""
-        return CourseRun.objects.filter(status_course_runs__name__in=Status.NON_PUBLISHED_STATUS)
+        return CourseRun.objects.filter(status__name__in=Status.NON_PUBLISHED_STATUS)

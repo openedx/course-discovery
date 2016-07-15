@@ -26,10 +26,10 @@ class Status(TimeStampedModel):
 
     NON_PUBLISHED_STATUS = [DRAFT, REVIEW]
 
-    course_run = models.OneToOneField(CourseRun, related_name='status_course_runs')
+    course_run = models.OneToOneField(CourseRun, related_name='status')
     name = models.CharField(max_length=15, choices=STATUS_CHOICES, db_index=True)
 
-    updated_by = models.ForeignKey(User, related_name='updated_by_course_runs')
+    updated_by = models.ForeignKey(User, related_name='status_updated_by')
     history = HistoricalRecords()
 
     def __str__(self):
@@ -54,8 +54,8 @@ class WorkflowProgram(TimeStampedModel):
         return '{type}: {name}'.format(type=self.type, name=self.name)
 
 
-class WorkflowCourseRun(TimeStampedModel):
-    """ WorkflowCourseRun model. It contains fields related with
+class CourseRunDetail(TimeStampedModel):
+    """ CourseRunDetail model. It contains fields related with
     course-run."""
 
     XSERIES = 'xseries'
@@ -66,7 +66,7 @@ class WorkflowCourseRun(TimeStampedModel):
         (MICRO_MASTERS, _('Micro-Masters')),
     )
 
-    course_run = models.OneToOneField(CourseRun, related_name='course_run_work_flow')
+    course_run = models.OneToOneField(CourseRun, related_name='detail')
     is_re_run = models.BooleanField(default=True)
 
     program = models.ForeignKey(WorkflowProgram, related_name='program_work_flow')

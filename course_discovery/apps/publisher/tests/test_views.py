@@ -16,7 +16,7 @@ class CourseListing(TestCase):
 
     def _course_listing_url(self):
         """ Helper method to generate the url for a course listing page."""
-        return reverse('publisher:courses_list')
+        return reverse('publisher:unpublished_courses')
 
     def test_courses_list_page(self):
         """ Verify that the course listing view renders a page. """
