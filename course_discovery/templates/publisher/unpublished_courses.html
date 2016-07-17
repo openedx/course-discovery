@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}
+    {% trans "Course Listing Page" %}
+{% endblock title %}
+
+{% block content %}
+   {% if courses_runs %}
+        <table>
+            <caption>{% trans "Unpublished Courses" %}</caption>
+            <thead>
+                <tr>
+                    <th>Course Name</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Target Content</th>
+                    <th>Organization</th>
+                    <th>Created Time</th>
+                    <th>Updated Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course_run in courses_runs %}
+                    <tr>
+                        <td>{{ course_run.course.key }}</td>
+                        <td>{{ course_run.status.name }}</td>
+                        <td>{{ course_run.detail.priority }}</td>
+                        <td>{{ course_run.detail.target_content }}</td>
+                        <td>{% for owner in course_run.course.owners %}{{ owner.key }}{% endfor %}</td>
+                        <td>{{ course_run.status.created|date:"Y-m-d H:i:s" }}</td>
+                        <td>{{ course_run.status.modified|date:"Y-m-d H:i:s" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+   {% else %}
+    {% trans "No Data available." %}
+   {% endif%}
+{% endblock %}
