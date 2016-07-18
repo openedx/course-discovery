@@ -1,0 +1,19 @@
+// ------------------------------
+// edX Course Discovery: Shared Build
+
+// About: Shared sass compilation between LTR/RTL produced stylesheets
+
+// #CONFIG:         app-centric configuration/overrides
+// #LIB:            third party libraries and dependencies
+// #EXTENSIONS:     add-ons and further customizations
+
+// ------------------------------
+// #CONFIG
+// ------------------------------
+@import 'config';
+
+// ------------------------------
+// #LIB
+// ------------------------------
+@import "lib";
+@import '../bower_components/edx-pattern-library/pattern-library/sass/edx-pattern-library';

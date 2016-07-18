@@ -1,0 +1,16 @@
+{
+  "name": "course-discovery",
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/edx/course-discovery"
+  },
+  "dependencies": {
+    "bower": "^1.7.9",
+    "requirejs": "^2.2.0"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-jscs": "4.0.0"
+  }
+}

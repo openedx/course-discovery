@@ -1,0 +1,15 @@
+{
+  "name": "course-discovery",
+  "homepage": "https://github.com/edx/course-discovery",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "edx-pattern-library": "0.16.1"
+  }
+}

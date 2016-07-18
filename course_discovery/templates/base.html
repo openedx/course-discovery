@@ -1,0 +1,23 @@
+{# Base template for edX-specific pages. #}
+
+{% load compress %}
+{% load i18n %}
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+<head lang="{{ language_code }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock title %}</title>
+    {% compress css %}
+        <link rel="stylesheet" href="{% static 'sass/main-'|add:language_bidi|add:'.scss' %}" type="text/x-scss">
+    {% endcompress %}
+</head>
+
+<body>
+{% block content %}
+
+{% endblock content %}
+</body>
+</html>
