@@ -1,5 +1,6 @@
 import django_filters
 from django.contrib.auth import get_user_model
+from django.db.models import QuerySet
 from django.utils.translation import ugettext as _
 from drf_haystack.filters import HaystackFacetFilter
 from drf_haystack.query import FacetQueryBuilder
@@ -7,7 +8,7 @@ from dry_rest_permissions.generics import DRYPermissionFiltersBase
 from guardian.shortcuts import get_objects_for_user
 from rest_framework.exceptions import PermissionDenied, NotFound
 
-from course_discovery.apps.course_metadata.models import Course
+from course_discovery.apps.course_metadata.models import Course, CourseRun
 
 User = get_user_model()
 
@@ -46,8 +47,8 @@ class PermissionsFilter(DRYPermissionFiltersBase):
 
 
 class FacetQueryBuilderWithQueries(FacetQueryBuilder):
-    def build_query(self, **filters):
-        query = super(FacetQueryBuilderWithQueries, self).build_query(**filters)
+    def build_query(self, **query_filters):
+        query = super(FacetQueryBuilderWithQueries, self).build_query(**query_filters)
         facet_serializer_cls = self.view.get_facet_serializer_class()
         query['query_facets'] = getattr(facet_serializer_cls.Meta, 'field_queries', {})
         return query
@@ -70,4 +71,21 @@ class CourseFilter(django_filters.FilterSet):
 
     class Meta:
         model = Course
+        fields = ['keys']
+
+
+class CourseRunFilter(django_filters.FilterSet):
+    keys = CharListFilter(name='key', lookup_type='in')
+
+    @property
+    def qs(self):
+        # This endpoint supports query via Haystack. If that form of filtering is active,
+        # do not attempt to treat the queryset as a normal Django queryset.
+        if not isinstance(self.queryset, QuerySet):
+            return self.queryset
+
+        return super(CourseRunFilter, self).qs
+
+    class Meta:
+        model = CourseRun
         fields = ['keys']
