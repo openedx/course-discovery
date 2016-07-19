@@ -1,0 +1,22 @@
+// ------------------------------
+// // edX Course Discovery: Base
+
+// About: Base resets and definitons (using shared resources from elements when appropriate).
+
+// ------------------------------
+// #RESET
+// ------------------------------
+
+// ------------------------------
+// #BASE
+// ------------------------------
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: palette(grayscale-cool, xx-light);
+}
+
+// ------------------------------
+// #TYPOGRAPHY
+// ------------------------------

@@ -1,4 +1,5 @@
 .DEFAULT_GOAL := test
+NODE_BIN=./node_modules/.bin
 
 .PHONY: accept clean compile_translations dummy_translations extract_translations fake_translations help html_coverage \
 	migrate pull_translations push_translations quality requirements production-requirements test \
@@ -29,6 +30,7 @@ help:
 	@echo ""
 
 static:
+	$(NODE_BIN)/r.js -o build.js
 	python manage.py collectstatic --noinput
 
 clean_static:
@@ -38,7 +40,11 @@ clean: clean_static
 	find . -name '*.pyc' -delete
 	coverage erase
 
-requirements:
+requirement.js:
+	npm install
+	$(NODE_BIN)/bower install
+
+requirements: requirement.js
 	pip install -r requirements/local.txt --exists-action w
 
 production-requirements:

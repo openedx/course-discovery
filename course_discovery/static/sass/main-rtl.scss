@@ -1,0 +1,14 @@
+// ------------------------------
+// edX Course Discovery: Main Style Compile - RTL
+
+// About: Main left-to-right Sass compile for the edX Course Discovery styling.
+
+// ------------------------------
+// #CONFIG - layout direction
+// ------------------------------
+@import "rtl";
+
+// ------------------------------
+// #BUILD
+// ------------------------------
+@import 'build';

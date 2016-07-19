@@ -40,6 +40,7 @@ THIRD_PARTY_APPS = (
     'simple_history',
     'guardian',
     'dry_rest_permissions',
+    'compressor',
 )
 
 PROJECT_APPS = (
@@ -130,6 +131,27 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     root('static'),
 )
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+)
+
+COMPRESS_PRECOMPILERS = (
+    ('text/x-scss', 'django_libsass.SassCompiler'),
+)
+
+# Enable offline compression of CSS/JS
+COMPRESS_ENABLED = True
+COMPRESS_OFFLINE = True
+
+# Minify CSS
+COMPRESS_CSS_FILTERS = [
+    'compressor.filters.css_default.CssAbsoluteFilter',
+    'compressor.filters.cssmin.CSSMinFilter',
+]
+
 
 # TEMPLATE CONFIGURATION
 # See: https://docs.djangoproject.com/en/1.8/ref/settings/#templates
@@ -337,3 +359,7 @@ ORGANIZATIONS_API_URL = 'http://127.0.0.1:8000/api/organizations/v0/'
 PROGRAMS_API_URL = 'http://127.0.0.1:8003/api/v1/'
 MARKETING_API_URL = 'http://example.org/api/catalog/v2/'
 MARKETING_URL_ROOT = 'http://example.org/'
+
+COMPRESS_PRECOMPILERS = (
+    ('text/x-scss', 'django_libsass.SassCompiler'),
+)
