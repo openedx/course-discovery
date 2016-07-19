@@ -83,3 +83,5 @@ private.py
 *.trace
 
 docs/_build/
+course_discovery/static/bower_components/
+node_modules/
