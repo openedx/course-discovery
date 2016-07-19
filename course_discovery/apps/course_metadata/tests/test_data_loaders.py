@@ -1158,7 +1158,8 @@ class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         """ Assert a Program corresponding to the specified data body was properly loaded into the database. """
         program = Program.objects.get(uuid=AbstractDataLoader.clean_string(body['uuid']))
 
-        for attr in ('name', 'subtitle', 'category', 'status', 'marketing_slug',):
+        self.assertEqual(program.title, body['name'])
+        for attr in ('subtitle', 'category', 'status', 'marketing_slug',):
             self.assertEqual(getattr(program, attr), AbstractDataLoader.clean_string(body[attr]))
 
         keys = [org['key'] for org in body['organizations']]

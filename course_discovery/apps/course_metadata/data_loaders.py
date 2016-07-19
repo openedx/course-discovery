@@ -518,7 +518,7 @@ class ProgramsApiDataLoader(AbstractDataLoader):
 
     def update_program(self, body):
         defaults = {
-            'name': body['name'],
+            'title': body['name'],
             'subtitle': body['subtitle'],
             'category': body['category'],
             'status': body['status'],

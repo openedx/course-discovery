@@ -397,8 +397,8 @@ class Program(TimeStampedModel):
         verbose_name=_('UUID')
     )
 
-    name = models.CharField(
-        help_text=_('The user-facing display name for this Program.'),
+    title = models.CharField(
+        help_text=_('The user-facing display title for this Program.'),
         max_length=255,
         unique=True,
     )
@@ -436,4 +436,4 @@ class Program(TimeStampedModel):
         return None
 
     def __str__(self):
-        return self.name
+        return self.title
