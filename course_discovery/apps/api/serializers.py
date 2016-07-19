@@ -44,6 +44,10 @@ COURSE_RUN_SEARCH_FIELDS = (
     'image_url', 'type', 'text',
 )
 
+PROGRAM_SEARCH_FIELDS = (
+    'uuid', 'name', 'subtitle', 'category', 'marketing_url', 'organizations', 'content_type', 'text',
+)
+
 
 def get_marketing_url_for_user(user, marketing_url):
     """
@@ -495,7 +499,7 @@ class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
 class ProgramSearchSerializer(HaystackSerializer):
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        fields = ('uuid', 'name', 'subtitle', 'category', 'marketing_url', 'organizations', 'text',)
+        fields = PROGRAM_SEARCH_FIELDS
         ignore_fields = COMMON_IGNORED_FIELDS
         index_classes = [ProgramIndex]
 
@@ -505,7 +509,7 @@ class ProgramFacetSerializer(BaseHaystackFacetSerializer):
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        fields = ('uuid', 'name', 'subtitle', 'category', 'marketing_url', 'organizations', 'text',)
+        fields = PROGRAM_SEARCH_FIELDS
         ignore_fields = COMMON_IGNORED_FIELDS
         index_classes = [ProgramIndex]
 

@@ -397,5 +397,6 @@ class ProgramSearchSerializerTests(TestCase):
             'category': program.category,
             'marketing_url': program.marketing_url,
             'organizations': [OrganizationsMixin.format_organization(organization)],
+            'content_type': 'program_{category}'.format(category=program.category),
         }
         self.assertDictEqual(serializer.data, expected)
