@@ -41,6 +41,7 @@ THIRD_PARTY_APPS = (
     'guardian',
     'dry_rest_permissions',
     'compressor',
+    'django_filters',
 )
 
 PROJECT_APPS = (

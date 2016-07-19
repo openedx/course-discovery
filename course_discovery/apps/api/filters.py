@@ -1,3 +1,4 @@
+import django_filters
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext as _
 from drf_haystack.filters import HaystackFacetFilter
@@ -5,6 +6,8 @@ from drf_haystack.query import FacetQueryBuilder
 from dry_rest_permissions.generics import DRYPermissionFiltersBase
 from guardian.shortcuts import get_objects_for_user
 from rest_framework.exceptions import PermissionDenied, NotFound
+
+from course_discovery.apps.course_metadata.models import Course
 
 User = get_user_model()
 
@@ -52,3 +55,19 @@ class FacetQueryBuilderWithQueries(FacetQueryBuilder):
 
 class HaystackFacetFilterWithQueries(HaystackFacetFilter):
     query_builder_class = FacetQueryBuilderWithQueries
+
+
+class CharListFilter(django_filters.CharFilter):
+    def filter(self, qs, value):  # pylint: disable=method-hidden
+        if value not in (None, ''):
+            value = value.split(',')
+
+        return super(CharListFilter, self).filter(qs, value)
+
+
+class CourseFilter(django_filters.FilterSet):
+    keys = CharListFilter(name='key', lookup_type='in')
+
+    class Meta:
+        model = Course
+        fields = ['keys']

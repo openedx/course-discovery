@@ -16,14 +16,14 @@ from drf_haystack.mixins import FacetMixin
 from drf_haystack.viewsets import HaystackViewSet
 from dry_rest_permissions.generics import DRYPermissions
 from edx_rest_framework_extensions.permissions import IsSuperuser
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, filters
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import PermissionDenied, ParseError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api import serializers
-from course_discovery.apps.api.filters import PermissionsFilter, HaystackFacetFilterWithQueries
+from course_discovery.apps.api.filters import PermissionsFilter, HaystackFacetFilterWithQueries, CourseFilter
 from course_discovery.apps.api.pagination import PageNumberPagination
 from course_discovery.apps.api.renderers import AffiliateWindowXMLRenderer, CourseRunCSVRenderer
 from course_discovery.apps.catalogs.models import Catalog
@@ -172,6 +172,8 @@ class CatalogViewSet(viewsets.ModelViewSet):
 
 class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     """ Course resource. """
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = CourseFilter
     lookup_field = 'key'
     lookup_value_regex = COURSE_ID_REGEX
     queryset = Course.objects.all()
@@ -190,10 +192,16 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
 
     def list(self, request, *args, **kwargs):
         """ List all courses.
-        ---
+         ---
         parameters:
             - name: q
-              description: Elasticsearch querystring query
+              description: Elasticsearch querystring query. This filter takes precedence over other filters.
+              required: false
+              type: string
+              paramType: query
+              multiple: false
+            - name: keys
+              description: Filter by keys (comma-separated list)
               required: false
               type: string
               paramType: query
