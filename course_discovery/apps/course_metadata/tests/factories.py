@@ -9,7 +9,8 @@ from pytz import UTC
 
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Organization, Person, Image, Video, Subject, Seat, Prerequisite, LevelType, Program
+    Course, CourseRun, Organization, Person, Image, Video, Subject, Seat, Prerequisite, LevelType, Program,
+    AbstractSocialNetworkModel, CourseRunSocialNetwork, PersonSocialNetwork
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -148,3 +149,22 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     category = 'xseries'
     status = 'unpublished'
     marketing_slug = factory.Sequence(lambda n: 'test-slug-{}'.format(n))  # pylint: disable=unnecessary-lambda
+
+
+class AbstractSocialNetworkModelFactory(factory.DjangoModelFactory):
+    type = FuzzyChoice([name for name, __ in AbstractSocialNetworkModel.SOCIAL_NETWORK_CHOICES])
+    value = FuzzyText()
+
+
+class PersonSocialNetworkFactory(AbstractSocialNetworkModelFactory):
+    person = factory.SubFactory(PersonFactory)
+
+    class Meta:
+        model = PersonSocialNetwork
+
+
+class CourseRunSocialNetworkFactory(AbstractSocialNetworkModelFactory):
+    course_run = factory.SubFactory(CourseRunFactory)
+
+    class Meta:
+        model = CourseRunSocialNetwork

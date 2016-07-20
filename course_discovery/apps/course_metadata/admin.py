@@ -1,7 +1,8 @@
 from django.contrib import admin
 
 from course_discovery.apps.course_metadata.models import (
-    Seat, Image, Video, LevelType, Subject, Prerequisite, ExpectedLearningItem, Course, CourseRun, Organization, Person,
+    Seat, Image, Video, LevelType, Subject, Prerequisite, ExpectedLearningItem, Expertise,
+    Course, CourseRun, CourseRunSocialNetwork, MajorWork, Organization, Person, PersonSocialNetwork,
     CourseOrganization, SyllabusItem, Program
 )
 
@@ -56,9 +57,9 @@ for model in (Organization, Person,):
     admin.site.register(model, KeyNameAdmin)
 
 # Register children of AbstractNamedModel
-for model in (LevelType, Subject, Prerequisite,):
+for model in (LevelType, Subject, Prerequisite, Expertise, MajorWork):
     admin.site.register(model, NamedModelAdmin)
 
 # Register remaining models using basic ModelAdmin classes
-for model in (Image, Video, ExpectedLearningItem, SyllabusItem):
+for model in (Image, Video, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, CourseRunSocialNetwork):
     admin.site.register(model)

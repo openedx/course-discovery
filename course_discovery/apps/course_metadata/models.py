@@ -55,6 +55,30 @@ class AbstractMediaModel(TimeStampedModel):
         abstract = True
 
 
+class AbstractSocialNetworkModel(TimeStampedModel):
+    """ SocialNetwork model. """
+    FACEBOOK = 'facebook'
+    TWITTER = 'twitter'
+    BLOG = 'blog'
+    OTHERS = 'others'
+
+    SOCIAL_NETWORK_CHOICES = (
+        (FACEBOOK, _('Facebook')),
+        (TWITTER, _('Twitter')),
+        (BLOG, _('Blog')),
+        (OTHERS, _('Others')),
+    )
+
+    type = models.CharField(max_length=15, choices=SOCIAL_NETWORK_CHOICES, db_index=True)
+    value = models.CharField(max_length=500)
+
+    def __str__(self):
+        return '{type}: {value}'.format(type=self.type, value=self.value)
+
+    class Meta(object):
+        abstract = True
+
+
 class Image(AbstractMediaModel):
     """ Image model. """
     height = models.IntegerField(null=True, blank=True)
@@ -91,6 +115,16 @@ class SyllabusItem(AbstractValueModel):
     parent = models.ForeignKey('self', blank=True, null=True, related_name='children')
 
 
+class Expertise(AbstractNamedModel):
+    """ Expertise model. """
+    pass
+
+
+class MajorWork(AbstractNamedModel):
+    """ MajorWork model. """
+    pass
+
+
 class Organization(TimeStampedModel):
     """ Organization model. """
     key = models.CharField(max_length=255, unique=True)
@@ -113,6 +147,10 @@ class Person(TimeStampedModel):
     bio = models.TextField(null=True, blank=True)
     profile_image = models.ForeignKey(Image, null=True, blank=True)
     organizations = models.ManyToManyField(Organization, blank=True)
+    email = models.EmailField(max_length=255, null=True, blank=True)
+    username = models.CharField(max_length=255, null=True, blank=True)
+    expertises = SortedManyToManyField(Expertise, blank=True, related_name='person_expertise')
+    major_works = SortedManyToManyField(MajorWork, blank=True, related_name='person_works')
 
     history = HistoricalRecords()
 
@@ -137,6 +175,17 @@ class Course(TimeStampedModel):
     image = models.ForeignKey(Image, default=None, null=True, blank=True)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     marketing_url = models.URLField(max_length=255, null=True, blank=True)
+    learner_testimonial = models.CharField(
+        max_length=50, null=True, blank=True, help_text=_(
+            "A quote from a learner in the course, demonstrating the value of taking the course"
+        )
+    )
+
+    number = models.CharField(
+        max_length=50, null=True, blank=True, help_text=_(
+            "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
+        )
+    )
 
     history = HistoricalRecords()
     objects = CourseQuerySet.as_manager()
@@ -437,3 +486,27 @@ class Program(TimeStampedModel):
 
     def __str__(self):
         return self.title
+
+
+class PersonSocialNetwork(AbstractSocialNetworkModel):
+    """ Person Social Network model. """
+    person = models.ForeignKey(Person, related_name='person_networks')
+
+    class Meta(object):
+        verbose_name_plural = 'Person SocialNetwork'
+
+        unique_together = (
+            ('person', 'type'),
+        )
+
+
+class CourseRunSocialNetwork(AbstractSocialNetworkModel):
+    """ CourseRun Social Network model. """
+    course_run = models.ForeignKey(CourseRun, related_name='course_run_networks')
+
+    class Meta(object):
+        verbose_name_plural = 'CourseRun SocialNetwork'
+
+        unique_together = (
+            ('course_run', 'type'),
+        )
