@@ -21,15 +21,21 @@ class ChangedByMixin(object):
 class Course(TimeStampedModel, ChangedByMixin):
     """ Publisher Course model. It contains fields related to the course intake form."""
 
-    title = models.CharField(max_length=255, default=None, null=True, blank=True)
-    number = models.CharField(max_length=50, null=True, blank=True)
-    short_description = models.CharField(max_length=255, default=None, null=True, blank=True)
-    full_description = models.TextField(default=None, null=True, blank=True)
-    organizations = models.ManyToManyField(Organization, blank=True, related_name='publisher_courses')
-    level_type = models.ForeignKey(LevelType, default=None, null=True, blank=True, related_name='publisher_courses')
-    expected_learnings = models.TextField(default=None, null=True, blank=True)
+    title = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_('Course title'))
+    number = models.CharField(max_length=50, null=True, blank=True, verbose_name=_('Course number'))
+    short_description = models.CharField(
+        max_length=255, default=None, null=True, blank=True, verbose_name=_('Course subtitle')
+    )
+    full_description = models.TextField(default=None, null=True, blank=True, verbose_name=_('About this course'))
+    organizations = models.ManyToManyField(
+        Organization, blank=True, related_name='publisher_courses', verbose_name=_('Partner Name')
+    )
+    level_type = models.ForeignKey(
+        LevelType, default=None, null=True, blank=True, related_name='publisher_courses', verbose_name=_('Course level')
+    )
+    expected_learnings = models.TextField(default=None, null=True, blank=True, verbose_name=_("What you'll learn"))
     syllabus = models.TextField(default=None, null=True, blank=True)
-    prerequisites = models.TextField(default=None, null=True, blank=True)
+    prerequisites = models.TextField(default=None, null=True, blank=True, verbose_name=_('Has prerequisites?'))
     learner_testimonial = models.CharField(max_length=50, null=True, blank=True)
 
     primary_subject = models.ForeignKey(Subject, related_name='publisher_courses_primary')
