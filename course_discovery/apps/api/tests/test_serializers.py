@@ -179,6 +179,7 @@ class ProgramSerializerTests(TestCase):
             'category': program.category,
             'marketing_slug': program.marketing_slug,
             'marketing_url': program.marketing_url,
+            'image_url': program.image_url,
         }
         self.assertDictEqual(serializer.data, expected)
 
@@ -398,5 +399,6 @@ class ProgramSearchSerializerTests(TestCase):
             'marketing_url': program.marketing_url,
             'organizations': [OrganizationsMixin.format_organization(organization)],
             'content_type': 'program_{category}'.format(category=program.category),
+            'image_url': program.image_url,
         }
         self.assertDictEqual(serializer.data, expected)

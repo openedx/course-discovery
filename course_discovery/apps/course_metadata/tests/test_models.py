@@ -242,22 +242,32 @@ class AbstractValueModelTests(TestCase):
 class ProgramTests(TestCase):
     """Tests of the Program model."""
 
+    def setUp(self):
+        super(ProgramTests, self).setUp()
+        self.program = factories.ProgramFactory()
+
     def test_str(self):
         """Verify that a program is properly converted to a str."""
-        program = factories.ProgramFactory()
-        self.assertEqual(str(program), program.title)
+        self.assertEqual(str(self.program), self.program.title)
 
     def test_marketing_url(self):
         """ Verify the property creates a complete marketing URL. """
-        program = factories.ProgramFactory()
         expected = '{root}/{category}/{slug}'.format(root=settings.MARKETING_URL_ROOT.strip('/'),
-                                                     category=program.category, slug=program.marketing_slug)
-        self.assertEqual(program.marketing_url, expected)
+                                                     category=self.program.category, slug=self.program.marketing_slug)
+        self.assertEqual(self.program.marketing_url, expected)
 
     def test_marketing_url_without_slug(self):
         """ Verify the property returns None if the Program has no marketing_slug set. """
-        program = factories.ProgramFactory(marketing_slug='')
-        self.assertIsNone(program.marketing_url)
+        self.program.marketing_slug = ''
+        self.assertIsNone(self.program.marketing_url)
+
+    def test_image_url(self):
+        """ Verify the property returns the associated image's URL. """
+        self.assertEqual(self.program.image_url, self.program.image.src)
+
+        self.program.image = None
+        self.assertIsNone(self.program.image)
+        self.assertIsNone(self.program.image_url)
 
 
 class PersonSocialNetworkTests(TestCase):
