@@ -7,5 +7,5 @@ def core(_request):
     """ Site-wide context processor. """
     return {
         'platform_name': settings.PLATFORM_NAME,
-        'language_bidi': 'rtl' if get_language_bidi() else 'ltr'
+        'language_bidi': get_language_bidi()
     }

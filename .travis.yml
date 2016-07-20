@@ -12,21 +12,26 @@ sudo: false
 cache:
   - directories:
     - $HOME/.cache/pip
+    - node_modules
+    - course_discovery/static/bower_components
 
 before_install:
     - "export DISPLAY=:99.0"
     - "sh -e /etc/init.d/xvfb start"
+    - "export DJANGO_SETTINGS_MODULE=course_discovery.settings.test"
     - docker run --detach  --publish 9200:9200 --publish 9300:9300 elasticsearch:1.5.2
 
 install:
     - pip install -U pip wheel codecov
     - pip install -r requirements/test.txt
+    - make requirements.js
 
 before_script:
 # Give Elasticsearch time to start
   - sleep 10
 
 script:
+    - make static -e DJANGO_SETTINGS_MODULE="course_discovery.settings.test"
     - make validate
 
 after_success:
