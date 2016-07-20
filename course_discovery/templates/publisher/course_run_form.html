@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}
+    {% trans "Course Run Form" %}
+{% endblock title %}
+
+{% block content %}
+    <div class="layout-full layout">
+        <div class="card course-about-form">
+            <h4 class="hd-4">Course About Form</h4>
+            <form class="form" method="post" action=""> {% csrf_token %}
+                <fieldset class="form-group">
+                    {% for form in forms %}
+                        {% for field in form %}
+                            <div class="field">
+                                <label class="field-label {% if field.required %}field-required{% endif %}" for="{{ field.name }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% for error in field.errors %}
+                                    <div class="field-message has-error">
+                                        <span class="field-message-content">
+                                            {{ error|escape }}
+                                        </span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                </fieldset>
+                <button class="btn-brand btn-base" type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

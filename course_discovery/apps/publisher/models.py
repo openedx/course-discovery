@@ -21,16 +21,19 @@ class ChangedByMixin(object):
 class Course(TimeStampedModel, ChangedByMixin):
     """ Publisher Course model. It contains fields related to the course intake form."""
 
-    title = models.CharField(max_length=255, default=None, null=True, blank=True)
-    number = models.CharField(max_length=50, null=True, blank=True)
-    short_description = models.CharField(max_length=255, default=None, null=True, blank=True)
-    full_description = models.TextField(default=None, null=True, blank=True)
+    title = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name='Course title')
+    number = models.CharField(max_length=50, null=True, blank=True, verbose_name='Course number')
+    short_description = models.CharField(
+        max_length=255, default=None, null=True, blank=True, verbose_name='Course subtitle'
+    )
+    full_description = models.TextField(default=None, null=True, blank=True, verbose_name='About this course')
     organizations = models.ManyToManyField(Organization, blank=True, related_name='publisher_courses')
-    prerequisites = models.TextField(default=None, null=True, blank=True)
-    level_type = models.ForeignKey(LevelType, default=None, null=True, blank=True, related_name='publisher_courses')
-    expected_learnings = models.TextField(default=None, null=True, blank=True)
+    prerequisites = models.TextField(default=None, null=True, blank=True, verbose_name='Has prerequisites?')
+    level_type = models.ForeignKey(
+        LevelType, default=None, null=True, blank=True, related_name='publisher_courses', verbose_name='Course level'
+    )
+    expected_learnings = models.TextField(default=None, null=True, blank=True, verbose_name="What you'll learn")
     syllabus = models.TextField(default=None, null=True, blank=True)
-    prerequisites = models.TextField(default=None, null=True, blank=True)
     learner_testimonial = models.CharField(max_length=50, null=True, blank=True)
 
     primary_subject = models.ForeignKey(Subject, related_name='publisher_courses_primary')
