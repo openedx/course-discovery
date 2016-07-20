@@ -149,6 +149,7 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     category = 'xseries'
     status = 'unpublished'
     marketing_slug = factory.Sequence(lambda n: 'test-slug-{}'.format(n))  # pylint: disable=unnecessary-lambda
+    image = factory.SubFactory(ImageFactory)
 
 
 class AbstractSocialNetworkModelFactory(factory.DjangoModelFactory):

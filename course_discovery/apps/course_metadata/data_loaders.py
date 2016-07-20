@@ -491,6 +491,8 @@ class EcommerceApiDataLoader(AbstractDataLoader):
 
 class ProgramsApiDataLoader(AbstractDataLoader):
     """ Loads programs from the Programs API. """
+    image_width = 435
+    image_height = 145
 
     def ingest(self):
         client = self.api_client
@@ -523,6 +525,7 @@ class ProgramsApiDataLoader(AbstractDataLoader):
             'category': body['category'],
             'status': body['status'],
             'marketing_slug': body['marketing_slug'],
+            'image': self._get_image(body),
         }
         program, __ = Program.objects.update_or_create(uuid=body['uuid'], defaults=defaults)
 
@@ -535,3 +538,17 @@ class ProgramsApiDataLoader(AbstractDataLoader):
 
         program.organizations.clear()
         program.organizations.add(*organizations)
+
+    def _get_image(self, body):
+        image = None
+        image_key = 'w{width}h{height}'.format(width=self.image_width, height=self.image_height)
+        image_url = body.get('banner_image_urls', {}).get(image_key)
+
+        if image_url:
+            defaults = {
+                'width': self.image_width,
+                'height': self.image_height,
+            }
+            image, __ = Image.objects.update_or_create(src=image_url, defaults=defaults)
+
+        return image

@@ -474,7 +474,12 @@ class Program(TimeStampedModel):
         max_length=255
     )
 
+    image = models.ForeignKey(Image, default=None, null=True, blank=True)
+
     organizations = models.ManyToManyField(Organization, blank=True)
+
+    def __str__(self):
+        return self.title
 
     @property
     def marketing_url(self):
@@ -484,8 +489,12 @@ class Program(TimeStampedModel):
 
         return None
 
-    def __str__(self):
-        return self.title
+    @property
+    def image_url(self):
+        if self.image:
+            return self.image.src
+
+        return None
 
 
 class PersonSocialNetwork(AbstractSocialNetworkModel):

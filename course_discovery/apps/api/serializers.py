@@ -45,7 +45,7 @@ COURSE_RUN_SEARCH_FIELDS = (
 )
 
 PROGRAM_SEARCH_FIELDS = (
-    'uuid', 'title', 'subtitle', 'category', 'marketing_url', 'organizations', 'content_type', 'text',
+    'uuid', 'title', 'subtitle', 'category', 'marketing_url', 'organizations', 'content_type', 'image_url', 'text',
 )
 
 
@@ -257,7 +257,7 @@ class ContainedCoursesSerializer(serializers.Serializer):
 class ProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
-        fields = ('uuid', 'title', 'subtitle', 'category', 'marketing_slug', 'marketing_url',)
+        fields = ('uuid', 'title', 'subtitle', 'category', 'marketing_slug', 'marketing_url', 'image_url',)
         read_only_fields = ('uuid', 'marketing_url',)
 
 

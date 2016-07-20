@@ -1105,7 +1105,13 @@ class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                         'display_name': 'Delft University of Technology',
                         'key': 'DelftX'
                     }
-                ]
+                ],
+                'banner_image_urls': {
+                    'w1440h480': 'https://example.com/delft-water__1440x480.jpg',
+                    'w348h116': 'https://example.com/delft-water__348x116.jpg',
+                    'w726h242': 'https://example.com/delft-water__726x242.jpg',
+                    'w435h145': 'https://example.com/delft-water__435x145.jpg'
+                }
             },
             {
                 'uuid': 'b043f467-5e80-4225-93d2-248a93a8556a',
@@ -1120,7 +1126,8 @@ class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                         'display_name': 'Massachusetts Institute of Technology',
                         'key': 'MITx'
                     }
-                ]
+                ],
+                'banner_image_urls': {},
             },
         ]
 
@@ -1166,6 +1173,12 @@ class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         expected_organizations = list(Organization.objects.filter(key__in=keys))
         self.assertEqual(keys, [org.key for org in expected_organizations])
         self.assertListEqual(list(program.organizations.all()), expected_organizations)
+
+        image_url = body.get('banner_image_urls', {}).get('w435h145')
+        if image_url:
+            image = Image.objects.get(src=image_url, width=self.loader_class.image_width,
+                                      height=self.loader_class.image_height)
+            self.assertEqual(program.image, image)
 
     @responses.activate
     def test_ingest(self):
