@@ -49,6 +49,8 @@ requirements: requirement.js
 
 production-requirements:
 	pip install -r requirements.txt --exists-action w
+	npm install
+	$(NODE_BIN)/bower install --production --config.interactive=false
 
 test: clean
 	coverage run ./manage.py test course_discovery --settings=course_discovery.settings.test
