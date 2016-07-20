@@ -34,9 +34,9 @@ class CourseRunAdmin(admin.ModelAdmin):
 
 @admin.register(Program)
 class ProgramAdmin(admin.ModelAdmin):
-    list_display = ('uuid', 'name',)
-    ordering = ('uuid', 'name',)
-    search_fields = ('uuid', 'name', 'marketing_slug')
+    list_display = ('uuid', 'title',)
+    ordering = ('uuid', 'title',)
+    search_fields = ('uuid', 'title', 'marketing_slug')
 
 
 class KeyNameAdmin(admin.ModelAdmin):

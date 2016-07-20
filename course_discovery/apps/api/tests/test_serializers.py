@@ -174,7 +174,7 @@ class ProgramSerializerTests(TestCase):
 
         expected = {
             'uuid': str(program.uuid),
-            'name': program.name,
+            'title': program.title,
             'subtitle': program.subtitle,
             'category': program.category,
             'marketing_slug': program.marketing_slug,
@@ -392,7 +392,7 @@ class ProgramSearchSerializerTests(TestCase):
 
         expected = {
             'uuid': str(program.uuid),
-            'name': program.name,
+            'title': program.title,
             'subtitle': program.subtitle,
             'category': program.category,
             'marketing_url': program.marketing_url,

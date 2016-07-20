@@ -244,7 +244,7 @@ class ProgramTests(TestCase):
     def test_str(self):
         """Verify that a program is properly converted to a str."""
         program = factories.ProgramFactory()
-        self.assertEqual(str(program), program.name)
+        self.assertEqual(str(program), program.title)
 
     def test_marketing_url(self):
         """ Verify the property creates a complete marketing URL. """

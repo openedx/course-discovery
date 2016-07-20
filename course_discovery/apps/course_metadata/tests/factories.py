@@ -142,7 +142,7 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     class Meta(object):
         model = Program
 
-    name = factory.Sequence(lambda n: 'test-program-{}'.format(n))  # pylint: disable=unnecessary-lambda
+    title = factory.Sequence(lambda n: 'test-program-{}'.format(n))  # pylint: disable=unnecessary-lambda
     uuid = factory.LazyFunction(uuid4)
     subtitle = 'test-subtitle'
     category = 'xseries'
