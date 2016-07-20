@@ -44,7 +44,7 @@ requirement.js:
 	npm install
 	$(NODE_BIN)/bower install
 
-requirements: requirement.js
+requirements:
 	pip install -r requirements/local.txt --exists-action w
 
 production-requirements:
