@@ -1,33 +1,61 @@
+from datetime import datetime
+
 import factory
-from factory.fuzzy import FuzzyText, FuzzyChoice
+from factory.fuzzy import FuzzyText, FuzzyChoice, FuzzyDecimal, FuzzyDateTime, FuzzyInteger
+from pytz import UTC
+
+from course_discovery.apps.core.models import Currency
+from course_discovery.apps.course_metadata.tests import factories
+from course_discovery.apps.course_metadata.models import CourseRun as CourseMetadataCourseRun
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from course_discovery.apps.publisher.models import Course, CourseRun, Seat
 
 
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory
-from course_discovery.apps.publisher.models import Status, CourseRunDetail
-from course_discovery.apps.core.tests.factories import UserFactory
+class CourseFactory(factory.DjangoModelFactory):
+    title = FuzzyText(prefix="Test çօմɾʂҽ ")
+    short_description = FuzzyText(prefix="Test çօմɾʂҽ short description")
+    full_description = FuzzyText(prefix="Test çօմɾʂҽ FULL description")
+    number = FuzzyText()
+    prerequisites = "prereq 1, prereq 2, prereq 3"
+    expected_learnings = "learning 1, learning 2, learning 3"
+    syllabus = "week 1:  awesomeness"
+    learner_testimonial = "Best course ever!"
+    level_type = factory.SubFactory(factories.LevelTypeFactory)
 
-
-class StatusFactory(factory.DjangoModelFactory):
-    name = FuzzyChoice([name for name, __ in Status.STATUS_CHOICES])
-    course_run = factory.SubFactory(CourseRunFactory)
-    updated_by = factory.SubFactory(UserFactory)
+    primary_subject = factory.SubFactory(factories.SubjectFactory)
+    secondary_subject = factory.SubFactory(factories.SubjectFactory)
+    tertiary_subject = factory.SubFactory(factories.SubjectFactory)
 
     class Meta:
-        model = Status
+        model = Course
 
 
-class CourseRunDetailFactory(factory.DjangoModelFactory):
-    course_run = factory.SubFactory(CourseRunFactory)
-    is_re_run = FuzzyChoice((True, False,))
-    program_type = FuzzyChoice([name for name, __ in CourseRunDetail.PROGRAMS_CHOICES])
-    program_name = FuzzyText()
+class CourseRunFactory(factory.DjangoModelFactory):
+    course = factory.SubFactory(CourseFactory)
+    start = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
+    end = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC)).end_dt
+    enrollment_start = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
+    enrollment_end = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC)).end_dt
+    certificate_generation = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
+    min_effort = FuzzyInteger(1, 10)
+    max_effort = FuzzyInteger(10, 20)
+    language = factory.Iterator(LanguageTag.objects.all())
+    pacing_type = FuzzyChoice([name for name, __ in CourseMetadataCourseRun.PACING_CHOICES])
+    length = FuzzyInteger(1, 10)
     seo_review = "test-seo-review"
-    keywords = 'Test1, Test2, Test3'
-    notes = 'Testing notes'
-    certificate_generation_exception = 'Generate certificate on demand'
-    course_length = FuzzyChoice((1, 2, 3, 4, 5,))
-    target_content = FuzzyChoice((True, False,))
-    priority = FuzzyChoice((True, False,))
+    keywords = "Test1, Test2, Test3"
+    notes = "Testing notes"
 
     class Meta:
-        model = CourseRunDetail
+        model = CourseRun
+
+
+class SeatFactory(factory.DjangoModelFactory):
+    type = FuzzyChoice([name for name, __ in Seat.SEAT_TYPE_CHOICES])
+    price = FuzzyDecimal(0.0, 650.0)
+    currency = factory.Iterator(Currency.objects.all())
+    upgrade_deadline = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
+    course_run = factory.SubFactory(CourseRunFactory)
+
+    class Meta:
+        model = Seat

@@ -1,40 +1,50 @@
+# pylint: disable=no-member
 from django.test import TestCase
 
 from course_discovery.apps.publisher.tests import factories
 
 
-# pylint: disable=no-member
-
-
-class StatusTests(TestCase):
-    """ Tests for the `Status` model. """
+class CourseRunTests(TestCase):
+    """ Tests for the publisher `CourseRun` model. """
 
     def setUp(self):
-        super(StatusTests, self).setUp()
-        self.status = factories.StatusFactory()
+        super(CourseRunTests, self).setUp()
+        self.course_run = factories.CourseRunFactory()
 
     def test_str(self):
-        """ Verify casting an instance to a string returns a string containing the key and type and name. """
-        status = self.status
+        """ Verify casting an instance to a string returns a string containing the course title and start date. """
         self.assertEqual(
-            str(status), '{key}: {name}'.format(
-                key=status.course_run.key, name=status.name
+            str(self.course_run),
+            '{title}: {date}'.format(
+                title=self.course_run.course.title, date=self.course_run.start
             )
         )
 
 
-class CourseRunDetailTests(TestCase):
-    """ Tests for the `CourseRunDetail` model. """
+class CourseTests(TestCase):
+    """ Tests for the publisher `Course` model. """
 
     def setUp(self):
-        super(CourseRunDetailTests, self).setUp()
-        self.detail = factories.CourseRunDetailFactory()
+        super(CourseTests, self).setUp()
+        self.course = factories.CourseFactory()
 
     def test_str(self):
-        """ Verify casting an instance to a string returns a string containing the key and type and name. """
-        detail = self.detail
+        """ Verify casting an instance to a string returns a string containing the course title. """
+        self.assertEqual(str(self.course), self.course.title)
+
+
+class SeatTests(TestCase):
+    """ Tests for the publisher `Seat` model. """
+
+    def setUp(self):
+        super(SeatTests, self).setUp()
+        self.seat = factories.SeatFactory()
+
+    def test_str(self):
+        """ Verify casting an instance to a string returns a string containing the course title and seat type. """
         self.assertEqual(
-            str(detail), '{key}: {type}: {program}'.format(
-                key=detail.course_run.key, type=detail.program_type, program=detail.program_name
+            str(self.seat),
+            '{course}: {type}'.format(
+                course=self.seat.course_run.course.title, type=self.seat.type
             )
         )

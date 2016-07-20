@@ -88,9 +88,6 @@ class Image(AbstractMediaModel):
 class Video(AbstractMediaModel):
     """ Video model. """
     image = models.ForeignKey(Image, null=True, blank=True)
-    transcript_languages = models.ManyToManyField(
-        LanguageTag, blank=True, related_name='transcript_videos'
-    )
 
 
 class LevelType(AbstractNamedModel):
@@ -178,12 +175,17 @@ class Course(TimeStampedModel):
     image = models.ForeignKey(Image, default=None, null=True, blank=True)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     marketing_url = models.URLField(max_length=255, null=True, blank=True)
-    learner_testimonial = models.CharField(max_length=50, null=True, blank=True, help_text=_(
-        "A quote from a learner in the course, demonstrating the value of taking the course"))
+    learner_testimonial = models.CharField(
+        max_length=50, null=True, blank=True, help_text=_(
+            "A quote from a learner in the course, demonstrating the value of taking the course"
+        )
+    )
 
     number = models.CharField(
         max_length=50, null=True, blank=True, help_text=_(
-            "Course number format e.g CS002x, BIO1.1x, BIO1.2x"))
+            "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
+        )
+    )
 
     history = HistoricalRecords()
     objects = CourseQuerySet.as_manager()
