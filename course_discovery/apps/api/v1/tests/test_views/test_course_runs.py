@@ -1,7 +1,7 @@
 # pylint: disable=no-member
 import urllib
-import ddt
 
+import ddt
 from django.db.models.functions import Lower
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase, APIRequestFactory
@@ -9,8 +9,8 @@ from rest_framework.test import APITestCase, APIRequestFactory
 from course_discovery.apps.api.serializers import CourseRunSerializer
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory
 from course_discovery.apps.course_metadata.models import CourseRun
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory
 
 
 @ddt.ddt
@@ -25,13 +25,16 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
         self.request = APIRequestFactory().get('/')
         self.request.user = self.user
 
+    def serialize_course_run(self, course_run, **kwargs):
+        return CourseRunSerializer(course_run, context={'request': self.request}, **kwargs).data
+
     def test_get(self):
         """ Verify the endpoint returns the details for a single course. """
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, CourseRunSerializer(self.course_run, context={'request': self.request}).data)
+        self.assertEqual(response.data, self.serialize_course_run(self.course_run))
 
     def test_list(self):
         """ Verify the endpoint returns a list of all catalogs. """
@@ -41,11 +44,7 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(
             response.data['results'],
-            CourseRunSerializer(
-                CourseRun.objects.all().order_by(Lower('key')),
-                many=True,
-                context={'request': self.request}
-            ).data
+            self.serialize_course_run(CourseRun.objects.all().order_by(Lower('key')), many=True)
         )
 
     def test_list_query(self):
@@ -58,15 +57,19 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
 
         response = self.client.get(url)
         actual_sorted = sorted(response.data['results'], key=lambda course_run: course_run['key'])
-        expected_sorted = sorted(
-            CourseRunSerializer(
-                course_runs,
-                many=True,
-                context={'request': self.request}
-            ).data,
-            key=lambda course_run: course_run['key']
-        )
+        expected_sorted = sorted(self.serialize_course_run(course_runs, many=True),
+                                 key=lambda course_run: course_run['key'])
         self.assertListEqual(actual_sorted, expected_sorted)
+
+    def test_list_key_filter(self):
+        """ Verify the endpoint returns a list of course runs filtered by the specified keys. """
+        course_runs = CourseRunFactory.create_batch(3)
+        course_runs = sorted(course_runs, key=lambda course: course.key.lower())
+        keys = ','.join([course.key for course in course_runs])
+        url = '{root}?keys={keys}'.format(root=reverse('api:v1:course_run-list'), keys=keys)
+
+        response = self.client.get(url)
+        self.assertListEqual(response.data['results'], self.serialize_course_run(course_runs, many=True))
 
     def test_contains_single_course_run(self):
         qs = urllib.parse.urlencode({

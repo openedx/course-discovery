@@ -19,11 +19,12 @@ from edx_rest_framework_extensions.permissions import IsSuperuser
 from rest_framework import status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import PermissionDenied, ParseError
+from rest_framework.filters import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from course_discovery.apps.api import filters
 from course_discovery.apps.api import serializers
-from course_discovery.apps.api.filters import PermissionsFilter, HaystackFacetFilterWithQueries
 from course_discovery.apps.api.pagination import PageNumberPagination
 from course_discovery.apps.api.renderers import AffiliateWindowXMLRenderer, CourseRunCSVRenderer
 from course_discovery.apps.catalogs.models import Catalog
@@ -39,7 +40,7 @@ User = get_user_model()
 class CatalogViewSet(viewsets.ModelViewSet):
     """ Catalog resource. """
 
-    filter_backends = (PermissionsFilter,)
+    filter_backends = (filters.PermissionsFilter,)
     lookup_field = 'id'
     permission_classes = (DRYPermissions,)
     queryset = Catalog.objects.all()
@@ -172,6 +173,8 @@ class CatalogViewSet(viewsets.ModelViewSet):
 
 class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     """ Course resource. """
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = filters.CourseFilter
     lookup_field = 'key'
     lookup_value_regex = COURSE_ID_REGEX
     queryset = Course.objects.all()
@@ -190,10 +193,16 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
 
     def list(self, request, *args, **kwargs):
         """ List all courses.
-        ---
+         ---
         parameters:
             - name: q
-              description: Elasticsearch querystring query
+              description: Elasticsearch querystring query. This filter takes precedence over other filters.
+              required: false
+              type: string
+              paramType: query
+              multiple: false
+            - name: keys
+              description: Filter by keys (comma-separated list)
               required: false
               type: string
               paramType: query
@@ -208,6 +217,8 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
 
 class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
     """ CourseRun resource. """
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = filters.CourseRunFilter
     lookup_field = 'key'
     lookup_value_regex = COURSE_RUN_ID_REGEX
     queryset = CourseRun.objects.all().order_by(Lower('key'))
@@ -217,7 +228,10 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         q = self.request.query_params.get('q', None)
         if q:
-            return SearchQuerySetWrapper(CourseRun.search(q))
+            qs = SearchQuerySetWrapper(CourseRun.search(q))
+            # This is necessary to avoid issues with the filter backend.
+            qs.model = self.queryset.model
+            return qs
         else:
             return super(CourseRunViewSet, self).get_queryset()
 
@@ -226,7 +240,13 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
         ---
         parameters:
             - name: q
-              description: Elasticsearch querystring query
+              description: Elasticsearch querystring query. This filter takes precedence over other filters.
+              required: false
+              type: string
+              paramType: query
+              multiple: false
+            - name: keys
+              description: Filter by keys (comma-separated list)
               required: false
               type: string
               paramType: query
@@ -371,7 +391,7 @@ class AffiliateWindowViewSet(viewsets.ViewSet):
 
 class BaseHaystackViewSet(FacetMixin, HaystackViewSet):
     document_uid_field = 'key'
-    facet_filter_backends = [HaystackFacetFilterWithQueries, HaystackFilter]
+    facet_filter_backends = [filters.HaystackFacetFilterWithQueries, HaystackFilter]
     load_all = True
     lookup_field = 'key'
     permission_classes = (IsAuthenticated,)

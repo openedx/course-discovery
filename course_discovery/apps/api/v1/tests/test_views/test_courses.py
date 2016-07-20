@@ -44,3 +44,13 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
 
         response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
+
+    def test_list_key_filter(self):
+        """ Verify the endpoint returns a list of courses filtered by the specified keys. """
+        courses = CourseFactory.create_batch(3)
+        courses = sorted(courses, key=lambda course: course.key.lower())
+        keys = ','.join([course.key for course in courses])
+        url = '{root}?keys={keys}'.format(root=reverse('api:v1:course-list'), keys=keys)
+
+        response = self.client.get(url)
+        self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
