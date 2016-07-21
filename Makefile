@@ -30,6 +30,7 @@ help:
 	@echo ""
 
 static:
+	$(NODE_BIN)/r.js -o build.js
 	python manage.py collectstatic --noinput
 
 clean_static:
