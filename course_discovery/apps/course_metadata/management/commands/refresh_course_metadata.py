@@ -1,12 +1,12 @@
 import logging
 
-from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 from edx_rest_api_client.client import EdxRestApiClient
 
 from course_discovery.apps.course_metadata.data_loaders import (
     CoursesApiDataLoader, DrupalApiDataLoader, OrganizationsApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader
 )
+from course_discovery.apps.core.models import Partner
 
 logger = logging.getLogger(__name__)
 
@@ -31,38 +31,69 @@ class Command(BaseCommand):
             help='The type of access token being passed  (e.g. Bearer, JWT).'
         )
 
-    def handle(self, *args, **options):
-        access_token = options.get('access_token')
-        token_type = options.get('token_type')
-
-        if access_token and not token_type:
-            raise CommandError('The token_type must be specified when passing in an access token!')
-
-        if not access_token:
-            logger.info('No access token provided. Retrieving access token using client_credential flow...')
-            token_type = 'JWT'
-
-            try:
-                access_token, __ = EdxRestApiClient.get_oauth_access_token(
-                    '{root}/access_token'.format(root=settings.SOCIAL_AUTH_EDX_OIDC_URL_ROOT),
-                    settings.SOCIAL_AUTH_EDX_OIDC_KEY,
-                    settings.SOCIAL_AUTH_EDX_OIDC_SECRET,
-                    token_type=token_type
-                )
-            except Exception:
-                logger.exception('No access token provided or acquired through client_credential flow.')
-                raise
-
-        loaders = (
-            (OrganizationsApiDataLoader, settings.ORGANIZATIONS_API_URL,),
-            (CoursesApiDataLoader, settings.COURSES_API_URL,),
-            (EcommerceApiDataLoader, settings.ECOMMERCE_API_URL,),
-            (DrupalApiDataLoader, settings.MARKETING_API_URL,),
-            (ProgramsApiDataLoader, settings.PROGRAMS_API_URL,),
+        parser.add_argument(
+            '--partner_code',
+            action='store',
+            dest='partner_code',
+            default=None,
+            help='The short code for a specific partner to refresh.'
         )
 
-        for loader_class, api_url in loaders:
-            try:
-                loader_class(api_url, access_token, token_type).ingest()
-            except Exception:
-                logger.exception('%s failed!', loader_class.__name__)
+    def handle(self, *args, **options):
+        # For each partner defined...
+        partners = Partner.objects.all()
+
+        # If a specific partner was indicated, filter down the set
+        partner_code = options.get('partner_code')
+        if partner_code:
+            partners = partners.filter(short_code=partner_code)
+
+        if not partners:
+            raise CommandError('No partners available!')
+
+        for partner in partners:
+
+            access_token = options.get('access_token')
+            token_type = options.get('token_type')
+
+            if access_token and not token_type:
+                raise CommandError('The token_type must be specified when passing in an access token!')
+
+            if not access_token:
+                logger.info('No access token provided. Retrieving access token using client_credential flow...')
+                token_type = 'JWT'
+
+                try:
+                    access_token, __ = EdxRestApiClient.get_oauth_access_token(
+                        '{root}/access_token'.format(root=partner.social_auth_edx_oidc_url_root.strip('/')),
+                        partner.social_auth_edx_oidc_key,
+                        partner.social_auth_edx_oidc_secret,
+                        token_type=token_type
+                    )
+                except Exception:
+                    logger.exception('No access token provided or acquired through client_credential flow.')
+                    raise
+
+            loaders = []
+
+            if partner.organizations_api_url:
+                loaders.append(OrganizationsApiDataLoader)
+            if partner.courses_api_url:
+                loaders.append(CoursesApiDataLoader)
+            if partner.ecommerce_api_url:
+                loaders.append(EcommerceApiDataLoader)
+            if partner.marketing_api_url:
+                loaders.append(DrupalApiDataLoader)
+            if partner.programs_api_url:
+                loaders.append(ProgramsApiDataLoader)
+
+            if loaders:
+                for loader_class in loaders:
+                    try:
+                        loader_class(
+                            partner,
+                            access_token,
+                            token_type,
+                        ).ingest()
+                    except Exception:  # pylint: disable=broad-except
+                        logger.exception('%s failed!', loader_class.__name__)

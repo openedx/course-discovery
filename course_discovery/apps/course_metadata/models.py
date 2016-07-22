@@ -4,7 +4,6 @@ from urllib.parse import urljoin
 from uuid import uuid4
 
 import pytz
-from django.conf import settings
 from django.db import models
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
@@ -13,7 +12,7 @@ from haystack.query import SearchQuerySet
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 
-from course_discovery.apps.core.models import Currency
+from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata.query import CourseQuerySet
 from course_discovery.apps.course_metadata.utils import clean_query
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -132,6 +131,7 @@ class Organization(TimeStampedModel):
     description = models.TextField(null=True, blank=True)
     homepage_url = models.URLField(max_length=255, null=True, blank=True)
     logo_image = models.ForeignKey(Image, null=True, blank=True)
+    partner = models.ForeignKey(Partner, null=True, blank=False)
 
     history = HistoricalRecords()
 
@@ -189,6 +189,7 @@ class Course(TimeStampedModel):
 
     history = HistoricalRecords()
     objects = CourseQuerySet.as_manager()
+    partner = models.ForeignKey(Partner, null=True, blank=False)
 
     @property
     def owners(self):
@@ -496,6 +497,8 @@ class Program(TimeStampedModel):
 
     organizations = models.ManyToManyField(Organization, blank=True)
 
+    partner = models.ForeignKey(Partner, null=True, blank=False)
+
     def __str__(self):
         return self.title
 
@@ -503,7 +506,7 @@ class Program(TimeStampedModel):
     def marketing_url(self):
         if self.marketing_slug:
             path = '{category}/{slug}'.format(category=self.category, slug=self.marketing_slug)
-            return urljoin(settings.MARKETING_URL_ROOT, path)
+            return urljoin(self.partner.marketing_url_root, path)
 
         return None
 

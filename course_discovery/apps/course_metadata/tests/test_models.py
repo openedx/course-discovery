@@ -3,8 +3,8 @@ import datetime
 import ddt
 import mock
 import pytz
+
 from dateutil.parser import parse
-from django.conf import settings
 from django.db import IntegrityError
 from django.test import TestCase
 from freezegun import freeze_time
@@ -278,7 +278,7 @@ class ProgramTests(TestCase):
 
     def test_marketing_url(self):
         """ Verify the property creates a complete marketing URL. """
-        expected = '{root}/{category}/{slug}'.format(root=settings.MARKETING_URL_ROOT.strip('/'),
+        expected = '{root}/{category}/{slug}'.format(root=self.program.partner.marketing_url_root.strip('/'),
                                                      category=self.program.category, slug=self.program.marketing_slug)
         self.assertEqual(self.program.marketing_url, expected)
 

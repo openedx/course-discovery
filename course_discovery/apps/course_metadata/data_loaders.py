@@ -6,8 +6,6 @@ from urllib.parse import urljoin
 
 import html2text
 from dateutil.parser import parse
-from django.conf import settings
-from django.utils.functional import cached_property
 from edx_rest_api_client.client import EdxRestApiClient
 from opaque_keys.edx.keys import CourseKey
 
@@ -25,7 +23,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
     """ Base class for all data loaders.
 
     Attributes:
-        api_url (str): URL of the API from which data is loaded
+        partner (Partner): Partner which owns the data for this data loader
         access_token (str): OAuth2 access token
         PAGE_SIZE (int): Number of items to load per API call
     """
@@ -33,12 +31,12 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
     PAGE_SIZE = 50
     SUPPORTED_TOKEN_TYPES = ('bearer', 'jwt',)
 
-    def __init__(self, api_url, access_token, token_type):
+    def __init__(self, partner, access_token, token_type):
         """
         Arguments:
-            api_url (str): URL of the API from which data is loaded
             access_token (str): OAuth2 access token
             token_type (str): The type of access token passed in (e.g. Bearer, JWT)
+            partner (Partner): The Partner which owns the APIs and data being loaded
         """
         token_type = token_type.lower()
 
@@ -46,11 +44,10 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
             raise ValueError('The token type {token_type} is invalid!'.format(token_type=token_type))
 
         self.access_token = access_token
-        self.api_url = api_url
         self.token_type = token_type
+        self.partner = partner
 
-    @cached_property
-    def api_client(self):
+    def get_api_client(self, api_url):
         """
         Returns an authenticated API client ready to call the API from which data is loaded.
 
@@ -64,7 +61,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         else:
             kwargs['oauth_access_token'] = self.access_token
 
-        return EdxRestApiClient(self.api_url, **kwargs)
+        return EdxRestApiClient(api_url, **kwargs)
 
     @abc.abstractmethod
     def ingest(self):  # pragma: no cover
@@ -127,11 +124,12 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
     """ Loads organizations from the Organizations API. """
 
     def ingest(self):
-        client = self.api_client
+        api_url = self.partner.organizations_api_url
+        client = self.get_api_client(api_url)
         count = None
         page = 1
 
-        logger.info('Refreshing Organizations from %s...', self.api_url)
+        logger.info('Refreshing Organizations from %s...', api_url)
 
         while page:
             response = client.organizations().get(page=page, page_size=self.PAGE_SIZE)
@@ -143,12 +141,11 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
                 page += 1
             else:
                 page = None
-
             for body in results:
                 body = self.clean_strings(body)
                 self.update_organization(body)
 
-        logger.info('Retrieved %d organizations from %s.', count, self.api_url)
+        logger.info('Retrieved %d organizations from %s.', count, api_url)
 
         self.delete_orphans()
 
@@ -161,19 +158,22 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
             'name': body['name'],
             'description': body['description'],
             'logo_image': image,
+            'partner': self.partner,
         }
         Organization.objects.update_or_create(key=body['short_name'], defaults=defaults)
+        logger.info('Created/updated organization "%s"', body['short_name'])
 
 
 class CoursesApiDataLoader(AbstractDataLoader):
     """ Loads course runs from the Courses API. """
 
     def ingest(self):
-        client = self.api_client
+        api_url = self.partner.courses_api_url
+        client = self.get_api_client(api_url)
         count = None
         page = 1
 
-        logger.info('Refreshing Courses and CourseRuns from %s...', self.api_url)
+        logger.info('Refreshing Courses and CourseRuns from %s...', api_url)
 
         while page:
             response = client.courses().get(page=page, page_size=self.PAGE_SIZE)
@@ -194,9 +194,13 @@ class CoursesApiDataLoader(AbstractDataLoader):
                     course = self.update_course(body)
                     self.update_course_run(course, body)
                 except:  # pylint: disable=bare-except
-                    logger.exception('An error occurred while updating [%s] from [%s]!', course_run_id, self.api_url)
+                    msg = 'An error occurred while updating {course_run} from {api_url}'.format(
+                        course_run=course_run_id,
+                        api_url=api_url
+                    )
+                    logger.exception(msg)
 
-        logger.info('Retrieved %d course runs from %s.', count, self.api_url)
+        logger.info('Retrieved %d course runs from %s.', count, api_url)
 
         self.delete_orphans()
 
@@ -205,10 +209,11 @@ class CoursesApiDataLoader(AbstractDataLoader):
         # which may not be unique for an organization.
         course_run_key_str = body['id']
         course_run_key = CourseKey.from_string(course_run_key_str)
-        organization, __ = Organization.objects.get_or_create(key=course_run_key.org)
+        organization, __ = Organization.objects.get_or_create(key=course_run_key.org, partner=self.partner)
         course_key = self.convert_course_run_key(course_run_key_str)
         defaults = {
-            'title': body['name']
+            'title': body['name'],
+            'partner': self.partner,
         }
         course, __ = Course.objects.update_or_create(key=course_key, defaults=defaults)
 
@@ -269,8 +274,9 @@ class DrupalApiDataLoader(AbstractDataLoader):
     """Loads course runs from the Drupal API."""
 
     def ingest(self):
-        client = self.api_client
-        logger.info('Refreshing Courses and CourseRuns from %s...', self.api_url)
+        api_url = self.partner.marketing_api_url
+        client = self.get_api_client(api_url)
+        logger.info('Refreshing Courses and CourseRuns from %s...', api_url)
         response = client.courses.get()
 
         data = response['items']
@@ -288,14 +294,18 @@ class DrupalApiDataLoader(AbstractDataLoader):
                 course = self.update_course(cleaned_body)
                 self.update_course_run(course, cleaned_body)
             except:  # pylint: disable=bare-except
-                logger.exception('An error occurred while updating [%s] from [%s]!', course_run_id, self.api_url)
+                msg = 'An error occurred while updating {course_run} from {api_url}'.format(
+                    course_run=course_run_id,
+                    api_url=api_url
+                )
+                logger.exception(msg)
 
         # Clean Organizations separately from other orphaned instances to avoid removing all orgnaziations
         # after an initial data load on an empty table.
         Organization.objects.filter(courseorganization__isnull=True).delete()
         self.delete_orphans()
 
-        logger.info('Retrieved %d course runs from %s.', len(data), self.api_url)
+        logger.info('Retrieved %d course runs from %s.', len(data), api_url)
 
     def update_course(self, body):
         """Create or update a course from Drupal data given by `body`."""
@@ -308,6 +318,7 @@ class DrupalApiDataLoader(AbstractDataLoader):
 
         course.full_description = self.clean_html(body['description'])
         course.short_description = self.clean_html(body['subtitle'])
+        course.partner = self.partner
 
         level_type, __ = LevelType.objects.get_or_create(name=body['level']['title'])
         course.level_type = level_type
@@ -335,7 +346,7 @@ class DrupalApiDataLoader(AbstractDataLoader):
             defaults = {
                 'name': sponsor_body['title'],
                 'logo_image': image,
-                'homepage_url': urljoin(settings.MARKETING_URL_ROOT, sponsor_body['uri'])
+                'homepage_url': urljoin(self.partner.marketing_url_root, sponsor_body['uri']),
             }
             organization, __ = Organization.objects.update_or_create(key=sponsor_body['uuid'], defaults=defaults)
             CourseOrganization.objects.create(
@@ -357,7 +368,7 @@ class DrupalApiDataLoader(AbstractDataLoader):
 
         course_run.language = self.get_language_tag(body)
         course_run.course = course
-        course_run.marketing_url = urljoin(settings.MARKETING_URL_ROOT, body['course_about_uri'])
+        course_run.marketing_url = urljoin(self.partner.marketing_url_root, body['course_about_uri'])
         course_run.start = self.parse_date(body['start'])
         course_run.end = self.parse_date(body['end'])
 
@@ -409,11 +420,12 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     """ Loads course seats from the E-Commerce API. """
 
     def ingest(self):
-        client = self.api_client
+        api_url = self.partner.ecommerce_api_url
+        client = self.get_api_client(api_url)
         count = None
         page = 1
 
-        logger.info('Refreshing course seats from %s...', self.api_url)
+        logger.info('Refreshing course seats from %s...', api_url)
 
         while page:
             response = client.courses().get(page=page, page_size=self.PAGE_SIZE, include_products=True)
@@ -430,7 +442,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
                 body = self.clean_strings(body)
                 self.update_seats(body)
 
-        logger.info('Retrieved %d course seats from %s.', count, self.api_url)
+        logger.info('Retrieved %d course seats from %s.', count, api_url)
 
         self.delete_orphans()
 
@@ -495,11 +507,12 @@ class ProgramsApiDataLoader(AbstractDataLoader):
     image_height = 145
 
     def ingest(self):
-        client = self.api_client
+        api_url = self.partner.programs_api_url
+        client = self.get_api_client(api_url)
         count = None
         page = 1
 
-        logger.info('Refreshing programs from %s...', self.api_url)
+        logger.info('Refreshing programs from %s...', api_url)
 
         while page:
             response = client.programs.get(page=page, page_size=self.PAGE_SIZE)
@@ -516,7 +529,7 @@ class ProgramsApiDataLoader(AbstractDataLoader):
                 program = self.clean_strings(program)
                 self.update_program(program)
 
-        logger.info('Retrieved %d programs from %s.', count, self.api_url)
+        logger.info('Retrieved %d programs from %s.', count, api_url)
 
     def update_program(self, body):
         defaults = {
@@ -526,13 +539,14 @@ class ProgramsApiDataLoader(AbstractDataLoader):
             'status': body['status'],
             'marketing_slug': body['marketing_slug'],
             'image': self._get_image(body),
+            'partner': self.partner,
         }
         program, __ = Program.objects.update_or_create(uuid=body['uuid'], defaults=defaults)
 
         organizations = []
         for org in body['organizations']:
             organization, __ = Organization.objects.get_or_create(
-                key=org['key'], defaults={'name': org['display_name']}
+                key=org['key'], defaults={'name': org['display_name'], 'partner': self.partner}
             )
             organizations.append(organization)
 

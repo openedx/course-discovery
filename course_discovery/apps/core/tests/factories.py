@@ -1,6 +1,8 @@
 import factory
+from factory.fuzzy import FuzzyText
 
-from course_discovery.apps.core.models import User
+from course_discovery.apps.core.models import User, Partner
+from course_discovery.apps.core.tests.utils import FuzzyUrlRoot
 
 USER_PASSWORD = 'password'
 
@@ -14,3 +16,20 @@ class UserFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = User
+
+
+class PartnerFactory(factory.DjangoModelFactory):
+    name = factory.Sequence(lambda n: 'test-partner-{}'.format(n))  # pylint: disable=unnecessary-lambda
+    short_code = factory.Sequence(lambda n: 'test{}'.format(n))  # pylint: disable=unnecessary-lambda
+    courses_api_url = '{root}/api/courses/v1/'.format(root=FuzzyUrlRoot().fuzz())
+    ecommerce_api_url = '{root}/api/courses/v1/'.format(root=FuzzyUrlRoot().fuzz())
+    organizations_api_url = '{root}/api/organizations/v1/'.format(root=FuzzyUrlRoot().fuzz())
+    programs_api_url = '{root}/api/programs/v1/'.format(root=FuzzyUrlRoot().fuzz())
+    marketing_api_url = '{root}/api/courses/v1/'.format(root=FuzzyUrlRoot().fuzz())
+    marketing_url_root = '{root}/'.format(root=FuzzyUrlRoot().fuzz())
+    social_auth_edx_oidc_url_root = '{root}'.format(root=FuzzyUrlRoot().fuzz())
+    social_auth_edx_oidc_key = FuzzyText().fuzz()
+    social_auth_edx_oidc_secret = FuzzyText().fuzz()
+
+    class Meta(object):
+        model = Partner

@@ -1,0 +1,41 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from django.db import migrations, models
+import django.db.models.deletion
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('core', '0008_partner'),
+        ('course_metadata', '0008_program_image'),
+    ]
+
+    operations = [
+        migrations.AddField(
+            model_name='course',
+            name='partner',
+            field=models.ForeignKey(null=True, to='core.Partner'),
+        ),
+        migrations.AddField(
+            model_name='historicalcourse',
+            name='partner',
+            field=models.ForeignKey(related_name='+', null=True, on_delete=django.db.models.deletion.DO_NOTHING, db_constraint=False, blank=True, to='core.Partner'),
+        ),
+        migrations.AddField(
+            model_name='historicalorganization',
+            name='partner',
+            field=models.ForeignKey(related_name='+', null=True, on_delete=django.db.models.deletion.DO_NOTHING, db_constraint=False, blank=True, to='core.Partner'),
+        ),
+        migrations.AddField(
+            model_name='organization',
+            name='partner',
+            field=models.ForeignKey(null=True, to='core.Partner'),
+        ),
+        migrations.AddField(
+            model_name='program',
+            name='partner',
+            field=models.ForeignKey(null=True, to='core.Partner'),
+        ),
+    ]
