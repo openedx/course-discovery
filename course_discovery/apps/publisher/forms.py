@@ -1,6 +1,6 @@
 from django import forms
 
-from course_discovery.apps.publisher.models import Course, CourseRun
+from course_discovery.apps.publisher.models import Course, CourseRun, Seat
 
 
 class BaseCourseForm(forms.ModelForm):
@@ -17,7 +17,7 @@ class BaseCourseForm(forms.ModelForm):
             if isinstance(field, forms.BooleanField):
                 field_classes = 'field-input input-checkbox'
             if isinstance(field, forms.ModelMultipleChoiceField):
-                field_classes = ''
+                field_classes = 'field-input'
 
             if field_name in self.errors:
                 field_classes = '{} has-error'.format(field_classes)
@@ -31,9 +31,6 @@ class CourseForm(BaseCourseForm):
     class Meta:
         model = Course
         fields = '__all__'
-        widgets = {
-            'organizations': forms.CheckboxSelectMultiple()
-        }
 
 
 class CourseRunForm(BaseCourseForm):
@@ -43,7 +40,12 @@ class CourseRunForm(BaseCourseForm):
         model = CourseRun
         fields = '__all__'
         exclude = ('course',)
-        widgets = {
-            'transcript_languages': forms.CheckboxSelectMultiple(),
-            'sponsor': forms.CheckboxSelectMultiple()
-        }
+
+
+class SeatForm(BaseCourseForm):
+    """ Course Seat Form. """
+
+    class Meta:
+        model = Seat
+        fields = '__all__'
+        exclude = ('course_run',)

@@ -35,7 +35,7 @@ class Course(TimeStampedModel, ChangedByMixin):
     )
     expected_learnings = models.TextField(default=None, null=True, blank=True, verbose_name=_("What you'll learn"))
     syllabus = models.TextField(default=None, null=True, blank=True)
-    prerequisites = models.TextField(default=None, null=True, blank=True, verbose_name=_('Has prerequisites?'))
+    prerequisites = models.TextField(default=None, null=True, blank=True)
     learner_testimonial = models.CharField(max_length=50, null=True, blank=True)
 
     primary_subject = models.ForeignKey(Subject, related_name='publisher_courses_primary')
