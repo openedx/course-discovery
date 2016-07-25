@@ -178,6 +178,10 @@ class CourseRunTests(TestCase):
         factories.SeatFactory(course_run=self.course_run, type=seat_type)
         self.assert_course_run_has_no_type(self.course_run, set([seat_type]))
 
+    def test_level_type(self):
+        """ Verify the property returns the associated Course's level type. """
+        self.assertEqual(self.course_run.level_type, self.course_run.course.level_type)
+
 
 class OrganizationTests(TestCase):
     """ Tests for the `Organization` model. """

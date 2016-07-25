@@ -41,7 +41,7 @@ COURSE_RUN_FACET_FIELD_QUERIES = {
 COURSE_RUN_SEARCH_FIELDS = (
     'key', 'title', 'short_description', 'full_description', 'start', 'end', 'enrollment_start', 'enrollment_end',
     'pacing_type', 'language', 'transcript_languages', 'marketing_url', 'content_type', 'org', 'number', 'seat_types',
-    'image_url', 'type', 'text',
+    'image_url', 'type', 'level_type', 'text',
 )
 
 PROGRAM_SEARCH_FIELDS = (
@@ -194,6 +194,7 @@ class CourseRunSerializer(TimestampModelSerializer):
     instructors = PersonSerializer(many=True)
     staff = PersonSerializer(many=True)
     marketing_url = serializers.SerializerMethodField()
+    level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
 
     class Meta(object):
         model = CourseRun
@@ -201,7 +202,7 @@ class CourseRunSerializer(TimestampModelSerializer):
             'course', 'key', 'title', 'short_description', 'full_description', 'start', 'end',
             'enrollment_start', 'enrollment_end', 'announcement', 'image', 'video', 'seats',
             'content_language', 'transcript_languages', 'instructors', 'staff',
-            'pacing_type', 'min_effort', 'max_effort', 'modified', 'marketing_url',
+            'pacing_type', 'min_effort', 'max_effort', 'modified', 'marketing_url', 'level_type',
         )
 
     def get_marketing_url(self, obj):

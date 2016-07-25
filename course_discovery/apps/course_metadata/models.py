@@ -356,6 +356,10 @@ class CourseRun(TimeStampedModel):
 
         return None
 
+    @property
+    def level_type(self):
+        return self.course.level_type
+
     @classmethod
     def search(cls, query):
         """ Queries the search index.

@@ -152,6 +152,7 @@ class CourseRunSerializerTests(TestCase):
                     'utm_medium': request.user.referral_tracking_id,
                 })
             ),
+            'level_type': course_run.level_type.name,
         }
 
         self.assertDictEqual(serializer.data, expected)
@@ -375,6 +376,7 @@ class CourseRunSearchSerializerTests(TestCase):
             'seat_types': course_run.seat_types,
             'image_url': course_run.image_url,
             'type': course_run.type,
+            'level_type': course_run.level_type.name,
         }
         self.assertDictEqual(serializer.data, expected)
 
