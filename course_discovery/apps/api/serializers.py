@@ -39,9 +39,9 @@ COURSE_RUN_FACET_FIELD_QUERIES = {
     'availability_archived': {'query': 'end:<=now'},
 }
 COURSE_RUN_SEARCH_FIELDS = (
-    'key', 'title', 'short_description', 'full_description', 'start', 'end', 'enrollment_start', 'enrollment_end',
-    'pacing_type', 'language', 'transcript_languages', 'marketing_url', 'content_type', 'org', 'number', 'seat_types',
-    'image_url', 'type', 'level_type', 'text',
+    'text', 'key', 'title', 'short_description', 'full_description', 'start', 'end', 'enrollment_start',
+    'enrollment_end', 'pacing_type', 'language', 'transcript_languages', 'marketing_url', 'content_type', 'org',
+    'number', 'seat_types', 'image_url', 'type', 'level_type', 'availability',
 )
 
 PROGRAM_SEARCH_FIELDS = (
@@ -202,7 +202,7 @@ class CourseRunSerializer(TimestampModelSerializer):
             'course', 'key', 'title', 'short_description', 'full_description', 'start', 'end',
             'enrollment_start', 'enrollment_end', 'announcement', 'image', 'video', 'seats',
             'content_language', 'transcript_languages', 'instructors', 'staff',
-            'pacing_type', 'min_effort', 'max_effort', 'modified', 'marketing_url', 'level_type',
+            'pacing_type', 'min_effort', 'max_effort', 'modified', 'marketing_url', 'level_type', 'availability',
         )
 
     def get_marketing_url(self, obj):
@@ -480,6 +480,11 @@ class CourseFacetSerializer(BaseHaystackFacetSerializer):
 
 
 class CourseRunSearchSerializer(HaystackSerializer):
+    availability = serializers.SerializerMethodField()
+
+    def get_availability(self, result):
+        return result.object.availability
+
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
         fields = COURSE_RUN_SEARCH_FIELDS

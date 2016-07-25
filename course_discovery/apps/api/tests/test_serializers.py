@@ -153,6 +153,7 @@ class CourseRunSerializerTests(TestCase):
                 })
             ),
             'level_type': course_run.level_type.name,
+            'availability': course_run.availability,
         }
 
         self.assertDictEqual(serializer.data, expected)
@@ -377,6 +378,7 @@ class CourseRunSearchSerializerTests(TestCase):
             'image_url': course_run.image_url,
             'type': course_run.type,
             'level_type': course_run.level_type.name,
+            'availability': course_run.availability,
         }
         self.assertDictEqual(serializer.data, expected)
 

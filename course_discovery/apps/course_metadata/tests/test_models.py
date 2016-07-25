@@ -3,9 +3,11 @@ import datetime
 import ddt
 import mock
 import pytz
-from django.db import IntegrityError
+from dateutil.parser import parse
 from django.conf import settings
+from django.db import IntegrityError
 from django.test import TestCase
+from freezegun import freeze_time
 
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.models import (
@@ -182,6 +184,26 @@ class CourseRunTests(TestCase):
         """ Verify the property returns the associated Course's level type. """
         self.assertEqual(self.course_run.level_type, self.course_run.course.level_type)
 
+    @freeze_time('2016-06-21 00:00:00Z')
+    @ddt.data(
+        (None, None, 'Upcoming'),
+        ('2030-01-01 00:00:00Z', None, 'Upcoming'),
+        (None, '2016-01-01 00:00:00Z', 'Archived'),
+        ('2015-01-01 00:00:00Z', '2016-01-01 00:00:00Z', 'Archived'),
+        ('2016-01-01 00:00:00Z', '2017-01-01 00:00:00Z', 'Current'),
+        ('2016-07-21 00:00:00Z', '2017-01-01 00:00:00Z', 'Starting Soon'),
+    )
+    @ddt.unpack
+    def test_availability(self, start, end, expected_availability):
+        """ Verify the property returns the appropriate availability string based on the start/end dates. """
+        if start:
+            start = parse(start)
+
+        if end:
+            end = parse(end)
+        course_run = factories.CourseRunFactory(start=start, end=end)
+        self.assertEqual(course_run.availability, expected_availability)
+
 
 class OrganizationTests(TestCase):
     """ Tests for the `Organization` model. """
@@ -276,6 +298,7 @@ class ProgramTests(TestCase):
 
 class PersonSocialNetworkTests(TestCase):
     """Tests of the PersonSocialNetwork model."""
+
     def setUp(self):
         super(PersonSocialNetworkTests, self).setUp()
         self.network = factories.PersonSocialNetworkFactory()
@@ -298,6 +321,7 @@ class PersonSocialNetworkTests(TestCase):
 
 class CourseSocialNetworkTests(TestCase):
     """Tests of the CourseSocialNetwork model."""
+
     def setUp(self):
         super(CourseSocialNetworkTests, self).setUp()
         self.network = factories.CourseRunSocialNetworkFactory()

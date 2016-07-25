@@ -360,6 +360,20 @@ class CourseRun(TimeStampedModel):
     def level_type(self):
         return self.course.level_type
 
+    @property
+    def availability(self):
+        now = datetime.datetime.now(pytz.UTC)
+        upcoming_cutoff = now + datetime.timedelta(days=60)
+
+        if self.end and self.end <= now:
+            return _('Archived')
+        elif self.start and self.end and (self.start <= now < self.end):
+            return _('Current')
+        elif self.start and (now < self.start < upcoming_cutoff):
+            return _('Starting Soon')
+        else:
+            return _('Upcoming')
+
     @classmethod
     def search(cls, query):
         """ Queries the search index.
