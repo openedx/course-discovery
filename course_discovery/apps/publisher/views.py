@@ -10,6 +10,8 @@ from course_discovery.apps.publisher.forms import CourseForm, CourseRunForm, Sea
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
+SEATS_HIDDEN_FIELDS = ['price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours']
+
 
 class CourseRunListView(ListView):
     """ Create Course View."""
@@ -21,7 +23,15 @@ class CourseRunListView(ListView):
         ]
 
 
-SEATS_HIDDEN_FIELDS = ['price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours']
+class CourseRunDetailView(DetailView):
+    """ Course Run Detail View."""
+    model = CourseRun
+    template_name = 'publisher/course_run_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CourseRunDetailView, self).get_context_data(**kwargs)
+        context['object'] = CourseRunWrapper(context['object'])
+        return context
 
 
 # pylint: disable=attribute-defined-outside-init
@@ -123,14 +133,3 @@ class UpdateSeatView(UpdateView):
 
     def get_success_url(self):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
-
-
-class CourseRunDetailView(DetailView):
-    """ Course RunDetail View."""
-    model = CourseRun
-    template_name = 'publisher/run_detail/home.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(CourseRunDetailView, self).get_context_data(**kwargs)
-        context['object'] = CourseRunWrapper(context['object'])
-        return context
