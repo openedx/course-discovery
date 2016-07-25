@@ -3,11 +3,14 @@ Course publisher views.
 """
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from course_discovery.apps.publisher.forms import CourseForm, CourseRunForm, SeatForm
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
+
+SEATS_HIDDEN_FIELDS = ['price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours']
 
 
 class CourseRunListView(ListView):
@@ -20,7 +23,15 @@ class CourseRunListView(ListView):
         ]
 
 
-SEATS_HIDDEN_FIELDS = ['price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours']
+class CourseRunDetailView(DetailView):
+    """ Create Course View."""
+    model = CourseRun
+    template_name = 'publisher/course_run_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CourseRunDetailView, self).get_context_data(**kwargs)
+        context['object'] = CourseRunWrapper(context['object'])
+        return context
 
 
 # pylint: disable=attribute-defined-outside-init
