@@ -13,6 +13,10 @@ class BaseWrapper(object):
         else:
             return orig_attr
 
+    @property
+    def fields(self):
+        return [field for field in self.wrapped_obj.__dict__.keys() if not field.startswith('_')]
+
 
 class CourseRunWrapper(BaseWrapper):
     """Decorator for the ``CourseRun`` model."""

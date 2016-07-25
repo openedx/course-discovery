@@ -2,7 +2,7 @@
 Course publisher views.
 """
 from django.http import HttpResponseRedirect
-from django.views.generic import edit, list
+from django.views.generic import detail, edit, list
 from course_discovery.apps.publisher.forms import CourseForm, CourseRunForm
 from course_discovery.apps.publisher.models import Course, CourseRun
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
@@ -16,6 +16,17 @@ class CourseRunListView(list.ListView):
         return [
             CourseRunWrapper(course_run) for course_run in CourseRun.objects.select_related('course').all()
         ]
+
+
+class CourseRunDetailView(detail.DetailView):
+    """ Create Course View."""
+    model = CourseRun
+    template_name = 'publisher/course_run_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CourseRunDetailView, self).get_context_data(**kwargs)
+        context['object'] = CourseRunWrapper(context['object'])
+        return context
 
 
 # pylint: disable=attribute-defined-outside-init

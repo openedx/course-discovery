@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}
+    {% trans "Course Run Detail" %}
+{% endblock title %}
+
+{% block content %}
+    <div class="layout-full layout">
+        <div class="card">
+            <h4 class="hd-4">{% trans "Course Run Detail" %}</h4>
+            <table class="table">
+                <tr>
+                    <th>{% trans "Course Title" %}</th>
+                    <th>{% trans "Partner" %}</th>
+                    <th>{% trans "Target Content?" %}</th>
+                    <th>{% trans "Priority" %}</th>
+                    <th>{% trans "Last Updated" %}</th>
+                </tr>
+                    <tr>
+                        <td>{{ object.title }}</td>
+                        <td>{{ object.partner }}</td>
+                        <td>{{ object.target_content }}</td>
+                        <td>{{ object.priority }}</td>
+                        <td>{{ object.modified }}</td>
+                    </tr>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}
