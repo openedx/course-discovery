@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}
+    {% trans "Course Run List" %}
+{% endblock title %}
+
+{% block content %}
+    <div class="layout-full layout">
+        <div class="card">
+            <h4 class="hd-4">{% trans "Course Run List" %}</h4>
+            <table class="table">
+                <tr>
+                    <th>{% trans "Course Title" %}</th>
+                    <th>{% trans "Partner" %}</th>
+                    <th>{% trans "Target Content?" %}</th>
+                    <th>{% trans "Priority" %}</th>
+                    <th>{% trans "Last Updated" %}</th>
+                </tr>
+                {% for course_run in object_list %}
+                    <tr>
+                        <td>{{ course_run.title }}</td>
+                        <td>{{ course_run.partner }}</td>
+                        <td>{{ course_run.target_content }}</td>
+                        <td>{{ course_run.priority }}</td>
+                        <td>{{ course_run.modified }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+        </div>
+    </div>
+
+{% endblock %}

@@ -28,7 +28,7 @@ class Course(TimeStampedModel, ChangedByMixin):
     )
     full_description = models.TextField(default=None, null=True, blank=True, verbose_name=_('About this course'))
     organizations = models.ManyToManyField(
-        Organization, null=True, blank=True, related_name='publisher_courses', verbose_name=_('Partner Name')
+        Organization, blank=True, related_name='publisher_courses', verbose_name=_('Partner Name')
     )
     level_type = models.ForeignKey(
         LevelType, default=None, null=True, blank=True, related_name='publisher_courses', verbose_name=_('Course level')
@@ -70,7 +70,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         (PRIORITY_LEVEL_5, _('Level 5')),
     )
 
-    course = models.ForeignKey(Course)
+    course = models.ForeignKey(Course, related_name='publisher_course_runs')
     lms_course_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
 
     start = models.DateTimeField(null=True, blank=True)
@@ -81,7 +81,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     pacing_type = models.CharField(
         max_length=255, choices=CourseMetadataCourseRun.PACING_CHOICES, db_index=True, null=True, blank=True
     )
-    staff = SortedManyToManyField(Person, null=True, blank=True, related_name='publisher_course_runs_staffed')
+    staff = SortedManyToManyField(Person, blank=True, related_name='publisher_course_runs_staffed')
     min_effort = models.PositiveSmallIntegerField(
         null=True, blank=True,
         help_text=_('Estimated minimum number of hours per week needed to complete a course run.'))
