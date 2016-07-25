@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% block title %}
-    {% trans "Course Run Form" %}
+    {% trans "Course Form" %}
 {% endblock title %}
 
 {% block content %}
     <div class="layout-full layout">
         <div class="card course-form">
-            <h4 class="hd-4">{% trans "Course Run Form" %}</h4>
+            <h4 class="hd-4">{% trans "Course Form" %}</h4>
             <form class="form" method="post" action=""> {% csrf_token %}
                 <fieldset class="form-group">
                     {% for field in form %}
