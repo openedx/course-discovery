@@ -44,6 +44,10 @@ COURSE_RUN_SEARCH_FIELDS = (
     'number', 'seat_types', 'image_url', 'type', 'level_type', 'availability',
 )
 
+PROGRAM_FACET_FIELD_OPTIONS = {
+    'category': {},
+}
+
 PROGRAM_SEARCH_FIELDS = (
     'uuid', 'title', 'subtitle', 'category', 'marketing_url', 'organizations', 'content_type', 'image_url', 'text',
 )
@@ -505,6 +509,7 @@ class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
 class ProgramSearchSerializer(HaystackSerializer):
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        field_options = PROGRAM_FACET_FIELD_OPTIONS
         fields = PROGRAM_SEARCH_FIELDS
         ignore_fields = COMMON_IGNORED_FIELDS
         index_classes = [ProgramIndex]
@@ -515,6 +520,7 @@ class ProgramFacetSerializer(BaseHaystackFacetSerializer):
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        field_options = PROGRAM_FACET_FIELD_OPTIONS
         fields = PROGRAM_SEARCH_FIELDS
         ignore_fields = COMMON_IGNORED_FIELDS
         index_classes = [ProgramIndex]
@@ -523,7 +529,7 @@ class ProgramFacetSerializer(BaseHaystackFacetSerializer):
 class AggregateSearchSerializer(HaystackSerializer):
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        fields = COURSE_RUN_SEARCH_FIELDS
+        fields = COURSE_RUN_SEARCH_FIELDS + PROGRAM_SEARCH_FIELDS
         ignore_fields = COMMON_IGNORED_FIELDS
         serializers = {
             CourseRunIndex: CourseRunSearchSerializer,
@@ -537,7 +543,7 @@ class AggregateFacetSearchSerializer(BaseHaystackFacetSerializer):
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        field_options = COURSE_RUN_FACET_FIELD_OPTIONS
+        field_options = {**COURSE_RUN_FACET_FIELD_OPTIONS, **PROGRAM_FACET_FIELD_OPTIONS}
         field_queries = COURSE_RUN_FACET_FIELD_QUERIES
         ignore_fields = COMMON_IGNORED_FIELDS
         serializers = {
