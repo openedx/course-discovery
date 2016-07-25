@@ -70,7 +70,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         (PRIORITY_LEVEL_5, _('Level 5')),
     )
 
-    course = models.ForeignKey(Course)
+    course = models.ForeignKey(Course, related_name='publisher_course_runs')
     lms_course_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
 
     start = models.DateTimeField(null=True, blank=True)

@@ -3,15 +3,28 @@ Course publisher views.
 """
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.views.generic import edit
+from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.list import ListView
 from course_discovery.apps.publisher.forms import CourseForm, CourseRunForm, SeatForm
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat
+from course_discovery.apps.publisher.wrappers import CourseRunWrapper
+
+
+class CourseRunListView(ListView):
+    """ Create Course View."""
+    template_name = 'publisher/course_runs_list.html'
+
+    def get_queryset(self):
+        return [
+            CourseRunWrapper(course_run) for course_run in CourseRun.objects.select_related('course').all()
+        ]
+
 
 SEATS_HIDDEN_FIELDS = ['price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours']
 
 
 # pylint: disable=attribute-defined-outside-init
-class CreateCourseView(edit.CreateView):
+class CreateCourseView(CreateView):
     """ Create Course View."""
     model = Course
     form_class = CourseForm
@@ -26,7 +39,7 @@ class CreateCourseView(edit.CreateView):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
 
-class UpdateCourseView(edit.UpdateView):
+class UpdateCourseView(UpdateView):
     """ Update Course View."""
     model = Course
     form_class = CourseForm
@@ -41,7 +54,7 @@ class UpdateCourseView(edit.UpdateView):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
 
-class CreateCourseRunView(edit.CreateView):
+class CreateCourseRunView(CreateView):
     """ Create Course Run View."""
     model = CourseRun
     form_class = CourseRunForm
@@ -56,7 +69,7 @@ class CreateCourseRunView(edit.CreateView):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
 
-class UpdateCourseRunView(edit.UpdateView):
+class UpdateCourseRunView(UpdateView):
     """ Update Course Run View."""
     model = CourseRun
     form_class = CourseRunForm
@@ -71,7 +84,7 @@ class UpdateCourseRunView(edit.UpdateView):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
 
-class CreateSeatView(edit.CreateView):
+class CreateSeatView(CreateView):
     """ Create Seat View."""
     model = Seat
     form_class = SeatForm
@@ -91,7 +104,7 @@ class CreateSeatView(edit.CreateView):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
 
-class UpdateSeatView(edit.UpdateView):
+class UpdateSeatView(UpdateView):
     """ Update Seat View."""
     model = Seat
     form_class = SeatForm
