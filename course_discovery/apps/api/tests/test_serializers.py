@@ -152,6 +152,8 @@ class CourseRunSerializerTests(TestCase):
                     'utm_medium': request.user.referral_tracking_id,
                 })
             ),
+            'level_type': course_run.level_type.name,
+            'availability': course_run.availability,
         }
 
         self.assertDictEqual(serializer.data, expected)
@@ -375,6 +377,8 @@ class CourseRunSearchSerializerTests(TestCase):
             'seat_types': course_run.seat_types,
             'image_url': course_run.image_url,
             'type': course_run.type,
+            'level_type': course_run.level_type.name,
+            'availability': course_run.availability,
         }
         self.assertDictEqual(serializer.data, expected)
 
@@ -398,7 +402,7 @@ class ProgramSearchSerializerTests(TestCase):
             'category': program.category,
             'marketing_url': program.marketing_url,
             'organizations': [OrganizationsMixin.format_organization(organization)],
-            'content_type': 'program_{category}'.format(category=program.category),
+            'content_type': 'program',
             'image_url': program.image_url,
         }
         self.assertDictEqual(serializer.data, expected)

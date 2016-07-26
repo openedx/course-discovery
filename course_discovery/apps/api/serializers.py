@@ -39,10 +39,14 @@ COURSE_RUN_FACET_FIELD_QUERIES = {
     'availability_archived': {'query': 'end:<=now'},
 }
 COURSE_RUN_SEARCH_FIELDS = (
-    'key', 'title', 'short_description', 'full_description', 'start', 'end', 'enrollment_start', 'enrollment_end',
-    'pacing_type', 'language', 'transcript_languages', 'marketing_url', 'content_type', 'org', 'number', 'seat_types',
-    'image_url', 'type', 'text',
+    'text', 'key', 'title', 'short_description', 'full_description', 'start', 'end', 'enrollment_start',
+    'enrollment_end', 'pacing_type', 'language', 'transcript_languages', 'marketing_url', 'content_type', 'org',
+    'number', 'seat_types', 'image_url', 'type', 'level_type', 'availability',
 )
+
+PROGRAM_FACET_FIELD_OPTIONS = {
+    'category': {},
+}
 
 PROGRAM_SEARCH_FIELDS = (
     'uuid', 'title', 'subtitle', 'category', 'marketing_url', 'organizations', 'content_type', 'image_url', 'text',
@@ -194,6 +198,7 @@ class CourseRunSerializer(TimestampModelSerializer):
     instructors = PersonSerializer(many=True)
     staff = PersonSerializer(many=True)
     marketing_url = serializers.SerializerMethodField()
+    level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
 
     class Meta(object):
         model = CourseRun
@@ -201,7 +206,7 @@ class CourseRunSerializer(TimestampModelSerializer):
             'course', 'key', 'title', 'short_description', 'full_description', 'start', 'end',
             'enrollment_start', 'enrollment_end', 'announcement', 'image', 'video', 'seats',
             'content_language', 'transcript_languages', 'instructors', 'staff',
-            'pacing_type', 'min_effort', 'max_effort', 'modified', 'marketing_url',
+            'pacing_type', 'min_effort', 'max_effort', 'modified', 'marketing_url', 'level_type', 'availability',
         )
 
     def get_marketing_url(self, obj):
@@ -479,6 +484,11 @@ class CourseFacetSerializer(BaseHaystackFacetSerializer):
 
 
 class CourseRunSearchSerializer(HaystackSerializer):
+    availability = serializers.SerializerMethodField()
+
+    def get_availability(self, result):
+        return result.object.availability
+
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
         fields = COURSE_RUN_SEARCH_FIELDS
@@ -499,6 +509,7 @@ class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
 class ProgramSearchSerializer(HaystackSerializer):
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        field_options = PROGRAM_FACET_FIELD_OPTIONS
         fields = PROGRAM_SEARCH_FIELDS
         ignore_fields = COMMON_IGNORED_FIELDS
         index_classes = [ProgramIndex]
@@ -509,6 +520,7 @@ class ProgramFacetSerializer(BaseHaystackFacetSerializer):
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        field_options = PROGRAM_FACET_FIELD_OPTIONS
         fields = PROGRAM_SEARCH_FIELDS
         ignore_fields = COMMON_IGNORED_FIELDS
         index_classes = [ProgramIndex]
@@ -517,7 +529,7 @@ class ProgramFacetSerializer(BaseHaystackFacetSerializer):
 class AggregateSearchSerializer(HaystackSerializer):
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        fields = COURSE_RUN_SEARCH_FIELDS
+        fields = COURSE_RUN_SEARCH_FIELDS + PROGRAM_SEARCH_FIELDS
         ignore_fields = COMMON_IGNORED_FIELDS
         serializers = {
             CourseRunIndex: CourseRunSearchSerializer,
@@ -531,7 +543,7 @@ class AggregateFacetSearchSerializer(BaseHaystackFacetSerializer):
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        field_options = COURSE_RUN_FACET_FIELD_OPTIONS
+        field_options = {**COURSE_RUN_FACET_FIELD_OPTIONS, **PROGRAM_FACET_FIELD_OPTIONS}
         field_queries = COURSE_RUN_FACET_FIELD_QUERIES
         ignore_fields = COMMON_IGNORED_FIELDS
         serializers = {

@@ -39,6 +39,7 @@ class BaseCourseIndex(OrganizationsMixin, BaseIndex):
     full_description = indexes.CharField(model_attr='full_description', null=True)
     subjects = indexes.MultiValueField(faceted=True)
     organizations = indexes.MultiValueField(faceted=True)
+    level_type = indexes.CharField(model_attr='level_type__name', null=True, faceted=True)
 
     def prepare_subjects(self, obj):
         return [subject.name for subject in obj.subjects.all()]
@@ -47,7 +48,6 @@ class BaseCourseIndex(OrganizationsMixin, BaseIndex):
 class CourseIndex(BaseCourseIndex, indexes.Indexable):
     model = Course
 
-    level_type = indexes.CharField(model_attr='level_type__name', null=True, faceted=True)
     course_runs = indexes.MultiValueField()
     expected_learning_items = indexes.MultiValueField()
 
@@ -114,6 +114,3 @@ class ProgramIndex(OrganizationsMixin, BaseIndex, indexes.Indexable):
     marketing_url = indexes.CharField(model_attr='marketing_url', null=True)
     organizations = indexes.MultiValueField(faceted=True)
     image_url = indexes.CharField(model_attr='image_url', null=True)
-
-    def prepare_content_type(self, obj):
-        return 'program_{category}'.format(category=obj.category)
