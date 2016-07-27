@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.core.forms import UserThrottleRateForm
-from course_discovery.apps.core.models import User, UserThrottleRate, Currency
+from course_discovery.apps.core.models import User, UserThrottleRate, Currency, Partner
 
 
 @admin.register(User)
@@ -34,3 +34,10 @@ class CurrencyAdmin(admin.ModelAdmin):
     list_display = ('code', 'name',)
     ordering = ('code', 'name',)
     search_fields = ('code', 'name',)
+
+
+@admin.register(Partner)
+class PartnerAdmin(admin.ModelAdmin):
+    list_display = ('name', 'short_code',)
+    ordering = ('name', 'short_code',)
+    search_fields = ('name', 'short_code',)

@@ -3,32 +3,18 @@ from uuid import uuid4
 
 import factory
 from factory.fuzzy import (
-    BaseFuzzyAttribute, FuzzyText, FuzzyChoice, FuzzyDateTime, FuzzyInteger, FuzzyDecimal
+    FuzzyText, FuzzyChoice, FuzzyDateTime, FuzzyInteger, FuzzyDecimal
 )
 from pytz import UTC
 
+from course_discovery.apps.core.tests.factories import PartnerFactory
+from course_discovery.apps.core.tests.utils import FuzzyURL
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Organization, Person, Image, Video, Subject, Seat, Prerequisite, LevelType, Program,
     AbstractSocialNetworkModel, CourseRunSocialNetwork, PersonSocialNetwork
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-
-
-class FuzzyURL(BaseFuzzyAttribute):
-    def fuzz(self):
-        protocol = FuzzyChoice(('http', 'https',))
-        subdomain = FuzzyText()
-        domain = FuzzyText()
-        tld = FuzzyChoice(('com', 'net', 'org', 'biz', 'pizza', 'coffee', 'diamonds', 'fail', 'win', 'wtf',))
-        resource = FuzzyText()
-        return "{protocol}://{subdomain}.{domain}.{tld}/{resource}".format(
-            protocol=protocol.fuzz(),
-            subdomain=subdomain.fuzz(),
-            domain=domain.fuzz(),
-            tld=tld.fuzz(),
-            resource=resource.fuzz()
-        )
 
 
 class AbstractMediaModelFactory(factory.DjangoModelFactory):
@@ -89,6 +75,7 @@ class CourseFactory(factory.DjangoModelFactory):
     image = factory.SubFactory(ImageFactory)
     video = factory.SubFactory(VideoFactory)
     marketing_url = FuzzyText(prefix='https://example.com/test-course-url')
+    partner = factory.SubFactory(PartnerFactory)
 
     class Meta:
         model = Course
@@ -123,6 +110,7 @@ class OrganizationFactory(factory.DjangoModelFactory):
     description = FuzzyText()
     homepage_url = FuzzyURL()
     logo_image = factory.SubFactory(ImageFactory)
+    partner = factory.SubFactory(PartnerFactory)
 
     class Meta:
         model = Organization
@@ -150,6 +138,7 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     status = 'unpublished'
     marketing_slug = factory.Sequence(lambda n: 'test-slug-{}'.format(n))  # pylint: disable=unnecessary-lambda
     image = factory.SubFactory(ImageFactory)
+    partner = factory.SubFactory(PartnerFactory)
 
 
 class AbstractSocialNetworkModelFactory(factory.DjangoModelFactory):

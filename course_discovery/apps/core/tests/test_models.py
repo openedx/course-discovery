@@ -3,7 +3,7 @@
 from django.test import TestCase
 from social.apps.django_app.default.models import UserSocialAuth
 
-from course_discovery.apps.core.models import Currency
+from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.core.tests.factories import UserFactory
 
 
@@ -54,3 +54,17 @@ class CurrencyTests(TestCase):
         name = 'U.S. Dollar'
         instance = Currency(code=code, name=name)
         self.assertEqual(str(instance), '{code} - {name}'.format(code=code, name=name))
+
+
+class PartnerTests(TestCase):
+    """ Tests for the Partner class. """
+
+    def test_str(self):
+        """
+        Verify casting an instance to a string returns a string containing the name and short code of the partner.
+        """
+
+        code = 'test'
+        name = 'Test Partner'
+        instance = Partner(name=name, short_code=code)
+        self.assertEqual(str(instance), '{name} ({code})'.format(name=name, code=code))

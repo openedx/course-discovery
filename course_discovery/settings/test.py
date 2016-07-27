@@ -42,3 +42,5 @@ JWT_AUTH['JWT_SECRET_KEY'] = 'course-discovery-jwt-secret-key'
 EDX_DRF_EXTENSIONS = {
     'OAUTH2_USER_INFO_URL': 'http://example.com/oauth2/user_info',
 }
+
+DEFAULT_PARTNER_ID = 1
