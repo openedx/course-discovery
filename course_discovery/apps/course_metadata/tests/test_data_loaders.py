@@ -594,7 +594,9 @@ class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             callback=mock_api_callback(url, bodies),
             content_type=JSON
         )
-        return bodies
+
+        # We exclude the one invalid item
+        return bodies[:-1]
 
     def assert_program_loaded(self, body):
         """ Assert a Program corresponding to the specified data body was properly loaded into the database. """
