@@ -111,7 +111,10 @@ class ProgramIndex(OrganizationsMixin, BaseIndex, indexes.Indexable):
     title = indexes.CharField(model_attr='title')
     subtitle = indexes.CharField(model_attr='subtitle')
     category = indexes.CharField(model_attr='category', faceted=True)
-    marketing_url = indexes.CharField(model_attr='marketing_url', null=True)
+    marketing_url = indexes.CharField(null=True)
     organizations = indexes.MultiValueField(faceted=True)
     image_url = indexes.CharField(model_attr='image_url', null=True)
     status = indexes.CharField(model_attr='status', faceted=True)
+
+    def prepare_marketing_url(self, obj):
+        return obj.marketing_url
