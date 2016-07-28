@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load compress %}
+{% load i18n %}
+{% load staticfiles %}
+{% block title %}
+{% trans "Course Run Detail" %}
+{% endblock title %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{% static 'sass/publisher/pre_publish.scss' %}" type="text/x-scss">
+{% endblock %}
+
+{% block content %}
+
+<nav class="administration-navbar">
+    <div class="container">
+
+        <a class="selected" href="#tab-1">All</a>
+        <a href="#tab-2">STUDIO</a>
+        <a href="#tab-3">CAT</a>
+        <a href="#tab-4">DRUPAL</a>
+    </div>
+</nav>
+
+<div id="app" class="container">
+    <ol class="breadcrumb">
+        <li><a href="{% url 'publisher:pre_publisher' pk=object.wrapped_obj.id %}">Courses</a></li>
+        <li class="active">{{ object.wrapped_obj.course.title }}</li>
+    </ol>
+    <div class="page-header">
+        <h2 class="hd-2 emphasized">
+            <span class="course-name">{{ object.wrapped_obj.course.title }}</span>
+        </h2>
+    </div>
+
+    <div class="tab">
+        <div id="tab-1" class="tab-content active">
+            {% include 'publisher/pre_publish/_all.html' %}
+        </div>
+        <div id="tab-2" class="tab-content active">
+            {% include 'publisher/pre_publish/_studio.html' %}
+        </div>
+        <div id="tab-3" class="tab-content">
+            {% include 'publisher/pre_publish/_cat.html' %}
+        </div>
+        <div id="tab-4" class="tab-content">
+            {% include 'publisher/pre_publish/_drupal.html' %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{% static 'js/publisher/publishers.js' %}"></script>
+{% endblock %}

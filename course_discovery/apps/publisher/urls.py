@@ -12,5 +12,5 @@ urlpatterns = [
     url(r'^course_run/edit/(?P<pk>\d+)/$', views.UpdateCourseRunView.as_view(), name='edit_course_run'),
     url(r'^course_runs/$', views.CourseRunListView.as_view(), name='publisher_course_runs'),
     url(r'^course_runs/(?P<pk>\d+)/$', views.CourseRunDetailView.as_view(), name='publisher_course_run_detail'),
-
+    url(r'^pre_publisher/(?P<pk>\d+)/$', views.PrePublishView.as_view(), name='pre_publisher'),
 ]

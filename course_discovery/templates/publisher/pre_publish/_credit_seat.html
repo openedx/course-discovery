@@ -1,0 +1,26 @@
+{% load i18n %}
+<h3 class="hd-6 example-set-hd">Credit Seats</h3>
+{% if object.credit_seats %}
+<div class="example-set">
+<table class="table">
+    <tr>
+        <th scope="col">{% trans 'Credit Provider' %}</th>
+        <th scope="col">{% trans 'Price' %}</th>
+        <th scope="col">{% trans 'Currency' %}</th>
+        <th scope="col">{% trans 'Credit Hours' %}</th>
+        <th scope="col">{% trans 'Upgrade Deadline' %}</th>
+    </tr>
+    {% for seat in object.credit_seats %}
+        <tr>
+            <td>{{ seat.credit_provider}}</td>
+            <td>{{ seat.price}}</td>
+            <td>{{ seat.currency.name}}</td>
+            <td>{{ seat.credit_hours }}</td>
+            <td>{{ seat.upgrade_deadline }}</td>
+        </tr>
+    {% endfor %}
+</table>
+</div>
+{% else %}
+    No Credit Seats Available.
+{% endif %}

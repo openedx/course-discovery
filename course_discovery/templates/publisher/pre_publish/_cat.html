@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}
+    {% trans "Course Run Detail" %}
+{% endblock title %}
+
+{% block content %}
+
+   <div class="course-information">
+        <div class="info-item">
+            <div class="heading">Course ID</div>
+            <div class="course-id">{{ object.course.number }}</div>
+        </div>
+        <div class="info-item">
+            <div class="heading">Pacing Type</div>
+            <div class="course-id">{{ object.pacing_type }}</div>
+        </div>
+        <div class="info-item">
+            <div class="heading">Start Date</div>
+            <div>{{ object.start }}</div>
+        </div>
+        <div class="info-item">
+            <div class="heading">End Date</div>
+            <div>{{ object.end }}</div>
+        </div>
+    </div>
+
+    {% include 'publisher/pre_publish/_seats.html' %}
+    {% include 'publisher/pre_publish/_credit_seat.html' %}
+
+{% endblock %}

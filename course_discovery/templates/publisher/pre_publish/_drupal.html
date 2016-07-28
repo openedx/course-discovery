@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}
+    {% trans "Course Form" %}
+{% endblock title %}
+
+{% block content %}
+
+<div class="course-information">
+    <h3 class="hd-3 de-emphasized">Course Information</h3>
+
+    <div class="info-item">
+        <div class="heading">Title</div>
+        <div>{{ object.wrapped_obj.course.title }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">Number</div>
+        <div>{{ object.course.number }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">Course ID</div>
+        <div>{{ object.lms_course_id }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">Price</div>
+        <div>
+            {% if object.verified_seat %}{{ object.verified_seat.0.price }}{% else %}N/A{% endif %}
+        </div>
+    </div>
+    <div class="info-item">
+        <div class="heading">Sub Title</div>
+        <div>{{ object.course.short_description }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">School</div>
+        <div>
+            {% if object.course.organizations.all %}
+                {{ object.course.organizations.all.0.name }}
+            {% else %}
+                N/A
+            {% endif %}
+        </div>
+    </div>
+    <div class="info-item">
+        <div class="heading">Subject</div>
+        <div>{{ object.course.subject }}</div>
+    </div>
+    {% if object.is_xseries %}
+        <div class="info-item">
+            <div class="heading">XSeries</div>
+            <div>{{ object.xseries_name }}</div>
+        </div>
+    {% endif %}
+
+    <div class="info-item">
+        <div class="heading">Start Date</div>
+        <div>{{ object.start }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">End Date</div>
+        <div>{{ object.end }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">Self Paced</div>
+        <div>{{ object.pacing_type }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">Staff</div>
+        <div>{{ object.persons }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">Estimated Effort</div>
+        <div>{{ object.min_effort }} to {{ object.max_effort }} week</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">Languages</div>
+        <div>{{ object.language.name }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">Video Translations</div>
+        <div>{{ object.video_languages }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">Level</div>
+        <div>{{ object.course.level_type }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">About this Course</div>
+        <div>{{ object.course.full_description }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">what you’ll learn</div>
+        <div>{{ object.course.expected_learnings }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">Prerequisite</div>
+        <div>{{ object.course.prerequisites }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">KeyWords</div>
+        <div>{{ object.wrapped_obj.keywords }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">Sponsors</div>
+        <div>{{ object.wrapped_obj.partner }}</div>
+    </div>
+    <h3 class="hd-3 de-emphasized">Enrollments</h3>
+    {% include 'publisher/pre_publish/_seats.html' %}
+    {% include 'publisher/pre_publish/_credit_seat.html' %}
+</div>
+{% endblock %}

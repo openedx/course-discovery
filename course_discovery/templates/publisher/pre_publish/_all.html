@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}
+    {% trans "Course Run Detail" %}
+{% endblock title %}
+
+{% block content %}
+    {% include 'publisher/pre_publish/_studio.html' %}
+    {% include 'publisher/pre_publish/_cat.html' %}
+    {% include 'publisher/pre_publish/_drupal.html' %}
+{% endblock %}

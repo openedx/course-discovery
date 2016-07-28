@@ -1,4 +1,5 @@
 """Publisher Wrapper Classes"""
+from course_discovery.apps.course_metadata.models import Seat
 
 
 class BaseWrapper(object):
@@ -21,9 +22,25 @@ class BaseWrapper(object):
 class CourseRunWrapper(BaseWrapper):
     """Decorator for the ``CourseRun`` model."""
     @property
-    def title(self):
-        return self.wrapped_obj.course.title
-
-    @property
     def partner(self):
         return '/'.join([org.key for org in self.wrapped_obj.course.organizations.all()])
+
+    @property
+    def credit_seats(self):
+        return [seat for seat in self.wrapped_obj.seats.all() if seat.type == Seat.CREDIT]
+
+    @property
+    def non_credit_seats(self):
+        return [seat for seat in self.wrapped_obj.seats.all() if seat.type != Seat.CREDIT]
+
+    @property
+    def video_languages(self):
+        return ', '.join([lang.name for lang in self.wrapped_obj.transcript_languages.all()])
+
+    @property
+    def persons(self):
+        return ', '.join([person.name for person in self.wrapped_obj.staff.all()])
+
+    @property
+    def verified_seat(self):
+        return [seat for seat in self.wrapped_obj.seats.all() if seat.type == Seat.VERIFIED] or None

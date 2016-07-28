@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}
+    {% trans "Course Run Detail" %}
+{% endblock title %}
+
+{% block content %}
+    <div class="course-information">
+        <div class="info-item">
+            <div class="heading">
+                Course Name
+            </div>
+
+            <div class="course-id">{{ object.wrapped_obj.course.title }}</div>
+        </div>
+        <div class="info-item">
+            <div class="heading">Organization</div>
+            <div class="course-id">
+                {% if object.course.organizations.all %}
+                    {{ object.course.organizations.all.0.key }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </div>
+        </div>
+        <div class="info-item">
+            <div class="heading">Number</div>
+            <div class="course-id">{{  object.course.number }}</div>
+        </div>
+
+        <div class="info-item">
+            <div class="heading">Start Date</div>
+            <div>{{ object.start }}</div>
+        </div>
+        <div class="info-item">
+            <div class="heading">End Date</div>
+            <div>{{ object.end }}</div>
+        </div>
+        <div class="info-item">
+            <div class="heading">Enrollment Start Date</div>
+            <div>{{ object.enrollment_start }}</div>
+        </div>
+        <div class="info-item">
+            <div class="heading">Enrollment End Date</div>
+            <div>{{ object.enrollment_end }}</div>
+        </div>
+        <div class="info-item">
+            <div class="heading">Pacing Type</div>
+            <div>{{ object.pacing_type }}</div>
+        </div>
+    </div>
+{% endblock %}

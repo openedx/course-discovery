@@ -76,3 +76,14 @@ class UpdateCourseRunView(edit.UpdateView):
     def form_valid(self, form):
         self.object = form.save()
         return HttpResponseRedirect(self.get_success_url())
+
+
+class PrePublishView(detail.DetailView):
+    """ Pre Publish View."""
+    model = CourseRun
+    template_name = 'publisher/pre_publish/home.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PrePublishView, self).get_context_data(**kwargs)
+        context['object'] = CourseRunWrapper(context['object'])
+        return context
