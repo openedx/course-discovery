@@ -85,7 +85,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     image_url = indexes.CharField(model_attr='image_url', null=True)
 
     def _prepare_language(self, language):
-        return language.name
+        return language.macrolanguage
 
     def prepare_language(self, obj):
         if obj.language:

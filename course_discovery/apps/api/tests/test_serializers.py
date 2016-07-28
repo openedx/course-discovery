@@ -347,7 +347,7 @@ class CourseRunSearchSerializerTests(TestCase):
         return d.strftime('%Y-%m-%dT%H:%M:%S') if d else None
 
     def serialize_language(self, language):
-        return language.name
+        return language.macrolanguage
 
     def test_data(self):
         course_run = CourseRunFactory()
