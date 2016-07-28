@@ -532,26 +532,32 @@ class ProgramsApiDataLoader(AbstractDataLoader):
         logger.info('Retrieved %d programs from %s.', count, api_url)
 
     def update_program(self, body):
-        defaults = {
-            'title': body['name'],
-            'subtitle': body['subtitle'],
-            'category': body['category'],
-            'status': body['status'],
-            'marketing_slug': body['marketing_slug'],
-            'image': self._get_image(body),
-            'partner': self.partner,
-        }
-        program, __ = Program.objects.update_or_create(uuid=body['uuid'], defaults=defaults)
+        uuid = body['uuid']
 
-        organizations = []
-        for org in body['organizations']:
-            organization, __ = Organization.objects.get_or_create(
-                key=org['key'], defaults={'name': org['display_name'], 'partner': self.partner}
-            )
-            organizations.append(organization)
+        try:
+            defaults = {
+                'title': body['name'],
+                'subtitle': body['subtitle'],
+                'category': body['category'],
+                'status': body['status'],
+                'marketing_slug': body['marketing_slug'],
+                'image': self._get_image(body),
+                'partner': self.partner,
+            }
 
-        program.organizations.clear()
-        program.organizations.add(*organizations)
+            program, __ = Program.objects.update_or_create(uuid=uuid, defaults=defaults)
+
+            organizations = []
+            for org in body['organizations']:
+                organization, __ = Organization.objects.get_or_create(
+                    key=org['key'], defaults={'name': org['display_name'], 'partner': self.partner}
+                )
+                organizations.append(organization)
+
+            program.organizations.clear()
+            program.organizations.add(*organizations)
+        except Exception:  # pylint: disable=broad-except
+            logger.exception('Failed to load program %s', uuid)
 
     def _get_image(self, body):
         image = None

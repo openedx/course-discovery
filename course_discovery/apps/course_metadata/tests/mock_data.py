@@ -19,12 +19,9 @@ EXISTING_COURSE_AND_RUN_DATA = (
     }
 )
 
-
 ORPHAN_ORGANIZATION_KEY = 'orphan_org'
 
-
 ORPHAN_STAFF_KEY = 'orphan_staff'
-
 
 COURSES_API_BODIES = [
     {
@@ -88,7 +85,6 @@ COURSES_API_BODIES = [
         'start': None,
     },
 ]
-
 
 ECOMMERCE_API_BODIES = [
     {
@@ -308,7 +304,6 @@ ECOMMERCE_API_BODIES = [
     }
 ]
 
-
 MARKETING_API_BODY = {
     'items': [
         {
@@ -424,7 +419,6 @@ MARKETING_API_BODY = {
     ]
 }
 
-
 ORGANIZATIONS_API_BODIES = [
     {
         'name': 'edX',
@@ -439,7 +433,6 @@ ORGANIZATIONS_API_BODIES = [
         'logo': '',
     }
 ]
-
 
 PROGRAMS_API_BODIES = [
     {
@@ -475,6 +468,23 @@ PROGRAMS_API_BODIES = [
             {
                 'display_name': 'Massachusetts Institute of Technology',
                 'key': 'MITx'
+            }
+        ],
+        'banner_image_urls': {},
+    },
+    {
+        'uuid': '01bc3a40-fa9d-4076-8885-660b2f7a594e',
+        'id': 3,
+        'name': 'Data Science and Analytics in Context',
+        'subtitle': 'Learn the foundations of statistical thinking, the power of machine learning, and enabling '
+                    'technologies for data science.',
+        'category': 'xseries',
+        'status': 'active',
+        'marketing_slug': None,
+        'organizations': [
+            {
+                'display_name': 'Columbia University',
+                'key': 'ColumbiaX'
             }
         ],
         'banner_image_urls': {},
