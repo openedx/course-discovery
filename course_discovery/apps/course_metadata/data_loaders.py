@@ -209,7 +209,8 @@ class CoursesApiDataLoader(AbstractDataLoader):
         # which may not be unique for an organization.
         course_run_key_str = body['id']
         course_run_key = CourseKey.from_string(course_run_key_str)
-        organization, __ = Organization.objects.get_or_create(key=course_run_key.org, partner=self.partner)
+        organization, __ = Organization.objects.get_or_create(key=course_run_key.org,
+                                                              defaults={'partner': self.partner})
         course_key = self.convert_course_run_key(course_run_key_str)
         defaults = {
             'title': body['name'],
