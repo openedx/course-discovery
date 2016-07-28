@@ -10,3 +10,7 @@ class LanguageTag(models.Model):
 
     def __str__(self):
         return '{code} - {name}'.format(code=self.code, name=self.name)
+
+    @property
+    def macrolanguage(self):
+        return self.name.split('-')[0].strip()
