@@ -20,3 +20,6 @@ class LanguageTagTests(TestCase):
         """ Verify the property returns the macrolanguage for a given LanguageTag. """
         en_us = LanguageTag(code='en-us', name='English - United States')
         self.assertEqual(en_us.macrolanguage, 'English')
+
+        sw = LanguageTag(code='sw', name='Swahili')
+        self.assertEqual(sw.macrolanguage, 'Swahili')
