@@ -46,10 +46,12 @@ COURSE_RUN_SEARCH_FIELDS = (
 
 PROGRAM_FACET_FIELD_OPTIONS = {
     'category': {},
+    'status': {},
 }
 
 PROGRAM_SEARCH_FIELDS = (
-    'uuid', 'title', 'subtitle', 'category', 'marketing_url', 'organizations', 'content_type', 'image_url', 'text',
+    'text', 'uuid', 'title', 'subtitle', 'category', 'marketing_url', 'organizations', 'content_type', 'image_url',
+    'status',
 )
 
 
