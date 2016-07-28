@@ -404,5 +404,6 @@ class ProgramSearchSerializerTests(TestCase):
             'organizations': [OrganizationsMixin.format_organization(organization)],
             'content_type': 'program',
             'image_url': program.image_url,
+            'status': program.status,
         }
         self.assertDictEqual(serializer.data, expected)
