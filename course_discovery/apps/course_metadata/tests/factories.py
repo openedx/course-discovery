@@ -7,15 +7,17 @@ from factory.fuzzy import (
 )
 from pytz import UTC
 
+from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import FuzzyURL
-from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Organization, Person, Image, Video, Subject, Seat, Prerequisite, LevelType, Program,
-    AbstractSocialNetworkModel, CourseRunSocialNetwork, PersonSocialNetwork
+    AbstractSocialNetworkModel, CourseRunSocialNetwork, PersonSocialNetwork, ProgramType
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
+
+# pylint: disable=no-member, unused-argument
 
 class AbstractMediaModelFactory(factory.DjangoModelFactory):
     src = FuzzyURL()
@@ -80,6 +82,16 @@ class CourseFactory(factory.DjangoModelFactory):
     class Meta:
         model = Course
 
+    @factory.post_generation
+    def subjects(self, create, extracted, **kwargs):
+        if not create:  # pragma: no cover
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            for subject in extracted:
+                self.subjects.add(subject)
+
 
 class CourseRunFactory(factory.DjangoModelFactory):
     key = FuzzyText(prefix='course-run-id/', suffix='/fake')
@@ -102,6 +114,16 @@ class CourseRunFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = CourseRun
+
+    @factory.post_generation
+    def transcript_languages(self, create, extracted, **kwargs):
+        if not create:  # pragma: no cover
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            for transcript_language in extracted:
+                self.transcript_languages.add(transcript_language)
 
 
 class OrganizationFactory(factory.DjangoModelFactory):
@@ -127,6 +149,23 @@ class PersonFactory(factory.DjangoModelFactory):
         model = Person
 
 
+class ProgramTypeFactory(factory.django.DjangoModelFactory):
+    class Meta(object):
+        model = ProgramType
+
+    name = FuzzyText()
+
+    @factory.post_generation
+    def applicable_seat_types(self, create, extracted, **kwargs):
+        if not create:  # pragma: no cover
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            for seat_type in extracted:
+                self.applicable_seat_types.add(seat_type)
+
+
 class ProgramFactory(factory.django.DjangoModelFactory):
     class Meta(object):
         model = Program
@@ -137,8 +176,30 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     category = 'xseries'
     status = 'unpublished'
     marketing_slug = factory.Sequence(lambda n: 'test-slug-{}'.format(n))  # pylint: disable=unnecessary-lambda
-    image = factory.SubFactory(ImageFactory)
+    banner_image_url = FuzzyText(prefix='https://example.com/program/banner')
+    card_image_url = FuzzyText(prefix='https://example.com/program/card')
     partner = factory.SubFactory(PartnerFactory)
+
+    @factory.post_generation
+    def courses(self, create, extracted, **kwargs):
+        if not create:  # pragma: no cover
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            # Use the passed in list of courses
+            for course in extracted:
+                self.courses.add(course)
+
+    @factory.post_generation
+    def excluded_course_runs(self, create, extracted, **kwargs):
+        if not create:  # pragma: no cover
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            for course_run in extracted:
+                self.excluded_course_runs.add(course_run)
 
 
 class AbstractSocialNetworkModelFactory(factory.DjangoModelFactory):

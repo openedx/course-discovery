@@ -636,13 +636,10 @@ class ProgramsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCa
         keys = [org['key'] for org in body['organizations']]
         expected_organizations = list(Organization.objects.filter(key__in=keys))
         self.assertEqual(keys, [org.key for org in expected_organizations])
-        self.assertListEqual(list(program.organizations.all()), expected_organizations)
+        self.assertListEqual(list(program.authoring_organizations.all()), expected_organizations)
 
-        image_url = body.get('banner_image_urls', {}).get('w435h145')
-        if image_url:
-            image = Image.objects.get(src=image_url, width=self.loader.image_width,
-                                      height=self.loader.image_height)
-            self.assertEqual(program.image, image)
+        banner_image_url = body.get('banner_image_urls', {}).get('w435h145')
+        self.assertEqual(program.banner_image_url, banner_image_url)
 
     @responses.activate
     def test_ingest(self):
@@ -736,12 +733,7 @@ class MarketingSiteDataLoaderTests(DataLoaderTestMixin, TestCase):
         self.assertEqual(program.partner, self.partner)
 
         card_image_url = data.get('field_card_image', {}).get('url')
-
-        if card_image_url:
-            card_image = Image.objects.get(src=card_image_url)
-            self.assertEqual(program.image, card_image)
-        else:
-            self.assertIsNone(program.image)
+        self.assertEqual(program.card_image_url, card_image_url)
 
     def test_constructor_without_credentials(self):
         """ Verify the constructor raises an exception if the Partner has no marketing site credentials set. """

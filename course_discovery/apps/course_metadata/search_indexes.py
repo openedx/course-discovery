@@ -114,10 +114,17 @@ class ProgramIndex(OrganizationsMixin, BaseIndex, indexes.Indexable):
     subtitle = indexes.CharField(model_attr='subtitle')
     category = indexes.CharField(model_attr='category', faceted=True)
     marketing_url = indexes.CharField(null=True)
-    organizations = indexes.MultiValueField(faceted=True)
-    image_url = indexes.CharField(model_attr='image_url', null=True)
+    authoring_organizations = indexes.MultiValueField(faceted=True)
+    credit_backing_organizations = indexes.MultiValueField(faceted=True)
+    image_url = indexes.CharField(model_attr='card_image_url', null=True)
     status = indexes.CharField(model_attr='status', faceted=True)
     partner = indexes.CharField(model_attr='partner__name', null=True, faceted=True)
+
+    def prepare_authoring_organizations(self, obj):
+        return [self.format_organization(organization) for organization in obj.authoring_organizations.all()]
+
+    def prepare_credit_backing_organizations(self, obj):
+        return [self.format_organization(organization) for organization in obj.credit_backing_organizations.all()]
 
     def prepare_marketing_url(self, obj):
         return obj.marketing_url

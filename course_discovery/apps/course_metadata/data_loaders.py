@@ -307,7 +307,8 @@ class DrupalApiDataLoader(AbstractDataLoader):
 
         # Clean Organizations separately from other orphaned instances to avoid removing all orgnaziations
         # after an initial data load on an empty table.
-        Organization.objects.filter(courseorganization__isnull=True).delete()
+        Organization.objects.filter(courseorganization__isnull=True, authored_programs__isnull=True,
+                                    credit_backed_programs__isnull=True).delete()
         self.delete_orphans()
 
         logger.info('Retrieved %d course runs from %s.', len(data), api_url)
@@ -544,7 +545,7 @@ class ProgramsApiDataLoader(AbstractDataLoader):
                 'category': body['category'],
                 'status': body['status'],
                 'marketing_slug': body['marketing_slug'],
-                'image': self._get_image(body),
+                'banner_image_url': self._get_banner_image_url(body),
                 'partner': self.partner,
             }
 
@@ -557,24 +558,15 @@ class ProgramsApiDataLoader(AbstractDataLoader):
                 )
                 organizations.append(organization)
 
-            program.organizations.clear()
-            program.organizations.add(*organizations)
+            program.authoring_organizations.clear()
+            program.authoring_organizations.add(*organizations)
         except Exception:  # pylint: disable=broad-except
             logger.exception('Failed to load program %s', uuid)
 
-    def _get_image(self, body):
-        image = None
+    def _get_banner_image_url(self, body):
         image_key = 'w{width}h{height}'.format(width=self.image_width, height=self.image_height)
         image_url = body.get('banner_image_urls', {}).get(image_key)
-
-        if image_url:
-            defaults = {
-                'width': self.image_width,
-                'height': self.image_height,
-            }
-            image, __ = Image.objects.update_or_create(src=image_url, defaults=defaults)
-
-        return image
+        return image_url
 
 
 class MarketingSiteDataLoader(AbstractDataLoader):
@@ -666,10 +658,7 @@ class MarketingSiteDataLoader(AbstractDataLoader):
             'subtitle': data.get('field_xseries_subtitle_short'),
             'category': 'XSeries',
             'partner': self.partner,
+            'card_image_url': card_image_url,
         }
-
-        if card_image_url:
-            card_image, __ = Image.objects.get_or_create(src=card_image_url)
-            defaults['image'] = card_image
 
         Program.objects.update_or_create(marketing_slug=marketing_slug, defaults=defaults)

@@ -181,7 +181,7 @@ class ProgramSerializerTests(TestCase):
             'category': program.category,
             'marketing_slug': program.marketing_slug,
             'marketing_url': program.marketing_url,
-            'image_url': program.image_url,
+            'card_image_url': program.card_image_url,
         }
         self.assertDictEqual(serializer.data, expected)
 
@@ -387,7 +387,7 @@ class ProgramSearchSerializerTests(TestCase):
     def test_data(self):
         program = ProgramFactory()
         organization = OrganizationFactory()
-        program.organizations.add(organization)
+        program.authoring_organizations.add(organization)
         program.save()
 
         # NOTE: This serializer expects SearchQuerySet results, so we run a search on the newly-created object
@@ -401,9 +401,9 @@ class ProgramSearchSerializerTests(TestCase):
             'subtitle': program.subtitle,
             'category': program.category,
             'marketing_url': program.marketing_url,
-            'organizations': [OrganizationsMixin.format_organization(organization)],
+            'authoring_organizations': [OrganizationsMixin.format_organization(organization)],
             'content_type': 'program',
-            'image_url': program.image_url,
+            'image_url': program.card_image_url,
             'status': program.status,
         }
         self.assertDictEqual(serializer.data, expected)
