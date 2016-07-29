@@ -1,4 +1,5 @@
 import datetime
+import itertools
 import logging
 from urllib.parse import urljoin
 from uuid import uuid4
@@ -7,7 +8,9 @@ import pytz
 from django.db import models
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
+from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
+from djchoices import DjangoChoices, ChoiceItem
 from haystack.query import SearchQuerySet
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
@@ -109,6 +112,11 @@ class ExpectedLearningItem(AbstractValueModel):
     pass
 
 
+class JobOutlookItem(AbstractValueModel):
+    """ JobOutlookItem model. """
+    pass
+
+
 class SyllabusItem(AbstractValueModel):
     """ SyllabusItem model. """
     parent = models.ForeignKey('self', blank=True, null=True, related_name='children')
@@ -130,7 +138,10 @@ class Organization(TimeStampedModel):
     name = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     homepage_url = models.URLField(max_length=255, null=True, blank=True)
-    logo_image = models.ForeignKey(Image, null=True, blank=True)
+    # NOTE (CCB): The related_name values are here to prevent the images from being treated as orphans.
+    logo_image = models.ForeignKey(Image, null=True, blank=True, related_name='logoed_organizations')
+    banner_image = models.ForeignKey(Image, null=True, blank=True, related_name='bannered_organizations')
+
     partner = models.ForeignKey(Partner, null=True, blank=False)
 
     history = HistoricalRecords()
@@ -186,10 +197,10 @@ class Course(TimeStampedModel):
             "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
         )
     )
+    partner = models.ForeignKey(Partner, null=True, blank=False)
 
     history = HistoricalRecords()
     objects = CourseQuerySet.as_manager()
-    partner = models.ForeignKey(Partner, null=True, blank=False)
 
     @property
     def owners(self):
@@ -396,6 +407,11 @@ class CourseRun(TimeStampedModel):
         return '{key}: {title}'.format(key=self.key, title=self.title)
 
 
+class SeatType(TimeStampedModel):
+    name = models.CharField(max_length=64, unique=True)
+    slug = AutoSlugField(populate_from='name')
+
+
 class Seat(TimeStampedModel):
     """ Seat model. """
     HONOR = 'honor'
@@ -419,6 +435,7 @@ class Seat(TimeStampedModel):
         'default': 0.00,
     }
     course_run = models.ForeignKey(CourseRun, related_name='seats')
+    # TODO Replace with FK to SeatType model
     type = models.CharField(max_length=63, choices=SEAT_TYPE_CHOICES)
     price = models.DecimalField(**PRICE_FIELD_CONFIG)
     currency = models.ForeignKey(Currency)
@@ -457,52 +474,80 @@ class CourseOrganization(TimeStampedModel):
         )
 
 
+class Endorsement(TimeStampedModel):
+    endorser = models.ForeignKey(Person, blank=False, null=False)
+    quote = models.TextField(blank=False, null=False)
+
+
+class CorporateEndorsement(TimeStampedModel):
+    corporation_name = models.CharField(max_length=128, blank=False, null=False)
+    statement = models.TextField(blank=False, null=False)
+    image = models.ForeignKey(Image, blank=True, null=True)
+    individual_endorsements = SortedManyToManyField(Endorsement)
+
+
+class FAQ(TimeStampedModel):
+    question = models.TextField(blank=False, null=False)
+    answer = models.TextField(blank=False, null=False)
+
+    class Meta:
+        verbose_name = _('FAQ')
+        verbose_name_plural = _('FAQs')
+
+
+class ProgramType(TimeStampedModel):
+    name = models.CharField(max_length=32, unique=True, null=False, blank=False)
+    applicable_seat_types = models.ManyToManyField(
+        SeatType, help_text=_('Seat types that qualify for completion of programs of this type. Learners completing '
+                              'associated courses, but enrolled in other seat types, will NOT have their completion '
+                              'of the course counted toward the completion of the program.'),
+    )
+
+
 class Program(TimeStampedModel):
-    """
-    Representation of a Program.
-    """
-    uuid = models.UUIDField(
-        blank=True,
-        default=uuid4,
-        editable=False,
-        unique=True,
-        verbose_name=_('UUID')
-    )
+    class ProgramStatus(DjangoChoices):
+        Unpublished = ChoiceItem('unpublished', _('Unpublished'))
+        Active = ChoiceItem('active', _('Active'))
+        Retired = ChoiceItem('retired', _('Retired'))
+        Deleted = ChoiceItem('deleted', _('Deleted'))
 
+    uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     title = models.CharField(
-        help_text=_('The user-facing display title for this Program.'),
-        max_length=255,
-        unique=True,
-    )
-
+        help_text=_('The user-facing display title for this Program.'), max_length=255, unique=True)
     subtitle = models.CharField(
-        help_text=_('A brief, descriptive subtitle for the Program.'),
-        max_length=255,
-        blank=True,
-    )
-
-    category = models.CharField(
-        help_text=_('The category / type of Program.'),
-        max_length=32,
-    )
-
+        help_text=_('A brief, descriptive subtitle for the Program.'), max_length=255, blank=True)
+    # TODO Remove category in favor of type
+    category = models.CharField(help_text=_('The category / type of Program.'), max_length=32)
+    type = models.ForeignKey(ProgramType, null=True, blank=True)
     status = models.CharField(
-        help_text=_('The lifecycle status of this Program.'),
-        max_length=24,
+        help_text=_('The lifecycle status of this Program.'), max_length=24, null=False, blank=False,
+        choices=ProgramStatus.choices, validators=[ProgramStatus.validator]
     )
-
     marketing_slug = models.CharField(
-        help_text=_('Slug used to generate links to the marketing site'),
-        blank=True,
-        max_length=255,
-        db_index=True
-    )
-
-    image = models.ForeignKey(Image, default=None, null=True, blank=True)
-
-    organizations = models.ManyToManyField(Organization, blank=True)
-
+        help_text=_('Slug used to generate links to the marketing site'), blank=True, max_length=255, db_index=True)
+    courses = models.ManyToManyField(Course)
+    # NOTE (CCB): Editors of this field should validate the values to ensure only CourseRuns associated
+    # with related Courses are stored.
+    excluded_course_runs = models.ManyToManyField(CourseRun)
     partner = models.ForeignKey(Partner, null=True, blank=False)
+    overview = models.TextField(null=True, blank=True)
+    weeks_to_complete = models.PositiveSmallIntegerField(null=True, blank=True)
+    min_hours_effort_per_week = models.PositiveSmallIntegerField(null=True, blank=True)
+    max_hours_effort_per_week = models.PositiveSmallIntegerField(null=True, blank=True)
+    authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_programs')
+
+    banner_image_url = models.URLField(null=True, blank=True, help_text=_('Image used atop detail pages'))
+    card_image_url = models.URLField(null=True, blank=True, help_text=_('Image used for discovery cards'))
+    video = models.ForeignKey(Video, default=None, null=True, blank=True)
+    expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
+    faq = SortedManyToManyField(FAQ, blank=True)
+
+    credit_backing_organizations = SortedManyToManyField(
+        Organization, blank=True, related_name='credit_backed_programs'
+    )
+    corporate_endorsements = SortedManyToManyField(CorporateEndorsement, blank=True)
+    job_outlook_items = SortedManyToManyField(JobOutlookItem, blank=True)
+    individual_endorsements = SortedManyToManyField(Endorsement, blank=True)
 
     def __str__(self):
         return self.title
@@ -516,11 +561,52 @@ class Program(TimeStampedModel):
         return None
 
     @property
-    def image_url(self):
-        if self.image:
-            return self.image.src
+    def course_runs(self):
+        excluded_course_run_ids = [course_run.id for course_run in self.excluded_course_runs.all()]
+        return CourseRun.objects.filter(course__program=self).exclude(id__in=excluded_course_run_ids)
 
-        return None
+    @property
+    def languages(self):
+        return set([course_run.language for course_run in self.course_runs])
+
+    @property
+    def transcript_languages(self):
+        languages = [list(course_run.transcript_languages.all()) for course_run in self.course_runs]
+        languages = itertools.chain.from_iterable(languages)
+        return set(languages)
+
+    @property
+    def subjects(self):
+        subjects = [list(course.subjects.all()) for course in self.courses.all()]
+        subjects = itertools.chain.from_iterable(subjects)
+        return set(subjects)
+
+    @property
+    def price_ranges(self):
+        applicable_seat_types = self.type.applicable_seat_types.values_list('slug', flat=True)
+        seats = Seat.objects.filter(course_run__in=self.course_runs, type__in=applicable_seat_types) \
+            .values('currency') \
+            .annotate(models.Min('price'), models.Max('price'))
+        price_ranges = []
+
+        for seat in seats:
+            price_ranges.append({
+                'currency': seat['currency'],
+                'min': seat['price__min'],
+                'max': seat['price__max'],
+            })
+        return price_ranges
+
+    @property
+    def start(self):
+        """ Start datetime, calculated by determining the earliest start datetime of all related course runs. """
+        return min([course_run.start for course_run in self.course_runs])
+
+    @property
+    def instructors(self):
+        instructors = [list(course_run.instructors.all()) for course_run in self.course_runs]
+        instructors = itertools.chain.from_iterable(instructors)
+        return set(instructors)
 
 
 class PersonSocialNetwork(AbstractSocialNetworkModel):
