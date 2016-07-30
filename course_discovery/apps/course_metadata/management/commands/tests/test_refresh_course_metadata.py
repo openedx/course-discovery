@@ -6,20 +6,24 @@ from django.test import TestCase
 
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import mock_api_callback
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Organization, Partner, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Organization, Program
 from course_discovery.apps.course_metadata.tests import mock_data
 
 ACCESS_TOKEN = 'secret'
-ACCESS_TOKEN_TYPE = 'Bearer'
 JSON = 'application/json'
-LOGGER_NAME = 'course_metadata.management.commands.refresh_course_metadata'
 
 
 class RefreshCourseMetadataCommandTests(TestCase):
-
     def setUp(self):
         super(RefreshCourseMetadataCommandTests, self).setUp()
         self.partner = PartnerFactory()
+
+        self.mock_access_token_api()
+        self.mock_organizations_api()
+        self.mock_lms_courses_api()
+        self.mock_ecommerce_courses_api()
+        self.mock_marketing_courses_api()
+        self.mock_programs_api()
 
     def mock_access_token_api(self):
         body = {
@@ -96,50 +100,44 @@ class RefreshCourseMetadataCommandTests(TestCase):
 
     @responses.activate
     def test_refresh_course_metadata(self):
-        """ Verify """
-        self.mock_access_token_api()
-        self.mock_organizations_api()
-        self.mock_lms_courses_api()
-        self.mock_ecommerce_courses_api()
-        self.mock_marketing_courses_api()
-        self.mock_programs_api()
-
+        """ Verify the refresh_course_metadata management command creates new objects. """
         call_command('refresh_course_metadata')
 
-        partners = Partner.objects.all()
-        self.assertEqual(len(partners), 1)
-
         organizations = Organization.objects.all()
-        self.assertEqual(len(organizations), 3)
+        self.assertEqual(organizations.count(), 3)
 
         for organization in organizations:
             self.assertEqual(organization.partner.short_code, self.partner.short_code)
 
         courses = Course.objects.all()
-        self.assertEqual(len(courses), 2)
+        self.assertEqual(courses.count(), 2)
         for course in courses:
             self.assertEqual(course.partner.short_code, self.partner.short_code)
 
         course_runs = CourseRun.objects.all()
-        self.assertEqual(len(course_runs), 3)
+        self.assertEqual(course_runs.count(), 3)
         for course_run in course_runs:
             self.assertEqual(course_run.course.partner.short_code, self.partner.short_code)
 
         programs = Program.objects.all()
-        self.assertEqual(len(programs), 2)
+        self.assertEqual(programs.count(), 2)
         for program in programs:
             self.assertEqual(program.partner.short_code, self.partner.short_code)
 
         # Refresh only a specific partner
-        command_args = ['--partner_code={0}'.format(partners[0].short_code)]
+        command_args = ['--partner_code={0}'.format(self.partner.short_code)]
         call_command('refresh_course_metadata', *command_args)
 
-        # Invalid partner code
+    @responses.activate
+    def test_refresh_course_metadata_with_invalid_partner_code(self):
+        """ Verify an error is raised if an invalid partner code is passed on the command line. """
         with self.assertRaises(CommandError):
             command_args = ['--partner_code=invalid']
             call_command('refresh_course_metadata', *command_args)
 
-        # Access token but no token type
+    @responses.activate
+    def test_refresh_course_metadata_with_no_token_type(self):
+        """ Verify an error is raised if an access token is passed in without a token type. """
         with self.assertRaises(CommandError):
             command_args = ['--access_token=test-access-token']
             call_command('refresh_course_metadata', *command_args)
