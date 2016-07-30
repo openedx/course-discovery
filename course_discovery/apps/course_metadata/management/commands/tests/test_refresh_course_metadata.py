@@ -31,7 +31,7 @@ class RefreshCourseMetadataCommandTests(TestCase):
             'expires_in': 30
         }
 
-        url = self.partner.social_auth_edx_oidc_url_root.strip('/') + '/access_token'
+        url = self.partner.oidc_url_root.strip('/') + '/access_token'
         responses.add_callback(
             responses.POST,
             url,
@@ -80,7 +80,7 @@ class RefreshCourseMetadataCommandTests(TestCase):
         body = mock_data.MARKETING_API_BODY
         responses.add(
             responses.GET,
-            self.partner.marketing_api_url + 'courses/',
+            self.partner.marketing_site_api_url + 'courses/',
             body=json.dumps(body),
             status=200,
             content_type='application/json'
@@ -104,6 +104,9 @@ class RefreshCourseMetadataCommandTests(TestCase):
         call_command('refresh_course_metadata')
 
         organizations = Organization.objects.all()
+
+        for organization in organizations:
+            print(organization.key)
         self.assertEqual(organizations.count(), 3)
 
         for organization in organizations:

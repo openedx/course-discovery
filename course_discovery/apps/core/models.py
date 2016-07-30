@@ -58,19 +58,24 @@ class Currency(models.Model):
 
 class Partner(TimeStampedModel):
     name = models.CharField(max_length=128, unique=True, null=False, blank=False)
-    short_code = models.CharField(max_length=8, unique=True, null=False, blank=False)
-    courses_api_url = models.URLField(max_length=255, null=True)
-    ecommerce_api_url = models.URLField(max_length=255, null=True)
-    organizations_api_url = models.URLField(max_length=255, null=True)
-    programs_api_url = models.URLField(max_length=255, null=True)
-    marketing_api_url = models.URLField(max_length=255, null=True)
-    marketing_url_root = models.URLField(max_length=255, null=True)
-    social_auth_edx_oidc_url_root = models.CharField(max_length=255, null=True)
-    social_auth_edx_oidc_key = models.CharField(max_length=255, null=True)
-    social_auth_edx_oidc_secret = models.CharField(max_length=255, null=True)
+    short_code = models.CharField(
+        max_length=8, unique=True, null=False, blank=False, verbose_name=_('Short Code'),
+        help_text=_('Convenient code/slug used to identify this Partner (e.g. for management commands.)'))
+    courses_api_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('Courses API URL'))
+    ecommerce_api_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('E-Commerce API URL'))
+    organizations_api_url = models.URLField(max_length=255, null=True, blank=True,
+                                            verbose_name=_('Organizations API URL'))
+    programs_api_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('Programs API URL'))
+    marketing_site_api_url = models.URLField(max_length=255, null=True, blank=True,
+                                             verbose_name=_('Marketing Site API URL'))
+    marketing_site_url_root = models.URLField(max_length=255, null=True, blank=True,
+                                              verbose_name=_('Marketing Site URL'))
+    oidc_url_root = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect URL'))
+    oidc_key = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect Key'))
+    oidc_secret = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect Secret'))
 
     def __str__(self):
-        return '{name} ({code})'.format(name=self.name, code=self.short_code)
+        return self.name
 
     class Meta:
         verbose_name = _('Partner')

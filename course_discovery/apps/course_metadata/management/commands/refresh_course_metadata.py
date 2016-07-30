@@ -3,10 +3,10 @@ import logging
 from django.core.management import BaseCommand, CommandError
 from edx_rest_api_client.client import EdxRestApiClient
 
+from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.data_loaders import (
     CoursesApiDataLoader, DrupalApiDataLoader, OrganizationsApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader
 )
-from course_discovery.apps.core.models import Partner
 
 logger = logging.getLogger(__name__)
 
@@ -65,9 +65,9 @@ class Command(BaseCommand):
 
                 try:
                     access_token, __ = EdxRestApiClient.get_oauth_access_token(
-                        '{root}/access_token'.format(root=partner.social_auth_edx_oidc_url_root.strip('/')),
-                        partner.social_auth_edx_oidc_key,
-                        partner.social_auth_edx_oidc_secret,
+                        '{root}/access_token'.format(root=partner.oidc_url_root.strip('/')),
+                        partner.oidc_key,
+                        partner.oidc_secret,
                         token_type=token_type
                     )
                 except Exception:
@@ -82,7 +82,7 @@ class Command(BaseCommand):
                 loaders.append(CoursesApiDataLoader)
             if partner.ecommerce_api_url:
                 loaders.append(EcommerceApiDataLoader)
-            if partner.marketing_api_url:
+            if partner.marketing_site_api_url:
                 loaders.append(DrupalApiDataLoader)
             if partner.programs_api_url:
                 loaders.append(ProgramsApiDataLoader)
@@ -90,10 +90,6 @@ class Command(BaseCommand):
             if loaders:
                 for loader_class in loaders:
                     try:
-                        loader_class(
-                            partner,
-                            access_token,
-                            token_type,
-                        ).ingest()
+                        loader_class(partner, access_token, token_type).ingest()
                     except Exception:  # pylint: disable=broad-except
                         logger.exception('%s failed!', loader_class.__name__)
