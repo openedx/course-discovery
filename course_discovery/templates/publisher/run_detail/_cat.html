@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}
+    {% trans "Course Run Detail" %}
+{% endblock title %}
+
+{% block content %}
+
+   <div class="course-information">
+        <div class="info-item">
+            <div class="heading">{% trans "Course ID" %}</div>
+            <div>{{ object.lms_course_id }}</div>
+        </div>
+        <div class="info-item">
+            <div class="heading">{% trans "Course Type" %}</div>
+            <div>{{ object.course_type|capfirst }}</div>
+        </div>
+    </div>
+
+
+
+    {% include 'publisher/run_detail/_seats.html' %}
+    {% include 'publisher/run_detail/_credit_seat.html' %}
+
+{% endblock %}
+

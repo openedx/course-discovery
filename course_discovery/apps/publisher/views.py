@@ -3,6 +3,7 @@ Course publisher views.
 """
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from course_discovery.apps.publisher.forms import CourseForm, CourseRunForm, SeatForm
@@ -122,3 +123,14 @@ class UpdateSeatView(UpdateView):
 
     def get_success_url(self):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
+
+
+class CourseRunDetailView(DetailView):
+    """ Course RunDetail View."""
+    model = CourseRun
+    template_name = 'publisher/run_detail/home.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CourseRunDetailView, self).get_context_data(**kwargs)
+        context['object'] = CourseRunWrapper(context['object'])
+        return context

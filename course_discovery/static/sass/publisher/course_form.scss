@@ -2,10 +2,10 @@
 // // edX Course Discovery: Course form
 
 .course-form {
-    margin: 20px;
+    @include margin(20px);
 }
 
 .btn-add {
-    float: right;
-    margin-right: 30px;
+  @include float(right);
+  @include margin-right(30px);
 }
