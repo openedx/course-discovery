@@ -70,6 +70,10 @@ class Partner(TimeStampedModel):
                                              verbose_name=_('Marketing Site API URL'))
     marketing_site_url_root = models.URLField(max_length=255, null=True, blank=True,
                                               verbose_name=_('Marketing Site URL'))
+    marketing_site_api_username = models.CharField(max_length=255, null=True, blank=True,
+                                                   verbose_name=_('Marketing Site API Username'))
+    marketing_site_api_password = models.CharField(max_length=255, null=True, blank=True,
+                                                   verbose_name=_('Marketing Site API Password'))
     oidc_url_root = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect URL'))
     oidc_key = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect Key'))
     oidc_secret = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect Secret'))

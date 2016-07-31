@@ -5,7 +5,8 @@ from edx_rest_api_client.client import EdxRestApiClient
 
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.data_loaders import (
-    CoursesApiDataLoader, DrupalApiDataLoader, OrganizationsApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader
+    CoursesApiDataLoader, DrupalApiDataLoader, OrganizationsApiDataLoader, EcommerceApiDataLoader,
+    ProgramsApiDataLoader, MarketingSiteDataLoader
 )
 
 logger = logging.getLogger(__name__)
@@ -80,6 +81,7 @@ class Command(BaseCommand):
                 (partner.ecommerce_api_url, EcommerceApiDataLoader,),
                 (partner.marketing_site_api_url, DrupalApiDataLoader,),
                 (partner.programs_api_url, ProgramsApiDataLoader,),
+                (partner.marketing_site_url_root, MarketingSiteDataLoader,),
             )
 
             for api_url, loader_class in data_loaders:

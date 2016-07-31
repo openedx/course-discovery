@@ -2,9 +2,10 @@
 import abc
 import logging
 from decimal import Decimal
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlencode
 
 import html2text
+import requests
 from dateutil.parser import parse
 from django.utils.functional import cached_property
 from edx_rest_api_client.client import EdxRestApiClient
@@ -33,7 +34,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
     PAGE_SIZE = 50
     SUPPORTED_TOKEN_TYPES = ('bearer', 'jwt',)
 
-    def __init__(self, partner, api_url, access_token, token_type):
+    def __init__(self, partner, api_url, access_token=None, token_type=None):
         """
         Arguments:
             partner (Partner): Partner which owns the APIs and data being loaded
@@ -41,15 +42,16 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
             access_token (str): OAuth2 access token
             token_type (str): The type of access token passed in (e.g. Bearer, JWT)
         """
-        token_type = token_type.lower()
+        if token_type:
+            token_type = token_type.lower()
 
-        if token_type not in self.SUPPORTED_TOKEN_TYPES:
-            raise ValueError('The token type {token_type} is invalid!'.format(token_type=token_type))
+            if token_type not in self.SUPPORTED_TOKEN_TYPES:
+                raise ValueError('The token type {token_type} is invalid!'.format(token_type=token_type))
 
         self.access_token = access_token
         self.token_type = token_type
         self.partner = partner
-        self.api_url = api_url
+        self.api_url = api_url.strip('/')
 
     @cached_property
     def api_client(self):
@@ -573,3 +575,101 @@ class ProgramsApiDataLoader(AbstractDataLoader):
             image, __ = Image.objects.update_or_create(src=image_url, defaults=defaults)
 
         return image
+
+
+class MarketingSiteDataLoader(AbstractDataLoader):
+    def __init__(self, partner, api_url, access_token=None, token_type=None):
+        super(MarketingSiteDataLoader, self).__init__(partner, api_url, access_token, token_type)
+
+        if not (self.partner.marketing_site_api_username and self.partner.marketing_site_api_password):
+            msg = 'Marketing Site API credentials are not properly configured for Partner [{partner}]!'.format(
+                partner=partner.short_code)
+            raise Exception(msg)
+
+    @cached_property
+    def api_client(self):
+        username = self.partner.marketing_site_api_username
+
+        # Login by posting to the login form
+        login_data = {
+            'name': username,
+            'pass': self.partner.marketing_site_api_password,
+            'form_id': 'user_login',
+            'op': 'Log in',
+        }
+
+        session = requests.Session()
+        login_url = '{root}/user'.format(root=self.api_url)
+        response = session.post(login_url, data=login_data)
+        expected_url = '{root}/users/{username}'.format(root=self.api_url, username=username)
+        if not (response.status_code == 200 and response.url == expected_url):
+            raise Exception('Login failed!')
+
+        return session
+
+    def ingest(self):  # pragma: no cover
+        """ Load data for all supported objects (e.g. courses, runs). """
+        # TODO Ingest schools
+        # TODO Ingest instructors
+        # TODO Ingest course runs (courses)
+        self.retrieve_and_ingest_node_type('xseries', self.update_xseries)
+
+    def retrieve_and_ingest_node_type(self, node_type, update_method):
+        """
+        Retrieves all nodes of the specified type, and calls `update_method` for each node.
+
+        Args:
+            node_type (str): Type of node to retrieve (e.g. course, xseries, school, instructor)
+            update_method: Method to which the retrieved data should be passed.
+        """
+        page = 0
+
+        while page is not None and page >= 0:
+            kwargs = {
+                'type': node_type,
+                'max-depth': 2,
+                'load-entity-refs': 'subject,file,taxonomy_term,taxonomy_vocabulary,node,field_collection_item',
+                'page': page,
+            }
+            qs = urlencode(kwargs)
+            url = '{root}/node.json?{qs}'.format(root=self.api_url, qs=qs)
+            response = self.api_client.get(url)
+
+            status_code = response.status_code
+            if status_code is not 200:
+                msg = 'Failed to retrieve data from {url}\nStatus Code: {status}\nBody: {body}'.format(
+                    url=url, status=status_code, body=response.content)
+                logger.error(msg)
+                raise Exception(msg)
+
+            data = response.json()
+
+            for datum in data['list']:
+                try:
+                    url = datum['url']
+                    datum = self.clean_strings(datum)
+                    update_method(datum)
+                except:  # pylint: disable=bare-except
+                    logger.exception('Failed to load %s.', url)
+
+            if 'next' in data:
+                page += 1
+            else:
+                break
+
+    def update_xseries(self, data):
+        marketing_slug = data['url'].split('/')[-1]
+        card_image_url = data.get('field_card_image', {}).get('url')
+
+        defaults = {
+            'title': data['title'],
+            'subtitle': data.get('field_xseries_subtitle_short'),
+            'category': 'XSeries',
+            'partner': self.partner,
+        }
+
+        if card_image_url:
+            card_image, __ = Image.objects.get_or_create(src=card_image_url)
+            defaults['image'] = card_image
+
+        Program.objects.update_or_create(marketing_slug=marketing_slug, defaults=defaults)

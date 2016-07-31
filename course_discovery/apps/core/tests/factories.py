@@ -27,6 +27,8 @@ class PartnerFactory(factory.DjangoModelFactory):
     programs_api_url = '{root}/api/programs/v1/'.format(root=FuzzyUrlRoot().fuzz())
     marketing_site_api_url = '{root}/api/courses/v1/'.format(root=FuzzyUrlRoot().fuzz())
     marketing_site_url_root = '{root}/'.format(root=FuzzyUrlRoot().fuzz())
+    marketing_site_api_username = FuzzyText().fuzz()
+    marketing_site_api_password = FuzzyText().fuzz()
     oidc_url_root = '{root}'.format(root=FuzzyUrlRoot().fuzz())
     oidc_key = FuzzyText().fuzz()
     oidc_secret = FuzzyText().fuzz()

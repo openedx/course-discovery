@@ -490,7 +490,8 @@ class Program(TimeStampedModel):
     marketing_slug = models.CharField(
         help_text=_('Slug used to generate links to the marketing site'),
         blank=True,
-        max_length=255
+        max_length=255,
+        db_index=True
     )
 
     image = models.ForeignKey(Image, default=None, null=True, blank=True)
