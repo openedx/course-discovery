@@ -6,6 +6,7 @@ from urllib.parse import urljoin
 
 import html2text
 from dateutil.parser import parse
+from django.utils.functional import cached_property
 from edx_rest_api_client.client import EdxRestApiClient
 from opaque_keys.edx.keys import CourseKey
 
@@ -23,6 +24,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
     """ Base class for all data loaders.
 
     Attributes:
+        api_url (str): URL of the API from which data is loaded
         partner (Partner): Partner which owns the data for this data loader
         access_token (str): OAuth2 access token
         PAGE_SIZE (int): Number of items to load per API call
@@ -31,12 +33,13 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
     PAGE_SIZE = 50
     SUPPORTED_TOKEN_TYPES = ('bearer', 'jwt',)
 
-    def __init__(self, partner, access_token, token_type):
+    def __init__(self, partner, api_url, access_token, token_type):
         """
         Arguments:
+            partner (Partner): Partner which owns the APIs and data being loaded
+            api_url (str): URL of the API from which data is loaded
             access_token (str): OAuth2 access token
             token_type (str): The type of access token passed in (e.g. Bearer, JWT)
-            partner (Partner): The Partner which owns the APIs and data being loaded
         """
         token_type = token_type.lower()
 
@@ -46,8 +49,10 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         self.access_token = access_token
         self.token_type = token_type
         self.partner = partner
+        self.api_url = api_url
 
-    def get_api_client(self, api_url):
+    @cached_property
+    def api_client(self):
         """
         Returns an authenticated API client ready to call the API from which data is loaded.
 
@@ -61,7 +66,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         else:
             kwargs['oauth_access_token'] = self.access_token
 
-        return EdxRestApiClient(api_url, **kwargs)
+        return EdxRestApiClient(self.api_url, **kwargs)
 
     @abc.abstractmethod
     def ingest(self):  # pragma: no cover
@@ -125,14 +130,13 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
 
     def ingest(self):
         api_url = self.partner.organizations_api_url
-        client = self.get_api_client(api_url)
         count = None
         page = 1
 
         logger.info('Refreshing Organizations from %s...', api_url)
 
         while page:
-            response = client.organizations().get(page=page, page_size=self.PAGE_SIZE)
+            response = self.api_client.organizations().get(page=page, page_size=self.PAGE_SIZE)
             count = response['count']
             results = response['results']
             logger.info('Retrieved %d organizations...', len(results))
@@ -169,14 +173,13 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
     def ingest(self):
         api_url = self.partner.courses_api_url
-        client = self.get_api_client(api_url)
         count = None
         page = 1
 
         logger.info('Refreshing Courses and CourseRuns from %s...', api_url)
 
         while page:
-            response = client.courses().get(page=page, page_size=self.PAGE_SIZE)
+            response = self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE)
             count = response['pagination']['count']
             results = response['results']
             logger.info('Retrieved %d course runs...', len(results))
@@ -276,9 +279,8 @@ class DrupalApiDataLoader(AbstractDataLoader):
 
     def ingest(self):
         api_url = self.partner.marketing_site_api_url
-        client = self.get_api_client(api_url)
         logger.info('Refreshing Courses and CourseRuns from %s...', api_url)
-        response = client.courses.get()
+        response = self.api_client.courses.get()
 
         data = response['items']
         logger.info('Retrieved %d course runs...', len(data))
@@ -422,14 +424,13 @@ class EcommerceApiDataLoader(AbstractDataLoader):
 
     def ingest(self):
         api_url = self.partner.ecommerce_api_url
-        client = self.get_api_client(api_url)
         count = None
         page = 1
 
         logger.info('Refreshing course seats from %s...', api_url)
 
         while page:
-            response = client.courses().get(page=page, page_size=self.PAGE_SIZE, include_products=True)
+            response = self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE, include_products=True)
             count = response['count']
             results = response['results']
             logger.info('Retrieved %d course seats...', len(results))
@@ -509,14 +510,13 @@ class ProgramsApiDataLoader(AbstractDataLoader):
 
     def ingest(self):
         api_url = self.partner.programs_api_url
-        client = self.get_api_client(api_url)
         count = None
         page = 1
 
         logger.info('Refreshing programs from %s...', api_url)
 
         while page:
-            response = client.programs.get(page=page, page_size=self.PAGE_SIZE)
+            response = self.api_client.programs.get(page=page, page_size=self.PAGE_SIZE)
             count = response['count']
             results = response['results']
             logger.info('Retrieved %d programs...', len(results))

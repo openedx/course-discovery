@@ -74,22 +74,17 @@ class Command(BaseCommand):
                     logger.exception('No access token provided or acquired through client_credential flow.')
                     raise
 
-            loaders = []
+            data_loaders = (
+                (partner.organizations_api_url, OrganizationsApiDataLoader,),
+                (partner.courses_api_url, CoursesApiDataLoader,),
+                (partner.ecommerce_api_url, EcommerceApiDataLoader,),
+                (partner.marketing_site_api_url, DrupalApiDataLoader,),
+                (partner.programs_api_url, ProgramsApiDataLoader,),
+            )
 
-            if partner.organizations_api_url:
-                loaders.append(OrganizationsApiDataLoader)
-            if partner.courses_api_url:
-                loaders.append(CoursesApiDataLoader)
-            if partner.ecommerce_api_url:
-                loaders.append(EcommerceApiDataLoader)
-            if partner.marketing_site_api_url:
-                loaders.append(DrupalApiDataLoader)
-            if partner.programs_api_url:
-                loaders.append(ProgramsApiDataLoader)
-
-            if loaders:
-                for loader_class in loaders:
+            for api_url, loader_class in data_loaders:
+                if api_url:
                     try:
-                        loader_class(partner, access_token, token_type).ingest()
+                        loader_class(partner, api_url, access_token, token_type).ingest()
                     except Exception:  # pylint: disable=broad-except
                         logger.exception('%s failed!', loader_class.__name__)

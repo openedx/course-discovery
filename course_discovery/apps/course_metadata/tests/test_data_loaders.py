@@ -12,14 +12,14 @@ from edx_rest_api_client.client import EdxRestApiClient
 from opaque_keys.edx.keys import CourseKey
 from pytz import UTC
 
-from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import mock_api_callback
 from course_discovery.apps.course_metadata.data_loaders import (
     OrganizationsApiDataLoader, CoursesApiDataLoader, DrupalApiDataLoader, EcommerceApiDataLoader, AbstractDataLoader,
-    ProgramsApiDataLoader)
+    ProgramsApiDataLoader
+)
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseOrganization, CourseRun, Image, LanguageTag, Organization, Person, Seat, Subject,
-    Program)
+    Course, CourseOrganization, CourseRun, Image, LanguageTag, Organization, Person, Seat, Subject, Program
+)
 from course_discovery.apps.course_metadata.tests import mock_data
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseRunFactory, SeatFactory, ImageFactory, PartnerFactory, PersonFactory, VideoFactory
@@ -75,7 +75,11 @@ class DataLoaderTestMixin(object):
     def setUp(self):
         super(DataLoaderTestMixin, self).setUp()
         self.partner = PartnerFactory()
-        self.loader = self.loader_class(self.partner, ACCESS_TOKEN, ACCESS_TOKEN_TYPE)
+        self.loader = self.loader_class(self.partner, self.api_url, ACCESS_TOKEN, ACCESS_TOKEN_TYPE)
+
+    @property
+    def api_url(self):  # pragma: no cover
+        raise NotImplementedError
 
     def assert_api_called(self, expected_num_calls, check_auth=True):
         """ Asserts the API was called with the correct number of calls, and the appropriate Authorization header. """
@@ -92,17 +96,17 @@ class DataLoaderTestMixin(object):
     def test_init_with_unsupported_token_type(self):
         """ Verify the constructor raises an error if an unsupported token type is passed in. """
         with self.assertRaises(ValueError):
-            self.loader_class(self.partner, ACCESS_TOKEN, 'not-supported')
+            self.loader_class(self.partner, self.api_url, ACCESS_TOKEN, 'not-supported')
 
     @ddt.unpack
     @ddt.data(
         ('Bearer', BearerAuth),
         ('JWT', SuppliedJwtAuth),
     )
-    def test_get_api_client(self, token_type, expected_auth_class):
+    def test_api_client(self, token_type, expected_auth_class):
         """ Verify the property returns an API client with the correct authentication. """
-        loader = self.loader_class(self.partner, ACCESS_TOKEN, token_type)
-        client = loader.get_api_client(self.partner.programs_api_url)
+        loader = self.loader_class(self.partner, self.api_url, ACCESS_TOKEN, token_type)
+        client = loader.api_client
         self.assertIsInstance(client, EdxRestApiClient)
         # NOTE (CCB): My initial preference was to mock the constructor and ensure the correct auth arguments
         # were passed. However, that seems nearly impossible. This is the next best alternative. It is brittle, and
@@ -114,9 +118,13 @@ class DataLoaderTestMixin(object):
 class OrganizationsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     loader_class = OrganizationsApiDataLoader
 
+    @property
+    def api_url(self):
+        return self.partner.organizations_api_url
+
     def mock_api(self):
         bodies = mock_data.ORGANIZATIONS_API_BODIES
-        url = self.partner.organizations_api_url + 'organizations/'
+        url = self.api_url + 'organizations/'
         responses.add_callback(
             responses.GET,
             url,
@@ -164,9 +172,13 @@ class OrganizationsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     loader_class = CoursesApiDataLoader
 
+    @property
+    def api_url(self):
+        return self.partner.courses_api_url
+
     def mock_api(self):
         bodies = mock_data.COURSES_API_BODIES
-        url = self.partner.courses_api_url + 'courses/'
+        url = self.api_url + 'courses/'
         responses.add_callback(
             responses.GET,
             url,
@@ -299,6 +311,10 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     loader_class = DrupalApiDataLoader
 
+    @property
+    def api_url(self):
+        return self.partner.marketing_site_api_url
+
     def setUp(self):
         super(DrupalApiDataLoaderTests, self).setUp()
         for course_dict in mock_data.EXISTING_COURSE_AND_RUN_DATA:
@@ -328,7 +344,7 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         body = mock_data.MARKETING_API_BODY
         responses.add(
             responses.GET,
-            self.partner.marketing_site_api_url + 'courses/',
+            self.api_url + 'courses/',
             body=json.dumps(body),
             status=200,
             content_type='application/json'
@@ -474,9 +490,12 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     loader_class = EcommerceApiDataLoader
 
-    def mock_api(self):
+    @property
+    def api_url(self):
+        return self.partner.ecommerce_api_url
 
-        # create existing seats to be removed by ingest
+    def mock_api(self):
+        # Create existing seats to be removed by ingest
         audit_run = CourseRunFactory(title_override='audit', key='audit/course/run')
         verified_run = CourseRunFactory(title_override='verified', key='verified/course/run')
         credit_run = CourseRunFactory(title_override='credit', key='credit/course/run')
@@ -488,7 +507,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         SeatFactory(course_run=no_currency_run, type=Seat.PROFESSIONAL)
 
         bodies = mock_data.ECOMMERCE_API_BODIES
-        url = self.partner.ecommerce_api_url + 'courses/'
+        url = self.api_url + 'courses/'
         responses.add_callback(
             responses.GET,
             url,
@@ -585,9 +604,13 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     loader_class = ProgramsApiDataLoader
 
+    @property
+    def api_url(self):
+        return self.partner.programs_api_url
+
     def mock_api(self):
         bodies = mock_data.PROGRAMS_API_BODIES
-        url = self.partner.programs_api_url + 'programs/'
+        url = self.api_url + 'programs/'
         responses.add_callback(
             responses.GET,
             url,
