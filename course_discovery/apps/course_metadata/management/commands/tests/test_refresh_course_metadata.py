@@ -1,11 +1,15 @@
 import json
 
+import mock
 import responses
 from django.core.management import call_command, CommandError
 from django.test import TestCase
 
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import mock_api_callback
+from course_discovery.apps.course_metadata.data_loaders import (
+    CoursesApiDataLoader, DrupalApiDataLoader, OrganizationsApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader
+)
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Organization, Program
 from course_discovery.apps.course_metadata.tests import mock_data
 
@@ -19,20 +23,23 @@ class RefreshCourseMetadataCommandTests(TestCase):
         self.partner = PartnerFactory()
 
         self.mock_access_token_api()
+
+    def mock_apis(self):
         self.mock_organizations_api()
         self.mock_lms_courses_api()
         self.mock_ecommerce_courses_api()
         self.mock_marketing_courses_api()
         self.mock_programs_api()
 
-    def mock_access_token_api(self):
+    def mock_access_token_api(self, requests_mock=None):
         body = {
             'access_token': ACCESS_TOKEN,
             'expires_in': 30
         }
+        requests_mock = requests_mock or responses
 
         url = self.partner.oidc_url_root.strip('/') + '/access_token'
-        responses.add_callback(
+        requests_mock.add_callback(
             responses.POST,
             url,
             callback=mock_api_callback(url, body, results_key=False),
@@ -83,7 +90,7 @@ class RefreshCourseMetadataCommandTests(TestCase):
             self.partner.marketing_site_api_url + 'courses/',
             body=json.dumps(body),
             status=200,
-            content_type='application/json'
+            content_type=JSON
         )
         return body['items']
 
@@ -101,12 +108,10 @@ class RefreshCourseMetadataCommandTests(TestCase):
     @responses.activate
     def test_refresh_course_metadata(self):
         """ Verify the refresh_course_metadata management command creates new objects. """
+        self.mock_apis()
         call_command('refresh_course_metadata')
 
         organizations = Organization.objects.all()
-
-        for organization in organizations:
-            print(organization.key)
         self.assertEqual(organizations.count(), 3)
 
         for organization in organizations:
@@ -134,6 +139,7 @@ class RefreshCourseMetadataCommandTests(TestCase):
     @responses.activate
     def test_refresh_course_metadata_with_invalid_partner_code(self):
         """ Verify an error is raised if an invalid partner code is passed on the command line. """
+        self.mock_apis()
         with self.assertRaises(CommandError):
             command_args = ['--partner_code=invalid']
             call_command('refresh_course_metadata', *command_args)
@@ -141,6 +147,21 @@ class RefreshCourseMetadataCommandTests(TestCase):
     @responses.activate
     def test_refresh_course_metadata_with_no_token_type(self):
         """ Verify an error is raised if an access token is passed in without a token type. """
+        self.mock_apis()
         with self.assertRaises(CommandError):
             command_args = ['--access_token=test-access-token']
             call_command('refresh_course_metadata', *command_args)
+
+    def test_refresh_course_metadata_with_loader_exception(self):
+        """ Verify execution continues if an individual data loader fails. """
+        with responses.RequestsMock() as rsps:
+            self.mock_access_token_api(rsps)
+
+            logger_target = 'course_discovery.apps.course_metadata.management.commands.refresh_course_metadata.logger'
+            with mock.patch(logger_target) as mock_logger:
+                call_command('refresh_course_metadata')
+
+                loader_classes = (OrganizationsApiDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader,
+                                  DrupalApiDataLoader, ProgramsApiDataLoader)
+                expected_calls = [mock.call('%s failed!', loader_class.__name__) for loader_class in loader_classes]
+                mock_logger.exception.assert_has_calls(expected_calls)
