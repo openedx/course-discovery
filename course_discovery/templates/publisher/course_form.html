@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}
+    {% trans "Course Form" %}
+{% endblock title %}
+
+{% block content %}
+    <div class="layout-full layout">
+        <div class="card course-form">
+            <h4 class="hd-4">{% trans "Course Form" %}</h4>
+            {% if object.id %}
+                <a href="{% url 'publisher:publisher_course_runs_new' %}" target="_blank" class="btn btn-neutral btn-add">
+                    {% trans "Add Course Run" %}
+                </a>
+            {% endif %}
+            <form class="form" method="post" action=""> {% csrf_token %}
+                <fieldset class="form-group">
+                    {% for field in form %}
+                        {% include "publisher/form_field.html" %}
+                    {% endfor %}
+                </fieldset>
+                <button class="btn-brand btn-base" type="submit">{% trans "Save" %}</button>
+            </form>
+        </div>
+    </div>
+
+{% endblock content %}

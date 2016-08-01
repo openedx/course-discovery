@@ -21,20 +21,32 @@ class ChangedByMixin(object):
 class Course(TimeStampedModel, ChangedByMixin):
     """ Publisher Course model. It contains fields related to the course intake form."""
 
-    title = models.CharField(max_length=255, default=None, null=True, blank=True)
-    number = models.CharField(max_length=50, null=True, blank=True)
-    short_description = models.CharField(max_length=255, default=None, null=True, blank=True)
-    full_description = models.TextField(default=None, null=True, blank=True)
-    organizations = models.ManyToManyField(Organization, blank=True, related_name='publisher_courses')
-    level_type = models.ForeignKey(LevelType, default=None, null=True, blank=True, related_name='publisher_courses')
-    expected_learnings = models.TextField(default=None, null=True, blank=True)
+    title = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_('Course title'))
+    number = models.CharField(max_length=50, null=True, blank=True, verbose_name=_('Course number'))
+    short_description = models.CharField(
+        max_length=255, default=None, null=True, blank=True, verbose_name=_('Course subtitle')
+    )
+    full_description = models.TextField(default=None, null=True, blank=True, verbose_name=_('About this course'))
+    organizations = models.ManyToManyField(
+        Organization, null=True, blank=True, related_name='publisher_courses', verbose_name=_('Partner Name')
+    )
+    level_type = models.ForeignKey(
+        LevelType, default=None, null=True, blank=True, related_name='publisher_courses', verbose_name=_('Course level')
+    )
+    expected_learnings = models.TextField(default=None, null=True, blank=True, verbose_name=_("What you'll learn"))
     syllabus = models.TextField(default=None, null=True, blank=True)
     prerequisites = models.TextField(default=None, null=True, blank=True)
     learner_testimonial = models.CharField(max_length=50, null=True, blank=True)
 
-    primary_subject = models.ForeignKey(Subject, related_name='publisher_courses_primary')
-    secondary_subject = models.ForeignKey(Subject, related_name='publisher_courses_secondary')
-    tertiary_subject = models.ForeignKey(Subject, related_name='publisher_courses_tertiary')
+    primary_subject = models.ForeignKey(
+        Subject, default=None, null=True, blank=True, related_name='publisher_courses_primary'
+    )
+    secondary_subject = models.ForeignKey(
+        Subject, default=None, null=True, blank=True, related_name='publisher_courses_secondary'
+    )
+    tertiary_subject = models.ForeignKey(
+        Subject, default=None, null=True, blank=True, related_name='publisher_courses_tertiary'
+    )
 
     history = HistoricalRecords()
 
@@ -69,7 +81,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     pacing_type = models.CharField(
         max_length=255, choices=CourseMetadataCourseRun.PACING_CHOICES, db_index=True, null=True, blank=True
     )
-    staff = SortedManyToManyField(Person, blank=True, related_name='publisher_course_runs_staffed')
+    staff = SortedManyToManyField(Person, null=True, blank=True, related_name='publisher_course_runs_staffed')
     min_effort = models.PositiveSmallIntegerField(
         null=True, blank=True,
         help_text=_('Estimated minimum number of hours per week needed to complete a course run.'))
@@ -87,9 +99,9 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
 
     is_re_run = models.BooleanField(default=False)
     is_xseries = models.BooleanField(default=False)
-    xseries_name = models.CharField(max_length=255)
+    xseries_name = models.CharField(max_length=255, null=True, blank=True)
     is_micromasters = models.BooleanField(default=False)
-    micromasters_name = models.CharField(max_length=255)
+    micromasters_name = models.CharField(max_length=255, null=True, blank=True)
     contacted_partner_manager = models.BooleanField(default=False)
     seo_review = models.TextField(
         default=None, null=True, blank=True, help_text=_("SEO review on your course title and short description")
@@ -146,9 +158,9 @@ class Seat(TimeStampedModel, ChangedByMixin):
         'default': 0.00,
     }
     course_run = models.ForeignKey(CourseRun, related_name='seats')
-    type = models.CharField(max_length=63, choices=SEAT_TYPE_CHOICES)
+    type = models.CharField(max_length=63, choices=SEAT_TYPE_CHOICES, verbose_name='Seat type')
     price = models.DecimalField(**PRICE_FIELD_CONFIG)
-    currency = models.ForeignKey(Currency, related_name='publisher_seats')
+    currency = models.ForeignKey(Currency, default='USD', related_name='publisher_seats')
     upgrade_deadline = models.DateTimeField(null=True, blank=True)
     credit_provider = models.CharField(max_length=255, null=True, blank=True)
     credit_hours = models.IntegerField(null=True, blank=True)

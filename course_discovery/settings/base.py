@@ -153,7 +153,6 @@ COMPRESS_CSS_FILTERS = [
     'compressor.filters.cssmin.CSSMinFilter',
 ]
 
-
 # TEMPLATE CONFIGURATION
 # See: https://docs.djangoproject.com/en/1.8/ref/settings/#templates
 TEMPLATES = [

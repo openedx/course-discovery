@@ -13,4 +13,4 @@ class CoreContextProcessorTests(TestCase):
     @override_settings(PLATFORM_NAME=PLATFORM_NAME)
     def test_core(self):
         request = RequestFactory().get('/')
-        self.assertDictEqual(core(request), {'platform_name': PLATFORM_NAME, 'language_bidi': 'ltr'})
+        self.assertDictEqual(core(request), {'platform_name': PLATFORM_NAME, 'language_bidi': False})
