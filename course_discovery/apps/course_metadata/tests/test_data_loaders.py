@@ -328,7 +328,7 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         body = mock_data.MARKETING_API_BODY
         responses.add(
             responses.GET,
-            self.partner.marketing_api_url + 'courses/',
+            self.partner.marketing_site_api_url + 'courses/',
             body=json.dumps(body),
             status=200,
             content_type='application/json'
@@ -440,7 +440,7 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                 # TODO: Change the -2 to -1 after ECOM-4493 is in production.
                 msg = 'An error occurred while updating {0} from {1}'.format(
                     api_data[-2]['course_id'],
-                    self.partner.marketing_api_url
+                    self.partner.marketing_site_api_url
                 )
                 mock_logger.exception.assert_called_with(msg)
 

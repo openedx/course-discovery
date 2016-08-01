@@ -25,11 +25,11 @@ class PartnerFactory(factory.DjangoModelFactory):
     ecommerce_api_url = '{root}/api/courses/v1/'.format(root=FuzzyUrlRoot().fuzz())
     organizations_api_url = '{root}/api/organizations/v1/'.format(root=FuzzyUrlRoot().fuzz())
     programs_api_url = '{root}/api/programs/v1/'.format(root=FuzzyUrlRoot().fuzz())
-    marketing_api_url = '{root}/api/courses/v1/'.format(root=FuzzyUrlRoot().fuzz())
-    marketing_url_root = '{root}/'.format(root=FuzzyUrlRoot().fuzz())
-    social_auth_edx_oidc_url_root = '{root}'.format(root=FuzzyUrlRoot().fuzz())
-    social_auth_edx_oidc_key = FuzzyText().fuzz()
-    social_auth_edx_oidc_secret = FuzzyText().fuzz()
+    marketing_site_api_url = '{root}/api/courses/v1/'.format(root=FuzzyUrlRoot().fuzz())
+    marketing_site_url_root = '{root}/'.format(root=FuzzyUrlRoot().fuzz())
+    oidc_url_root = '{root}'.format(root=FuzzyUrlRoot().fuzz())
+    oidc_key = FuzzyText().fuzz()
+    oidc_secret = FuzzyText().fuzz()
 
     class Meta(object):
         model = Partner

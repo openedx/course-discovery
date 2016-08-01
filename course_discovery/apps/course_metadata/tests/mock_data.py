@@ -472,6 +472,8 @@ PROGRAMS_API_BODIES = [
         ],
         'banner_image_urls': {},
     },
+
+    # This item is invalid (due to a null marketing_slug) and will not be loaded.
     {
         'uuid': '01bc3a40-fa9d-4076-8885-660b2f7a594e',
         'id': 3,

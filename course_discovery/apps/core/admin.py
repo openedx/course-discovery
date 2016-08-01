@@ -38,6 +38,24 @@ class CurrencyAdmin(admin.ModelAdmin):
 
 @admin.register(Partner)
 class PartnerAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'short_code',)
+        }),
+        (_('OpenID Connect'), {
+            'description': _(
+                'OpenID Connect is used for front-end authentication as well as getting access to the APIs.'),
+            'fields': ('oidc_url_root', 'oidc_key', 'oidc_secret',)
+        }),
+        (_('API Configuration'), {
+            'description': _('Configure the APIs that will be used to retrieve data.'),
+            'fields': ('courses_api_url', 'ecommerce_api_url', 'organizations_api_url', 'programs_api_url',)
+        }),
+        (_('Marketing Site Configuration'), {
+            'description': _('Configure the marketing site URLs that will be used to retrieve data and create URLs.'),
+            'fields': ('marketing_site_url_root', 'marketing_site_api_url',)
+        }),
+    )
     list_display = ('name', 'short_code',)
     ordering = ('name', 'short_code',)
     search_fields = ('name', 'short_code',)

@@ -275,7 +275,7 @@ class DrupalApiDataLoader(AbstractDataLoader):
     """Loads course runs from the Drupal API."""
 
     def ingest(self):
-        api_url = self.partner.marketing_api_url
+        api_url = self.partner.marketing_site_api_url
         client = self.get_api_client(api_url)
         logger.info('Refreshing Courses and CourseRuns from %s...', api_url)
         response = client.courses.get()
@@ -347,7 +347,7 @@ class DrupalApiDataLoader(AbstractDataLoader):
             defaults = {
                 'name': sponsor_body['title'],
                 'logo_image': image,
-                'homepage_url': urljoin(self.partner.marketing_url_root, sponsor_body['uri']),
+                'homepage_url': urljoin(self.partner.marketing_site_url_root, sponsor_body['uri']),
             }
             organization, __ = Organization.objects.update_or_create(key=sponsor_body['uuid'], defaults=defaults)
             CourseOrganization.objects.create(
@@ -369,7 +369,7 @@ class DrupalApiDataLoader(AbstractDataLoader):
 
         course_run.language = self.get_language_tag(body)
         course_run.course = course
-        course_run.marketing_url = urljoin(self.partner.marketing_url_root, body['course_about_uri'])
+        course_run.marketing_url = urljoin(self.partner.marketing_site_url_root, body['course_about_uri'])
         course_run.start = self.parse_date(body['start'])
         course_run.end = self.parse_date(body['end'])
 
