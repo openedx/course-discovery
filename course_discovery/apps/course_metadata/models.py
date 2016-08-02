@@ -329,6 +329,10 @@ class CourseRun(TimeStampedModel):
         return self.course.organizations
 
     @property
+    def prerequisites(self):
+        return self.course.prerequisites
+
+    @property
     def seat_types(self):
         return list(self.seats.values_list('type', flat=True))
 

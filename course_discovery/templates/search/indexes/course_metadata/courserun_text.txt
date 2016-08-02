@@ -1,7 +1,5 @@
-{{ object.key }}
-{{ object.title }}
-{{ object.short_description|default:'' }}
-{{ object.full_description|default:'' }}
+{% include 'search/indexes/course_metadata/basecourse_text.txt' %}
+
 {{ object.pacing_type|default:'' }}
 
 {% for language in object.transcript_languages.all %}
