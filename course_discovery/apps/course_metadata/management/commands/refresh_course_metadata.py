@@ -79,8 +79,8 @@ class Command(BaseCommand):
                 (partner.organizations_api_url, OrganizationsApiDataLoader,),
                 (partner.courses_api_url, CoursesApiDataLoader,),
                 (partner.ecommerce_api_url, EcommerceApiDataLoader,),
-                (partner.marketing_site_api_url, DrupalApiDataLoader,),
                 (partner.programs_api_url, ProgramsApiDataLoader,),
+                (partner.marketing_site_api_url, DrupalApiDataLoader,),
                 (partner.marketing_site_url_root, MarketingSiteDataLoader,),
             )
 
