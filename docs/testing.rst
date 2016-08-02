@@ -22,4 +22,4 @@ prevents us from using it in this repository. Were you to use `httpretty`, you w
 mock an OAuth2 endpoint, `httpretty` blocks requests to Elasticsearch, leading to test failures.
 
 Given our extensive use of Elasticsearch, and need to mock HTTP endpoints, we use the
-`responses <https://github.com/getsentry/responses>`_ library. It's API is practically the same as that of `httpretty.
+`responses <https://github.com/getsentry/responses>`_ library. Its API is practically the same as that of `httpretty.
