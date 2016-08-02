@@ -4,6 +4,7 @@ import os
 from io import StringIO
 
 import pytz
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.db import transaction
@@ -25,12 +26,13 @@ from rest_framework.response import Response
 
 from course_discovery.apps.api import filters
 from course_discovery.apps.api import serializers
+from course_discovery.apps.api.exceptions import InvalidPartnerError
 from course_discovery.apps.api.pagination import PageNumberPagination
 from course_discovery.apps.api.renderers import AffiliateWindowXMLRenderer, CourseRunCSVRenderer
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_RUN_ID_REGEX
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Seat, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Partner, Program, Seat
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -225,10 +227,27 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = serializers.CourseRunSerializer
 
+    def _get_partner_name_from_code(self):
+        """ Return the partner name associated with a partner code or the default partner """
+        partner = None
+        partner_code = self.request.query_params.get('partner')
+
+        if partner_code:
+            try:
+                partner = Partner.objects.get(short_code=partner_code)
+            except Partner.DoesNotExist:
+                raise InvalidPartnerError('Unknown Partner')
+        else:
+            partner = Partner.objects.get(id=settings.DEFAULT_PARTNER_ID)
+
+        return partner.name
+
     def get_queryset(self):
         q = self.request.query_params.get('q', None)
+        partner_name = self._get_partner_name_from_code()
+
         if q:
-            qs = SearchQuerySetWrapper(CourseRun.search(q))
+            qs = SearchQuerySetWrapper(CourseRun.search(q).filter(partner=partner_name))
             # This is necessary to avoid issues with the filter backend.
             qs.model = self.queryset.model
             return qs
@@ -247,6 +266,12 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
               multiple: false
             - name: keys
               description: Filter by keys (comma-separated list)
+              required: false
+              type: string
+              paramType: query
+              multiple: false
+            - name: partner
+              description: Filter by partner
               required: false
               type: string
               paramType: query
@@ -280,13 +305,21 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
               type: string
               paramType: query
               multiple: true
+            - name: partner
+              description: Filter by partner
+              required: false
+              type: string
+              paramType: query
+              multiple: false
         """
         query = request.GET.get('query')
         course_run_ids = request.GET.get('course_run_ids')
+        partner_name = self._get_partner_name_from_code()
 
         if query and course_run_ids:
             course_run_ids = course_run_ids.split(',')
-            course_runs = CourseRun.search(query).filter(key__in=course_run_ids).values_list('key', flat=True)
+            course_runs = CourseRun.search(query).filter(partner=partner_name).filter(key__in=course_run_ids).\
+                values_list('key', flat=True)
             contains = {course_run_id: course_run_id in course_runs for course_run_id in course_run_ids}
 
             instance = {'course_runs': contains}

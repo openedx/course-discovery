@@ -40,6 +40,7 @@ class BaseCourseIndex(OrganizationsMixin, BaseIndex):
     subjects = indexes.MultiValueField(faceted=True)
     organizations = indexes.MultiValueField(faceted=True)
     level_type = indexes.CharField(model_attr='level_type__name', null=True, faceted=True)
+    partner = indexes.CharField(model_attr='partner__name', null=True, faceted=True)
 
     def prepare_subjects(self, obj):
         return [subject.name for subject in obj.subjects.all()]
@@ -83,6 +84,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     seat_types = indexes.MultiValueField(model_attr='seat_types', null=True, faceted=True)
     type = indexes.CharField(model_attr='type', null=True, faceted=True)
     image_url = indexes.CharField(model_attr='image_url', null=True)
+    partner = indexes.CharField(model_attr='course__partner__name', null=True, faceted=True)
 
     def _prepare_language(self, language):
         return language.macrolanguage
@@ -115,6 +117,7 @@ class ProgramIndex(OrganizationsMixin, BaseIndex, indexes.Indexable):
     organizations = indexes.MultiValueField(faceted=True)
     image_url = indexes.CharField(model_attr='image_url', null=True)
     status = indexes.CharField(model_attr='status', faceted=True)
+    partner = indexes.CharField(model_attr='partner__name', null=True, faceted=True)
 
     def prepare_marketing_url(self, obj):
         return obj.marketing_url
