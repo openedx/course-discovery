@@ -2,6 +2,8 @@
 import datetime
 import json
 from decimal import Decimal
+from urllib.parse import parse_qs
+from urllib.parse import urlparse
 
 import ddt
 import mock
@@ -15,7 +17,7 @@ from pytz import UTC
 from course_discovery.apps.core.tests.utils import mock_api_callback
 from course_discovery.apps.course_metadata.data_loaders import (
     OrganizationsApiDataLoader, CoursesApiDataLoader, DrupalApiDataLoader, EcommerceApiDataLoader, AbstractDataLoader,
-    ProgramsApiDataLoader
+    ProgramsApiDataLoader, MarketingSiteDataLoader
 )
 from course_discovery.apps.course_metadata.models import (
     Course, CourseOrganization, CourseRun, Image, LanguageTag, Organization, Person, Seat, Subject, Program
@@ -66,8 +68,25 @@ class AbstractDataLoaderTest(TestCase):
             self.assertFalse(instance.__class__.objects.filter(pk=instance.pk).exists())  # pylint: disable=no-member
 
 
-# pylint: disable=not-callable
 @ddt.ddt
+class ApiClientTestMixin(object):
+    @ddt.unpack
+    @ddt.data(
+        ('Bearer', BearerAuth),
+        ('JWT', SuppliedJwtAuth),
+    )
+    def test_api_client(self, token_type, expected_auth_class):
+        """ Verify the property returns an API client with the correct authentication. """
+        loader = self.loader_class(self.partner, self.api_url, ACCESS_TOKEN, token_type)
+        client = loader.api_client
+        self.assertIsInstance(client, EdxRestApiClient)
+        # NOTE (CCB): My initial preference was to mock the constructor and ensure the correct auth arguments
+        # were passed. However, that seems nearly impossible. This is the next best alternative. It is brittle, and
+        # may break if we ever change the underlying request class of EdxRestApiClient.
+        self.assertIsInstance(client._store['session'].auth, expected_auth_class)  # pylint: disable=protected-access
+
+
+# pylint: disable=not-callable
 class DataLoaderTestMixin(object):
     loader_class = None
     partner = None
@@ -98,24 +117,9 @@ class DataLoaderTestMixin(object):
         with self.assertRaises(ValueError):
             self.loader_class(self.partner, self.api_url, ACCESS_TOKEN, 'not-supported')
 
-    @ddt.unpack
-    @ddt.data(
-        ('Bearer', BearerAuth),
-        ('JWT', SuppliedJwtAuth),
-    )
-    def test_api_client(self, token_type, expected_auth_class):
-        """ Verify the property returns an API client with the correct authentication. """
-        loader = self.loader_class(self.partner, self.api_url, ACCESS_TOKEN, token_type)
-        client = loader.api_client
-        self.assertIsInstance(client, EdxRestApiClient)
-        # NOTE (CCB): My initial preference was to mock the constructor and ensure the correct auth arguments
-        # were passed. However, that seems nearly impossible. This is the next best alternative. It is brittle, and
-        # may break if we ever change the underlying request class of EdxRestApiClient.
-        self.assertIsInstance(client._store['session'].auth, expected_auth_class)  # pylint: disable=protected-access
-
 
 @ddt.ddt
-class OrganizationsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
+class OrganizationsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase):
     loader_class = OrganizationsApiDataLoader
 
     @property
@@ -169,7 +173,7 @@ class OrganizationsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
 
 @ddt.ddt
-class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
+class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase):
     loader_class = CoursesApiDataLoader
 
     @property
@@ -308,7 +312,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
 
 @ddt.ddt
-class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
+class DrupalApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase):
     loader_class = DrupalApiDataLoader
 
     @property
@@ -487,7 +491,7 @@ class DrupalApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
 
 @ddt.ddt
-class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
+class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase):
     loader_class = EcommerceApiDataLoader
 
     @property
@@ -601,7 +605,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
 
 @ddt.ddt
-class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
+class ProgramsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase):
     loader_class = ProgramsApiDataLoader
 
     @property
@@ -652,10 +656,134 @@ class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         self.assert_api_called(1)
 
         # Verify the Programs were created correctly
-        expected_num_programs = len(api_data)
-        self.assertEqual(Program.objects.count(), expected_num_programs)
+        self.assertEqual(Program.objects.count(), len(api_data))
 
         for datum in api_data:
             self.assert_program_loaded(datum)
 
         self.loader.ingest()
+
+
+class MarketingSiteDataLoaderTests(DataLoaderTestMixin, TestCase):
+    loader_class = MarketingSiteDataLoader
+    LOGIN_COOKIE = ('session_id', 'abc123')
+
+    @property
+    def api_url(self):
+        return self.partner.marketing_site_url_root
+
+    def mock_login_response(self, failure=False):
+        url = self.api_url + 'user'
+        landing_url = '{base}users/{username}'.format(base=self.api_url,
+                                                      username=self.partner.marketing_site_api_username)
+        status = 500 if failure else 302
+        adding_headers = {}
+
+        if not failure:
+            adding_headers['Location'] = landing_url
+        responses.add(responses.POST, url, status=status, adding_headers=adding_headers)
+        responses.add(responses.GET, landing_url)
+
+    def mock_api_callback(self, url, data):
+        """ Paginate the data, one item per page. """
+
+        def request_callback(request):
+            count = len(data)
+
+            # Use the querystring to determine which page should be returned. Default to page 1.
+            # Note that the values of the dict returned by `parse_qs` are lists, hence the `[1]` default value.
+            qs = parse_qs(urlparse(request.path_url).query)
+            page = int(qs.get('page', [0])[0])
+            page_size = 1
+
+            body = {
+                'list': [data[page]]
+            }
+
+            if (page * page_size) < count - 1:
+                next_page = page + 1
+                next_url = '{}?page={}'.format(url, next_page)
+                body['next'] = next_url
+
+            return 200, {}, json.dumps(body)
+
+        return request_callback
+
+    def mock_api(self):
+        bodies = mock_data.MARKETING_SITE_API_XSERIES_BODIES
+        url = self.api_url + 'node.json'
+
+        responses.add_callback(
+            responses.GET,
+            url,
+            callback=self.mock_api_callback(url, bodies),
+            content_type=JSON
+        )
+
+        return bodies
+
+    def mock_api_failure(self):
+        url = self.api_url + 'node.json'
+        responses.add(responses.GET, url, status=500)
+
+    def assert_program_loaded(self, data):
+        marketing_slug = data['url'].split('/')[-1]
+        program = Program.objects.get(marketing_slug=marketing_slug)
+
+        self.assertEqual(program.title, data['title'])
+        self.assertEqual(program.subtitle, data.get('field_xseries_subtitle_short'))
+        self.assertEqual(program.category, 'XSeries')
+        self.assertEqual(program.partner, self.partner)
+
+        card_image_url = data.get('field_card_image', {}).get('url')
+
+        if card_image_url:
+            card_image = Image.objects.get(src=card_image_url)
+            self.assertEqual(program.image, card_image)
+        else:
+            self.assertIsNone(program.image)
+
+    def test_constructor_without_credentials(self):
+        """ Verify the constructor raises an exception if the Partner has no marketing site credentials set. """
+        self.partner.marketing_site_api_username = None
+        with self.assertRaises(Exception):
+            self.loader_class(self.partner, self.api_url)
+
+    @responses.activate
+    def test_api_client_login_failure(self):
+        self.mock_login_response(failure=True)
+        with self.assertRaises(Exception):
+            self.loader.api_client  # pylint: disable=pointless-statement
+
+    @responses.activate
+    def test_ingest(self):
+        self.mock_login_response()
+        api_data = self.mock_api()
+
+        self.assertEqual(Program.objects.count(), 0)
+
+        self.loader.ingest()
+
+        for datum in api_data:
+            self.assert_program_loaded(datum)
+
+    @responses.activate
+    def test_ingest_with_api_failure(self):
+        self.mock_login_response()
+        self.mock_api_failure()
+
+        with self.assertRaises(Exception):
+            self.loader.ingest()
+
+    @responses.activate
+    def test_ingest_exception_handling(self):
+        """ Verify the data loader properly handles exceptions during processing of the data from the API. """
+        self.mock_login_response()
+        api_data = self.mock_api()
+
+        with mock.patch.object(self.loader, 'clean_strings', side_effect=Exception):
+            with mock.patch('course_discovery.apps.course_metadata.data_loaders.logger') as mock_logger:
+                self.loader.ingest()
+                self.assertEqual(mock_logger.exception.call_count, len(api_data))
+                calls = [mock.call('Failed to load %s.', datum['url']) for datum in api_data]
+                mock_logger.exception.assert_has_calls(calls)

@@ -53,7 +53,8 @@ class PartnerAdmin(admin.ModelAdmin):
         }),
         (_('Marketing Site Configuration'), {
             'description': _('Configure the marketing site URLs that will be used to retrieve data and create URLs.'),
-            'fields': ('marketing_site_url_root', 'marketing_site_api_url',)
+            'fields': ('marketing_site_url_root', 'marketing_site_api_url', 'marketing_site_api_username',
+                       'marketing_site_api_password',)
         }),
     )
     list_display = ('name', 'short_code',)
