@@ -215,11 +215,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         organization, __ = Organization.objects.get_or_create(key=course_run_key.org,
                                                               defaults={'partner': self.partner})
         course_key = self.convert_course_run_key(course_run_key_str)
-        defaults = {
-            'title': body['name'],
-            'partner': self.partner,
-        }
-        course, __ = Course.objects.update_or_create(key=course_key, defaults=defaults)
+        course, __ = Course.objects.update_or_create(key=course_key)
 
         course.organizations.clear()
         CourseOrganization.objects.create(
@@ -322,6 +318,7 @@ class DrupalApiDataLoader(AbstractDataLoader):
         course.full_description = self.clean_html(body['description'])
         course.short_description = self.clean_html(body['subtitle'])
         course.partner = self.partner
+        course.title = body['title']
 
         level_type, __ = LevelType.objects.get_or_create(name=body['level']['title'])
         course.level_type = level_type
