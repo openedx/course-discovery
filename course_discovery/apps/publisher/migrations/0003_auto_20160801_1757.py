@@ -1,0 +1,30 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from django.db import migrations, models
+import sortedm2m.fields
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('publisher', '0002_auto_20160729_1027'),
+    ]
+
+    operations = [
+        migrations.AlterField(
+            model_name='course',
+            name='organizations',
+            field=models.ManyToManyField(blank=True, related_name='publisher_courses', to='course_metadata.Organization', verbose_name='Partner Name'),
+        ),
+        migrations.AlterField(
+            model_name='courserun',
+            name='course',
+            field=models.ForeignKey(related_name='publisher_course_runs', to='publisher.Course'),
+        ),
+        migrations.AlterField(
+            model_name='courserun',
+            name='staff',
+            field=sortedm2m.fields.SortedManyToManyField(blank=True, related_name='publisher_course_runs_staffed', help_text=None, to='course_metadata.Person'),
+        ),
+    ]
