@@ -24,7 +24,7 @@ before_install:
 install:
     - pip install -U pip wheel codecov
     - pip install -r requirements/test.txt
-    - make requirements.js
+    - make requirement.js
 
 before_script:
 # Give Elasticsearch time to start

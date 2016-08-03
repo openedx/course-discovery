@@ -21,7 +21,7 @@ help:
 	@echo "  quality                    run PEP8 and Pylint"
 	@echo "  production-requirements    install requirements for production"
 	@echo "  requirements               install requirements for local development"
-	@echo "  requirements.js            install JS requirements for local development and production"
+	@echo "  requirement.js             install JS requirements for local development and production"
 	@echo "  test                       run tests and generate coverage report"
 	@echo "  validate                   run tests and quality checks"
 	@echo "  static                     gather all static assets for production"
@@ -39,7 +39,7 @@ clean:
 	find . -name '*.pyc' -delete
 	coverage erase
 
-requirements.js:
+requirement.js:
 	npm install
 	$(NODE_BIN)/bower install
 
