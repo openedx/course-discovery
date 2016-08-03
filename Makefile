@@ -31,9 +31,6 @@ help:
 	@echo ""
 
 static:
-	$(NODE_BIN)/r.js -o build.js
-	python manage.py collectstatic --noinput
-	python manage.py compress
 
 clean_static:
 	rm -rf course_discovery/assets/ course_discovery/static/build/
