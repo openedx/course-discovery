@@ -1,0 +1,26 @@
+{% load i18n %}
+
+<div class="field">
+    <b>{% trans "Course Title" %}</b>
+    <span>{{ object.title }}</span>
+</div>
+
+<div class="field">
+    <b>{% trans "Partner" %}</b>
+    <span>{{ object.partner }}</span>
+</div>
+
+<div class="field">
+    <b>{% trans "Target Content?" %}</b>
+    <span>{{ object.target_content }}</span>
+</div>
+
+<div class="field">
+    <b>{% trans "Priority" %}</b>
+    <span>{{ object.priority }}</span>
+</div>
+
+<div class="field">
+    <b>{% trans "Modified" %}</b>
+    <span>{{ object.modified }}</span>
+</div>

@@ -1,6 +1,7 @@
 # pylint: disable=no-member
-from django.test import TestCase
 from unittest import mock
+
+from django.test import TestCase
 
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, OrganizationFactory
 from course_discovery.apps.course_metadata.models import CourseOrganization
