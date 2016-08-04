@@ -143,14 +143,9 @@ COMPRESS_PRECOMPILERS = (
     ('text/x-scss', 'django_libsass.SassCompiler'),
 )
 
-# Enable offline compression of CSS/JS
-COMPRESS_ENABLED = True
-COMPRESS_OFFLINE = True
-
 # Minify CSS
 COMPRESS_CSS_FILTERS = [
     'compressor.filters.css_default.CssAbsoluteFilter',
-    'compressor.filters.cssmin.CSSMinFilter',
 ]
 
 # TEMPLATE CONFIGURATION
@@ -352,11 +347,6 @@ HAYSTACK_CONNECTIONS = {
 }
 
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
-
-
-COMPRESS_PRECOMPILERS = (
-    ('text/x-scss', 'django_libsass.SassCompiler'),
-)
 
 
 DEFAULT_PARTNER_ID = None

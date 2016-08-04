@@ -21,7 +21,7 @@ help:
 	@echo "  quality                    run PEP8 and Pylint"
 	@echo "  production-requirements    install requirements for production"
 	@echo "  requirements               install requirements for local development"
-	@echo "  requirement.js             install JS requirements for local development and production"
+	@echo "  requirements.js            install JS requirements for local development and production"
 	@echo "  test                       run tests and generate coverage report"
 	@echo "  validate                   run tests and quality checks"
 	@echo "  static                     gather all static assets for production"
@@ -31,6 +31,9 @@ help:
 	@echo ""
 
 static:
+	$(NODE_BIN)/r.js -o build.js
+	python manage.py collectstatic --noinput
+	python manage.py compress -v0 --force
 
 clean_static:
 	rm -rf course_discovery/assets/ course_discovery/static/build/
@@ -39,7 +42,7 @@ clean:
 	find . -name '*.pyc' -delete
 	coverage erase
 
-requirement.js:
+requirements.js:
 	npm install
 	$(NODE_BIN)/bower install
 

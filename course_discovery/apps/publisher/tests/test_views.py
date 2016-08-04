@@ -1,4 +1,3 @@
-import unittest
 
 from django.core.urlresolvers import reverse
 from django.forms import model_to_dict
@@ -8,7 +7,6 @@ from course_discovery.apps.publisher.models import Course, CourseRun, Seat
 from course_discovery.apps.publisher.tests import factories
 
 
-@unittest.skip('Compression is broken.')
 class CreateUpdateCourseViewTests(TestCase):
     """ Tests for the publisher `CreateCourseView` and `UpdateCourseView`. """
 
@@ -57,7 +55,6 @@ class CreateUpdateCourseViewTests(TestCase):
         self.assertEqual(course.title, updated_course_title)
 
 
-@unittest.skip('Compression is broken.')
 class CreateUpdateCourseRunViewTests(TestCase):
     """ Tests for the publisher `CreateCourseRunView` and `UpdateCourseRunView`. """
 
@@ -112,7 +109,6 @@ class CreateUpdateCourseRunViewTests(TestCase):
         self.assertEqual(course_run.lms_course_id, updated_lms_course_id)
 
 
-@unittest.skip('Compression is broken.')
 class SeatsCreateUpdateViewTests(TestCase):
     """ Tests for the publisher `CreateSeatView` and `UpdateSeatView`. """
 
