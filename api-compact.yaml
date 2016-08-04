@@ -107,3 +107,27 @@ endpoints:
           x-amazon-apigateway-integration:
             <<: *apigateway_integration_with_id_parameter
             uri: "https://${stageVariables.discovery_host}/v1/catalogs/{id}/courses/"
+
+    # /v1/search/all
+    searchAll:
+        get:
+          produces: *produces
+          parameters:
+            - *auth_header
+          operationId: "get_search_all"
+          responses: *responses
+          x-amazon-apigateway-integration:
+            <<: *apigateway_integration
+            uri: "https://${stageVariables.discovery_host}/v1/search/all/"
+
+    # /v1/search/all/facets
+    searchAllFacets:
+        get:
+          produces: *produces
+          parameters:
+            - *auth_header
+          operationId: "get_search_all_facets"
+          responses: *responses
+          x-amazon-apigateway-integration:
+            <<: *apigateway_integration
+            uri: "https://${stageVariables.discovery_host}/v1/search/all/facets/"
