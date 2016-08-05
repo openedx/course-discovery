@@ -8,7 +8,8 @@ from django.test import TestCase
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import mock_api_callback
 from course_discovery.apps.course_metadata.data_loaders import (
-    CoursesApiDataLoader, DrupalApiDataLoader, OrganizationsApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader
+    CoursesApiDataLoader, DrupalApiDataLoader, OrganizationsApiDataLoader, EcommerceApiDataLoader,
+    ProgramsApiDataLoader, MarketingSiteDataLoader
 )
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Organization, Program
 from course_discovery.apps.course_metadata.tests import mock_data
@@ -162,6 +163,6 @@ class RefreshCourseMetadataCommandTests(TestCase):
                 call_command('refresh_course_metadata')
 
                 loader_classes = (OrganizationsApiDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader,
-                                  DrupalApiDataLoader, ProgramsApiDataLoader)
+                                  ProgramsApiDataLoader, DrupalApiDataLoader, MarketingSiteDataLoader)
                 expected_calls = [mock.call('%s failed!', loader_class.__name__) for loader_class in loader_classes]
                 mock_logger.exception.assert_has_calls(expected_calls)

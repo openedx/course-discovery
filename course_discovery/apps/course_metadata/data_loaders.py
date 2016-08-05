@@ -307,7 +307,7 @@ class DrupalApiDataLoader(AbstractDataLoader):
 
         # Clean Organizations separately from other orphaned instances to avoid removing all orgnaziations
         # after an initial data load on an empty table.
-        Organization.objects.filter(courseorganization__isnull=True).delete()
+        Organization.objects.filter(courseorganization__isnull=True, program__isnull=True).delete()
         self.delete_orphans()
 
         logger.info('Retrieved %d course runs from %s.', len(data), api_url)
@@ -324,6 +324,7 @@ class DrupalApiDataLoader(AbstractDataLoader):
         course.full_description = self.clean_html(body['description'])
         course.short_description = self.clean_html(body['subtitle'])
         course.partner = self.partner
+        course.title = self.clean_html(body['title'])
 
         level_type, __ = LevelType.objects.get_or_create(name=body['level']['title'])
         course.level_type = level_type
