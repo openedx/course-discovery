@@ -10,7 +10,8 @@
             <h4 class="hd-4">{% trans "Course Run List" %}</h4>
             <table class="table">
                 <tr>
-                    <th>{% trans "Course Title" %}</th>
+                    <th>{% trans "Course Run Title" %}</th>
+                    <th>{% trans "Course Run Start Date" %}</th>
                     <th>{% trans "Partner" %}</th>
                     <th>{% trans "Target Content?" %}</th>
                     <th>{% trans "Priority" %}</th>
@@ -19,6 +20,7 @@
                 {% for course_run in object_list %}
                     <tr>
                         <td>{{ course_run.title }}</td>
+                        <td>{{ course_run.start }}</td>
                         <td>{{ course_run.partner }}</td>
                         <td>{{ course_run.target_content }}</td>
                         <td>{{ course_run.priority }}</td>
