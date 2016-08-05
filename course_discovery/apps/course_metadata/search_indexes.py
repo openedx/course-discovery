@@ -116,7 +116,7 @@ class ProgramIndex(OrganizationsMixin, BaseIndex, indexes.Indexable):
     marketing_url = indexes.CharField(null=True)
     authoring_organizations = indexes.MultiValueField(faceted=True)
     credit_backing_organizations = indexes.MultiValueField(faceted=True)
-    image_url = indexes.CharField(model_attr='card_image_url', null=True)
+    card_image_url = indexes.CharField(model_attr='card_image_url', null=True)
     status = indexes.CharField(model_attr='status', faceted=True)
     partner = indexes.CharField(model_attr='partner__name', null=True, faceted=True)
 

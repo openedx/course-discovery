@@ -51,7 +51,7 @@ PROGRAM_FACET_FIELD_OPTIONS = {
 
 PROGRAM_SEARCH_FIELDS = (
     'text', 'uuid', 'title', 'subtitle', 'category', 'marketing_url', 'authoring_organizations', 'content_type',
-    'image_url', 'status',
+    'card_image_url', 'status',
 )
 
 
