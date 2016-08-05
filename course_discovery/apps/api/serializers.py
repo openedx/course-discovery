@@ -50,8 +50,8 @@ PROGRAM_FACET_FIELD_OPTIONS = {
 }
 
 PROGRAM_SEARCH_FIELDS = (
-    'text', 'uuid', 'title', 'subtitle', 'category', 'marketing_url', 'organizations', 'content_type', 'image_url',
-    'status',
+    'text', 'uuid', 'title', 'subtitle', 'category', 'marketing_url', 'organizations', 'content_type', 'status',
+    'card_image_url',
 )
 
 
@@ -264,7 +264,7 @@ class ContainedCoursesSerializer(serializers.Serializer):
 class ProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
-        fields = ('uuid', 'title', 'subtitle', 'category', 'marketing_slug', 'marketing_url', 'image_url',)
+        fields = ('uuid', 'title', 'subtitle', 'category', 'marketing_slug', 'marketing_url', 'card_image_url',)
         read_only_fields = ('uuid', 'marketing_url',)
 
 

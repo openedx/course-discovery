@@ -1,22 +1,26 @@
 import datetime
+import itertools
+from decimal import Decimal
 
 import ddt
 import mock
 import pytz
-
 from dateutil.parser import parse
 from django.db import IntegrityError
 from django.test import TestCase
 from freezegun import freeze_time
 
+from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.models import (
-    AbstractNamedModel, AbstractMediaModel, AbstractValueModel, CourseOrganization, Course, CourseRun
-)
+    AbstractNamedModel, AbstractMediaModel, AbstractValueModel, CourseOrganization, Course, CourseRun,
+    SeatType)
 from course_discovery.apps.course_metadata.tests import factories
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
 # pylint: disable=no-member
+
 
 class CourseTests(TestCase):
     """ Tests for the `Course` model. """
@@ -270,7 +274,13 @@ class ProgramTests(TestCase):
 
     def setUp(self):
         super(ProgramTests, self).setUp()
-        self.program = factories.ProgramFactory()
+        transcript_languages = LanguageTag.objects.all()[:2]
+        subjects = factories.SubjectFactory.create_batch(2)
+        self.course_runs = factories.CourseRunFactory.create_batch(
+            3, transcript_languages=transcript_languages, course__subjects=subjects)
+        self.courses = [course_run.course for course_run in self.course_runs]
+        self.excluded_course_run = factories.CourseRunFactory(course=self.courses[0])
+        self.program = factories.ProgramFactory(courses=self.courses, excluded_course_runs=[self.excluded_course_run])
 
     def test_str(self):
         """Verify that a program is properly converted to a str."""
@@ -287,13 +297,56 @@ class ProgramTests(TestCase):
         self.program.marketing_slug = ''
         self.assertIsNone(self.program.marketing_url)
 
-    def test_image_url(self):
-        """ Verify the property returns the associated image's URL. """
-        self.assertEqual(self.program.image_url, self.program.image.src)
+    def test_course_runs(self):
+        """ Verify the property returns the set of associated CourseRuns minus those that are explicitly excluded. """
+        self.assertEqual(set(self.program.course_runs), set(self.course_runs))
 
-        self.program.image = None
-        self.assertIsNone(self.program.image)
-        self.assertIsNone(self.program.image_url)
+    def test_languages(self):
+        expected_languages = set([course_run.language for course_run in self.course_runs])
+        actual_languages = self.program.languages
+        self.assertGreater(len(actual_languages), 0)
+        self.assertEqual(actual_languages, expected_languages)
+
+    def test_transcript_languages(self):
+        expected_transcript_languages = itertools.chain.from_iterable(
+            [list(course_run.transcript_languages.all()) for course_run in self.course_runs])
+        expected_transcript_languages = set(expected_transcript_languages)
+        actual_transcript_languages = self.program.transcript_languages
+
+        self.assertGreater(len(actual_transcript_languages), 0)
+        self.assertEqual(actual_transcript_languages, expected_transcript_languages)
+
+    def test_subjects(self):
+        expected_subjects = itertools.chain.from_iterable([list(course.subjects.all()) for course in self.courses])
+        expected_subjects = set(expected_subjects)
+        actual_subjects = self.program.subjects
+
+        self.assertGreater(len(actual_subjects), 0)
+        self.assertEqual(actual_subjects, expected_subjects)
+
+    def test_start(self):
+        expected_start = min([course_run.start for course_run in self.course_runs])
+        self.assertEqual(self.program.start, expected_start)
+
+    def test_price_ranges(self):
+        currency = Currency.objects.get(code='USD')
+        course_run = factories.CourseRunFactory()
+        factories.SeatFactory(type='audit', currency=currency, course_run=course_run, price=0)
+        factories.SeatFactory(type='credit', currency=currency, course_run=course_run, price=600)
+        factories.SeatFactory(type='verified', currency=currency, course_run=course_run, price=100)
+        applicable_seat_types = SeatType.objects.filter(slug__in=['credit', 'verified'])
+        program_type = factories.ProgramTypeFactory(name='XSeries', applicable_seat_types=applicable_seat_types)
+        program = factories.ProgramFactory(type=program_type, courses=[course_run.course])
+
+        expected_price_ranges = [{'currency': 'USD', 'min': Decimal(100), 'max': Decimal(600)}]
+        self.assertEqual(program.price_ranges, expected_price_ranges)
+
+    def test_instructors(self):
+        instructors = factories.PersonFactory.create_batch(2)
+        self.course_runs[0].instructors.add(instructors[0])
+        self.course_runs[1].instructors.add(instructors[1])
+
+        self.assertEqual(self.program.instructors, set(instructors))
 
 
 class PersonSocialNetworkTests(TestCase):
