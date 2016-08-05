@@ -1,11 +1,15 @@
 """
 Course publisher views.
 """
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from django.views.generic import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
+from django_fsm import TransitionNotAllowed
+
 from course_discovery.apps.publisher.forms import CourseForm, CourseRunForm, SeatForm
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
@@ -87,8 +91,16 @@ class UpdateCourseRunView(UpdateView):
     template_name = 'publisher/course_run_form.html'
     success_url = 'publisher:publisher_course_runs_edit'
 
+    def get_context_data(self, **kwargs):
+        context = super(UpdateCourseRunView, self).get_context_data(**kwargs)
+        if not self.object:
+            self.object = self.get_object()
+        context['workflow_state'] = self.object.current_state
+        return context
+
     def form_valid(self, form):
         self.object = form.save()
+        self.object.change_state()
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
@@ -133,3 +145,20 @@ class UpdateSeatView(UpdateView):
 
     def get_success_url(self):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
+
+
+class ChangeStateView(View):
+    """ Change Workflow State View"""
+
+    def post(self, request, course_run_id):
+        state = request.POST.get('state')
+        try:
+            course_run = CourseRun.objects.get(id=course_run_id)
+            course_run.change_state(target=state)
+            messages.success(
+                request, 'Content moved to `{state}` successfully.'.format(state=course_run.current_state),
+            )
+            return HttpResponseRedirect(reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run_id}))
+        except (CourseRun.DoesNotExist, TransitionNotAllowed):
+            messages.error(request, 'There was an error in changing state.')
+            return HttpResponseRedirect(reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run_id}))

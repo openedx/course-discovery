@@ -25,6 +25,33 @@
             <span class="course-name">{{ object.title }}</span>
         </h2>
     </div>
+    <div class="alert-messages">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}" role="alert" aria-labelledby="alert-title-{{ message.tags }}" tabindex="-1">
+                    <div class="alert-message-with-action">
+                        <p class="alert-copy">
+                            {{ message }}
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="status-information">
+        <div class="info-item">
+            <span class="item">
+                <span class="heading">{% trans "Status" %}:</span>
+                <span>{{ object.workflow_state }}</span>
+            </span>
+            <span class="item">
+                <a href="{% url 'publisher:publisher_course_runs_edit' pk=object.id %}" target="_blank" class="btn btn-small btn-edit">
+                    <span class="icon fa fa-edit" aria-hidden="true"></span>&nbsp;&nbsp;{% trans "Edit" %}
+                </a>
+            </span>
+        </div>
+    </div>
 
     <div class="tab">
         <div id="tab-1" class="tab-content active">
@@ -40,6 +67,12 @@
             {% include 'publisher/course_run_detail/_drupal.html' %}
         </div>
     </div>
+
+    <div class="actions">
+        <form action="{% url 'publisher:publisher_change_state' course_run_id=object.id %}" method="post"> {% csrf_token %}
+            <button type="submit" value="{{ object.change_state_button.value }}" class="btn-brand btn-small btn-states" name="state">{{ object.change_state_button.text }}</button>
+        </form>
+    </div>
 </div>
 {% endblock %}
 
@@ -52,5 +85,7 @@
                 return $(trigger).parent().next('.copy').text().trim();
             }
         });
+
+        alertTimeout(5000);
     </script>
 {% endblock %}

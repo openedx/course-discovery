@@ -45,6 +45,7 @@ class CourseRunForm(BaseCourseForm):
     class Meta:
         model = CourseRun
         fields = '__all__'
+        exclude = ('state',)
 
 
 class SeatForm(BaseCourseForm):
