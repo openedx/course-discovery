@@ -20,7 +20,6 @@
                 {% for course_run in object_list %}
                     {% url 'publisher:publisher_course_run_detail' course_run.id as detail_url %}
                     <tr>
-                        <td>{{ course_run.title }}</td>
                         <td>
                             <a href={{detail_url}}>{{ course_run.title }}</a>
                         </td>
