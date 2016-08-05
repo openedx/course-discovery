@@ -1,8 +1,7 @@
-$(".container a").click(function(event) {
-    event.preventDefault();
+$(".container button").click(function(event) {
     $(this).addClass("selected");
     $(this).siblings().removeClass("selected");
-    var tab = $(this).attr("href");
+    var tab = $(this).data("tab");
     $(".tab-content").not(tab).css("display", "none");
     $(tab).fadeIn();
 });

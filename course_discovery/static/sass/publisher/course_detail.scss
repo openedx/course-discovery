@@ -54,10 +54,14 @@ nav {
 
   .container {
 
-    a {
-      display: inline-block;
+    button {
+      display: block;
       padding: 10px;
       color: #0ea6ec;
+      @include float(left)
+      margin: 0 5px;
+      border: none;
+      background-color: transparent;
 
       &.selected {
         border-bottom: 4px solid #0ea6ec;

@@ -77,12 +77,24 @@ class CourseRunWrapper(BaseWrapper):
         return self.wrapped_obj.course.prerequisites
 
     @property
+    def learner_testimonial(self):
+        return self.wrapped_obj.course.learner_testimonial
+
+    @property
+    def syllabus(self):
+        return self.wrapped_obj.course.syllabus
+
+    @property
     def subjects(self):
         return [
             self.wrapped_obj.course.primary_subject,
             self.wrapped_obj.course.secondary_subject,
             self.wrapped_obj.course.tertiary_subject
         ]
+
+    @property
+    def subject_names(self):
+        return ', '.join([subject.name for subject in self.subjects])
 
     @property
     def course_type(self):
