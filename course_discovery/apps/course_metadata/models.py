@@ -10,6 +10,7 @@ from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
+from djchoices import DjangoChoices, ChoiceItem
 from haystack.query import SearchQuerySet
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
@@ -497,11 +498,19 @@ class FAQ(TimeStampedModel):
 class ProgramType(TimeStampedModel):
     name = models.CharField(max_length=32, unique=True, null=False, blank=False)
     applicable_seat_types = models.ManyToManyField(
-        SeatType, help_text=_('Seat types that qualify for completion of the program.'),
+        SeatType, help_text=_('Seat types that qualify for completion of programs of this type. Learners completing '
+                              'associated courses, but enrolled in other seat types, will NOT have their completion '
+                              'of the course counted toward the completion of the program.'),
     )
 
 
 class Program(TimeStampedModel):
+    class ProgramStatus(DjangoChoices):
+        Unpublished = ChoiceItem('unpublished', _('Unpublished'))
+        Active = ChoiceItem('active', _('Active'))
+        Retired = ChoiceItem('retired', _('Retired'))
+        Deleted = ChoiceItem('deleted', _('Deleted'))
+
     uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     title = models.CharField(
         help_text=_('The user-facing display title for this Program.'), max_length=255, unique=True)
@@ -510,7 +519,10 @@ class Program(TimeStampedModel):
     # TODO Remove category in favor of type
     category = models.CharField(help_text=_('The category / type of Program.'), max_length=32)
     type = models.ForeignKey(ProgramType, null=True, blank=True)
-    status = models.CharField(help_text=_('The lifecycle status of this Program.'), max_length=24)
+    status = models.CharField(
+        help_text=_('The lifecycle status of this Program.'), max_length=24, null=False, blank=False,
+        choices=ProgramStatus.choices, validators=[ProgramStatus.validator]
+    )
     marketing_slug = models.CharField(
         help_text=_('Slug used to generate links to the marketing site'), blank=True, max_length=255, db_index=True)
     courses = models.ManyToManyField(Course)
@@ -524,13 +536,12 @@ class Program(TimeStampedModel):
     max_hours_effort_per_week = models.PositiveSmallIntegerField(null=True, blank=True)
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_programs')
 
-    banner_image_url = models.URLField(null=True, blank=True, help_text=_('Image used atop marketing pages'))
+    banner_image_url = models.URLField(null=True, blank=True, help_text=_('Image used atop detail pages'))
     card_image_url = models.URLField(null=True, blank=True, help_text=_('Image used for discovery cards'))
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
     faq = SortedManyToManyField(FAQ, blank=True)
 
-    # MicroMasters-specific fields
     credit_backing_organizations = SortedManyToManyField(
         Organization, blank=True, related_name='credit_backed_programs'
     )
@@ -573,12 +584,12 @@ class Program(TimeStampedModel):
     @property
     def price_ranges(self):
         applicable_seat_types = self.type.applicable_seat_types.values_list('slug', flat=True)
-        data = Seat.objects.filter(course_run__in=self.course_runs, type__in=applicable_seat_types) \
+        seats = Seat.objects.filter(course_run__in=self.course_runs, type__in=applicable_seat_types) \
             .values('currency') \
             .annotate(models.Min('price'), models.Max('price'))
         price_ranges = []
 
-        for datum in data:
+        for datum in seats:
             price_ranges.append({
                 'currency': datum['currency'],
                 'min': datum['price__min'],

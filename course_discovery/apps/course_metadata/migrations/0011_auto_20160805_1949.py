@@ -5,6 +5,7 @@ from django.db import migrations, models
 import django.db.models.deletion
 import django_extensions.db.fields
 import sortedm2m.fields
+import djchoices.choices
 
 
 class Migration(migrations.Migration):
@@ -17,54 +18,54 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CorporateEndorsement',
             fields=[
-                ('id', models.AutoField(serialize=False, auto_created=True, primary_key=True, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
+                ('created', django_extensions.db.fields.CreationDateTimeField(verbose_name='created', auto_now_add=True)),
+                ('modified', django_extensions.db.fields.ModificationDateTimeField(verbose_name='modified', auto_now=True)),
                 ('corporation_name', models.CharField(max_length=128)),
                 ('statement', models.TextField()),
-                ('image', models.ForeignKey(blank=True, null=True, to='course_metadata.Image')),
+                ('image', models.ForeignKey(blank=True, to='course_metadata.Image', null=True)),
             ],
             options={
+                'ordering': ('-modified', '-created'),
                 'abstract': False,
                 'get_latest_by': 'modified',
-                'ordering': ('-modified', '-created'),
             },
         ),
         migrations.CreateModel(
             name='Endorsement',
             fields=[
-                ('id', models.AutoField(serialize=False, auto_created=True, primary_key=True, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
+                ('created', django_extensions.db.fields.CreationDateTimeField(verbose_name='created', auto_now_add=True)),
+                ('modified', django_extensions.db.fields.ModificationDateTimeField(verbose_name='modified', auto_now=True)),
                 ('quote', models.TextField()),
                 ('endorser', models.ForeignKey(to='course_metadata.Person')),
             ],
             options={
+                'ordering': ('-modified', '-created'),
                 'abstract': False,
                 'get_latest_by': 'modified',
-                'ordering': ('-modified', '-created'),
             },
         ),
         migrations.CreateModel(
             name='FAQ',
             fields=[
-                ('id', models.AutoField(serialize=False, auto_created=True, primary_key=True, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
+                ('created', django_extensions.db.fields.CreationDateTimeField(verbose_name='created', auto_now_add=True)),
+                ('modified', django_extensions.db.fields.ModificationDateTimeField(verbose_name='modified', auto_now=True)),
                 ('question', models.TextField()),
                 ('answer', models.TextField()),
             ],
             options={
-                'verbose_name_plural': 'FAQs',
                 'verbose_name': 'FAQ',
+                'verbose_name_plural': 'FAQs',
             },
         ),
         migrations.CreateModel(
             name='JobOutlookItem',
             fields=[
-                ('id', models.AutoField(serialize=False, auto_created=True, primary_key=True, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
+                ('created', django_extensions.db.fields.CreationDateTimeField(verbose_name='created', auto_now_add=True)),
+                ('modified', django_extensions.db.fields.ModificationDateTimeField(verbose_name='modified', auto_now=True)),
                 ('value', models.CharField(max_length=255)),
             ],
             options={
@@ -74,30 +75,30 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ProgramType',
             fields=[
-                ('id', models.AutoField(serialize=False, auto_created=True, primary_key=True, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
+                ('created', django_extensions.db.fields.CreationDateTimeField(verbose_name='created', auto_now_add=True)),
+                ('modified', django_extensions.db.fields.ModificationDateTimeField(verbose_name='modified', auto_now=True)),
                 ('name', models.CharField(max_length=32, unique=True)),
             ],
             options={
+                'ordering': ('-modified', '-created'),
                 'abstract': False,
                 'get_latest_by': 'modified',
-                'ordering': ('-modified', '-created'),
             },
         ),
         migrations.CreateModel(
             name='SeatType',
             fields=[
-                ('id', models.AutoField(serialize=False, auto_created=True, primary_key=True, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
+                ('created', django_extensions.db.fields.CreationDateTimeField(verbose_name='created', auto_now_add=True)),
+                ('modified', django_extensions.db.fields.ModificationDateTimeField(verbose_name='modified', auto_now=True)),
                 ('name', models.CharField(max_length=64, unique=True)),
-                ('slug', django_extensions.db.fields.AutoSlugField(editable=False, blank=True, populate_from='name')),
+                ('slug', django_extensions.db.fields.AutoSlugField(editable=False, populate_from='name', blank=True)),
             ],
             options={
+                'ordering': ('-modified', '-created'),
                 'abstract': False,
                 'get_latest_by': 'modified',
-                'ordering': ('-modified', '-created'),
             },
         ),
         migrations.RemoveField(
@@ -111,27 +112,27 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='historicalorganization',
             name='banner_image',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, blank=True, db_constraint=False, null=True, to='course_metadata.Image', related_name='+'),
+            field=models.ForeignKey(blank=True, related_name='+', on_delete=django.db.models.deletion.DO_NOTHING, db_constraint=False, to='course_metadata.Image', null=True),
         ),
         migrations.AddField(
             model_name='organization',
             name='banner_image',
-            field=models.ForeignKey(blank=True, null=True, to='course_metadata.Image', related_name='bannered_organizations'),
+            field=models.ForeignKey(blank=True, related_name='bannered_organizations', to='course_metadata.Image', null=True),
         ),
         migrations.AddField(
             model_name='program',
             name='authoring_organizations',
-            field=sortedm2m.fields.SortedManyToManyField(to='course_metadata.Organization', help_text=None, blank=True, related_name='authored_programs'),
+            field=sortedm2m.fields.SortedManyToManyField(related_name='authored_programs', help_text=None, blank=True, to='course_metadata.Organization'),
         ),
         migrations.AddField(
             model_name='program',
             name='banner_image_url',
-            field=models.URLField(blank=True, help_text='Image used atop marketing pages', null=True),
+            field=models.URLField(help_text='Image used atop detail pages', blank=True, null=True),
         ),
         migrations.AddField(
             model_name='program',
             name='card_image_url',
-            field=models.URLField(blank=True, help_text='Image used for discovery cards', null=True),
+            field=models.URLField(help_text='Image used for discovery cards', blank=True, null=True),
         ),
         migrations.AddField(
             model_name='program',
@@ -141,7 +142,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='program',
             name='credit_backing_organizations',
-            field=sortedm2m.fields.SortedManyToManyField(to='course_metadata.Organization', help_text=None, blank=True, related_name='credit_backed_programs'),
+            field=sortedm2m.fields.SortedManyToManyField(related_name='credit_backed_programs', help_text=None, blank=True, to='course_metadata.Organization'),
         ),
         migrations.AddField(
             model_name='program',
@@ -151,7 +152,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='program',
             name='expected_learning_items',
-            field=sortedm2m.fields.SortedManyToManyField(to='course_metadata.ExpectedLearningItem', help_text=None, blank=True),
+            field=sortedm2m.fields.SortedManyToManyField(help_text=None, blank=True, to='course_metadata.ExpectedLearningItem'),
         ),
         migrations.AddField(
             model_name='program',
@@ -171,7 +172,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='program',
             name='video',
-            field=models.ForeignKey(blank=True, null=True, to='course_metadata.Video', default=None),
+            field=models.ForeignKey(default=None, blank=True, to='course_metadata.Video', null=True),
         ),
         migrations.AddField(
             model_name='program',
@@ -181,12 +182,17 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='organization',
             name='logo_image',
-            field=models.ForeignKey(blank=True, null=True, to='course_metadata.Image', related_name='logoed_organizations'),
+            field=models.ForeignKey(blank=True, related_name='logoed_organizations', to='course_metadata.Image', null=True),
+        ),
+        migrations.AlterField(
+            model_name='program',
+            name='status',
+            field=models.CharField(choices=[('unpublished', 'Unpublished'), ('active', 'Active'), ('retired', 'Retired'), ('deleted', 'Deleted')], validators=[djchoices.choices.ChoicesValidator({'deleted': 'Deleted', 'retired': 'Retired', 'active': 'Active', 'unpublished': 'Unpublished'})], max_length=24, help_text='The lifecycle status of this Program.'),
         ),
         migrations.AddField(
             model_name='programtype',
             name='applicable_seat_types',
-            field=models.ManyToManyField(to='course_metadata.SeatType', help_text='Seat types that qualify for completion of the program.'),
+            field=models.ManyToManyField(to='course_metadata.SeatType', help_text='Seat types that qualify for completion of programs of this type. Learners completing associated courses, but enrolled in other seat types, will NOT have their completion of the course counted toward the completion of the program.'),
         ),
         migrations.AddField(
             model_name='corporateendorsement',
@@ -196,26 +202,26 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='program',
             name='corporate_endorsements',
-            field=sortedm2m.fields.SortedManyToManyField(to='course_metadata.CorporateEndorsement', help_text=None, blank=True),
+            field=sortedm2m.fields.SortedManyToManyField(help_text=None, blank=True, to='course_metadata.CorporateEndorsement'),
         ),
         migrations.AddField(
             model_name='program',
             name='faq',
-            field=sortedm2m.fields.SortedManyToManyField(to='course_metadata.FAQ', help_text=None, blank=True),
+            field=sortedm2m.fields.SortedManyToManyField(help_text=None, blank=True, to='course_metadata.FAQ'),
         ),
         migrations.AddField(
             model_name='program',
             name='individual_endorsements',
-            field=sortedm2m.fields.SortedManyToManyField(to='course_metadata.Endorsement', help_text=None, blank=True),
+            field=sortedm2m.fields.SortedManyToManyField(help_text=None, blank=True, to='course_metadata.Endorsement'),
         ),
         migrations.AddField(
             model_name='program',
             name='job_outlook_items',
-            field=sortedm2m.fields.SortedManyToManyField(to='course_metadata.JobOutlookItem', help_text=None, blank=True),
+            field=sortedm2m.fields.SortedManyToManyField(help_text=None, blank=True, to='course_metadata.JobOutlookItem'),
         ),
         migrations.AddField(
             model_name='program',
             name='type',
-            field=models.ForeignKey(blank=True, null=True, to='course_metadata.ProgramType'),
+            field=models.ForeignKey(blank=True, to='course_metadata.ProgramType', null=True),
         ),
     ]

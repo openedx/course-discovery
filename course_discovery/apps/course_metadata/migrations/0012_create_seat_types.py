@@ -20,7 +20,7 @@ def drop_seat_types(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('course_metadata', '0011_auto_20160804_2331'),
+        ('course_metadata', '0011_auto_20160805_1949'),
     ]
 
     operations = [
