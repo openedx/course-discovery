@@ -171,8 +171,11 @@ class CourseRunSerializerTests(TestCase):
 
 class ProgramSerializerTests(TestCase):
     def test_data(self):
-        program = ProgramFactory()
-        serializer = ProgramSerializer(program)
+        request = make_request()
+        org_list = OrganizationFactory.create_batch(1)
+        course_list = CourseFactory.create_batch(3)
+        program = ProgramFactory(authoring_organizations=org_list, courses=course_list)
+        serializer = ProgramSerializer(program, context={'request': request})
 
         expected = {
             'uuid': str(program.uuid),
@@ -182,7 +185,11 @@ class ProgramSerializerTests(TestCase):
             'marketing_slug': program.marketing_slug,
             'marketing_url': program.marketing_url,
             'card_image_url': program.card_image_url,
+            'banner_image_url': program.banner_image_url,
+            'authoring_organizations': OrganizationSerializer(program.authoring_organizations, many=True).data,
+            'courses': CourseSerializer(program.courses, many=True, context={'request': request}).data
         }
+
         self.assertDictEqual(serializer.data, expected)
 
 

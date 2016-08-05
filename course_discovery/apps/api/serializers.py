@@ -262,9 +262,13 @@ class ContainedCoursesSerializer(serializers.Serializer):
 
 
 class ProgramSerializer(serializers.ModelSerializer):
+    courses = CourseSerializer(many=True)
+    authoring_organizations = OrganizationSerializer(many=True)
+
     class Meta:
         model = Program
-        fields = ('uuid', 'title', 'subtitle', 'category', 'marketing_slug', 'marketing_url', 'card_image_url',)
+        fields = ('uuid', 'title', 'subtitle', 'category', 'marketing_slug', 'marketing_url', 'card_image_url',
+                  'banner_image_url', 'authoring_organizations', 'courses',)
         read_only_fields = ('uuid', 'marketing_url',)
 
 
