@@ -68,6 +68,12 @@ class FAQAdmin(admin.ModelAdmin):
     list_display = ('question',)
 
 
+@admin.register(Organization)
+class OrganizationAdmin(admin.ModelAdmin):
+    list_display = ('key', 'name',)
+    list_filter = ('partner',)
+
+
 class KeyNameAdmin(admin.ModelAdmin):
     list_display = ('key', 'name',)
     ordering = ('key', 'name',)
@@ -81,7 +87,7 @@ class NamedModelAdmin(admin.ModelAdmin):
 
 
 # Register key-name models
-for model in (Organization, Person,):
+for model in (Person,):
     admin.site.register(model, KeyNameAdmin)
 
 # Register children of AbstractNamedModel
