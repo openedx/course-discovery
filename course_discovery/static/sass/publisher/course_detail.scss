@@ -1,0 +1,171 @@
+// ------------------------------
+// // edX Course Discovery: Base
+// About: Base resets and definitons (using shared resources from elements when appropriate).
+// ------------------------------
+// #RESET
+// ------------------------------
+* {
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+body {
+  color: #434242;
+  background: #fafafa;
+  font-family: "Open Sans";
+  line-height: 1.42857;
+}
+
+// ------------------------------
+// #BASE
+// ------------------------------
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #fafafa;
+}
+
+// ------------------------------
+// #TYPOGRAPHY
+// ------------------------------
+.hd-3 {
+  color: #646262;
+  font-size: 24px;
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+
+.container {
+  width: 1170px;
+  margin: auto;
+  overflow: auto;
+}
+
+nav {
+  border-bottom: 2px solid #cacaca;
+  background-color: #f6f6f6;
+  font-size: 18px;
+  font-weight: 600;
+
+  .container {
+
+    a {
+      display: inline-block;
+      padding: 10px;
+      color: #0ea6ec;
+
+      &.selected {
+        border-bottom: 4px solid #0ea6ec;
+        color: black;
+      }
+
+      &:first-child {
+        @include margin-left(30px);
+      }
+    }
+  }
+}
+
+#app {
+  background: #fff;
+  padding: 0 30px 30px;
+}
+
+.course-information {
+  margin-bottom: 30px;
+
+  .info-item {
+    margin-bottom: 15px;
+
+    .heading {
+      font-weight: bold;
+      font-size: 16px;
+    }
+  }
+}
+
+
+
+.breadcrumb {
+  padding: 8px 15px;
+  list-style: none;
+  background: white;
+  border-radius: 3px;
+  padding-left: 0;
+  margin: 0 0 1.25rem;
+
+  > li {
+    display: inline-block;
+
+    a {
+      display: inline-block;
+      border-bottom: 1px solid transparent;
+      color: #337ab7;
+      text-decoration: none;
+      -webkit-transition: color 0.125s ease-in-out 0s, border-color 0.125s ease-in-out 0s;
+      -moz-transition: color 0.125s ease-in-out 0s, border-color 0.125s ease-in-out 0s;
+      transition: color 0.125s ease-in-out 0s, border-color 0.125s ease-in-out 0s;
+    }
+
+    + li:before {
+      content: " / ";
+      padding: 0 5px;
+      color: #ccc;
+    }
+
+    &.active {
+      color: #777777;
+    }
+  }
+}
+
+
+.copy-text {
+  @include margin-left(5px);
+}
+
+
+.page-header {
+  padding-bottom: 9px;
+  margin: 0 0 20px;
+  border-bottom: 1px solid #eeeeee;
+
+  .hd-1 {
+    margin: 0;
+    color: black;
+    font-weight: 600;
+  }
+}
+
+.help-block {
+  display: block;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  color: #737373;
+}
+
+.course-seat {
+  margin-bottom: 20px;
+}
+
+.tab-content {
+  display: none;
+
+  &.active {
+    display: block;
+  }
+}
+
+
+.seat-set {
+  margin-bottom: 20px;
+
+  table {
+    width: 100%;
+  }
+}

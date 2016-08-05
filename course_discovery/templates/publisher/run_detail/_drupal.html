@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}
+    {% trans "Course Form" %}
+{% endblock title %}
+
+{% block content %}
+
+<div class="course-information">
+    <div class="info-item">
+        <div class="heading">{% trans "Title" %}</div>
+        <div>{{ object.title }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">{% trans "Number" %}</div>
+        <div>{{ object.number }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">{% trans "Course ID" %}</div>
+        <div>{{ object.lms_course_id }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">{% trans "Sub Title" %}</div>
+        <div>{{ object.short_description }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">{% trans "School" %}</div>
+        <div>{{ object.organization_key }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">{% trans "Subject" %}</div>
+        <div>{% for subject in object.subjects %}{{ subject.name }}{% endfor %}</div>
+    </div>
+
+    <div class="info-item">
+        <div class="heading">{% trans "XSeries" %}</div>
+        <div>{% if object.is_xseries  %}{{ object.xseries_name }}{% endif %}</div>
+    </div>
+
+    <div class="info-item">
+        <div class="heading">{% trans "Start Date" %}</div>
+        <div>{{ object.start|date:"Y-m-d" }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">{% trans "End Date" %}</div>
+        <div>{{ object.end|date:"Y-m-d" }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">{% trans "Self Paced" %}</div>
+        <div>{{ object.pacing_type }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">{% trans "Staff" %}</div>
+        <div>{{ object.persons }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">{% trans "Estimated Effort" %}</div>
+        <div>
+            {% if object.min_effort and object.max_effort %}
+                {{ object.min_effort }} {% trans "to" %} {{ object.max_effort }} {% trans "hours per week" %}
+            {% endif %}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">{% trans "Languages" %}</div>
+        <div>{{ object.language.name }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">{% trans "Video Translations" %}</div>
+        <div>{{ object.video_languages }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">{% trans "Level" %}</div>
+        <div>{{ object.level_type }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">{% trans "About this Course" %}</div>
+        <div>{{ object.full_description }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">{% trans "What you'll learn" %}</div>
+        <div>{{ object.expected_learnings }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">{% trans "Prerequisite" %}</div>
+        <div>{{ object.prerequisites }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">{% trans "Keywords" %}</div>
+        <div>{{ object.wrapped_obj.keywords }}</div>
+    </div>
+    <div class="info-item">
+        <div class="heading">{% trans "Sponsors" %}</div>
+        <div>
+            {% for sponsor in object.wrapped_obj.sponsor.all %}
+                {{ sponsor.name }}<br>
+            {% endfor %}
+        </div>
+    </div>
+     <div class="info-item">
+        <div class="heading">{% trans "Price" %}</div>
+        <div>{{ object.verified_seat_price }}</div>
+    </div>
+
+    <h3 class="hd-3 de-emphasized">{% trans "Enrollments" %}</h3>
+    <div class="info-item">
+        <div class="heading">{% trans "Seats" %}</div>
+        {% for seat in object.wrapped_obj.seats.all %}
+            {{ seat.type }} <br>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

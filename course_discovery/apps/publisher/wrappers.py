@@ -1,4 +1,5 @@
 """Publisher Wrapper Classes"""
+from course_discovery.apps.publisher.models import Seat
 
 
 class BaseWrapper(object):
@@ -24,3 +25,81 @@ class CourseRunWrapper(BaseWrapper):
     @property
     def partner(self):
         return '/'.join([org.key for org in self.wrapped_obj.course.organizations.all()])
+
+    @property
+    def credit_seat(self):
+        credit_seat = [seat for seat in self.wrapped_obj.seats.all() if seat.type == Seat.CREDIT]
+        if not credit_seat:
+            return None
+        return credit_seat[0]
+
+    @property
+    def non_credit_seats(self):
+        return [seat for seat in self.wrapped_obj.seats.all() if seat.type != Seat.CREDIT]
+
+    @property
+    def video_languages(self):
+        return ', '.join([lang.name for lang in self.wrapped_obj.transcript_languages.all()])
+
+    @property
+    def persons(self):
+        return ', '.join([person.name for person in self.wrapped_obj.staff.all()])
+
+    @property
+    def verified_seat_price(self):
+        seats = [seat for seat in self.wrapped_obj.seats.all() if seat.type == Seat.VERIFIED]
+        if not seats:
+            return None
+        return seats[0].price
+
+    @property
+    def number(self):
+        return self.wrapped_obj.course.number
+
+    @property
+    def short_description(self):
+        return self.wrapped_obj.course.short_description
+
+    @property
+    def level_type(self):
+        return self.wrapped_obj.course.level_type
+
+    @property
+    def full_description(self):
+        return self.wrapped_obj.course.full_description
+
+    @property
+    def expected_learnings(self):
+        return self.wrapped_obj.course.expected_learnings
+
+    @property
+    def prerequisites(self):
+        return self.wrapped_obj.course.prerequisites
+
+    @property
+    def subjects(self):
+        return [
+            self.wrapped_obj.course.primary_subject,
+            self.wrapped_obj.course.secondary_subject,
+            self.wrapped_obj.course.tertiary_subject
+        ]
+
+    @property
+    def course_type(self):
+        seats_types = [seat.type for seat in self.wrapped_obj.seats.all()]
+        if [Seat.AUDIT] == seats_types:
+            return Seat.AUDIT
+        if Seat.CREDIT in seats_types and Seat.VERIFIED in seats_types:
+            return Seat.CREDIT
+        if Seat.VERIFIED in seats_types:
+            return Seat.VERIFIED
+        if Seat.PROFESSIONAL in seats_types:
+            return Seat.PROFESSIONAL
+        return Seat.AUDIT
+
+    @property
+    def organization_key(self):
+        organizations = self.wrapped_obj.course.organizations.all()
+        if not organizations:
+            return None
+        return organizations[0].key

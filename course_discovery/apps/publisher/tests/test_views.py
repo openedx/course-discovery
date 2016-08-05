@@ -1,3 +1,4 @@
+import ddt
 
 from django.core.urlresolvers import reverse
 from django.forms import model_to_dict
@@ -5,6 +6,7 @@ from django.test import TestCase
 
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat
 from course_discovery.apps.publisher.tests import factories
+from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
 
 class CreateUpdateCourseViewTests(TestCase):
@@ -178,3 +180,142 @@ class SeatsCreateUpdateViewTests(TestCase):
             status_code=302,
             target_status_code=200
         )
+
+
+@ddt.ddt
+class CourseRunDetailTests(TestCase):
+    """ Tests for the course-run detail view. """
+
+    def setUp(self):
+        super(CourseRunDetailTests, self).setUp()
+        self.course = factories.CourseFactory()
+        self.course_run = factories.CourseRunFactory(course=self.course)
+        self._generate_seats([Seat.AUDIT, Seat.HONOR, Seat.VERIFIED, Seat.PROFESSIONAL])
+        self._generate_credit_seat()
+        self.page_url = reverse('publisher:publisher_course_run_detail', args=[self.course_run.id])
+        self.wrapped_course_run = CourseRunWrapper(self.course_run)
+        self.date_format = '%b %d, %Y, %H:%M:%S %p'
+
+    def test_page_without_data(self):
+        """ Verify that detail page without any data available for that course-run. """
+        course_run = factories.CourseRunFactory(course=self.course)
+        page_url = reverse('publisher:publisher_course_run_detail', args=[course_run.id])
+        response = self.client.get(page_url)
+        self.assertEqual(response.status_code, 200)
+
+    def _generate_seats(self, modes):
+        """ Helper method to add seats for a course-run. """
+        for mode in modes:
+            factories.SeatFactory(type=mode, course_run=self.course_run)
+
+    def _generate_credit_seat(self):
+        """ Helper method to add credit seat for a course-run. """
+        factories.SeatFactory(type='credit', course_run=self.course_run, credit_provider='ASU', credit_hours=9)
+
+    def test_course_run_detail_page(self):
+        """ Verify that detail page contains all the data for drupal, studio and
+        cat.
+        """
+        response = self.client.get(self.page_url)
+        self.assertEqual(response.status_code, 200)
+        self._assert_credits_seats(response, self.wrapped_course_run.credit_seat)
+        self._assert_non_credits_seats(response, self.wrapped_course_run.non_credit_seats)
+        self._assert_studio_fields(response)
+        self._assert_cat(response)
+        self._assert_drupal(response)
+        self._assert_subjects(response)
+
+    def _assert_credits_seats(self, response, seat):
+        """ Helper method to test to all credit seats. """
+        self.assertContains(response, 'Credit Seats')
+        self.assertContains(response, 'Credit Provider')
+        self.assertContains(response, 'Price')
+        self.assertContains(response, 'Currency')
+        self.assertContains(response, 'Credit Hours')
+
+        self.assertContains(response, seat.credit_provider)
+        self.assertContains(response, seat.price)
+        self.assertContains(response, seat.currency.name)
+        self.assertContains(response, seat.credit_hours)
+
+    def _assert_non_credits_seats(self, response, seats):
+        """ Helper method to test to all non-credit seats. """
+        self.assertContains(response, 'Seat Type')
+        self.assertContains(response, 'Price')
+        self.assertContains(response, 'Currency')
+        self.assertContains(response, 'Upgrade Deadline')
+
+        for seat in seats:
+            self.assertContains(response, seat.type)
+            self.assertContains(response, seat.price)
+            self.assertContains(response, seat.currency)
+
+    def _assert_studio_fields(self, response):
+        """ Helper method to test studio values and labels. """
+        fields = [
+            'Course Name', 'Organization', 'Number', 'Start Date', 'End Date',
+            'Enrollment Start Date', 'Enrollment End Date', 'Pacing Type'
+        ]
+        for field in fields:
+            self.assertContains(response, field)
+
+        values = [
+            self.wrapped_course_run.title, self.wrapped_course_run.number,
+            self.course_run.pacing_type
+        ]
+        for value in values:
+            self.assertContains(response, value)
+
+        self._assert_dates(response)
+
+    def _assert_drupal(self, response):
+        """ Helper method to test drupal values and labels. """
+        fields = [
+            'Title', 'Number', 'Course ID', 'Price', 'Sub Title', 'School', 'Subject', 'XSeries',
+            'Start Date', 'End Date', 'Self Paced', 'Staff', 'Estimated Effort', 'Languages',
+            'Video Translations', 'Level', 'About this Course', "What you'll learn",
+            'Prerequisite', 'Keywords', 'Sponsors', 'Enrollments'
+        ]
+        for field in fields:
+            self.assertContains(response, field)
+
+        values = [
+            self.wrapped_course_run.title, self.wrapped_course_run.lms_course_id,
+            self.wrapped_course_run.verified_seat_price, self.wrapped_course_run.short_description,
+            self.wrapped_course_run.xseries_name, self.wrapped_course_run.min_effort,
+            self.wrapped_course_run.pacing_type, self.wrapped_course_run.persons,
+            self.wrapped_course_run.max_effort, self.wrapped_course_run.language.name,
+            self.wrapped_course_run.video_languages, self.wrapped_course_run.level_type,
+            self.wrapped_course_run.full_description, self.wrapped_course_run.expected_learnings,
+            self.wrapped_course_run.prerequisites, self.wrapped_course_run.keywords
+        ]
+        for value in values:
+            self.assertContains(response, value)
+
+        for seat in self.wrapped_course_run.wrapped_obj.seats.all():
+            self.assertContains(response, seat.type)
+
+    def _assert_cat(self, response):
+        """ Helper method to test cat data. """
+        fields = [
+            'Course ID', 'Course Type'
+        ]
+        values = [self.course_run.lms_course_id]
+        for field in fields:
+            self.assertContains(response, field)
+
+        for value in values:
+            self.assertContains(response, value)
+
+    def _assert_dates(self, response):
+        """ Helper method to test all dates. """
+        for value in [
+            self.course_run.start, self.course_run.end,
+            self.course_run.enrollment_start, self.course_run.enrollment_end
+        ]:
+            self.assertContains(response, value.strftime(self.date_format))
+
+    def _assert_subjects(self, response):
+        """ Helper method to test course subjects. """
+        for subject in self.wrapped_course_run.subjects:
+            self.assertContains(response, subject.name)

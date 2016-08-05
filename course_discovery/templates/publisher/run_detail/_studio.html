@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load tz %}
+{% block title %}
+    {% trans "Course Run Detail" %}
+{% endblock title %}
+
+{% block content %}
+    <div class="course-information">
+        <div class="info-item">
+            <div class="heading">{% trans "Course Name" %}</div>
+            <div>{{ object.title }}</div>
+        </div>
+        <div class="info-item">
+            <div class="heading">{% trans "Organization" %}</div>
+            <div>{{ object.organization_name }}</div>
+        </div>
+        <div class="info-item">
+            <div class="heading">{% trans "Number" %}</div>
+            <div>{{  object.number }}</div>
+        </div>
+
+        <div class="info-item">
+            <div class="heading">{% trans "Start Date" %}</div>
+            <div>{{ object.start|date:"M d, Y, H:i:s A" }}</div>
+        </div>
+        <div class="info-item">
+            <div class="heading">{% trans "End Date" %}</div>
+            <div>{{ object.end|date:"M d, Y, H:i:s A" }}</div>
+        </div>
+        <div class="info-item">
+            <div class="heading">{% trans "Enrollment Start Date" %}</div>
+            <div>{{ object.enrollment_start|date:"M d, Y, H:i:s A" }}</div>
+        </div>
+        <div class="info-item">
+            <div class="heading">{% trans "Enrollment End Date" %}</div>
+            <div>{{ object.enrollment_end|date:"M d, Y, H:i:s A" }}</div>
+        </div>
+        <div class="info-item">
+            <div class="heading">{% trans "Pacing Type" %}</div>
+            <div>{{ object.pacing_type }}</div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load compress %}
+{% load i18n %}
+{% load staticfiles %}
+{% block title %}
+{% trans "Course Run Detail" %}
+{% endblock title %}
+
+{% block content %}
+
+<nav class="administration-navbar">
+    <div class="container">
+        <a class="selected" href="#tab-1">{% trans "All" %}</a>
+        <a href="#tab-2">{% trans "STUDIO" %}</a>
+        <a href="#tab-3">{% trans "CAT" %}</a>
+        <a href="#tab-4">{% trans "DRUPAL" %}</a>
+    </div>
+</nav>
+
+<div id="app" class="container">
+    <ol class="breadcrumb">
+        <li><a href="{% url 'publisher:publisher_course_run_detail' pk=object.wrapped_obj.id %}">{% trans "Courses" %}</a></li>
+        <li class="active">{{ object.title }}</li>
+    </ol>
+    <div class="page-header">
+        <h2 class="hd-2 emphasized">
+            <span class="course-name">{{ object.title }}</span>
+        </h2>
+    </div>
+
+    <div class="tab">
+        <div id="tab-1" class="tab-content active">
+            {% include 'publisher/run_detail/_studio.html' %}
+            {% include 'publisher/run_detail/_cat.html' %}
+            {% include 'publisher/run_detail/_drupal.html' %}
+        </div>
+        <div id="tab-2" class="tab-content active">
+            {% include 'publisher/run_detail/_studio.html' %}
+        </div>
+        <div id="tab-3" class="tab-content">
+            {% include 'publisher/run_detail/_cat.html' %}
+        </div>
+        <div id="tab-4" class="tab-content">
+            {% include 'publisher/run_detail/_drupal.html' %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/publisher/publisher.js' %}"></script>
+{% endblock %}
