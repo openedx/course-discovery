@@ -434,7 +434,13 @@ ORGANIZATIONS_API_BODIES = [
         'short_name': 'MITx',
         'description': ' ',
         'logo': '',
-    }
+    },
+    {
+        'name': 'Delft University of Technology',
+        'short_name': 'DelftX',
+        'description': ' ',
+        'logo': '',
+    },
 ]
 
 PROGRAMS_API_BODIES = [
@@ -457,7 +463,81 @@ PROGRAMS_API_BODIES = [
             'w348h116': 'https://example.com/delft-water__348x116.jpg',
             'w726h242': 'https://example.com/delft-water__726x242.jpg',
             'w435h145': 'https://example.com/delft-water__435x145.jpg'
-        }
+        },
+        'course_codes': [
+            {
+                'display_name': 'Introduction to Water and Climate',
+                'key': 'CTB3300WCx',
+                'organization': {
+                    'display_name': 'Delft University of Technology',
+                    'key': 'DelftX'
+                },
+                'run_modes': [
+                    {
+                        'course_key': 'course-v1:Delftx+CTB3300WCx+2015_T3',
+                        'mode_slug': 'verified',
+                        'sku': 'EFF47EC',
+                        'start_date': '2015-11-05T07:39:02.791741Z',
+                        'run_key': '2015_T3'
+                    },
+                    {
+                        'course_key': 'DelftX/CTB3300WCx/2T2014',
+                        'mode_slug': 'verified',
+                        'sku': '',
+                        'start_date': '2014-08-26T10:00:00Z',
+                        'run_key': '2T2014'
+                    }
+                ]
+            },
+            {
+                'display_name': 'Introduction to the Treatment of Urban Sewage',
+                'key': 'CTB3365STx',
+                'organization': {
+                    'display_name': 'Delft University of Technology',
+                    'key': 'DelftX'
+                },
+                'run_modes': [
+                    {
+                        'course_key': 'course-v1:DelftX+CTB3365STx+1T2016',
+                        'mode_slug': 'verified',
+                        'sku': 'F773612',
+                        'start_date': '2015-11-05T07:39:02.791741Z',
+                        'run_key': '1T2016'
+                    },
+                    {
+                        'course_key': 'DelftX/CTB3365STx/2T2015',
+                        'mode_slug': 'verified',
+                        'sku': '',
+                        'start_date': '2015-01-27T12:00:00Z',
+                        'run_key': '2T2015'
+                    }
+                ]
+            },
+            {
+                'display_name': 'Introduction to Drinking Water Treatment',
+                'key': 'CTB3365DWx',
+                'organization': {
+                    'display_name': 'Delft University of Technology',
+                    'key': 'DelftX'
+                },
+                'run_modes': [
+                    {
+                        'course_key': 'course-v1:DelftX+CTB3365DWx+1T2016',
+                        'mode_slug': 'verified',
+                        'sku': '61B1920',
+                        'start_date': '2015-11-05T07:39:02.791741Z',
+                        'run_key': '1T2016'
+                    },
+                    {
+                        'course_key': 'DelftX/CTB3365DWx/3T2014',
+                        'mode_slug': 'verified',
+                        'sku': '',
+                        'start_date': '2014-10-28T12:00:00Z',
+                        'run_key': '3T2014'
+                    }
+                ]
+            }
+        ],
     },
     {
         'uuid': 'b043f467-5e80-4225-93d2-248a93a8556a',
@@ -474,6 +554,66 @@ PROGRAMS_API_BODIES = [
             }
         ],
         'banner_image_urls': {},
+        'course_codes': [
+            {
+                'display_name': 'Supply Chain and Logistics Fundamentals',
+                'key': 'CTL.SC1x_1',
+                'organization': {
+                    'display_name': 'the Massachusetts Institute of Technology',
+                    'key': 'MITx'
+                },
+                'run_modes': [
+                    {
+                        'course_key': 'course-v1:MITx+CTL.SC1x_1+2T2015',
+                        'mode_slug': 'verified',
+                        'sku': '',
+                        'start_date': '2015-05-27T00:00:00Z',
+                        'run_key': '2T2015'
+                    },
+                    {
+                        'course_key': 'MITx/ESD.SCM1x/3T2014',
+                        'mode_slug': 'verified',
+                        'sku': '',
+                        'start_date': '2014-09-24T00:30:00Z',
+                        'run_key': '3T2014'
+                    }
+                ]
+            },
+            {
+                'display_name': 'Supply Chain Design',
+                'key': 'CTL.SC2x',
+                'organization': {
+                    'display_name': 'the Massachusetts Institute of Technology',
+                    'key': 'MITx'
+                },
+                'run_modes': [
+                    {
+                        'course_key': 'course-v1:MITx+CTL.SC2x+3T2015',
+                        'mode_slug': 'verified',
+                        'sku': '',
+                        'start_date': '2015-09-30T00:00:00Z',
+                        'run_key': '3T2015'
+                    }
+                ]
+            },
+            {
+                'display_name': 'Supply Chain Dynamics',
+                'key': 'CTL.SC3x',
+                'organization': {
+                    'display_name': 'the Massachusetts Institute of Technology',
+                    'key': 'MITx'
+                },
+                'run_modes': [
+                    {
+                        'course_key': 'course-v1:MITx+CTL.SC3x+2T2016',
+                        'mode_slug': 'verified',
+                        'sku': '',
+                        'start_date': '2016-05-18T00:00:00Z',
+                        'run_key': '2T2016'
+                    }
+                ]
+            }
+        ],
     },
 
     # This item is invalid (due to a null marketing_slug) and will not be loaded.
@@ -498,207 +638,160 @@ PROGRAMS_API_BODIES = [
 
 MARKETING_SITE_API_XSERIES_BODIES = [
     {
-        'field_course_effort': 'self-paced: 3 hours per week',
         'body': {
-            'value': '<p>The Astrophysics XSeries Program consists of four foundational courses in astrophysics taught '
-                     'by prestigious leaders in the field, including Nobel Prize winners.  You will be taught by Brian '
-                     'Schmidt, who led the team that discovered dark energy – work which won him the 2011 Nobel Prize '
-                     'for Physics, and by prize-winning educator, science communicator and astrophysics researcher '
-                     'Paul Francis, who will take you through an incredible journey where you learn about the unsolved '
-                     'mysteries of the universe, exoplanets, black holes and supernovae, and general cosmology. '
-                     'Astronomy and astrophysics is the study of everything beyond Earth. Astronomers work in '
-                     'universities, at observatories, for various space agencies like NASA, and more. The study of '
-                     'astronomy provides you with a wide range of skills in math, engineering, and computation which '
-                     'are sought after skills across many occupations. This XSeries Program is great for anyone to '
-                     'start their studies in astronomy and astrophysics or individuals simply interested in what lies '
-                     'beyond Earth.</p>',
+            'value': '<h3><span>XSeries Program Overview</span></h3> <p>Safe water supply and hygienic water '
+                     'treatment are prerequisites for the well-being of communities all over the world. This '
+                     'Water XSeries, offered by the water management experts of TU Delft, will give you a unique '
+                     'opportunity to gain access to world-class knowledge and expertise in this field.</p> <p>'
+                     'This 3-course series will cover questions such as: How does climate change affect water '
+                     'cycle and public safety? How to use existing technologies to treat groundwater and surface '
+                     'water so we have safe drinking water? How do we take care of sewage produced in the cities '
+                     'on a daily basis? You will learn what are the physical, chemical and biological processes '
+                     'involved; carry out simple experiments at home; and have the chance to make a basic design '
+                     'of a drinking water treatment plant</p>',
             'summary': '',
             'format': 'standard_html'
         },
         'field_xseries_banner_image': {
-            'fid': '65336',
-            'name': 'aat075a_72.jpg',
+            'fid': '66321',
+            'name': 'waterxseries_course_image.jpg',
             'mime': 'image/jpeg',
-            'size': '146765',
-            'url': 'https://stage.edx.org/sites/default/files/xseries/image/banner/aat075a_72.jpg',
-            'timestamp': '1438027131',
+            'size': '399725',
+            'url': 'https://www.edx.org/sites/default/files/xseries/image/banner/waterxseries_course_image.jpg',
+            'timestamp': '1439307542',
             'owner': {
-                'uri': 'https://stage.edx.org/user/9761',
-                'id': '9761',
+                'uri': 'https://www.edx.org/user/10296',
+                'id': '10296',
                 'resource': 'user',
-                'uuid': '4af80bce-a315-4ea2-8eb2-a65d03014673'
+                'uuid': '45b915f3-5307-4fe0-b2ea-55ae92a2b078'
             },
-            'uuid': 'd2a87930-2d6a-4f2b-867b-8711d981404a'
+            'uuid': '79c103b4-98a1-4133-8b5d-665542997684'
         },
-        'field_course_level': 'Intermediate',
         'field_xseries_institutions': [
             {
-                'field_school_description': {
-                    'value': '<p>The Australian National University (ANU) is a celebrated place of intensive '
-                             'research, education and policy engagement. Our research has always been central to '
-                             'everything we do, shaping a holistic learning experience that goes beyond the classroom, '
-                             'giving students access to researchers who are among the best in their fields and to '
-                             'opportunities for development around Australia and the world.</p>',
-                    'format': 'standard_html'
-                },
-                'field_school_name': 'Australian National University',
-                'field_school_image_banner': {
-                    'fid': '31524',
-                    'name': 'anu-home-banner.jpg',
-                    'mime': 'image/jpeg',
-                    'size': '30181',
-                    'url': 'https://stage.edx.org/sites/default/files/school/image/banner/anu-home-banner_0.jpg',
-                    'timestamp': '1384283150',
-                    'owner': {
-                        'uri': 'https://stage.edx.org/user/1',
-                        'id': '1',
-                        'resource': 'user',
-                        'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
-                    },
-                    'uuid': 'f7fca9c1-078b-45bd-b4c9-ae5a927ba632'
-                },
-                'field_school_image_logo': {
-                    'fid': '31526',
-                    'name': 'anu_logo_200x101.png',
-                    'mime': 'image/png',
-                    'size': '13977',
-                    'url': 'https://stage.edx.org/sites/default/files/school/image/banner/anu_logo_200x101_0.png',
-                    'timestamp': '1384283150',
-                    'owner': {
-                        'uri': 'https://stage.edx.org/user/1',
-                        'id': '1',
-                        'resource': 'user',
-                        'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
-                    },
-                    'uuid': '74a40d7e-e81f-4de0-9733-04ca12d25605'
-                },
-                'field_school_image_logo_thumb': {
-                    'fid': '31525',
-                    'name': 'anu_logo_185x48.png',
-                    'mime': 'image/png',
-                    'size': '2732',
-                    'url': 'https://stage.edx.org/sites/default/files/school/image/banner/anu_logo_185x48_0.png',
-                    'timestamp': '1384283150',
-                    'owner': {
-                        'uri': 'https://stage.edx.org/user/1',
-                        'id': '1',
-                        'resource': 'user',
-                        'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
-                    },
-                    'uuid': '14fbc10e-c6a8-499f-a53c-032f92c9da32'
-                },
-                'field_school_image_logo_sub': {
-                    'fid': '31527',
-                    'name': 'anu-on-edx-logo.png',
-                    'mime': 'image/png',
-                    'size': '4517',
-                    'url': 'https://stage.edx.org/sites/default/files/school/image/banner/anu-on-edx-logo_0.png',
-                    'timestamp': '1384283150',
-                    'owner': {
-                        'uri': 'https://stage.edx.org/user/1',
-                        'id': '1',
-                        'resource': 'user',
-                        'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
-                    },
-                    'uuid': 'ea74abe3-66ce-48ba-bf6d-34b2e109fbeb'
-                },
-                'field_school_description_private': [],
-                'field_school_subdomain_prefix': None,
-                'field_school_url_slug': 'anux',
-                'field_school_is_school': True,
-                'field_school_is_partner': False,
-                'field_school_is_contributor': True,
-                'field_school_is_charter': True,
-                'field_school_is_founder': False,
-                'field_school_is_display': True,
-                'field_school_freeform': [],
-                'field_school_is_affiliate': False,
-                'field_school_display_name': None,
-                'field_school_catalog_heading': None,
-                'field_school_catalog_subheading': None,
-                'field_school_subtitle': None,
-                'nid': '635',
-                'vid': '7917',
-                'is_new': False,
+
+                'nid': '637',
                 'type': 'school',
-                'title': 'ANUx',
+                'title': 'DelftX',
                 'language': 'und',
-                'url': 'https://stage.edx.org/school/anux',
-                'edit_url': 'https://stage.edx.org/node/635/edit',
-                'status': '1',
-                'promote': '0',
-                'sticky': '0',
-                'created': '1384283059',
-                'changed': '1426706369',
-                'author': {
-                    'uri': 'https://stage.edx.org/user/143',
-                    'id': '143',
-                    'resource': 'user',
-                    'uuid': '8ed4adee-6f84-4bec-8b64-20f9bfe7af0c'
-                },
-                'log': 'Updated by FeedsNodeProcessor',
-                'revision': None,
+                'url': 'https://www.edx.org/school/delftx',
                 'body': [],
-                'uuid': '1e6df8ed-a3fe-4307-99b9-775af509fcba',
-                'vuuid': '98f08316-2d87-4412-8e03-838fa94a7f03'
+                'uuid': 'c484a523-d396-4aff-90f4-bb7e82e16bf6',
+                'vuuid': '7a5d8dba-9876-4d13-a4f8-75abbe1efa0b'
             }
         ],
+        'field_course_level': 'Introductory',
         'field_card_image': {
-            'fid': '65346',
-            'name': 'anu_astrophys_xseries_card.jpg',
-            'mime': 'image/jpeg',
-            'size': '53246',
-            'url': 'https://stage.edx.org/sites/default/files/card/images/anu_astrophys_xseries_card.jpg',
-            'timestamp': '1438043010',
+            'fid': '66771',
+            'name': 'waterxseries_course0.png',
+            'mime': 'image/png',
+            'size': '193569',
+            'url': 'https://www.edx.org/sites/default/files/card/images/waterxseries_course0.png',
+            'timestamp': '1439410202',
             'owner': {
-                'uri': 'https://stage.edx.org/user/9761',
-                'id': '9761',
+                'uri': 'https://www.edx.org/user/10296',
+                'id': '10296',
                 'resource': 'user',
-                'uuid': '4af80bce-a315-4ea2-8eb2-a65d03014673'
+                'uuid': '45b915f3-5307-4fe0-b2ea-55ae92a2b078'
             },
-            'uuid': '820b05ad-1283-47ab-a123-6a7a17868a37'
+            'uuid': '84e07f7f-0f42-44b3-b9f6-d24cde1d7618'
         },
-        'field_xseries_length': 'self-paced: ~9 weeks per course',
         'field_xseries_overview': {
-            'value': '<h3>What You\'ll Learn</h3> <ul><li>An understanding of the biggest unsolved mysteries in '
-                     'astrophysics and how researchers are attempting to answer them</li> <li>Methods used to find '
-                     'and study exoplanets</li> <li>How scientists tackle challenging problems</li> <li>About white '
-                     'dwarfs, novae, supernovae, neutro stars and black holes and how quantum mechanics and relativity '
-                     'help explain these objects</li> <li>How astrophysicists investigate the origin, nature and fate '
-                     'of our universe</li> </ul>',
-            'format': 'expanded_html'
+            'value': '<h3>What You\'ll Learn</h3> <ul><li>An understanding of the global water cycle and its '
+                     'various processes</li> <li>The mechanisms of climate change and their effects on water '
+                     'systems</li> <li>Drinking treatment and quality of groundwater and surfacewater</li> <li>'
+                     'The major pollutants that are present in the sewage</li> <li>The Physical, chemical, and '
+                     'biological processes involved in water treatment and distribution</li> <li>How urban water '
+                     'services function and the technologies they use</li> </ul>',
+            'format': 'standard_html'
         },
-        'field_xseries_price': '$50/Course',
-        'field_xseries_subtitle': 'Learn contemporary astrophysics from the leaders in the field.',
-        'field_xseries_subtitle_short': 'Learn contemporary astrophysics from the leaders in the field.',
-        'field_xseries_outcome': None,
-        'field_xseries_required_weeks': None,
-        'field_xseries_required_hours': None,
-        'nid': '7046',
-        'vid': '130386',
+        'field_xseries_subtitle': 'Explore water management concepts and technologies.',
+        'field_xseries_subtitle_short': 'Explore water management concepts and technologies.',
         'type': 'xseries',
-        'title': 'Astrophysics',
-        'language': 'und',
-        'url': 'https://stage.edx.org/xseries/astrophysics'
+        'title': 'Water Management',
+        'url': 'https://www.edx.org/xseries/water-management'
     },
     {
         'body': {
-            'value': '<p>In this XSeries, you will find all of the content required to be successful on the AP '
-                     'Biology exam including genetics, the cell, ecology, diversity and evolution. You will also '
-                     'find practice AP-style multiple choice and free response questions, tutorials on how to '
-                     'formulate great responses and lab experiences that will be crucial to your success on the AP '
-                     'exam.<br />  </p> <p><span>This XSeries consists of 5 courses.</span> The cost is $25 per '
-                     'course. The total cost of this XSeries is $125. The component courses for this XSeries may be '
-                     'taken individually.</p>',
+            'value': '<h3>XSeries Program Overview</h3> <p>This XSeries consists of three courses that enable '
+                     'students to learn and practice the art and science of supply chain management. The '
+                     'component courses build from fundamental concepts to advanced design and finally to '
+                     'strategic decision making. It is ideal preparation for anyone interested in succeeding in '
+                     'a career in logistics, operations, or supply chain management within any large global firm '
+                     'or organization.</p>',
             'summary': '',
             'format': 'standard_html'
         },
         'field_xseries_banner_image': {
-            'url': 'https://stage.edx.org/sites/default/files/xseries/image/banner/ap-biology-exam.jpg'
+            'fid': '76876',
+            'name': 'scm2x-gray-1440x260.jpg',
+            'mime': 'image/jpeg',
+            'size': '51626',
+            'url': 'https://www.edx.org/sites/default/files/xseries/image/banner/scm2x-gray-1440x260_0.jpg',
+            'timestamp': '1453500891',
+            'owner': {
+                'uri': 'https://www.edx.org/user/1',
+                'id': '1',
+                'resource': 'user',
+                'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
+            },
+            'uuid': 'b0385fc9-9344-40f8-a094-b61f0ff66e54'
         },
-        'field_xseries_subtitle_short': 'Learn Biology!',
+        'field_product_video': {
+            'fid': '67536',
+            'name': 'EDXABVID2014-V064600',
+            'mime': 'video/youtube',
+            'size': '0',
+            'url': 'http://www.youtube.com/watch?v=C9DG0Nlszco',
+            'timestamp': '1457539040',
+            'owner': {
+                'uri': 'https://www.edx.org/user/10296',
+                'id': '10296',
+                'resource': 'user',
+                'uuid': '45b915f3-5307-4fe0-b2ea-55ae92a2b078'
+            },
+            'uuid': '18595aea-9c45-4df1-a3e3-cf68edbbe04b'
+        },
+        'field_xseries_institutions': [
+            {
+                'title': 'MITx',
+                'language': 'und',
+                'url': 'https://www.edx.org/school/mitx',
+                'body': [],
+                'uuid': '2a73d2ce-c34a-4e08-8223-83bca9d2f01d',
+                'vuuid': '2bf3a55e-cbde-4759-9199-fcb6c43a1d7a'
+            }
+        ],
+        'field_course_level': 'Advanced',
+        'field_card_image': {
+            'fid': '76886',
+            'name': 'banner-380x168_0.png',
+            'mime': 'image/png',
+            'size': '22072',
+            'url': 'https://www.edx.org/sites/default/files/card/images/banner-380x168_0.png',
+            'timestamp': '1453501343',
+            'owner': {
+                'uri': 'https://www.edx.org/user/1',
+                'id': '1',
+                'resource': 'user',
+                'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
+            },
+            'uuid': 'a8fbba26-4fe0-4dc2-9619-448730ff171c'
+        },
+        'field_xseries_overview': {
+            'value': '<h3>What You\'ll Learn</h3> <ul><li>How to make trade-offs between cost and service for '
+                     'both the design and operation of supply chains using total cost equations</li> '
+                     '<li>Fundamentals of demand planning from forecasting to Sales &amp; Operations Planning'
+                     '</li> <li>How supply chain strategies align to overall organizational strategy</li> <li>How '
+                     'supply chain activities translate into financial terms that the C-level suite understands'
+                     '</li> </ul>',
+            'format': 'standard_html'
+        },
+        'field_xseries_subtitle': 'Learn how to design and optimize the physical, financial, and information '
+                                  'flows of a supply chain to enhance business performance.',
+        'field_xseries_subtitle_short': 'Design and optimize the flow of a supply chain',
         'type': 'xseries',
-        'title': 'Biology',
-        'url': 'https://stage.edx.org/xseries/biology'
-    },
+        'title': 'Supply Chain Management',
+        'url': 'https://www.edx.org/xseries/supply-chain-management-0'
+    }
 ]
