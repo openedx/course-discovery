@@ -3,7 +3,6 @@ import itertools
 from decimal import Decimal
 
 import ddt
-import mock
 import pytz
 from dateutil.parser import parse
 from django.db import IntegrityError
@@ -165,24 +164,6 @@ class CourseRunTests(TestCase):
         for seat_type in seat_types:
             factories.SeatFactory(course_run=self.course_run, type=seat_type)
         self.assertEqual(self.course_run.type, expected_course_run_type)
-
-    def assert_course_run_has_no_type(self, course_run, expected_seats):
-        """ Asserts the given CourseRun has no type value, and a message is logged to that effect. """
-        with mock.patch('course_discovery.apps.course_metadata.models.logger') as mock_logger:
-            self.assertEqual(course_run.type, None)
-            mock_logger.warning.assert_called_with(
-                'Unable to determine type for course run [%s]. Seat types are [%s]',
-                course_run.key,
-                expected_seats
-            )
-
-    def test_type_with_unknown_seat_type(self):
-        """ Verify the property logs a warning if the CourseRun has no Seats or the Seats have an unknown seat type. """
-        self.assert_course_run_has_no_type(self.course_run, set())
-
-        seat_type = 'super-wrong'
-        factories.SeatFactory(course_run=self.course_run, type=seat_type)
-        self.assert_course_run_has_no_type(self.course_run, set([seat_type]))
 
     def test_level_type(self):
         """ Verify the property returns the associated Course's level type. """

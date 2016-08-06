@@ -362,7 +362,7 @@ class CourseRun(TimeStampedModel):
             if matching_seat_types & seat_types:
                 return course_run_type
 
-        logger.warning('Unable to determine type for course run [%s]. Seat types are [%s]', self.key, seat_types)
+        logger.debug('Unable to determine type for course run [%s]. Seat types are [%s]', self.key, seat_types)
         return None
 
     @property
