@@ -1,19 +1,18 @@
-{% extends 'base.html' %}
 {% load i18n %}
-{% block title %}
-    {% trans "Course Run Detail" %}
-{% endblock title %}
-
 {% block content %}
 
    <div class="course-information">
         <div class="info-item">
-            <div class="heading">{% trans "Course ID" %}</div>
-            <div>{{ object.lms_course_id }}</div>
+            <div class="heading">{% trans "Course ID" %}
+                {% include "publisher/run_detail/clipboard.html" %}
+            </div>
+            <div class="copy">{{ object.lms_course_id }}</div>
         </div>
         <div class="info-item">
-            <div class="heading">{% trans "Course Type" %}</div>
-            <div>{{ object.course_type|capfirst }}</div>
+            <div class="heading">{% trans "Course Type" %}
+                {% include "publisher/run_detail/clipboard.html" %}
+            </div>
+            <div class="copy">{{ object.course_type|capfirst }}</div>
         </div>
     </div>
 

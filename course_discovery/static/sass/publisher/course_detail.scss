@@ -4,6 +4,12 @@
 // ------------------------------
 // #RESET
 // ------------------------------
+//
+//
+//// ------------------------------
+// Fontawesome icons
+// ------------------------------
+
 * {
   margin: 0;
   padding: 0;
@@ -89,6 +95,12 @@ nav {
     .heading {
       font-weight: bold;
       font-size: 16px;
+
+      .btn-copy {
+        text-decoration: none;
+        margin-left: 10px;
+        color: #999;
+      }
     }
   }
 }
