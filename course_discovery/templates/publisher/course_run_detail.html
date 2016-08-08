@@ -5,15 +5,13 @@
 {% block title %}
 {% trans "Course Run Detail" %}
 {% endblock title %}
-
 {% block content %}
-
 <nav class="administration-navbar">
     <div class="container">
         <button class="selected" data-tab="#tab-1">{% trans "All" %}</button>
         <button data-tab="#tab-2">{% trans "STUDIO" %}</button>
         <button data-tab="#tab-3">{% trans "CAT" %}</button>
-        <button data-tab="#tab-4">{% trans "DRUPAL" %}</a>
+        <button data-tab="#tab-4">{% trans "DRUPAL" %}</button>
     </div>
 </nav>
 
@@ -46,5 +44,13 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script src="{% static 'bower_components/clipboard/dist/clipboard.min.js' %}"></script>
     <script src="{% static 'js/publisher/publisher.js' %}"></script>
+    <script>
+        new Clipboard(".btn-copy", {
+            text: function(trigger) {
+                return $(trigger).parent().next('.copy').text().trim();
+            }
+        });
+    </script>
 {% endblock %}
