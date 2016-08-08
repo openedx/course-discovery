@@ -227,11 +227,9 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = serializers.CourseRunSerializer
 
-    def _get_partner_name_from_code(self):
-        """ Return the partner name associated with a partner code or the default partner """
-        partner = None
+    def _get_partner(self):
+        """ Return the partner for the code passed in or the default partner """
         partner_code = self.request.query_params.get('partner')
-
         if partner_code:
             try:
                 partner = Partner.objects.get(short_code=partner_code)
@@ -240,19 +238,19 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
         else:
             partner = Partner.objects.get(id=settings.DEFAULT_PARTNER_ID)
 
-        return partner.name
+        return partner
 
     def get_queryset(self):
         q = self.request.query_params.get('q', None)
-        partner_name = self._get_partner_name_from_code()
+        partner = self._get_partner()
 
         if q:
-            qs = SearchQuerySetWrapper(CourseRun.search(q).filter(partner=partner_name))
+            qs = SearchQuerySetWrapper(CourseRun.search(q).filter(partner=partner.short_code))
             # This is necessary to avoid issues with the filter backend.
             qs.model = self.queryset.model
             return qs
         else:
-            return super(CourseRunViewSet, self).get_queryset()
+            return super(CourseRunViewSet, self).get_queryset().filter(course__partner=partner)
 
     def list(self, request, *args, **kwargs):
         """ List all courses runs.
@@ -314,11 +312,11 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
         """
         query = request.GET.get('query')
         course_run_ids = request.GET.get('course_run_ids')
-        partner_name = self._get_partner_name_from_code()
+        partner = self._get_partner()
 
         if query and course_run_ids:
             course_run_ids = course_run_ids.split(',')
-            course_runs = CourseRun.search(query).filter(partner=partner_name).filter(key__in=course_run_ids).\
+            course_runs = CourseRun.search(query).filter(partner=partner.short_code).filter(key__in=course_run_ids).\
                 values_list('key', flat=True)
             contains = {course_run_id: course_run_id in course_runs for course_run_id in course_run_ids}
 
