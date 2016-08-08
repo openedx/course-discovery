@@ -201,6 +201,16 @@ class ProgramFactory(factory.django.DjangoModelFactory):
             for course_run in extracted:
                 self.excluded_course_runs.add(course_run)
 
+    @factory.post_generation
+    def authoring_organizations(self, create, extracted, **kwargs):
+        if not create:  # pragma: no cover
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            for organization in extracted:
+                self.authoring_organizations.add(organization)
+
 
 class AbstractSocialNetworkModelFactory(factory.DjangoModelFactory):
     type = FuzzyChoice([name for name, __ in AbstractSocialNetworkModel.SOCIAL_NETWORK_CHOICES])
