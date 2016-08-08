@@ -240,8 +240,8 @@ class CoursesApiDataLoader(AbstractDataLoader):
             'short_description': body['short_description'],
             'video': self.get_courserun_video(body),
             'pacing_type': self.get_pacing_type(body),
-            'image': self.get_courserun_image(body),
         }
+
         CourseRun.objects.update_or_create(key=body['id'], defaults=defaults)
 
     def get_pacing_type(self, body):
@@ -256,15 +256,6 @@ class CoursesApiDataLoader(AbstractDataLoader):
             return CourseRun.SELF_PACED
         else:
             return None
-
-    def get_courserun_image(self, body):
-        image = None
-        image_url = body['media'].get('image', {}).get('raw')
-
-        if image_url:
-            image, __ = Image.objects.get_or_create(src=image_url)
-
-        return image
 
     def get_courserun_video(self, body):
         video = None
@@ -378,6 +369,7 @@ class DrupalApiDataLoader(AbstractDataLoader):
         course_run.marketing_url = urljoin(self.partner.marketing_site_url_root, body['course_about_uri'])
         course_run.start = self.parse_date(body['start'])
         course_run.end = self.parse_date(body['end'])
+        course_run.image = self.get_courserun_image(body)
 
         self.set_staff(course_run, body)
 
@@ -421,6 +413,15 @@ class DrupalApiDataLoader(AbstractDataLoader):
         html_converter.wrap_links = False
         html_converter.body_width = None
         return html_converter.handle(stripped).strip()
+
+    def get_courserun_image(self, body):
+        image = None
+        image_url = body['image']
+
+        if image_url:
+            image, __ = Image.objects.get_or_create(src=image_url)
+
+        return image
 
 
 class EcommerceApiDataLoader(AbstractDataLoader):

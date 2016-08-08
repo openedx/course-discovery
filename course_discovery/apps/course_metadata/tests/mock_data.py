@@ -310,6 +310,7 @@ MARKETING_API_BODY = {
             'title': EXISTING_COURSE_AND_RUN_DATA[0]['title'],
             'start': '2015-06-15T13:00:00Z',
             'end': '2015-12-15T13:00:00Z',
+            'image': 'http://example.com/course1-image.jpg',
             'level': {
                 'title': 'Introductory',
             },
@@ -357,6 +358,7 @@ MARKETING_API_BODY = {
             }],
             'current_language': EXISTING_COURSE_AND_RUN_DATA[1]['current_language'],
             'subtitle': 'Testing 201',
+            'image': 'http://example.com/course1-image.jpg',
             'description': "how to test better",
             'sponsors': [],
             'staff': [{
@@ -382,6 +384,7 @@ MARKETING_API_BODY = {
             }],
             'current_language': 'en-us',
             'subtitle': 'Nope',
+            'image': 'http://example.com/course2-detail.jpg',
             'description': 'what is fake?',
             'sponsors': [{
                 'uuid': '123abc',

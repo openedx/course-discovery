@@ -212,7 +212,6 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         self.assertEqual(course_run.enrollment_start, AbstractDataLoader.parse_date(body['enrollment_start']))
         self.assertEqual(course_run.enrollment_end, AbstractDataLoader.parse_date(body['enrollment_end']))
         self.assertEqual(course_run.pacing_type, self.loader.get_pacing_type(body))
-        self.assertEqual(course_run.image, self.loader.get_courserun_image(body))
         self.assertEqual(course_run.video, self.loader.get_courserun_video(body))
 
     @responses.activate
@@ -269,25 +268,6 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
     def test_get_pacing_type(self, pacing, expected_pacing_type):
         """ Verify the method returns a pacing type corresponding to the API response's pacing field. """
         self.assertEqual(self.loader.get_pacing_type({'pacing': pacing}), expected_pacing_type)
-
-    @ddt.unpack
-    @ddt.data(
-        ({}, None),
-        ({'image': {}}, None),
-        ({'image': {'raw': None}}, None),
-        ({'image': {'raw': 'http://example.com/image.jpg'}}, 'http://example.com/image.jpg'),
-    )
-    def test_get_courserun_image(self, media_body, expected_image_url):
-        """ Verify the method returns an Image object with the correct URL. """
-        body = {
-            'media': media_body
-        }
-        actual = self.loader.get_courserun_image(body)
-
-        if expected_image_url:
-            self.assertEqual(actual.src, expected_image_url)
-        else:
-            self.assertIsNone(actual)
 
     @ddt.unpack
     @ddt.data(
@@ -463,6 +443,20 @@ class DrupalApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase
                     self.partner.marketing_site_api_url
                 )
                 mock_logger.exception.assert_called_with(msg)
+
+    @ddt.unpack
+    @ddt.data(
+        ({'image': {}}, None),
+        ({'image': 'http://example.com/image.jpg'}, 'http://example.com/image.jpg'),
+    )
+    def test_get_courserun_image(self, media_body, expected_image_url):
+        """ Verify the method returns an Image object with the correct URL. """
+        actual = self.loader.get_courserun_image(media_body)
+
+        if expected_image_url:
+            self.assertEqual(actual.src, expected_image_url)
+        else:
+            self.assertIsNone(actual)
 
     @ddt.data(
         ('', ''),
