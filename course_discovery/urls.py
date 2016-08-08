@@ -35,6 +35,12 @@ urlpatterns = auth_urlpatterns + [
     url(r'^health/$', core_views.health, name='health'),
     url('^$', QueryPreviewView.as_view()),
     url(r'^publisher/', include('course_discovery.apps.publisher.urls', namespace='publisher')),
+    url(
+        r'^publisher/comments/', include(
+            'course_discovery.apps.publisher_comments.urls', namespace='publisher_comments'
+        )
+    ),
+    url(r'^comments/', include('django_comments.urls')),
 ]
 
 if settings.DEBUG and os.environ.get('ENABLE_DJANGO_TOOLBAR', False):  # pragma: no cover

@@ -2,6 +2,7 @@
 // // edX Course Discovery: Course Detail
 // ------------------------------
 
+
 // ------------------------------
 // #TYPOGRAPHY
 // ------------------------------
@@ -60,8 +61,10 @@ nav {
     margin-bottom: 20px;
 }
 
-.course-information, .status-information {
+.course-information {
   margin-bottom: 30px;
+  @include float(left);
+  width: 50%;
 
   .info-item {
     margin-bottom: 15px;
@@ -79,6 +82,22 @@ nav {
         @include padding-right(5px);
       }
     }
+  }
+}
+
+.comments-container {
+  width: 50%;
+  @include float(left);
+}
+
+.clearfix {
+
+  &:after {
+     content: " "; /* Older browser do not support empty content */
+     visibility: hidden;
+     display: block;
+     height: 0;
+     clear: both;
   }
 }
 
@@ -165,5 +184,12 @@ nav {
 
   table {
     width: 100%;
+  }
+}
+.status-information{
+  margin-bottom: 15px;
+  .heading {
+    font-weight: bold;
+    font-size: 16px;
   }
 }

@@ -45,11 +45,6 @@
                 <span class="heading">{% trans "Status" %}:</span>
                 <span>{{ object.workflow_state }}</span>
             </span>
-            <span class="item">
-                <a href="{% url 'publisher:publisher_course_runs_edit' pk=object.id %}" target="_blank" class="btn btn-small btn-edit">
-                    <span class="icon fa fa-edit" aria-hidden="true"></span>&nbsp;&nbsp;{% trans "Edit" %}
-                </a>
-            </span>
         </div>
     </div>
 

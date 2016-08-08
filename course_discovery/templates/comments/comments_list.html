@@ -1,0 +1,27 @@
+{% load i18n %}
+{% load comments %}
+{% if comment_object %}
+<div class="comments-container">
+    {% get_comment_count for comment_object as comment_count %}
+    <h4 class="hd-4">
+        {% blocktrans with comment_count=comment_count %}
+            Total Comments {{ comment_count }}
+        {% endblocktrans %}
+    </h4>
+
+    {% get_comment_list for comment_object as comment_list %}
+    <dl class="comments">
+      {% for comment in comment_list reversed %}
+        <dt id="c{{ comment.comment_list }}">
+          {{ comment.modified }} - {{ comment.name }}
+          {% ifequal user comment.user %}
+            - <a href="{% url 'publisher_comments:comment_edit' comment.id %}" class="">Edit</a>
+          {% endifequal %}
+        </dt>
+        <dd>
+          <p>{{ comment.comment }}</p>
+        </dd>
+      {% endfor %}
+    </dl>
+</div>
+{% endif %}

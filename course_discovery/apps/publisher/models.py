@@ -1,4 +1,5 @@
 import logging
+from django.core.urlresolvers import reverse
 
 from django.db import models
 from django.db.models.signals import pre_save
@@ -105,6 +106,10 @@ class Course(TimeStampedModel, ChangedByMixin):
     def __str__(self):
         return self.title
 
+    @property
+    def post_back_url(self):
+        return reverse('publisher:publisher_courses_edit', kwargs={'pk': self.id})
+
 
 class CourseRun(TimeStampedModel, ChangedByMixin):
     """ Publisher CourseRun model. It contains fields related to the course run intake form."""
@@ -204,6 +209,10 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     def current_state(self):
         return self.state.get_name_display()
 
+    @property
+    def post_back_url(self):
+        return reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.id})
+
 
 class Seat(TimeStampedModel, ChangedByMixin):
     """ Seat model. """
@@ -241,6 +250,10 @@ class Seat(TimeStampedModel, ChangedByMixin):
 
     def __str__(self):
         return '{course}: {type}'.format(course=self.course_run.course.title, type=self.type)
+
+    @property
+    def post_back_url(self):
+        return reverse('publisher:publisher_seats_edit', kwargs={'pk': self.id})
 
 
 @receiver(pre_save, sender=CourseRun)

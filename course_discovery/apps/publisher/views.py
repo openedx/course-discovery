@@ -14,6 +14,7 @@ from course_discovery.apps.publisher.forms import CourseForm, CourseRunForm, Sea
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
+
 SEATS_HIDDEN_FIELDS = ['price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours']
 
 
@@ -35,6 +36,7 @@ class CourseRunDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(CourseRunDetailView, self).get_context_data(**kwargs)
         context['object'] = CourseRunWrapper(context['object'])
+        context['comment_object'] = self.object.course
         return context
 
 
@@ -68,6 +70,11 @@ class UpdateCourseView(UpdateView):
     def get_success_url(self):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
+    def get_context_data(self, **kwargs):
+        context = super(UpdateCourseView, self).get_context_data(**kwargs)
+        context['comment_object'] = self.object
+        return context
+
 
 class CreateCourseRunView(CreateView):
     """ Create Course Run View."""
@@ -96,6 +103,7 @@ class UpdateCourseRunView(UpdateView):
         if not self.object:
             self.object = self.get_object()
         context['workflow_state'] = self.object.current_state
+        context['comment_object'] = self.object
         return context
 
     def form_valid(self, form):
@@ -137,6 +145,7 @@ class UpdateSeatView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super(UpdateSeatView, self).get_context_data(**kwargs)
         context['hidden_fields'] = SEATS_HIDDEN_FIELDS
+        context['comment_object'] = self.object
         return context
 
     def form_valid(self, form):

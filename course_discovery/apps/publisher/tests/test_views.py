@@ -1,11 +1,15 @@
-
+import ddt
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.forms import model_to_dict
 from django.test import TestCase
 
+from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
+from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
 
 
 class CreateUpdateCourseViewTests(TestCase):
@@ -14,6 +18,9 @@ class CreateUpdateCourseViewTests(TestCase):
     def setUp(self):
         super(CreateUpdateCourseViewTests, self).setUp()
         self.course = factories.CourseFactory()
+        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.site = Site.objects.get(pk=settings.SITE_ID)
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
 
     def test_create_course(self):
         """ Verify that we can create a new course. """
@@ -32,6 +39,9 @@ class CreateUpdateCourseViewTests(TestCase):
         )
 
         self.assertEqual(course.number, course_number)
+        response = self.client.get(reverse('publisher:publisher_courses_new'))
+        self.assertNotContains(response, 'Add new comment')
+        self.assertNotContains(response, 'Total Comments')
 
     def test_update_course(self):
         """ Verify that we can update an existing course. """
@@ -55,6 +65,13 @@ class CreateUpdateCourseViewTests(TestCase):
         # Assert that course is updated.
         self.assertEqual(course.title, updated_course_title)
 
+        # add new and check the comment on edit page.
+        comment = CommentFactory(content_object=self.course, user=self.user, site=self.site)
+        response = self.client.get(reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id}))
+        self.assertContains(response, 'Total Comments 1')
+        self.assertContains(response, 'Add new comment')
+        self.assertContains(response, comment.comment)
+
 
 class CreateUpdateCourseRunViewTests(TestCase):
     """ Tests for the publisher `CreateCourseRunView` and `UpdateCourseRunView`. """
@@ -67,6 +84,9 @@ class CreateUpdateCourseRunViewTests(TestCase):
             self.course_run_dict,
             ['start', 'end', 'enrollment_start', 'enrollment_end', 'priority', 'certificate_generation']
         )
+        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.site = Site.objects.get(pk=settings.SITE_ID)
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
 
     def _pop_valuse_from_dict(self, data_dict, key_list):
         for key in key_list:
@@ -87,6 +107,10 @@ class CreateUpdateCourseRunViewTests(TestCase):
         )
 
         self.assertEqual(course_run.lms_course_id, lms_course_id)
+
+        response = self.client.get(reverse('publisher:publisher_course_runs_new'))
+        self.assertNotContains(response, 'Add new comment')
+        self.assertNotContains(response, 'Total Comments')
 
     def test_update_course_run(self):
         """ Verify that we can update an existing course run. """
@@ -109,6 +133,13 @@ class CreateUpdateCourseRunViewTests(TestCase):
         # Assert that course run is updated.
         self.assertEqual(course_run.lms_course_id, updated_lms_course_id)
 
+        # add new and check the comment on edit page.
+        comment = CommentFactory(content_object=self.course_run, user=self.user, site=self.site)
+        response = self.client.get(reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id}))
+        self.assertContains(response, 'Total Comments 1')
+        self.assertContains(response, 'Add new comment')
+        self.assertContains(response, comment.comment)
+
 
 class SeatsCreateUpdateViewTests(TestCase):
     """ Tests for the publisher `CreateSeatView` and `UpdateSeatView`. """
@@ -118,6 +149,9 @@ class SeatsCreateUpdateViewTests(TestCase):
         self.seat = factories.SeatFactory(type=Seat.PROFESSIONAL, credit_hours=0)
         self.seat_dict = model_to_dict(self.seat)
         self.seat_dict.pop('upgrade_deadline')
+        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.site = Site.objects.get(pk=settings.SITE_ID)
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
 
     def test_seat_view_page(self):
         """ Verify that we can open new seat page. """
@@ -180,7 +214,15 @@ class SeatsCreateUpdateViewTests(TestCase):
             target_status_code=200
         )
 
+        # add new and check the comment on edit page.
+        comment = CommentFactory(content_object=self.seat, user=self.user, site=self.site)
+        response = self.client.get(reverse('publisher:publisher_seats_edit', kwargs={'pk': self.seat.id}))
+        self.assertContains(response, 'Total Comments 1')
+        self.assertContains(response, 'Add new comment')
+        self.assertContains(response, comment.comment)
 
+
+@ddt.ddt
 class CourseRunDetailTests(TestCase):
     """ Tests for the course-run detail view. """
 
@@ -317,6 +359,25 @@ class CourseRunDetailTests(TestCase):
         """ Helper method to test course subjects. """
         for subject in self.wrapped_course_run.subjects:
             self.assertContains(response, subject.name)
+
+    def test_detail_page_with_comments(self):
+        """ Verify that detail page contains all the data along with comments
+        for course.
+        """
+        user = UserFactory(is_staff=True, is_superuser=True)
+        site = Site.objects.get(pk=settings.SITE_ID)
+
+        comment = CommentFactory(content_object=self.course, user=user, site=site)
+        response = self.client.get(self.page_url)
+        self.assertEqual(response.status_code, 200)
+        self._assert_credits_seats(response, self.wrapped_course_run.credit_seat)
+        self._assert_non_credits_seats(response, self.wrapped_course_run.non_credit_seats)
+        self._assert_studio_fields(response)
+        self._assert_cat(response)
+        self._assert_drupal(response)
+        self._assert_subjects(response)
+        self.assertContains(response, 'Total Comments 1')
+        self.assertContains(response, comment.comment)
 
 
 class ChangeStateViewTests(TestCase):
