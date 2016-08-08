@@ -4,9 +4,11 @@ from django.core.management import BaseCommand, CommandError
 from edx_rest_api_client.client import EdxRestApiClient
 
 from course_discovery.apps.core.models import Partner
-from course_discovery.apps.course_metadata.data_loaders import (
-    CoursesApiDataLoader, DrupalApiDataLoader, OrganizationsApiDataLoader, EcommerceApiDataLoader,
-    ProgramsApiDataLoader, MarketingSiteDataLoader
+from course_discovery.apps.course_metadata.data_loaders.api import (
+    CoursesApiDataLoader, OrganizationsApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader,
+)
+from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
+    DrupalApiDataLoader, MarketingSiteDataLoader,
 )
 
 logger = logging.getLogger(__name__)

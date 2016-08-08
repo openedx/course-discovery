@@ -7,9 +7,11 @@ from django.test import TestCase
 
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import mock_api_callback
-from course_discovery.apps.course_metadata.data_loaders import (
-    CoursesApiDataLoader, DrupalApiDataLoader, OrganizationsApiDataLoader, EcommerceApiDataLoader,
-    ProgramsApiDataLoader, MarketingSiteDataLoader
+from course_discovery.apps.course_metadata.data_loaders.api import (
+    CoursesApiDataLoader, OrganizationsApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader,
+)
+from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
+    DrupalApiDataLoader, MarketingSiteDataLoader,
 )
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Organization, Program
 from course_discovery.apps.course_metadata.tests import mock_data
