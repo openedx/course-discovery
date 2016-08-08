@@ -13,6 +13,10 @@ def clean_query(query):
     # Ensure the query is lowercase, since that is how we index our data.
     query = query.lower()
 
+    # Specifying a SearchQuerySet filter will append an explicit AND clause to the query, thus changing its semantics.
+    # So we wrap parentheses around the original query in order to preserve the semantics.
+    query = '({qs})'.format(qs=query)
+
     # Ensure all operators are uppercase
     for operator in RESERVED_ELASTICSEARCH_QUERY_OPERATORS:
         old = ' {0} '.format(operator.lower())
