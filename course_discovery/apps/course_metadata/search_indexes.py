@@ -40,7 +40,7 @@ class BaseCourseIndex(OrganizationsMixin, BaseIndex):
     subjects = indexes.MultiValueField(faceted=True)
     organizations = indexes.MultiValueField(faceted=True)
     level_type = indexes.CharField(model_attr='level_type__name', null=True, faceted=True)
-    partner = indexes.CharField(model_attr='partner__name', null=True, faceted=True)
+    partner = indexes.CharField(model_attr='partner__short_code', null=True, faceted=True)
 
     def prepare_subjects(self, obj):
         return [subject.name for subject in obj.subjects.all()]
@@ -84,7 +84,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     seat_types = indexes.MultiValueField(model_attr='seat_types', null=True, faceted=True)
     type = indexes.CharField(model_attr='type', null=True, faceted=True)
     image_url = indexes.CharField(model_attr='image_url', null=True)
-    partner = indexes.CharField(model_attr='course__partner__name', null=True, faceted=True)
+    partner = indexes.CharField(model_attr='course__partner__short_code', null=True, faceted=True)
 
     def _prepare_language(self, language):
         return language.macrolanguage
@@ -119,7 +119,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     credit_backing_organizations = indexes.MultiValueField(faceted=True)
     card_image_url = indexes.CharField(model_attr='card_image_url', null=True)
     status = indexes.CharField(model_attr='status', faceted=True)
-    partner = indexes.CharField(model_attr='partner__name', null=True, faceted=True)
+    partner = indexes.CharField(model_attr='partner__short_code', null=True, faceted=True)
 
     def prepare_organizations(self, obj):
         return self.prepare_authoring_organizations(obj) + self.prepare_credit_backing_organizations(obj)

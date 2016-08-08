@@ -72,7 +72,7 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
 
     def test_list_key_filter(self):
         """ Verify the endpoint returns a list of course runs filtered by the specified keys. """
-        course_runs = CourseRunFactory.create_batch(3)
+        course_runs = CourseRunFactory.create_batch(3, course__partner=self.default_partner)
         course_runs = sorted(course_runs, key=lambda course: course.key.lower())
         keys = ','.join([course.key for course in course_runs])
         url = '{root}?keys={keys}'.format(root=reverse('api:v1:course_run-list'), keys=keys)
