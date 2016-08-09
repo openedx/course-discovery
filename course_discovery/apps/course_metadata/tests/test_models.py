@@ -316,7 +316,7 @@ class ProgramTests(TestCase):
         factories.SeatFactory(type='credit', currency=currency, course_run=course_run, price=600)
         factories.SeatFactory(type='verified', currency=currency, course_run=course_run, price=100)
         applicable_seat_types = SeatType.objects.filter(slug__in=['credit', 'verified'])
-        program_type = factories.ProgramTypeFactory(name='XSeries', applicable_seat_types=applicable_seat_types)
+        program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
         program = factories.ProgramFactory(type=program_type, courses=[course_run.course])
 
         expected_price_ranges = [{'currency': 'USD', 'min': Decimal(100), 'max': Decimal(600)}]
@@ -374,3 +374,17 @@ class CourseSocialNetworkTests(TestCase):
         factories.CourseRunSocialNetworkFactory(course_run=self.course_run, type='facebook')
         with self.assertRaises(IntegrityError):
             factories.CourseRunSocialNetworkFactory(course_run=self.course_run, type='facebook')
+
+
+class SeatTypeTests(TestCase):
+    """ Tests of the SeatType model. """
+    def test_str(self):
+        seat_type = factories.SeatTypeFactory()
+        self.assertEqual(str(seat_type), seat_type.name)
+
+
+class ProgramTypeTests(TestCase):
+    """ Tests of the ProgramType model. """
+    def test_str(self):
+        program_type = factories.ProgramTypeFactory()
+        self.assertEqual(str(program_type), program_type.name)

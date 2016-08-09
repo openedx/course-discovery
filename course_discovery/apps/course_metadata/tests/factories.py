@@ -12,7 +12,7 @@ from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import FuzzyURL
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Organization, Person, Image, Video, Subject, Seat, Prerequisite, LevelType, Program,
-    AbstractSocialNetworkModel, CourseRunSocialNetwork, PersonSocialNetwork, ProgramType
+    AbstractSocialNetworkModel, CourseRunSocialNetwork, PersonSocialNetwork, ProgramType, SeatType,
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -229,3 +229,10 @@ class CourseRunSocialNetworkFactory(AbstractSocialNetworkModelFactory):
 
     class Meta:
         model = CourseRunSocialNetwork
+
+
+class SeatTypeFactory(factory.django.DjangoModelFactory):
+    class Meta(object):
+        model = SeatType
+
+    name = FuzzyText()

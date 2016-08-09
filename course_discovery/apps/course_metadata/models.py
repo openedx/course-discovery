@@ -411,6 +411,9 @@ class SeatType(TimeStampedModel):
     name = models.CharField(max_length=64, unique=True)
     slug = AutoSlugField(populate_from='name')
 
+    def __str__(self):
+        return self.name
+
 
 class Seat(TimeStampedModel):
     """ Seat model. """
@@ -502,6 +505,9 @@ class ProgramType(TimeStampedModel):
                               'associated courses, but enrolled in other seat types, will NOT have their completion '
                               'of the course counted toward the completion of the program.'),
     )
+
+    def __str__(self):
+        return self.name
 
 
 class Program(TimeStampedModel):
