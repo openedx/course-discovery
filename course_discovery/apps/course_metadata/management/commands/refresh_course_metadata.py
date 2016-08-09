@@ -8,7 +8,7 @@ from course_discovery.apps.course_metadata.data_loaders.api import (
     CoursesApiDataLoader, OrganizationsApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader,
 )
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
-    DrupalApiDataLoader, MarketingSiteDataLoader,
+    DrupalApiDataLoader, XSeriesMarketingSiteDataLoader,
 )
 
 logger = logging.getLogger(__name__)
@@ -83,7 +83,7 @@ class Command(BaseCommand):
                 (partner.ecommerce_api_url, EcommerceApiDataLoader,),
                 (partner.programs_api_url, ProgramsApiDataLoader,),
                 (partner.marketing_site_api_url, DrupalApiDataLoader,),
-                (partner.marketing_site_url_root, MarketingSiteDataLoader,),
+                (partner.marketing_site_url_root, XSeriesMarketingSiteDataLoader,),
             )
 
             for api_url, loader_class in data_loaders:

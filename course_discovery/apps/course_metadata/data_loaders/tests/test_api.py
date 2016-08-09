@@ -18,8 +18,8 @@ from course_discovery.apps.course_metadata.models import (
 )
 from course_discovery.apps.course_metadata.tests import mock_data
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseRunFactory, SeatFactory, ImageFactory, PersonFactory, VideoFactory
-)
+    CourseRunFactory, SeatFactory, ImageFactory, PersonFactory, VideoFactory,
+    OrganizationFactory, CourseFactory)
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.api.logger'
 
@@ -354,8 +354,28 @@ class ProgramsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCa
     def api_url(self):
         return self.partner.programs_api_url
 
+    def create_mock_organizations(self, programs):
+        for program in programs:
+            for organization in program.get('organizations', []):
+                OrganizationFactory(key=organization['key'], partner=self.partner)
+
+    def create_mock_courses_and_runs(self, programs):
+        for program in programs:
+            for course_code in program.get('course_codes', []):
+                key = '{org}+{course}'.format(org=course_code['organization']['key'], course=course_code['key'])
+                course = CourseFactory(key=key, partner=self.partner)
+
+                for course_run in course_code['run_modes']:
+                    CourseRunFactory(course=course, key=course_run['course_key'])
+
+                # Add an additional course run that should be excluded
+                CourseRunFactory(course=course)
+
     def mock_api(self):
         bodies = mock_data.PROGRAMS_API_BODIES
+        self.create_mock_organizations(bodies)
+        self.create_mock_courses_and_runs(bodies)
+
         url = self.api_url + 'programs/'
         responses.add_callback(
             responses.GET,
@@ -369,7 +389,7 @@ class ProgramsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCa
 
     def assert_program_loaded(self, body):
         """ Assert a Program corresponding to the specified data body was properly loaded into the database. """
-        program = Program.objects.get(uuid=AbstractDataLoader.clean_string(body['uuid']))
+        program = Program.objects.get(uuid=AbstractDataLoader.clean_string(body['uuid']), partner=self.partner)
 
         self.assertEqual(program.title, body['name'])
         for attr in ('subtitle', 'category', 'status', 'marketing_slug',):
@@ -380,8 +400,19 @@ class ProgramsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCa
         self.assertEqual(keys, [org.key for org in expected_organizations])
         self.assertListEqual(list(program.authoring_organizations.all()), expected_organizations)
 
-        banner_image_url = body.get('banner_image_urls', {}).get('w435h145')
+        banner_image_url = body.get('banner_image_urls', {}).get('w1440h480')
         self.assertEqual(program.banner_image_url, banner_image_url)
+
+        course_run_keys = set()
+        course_codes = body.get('course_codes', [])
+        for course_code in course_codes:
+            course_run_keys.update([course_run['course_key'] for course_run in course_code['run_modes']])
+
+        courses = list(Course.objects.filter(course_runs__key__in=course_run_keys).distinct().order_by('key'))
+        self.assertEqual(list(program.courses.order_by('key')), courses)
+
+        # Verify the additional course runs added in create_mock_courses_and_runs are excluded.
+        self.assertEqual(program.excluded_course_runs.count(), len(course_codes))
 
     @responses.activate
     def test_ingest(self):
@@ -401,3 +432,19 @@ class ProgramsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCa
             self.assert_program_loaded(datum)
 
         self.loader.ingest()
+
+    @responses.activate
+    def test_ingest_with_missing_organizations(self):
+        api_data = self.mock_api()
+        Organization.objects.all().delete()
+
+        self.assertEqual(Program.objects.count(), 0)
+        self.assertEqual(Organization.objects.count(), 0)
+
+        with mock.patch(LOGGER_PATH) as mock_logger:
+            self.loader.ingest()
+            calls = [mock.call('Organizations for program [%s] are invalid!', datum['uuid']) for datum in api_data]
+            mock_logger.error.assert_has_calls(calls)
+
+        self.assertEqual(Program.objects.count(), len(api_data))
+        self.assertEqual(Organization.objects.count(), 0)

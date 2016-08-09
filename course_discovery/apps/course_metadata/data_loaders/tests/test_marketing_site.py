@@ -8,14 +8,15 @@ from django.test import TestCase
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
-    DrupalApiDataLoader, MarketingSiteDataLoader
+    DrupalApiDataLoader, XSeriesMarketingSiteDataLoader,
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import ApiClientTestMixin, DataLoaderTestMixin
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseOrganization, CourseRun, Organization, Person, Subject, Program
+    Course, CourseOrganization, CourseRun, Organization, Person, Subject, Program, Video,
 )
 from course_discovery.apps.course_metadata.tests import mock_data
+from course_discovery.apps.course_metadata.tests.factories import ProgramFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 ENGLISH_LANGUAGE_TAG = LanguageTag(code='en-us', name='English - United States')
@@ -215,25 +216,10 @@ class DrupalApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase
         self.assertEqual(self.loader.get_language_tag(body), expected)
 
 
-class MarketingSiteDataLoaderTests(DataLoaderTestMixin, TestCase):
-    loader_class = MarketingSiteDataLoader
-    LOGIN_COOKIE = ('session_id', 'abc123')
-
+class AbstractMarketingSiteDataLoaderTestMixin(DataLoaderTestMixin):
     @property
     def api_url(self):
         return self.partner.marketing_site_url_root
-
-    def mock_login_response(self, failure=False):
-        url = self.api_url + 'user'
-        landing_url = '{base}users/{username}'.format(base=self.api_url,
-                                                      username=self.partner.marketing_site_api_username)
-        status = 500 if failure else 302
-        adding_headers = {}
-
-        if not failure:
-            adding_headers['Location'] = landing_url
-        responses.add(responses.POST, url, status=status, adding_headers=adding_headers)
-        responses.add(responses.GET, landing_url)
 
     def mock_api_callback(self, url, data):
         """ Paginate the data, one item per page. """
@@ -260,58 +246,21 @@ class MarketingSiteDataLoaderTests(DataLoaderTestMixin, TestCase):
 
         return request_callback
 
-    def mock_api(self):
-        bodies = mock_data.MARKETING_SITE_API_XSERIES_BODIES
-        url = self.api_url + 'node.json'
+    def mock_login_response(self, failure=False):
+        url = self.api_url + 'user'
+        landing_url = '{base}users/{username}'.format(base=self.api_url,
+                                                      username=self.partner.marketing_site_api_username)
+        status = 500 if failure else 302
+        adding_headers = {}
 
-        responses.add_callback(
-            responses.GET,
-            url,
-            callback=self.mock_api_callback(url, bodies),
-            content_type=JSON
-        )
-
-        return bodies
+        if not failure:
+            adding_headers['Location'] = landing_url
+        responses.add(responses.POST, url, status=status, adding_headers=adding_headers)
+        responses.add(responses.GET, landing_url)
 
     def mock_api_failure(self):
         url = self.api_url + 'node.json'
         responses.add(responses.GET, url, status=500)
-
-    def assert_program_loaded(self, data):
-        marketing_slug = data['url'].split('/')[-1]
-        program = Program.objects.get(marketing_slug=marketing_slug)
-
-        self.assertEqual(program.title, data['title'])
-        self.assertEqual(program.subtitle, data.get('field_xseries_subtitle_short'))
-        self.assertEqual(program.category, 'XSeries')
-        self.assertEqual(program.partner, self.partner)
-
-        card_image_url = data.get('field_card_image', {}).get('url')
-        self.assertEqual(program.card_image_url, card_image_url)
-
-    def test_constructor_without_credentials(self):
-        """ Verify the constructor raises an exception if the Partner has no marketing site credentials set. """
-        self.partner.marketing_site_api_username = None
-        with self.assertRaises(Exception):
-            self.loader_class(self.partner, self.api_url)
-
-    @responses.activate
-    def test_api_client_login_failure(self):
-        self.mock_login_response(failure=True)
-        with self.assertRaises(Exception):
-            self.loader.api_client  # pylint: disable=pointless-statement
-
-    @responses.activate
-    def test_ingest(self):
-        self.mock_login_response()
-        api_data = self.mock_api()
-
-        self.assertEqual(Program.objects.count(), 0)
-
-        self.loader.ingest()
-
-        for datum in api_data:
-            self.assert_program_loaded(datum)
 
     @responses.activate
     def test_ingest_with_api_failure(self):
@@ -333,3 +282,86 @@ class MarketingSiteDataLoaderTests(DataLoaderTestMixin, TestCase):
                 self.assertEqual(mock_logger.exception.call_count, len(api_data))
                 calls = [mock.call('Failed to load %s.', datum['url']) for datum in api_data]
                 mock_logger.exception.assert_has_calls(calls)
+
+    @responses.activate
+    def test_api_client_login_failure(self):
+        self.mock_login_response(failure=True)
+        with self.assertRaises(Exception):
+            self.loader.api_client  # pylint: disable=pointless-statement
+
+    def test_constructor_without_credentials(self):
+        """ Verify the constructor raises an exception if the Partner has no marketing site credentials set. """
+        self.partner.marketing_site_api_username = None
+        with self.assertRaises(Exception):
+            self.loader_class(self.partner, self.api_url)  # pylint: disable=not-callable
+
+
+class XSeriesMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
+    loader_class = XSeriesMarketingSiteDataLoader
+    LOGIN_COOKIE = ('session_id', 'abc123')
+
+    def create_mock_programs(self, programs):
+        for program in programs:
+            marketing_slug = program['url'].split('/')[-1]
+            ProgramFactory(marketing_slug=marketing_slug, partner=self.partner)
+
+    def mock_api(self):
+        bodies = mock_data.MARKETING_SITE_API_XSERIES_BODIES
+        self.create_mock_programs(bodies)
+        url = self.api_url + 'node.json'
+
+        responses.add_callback(
+            responses.GET,
+            url,
+            callback=self.mock_api_callback(url, bodies),
+            content_type=JSON
+        )
+
+        return bodies
+
+    def assert_program_loaded(self, data):
+        marketing_slug = data['url'].split('/')[-1]
+        program = Program.objects.get(marketing_slug=marketing_slug, partner=self.partner)
+
+        overview = self.loader.clean_html(data['body']['value'])
+        overview = overview.lstrip('### XSeries Program Overview').strip()
+        self.assertEqual(program.overview, overview)
+
+        self.assertEqual(program.subtitle, data.get('field_xseries_subtitle_short'))
+        self.assertEqual(program.category, 'XSeries')
+
+        card_image_url = data.get('field_card_image', {}).get('url')
+        self.assertEqual(program.card_image_url, card_image_url)
+
+        video_url = data.get('field_product_video', {}).get('url')
+        if video_url:
+            video = Video.objects.get(src=video_url)
+            self.assertEqual(program.video, video)
+
+    @responses.activate
+    def test_ingest(self):
+        self.mock_login_response()
+        api_data = self.mock_api()
+
+        self.loader.ingest()
+
+        for datum in api_data:
+            self.assert_program_loaded(datum)
+
+    @responses.activate
+    def test_ingest_with_missing_programs(self):
+        """ Verify ingestion properly logs issues when programs exist on the marketing site,
+        but not the Programs API. """
+        self.mock_login_response()
+        api_data = self.mock_api()
+
+        Program.objects.all().delete()
+        self.assertEqual(Program.objects.count(), 0)
+
+        with mock.patch(LOGGER_PATH) as mock_logger:
+            self.loader.ingest()
+            self.assertEqual(Program.objects.count(), 0)
+
+            calls = [mock.call('Program [%s] exists on the marketing site, but not in the Programs Service!',
+                               datum['url'].split('/')[-1]) for datum in api_data]
+            mock_logger.error.assert_has_calls(calls)

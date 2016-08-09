@@ -1,5 +1,6 @@
 import abc
 
+import html2text
 from dateutil.parser import parse
 from django.utils.functional import cached_property
 from edx_rest_api_client.client import EdxRestApiClient
@@ -78,6 +79,15 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         return {k: cls.clean_string(v) for k, v in data.items()}
 
     @classmethod
+    def clean_html(cls, content):
+        """Cleans HTML from a string and returns a Markdown version."""
+        stripped = content.replace('&nbsp;', '')
+        html_converter = html2text.HTML2Text()
+        html_converter.wrap_links = False
+        html_converter.body_width = None
+        return html_converter.handle(stripped).strip()
+
+    @classmethod
     def parse_date(cls, date_string):
         """
         Returns a parsed date.
@@ -113,3 +123,12 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         """ Remove orphaned objects from the database. """
         for model in (Image, Person, Video):
             delete_orphans(model)
+
+    @classmethod
+    def get_or_create_video(cls, url):
+        video = None
+
+        if url:
+            video, __ = Video.objects.get_or_create(src=url)
+
+        return video

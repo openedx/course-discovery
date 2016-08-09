@@ -1,7 +1,7 @@
+import abc
 import logging
 from urllib.parse import urljoin, urlencode
 
-import html2text
 import requests
 from django.utils.functional import cached_property
 
@@ -152,14 +152,6 @@ class DrupalApiDataLoader(AbstractDataLoader):
             logger.warning('Could not find language with ISO code [%s].', iso_code)
             return None
 
-    def clean_html(self, content):
-        """Cleans HTML from a string and returns a Markdown version."""
-        stripped = content.replace('&nbsp;', '')
-        html_converter = html2text.HTML2Text()
-        html_converter.wrap_links = False
-        html_converter.body_width = None
-        return html_converter.handle(stripped).strip()
-
     def get_courserun_image(self, body):
         image = None
         image_url = body['image']
@@ -170,9 +162,9 @@ class DrupalApiDataLoader(AbstractDataLoader):
         return image
 
 
-class MarketingSiteDataLoader(AbstractDataLoader):
+class AbstractMarketingSiteDataLoader(AbstractDataLoader):
     def __init__(self, partner, api_url, access_token=None, token_type=None):
-        super(MarketingSiteDataLoader, self).__init__(partner, api_url, access_token, token_type)
+        super(AbstractMarketingSiteDataLoader, self).__init__(partner, api_url, access_token, token_type)
 
         if not (self.partner.marketing_site_api_username and self.partner.marketing_site_api_password):
             msg = 'Marketing Site API credentials are not properly configured for Partner [{partner}]!'.format(
@@ -200,30 +192,23 @@ class MarketingSiteDataLoader(AbstractDataLoader):
 
         return session
 
-    def ingest(self):  # pragma: no cover
+    def get_query_kwargs(self):
+        return {}
+
+    def ingest(self):
         """ Load data for all supported objects (e.g. courses, runs). """
-        # TODO Ingest schools
-        # TODO Ingest instructors
-        # TODO Ingest course runs (courses)
-        self.retrieve_and_ingest_node_type('xseries', self.update_xseries)
-
-    def retrieve_and_ingest_node_type(self, node_type, update_method):
-        """
-        Retrieves all nodes of the specified type, and calls `update_method` for each node.
-
-        Args:
-            node_type (str): Type of node to retrieve (e.g. course, xseries, school, instructor)
-            update_method: Method to which the retrieved data should be passed.
-        """
         page = 0
+        query_kwargs = self.get_query_kwargs()
 
-        while page is not None and page >= 0:
+        while page is not None and page >= 0:  # pragma: no cover
             kwargs = {
-                'type': node_type,
+                'type': self.node_type,
                 'max-depth': 2,
                 'load-entity-refs': 'subject,file,taxonomy_term,taxonomy_vocabulary,node,field_collection_item',
                 'page': page,
             }
+            kwargs.update(query_kwargs)
+
             qs = urlencode(kwargs)
             url = '{root}/node.json?{qs}'.format(root=self.api_url, qs=qs)
             response = self.api_client.get(url)
@@ -241,7 +226,7 @@ class MarketingSiteDataLoader(AbstractDataLoader):
                 try:
                     url = datum['url']
                     datum = self.clean_strings(datum)
-                    update_method(datum)
+                    self.process_node(datum)
                 except:  # pylint: disable=bare-except
                     logger.exception('Failed to load %s.', url)
 
@@ -250,16 +235,54 @@ class MarketingSiteDataLoader(AbstractDataLoader):
             else:
                 break
 
-    def update_xseries(self, data):
-        marketing_slug = data['url'].split('/')[-1]
-        card_image_url = data.get('field_card_image', {}).get('url')
+    def _get_nested_url(self, field):
+        """ Helper method that retrieves the nested `url` field in the specified field, if it exists.
+        This works around the fact that Drupal represents empty objects as arrays instead of objects."""
+        field = field or {}
+        return field.get('url')
 
-        defaults = {
-            'title': data['title'],
+    @abc.abstractmethod
+    def process_node(self, data):  # pragma: no cover
+        pass
+
+    @abc.abstractproperty
+    def node_type(self):  # pragma: no cover
+        pass
+
+
+class XSeriesMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
+    @property
+    def node_type(self):
+        return 'xseries'
+
+    def process_node(self, data):
+        marketing_slug = data['url'].split('/')[-1]
+
+        try:
+            program = Program.objects.get(marketing_slug=marketing_slug, partner=self.partner)
+        except Program.DoesNotExist:
+            logger.error('Program [%s] exists on the marketing site, but not in the Programs Service!', marketing_slug)
+            return None
+
+        card_image_url = self._get_nested_url(data.get('field_card_image'))
+        video_url = self._get_nested_url(data.get('field_product_video'))
+
+        # NOTE (CCB): Remove the heading at the beginning of the overview. Why this isn't part of the template
+        # is beyond me. It's just silly.
+        overview = self.clean_html(data['body']['value'])
+        overview = overview.lstrip('### XSeries Program Overview').strip()
+
+        data = {
             'subtitle': data.get('field_xseries_subtitle_short'),
             'category': 'XSeries',
-            'partner': self.partner,
             'card_image_url': card_image_url,
+            'overview': overview,
+            'video': self.get_or_create_video(video_url)
         }
 
-        Program.objects.update_or_create(marketing_slug=marketing_slug, defaults=defaults)
+        for field, value in data.items():
+            setattr(program, field, value)
+
+        program.save()
+        logger.info('Processed XSeries with marketing_slug [%s].', marketing_slug)
+        return program

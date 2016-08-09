@@ -11,7 +11,7 @@ from course_discovery.apps.course_metadata.data_loaders.api import (
     CoursesApiDataLoader, OrganizationsApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader,
 )
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
-    DrupalApiDataLoader, MarketingSiteDataLoader,
+    DrupalApiDataLoader, XSeriesMarketingSiteDataLoader,
 )
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Organization, Program
 from course_discovery.apps.course_metadata.tests import mock_data
@@ -165,6 +165,6 @@ class RefreshCourseMetadataCommandTests(TestCase):
                 call_command('refresh_course_metadata')
 
                 loader_classes = (OrganizationsApiDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader,
-                                  ProgramsApiDataLoader, DrupalApiDataLoader, MarketingSiteDataLoader)
+                                  ProgramsApiDataLoader, DrupalApiDataLoader, XSeriesMarketingSiteDataLoader)
                 expected_calls = [mock.call('%s failed!', loader_class.__name__) for loader_class in loader_classes]
                 mock_logger.exception.assert_has_calls(expected_calls)
