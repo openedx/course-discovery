@@ -112,7 +112,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     uuid = indexes.CharField(model_attr='uuid')
     title = indexes.CharField(model_attr='title')
     subtitle = indexes.CharField(model_attr='subtitle')
-    category = indexes.CharField(model_attr='category', faceted=True)
+    type = indexes.CharField(model_attr='type__name', faceted=True)
     marketing_url = indexes.CharField(null=True)
     organizations = indexes.MultiValueField(faceted=True)
     authoring_organizations = indexes.MultiValueField(faceted=True)

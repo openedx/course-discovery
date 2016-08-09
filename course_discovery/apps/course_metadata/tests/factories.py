@@ -12,7 +12,7 @@ from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import FuzzyURL
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Organization, Person, Image, Video, Subject, Seat, Prerequisite, LevelType, Program,
-    AbstractSocialNetworkModel, CourseRunSocialNetwork, PersonSocialNetwork, ProgramType
+    AbstractSocialNetworkModel, CourseRunSocialNetwork, PersonSocialNetwork, ProgramType, SeatType,
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -173,8 +173,8 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     title = factory.Sequence(lambda n: 'test-program-{}'.format(n))  # pylint: disable=unnecessary-lambda
     uuid = factory.LazyFunction(uuid4)
     subtitle = 'test-subtitle'
-    category = 'xseries'
-    status = 'unpublished'
+    type = factory.SubFactory(ProgramTypeFactory)
+    status = Program.ProgramStatus.Unpublished
     marketing_slug = factory.Sequence(lambda n: 'test-slug-{}'.format(n))  # pylint: disable=unnecessary-lambda
     banner_image_url = FuzzyText(prefix='https://example.com/program/banner')
     card_image_url = FuzzyText(prefix='https://example.com/program/card')
@@ -229,3 +229,10 @@ class CourseRunSocialNetworkFactory(AbstractSocialNetworkModelFactory):
 
     class Meta:
         model = CourseRunSocialNetwork
+
+
+class SeatTypeFactory(factory.django.DjangoModelFactory):
+    class Meta(object):
+        model = SeatType
+
+    name = FuzzyText()

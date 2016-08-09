@@ -411,6 +411,9 @@ class SeatType(TimeStampedModel):
     name = models.CharField(max_length=64, unique=True)
     slug = AutoSlugField(populate_from='name')
 
+    def __str__(self):
+        return self.name
+
 
 class Seat(TimeStampedModel):
     """ Seat model. """
@@ -503,6 +506,9 @@ class ProgramType(TimeStampedModel):
                               'of the course counted toward the completion of the program.'),
     )
 
+    def __str__(self):
+        return self.name
+
 
 class Program(TimeStampedModel):
     class ProgramStatus(DjangoChoices):
@@ -555,7 +561,7 @@ class Program(TimeStampedModel):
     @property
     def marketing_url(self):
         if self.marketing_slug:
-            path = '{category}/{slug}'.format(category=self.category, slug=self.marketing_slug)
+            path = '{type}/{slug}'.format(type=self.type.name.lower(), slug=self.marketing_slug)
             return urljoin(self.partner.marketing_site_url_root, path)
 
         return None

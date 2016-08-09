@@ -328,7 +328,6 @@ class XSeriesMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMix
         self.assertEqual(program.overview, overview)
 
         self.assertEqual(program.subtitle, data.get('field_xseries_subtitle_short'))
-        self.assertEqual(program.category, 'XSeries')
 
         card_image_url = data.get('field_card_image', {}).get('url')
         self.assertEqual(program.card_image_url, card_image_url)

@@ -10,7 +10,7 @@ from rest_framework.fields import DictField
 
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Image, Organization, Person, Prerequisite, Seat, Subject, Video, Program
+    Course, CourseRun, Image, Organization, Person, Prerequisite, Seat, Subject, Video, Program, ProgramType,
 )
 from course_discovery.apps.course_metadata.search_indexes import CourseIndex, CourseRunIndex, ProgramIndex
 
@@ -50,7 +50,7 @@ PROGRAM_FACET_FIELD_OPTIONS = {
 }
 
 PROGRAM_SEARCH_FIELDS = (
-    'text', 'uuid', 'title', 'subtitle', 'category', 'marketing_url', 'organizations', 'content_type', 'status',
+    'text', 'uuid', 'title', 'subtitle', 'type', 'marketing_url', 'organizations', 'content_type', 'status',
     'card_image_url',
 )
 
@@ -264,10 +264,11 @@ class ContainedCoursesSerializer(serializers.Serializer):
 class ProgramSerializer(serializers.ModelSerializer):
     courses = CourseSerializer(many=True)
     authoring_organizations = OrganizationSerializer(many=True)
+    type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
 
     class Meta:
         model = Program
-        fields = ('uuid', 'title', 'subtitle', 'category', 'marketing_slug', 'marketing_url', 'card_image_url',
+        fields = ('uuid', 'title', 'subtitle', 'type', 'marketing_slug', 'marketing_url', 'card_image_url',
                   'banner_image_url', 'authoring_organizations', 'courses',)
         read_only_fields = ('uuid', 'marketing_url',)
 
