@@ -270,8 +270,11 @@ class ProgramsApiDataLoader(AbstractDataLoader):
 
         logger.info('Retrieved %d programs from %s.', count, api_url)
 
+    def _get_uuid(self, body):
+        return body['uuid']
+
     def update_program(self, body):
-        uuid = body['uuid']
+        uuid = self._get_uuid(body)
 
         try:
             defaults = {
@@ -285,34 +288,39 @@ class ProgramsApiDataLoader(AbstractDataLoader):
             }
 
             program, __ = Program.objects.update_or_create(uuid=uuid, defaults=defaults)
-
-            org_keys = [org['key'] for org in body['organizations']]
-            organizations = Organization.objects.filter(key__in=org_keys, partner=self.partner)
-
-            if len(org_keys) != organizations.count():
-                logger.error('Organizations for program [%s] are invalid!', uuid)
-
-            program.authoring_organizations.clear()
-            program.authoring_organizations.add(*organizations)
-
-            course_run_keys = set()
-            for course_code in body.get('course_codes', []):
-                course_run_keys.update([course_run['course_key'] for course_run in course_code['run_modes']])
-
-            # The course_code key field is technically useless, so we must build the course list from the
-            # associated course runs.
-            courses = Course.objects.filter(course_runs__key__in=course_run_keys).distinct()
-            program.courses.clear()
-            program.courses.add(*courses)
-
-            excluded_course_runs = CourseRun.objects.filter(course__in=courses). \
-                exclude(key__in=course_run_keys)
-            program.excluded_course_runs.clear()
-            program.excluded_course_runs.add(*excluded_course_runs)
-
+            self._update_program_organizations(body, program)
+            self._update_program_courses_and_runs(body, program)
             program.save()
         except Exception:  # pylint: disable=broad-except
             logger.exception('Failed to load program %s', uuid)
+
+    def _update_program_courses_and_runs(self, body, program):
+        course_run_keys = set()
+        for course_code in body.get('course_codes', []):
+            course_run_keys.update([course_run['course_key'] for course_run in course_code['run_modes']])
+
+        # The course_code key field is technically useless, so we must build the course list from the
+        # associated course runs.
+        courses = Course.objects.filter(course_runs__key__in=course_run_keys).distinct()
+        program.courses.clear()
+        program.courses.add(*courses)
+
+        # Do a diff of all the course runs and the explicitly-associated course runs to determine
+        # which course runs should be explicitly excluded.
+        excluded_course_runs = CourseRun.objects.filter(course__in=courses).exclude(key__in=course_run_keys)
+        program.excluded_course_runs.clear()
+        program.excluded_course_runs.add(*excluded_course_runs)
+
+    def _update_program_organizations(self, body, program):
+        uuid = self._get_uuid(body)
+        org_keys = [org['key'] for org in body['organizations']]
+        organizations = Organization.objects.filter(key__in=org_keys, partner=self.partner)
+
+        if len(org_keys) != organizations.count():
+            logger.error('Organizations for program [%s] are invalid!', uuid)
+
+        program.authoring_organizations.clear()
+        program.authoring_organizations.add(*organizations)
 
     def _get_banner_image_url(self, body):
         image_key = 'w{width}h{height}'.format(width=self.image_width, height=self.image_height)
