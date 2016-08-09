@@ -23,7 +23,7 @@ before_install:
 
 install:
     - pip install -U pip wheel codecov
-    - pip install -r requirements/test.txt
+    - make requirements
     - make requirements.js
 
 before_script:
@@ -31,6 +31,11 @@ before_script:
   - sleep 10
 
 script:
+    # Ensure documentation can be compiled
+    - cd docs && make html
+    - cd ..
+
+    # Compile static assets and validate the code
     - make static -e DJANGO_SETTINGS_MODULE="course_discovery.settings.test"
     - make validate
 

@@ -1,6 +1,7 @@
 # The bare minimum needed for Sphinx to import each file and generate documentation.
 
-from course_discovery.settings.base import INSTALLED_APPS
+# noinspection PyUnresolvedReferences
+from course_discovery.settings.base import *
 
 DATABASES = {
     'default': {

@@ -30,6 +30,8 @@ When developing locally, it may be useful to have settings overrides that you do
 If you need such overrides, create a file :file:`course_discovery/settings/private.py`. This file's values are
 read by :file:`course_discovery/settings/local.py`, but ignored by Git.
 
+If you are an edX employee/developer, see :ref:`edx-extensions`.
+
 
 Configure edX OpenID Connect (OIDC)
 -----------------------------------
