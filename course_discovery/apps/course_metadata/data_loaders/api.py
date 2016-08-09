@@ -7,7 +7,7 @@ from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
     Image, Video, Organization, Seat, CourseRun, Program, Course, CourseOrganization,
-)
+    ProgramType)
 
 logger = logging.getLogger(__name__)
 
@@ -240,6 +240,11 @@ class ProgramsApiDataLoader(AbstractDataLoader):
     """ Loads programs from the Programs API. """
     image_width = 1440
     image_height = 480
+    XSERIES = None
+
+    def __init__(self, partner, api_url, access_token=None, token_type=None):
+        super(ProgramsApiDataLoader, self).__init__(partner, api_url, access_token, token_type)
+        self.XSERIES = ProgramType.objects.get(name='XSeries')
 
     def ingest(self):
         api_url = self.partner.programs_api_url
@@ -272,7 +277,7 @@ class ProgramsApiDataLoader(AbstractDataLoader):
             defaults = {
                 'title': body['name'],
                 'subtitle': body['subtitle'],
-                'category': body['category'],
+                'type': self.XSERIES,
                 'status': body['status'],
                 'marketing_slug': body['marketing_slug'],
                 'banner_image_url': self._get_banner_image_url(body),

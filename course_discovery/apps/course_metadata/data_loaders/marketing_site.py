@@ -274,7 +274,6 @@ class XSeriesMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
 
         data = {
             'subtitle': data.get('field_xseries_subtitle_short'),
-            'category': 'XSeries',
             'card_image_url': card_image_url,
             'overview': overview,
             'video': self.get_or_create_video(video_url)

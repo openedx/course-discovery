@@ -14,12 +14,12 @@ from course_discovery.apps.course_metadata.data_loaders.api import (
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import ApiClientTestMixin, DataLoaderTestMixin
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Image, Organization, Seat, Program
+    Course, CourseRun, Image, Organization, Seat, Program, ProgramType,
 )
 from course_discovery.apps.course_metadata.tests import mock_data
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseRunFactory, SeatFactory, ImageFactory, PersonFactory, VideoFactory,
-    OrganizationFactory, CourseFactory)
+    CourseRunFactory, SeatFactory, ImageFactory, PersonFactory, VideoFactory, OrganizationFactory, CourseFactory,
+)
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.api.logger'
 
@@ -392,8 +392,10 @@ class ProgramsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCa
         program = Program.objects.get(uuid=AbstractDataLoader.clean_string(body['uuid']), partner=self.partner)
 
         self.assertEqual(program.title, body['name'])
-        for attr in ('subtitle', 'category', 'status', 'marketing_slug',):
+        for attr in ('subtitle', 'status', 'marketing_slug',):
             self.assertEqual(getattr(program, attr), AbstractDataLoader.clean_string(body[attr]))
+
+        self.assertEqual(program.type, ProgramType.objects.get(name='XSeries'))
 
         keys = [org['key'] for org in body['organizations']]
         expected_organizations = list(Organization.objects.filter(key__in=keys))

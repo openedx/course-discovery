@@ -561,7 +561,7 @@ class Program(TimeStampedModel):
     @property
     def marketing_url(self):
         if self.marketing_slug:
-            path = '{category}/{slug}'.format(category=self.category, slug=self.marketing_slug)
+            path = '{type}/{slug}'.format(type=self.type.name.lower(), slug=self.marketing_slug)
             return urljoin(self.partner.marketing_site_url_root, path)
 
         return None

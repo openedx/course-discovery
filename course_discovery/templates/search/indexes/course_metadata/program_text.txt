@@ -1,6 +1,6 @@
 {{ object.uuid }}
 {{ object.name }}
-{{ object.category }}
+{{ object.type.name }}
 {{ object.status }}
 {{ object.marketing_slug|default:'' }}
 
