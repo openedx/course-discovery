@@ -1,10 +1,10 @@
 from course_discovery.settings.base import *
 
 # TEST SETTINGS
-INSTALLED_APPS += (
+INSTALLED_APPS += [
     'django_nose',
     'course_discovery.apps.edx_catalog_extensions',
-)
+]
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 

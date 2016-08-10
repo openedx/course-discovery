@@ -10,9 +10,9 @@ LOGGING['handlers']['local'] = {
 # TOOLBAR CONFIGURATION
 # See: http://django-debug-toolbar.readthedocs.org/en/latest/installation.html
 if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
-    INSTALLED_APPS += (
+    INSTALLED_APPS += [
         'debug_toolbar',
-    )
+    ]
 
     MIDDLEWARE_CLASSES += (
         'debug_toolbar.middleware.DebugToolbarMiddleware',
