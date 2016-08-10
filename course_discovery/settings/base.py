@@ -21,16 +21,16 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles'
-)
+]
 
-THIRD_PARTY_APPS = (
+THIRD_PARTY_APPS = [
     'release_util',
     'rest_framework',
     'rest_framework_swagger',
@@ -42,9 +42,9 @@ THIRD_PARTY_APPS = (
     'dry_rest_permissions',
     'compressor',
     'django_filters',
-)
+]
 
-PROJECT_APPS = (
+PROJECT_APPS = [
     'course_discovery.apps.core',
     'course_discovery.apps.ietf_language_tags',
     'course_discovery.apps.api',
@@ -52,14 +52,14 @@ PROJECT_APPS = (
     'course_discovery.apps.course_metadata',
     'course_discovery.apps.edx_haystack_extensions',
     'course_discovery.apps.publisher',
-)
+]
 
 
 INSTALLED_APPS += THIRD_PARTY_APPS
 INSTALLED_APPS += PROJECT_APPS
 
 # NOTE: Haystack must be installed after core so that we can override Haystack's management commands with our own.
-INSTALLED_APPS += ('haystack',)
+INSTALLED_APPS += ['haystack']
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
