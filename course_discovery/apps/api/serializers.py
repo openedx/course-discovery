@@ -261,10 +261,35 @@ class ContainedCoursesSerializer(serializers.Serializer):
     )
 
 
+class ProgramCourseSerializer(CourseSerializer):
+    """Serializer used to filter out excluded course runs in a course associated with the program"""
+    course_runs = serializers.SerializerMethodField()
+
+    def get_course_runs(self, course):
+        program = self.context['program']
+        course_runs = program.course_runs.filter(course=course)
+        return CourseRunSerializer(
+            course_runs,
+            many=True,
+            context={'request': self.context.get('request')}
+        ).data
+
+
 class ProgramSerializer(serializers.ModelSerializer):
-    courses = CourseSerializer(many=True)
+    courses = serializers.SerializerMethodField()
     authoring_organizations = OrganizationSerializer(many=True)
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
+
+    def get_courses(self, program):
+        course_serializer = ProgramCourseSerializer(
+            program.courses,
+            many=True,
+            context={
+                'request': self.context.get('request'),
+                'program': program
+            }
+        )
+        return course_serializer.data
 
     class Meta:
         model = Program

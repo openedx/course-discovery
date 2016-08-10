@@ -11,7 +11,7 @@ from course_discovery.apps.api.serializers import (
     CatalogSerializer, CourseSerializer, CourseRunSerializer, ContainedCoursesSerializer, ImageSerializer,
     SubjectSerializer, PrerequisiteSerializer, VideoSerializer, OrganizationSerializer, SeatSerializer,
     PersonSerializer, AffiliateWindowSerializer, ContainedCourseRunsSerializer, CourseRunSearchSerializer,
-    ProgramSerializer, ProgramSearchSerializer
+    ProgramSerializer, ProgramSearchSerializer, ProgramCourseSerializer
 )
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import User
@@ -169,6 +169,82 @@ class CourseRunSerializerTests(TestCase):
         self.assertEqual(serializer.data['marketing_url'], None)
 
 
+class ProgramCourseSerializerTests(TestCase):
+    def setUp(self):
+        super(ProgramCourseSerializerTests, self).setUp()
+        self.request = make_request()
+        self.course_list = CourseFactory.create_batch(3)
+        self.program = ProgramFactory(courses=self.course_list)
+
+    def test_no_run(self):
+        """
+        Make sure that if a course has no runs, the serializer still works as expected
+        """
+        serializer = ProgramCourseSerializer(
+            self.course_list,
+            many=True,
+            context={'request': self.request, 'program': self.program}
+        )
+
+        expected = CourseSerializer(self.course_list, many=True, context={'request': self.request}).data
+
+        self.assertSequenceEqual(serializer.data, expected)
+
+    def test_with_runs(self):
+        for course in self.course_list:
+            CourseRunFactory.create_batch(2, course=course)
+        serializer = ProgramCourseSerializer(
+            self.course_list,
+            many=True,
+            context={'request': self.request, 'program': self.program}
+        )
+
+        expected = CourseSerializer(self.course_list, many=True, context={'request': self.request}).data
+
+        self.assertSequenceEqual(serializer.data, expected)
+
+    def test_with_exclusions(self):
+        """
+        Test serializer with course_run exclusions within program
+        """
+        course = CourseFactory()
+        excluded_runs = []
+        course_runs = CourseRunFactory.create_batch(2, course=course)
+        excluded_runs.append(course_runs[0])
+        program = ProgramFactory(courses=[course], excluded_course_runs=excluded_runs)
+
+        serializer = ProgramCourseSerializer(
+            course,
+            context={'request': self.request, 'program': program}
+        )
+
+        expected = {
+            'key': course.key,
+            'title': course.title,
+            'short_description': course.short_description,
+            'full_description': course.full_description,
+            'level_type': course.level_type.name,
+            'subjects': [],
+            'prerequisites': [],
+            'expected_learning_items': [],
+            'image': ImageSerializer(course.image).data,
+            'video': VideoSerializer(course.video).data,
+            'owners': [],
+            'sponsors': [],
+            'modified': json_date_format(course.modified),  # pylint: disable=no-member
+            'course_runs': CourseRunSerializer([course_runs[1]], many=True, context={'request': self.request}).data,
+            'marketing_url': '{url}?{params}'.format(
+                url=course.marketing_url,
+                params=urlencode({
+                    'utm_source': self.request.user.username,
+                    'utm_medium': self.request.user.referral_tracking_id,
+                })
+            )
+        }
+
+        self.assertDictEqual(serializer.data, expected)
+
+
 class ProgramSerializerTests(TestCase):
     def test_data(self):
         request = make_request()
@@ -187,7 +263,50 @@ class ProgramSerializerTests(TestCase):
             'card_image_url': program.card_image_url,
             'banner_image_url': program.banner_image_url,
             'authoring_organizations': OrganizationSerializer(program.authoring_organizations, many=True).data,
-            'courses': CourseSerializer(program.courses, many=True, context={'request': request}).data,
+            'courses': ProgramCourseSerializer(
+                program.courses,
+                many=True,
+                context={'request': request, 'program': program}
+            ).data,
+        }
+
+        self.assertDictEqual(serializer.data, expected)
+
+    def test_with_exclusions(self):
+        """
+        Verify we can specify program excluded_course_runs and the serializers will
+        render the course_runs with exclusions
+        """
+        request = make_request()
+        org_list = OrganizationFactory.create_batch(1)
+        course_list = CourseFactory.create_batch(4)
+        excluded_runs = []
+        for course in course_list:
+            course_runs = CourseRunFactory.create_batch(3, course=course)
+            excluded_runs.append(course_runs[0])
+
+        program = ProgramFactory(
+            authoring_organizations=org_list,
+            courses=course_list,
+            excluded_course_runs=excluded_runs
+        )
+        serializer = ProgramSerializer(program, context={'request': request})
+
+        expected = {
+            'uuid': str(program.uuid),
+            'title': program.title,
+            'subtitle': program.subtitle,
+            'type': program.type.name,
+            'marketing_slug': program.marketing_slug,
+            'marketing_url': program.marketing_url,
+            'card_image_url': program.card_image_url,
+            'banner_image_url': program.banner_image_url,
+            'authoring_organizations': OrganizationSerializer(program.authoring_organizations, many=True).data,
+            'courses': ProgramCourseSerializer(
+                program.courses,
+                many=True,
+                context={'request': request, 'program': program}
+            ).data,
         }
 
         self.assertDictEqual(serializer.data, expected)
