@@ -18,5 +18,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(set_program_types, lambda *args: None)
+        migrations.RunPython(set_program_types, reverse_code=migrations.RunPython.noop)
     ]
