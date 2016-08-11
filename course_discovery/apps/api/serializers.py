@@ -278,6 +278,7 @@ class ProgramSerializer(serializers.ModelSerializer):
     courses = serializers.SerializerMethodField()
     authoring_organizations = OrganizationSerializer(many=True)
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
+    banner_image = serializers.SerializerMethodField()
 
     def get_courses(self, program):
         course_serializer = ProgramCourseSerializer(
@@ -290,10 +291,25 @@ class ProgramSerializer(serializers.ModelSerializer):
         )
         return course_serializer.data
 
+    def get_banner_image(self, instance):
+        """
+        Render public-facing URLs for the available banner images.
+        """
+        serialized = {}
+        for size_key in instance.banner_image.field.variations:
+            # Get different sizes specs from the model field
+            # Then get the file path from the available files
+            sized_file = getattr(instance.banner_image, size_key, None)
+            if sized_file:
+                path = sized_file.url
+                serialized[size_key] = self.context['request'].build_absolute_uri(path)
+
+        return serialized
+
     class Meta:
         model = Program
         fields = ('uuid', 'title', 'subtitle', 'type', 'marketing_slug', 'marketing_url', 'card_image_url',
-                  'banner_image_url', 'authoring_organizations', 'courses',)
+                  'banner_image', 'banner_image_url', 'authoring_organizations', 'courses',)
         read_only_fields = ('uuid', 'marketing_url',)
 
 

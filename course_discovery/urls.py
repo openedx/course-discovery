@@ -18,7 +18,9 @@ import os
 from auth_backends.urls import auth_urlpatterns
 from django.conf import settings
 from django.conf.urls import include, url
+from django.conf.urls.static import static
 from django.contrib import admin
+
 
 from course_discovery.apps.core import views as core_views
 from course_discovery.apps.course_metadata.views import QueryPreviewView
@@ -37,7 +39,9 @@ urlpatterns = auth_urlpatterns + [
     url(r'^publisher/', include('course_discovery.apps.publisher.urls', namespace='publisher')),
 ]
 
-if settings.DEBUG and os.environ.get('ENABLE_DJANGO_TOOLBAR', False):  # pragma: no cover
-    import debug_toolbar  # pylint: disable=wrong-import-order,wrong-import-position,import-error
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):  # pragma: no cover
+        import debug_toolbar  # pylint: disable=wrong-import-order,wrong-import-position,import-error
 
-    urlpatterns.append(url(r'^__debug__/', include(debug_toolbar.urls)))
+        urlpatterns.append(url(r'^__debug__/', include(debug_toolbar.urls)))

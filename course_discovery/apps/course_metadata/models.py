@@ -14,6 +14,8 @@ from djchoices import DjangoChoices, ChoiceItem
 from haystack.query import SearchQuerySet
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
+from stdimage.models import StdImageField
+from stdimage.utils import UploadToClassNameDirUUID
 
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata.query import CourseQuerySet
@@ -563,7 +565,16 @@ class Program(TimeStampedModel):
     min_hours_effort_per_week = models.PositiveSmallIntegerField(null=True, blank=True)
     max_hours_effort_per_week = models.PositiveSmallIntegerField(null=True, blank=True)
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_programs')
-
+    banner_image = StdImageField(
+        upload_to=UploadToClassNameDirUUID(),
+        blank=True,
+        null=True,
+        variations={
+            'w1440h480': (1440, 480),
+            'w726h242': (726, 242),
+            'w435h145': (435, 145),
+            'w348h116': (348, 116)}
+    )
     banner_image_url = models.URLField(null=True, blank=True, help_text=_('Image used atop detail pages'))
     card_image_url = models.URLField(null=True, blank=True, help_text=_('Image used for discovery cards'))
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
