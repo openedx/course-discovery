@@ -9,6 +9,7 @@ from rest_framework import serializers
 from rest_framework.fields import DictField
 from taggit_serializer.serializers import TagListSerializerField, TaggitSerializer
 
+from course_discovery.apps.api.fields import StdImageSerializerField
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Image, Organization, Person, Prerequisite, Seat, Subject, Video, Program, ProgramType,
@@ -279,6 +280,7 @@ class ProgramSerializer(serializers.ModelSerializer):
     courses = serializers.SerializerMethodField()
     authoring_organizations = OrganizationSerializer(many=True)
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
+    banner_image = StdImageSerializerField()
 
     def get_courses(self, program):
         course_serializer = ProgramCourseSerializer(
@@ -294,8 +296,8 @@ class ProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
         fields = ('uuid', 'title', 'subtitle', 'type', 'marketing_slug', 'marketing_url', 'card_image_url',
-                  'banner_image_url', 'authoring_organizations', 'courses',)
-        read_only_fields = ('uuid', 'marketing_url',)
+                  'banner_image', 'banner_image_url', 'authoring_organizations', 'courses',)
+        read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 
 
 class AffiliateWindowSerializer(serializers.ModelSerializer):
