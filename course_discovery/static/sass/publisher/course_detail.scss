@@ -99,7 +99,10 @@ nav {
       .btn-copy {
         text-decoration: none;
         @include margin-left(10px);
-        color: #999;
+        padding-top: 2px;
+        padding-bottom: 2px;
+        @include padding-left(5px);
+        @include padding-right(5px);
       }
     }
   }
