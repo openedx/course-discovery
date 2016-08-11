@@ -74,6 +74,14 @@ class OrganizationAdmin(admin.ModelAdmin):
     list_filter = ('partner',)
 
 
+@admin.register(Subject)
+class SubjectAdmin(admin.ModelAdmin):
+    list_display = ('uuid', 'name', 'slug',)
+    list_filter = ('partner',)
+    readonly_fields = ('uuid',)
+    search_fields = ('uuid', 'name', 'slug',)
+
+
 class KeyNameAdmin(admin.ModelAdmin):
     list_display = ('key', 'name',)
     ordering = ('key', 'name',)
@@ -91,7 +99,7 @@ for model in (Person,):
     admin.site.register(model, KeyNameAdmin)
 
 # Register children of AbstractNamedModel
-for model in (LevelType, Subject, Prerequisite, Expertise, MajorWork):
+for model in (LevelType, Prerequisite, Expertise, MajorWork):
     admin.site.register(model, NamedModelAdmin)
 
 # Register remaining models using basic ModelAdmin classes

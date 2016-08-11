@@ -795,3 +795,52 @@ MARKETING_SITE_API_XSERIES_BODIES = [
         'url': 'https://www.edx.org/xseries/supply-chain-management-0'
     }
 ]
+
+MARKETING_SITE_API_SUBJECT_BODIES = [
+    {
+        'body': {
+            'value': 'Yay! CS!',
+            'summary': '',
+            'format': 'expanded_html'
+        },
+        'field_xseries_banner_image': {
+            'url': 'https://prod-edx-mktg-edit.edx.org/sites/default/files/cs-1440x210.jpg'
+        },
+        'field_subject_url_slug': 'computer-science',
+        'field_subject_subtitle': {
+            'value': 'Learn about computer science from the best universities and institutions around the world.',
+            'format': 'basic_html'
+        },
+        'field_subject_card_image': {
+            'url': 'https://prod-edx-mktg-edit.edx.org/sites/default/files/subject/image/card/computer-science.jpg',
+        },
+        'type': 'subject',
+        'title': 'Computer Science',
+        'url': 'https://prod-edx-mktg-edit.edx.org/course/subject/math',
+        'uuid': 'e52e2134-a4e4-4fcb-805f-cbef40812580',
+    },
+    {
+        'body': {
+            'value': 'Take free online math courses from MIT, Caltech, Tsinghua and other leading math and science '
+                     'institutions. Get introductions to algebra, geometry, trigonometry, precalculus and calculus '
+                     'or get help with current math coursework and AP exam preparation.',
+            'summary': '',
+            'format': 'basic_html'
+        },
+        'field_xseries_banner_image': {
+            'url': 'https://prod-edx-mktg-edit.edx.org/sites/default/files/mathemagical-1440x210.jpg',
+        },
+        'field_subject_url_slug': 'math',
+        'field_subject_subtitle': {
+            'value': 'Learn about math and more from the best universities and institutions around the world.',
+            'format': 'basic_html'
+        },
+        'field_subject_card_image': {
+            'url': 'https://prod-edx-mktg-edit.edx.org/sites/default/files/subject/image/card/math.jpg',
+        },
+        'type': 'subject',
+        'title': 'Math',
+        'url': 'https://prod-edx-mktg-edit.edx.org/course/subject/math',
+        'uuid': 'a669e004-cbc0-4b68-8882-234c12e1cce4',
+    },
+]

@@ -97,9 +97,27 @@ class LevelType(AbstractNamedModel):
     pass
 
 
-class Subject(AbstractNamedModel):
+class Subject(TimeStampedModel):
     """ Subject model. """
-    pass
+    uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
+    name = models.CharField(max_length=255, blank=False, null=False)
+    subtitle = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    banner_image_url = models.URLField(blank=True, null=True)
+    card_image_url = models.URLField(blank=True, null=True)
+    slug = AutoSlugField(populate_from='name', editable=True, blank=True,
+                         help_text=_('Leave this field blank to have the value generated automatically.'))
+    partner = models.ForeignKey(Partner)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        unique_together = (
+            ('partner', 'name'),
+            ('partner', 'slug'),
+            ('partner', 'uuid'),
+        )
 
 
 class Prerequisite(AbstractNamedModel):

@@ -77,10 +77,8 @@ class DrupalApiDataLoader(AbstractDataLoader):
         """Update `course` with subjects from `body`."""
         course.subjects.clear()
         subjects = (s['title'] for s in body['subjects'])
-        for subject_name in subjects:
-            # Normalize subject names with title case
-            subject, __ = Subject.objects.get_or_create(name=subject_name.title())
-            course.subjects.add(subject)
+        subjects = Subject.objects.filter(name__in=subjects, partner=self.partner)
+        course.subjects.add(*subjects)
 
     def set_sponsors(self, course, body):
         """Update `course` with sponsors from `body`."""
@@ -285,3 +283,25 @@ class XSeriesMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         program.save()
         logger.info('Processed XSeries with marketing_slug [%s].', marketing_slug)
         return program
+
+
+class SubjectMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
+    @property
+    def node_type(self):
+        return 'subject'
+
+    def process_node(self, data):
+        slug = data['field_subject_url_slug']
+        defaults = {
+            'uuid': data['uuid'],
+            'name': data['title'],
+            'description': self.clean_html(data['body']['value']),
+            'subtitle': self.clean_html(data['field_subject_subtitle']['value']),
+            'card_image_url': self._get_nested_url(data.get('field_subject_card_image')),
+            # NOTE (CCB): This is not a typo. Yes, the banner image for subjects is in a field with xseries in the name.
+            'banner_image_url': self._get_nested_url(data.get('field_xseries_banner_image'))
+
+        }
+        subject, __ = Subject.objects.update_or_create(slug=slug, partner=self.partner, defaults=defaults)
+        logger.info('Processed subject with slug [%s].', slug)
+        return subject

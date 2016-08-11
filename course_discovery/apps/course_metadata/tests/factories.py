@@ -43,9 +43,15 @@ class VideoFactory(AbstractMediaModelFactory):
         model = Video
 
 
-class SubjectFactory(AbstractNamedModelFactory):
+class SubjectFactory(factory.DjangoModelFactory):
     class Meta:
         model = Subject
+
+    name = FuzzyText()
+    description = FuzzyText()
+    banner_image_url = FuzzyURL()
+    card_image_url = FuzzyURL()
+    partner = factory.SubFactory(PartnerFactory)
 
 
 class LevelTypeFactory(AbstractNamedModelFactory):

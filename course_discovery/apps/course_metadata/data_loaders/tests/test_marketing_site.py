@@ -1,5 +1,6 @@
 import json
 from urllib.parse import parse_qs, urlparse
+from uuid import UUID
 
 import ddt
 import mock
@@ -8,7 +9,7 @@ from django.test import TestCase
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
-    DrupalApiDataLoader, XSeriesMarketingSiteDataLoader,
+    DrupalApiDataLoader, XSeriesMarketingSiteDataLoader, SubjectMarketingSiteDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import ApiClientTestMixin, DataLoaderTestMixin
@@ -55,9 +56,19 @@ class DrupalApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase
         Person.objects.create(key=mock_data.ORPHAN_STAFF_KEY)
         Organization.objects.create(key=mock_data.ORPHAN_ORGANIZATION_KEY)
 
+    def create_mock_subjects(self, course_runs):
+        course_runs = course_runs['items']
+
+        for course_run in course_runs:
+            if course_run:
+                for subject in course_run['subjects']:
+                    Subject.objects.get_or_create(name=subject['title'], partner=self.partner)
+
     def mock_api(self):
         """Mock out the Drupal API. Returns a list of mocked-out course runs."""
         body = mock_data.MARKETING_API_BODY
+        self.create_mock_subjects(body)
+
         responses.add(
             responses.GET,
             self.api_url + 'courses/',
@@ -111,11 +122,10 @@ class DrupalApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase
     def assert_subjects_loaded(self, course, body):
         """Verify that subjects have been loaded correctly."""
         course_subjects = course.subjects.all()
-        api_subjects = body['subjects']
-        self.assertEqual(len(course_subjects), len(api_subjects))
-        for api_subject in api_subjects:
-            loaded_subject = Subject.objects.get(name=api_subject['title'].title())
-            self.assertIn(loaded_subject, course_subjects)
+        expected_subjects = body['subjects']
+        expected_subjects = [subject['title'] for subject in expected_subjects]
+        actual_subjects = list(course_subjects.values_list('name', flat=True))
+        self.assertEqual(actual_subjects, expected_subjects)
 
     def assert_sponsors_loaded(self, course, body):
         """Verify that sponsors have been loaded correctly."""
@@ -298,7 +308,6 @@ class AbstractMarketingSiteDataLoaderTestMixin(DataLoaderTestMixin):
 
 class XSeriesMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
     loader_class = XSeriesMarketingSiteDataLoader
-    LOGIN_COOKIE = ('session_id', 'abc123')
 
     def create_mock_programs(self, programs):
         for program in programs:
@@ -364,3 +373,45 @@ class XSeriesMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMix
             calls = [mock.call('Program [%s] exists on the marketing site, but not in the Programs Service!',
                                datum['url'].split('/')[-1]) for datum in api_data]
             mock_logger.error.assert_has_calls(calls)
+
+
+class SubjectMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
+    loader_class = SubjectMarketingSiteDataLoader
+
+    def mock_api(self):
+        bodies = mock_data.MARKETING_SITE_API_SUBJECT_BODIES
+        url = self.api_url + 'node.json'
+
+        responses.add_callback(
+            responses.GET,
+            url,
+            callback=self.mock_api_callback(url, bodies),
+            content_type=JSON
+        )
+
+        return bodies
+
+    def assert_subject_loaded(self, data):
+        slug = data['field_subject_url_slug']
+        subject = Subject.objects.get(slug=slug, partner=self.partner)
+        expected_values = {
+            'uuid': UUID(data['uuid']),
+            'name': data['title'],
+            'description': self.loader.clean_html(data['body']['value']),
+            'subtitle': self.loader.clean_html(data['field_subject_subtitle']['value']),
+            'card_image_url': data['field_subject_card_image']['url'],
+            'banner_image_url': data['field_xseries_banner_image']['url'],
+        }
+
+        for field, value in expected_values.items():
+            self.assertEqual(getattr(subject, field), value)
+
+    @responses.activate
+    def test_ingest(self):
+        self.mock_login_response()
+        api_data = self.mock_api()
+
+        self.loader.ingest()
+
+        for datum in api_data:
+            self.assert_subject_loaded(datum)
