@@ -35,8 +35,8 @@ class CourseRunAdmin(admin.ModelAdmin):
 
 @admin.register(Program)
 class ProgramAdmin(admin.ModelAdmin):
-    list_display = ('uuid', 'title', 'marketing_slug',)
-    list_filter = ('partner',)
+    list_display = ('uuid', 'title', 'marketing_slug', 'type',)
+    list_filter = ('partner', 'type',)
     ordering = ('uuid', 'title',)
     readonly_fields = ('uuid',)
     search_fields = ('uuid', 'title', 'marketing_slug')
