@@ -1,9 +1,7 @@
 from django.contrib import admin
+from simple_history.admin import SimpleHistoryAdmin
 
-from course_discovery.apps.course_metadata.models import (
-    Seat, Image, Video, LevelType, Subject, Prerequisite, ExpectedLearningItem, Expertise, Course, CourseRun,
-    CourseRunSocialNetwork, MajorWork, Organization, Person, PersonSocialNetwork, CourseOrganization, SyllabusItem,
-    Program, JobOutlookItem, SeatType, Endorsement, CorporateEndorsement, FAQ, ProgramType)
+from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 
 
 class CourseOrganizationInline(admin.TabularInline):
@@ -69,9 +67,11 @@ class FAQAdmin(admin.ModelAdmin):
 
 
 @admin.register(Organization)
-class OrganizationAdmin(admin.ModelAdmin):
-    list_display = ('key', 'name',)
+class OrganizationAdmin(SimpleHistoryAdmin):
+    list_display = ('uuid', 'key', 'name',)
     list_filter = ('partner',)
+    readonly_fields = ('uuid',)
+    search_fields = ('uuid', 'name', 'key',)
 
 
 @admin.register(Subject)

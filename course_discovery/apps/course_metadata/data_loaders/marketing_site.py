@@ -84,10 +84,9 @@ class DrupalApiDataLoader(AbstractDataLoader):
         """Update `course` with sponsors from `body`."""
         course.courseorganization_set.filter(relation_type=CourseOrganization.SPONSOR).delete()
         for sponsor_body in body['sponsors']:
-            image, __ = Image.objects.get_or_create(src=sponsor_body['image'])
             defaults = {
                 'name': sponsor_body['title'],
-                'logo_image': image,
+                'logo_image_url': sponsor_body['image'],
                 'homepage_url': urljoin(self.partner.marketing_site_url_root, sponsor_body['uri']),
             }
             organization, __ = Organization.objects.update_or_create(key=sponsor_body['uuid'], defaults=defaults)

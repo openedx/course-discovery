@@ -14,7 +14,7 @@ from course_discovery.apps.course_metadata.data_loaders.api import (
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import ApiClientTestMixin, DataLoaderTestMixin
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Image, Organization, Seat, Program, ProgramType,
+    Course, CourseRun, Organization, Seat, Program, ProgramType,
 )
 from course_discovery.apps.course_metadata.tests import mock_data
 from course_discovery.apps.course_metadata.tests.factories import (
@@ -83,13 +83,7 @@ class OrganizationsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, T
         organization = Organization.objects.get(key=AbstractDataLoader.clean_string(body['short_name']))
         self.assertEqual(organization.name, AbstractDataLoader.clean_string(body['name']))
         self.assertEqual(organization.description, AbstractDataLoader.clean_string(body['description']))
-
-        image = None
-        image_url = AbstractDataLoader.clean_string(body['logo'])
-        if image_url:
-            image = Image.objects.get(src=image_url)
-
-        self.assertEqual(organization.logo_image, image)
+        self.assertEqual(organization.logo_image_url, AbstractDataLoader.clean_string(body['logo']))
 
     @responses.activate
     def test_ingest(self):
