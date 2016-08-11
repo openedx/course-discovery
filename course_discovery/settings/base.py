@@ -43,6 +43,7 @@ THIRD_PARTY_APPS = [
     'compressor',
     'django_filters',
     'django_fsm',
+    'storages',
 ]
 
 PROJECT_APPS = [
