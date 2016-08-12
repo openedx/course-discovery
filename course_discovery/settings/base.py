@@ -42,6 +42,7 @@ THIRD_PARTY_APPS = [
     'dry_rest_permissions',
     'compressor',
     'django_filters',
+    'django_fsm',
 ]
 
 PROJECT_APPS = [

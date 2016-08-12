@@ -1,10 +1,9 @@
-import ddt
 
 from django.core.urlresolvers import reverse
 from django.forms import model_to_dict
 from django.test import TestCase
 
-from course_discovery.apps.publisher.models import Course, CourseRun, Seat
+from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
@@ -171,7 +170,7 @@ class SeatsCreateUpdateViewTests(TestCase):
             self.seat_dict
         )
         seat = Seat.objects.get(id=self.seat.id)
-        # Assert that we change seat type.
+        # Assert that we can change seat type.
         self.assertEqual(seat.type, Seat.HONOR)
 
         self.assertRedirects(
@@ -182,7 +181,6 @@ class SeatsCreateUpdateViewTests(TestCase):
         )
 
 
-@ddt.ddt
 class CourseRunDetailTests(TestCase):
     """ Tests for the course-run detail view. """
 
@@ -319,3 +317,37 @@ class CourseRunDetailTests(TestCase):
         """ Helper method to test course subjects. """
         for subject in self.wrapped_course_run.subjects:
             self.assertContains(response, subject.name)
+
+
+class ChangeStateViewTests(TestCase):
+    """ Tests for the `ChangeStateView`. """
+
+    def setUp(self):
+        super(ChangeStateViewTests, self).setUp()
+        self.course = factories.CourseFactory()
+        self.course_run = factories.CourseRunFactory(course=self.course)
+        self.page_url = reverse('publisher:publisher_course_run_detail', args=[self.course_run.id])
+        self.change_state_url = reverse('publisher:publisher_change_state', args=[self.course_run.id])
+
+    def test_detail_page_change_state(self):
+        """ Verify that we can change workflow state from detail page. """
+        response = self.client.get(self.page_url)
+        self.assertContains(response, 'Status:')
+        self.assertContains(response, State.DRAFT.title())
+        # change workflow state from `DRAFT` to `NEEDS_REVIEW`
+        response = self.client.post(self.change_state_url, data={'state': State.NEEDS_REVIEW}, follow=True)
+
+        # assert that state is changed to `NEEDS_REVIEW`
+        self.assertContains(response, State.NEEDS_REVIEW.title().replace('_', ' '))
+
+    def test_detail_page_change_state_not_allowed(self):
+        """ Verify that we can't change workflow state from `DRAFT` to `PUBLISHED`. """
+        response = self.client.get(self.page_url)
+        self.assertContains(response, 'Status:')
+        self.assertContains(response, State.DRAFT.title())
+        # change workflow state from `DRAFT` to `PUBLISHED`
+        response = self.client.post(self.change_state_url, data={'state': State.PUBLISHED}, follow=True)
+
+        # assert that state is not changed to `PUBLISHED`
+        self.assertNotContains(response, State.PUBLISHED.title())
+        self.assertContains(response, 'There was an error in changing state.')

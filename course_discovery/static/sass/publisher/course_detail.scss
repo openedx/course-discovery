@@ -1,40 +1,6 @@
 // ------------------------------
-// // edX Course Discovery: Base
-// About: Base resets and definitons (using shared resources from elements when appropriate).
+// // edX Course Discovery: Course Detail
 // ------------------------------
-// #RESET
-// ------------------------------
-//
-//
-//// ------------------------------
-// Fontawesome icons
-// ------------------------------
-
-* {
-  margin: 0;
-  padding: 0;
-  text-decoration: none;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-}
-
-body {
-  color: #434242;
-  background: #fafafa;
-  font-family: "Open Sans";
-  line-height: 1.42857;
-}
-
-// ------------------------------
-// #BASE
-// ------------------------------
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background: #fafafa;
-}
 
 // ------------------------------
 // #TYPOGRAPHY
@@ -50,6 +16,10 @@ html, body {
   width: 1170px;
   margin: auto;
   overflow: auto;
+
+  .actions {
+      margin-top: 30px;
+  }
 }
 
 nav {
@@ -86,7 +56,11 @@ nav {
   padding: 0 30px 30px;
 }
 
-.course-information {
+.alert-messages .alert {
+    margin-bottom: 20px;
+}
+
+.course-information, .status-information {
   margin-bottom: 30px;
 
   .info-item {
@@ -108,7 +82,12 @@ nav {
   }
 }
 
-
+.btn-edit {
+  @include float(right);
+  @include margin-right(30px);
+  @include padding-left(20px);
+  @include padding-right(20px);
+}
 
 .breadcrumb {
   padding: 8px 15px;

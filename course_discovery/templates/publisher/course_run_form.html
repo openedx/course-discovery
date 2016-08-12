@@ -8,11 +8,22 @@
     <div class="layout-full layout">
         <div class="card course-form">
             <h4 class="hd-4">{% trans "Course Run Form" %}</h4>
-            {% if object.id %}
-                <a href="{% url 'publisher:publisher_seats_new' %}" target="_blank" class="btn btn-neutral btn-add">
-                    {% trans "Add Seat" %}
-                </a>
-            {% endif %}
+
+            <div class="status-information">
+                {% if object.id %}
+                    <div class="info-item">
+                        <span class="item">
+                            <span class="heading">{% trans "Status" %}:</span>
+                            <span>{{ workflow_state }}</span>
+                        </span>
+                        <span class="item">
+                            <a href="{% url 'publisher:publisher_seats_new' %}" target="_blank" class="btn btn-neutral btn-add">
+                                {% trans "Add Seat" %}
+                            </a>
+                        </span>
+                    </div>
+                {% endif %}
+            </div>
             <form class="form" method="post" action=""> {% csrf_token %}
                 <fieldset class="form-group">
                     {% for field in form %}

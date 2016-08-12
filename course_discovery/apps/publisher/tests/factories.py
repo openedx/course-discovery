@@ -8,7 +8,13 @@ from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.models import CourseRun as CourseMetadataCourseRun
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.models import Course, CourseRun, Seat
+from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State
+
+
+class StateFactory(factory.DjangoModelFactory):
+
+    class Meta:
+        model = State
 
 
 class CourseFactory(factory.DjangoModelFactory):
@@ -32,6 +38,7 @@ class CourseFactory(factory.DjangoModelFactory):
 
 class CourseRunFactory(factory.DjangoModelFactory):
     course = factory.SubFactory(CourseFactory)
+    state = factory.SubFactory(StateFactory)
     start = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
     end = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC)).end_dt
     enrollment_start = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
