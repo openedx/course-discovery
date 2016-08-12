@@ -19,6 +19,9 @@ LOGGING['handlers']['local']['level'] = 'INFO'
 # the values read from disk should UPDATE the pre-configured dicts.
 DICT_UPDATE_KEYS = ('JWT_AUTH',)
 
+# This may be overridden by the YAML in PROGRAMS_CFG, but it should be here as a default.
+MEDIA_STORAGE_BACKEND = {}
+
 CONFIG_FILE = get_env_setting('COURSE_DISCOVERY_CFG')
 with open(CONFIG_FILE) as f:
     config_from_yaml = yaml.load(f)
@@ -32,6 +35,11 @@ with open(CONFIG_FILE) as f:
             vars()[key].update(value)
 
     vars().update(config_from_yaml)
+
+    # Unpack media storage settings.
+    # It's important we unpack here because of https://github.com/edx/configuration/pull/3307
+    vars().update(MEDIA_STORAGE_BACKEND)
+
 
 if 'EXTRA_APPS' in locals():
     INSTALLED_APPS += EXTRA_APPS
