@@ -6,8 +6,8 @@ from opaque_keys.edx.keys import CourseKey
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    Image, Video, Organization, Seat, CourseRun, Program, Course, CourseOrganization,
-    ProgramType)
+    Video, Organization, Seat, CourseRun, Program, Course, CourseOrganization, ProgramType,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -41,18 +41,14 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
         self.delete_orphans()
 
     def update_organization(self, body):
-        image = None
-        image_url = body['logo']
-        if image_url:
-            image, __ = Image.objects.get_or_create(src=image_url)
         defaults = {
             'name': body['name'],
             'description': body['description'],
-            'logo_image': image,
+            'logo_image_url': body['logo'],
             'partner': self.partner,
         }
         Organization.objects.update_or_create(key=body['short_name'], defaults=defaults)
-        logger.info('Created/updated organization "%s"', body['short_name'])
+        logger.info('Processed organization "%s"', body['short_name'])
 
 
 class CoursesApiDataLoader(AbstractDataLoader):

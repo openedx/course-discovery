@@ -157,11 +157,10 @@ class PersonSerializer(serializers.ModelSerializer):
 
 class OrganizationSerializer(serializers.ModelSerializer):
     """Serializer for the ``Organization`` model."""
-    logo_image = ImageSerializer()
 
     class Meta(object):
         model = Organization
-        fields = ('key', 'name', 'description', 'logo_image', 'homepage_url',)
+        fields = ('key', 'name', 'description', 'homepage_url',)
 
 
 class CatalogSerializer(serializers.ModelSerializer):

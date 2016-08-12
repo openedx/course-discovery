@@ -82,7 +82,7 @@ class Migration(migrations.Migration):
             name='subject',
             unique_together=set([('partner', 'name'), ('partner', 'slug'), ('partner', 'uuid')]),
         ),
-        migrations.RunPython(update_subjects, lambda *args: None),
+        migrations.RunPython(update_subjects, reverse_code=migrations.RunPython.noop),
         migrations.AlterField(
             model_name='subject',
             name='slug',

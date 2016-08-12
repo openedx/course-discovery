@@ -152,17 +152,21 @@ class MajorWork(AbstractNamedModel):
 
 class Organization(TimeStampedModel):
     """ Organization model. """
-    key = models.CharField(max_length=255, unique=True)
-    name = models.CharField(max_length=255, null=True, blank=True)
+    partner = models.ForeignKey(Partner, null=True, blank=False)
+    uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
+    key = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     homepage_url = models.URLField(max_length=255, null=True, blank=True)
-    # NOTE (CCB): The related_name values are here to prevent the images from being treated as orphans.
-    logo_image = models.ForeignKey(Image, null=True, blank=True, related_name='logoed_organizations')
-    banner_image = models.ForeignKey(Image, null=True, blank=True, related_name='bannered_organizations')
-
-    partner = models.ForeignKey(Partner, null=True, blank=False)
-
+    logo_image_url = models.URLField(null=True, blank=True)
+    banner_image_url = models.URLField(null=True, blank=True)
     history = HistoricalRecords()
+
+    class Meta:
+        unique_together = (
+            ('partner', 'key'),
+            ('partner', 'uuid'),
+        )
 
     def __str__(self):
         return '{key}: {name}'.format(key=self.key, name=self.name)
