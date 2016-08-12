@@ -25,3 +25,7 @@ HAYSTACK_CONNECTIONS = {
         'INDEX_NAME': '',
     }
 }
+
+LOGGING['handlers']['local'] = {
+    'class': 'logging.NullHandler',
+}
