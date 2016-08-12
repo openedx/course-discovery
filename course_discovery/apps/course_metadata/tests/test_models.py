@@ -5,6 +5,7 @@ from decimal import Decimal
 import ddt
 import pytz
 from dateutil.parser import parse
+from django.conf import settings
 from django.db import IntegrityError
 from django.test import TestCase
 from freezegun import freeze_time
@@ -15,6 +16,7 @@ from course_discovery.apps.course_metadata.models import (
     AbstractNamedModel, AbstractMediaModel, AbstractValueModel, CourseOrganization, Course, CourseRun,
     SeatType)
 from course_discovery.apps.course_metadata.tests import factories
+from course_discovery.apps.course_metadata.tests.helpers import make_banner_image_file
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
@@ -328,6 +330,18 @@ class ProgramTests(TestCase):
         self.course_runs[1].instructors.add(instructors[1])
 
         self.assertEqual(self.program.instructors, set(instructors))
+
+    def test_banner_image(self):
+        self.program.banner_image = make_banner_image_file('test_banner.jpg')
+        self.program.save()
+        image_url_prefix = '{}program/'.format(settings.MEDIA_URL)
+        self.assertIn(image_url_prefix, self.program.banner_image.url)
+        for size_key in self.program.banner_image.field.variations:
+            # Get different sizes specs from the model field
+            # Then get the file path from the available files
+            sized_file = getattr(self.program.banner_image, size_key, None)
+            self.assertIsNotNone(sized_file)
+            self.assertIn(image_url_prefix, sized_file.url)
 
 
 class PersonSocialNetworkTests(TestCase):
