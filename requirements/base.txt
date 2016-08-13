@@ -32,3 +32,6 @@ pillow==3.3.0
 pycountry==1.20
 python-dateutil==2.5.3
 pytz==2016.4
+
+# ECOM-5232: This custom version includes a migration fix that prevents us from having to fake migrations.
+git+https://github.com/clintonb/python-social-auth.git@edx-migration-fix#python-social-auth==0.2.21.edx
