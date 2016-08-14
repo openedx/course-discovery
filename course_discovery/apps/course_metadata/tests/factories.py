@@ -1,19 +1,12 @@
 from datetime import datetime
-from uuid import uuid4
 
 import factory
-from factory.fuzzy import (
-    FuzzyText, FuzzyChoice, FuzzyDateTime, FuzzyInteger, FuzzyDecimal
-)
+from factory.fuzzy import FuzzyText, FuzzyChoice, FuzzyDateTime, FuzzyInteger, FuzzyDecimal
 from pytz import UTC
 
-from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import FuzzyURL
-from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Organization, Person, Image, Video, Subject, Seat, Prerequisite, LevelType, Program,
-    AbstractSocialNetworkModel, CourseRunSocialNetwork, PersonSocialNetwork, ProgramType, SeatType,
-)
+from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
@@ -68,7 +61,7 @@ class SeatFactory(factory.DjangoModelFactory):
     type = FuzzyChoice([name for name, __ in Seat.SEAT_TYPE_CHOICES])
     price = FuzzyDecimal(0.0, 650.0)
     currency = factory.Iterator(Currency.objects.all())
-    upgrade_deadline = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
+    upgrade_deadline = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
     class Meta:
         model = Seat
@@ -106,11 +99,11 @@ class CourseRunFactory(factory.DjangoModelFactory):
     short_description_override = None
     full_description_override = None
     language = factory.Iterator(LanguageTag.objects.all())
-    start = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
-    end = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC)).end_dt
-    enrollment_start = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
-    enrollment_end = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC)).end_dt
-    announcement = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
+    start = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
+    end = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC)).end_dt
+    enrollment_start = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
+    enrollment_end = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC)).end_dt
+    announcement = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
     image = factory.SubFactory(ImageFactory)
     video = factory.SubFactory(VideoFactory)
     min_effort = FuzzyInteger(1, 10)
@@ -146,14 +139,24 @@ class OrganizationFactory(factory.DjangoModelFactory):
 
 
 class PersonFactory(factory.DjangoModelFactory):
-    key = FuzzyText(prefix='Person.fake/')
-    name = FuzzyText()
-    title = FuzzyText()
+    uuid = factory.LazyFunction(uuid4)
+    partner = factory.SubFactory(PartnerFactory)
+    given_name = factory.Faker('first_name')
+    family_name = factory.Faker('last_name')
     bio = FuzzyText()
-    profile_image = factory.SubFactory(ImageFactory)
+    profile_image_url = FuzzyURL()
 
     class Meta:
         model = Person
+
+
+class PositionFactory(factory.DjangoModelFactory):
+    person = factory.SubFactory(PersonFactory)
+    title = FuzzyText()
+    organization = factory.SubFactory(OrganizationFactory)
+
+    class Meta:
+        model = Position
 
 
 class ProgramTypeFactory(factory.django.DjangoModelFactory):

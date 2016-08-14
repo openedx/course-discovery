@@ -149,11 +149,10 @@ class SeatSerializer(serializers.ModelSerializer):
 
 class PersonSerializer(serializers.ModelSerializer):
     """Serializer for the ``Person`` model."""
-    profile_image = ImageSerializer()
 
     class Meta(object):
         model = Person
-        fields = ('key', 'name', 'title', 'bio', 'profile_image',)
+        fields = ('uuid', 'given_name', 'family_name', 'bio', 'profile_image_url', 'slug',)
 
 
 class OrganizationSerializer(TaggitSerializer, serializers.ModelSerializer):

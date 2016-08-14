@@ -141,16 +141,6 @@ class SyllabusItem(AbstractValueModel):
     parent = models.ForeignKey('self', blank=True, null=True, related_name='children')
 
 
-class Expertise(AbstractNamedModel):
-    """ Expertise model. """
-    pass
-
-
-class MajorWork(AbstractNamedModel):
-    """ MajorWork model. """
-    pass
-
-
 class Organization(TimeStampedModel):
     """ Organization model. """
     partner = models.ForeignKey(Partner, null=True, blank=False)
@@ -178,24 +168,51 @@ class Organization(TimeStampedModel):
 
 class Person(TimeStampedModel):
     """ Person model. """
-    key = models.CharField(max_length=255, unique=True)
-    name = models.CharField(max_length=255, null=True, blank=True)
-    title = models.CharField(max_length=255, null=True, blank=True)
+    uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
+    partner = models.ForeignKey(Partner, null=True, blank=False)
+    given_name = models.CharField(max_length=255)
+    family_name = models.CharField(max_length=255, null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
-    profile_image = models.ForeignKey(Image, null=True, blank=True)
-    organizations = models.ManyToManyField(Organization, blank=True)
-    email = models.EmailField(max_length=255, null=True, blank=True)
-    username = models.CharField(max_length=255, null=True, blank=True)
-    expertises = SortedManyToManyField(Expertise, blank=True, related_name='person_expertise')
-    major_works = SortedManyToManyField(MajorWork, blank=True, related_name='person_works')
+    profile_image_url = models.URLField(null=True, blank=True)
+    slug = AutoSlugField(populate_from=('given_name', 'family_name'), editable=True)
 
     history = HistoricalRecords()
 
-    def __str__(self):
-        return '{key}: {name}'.format(key=self.key, name=self.name)
+    class Meta:
+        unique_together = (
+            ('partner', 'uuid'),
+        )
+        verbose_name_plural = _('People')
 
-    class Meta(object):
-        verbose_name_plural = 'People'
+    def __str__(self):
+        return self.full_name
+
+    @property
+    def full_name(self):
+        return ' '.join((self.given_name, self.family_name,))
+
+
+class Position(TimeStampedModel):
+    """ Position model.
+
+    This model represent's a `Person`'s role at an organization.
+    """
+    person = models.OneToOneField(Person)
+    title = models.CharField(max_length=255)
+    organization = models.ForeignKey(Organization, null=True, blank=True)
+    organization_override = models.CharField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return '{title} at {organization}'.format(title=self.title, organization=self.organization_name)
+
+    @property
+    def organization_name(self):
+        name = self.organization_override
+
+        if self.organization and not name:
+            name = self.organization.name
+
+        return name
 
 
 class Course(TimeStampedModel):

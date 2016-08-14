@@ -202,10 +202,38 @@ class OrganizationTests(TestCase):
 class PersonTests(TestCase):
     """ Tests for the `Person` model. """
 
+    def setUp(self):
+        super(PersonTests, self).setUp()
+        self.person = factories.PersonFactory()
+
+    def test_full_name(self):
+        """ Verify the property returns the person's full name. """
+        expected = self.person.given_name + ' ' + self.person.family_name
+        self.assertEqual(self.person.full_name, expected)
+
     def test_str(self):
-        """ Verify casting an instance to a string returns a string containing the key and name. """
-        person = factories.PersonFactory()
-        self.assertEqual(str(person), '{key}: {name}'.format(key=person.key, name=person.name))
+        """ Verify casting an instance to a string returns the person's full name. """
+        self.assertEqual(str(self.person), self.person.full_name)
+
+
+class PositionTests(TestCase):
+    """ Tests for the `Position` model. """
+
+    def setUp(self):
+        super(PositionTests, self).setUp()
+        self.position = factories.PositionFactory()
+
+    def test_organization_name(self):
+        """ Verify the property returns the name of the related Organization or the overridden value. """
+        self.assertEqual(self.position.organization_name, self.position.organization.name)
+
+        self.position.organization_override = 'ACME'
+        self.assertEqual(self.position.organization_name, self.position.organization_override)
+
+    def test_str(self):
+        """ Verify casting an instance to a string returns the title and organization. """
+        expected = self.position.title + ' at ' + self.position.organization_name
+        self.assertEqual(str(self.position), expected)
 
 
 class AbstractNamedModelTests(TestCase):
@@ -378,6 +406,7 @@ class CourseSocialNetworkTests(TestCase):
 
 class SeatTypeTests(TestCase):
     """ Tests of the SeatType model. """
+
     def test_str(self):
         seat_type = factories.SeatTypeFactory()
         self.assertEqual(str(seat_type), seat_type.name)
@@ -385,6 +414,7 @@ class SeatTypeTests(TestCase):
 
 class ProgramTypeTests(TestCase):
     """ Tests of the ProgramType model. """
+
     def test_str(self):
         program_type = factories.ProgramTypeFactory()
         self.assertEqual(str(program_type), program_type.name)

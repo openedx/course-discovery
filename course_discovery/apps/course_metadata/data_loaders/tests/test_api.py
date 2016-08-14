@@ -18,7 +18,7 @@ from course_discovery.apps.course_metadata.models import (
 )
 from course_discovery.apps.course_metadata.tests import mock_data
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseRunFactory, SeatFactory, ImageFactory, PersonFactory, VideoFactory, OrganizationFactory, CourseFactory,
+    CourseRunFactory, SeatFactory, ImageFactory, VideoFactory, OrganizationFactory, CourseFactory,
 )
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.api.logger'
@@ -52,7 +52,7 @@ class AbstractDataLoaderTest(TestCase):
 
     def test_delete_orphans(self):
         """ Verify the delete_orphans method deletes orphaned instances. """
-        instances = (ImageFactory(), PersonFactory(), VideoFactory(),)
+        instances = (ImageFactory(), VideoFactory(),)
         AbstractDataLoader.delete_orphans()
 
         for instance in instances:

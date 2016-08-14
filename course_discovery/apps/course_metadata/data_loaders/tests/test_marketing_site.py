@@ -10,15 +10,15 @@ from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
     DrupalApiDataLoader, XSeriesMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
-    SponsorMarketingSiteDataLoader,
+    SponsorMarketingSiteDataLoader, PersonMarketingSiteDataLoader,
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import ApiClientTestMixin, DataLoaderTestMixin
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseOrganization, CourseRun, Organization, Person, Subject, Program, Video,
+    Course, CourseOrganization, CourseRun, Organization, Subject, Program, Video, Person,
 )
 from course_discovery.apps.course_metadata.tests import mock_data
-from course_discovery.apps.course_metadata.tests.factories import ProgramFactory
+from course_discovery.apps.course_metadata.tests.factories import ProgramFactory, OrganizationFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 ENGLISH_LANGUAGE_TAG = LanguageTag(code='en-us', name='English - United States')
@@ -37,15 +37,13 @@ class DrupalApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase
         super(DrupalApiDataLoaderTests, self).setUp()
         for course_dict in mock_data.EXISTING_COURSE_AND_RUN_DATA:
             course = Course.objects.create(key=course_dict['course_key'], title=course_dict['title'])
-            course_run = CourseRun.objects.create(
+            CourseRun.objects.create(
                 key=course_dict['course_run_key'],
                 language=self.loader.get_language_tag(course_dict),
                 course=course
             )
 
             # Add some data that doesn't exist in Drupal already
-            person = Person.objects.create(key='orphan_staff_' + course_run.key)
-            course_run.staff.add(person)
             organization = Organization.objects.create(key='orphan_org_' + course.key)
             CourseOrganization.objects.create(
                 organization=organization,
@@ -54,7 +52,6 @@ class DrupalApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase
             )
 
         Course.objects.create(key=mock_data.EXISTING_COURSE['course_key'], title=mock_data.EXISTING_COURSE['title'])
-        Person.objects.create(key=mock_data.ORPHAN_STAFF_KEY)
         Organization.objects.create(key=mock_data.ORPHAN_ORGANIZATION_KEY)
 
     def create_mock_subjects(self, course_runs):
@@ -93,22 +90,11 @@ class DrupalApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase
         self.assertEqual(course_run.course, course)
 
         self.assert_course_loaded(course, body)
-        self.assert_staff_loaded(course_run, body)
 
         if course_run.language:
             self.assertEqual(course_run.language.code, body['current_language'])
         else:
             self.assertEqual(body['current_language'], '')
-
-    def assert_staff_loaded(self, course_run, body):
-        """Verify that staff have been loaded correctly."""
-
-        course_run_staff = course_run.staff.all()
-        api_staff = body['staff']
-        self.assertEqual(len(course_run_staff), len(api_staff))
-        for api_staff_member in api_staff:
-            loaded_staff_member = Person.objects.get(key=api_staff_member['uuid'])
-            self.assertIn(loaded_staff_member, course_run_staff)
 
     def assert_course_loaded(self, course, body):
         """Verify that the course has been loaded correctly."""
@@ -162,9 +148,7 @@ class DrupalApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase
         self.loader.ingest()
 
         # Verify that orphan data is deleted
-        self.assertFalse(Person.objects.filter(key=mock_data.ORPHAN_STAFF_KEY).exists())
         self.assertFalse(Organization.objects.filter(key=mock_data.ORPHAN_ORGANIZATION_KEY).exists())
-        self.assertFalse(Person.objects.filter(key__startswith='orphan_staff_').exists())
         self.assertFalse(Organization.objects.filter(key__startswith='orphan_org_').exists())
 
     @responses.activate
@@ -506,3 +490,56 @@ class SponsorMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMix
 
         for sponsor in sponsors:
             self.assert_sponsor_loaded(sponsor)
+
+
+class PersonMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
+    loader_class = PersonMarketingSiteDataLoader
+
+    def mock_api(self):
+        bodies = mock_data.MARKETING_SITE_API_PERSON_BODIES
+        url = self.api_url + 'node.json'
+
+        responses.add_callback(
+            responses.GET,
+            url,
+            callback=self.mock_api_callback(url, bodies),
+            content_type=JSON
+        )
+
+        return bodies
+
+    def assert_person_loaded(self, data):
+        uuid = data['uuid']
+        person = Person.objects.get(uuid=uuid, partner=self.partner)
+        expected_values = {
+            'given_name': data['field_person_first_middle_name'],
+            'family_name': data['field_person_last_name'],
+            'bio': self.loader.clean_html(data['field_person_resume']['value']),
+            'profile_image_url': data['field_person_image']['url'],
+            'slug': data['url'].split('/')[-1],
+        }
+
+        for field, value in expected_values.items():
+            self.assertEqual(getattr(person, field), value)
+
+        positions = data['field_person_positions']
+
+        if positions:
+            position_data = positions[0]
+            titles = position_data['field_person_position_tiltes']
+
+            if titles:
+                self.assertEqual(person.position.title, titles[0])
+                self.assertEqual(person.position.organization_name,
+                                 (position_data.get('field_person_position_org_link') or {}).get('title'))
+
+    @responses.activate
+    def test_ingest(self):
+        self.mock_login_response()
+        people = self.mock_api()
+        OrganizationFactory(name='MIT')
+
+        self.loader.ingest()
+
+        for person in people:
+            self.assert_person_loaded(person)

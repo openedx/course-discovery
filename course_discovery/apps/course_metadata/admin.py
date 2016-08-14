@@ -14,6 +14,11 @@ class SeatInline(admin.TabularInline):
     extra = 1
 
 
+class PositionInline(admin.TabularInline):
+    model = Position
+    extra = 0
+
+
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     inlines = (CourseOrganizationInline,)
@@ -82,10 +87,14 @@ class SubjectAdmin(admin.ModelAdmin):
     search_fields = ('uuid', 'name', 'slug',)
 
 
-class KeyNameAdmin(admin.ModelAdmin):
-    list_display = ('key', 'name',)
-    ordering = ('key', 'name',)
-    search_fields = ('key', 'name',)
+@admin.register(Person)
+class PersonAdmin(admin.ModelAdmin):
+    inlines = (PositionInline,)
+    list_display = ('uuid', 'family_name', 'given_name', 'slug',)
+    list_filter = ('partner',)
+    ordering = ('family_name', 'given_name', 'uuid',)
+    readonly_fields = ('uuid',)
+    search_fields = ('uuid', 'family_name', 'given_name', 'slug',)
 
 
 class NamedModelAdmin(admin.ModelAdmin):
@@ -94,12 +103,8 @@ class NamedModelAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
-# Register key-name models
-for model in (Person,):
-    admin.site.register(model, KeyNameAdmin)
-
 # Register children of AbstractNamedModel
-for model in (LevelType, Prerequisite, Expertise, MajorWork):
+for model in (LevelType, Prerequisite,):
     admin.site.register(model, NamedModelAdmin)
 
 # Register remaining models using basic ModelAdmin classes
