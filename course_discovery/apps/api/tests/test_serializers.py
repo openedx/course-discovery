@@ -387,6 +387,8 @@ class VideoSerializerTests(TestCase):
 class OrganizationSerializerTests(TestCase):
     def test_data(self):
         organization = OrganizationFactory()
+        TAG = 'test'
+        organization.tags.add(TAG)
         serializer = OrganizationSerializer(organization)
 
         expected = {
@@ -394,6 +396,7 @@ class OrganizationSerializerTests(TestCase):
             'name': organization.name,
             'description': organization.description,
             'homepage_url': organization.homepage_url,
+            'tags': [TAG],
         }
 
         self.assertDictEqual(serializer.data, expected)

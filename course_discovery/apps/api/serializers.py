@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from drf_haystack.serializers import HaystackSerializer, HaystackFacetSerializer
 from rest_framework import serializers
 from rest_framework.fields import DictField
+from taggit_serializer.serializers import TagListSerializerField, TaggitSerializer
 
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.models import (
@@ -155,12 +156,13 @@ class PersonSerializer(serializers.ModelSerializer):
         fields = ('key', 'name', 'title', 'bio', 'profile_image',)
 
 
-class OrganizationSerializer(serializers.ModelSerializer):
+class OrganizationSerializer(TaggitSerializer, serializers.ModelSerializer):
     """Serializer for the ``Organization`` model."""
+    tags = TagListSerializerField()
 
     class Meta(object):
         model = Organization
-        fields = ('key', 'name', 'description', 'homepage_url',)
+        fields = ('key', 'name', 'description', 'homepage_url', 'tags',)
 
 
 class CatalogSerializer(serializers.ModelSerializer):
