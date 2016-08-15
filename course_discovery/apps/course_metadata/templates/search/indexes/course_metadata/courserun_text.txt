@@ -1,7 +1,12 @@
 {% include 'search/indexes/course_metadata/basecourse_text.txt' %}
 
 {{ object.pacing_type|default:'' }}
+{{ object.language|default:'' }}
 
 {% for language in object.transcript_languages.all %}
     {{ language }}
+{% endfor %}
+
+{% for person in object.staff.all %}
+    {{ person.full_name }}
 {% endfor %}

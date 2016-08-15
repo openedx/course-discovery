@@ -1,3 +1,4 @@
+{{ object.uuid }}
 {{ object.key }}
 {{ object.title }}
 {{ object.short_description|default:'' }}
@@ -11,7 +12,11 @@
     {{ expected_learning_item.value }}
 {% endfor %}
 
-{% for organization in object.organizations.all %}
+{% for organization in object.authoring_organizations.all %}
+    {% include 'search/indexes/course_metadata/partials/organization.txt' %}
+{% endfor %}
+
+{% for organization in object.sponsoring_organizations.all %}
     {% include 'search/indexes/course_metadata/partials/organization.txt' %}
 {% endfor %}
 
@@ -21,4 +26,8 @@
 
 {% for subject in object.subjects.all %}
     {{ subject.name }}
+{% endfor %}
+
+{% for program in object.programs.all %}
+    {{ program.title }}
 {% endfor %}

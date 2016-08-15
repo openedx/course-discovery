@@ -17,8 +17,11 @@ class OrganizationsMixin:
 
         return json.dumps(OrganizationSerializer(organization).data)
 
-    def prepare_organizations(self, obj):
-        return [self.format_organization(organization) for organization in obj.organizations.all()]
+    def _prepare_organizations(self, organizations):
+        return [self.format_organization(organization) for organization in organizations]
+
+    def prepare_authoring_organizations(self, obj):
+        return self._prepare_organizations(obj.authoring_organizations.all())
 
 
 class BaseIndex(indexes.SearchIndex):
@@ -47,11 +50,22 @@ class BaseCourseIndex(OrganizationsMixin, BaseIndex):
     full_description = indexes.CharField(model_attr='full_description', null=True)
     subjects = indexes.MultiValueField(faceted=True)
     organizations = indexes.MultiValueField(faceted=True)
+    authoring_organizations = indexes.MultiValueField(faceted=True)
+    sponsoring_organizations = indexes.MultiValueField(faceted=True)
     level_type = indexes.CharField(model_attr='level_type__name', null=True, faceted=True)
     partner = indexes.CharField(model_attr='partner__short_code', null=True, faceted=True)
 
     def prepare_subjects(self, obj):
         return [subject.name for subject in obj.subjects.all()]
+
+    def prepare_organizations(self, obj):
+        return self.prepare_authoring_organizations(obj) + self.prepare_sponsoring_organizations(obj)
+
+    def prepare_authoring_organizations(self, obj):
+        return self._prepare_organizations(obj.authoring_organizations.all())
+
+    def prepare_sponsoring_organizations(self, obj):
+        return self._prepare_organizations(obj.sponsoring_organizations.all())
 
 
 class CourseIndex(BaseCourseIndex, indexes.Indexable):
@@ -88,10 +102,11 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     language = indexes.CharField(null=True, faceted=True)
     transcript_languages = indexes.MultiValueField(faceted=True)
     pacing_type = indexes.CharField(model_attr='pacing_type', null=True, faceted=True)
-    marketing_url = indexes.CharField(model_attr='marketing_url', null=True)
+    marketing_url = indexes.CharField(null=True)
+    slug = indexes.CharField(model_attr='slug', null=True)
     seat_types = indexes.MultiValueField(model_attr='seat_types', null=True, faceted=True)
     type = indexes.CharField(model_attr='type', null=True, faceted=True)
-    image_url = indexes.CharField(model_attr='image_url', null=True)
+    image_url = indexes.CharField(model_attr='card_image_url', null=True)
     partner = indexes.CharField(model_attr='course__partner__short_code', null=True, faceted=True)
 
     def _prepare_language(self, language):
@@ -113,6 +128,9 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     def prepare_transcript_languages(self, obj):
         return [self._prepare_language(language) for language in obj.transcript_languages.all()]
 
+    def prepare_marketing_url(self, obj):
+        return obj.marketing_url
+
 
 class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     model = Program
@@ -133,14 +151,11 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     def prepare_organizations(self, obj):
         return self.prepare_authoring_organizations(obj) + self.prepare_credit_backing_organizations(obj)
 
-    def prepare_authoring_organizations(self, obj):
-        return [self.format_organization(organization) for organization in obj.authoring_organizations.all()]
-
     def prepare_authoring_organization_bodies(self, obj):
         return [self.format_organization_body(organization) for organization in obj.authoring_organizations.all()]
 
     def prepare_credit_backing_organizations(self, obj):
-        return [self.format_organization(organization) for organization in obj.credit_backing_organizations.all()]
+        return self._prepare_organizations(obj.credit_backing_organizations.all())
 
     def prepare_marketing_url(self, obj):
         return obj.marketing_url

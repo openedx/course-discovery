@@ -13,8 +13,8 @@ from freezegun import freeze_time
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.models import (
-    AbstractNamedModel, AbstractMediaModel, AbstractValueModel, CourseOrganization, Course, CourseRun,
-    SeatType)
+    AbstractNamedModel, AbstractMediaModel, AbstractValueModel, Course, CourseRun, SeatType,
+)
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -29,34 +29,10 @@ class CourseTests(TestCase):
     def setUp(self):
         super(CourseTests, self).setUp()
         self.course = factories.CourseFactory()
-        self.owner = factories.OrganizationFactory()
-        self.sponsor = factories.OrganizationFactory()
-        CourseOrganization.objects.create(
-            course=self.course,
-            organization=self.owner,
-            relation_type=CourseOrganization.OWNER
-        )
-        CourseOrganization.objects.create(
-            course=self.course,
-            organization=self.sponsor,
-            relation_type=CourseOrganization.SPONSOR
-        )
 
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the key and title. """
         self.assertEqual(str(self.course), '{key}: {title}'.format(key=self.course.key, title=self.course.title))
-
-    def test_owners(self):
-        """ Verify that the owners property returns only owner related organizations. """
-        owners = self.course.owners
-        self.assertEqual(len(owners), 1)
-        self.assertEqual(owners[0], self.owner)
-
-    def test_sponsors(self):
-        """ Verify that the sponsors property returns only sponsor related organizations. """
-        sponsors = self.course.sponsors
-        self.assertEqual(len(sponsors), 1)
-        self.assertEqual(sponsors[0], self.sponsor)
 
     def test_active_course_runs(self):
         """ Verify the property returns only course runs currently open for enrollment or opening in the future. """
@@ -142,14 +118,6 @@ class CourseRunTests(TestCase):
         seats = factories.SeatFactory.create_batch(3, course_run=self.course_run)
         expected = sorted([seat.type for seat in seats])
         self.assertEqual(sorted(self.course_run.seat_types), expected)
-
-    def test_image_url(self):
-        """ Verify the property returns the associated image's URL. """
-        self.assertEqual(self.course_run.image_url, self.course_run.image.src)
-
-        self.course_run.image = None
-        self.assertIsNone(self.course_run.image)
-        self.assertIsNone(self.course_run.image_url)
 
     @ddt.data(
         ('obviously-wrong', None,),
@@ -358,12 +326,12 @@ class ProgramTests(TestCase):
         expected_price_ranges = [{'currency': 'USD', 'min': Decimal(100), 'max': Decimal(600)}]
         self.assertEqual(program.price_ranges, expected_price_ranges)
 
-    def test_instructors(self):
-        instructors = factories.PersonFactory.create_batch(2)
-        self.course_runs[0].instructors.add(instructors[0])
-        self.course_runs[1].instructors.add(instructors[1])
+    def test_staff(self):
+        staff = factories.PersonFactory.create_batch(2)
+        self.course_runs[0].staff.add(staff[0])
+        self.course_runs[1].staff.add(staff[1])
 
-        self.assertEqual(self.program.instructors, set(instructors))
+        self.assertEqual(self.program.staff, set(staff))
 
     def test_banner_image(self):
         self.program.banner_image = make_image_file('test_banner.jpg')

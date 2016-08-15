@@ -9,7 +9,7 @@ from rest_framework import serializers
 from rest_framework.fields import DictField
 from taggit_serializer.serializers import TagListSerializerField, TaggitSerializer
 
-from course_discovery.apps.api.fields import StdImageSerializerField
+from course_discovery.apps.api.fields import StdImageSerializerField, ImageField
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Image, Organization, Person, Prerequisite, Seat, Subject, Video, Program, ProgramType,
@@ -210,10 +210,10 @@ class CourseRunSerializer(TimestampModelSerializer):
         help_text=_('Language in which the course is administered')
     )
     transcript_languages = serializers.SlugRelatedField(many=True, read_only=True, slug_field='code')
-    image = ImageSerializer()
+    image = ImageField(read_only=True, source='card_image_url')
     video = VideoSerializer()
     seats = SeatSerializer(many=True)
-    instructors = PersonSerializer(many=True)
+    instructors = serializers.SerializerMethodField(help_text='This field is deprecated. Use staff.')
     staff = PersonSerializer(many=True)
     marketing_url = serializers.SerializerMethodField()
     level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
@@ -229,6 +229,9 @@ class CourseRunSerializer(TimestampModelSerializer):
 
     def get_marketing_url(self, obj):
         return get_marketing_url_for_user(self.context['request'].user, obj.marketing_url)
+
+    def get_instructors(self, obj):  # pylint: disable=unused-argument
+        return []
 
 
 class CourseRunWithProgramsSerializer(CourseRunSerializer):
@@ -254,10 +257,10 @@ class CourseSerializer(TimestampModelSerializer):
     subjects = SubjectSerializer(many=True)
     prerequisites = PrerequisiteSerializer(many=True)
     expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
-    image = ImageSerializer()
+    image = ImageField(read_only=True, source='card_image_url')
     video = VideoSerializer()
-    owners = OrganizationSerializer(many=True)
-    sponsors = OrganizationSerializer(many=True)
+    owners = OrganizationSerializer(many=True, source='authoring_organizations')
+    sponsors = OrganizationSerializer(many=True, source='sponsoring_organizations')
     course_runs = CourseRunSerializer(many=True)
     marketing_url = serializers.SerializerMethodField()
 
@@ -344,7 +347,7 @@ class AffiliateWindowSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='course_run.title')
     desc = serializers.CharField(source='course_run.short_description')
     purl = serializers.CharField(source='course_run.marketing_url')
-    imgurl = serializers.CharField(source='course_run.image')
+    imgurl = serializers.CharField(source='course_run.card_image_url')
     category = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
 
@@ -375,13 +378,14 @@ class FlattenedCourseRunWithCourseSerializer(CourseRunSerializer):
     level_type = serializers.SerializerMethodField()
     expected_learning_items = serializers.SerializerMethodField()
     course_key = serializers.SerializerMethodField()
+    image = ImageField(read_only=True, source='card_image_url')
 
     class Meta(object):
         model = CourseRun
         fields = (
             'key', 'title', 'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites',
             'start', 'end', 'enrollment_start', 'enrollment_end', 'announcement', 'seats', 'content_language',
-            'transcript_languages', 'instructors', 'staff', 'pacing_type', 'min_effort', 'max_effort', 'course_key',
+            'transcript_languages', 'staff', 'pacing_type', 'min_effort', 'max_effort', 'course_key',
             'expected_learning_items', 'image', 'video', 'owners', 'sponsors', 'modified', 'marketing_url',
         )
 
@@ -428,10 +432,10 @@ class FlattenedCourseRunWithCourseSerializer(CourseRunSerializer):
         return seats
 
     def get_owners(self, obj):
-        return ','.join([owner.key for owner in obj.course.owners.all()])
+        return ','.join([owner.key for owner in obj.course.authoring_organizations.all()])
 
     def get_sponsors(self, obj):
-        return ','.join([sponsor.key for sponsor in obj.course.sponsors.all()])
+        return ','.join([sponsor.key for sponsor in obj.course.sponsoring_organizations.all()])
 
     def get_subjects(self, obj):
         return ','.join([subject.name for subject in obj.course.subjects.all()])

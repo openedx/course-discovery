@@ -9,205 +9,17 @@ from django.test import TestCase
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
-    DrupalApiDataLoader, XSeriesMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
-    SponsorMarketingSiteDataLoader, PersonMarketingSiteDataLoader,
+    XSeriesMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
+    SponsorMarketingSiteDataLoader, PersonMarketingSiteDataLoader, CourseMarketingSiteDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON, mock_data
-from course_discovery.apps.course_metadata.data_loaders.tests.mixins import ApiClientTestMixin, DataLoaderTestMixin
-from course_discovery.apps.course_metadata.models import (
-    Course, CourseOrganization, CourseRun, Organization, Subject, Program, Video, Person,
-)
+from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
+from course_discovery.apps.course_metadata.models import Organization, Subject, Program, Video, Person, Course
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 ENGLISH_LANGUAGE_TAG = LanguageTag(code='en-us', name='English - United States')
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.marketing_site.logger'
-
-
-@ddt.ddt
-class DrupalApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase):
-    loader_class = DrupalApiDataLoader
-
-    @property
-    def api_url(self):
-        return self.partner.marketing_site_api_url
-
-    def setUp(self):
-        super(DrupalApiDataLoaderTests, self).setUp()
-        for course_dict in mock_data.EXISTING_COURSE_AND_RUN_DATA:
-            course = Course.objects.create(key=course_dict['course_key'], title=course_dict['title'])
-            CourseRun.objects.create(
-                key=course_dict['course_run_key'],
-                language=self.loader.get_language_tag(course_dict),
-                course=course
-            )
-
-            # Add some data that doesn't exist in Drupal already
-            organization = Organization.objects.create(key='orphan_org_' + course.key)
-            CourseOrganization.objects.create(
-                organization=organization,
-                course=course,
-                relation_type=CourseOrganization.SPONSOR
-            )
-
-        Course.objects.create(key=mock_data.EXISTING_COURSE['course_key'], title=mock_data.EXISTING_COURSE['title'])
-        Organization.objects.create(key=mock_data.ORPHAN_ORGANIZATION_KEY)
-
-    def create_mock_subjects(self, course_runs):
-        course_runs = course_runs['items']
-
-        for course_run in course_runs:
-            if course_run:
-                for subject in course_run['subjects']:
-                    Subject.objects.get_or_create(name=subject['title'], partner=self.partner)
-
-    def mock_api(self):
-        """Mock out the Drupal API. Returns a list of mocked-out course runs."""
-        body = mock_data.MARKETING_API_BODY
-        self.create_mock_subjects(body)
-
-        responses.add(
-            responses.GET,
-            self.api_url + 'courses/',
-            body=json.dumps(body),
-            status=200,
-            content_type='application/json'
-        )
-        return body['items']
-
-    def assert_course_run_loaded(self, body):
-        """
-        Verify that the course run corresponding to `body` has been saved
-        correctly.
-        """
-        course_run_key_str = body['course_id']
-        course_run_key = CourseKey.from_string(course_run_key_str)
-        course_key = '{org}+{course}'.format(org=course_run_key.org, course=course_run_key.course)
-        course = Course.objects.get(key=course_key)
-        course_run = CourseRun.objects.get(key=course_run_key_str)
-
-        self.assertEqual(course_run.course, course)
-
-        self.assert_course_loaded(course, body)
-
-        if course_run.language:
-            self.assertEqual(course_run.language.code, body['current_language'])
-        else:
-            self.assertEqual(body['current_language'], '')
-
-    def assert_course_loaded(self, course, body):
-        """Verify that the course has been loaded correctly."""
-        self.assertEqual(course.title, body['title'])
-        self.assertEqual(course.full_description, self.loader.clean_html(body['description']))
-        self.assertEqual(course.short_description, self.loader.clean_html(body['subtitle']))
-        self.assertEqual(course.level_type.name, body['level']['title'])
-
-        self.assert_subjects_loaded(course, body)
-        self.assert_sponsors_loaded(course, body)
-
-    def assert_subjects_loaded(self, course, body):
-        """Verify that subjects have been loaded correctly."""
-        course_subjects = course.subjects.all()
-        expected_subjects = body['subjects']
-        expected_subjects = [subject['title'] for subject in expected_subjects]
-        actual_subjects = list(course_subjects.values_list('name', flat=True))
-        self.assertEqual(actual_subjects, expected_subjects)
-
-    def assert_sponsors_loaded(self, course, body):
-        """Verify that sponsors have been loaded correctly."""
-        course_sponsors = course.sponsors.all()
-        api_sponsors = body['sponsors']
-        self.assertEqual(len(course_sponsors), len(api_sponsors))
-        for api_sponsor in api_sponsors:
-            loaded_sponsor = Organization.objects.get(key=api_sponsor['uuid'])
-            self.assertIn(loaded_sponsor, course_sponsors)
-
-    @responses.activate
-    def test_ingest(self):
-        """Verify the data loader ingests data from Drupal."""
-        api_data = self.mock_api()
-        # Neither the faked course, nor the empty array, should not be loaded from Drupal.
-        # Change this back to -2 as part of ECOM-4493.
-        loaded_data = api_data[:-3]
-
-        self.loader.ingest()
-
-        # Drupal does not paginate its response or check authorization
-        self.assert_api_called(1, check_auth=False)
-
-        # Assert that the fake course was not created
-        self.assertEqual(CourseRun.objects.count(), len(loaded_data))
-
-        for datum in loaded_data:
-            self.assert_course_run_loaded(datum)
-
-        Course.objects.get(key=mock_data.EXISTING_COURSE['course_key'], title=mock_data.EXISTING_COURSE['title'])
-
-        # Verify multiple calls to ingest data do NOT result in data integrity errors.
-        self.loader.ingest()
-
-        # Verify that orphan data is deleted
-        self.assertFalse(Organization.objects.filter(key=mock_data.ORPHAN_ORGANIZATION_KEY).exists())
-        self.assertFalse(Organization.objects.filter(key__startswith='orphan_org_').exists())
-
-    @responses.activate
-    def test_ingest_exception_handling(self):
-        """ Verify the data loader properly handles exceptions during processing of the data from the API. """
-        api_data = self.mock_api()
-        # Include all data, except the empty array.
-        # TODO: Remove the -1 after ECOM-4493 is in production.
-        expected_call_count = len(api_data) - 1
-
-        with mock.patch.object(self.loader, 'clean_strings', side_effect=Exception):
-            with mock.patch(LOGGER_PATH) as mock_logger:
-                self.loader.ingest()
-                self.assertEqual(mock_logger.exception.call_count, expected_call_count)
-
-                # TODO: Change the -2 to -1 after ECOM-4493 is in production.
-                msg = 'An error occurred while updating {0} from {1}'.format(
-                    api_data[-2]['course_id'],
-                    self.partner.marketing_site_api_url
-                )
-                mock_logger.exception.assert_called_with(msg)
-
-    @ddt.unpack
-    @ddt.data(
-        ({'image': {}}, None),
-        ({'image': 'http://example.com/image.jpg'}, 'http://example.com/image.jpg'),
-    )
-    def test_get_courserun_image(self, media_body, expected_image_url):
-        """ Verify the method returns an Image object with the correct URL. """
-        actual = self.loader.get_courserun_image(media_body)
-
-        if expected_image_url:
-            self.assertEqual(actual.src, expected_image_url)
-        else:
-            self.assertIsNone(actual)
-
-    @ddt.data(
-        ('', ''),
-        ('<h1>foo</h1>', '# foo'),
-        ('<a href="http://example.com">link</a>', '[link](http://example.com)'),
-        ('<strong>foo</strong>', '**foo**'),
-        ('<em>foo</em>', '_foo_'),
-        ('\nfoo\n', 'foo'),
-        ('<span>foo</span>', 'foo'),
-        ('<div>foo</div>', 'foo'),
-    )
-    @ddt.unpack
-    def test_clean_html(self, to_clean, expected):
-        self.assertEqual(self.loader.clean_html(to_clean), expected)
-
-    @ddt.data(
-        ({'current_language': ''}, None),
-        ({'current_language': 'not-real'}, None),
-        ({'current_language': 'en-us'}, ENGLISH_LANGUAGE_TAG),
-        ({'current_language': 'en'}, ENGLISH_LANGUAGE_TAG),
-        ({'current_language': None}, None),
-    )
-    @ddt.unpack
-    def test_get_language_tag(self, body, expected):
-        self.assertEqual(self.loader.get_language_tag(body), expected)
 
 
 class AbstractMarketingSiteDataLoaderTestMixin(DataLoaderTestMixin):
@@ -501,3 +313,133 @@ class PersonMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
 
         for person in people:
             self.assert_person_loaded(person)
+
+
+@ddt.ddt
+class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
+    loader_class = CourseMarketingSiteDataLoader
+    mocked_data = mock_data.MARKETING_SITE_API_COURSE_BODIES
+
+    def _get_uuids(self, items):
+        return [item['uuid'] for item in items]
+
+    def mock_api(self):
+        bodies = super().mock_api()
+
+        data_map = {
+            factories.SubjectFactory: 'field_course_subject',
+            factories.OrganizationFactory: 'field_course_school_node',
+            factories.PersonFactory: 'field_course_staff',
+        }
+
+        for factory, field in data_map.items():
+            uuids = set()
+
+            for body in bodies:
+                uuids.update(self._get_uuids(body.get(field, [])))
+
+            for uuid in uuids:
+                factory(uuid=uuid, partner=self.partner)
+
+        return bodies
+
+    def test_get_language_tags_from_names(self):
+        names = ('English', '中文', None)
+        expected = list(LanguageTag.objects.filter(code__in=('en-us', 'zh-cmn')))
+        self.assertEqual(list(self.loader.get_language_tags_from_names(names)), expected)
+
+    def test_get_level_type(self):
+        self.assertIsNone(self.loader.get_level_type(None))
+
+        name = 'Advanced'
+        self.assertEqual(self.loader.get_level_type(name).name, name)
+
+    @ddt.data(
+        {'field_course_body': {'value': 'Test'}},
+        {'field_course_description': {'value': 'Test'}},
+        {'field_course_description': {'value': 'Test2'}, 'field_course_body': {'value': 'Test'}},
+    )
+    def test_get_description(self, data):
+        self.assertEqual(self.loader.get_description(data), 'Test')
+
+    def test_get_video(self):
+        image_url = 'https://example.com/image.jpg'
+        video_url = 'https://example.com/video.mp4'
+        data = {
+            'field_product_video': {'url': video_url},
+            'field_course_image_featured_card': {'url': image_url}
+        }
+        video = self.loader.get_video(data)
+        self.assertEqual(video.src, video_url)
+        self.assertEqual(video.image.src, image_url)
+
+        self.assertIsNone(self.loader.get_video({}))
+
+    def assert_course_loaded(self, data):
+        course = self._get_course(data)
+
+        expected_values = {
+            'title': data['field_course_course_title']['value'],
+            'number': data['field_course_code'],
+            'full_description': self.loader.get_description(data),
+            'video': self.loader.get_video(data),
+            'short_description': self.loader.clean_html(data['field_course_sub_title_short']),
+            'level_type': self.loader.get_level_type(data['field_course_level']),
+            'card_image_url': (data.get('field_course_image_promoted') or {}).get('url'),
+        }
+
+        for field, value in expected_values.items():
+            self.assertEqual(getattr(course, field), value)
+
+        # Verify the subject and authoring organization relationships
+        data_map = {
+            course.subjects: 'field_course_subject',
+            course.authoring_organizations: 'field_course_school_node',
+        }
+
+        self.validate_relationships(data, data_map)
+
+    def validate_relationships(self, data, data_map):
+        for relationship, field in data_map.items():
+            expected = sorted(self._get_uuids(data.get(field, [])))
+            actual = list(relationship.order_by('uuid').values_list('uuid', flat=True))
+            actual = [str(item) for item in actual]
+            self.assertListEqual(actual, expected, 'Data not properly pulled from {}'.format(field))
+
+    def assert_course_run_loaded(self, data):
+        course = self._get_course(data)
+        course_run = course.course_runs.get(uuid=data['uuid'])
+        language_names = [language['name'] for language in data['field_course_languages']]
+        language = self.loader.get_language_tags_from_names(language_names).first()
+
+        expected_values = {
+            'key': data['field_course_id'],
+            'language': language,
+            'slug': data['url'].split('/')[-1],
+        }
+
+        for field, value in expected_values.items():
+            self.assertEqual(getattr(course_run, field), value)
+
+        # Verify the staff relationship
+        self.validate_relationships(data, {course_run.staff: 'field_course_staff'})
+
+        language_names = [language['name'] for language in data['field_course_video_locale_lang']]
+        expected_transcript_languages = self.loader.get_language_tags_from_names(language_names)
+        self.assertEqual(list(course_run.transcript_languages.all()), list(expected_transcript_languages))
+
+    def _get_course(self, data):
+        course_run_key = CourseKey.from_string(data['field_course_id'])
+        return Course.objects.get(key=self.loader.get_course_key_from_course_run_key(course_run_key),
+                                  partner=self.partner)
+
+    @responses.activate
+    def test_ingest(self):
+        self.mock_login_response()
+        data = self.mock_api()
+
+        self.loader.ingest()
+
+        for datum in data:
+            self.assert_course_run_loaded(datum)
+            self.assert_course_loaded(datum)

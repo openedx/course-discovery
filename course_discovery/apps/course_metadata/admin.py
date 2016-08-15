@@ -4,11 +4,6 @@ from simple_history.admin import SimpleHistoryAdmin
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 
 
-class CourseOrganizationInline(admin.TabularInline):
-    model = CourseOrganization
-    extra = 1
-
-
 class SeatInline(admin.TabularInline):
     model = Seat
     extra = 1
@@ -21,19 +16,21 @@ class PositionInline(admin.TabularInline):
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    inlines = (CourseOrganizationInline,)
-    list_display = ('key', 'title',)
+    list_display = ('uuid', 'key', 'title',)
     list_filter = ('partner',)
     ordering = ('key', 'title',)
-    search_fields = ('key', 'title',)
+    readonly_fields = ('uuid',)
+    search_fields = ('uuid', 'key', 'title',)
 
 
 @admin.register(CourseRun)
 class CourseRunAdmin(admin.ModelAdmin):
     inlines = (SeatInline,)
-    list_display = ('key', 'title',)
+    list_display = ('uuid', 'key', 'title',)
+    list_filter = ('course__partner',)
     ordering = ('key',)
-    search_fields = ('key', 'title_override', 'course__title',)
+    readonly_fields = ('uuid',)
+    search_fields = ('uuid', 'key', 'title_override', 'course__title',)
 
 
 @admin.register(Program)

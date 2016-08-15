@@ -168,7 +168,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         response = self.client.get(url)
 
         course_run = self.serialize_catalog_flat_course_run(self.course_run)
-        course_run_csv = ','.join([
+        expected = ','.join([
             course_run['key'],
             course_run['title'],
             course_run['pacing_type'],
@@ -181,9 +181,9 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             course_run['short_description'],
             course_run['marketing_url'],
             course_run['image']['src'],
-            course_run['image']['description'],
-            str(course_run['image']['height']),
-            str(course_run['image']['width']),
+            '',
+            '',
+            '',
             course_run['video']['src'],
             course_run['video']['description'],
             course_run['video']['image']['src'],
@@ -219,7 +219,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         ])
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn(course_run_csv, response.content.decode('utf-8'))
+        self.assertIn(expected, response.content.decode('utf-8'))
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single catalog. """

@@ -19,9 +19,9 @@ from taggit.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata.query import CourseQuerySet
+from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.course_metadata.utils import clean_query
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 
 logger = logging.getLogger(__name__)
 
@@ -219,41 +219,47 @@ class Position(TimeStampedModel):
 
 class Course(TimeStampedModel):
     """ Course model. """
-    key = models.CharField(max_length=255, db_index=True, unique=True)
+    partner = models.ForeignKey(Partner)
+    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
+    key = models.CharField(max_length=255)
     title = models.CharField(max_length=255, default=None, null=True, blank=True)
     short_description = models.CharField(max_length=255, default=None, null=True, blank=True)
     full_description = models.TextField(default=None, null=True, blank=True)
-    organizations = models.ManyToManyField('Organization', through='CourseOrganization', blank=True)
+    authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_courses')
+    sponsoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='sponsored_courses')
     subjects = models.ManyToManyField(Subject, blank=True)
     prerequisites = models.ManyToManyField(Prerequisite, blank=True)
     level_type = models.ForeignKey(LevelType, default=None, null=True, blank=True)
     expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
-    image = models.ForeignKey(Image, default=None, null=True, blank=True)
+    card_image_url = models.URLField(null=True, blank=True)
+    slug = AutoSlugField(populate_from='key', editable=True)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
-    marketing_url = models.URLField(max_length=255, null=True, blank=True)
-    learner_testimonial = models.CharField(
-        max_length=50, null=True, blank=True, help_text=_(
-            "A quote from a learner in the course, demonstrating the value of taking the course"
-        )
-    )
-
     number = models.CharField(
         max_length=50, null=True, blank=True, help_text=_(
-            "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
+            'Course number format e.g CS002x, BIO1.1x, BIO1.2x'
         )
     )
-    partner = models.ForeignKey(Partner, null=True, blank=False)
 
     history = HistoricalRecords()
     objects = CourseQuerySet.as_manager()
 
-    @property
-    def owners(self):
-        return self.organizations.filter(courseorganization__relation_type=CourseOrganization.OWNER)
+    class Meta:
+        unique_together = (
+            ('partner', 'uuid'),
+            ('partner', 'key'),
+        )
+
+    def __str__(self):
+        return '{key}: {title}'.format(key=self.key, title=self.title)
 
     @property
-    def sponsors(self):
-        return self.organizations.filter(courseorganization__relation_type=CourseOrganization.SPONSOR)
+    def marketing_url(self):
+        url = None
+        if self.partner.marketing_site_url_root:
+            path = 'course/{slug}'.format(slug=self.slug)
+            url = urljoin(self.partner.marketing_site_url_root, path)
+
+        return url
 
     @property
     def active_course_runs(self):
@@ -289,9 +295,6 @@ class Course(TimeStampedModel):
         ids = [result.pk for result in results]
         return cls.objects.filter(pk__in=ids)
 
-    def __str__(self):
-        return '{key}: {title}'.format(key=self.key, title=self.title)
-
 
 class CourseRun(TimeStampedModel):
     """ CourseRun model. """
@@ -307,6 +310,7 @@ class CourseRun(TimeStampedModel):
         (INSTRUCTOR_PACED, _('Instructor-paced')),
     )
 
+    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
     course = models.ForeignKey(Course, related_name='course_runs')
     key = models.CharField(max_length=255, unique=True)
     title_override = models.CharField(
@@ -328,7 +332,6 @@ class CourseRun(TimeStampedModel):
         help_text=_(
             "Full description specific for this run of a course. Leave this value blank to default to "
             "the parent course's full_description attribute."))
-    instructors = SortedManyToManyField(Person, blank=True, related_name='courses_instructed')
     staff = SortedManyToManyField(Person, blank=True, related_name='courses_staffed')
     min_effort = models.PositiveSmallIntegerField(
         null=True, blank=True,
@@ -340,11 +343,16 @@ class CourseRun(TimeStampedModel):
     transcript_languages = models.ManyToManyField(LanguageTag, blank=True, related_name='transcript_courses')
     pacing_type = models.CharField(max_length=255, choices=PACING_CHOICES, db_index=True, null=True, blank=True)
     syllabus = models.ForeignKey(SyllabusItem, default=None, null=True, blank=True)
-    image = models.ForeignKey(Image, default=None, null=True, blank=True)
+    card_image_url = models.URLField(null=True, blank=True)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
-    marketing_url = models.URLField(max_length=255, null=True, blank=True)
+    slug = AutoSlugField(populate_from='key', editable=True)
 
     history = HistoricalRecords()
+
+    @property
+    def marketing_url(self):
+        path = 'course/{slug}'.format(slug=self.slug)
+        return urljoin(self.course.partner.marketing_site_url_root, path)
 
     @property
     def title(self):
@@ -381,8 +389,12 @@ class CourseRun(TimeStampedModel):
         return self.course.subjects
 
     @property
-    def organizations(self):
-        return self.course.organizations
+    def authoring_organizations(self):
+        return self.course.authoring_organizations
+
+    @property
+    def sponsoring_organizations(self):
+        return self.course.sponsoring_organizations
 
     @property
     def prerequisites(self):
@@ -390,7 +402,7 @@ class CourseRun(TimeStampedModel):
 
     @property
     def programs(self):
-        return self.course.programs
+        return self.course.programs  # pylint: disable=no-member
 
     @property
     def seat_types(self):
@@ -412,13 +424,6 @@ class CourseRun(TimeStampedModel):
                 return course_run_type
 
         logger.debug('Unable to determine type for course run [%s]. Seat types are [%s]', self.key, seat_types)
-        return None
-
-    @property
-    def image_url(self):
-        if self.image:
-            return self.image.src
-
         return None
 
     @property
@@ -500,29 +505,6 @@ class Seat(TimeStampedModel):
     class Meta(object):
         unique_together = (
             ('course_run', 'type', 'currency', 'credit_provider')
-        )
-
-
-class CourseOrganization(TimeStampedModel):
-    """ CourseOrganization model. """
-    OWNER = 'owner'
-    SPONSOR = 'sponsor'
-
-    RELATION_TYPE_CHOICES = (
-        (OWNER, _('Owner')),
-        (SPONSOR, _('Sponsor')),
-    )
-
-    course = models.ForeignKey(Course)
-    organization = models.ForeignKey(Organization)
-    relation_type = models.CharField(max_length=63, choices=RELATION_TYPE_CHOICES)
-
-    class Meta(object):
-        index_together = (
-            ('course', 'relation_type'),
-        )
-        unique_together = (
-            ('course', 'organization', 'relation_type'),
         )
 
 
@@ -671,10 +653,10 @@ class Program(TimeStampedModel):
         return min([course_run.start for course_run in self.course_runs])
 
     @property
-    def instructors(self):
-        instructors = [list(course_run.instructors.all()) for course_run in self.course_runs]
-        instructors = itertools.chain.from_iterable(instructors)
-        return set(instructors)
+    def staff(self):
+        staff = [list(course_run.staff.all()) for course_run in self.course_runs]
+        staff = itertools.chain.from_iterable(staff)
+        return set(staff)
 
 
 class PersonSocialNetwork(AbstractSocialNetworkModel):

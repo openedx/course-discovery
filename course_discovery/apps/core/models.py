@@ -84,3 +84,7 @@ class Partner(TimeStampedModel):
     class Meta:
         verbose_name = _('Partner')
         verbose_name_plural = _('Partners')
+
+    @property
+    def has_marketing_site(self):
+        return bool(self.marketing_site_url_root)
