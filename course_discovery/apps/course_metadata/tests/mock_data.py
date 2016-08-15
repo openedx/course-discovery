@@ -919,3 +919,40 @@ MARKETING_SITE_API_SCHOOL_BODIES = [
         'uuid': '2a73d2ce-c34a-4e08-8223-83bca9d2f01d'
     },
 ]
+
+MARKETING_SITE_API_SPONSOR_BODIES = [
+    {
+        'body': [],
+        'field_sponsorer_image': {
+            'url': 'https://www.edx.org/sites/default/files/sponsorer/image/trkcll.jpg',
+        },
+        'type': 'sponsorer',
+        'title': 'Turkcell Akademi',
+        'url': 'https://www.edx.org/sponsorer/turkcell-akademi',
+        'uuid': 'fcb48e7e-8f1b-4d4b-8bb0-77617aaad9ba'
+
+    },
+    {
+        'body': [],
+        'field_sponsorer_image': {
+            'url': 'https://www.edx.org/sites/default/files/sponsorer/image/databricks.png'
+        },
+        'type': 'sponsorer',
+        'title': 'Databricks',
+        'url': 'https://www.edx.org/sponsorer/databricks',
+        'uuid': '1d86977a-0661-44c9-8f39-32bbf8ca7d4b',
+    },
+    {
+        'body': {
+            'value': 'UC Berkeley is partnering with the U.S. Department of State to extend the reach of College '
+                     'Writing 2X',
+        },
+        'field_sponsorer_image': {
+            'url': 'https://www.edx.org/sites/default/files/sponsorer/image/usdos-logo-seal.png',
+        },
+        'type': 'sponsorer',
+        'title': 'The U.S. Department of State',
+        'url': 'https://www.edx.org/sponsorer/u-s-department-state',
+        'uuid': 'db53bc49-bac0-4efe-8d77-1a2d8d185024'
+    },
+]

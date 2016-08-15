@@ -342,3 +342,27 @@ class SchoolMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
                 tags.append(tag)
 
         school.tags.set(*tags, clear=True)
+
+
+class SponsorMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
+    @property
+    def node_type(self):
+        return 'sponsorer'
+
+    def process_node(self, data):
+        uuid = data['uuid']
+        body = (data['body'] or {}).get('value')
+
+        if body:
+            body = self.clean_html(body)
+
+        defaults = {
+            'key': data['url'].split('/')[-1],
+            'name': data['title'],
+            'description': body,
+            'logo_image_url': data['field_sponsorer_image']['url'],
+        }
+        sponsor, __ = Organization.objects.update_or_create(uuid=uuid, partner=self.partner, defaults=defaults)
+
+        logger.info('Processed sponsor with UUID [%s].', uuid)
+        return sponsor

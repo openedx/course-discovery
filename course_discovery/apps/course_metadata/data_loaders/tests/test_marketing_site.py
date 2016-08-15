@@ -10,6 +10,7 @@ from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
     DrupalApiDataLoader, XSeriesMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
+    SponsorMarketingSiteDataLoader,
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import ApiClientTestMixin, DataLoaderTestMixin
@@ -459,3 +460,49 @@ class SchoolMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
 
         for school in schools:
             self.assert_school_loaded(school)
+
+
+class SponsorMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
+    loader_class = SponsorMarketingSiteDataLoader
+
+    def mock_api(self):
+        bodies = mock_data.MARKETING_SITE_API_SPONSOR_BODIES
+        url = self.api_url + 'node.json'
+
+        responses.add_callback(
+            responses.GET,
+            url,
+            callback=self.mock_api_callback(url, bodies),
+            content_type=JSON
+        )
+
+        return bodies
+
+    def assert_sponsor_loaded(self, data):
+        uuid = data['uuid']
+        school = Organization.objects.get(uuid=uuid, partner=self.partner)
+
+        body = (data['body'] or {}).get('value')
+
+        if body:
+            body = self.loader.clean_html(body)
+
+        expected_values = {
+            'key': data['url'].split('/')[-1],
+            'name': data['title'],
+            'description': body,
+            'logo_image_url': data['field_sponsorer_image']['url'],
+        }
+
+        for field, value in expected_values.items():
+            self.assertEqual(getattr(school, field), value)
+
+    @responses.activate
+    def test_ingest(self):
+        self.mock_login_response()
+        sponsors = self.mock_api()
+
+        self.loader.ingest()
+
+        for sponsor in sponsors:
+            self.assert_sponsor_loaded(sponsor)
