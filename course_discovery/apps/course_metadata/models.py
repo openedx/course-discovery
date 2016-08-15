@@ -556,7 +556,7 @@ class Program(TimeStampedModel):
     courses = models.ManyToManyField(Course)
     # NOTE (CCB): Editors of this field should validate the values to ensure only CourseRuns associated
     # with related Courses are stored.
-    excluded_course_runs = models.ManyToManyField(CourseRun, blank=True, null=True)
+    excluded_course_runs = models.ManyToManyField(CourseRun, blank=True)
     partner = models.ForeignKey(Partner, null=True, blank=False)
     overview = models.TextField(null=True, blank=True)
     weeks_to_complete = models.PositiveSmallIntegerField(null=True, blank=True)
