@@ -126,7 +126,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         )
         return bodies
 
-    def assert_course_run_loaded(self, body):
+    def assert_course_run_loaded(self, body, use_marketing_url=True):
         """ Assert a CourseRun corresponding to the specified data body was properly loaded into the database. """
 
         # Validate the Course
@@ -148,11 +148,19 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         self.assertEqual(course_run.enrollment_end, AbstractDataLoader.parse_date(body['enrollment_end']))
         self.assertEqual(course_run.pacing_type, self.loader.get_pacing_type(body))
         self.assertEqual(course_run.video, self.loader.get_courserun_video(body))
+        if use_marketing_url:
+            self.assertEqual(course_run.image, None)
+        else:
+            self.assertEqual(course_run.image, self.loader.get_courserun_image(body))
 
     @responses.activate
-    def test_ingest(self):
+    @ddt.data(True, False)
+    def test_ingest(self, use_marketing_url):
         """ Verify the method ingests data from the Courses API. """
         api_data = self.mock_api()
+        if not use_marketing_url:
+            self.partner.marketing_site_url_root = None
+
         self.assertEqual(Course.objects.count(), 0)
         self.assertEqual(CourseRun.objects.count(), 0)
 
@@ -166,7 +174,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         self.assertEqual(CourseRun.objects.count(), expected_num_course_runs)
 
         for datum in api_data:
-            self.assert_course_run_loaded(datum)
+            self.assert_course_run_loaded(datum, use_marketing_url)
 
         # Verify multiple calls to ingest data do NOT result in data integrity errors.
         self.loader.ingest()

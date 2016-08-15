@@ -53,7 +53,7 @@ COURSES_API_BODIES = [
             },
             'course_video': {
                 'uri': None
-            }
+            },
         },
         'name': 'Evolution of the Human Sociality: A Quest for the Origin of Our Social Behavior',
         'number': '000x',
@@ -76,7 +76,11 @@ COURSES_API_BODIES = [
             },
             'course_video': {
                 'uri': None
-            }
+            },
+            'image': {
+                'raw': 'http://example.com/image.jpg',
+            },
+
         },
         'name': 'Evolution of the Human Sociality: A Quest for the Origin of Our Social Behavior',
         'number': '000x',

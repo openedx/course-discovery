@@ -6,7 +6,7 @@ from opaque_keys.edx.keys import CourseKey
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    Video, Organization, Seat, CourseRun, Program, Course, CourseOrganization, ProgramType,
+    Image, Video, Organization, Seat, CourseRun, Program, Course, CourseOrganization, ProgramType,
 )
 
 logger = logging.getLogger(__name__)
@@ -122,8 +122,21 @@ class CoursesApiDataLoader(AbstractDataLoader):
             'video': self.get_courserun_video(body),
             'pacing_type': self.get_pacing_type(body),
         }
+        # If there is no marketing site setup for this partner, use the image from the course API.
+        # If there is a marketing site defined, it takes prededence.
+        if not self.partner.marketing_site_url_root:
+            defaults.update({'image': self.get_courserun_image(body)})
 
         CourseRun.objects.update_or_create(key=body['id'], defaults=defaults)
+
+    def get_courserun_image(self, body):
+        image = None
+        image_url = body['media'].get('image', {}).get('raw')
+
+        if image_url:
+            image, __ = Image.objects.get_or_create(src=image_url)
+
+        return image
 
     def get_pacing_type(self, body):
         pacing = body.get('pacing')
