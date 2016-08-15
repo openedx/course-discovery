@@ -8,7 +8,7 @@ from dry_rest_permissions.generics import DRYPermissionFiltersBase
 from guardian.shortcuts import get_objects_for_user
 from rest_framework.exceptions import PermissionDenied, NotFound
 
-from course_discovery.apps.course_metadata.models import Course, CourseRun
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 
 User = get_user_model()
 
@@ -89,3 +89,11 @@ class CourseRunFilter(django_filters.FilterSet):
     class Meta:
         model = CourseRun
         fields = ['keys']
+
+
+class ProgramFilter(django_filters.FilterSet):
+    type = django_filters.CharFilter(name='type__name', lookup_expr='iexact')
+
+    class Meta:
+        model = Program
+        fields = ['type']
