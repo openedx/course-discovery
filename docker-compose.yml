@@ -12,12 +12,14 @@ services:
       MYSQL_DATABASE: "discovery"
     ports:
       - "3306:3306"
+    volumes:
+      - ./docker/volumes/db:/var/lib/mysql
 
   es:
     image: elasticsearch:1.5.2
     container_name: es
     volumes:
-      - /tmp/elasticsearch/data:/es-data
+      - ./docker/volumes/es:/es-data
     ports:
       - "9200:9200"
       - "9300:9300"
