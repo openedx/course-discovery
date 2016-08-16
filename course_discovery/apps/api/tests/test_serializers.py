@@ -423,15 +423,15 @@ class SeatSerializerTests(TestCase):
 class PersonSerializerTests(TestCase):
     def test_data(self):
         person = PersonFactory()
-        image = person.profile_image
         serializer = PersonSerializer(person)
 
         expected = {
-            'key': person.key,
-            'name': person.name,
-            'title': person.title,
+            'uuid': str(person.uuid),
+            'given_name': person.given_name,
+            'family_name': person.family_name,
             'bio': person.bio,
-            'profile_image': ImageSerializer(image).data
+            'profile_image_url': person.profile_image_url,
+            'slug': person.slug,
         }
 
         self.assertDictEqual(serializer.data, expected)

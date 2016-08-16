@@ -1,13 +1,16 @@
 import abc
 import logging
 from urllib.parse import urljoin, urlencode
+from uuid import UUID
 
 import requests
+from django.db.models import Q
 from django.utils.functional import cached_property
 
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
     Course, CourseOrganization, CourseRun, Image, LanguageTag, LevelType, Organization, Person, Subject, Program,
+    Position,
 )
 
 logger = logging.getLogger(__name__)
@@ -122,15 +125,9 @@ class DrupalApiDataLoader(AbstractDataLoader):
     def set_staff(self, course_run, body):
         """Update `course_run` with staff from `body`."""
         course_run.staff.clear()
-        for staff_body in body['staff']:
-            image, __ = Image.objects.get_or_create(src=staff_body['image'])
-            defaults = {
-                'name': staff_body['title'],
-                'profile_image': image,
-                'title': staff_body['display_position']['title'],
-            }
-            person, __ = Person.objects.update_or_create(key=staff_body['uuid'], defaults=defaults)
-            course_run.staff.add(person)
+        uuids = [staff['uuid'] for staff in body['staff']]
+        staff = Person.objects.filter(uuid_in=uuids)
+        course_run.staff.add(*staff)
 
     def get_language_tag(self, body):
         """Get a language tag from Drupal data given by `body`."""
@@ -366,3 +363,72 @@ class SponsorMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
 
         logger.info('Processed sponsor with UUID [%s].', uuid)
         return sponsor
+
+
+class PersonMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
+    @property
+    def node_type(self):
+        return 'person'
+
+    def process_node(self, data):
+        uuid = UUID(data['uuid'])
+        defaults = {
+            'given_name': data['field_person_first_middle_name'],
+            'family_name': data['field_person_last_name'],
+            'bio': self.clean_html(data['field_person_resume']['value']),
+            'profile_image_url': self._get_nested_url(data.get('field_person_image')),
+        }
+        person, created = Person.objects.update_or_create(uuid=uuid, partner=self.partner, defaults=defaults)
+
+        # NOTE (CCB): The AutoSlug field kicks in at creation time. We need to apply overrides in a separate
+        # operation.
+        if created:
+            person.slug = data['url'].split('/')[-1]
+            person.save()
+
+        self.set_position(person, data)
+
+        logger.info('Processed person with UUID [%s].', uuid)
+        return person
+
+    def set_position(self, person, data):
+        uuid = data['uuid']
+
+        try:
+            data = data.get('field_person_positions', [])
+
+            if data:
+                data = data[0]
+                # NOTE (CCB): This is not a typo. The field is misspelled on the marketing site.
+                titles = data['field_person_position_tiltes']
+
+                if titles:
+                    title = titles[0]
+
+                    # NOTE (CCB): Not all positions are associated with organizations.
+                    organization = None
+                    organization_name = (data.get('field_person_position_org_link', {}) or {}).get('title')
+
+                    if organization_name:
+                        try:
+                            # TODO Consider using Elasticsearch as a method of finding better inexact matches.
+                            organization = Organization.objects.get(
+                                Q(name__iexact=organization_name) | Q(key__iexact=organization_name) & Q(
+                                    partner=self.partner))
+                        except Organization.DoesNotExist:
+                            pass
+
+                    defaults = {
+                        'title': title,
+                        'organization': None,
+                        'organization_override': None,
+                    }
+
+                    if organization:
+                        defaults['organization'] = organization
+                    else:
+                        defaults['organization_override'] = organization_name
+
+                    Position.objects.update_or_create(person=person, defaults=defaults)
+        except:  # pylint: disable=bare-except
+            logger.exception('Failed to set position for person with UUID [%s]!', uuid)

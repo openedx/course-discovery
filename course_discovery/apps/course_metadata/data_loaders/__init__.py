@@ -121,7 +121,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
     @classmethod
     def delete_orphans(cls):
         """ Remove orphaned objects from the database. """
-        for model in (Image, Person, Video):
+        for model in (Image, Video):
             delete_orphans(model)
 
     @classmethod
