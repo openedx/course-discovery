@@ -7,31 +7,39 @@
 {% block content %}
     <div class="layout-full layout">
         <div class="card course-form">
-            <h4 class="hd-4">{% trans "Course Run Form" %}</h4>
+            <div class="course-information">
+                <h4 class="hd-4">{% trans "Course Run Form" %}</h4>
+                <div class="status-information">
+                    {% if object.id %}
+                        <div class="info-item">
+                            <span class="item">
+                                <span class="heading">{% trans "Status" %}:</span>
+                                <span>{{ workflow_state }}</span>
+                            </span>
 
-            <div class="status-information">
-                {% if object.id %}
-                    <div class="info-item">
-                        <span class="item">
-                            <span class="heading">{% trans "Status" %}:</span>
-                            <span>{{ workflow_state }}</span>
-                        </span>
-                        <span class="item">
-                            <a href="{% url 'publisher:publisher_seats_new' %}" target="_blank" class="btn btn-neutral btn-add">
-                                {% trans "Add Seat" %}
-                            </a>
-                        </span>
-                    </div>
-                {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                <form class="form" method="post" action=""> {% csrf_token %}
+                    <fieldset class="form-group">
+                        {% for field in form %}
+                            {% include "publisher/form_field.html" %}
+                        {% endfor %}
+                    </fieldset>
+                    <button class="btn-brand btn-base" type="submit">{% trans "Save" %}</button>
+                </form>
             </div>
-            <form class="form" method="post" action=""> {% csrf_token %}
-                <fieldset class="form-group">
-                    {% for field in form %}
-                        {% include "publisher/form_field.html" %}
-                    {% endfor %}
-                </fieldset>
-                <button class="btn-brand btn-base" type="submit">{% trans "Save" %}</button>
-            </form>
+             <div class="comment-container">
+                 <span class="item">
+                   {% if object.id %}
+                        <a href="{% url 'publisher:publisher_seats_new' %}" target="_blank" class="btn btn-neutral btn-add">
+                            {% trans "Add Seat" %}
+                        </a>
+                   {% endif %}
+                 </span>
+                {% include 'comments/comments_list.html' %}
+                {% include 'comments/add_auth_comments.html' %}
+            </div>
         </div>
     </div>
 

@@ -27,7 +27,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles'
+    'django.contrib.staticfiles',
+    'django.contrib.sites',
 ]
 
 THIRD_PARTY_APPS = [
@@ -54,6 +55,8 @@ PROJECT_APPS = [
     'course_discovery.apps.course_metadata',
     'course_discovery.apps.edx_haystack_extensions',
     'course_discovery.apps.publisher',
+    'course_discovery.apps.publisher_comments',
+    'django_comments',
 ]
 
 
@@ -352,3 +355,7 @@ HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
 
 DEFAULT_PARTNER_ID = None
+
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#site-id
+SITE_ID = 1
+COMMENTS_APP = 'course_discovery.apps.publisher_comments'

@@ -1,5 +1,6 @@
 # pylint: disable=no-member
 import ddt
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django_fsm import TransitionNotAllowed
 
@@ -23,6 +24,12 @@ class CourseRunTests(TestCase):
             '{title}: {date}'.format(
                 title=self.course_run.course.title, date=self.course_run.start
             )
+        )
+
+    def test_post_back_url(self):
+        self.assertEqual(
+            self.course_run.post_back_url,
+            reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id})
         )
 
     @ddt.unpack
@@ -57,6 +64,12 @@ class CourseTests(TestCase):
         """ Verify casting an instance to a string returns a string containing the course title. """
         self.assertEqual(str(self.course), self.course.title)
 
+    def test_post_back_url(self):
+        self.assertEqual(
+            self.course.post_back_url,
+            reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id})
+        )
+
 
 class SeatTests(TestCase):
     """ Tests for the publisher `Seat` model. """
@@ -72,6 +85,12 @@ class SeatTests(TestCase):
             '{course}: {type}'.format(
                 course=self.seat.course_run.course.title, type=self.seat.type
             )
+        )
+
+    def test_post_back_url(self):
+        self.assertEqual(
+            self.seat.post_back_url,
+            reverse('publisher:publisher_seats_edit', kwargs={'pk': self.seat.id})
         )
 
 
