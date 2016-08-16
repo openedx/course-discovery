@@ -333,6 +333,8 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Program.objects.all()
     permission_classes = (IsAuthenticated,)
     serializer_class = serializers.ProgramSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = filters.ProgramFilter
 
 
 class ManagementViewSet(viewsets.ViewSet):
