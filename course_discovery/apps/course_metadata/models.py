@@ -14,6 +14,7 @@ from djchoices import DjangoChoices, ChoiceItem
 from haystack.query import SearchQuerySet
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
+from taggit.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata.query import CourseQuerySet
@@ -156,11 +157,14 @@ class Organization(TimeStampedModel):
     uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
     key = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
+    marketing_url_path = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     homepage_url = models.URLField(max_length=255, null=True, blank=True)
     logo_image_url = models.URLField(null=True, blank=True)
     banner_image_url = models.URLField(null=True, blank=True)
+
     history = HistoricalRecords()
+    tags = TaggableManager(blank=True)
 
     class Meta:
         unique_together = (

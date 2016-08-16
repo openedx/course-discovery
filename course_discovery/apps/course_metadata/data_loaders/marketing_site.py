@@ -304,3 +304,65 @@ class SubjectMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         subject, __ = Subject.objects.update_or_create(slug=slug, partner=self.partner, defaults=defaults)
         logger.info('Processed subject with slug [%s].', slug)
         return subject
+
+
+class SchoolMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
+    @property
+    def node_type(self):
+        return 'school'
+
+    def process_node(self, data):
+        key = data['title']
+        defaults = {
+            'uuid': data['uuid'],
+            'name': data['field_school_name'],
+            'description': self.clean_html(data['field_school_description']['value']),
+            'logo_image_url': self._get_nested_url(data.get('field_school_image_logo')),
+            'banner_image_url': self._get_nested_url(data.get('field_school_image_banner')),
+            'marketing_url_path': 'school/' + data['field_school_url_slug'],
+        }
+        school, __ = Organization.objects.update_or_create(key=key, partner=self.partner, defaults=defaults)
+
+        self.set_tags(school, data)
+
+        logger.info('Processed school with key [%s].', key)
+        return school
+
+    def set_tags(self, school, data):
+        tags = []
+        mapping = {
+            'field_school_is_founder': 'founder',
+            'field_school_is_charter': 'charter',
+            'field_school_is_contributor': 'contributor',
+            'field_school_is_partner': 'partner',
+        }
+
+        for field, tag in mapping.items():
+            if data.get(field, False):
+                tags.append(tag)
+
+        school.tags.set(*tags, clear=True)
+
+
+class SponsorMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
+    @property
+    def node_type(self):
+        return 'sponsorer'
+
+    def process_node(self, data):
+        uuid = data['uuid']
+        body = (data['body'] or {}).get('value')
+
+        if body:
+            body = self.clean_html(body)
+
+        defaults = {
+            'key': data['url'].split('/')[-1],
+            'name': data['title'],
+            'description': body,
+            'logo_image_url': data['field_sponsorer_image']['url'],
+        }
+        sponsor, __ = Organization.objects.update_or_create(uuid=uuid, partner=self.partner, defaults=defaults)
+
+        logger.info('Processed sponsor with UUID [%s].', uuid)
+        return sponsor

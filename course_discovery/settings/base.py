@@ -45,6 +45,9 @@ THIRD_PARTY_APPS = [
     'django_filters',
     'django_fsm',
     'storages',
+    'django_comments',
+    'taggit',
+    'taggit_serializer',
 ]
 
 PROJECT_APPS = [
@@ -56,7 +59,6 @@ PROJECT_APPS = [
     'course_discovery.apps.edx_haystack_extensions',
     'course_discovery.apps.publisher',
     'course_discovery.apps.publisher_comments',
-    'django_comments',
 ]
 
 
@@ -359,3 +361,5 @@ DEFAULT_PARTNER_ID = None
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#site-id
 SITE_ID = 1
 COMMENTS_APP = 'course_discovery.apps.publisher_comments'
+
+TAGGIT_CASE_INSENSITIVE = True

@@ -808,7 +808,7 @@ MARKETING_SITE_API_SUBJECT_BODIES = [
             'format': 'expanded_html'
         },
         'field_xseries_banner_image': {
-            'url': 'https://prod-edx-mktg-edit.edx.org/sites/default/files/cs-1440x210.jpg'
+            'url': 'https://www.edx.org/sites/default/files/cs-1440x210.jpg'
         },
         'field_subject_url_slug': 'computer-science',
         'field_subject_subtitle': {
@@ -816,11 +816,11 @@ MARKETING_SITE_API_SUBJECT_BODIES = [
             'format': 'basic_html'
         },
         'field_subject_card_image': {
-            'url': 'https://prod-edx-mktg-edit.edx.org/sites/default/files/subject/image/card/computer-science.jpg',
+            'url': 'https://www.edx.org/sites/default/files/subject/image/card/computer-science.jpg',
         },
         'type': 'subject',
         'title': 'Computer Science',
-        'url': 'https://prod-edx-mktg-edit.edx.org/course/subject/math',
+        'url': 'https://www.edx.org/course/subject/math',
         'uuid': 'e52e2134-a4e4-4fcb-805f-cbef40812580',
     },
     {
@@ -832,7 +832,7 @@ MARKETING_SITE_API_SUBJECT_BODIES = [
             'format': 'basic_html'
         },
         'field_xseries_banner_image': {
-            'url': 'https://prod-edx-mktg-edit.edx.org/sites/default/files/mathemagical-1440x210.jpg',
+            'url': 'https://www.edx.org/sites/default/files/mathemagical-1440x210.jpg',
         },
         'field_subject_url_slug': 'math',
         'field_subject_subtitle': {
@@ -840,11 +840,119 @@ MARKETING_SITE_API_SUBJECT_BODIES = [
             'format': 'basic_html'
         },
         'field_subject_card_image': {
-            'url': 'https://prod-edx-mktg-edit.edx.org/sites/default/files/subject/image/card/math.jpg',
+            'url': 'https://www.edx.org/sites/default/files/subject/image/card/math.jpg',
         },
         'type': 'subject',
         'title': 'Math',
-        'url': 'https://prod-edx-mktg-edit.edx.org/course/subject/math',
+        'url': 'https://www.edx.org/course/subject/math',
         'uuid': 'a669e004-cbc0-4b68-8882-234c12e1cce4',
+    },
+]
+
+MARKETING_SITE_API_SCHOOL_BODIES = [
+    {
+        'field_school_description': {
+            'value': '\u003Cp\u003EHarvard University is devoted to excellence in teaching, learning, and '
+                     'research, and to developing leaders in many disciplines who make a difference globally. '
+                     'Harvard faculty are engaged with teaching and research to push the boundaries of human '
+                     'knowledge. The University has twelve degree-granting Schools in addition to the Radcliffe '
+                     'Institute for Advanced Study.\u003C/p\u003E\n\n\u003Cp\u003EEstablished in 1636, Harvard '
+                     'is the oldest institution of higher education in the United States. The University, which '
+                     'is based in Cambridge and Boston, Massachusetts, has an enrollment of over 20,000 degree '
+                     'candidates, including undergraduate, graduate, and professional students. Harvard has more '
+                     'than 360,000 alumni around the world.\u003C/p\u003E',
+            'format': 'standard_html'
+        },
+        'field_school_name': 'Harvard University',
+        'field_school_image_banner': {
+            'url': 'https:www.edx.org/sites/default/files/school/image/banner/harvardx.jpg',
+        },
+        'field_school_image_logo': {
+            'url': 'https://www.edx.org/sites/default/files/school/image/banner/harvard_logo_200x101_0.png',
+        },
+        'field_school_subdomain_prefix': 'harvard',
+        'field_school_url_slug': 'harvardx',
+        'field_school_is_school': True,
+        'field_school_is_partner': False,
+        'field_school_is_contributor': False,
+        'field_school_is_charter': True,
+        'field_school_is_founder': True,
+        'field_school_is_display': True,
+        'field_school_is_affiliate': False,
+        'type': 'school',
+        'title': 'HarvardX',
+        'url': 'https://www.edx.org/school/harvardx',
+        'uuid': '44022f13-20df-4666-9111-cede3e5dc5b6',
+    },
+    {
+        'field_school_description': {
+            'value': '\u003Cp\u003EMassachusetts Institute of Technology \u2014 a coeducational, privately '
+                     'endowed research university founded in 1861 \u2014 is dedicated to advancing knowledge '
+                     'and educating students in science, technology, and other areas of scholarship that will '
+                     'best serve the nation and the world in the 21st century. \u003Ca href=\u0022http://web.'
+                     'mit.edu/aboutmit/\u0022 target=\u0022_blank\u0022\u003ELearn more about MIT\u003C/a\u003E'
+                     '. Through MITx, the Institute furthers its commitment to improving education worldwide.'
+                     '\u003C/p\u003E\n\n\u003Cp\u003E\u003Cstrong\u003EMITx Courses\u003C/strong\u003E\u003Cbr '
+                     '/\u003E\nMITx courses embody the inventiveness, openness, rigor and quality that are '
+                     'hallmarks of MIT, and many use materials developed for MIT residential courses in the '
+                     'Institute\u0027s five schools and 33 academic disciplines. Browse MITx courses below.'
+                     '\u003C/p\u003E\n\n\u003Cp\u003E\u00a0\u003C/p\u003E',
+        },
+        'field_school_name': 'MIT',
+        'field_school_image_banner': {
+            'url': 'https://www.edx.org/sites/default/files/school/image/banner/mit-home-banner_0.jpg',
+        },
+        'field_school_image_logo': {
+            'url': 'https://www.edx.org/sites/default/files/school/image/banner/mit_logo_200x101_0.png',
+        },
+        'field_school_url_slug': 'mitx',
+        'field_school_is_school': True,
+        'field_school_is_partner': False,
+        'field_school_is_contributor': False,
+        'field_school_is_charter': True,
+        'field_school_is_founder': True,
+        'field_school_is_display': True,
+        'field_school_is_affiliate': False,
+        'type': 'school',
+        'title': 'MITx',
+        'url': 'https://www.edx.org/school/mitx',
+        'uuid': '2a73d2ce-c34a-4e08-8223-83bca9d2f01d'
+    },
+]
+
+MARKETING_SITE_API_SPONSOR_BODIES = [
+    {
+        'body': [],
+        'field_sponsorer_image': {
+            'url': 'https://www.edx.org/sites/default/files/sponsorer/image/trkcll.jpg',
+        },
+        'type': 'sponsorer',
+        'title': 'Turkcell Akademi',
+        'url': 'https://www.edx.org/sponsorer/turkcell-akademi',
+        'uuid': 'fcb48e7e-8f1b-4d4b-8bb0-77617aaad9ba'
+
+    },
+    {
+        'body': [],
+        'field_sponsorer_image': {
+            'url': 'https://www.edx.org/sites/default/files/sponsorer/image/databricks.png'
+        },
+        'type': 'sponsorer',
+        'title': 'Databricks',
+        'url': 'https://www.edx.org/sponsorer/databricks',
+        'uuid': '1d86977a-0661-44c9-8f39-32bbf8ca7d4b',
+    },
+    {
+        'body': {
+            'value': 'UC Berkeley is partnering with the U.S. Department of State to extend the reach of College '
+                     'Writing 2X',
+        },
+        'field_sponsorer_image': {
+            'url': 'https://www.edx.org/sites/default/files/sponsorer/image/usdos-logo-seal.png',
+        },
+        'type': 'sponsorer',
+        'title': 'The U.S. Department of State',
+        'url': 'https://www.edx.org/sponsorer/u-s-department-state',
+        'uuid': 'db53bc49-bac0-4efe-8d77-1a2d8d185024'
     },
 ]
