@@ -93,7 +93,8 @@ class CourseRunFilter(django_filters.FilterSet):
 
 class ProgramFilter(django_filters.FilterSet):
     type = django_filters.CharFilter(name='type__name', lookup_expr='iexact')
+    uuids = CharListFilter(name='uuid', lookup_type='in')
 
     class Meta:
         model = Program
-        fields = ['type']
+        fields = ['type', 'uuids']
