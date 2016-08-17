@@ -7,11 +7,11 @@ import responses
 from django.test import TestCase
 from pytz import UTC
 
-from course_discovery.apps.core.tests.utils import mock_api_callback
+from course_discovery.apps.core.tests.utils import mock_api_callback, mock_jpeg_callback
 from course_discovery.apps.course_metadata.data_loaders.api import (
     OrganizationsApiDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader, AbstractDataLoader, ProgramsApiDataLoader
 )
-from course_discovery.apps.course_metadata.data_loaders.tests import JSON
+from course_discovery.apps.course_metadata.data_loaders.tests import JSON, JPEG
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import ApiClientTestMixin, DataLoaderTestMixin
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Organization, Seat, Program, ProgramType,
@@ -418,6 +418,22 @@ class ProgramsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCa
         # Verify the additional course runs added in create_mock_courses_and_runs are excluded.
         self.assertEqual(program.excluded_course_runs.count(), len(course_codes))
 
+    def assert_program_banner_image_loaded(self, body):
+        """ Assert a program corresponding to the specified data body has banner image loaded into DB """
+        program = Program.objects.get(uuid=AbstractDataLoader.clean_string(body['uuid']), partner=self.partner)
+        banner_image_url = body.get('banner_image_urls', {}).get('w1440h480')
+        if banner_image_url:
+            for size_key in program.banner_image.field.variations:
+                # Get different sizes specs from the model field
+                # Then get the file path from the available files
+                sized_image = getattr(program.banner_image, size_key, None)
+                self.assertIsNotNone(sized_image)
+                if sized_image:
+                    path = getattr(program.banner_image, size_key).url
+                    self.assertIsNotNone(path)
+                    self.assertIsNotNone(program.banner_image.field.variations[size_key]['width'])
+                    self.assertIsNotNone(program.banner_image.field.variations[size_key]['height'])
+
     @responses.activate
     def test_ingest(self):
         """ Verify the method ingests data from the Organizations API. """
@@ -427,7 +443,7 @@ class ProgramsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCa
         self.loader.ingest()
 
         # Verify the API was called with the correct authorization header
-        self.assert_api_called(1)
+        self.assert_api_called(2)
 
         # Verify the Programs were created correctly
         self.assertEqual(Program.objects.count(), len(api_data))
@@ -452,3 +468,25 @@ class ProgramsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCa
 
         self.assertEqual(Program.objects.count(), len(api_data))
         self.assertEqual(Organization.objects.count(), 0)
+
+    @responses.activate
+    def test_ingest_with_existing_banner_image(self):
+        programs = self.mock_api()
+
+        for program_data in programs:
+            banner_image_url = program_data.get('banner_image_urls', {}).get('w1440h480')
+            if banner_image_url:
+                responses.add_callback(
+                    responses.GET,
+                    banner_image_url,
+                    callback=mock_jpeg_callback(),
+                    content_type=JPEG
+                )
+
+        self.loader.ingest()
+        # Verify the API was called with the correct authorization header
+        self.assert_api_called(2)
+
+        for program in programs:
+            self.assert_program_loaded(program)
+            self.assert_program_banner_image_loaded(program)

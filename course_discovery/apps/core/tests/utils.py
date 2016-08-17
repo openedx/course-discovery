@@ -5,6 +5,8 @@ from factory.fuzzy import (
     BaseFuzzyAttribute, FuzzyText, FuzzyChoice
 )
 
+from course_discovery.apps.core.tests.helpers import make_image_stream
+
 
 class FuzzyDomain(BaseFuzzyAttribute):
     def fuzz(self):
@@ -79,5 +81,14 @@ def mock_api_callback(url, data, results_key=True, pagination=False):
             body.update(data)
 
         return 200, {}, json.dumps(body)
+
+    return request_callback
+
+
+def mock_jpeg_callback():
+    def request_callback(request):  # pylint: disable=unused-argument
+        image_stream = make_image_stream()
+
+        return 200, {}, image_stream.getvalue()
 
     return request_callback

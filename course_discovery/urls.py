@@ -18,6 +18,7 @@ import os
 from auth_backends.urls import auth_urlpatterns
 from django.conf import settings
 from django.conf.urls import include, url
+from django.conf.urls.static import static
 from django.contrib import admin
 
 from course_discovery.apps.core import views as core_views
@@ -43,7 +44,11 @@ urlpatterns = auth_urlpatterns + [
     url(r'^comments/', include('django_comments.urls')),
 ]
 
-if settings.DEBUG and os.environ.get('ENABLE_DJANGO_TOOLBAR', False):  # pragma: no cover
-    import debug_toolbar  # pylint: disable=wrong-import-order,wrong-import-position,import-error
+if settings.DEBUG:  # pragma: no cover
+    # We need this url pattern to serve user uploaded assets according to
+    # https://docs.djangoproject.com/en/1.10/howto/static-files/#serving-files-uploaded-by-a-user-during-development
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
+        import debug_toolbar  # pylint: disable=wrong-import-order,wrong-import-position,import-error
 
-    urlpatterns.append(url(r'^__debug__/', include(debug_toolbar.urls)))
+        urlpatterns.append(url(r'^__debug__/', include(debug_toolbar.urls)))

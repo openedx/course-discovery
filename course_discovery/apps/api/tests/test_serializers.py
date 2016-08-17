@@ -16,6 +16,7 @@ from course_discovery.apps.api.serializers import (
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.models import CourseRun, Program
 from course_discovery.apps.course_metadata.search_indexes import OrganizationsMixin
 from course_discovery.apps.course_metadata.tests.factories import (
@@ -251,7 +252,20 @@ class ProgramSerializerTests(TestCase):
         org_list = OrganizationFactory.create_batch(1)
         course_list = CourseFactory.create_batch(3)
         program = ProgramFactory(authoring_organizations=org_list, courses=course_list)
+        program.banner_image = make_image_file('test_banner.jpg')
+        program.save()
         serializer = ProgramSerializer(program, context={'request': request})
+        expected_banner_image_urls = {
+            size_key: {
+                'url': '{}{}'.format(
+                    'http://testserver',
+                    getattr(program.banner_image, size_key).url
+                ),
+                'width': program.banner_image.field.variations[size_key]['width'],
+                'height': program.banner_image.field.variations[size_key]['height']
+            }
+            for size_key in program.banner_image.field.variations
+        }
 
         expected = {
             'uuid': str(program.uuid),
@@ -262,6 +276,7 @@ class ProgramSerializerTests(TestCase):
             'marketing_url': program.marketing_url,
             'card_image_url': program.card_image_url,
             'banner_image_url': program.banner_image_url,
+            'banner_image': expected_banner_image_urls,
             'authoring_organizations': OrganizationSerializer(program.authoring_organizations, many=True).data,
             'courses': ProgramCourseSerializer(
                 program.courses,
@@ -300,6 +315,7 @@ class ProgramSerializerTests(TestCase):
             'marketing_slug': program.marketing_slug,
             'marketing_url': program.marketing_url,
             'card_image_url': program.card_image_url,
+            'banner_image': {},
             'banner_image_url': program.banner_image_url,
             'authoring_organizations': OrganizationSerializer(program.authoring_organizations, many=True).data,
             'courses': ProgramCourseSerializer(

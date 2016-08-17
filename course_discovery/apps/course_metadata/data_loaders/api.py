@@ -1,7 +1,10 @@
 import logging
 from decimal import Decimal
+from io import BytesIO
+import requests
 
 from opaque_keys.edx.keys import CourseKey
+from django.core.files import File
 
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
@@ -299,6 +302,7 @@ class ProgramsApiDataLoader(AbstractDataLoader):
             program, __ = Program.objects.update_or_create(uuid=uuid, defaults=defaults)
             self._update_program_organizations(body, program)
             self._update_program_courses_and_runs(body, program)
+            self._update_program_banner_image(body, program)
             program.save()
         except Exception:  # pylint: disable=broad-except
             logger.exception('Failed to load program %s', uuid)
@@ -335,3 +339,20 @@ class ProgramsApiDataLoader(AbstractDataLoader):
         image_key = 'w{width}h{height}'.format(width=self.image_width, height=self.image_height)
         image_url = body.get('banner_image_urls', {}).get(image_key)
         return image_url
+
+    def _update_program_banner_image(self, body, program):
+        image_url = self._get_banner_image_url(body)
+        if not image_url:
+            logger.warning('There are no banner image url for program %s', program.title)
+            return
+
+        r = requests.get(image_url)
+        if r.status_code == 200:
+            banner_downloaded = File(BytesIO(r.content))
+            program.banner_image.save(
+                'banner.jpg',
+                banner_downloaded
+            )
+            program.save()
+        else:
+            logger.exception('Loading the banner image %s for program %s failed', image_url, program.title)
