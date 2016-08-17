@@ -1,0 +1,31 @@
+{% extends 'admin/base_site.html' %}
+{% load i18n %}
+{% block title %}
+{% trans "CourseRun Selection Form" %}
+{% endblock title %}
+
+{% block content %}
+
+<form class="form" method="post" action="">
+    {% csrf_token %}
+    <fieldset class="module aligned ">
+            {% for field in form %}
+                <div class="form-row field-overview">
+                   <label for="{{ field.name }}">{{ field.label }}</label>
+                    <div class="form-row">
+                        {{ field }}
+                    </div>
+                </div>
+            {% endfor %}
+    </fieldset>
+    {% block submit_buttons_bottom %}
+        <div class="submit-row">
+            <a href="{% url 'admin:course_metadata_program_changelist' %}">
+                <input type="button" name="Cancel" value="{% trans 'Cancel' %}">
+            </a>
+            <input type="submit" value="{% trans 'Save Course Run' %}" class="default" name="_save" />
+        </div>
+    {% endblock %}
+</form>
+
+{% endblock %}

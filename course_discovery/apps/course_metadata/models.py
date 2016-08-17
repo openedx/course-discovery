@@ -512,12 +512,18 @@ class Endorsement(TimeStampedModel):
     endorser = models.ForeignKey(Person, blank=False, null=False)
     quote = models.TextField(blank=False, null=False)
 
+    def __str__(self):
+        return self.endorser.full_name
+
 
 class CorporateEndorsement(TimeStampedModel):
     corporation_name = models.CharField(max_length=128, blank=False, null=False)
     statement = models.TextField(blank=False, null=False)
     image = models.ForeignKey(Image, blank=True, null=True)
     individual_endorsements = SortedManyToManyField(Endorsement)
+
+    def __str__(self):
+        return self.corporation_name
 
 
 class FAQ(TimeStampedModel):
@@ -527,6 +533,9 @@ class FAQ(TimeStampedModel):
     class Meta:
         verbose_name = _('FAQ')
         verbose_name_plural = _('FAQs')
+
+    def __str__(self):
+        return self.question
 
 
 class ProgramType(TimeStampedModel):

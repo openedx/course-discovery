@@ -11,13 +11,15 @@ from django.test import TestCase
 from freezegun import freeze_time
 
 from course_discovery.apps.core.models import Currency
-from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.models import (
-    AbstractNamedModel, AbstractMediaModel, AbstractValueModel, Course, CourseRun, SeatType,
+    AbstractMediaModel, AbstractNamedModel, AbstractValueModel,
+    CorporateEndorsement, Course, CourseRun, Endorsement,
+    FAQ, SeatType
 )
 from course_discovery.apps.course_metadata.tests import factories
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory
+from course_discovery.apps.core.tests.helpers import make_image_file
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ImageFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
@@ -428,3 +430,40 @@ class ProgramTypeTests(TestCase):
     def test_str(self):
         program_type = factories.ProgramTypeFactory()
         self.assertEqual(str(program_type), program_type.name)
+
+
+class EndorsementTests(TestCase):
+    """ Tests of the Endorsement model. """
+    def setUp(self):
+        super(EndorsementTests, self).setUp()
+        self.person = factories.PersonFactory()
+        self.endorsement = Endorsement.objects.create(
+            endorser=self.person,
+            quote='test quote'
+        )
+
+    def test_str(self):
+        self.assertEqual(str(self.endorsement), self.person.full_name)
+
+
+class CorporateEndorsementTests(TestCase):
+    """ Tests of the CorporateEndorsement model. """
+    def setUp(self):
+        super(CorporateEndorsementTests, self).setUp()
+        self.corporation_name = 'test org'
+        self.individual_endorsements = CorporateEndorsement.objects.create(
+            corporation_name=self.corporation_name,
+            statement='test statement',
+            image=ImageFactory()
+        )
+
+    def test_str(self):
+        self.assertEqual(str(self.individual_endorsements), self.corporation_name)
+
+
+class FAQTests(TestCase):
+    """ Tests of the FAQ model. """
+    def test_str(self):
+        question = 'test question'
+        faq = FAQ.objects.create(question=question, answer='test')
+        self.assertEqual(str(faq), question)

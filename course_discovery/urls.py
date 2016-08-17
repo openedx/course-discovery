@@ -27,6 +27,7 @@ from course_discovery.apps.course_metadata.views import QueryPreviewView
 admin.autodiscover()
 
 urlpatterns = auth_urlpatterns + [
+    url(r'^admin/course_metadata/', include('course_discovery.apps.course_metadata.urls', namespace='admin_metadata')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include('course_discovery.apps.api.urls', namespace='api')),
     # Use the same auth views for all logins, including those originating from the browseable API.
