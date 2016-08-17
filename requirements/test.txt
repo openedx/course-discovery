@@ -12,5 +12,4 @@ mock==2.0.0
 nose-ignore-docstring==0.2
 pep8==1.7.0
 responses==0.5.1
-selenium==2.53.2
-
+selenium==2.53.6
