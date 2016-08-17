@@ -94,6 +94,9 @@ class Video(AbstractMediaModel):
     """ Video model. """
     image = models.ForeignKey(Image, null=True, blank=True)
 
+    def __str__(self):
+        return '{src}: {description}'.format(src=self.src, description=self.description)
+
 
 class LevelType(AbstractNamedModel):
     """ LevelType model. """

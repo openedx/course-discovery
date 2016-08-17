@@ -124,7 +124,6 @@ class AdminTests(TestCase):
         status using admin form.
         """
         data = self._post_data(status)
-        data['status'] = status
         self.valid_post_form(data, {'banner_image': ''})
 
     @ddt.data(
@@ -136,7 +135,6 @@ class AdminTests(TestCase):
     def test_program_with_image(self, status):
         """ Verify that new program can be added with `image` and any status."""
         data = self._post_data(status)
-        data['status'] = status
         self.valid_post_form(data, {'banner_image': make_image_file('test_banner.jpg')})
 
     def _post_data(self, status):
@@ -144,12 +142,24 @@ class AdminTests(TestCase):
             'title': 'some test title',
             'courses': [self.courses[0].id],
             'type': self.program.type.id,
-            'status': status
+            'status': status,
+            'partner': self.program.partner.id
         }
 
     def valid_post_form(self, data, file_data):
         form = ProgramAdminForm(data, file_data)
         self.assertTrue(form.is_valid())
         program = form.save()
+        response = self.client.get(reverse('admin:course_metadata_program_change', args=(program.id,)))
+        self.assertEqual(response.status_code, 200)
+
+    def test_new_program_without_courses(self):
+        """ Verify that new program can be added without `courses`."""
+        data = self._post_data(Program.ProgramStatus.Unpublished)
+        data['courses'] = []
+        form = ProgramAdminForm(data)
+        self.assertTrue(form.is_valid())
+        program = form.save()
+        self.assertEqual(0, program.courses.all().count())
         response = self.client.get(reverse('admin:course_metadata_program_change', args=(program.id,)))
         self.assertEqual(response.status_code, 200)

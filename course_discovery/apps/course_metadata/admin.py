@@ -71,18 +71,16 @@ class ProgramAdmin(admin.ModelAdmin):
 
     search_fields = ('uuid', 'title', 'marketing_slug')
 
-    filter_horizontal = (
-        'job_outlook_items', 'expected_learning_items',
-        'credit_backing_organizations', 'authoring_organizations',
-    )
+    filter_horizontal = ('job_outlook_items', 'expected_learning_items',)
 
     # ordering the field display on admin page.
     fields = (
-        'title', 'status', 'type', 'banner_image',
+        'title', 'status', 'type', 'partner', 'banner_image',
         'banner_image_url', 'card_image_url', 'overview', 'video',
     )
     fields += (
-        'courses', 'course_runs', 'excluded_course_runs'
+        'courses', 'course_runs', 'excluded_course_runs', 'authoring_organizations',
+        'credit_backing_organizations'
     )
     fields += filter_horizontal
 
