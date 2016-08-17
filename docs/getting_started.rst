@@ -84,6 +84,55 @@ your settings and created the database (if necessary). Migrations can be run wit
 .. _Django's migrate command: https://docs.djangoproject.com/en/1.8/ref/django-admin/#django-admin-migrate
 
 
+Configure Partners
+------------------
+The Catalog Service is designed to support multiple collections of API endpoints to construct its search
+indexes. These collections are represented in the system's domain model as "Partner" entities.  In addition to indexing,
+Partners link related top-level system entities -- Courses, Organizations, and Programs -- in order to create logical
+index partitions for use during search operations.
+
+To configure a Partner, add a new entry to the system via the Catalog Service administration console found at
+``https://catalog.example.com/admin``.  Alternatively you may execute the ``create_or_update_partner`` management
+command via the terminal. This command, found in
+:file:`course_discovery/apps/core/management/commands/create_or_update_partner.py`, allows service operators to specify
+any/all Partner attributes as command arguments for both new and existing Partners, including marketing site
+and OIDC authentication credentials.
+
+Required arguments include the ``code`` and ``name`` fields, as follows:
+
+.. code-block:: bash
+
+    $ ./manage.py create_or_update_partner --code='abc' --name='ABC Partner'
+
+Additional optional attributes can be specified:
+
++-------------------------------+-----------------------------------------+----------------------------------------------------+
+| Attribute/Argument            | Description                             | Notes / Example Values                             |
++===============================+=========================================+====================================================+
+| courses-api-url               | LMS Courses API Endpoint                | https://lms.example.com/api/v1/courses/            |
++-------------------------------+-----------------------------------------+----------------------------------------------------+
+| ecommerce-api-url             | Ecommerce Courses API Endpoint          | https://ecommerce.example.com/api/v1/courses/      |
++-------------------------------+-----------------------------------------+----------------------------------------------------+
+| organizations-api-url         | Organizations API Endpoint              | https://orgs.example.com/api/v1/organizations/     |
++-------------------------------+-----------------------------------------+----------------------------------------------------+
+| programs-api-url              | Programs API Endpoint                   | https://programs.example.com/api/v1/programs/      |
++-------------------------------+-----------------------------------------+----------------------------------------------------+
+| marketing-site-url-root       | Drupal-based Marketing Site URL         | https://www.example.com/                           |
++-------------------------------+-----------------------------------------+----------------------------------------------------+
+| marketing-site-api-url        | Drupal Courses API Endpoint             | https://www.example.com/api/v1/courses/            |
++-------------------------------+-----------------------------------------+----------------------------------------------------+
+| marketing-site-api-username   | Drupal Courses API Account Username     | (This value comes from the Drupal user account)    |
++-------------------------------+-----------------------------------------+----------------------------------------------------+
+| marketing-site-api-password   | Drupal Courses API Account Password     | (This value comes from the Drupal user account)    |
++-------------------------------+-----------------------------------------+----------------------------------------------------+
+| oidc-url-root                 | Open edX OpenID Connect URL             | https://lms.example.com/oauth2                     |
++-------------------------------+-----------------------------------------+----------------------------------------------------+
+| oidc-key                      | Open edX OpenID Connect Client Key/ID   | (This value comes from the LMS Client record)      |
++-------------------------------+-----------------------------------------+----------------------------------------------------+
+| oidc-secret                   | Open edX OpenID Connect Client Secret   | (This value comes from the LMS Client record)      |
++-------------------------------+-----------------------------------------+----------------------------------------------------+
+
+
 Run the server
 --------------
 The server can be run with `Docker Compose`_. This will start the Course Discovery service, and all of the
