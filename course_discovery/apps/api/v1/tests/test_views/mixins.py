@@ -7,7 +7,8 @@ from django.conf import settings
 from rest_framework.test import APIRequestFactory
 
 from course_discovery.apps.api.serializers import (
-    CatalogSerializer, CourseSerializer, CourseSerializerExcludingClosedRuns, FlattenedCourseRunWithCourseSerializer
+    CatalogSerializer, CourseWithProgramsSerializer, CourseSerializerExcludingClosedRuns,
+    FlattenedCourseRunWithCourseSerializer
 )
 
 
@@ -27,7 +28,7 @@ class SerializationMixin(object):
         return self._serialize_object(CatalogSerializer, catalog, many, format)
 
     def serialize_course(self, course, many=False, format=None):
-        return self._serialize_object(CourseSerializer, course, many, format)
+        return self._serialize_object(CourseWithProgramsSerializer, course, many, format)
 
     def serialize_catalog_course(self, course, many=False, format=None):
         return self._serialize_object(CourseSerializerExcludingClosedRuns, course, many, format)

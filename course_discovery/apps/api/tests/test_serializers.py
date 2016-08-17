@@ -11,7 +11,8 @@ from course_discovery.apps.api.serializers import (
     CatalogSerializer, CourseSerializer, CourseRunSerializer, ContainedCoursesSerializer, ImageSerializer,
     SubjectSerializer, PrerequisiteSerializer, VideoSerializer, OrganizationSerializer, SeatSerializer,
     PersonSerializer, AffiliateWindowSerializer, ContainedCourseRunsSerializer, CourseRunSearchSerializer,
-    ProgramSerializer, ProgramSearchSerializer, ProgramCourseSerializer
+    ProgramSerializer, ProgramSearchSerializer, ProgramCourseSerializer, NestedProgramSerializer,
+    CourseRunWithProgramsSerializer, CourseWithProgramsSerializer
 )
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import User
@@ -76,7 +77,7 @@ class CourseSerializerTests(TestCase):
         request = make_request()
 
         CourseRunFactory.create_batch(3, course=course)
-        serializer = CourseSerializer(course, context={'request': request})
+        serializer = CourseWithProgramsSerializer(course, context={'request': request})
 
         expected = {
             'key': course.key,
@@ -99,7 +100,8 @@ class CourseSerializerTests(TestCase):
                     'utm_source': request.user.username,
                     'utm_medium': request.user.referral_tracking_id,
                 })
-            )
+            ),
+            'programs': NestedProgramSerializer(course.programs, many=True, context={'request': request}).data,
         }
 
         self.assertDictEqual(serializer.data, expected)
@@ -119,9 +121,11 @@ class CourseRunSerializerTests(TestCase):
     def test_data(self):
         request = make_request()
         course_run = CourseRunFactory()
+        course = course_run.course
         image = course_run.image
         video = course_run.video
-        serializer = CourseRunSerializer(course_run, context={'request': request})
+        serializer = CourseRunWithProgramsSerializer(course_run, context={'request': request})
+        ProgramFactory(courses=[course])
 
         expected = {
             'course': course_run.course.key,
@@ -154,6 +158,7 @@ class CourseRunSerializerTests(TestCase):
             ),
             'level_type': course_run.level_type.name,
             'availability': course_run.availability,
+            'programs': NestedProgramSerializer(course.programs, many=True, context={'request': request}).data,
         }
 
         self.assertDictEqual(serializer.data, expected)
@@ -239,7 +244,7 @@ class ProgramCourseSerializerTests(TestCase):
                     'utm_source': self.request.user.username,
                     'utm_medium': self.request.user.referral_tracking_id,
                 })
-            )
+            ),
         }
 
         self.assertDictEqual(serializer.data, expected)
@@ -379,6 +384,22 @@ class ImageSerializerTests(TestCase):
             'description': image.description,
             'height': image.height,
             'width': image.width
+        }
+
+        self.assertDictEqual(serializer.data, expected)
+
+
+class NestedProgramSerializerTests(TestCase):
+    def test_data(self):
+        program = ProgramFactory()
+        serializer = NestedProgramSerializer(program)
+
+        expected = {
+            'uuid': str(program.uuid),
+            'marketing_slug': program.marketing_slug,
+            'marketing_url': program.marketing_url,  # pylint: disable=no-member
+            'type': program.type.name,
+            'title': program.title,
         }
 
         self.assertDictEqual(serializer.data, expected)

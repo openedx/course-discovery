@@ -309,7 +309,13 @@ class ProgramTests(TestCase):
         self.assertIsNone(self.program.marketing_url)
 
     def test_course_runs(self):
-        """ Verify the property returns the set of associated CourseRuns minus those that are explicitly excluded. """
+        """
+        Verify that we only fetch course runs for the program, and not other course runs for other programs and that the
+        property returns the set of associated CourseRuns minus those that are explicitly excluded.
+        """
+        course_run = factories.CourseRunFactory()
+        factories.ProgramFactory(courses=[course_run.course])
+        # Verify that course run is not returned in set
         self.assertEqual(set(self.program.course_runs), set(self.course_runs))
 
     def test_languages(self):
