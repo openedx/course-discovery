@@ -1,3 +1,5 @@
+import json
+
 from haystack import indexes
 from opaque_keys.edx.keys import CourseKey
 
@@ -5,9 +7,15 @@ from course_discovery.apps.course_metadata.models import Course, CourseRun, Prog
 
 
 class OrganizationsMixin:
-    @classmethod
-    def format_organization(cls, organization):
+    def format_organization(self, organization):
         return '{key}: {name}'.format(key=organization.key, name=organization.name)
+
+    def format_organization_body(self, organization):
+        # Deferred to prevent a circular import:
+        # course_discovery.apps.api.serializers -> course_discovery.apps.course_metadata.search_indexes
+        from course_discovery.apps.api.serializers import OrganizationSerializer
+
+        return json.dumps(OrganizationSerializer(organization).data)
 
     def prepare_organizations(self, obj):
         return [self.format_organization(organization) for organization in obj.organizations.all()]
@@ -117,6 +125,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     organizations = indexes.MultiValueField(faceted=True)
     authoring_organizations = indexes.MultiValueField(faceted=True)
     credit_backing_organizations = indexes.MultiValueField(faceted=True)
+    organization_bodies = indexes.MultiValueField()
     card_image_url = indexes.CharField(model_attr='card_image_url', null=True)
     status = indexes.CharField(model_attr='status', faceted=True)
     partner = indexes.CharField(model_attr='partner__short_code', null=True, faceted=True)
@@ -129,6 +138,10 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
 
     def prepare_credit_backing_organizations(self, obj):
         return [self.format_organization(organization) for organization in obj.credit_backing_organizations.all()]
+
+    def prepare_organization_bodies(self, obj):
+        organizations = obj.authoring_organizations.all() | obj.credit_backing_organizations.all()
+        return [self.format_organization_body(organization) for organization in organizations]
 
     def prepare_marketing_url(self, obj):
         return obj.marketing_url

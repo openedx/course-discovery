@@ -18,7 +18,6 @@ from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.models import CourseRun, Program
-from course_discovery.apps.course_metadata.search_indexes import OrganizationsMixin
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, SubjectFactory, PrerequisiteFactory, ImageFactory, VideoFactory,
     OrganizationFactory, PersonFactory, SeatFactory, ProgramFactory
@@ -528,8 +527,9 @@ class ProgramSearchSerializerTests(TestCase):
         program.authoring_organizations.add(authoring_organization)
         program.credit_backing_organizations.add(crediting_organization)
         program.save()
-        expected_organizations = [OrganizationsMixin.format_organization(org) for org in
-                                  (authoring_organization, crediting_organization)]
+        expected_organizations = [
+            OrganizationSerializer(org).data for org in (authoring_organization, crediting_organization)
+        ]
 
         # NOTE: This serializer expects SearchQuerySet results, so we run a search on the newly-created object
         # to generate such a result.
@@ -542,7 +542,7 @@ class ProgramSearchSerializerTests(TestCase):
             'subtitle': program.subtitle,
             'type': program.type.name,
             'marketing_url': program.marketing_url,
-            'organizations': expected_organizations,
+            'authoring_organizations': expected_organizations,
             'content_type': 'program',
             'card_image_url': program.card_image_url,
             'status': program.status,
