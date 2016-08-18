@@ -6,7 +6,7 @@ from django.db.models.functions import Lower
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase, APIRequestFactory
 
-from course_discovery.apps.api.serializers import CourseRunSerializer
+from course_discovery.apps.api.serializers import CourseRunWithProgramsSerializer
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.models import CourseRun
@@ -27,7 +27,7 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
         self.request.user = self.user
 
     def serialize_course_run(self, course_run, **kwargs):
-        return CourseRunSerializer(course_run, context={'request': self.request}, **kwargs).data
+        return CourseRunWithProgramsSerializer(course_run, context={'request': self.request}, **kwargs).data
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single course. """

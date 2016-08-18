@@ -181,7 +181,7 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_value_regex = COURSE_ID_REGEX
     queryset = Course.objects.all()
     permission_classes = (IsAuthenticated,)
-    serializer_class = serializers.CourseSerializer
+    serializer_class = serializers.CourseWithProgramsSerializer
 
     def get_queryset(self):
         q = self.request.query_params.get('q', None)
@@ -225,7 +225,7 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_value_regex = COURSE_RUN_ID_REGEX
     queryset = CourseRun.objects.all().order_by(Lower('key'))
     permission_classes = (IsAuthenticated,)
-    serializer_class = serializers.CourseRunSerializer
+    serializer_class = serializers.CourseRunWithProgramsSerializer
 
     def _get_partner(self):
         """ Return the partner for the code passed in or the default partner """

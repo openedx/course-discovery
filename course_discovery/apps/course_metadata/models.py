@@ -389,6 +389,10 @@ class CourseRun(TimeStampedModel):
         return self.course.prerequisites
 
     @property
+    def programs(self):
+        return self.course.programs
+
+    @property
     def seat_types(self):
         return list(self.seats.values_list('type', flat=True))
 
@@ -576,7 +580,7 @@ class Program(TimeStampedModel):
     )
     marketing_slug = models.CharField(
         help_text=_('Slug used to generate links to the marketing site'), blank=True, max_length=255, db_index=True)
-    courses = models.ManyToManyField(Course)
+    courses = models.ManyToManyField(Course, related_name='programs')
     # NOTE (CCB): Editors of this field should validate the values to ensure only CourseRuns associated
     # with related Courses are stored.
     excluded_course_runs = models.ManyToManyField(CourseRun, blank=True)
@@ -623,7 +627,7 @@ class Program(TimeStampedModel):
     @property
     def course_runs(self):
         excluded_course_run_ids = [course_run.id for course_run in self.excluded_course_runs.all()]
-        return CourseRun.objects.filter(course__program=self).exclude(id__in=excluded_course_run_ids)
+        return CourseRun.objects.filter(course__programs=self).exclude(id__in=excluded_course_run_ids)
 
     @property
     def languages(self):

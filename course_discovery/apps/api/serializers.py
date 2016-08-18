@@ -189,6 +189,19 @@ class CatalogSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'query', 'courses_count', 'viewers')
 
 
+class NestedProgramSerializer(serializers.ModelSerializer):
+    """
+    Serializer used when nesting a Program inside another entity (e.g. a Course). The resulting data includes only
+    the basic details of the Program and none of the details about its related entities (e.g. courses).
+    """
+    type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
+
+    class Meta:
+        model = Program
+        fields = ('uuid', 'title', 'type', 'marketing_slug', 'marketing_url',)
+        read_only_fields = ('uuid', 'marketing_url',)
+
+
 class CourseRunSerializer(TimestampModelSerializer):
     """Serializer for the ``CourseRun`` model."""
     course = serializers.SlugRelatedField(read_only=True, slug_field='key')
@@ -218,6 +231,15 @@ class CourseRunSerializer(TimestampModelSerializer):
         return get_marketing_url_for_user(self.context['request'].user, obj.marketing_url)
 
 
+class CourseRunWithProgramsSerializer(CourseRunSerializer):
+    """A ``CourseRunSerializer`` which includes programs derived from parent course."""
+    programs = NestedProgramSerializer(many=True)
+
+    class Meta(CourseRunSerializer.Meta):
+        model = CourseRun
+        fields = CourseRunSerializer.Meta.fields + ('programs', )
+
+
 class ContainedCourseRunsSerializer(serializers.Serializer):
     """Serializer used to represent course runs contained by a catalog."""
     course_runs = serializers.DictField(
@@ -244,11 +266,20 @@ class CourseSerializer(TimestampModelSerializer):
         fields = (
             'key', 'title', 'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites',
             'expected_learning_items', 'image', 'video', 'owners', 'sponsors', 'modified', 'course_runs',
-            'marketing_url'
+            'marketing_url',
         )
 
     def get_marketing_url(self, obj):
         return get_marketing_url_for_user(self.context['request'].user, obj.marketing_url)
+
+
+class CourseWithProgramsSerializer(CourseSerializer):
+    """A ``CourseSerializer`` which includes programs."""
+    programs = NestedProgramSerializer(many=True)
+
+    class Meta(CourseSerializer.Meta):
+        model = Course
+        fields = CourseSerializer.Meta.fields + ('programs', )
 
 
 class CourseSerializerExcludingClosedRuns(CourseSerializer):
