@@ -80,7 +80,7 @@ disable =
 	too-many-arguments,
 	too-many-locals,
 	unused-wildcard-import,
-	duplicate-code,invalid-name,missing-docstring
+	duplicate-code,invalid-name,missing-docstring,cyclic-import
 
 [REPORTS]
 output-format = text
@@ -180,4 +180,4 @@ int-import-graph =
 [EXCEPTIONS]
 overgeneral-exceptions = Exception
 
-# aa393e07e100b773853da38867c6a050ff9d6bfb
+# 5b6ec121b7c657d50f056591f315bd23c25d6a97

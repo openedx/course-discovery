@@ -1,5 +1,5 @@
 # pylint: disable=abstract-method
-
+import json
 from urllib.parse import urlencode
 
 from django.contrib.auth import get_user_model
@@ -51,10 +51,12 @@ PROGRAM_FACET_FIELD_OPTIONS = {
     'status': {},
 }
 
-PROGRAM_SEARCH_FIELDS = (
-    'text', 'uuid', 'title', 'subtitle', 'type', 'marketing_url', 'organizations', 'content_type', 'status',
-    'card_image_url',
+BASE_PROGRAM_FIELDS = (
+    'text', 'uuid', 'title', 'subtitle', 'type', 'marketing_url', 'content_type', 'status', 'card_image_url',
 )
+
+PROGRAM_SEARCH_FIELDS = BASE_PROGRAM_FIELDS + ('authoring_organizations',)
+PROGRAM_FACET_FIELDS = BASE_PROGRAM_FIELDS + ('organizations',)
 
 
 def get_marketing_url_for_user(user, marketing_url):
@@ -541,6 +543,12 @@ class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
 
 
 class ProgramSearchSerializer(HaystackSerializer):
+    authoring_organizations = serializers.SerializerMethodField()
+
+    def get_authoring_organizations(self, program):
+        organizations = program.organization_bodies
+        return [json.loads(organization) for organization in organizations]
+
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
         field_options = PROGRAM_FACET_FIELD_OPTIONS
@@ -555,7 +563,7 @@ class ProgramFacetSerializer(BaseHaystackFacetSerializer):
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
         field_options = PROGRAM_FACET_FIELD_OPTIONS
-        fields = PROGRAM_SEARCH_FIELDS
+        fields = PROGRAM_FACET_FIELDS
         ignore_fields = COMMON_IGNORED_FIELDS
         index_classes = [ProgramIndex]
 
