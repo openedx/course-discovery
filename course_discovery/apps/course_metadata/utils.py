@@ -1,3 +1,5 @@
+from stdimage.utils import UploadTo
+
 RESERVED_ELASTICSEARCH_QUERY_OPERATORS = ('AND', 'OR', 'NOT', 'TO',)
 
 
@@ -24,3 +26,19 @@ def clean_query(query):
         query = query.replace(old, new)
 
     return query
+
+
+class UploadToFieldNamePath(UploadTo):
+    """
+    This is a utility to create file path for uploads based on instance field value
+    """
+    def __init__(self, populate_from, **kwargs):
+        self.populate_from = populate_from
+        super(UploadToFieldNamePath, self).__init__(populate_from, **kwargs)
+
+    def __call__(self, instance, filename):
+        field_value = getattr(instance, self.populate_from)
+        self.kwargs.update({
+            'name': field_value
+        })
+        return super(UploadToFieldNamePath, self).__call__(instance, filename)

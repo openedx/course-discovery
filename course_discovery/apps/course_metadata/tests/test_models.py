@@ -362,7 +362,7 @@ class ProgramTests(TestCase):
     def test_banner_image(self):
         self.program.banner_image = make_image_file('test_banner.jpg')
         self.program.save()
-        image_url_prefix = '{}program/'.format(settings.MEDIA_URL)
+        image_url_prefix = '{}media/programs/banner_images/'.format(settings.MEDIA_URL)
         self.assertIn(image_url_prefix, self.program.banner_image.url)
         for size_key in self.program.banner_image.field.variations:
             # Get different sizes specs from the model field
