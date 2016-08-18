@@ -290,16 +290,19 @@ class ProgramsApiDataLoader(AbstractDataLoader):
 
         try:
             defaults = {
+                'uuid': uuid,
                 'title': body['name'],
                 'subtitle': body['subtitle'],
                 'type': self.XSERIES,
                 'status': body['status'],
-                'marketing_slug': body['marketing_slug'],
                 'banner_image_url': self._get_banner_image_url(body),
-                'partner': self.partner,
             }
 
-            program, __ = Program.objects.update_or_create(uuid=uuid, defaults=defaults)
+            program, __ = Program.objects.update_or_create(
+                marketing_slug=body['marketing_slug'],
+                partner=self.partner,
+                defaults=defaults
+            )
             self._update_program_organizations(body, program)
             self._update_program_courses_and_runs(body, program)
             self._update_program_banner_image(body, program)
