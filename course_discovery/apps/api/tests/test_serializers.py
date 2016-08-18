@@ -548,8 +548,8 @@ class ProgramSearchSerializerTests(TestCase):
         program.authoring_organizations.add(authoring_organization)
         program.credit_backing_organizations.add(crediting_organization)
         program.save()
-        expected_organizations = [
-            OrganizationSerializer(org).data for org in (authoring_organization, crediting_organization)
+        expected_authoring_organizations = [
+            OrganizationSerializer(authoring_organization).data,
         ]
 
         # NOTE: This serializer expects SearchQuerySet results, so we run a search on the newly-created object
@@ -563,7 +563,7 @@ class ProgramSearchSerializerTests(TestCase):
             'subtitle': program.subtitle,
             'type': program.type.name,
             'marketing_url': program.marketing_url,
-            'authoring_organizations': expected_organizations,
+            'authoring_organizations': expected_authoring_organizations,
             'content_type': 'program',
             'card_image_url': program.card_image_url,
             'status': program.status,

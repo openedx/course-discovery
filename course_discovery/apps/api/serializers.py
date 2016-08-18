@@ -577,7 +577,7 @@ class ProgramSearchSerializer(HaystackSerializer):
     authoring_organizations = serializers.SerializerMethodField()
 
     def get_authoring_organizations(self, program):
-        organizations = program.organization_bodies
+        organizations = program.authoring_organization_bodies
         return [json.loads(organization) for organization in organizations] if organizations else []
 
     class Meta:
