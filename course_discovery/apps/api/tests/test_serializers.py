@@ -548,3 +548,23 @@ class ProgramSearchSerializerTests(TestCase):
             'status': program.status,
         }
         self.assertDictEqual(serializer.data, expected)
+
+    def test_organization_bodies_missing(self):
+        program = ProgramFactory()
+
+        result = SearchQuerySet().models(Program).filter(uuid=program.uuid)[0]
+        result.organization_bodies = None
+        serializer = ProgramSearchSerializer(result)
+
+        expected = {
+            'uuid': str(program.uuid),
+            'title': program.title,
+            'subtitle': program.subtitle,
+            'type': program.type.name,
+            'marketing_url': program.marketing_url,
+            'authoring_organizations': [],
+            'content_type': 'program',
+            'card_image_url': program.card_image_url,
+            'status': program.status,
+        }
+        self.assertDictEqual(serializer.data, expected)

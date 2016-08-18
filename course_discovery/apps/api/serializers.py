@@ -547,7 +547,7 @@ class ProgramSearchSerializer(HaystackSerializer):
 
     def get_authoring_organizations(self, program):
         organizations = program.organization_bodies
-        return [json.loads(organization) for organization in organizations]
+        return [json.loads(organization) for organization in organizations] if organizations else []
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
