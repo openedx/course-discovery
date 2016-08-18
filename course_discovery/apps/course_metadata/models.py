@@ -15,13 +15,13 @@ from haystack.query import SearchQuerySet
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
-from stdimage.utils import UploadToAutoSlugClassNameDir
 from taggit.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata.query import CourseQuerySet
 from course_discovery.apps.course_metadata.utils import clean_query
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 
 logger = logging.getLogger(__name__)
 
@@ -587,7 +587,7 @@ class Program(TimeStampedModel):
     max_hours_effort_per_week = models.PositiveSmallIntegerField(null=True, blank=True)
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_programs')
     banner_image = StdImageField(
-        upload_to=UploadToAutoSlugClassNameDir(path='/media/programs/banner_images', populate_from='uuid'),
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/programs/banner_images'),
         blank=True,
         null=True,
         variations={
