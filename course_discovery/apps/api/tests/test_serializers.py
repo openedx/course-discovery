@@ -13,7 +13,8 @@ from course_discovery.apps.api.serializers import (
     SubjectSerializer, PrerequisiteSerializer, VideoSerializer, OrganizationSerializer, SeatSerializer,
     PersonSerializer, AffiliateWindowSerializer, ContainedCourseRunsSerializer, CourseRunSearchSerializer,
     ProgramSerializer, ProgramSearchSerializer, ProgramCourseSerializer, NestedProgramSerializer,
-    CourseRunWithProgramsSerializer, CourseWithProgramsSerializer
+    CourseRunWithProgramsSerializer, CourseWithProgramsSerializer, CorporateEndorsementSerializer,
+    FAQSerializer, EndorsementSerializer
 )
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import User
@@ -22,7 +23,8 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.models import CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, SubjectFactory, PrerequisiteFactory, ImageFactory, VideoFactory,
-    OrganizationFactory, PersonFactory, SeatFactory, ProgramFactory
+    OrganizationFactory, PersonFactory, SeatFactory, ProgramFactory, CorporateEndorsementFactory, EndorsementFactory,
+    JobOutlookItemFactory, ExpectedLearningItemFactory
 )
 
 
@@ -37,6 +39,18 @@ def make_request():
     request = APIRequestFactory().get('/')
     request.user = user
     return request
+
+
+def serialize_datetime(d):
+    return d.strftime('%Y-%m-%dT%H:%M:%S') if d else None
+
+
+def serialize_language(language):
+    return language.macrolanguage
+
+
+def serialize_language_to_code(language):
+    return language.code
 
 
 class CatalogSerializerTests(TestCase):
@@ -207,11 +221,26 @@ class ProgramCourseSerializerTests(TestCase):
 
 
 class ProgramSerializerTests(TestCase):
+
     def test_data(self):
         request = make_request()
         org_list = OrganizationFactory.create_batch(1)
         course_list = CourseFactory.create_batch(3)
-        program = ProgramFactory(authoring_organizations=org_list, courses=course_list)
+        corporate_endorsements = CorporateEndorsementFactory.create_batch(1)
+        individual_endorsements = EndorsementFactory.create_batch(1)
+        staff = PersonFactory.create_batch(1)
+        job_outlook_items = JobOutlookItemFactory.create_batch(1)
+        expected_learning_items = ExpectedLearningItemFactory.create_batch(1)
+        program = ProgramFactory(
+            authoring_organizations=org_list,
+            courses=course_list,
+            credit_backing_organizations=org_list,
+            corporate_endorsements=corporate_endorsements,
+            individual_endorsements=individual_endorsements,
+            expected_learning_items=expected_learning_items,
+            staff=staff,
+            job_outlook_items=job_outlook_items,
+        )
         program.banner_image = make_image_file('test_banner.jpg')
         program.save()
         serializer = ProgramSerializer(program, context={'request': request})
@@ -236,6 +265,7 @@ class ProgramSerializerTests(TestCase):
             'marketing_url': program.marketing_url,
             'card_image_url': program.card_image_url,
             'banner_image_url': program.banner_image_url,
+            'video': None,
             'banner_image': expected_banner_image_urls,
             'authoring_organizations': OrganizationSerializer(program.authoring_organizations, many=True).data,
             'credit_redemption_overview': program.credit_redemption_overview,
@@ -244,6 +274,25 @@ class ProgramSerializerTests(TestCase):
                 many=True,
                 context={'request': request, 'program': program}
             ).data,
+            'corporate_endorsements': CorporateEndorsementSerializer(program.corporate_endorsements, many=True).data,
+            'credit_backing_organizations': OrganizationSerializer(
+                program.credit_backing_organizations,
+                many=True
+            ).data,
+            'expected_learning_items': [item.value for item in program.expected_learning_items.all()],
+            'faq': FAQSerializer(program.faq, many=True).data,
+            'individual_endorsements': EndorsementSerializer(program.individual_endorsements, many=True).data,
+            'staff': PersonSerializer(program.staff, many=True).data,
+            'job_outlook_items': [item.value for item in program.job_outlook_items.all()],
+            'languages': [serialize_language_to_code(l) for l in program.languages],
+            'weeks_to_complete': program.weeks_to_complete,
+            'max_hours_effort_per_week': None,
+            'min_hours_effort_per_week': None,
+            'overview': None,
+            'price_ranges': [],
+            'status': program.status,
+            'subjects': [],
+            'transcript_languages': [],
         }
 
         self.assertDictEqual(serializer.data, expected)
@@ -278,6 +327,7 @@ class ProgramSerializerTests(TestCase):
             'card_image_url': program.card_image_url,
             'banner_image': {},
             'banner_image_url': program.banner_image_url,
+            'video': None,
             'authoring_organizations': OrganizationSerializer(program.authoring_organizations, many=True).data,
             'credit_redemption_overview': program.credit_redemption_overview,
             'courses': ProgramCourseSerializer(
@@ -285,6 +335,25 @@ class ProgramSerializerTests(TestCase):
                 many=True,
                 context={'request': request, 'program': program}
             ).data,
+            'corporate_endorsements': CorporateEndorsementSerializer(program.corporate_endorsements, many=True).data,
+            'credit_backing_organizations': OrganizationSerializer(
+                program.credit_backing_organizations,
+                many=True
+            ).data,
+            'expected_learning_items': [],
+            'faq': FAQSerializer(program.faq, many=True).data,
+            'individual_endorsements': EndorsementSerializer(program.individual_endorsements, many=True).data,
+            'staff': PersonSerializer(program.staff, many=True).data,
+            'job_outlook_items': [],
+            'languages': [serialize_language_to_code(l) for l in program.languages],
+            'weeks_to_complete': program.weeks_to_complete,
+            'max_hours_effort_per_week': None,
+            'min_hours_effort_per_week': None,
+            'overview': None,
+            'price_ranges': [],
+            'status': program.status,
+            'subjects': [],
+            'transcript_languages': [],
         }
 
         self.assertDictEqual(serializer.data, expected)
@@ -342,6 +411,24 @@ class ImageSerializerTests(TestCase):
             'description': image.description,
             'height': image.height,
             'width': image.width
+        }
+
+        self.assertDictEqual(serializer.data, expected)
+
+
+class CorporateEndorsementSerializerTests(TestCase):
+    def test_data(self):
+        corporate_endorsement = CorporateEndorsementFactory()
+        serializer = CorporateEndorsementSerializer(corporate_endorsement)
+
+        expected = {
+            'corporation_name': corporate_endorsement.corporation_name,
+            'statement': corporate_endorsement.statement,
+            'image': ImageSerializer(corporate_endorsement.image).data,
+            'individual_endorsements': EndorsementSerializer(
+                corporate_endorsement.individual_endorsements,
+                many=True
+            ).data
         }
 
         self.assertDictEqual(serializer.data, expected)
@@ -459,11 +546,6 @@ class AffiliateWindowSerializerTests(TestCase):
 
 
 class CourseRunSearchSerializerTests(TestCase):
-    def serialize_datetime(self, d):
-        return d.strftime('%Y-%m-%dT%H:%M:%S') if d else None
-
-    def serialize_language(self, language):
-        return language.macrolanguage
 
     def test_data(self):
         course_run = CourseRunFactory()
@@ -471,16 +553,16 @@ class CourseRunSearchSerializerTests(TestCase):
         course_run_key = CourseKey.from_string(course_run.key)
 
         expected = {
-            'transcript_languages': [self.serialize_language(l) for l in course_run.transcript_languages.all()],
+            'transcript_languages': [serialize_language(l) for l in course_run.transcript_languages.all()],
             'short_description': course_run.short_description,
-            'start': self.serialize_datetime(course_run.start),
-            'end': self.serialize_datetime(course_run.end),
-            'enrollment_start': self.serialize_datetime(course_run.enrollment_start),
-            'enrollment_end': self.serialize_datetime(course_run.enrollment_end),
+            'start': serialize_datetime(course_run.start),
+            'end': serialize_datetime(course_run.end),
+            'enrollment_start': serialize_datetime(course_run.enrollment_start),
+            'enrollment_end': serialize_datetime(course_run.enrollment_end),
             'key': course_run.key,
             'marketing_url': course_run.marketing_url,
             'pacing_type': course_run.pacing_type,
-            'language': self.serialize_language(course_run.language),
+            'language': serialize_language(course_run.language),
             'full_description': course_run.full_description,
             'title': course_run.title,
             'content_type': 'courserun',

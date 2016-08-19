@@ -1,5 +1,5 @@
 from django.core.urlresolvers import reverse
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APIRequestFactory
 
 from course_discovery.apps.api.serializers import ProgramSerializer
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
@@ -14,6 +14,8 @@ class ProgramViewSetTests(APITestCase):
         super(ProgramViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.request = APIRequestFactory().get('/')
+        self.request.user = self.user
         self.program = ProgramFactory()
 
     def test_authentication(self):
@@ -31,7 +33,7 @@ class ProgramViewSetTests(APITestCase):
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, ProgramSerializer(self.program).data)
+        self.assertEqual(response.data, ProgramSerializer(self.program, context={'request': self.request}).data)
 
     def test_list(self):
         """ Verify the endpoint returns a list of all programs. """
@@ -39,7 +41,10 @@ class ProgramViewSetTests(APITestCase):
 
         response = self.client.get(self.list_path)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data['results'], ProgramSerializer(Program.objects.all(), many=True).data)
+        self.assertEqual(
+            response.data['results'],
+            ProgramSerializer(Program.objects.all(), many=True, context={'request': self.request}).data
+        )
 
     def test_filter_by_type(self):
         """ Verify that the endpoint filters programs to those of a given type. """
@@ -49,7 +54,10 @@ class ProgramViewSetTests(APITestCase):
         self.program.save()  # pylint: disable=no-member
 
         response = self.client.get(url + 'foo')
-        self.assertEqual(response.data['results'][0], ProgramSerializer(Program.objects.get()).data)
+        self.assertEqual(
+            response.data['results'][0],
+            ProgramSerializer(Program.objects.get(), context={'request': self.request}).data
+        )
 
         response = self.client.get(url + 'bar')
         self.assertEqual(response.data['results'], [])
@@ -65,4 +73,7 @@ class ProgramViewSetTests(APITestCase):
         ProgramFactory()
 
         response = self.client.get(url + ','.join(uuids))
-        self.assertEqual(response.data['results'], ProgramSerializer(programs, many=True).data)
+        self.assertEqual(
+            response.data['results'],
+            ProgramSerializer(programs, many=True, context={'request': self.request}).data
+        )

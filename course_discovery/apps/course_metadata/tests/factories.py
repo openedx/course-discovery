@@ -186,6 +186,50 @@ class ProgramTypeFactory(factory.django.DjangoModelFactory):
             add_m2m_data(self.applicable_seat_types, extracted)
 
 
+class EndorsementFactory(factory.django.DjangoModelFactory):
+    class Meta(object):
+        model = Endorsement
+
+    endorser = factory.SubFactory(PersonFactory)
+    quote = FuzzyText()
+
+
+class CorporateEndorsementFactory(factory.django.DjangoModelFactory):
+    class Meta(object):
+        model = CorporateEndorsement
+
+    corporation_name = FuzzyText()
+    statement = FuzzyText()
+    image = factory.SubFactory(ImageFactory)
+
+    @factory.post_generation
+    def individual_endorsements(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.individual_endorsements, extracted)
+
+
+class JobOutlookItemFactory(factory.django.DjangoModelFactory):
+    class Meta(object):
+        model = JobOutlookItem
+
+    value = FuzzyText()
+
+
+class FAQFactory(factory.django.DjangoModelFactory):
+    class Meta(object):
+        model = FAQ
+
+    question = FuzzyText()
+    answer = FuzzyText()
+
+
+class ExpectedLearningItemFactory(factory.django.DjangoModelFactory):
+    class Meta(object):
+        model = ExpectedLearningItem
+
+    value = FuzzyText()
+
+
 class ProgramFactory(factory.django.DjangoModelFactory):
     class Meta(object):
         model = Program
@@ -215,6 +259,41 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     def authoring_organizations(self, create, extracted, **kwargs):
         if create:  # pragma: no cover
             add_m2m_data(self.authoring_organizations, extracted)
+
+    @factory.post_generation
+    def corporate_endorsements(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.corporate_endorsements, extracted)
+
+    @factory.post_generation
+    def credit_backing_organizations(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.credit_backing_organizations, extracted)
+
+    @factory.post_generation
+    def expected_learning_items(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.expected_learning_items, extracted)
+
+    @factory.post_generation
+    def faq(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.faq, extracted)
+
+    @factory.post_generation
+    def individual_endorsements(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.individual_endorsements, extracted)
+
+    @factory.post_generation
+    def staff(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.staff, extracted)
+
+    @factory.post_generation
+    def job_outlook_items(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.job_outlook_items, extracted)
 
 
 class AbstractSocialNetworkModelFactory(factory.DjangoModelFactory):
