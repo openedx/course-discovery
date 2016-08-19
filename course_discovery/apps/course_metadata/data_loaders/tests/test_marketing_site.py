@@ -17,8 +17,7 @@ from course_discovery.apps.course_metadata.data_loaders.tests.mixins import ApiC
 from course_discovery.apps.course_metadata.models import (
     Course, CourseOrganization, CourseRun, Organization, Subject, Program, Video, Person,
 )
-from course_discovery.apps.course_metadata.tests import mock_data
-from course_discovery.apps.course_metadata.tests.factories import ProgramFactory, OrganizationFactory
+from course_discovery.apps.course_metadata.tests import factories, mock_data
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 ENGLISH_LANGUAGE_TAG = LanguageTag(code='en-us', name='English - United States')
@@ -212,6 +211,8 @@ class DrupalApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase
 
 
 class AbstractMarketingSiteDataLoaderTestMixin(DataLoaderTestMixin):
+    mocked_data = []
+
     @property
     def api_url(self):
         return self.partner.marketing_site_url_root
@@ -240,6 +241,19 @@ class AbstractMarketingSiteDataLoaderTestMixin(DataLoaderTestMixin):
             return 200, {}, json.dumps(body)
 
         return request_callback
+
+    def mock_api(self):
+        bodies = self.mocked_data
+        url = self.api_url + 'node.json'
+
+        responses.add_callback(
+            responses.GET,
+            url,
+            callback=self.mock_api_callback(url, bodies),
+            content_type=JSON
+        )
+
+        return bodies
 
     def mock_login_response(self, failure=False):
         url = self.api_url + 'user'
@@ -293,24 +307,16 @@ class AbstractMarketingSiteDataLoaderTestMixin(DataLoaderTestMixin):
 
 class XSeriesMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
     loader_class = XSeriesMarketingSiteDataLoader
+    mocked_data = mock_data.MARKETING_SITE_API_XSERIES_BODIES
 
     def create_mock_programs(self, programs):
         for program in programs:
             marketing_slug = program['url'].split('/')[-1]
-            ProgramFactory(marketing_slug=marketing_slug, partner=self.partner)
+            factories.ProgramFactory(marketing_slug=marketing_slug, partner=self.partner)
 
     def mock_api(self):
-        bodies = mock_data.MARKETING_SITE_API_XSERIES_BODIES
+        bodies = super().mock_api()
         self.create_mock_programs(bodies)
-        url = self.api_url + 'node.json'
-
-        responses.add_callback(
-            responses.GET,
-            url,
-            callback=self.mock_api_callback(url, bodies),
-            content_type=JSON
-        )
-
         return bodies
 
     def assert_program_loaded(self, data):
@@ -362,19 +368,7 @@ class XSeriesMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMix
 
 class SubjectMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
     loader_class = SubjectMarketingSiteDataLoader
-
-    def mock_api(self):
-        bodies = mock_data.MARKETING_SITE_API_SUBJECT_BODIES
-        url = self.api_url + 'node.json'
-
-        responses.add_callback(
-            responses.GET,
-            url,
-            callback=self.mock_api_callback(url, bodies),
-            content_type=JSON
-        )
-
-        return bodies
+    mocked_data = mock_data.MARKETING_SITE_API_SUBJECT_BODIES
 
     def assert_subject_loaded(self, data):
         slug = data['field_subject_url_slug']
@@ -404,19 +398,7 @@ class SubjectMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMix
 
 class SchoolMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
     loader_class = SchoolMarketingSiteDataLoader
-
-    def mock_api(self):
-        bodies = mock_data.MARKETING_SITE_API_SCHOOL_BODIES
-        url = self.api_url + 'node.json'
-
-        responses.add_callback(
-            responses.GET,
-            url,
-            callback=self.mock_api_callback(url, bodies),
-            content_type=JSON
-        )
-
-        return bodies
+    mocked_data = mock_data.MARKETING_SITE_API_SCHOOL_BODIES
 
     def assert_school_loaded(self, data):
         key = data['title']
@@ -448,19 +430,7 @@ class SchoolMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
 
 class SponsorMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
     loader_class = SponsorMarketingSiteDataLoader
-
-    def mock_api(self):
-        bodies = mock_data.MARKETING_SITE_API_SPONSOR_BODIES
-        url = self.api_url + 'node.json'
-
-        responses.add_callback(
-            responses.GET,
-            url,
-            callback=self.mock_api_callback(url, bodies),
-            content_type=JSON
-        )
-
-        return bodies
+    mocked_data = mock_data.MARKETING_SITE_API_SPONSOR_BODIES
 
     def assert_sponsor_loaded(self, data):
         uuid = data['uuid']
@@ -494,19 +464,7 @@ class SponsorMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMix
 
 class PersonMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
     loader_class = PersonMarketingSiteDataLoader
-
-    def mock_api(self):
-        bodies = mock_data.MARKETING_SITE_API_PERSON_BODIES
-        url = self.api_url + 'node.json'
-
-        responses.add_callback(
-            responses.GET,
-            url,
-            callback=self.mock_api_callback(url, bodies),
-            content_type=JSON
-        )
-
-        return bodies
+    mocked_data = mock_data.MARKETING_SITE_API_PERSON_BODIES
 
     def assert_person_loaded(self, data):
         uuid = data['uuid']
@@ -537,7 +495,7 @@ class PersonMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
     def test_ingest(self):
         self.mock_login_response()
         people = self.mock_api()
-        OrganizationFactory(name='MIT')
+        factories.OrganizationFactory(name='MIT')
 
         self.loader.ingest()
 
