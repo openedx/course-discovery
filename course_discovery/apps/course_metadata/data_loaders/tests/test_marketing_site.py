@@ -12,12 +12,12 @@ from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
     DrupalApiDataLoader, XSeriesMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
     SponsorMarketingSiteDataLoader, PersonMarketingSiteDataLoader,
 )
-from course_discovery.apps.course_metadata.data_loaders.tests import JSON
+from course_discovery.apps.course_metadata.data_loaders.tests import JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import ApiClientTestMixin, DataLoaderTestMixin
 from course_discovery.apps.course_metadata.models import (
     Course, CourseOrganization, CourseRun, Organization, Subject, Program, Video, Person,
 )
-from course_discovery.apps.course_metadata.tests import factories, mock_data
+from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 ENGLISH_LANGUAGE_TAG = LanguageTag(code='en-us', name='English - United States')
