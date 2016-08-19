@@ -13,8 +13,8 @@ from course_discovery.apps.course_metadata.data_loaders.api import (
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
     DrupalApiDataLoader, XSeriesMarketingSiteDataLoader,
 )
+from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Organization, Program
-from course_discovery.apps.course_metadata.tests import mock_data
 
 ACCESS_TOKEN = 'secret'
 JSON = 'application/json'

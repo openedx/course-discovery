@@ -12,6 +12,13 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 # pylint: disable=no-member, unused-argument
 
+def add_m2m_data(m2m_relation, data):
+    """ Helper function to enable factories to easily associate many-to-many data with created objects. """
+    if data:
+        for datum in data:
+            m2m_relation.add(datum)
+
+
 class AbstractMediaModelFactory(factory.DjangoModelFactory):
     src = FuzzyURL()
     description = FuzzyText()
@@ -83,13 +90,8 @@ class CourseFactory(factory.DjangoModelFactory):
 
     @factory.post_generation
     def subjects(self, create, extracted, **kwargs):
-        if not create:  # pragma: no cover
-            # Simple build, do nothing.
-            return
-
-        if extracted:
-            for subject in extracted:
-                self.subjects.add(subject)
+        if create:  # pragma: no cover
+            add_m2m_data(self.subjects, extracted)
 
 
 class CourseRunFactory(factory.DjangoModelFactory):
@@ -116,16 +118,12 @@ class CourseRunFactory(factory.DjangoModelFactory):
 
     @factory.post_generation
     def transcript_languages(self, create, extracted, **kwargs):
-        if not create:  # pragma: no cover
-            # Simple build, do nothing.
-            return
-
-        if extracted:
-            for transcript_language in extracted:
-                self.transcript_languages.add(transcript_language)
+        if create:  # pragma: no cover
+            add_m2m_data(self.transcript_languages, extracted)
 
 
 class OrganizationFactory(factory.DjangoModelFactory):
+    uuid = factory.LazyFunction(uuid4)
     key = FuzzyText(prefix='Org.fake/')
     name = FuzzyText()
     description = FuzzyText()
@@ -167,13 +165,8 @@ class ProgramTypeFactory(factory.django.DjangoModelFactory):
 
     @factory.post_generation
     def applicable_seat_types(self, create, extracted, **kwargs):
-        if not create:  # pragma: no cover
-            # Simple build, do nothing.
-            return
-
-        if extracted:
-            for seat_type in extracted:
-                self.applicable_seat_types.add(seat_type)
+        if create:  # pragma: no cover
+            add_m2m_data(self.applicable_seat_types, extracted)
 
 
 class ProgramFactory(factory.django.DjangoModelFactory):
@@ -192,34 +185,18 @@ class ProgramFactory(factory.django.DjangoModelFactory):
 
     @factory.post_generation
     def courses(self, create, extracted, **kwargs):
-        if not create:  # pragma: no cover
-            # Simple build, do nothing.
-            return
-
-        if extracted:
-            # Use the passed in list of courses
-            for course in extracted:
-                self.courses.add(course)
+        if create:  # pragma: no cover
+            add_m2m_data(self.courses, extracted)
 
     @factory.post_generation
     def excluded_course_runs(self, create, extracted, **kwargs):
-        if not create:  # pragma: no cover
-            # Simple build, do nothing.
-            return
-
-        if extracted:
-            for course_run in extracted:
-                self.excluded_course_runs.add(course_run)
+        if create:  # pragma: no cover
+            add_m2m_data(self.excluded_course_runs, extracted)
 
     @factory.post_generation
     def authoring_organizations(self, create, extracted, **kwargs):
-        if not create:  # pragma: no cover
-            # Simple build, do nothing.
-            return
-
-        if extracted:
-            for organization in extracted:
-                self.authoring_organizations.add(organization)
+        if create:  # pragma: no cover
+            add_m2m_data(self.authoring_organizations, extracted)
 
 
 class AbstractSocialNetworkModelFactory(factory.DjangoModelFactory):
