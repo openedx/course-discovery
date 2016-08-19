@@ -182,6 +182,7 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     banner_image_url = FuzzyText(prefix='https://example.com/program/banner')
     card_image_url = FuzzyText(prefix='https://example.com/program/card')
     partner = factory.SubFactory(PartnerFactory)
+    credit_redemption_overview = FuzzyText()
 
     @factory.post_generation
     def courses(self, create, extracted, **kwargs):

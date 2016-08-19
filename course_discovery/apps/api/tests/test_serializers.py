@@ -282,6 +282,7 @@ class ProgramSerializerTests(TestCase):
             'banner_image_url': program.banner_image_url,
             'banner_image': expected_banner_image_urls,
             'authoring_organizations': OrganizationSerializer(program.authoring_organizations, many=True).data,
+            'credit_redemption_overview': program.credit_redemption_overview,
             'courses': ProgramCourseSerializer(
                 program.courses,
                 many=True,
@@ -322,6 +323,7 @@ class ProgramSerializerTests(TestCase):
             'banner_image': {},
             'banner_image_url': program.banner_image_url,
             'authoring_organizations': OrganizationSerializer(program.authoring_organizations, many=True).data,
+            'credit_redemption_overview': program.credit_redemption_overview,
             'courses': ProgramCourseSerializer(
                 program.courses,
                 many=True,
