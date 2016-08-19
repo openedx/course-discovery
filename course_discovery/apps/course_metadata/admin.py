@@ -27,10 +27,13 @@ class CourseAdmin(admin.ModelAdmin):
 class CourseRunAdmin(admin.ModelAdmin):
     inlines = (SeatInline,)
     list_display = ('uuid', 'key', 'title',)
-    list_filter = ('course__partner',)
+    list_filter = (
+        'course__partner',
+        ('language', admin.RelatedOnlyFieldListFilter,)
+    )
     ordering = ('key',)
     readonly_fields = ('uuid',)
-    search_fields = ('uuid', 'key', 'title_override', 'course__title',)
+    search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug',)
 
 
 @admin.register(Program)
