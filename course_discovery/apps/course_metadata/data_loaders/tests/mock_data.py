@@ -694,6 +694,11 @@ MARKETING_SITE_API_XSERIES_BODIES = [
             },
             'uuid': '84e07f7f-0f42-44b3-b9f6-d24cde1d7618'
         },
+        'field_cards_section_description': 'The courses in this series have been designed to be taken in order.'
+                                           ' The first six courses must be completed before enrolling in the capstone.'
+                                           '\r\n\r\nIf you are planning to complete both the UX Research and UX Design '
+                                           'XSeries, you can start with either one! When you have completed one, you '
+                                           'can take the remaining courses in the second series.',
         'field_xseries_overview': {
             'value': '<h3>What You\'ll Learn</h3> <ul><li>An understanding of the global water cycle and its '
                      'various processes</li> <li>The mechanisms of climate change and their effects on water '
@@ -776,6 +781,7 @@ MARKETING_SITE_API_XSERIES_BODIES = [
             },
             'uuid': 'a8fbba26-4fe0-4dc2-9619-448730ff171c'
         },
+        'field_cards_section_description': None,
         'field_xseries_overview': {
             'value': '<h3>What You\'ll Learn</h3> <ul><li>How to make trade-offs between cost and service for '
                      'both the design and operation of supply chains using total cost equations</li> '

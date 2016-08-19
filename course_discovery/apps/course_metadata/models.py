@@ -612,6 +612,10 @@ class Program(TimeStampedModel):
     corporate_endorsements = SortedManyToManyField(CorporateEndorsement, blank=True)
     job_outlook_items = SortedManyToManyField(JobOutlookItem, blank=True)
     individual_endorsements = SortedManyToManyField(Endorsement, blank=True)
+    credit_redemption_overview = models.TextField(
+        help_text=_('The description of credit redemption for courses in program'),
+        blank=True, null=True
+    )
 
     def __str__(self):
         return self.title

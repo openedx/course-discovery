@@ -270,7 +270,8 @@ class XSeriesMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'subtitle': data.get('field_xseries_subtitle_short'),
             'card_image_url': card_image_url,
             'overview': overview,
-            'video': self.get_or_create_video(video_url)
+            'video': self.get_or_create_video(video_url),
+            'credit_redemption_overview': data.get('field_cards_section_description')
         }
 
         for field, value in data.items():

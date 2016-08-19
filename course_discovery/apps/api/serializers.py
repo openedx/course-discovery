@@ -329,7 +329,8 @@ class ProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
         fields = ('uuid', 'title', 'subtitle', 'type', 'marketing_slug', 'marketing_url', 'card_image_url',
-                  'banner_image', 'banner_image_url', 'authoring_organizations', 'courses',)
+                  'banner_image', 'banner_image_url', 'authoring_organizations', 'credit_redemption_overview',
+                  'courses',)
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 
 
