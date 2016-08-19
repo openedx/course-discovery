@@ -3,7 +3,7 @@
 -r docs.txt
 
 django-debug-toolbar==1.5
-
+django-elasticsearch-debug-toolbar==1.0.4
 # i18n
 transifex-client==0.12.2
 git+https://github.com/edx/i18n-tools.git@v0.3.2#egg=i18n_tools==0.3.2

@@ -35,6 +35,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
     INSTALLED_APPS += [
         'debug_toolbar',
+        'elastic_panel',
     ]
 
     MIDDLEWARE_CLASSES += (
@@ -42,6 +43,10 @@ if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
     )
 
     DEBUG_TOOLBAR_PATCH_SETTINGS = False
+
+    DEBUG_TOOLBAR_PANELS = [
+        'elastic_panel.panel.ElasticDebugPanel'
+    ]
 
 INTERNAL_IPS = ('127.0.0.1',)
 # END TOOLBAR CONFIGURATION

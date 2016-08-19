@@ -1,5 +1,7 @@
 from haystack.backends.elasticsearch_backend import ElasticsearchSearchBackend, ElasticsearchSearchEngine
 
+from course_discovery.apps.edx_haystack_extensions.models import ElasticsearchBoostConfig
+
 
 class SimpleQuerySearchBackendMixin(object):
     """
@@ -34,10 +36,21 @@ class SimpleQuerySearchBackendMixin(object):
             'auto_generate_phrase_queries': True,
         }
 
-        if search_kwargs['query'].get('filtered', {}).get('query', {}).get('query_string'):
-            search_kwargs['query']['filtered']['query']['query_string'] = simple_query
+        # https://www.elastic.co/guide/en/elasticsearch/reference/1.7/query-dsl-function-score-query.html
+        function_score_config = ElasticsearchBoostConfig.get_solo().function_score
+
+        function_score_config['query'] = {
+            'query_string': simple_query
+        }
+
+        function_score = {
+            'function_score': function_score_config
+        }
+
+        if search_kwargs['query'].get('filtered', {}).get('query'):
+            search_kwargs['query']['filtered']['query'] = function_score
         elif search_kwargs['query'].get('query_string'):
-            search_kwargs['query']['query_string'] = simple_query
+            search_kwargs['query'] = function_score
 
         return search_kwargs
 

@@ -4,6 +4,7 @@ from haystack.backends import BaseSearchBackend
 from mock import patch
 
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
+from course_discovery.apps.edx_haystack_extensions.models import ElasticsearchBoostConfig
 
 
 class SearchBackendTestMixin(ElasticsearchTestMixin):
@@ -34,6 +35,17 @@ class SimpleQuerySearchBackendMixinTestMixin(SearchBackendTestMixin):
         'analyze_wildcard': True,
         'auto_generate_phrase_queries': True,
     }
+    default_function_score = {
+        'function_score': {
+            'query': {
+                'query_string': simple_query
+            },
+            'functions': [],
+            'boost': 1.0,
+            'score_mode': 'multiply',
+            'boost_mode': 'multiply'
+        }
+    }
 
     def test_build_search_kwargs_all_qs_with_filter(self):
         with patch.object(BaseSearchBackend, 'build_models_list', return_value=['course_metadata.course']):
@@ -47,7 +59,7 @@ class SimpleQuerySearchBackendMixinTestMixin(SearchBackendTestMixin):
             kwargs = self.backend.build_search_kwargs(self.specific_query_string)
 
         self.assertIsNone(kwargs['query'].get('query_string'))
-        self.assertDictEqual(kwargs['query']['filtered']['query'].get('query_string'), self.simple_query)
+        self.assertDictEqual(kwargs['query']['filtered'].get('query'), self.default_function_score)
 
     def test_build_search_kwargs_all_qs_no_filter(self):
         with patch.object(BaseSearchBackend, 'build_models_list', return_value=[]):
@@ -61,7 +73,38 @@ class SimpleQuerySearchBackendMixinTestMixin(SearchBackendTestMixin):
             kwargs = self.backend.build_search_kwargs(self.specific_query_string)
 
         self.assertIsNone(kwargs['query'].get('filtered'))
-        self.assertDictEqual(kwargs['query'].get('query_string'), self.simple_query)
+        self.assertDictEqual(kwargs['query'], self.default_function_score)
+
+    def test_build_search_kwargs_function_score(self):
+        function_score = {
+            'functions': [
+                {
+                    'filter': {
+                        'term': {
+                            'type': 'micromasters'
+                        }
+                    },
+                    'weight': 10.0
+                }
+            ],
+            'boost': 5.0,
+            'score_mode': 'multiply',
+            'boost_mode': 'sum'
+        }
+        boost_config = ElasticsearchBoostConfig.get_solo()
+        boost_config.function_score = function_score
+        boost_config.save()
+
+        with patch.object(BaseSearchBackend, 'build_models_list', return_value=[]):
+            kwargs = self.backend.build_search_kwargs(self.specific_query_string)
+
+        expected_function_score = {
+            'function_score': function_score
+        }
+        expected_function_score['function_score']['query'] = {
+            'query_string': self.simple_query
+        }
+        self.assertDictEqual(kwargs['query'], expected_function_score)
 
 
 class NonClearingSearchBackendMixinTestMixin(SearchBackendTestMixin):

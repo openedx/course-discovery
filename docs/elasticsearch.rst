@@ -32,3 +32,41 @@ We use the query string syntax to search for courses. See `the Elasticsearch doc
 query string syntax, and :doc:`course_metadata` for a list of fields which can be searched.
 
 .. _the Elasticsearch documentation: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax
+
+Result Boosting
+---------------
+
+We use the `function_score` to boost relevance based on configureable factors. See `the function_score documentation`_
+for a guide to how this function can be used to provide more relevant results.
+
+Example functions:
+
+Closest to today's date
+
+.. code-block:: json
+
+    {
+      "linear":{
+        "start":{
+          "origin":"now",
+          "scale":"1d",
+          "decay":0.5
+        }
+      },
+      "weight":10.0
+    }
+
+Specific result type
+
+.. code-block:: json
+
+    {
+      "filter":{
+        "term":{
+          "type":"micromaster"
+        }
+      },
+      "weight": 5.0
+    }
+
+.. _the function_score documentation: https://www.elastic.co/guide/en/elasticsearch/reference/1.7/query-dsl-function-score-query.html
