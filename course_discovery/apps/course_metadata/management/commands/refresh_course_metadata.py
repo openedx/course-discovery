@@ -83,7 +83,7 @@ class Command(BaseCommand):
                 (partner.marketing_site_url_root, SchoolMarketingSiteDataLoader,),
                 (partner.marketing_site_url_root, SponsorMarketingSiteDataLoader,),
                 (partner.marketing_site_url_root, PersonMarketingSiteDataLoader,),
-                (partner.marketing_site_api_url, CourseMarketingSiteDataLoader,),
+                (partner.marketing_site_url_root, CourseMarketingSiteDataLoader,),
                 (partner.organizations_api_url, OrganizationsApiDataLoader,),
                 (partner.courses_api_url, CoursesApiDataLoader,),
                 (partner.ecommerce_api_url, EcommerceApiDataLoader,),
