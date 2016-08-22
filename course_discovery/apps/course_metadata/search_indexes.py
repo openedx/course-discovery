@@ -52,7 +52,7 @@ class BaseCourseIndex(OrganizationsMixin, BaseIndex):
     organizations = indexes.MultiValueField(faceted=True)
     authoring_organizations = indexes.MultiValueField(faceted=True)
     sponsoring_organizations = indexes.MultiValueField(faceted=True)
-    level_type = indexes.CharField(model_attr='level_type__name', null=True, faceted=True)
+    level_type = indexes.CharField(null=True, faceted=True)
     partner = indexes.CharField(model_attr='partner__short_code', null=True, faceted=True)
 
     def prepare_subjects(self, obj):
@@ -66,6 +66,9 @@ class BaseCourseIndex(OrganizationsMixin, BaseIndex):
 
     def prepare_sponsoring_organizations(self, obj):
         return self._prepare_organizations(obj.sponsoring_organizations.all())
+
+    def prepare_level_type(self, obj):
+        return obj.level_type.name if obj.level_type else None
 
 
 class CourseIndex(BaseCourseIndex, indexes.Indexable):

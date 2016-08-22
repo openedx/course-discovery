@@ -467,12 +467,8 @@ class CourseRunSearchSerializerTests(TestCase):
 
     def test_data(self):
         course_run = CourseRunFactory()
+        serializer = self.serialize_course_run(course_run)
         course_run_key = CourseKey.from_string(course_run.key)
-
-        # NOTE: This serializer expects SearchQuerySet results, so we run a search on the newly-created object
-        # to generate such a result.
-        result = SearchQuerySet().models(CourseRun).filter(key=course_run.key)[0]
-        serializer = CourseRunSearchSerializer(result)
 
         expected = {
             'transcript_languages': [self.serialize_language(l) for l in course_run.transcript_languages.all()],
@@ -497,6 +493,18 @@ class CourseRunSearchSerializerTests(TestCase):
             'availability': course_run.availability,
         }
         self.assertDictEqual(serializer.data, expected)
+
+    def serialize_course_run(self, course_run):
+        """ Serializes the given `CourseRun` as a search result. """
+        result = SearchQuerySet().models(CourseRun).filter(key=course_run.key)[0]
+        serializer = CourseRunSearchSerializer(result)
+        return serializer
+
+    def test_data_without_serializers(self):
+        """ Verify a null `LevelType` is properly serialized as None. """
+        course_run = CourseRunFactory(course__level_type=None)
+        serializer = self.serialize_course_run(course_run)
+        self.assertEqual(serializer.data['level_type'], None)
 
 
 class ProgramSearchSerializerTests(TestCase):
