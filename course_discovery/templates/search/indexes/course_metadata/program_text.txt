@@ -1,9 +1,0 @@
-{{ object.uuid }}
-{{ object.name }}
-{{ object.type.name }}
-{{ object.status }}
-{{ object.marketing_slug|default:'' }}
-
-{% for organization in object.organizations.all %}
-    {{ organization.key }}: {{ organization.name }}
-{% endfor %}

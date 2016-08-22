@@ -1,0 +1,2 @@
+{{ endorsement.endorser.full_name }}
+{{ endorsement.quote }}

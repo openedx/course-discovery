@@ -1,0 +1,60 @@
+{{ object.uuid }}
+{{ object.title }}
+{{ object.status }}
+{{ object.type.name }}
+{{ object.marketing_slug|default:'' }}
+{{ object.subtitle|default:'' }}
+{{ object.overview|default:'' }}
+
+{% for language in object.languages %}
+    {{ language }}
+{% endfor %}
+
+{% for language in object.transcript_languages %}
+    {{ language }}
+{% endfor %}
+
+{% for organization in object.authoring_organizations.all %}
+    {% include 'search/indexes/course_metadata/partials/organization.txt' %}
+{% endfor %}
+
+{% for organization in object.credit_backing_organizations.all %}
+    {% include 'search/indexes/course_metadata/partials/organization.txt' %}
+{% endfor %}
+
+{% for faq in object.faq.all %}
+    {{ faq.question }}
+    {{ faq.answer }}
+{% endfor %}
+
+{% for item in object.expected_learning_items.all %}
+    {{ item }}
+{% endfor %}
+
+{% for course_run in object.course_runs.all %}
+    {{ course_run.key }}: {{ course_run.title }}
+{% endfor %}
+
+{% for subject in object.subjects %}
+    {{ subject.name }}
+{% endfor %}
+
+{% for instructor in object.instructors %}
+    {{ instructor.full_name }}
+{% endfor %}
+
+{% for item in object.job_outlook_items.all %}
+    {{ item }}
+{% endfor %}
+
+{% for endorsement in object.individual_endorsements.all %}
+    {% include 'search/indexes/course_metadata/partials/endorsement.txt' %}
+{% endfor %}
+
+{% for corporate_endorsement in object.corporate_endorsements.all %}
+    {{ corporate_endorsement.corporation_name }}
+    {{ corporate_endorsement.statement }}
+    {% for endorsement in corporate_endorsement.individual_endorsements.all %}
+        {% include 'search/indexes/course_metadata/partials/endorsement.txt' %}
+    {% endfor %}
+{% endfor %}
