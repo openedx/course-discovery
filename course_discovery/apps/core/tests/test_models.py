@@ -1,5 +1,5 @@
 """ Tests for core models. """
-
+import ddt
 from django.test import TestCase
 from social.apps.django_app.default.models import UserSocialAuth
 
@@ -56,6 +56,7 @@ class CurrencyTests(TestCase):
         self.assertEqual(str(instance), '{code} - {name}'.format(code=code, name=name))
 
 
+@ddt.ddt
 class PartnerTests(TestCase):
     """ Tests for the Partner class. """
 
@@ -64,3 +65,13 @@ class PartnerTests(TestCase):
 
         partner = PartnerFactory()
         self.assertEqual(str(partner), partner.name)
+
+    @ddt.unpack
+    @ddt.data(
+        ('', False),
+        (None, False),
+        ('https://example.com', True),
+    )
+    def test_has_marketing_site(self, marketing_site_url_root, expected):
+        partner = PartnerFactory(marketing_site_url_root=marketing_site_url_root)
+        self.assertEqual(partner.has_marketing_site, expected)  # pylint: disable=no-member

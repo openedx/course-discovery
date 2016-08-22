@@ -14,7 +14,7 @@ class LanguageTagTests(TestCase):
         code = 'te-st',
         name = 'Test LanguageTag'
         tag = LanguageTag(code=code, name=name)
-        self.assertEqual(str(tag), '{code} - {name}'.format(code=code, name=name))
+        self.assertEqual(str(tag), tag.name)
 
     def test_macrolanguage(self):
         """ Verify the property returns the macrolanguage for a given LanguageTag. """

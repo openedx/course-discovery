@@ -24,3 +24,17 @@ class StdImageSerializerField(serializers.Field):
     def to_internal_value(self, obj):
         """ We do not need to save/edit this banner image through serializer yet """
         pass
+
+
+class ImageField(serializers.Field):  # pylint:disable=abstract-method
+    """ This field mimics the format of `ImageSerializer`. It is intended to aid the transition away from the
+    `Image` model to simple URLs.
+    """
+
+    def to_representation(self, value):
+        return {
+            'src': value,
+            'description': None,
+            'height': None,
+            'width': None
+        }

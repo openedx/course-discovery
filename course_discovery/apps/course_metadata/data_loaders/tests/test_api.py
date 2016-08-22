@@ -125,7 +125,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         )
         return bodies
 
-    def assert_course_run_loaded(self, body, use_marketing_url=True):
+    def assert_course_run_loaded(self, body, partner_has_marketing_site=True):
         """ Assert a CourseRun corresponding to the specified data body was properly loaded into the database. """
 
         # Validate the Course
@@ -134,31 +134,43 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         course = Course.objects.get(key=course_key)
 
         self.assertEqual(course.title, body['name'])
-        self.assertListEqual(list(course.organizations.all()), [organization])
+        self.assertListEqual(list(course.authoring_organizations.all()), [organization])
 
         # Validate the course run
-        course_run = CourseRun.objects.get(key=body['id'])
-        self.assertEqual(course_run.course, course)
-        self.assertEqual(course_run.title, AbstractDataLoader.clean_string(body['name']))
-        self.assertEqual(course_run.short_description, AbstractDataLoader.clean_string(body['short_description']))
-        self.assertEqual(course_run.start, AbstractDataLoader.parse_date(body['start']))
-        self.assertEqual(course_run.end, AbstractDataLoader.parse_date(body['end']))
-        self.assertEqual(course_run.enrollment_start, AbstractDataLoader.parse_date(body['enrollment_start']))
-        self.assertEqual(course_run.enrollment_end, AbstractDataLoader.parse_date(body['enrollment_end']))
-        self.assertEqual(course_run.pacing_type, self.loader.get_pacing_type(body))
-        self.assertEqual(course_run.video, self.loader.get_courserun_video(body))
-        if use_marketing_url:
-            self.assertEqual(course_run.image, None)
-        else:
-            self.assertEqual(course_run.image, self.loader.get_courserun_image(body))
+        course_run = course.course_runs.get(key=body['id'])
+        expected_values = {
+            'title': self.loader.clean_string(body['name']),
+            'short_description': self.loader.clean_string(body['short_description']),
+            'start': self.loader.parse_date(body['start']),
+            'end': self.loader.parse_date(body['end']),
+            'enrollment_start': self.loader.parse_date(body['enrollment_start']),
+            'enrollment_end': self.loader.parse_date(body['enrollment_end']),
+            'pacing_type': self.loader.get_pacing_type(body),
+            'card_image_url': None,
+            'title_override': None,
+            'short_description_override': None,
+            'video': None,
+        }
+
+        if not partner_has_marketing_site:
+            expected_values.update({
+                'card_image_url': body['media'].get('image', {}).get('raw'),
+                'title_override': body['name'],
+                'short_description_override': self.loader.clean_string(body['short_description']),
+                'video': self.loader.get_courserun_video(body),
+            })
+
+        for field, value in expected_values.items():
+            self.assertEqual(getattr(course_run, field), value, 'Field {} is invalid.'.format(field))
 
     @responses.activate
     @ddt.data(True, False)
-    def test_ingest(self, use_marketing_url):
+    def test_ingest(self, partner_has_marketing_site):
         """ Verify the method ingests data from the Courses API. """
         api_data = self.mock_api()
-        if not use_marketing_url:
+        if not partner_has_marketing_site:
             self.partner.marketing_site_url_root = None
+            self.partner.save()  # pylint: disable=no-member
 
         self.assertEqual(Course.objects.count(), 0)
         self.assertEqual(CourseRun.objects.count(), 0)
@@ -173,7 +185,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         self.assertEqual(CourseRun.objects.count(), expected_num_course_runs)
 
         for datum in api_data:
-            self.assert_course_run_loaded(datum, use_marketing_url)
+            self.assert_course_run_loaded(datum, partner_has_marketing_site)
 
         # Verify multiple calls to ingest data do NOT result in data integrity errors.
         self.loader.ingest()

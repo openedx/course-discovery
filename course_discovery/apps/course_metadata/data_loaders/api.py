@@ -1,15 +1,15 @@
 import logging
 from decimal import Decimal
 from io import BytesIO
-import requests
 
-from opaque_keys.edx.keys import CourseKey
+import requests
 from django.core.files import File
+from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    Image, Video, Organization, Seat, CourseRun, Program, Course, CourseOrganization, ProgramType,
+    Video, Organization, Seat, CourseRun, Program, Course, ProgramType,
 )
 
 logger = logging.getLogger(__name__)
@@ -44,14 +44,16 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
         self.delete_orphans()
 
     def update_organization(self, body):
+        key = body['short_name']
         defaults = {
+            'key': key,
             'name': body['name'],
             'description': body['description'],
             'logo_image_url': body['logo'],
             'partner': self.partner,
         }
-        Organization.objects.update_or_create(key=body['short_name'], defaults=defaults)
-        logger.info('Processed organization "%s"', body['short_name'])
+        Organization.objects.update_or_create(key__iexact=key, defaults=defaults)
+        logger.info('Processed organization "%s"', key)
 
 
 class CoursesApiDataLoader(AbstractDataLoader):
@@ -94,52 +96,51 @@ class CoursesApiDataLoader(AbstractDataLoader):
         self.delete_orphans()
 
     def update_course(self, body):
-        # NOTE (CCB): Use the data from the CourseKey since the Course API exposes display names for org and number,
-        # which may not be unique for an organization.
-        course_run_key_str = body['id']
-        course_run_key = CourseKey.from_string(course_run_key_str)
-        organization, __ = Organization.objects.get_or_create(key=course_run_key.org,
-                                                              defaults={'partner': self.partner})
-        course_key = self.convert_course_run_key(course_run_key_str)
+        course_run_key = CourseKey.from_string(body['id'])
+        course_key = self.get_course_key_from_course_run_key(course_run_key)
+
         defaults = {
+            'key': course_key,
             'title': body['name'],
-            'partner': self.partner,
         }
-        course, __ = Course.objects.update_or_create(key=course_key, defaults=defaults)
+        course, created = Course.objects.get_or_create(key__iexact=course_key, partner=self.partner, defaults=defaults)
 
-        course.organizations.clear()
-        CourseOrganization.objects.create(
-            course=course, organization=organization, relation_type=CourseOrganization.OWNER)
+        if created:
+            # NOTE (CCB): Use the data from the CourseKey since the Course API exposes display names for org and number,
+            # which may not be unique for an organization.
+            key = course_run_key.org
+            defaults = {'key': key}
+            organization, __ = Organization.objects.get_or_create(key__iexact=key, partner=self.partner,
+                                                                  defaults=defaults)
+            course.authoring_organizations.add(organization)
 
+        logger.info('Processed course with key [%s].', course_key)
         return course
 
     def update_course_run(self, course, body):
+        key = body['id']
         defaults = {
-            'course': course,
+            'key': key,
             'start': self.parse_date(body['start']),
             'end': self.parse_date(body['end']),
             'enrollment_start': self.parse_date(body['enrollment_start']),
             'enrollment_end': self.parse_date(body['enrollment_end']),
-            'title': body['name'],
-            'short_description': body['short_description'],
-            'video': self.get_courserun_video(body),
             'pacing_type': self.get_pacing_type(body),
         }
-        # If there is no marketing site setup for this partner, use the image from the course API.
-        # If there is a marketing site defined, it takes prededence.
-        if not self.partner.marketing_site_url_root:
-            defaults.update({'image': self.get_courserun_image(body)})
 
-        CourseRun.objects.update_or_create(key=body['id'], defaults=defaults)
+        # When using a marketing site, only date and pacing information should come from the Course API
+        if not self.partner.has_marketing_site:
+            defaults.update({
+                'card_image_url': body['media'].get('image', {}).get('raw'),
+                'title_override': body['name'],
+                'short_description_override': body['short_description'],
+                'video': self.get_courserun_video(body),
+            })
 
-    def get_courserun_image(self, body):
-        image = None
-        image_url = body['media'].get('image', {}).get('raw')
+        course_run, __ = course.course_runs.update_or_create(key__iexact=key, defaults=defaults)
 
-        if image_url:
-            image, __ = Image.objects.get_or_create(src=image_url)
-
-        return image
+        logger.info('Processed course run with key [%s].', course_run.key)
+        return course_run
 
     def get_pacing_type(self, body):
         pacing = body.get('pacing')
@@ -196,7 +197,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     def update_seats(self, body):
         course_run_key = body['id']
         try:
-            course_run = CourseRun.objects.get(key=course_run_key)
+            course_run = CourseRun.objects.get(key__iexact=course_run_key)
         except CourseRun.DoesNotExist:
             logger.warning('Could not find course run [%s]', course_run_key)
             return None

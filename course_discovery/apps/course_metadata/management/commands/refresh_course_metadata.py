@@ -5,11 +5,11 @@ from edx_rest_api_client.client import EdxRestApiClient
 
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.data_loaders.api import (
-    CoursesApiDataLoader, OrganizationsApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader,
+    OrganizationsApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader, CoursesApiDataLoader,
 )
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
-    DrupalApiDataLoader, XSeriesMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
-    SponsorMarketingSiteDataLoader, PersonMarketingSiteDataLoader,
+    XSeriesMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
+    SponsorMarketingSiteDataLoader, PersonMarketingSiteDataLoader, CourseMarketingSiteDataLoader,
 )
 
 logger = logging.getLogger(__name__)
@@ -83,11 +83,11 @@ class Command(BaseCommand):
                 (partner.marketing_site_url_root, SchoolMarketingSiteDataLoader,),
                 (partner.marketing_site_url_root, SponsorMarketingSiteDataLoader,),
                 (partner.marketing_site_url_root, PersonMarketingSiteDataLoader,),
+                (partner.marketing_site_api_url, CourseMarketingSiteDataLoader,),
                 (partner.organizations_api_url, OrganizationsApiDataLoader,),
                 (partner.courses_api_url, CoursesApiDataLoader,),
                 (partner.ecommerce_api_url, EcommerceApiDataLoader,),
                 (partner.programs_api_url, ProgramsApiDataLoader,),
-                (partner.marketing_site_api_url, DrupalApiDataLoader,),
                 (partner.marketing_site_url_root, XSeriesMarketingSiteDataLoader,),
             )
 
@@ -97,3 +97,5 @@ class Command(BaseCommand):
                         loader_class(partner, api_url, access_token, token_type).ingest()
                     except Exception:  # pylint: disable=broad-except
                         logger.exception('%s failed!', loader_class.__name__)
+
+            # TODO Cleanup CourseRun overrides equivalent to the Course values.

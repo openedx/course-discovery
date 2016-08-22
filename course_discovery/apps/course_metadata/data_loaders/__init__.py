@@ -7,7 +7,7 @@ from edx_rest_api_client.client import EdxRestApiClient
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.core.utils import delete_orphans
-from course_discovery.apps.course_metadata.models import Image, Person, Video
+from course_discovery.apps.course_metadata.models import Image, Video
 
 
 class AbstractDataLoader(metaclass=abc.ABCMeta):
@@ -104,18 +104,17 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         return None
 
     @classmethod
-    def convert_course_run_key(cls, course_run_key_str):
+    def get_course_key_from_course_run_key(cls, course_run_key):
         """
         Given a serialized course run key, return the corresponding
         serialized course key.
 
         Args:
-            course_run_key_str (str): The serialized course run key.
+            course_run_key (CourseKey): Course run key.
 
         Returns:
             str
         """
-        course_run_key = CourseKey.from_string(course_run_key_str)
         return '{org}+{course}'.format(org=course_run_key.org, course=course_run_key.course)
 
     @classmethod
@@ -125,10 +124,25 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
             delete_orphans(model)
 
     @classmethod
-    def get_or_create_video(cls, url):
-        video = None
+    def _get_or_create_media(cls, media_type, url):
+        media = None
 
         if url:
-            video, __ = Video.objects.get_or_create(src=url)
+            media, __ = media_type.objects.get_or_create(src=url)
+
+        return media
+
+    @classmethod
+    def get_or_create_video(cls, url, image_url=None):
+        video = cls._get_or_create_media(Video, url)
+
+        if video:
+            image = cls.get_or_create_image(image_url)
+            video.image = image
+            video.save()
 
         return video
+
+    @classmethod
+    def get_or_create_image(cls, url):
+        return cls._get_or_create_media(Image, url)

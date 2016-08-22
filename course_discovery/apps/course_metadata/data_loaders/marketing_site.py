@@ -1,159 +1,20 @@
 import abc
 import logging
-from urllib.parse import urljoin, urlencode
+from urllib.parse import urlencode
 from uuid import UUID
 
 import requests
 from django.db.models import Q
 from django.utils.functional import cached_property
+from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseOrganization, CourseRun, Image, LanguageTag, LevelType, Organization, Person, Subject, Program,
-    Position,
+    Course, Organization, Person, Subject, Program, Position, LevelType, CourseRun
 )
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 logger = logging.getLogger(__name__)
-
-
-class DrupalApiDataLoader(AbstractDataLoader):
-    """Loads course runs from the Drupal API."""
-
-    def ingest(self):
-        api_url = self.partner.marketing_site_api_url
-        logger.info('Refreshing Courses and CourseRuns from %s...', api_url)
-        response = self.api_client.courses.get()
-
-        data = response['items']
-        logger.info('Retrieved %d course runs...', len(data))
-
-        for body in data:
-            # NOTE (CCB): Some of the entries are empty arrays. We will fix this on the Drupal side of things
-            # later (ECOM-4493). For now, ignore them.
-            if not body:
-                continue
-
-            course_run_id = body['course_id']
-            try:
-                cleaned_body = self.clean_strings(body)
-                course = self.update_course(cleaned_body)
-                self.update_course_run(course, cleaned_body)
-            except:  # pylint: disable=bare-except
-                msg = 'An error occurred while updating {course_run} from {api_url}'.format(
-                    course_run=course_run_id,
-                    api_url=api_url
-                )
-                logger.exception(msg)
-
-        # Clean Organizations separately from other orphaned instances to avoid removing all orgnaziations
-        # after an initial data load on an empty table.
-        Organization.objects.filter(courseorganization__isnull=True, authored_programs__isnull=True,
-                                    credit_backed_programs__isnull=True).delete()
-        self.delete_orphans()
-
-        logger.info('Retrieved %d course runs from %s.', len(data), api_url)
-
-    def update_course(self, body):
-        """Create or update a course from Drupal data given by `body`."""
-        course_key = self.convert_course_run_key(body['course_id'])
-        try:
-            course = Course.objects.get(key=course_key)
-        except Course.DoesNotExist:
-            logger.warning('Course not find course [%s]', course_key)
-            return None
-
-        course.full_description = self.clean_html(body['description'])
-        course.short_description = self.clean_html(body['subtitle'])
-        course.partner = self.partner
-        course.title = self.clean_html(body['title'])
-
-        level_type, __ = LevelType.objects.get_or_create(name=body['level']['title'])
-        course.level_type = level_type
-
-        self.set_subjects(course, body)
-        self.set_sponsors(course, body)
-
-        course.save()
-        return course
-
-    def set_subjects(self, course, body):
-        """Update `course` with subjects from `body`."""
-        course.subjects.clear()
-        subjects = (s['title'] for s in body['subjects'])
-        subjects = Subject.objects.filter(name__in=subjects, partner=self.partner)
-        course.subjects.add(*subjects)
-
-    def set_sponsors(self, course, body):
-        """Update `course` with sponsors from `body`."""
-        course.courseorganization_set.filter(relation_type=CourseOrganization.SPONSOR).delete()
-        for sponsor_body in body['sponsors']:
-            defaults = {
-                'name': sponsor_body['title'],
-                'logo_image_url': sponsor_body['image'],
-                'homepage_url': urljoin(self.partner.marketing_site_url_root, sponsor_body['uri']),
-            }
-            organization, __ = Organization.objects.update_or_create(key=sponsor_body['uuid'], defaults=defaults)
-            CourseOrganization.objects.create(
-                course=course,
-                organization=organization,
-                relation_type=CourseOrganization.SPONSOR
-            )
-
-    def update_course_run(self, course, body):
-        """
-        Create or update a run of `course` from Drupal data given by `body`.
-        """
-        course_run_key = body['course_id']
-        try:
-            course_run = CourseRun.objects.get(key=course_run_key)
-        except CourseRun.DoesNotExist:
-            logger.warning('Could not find course run [%s]', course_run_key)
-            return None
-
-        course_run.language = self.get_language_tag(body)
-        course_run.course = course
-        course_run.marketing_url = urljoin(self.partner.marketing_site_url_root, body['course_about_uri'])
-        course_run.start = self.parse_date(body['start'])
-        course_run.end = self.parse_date(body['end'])
-        course_run.image = self.get_courserun_image(body)
-
-        self.set_staff(course_run, body)
-
-        course_run.save()
-        return course_run
-
-    def set_staff(self, course_run, body):
-        """Update `course_run` with staff from `body`."""
-        course_run.staff.clear()
-        uuids = [staff['uuid'] for staff in body['staff']]
-        staff = Person.objects.filter(uuid_in=uuids)
-        course_run.staff.add(*staff)
-
-    def get_language_tag(self, body):
-        """Get a language tag from Drupal data given by `body`."""
-        iso_code = body['current_language']
-        if iso_code is None:
-            return None
-
-        # NOTE (CCB): Default to U.S. English for edx.org to avoid spewing
-        # unnecessary warnings.
-        if iso_code == 'en':
-            iso_code = 'en-us'
-
-        try:
-            return LanguageTag.objects.get(code=iso_code)
-        except LanguageTag.DoesNotExist:
-            logger.warning('Could not find language with ISO code [%s].', iso_code)
-            return None
-
-    def get_courserun_image(self, body):
-        image = None
-        image_url = body['image']
-
-        if image_url:
-            image, __ = Image.objects.get_or_create(src=image_url)
-
-        return image
 
 
 class AbstractMarketingSiteDataLoader(AbstractDataLoader):
@@ -187,7 +48,11 @@ class AbstractMarketingSiteDataLoader(AbstractDataLoader):
         return session
 
     def get_query_kwargs(self):
-        return {}
+        return {
+            'type': self.node_type,
+            'max-depth': 2,
+            'load-entity-refs': 'file',
+        }
 
     def ingest(self):
         """ Load data for all supported objects (e.g. courses, runs). """
@@ -196,9 +61,6 @@ class AbstractMarketingSiteDataLoader(AbstractDataLoader):
 
         while page is not None and page >= 0:  # pragma: no cover
             kwargs = {
-                'type': self.node_type,
-                'max-depth': 2,
-                'load-entity-refs': 'subject,file,taxonomy_term,taxonomy_vocabulary,node,field_collection_item',
                 'page': page,
             }
             kwargs.update(query_kwargs)
@@ -371,20 +233,29 @@ class PersonMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
     def node_type(self):
         return 'person'
 
+    def get_query_kwargs(self):
+        kwargs = super(PersonMarketingSiteDataLoader, self).get_query_kwargs()
+        # NOTE (CCB): We need to include the nested field_collection_item data since that is where
+        # the positions are stored.
+        kwargs['load-entity-refs'] = 'file,field_collection_item'
+        return kwargs
+
     def process_node(self, data):
         uuid = UUID(data['uuid'])
+        slug = data['url'].split('/')[-1]
         defaults = {
             'given_name': data['field_person_first_middle_name'],
             'family_name': data['field_person_last_name'],
             'bio': self.clean_html(data['field_person_resume']['value']),
             'profile_image_url': self._get_nested_url(data.get('field_person_image')),
+            'slug': slug,
         }
         person, created = Person.objects.update_or_create(uuid=uuid, partner=self.partner, defaults=defaults)
 
         # NOTE (CCB): The AutoSlug field kicks in at creation time. We need to apply overrides in a separate
         # operation.
         if created:
-            person.slug = data['url'].split('/')[-1]
+            person.slug = slug
             person.save()
 
         self.set_position(person, data)
@@ -411,13 +282,9 @@ class PersonMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
                     organization_name = (data.get('field_person_position_org_link', {}) or {}).get('title')
 
                     if organization_name:
-                        try:
-                            # TODO Consider using Elasticsearch as a method of finding better inexact matches.
-                            organization = Organization.objects.get(
-                                Q(name__iexact=organization_name) | Q(key__iexact=organization_name) & Q(
-                                    partner=self.partner))
-                        except Organization.DoesNotExist:
-                            pass
+                        organization = Organization.objects.filter(
+                            Q(name__iexact=organization_name) | Q(key__iexact=organization_name) & Q(
+                                partner=self.partner)).first()
 
                     defaults = {
                         'title': title,
@@ -433,3 +300,147 @@ class PersonMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
                     Position.objects.update_or_create(person=person, defaults=defaults)
         except:  # pylint: disable=bare-except
             logger.exception('Failed to set position for person with UUID [%s]!', uuid)
+
+
+class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
+    LANGUAGE_MAP = {
+        'English': 'en-us',
+        '日本語': 'ja',
+        '繁體中文': 'zh-Hant',
+        'Indonesian': 'id',
+        'Italian': 'it-it',
+        'Korean': 'ko',
+        'Simplified Chinese': 'zh-Hans',
+        'Deutsch': 'de-de',
+        'Español': 'es-es',
+        'Français': 'fr-fr',
+        'Nederlands': 'nl-nl',
+        'Português': 'pt-pt',
+        'Pусский': 'ru',
+        'Svenska': 'sv-se',
+        'Türkçe': 'tr',
+        'العربية': 'ar-sa',
+        'हिंदी': 'hi',
+        '中文': 'zh-cmn',
+    }
+
+    @property
+    def node_type(self):
+        return 'course'
+
+    @classmethod
+    def get_language_tags_from_names(cls, names):
+        language_codes = [cls.LANGUAGE_MAP.get(name) for name in names]
+        return LanguageTag.objects.filter(code__in=language_codes)
+
+    def get_query_kwargs(self):
+        kwargs = super(CourseMarketingSiteDataLoader, self).get_query_kwargs()
+        # NOTE (CCB): We need to include the nested taxonomy_term data since that is where the
+        # language information is stored.
+        kwargs['load-entity-refs'] = 'file,taxonomy_term'
+        return kwargs
+
+    def process_node(self, data):
+        course_run_key = CourseKey.from_string(data['field_course_id'])
+        key = self.get_course_key_from_course_run_key(course_run_key)
+
+        defaults = {
+            'key': key,
+            'title': data['field_course_course_title']['value'],
+            'number': data['field_course_code'],
+            'full_description': self.get_description(data),
+            'video': self.get_video(data),
+            'short_description': self.clean_html(data['field_course_sub_title_short']),
+            'level_type': self.get_level_type(data['field_course_level']),
+            'card_image_url': self._get_nested_url(data.get('field_course_image_promoted')),
+        }
+        course, __ = Course.objects.update_or_create(key__iexact=key, partner=self.partner, defaults=defaults)
+
+        self.set_subjects(course, data)
+        self.set_authoring_organizations(course, data)
+        self.create_course_run(course, data)
+
+        logger.info('Processed course with key [%s].', key)
+        return course
+
+    def get_description(self, data):
+        description = (data.get('field_course_body', {}) or {}).get('value')
+        description = description or (data.get('field_course_description', {}) or {}).get('value')
+        description = description or ''
+        description = self.clean_html(description)
+        return description
+
+    def get_level_type(self, name):
+        level_type = None
+
+        if name:
+            level_type, __ = LevelType.objects.get_or_create(name=name)
+
+        return level_type
+
+    def get_video(self, data):
+        video_url = self._get_nested_url(data.get('field_product_video'))
+        image_url = self._get_nested_url(data.get('field_course_image_featured_card'))
+        return self.get_or_create_video(video_url, image_url)
+
+    def create_course_run(self, course, data):
+        uuid = data['uuid']
+        key = data['field_course_id']
+        slug = data['url'].split('/')[-1]
+        language_tags = self._extract_language_tags(data['field_course_languages'])
+        language = language_tags[0] if language_tags else None
+
+        defaults = {
+            'key': key,
+            'course': course,
+            'uuid': uuid,
+            'language': language,
+            'slug': slug,
+        }
+
+        try:
+            course_run, created = CourseRun.objects.update_or_create(key__iexact=key, defaults=defaults)
+        except TypeError:
+            # TODO Fix the data in Drupal (ECOM-5304)
+            logger.error('Multiple course runs are identified by the key [%s] or UUID [%s].', key, uuid)
+            return None
+
+        # NOTE (CCB): The AutoSlug field kicks in at creation time. We need to apply overrides in a separate
+        # operation.
+        if created:
+            course_run.slug = slug
+            course_run.save()
+
+        self.set_course_run_staff(course_run, data)
+        self.set_course_run_transcript_languages(course_run, data)
+
+        logger.info('Processed course run with UUID [%s].', uuid)
+        return course_run
+
+    def _get_objects_by_uuid(self, object_type, raw_objects_data):
+        uuids = [_object.get('uuid') for _object in raw_objects_data]
+        return object_type.objects.filter(uuid__in=uuids)
+
+    def _extract_language_tags(self, raw_objects_data):
+        language_names = [_object['name'].strip() for _object in raw_objects_data]
+        return self.get_language_tags_from_names(language_names)
+
+    def set_authoring_organizations(self, course, data):
+        schools = self._get_objects_by_uuid(Organization, data['field_course_school_node'])
+        course.authoring_organizations.clear()
+        course.authoring_organizations.add(*schools)
+
+    def set_subjects(self, course, data):
+        subjects = self._get_objects_by_uuid(Subject, data['field_course_subject'])
+        course.subjects.clear()
+        course.subjects.add(*subjects)
+
+    def set_course_run_staff(self, course_run, data):
+        staff = self._get_objects_by_uuid(Person, data['field_course_staff'])
+        course_run.staff.clear()
+        course_run.staff.add(*staff)
+
+    def set_course_run_transcript_languages(self, course_run, data):
+        language_tags = self._extract_language_tags(data['field_course_video_locale_lang'])
+        course_run.transcript_languages.clear()
+        course_run.transcript_languages.add(*language_tags)

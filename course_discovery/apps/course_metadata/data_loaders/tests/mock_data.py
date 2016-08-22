@@ -852,15 +852,15 @@ MARKETING_SITE_API_SUBJECT_BODIES = [
 MARKETING_SITE_API_SCHOOL_BODIES = [
     {
         'field_school_description': {
-            'value': '\u003Cp\u003EHarvard University is devoted to excellence in teaching, learning, and '
+            'value': '<p>Harvard University is devoted to excellence in teaching, learning, and '
                      'research, and to developing leaders in many disciplines who make a difference globally. '
                      'Harvard faculty are engaged with teaching and research to push the boundaries of human '
                      'knowledge. The University has twelve degree-granting Schools in addition to the Radcliffe '
-                     'Institute for Advanced Study.\u003C/p\u003E\n\n\u003Cp\u003EEstablished in 1636, Harvard '
+                     'Institute for Advanced Study.</p>\n\n<p>Established in 1636, Harvard '
                      'is the oldest institution of higher education in the United States. The University, which '
                      'is based in Cambridge and Boston, Massachusetts, has an enrollment of over 20,000 degree '
                      'candidates, including undergraduate, graduate, and professional students. Harvard has more '
-                     'than 360,000 alumni around the world.\u003C/p\u003E',
+                     'than 360,000 alumni around the world.</p>',
             'format': 'standard_html'
         },
         'field_school_name': 'Harvard University',
@@ -886,17 +886,17 @@ MARKETING_SITE_API_SCHOOL_BODIES = [
     },
     {
         'field_school_description': {
-            'value': '\u003Cp\u003EMassachusetts Institute of Technology \u2014 a coeducational, privately '
+            'value': '<p>Massachusetts Institute of Technology \u2014 a coeducational, privately '
                      'endowed research university founded in 1861 \u2014 is dedicated to advancing knowledge '
                      'and educating students in science, technology, and other areas of scholarship that will '
-                     'best serve the nation and the world in the 21st century. \u003Ca href=\u0022http://web.'
-                     'mit.edu/aboutmit/\u0022 target=\u0022_blank\u0022\u003ELearn more about MIT\u003C/a\u003E'
+                     'best serve the nation and the world in the 21st century. <a href=\u0022http://web.'
+                     'mit.edu/aboutmit/\u0022 target=\u0022_blank\u0022>Learn more about MIT</a>'
                      '. Through MITx, the Institute furthers its commitment to improving education worldwide.'
-                     '\u003C/p\u003E\n\n\u003Cp\u003E\u003Cstrong\u003EMITx Courses\u003C/strong\u003E\u003Cbr '
-                     '/\u003E\nMITx courses embody the inventiveness, openness, rigor and quality that are '
+                     '</p>\n\n<p><strong>MITx Courses</strong><br '
+                     '/>\nMITx courses embody the inventiveness, openness, rigor and quality that are '
                      'hallmarks of MIT, and many use materials developed for MIT residential courses in the '
                      'Institute\u0027s five schools and 33 academic disciplines. Browse MITx courses below.'
-                     '\u003C/p\u003E\n\n\u003Cp\u003E\u00a0\u003C/p\u003E',
+                     '</p>\n\n<p>\u00a0</p>',
         },
         'field_school_name': 'MIT',
         'field_school_image_banner': {
@@ -966,14 +966,14 @@ MARKETING_SITE_API_PERSON_BODIES = [
         'field_person_position': None,
         'field_person_role': '1',
         'field_person_resume': {
-            'value': '\u003Cp\u003EProf. Cima has been a faculty member at MIT for 29 years. He earned a B.S. in '
+            'value': '<p>Prof. Cima has been a faculty member at MIT for 29 years. He earned a B.S. in '
                      'chemistry and a Ph.D. in chemical engineering, both from the University of California at '
                      'Berkeley. He was elected a Fellow of the American Ceramics Society in 1997 and was elected to '
                      'the National Academy of Engineering in 2011. Prof. Cima\u0027s research concerns advanced '
                      'technology for medical devices that are used for drug delivery and diagnostics, high-throughput '
                      'development methods for formulations of materials and pharmaceutical formulations. Prof. Cima '
                      'is an author of over 250 publications and fifty US patents, a co-inventor of MIT\u2019s '
-                     'three-dimensional printing process, and a co-founder of four companies.\u003C/p\u003E',
+                     'three-dimensional printing process, and a co-founder of four companies.</p>',
             'format': 'standard_html'
         },
         'field_person_image': {
@@ -1026,12 +1026,12 @@ MARKETING_SITE_API_PERSON_BODIES = [
         'field_person_position': None,
         'field_person_role': '1',
         'field_person_resume': {
-            'value': '\u003Cp\u003ECEO of edX and Professor of Electrical Engineering and Computer Science at MIT. '
+            'value': '<p>CEO of edX and Professor of Electrical Engineering and Computer Science at MIT. '
                      'His research focus is in parallel computer architectures and cloud software systems, and he is '
                      'a founder of several successful startups, including Tilera, a company that produces scalable '
                      'multicore processors. Prof. Agarwal won MIT\u2019s Smullin and Jamieson prizes for teaching and '
                      'co-authored the course textbook \u201cFoundations of Analog and Digital Electronic Circuits.'
-                     '\u201d\u003C/p\u003E',
+                     '\u201d</p>',
             'format': 'standard_html'
         },
         'field_person_image': {
@@ -1165,5 +1165,881 @@ MARKETING_SITE_API_PERSON_BODIES = [
         'title': 'Orgless',
         'url': 'https://www.edx.org/bio/orgless',
         'uuid': 'abcea90b-7b9a-49a2-ba4f-165cbf6a3636',
+    }
+]
+
+MARKETING_SITE_API_COURSE_BODIES = [
+    {
+        'field_course_code': 'CS50x',
+        'field_course_course_title': {
+            'value': 'Introduction to Computer Science',
+            'format': None
+        },
+        'field_course_description': {
+            'value': '<p>CS50x is Harvard College\u0027s introduction to the intellectual enterprises of c'
+                     'omputer science and the art of programming for majors and non-majors alike, with or without '
+                     'prior programming experience. An entry-level course taught by David J. Malan, CS50x teaches '
+                     'students how to think algorithmically and solve problems efficiently. Topics include '
+                     'abstraction, algorithms, data structures, encapsulation, resource management, security, software '
+                     'engineering, and web development. Languages include C, PHP, and JavaScript plus SQL, CSS, and '
+                     'HTML. Problem sets inspired by real-world domains of biology, cryptography, finance, forensics, '
+                     'and gaming. As of Fall 2012, the on-campus version of CS50x is Harvard\u0027s second-largest '
+                     'course.</p>\n<p>This course will run again starting January 2014. <a '
+                     'href=\u0022https://www.edx.org/course/harvard-university/cs50x/introduction-computer-science/1022'
+                     '\u0022>Click here for the registration page</a> of the new version.</p>',
+            'format': 'standard_html'
+        },
+        'field_course_start_date': '1350273600',
+        'field_course_effort': '8 problem sets (15 - 20 hours each), 2 quizzes, 1 final project',
+        'field_course_faq': [
+            {
+                'question': 'Will certificates be awarded?',
+                'answer': '<p>Yes. Online learners who achieve a passing grade in CS50x will earn a '
+                          'certificate that indicates successful completion of the course, but will not include a '
+                          'specific grade. Certificates will be issued by edX under the name of HarvardX.</p>\r\n'
+            }
+        ],
+        'field_course_school_node': [
+            {
+                'uri': 'https://www.edx.org/node/242',
+                'id': '242',
+                'resource': 'node',
+                'uuid': '44022f13-20df-4666-9111-cede3e5dc5b6'
+            }
+        ],
+        'field_course_end_date': None,
+        'field_course_video': {
+            'fid': '32570',
+            'name': 'cs50 teaser final HD',
+            'mime': 'video/youtube',
+            'size': '0',
+            'url': 'http://www.youtube.com/watch?v=ZAldYMFUIac',
+            'timestamp': '1384349212',
+            'owner': {
+                'uri': 'https://www.edx.org/user/143',
+                'id': '143',
+                'resource': 'user',
+                'uuid': '8ed4adee-6f84-4bec-8b64-20f9bfe7af0c'
+            },
+            'uuid': '51642ba0-ff0f-4fad-b109-e55376f35b29'
+        },
+        'field_course_resources': [],
+        'field_course_sub_title_long': {
+            'value': '<p>An introduction to the intellectual enterprises of computer science and the art of '
+                     'programming.</p>\n',
+            'format': 'plain_text'
+        },
+        'field_course_subject': [
+            {
+                'uri': 'https://www.edx.org/node/375',
+                'id': '375',
+                'resource': 'node',
+                'uuid': 'e52e2134-a4e4-4fcb-805f-cbef40812580'
+            },
+            {
+                'uri': 'https://www.edx.org/node/577',
+                'id': '577',
+                'resource': 'node',
+                'uuid': '0d7bb9ed-4492-419a-bb44-415adafd9406'
+            }
+        ],
+        'field_course_statement_title': None,
+        'field_course_statement_body': [],
+        'field_course_status': 'past',
+        'field_course_start_override': None,
+        'field_course_email': None,
+        'field_course_syllabus': [],
+        'field_course_prerequisites': {
+            'value': '<p>None. CS50x is designed for students with or without prior programming experience.</p>',
+            'format': 'standard_html'
+        },
+        'field_course_staff': [
+            {
+                'uri': 'https://www.edx.org/node/349',
+                'id': '349',
+                'resource': 'node',
+                'uuid': '1752b28e-8ac9-40a0-b468-326e03cafdd4'
+            },
+            {
+                'uri': 'https://www.edx.org/node/350',
+                'id': '350',
+                'resource': 'node',
+                'uuid': 'c5ba296e-bc91-4e5e-8d59-77f425f0863f'
+            },
+            {
+                'uri': 'https://www.edx.org/node/351',
+                'id': '351',
+                'resource': 'node',
+                'uuid': '6fec9136-5f1d-4205-8da2-a354c678c653'
+            },
+            {
+                'uri': 'https://www.edx.org/node/352',
+                'id': '352',
+                'resource': 'node',
+                'uuid': 'e1080080-98b4-4427-9004-3c331c8e6d05'
+            },
+            {
+                'uri': 'https://www.edx.org/node/353',
+                'id': '353',
+                'resource': 'node',
+                'uuid': 'cb6cde02-5bb3-45ab-9616-57c33d622ccc'
+            }
+        ],
+        'field_course_staff_override': 'D. Malan, N. Hardison, R. Bowden',
+        'field_course_image_promoted': {
+            'fid': '32379',
+            'name': 'cs50_home_tombstone.jpg',
+            'mime': 'image/jpeg',
+            'size': '19895',
+            'url': 'https://www.edx.org/sites/default/files/course/image/promoted/cs50_home_tombstone.jpg',
+            'timestamp': '1384348699',
+            'owner': {
+                'uri': 'https://www.edx.org/user/1',
+                'id': '1',
+                'resource': 'user',
+                'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
+            },
+            'uuid': 'c531e644-4ca6-40ab-bddb-d41da56662a8'
+        },
+        'field_course_image_banner': {
+            'fid': '32283',
+            'name': 'cs50x-course-detail-banner.jpg',
+            'mime': 'image/jpeg',
+            'size': '17873',
+            'url': 'https://www.edx.org/sites/default/files/course/image/banner/cs50x-course-detail-banner.jpg',
+            'timestamp': '1384348498',
+            'owner': {
+                'uri': 'https://www.edx.org/user/1',
+                'id': '1',
+                'resource': 'user',
+                'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
+            },
+            'uuid': '3edd5c03-853c-455c-bdcd-e4d1859ce102'
+        },
+        'field_course_image_tile': {
+            'fid': '32473',
+            'name': 'cs50x-course-listing-banner.jpg',
+            'mime': 'image/jpeg',
+            'size': '34535',
+            'url': 'https://www.edx.org/sites/default/files/course/image/tile/cs50x-course-listing-banner.jpg',
+            'timestamp': '1384348906',
+            'owner': {
+                'uri': 'https://www.edx.org/user/1',
+                'id': '1',
+                'resource': 'user',
+                'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
+            },
+            'uuid': 'c2998b1a-6c82-4d89-a85d-3786cdceaa6f'
+        },
+        'field_course_image_video': {
+            'fid': '32569',
+            'name': 'cs50x-video-thumbnail.jpg',
+            'mime': 'image/jpeg',
+            'size': '23035',
+            'url': 'https://www.edx.org/sites/default/files/course/image/video/cs50x-video-thumbnail.jpg',
+            'timestamp': '1384349121',
+            'owner': {
+                'uri': 'https://www.edx.org/user/1',
+                'id': '1',
+                'resource': 'user',
+                'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
+            },
+            'uuid': '14e9c85d-8836-4237-a497-0059d7379bce'
+        },
+        'field_course_id': 'HarvardX/CS50x/2012',
+        'field_course_image_sample_cert': [],
+        'field_course_image_sample_thumb': [],
+        'field_course_enrollment_audit': True,
+        'field_course_enrollment_honor': False,
+        'field_course_enrollment_verified': False,
+        'field_course_xseries_enable': False,
+        'field_course_statement_image': [],
+        'field_course_image_card': [],
+        'field_course_image_featured_card': [],
+        'field_course_code_override': None,
+        'field_course_video_link_mp4': [],
+        'field_course_video_duration': None,
+        'field_course_self_paced': False,
+        'field_course_new': None,
+        'field_course_registration_dates': {
+            'value': '1384348442',
+            'value2': None,
+            'duration': None
+        },
+        'field_course_enrollment_prof_ed': None,
+        'field_course_enrollment_ap_found': None,
+        'field_cource_price': None,
+        'field_course_additional_keywords': 'Free,',
+        'field_course_enrollment_mobile': None,
+        'field_course_part_of_products': [],
+        'field_course_level': None,
+        'field_course_what_u_will_learn': [],
+        'field_course_video_locale_lang': [],
+        'field_course_languages': [],
+        'field_couse_is_hidden': None,
+        'field_xseries_display_override': [],
+        'field_course_extra_description': [],
+        'field_course_extra_desc_title': None,
+        'field_course_body': [],
+        'field_course_enrollment_no_id': None,
+        'field_course_has_prerequisites': True,
+        'field_course_enrollment_credit': None,
+        'field_course_is_disabled': None,
+        'field_course_tags': [],
+        'field_course_sub_title_short': 'An introduction to the intellectual enterprises of computer science and the '
+                                        'art of programming.',
+        'field_course_length_weeks': None,
+        'field_course_start_date_style': None,
+        'field_course_head_prom_bkg_color': None,
+        'field_course_head_promo_image': [],
+        'field_course_head_promo_text': [],
+        'field_course_outcome': None,
+        'field_course_required_weeks': None,
+        'field_course_required_days': None,
+        'field_course_required_hours': None,
+        'nid': '254',
+        'vid': '8078',
+        'is_new': False,
+        'type': 'course',
+        'title': 'HarvardX: CS50x: Introduction to Computer Science',
+        'language': 'und',
+        'url': 'https://www.edx.org/course/introduction-computer-science-harvardx-cs50x-1',
+        'edit_url': 'https://www.edx.org/node/254/edit',
+        'status': '0',
+        'promote': '0',
+        'sticky': '0',
+        'created': '1384348442',
+        'changed': '1443028629',
+        'author': {
+            'uri': 'https://www.edx.org/user/143',
+            'id': '143',
+            'resource': 'user',
+            'uuid': '8ed4adee-6f84-4bec-8b64-20f9bfe7af0c'
+        },
+        'log': 'Updated by FeedsNodeProcessor',
+        'revision': None,
+        'body': [],
+        'uuid': '98da7bb8-dd9f-4747-aeb8-a068a863b9f8',
+        'vuuid': 'd3363b80-b402-4d66-8637-f6540e23ad0d'
+    },
+    {
+        'field_course_code': 'PH207x',
+        'field_course_course_title': {
+            'value': 'Health in Numbers: Quantitative Methods in Clinical \u0026amp; Public Health Research',
+            'format': 'basic_html'
+        },
+        'field_course_description': {
+            'value': '<h4>*Note - This is an Archived course*</h4>\n\n<p>This is a past/archived course. At this time, '
+                     'you can only explore this course in a self-paced fashion. Certain features of this course may '
+                     'not be active, but many people enjoy watching the videos and working with the materials. Make '
+                     'sure to check for reruns of this course.</p>\n\n<hr /><p>Quantitative Methods in Clinical and '
+                     'Public Health Research is the online adaptation of material from the Harvard School of Public '
+                     'Health\u0027s classes in epidemiology and biostatistics. Principled investigations to monitor '
+                     'and thus improve the health of individuals are firmly based on a sound understanding of modern '
+                     'quantitative methods.',
+            'format': 'standard_html'
+        },
+        'field_course_start_date': '1350273600',
+        'field_course_effort': '10 hours/week',
+        'field_course_school_node': [
+            {
+                'uri': 'https://www.edx.org/node/242',
+                'id': '242',
+                'resource': 'node',
+                'uuid': '44022f13-20df-4666-9111-cede3e5dc5b6'
+            }
+        ],
+        'field_course_end_date': '1358053200',
+        'field_course_video': {
+            'fid': '32572',
+            'name': 'PH207x Intro Video - Fall 2012',
+            'mime': 'video/youtube',
+            'size': '0',
+            'url': 'http://www.youtube.com/watch?v=j9CqWffkVNw',
+            'timestamp': '1384349121',
+            'owner': {
+                'uri': 'https://www.edx.org/user/143',
+                'id': '143',
+                'resource': 'user',
+                'uuid': '8ed4adee-6f84-4bec-8b64-20f9bfe7af0c'
+            },
+            'uuid': '2869f990-324e-41f5-8787-343e72d6134d'
+        },
+        'field_course_resources': [],
+        'field_course_sub_title_long': {
+            'value': '<p>PH207x is the online adaptation of material from the Harvard School of Public Health'
+                     '\u0026#039;s classes in epidemiology and biostatistics.</p>\n',
+            'format': 'plain_text'
+        },
+        'field_course_subject': [
+            {
+                'uri': 'https://www.edx.org/node/651',
+                'id': '651',
+                'resource': 'node',
+                'uuid': '51a13a1c-7fc8-42a6-9e96-6636d10056e2'
+            },
+            {
+                'uri': 'https://www.edx.org/node/376',
+                'id': '376',
+                'resource': 'node',
+                'uuid': 'a669e004-cbc0-4b68-8882-234c12e1cce4'
+            },
+            {
+                'uri': 'https://www.edx.org/node/657',
+                'id': '657',
+                'resource': 'node',
+                'uuid': 'a5db73b2-05b4-4284-beef-c7876ec1499b'
+            },
+            {
+                'uri': 'https://www.edx.org/node/658',
+                'id': '658',
+                'resource': 'node',
+                'uuid': 'a168a80a-4b6c-4d92-9f1d-4c235206feaf'
+            }
+        ],
+        'field_course_statement_title': None,
+        'field_course_statement_body': [],
+        'field_course_status': 'past',
+        'field_course_start_override': None,
+        'field_course_email': None,
+        'field_course_syllabus': [],
+        'field_course_prerequisites': {
+            'value': '<p>Students should have a sound grasp of algebra.</p>',
+            'format': 'standard_html'
+        },
+        'field_course_staff': [
+            {
+                'uri': 'https://www.edx.org/node/355',
+                'id': '355',
+                'resource': 'node',
+                'uuid': 'f4fe549c-6290-44ad-9be2-4b48692bd233'
+            },
+            {
+                'uri': 'https://www.edx.org/node/356',
+                'id': '356',
+                'resource': 'node',
+                'uuid': 'fa26fc74-28ce-4b21-97b6-0799e947ce3a'
+            }
+        ],
+        'field_course_staff_override': 'E. F. Cook, M. Pagano',
+        'field_course_image_promoted': {
+            'fid': '32380',
+            'name': 'ph207x-home-page-promotion.jpg',
+            'mime': 'image/jpeg',
+            'size': '99225',
+            'url': 'https://www.edx.org/sites/default/files/course/image/promoted/ph207x-home-page-promotion.jpg',
+            'timestamp': '1384348699',
+            'owner': {
+                'uri': 'https://www.edx.org/user/1',
+                'id': '1',
+                'resource': 'user',
+                'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
+            },
+            'uuid': '24da5041-ada5-4bb6-b0b0-099c8f3b4dc5'
+        },
+        'field_course_image_banner': {
+            'fid': '32284',
+            'name': 'ph207x-detail-banner.jpg',
+            'mime': 'image/jpeg',
+            'size': '21145',
+            'url': 'https://www.edx.org/sites/default/files/course/image/banner/ph207x-detail-banner.jpg',
+            'timestamp': '1384348498',
+            'owner': {
+                'uri': 'https://www.edx.org/user/1',
+                'id': '1',
+                'resource': 'user',
+                'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
+            },
+            'uuid': '4f1f88eb-9f24-44f2-8f40-f5893c41566f'
+        },
+        'field_course_image_tile': {
+            'fid': '32474',
+            'name': 'ph207x-listing-banner.jpg',
+            'mime': 'image/jpeg',
+            'size': '30833',
+            'url': 'https://www.edx.org/sites/default/files/course/image/tile/ph207x-listing-banner.jpg',
+            'timestamp': '1384348906',
+            'owner': {
+                'uri': 'https://www.edx.org/user/1',
+                'id': '1',
+                'resource': 'user',
+                'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
+            },
+            'uuid': 'eeed52c1-79c8-422a-acd1-11ba9d985bc3'
+        },
+        'field_course_image_video': {
+            'fid': '32571',
+            'name': 'ph207x-video-thumbnail.jpg',
+            'mime': 'image/jpeg',
+            'size': '15015',
+            'url': 'https://www.edx.org/sites/default/files/course/image/video/ph207x-video-thumbnail.jpg',
+            'timestamp': '1384349121',
+            'owner': {
+                'uri': 'https://www.edx.org/user/1',
+                'id': '1',
+                'resource': 'user',
+                'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
+            },
+            'uuid': '2fbd2e9b-4f19-4c1a-aa03-e25d26bf53c1'
+        },
+        'field_course_id': 'HarvardX/PH207x/2012_Fall',
+        'field_course_image_sample_cert': [],
+        'field_course_image_sample_thumb': [],
+        'field_course_enrollment_audit': False,
+        'field_course_enrollment_honor': True,
+        'field_course_enrollment_verified': False,
+        'field_course_xseries_enable': False,
+        'field_course_statement_image': [],
+        'field_course_image_card': [],
+        'field_course_image_featured_card': {
+            'fid': '54386',
+            'name': 'ph207x_378x225.jpg',
+            'mime': 'image/jpeg',
+            'size': '12250',
+            'url': 'https://www.edx.org/sites/default/files/course/image/featured-card/ph207x_378x225.jpg',
+            'timestamp': '1427916395',
+            'owner': {
+                'uri': 'https://www.edx.org/user/1781',
+                'id': '1781',
+                'resource': 'user',
+                'uuid': '22d74975-3826-4549-99e0-91cf86801c54'
+            },
+            'uuid': 'e7a1b891-d680-41cb-aa0b-7e9eb4f52b3a'
+        },
+        'field_course_code_override': None,
+        'field_course_video_link_mp4': [],
+        'field_course_video_duration': None,
+        'field_course_self_paced': False,
+        'field_course_new': False,
+        'field_course_registration_dates': {
+            'value': '1384318800',
+            'value2': '1384318800',
+            'duration': 0
+        },
+        'field_course_enrollment_prof_ed': False,
+        'field_course_enrollment_ap_found': False,
+        'field_cource_price': None,
+        'field_course_additional_keywords': 'Free,',
+        'field_course_enrollment_mobile': False,
+        'field_course_part_of_products': [],
+        'field_course_level': 'Intermediate',
+        'field_course_video_locale_lang': [
+            {
+                'tid': '281',
+                'name': 'English',
+                'description': '',
+                'weight': '0',
+                'node_count': 10,
+                'url': 'https://www.edx.org/video-languages/english',
+                'vocabulary': {
+                    'uri': 'https://www.edx.org/taxonomy_vocabulary/21',
+                    'id': '21',
+                    'resource': 'taxonomy_vocabulary'
+                },
+                'parent': [],
+                'parents_all': [
+                    {
+                        'tid': '281',
+                        'name': 'English',
+                        'description': '',
+                        'weight': '0',
+                        'node_count': 10,
+                        'url': 'https://www.edx.org/video-languages/english',
+                        'vocabulary': {
+                            'uri': 'https://www.edx.org/taxonomy_vocabulary/21',
+                            'id': '21',
+                            'resource': 'taxonomy_vocabulary'
+                        },
+                        'parent': [],
+                        'parents_all': [
+                            {
+                                'uri': 'https://www.edx.org/taxonomy_term/281',
+                                'id': '281',
+                                'resource': 'taxonomy_term',
+                                'uuid': 'b8155d9c-126f-4661-9518-c4d798b0a21f'
+                            }
+                        ],
+                        'uuid': 'b8155d9c-126f-4661-9518-c4d798b0a21f'
+                    }
+                ],
+                'uuid': 'b8155d9c-126f-4661-9518-c4d798b0a21f'
+            }
+        ],
+        'field_course_languages': [
+            {
+                'field_language_tag': 'en',
+                'tid': '321',
+                'name': 'English',
+                'description': '',
+                'weight': '0',
+                'node_count': 10,
+                'url': 'https://www.edx.org/course-languages/english',
+                'vocabulary': {
+                    'uri': 'https://www.edx.org/taxonomy_vocabulary/26',
+                    'id': '26',
+                    'resource': 'taxonomy_vocabulary'
+                },
+                'parent': [],
+                'parents_all': [
+                    {
+                        'field_language_tag': 'en',
+                        'tid': '321',
+                        'name': 'English',
+                        'description': '',
+                        'weight': '0',
+                        'node_count': 10,
+                        'url': 'https://www.edx.org/course-languages/english',
+                        'vocabulary': {
+                            'uri': 'https://www.edx.org/taxonomy_vocabulary/26',
+                            'id': '26',
+                            'resource': 'taxonomy_vocabulary'
+                        },
+                        'parent': [],
+                        'parents_all': [
+                            {
+                                'uri': 'https://www.edx.org/taxonomy_term/321',
+                                'id': '321',
+                                'resource': 'taxonomy_term',
+                                'uuid': '55a95f47-6ebd-475b-853a-3aff18024c1c'
+                            }
+                        ],
+                        'uuid': '55a95f47-6ebd-475b-853a-3aff18024c1c'
+                    }
+                ],
+                'uuid': '55a95f47-6ebd-475b-853a-3aff18024c1c'
+            }
+        ],
+        'field_couse_is_hidden': False,
+        'field_xseries_display_override': [],
+        'field_course_extra_description': [],
+        'field_course_extra_desc_title': None,
+        'field_course_body': {
+            'value': '<p>Quantitative Methods in Clinical and Public Health Research is the online adaptation of '
+                     'material from the Harvard T.H. Chan School of Public Health\u0027s classes in epidemiology and '
+                     'biostatistics. Principled investigations to monitor and thus improve the health of individuals '
+                     'are firmly based on a sound understanding of modern quantitative methods. This involves the '
+                     'ability to discover patterns and extract knowledge from health data on a sample of individuals '
+                     'and then to infer, with measured uncertainty, the unobserved population characteristics. This '
+                     'course will address this need by covering the principles of biostatistics and epidemiology used '
+                     'for public health and clinical research. These include outcomes measurement, measures of '
+                     'associations between outcomes and their determinants, study design options, bias and '
+                     'confounding, probability and diagnostic tests, confidence intervals and hypothesis testing, '
+                     'power and sample size determinations, life tables and survival methods, regression methods '
+                     '(both, linear and logistic), and sample survey techniques. Students will analyze sample data '
+                     'sets to acquire knowledge of appropriate computer software. By the end of the course the '
+                     'successful student should have attained a sound understanding of these methods and a solid '
+                     'foundation for further study.<br />\n\u00a0</p>',
+            'summary': '',
+            'format': 'standard_html'
+        },
+        'field_course_enrollment_no_id': False,
+        'field_course_has_prerequisites': True,
+        'field_course_enrollment_credit': False,
+        'field_course_is_disabled': None,
+        'field_course_tags': [],
+        'field_course_sub_title_short': 'PH207x is the online adaptation of material from the Harvard School of Public '
+                                        'Health\u0027s classes in epidemiology and biostatistics.',
+        'field_course_length_weeks': '13 weeks',
+        'field_course_start_date_style': None,
+        'field_course_head_prom_bkg_color': None,
+        'field_course_head_promo_image': [],
+        'field_course_head_promo_text': [],
+        'field_course_outcome': None,
+        'field_course_required_weeks': '4',
+        'field_course_required_days': '0',
+        'field_course_required_hours': '0',
+        'nid': '354',
+        'vid': '112156',
+        'is_new': False,
+        'type': 'course',
+        'title': 'HarvardX: PH207x: Health in Numbers: Quantitative Methods in Clinical \u0026 Public Health Research',
+        'language': 'und',
+        'url': 'https://www.edx.org/course/health-numbers-quantitative-methods-harvardx-ph207x',
+        'edit_url': 'https://www.edx.org/node/354/edit',
+        'status': '1',
+        'promote': '0',
+        'sticky': '0',
+        'created': '1384348442',
+        'changed': '1464108885',
+        'author': {
+            'uri': 'https://www.edx.org/user/143',
+            'id': '143',
+            'resource': 'user',
+            'uuid': '8ed4adee-6f84-4bec-8b64-20f9bfe7af0c'
+        },
+        'log': '',
+        'revision': None,
+        'body': [],
+        'uuid': 'aebbadcc-4e3a-4be3-a351-edaabd025ce7',
+        'vuuid': '28da5064-b570-4883-8c53-330d1893ab49'
+    },
+    {
+        'field_course_code': 'CB22x',
+        'field_course_course_title': {
+            'value': 'The Ancient Greek Hero',
+            'format': 'basic_html'
+        },
+        'field_course_description': {
+            'value': '<p><strong>NOTE ABOUT OUR START DATE:</strong> Although the course was launched on March 13th, '
+                     'it\u0027s not too late to start participating! New participants will be joining the course until '
+                     '<strong>registration closes on July 11</strong>. We offer everyone a flexible schedule and '
+                     'multiple paths for participation. You can work through the course videos and readings at your '
+                     'own pace to complete the associated exercises <strong>by August 26</strong>, the official course '
+                     'end date. Or, you may choose to \u0022audit\u0022 the course by exploring just the particular '
+                     'videos and readings that seem most suited to your interests. You are free to do as much or as '
+                     'little as you would like!</p>\n<h3>\n\tOverview</h3>\n<p>What is it to be human, and how can '
+                     'ancient concepts of the heroic and anti-heroic inform our understanding of the human condition? '
+                     'That question is at the core of The Ancient Greek Hero, which introduces (or reintroduces) '
+                     'students to the great texts of classical Greek culture by focusing on concepts of the Hero in an '
+                     'engaging, highly comparative way.</p>\n<p>The classical Greeks\u0027 concepts of Heroes and the '
+                     '\u0022heroic\u0022 were very different from the way we understand the term today. In this '
+                     'course, students analyze Greek heroes and anti-heroes in their own historical contexts, in order '
+                     'to gain an understanding of these concepts as they were originally understood while also '
+                     'learning how they can inform our understanding of the human condition in general.</p>\n<p>In '
+                     'Greek tradition, a hero was a human, male or female, of the remote past, who was endowed with '
+                     'superhuman abilities by virtue of being descended from an immortal god. Rather than being '
+                     'paragons of virtue, as heroes are viewed in many modern cultures, ancient Greek heroes had all '
+                     'of the qualities and faults of their fellow humans, but on a much larger scale. Further, despite '
+                     'their mortality, heroes, like the gods, were objects of cult worship \u2013 a dimension which is '
+                     'also explored in depth in the course.</p>\n<p>The original sources studied in this course include'
+                     ' the Homeric Iliad and Odyssey; tragedies of Aeschylus, Sophocles, and Euripides; songs of Sappho'
+                     ' and Pindar; dialogues of Plato; historical texts of Herodotus; and more, including the '
+                     'intriguing but rarely studied dialogue \u0022On Heroes\u0022 by Philostratus. All works are '
+                     'presented in English translation, with attention to the subtleties of the original Greek. These '
+                     'original sources are frequently supplemented both by ancient art and by modern comparanda, '
+                     'including opera and cinema (from Jacques Offenbach\u0027s opera Tales of Hoffman to Ridley '
+                     'Scott\u0027s science fiction classic Blade Runner).</p>',
+            'format': 'standard_html'
+        },
+        'field_course_start_date': '1363147200',
+        'field_course_effort': '4-6 hours / week',
+        'field_course_school_node': [
+            {
+                'uri': 'https://www.edx.org/node/242',
+                'id': '242',
+                'resource': 'node',
+                'uuid': '44022f13-20df-4666-9111-cede3e5dc5b6'
+            }
+        ],
+        'field_course_end_date': '1376971200',
+        'field_course_video': [],
+        'field_course_resources': [],
+        'field_course_sub_title_long': {
+            'value': '<p>A survey of ancient Greek literature focusing on classical concepts of the hero and how they '
+                     'can inform our understanding of the human condition.</p>\n',
+            'format': 'plain_text'
+        },
+        'field_course_subject': [
+            {
+                'uri': 'https://www.edx.org/node/652',
+                'id': '652',
+                'resource': 'node',
+                'uuid': 'c8579e1c-99f2-4a95-988c-3542909f055e'
+            },
+            {
+                'uri': 'https://www.edx.org/node/653',
+                'id': '653',
+                'resource': 'node',
+                'uuid': '00e5d5e0-ce45-4114-84a1-50a5be706da5'
+            },
+            {
+                'uri': 'https://www.edx.org/node/655',
+                'id': '655',
+                'resource': 'node',
+                'uuid': '74b6ed2a-3ba0-49be-adc9-53f7256a12e1'
+            }
+        ],
+        'field_course_statement_title': None,
+        'field_course_statement_body': [],
+        'field_course_status': 'past',
+        'field_course_start_override': None,
+        'field_course_email': None,
+        'field_course_syllabus': [],
+        'field_course_staff': [
+            {
+                'uri': 'https://www.edx.org/node/564',
+                'id': '564',
+                'resource': 'node',
+                'uuid': 'ae56688a-f2b6-4981-9aa7-5c66b68cb13e'
+            },
+            {
+                'uri': 'https://www.edx.org/node/565',
+                'id': '565',
+                'resource': 'node',
+                'uuid': '56d13e72-353f-48fd-9be7-6f20ef467bb7'
+            },
+            {
+                'uri': 'https://www.edx.org/node/566',
+                'id': '566',
+                'resource': 'node',
+                'uuid': '69a415db-3db7-436a-8d02-e571c4c4c75a'
+            },
+            {
+                'uri': 'https://www.edx.org/node/567',
+                'id': '567',
+                'resource': 'node',
+                'uuid': '1639460f-598c-45b7-90c2-bbdbf87cdd54'
+            },
+            {
+                'uri': 'https://www.edx.org/node/568',
+                'id': '568',
+                'resource': 'node',
+                'uuid': '09154d2c-7f31-477c-9d3c-d8cba9af846e'
+            },
+            {
+                'uri': 'https://www.edx.org/node/820',
+                'id': '820',
+                'resource': 'node',
+                'uuid': '05b7ab45-de9a-49d6-8010-04c68fc9fd55'
+            },
+            {
+                'uri': 'https://www.edx.org/node/821',
+                'id': '821',
+                'resource': 'node',
+                'uuid': '8a8d68c4-ab5b-40c5-b897-2d44aed2194d'
+            },
+            {
+                'uri': 'https://www.edx.org/node/822',
+                'id': '822',
+                'resource': 'node',
+                'uuid': 'c3e16519-a23f-4f21-908b-463375b492df'
+            }
+        ],
+        'field_course_staff_override': 'G. Nagy, L. Muellner...',
+        'field_course_image_promoted': {
+            'fid': '32381',
+            'name': 'tombstone_courses.jpg',
+            'mime': 'image/jpeg',
+            'size': '34861',
+            'url': 'https://www.edx.org/sites/default/files/course/image/promoted/tombstone_courses.jpg',
+            'timestamp': '1384348699',
+            'owner': {
+                'uri': 'https://www.edx.org/user/1',
+                'id': '1',
+                'resource': 'user',
+                'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
+            },
+            'uuid': '1471888c-a451-4f97-9bb2-ad20c9a43c2d'
+        },
+        'field_course_image_banner': {
+            'fid': '32285',
+            'name': 'cb22x_608x211.jpg',
+            'mime': 'image/jpeg',
+            'size': '25909',
+            'url': 'https://www.edx.org/sites/default/files/course/image/banner/cb22x_608x211.jpg',
+            'timestamp': '1384348498',
+            'owner': {
+                'uri': 'https://www.edx.org/user/1',
+                'id': '1',
+                'resource': 'user',
+                'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
+            },
+            'uuid': '15022bf7-e367-4a5c-b115-3755016de286'
+        },
+        'field_course_image_tile': {
+            'fid': '32475',
+            'name': 'cb22x-listing-banner.jpg',
+            'mime': 'image/jpeg',
+            'size': '47678',
+            'url': 'https://www.edx.org/sites/default/files/course/image/tile/cb22x-listing-banner.jpg',
+            'timestamp': '1384348906',
+            'owner': {
+                'uri': 'https://www.edx.org/user/1',
+                'id': '1',
+                'resource': 'user',
+                'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
+            },
+            'uuid': '71735cc4-7ac3-4065-ad92-6f18f979eb0e'
+        },
+        'field_course_image_video': {
+            'fid': '32573',
+            'name': 'h_no_video_320x211_1_0.jpg',
+            'mime': 'image/jpeg',
+            'size': '2829',
+            'url': 'https://www.edx.org/sites/default/files/course/image/video/h_no_video_320x211_1_0.jpg',
+            'timestamp': '1384349121',
+            'owner': {
+                'uri': 'https://www.edx.org/user/1',
+                'id': '1',
+                'resource': 'user',
+                'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
+            },
+            'uuid': '4d18789f-0909-4289-9d58-2292e5d03aee'
+        },
+        'field_course_id': 'HarvardX/CB22x/2013_Spring',
+        'field_course_image_sample_cert': [],
+        'field_course_image_sample_thumb': [],
+        'field_course_enrollment_audit': True,
+        'field_course_enrollment_honor': False,
+        'field_course_enrollment_verified': False,
+        'field_course_xseries_enable': False,
+        'field_course_statement_image': [],
+        'field_course_image_card': [],
+        'field_course_image_featured_card': [],
+        'field_course_code_override': None,
+        'field_course_video_link_mp4': [],
+        'field_course_video_duration': None,
+        'field_course_self_paced': False,
+        'field_course_new': None,
+        'field_course_registration_dates': {
+            'value': '1384348442',
+            'value2': None,
+            'duration': None
+        },
+        'field_course_enrollment_prof_ed': None,
+        'field_course_enrollment_ap_found': None,
+        'field_cource_price': None,
+        'field_course_additional_keywords': 'Free,',
+        'field_course_enrollment_mobile': None,
+        'field_course_part_of_products': [],
+        'field_course_level': None,
+        'field_course_what_u_will_learn': [],
+        'field_course_video_locale_lang': [],
+        'field_course_languages': [],
+        'field_couse_is_hidden': None,
+        'field_xseries_display_override': [],
+        'field_course_extra_description': [],
+        'field_course_extra_desc_title': None,
+        'field_course_body': [],
+        'field_course_enrollment_no_id': None,
+        'field_course_has_prerequisites': True,
+        'field_course_enrollment_credit': None,
+        'field_course_is_disabled': None,
+        'field_course_tags': [],
+        'field_course_sub_title_short': 'A survey of ancient Greek literature focusing on classical concepts of the '
+                                        'hero and how they can inform our understanding of the human condition.',
+        'field_course_length_weeks': '23 weeks',
+        'field_course_start_date_style': None,
+        'field_course_head_prom_bkg_color': None,
+        'field_course_head_promo_image': [],
+        'field_course_head_promo_text': [],
+        'field_course_outcome': None,
+        'field_course_required_weeks': None,
+        'field_course_required_days': None,
+        'field_course_required_hours': None,
+        'nid': '563',
+        'vid': '8080',
+        'is_new': False,
+        'type': 'course',
+        'title': 'HarvardX: CB22x: The Ancient Greek Hero',
+        'language': 'und',
+        'url': 'https://www.edx.org/course/ancient-greek-hero-harvardx-cb22x',
+        'edit_url': 'https://www.edx.org/node/563/edit',
+        'status': '0',
+        'promote': '0',
+        'sticky': '0',
+        'created': '1384348442',
+        'changed': '1443028625',
+        'author': {
+            'uri': 'https://www.edx.org/user/143',
+            'id': '143',
+            'resource': 'user',
+            'uuid': '8ed4adee-6f84-4bec-8b64-20f9bfe7af0c'
+        },
+        'log': 'Updated by FeedsNodeProcessor',
+        'revision': None,
+        'body': [],
+        'uuid': '6b8b779f-f567-4e98-aa41-a265d6fa073c',
+        'vuuid': 'e0f8c80a-b377-4546-b247-1c94ab3a218b'
     }
 ]

@@ -8,13 +8,13 @@ from django.test import TestCase
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import mock_api_callback
 from course_discovery.apps.course_metadata.data_loaders.api import (
-    CoursesApiDataLoader, OrganizationsApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader,
+    OrganizationsApiDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader,
 )
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
-    DrupalApiDataLoader, XSeriesMarketingSiteDataLoader,
+    XSeriesMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
+    SponsorMarketingSiteDataLoader, PersonMarketingSiteDataLoader, CourseMarketingSiteDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Organization, Program
 
 ACCESS_TOKEN = 'secret'
 JSON = 'application/json'
@@ -74,7 +74,6 @@ class RefreshCourseMetadataCommandTests(TestCase):
         return bodies
 
     def mock_ecommerce_courses_api(self):
-
         bodies = mock_data.ECOMMERCE_API_BODIES
         url = self.partner.ecommerce_api_url + 'courses/'
         responses.add_callback(
@@ -108,49 +107,14 @@ class RefreshCourseMetadataCommandTests(TestCase):
         )
         return bodies
 
-    @responses.activate
-    def test_refresh_course_metadata(self):
-        """ Verify the refresh_course_metadata management command creates new objects. """
-        self.mock_apis()
-        call_command('refresh_course_metadata')
-
-        organizations = Organization.objects.all()
-        self.assertEqual(organizations.count(), 3)
-
-        for organization in organizations:
-            self.assertEqual(organization.partner.short_code, self.partner.short_code)
-
-        courses = Course.objects.all()
-        self.assertEqual(courses.count(), 2)
-        for course in courses:
-            self.assertEqual(course.partner.short_code, self.partner.short_code)
-
-        course_runs = CourseRun.objects.all()
-        self.assertEqual(course_runs.count(), 3)
-        for course_run in course_runs:
-            self.assertEqual(course_run.course.partner.short_code, self.partner.short_code)
-
-        programs = Program.objects.all()
-        self.assertEqual(programs.count(), 2)
-        for program in programs:
-            self.assertEqual(program.partner.short_code, self.partner.short_code)
-
-        # Refresh only a specific partner
-        command_args = ['--partner_code={0}'.format(self.partner.short_code)]
-        call_command('refresh_course_metadata', *command_args)
-
-    @responses.activate
     def test_refresh_course_metadata_with_invalid_partner_code(self):
         """ Verify an error is raised if an invalid partner code is passed on the command line. """
-        self.mock_apis()
         with self.assertRaises(CommandError):
             command_args = ['--partner_code=invalid']
             call_command('refresh_course_metadata', *command_args)
 
-    @responses.activate
     def test_refresh_course_metadata_with_no_token_type(self):
         """ Verify an error is raised if an access token is passed in without a token type. """
-        self.mock_apis()
         with self.assertRaises(CommandError):
             command_args = ['--access_token=test-access-token']
             call_command('refresh_course_metadata', *command_args)
@@ -164,7 +128,17 @@ class RefreshCourseMetadataCommandTests(TestCase):
             with mock.patch(logger_target) as mock_logger:
                 call_command('refresh_course_metadata')
 
-                loader_classes = (OrganizationsApiDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader,
-                                  ProgramsApiDataLoader, DrupalApiDataLoader, XSeriesMarketingSiteDataLoader)
+                loader_classes = (
+                    SubjectMarketingSiteDataLoader,
+                    SchoolMarketingSiteDataLoader,
+                    SponsorMarketingSiteDataLoader,
+                    PersonMarketingSiteDataLoader,
+                    CourseMarketingSiteDataLoader,
+                    OrganizationsApiDataLoader,
+                    CoursesApiDataLoader,
+                    EcommerceApiDataLoader,
+                    ProgramsApiDataLoader,
+                    XSeriesMarketingSiteDataLoader,
+                )
                 expected_calls = [mock.call('%s failed!', loader_class.__name__) for loader_class in loader_classes]
                 mock_logger.exception.assert_has_calls(expected_calls)

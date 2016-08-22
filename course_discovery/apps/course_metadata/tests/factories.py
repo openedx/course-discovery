@@ -75,12 +75,13 @@ class SeatFactory(factory.DjangoModelFactory):
 
 
 class CourseFactory(factory.DjangoModelFactory):
+    uuid = factory.LazyFunction(uuid4)
     key = FuzzyText(prefix='course-id/')
     title = FuzzyText(prefix="Test çօմɾʂҽ ")
     short_description = FuzzyText(prefix="Test çօմɾʂҽ short description")
     full_description = FuzzyText(prefix="Test çօմɾʂҽ FULL description")
     level_type = factory.SubFactory(LevelTypeFactory)
-    image = factory.SubFactory(ImageFactory)
+    card_image_url = FuzzyURL()
     video = factory.SubFactory(VideoFactory)
     marketing_url = FuzzyText(prefix='https://example.com/test-course-url')
     partner = factory.SubFactory(PartnerFactory)
@@ -93,8 +94,19 @@ class CourseFactory(factory.DjangoModelFactory):
         if create:  # pragma: no cover
             add_m2m_data(self.subjects, extracted)
 
+    @factory.post_generation
+    def authoring_organizations(self, create, extracted, **kwargs):
+        if create:
+            add_m2m_data(self.authoring_organizations, extracted)
+
+    @factory.post_generation
+    def sponsoring_organizations(self, create, extracted, **kwargs):
+        if create:
+            add_m2m_data(self.sponsoring_organizations, extracted)
+
 
 class CourseRunFactory(factory.DjangoModelFactory):
+    uuid = factory.LazyFunction(uuid4)
     key = FuzzyText(prefix='course-run-id/', suffix='/fake')
     course = factory.SubFactory(CourseFactory)
     title_override = None
@@ -106,12 +118,17 @@ class CourseRunFactory(factory.DjangoModelFactory):
     enrollment_start = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
     enrollment_end = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC)).end_dt
     announcement = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
-    image = factory.SubFactory(ImageFactory)
+    card_image_url = FuzzyURL()
     video = factory.SubFactory(VideoFactory)
     min_effort = FuzzyInteger(1, 10)
     max_effort = FuzzyInteger(10, 20)
     pacing_type = FuzzyChoice([name for name, __ in CourseRun.PACING_CHOICES])
     marketing_url = FuzzyText(prefix='https://example.com/test-course-url')
+
+    @factory.post_generation
+    def staff(self, create, extracted, **kwargs):
+        if create:
+            add_m2m_data(self.staff, extracted)
 
     class Meta:
         model = CourseRun

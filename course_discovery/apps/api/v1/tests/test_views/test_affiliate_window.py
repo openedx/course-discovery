@@ -103,7 +103,7 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
         self.assertEqual(content.find('name').text, self.course_run.title)
         self.assertEqual(content.find('desc').text, self.course_run.short_description)
         self.assertEqual(content.find('purl').text, self.course_run.marketing_url)
-        self.assertEqual(content.find('imgurl').text, self.course_run.image.src)
+        self.assertEqual(content.find('imgurl').text, self.course_run.card_image_url)
         self.assertEqual(content.find('price/actualp').text, str(seat.price))
         self.assertEqual(content.find('currency').text, seat.currency.code)
         self.assertEqual(content.find('category').text, AffiliateWindowSerializer.CATEGORY)

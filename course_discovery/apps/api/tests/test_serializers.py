@@ -7,6 +7,7 @@ from haystack.query import SearchQuerySet
 from opaque_keys.edx.keys import CourseKey
 from rest_framework.test import APIRequestFactory
 
+from course_discovery.apps.api.fields import ImageField
 from course_discovery.apps.api.serializers import (
     CatalogSerializer, CourseSerializer, CourseRunSerializer, ContainedCoursesSerializer, ImageSerializer,
     SubjectSerializer, PrerequisiteSerializer, VideoSerializer, OrganizationSerializer, SeatSerializer,
@@ -71,7 +72,6 @@ class CatalogSerializerTests(TestCase):
 class CourseSerializerTests(TestCase):
     def test_data(self):
         course = CourseFactory()
-        image = course.image
         video = course.video
 
         request = make_request()
@@ -88,10 +88,10 @@ class CourseSerializerTests(TestCase):
             'subjects': [],
             'prerequisites': [],
             'expected_learning_items': [],
-            'image': ImageSerializer(image).data,
+            'image': ImageField().to_representation(course.card_image_url),
             'video': VideoSerializer(video).data,
-            'owners': [],
-            'sponsors': [],
+            'owners': OrganizationSerializer(course.authoring_organizations, many=True).data,
+            'sponsors': OrganizationSerializer(course.sponsoring_organizations, many=True).data,
             'modified': json_date_format(course.modified),  # pylint: disable=no-member
             'course_runs': CourseRunSerializer(course.course_runs, many=True, context={'request': request}).data,
             'marketing_url': '{url}?{params}'.format(
@@ -106,23 +106,12 @@ class CourseSerializerTests(TestCase):
 
         self.assertDictEqual(serializer.data, expected)
 
-    def test_data_url_none(self):
-        """
-        Verify that the course serializer does not attempt to add URL
-        parameters if the course has no marketing URL.
-        """
-        course = CourseFactory(marketing_url=None)
-        request = make_request()
-        serializer = CourseSerializer(course, context={'request': request})
-        self.assertEqual(serializer.data['marketing_url'], None)
-
 
 class CourseRunSerializerTests(TestCase):
     def test_data(self):
         request = make_request()
         course_run = CourseRunFactory()
         course = course_run.course
-        image = course_run.image
         video = course_run.video
         serializer = CourseRunWithProgramsSerializer(course_run, context={'request': request})
         ProgramFactory(courses=[course])
@@ -138,7 +127,7 @@ class CourseRunSerializerTests(TestCase):
             'enrollment_start': json_date_format(course_run.enrollment_start),
             'enrollment_end': json_date_format(course_run.enrollment_end),
             'announcement': json_date_format(course_run.announcement),
-            'image': ImageSerializer(image).data,
+            'image': ImageField().to_representation(course_run.card_image_url),
             'video': VideoSerializer(video).data,
             'pacing_type': course_run.pacing_type,
             'content_language': course_run.language.code,
@@ -162,16 +151,6 @@ class CourseRunSerializerTests(TestCase):
         }
 
         self.assertDictEqual(serializer.data, expected)
-
-    def test_data_url_none(self):
-        """
-        Verify that the course run serializer does not attempt to add URL
-        parameters if the course has no marketing URL.
-        """
-        course_run = CourseRunFactory(marketing_url=None)
-        request = make_request()
-        serializer = CourseRunSerializer(course_run, context={'request': request})
-        self.assertEqual(serializer.data['marketing_url'], None)
 
 
 class ProgramCourseSerializerTests(TestCase):
@@ -218,35 +197,12 @@ class ProgramCourseSerializerTests(TestCase):
         excluded_runs.append(course_runs[0])
         program = ProgramFactory(courses=[course], excluded_course_runs=excluded_runs)
 
-        serializer = ProgramCourseSerializer(
-            course,
-            context={'request': self.request, 'program': program}
-        )
+        serializer_context = {'request': self.request, 'program': program}
+        serializer = ProgramCourseSerializer(course, context=serializer_context)
 
-        expected = {
-            'key': course.key,
-            'title': course.title,
-            'short_description': course.short_description,
-            'full_description': course.full_description,
-            'level_type': course.level_type.name,
-            'subjects': [],
-            'prerequisites': [],
-            'expected_learning_items': [],
-            'image': ImageSerializer(course.image).data,
-            'video': VideoSerializer(course.video).data,
-            'owners': [],
-            'sponsors': [],
-            'modified': json_date_format(course.modified),  # pylint: disable=no-member
-            'course_runs': CourseRunSerializer([course_runs[1]], many=True, context={'request': self.request}).data,
-            'marketing_url': '{url}?{params}'.format(
-                url=course.marketing_url,
-                params=urlencode({
-                    'utm_source': self.request.user.username,
-                    'utm_medium': self.request.user.referral_tracking_id,
-                })
-            ),
-        }
-
+        expected = CourseSerializer(course, context=serializer_context).data
+        expected['course_runs'] = CourseRunSerializer([course_runs[1]], many=True,
+                                                      context={'request': self.request}).data
         self.assertDictEqual(serializer.data, expected)
 
 
@@ -496,7 +452,7 @@ class AffiliateWindowSerializerTests(TestCase):
                 'actualp': seat.price
             },
             'currency': seat.currency.code,
-            'imgurl': course_run.image.src,
+            'imgurl': course_run.card_image_url,
             'category': 'Other Experiences'
         }
         self.assertDictEqual(serializer.data, expected)
@@ -535,7 +491,7 @@ class CourseRunSearchSerializerTests(TestCase):
             'org': course_run_key.org,
             'number': course_run_key.course,
             'seat_types': course_run.seat_types,
-            'image_url': course_run.image_url,
+            'image_url': course_run.card_image_url,
             'type': course_run.type,
             'level_type': course_run.level_type.name,
             'availability': course_run.availability,
