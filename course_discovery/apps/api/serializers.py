@@ -13,7 +13,7 @@ from course_discovery.apps.api.fields import StdImageSerializerField, ImageField
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Image, Organization, Person, Prerequisite, Seat, Subject, Video, Program, ProgramType, FAQ,
-    CorporateEndorsement, Endorsement
+    CorporateEndorsement, Endorsement, Position
 )
 from course_discovery.apps.course_metadata.search_indexes import CourseIndex, CourseRunIndex, ProgramIndex
 
@@ -104,11 +104,12 @@ class FAQSerializer(serializers.ModelSerializer):
         fields = ('question', 'answer',)
 
 
-class SubjectSerializer(NamedModelSerializer):
+class SubjectSerializer(serializers.ModelSerializer):
     """Serializer for the ``Subject`` model."""
 
-    class Meta(NamedModelSerializer.Meta):
+    class Meta(object):
         model = Subject
+        fields = ('name', 'subtitle', 'description', 'banner_image_url', 'card_image_url', 'slug',)
 
 
 class PrerequisiteSerializer(NamedModelSerializer):
@@ -143,12 +144,21 @@ class VideoSerializer(MediaSerializer):
         fields = ('src', 'description', 'image',)
 
 
+class PositionSerializer(serializers.ModelSerializer):
+    """Serializer for the ``Position`` model."""
+
+    class Meta(object):
+        model = Position
+        fields = ('title', 'organization_name',)
+
+
 class PersonSerializer(serializers.ModelSerializer):
     """Serializer for the ``Person`` model."""
+    position = PositionSerializer()
 
     class Meta(object):
         model = Person
-        fields = ('uuid', 'given_name', 'family_name', 'bio', 'profile_image_url', 'slug',)
+        fields = ('uuid', 'given_name', 'family_name', 'bio', 'profile_image_url', 'slug', 'position')
 
 
 class EndorsementSerializer(serializers.ModelSerializer):
@@ -195,7 +205,7 @@ class OrganizationSerializer(TaggitSerializer, serializers.ModelSerializer):
 
     class Meta(object):
         model = Organization
-        fields = ('key', 'name', 'description', 'homepage_url', 'tags',)
+        fields = ('key', 'name', 'description', 'homepage_url', 'tags', 'logo_image_url')
 
 
 class CatalogSerializer(serializers.ModelSerializer):
