@@ -632,11 +632,17 @@ class Program(TimeStampedModel):
         return set(subjects)
 
     @property
-    def price_ranges(self):
+    def seats(self):
         applicable_seat_types = self.type.applicable_seat_types.values_list('slug', flat=True)
-        seats = Seat.objects.filter(course_run__in=self.course_runs, type__in=applicable_seat_types) \
-            .values('currency') \
-            .annotate(models.Min('price'), models.Max('price'))
+        return Seat.objects.filter(course_run__in=self.course_runs, type__in=applicable_seat_types)
+
+    @property
+    def seat_types(self):
+        return set(self.seats.values_list('type', flat=True))
+
+    @property
+    def price_ranges(self):
+        seats = self.seats.values('currency').annotate(models.Min('price'), models.Max('price'))
         price_ranges = []
 
         for seat in seats:
