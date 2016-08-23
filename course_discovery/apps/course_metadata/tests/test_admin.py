@@ -1,9 +1,12 @@
 import ddt
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from course_discovery.apps.course_metadata.forms import ProgramAdminForm
+from course_discovery.apps.course_metadata.models import Program
 
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
+from course_discovery.apps.core.tests.helpers import make_image_file
 
 
 # pylint: disable=no-member
@@ -101,3 +104,52 @@ class AdminTests(TestCase):
         self.assertEqual(4, len(self.program.course_runs.all()))
         response = self.client.get(reverse('admin_metadata:update_course_runs', args=(self.program.id,)))
         self.assertNotContains(response, '<input checked="checked")')
+
+    def test_program_without_image_and_active_status(self):
+        """ Verify that new program cannot be added without `image` and active status together."""
+        data = self._post_data(Program.ProgramStatus.Active)
+        form = ProgramAdminForm(data, {'banner_image': ''})
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors['__all__'], ['Status cannot be change to active without banner image.'])
+        with self.assertRaises(ValueError):
+            form.save()
+
+    @ddt.data(
+        Program.ProgramStatus.Deleted,
+        Program.ProgramStatus.Retired,
+        Program.ProgramStatus.Unpublished
+    )
+    def test_program_without_image_and_non_active_status(self, status):
+        """ Verify that new program can be added without `image` and non-active
+        status using admin form.
+        """
+        data = self._post_data(status)
+        data['status'] = status
+        self.valid_post_form(data, {'banner_image': ''})
+
+    @ddt.data(
+        Program.ProgramStatus.Deleted,
+        Program.ProgramStatus.Retired,
+        Program.ProgramStatus.Unpublished,
+        Program.ProgramStatus.Active
+    )
+    def test_program_with_image(self, status):
+        """ Verify that new program can be added with `image` and any status."""
+        data = self._post_data(status)
+        data['status'] = status
+        self.valid_post_form(data, {'banner_image': make_image_file('test_banner.jpg')})
+
+    def _post_data(self, status):
+        return {
+            'title': 'some test title',
+            'courses': [self.courses[0].id],
+            'type': self.program.type.id,
+            'status': status
+        }
+
+    def valid_post_form(self, data, file_data):
+        form = ProgramAdminForm(data, file_data)
+        self.assertTrue(form.is_valid())
+        program = form.save()
+        response = self.client.get(reverse('admin:course_metadata_program_change', args=(program.id,)))
+        self.assertEqual(response.status_code, 200)
