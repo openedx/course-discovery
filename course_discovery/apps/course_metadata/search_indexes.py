@@ -150,6 +150,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     card_image_url = indexes.CharField(model_attr='card_image_url', null=True)
     status = indexes.CharField(model_attr='status', faceted=True)
     partner = indexes.CharField(model_attr='partner__short_code', null=True, faceted=True)
+    start = indexes.DateTimeField(model_attr='start', null=True, faceted=True)
 
     def prepare_organizations(self, obj):
         return self.prepare_authoring_organizations(obj) + self.prepare_credit_backing_organizations(obj)

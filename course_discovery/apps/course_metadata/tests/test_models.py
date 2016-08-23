@@ -11,12 +11,13 @@ from django.test import TestCase
 from freezegun import freeze_time
 
 from course_discovery.apps.core.models import Currency
+from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.models import (
     AbstractNamedModel, AbstractMediaModel, AbstractValueModel, Course, CourseRun, SeatType,
 )
 from course_discovery.apps.course_metadata.tests import factories
-from course_discovery.apps.core.tests.helpers import make_image_file
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
@@ -310,8 +311,19 @@ class ProgramTests(TestCase):
         self.assertEqual(actual_subjects, expected_subjects)
 
     def test_start(self):
+        """ Verify the property returns the minimum start date for the course runs associated with the
+        program's courses. """
         expected_start = min([course_run.start for course_run in self.course_runs])
         self.assertEqual(self.program.start, expected_start)
+
+        # Verify start is None for programs with no courses.
+        self.program.courses.clear()
+        self.assertIsNone(self.program.start)
+
+        # Verify start is None if no course runs have a start date.
+        course_run = CourseRunFactory(start=None)
+        self.program.courses.add(course_run.course)
+        self.assertIsNone(self.program.start)
 
     def test_price_ranges(self):
         currency = Currency.objects.get(code='USD')

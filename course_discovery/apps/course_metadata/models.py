@@ -650,9 +650,15 @@ class Program(TimeStampedModel):
     @property
     def start(self):
         """ Start datetime, calculated by determining the earliest start datetime of all related course runs. """
-        if len(self.course_runs) == 0:
-            return None
-        return min([course_run.start for course_run in self.course_runs])
+        course_runs = self.course_runs
+
+        if course_runs:
+            start_dates = [course_run.start for course_run in self.course_runs if course_run.start]
+
+            if start_dates:
+                return min(start_dates)
+
+        return None
 
     @property
     def staff(self):
