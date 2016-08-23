@@ -33,6 +33,7 @@ COURSE_RUN_FACET_FIELD_OPTIONS = {
     'pacing_type': {},
     'content_type': {},
     'type': {},
+    'seat_types': {},
 }
 
 COURSE_RUN_FACET_FIELD_QUERIES = {
@@ -51,6 +52,7 @@ PROGRAM_FACET_FIELD_OPTIONS = {
     'category': {},
     'status': {},
     'type': {},
+    'seat_types': {},
 }
 
 BASE_PROGRAM_FIELDS = (

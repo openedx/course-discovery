@@ -151,6 +151,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     status = indexes.CharField(model_attr='status', faceted=True)
     partner = indexes.CharField(model_attr='partner__short_code', null=True, faceted=True)
     start = indexes.DateTimeField(model_attr='start', null=True, faceted=True)
+    seat_types = indexes.MultiValueField(model_attr='seat_types', null=True, faceted=True)
 
     def prepare_organizations(self, obj):
         return self.prepare_authoring_organizations(obj) + self.prepare_credit_backing_organizations(obj)

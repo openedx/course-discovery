@@ -262,6 +262,19 @@ class ProgramTests(TestCase):
         self.excluded_course_run = factories.CourseRunFactory(course=self.courses[0])
         self.program = factories.ProgramFactory(courses=self.courses, excluded_course_runs=[self.excluded_course_run])
 
+    def create_program_with_seats(self):
+        currency = Currency.objects.get(code='USD')
+
+        course_run = factories.CourseRunFactory()
+        factories.SeatFactory(type='audit', currency=currency, course_run=course_run, price=0)
+        factories.SeatFactory(type='credit', currency=currency, course_run=course_run, price=600)
+        factories.SeatFactory(type='verified', currency=currency, course_run=course_run, price=100)
+
+        applicable_seat_types = SeatType.objects.filter(slug__in=['credit', 'verified'])
+        program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
+
+        return factories.ProgramFactory(type=program_type, courses=[course_run.course])
+
     def test_str(self):
         """Verify that a program is properly converted to a str."""
         self.assertEqual(str(self.program), self.program.title)
@@ -326,14 +339,7 @@ class ProgramTests(TestCase):
         self.assertIsNone(self.program.start)
 
     def test_price_ranges(self):
-        currency = Currency.objects.get(code='USD')
-        course_run = factories.CourseRunFactory()
-        factories.SeatFactory(type='audit', currency=currency, course_run=course_run, price=0)
-        factories.SeatFactory(type='credit', currency=currency, course_run=course_run, price=600)
-        factories.SeatFactory(type='verified', currency=currency, course_run=course_run, price=100)
-        applicable_seat_types = SeatType.objects.filter(slug__in=['credit', 'verified'])
-        program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
-        program = factories.ProgramFactory(type=program_type, courses=[course_run.course])
+        program = self.create_program_with_seats()
 
         expected_price_ranges = [{'currency': 'USD', 'min': Decimal(100), 'max': Decimal(600)}]
         self.assertEqual(program.price_ranges, expected_price_ranges)
@@ -356,6 +362,10 @@ class ProgramTests(TestCase):
             sized_file = getattr(self.program.banner_image, size_key, None)
             self.assertIsNotNone(sized_file)
             self.assertIn(image_url_prefix, sized_file.url)
+
+    def test_seat_types(self):
+        program = self.create_program_with_seats()
+        self.assertEqual(program.seat_types, set(['credit', 'verified']))
 
 
 class PersonSocialNetworkTests(TestCase):
