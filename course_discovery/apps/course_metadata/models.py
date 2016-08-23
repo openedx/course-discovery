@@ -617,7 +617,7 @@ class Program(TimeStampedModel):
 
     @property
     def languages(self):
-        return set([course_run.language for course_run in self.course_runs])
+        return set(course_run.language for course_run in self.course_runs if course_run.language is not None)
 
     @property
     def transcript_languages(self):
@@ -650,6 +650,8 @@ class Program(TimeStampedModel):
     @property
     def start(self):
         """ Start datetime, calculated by determining the earliest start datetime of all related course runs. """
+        if len(self.course_runs) == 0:
+            return None
         return min([course_run.start for course_run in self.course_runs])
 
     @property

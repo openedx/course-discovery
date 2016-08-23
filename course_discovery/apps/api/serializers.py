@@ -12,7 +12,8 @@ from taggit_serializer.serializers import TagListSerializerField, TaggitSerializ
 from course_discovery.apps.api.fields import StdImageSerializerField, ImageField
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Image, Organization, Person, Prerequisite, Seat, Subject, Video, Program, ProgramType,
+    Course, CourseRun, Image, Organization, Person, Prerequisite, Seat, Subject, Video, Program, ProgramType, FAQ,
+    CorporateEndorsement, Endorsement
 )
 from course_discovery.apps.course_metadata.search_indexes import CourseIndex, CourseRunIndex, ProgramIndex
 
@@ -92,6 +93,14 @@ class NamedModelSerializer(serializers.ModelSerializer):
         fields = ('name',)
 
 
+class FAQSerializer(serializers.ModelSerializer):
+    """Serializer for the ``FAQ`` model."""
+
+    class Meta(object):
+        model = FAQ
+        fields = ('question', 'answer',)
+
+
 class SubjectSerializer(NamedModelSerializer):
     """Serializer for the ``Subject`` model."""
 
@@ -131,6 +140,33 @@ class VideoSerializer(MediaSerializer):
         fields = ('src', 'description', 'image',)
 
 
+class PersonSerializer(serializers.ModelSerializer):
+    """Serializer for the ``Person`` model."""
+
+    class Meta(object):
+        model = Person
+        fields = ('uuid', 'given_name', 'family_name', 'bio', 'profile_image_url', 'slug',)
+
+
+class EndorsementSerializer(serializers.ModelSerializer):
+    """Serializer for the ``Endorsement`` model."""
+    endorser = PersonSerializer()
+
+    class Meta(object):
+        model = Endorsement
+        fields = ('endorser', 'quote',)
+
+
+class CorporateEndorsementSerializer(serializers.ModelSerializer):
+    """Serializer for the ``CorporateEndorsement`` model."""
+    image = ImageSerializer()
+    individual_endorsements = EndorsementSerializer(many=True)
+
+    class Meta(object):
+        model = CorporateEndorsement
+        fields = ('corporation_name', 'statement', 'image', 'individual_endorsements',)
+
+
 class SeatSerializer(serializers.ModelSerializer):
     """Serializer for the ``Seat`` model."""
     type = serializers.ChoiceField(
@@ -148,14 +184,6 @@ class SeatSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = Seat
         fields = ('type', 'price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours',)
-
-
-class PersonSerializer(serializers.ModelSerializer):
-    """Serializer for the ``Person`` model."""
-
-    class Meta(object):
-        model = Person
-        fields = ('uuid', 'given_name', 'family_name', 'bio', 'profile_image_url', 'slug',)
 
 
 class OrganizationSerializer(TaggitSerializer, serializers.ModelSerializer):
@@ -317,6 +345,23 @@ class ProgramSerializer(serializers.ModelSerializer):
     authoring_organizations = OrganizationSerializer(many=True)
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
     banner_image = StdImageSerializerField()
+    video = VideoSerializer()
+    expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
+    faq = FAQSerializer(many=True)
+    credit_backing_organizations = OrganizationSerializer(many=True)
+    corporate_endorsements = CorporateEndorsementSerializer(many=True)
+    job_outlook_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
+    individual_endorsements = EndorsementSerializer(many=True)
+    languages = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field='code',
+        help_text=_('Languages that course runs in this program are offered in.'),
+    )
+    transcript_languages = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field='code',
+        help_text=_('Languages that course runs in this program have available transcripts in.'),
+    )
+    subjects = SubjectSerializer(many=True)
+    staff = PersonSerializer(many=True)
 
     def get_courses(self, program):
         course_serializer = ProgramCourseSerializer(
@@ -331,9 +376,14 @@ class ProgramSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Program
-        fields = ('uuid', 'title', 'subtitle', 'type', 'marketing_slug', 'marketing_url', 'card_image_url',
-                  'banner_image', 'banner_image_url', 'authoring_organizations', 'credit_redemption_overview',
-                  'courses',)
+        fields = (
+            'uuid', 'title', 'subtitle', 'type', 'status', 'marketing_slug', 'marketing_url', 'courses',
+            'overview', 'weeks_to_complete', 'min_hours_effort_per_week', 'max_hours_effort_per_week',
+            'authoring_organizations', 'banner_image', 'banner_image_url', 'card_image_url', 'video',
+            'expected_learning_items', 'faq', 'credit_backing_organizations', 'corporate_endorsements',
+            'job_outlook_items', 'individual_endorsements', 'languages', 'transcript_languages', 'subjects',
+            'price_ranges', 'staff', 'credit_redemption_overview'
+        )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 
 
