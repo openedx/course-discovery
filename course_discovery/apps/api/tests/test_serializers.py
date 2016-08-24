@@ -14,7 +14,7 @@ from course_discovery.apps.api.serializers import (
     PersonSerializer, AffiliateWindowSerializer, ContainedCourseRunsSerializer, CourseRunSearchSerializer,
     ProgramSerializer, ProgramSearchSerializer, ProgramCourseSerializer, NestedProgramSerializer,
     CourseRunWithProgramsSerializer, CourseWithProgramsSerializer, CorporateEndorsementSerializer,
-    FAQSerializer, EndorsementSerializer
+    FAQSerializer, EndorsementSerializer, PositionSerializer
 )
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import User
@@ -24,7 +24,7 @@ from course_discovery.apps.course_metadata.models import CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, SubjectFactory, PrerequisiteFactory, ImageFactory, VideoFactory,
     OrganizationFactory, PersonFactory, SeatFactory, ProgramFactory, CorporateEndorsementFactory, EndorsementFactory,
-    JobOutlookItemFactory, ExpectedLearningItemFactory
+    JobOutlookItemFactory, ExpectedLearningItemFactory, PositionFactory
 )
 
 
@@ -386,7 +386,6 @@ class ContainedCoursesSerializerTests(TestCase):
 @ddt.ddt
 class NamedModelSerializerTests(TestCase):
     @ddt.data(
-        (SubjectFactory, SubjectSerializer),
         (PrerequisiteFactory, PrerequisiteSerializer),
     )
     @ddt.unpack
@@ -396,6 +395,23 @@ class NamedModelSerializerTests(TestCase):
 
         expected = {
             'name': link_object.name
+        }
+
+        self.assertDictEqual(serializer.data, expected)
+
+
+class SubjectSerializerTests(TestCase):
+    def test_data(self):
+        subject = SubjectFactory()
+        serializer = SubjectSerializer(subject)
+
+        expected = {
+            'name': subject.name,
+            'description': subject.description,
+            'banner_image_url': subject.banner_image_url,
+            'card_image_url': subject.card_image_url,
+            'subtitle': subject.subtitle,
+            'slug': subject.slug,
         }
 
         self.assertDictEqual(serializer.data, expected)
@@ -477,6 +493,7 @@ class OrganizationSerializerTests(TestCase):
             'name': organization.name,
             'description': organization.description,
             'homepage_url': organization.homepage_url,
+            'logo_image_url': organization.logo_image_url,
             'tags': [TAG],
         }
 
@@ -503,7 +520,8 @@ class SeatSerializerTests(TestCase):
 
 class PersonSerializerTests(TestCase):
     def test_data(self):
-        person = PersonFactory()
+        position = PositionFactory()
+        person = position.person
         serializer = PersonSerializer(person)
 
         expected = {
@@ -512,7 +530,21 @@ class PersonSerializerTests(TestCase):
             'family_name': person.family_name,
             'bio': person.bio,
             'profile_image_url': person.profile_image_url,
+            'position': PositionSerializer(position).data,
             'slug': person.slug,
+        }
+
+        self.assertDictEqual(serializer.data, expected)
+
+
+class PositionSerializerTests(TestCase):
+    def test_data(self):
+        position = PositionFactory()
+        serializer = PositionSerializer(position)
+
+        expected = {
+            'title': str(position.title),
+            'organization_name': position.organization_name,
         }
 
         self.assertDictEqual(serializer.data, expected)
