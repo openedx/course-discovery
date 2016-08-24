@@ -1,6 +1,9 @@
 from django.contrib import admin
-from simple_history.admin import SimpleHistoryAdmin
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 
+from simple_history.admin import SimpleHistoryAdmin
+from course_discovery.apps.course_metadata.forms import ProgramAdminForm
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 
 
@@ -12,6 +15,27 @@ class SeatInline(admin.TabularInline):
 class PositionInline(admin.TabularInline):
     model = Position
     extra = 0
+
+
+class FaqsInline(admin.TabularInline):
+    model = Program.faq.through
+    exclude = ('sort_value',)
+    extra = 1
+    verbose_name_plural = 'Faqs'
+
+
+class IndividualEndorsementInline(admin.TabularInline):
+    model = Program.individual_endorsements.through
+    exclude = ('sort_value',)
+    extra = 1
+    verbose_name_plural = 'Individual Endorsement'
+
+
+class CorporateEndorsementsInline(admin.TabularInline):
+    model = Program.corporate_endorsements.through
+    exclude = ('sort_value',)
+    extra = 1
+    verbose_name_plural = 'Corporate Endorsement'
 
 
 @admin.register(Course)
@@ -38,11 +62,34 @@ class CourseRunAdmin(admin.ModelAdmin):
 
 @admin.register(Program)
 class ProgramAdmin(admin.ModelAdmin):
-    list_display = ('uuid', 'title', 'marketing_slug', 'type',)
+    form = ProgramAdminForm
+    inlines = [FaqsInline, IndividualEndorsementInline, CorporateEndorsementsInline]
+    list_display = ('id', 'uuid', 'title', 'category', 'type', 'partner', 'status',)
     list_filter = ('partner', 'type',)
-    ordering = ('uuid', 'title',)
-    readonly_fields = ('uuid',)
+    ordering = ('uuid', 'title', 'status')
+    readonly_fields = ('uuid', 'course_runs', 'excluded_course_runs',)
+
     search_fields = ('uuid', 'title', 'marketing_slug')
+
+    filter_horizontal = ('job_outlook_items', 'expected_learning_items', 'credit_backing_organizations',)
+
+    # ordering the field display on admin page.
+    fields = (
+        'title', 'status', 'banner_image_url', 'card_image_url', 'overview', 'video',
+    )
+    fields += (
+        'courses', 'course_runs', 'excluded_course_runs'
+    )
+    fields += filter_horizontal
+
+    def response_add(self, request, obj, post_url_continue=None):
+        return HttpResponseRedirect(reverse('admin_metadata:update_course_runs', kwargs={'pk': obj.pk}))
+
+    def response_change(self, request, obj):
+        if '_continue'in request.POST or '_save' in request.POST:
+            return HttpResponseRedirect(reverse('admin_metadata:update_course_runs', kwargs={'pk': obj.pk}))
+        else:
+            return HttpResponseRedirect(reverse('admin:course_metadata_program_add'))
 
 
 @admin.register(ProgramType)
