@@ -148,6 +148,7 @@ class OrganizationFactory(factory.DjangoModelFactory):
     logo_image_url = FuzzyURL()
     banner_image_url = FuzzyURL()
     partner = factory.SubFactory(PartnerFactory)
+    marketing_url_path = FuzzyText()
 
     class Meta:
         model = Organization

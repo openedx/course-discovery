@@ -166,10 +166,25 @@ class CourseRunTests(TestCase):
 class OrganizationTests(TestCase):
     """ Tests for the `Organization` model. """
 
+    def setUp(self):
+        super(OrganizationTests, self).setUp()
+        self.organization = factories.OrganizationFactory()
+
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the key and name. """
-        organization = factories.OrganizationFactory()
-        self.assertEqual(str(organization), '{key}: {name}'.format(key=organization.key, name=organization.name))
+        self.assertEqual(str(self.organization), '{key}: {name}'.format(key=self.organization.key,
+                                                                        name=self.organization.name))
+
+    def test_marketing_url(self):
+        """ Verify the property creates a complete marketing URL. """
+        expected = '{root}/{slug}'.format(root=self.organization.partner.marketing_site_url_root.strip('/'),
+                                          slug=self.organization.marketing_url_path)
+        self.assertEqual(self.organization.marketing_url, expected)
+
+    def test_marketing_url_without_marketing_url_path(self):
+        """ Verify the property returns None if the Organization has no marketing_url_path set. """
+        self.organization.marketing_url_path = ''
+        self.assertIsNone(self.organization.marketing_url)
 
 
 class PersonTests(TestCase):
