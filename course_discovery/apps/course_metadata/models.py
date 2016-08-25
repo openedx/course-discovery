@@ -167,6 +167,13 @@ class Organization(TimeStampedModel):
     def __str__(self):
         return '{key}: {name}'.format(key=self.key, name=self.name)
 
+    @property
+    def marketing_url(self):
+        if self.marketing_url_path:
+            return urljoin(self.partner.marketing_site_url_root, self.marketing_url_path)
+
+        return None
+
 
 class Person(TimeStampedModel):
     """ Person model. """

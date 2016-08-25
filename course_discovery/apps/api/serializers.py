@@ -205,7 +205,7 @@ class OrganizationSerializer(TaggitSerializer, serializers.ModelSerializer):
 
     class Meta(object):
         model = Organization
-        fields = ('key', 'name', 'description', 'homepage_url', 'tags', 'logo_image_url')
+        fields = ('key', 'name', 'description', 'homepage_url', 'tags', 'logo_image_url', 'marketing_url')
 
 
 class CatalogSerializer(serializers.ModelSerializer):

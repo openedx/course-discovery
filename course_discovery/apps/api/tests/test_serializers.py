@@ -495,6 +495,7 @@ class OrganizationSerializerTests(TestCase):
             'homepage_url': organization.homepage_url,
             'logo_image_url': organization.logo_image_url,
             'tags': [TAG],
+            'marketing_url': organization.marketing_url,
         }
 
         self.assertDictEqual(serializer.data, expected)
