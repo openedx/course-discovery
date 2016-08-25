@@ -48,6 +48,7 @@ THIRD_PARTY_APPS = [
     'django_comments',
     'taggit',
     'taggit_serializer',
+    'solo',
 ]
 
 PROJECT_APPS = [
