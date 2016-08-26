@@ -1,5 +1,7 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from django.forms.util import ErrorList
+from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.course_metadata.models import Program, CourseRun
 
@@ -11,12 +13,19 @@ class ProgramAdminForm(forms.ModelForm):
         exclude = (
             'subtitle', 'category', 'marketing_slug', 'weeks_to_complete',
             'min_hours_effort_per_week', 'max_hours_effort_per_week',
-            'authoring_organizations',
+            'partner',
         )
 
     def __init__(self, *args, **kwargs):
         super(ProgramAdminForm, self).__init__(*args, **kwargs)
         self.fields['type'].required = True
+
+    def clean(self):
+        status = self.cleaned_data.get('status')
+        banner_image = self.cleaned_data.get('banner_image')
+        if status == Program.ProgramStatus.Active and not banner_image:
+            raise ValidationError(_('Status cannot be change to active without banner image.'))
+        return self.cleaned_data
 
 
 class CourseRunSelectionForm(forms.ModelForm):
