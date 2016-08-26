@@ -355,14 +355,17 @@ class CourseRun(TimeStampedModel):
     syllabus = models.ForeignKey(SyllabusItem, default=None, null=True, blank=True)
     card_image_url = models.URLField(null=True, blank=True)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
-    slug = AutoSlugField(populate_from='key', editable=True)
+    slug = models.CharField(max_length=255, blank=True, null=True, db_index=True)
 
     history = HistoricalRecords()
 
     @property
     def marketing_url(self):
-        path = 'course/{slug}'.format(slug=self.slug)
-        return urljoin(self.course.partner.marketing_site_url_root, path)
+        if self.slug:
+            path = 'course/{slug}'.format(slug=self.slug)
+            return urljoin(self.course.partner.marketing_site_url_root, path)
+
+        return None
 
     @property
     def title(self):
