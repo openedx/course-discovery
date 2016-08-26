@@ -11,6 +11,7 @@ from django.test import TestCase
 from freezegun import freeze_time
 
 from course_discovery.apps.core.models import Currency
+from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.models import (
     AbstractMediaModel, AbstractNamedModel, AbstractValueModel,
@@ -18,7 +19,6 @@ from course_discovery.apps.course_metadata.models import (
     FAQ, SeatType
 )
 from course_discovery.apps.course_metadata.tests import factories
-from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ImageFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -161,6 +161,18 @@ class CourseRunTests(TestCase):
             end = parse(end)
         course_run = factories.CourseRunFactory(start=start, end=end)
         self.assertEqual(course_run.availability, expected_availability)
+
+    def test_marketing_url(self):
+        """ Verify the property constructs a marketing URL based on the marketing slug. """
+        expected = '{root}/course/{slug}'.format(root=self.course_run.course.partner.marketing_site_url_root.strip('/'),
+                                                 slug=self.course_run.slug)
+        self.assertEqual(self.course_run.marketing_url, expected)
+
+    @ddt.data(None, '')
+    def test_marketing_url_with_empty_marketing_slug(self, slug):
+        """ Verify the property returns None if the CourseRun has no marketing_slug value. """
+        course_run = CourseRunFactory(slug=slug)
+        self.assertIsNone(course_run.marketing_url)
 
 
 class OrganizationTests(TestCase):
@@ -449,6 +461,7 @@ class ProgramTypeTests(TestCase):
 
 class EndorsementTests(TestCase):
     """ Tests of the Endorsement model. """
+
     def setUp(self):
         super(EndorsementTests, self).setUp()
         self.person = factories.PersonFactory()
@@ -463,6 +476,7 @@ class EndorsementTests(TestCase):
 
 class CorporateEndorsementTests(TestCase):
     """ Tests of the CorporateEndorsement model. """
+
     def setUp(self):
         super(CorporateEndorsementTests, self).setUp()
         self.corporation_name = 'test org'
@@ -478,6 +492,7 @@ class CorporateEndorsementTests(TestCase):
 
 class FAQTests(TestCase):
     """ Tests of the FAQ model. """
+
     def test_str(self):
         question = 'test question'
         faq = FAQ.objects.create(question=question, answer='test')

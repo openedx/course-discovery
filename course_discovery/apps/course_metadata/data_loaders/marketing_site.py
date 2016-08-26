@@ -400,17 +400,11 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         }
 
         try:
-            course_run, created = CourseRun.objects.update_or_create(key__iexact=key, defaults=defaults)
+            course_run, __ = CourseRun.objects.update_or_create(key__iexact=key, defaults=defaults)
         except TypeError:
             # TODO Fix the data in Drupal (ECOM-5304)
             logger.error('Multiple course runs are identified by the key [%s] or UUID [%s].', key, uuid)
             return None
-
-        # NOTE (CCB): The AutoSlug field kicks in at creation time. We need to apply overrides in a separate
-        # operation.
-        if created:
-            course_run.slug = slug
-            course_run.save()
 
         self.set_course_run_staff(course_run, data)
         self.set_course_run_transcript_languages(course_run, data)

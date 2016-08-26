@@ -123,7 +123,7 @@ class CourseRunFactory(factory.DjangoModelFactory):
     min_effort = FuzzyInteger(1, 10)
     max_effort = FuzzyInteger(10, 20)
     pacing_type = FuzzyChoice([name for name, __ in CourseRun.PACING_CHOICES])
-    marketing_url = FuzzyText(prefix='https://example.com/test-course-url')
+    slug = FuzzyText()
 
     @factory.post_generation
     def staff(self, create, extracted, **kwargs):
