@@ -396,6 +396,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'uuid': uuid,
             'language': language,
             'slug': slug,
+            'card_image_url': self._get_nested_url(data.get('field_course_image_promoted')),
         }
 
         try:

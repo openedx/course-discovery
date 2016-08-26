@@ -416,6 +416,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
             'key': data['field_course_id'],
             'language': language,
             'slug': data['url'].split('/')[-1],
+            'card_image_url': (data.get('field_course_image_promoted') or {}).get('url'),
         }
 
         for field, value in expected_values.items():
