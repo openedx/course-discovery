@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.forms.util import ErrorList
 from django.utils.translation import ugettext_lazy as _
 
+from dal import autocomplete
 from course_discovery.apps.course_metadata.models import Program, CourseRun
 
 
@@ -13,12 +14,38 @@ class ProgramAdminForm(forms.ModelForm):
         exclude = (
             'subtitle', 'category', 'marketing_slug', 'weeks_to_complete',
             'min_hours_effort_per_week', 'max_hours_effort_per_week',
-            'partner',
         )
+        widgets = {
+            'courses': autocomplete.ModelSelect2Multiple(
+                url='admin_metadata:course-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 3,
+                },
+            ),
+            'authoring_organizations': autocomplete.ModelSelect2Multiple(
+                url='admin_metadata:organisation-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 3,
+                }
+            ),
+            'credit_backing_organizations': autocomplete.ModelSelect2Multiple(
+                url='admin_metadata:organisation-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 3,
+                }
+            ),
+            'video': autocomplete.ModelSelect2(
+                url='admin_metadata:video-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 3,
+                }
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         super(ProgramAdminForm, self).__init__(*args, **kwargs)
         self.fields['type'].required = True
+        self.fields['courses'].required = False
 
     def clean(self):
         status = self.cleaned_data.get('status')
