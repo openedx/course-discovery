@@ -1,14 +1,13 @@
+from dal import autocomplete
 from django import forms
 from django.core.exceptions import ValidationError
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _
 
-from dal import autocomplete
 from course_discovery.apps.course_metadata.models import Program, CourseRun
 
 
 class ProgramAdminForm(forms.ModelForm):
-
     class Meta:
         model = Program
         exclude = (
@@ -56,7 +55,6 @@ class ProgramAdminForm(forms.ModelForm):
 
 
 class CourseRunSelectionForm(forms.ModelForm):
-
     class Meta:
         model = Program
         fields = ('excluded_course_runs',)
