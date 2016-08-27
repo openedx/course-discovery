@@ -23,6 +23,9 @@
             <a href="{% url 'admin:course_metadata_program_changelist' %}">
                 <input type="button" name="Cancel" value="{% trans 'Cancel' %}">
             </a>
+            <a  href="{% url 'admin:course_metadata_program_change' program_id %}">
+                <input type="button" name="Back" value="{% trans 'Back to Program' %}">
+            </a>
             <input type="submit" value="{% trans 'Save Course Run' %}" class="default" name="_save" />
         </div>
     {% endblock %}

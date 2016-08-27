@@ -34,6 +34,8 @@ class AdminTests(TestCase):
         """ Verify that course selection page loads successfully. """
         response = self.client.get(reverse('admin_metadata:update_course_runs', args=(self.program.id,)))
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, reverse('admin:course_metadata_program_change', args=(self.program.id,)))
+        self.assertContains(response, reverse('admin:course_metadata_program_changelist'))
 
     def test_custom_course_selection_page_with_invalid_id(self):
         """ Verify that course selection page will return 404 for invalid program id. """

@@ -24,7 +24,9 @@ class CourseRunSelectionAdmin(UpdateView):
 
     def get_context_data(self, **kwargs):
         if self.request.user.is_authenticated() and self.request.user.is_staff:
-            return super(CourseRunSelectionAdmin, self).get_context_data(**kwargs)
+            context = super(CourseRunSelectionAdmin, self).get_context_data(**kwargs)
+            context['program_id'] = self.object.id
+            return context
         raise Http404
 
     def form_valid(self, form):
