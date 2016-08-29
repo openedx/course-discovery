@@ -52,6 +52,7 @@ class AbstractMarketingSiteDataLoader(AbstractDataLoader):
             'type': self.node_type,
             'max-depth': 2,
             'load-entity-refs': 'file',
+            'status': '1',
         }
 
     def ingest(self):
