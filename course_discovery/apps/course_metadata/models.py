@@ -18,7 +18,7 @@ from stdimage.models import StdImageField
 from taggit.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, Partner
-from course_discovery.apps.course_metadata.query import CourseQuerySet
+from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.course_metadata.utils import clean_query
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -358,6 +358,7 @@ class CourseRun(TimeStampedModel):
     slug = models.CharField(max_length=255, blank=True, null=True, db_index=True)
 
     history = HistoricalRecords()
+    objects = CourseRunQuerySet.as_manager()
 
     @property
     def marketing_url(self):
@@ -602,7 +603,8 @@ class Program(TimeStampedModel):
             'large': (1440, 480),
             'medium': (726, 242),
             'small': (435, 145),
-            'x-small': (348, 116)}
+            'x-small': (348, 116),
+        }
     )
     banner_image_url = models.URLField(null=True, blank=True, help_text=_('Image used atop detail pages'))
     card_image_url = models.URLField(null=True, blank=True, help_text=_('Image used for discovery cards'))
@@ -620,6 +622,8 @@ class Program(TimeStampedModel):
         help_text=_('The description of credit redemption for courses in program'),
         blank=True, null=True
     )
+
+    objects = ProgramQuerySet.as_manager()
 
     def __str__(self):
         return self.title

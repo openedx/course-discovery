@@ -1,9 +1,7 @@
-import datetime
 import itertools
 from decimal import Decimal
 
 import ddt
-import pytz
 from dateutil.parser import parse
 from django.conf import settings
 from django.db import IntegrityError
@@ -36,31 +34,6 @@ class CourseTests(TestCase):
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the key and title. """
         self.assertEqual(str(self.course), '{key}: {title}'.format(key=self.course.key, title=self.course.title))
-
-    def test_active_course_runs(self):
-        """ Verify the property returns only course runs currently open for enrollment or opening in the future. """
-        self.assertListEqual(list(self.course.active_course_runs), [])
-
-        # Create course with end date in future and enrollment_end in past.
-        end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=2)
-        enrollment_end = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1)
-        factories.CourseRunFactory(course=self.course, end=end, enrollment_end=enrollment_end)
-
-        # Create course with end date in past and no enrollment_end.
-        end = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=2)
-        factories.CourseRunFactory(course=self.course, end=end, enrollment_end=None)
-
-        self.assertListEqual(list(self.course.active_course_runs), [])
-
-        # Create course with end date in future and enrollment_end in future.
-        end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=2)
-        enrollment_end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
-        active_enrollment_end = factories.CourseRunFactory(course=self.course, end=end, enrollment_end=enrollment_end)
-
-        # Create course with end date in future and no enrollment_end.
-        active_no_enrollment_end = factories.CourseRunFactory(course=self.course, end=end, enrollment_end=None)
-
-        self.assertEqual(set(self.course.active_course_runs), {active_enrollment_end, active_no_enrollment_end})
 
     def test_search(self):
         """ Verify the method returns a filtered queryset of courses. """

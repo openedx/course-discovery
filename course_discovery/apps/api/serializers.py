@@ -281,7 +281,7 @@ class CourseRunWithProgramsSerializer(CourseRunSerializer):
 
     class Meta(CourseRunSerializer.Meta):
         model = CourseRun
-        fields = CourseRunSerializer.Meta.fields + ('programs', )
+        fields = CourseRunSerializer.Meta.fields + ('programs',)
 
 
 class ContainedCourseRunsSerializer(serializers.Serializer):
@@ -323,12 +323,15 @@ class CourseWithProgramsSerializer(CourseSerializer):
 
     class Meta(CourseSerializer.Meta):
         model = Course
-        fields = CourseSerializer.Meta.fields + ('programs', )
+        fields = CourseSerializer.Meta.fields + ('programs',)
 
 
 class CourseSerializerExcludingClosedRuns(CourseSerializer):
     """A ``CourseSerializer`` which only includes active course runs, as determined by ``CourseQuerySet``."""
-    course_runs = CourseRunSerializer(many=True, source='active_course_runs')
+    course_runs = serializers.SerializerMethodField()
+
+    def get_course_runs(self, course):
+        return CourseRunSerializer(course.course_runs.active().marketable(), many=True, context=self.context).data
 
 
 class ContainedCoursesSerializer(serializers.Serializer):
