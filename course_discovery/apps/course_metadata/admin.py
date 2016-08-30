@@ -67,7 +67,7 @@ class ProgramAdmin(admin.ModelAdmin):
     list_display = ('id', 'uuid', 'title', 'category', 'type', 'partner', 'status',)
     list_filter = ('partner', 'type',)
     ordering = ('uuid', 'title', 'status')
-    readonly_fields = ('uuid', 'course_runs', 'excluded_course_runs',)
+    readonly_fields = ('uuid', 'custom_course_runs_display', 'excluded_course_runs',)
 
     search_fields = ('uuid', 'title', 'marketing_slug')
 
@@ -79,10 +79,15 @@ class ProgramAdmin(admin.ModelAdmin):
         'banner_image_url', 'card_image_url', 'overview', 'video',
     )
     fields += (
-        'courses', 'course_runs', 'excluded_course_runs', 'authoring_organizations',
+        'courses', 'custom_course_runs_display', 'excluded_course_runs', 'authoring_organizations',
         'credit_backing_organizations'
     )
     fields += filter_horizontal
+
+    def custom_course_runs_display(self, obj):
+        return ", ".join([str(run) for run in obj.course_runs])
+
+    custom_course_runs_display.short_description = "Included course runs"
 
     def response_add(self, request, obj, post_url_continue=None):
         return HttpResponseRedirect(reverse('admin_metadata:update_course_runs', kwargs={'pk': obj.pk}))
