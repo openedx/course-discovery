@@ -75,8 +75,9 @@ class ProgramAdmin(admin.ModelAdmin):
 
     # ordering the field display on admin page.
     fields = (
-        'title', 'status', 'type', 'partner', 'banner_image',
-        'banner_image_url', 'card_image_url', 'overview', 'video',
+        'title', 'subtitle', 'status', 'type', 'partner', 'banner_image', 'banner_image_url', 'card_image_url',
+        'marketing_slug', 'overview', 'video', 'weeks_to_complete', 'min_hours_effort_per_week',
+        'max_hours_effort_per_week',
     )
     fields += (
         'courses', 'custom_course_runs_display', 'excluded_course_runs', 'authoring_organizations',

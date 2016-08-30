@@ -11,8 +11,7 @@ class ProgramAdminForm(forms.ModelForm):
     class Meta:
         model = Program
         exclude = (
-            'subtitle', 'category', 'marketing_slug', 'weeks_to_complete',
-            'min_hours_effort_per_week', 'max_hours_effort_per_week',
+            'category',
         )
         widgets = {
             'courses': autocomplete.ModelSelect2Multiple(
