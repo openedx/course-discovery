@@ -4,7 +4,8 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django_fsm import TransitionNotAllowed
 
-from course_discovery.apps.publisher.models import State
+from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.publisher.models import State, Course
 from course_discovery.apps.publisher.tests import factories
 
 
@@ -59,6 +60,7 @@ class CourseTests(TestCase):
     def setUp(self):
         super(CourseTests, self).setUp()
         self.course = factories.CourseFactory()
+        self.course2 = factories.CourseFactory()
 
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the course title. """
@@ -69,6 +71,26 @@ class CourseTests(TestCase):
             self.course.post_back_url,
             reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id})
         )
+
+    def test_assign_user_groups(self):
+        user1 = UserFactory()
+        user2 = UserFactory()
+        group_a = factories.GroupFactory(name="Test Group A")
+        group_b = factories.GroupFactory(name="Test Group B")
+        user1.groups.add(group_a)
+        user2.groups.add(group_b)
+
+        self.assertFalse(user1.has_perm(Course.VIEW_PERMISSION, self.course))
+        self.assertFalse(user2.has_perm(Course.VIEW_PERMISSION, self.course2))
+
+        self.course.assign_user_groups(user1)
+        self.course2.assign_user_groups(user2)
+
+        self.assertTrue(user1.has_perm(Course.VIEW_PERMISSION, self.course))
+        self.assertTrue(user2.has_perm(Course.VIEW_PERMISSION, self.course2))
+
+        self.assertFalse(user1.has_perm(Course.VIEW_PERMISSION, self.course2))
+        self.assertFalse(user2.has_perm(Course.VIEW_PERMISSION, self.course))
 
 
 class SeatTests(TestCase):
