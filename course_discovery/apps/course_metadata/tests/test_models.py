@@ -6,7 +6,9 @@ from dateutil.parser import parse
 from django.conf import settings
 from django.db import IntegrityError
 from django.test import TestCase
+from factory.fuzzy import FuzzyText
 from freezegun import freeze_time
+import responses
 
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.helpers import make_image_file
@@ -14,10 +16,11 @@ from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.models import (
     AbstractMediaModel, AbstractNamedModel, AbstractValueModel,
     CorporateEndorsement, Course, CourseRun, Endorsement,
-    FAQ, SeatType
+    FAQ, SeatType, Program
 )
-from course_discovery.apps.course_metadata.tests import factories
+from course_discovery.apps.course_metadata.tests import factories, toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ImageFactory
+from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
@@ -251,7 +254,8 @@ class AbstractValueModelTests(TestCase):
         self.assertEqual(str(instance), value)
 
 
-class ProgramTests(TestCase):
+@ddt.ddt
+class ProgramTests(MarketingSitePublisherTestMixin, TestCase):
     """Tests of the Program model."""
 
     def setUp(self):
@@ -368,6 +372,42 @@ class ProgramTests(TestCase):
     def test_seat_types(self):
         program = self.create_program_with_seats()
         self.assertEqual(program.seat_types, set(['credit', 'verified']))
+
+    @ddt.data(Program.Status.choices)
+    def test_is_active(self, status):
+        self.program.status = status
+        self.assertEqual(self.program.is_active, status == Program.Status.Active)
+
+    @responses.activate
+    def test_save_without_publish(self):
+        self.program.title = FuzzyText().fuzz()
+        self.program.save()
+        self.assertEqual(len(responses.calls), 0)
+
+    @responses.activate
+    def test_save_and_publish_success(self):
+        self.program.partner.marketing_site_url_root = self.api_root
+        self.program.partner.marketing_site_api_username = self.username
+        self.program.partner.marketing_site_api_password = self.password
+        self.program.save()
+        self.mock_api_client(200)
+        self.mock_node_retrieval(self.program.uuid)
+        self.mock_node_edit(200)
+        toggle_switch('publish_program_to_marketing_site', True)
+        self.program.title = FuzzyText().fuzz()
+        self.program.save()
+        self.assertEqual(len(responses.calls), 6)
+        toggle_switch('publish_program_to_marketing_site', False)
+
+    @responses.activate
+    def test_save_and_no_marketing_site(self):
+        self.program.partner.marketing_site_url_root = None
+        self.program.save()
+        toggle_switch('publish_program_to_marketing_site', True)
+        self.program.title = FuzzyText().fuzz()
+        self.program.save()
+        self.assertEqual(len(responses.calls), 0)
+        toggle_switch('publish_program_to_marketing_site', False)
 
 
 class PersonSocialNetworkTests(TestCase):

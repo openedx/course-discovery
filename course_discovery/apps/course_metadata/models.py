@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 from uuid import uuid4
 
 import pytz
-from django.db import models
+from django.db import models, transaction
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
@@ -16,8 +16,10 @@ from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
 from taggit.managers import TaggableManager
+import waffle
 
 from course_discovery.apps.core.models import Currency, Partner
+from course_discovery.apps.course_metadata.publishers import MarketingSitePublisher
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.course_metadata.utils import clean_query
@@ -700,6 +702,28 @@ class Program(TimeStampedModel):
         staff = [list(course_run.staff.all()) for course_run in self.course_runs]
         staff = itertools.chain.from_iterable(staff)
         return set(staff)
+
+    @property
+    def is_active(self):
+        return self.status == self.Status.Active
+
+    def save(self, *args, **kwargs):
+        if waffle.switch_is_active('publish_program_to_marketing_site') and \
+                self.partner.has_marketing_site:
+            # Before save, get from database the existing data if exists
+            existing_program = None
+            if self.id:
+                existing_program = Program.objects.get(id=self.id)
+            # Pass existing data to the publisher so it can decide whether we should publish
+            publisher = MarketingSitePublisher(existing_program)
+
+            with transaction.atomic():
+                super(Program, self).save(*args, **kwargs)
+                # Once save complete, we need to update the marketing site
+                # So the marketing page for this program is automatically updated
+                publisher.publish_program(self)
+        else:
+            super(Program, self).save(*args, **kwargs)
 
 
 class PersonSocialNetwork(AbstractSocialNetworkModel):
