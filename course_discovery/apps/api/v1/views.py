@@ -157,9 +157,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
         course_runs = []
 
         for course in courses:
-            active_course_runs = course.active_course_runs
-            for acr in active_course_runs:
-                course_runs.append(acr)
+            course_runs += list(course.course_runs.active().marketable())
 
         serializer = serializers.FlattenedCourseRunWithCourseSerializer(
             course_runs, many=True, context={'request': request}
@@ -274,6 +272,20 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
               type: string
               paramType: query
               multiple: false
+            - name: active
+              description: Retrieve active course runs. A course is considered active if its end date has not passed,
+                and it is open for enrollment.
+              required: false
+              type: integer
+              paramType: query
+              multiple: false
+            - name: marketable
+              description: Retrieve marketable course runs. A course run is considered marketable if it has a
+                marketing slug.
+              required: false
+              type: integer
+              paramType: query
+              multiple: false
         """
         return super(CourseRunViewSet, self).list(request, *args, **kwargs)
 
@@ -335,6 +347,25 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ProgramSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_class = filters.ProgramFilter
+
+    def list(self, request, *args, **kwargs):
+        """ List all programs.
+        ---
+        parameters:
+            - name: partner
+              description: Filter by partner
+              required: false
+              type: string
+              paramType: query
+              multiple: false
+            - name: marketable
+              description: Retrieve marketable programs. A program is considered marketable if it has a marketing slug.
+              required: false
+              type: integer
+              paramType: query
+              multiple: false
+        """
+        return super(ProgramViewSet, self).list(request, *args, **kwargs)
 
 
 class ManagementViewSet(viewsets.ViewSet):

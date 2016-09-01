@@ -1,7 +1,9 @@
 # pylint: disable=no-member
+import datetime
 import urllib
 
 import ddt
+import pytz
 from django.db.models.functions import Lower
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase, APIRequestFactory
@@ -19,9 +21,9 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
         super(CourseRunViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.force_authenticate(self.user)
-        self.default_partner = PartnerFactory()
-        self.course_run = CourseRunFactory(course__partner=self.default_partner)
-        self.course_run_2 = CourseRunFactory(course__partner=self.default_partner)
+        self.partner = PartnerFactory()
+        self.course_run = CourseRunFactory(course__partner=self.partner)
+        self.course_run_2 = CourseRunFactory(course__partner=self.partner)
         self.refresh_index()
         self.request = APIRequestFactory().get('/')
         self.request.user = self.user
@@ -50,7 +52,7 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
 
     def test_list_query(self):
         """ Verify the endpoint returns a filtered list of courses """
-        course_runs = CourseRunFactory.create_batch(3, title='Some random title', course__partner=self.default_partner)
+        course_runs = CourseRunFactory.create_batch(3, title='Some random title', course__partner=self.partner)
         CourseRunFactory(title='non-matching name')
         query = 'title:Some random title'
         url = '{root}?q={query}'.format(root=reverse('api:v1:course_run-list'), query=query)
@@ -70,15 +72,53 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 400)
 
-    def test_list_key_filter(self):
-        """ Verify the endpoint returns a list of course runs filtered by the specified keys. """
-        course_runs = CourseRunFactory.create_batch(3, course__partner=self.default_partner)
-        course_runs = sorted(course_runs, key=lambda course: course.key.lower())
-        keys = ','.join([course.key for course in course_runs])
-        url = '{root}?keys={keys}'.format(root=reverse('api:v1:course_run-list'), keys=keys)
-
+    def assert_list_results(self, url, expected):
+        expected = sorted(expected, key=lambda course_run: course_run.key.lower())
         response = self.client.get(url)
-        self.assertListEqual(response.data['results'], self.serialize_course_run(course_runs, many=True))
+        self.assertEqual(response.status_code, 200)
+        self.assertListEqual(response.data['results'], self.serialize_course_run(expected, many=True))
+
+    def test_filter_by_keys(self):
+        """ Verify the endpoint returns a list of course runs filtered by the specified keys. """
+        CourseRun.objects.all().delete()
+        expected = CourseRunFactory.create_batch(3, course__partner=self.partner)
+        keys = ','.join([course.key for course in expected])
+        url = '{root}?keys={keys}'.format(root=reverse('api:v1:course_run-list'), keys=keys)
+        self.assert_list_results(url, expected)
+
+    def test_filter_by_marketable(self):
+        """ Verify the endpoint filters course runs to those that are marketable. """
+        CourseRun.objects.all().delete()
+        expected = CourseRunFactory.create_batch(3, course__partner=self.partner)
+        CourseRunFactory.create_batch(3, slug=None, course__partner=self.partner)
+        CourseRunFactory.create_batch(3, slug='', course__partner=self.partner)
+        url = reverse('api:v1:course_run-list') + '?marketable=1'
+        self.assert_list_results(url, expected)
+
+    def test_filter_by_active(self):
+        """ Verify the endpoint filters course runs to those that are active. """
+        CourseRun.objects.all().delete()
+
+        # Create course with end date in future and enrollment_end in past.
+        end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=2)
+        enrollment_end = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1)
+        CourseRunFactory(end=end, enrollment_end=enrollment_end, course__partner=self.partner)
+
+        # Create course with end date in past and no enrollment_end.
+        end = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=2)
+        CourseRunFactory(end=end, enrollment_end=None, course__partner=self.partner)
+
+        # Create course with end date in future and enrollment_end in future.
+        end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=2)
+        enrollment_end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
+        active_enrollment_end = CourseRunFactory(end=end, enrollment_end=enrollment_end, course__partner=self.partner)
+
+        # Create course with end date in future and no enrollment_end.
+        active_no_enrollment_end = CourseRunFactory(end=end, enrollment_end=None, course__partner=self.partner)
+
+        expected = [active_enrollment_end, active_no_enrollment_end]
+        url = reverse('api:v1:course_run-list') + '?active=1'
+        self.assert_list_results(url, expected)
 
     def test_contains_single_course_run(self):
         """ Verify that a single course_run is contained in a query """

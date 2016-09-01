@@ -4,7 +4,7 @@ from rest_framework.test import APITestCase, APIRequestFactory
 from course_discovery.apps.api.serializers import ProgramSerializer
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.models import Program
-from course_discovery.apps.course_metadata.tests.factories import ProgramFactory, ProgramTypeFactory
+from course_discovery.apps.course_metadata.tests.factories import ProgramFactory
 
 
 class ProgramViewSetTests(APITestCase):
@@ -16,7 +16,6 @@ class ProgramViewSetTests(APITestCase):
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.request = APIRequestFactory().get('/')
         self.request.user = self.user
-        self.program = ProgramFactory()
 
     def test_authentication(self):
         """ Verify the endpoint requires the user to be authenticated. """
@@ -29,51 +28,66 @@ class ProgramViewSetTests(APITestCase):
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single program. """
-        url = reverse('api:v1:program-detail', kwargs={'uuid': self.program.uuid})
+        program = ProgramFactory()
+        url = reverse('api:v1:program-detail', kwargs={'uuid': program.uuid})
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, ProgramSerializer(self.program, context={'request': self.request}).data)
+        self.assertEqual(response.data, ProgramSerializer(program, context={'request': self.request}).data)
+
+    def assert_list_results(self, url, expected):
+        """
+        Asserts the results serialized/returned at the URL matches those that are expected.
+        Args:
+            url (str): URL from which data should be retrieved
+            expected (list[Program]): Expected programs
+
+        Notes:
+            The API usually returns items in reverse order of creation (e.g. newest first). You may need to reverse
+            the values of `expected` if you encounter issues. This method will NOT do that reversal for you.
+
+        Returns:
+            None
+        """
+        response = self.client.get(url)
+        self.assertEqual(
+            response.data['results'],
+            ProgramSerializer(expected, many=True, context={'request': self.request}).data
+        )
 
     def test_list(self):
         """ Verify the endpoint returns a list of all programs. """
-        ProgramFactory.create_batch(3)
-
-        response = self.client.get(self.list_path)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.data['results'],
-            ProgramSerializer(Program.objects.all(), many=True, context={'request': self.request}).data
-        )
+        expected = ProgramFactory.create_batch(3)
+        expected.reverse()
+        self.assert_list_results(self.list_path, expected)
 
     def test_filter_by_type(self):
         """ Verify that the endpoint filters programs to those of a given type. """
-        url = self.list_path + '?type='
+        program_type_name = 'foo'
+        program = ProgramFactory(type__name=program_type_name)
+        url = self.list_path + '?type=' + program_type_name
+        self.assert_list_results(url, [program])
 
-        self.program.type = ProgramTypeFactory(name='Foo')
-        self.program.save()  # pylint: disable=no-member
-
-        response = self.client.get(url + 'foo')
-        self.assertEqual(
-            response.data['results'][0],
-            ProgramSerializer(Program.objects.get(), context={'request': self.request}).data
-        )
-
-        response = self.client.get(url + 'bar')
-        self.assertEqual(response.data['results'], [])
+        url = self.list_path + '?type=bar'
+        self.assert_list_results(url, [])
 
     def test_filter_by_uuids(self):
         """ Verify that the endpoint filters programs to those matching the provided UUIDs. """
-        url = self.list_path + '?uuids='
-
-        programs = [ProgramFactory(), self.program]
-        uuids = [str(p.uuid) for p in programs]
+        expected = ProgramFactory.create_batch(2)
+        expected.reverse()
+        uuids = [str(p.uuid) for p in expected]
+        url = self.list_path + '?uuids=' + ','.join(uuids)
 
         # Create a third program, which should be filtered out.
         ProgramFactory()
 
-        response = self.client.get(url + ','.join(uuids))
-        self.assertEqual(
-            response.data['results'],
-            ProgramSerializer(programs, many=True, context={'request': self.request}).data
-        )
+        self.assert_list_results(url, expected)
+
+    def test_filter_by_marketable(self):
+        """ Verify the endpoint filters programs to those that are marketable. """
+        url = self.list_path + '?marketable=1'
+        ProgramFactory(marketing_slug='')
+        expected = ProgramFactory.create_batch(3)
+        expected.reverse()
+        self.assertEqual(list(Program.objects.marketable()), expected)
+        self.assert_list_results(url, expected)

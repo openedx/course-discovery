@@ -68,7 +68,6 @@ class ProgramAdmin(admin.ModelAdmin):
     list_filter = ('partner', 'type',)
     ordering = ('uuid', 'title', 'status')
     readonly_fields = ('uuid', 'custom_course_runs_display', 'excluded_course_runs',)
-
     search_fields = ('uuid', 'title', 'marketing_slug')
 
     filter_horizontal = ('job_outlook_items', 'expected_learning_items',)

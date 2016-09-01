@@ -1,3 +1,5 @@
+import logging
+
 import django_filters
 from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
@@ -10,6 +12,7 @@ from rest_framework.exceptions import PermissionDenied, NotFound
 
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 
+logger = logging.getLogger(__name__)
 User = get_user_model()
 
 
@@ -66,6 +69,24 @@ class CharListFilter(django_filters.CharFilter):
         return super(CharListFilter, self).filter(qs, value)
 
 
+class FilterSetMixin:
+    def _apply_filter(self, name, queryset, value):
+        try:
+            if int(value):
+                queryset = getattr(queryset, name)()
+        except ValueError:
+            logger.exception('The "%s" filter requires an integer value of either 0 or 1. %s is invalid', name, value)
+            raise
+
+        return queryset
+
+    def filter_active(self, queryset, value):
+        return self._apply_filter('active', queryset, value)
+
+    def filter_marketable(self, queryset, value):
+        return self._apply_filter('marketable', queryset, value)
+
+
 class CourseFilter(django_filters.FilterSet):
     keys = CharListFilter(name='key', lookup_type='in')
 
@@ -74,7 +95,9 @@ class CourseFilter(django_filters.FilterSet):
         fields = ['keys']
 
 
-class CourseRunFilter(django_filters.FilterSet):
+class CourseRunFilter(FilterSetMixin, django_filters.FilterSet):
+    active = django_filters.MethodFilter()
+    marketable = django_filters.MethodFilter()
     keys = CharListFilter(name='key', lookup_type='in')
 
     @property
@@ -91,7 +114,8 @@ class CourseRunFilter(django_filters.FilterSet):
         fields = ['keys']
 
 
-class ProgramFilter(django_filters.FilterSet):
+class ProgramFilter(FilterSetMixin, django_filters.FilterSet):
+    marketable = django_filters.MethodFilter()
     type = django_filters.CharFilter(name='type__name', lookup_expr='iexact')
     uuids = CharListFilter(name='uuid', lookup_type='in')
 
