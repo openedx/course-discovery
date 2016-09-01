@@ -348,6 +348,9 @@ SWAGGER_SETTINGS = {
     'permission_denied_handler': 'course_discovery.apps.api.views.api_docs_permission_denied_handler'
 }
 
+# Haystack configuration (http://django-haystack.readthedocs.io/en/v2.5.0/settings.html)
+HAYSTACK_ITERATOR_LOAD_PER_QUERY = 200
+
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'course_discovery.apps.edx_haystack_extensions.backends.EdxElasticsearchSearchEngine',
