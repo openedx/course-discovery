@@ -45,6 +45,7 @@ services:
       - "memcache"
     environment:
       TEST_ELASTICSEARCH_URL: "http://es:9200"
+      ENABLE_DJANGO_TOOLBAR: 1
     ports:
       - "18381:18381"
       - "8381:8381"

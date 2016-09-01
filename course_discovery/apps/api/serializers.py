@@ -4,6 +4,7 @@ import json
 from urllib.parse import urlencode
 
 from django.contrib.auth import get_user_model
+from django.db.models import QuerySet
 from django.utils.translation import ugettext_lazy as _
 from drf_haystack.serializers import HaystackSerializer, HaystackFacetSerializer
 import pytz
@@ -247,6 +248,14 @@ class NestedProgramSerializer(serializers.ModelSerializer):
 
 class CourseRunSerializer(TimestampModelSerializer):
     """Serializer for the ``CourseRun`` model."""
+
+    def __init__(self, instance=None, data=serializers.empty, **kwargs):
+        if isinstance(instance, QuerySet):
+            instance = instance.select_related('language', 'video') \
+                .prefetch_related('course__partner', 'staff', 'staff__position', 'transcript_languages', 'seats',
+                                  'seats__currency')
+        super().__init__(instance=instance, data=data, **kwargs)
+
     course = serializers.SlugRelatedField(read_only=True, slug_field='key')
     content_language = serializers.SlugRelatedField(
         read_only=True, slug_field='code', source='language',
