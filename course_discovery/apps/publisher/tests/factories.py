@@ -47,7 +47,7 @@ class CourseRunFactory(factory.DjangoModelFactory):
     min_effort = FuzzyInteger(1, 10)
     max_effort = FuzzyInteger(10, 20)
     language = factory.Iterator(LanguageTag.objects.all())
-    pacing_type = FuzzyChoice([name for name, __ in CourseMetadataCourseRun.PACING_CHOICES])
+    pacing_type = FuzzyChoice([name for name, __ in CourseMetadataCourseRun.Pacing.choices])
     length = FuzzyInteger(1, 10)
     seo_review = "test-seo-review"
     keywords = "Test1, Test2, Test3"

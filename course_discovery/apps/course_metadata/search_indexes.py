@@ -95,6 +95,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     course_key = indexes.CharField(model_attr='course__key', stored=True)
     org = indexes.CharField()
     number = indexes.CharField()
+    status = indexes.CharField(model_attr='status', faceted=True)
     start = indexes.DateTimeField(model_attr='start', null=True, faceted=True)
     end = indexes.DateTimeField(model_attr='end', null=True)
     enrollment_start = indexes.DateTimeField(model_attr='enrollment_start', null=True)
@@ -111,6 +112,10 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     type = indexes.CharField(model_attr='type', null=True, faceted=True)
     image_url = indexes.CharField(model_attr='card_image_url', null=True)
     partner = indexes.CharField(model_attr='course__partner__short_code', null=True, faceted=True)
+    published = indexes.BooleanField(null=False, faceted=True)
+
+    def prepare_published(self, obj):
+        return obj.status == CourseRun.Status.Published
 
     def _prepare_language(self, language):
         return language.macrolanguage
@@ -152,6 +157,10 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     partner = indexes.CharField(model_attr='partner__short_code', null=True, faceted=True)
     start = indexes.DateTimeField(model_attr='start', null=True, faceted=True)
     seat_types = indexes.MultiValueField(model_attr='seat_types', null=True, faceted=True)
+    published = indexes.BooleanField(null=False, faceted=True)
+
+    def prepare_published(self, obj):
+        return obj.status == Program.Status.Active
 
     def prepare_organizations(self, obj):
         return self.prepare_authoring_organizations(obj) + self.prepare_credit_backing_organizations(obj)

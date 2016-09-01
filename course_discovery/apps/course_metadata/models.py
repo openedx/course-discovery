@@ -308,21 +308,23 @@ class Course(TimeStampedModel):
 
 class CourseRun(TimeStampedModel):
     """ CourseRun model. """
-    SELF_PACED = 'self_paced'
-    INSTRUCTOR_PACED = 'instructor_paced'
 
-    PACING_CHOICES = (
-        # Translators: Self-paced refers to course runs that operate on the student's schedule.
-        (SELF_PACED, _('Self-paced')),
+    class Status(DjangoChoices):
+        Published = ChoiceItem('published', _('Published'))
+        Unpublished = ChoiceItem('unpublished', _('Unpublished'))
 
+    class Pacing(DjangoChoices):
         # Translators: Instructor-paced refers to course runs that operate on a schedule set by the instructor,
         # similar to a normal university course.
-        (INSTRUCTOR_PACED, _('Instructor-paced')),
-    )
+        Instructor = ChoiceItem('instructor_paced', _('Instructor-paced'))
+        # Translators: Self-paced refers to course runs that operate on the student's schedule.
+        Self = ChoiceItem('self_paced', _('Self-paced'))
 
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
     course = models.ForeignKey(Course, related_name='course_runs')
     key = models.CharField(max_length=255, unique=True)
+    status = models.CharField(max_length=255, null=False, blank=False, db_index=True, choices=Status.choices,
+                              validators=[Status.validator])
     title_override = models.CharField(
         max_length=255, default=None, null=True, blank=True,
         help_text=_(
@@ -351,7 +353,8 @@ class CourseRun(TimeStampedModel):
         help_text=_('Estimated maximum number of hours per week needed to complete a course run.'))
     language = models.ForeignKey(LanguageTag, null=True, blank=True)
     transcript_languages = models.ManyToManyField(LanguageTag, blank=True, related_name='transcript_courses')
-    pacing_type = models.CharField(max_length=255, choices=PACING_CHOICES, db_index=True, null=True, blank=True)
+    pacing_type = models.CharField(max_length=255, db_index=True, null=True, blank=True, choices=Pacing.choices,
+                                   validators=[Pacing.validator])
     syllabus = models.ForeignKey(SyllabusItem, default=None, null=True, blank=True)
     card_image_url = models.URLField(null=True, blank=True)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
@@ -565,7 +568,7 @@ class ProgramType(TimeStampedModel):
 
 
 class Program(TimeStampedModel):
-    class ProgramStatus(DjangoChoices):
+    class Status(DjangoChoices):
         Unpublished = ChoiceItem('unpublished', _('Unpublished'))
         Active = ChoiceItem('active', _('Active'))
         Retired = ChoiceItem('retired', _('Retired'))
@@ -580,8 +583,8 @@ class Program(TimeStampedModel):
     category = models.CharField(help_text=_('The category / type of Program.'), max_length=32)
     type = models.ForeignKey(ProgramType, null=True, blank=True)
     status = models.CharField(
-        help_text=_('The lifecycle status of this Program.'), max_length=24, null=False, blank=False,
-        choices=ProgramStatus.choices, validators=[ProgramStatus.validator]
+        help_text=_('The lifecycle status of this Program.'), max_length=24, null=False, blank=False, db_index=True,
+        choices=Status.choices, validators=[Status.validator]
     )
     marketing_slug = models.CharField(
         help_text=_('Slug used to generate links to the marketing site'), blank=True, max_length=255, db_index=True)

@@ -14,7 +14,8 @@ from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
-from course_discovery.apps.course_metadata.models import Organization, Subject, Program, Video, Person, Course
+from course_discovery.apps.course_metadata.models import Organization, Subject, Program, Video, Person, Course, \
+    CourseRun
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -354,6 +355,15 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         name = 'Advanced'
         self.assertEqual(self.loader.get_level_type(name).name, name)
 
+    @ddt.unpack
+    @ddt.data(
+        ('0', CourseRun.Status.Unpublished),
+        ('1', CourseRun.Status.Published),
+    )
+    def test_get_course_run_status(self, marketing_site_status, expected):
+        data = {'status': marketing_site_status}
+        self.assertEqual(self.loader.get_course_run_status(data), expected)
+
     @ddt.data(
         {'field_course_body': {'value': 'Test'}},
         {'field_course_description': {'value': 'Test'}},
@@ -417,6 +427,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
             'language': language,
             'slug': data['url'].split('/')[-1],
             'card_image_url': (data.get('field_course_image_promoted') or {}).get('url'),
+            'status': self.loader.get_course_run_status(data),
         }
 
         for field, value in expected_values.items():

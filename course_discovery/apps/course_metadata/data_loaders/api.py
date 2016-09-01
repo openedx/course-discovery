@@ -135,6 +135,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                 'title_override': body['name'],
                 'short_description_override': body['short_description'],
                 'video': self.get_courserun_video(body),
+                'status': CourseRun.Status.Published,
             })
 
         course_run, __ = course.course_runs.update_or_create(key__iexact=key, defaults=defaults)
@@ -149,9 +150,9 @@ class CoursesApiDataLoader(AbstractDataLoader):
             pacing = pacing.lower()
 
         if pacing == 'instructor':
-            return CourseRun.INSTRUCTOR_PACED
+            return CourseRun.Pacing.Instructor
         elif pacing == 'self':
-            return CourseRun.SELF_PACED
+            return CourseRun.Pacing.Self
         else:
             return None
 
