@@ -366,3 +366,7 @@ SITE_ID = 1
 COMMENTS_APP = 'course_discovery.apps.publisher_comments'
 
 TAGGIT_CASE_INSENSITIVE = True
+
+# django-solo configuration (https://github.com/lazybird/django-solo#settings)
+SOLO_CACHE = 'default'
+SOLO_CACHE_TIMEOUT = 3600
