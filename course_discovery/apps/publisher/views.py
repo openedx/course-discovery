@@ -3,7 +3,8 @@ Course publisher views.
 """
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseForbidden
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
@@ -11,6 +12,7 @@ from django.views.generic.list import ListView
 from django_fsm import TransitionNotAllowed
 
 from course_discovery.apps.publisher.forms import CourseForm, CourseRunForm, SeatForm
+from course_discovery.apps.publisher.mixins import ViewPermissionMixin, check_view_permission
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
@@ -25,13 +27,15 @@ class CourseRunListView(ListView):
     def get_queryset(self):
         return [
             CourseRunWrapper(course_run) for course_run in CourseRun.objects.select_related('course').all()
+            if check_view_permission(self.request.user, course_run.course)
         ]
 
 
-class CourseRunDetailView(DetailView):
+class CourseRunDetailView(ViewPermissionMixin, DetailView):
     """ Course Run Detail View."""
     model = CourseRun
     template_name = 'publisher/course_run_detail.html'
+    permission_failure_url = 'publisher:publisher_course_runs'
 
     def get_context_data(self, **kwargs):
         context = super(CourseRunDetailView, self).get_context_data(**kwargs)
@@ -57,12 +61,14 @@ class CreateCourseView(CreateView):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
 
-class UpdateCourseView(UpdateView):
+class UpdateCourseView(ViewPermissionMixin, UpdateView):
     """ Update Course View."""
     model = Course
     form_class = CourseForm
+    permission_required = Course.VIEW_PERMISSION
     template_name = 'publisher/course_form.html'
     success_url = 'publisher:publisher_courses_edit'
+    permission_failure_url = 'publisher:publisher_course_runs'
 
     def form_valid(self, form):
         self.object = form.save()
@@ -92,12 +98,14 @@ class CreateCourseRunView(CreateView):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
 
-class UpdateCourseRunView(UpdateView):
+class UpdateCourseRunView(ViewPermissionMixin, UpdateView):
     """ Update Course Run View."""
     model = CourseRun
     form_class = CourseRunForm
+    permission_required = Course.VIEW_PERMISSION
     template_name = 'publisher/course_run_form.html'
     success_url = 'publisher:publisher_course_runs_edit'
+    permission_failure_url = 'publisher:publisher_course_runs'
 
     def get_context_data(self, **kwargs):
         context = super(UpdateCourseRunView, self).get_context_data(**kwargs)
@@ -136,12 +144,14 @@ class CreateSeatView(CreateView):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
 
-class UpdateSeatView(UpdateView):
+class UpdateSeatView(ViewPermissionMixin, UpdateView):
     """ Update Seat View."""
     model = Seat
     form_class = SeatForm
+    permission_required = Course.VIEW_PERMISSION
     template_name = 'publisher/seat_form.html'
     success_url = 'publisher:publisher_seats_edit'
+    permission_failure_url = 'publisher:publisher_course_runs'
 
     def get_context_data(self, **kwargs):
         context = super(UpdateSeatView, self).get_context_data(**kwargs)
@@ -164,11 +174,16 @@ class ChangeStateView(View):
         state = request.POST.get('state')
         try:
             course_run = CourseRun.objects.get(id=course_run_id)
+
+            if not check_view_permission(request.user, course_run.course):
+                return HttpResponseForbidden()
+
             course_run.change_state(target=state)
+            # pylint: disable=no-member
             messages.success(
-                request, 'Content moved to `{state}` successfully.'.format(state=course_run.current_state),
+                request, _('Content moved to `{state}` successfully.').format(state=course_run.current_state)
             )
             return HttpResponseRedirect(reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run_id}))
         except (CourseRun.DoesNotExist, TransitionNotAllowed):
-            messages.error(request, 'There was an error in changing state.')
+            messages.error(request, _('There was an error in changing state.'))
             return HttpResponseRedirect(reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run_id}))

@@ -4,6 +4,7 @@ from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.forms import model_to_dict
 from django.test import TestCase
+from guardian.shortcuts import assign_perm
 
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State
@@ -46,12 +47,87 @@ class CreateUpdateCourseViewTests(TestCase):
         self.assertNotContains(response, 'Add new comment')
         self.assertNotContains(response, 'Total Comments')
 
-    def test_update_course(self):
-        """ Verify that we can update an existing course. """
+    def test_update_course_with_staff(self):
+        """ Verify that staff user can update an existing course. """
         course_dict = model_to_dict(self.course)
         updated_course_title = 'Updated {}'.format(self.course.title)
         course_dict['title'] = updated_course_title
         self.assertNotEqual(self.course.title, updated_course_title)
+        response = self.client.post(
+            reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id}),
+            course_dict
+        )
+
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        course = Course.objects.get(id=self.course.id)
+        # Assert that course is updated.
+        self.assertEqual(course.title, updated_course_title)
+
+        # add new and check the comment on edit page.
+        comment = CommentFactory(content_object=self.course, user=self.user, site=self.site)
+        response = self.client.get(reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id}))
+        self.assertContains(response, 'Total Comments 1')
+        self.assertContains(response, 'Add new comment')
+        self.assertContains(response, comment.comment)
+
+    def test_course_edit_page_with_non_staff(self):
+        """ Verify that non staff user can't access course edit page without permission. """
+        non_staff_user = UserFactory()
+        group = factories.GroupFactory()
+
+        self.client.logout()
+        self.client.login(username=non_staff_user.username, password=USER_PASSWORD)
+
+        course_dict = model_to_dict(self.course)
+        updated_course_title = 'Updated {}'.format(self.course.title)
+        course_dict['title'] = updated_course_title
+        self.assertNotEqual(self.course.title, updated_course_title)
+        response = self.client.get(
+            reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id})
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+        # assign user a group and assign view permission on that group
+        non_staff_user.groups.add(group)
+        assign_perm(Course.VIEW_PERMISSION, group, self.course)
+
+        response = self.client.get(
+            reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id})
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_update_course_with_non_staff(self):
+        """ Tests for update course with non staff user. """
+        non_staff_user = UserFactory()
+        group = factories.GroupFactory()
+
+        self.client.logout()
+        self.client.login(username=non_staff_user.username, password=USER_PASSWORD)
+
+        course_dict = model_to_dict(self.course)
+        updated_course_title = 'Updated {}'.format(self.course.title)
+        course_dict['title'] = updated_course_title
+        self.assertNotEqual(self.course.title, updated_course_title)
+        response = self.client.post(
+            reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id}),
+            course_dict
+        )
+
+        # verify that non staff user can't update course without permission
+        self.assertEqual(response.status_code, 403)
+
+        # assign user a group and assign view permission on that group
+        non_staff_user.groups.add(group)
+        assign_perm(Course.VIEW_PERMISSION, group, self.course)
+
         response = self.client.post(
             reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id}),
             course_dict
@@ -115,11 +191,86 @@ class CreateUpdateCourseRunViewTests(TestCase):
         self.assertNotContains(response, 'Add new comment')
         self.assertNotContains(response, 'Total Comments')
 
-    def test_update_course_run(self):
-        """ Verify that we can update an existing course run. """
+    def test_update_course_run_with_staff(self):
+        """ Verify that staff user can update an existing course run. """
         updated_lms_course_id = 'course-v1:testX+AS121+2018_q1'
         self.course_run_dict['lms_course_id'] = updated_lms_course_id
         self.assertNotEqual(self.course_run.lms_course_id, updated_lms_course_id)
+        response = self.client.post(
+            reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id}),
+            self.course_run_dict
+        )
+
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        course_run = CourseRun.objects.get(id=self.course_run.id)
+        # Assert that course run is updated.
+        self.assertEqual(course_run.lms_course_id, updated_lms_course_id)
+
+        # add new and check the comment on edit page.
+        comment = CommentFactory(content_object=self.course_run, user=self.user, site=self.site)
+        response = self.client.get(reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id}))
+        self.assertContains(response, 'Total Comments 1')
+        self.assertContains(response, 'Add new comment')
+        self.assertContains(response, comment.comment)
+
+    def test_edit_course_run_page_with_non_staff(self):
+        """ Verify that non staff user can't access course run edit page without permission. """
+        non_staff_user = UserFactory()
+        group = factories.GroupFactory()
+
+        self.client.logout()
+        self.client.login(username=non_staff_user.username, password=USER_PASSWORD)
+
+        updated_lms_course_id = 'course-v1:testX+AS121+2018_q1'
+        self.course_run_dict['lms_course_id'] = updated_lms_course_id
+        self.assertNotEqual(self.course_run.lms_course_id, updated_lms_course_id)
+
+        response = self.client.get(
+            reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id})
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+        # assign user a group and assign view permission on that group
+        non_staff_user.groups.add(group)
+        assign_perm(Course.VIEW_PERMISSION, group, self.course_run.course)
+
+        response = self.client.get(
+            reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id})
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_update_course_run_with_non_staff(self):
+        """ Test for course run with non staff user. """
+        non_staff_user = UserFactory()
+        group = factories.GroupFactory()
+
+        self.client.logout()
+        self.client.login(username=non_staff_user.username, password=USER_PASSWORD)
+
+        updated_lms_course_id = 'course-v1:testX+AS121+2018_q1'
+        self.course_run_dict['lms_course_id'] = updated_lms_course_id
+        self.assertNotEqual(self.course_run.lms_course_id, updated_lms_course_id)
+
+        response = self.client.post(
+            reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id}),
+            self.course_run_dict
+        )
+
+        # verify that non staff user can't update course run without permission
+        self.assertEqual(response.status_code, 403)
+
+        # assign user a group and assign view permission on that group
+        non_staff_user.groups.add(group)
+        assign_perm(Course.VIEW_PERMISSION, group, self.course_run.course)
+
         response = self.client.post(
             reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id}),
             self.course_run_dict
@@ -155,6 +306,7 @@ class SeatsCreateUpdateViewTests(TestCase):
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.seat_edit_url = reverse('publisher:publisher_seats_edit', kwargs={'pk': self.seat.id})
 
     def test_seat_view_page(self):
         """ Verify that we can open new seat page. """
@@ -177,13 +329,94 @@ class SeatsCreateUpdateViewTests(TestCase):
 
         self.assertEqual(seat.price, seat_price)
 
-    def test_update_seat(self):
-        """ Verify that we can update an existing seat. """
+    def test_update_seat_with_staff(self):
+        """ Verify that staff user can update an existing seat. """
         self.assertEqual(self.seat.type, Seat.PROFESSIONAL)
         updated_seat_price = 470.00
         self.seat_dict['price'] = updated_seat_price
         self.seat_dict['type'] = Seat.VERIFIED
         self.assertNotEqual(self.seat.price, updated_seat_price)
+        response = self.client.post(
+            reverse('publisher:publisher_seats_edit', kwargs={'pk': self.seat.id}),
+            self.seat_dict
+        )
+
+        self.assertRedirects(
+            response,
+            expected_url=self.seat_edit_url,
+            status_code=302,
+            target_status_code=200
+        )
+
+        seat = Seat.objects.get(id=self.seat.id)
+        # Assert that seat is updated.
+        self.assertEqual(seat.price, updated_seat_price)
+        self.assertEqual(seat.type, Seat.VERIFIED)
+
+        self.seat_dict['type'] = Seat.HONOR
+        response = self.client.post(self.seat_edit_url, self.seat_dict)
+        seat = Seat.objects.get(id=self.seat.id)
+        # Assert that we can change seat type.
+        self.assertEqual(seat.type, Seat.HONOR)
+
+        self.assertRedirects(
+            response,
+            expected_url=self.seat_edit_url,
+            status_code=302,
+            target_status_code=200
+        )
+
+        # add new and check the comment on edit page.
+        comment = CommentFactory(content_object=self.seat, user=self.user, site=self.site)
+        response = self.client.get(self.seat_edit_url)
+        self.assertContains(response, 'Total Comments 1')
+        self.assertContains(response, 'Add new comment')
+        self.assertContains(response, comment.comment)
+
+    def test_edit_seat_page_with_non_staff(self):
+        """ Verify that non staff user can't access seat edit page without permission. """
+        non_staff_user = UserFactory()
+        group = factories.GroupFactory()
+
+        self.client.logout()
+        self.client.login(username=non_staff_user.username, password=USER_PASSWORD)
+        response = self.client.get(reverse('publisher:publisher_seats_edit', kwargs={'pk': self.seat.id}))
+
+        self.assertEqual(response.status_code, 403)
+
+        # assign user a group and assign view permission on that group
+        non_staff_user.groups.add(group)
+        assign_perm(Course.VIEW_PERMISSION, group, self.seat.course_run.course)
+        response = self.client.get(reverse('publisher:publisher_seats_edit', kwargs={'pk': self.seat.id}))
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_update_seat_with_non_staff(self):
+        """ Tests update seat for non staff user. """
+        non_staff_user = UserFactory()
+        group = factories.GroupFactory()
+
+        self.client.logout()
+        self.client.login(username=non_staff_user.username, password=USER_PASSWORD)
+
+        self.assertEqual(self.seat.type, Seat.PROFESSIONAL)
+        updated_seat_price = 470.00
+        self.seat_dict['price'] = updated_seat_price
+        self.seat_dict['type'] = Seat.VERIFIED
+        self.assertNotEqual(self.seat.price, updated_seat_price)
+
+        response = self.client.post(
+            reverse('publisher:publisher_seats_edit', kwargs={'pk': self.seat.id}),
+            self.seat_dict
+        )
+
+        # verify that non staff user can't update course seat without permission
+        self.assertEqual(response.status_code, 403)
+
+        # assign user a group and assign view permission on that group
+        non_staff_user.groups.add(group)
+        assign_perm(Course.VIEW_PERMISSION, group, self.seat.course_run.course)
+
         response = self.client.post(
             reverse('publisher:publisher_seats_edit', kwargs={'pk': self.seat.id}),
             self.seat_dict
@@ -217,13 +450,6 @@ class SeatsCreateUpdateViewTests(TestCase):
             target_status_code=200
         )
 
-        # add new and check the comment on edit page.
-        comment = CommentFactory(content_object=self.seat, user=self.user, site=self.site)
-        response = self.client.get(reverse('publisher:publisher_seats_edit', kwargs={'pk': self.seat.id}))
-        self.assertContains(response, 'Total Comments 1')
-        self.assertContains(response, 'Add new comment')
-        self.assertContains(response, comment.comment)
-
 
 @ddt.ddt
 class CourseRunDetailTests(TestCase):
@@ -232,6 +458,8 @@ class CourseRunDetailTests(TestCase):
     def setUp(self):
         super(CourseRunDetailTests, self).setUp()
         self.course = factories.CourseFactory()
+        self.user = UserFactory(is_staff=True)
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.course_run = factories.CourseRunFactory(course=self.course)
         self._generate_seats([Seat.AUDIT, Seat.HONOR, Seat.VERIFIED, Seat.PROFESSIONAL])
         self._generate_credit_seat()
@@ -239,11 +467,31 @@ class CourseRunDetailTests(TestCase):
         self.wrapped_course_run = CourseRunWrapper(self.course_run)
         self.date_format = '%b %d, %Y, %H:%M:%S %p'
 
-    def test_page_without_data(self):
-        """ Verify that detail page without any data available for that course-run. """
+    def test_page_without_data_staff(self):
+        """ Verify that staff user can access detail page without any data
+        available for that course-run.
+        """
         course_run = factories.CourseRunFactory(course=self.course)
         page_url = reverse('publisher:publisher_course_run_detail', args=[course_run.id])
         response = self.client.get(page_url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_details_page_non_staff(self):
+        """ Verify that non staff user can't access detail page. """
+        non_staff_user = UserFactory()
+        group = factories.GroupFactory()
+
+        self.client.logout()
+        self.client.login(username=non_staff_user.username, password=USER_PASSWORD)
+
+        response = self.client.get(self.page_url)
+        self.assertEqual(response.status_code, 403)
+
+        non_staff_user.groups.add(group)
+        assign_perm(Course.VIEW_PERMISSION, group, self.course)
+
+        response = self.client.get(self.page_url)
+
         self.assertEqual(response.status_code, 200)
 
     def _generate_seats(self, modes):
@@ -255,9 +503,9 @@ class CourseRunDetailTests(TestCase):
         """ Helper method to add credit seat for a course-run. """
         factories.SeatFactory(type='credit', course_run=self.course_run, credit_provider='ASU', credit_hours=9)
 
-    def test_course_run_detail_page(self):
+    def test_course_run_detail_page_staff(self):
         """ Verify that detail page contains all the data for drupal, studio and
-        cat.
+        cat with staff user.
         """
         response = self.client.get(self.page_url)
         self.assertEqual(response.status_code, 200)
@@ -389,12 +637,14 @@ class ChangeStateViewTests(TestCase):
     def setUp(self):
         super(ChangeStateViewTests, self).setUp()
         self.course = factories.CourseFactory()
+        self.user = UserFactory(is_staff=True)
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.course_run = factories.CourseRunFactory(course=self.course)
         self.page_url = reverse('publisher:publisher_course_run_detail', args=[self.course_run.id])
         self.change_state_url = reverse('publisher:publisher_change_state', args=[self.course_run.id])
 
-    def test_detail_page_change_state(self):
-        """ Verify that we can change workflow state from detail page. """
+    def test_change_state_with_staff(self):
+        """ Verify that staff user can change workflow state from detail page. """
         response = self.client.get(self.page_url)
         self.assertContains(response, 'Status:')
         self.assertContains(response, State.DRAFT.title())
@@ -404,14 +654,38 @@ class ChangeStateViewTests(TestCase):
         # assert that state is changed to `NEEDS_REVIEW`
         self.assertContains(response, State.NEEDS_REVIEW.title().replace('_', ' '))
 
-    def test_detail_page_change_state_not_allowed(self):
-        """ Verify that we can't change workflow state from `DRAFT` to `PUBLISHED`. """
+    def test_change_state_not_allowed_with_staff(self):
+        """ Verify that staff user can't change workflow state from `DRAFT` to `PUBLISHED`. """
         response = self.client.get(self.page_url)
         self.assertContains(response, 'Status:')
         self.assertContains(response, State.DRAFT.title())
         # change workflow state from `DRAFT` to `PUBLISHED`
         response = self.client.post(self.change_state_url, data={'state': State.PUBLISHED}, follow=True)
-
         # assert that state is not changed to `PUBLISHED`
         self.assertNotContains(response, State.PUBLISHED.title())
         self.assertContains(response, 'There was an error in changing state.')
+
+    def test_change_state_with_no_staff(self):
+        """ Tests change state for non staff user. """
+        non_staff_user = UserFactory()
+        group = factories.GroupFactory()
+
+        self.client.logout()
+        self.client.login(username=non_staff_user.username, password=USER_PASSWORD)
+        response = self.client.post(self.change_state_url, data={'state': State.NEEDS_REVIEW}, follow=True)
+
+        # verify that non staff user can't change workflow state without permission
+        self.assertEqual(response.status_code, 403)
+
+        # assign user a group and assign view permission on that group
+        non_staff_user.groups.add(group)
+        assign_perm(Course.VIEW_PERMISSION, group, self.course)
+        response = self.client.get(self.page_url)
+
+        self.assertContains(response, 'Status:')
+        self.assertContains(response, State.DRAFT.title())
+        # change workflow state from `DRAFT` to `NEEDS_REVIEW`
+        response = self.client.post(self.change_state_url, data={'state': State.NEEDS_REVIEW}, follow=True)
+
+        # assert that state is changed to `NEEDS_REVIEW`
+        self.assertContains(response, State.NEEDS_REVIEW.title().replace('_', ' '))
