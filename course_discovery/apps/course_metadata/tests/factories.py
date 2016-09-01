@@ -106,6 +106,7 @@ class CourseFactory(factory.DjangoModelFactory):
 
 
 class CourseRunFactory(factory.DjangoModelFactory):
+    status = CourseRun.Status.Published
     uuid = factory.LazyFunction(uuid4)
     key = FuzzyText(prefix='course-run-id/', suffix='/fake')
     course = factory.SubFactory(CourseFactory)
@@ -122,7 +123,7 @@ class CourseRunFactory(factory.DjangoModelFactory):
     video = factory.SubFactory(VideoFactory)
     min_effort = FuzzyInteger(1, 10)
     max_effort = FuzzyInteger(10, 20)
-    pacing_type = FuzzyChoice([name for name, __ in CourseRun.PACING_CHOICES])
+    pacing_type = FuzzyChoice([name for name, __ in CourseRun.Pacing.choices])
     slug = FuzzyText()
 
     @factory.post_generation
@@ -239,7 +240,7 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
     subtitle = 'test-subtitle'
     type = factory.SubFactory(ProgramTypeFactory)
-    status = Program.ProgramStatus.Unpublished
+    status = Program.Status.Unpublished
     marketing_slug = factory.Sequence(lambda n: 'test-slug-{}'.format(n))  # pylint: disable=unnecessary-lambda
     banner_image_url = FuzzyText(prefix='https://example.com/program/banner')
     card_image_url = FuzzyText(prefix='https://example.com/program/card')

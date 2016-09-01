@@ -149,9 +149,9 @@ class CoursesApiDataLoader(AbstractDataLoader):
             pacing = pacing.lower()
 
         if pacing == 'instructor':
-            return CourseRun.INSTRUCTOR_PACED
+            return CourseRun.Pacing.Instructor
         elif pacing == 'self':
-            return CourseRun.SELF_PACED
+            return CourseRun.Pacing.Self
         else:
             return None
 

@@ -138,7 +138,8 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     enrollment_end = models.DateTimeField(null=True, blank=True)
     certificate_generation = models.DateTimeField(null=True, blank=True)
     pacing_type = models.CharField(
-        max_length=255, choices=CourseMetadataCourseRun.PACING_CHOICES, db_index=True, null=True, blank=True
+        max_length=255, db_index=True, null=True, blank=True, choices=CourseMetadataCourseRun.Pacing.choices,
+        validators=[CourseMetadataCourseRun.Pacing.validator]
     )
     staff = SortedManyToManyField(Person, blank=True, related_name='publisher_course_runs_staffed')
     min_effort = models.PositiveSmallIntegerField(

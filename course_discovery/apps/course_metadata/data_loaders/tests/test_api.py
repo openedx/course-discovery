@@ -214,10 +214,10 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         ('', None),
         ('foo', None),
         (None, None),
-        ('instructor', CourseRun.INSTRUCTOR_PACED),
-        ('Instructor', CourseRun.INSTRUCTOR_PACED),
-        ('self', CourseRun.SELF_PACED),
-        ('Self', CourseRun.SELF_PACED),
+        ('instructor', CourseRun.Pacing.Instructor),
+        ('Instructor', CourseRun.Pacing.Instructor),
+        ('self', CourseRun.Pacing.Self),
+        ('Self', CourseRun.Pacing.Self),
     )
     def test_get_pacing_type(self, pacing, expected_pacing_type):
         """ Verify the method returns a pacing type corresponding to the API response's pacing field. """

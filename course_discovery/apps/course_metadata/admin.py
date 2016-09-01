@@ -53,7 +53,8 @@ class CourseRunAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'key', 'title',)
     list_filter = (
         'course__partner',
-        ('language', admin.RelatedOnlyFieldListFilter,)
+        ('language', admin.RelatedOnlyFieldListFilter,),
+        'status',
     )
     ordering = ('key',)
     readonly_fields = ('uuid',)
@@ -65,7 +66,7 @@ class ProgramAdmin(admin.ModelAdmin):
     form = ProgramAdminForm
     inlines = [FaqsInline, IndividualEndorsementInline, CorporateEndorsementsInline]
     list_display = ('id', 'uuid', 'title', 'category', 'type', 'partner', 'status',)
-    list_filter = ('partner', 'type',)
+    list_filter = ('partner', 'type', 'status',)
     ordering = ('uuid', 'title', 'status')
     readonly_fields = ('uuid', 'custom_course_runs_display', 'excluded_course_runs',)
     search_fields = ('uuid', 'title', 'marketing_slug')
