@@ -30,5 +30,6 @@ if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
         'debug_toolbar.panels.signals.SignalsPanel',
         'debug_toolbar.panels.logging.LoggingPanel',
         'debug_toolbar.panels.redirects.RedirectsPanel',
-        'elastic_panel.panel.ElasticDebugPanel'
+        'elastic_panel.panel.ElasticDebugPanel',
+        'cachalot.panels.CachalotPanel',
     ]
