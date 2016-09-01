@@ -135,6 +135,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                 'title_override': body['name'],
                 'short_description_override': body['short_description'],
                 'video': self.get_courserun_video(body),
+                'status': CourseRun.Status.Published,
             })
 
         course_run, __ = course.course_runs.update_or_create(key__iexact=key, defaults=defaults)

@@ -158,6 +158,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
                 'title_override': body['name'],
                 'short_description_override': self.loader.clean_string(body['short_description']),
                 'video': self.loader.get_courserun_video(body),
+                'status': CourseRun.Status.Published,
             })
 
         for field, value in expected_values.items():

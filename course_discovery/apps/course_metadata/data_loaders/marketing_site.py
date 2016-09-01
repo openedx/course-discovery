@@ -370,6 +370,9 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         description = self.clean_html(description)
         return description
 
+    def get_course_run_status(self, data):
+        return CourseRun.Status.Published if bool(int(data['status'])) else CourseRun.Status.Unpublished
+
     def get_level_type(self, name):
         level_type = None
 
@@ -397,6 +400,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'language': language,
             'slug': slug,
             'card_image_url': self._get_nested_url(data.get('field_course_image_promoted')),
+            'status': self.get_course_run_status(data),
         }
 
         try:
