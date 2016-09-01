@@ -328,7 +328,7 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
 
         if query and course_run_ids:
             course_run_ids = course_run_ids.split(',')
-            course_runs = CourseRun.search(query).filter(partner=partner.short_code).filter(key__in=course_run_ids).\
+            course_runs = CourseRun.search(query).filter(partner=partner.short_code).filter(key__in=course_run_ids). \
                 values_list('key', flat=True)
             contains = {course_run_id: course_run_id in course_runs for course_run_id in course_run_ids}
 
@@ -477,7 +477,7 @@ class BaseHaystackViewSet(FacetMixin, HaystackViewSet):
         """
         return super(BaseHaystackViewSet, self).list(request, *args, **kwargs)
 
-    @list_route(methods=["get"], url_path="facets")
+    @list_route(methods=['get'], url_path='facets')
     def facets(self, request):
         """
         Returns faceted search results
@@ -512,6 +512,9 @@ class BaseHaystackViewSet(FacetMixin, HaystackViewSet):
 
         facet_serializer_cls = self.get_facet_serializer_class()
         field_queries = getattr(facet_serializer_cls.Meta, 'field_queries', {})
+
+        # Ensure we only return published items
+        queryset = queryset.filter(published=True)
 
         for facet in self.request.query_params.getlist('selected_query_facets'):
             query = field_queries.get(facet)

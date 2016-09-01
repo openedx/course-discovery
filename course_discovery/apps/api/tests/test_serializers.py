@@ -606,6 +606,7 @@ class CourseRunSearchSerializerTests(TestCase):
             'type': course_run.type,
             'level_type': course_run.level_type.name,
             'availability': course_run.availability,
+            'published': course_run.status == CourseRun.Status.Published,
         }
         self.assertDictEqual(serializer.data, expected)
 
@@ -648,6 +649,7 @@ class ProgramSearchSerializerTests(TestCase):
             'content_type': 'program',
             'card_image_url': program.card_image_url,
             'status': program.status,
+            'published': program.status == Program.Status.Active,
         }
         self.assertDictEqual(serializer.data, expected)
 
@@ -668,5 +670,6 @@ class ProgramSearchSerializerTests(TestCase):
             'content_type': 'program',
             'card_image_url': program.card_image_url,
             'status': program.status,
+            'published': program.status == Program.Status.Active,
         }
         self.assertDictEqual(serializer.data, expected)

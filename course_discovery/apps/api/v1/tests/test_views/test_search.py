@@ -7,23 +7,35 @@ from django.core.urlresolvers import reverse
 from haystack.query import SearchQuerySet
 from rest_framework.test import APITestCase
 
-from course_discovery.apps.api.serializers import CourseRunSearchSerializer
+from course_discovery.apps.api.serializers import CourseRunSearchSerializer, ProgramSearchSerializer
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
-from course_discovery.apps.course_metadata.models import CourseRun
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory
+from course_discovery.apps.course_metadata.models import CourseRun, Program
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory
+
+
+class SerializationMixin:
+    def serialize_course_run(self, course_run):
+        result = SearchQuerySet().models(CourseRun).filter(key=course_run.key)[0]
+        return CourseRunSearchSerializer(result).data
+
+    def serialize_program(self, program):
+        result = SearchQuerySet().models(Program).filter(uuid=program.uuid)[0]
+        return ProgramSearchSerializer(result).data
+
+
+class LoginMixin:
+    def setUp(self):
+        super(LoginMixin, self).setUp()
+        self.user = UserFactory()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
 
 
 @ddt.ddt
-class CourseRunSearchViewSetTests(ElasticsearchTestMixin, APITestCase):
+class CourseRunSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchTestMixin, APITestCase):
     """ Tests for CourseRunSearchViewSet. """
     faceted_path = reverse('api:v1:search-course_runs-facets')
     list_path = reverse('api:v1:search-course_runs-list')
-
-    def setUp(self):
-        super(CourseRunSearchViewSetTests, self).setUp()
-        self.user = UserFactory()
-        self.client.login(username=self.user.username, password=USER_PASSWORD)
 
     def get_search_response(self, query=None, faceted=False):
         qs = ''
@@ -34,10 +46,6 @@ class CourseRunSearchViewSetTests(ElasticsearchTestMixin, APITestCase):
         path = self.faceted_path if faceted else self.list_path
         url = '{path}?{qs}'.format(path=path, qs=qs)
         return self.client.get(url)
-
-    def serialize_course_run(self, course_run):
-        result = SearchQuerySet().models(CourseRun).filter(key=course_run.key)[0]
-        return CourseRunSearchSerializer(result).data
 
     @ddt.data(True, False)
     def test_authentication(self, faceted):
@@ -65,7 +73,7 @@ class CourseRunSearchViewSetTests(ElasticsearchTestMixin, APITestCase):
         """ Asserts the search functionality returns results for a generated query. """
 
         # Generate data that should be indexed and returned by the query
-        course_run = CourseRunFactory(course__title='Software Testing')
+        course_run = CourseRunFactory(course__title='Software Testing', status=CourseRun.Status.Published)
         response = self.get_search_response('software', faceted=faceted)
 
         self.assertEqual(response.status_code, 200)
@@ -101,10 +109,14 @@ class CourseRunSearchViewSetTests(ElasticsearchTestMixin, APITestCase):
     def test_availability_faceting(self):
         """ Verify the endpoint returns availability facets with the results. """
         now = datetime.datetime.utcnow()
-        archived = CourseRunFactory(start=now - datetime.timedelta(weeks=2), end=now - datetime.timedelta(weeks=1))
-        current = CourseRunFactory(start=now - datetime.timedelta(weeks=2), end=now + datetime.timedelta(weeks=1))
-        starting_soon = CourseRunFactory(start=now + datetime.timedelta(days=10), end=now + datetime.timedelta(days=90))
-        upcoming = CourseRunFactory(start=now + datetime.timedelta(days=61), end=now + datetime.timedelta(days=90))
+        archived = CourseRunFactory(start=now - datetime.timedelta(weeks=2), end=now - datetime.timedelta(weeks=1),
+                                    status=CourseRun.Status.Published)
+        current = CourseRunFactory(start=now - datetime.timedelta(weeks=2), end=now + datetime.timedelta(weeks=1),
+                                   status=CourseRun.Status.Published)
+        starting_soon = CourseRunFactory(start=now + datetime.timedelta(days=10), end=now + datetime.timedelta(days=90),
+                                         status=CourseRun.Status.Published)
+        upcoming = CourseRunFactory(start=now + datetime.timedelta(days=61), end=now + datetime.timedelta(days=90),
+                                    status=CourseRun.Status.Published)
 
         response = self.get_search_response(faceted=True)
         self.assertEqual(response.status_code, 200)
@@ -148,3 +160,31 @@ class CourseRunSearchViewSetTests(ElasticsearchTestMixin, APITestCase):
             },
         }
         self.assertDictContainsSubset(expected, response_data['queries'])
+
+
+class AggregateSearchViewSet(SerializationMixin, LoginMixin, ElasticsearchTestMixin, APITestCase):
+    path = reverse('api:v1:search-all-facets')
+
+    def get_search_response(self, query=None):
+        qs = ''
+
+        if query:
+            qs = urllib.parse.urlencode({'q': query})
+
+        url = '{path}?{qs}'.format(path=self.path, qs=qs)
+        return self.client.get(url)
+
+    def test_results_only_include_published_objects(self):
+        """ Verify the search results only include items with status set to 'Published'. """
+        # These items should NOT be in the results
+        CourseRunFactory(status=CourseRun.Status.Unpublished)
+        ProgramFactory(status=Program.Status.Unpublished)
+
+        course_run = CourseRunFactory(status=CourseRun.Status.Published)
+        program = ProgramFactory(status=Program.Status.Active)
+
+        response = self.get_search_response()
+        self.assertEqual(response.status_code, 200)
+        response_data = json.loads(response.content.decode('utf-8'))
+        self.assertListEqual(response_data['objects']['results'],
+                             [self.serialize_course_run(course_run), self.serialize_program(program)])
