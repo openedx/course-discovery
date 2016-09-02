@@ -221,7 +221,6 @@ class ProgramCourseSerializerTests(TestCase):
 
 
 class ProgramSerializerTests(TestCase):
-
     def test_data(self):
         request = make_request()
         org_list = OrganizationFactory.create_batch(1)
@@ -579,7 +578,6 @@ class AffiliateWindowSerializerTests(TestCase):
 
 
 class CourseRunSearchSerializerTests(TestCase):
-
     def test_data(self):
         course_run = CourseRunFactory()
         serializer = self.serialize_course_run(course_run)
@@ -607,6 +605,7 @@ class CourseRunSearchSerializerTests(TestCase):
             'level_type': course_run.level_type.name,
             'availability': course_run.availability,
             'published': course_run.status == CourseRun.Status.Published,
+            'partner': course_run.course.partner.short_code,
         }
         self.assertDictEqual(serializer.data, expected)
 
@@ -624,52 +623,41 @@ class CourseRunSearchSerializerTests(TestCase):
 
 
 class ProgramSearchSerializerTests(TestCase):
+    def _create_expected_data(self, program):
+        return {
+            'uuid': str(program.uuid),
+            'title': program.title,
+            'subtitle': program.subtitle,
+            'type': program.type.name,
+            'marketing_url': program.marketing_url,
+            'authoring_organizations': OrganizationSerializer(program.authoring_organizations, many=True).data,
+            'content_type': 'program',
+            'card_image_url': program.card_image_url,
+            'status': program.status,
+            'published': program.status == Program.Status.Active,
+            'partner': program.partner.short_code,
+        }
+
     def test_data(self):
-        program = ProgramFactory()
         authoring_organization, crediting_organization = OrganizationFactory.create_batch(2)
-        program.authoring_organizations.add(authoring_organization)
-        program.credit_backing_organizations.add(crediting_organization)
-        program.save()
-        expected_authoring_organizations = [
-            OrganizationSerializer(authoring_organization).data,
-        ]
+        program = ProgramFactory(authoring_organizations=[authoring_organization],
+                                 credit_backing_organizations=[crediting_organization])
 
         # NOTE: This serializer expects SearchQuerySet results, so we run a search on the newly-created object
         # to generate such a result.
         result = SearchQuerySet().models(Program).filter(uuid=program.uuid)[0]
         serializer = ProgramSearchSerializer(result)
 
-        expected = {
-            'uuid': str(program.uuid),
-            'title': program.title,
-            'subtitle': program.subtitle,
-            'type': program.type.name,
-            'marketing_url': program.marketing_url,
-            'authoring_organizations': expected_authoring_organizations,
-            'content_type': 'program',
-            'card_image_url': program.card_image_url,
-            'status': program.status,
-            'published': program.status == Program.Status.Active,
-        }
+        expected = self._create_expected_data(program)
         self.assertDictEqual(serializer.data, expected)
 
-    def test_organization_bodies_missing(self):
-        program = ProgramFactory()
+    def test_data_without_organizations(self):
+        """ Verify the serializer serialized programs with no associated organizations.
+        In such cases the organizations value should be an empty array. """
+        program = ProgramFactory(authoring_organizations=[], credit_backing_organizations=[])
 
         result = SearchQuerySet().models(Program).filter(uuid=program.uuid)[0]
-        result.organization_bodies = None
         serializer = ProgramSearchSerializer(result)
 
-        expected = {
-            'uuid': str(program.uuid),
-            'title': program.title,
-            'subtitle': program.subtitle,
-            'type': program.type.name,
-            'marketing_url': program.marketing_url,
-            'authoring_organizations': [],
-            'content_type': 'program',
-            'card_image_url': program.card_image_url,
-            'status': program.status,
-            'published': program.status == Program.Status.Active,
-        }
+        expected = self._create_expected_data(program)
         self.assertDictEqual(serializer.data, expected)
