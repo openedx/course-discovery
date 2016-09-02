@@ -2,6 +2,7 @@ import itertools
 from decimal import Decimal
 
 import ddt
+import mock
 from dateutil.parser import parse
 from django.conf import settings
 from django.db import IntegrityError
@@ -15,8 +16,8 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.models import (
     AbstractMediaModel, AbstractNamedModel, AbstractValueModel,
-    CorporateEndorsement, Course, CourseRun, Endorsement,
-    FAQ, SeatType, Program
+    CorporateEndorsement, Program, Course, CourseRun, Endorsement,
+    FAQ, SeatType
 )
 from course_discovery.apps.course_metadata.tests import factories, toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ImageFactory
@@ -46,6 +47,11 @@ class CourseTests(TestCase):
         query = 'title:' + title
         actual = list(Course.search(query).order_by('key'))
         self.assertEqual(actual, courses)
+
+    def test_course_run_update_caught_exception(self):
+        """ Test that the index update process failing will not cause the course save to error """
+        with mock.patch.object(Course, 'reindex_course_runs', side_effect=Exception):
+            self.course.save()
 
 
 @ddt.ddt
@@ -149,6 +155,13 @@ class CourseRunTests(TestCase):
         """ Verify the property returns None if the CourseRun has no marketing_slug value. """
         course_run = CourseRunFactory(slug=slug)
         self.assertIsNone(course_run.marketing_url)
+
+    def test_program_types(self):
+        """ Verify the property retrieves program types correctly based on programs. """
+        courses = [self.course_run.course]
+        program = factories.ProgramFactory(courses=courses)
+        other_program = factories.ProgramFactory(courses=courses)
+        self.assertCountEqual(self.course_run.program_types, [program.type.name, other_program.type.name])
 
 
 class OrganizationTests(TestCase):
@@ -408,6 +421,11 @@ class ProgramTests(MarketingSitePublisherTestMixin, TestCase):
         self.program.save()
         self.assertEqual(len(responses.calls), 0)
         toggle_switch('publish_program_to_marketing_site', False)
+
+    def test_course_update_caught_exception(self):
+        """ Test that the index update process failing will not cause the program save to error """
+        with mock.patch.object(Course, 'reindex_course_runs', side_effect=Exception):
+            self.program.save()
 
 
 class PersonSocialNetworkTests(TestCase):

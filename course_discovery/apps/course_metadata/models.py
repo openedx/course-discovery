@@ -11,6 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
 from djchoices import DjangoChoices, ChoiceItem
+from haystack import connections
 from haystack.query import SearchQuerySet
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
@@ -307,6 +308,19 @@ class Course(TimeStampedModel):
         ids = [result.pk for result in results]
         return cls.objects.filter(pk__in=ids)
 
+    def save(self, *args, **kwargs):
+        super(Course, self).save(*args, **kwargs)
+        try:
+            self.reindex_course_runs()
+        except Exception:  # pylint: disable=broad-except
+            logger.exception("An error occurred while attempting to reindex the course runs"
+                             "of Course with key: [{key}].".format(key=self.key))
+
+    def reindex_course_runs(self):
+        index = connections['default'].get_unified_index().get_index(CourseRun)
+        for course_run in self.course_runs.all():
+            index.update_object(course_run)
+
 
 class CourseRun(TimeStampedModel):
     """ CourseRun model. """
@@ -364,6 +378,10 @@ class CourseRun(TimeStampedModel):
 
     history = HistoricalRecords()
     objects = CourseRunQuerySet.as_manager()
+
+    @property
+    def program_types(self):
+        return [program.type.name for program in self.programs.all()]
 
     @property
     def marketing_url(self):
@@ -724,6 +742,17 @@ class Program(TimeStampedModel):
                 publisher.publish_program(self)
         else:
             super(Program, self).save(*args, **kwargs)
+        self.reindex_courses()
+
+    def reindex_courses(self):
+        try:
+            index = connections['default'].get_unified_index().get_index(Course)
+            for course in self.courses.all():
+                index.update_object(course)
+                course.reindex_course_runs()
+        except Exception:  # pylint: disable=broad-except
+            logger.exception("An error occurred while attempting to reindex the courses"
+                             "of Program with uuid: [{uuid}].".format(uuid=self.uuid))
 
 
 class PersonSocialNetwork(AbstractSocialNetworkModel):

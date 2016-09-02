@@ -45,7 +45,7 @@ COURSE_RUN_FACET_FIELD_QUERIES = {
 COURSE_RUN_SEARCH_FIELDS = (
     'text', 'key', 'title', 'short_description', 'full_description', 'start', 'end', 'enrollment_start',
     'enrollment_end', 'pacing_type', 'language', 'transcript_languages', 'marketing_url', 'content_type', 'org',
-    'number', 'seat_types', 'image_url', 'type', 'level_type', 'availability', 'published', 'partner',
+    'number', 'seat_types', 'image_url', 'type', 'level_type', 'availability', 'published', 'partner', 'program_types',
 )
 
 PROGRAM_FACET_FIELD_OPTIONS = {
