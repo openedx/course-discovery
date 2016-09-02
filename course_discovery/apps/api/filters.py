@@ -1,15 +1,17 @@
 import logging
 
 import django_filters
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
 from django.utils.translation import ugettext as _
-from drf_haystack.filters import HaystackFacetFilter
+from drf_haystack.filters import HaystackFacetFilter, HaystackFilter as DefaultHaystackFilter
 from drf_haystack.query import FacetQueryBuilder
 from dry_rest_permissions.generics import DRYPermissionFiltersBase
 from guardian.shortcuts import get_objects_for_user
 from rest_framework.exceptions import PermissionDenied, NotFound
 
+from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 
 logger = logging.getLogger(__name__)
@@ -59,6 +61,18 @@ class FacetQueryBuilderWithQueries(FacetQueryBuilder):
 
 class HaystackFacetFilterWithQueries(HaystackFacetFilter):
     query_builder_class = FacetQueryBuilderWithQueries
+
+
+class HaystackFilter(DefaultHaystackFilter):
+    @staticmethod
+    def get_request_filters(request):
+        filters = HaystackFacetFilter.get_request_filters(request)
+
+        # Return data for the default partner, if no partner is requested
+        if not any(field in filters for field in ('partner', 'partner_exact')):
+            filters['partner'] = Partner.objects.get(pk=settings.DEFAULT_PARTNER_ID).short_code
+
+        return filters
 
 
 class CharListFilter(django_filters.CharFilter):

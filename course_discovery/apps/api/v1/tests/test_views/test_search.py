@@ -3,12 +3,13 @@ import json
 import urllib.parse
 
 import ddt
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from haystack.query import SearchQuerySet
 from rest_framework.test import APITestCase
 
 from course_discovery.apps.api.serializers import CourseRunSearchSerializer, ProgramSearchSerializer
-from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
+from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD, PartnerFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.models import CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory
@@ -31,8 +32,15 @@ class LoginMixin:
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
 
+class DefaultPartnerMixin:
+    def setUp(self):
+        super(DefaultPartnerMixin, self).setUp()
+        self.partner = PartnerFactory(pk=settings.DEFAULT_PARTNER_ID)
+
+
 @ddt.ddt
-class CourseRunSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchTestMixin, APITestCase):
+class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, LoginMixin, ElasticsearchTestMixin,
+                                  APITestCase):
     """ Tests for CourseRunSearchViewSet. """
     faceted_path = reverse('api:v1:search-course_runs-facets')
     list_path = reverse('api:v1:search-course_runs-list')
@@ -73,7 +81,8 @@ class CourseRunSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
         """ Asserts the search functionality returns results for a generated query. """
 
         # Generate data that should be indexed and returned by the query
-        course_run = CourseRunFactory(course__title='Software Testing', status=CourseRun.Status.Published)
+        course_run = CourseRunFactory(course__partner=self.partner, course__title='Software Testing',
+                                      status=CourseRun.Status.Published)
         response = self.get_search_response('software', faceted=faceted)
 
         self.assertEqual(response.status_code, 200)
@@ -109,14 +118,14 @@ class CourseRunSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
     def test_availability_faceting(self):
         """ Verify the endpoint returns availability facets with the results. """
         now = datetime.datetime.utcnow()
-        archived = CourseRunFactory(start=now - datetime.timedelta(weeks=2), end=now - datetime.timedelta(weeks=1),
-                                    status=CourseRun.Status.Published)
-        current = CourseRunFactory(start=now - datetime.timedelta(weeks=2), end=now + datetime.timedelta(weeks=1),
-                                   status=CourseRun.Status.Published)
-        starting_soon = CourseRunFactory(start=now + datetime.timedelta(days=10), end=now + datetime.timedelta(days=90),
-                                         status=CourseRun.Status.Published)
-        upcoming = CourseRunFactory(start=now + datetime.timedelta(days=61), end=now + datetime.timedelta(days=90),
-                                    status=CourseRun.Status.Published)
+        archived = CourseRunFactory(course__partner=self.partner, start=now - datetime.timedelta(weeks=2),
+                                    end=now - datetime.timedelta(weeks=1), status=CourseRun.Status.Published)
+        current = CourseRunFactory(course__partner=self.partner, start=now - datetime.timedelta(weeks=2),
+                                   end=now + datetime.timedelta(weeks=1), status=CourseRun.Status.Published)
+        starting_soon = CourseRunFactory(course__partner=self.partner, start=now + datetime.timedelta(days=10),
+                                         end=now + datetime.timedelta(days=90), status=CourseRun.Status.Published)
+        upcoming = CourseRunFactory(course__partner=self.partner, start=now + datetime.timedelta(days=61),
+                                    end=now + datetime.timedelta(days=90), status=CourseRun.Status.Published)
 
         response = self.get_search_response(faceted=True)
         self.assertEqual(response.status_code, 200)
@@ -162,14 +171,12 @@ class CourseRunSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
         self.assertDictContainsSubset(expected, response_data['queries'])
 
 
-class AggregateSearchViewSet(SerializationMixin, LoginMixin, ElasticsearchTestMixin, APITestCase):
+class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin, ElasticsearchTestMixin, APITestCase):
     path = reverse('api:v1:search-all-facets')
 
-    def get_search_response(self, query=None):
-        qs = ''
-
-        if query:
-            qs = urllib.parse.urlencode({'q': query})
+    def get_search_response(self, querystring=None):
+        querystring = querystring or {}
+        qs = urllib.parse.urlencode(querystring)
 
         url = '{path}?{qs}'.format(path=self.path, qs=qs)
         return self.client.get(url)
@@ -177,14 +184,40 @@ class AggregateSearchViewSet(SerializationMixin, LoginMixin, ElasticsearchTestMi
     def test_results_only_include_published_objects(self):
         """ Verify the search results only include items with status set to 'Published'. """
         # These items should NOT be in the results
-        CourseRunFactory(status=CourseRun.Status.Unpublished)
-        ProgramFactory(status=Program.Status.Unpublished)
+        CourseRunFactory(course__partner=self.partner, status=CourseRun.Status.Unpublished)
+        ProgramFactory(partner=self.partner, status=Program.Status.Unpublished)
 
-        course_run = CourseRunFactory(status=CourseRun.Status.Published)
-        program = ProgramFactory(status=Program.Status.Active)
+        course_run = CourseRunFactory(course__partner=self.partner, status=CourseRun.Status.Published)
+        program = ProgramFactory(partner=self.partner, status=Program.Status.Active)
 
         response = self.get_search_response()
         self.assertEqual(response.status_code, 200)
         response_data = json.loads(response.content.decode('utf-8'))
         self.assertListEqual(response_data['objects']['results'],
                              [self.serialize_course_run(course_run), self.serialize_program(program)])
+
+    def test_results_filtered_by_default_partner(self):
+        """ Verify the search results only include items related to the default partner if no partner is
+        specified on the request. If a partner is included, the data should be filtered to the requested partner. """
+        course_run = CourseRunFactory(course__partner=self.partner, status=CourseRun.Status.Published)
+        program = ProgramFactory(partner=self.partner, status=Program.Status.Active)
+
+        # This data should NOT be in the results
+        other_partner = PartnerFactory()
+        other_course_run = CourseRunFactory(course__partner=other_partner, status=CourseRun.Status.Published)
+        other_program = ProgramFactory(partner=other_partner, status=Program.Status.Active)
+        self.assertNotEqual(other_program.partner.short_code, self.partner.short_code)
+        self.assertNotEqual(other_course_run.course.partner.short_code, self.partner.short_code)
+
+        response = self.get_search_response()
+        self.assertEqual(response.status_code, 200)
+        response_data = json.loads(response.content.decode('utf-8'))
+        self.assertListEqual(response_data['objects']['results'],
+                             [self.serialize_program(program), self.serialize_course_run(course_run)])
+
+        # Filter results by partner
+        response = self.get_search_response({'partner': other_partner.short_code})
+        self.assertEqual(response.status_code, 200)
+        response_data = json.loads(response.content.decode('utf-8'))
+        self.assertListEqual(response_data['objects']['results'],
+                             [self.serialize_course_run(other_course_run), self.serialize_program(other_program)])

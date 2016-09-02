@@ -12,7 +12,6 @@ from django.db.models import Q
 from django.db.models.functions import Lower
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from drf_haystack.filters import HaystackFilter
 from drf_haystack.mixins import FacetMixin
 from drf_haystack.viewsets import HaystackViewSet
 from dry_rest_permissions.generics import DRYPermissions
@@ -455,7 +454,7 @@ class AffiliateWindowViewSet(viewsets.ViewSet):
 
 class BaseHaystackViewSet(FacetMixin, HaystackViewSet):
     document_uid_field = 'key'
-    facet_filter_backends = [filters.HaystackFacetFilterWithQueries, HaystackFilter]
+    facet_filter_backends = [filters.HaystackFacetFilterWithQueries, filters.HaystackFilter]
     load_all = True
     lookup_field = 'key'
     permission_classes = (IsAuthenticated,)
@@ -508,7 +507,7 @@ class BaseHaystackViewSet(FacetMixin, HaystackViewSet):
         return super(BaseHaystackViewSet, self).facets(request)
 
     def filter_facet_queryset(self, queryset):
-        queryset = super(BaseHaystackViewSet, self).filter_facet_queryset(queryset)
+        queryset = super().filter_facet_queryset(queryset)
 
         facet_serializer_cls = self.get_facet_serializer_class()
         field_queries = getattr(facet_serializer_cls.Meta, 'field_queries', {})

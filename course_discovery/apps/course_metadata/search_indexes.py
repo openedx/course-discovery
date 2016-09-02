@@ -111,8 +111,11 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     seat_types = indexes.MultiValueField(model_attr='seat_types', null=True, faceted=True)
     type = indexes.CharField(model_attr='type', null=True, faceted=True)
     image_url = indexes.CharField(model_attr='card_image_url', null=True)
-    partner = indexes.CharField(model_attr='course__partner__short_code', null=True, faceted=True)
+    partner = indexes.CharField(null=True, faceted=True)
     published = indexes.BooleanField(null=False, faceted=True)
+
+    def prepare_partner(self, obj):
+        return obj.course.partner.short_code
 
     def prepare_published(self, obj):
         return obj.status == CourseRun.Status.Published
