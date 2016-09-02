@@ -26,6 +26,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
     OrganizationFactory, PersonFactory, SeatFactory, ProgramFactory, CorporateEndorsementFactory, EndorsementFactory,
     JobOutlookItemFactory, ExpectedLearningItemFactory, PositionFactory
 )
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
 # pylint:disable=no-member
@@ -46,6 +47,9 @@ def serialize_datetime(d):
 
 
 def serialize_language(language):
+    if language.code.startswith('zh'):
+        return language.name
+
     return language.macrolanguage
 
 
@@ -579,7 +583,7 @@ class AffiliateWindowSerializerTests(TestCase):
 
 class CourseRunSearchSerializerTests(TestCase):
     def test_data(self):
-        course_run = CourseRunFactory()
+        course_run = CourseRunFactory(transcript_languages=LanguageTag.objects.filter(code__in=['en-us', 'zh-cn']))
         serializer = self.serialize_course_run(course_run)
         course_run_key = CourseKey.from_string(course_run.key)
 

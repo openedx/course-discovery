@@ -121,12 +121,17 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
         return obj.status == CourseRun.Status.Published
 
     def _prepare_language(self, language):
-        return language.macrolanguage
+        if language:
+            # ECOM-5466: Render the macro language for all languages except Chinese
+            if language.code.startswith('zh'):
+                return language.name
+            else:
+                return language.macrolanguage
+
+        return None
 
     def prepare_language(self, obj):
-        if obj.language:
-            return self._prepare_language(obj.language)
-        return None
+        return self._prepare_language(obj.language)
 
     def prepare_number(self, obj):
         course_run_key = CourseKey.from_string(obj.key)
