@@ -15,7 +15,7 @@ def fix_tag_names(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('ietf_language_tags', '0002_language_tag_data_migration'),
+        ('ietf_language_tags', '0004_add_chinese_tags'),
     ]
 
     operations = [
