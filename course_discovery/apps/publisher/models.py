@@ -7,6 +7,7 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from django_fsm import FSMField, transition
+from guardian.shortcuts import assign_perm
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 
@@ -73,6 +74,7 @@ class State(TimeStampedModel, ChangedByMixin):
 
 class Course(TimeStampedModel, ChangedByMixin):
     """ Publisher Course model. It contains fields related to the course intake form."""
+    VIEW_PERMISSION = 'view_course'
 
     title = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_('Course title'))
     number = models.CharField(max_length=50, null=True, blank=True, verbose_name=_('Course number'))
@@ -109,6 +111,15 @@ class Course(TimeStampedModel, ChangedByMixin):
     @property
     def post_back_url(self):
         return reverse('publisher:publisher_courses_edit', kwargs={'pk': self.id})
+
+    class Meta(TimeStampedModel.Meta):
+        permissions = (
+            ('view_course', 'Can view course'),
+        )
+
+    def assign_user_groups(self, user):
+        for group in user.groups.all():
+            assign_perm(self.VIEW_PERMISSION, group, self)
 
 
 class CourseRun(TimeStampedModel, ChangedByMixin):

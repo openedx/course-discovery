@@ -18,7 +18,9 @@ class CreateUpdateCourseViewTests(TestCase):
     def setUp(self):
         super(CreateUpdateCourseViewTests, self).setUp()
         self.course = factories.CourseFactory()
+        self.group = factories.GroupFactory()
         self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.user.groups.add(self.group)
         self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
@@ -39,6 +41,7 @@ class CreateUpdateCourseViewTests(TestCase):
         )
 
         self.assertEqual(course.number, course_number)
+        self.assertTrue(self.user.has_perm(Course.VIEW_PERMISSION, course))
         response = self.client.get(reverse('publisher:publisher_courses_new'))
         self.assertNotContains(response, 'Add new comment')
         self.assertNotContains(response, 'Total Comments')

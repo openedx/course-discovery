@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import factory
+from django.contrib.auth.models import Group
 from factory.fuzzy import FuzzyText, FuzzyChoice, FuzzyDecimal, FuzzyDateTime, FuzzyInteger
 from pytz import UTC
 
@@ -66,3 +67,9 @@ class SeatFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = Seat
+
+
+class GroupFactory(factory.DjangoModelFactory):
+
+    class Meta:
+        model = Group

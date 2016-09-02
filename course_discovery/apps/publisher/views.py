@@ -50,6 +50,7 @@ class CreateCourseView(CreateView):
 
     def form_valid(self, form):
         self.object = form.save()
+        self.object.assign_user_groups(self.request.user)
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
