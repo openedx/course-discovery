@@ -1,8 +1,10 @@
 import abc
+import datetime
 import logging
 from urllib.parse import urlencode
 from uuid import UUID
 
+import pytz
 import requests
 from django.db.models import Q
 from django.utils.functional import cached_property
@@ -392,6 +394,8 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         slug = data['url'].split('/')[-1]
         language_tags = self._extract_language_tags(data['field_course_languages'])
         language = language_tags[0] if language_tags else None
+        start = data.get('field_course_start_date')
+        start = datetime.datetime.fromtimestamp(int(start), tz=pytz.UTC) if start else None
 
         defaults = {
             'key': key,
@@ -401,6 +405,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'slug': slug,
             'card_image_url': self._get_nested_url(data.get('field_course_image_promoted')),
             'status': self.get_course_run_status(data),
+            'start': start,
         }
 
         try:

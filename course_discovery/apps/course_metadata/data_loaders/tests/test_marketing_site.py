@@ -1,9 +1,11 @@
+import datetime
 import json
 from urllib.parse import parse_qs, urlparse
 from uuid import UUID
 
 import ddt
 import mock
+import pytz
 import responses
 from django.test import TestCase
 from opaque_keys.edx.keys import CourseKey
@@ -421,6 +423,8 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         course_run = course.course_runs.get(uuid=data['uuid'])
         language_names = [language['name'] for language in data['field_course_languages']]
         language = self.loader.get_language_tags_from_names(language_names).first()
+        start = data.get('field_course_start_date')
+        start = datetime.datetime.fromtimestamp(int(start), tz=pytz.UTC) if start else None
 
         expected_values = {
             'key': data['field_course_id'],
@@ -428,6 +432,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
             'slug': data['url'].split('/')[-1],
             'card_image_url': (data.get('field_course_image_promoted') or {}).get('url'),
             'status': self.loader.get_course_run_status(data),
+            'start': start
         }
 
         for field, value in expected_values.items():
