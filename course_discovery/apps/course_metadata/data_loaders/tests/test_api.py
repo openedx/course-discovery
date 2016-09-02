@@ -141,7 +141,6 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         expected_values = {
             'title': self.loader.clean_string(body['name']),
             'short_description': self.loader.clean_string(body['short_description']),
-            'start': self.loader.parse_date(body['start']),
             'end': self.loader.parse_date(body['end']),
             'enrollment_start': self.loader.parse_date(body['enrollment_start']),
             'enrollment_end': self.loader.parse_date(body['enrollment_end']),
@@ -154,6 +153,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
 
         if not partner_has_marketing_site:
             expected_values.update({
+                'start': self.loader.parse_date(body['start']),
                 'card_image_url': body['media'].get('image', {}).get('raw'),
                 'title_override': body['name'],
                 'short_description_override': self.loader.clean_string(body['short_description']),
