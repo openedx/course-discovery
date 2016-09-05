@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
                 'get_latest_by': 'modified',
                 'abstract': False,
             },
-            bases=(models.Model, course_discovery.apps.publisher.models.ChangedByMixin),
+            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='CourseRun',
@@ -86,7 +86,7 @@ class Migration(migrations.Migration):
                 'get_latest_by': 'modified',
                 'abstract': False,
             },
-            bases=(models.Model, course_discovery.apps.publisher.models.ChangedByMixin),
+            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='HistoricalCourse',
@@ -202,6 +202,6 @@ class Migration(migrations.Migration):
                 'get_latest_by': 'modified',
                 'abstract': False,
             },
-            bases=(models.Model, course_discovery.apps.publisher.models.ChangedByMixin),
+            bases=(models.Model,),
         ),
     ]

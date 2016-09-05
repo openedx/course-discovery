@@ -1,4 +1,6 @@
-from django.http import HttpResponseForbidden
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.utils.decorators import method_decorator
 
 from course_discovery.apps.publisher.models import Course, Seat
 
@@ -28,6 +30,34 @@ class ViewPermissionMixin(object):
             return self.permission_failed()
 
         return super(ViewPermissionMixin, self).dispatch(request, *args, **kwargs)
+
+
+class LoginRequiredMixin(object):
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+
+
+class FormValidMixin(object):
+    change_state = False
+    assign_user_groups = False
+
+    def form_valid(self, form):
+        user = self.request.user
+        publisher_object = form.save(commit=False)
+        publisher_object.changed_by = user
+        publisher_object.save()
+
+        if self.assign_user_groups:
+            publisher_object.assign_user_groups(user)
+
+        if self.change_state:
+            publisher_object.change_state(user=user)
+
+        self.object = publisher_object
+
+        return HttpResponseRedirect(self.get_success_url())
 
 
 def check_view_permission(user, course):
