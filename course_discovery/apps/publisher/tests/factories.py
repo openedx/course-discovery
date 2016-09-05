@@ -70,6 +70,7 @@ class SeatFactory(factory.DjangoModelFactory):
 
 
 class GroupFactory(factory.DjangoModelFactory):
+    name = FuzzyText(prefix="Test Group ")
 
     class Meta:
         model = Group
