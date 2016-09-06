@@ -7,9 +7,10 @@ from pytz import UTC
 
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
+from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State
+from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State, UserAttribute
 
 
 class StateFactory(factory.DjangoModelFactory):
@@ -74,3 +75,11 @@ class GroupFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = Group
+
+
+class UserAttributeFactory(factory.DjangoModelFactory):
+    user = factory.SubFactory(UserFactory)
+    enable_notification = True
+
+    class Meta:
+        model = UserAttribute

@@ -1,0 +1,7 @@
+{% extends "publisher/emails/layout.html" %}
+{% load i18n %}
+{% block title %}{% trans "Comment added by " %}{{ user_info }}{% endblock %}
+
+{% block content %}
+    {{ comment }}
+{% endblock %}

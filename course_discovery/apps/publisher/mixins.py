@@ -62,3 +62,18 @@ class FormValidMixin(object):
 
 def check_view_permission(user, course):
     return user.is_staff or user.has_perm(Course.VIEW_PERMISSION, course)
+
+
+def get_group_users_with_permission(user, publisher_object):
+    """ Helper method to check user in a group has permission on publisher object."""
+    users_list = []
+    user_groups = user.groups.all()
+    if not user_groups:
+        return users_list
+
+    for group in user_groups:
+        for user in group.user_set.all():
+            if check_view_permission(user, publisher_object):
+                users_list.append(user)
+
+    return users_list

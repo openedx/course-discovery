@@ -1,6 +1,6 @@
 import logging
-from django.core.urlresolvers import reverse
 
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
@@ -10,11 +10,14 @@ from django_fsm import FSMField, transition
 from guardian.shortcuts import assign_perm
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
+import waffle
 
 from course_discovery.apps.core.models import User, Currency
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import LevelType, Subject, Person, Organization
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from course_discovery.apps.publisher.emails import setup_email_for_state
+
 
 logger = logging.getLogger(__name__)
 
@@ -141,7 +144,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         (PRIORITY_LEVEL_5, _('Level 5')),
     )
 
-    state = models.ForeignKey(State, null=True, blank=True)
+    state = models.ForeignKey(State, null=True, blank=True, related_name='publisher_course_runs_state')
 
     course = models.ForeignKey(Course, related_name='publisher_course_runs')
     lms_course_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
@@ -207,6 +210,9 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         return '{course}: {start_date}'.format(course=self.course.title, start_date=self.start)
 
     def change_state(self, target=State.DRAFT, user=None):
+
+        self.state.changed_by = user
+
         if target == State.NEEDS_REVIEW:
             self.state.needs_review()
         elif target == State.NEEDS_FINAL_APPROVAL:
@@ -218,10 +224,10 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         else:
             self.state.draft()
 
-        if user:
-            self.state.changed_by = user
-
         self.state.save()
+
+        if waffle.switch_is_active('enable_emails'):
+            setup_email_for_state(self)
 
     @property
     def current_state(self):
@@ -272,6 +278,14 @@ class Seat(TimeStampedModel, ChangedByMixin):
     @property
     def post_back_url(self):
         return reverse('publisher:publisher_seats_edit', kwargs={'pk': self.id})
+
+
+class UserAttribute(TimeStampedModel):
+    """
+    Record additional metadata about a user.
+    """
+    user = models.OneToOneField(User, related_name='attributes')
+    enable_notification = models.BooleanField(default=False)
 
 
 @receiver(pre_save, sender=CourseRun)

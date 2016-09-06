@@ -1,0 +1,9 @@
+{% extends "publisher/emails/layout.html" %}
+{% load i18n %}
+{% block title %}{% trans "CourseRun State Updated by " %}{{ user_info }}{% endblock %}
+
+{% block content %}
+    {% blocktrans with course=course_id state=state_name %}
+    Course {{ course }} state has been changed to {{ state }}.
+    {% endblocktrans %}
+{% endblock %}

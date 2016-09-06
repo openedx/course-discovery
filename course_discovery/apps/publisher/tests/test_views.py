@@ -11,6 +11,7 @@ from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWOR
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
+from course_discovery.apps.publisher.tests.factories import UserAttributeFactory
 from course_discovery.apps.publisher.views import CourseRunDetailView
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
@@ -23,7 +24,8 @@ class CreateUpdateCourseViewTests(TestCase):
         super(CreateUpdateCourseViewTests, self).setUp()
         self.course = factories.CourseFactory()
         self.group = factories.GroupFactory()
-        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.user = UserFactory(is_staff=True, is_superuser=True, email='test@test-edx.org')
+        self.user_attr = UserAttributeFactory(user=self.user)
         self.user.groups.add(self.group)
         self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
@@ -162,6 +164,7 @@ class CreateUpdateCourseViewTests(TestCase):
         self.assertContains(response, 'Total Comments 1')
         self.assertContains(response, 'Add new comment')
         self.assertContains(response, comment.comment)
+        self.assertEqual(course.changed_by, non_staff_user)
 
 
 class CreateUpdateCourseRunViewTests(TestCase):
@@ -169,13 +172,13 @@ class CreateUpdateCourseRunViewTests(TestCase):
 
     def setUp(self):
         super(CreateUpdateCourseRunViewTests, self).setUp()
-        self.course_run = factories.CourseRunFactory()
+        self.user = UserFactory(is_staff=True, is_superuser=True, email='test@test-edx.org')
+        self.course_run = factories.CourseRunFactory(changed_by=self.user)
         self.course_run_dict = model_to_dict(self.course_run)
         self._pop_valuse_from_dict(
             self.course_run_dict,
             ['start', 'end', 'enrollment_start', 'enrollment_end', 'priority', 'certificate_generation']
         )
-        self.user = UserFactory(is_staff=True, is_superuser=True)
         self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
@@ -223,7 +226,6 @@ class CreateUpdateCourseRunViewTests(TestCase):
         updated_lms_course_id = 'course-v1:testX+AS121+2018_q1'
         self.course_run_dict['lms_course_id'] = updated_lms_course_id
         self.assertNotEqual(self.course_run.lms_course_id, updated_lms_course_id)
-        self.assertNotEqual(self.course_run.changed_by, self.user)
         response = self.client.post(
             reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id}),
             self.course_run_dict
@@ -279,7 +281,6 @@ class CreateUpdateCourseRunViewTests(TestCase):
         updated_lms_course_id = 'course-v1:testX+AS121+2018_q1'
         self.course_run_dict['lms_course_id'] = updated_lms_course_id
         self.assertNotEqual(self.course_run.lms_course_id, updated_lms_course_id)
-
         response = self.client.post(
             reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id}),
             self.course_run_dict
@@ -324,7 +325,7 @@ class SeatsCreateUpdateViewTests(TestCase):
         self.seat = factories.SeatFactory(type=Seat.PROFESSIONAL, credit_hours=0)
         self.seat_dict = model_to_dict(self.seat)
         self.seat_dict.pop('upgrade_deadline')
-        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.user = UserFactory(is_staff=True, is_superuser=True, email='test@test-edx.org')
         self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.seat_edit_url = reverse('publisher:publisher_seats_edit', kwargs={'pk': self.seat.id})
@@ -490,7 +491,7 @@ class CourseRunDetailTests(TestCase):
         self.course = factories.CourseFactory()
         self.user = UserFactory(is_staff=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.course_run = factories.CourseRunFactory(course=self.course)
+        self.course_run = factories.CourseRunFactory(course=self.course, changed_by=self.user)
         self._generate_seats([Seat.AUDIT, Seat.HONOR, Seat.VERIFIED, Seat.PROFESSIONAL])
         self._generate_credit_seat()
         self.page_url = reverse('publisher:publisher_course_run_detail', args=[self.course_run.id])
@@ -662,7 +663,7 @@ class CourseRunDetailTests(TestCase):
         """ Verify that detail page contains all the data along with comments
         for course.
         """
-        user = UserFactory(is_staff=True, is_superuser=True)
+        user = UserFactory(is_staff=True, is_superuser=True, email='test@test-edx.org')
         site = Site.objects.get(pk=settings.SITE_ID)
 
         comment = CommentFactory(content_object=self.course, user=user, site=site)
@@ -693,8 +694,8 @@ class ChangeStateViewTests(TestCase):
 
     def setUp(self):
         super(ChangeStateViewTests, self).setUp()
-        self.course = factories.CourseFactory()
         self.user = UserFactory(is_staff=True)
+        self.course = factories.CourseFactory(changed_by=self.user)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.course_run = factories.CourseRunFactory(course=self.course)
         self.page_url = reverse('publisher:publisher_course_run_detail', args=[self.course_run.id])
@@ -749,7 +750,6 @@ class ChangeStateViewTests(TestCase):
         non_staff_user.groups.add(group)
         assign_perm(Course.VIEW_PERMISSION, group, self.course)
         response = self.client.get(self.page_url)
-
         self.assertContains(response, 'Status:')
         self.assertContains(response, State.DRAFT.title())
         # change workflow state from `DRAFT` to `NEEDS_REVIEW`
@@ -764,7 +764,7 @@ class CourseRunListViewTests(TestCase):
 
     def setUp(self):
         super(CourseRunListViewTests, self).setUp()
-        self.user = UserFactory(is_staff=True)
+        self.user = UserFactory(is_staff=True, email='test@test-edx.org')
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.page_url = reverse('publisher:publisher_course_runs')
 
