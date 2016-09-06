@@ -385,6 +385,11 @@ class ProgramTests(MarketingSitePublisherTestMixin, TestCase):
         self.assertEqual(len(responses.calls), 0)
 
     @responses.activate
+    def test_delete_without_publish(self):
+        self.program.delete()
+        self.assertEqual(len(responses.calls), 0)
+
+    @responses.activate
     def test_save_and_publish_success(self):
         self.program.partner.marketing_site_url_root = self.api_root
         self.program.partner.marketing_site_api_username = self.username
@@ -406,6 +411,29 @@ class ProgramTests(MarketingSitePublisherTestMixin, TestCase):
         toggle_switch('publish_program_to_marketing_site', True)
         self.program.title = FuzzyText().fuzz()
         self.program.save()
+        self.assertEqual(len(responses.calls), 0)
+        toggle_switch('publish_program_to_marketing_site', False)
+
+    @responses.activate
+    def test_delete_and_publish_success(self):
+        self.program.partner.marketing_site_url_root = self.api_root
+        self.program.partner.marketing_site_api_username = self.username
+        self.program.partner.marketing_site_api_password = self.password
+        self.program.save()
+        self.mock_api_client(200)
+        self.mock_node_retrieval(self.program.uuid)
+        self.mock_node_delete(204)
+        toggle_switch('publish_program_to_marketing_site', True)
+        self.program.delete()
+        self.assertEqual(len(responses.calls), 5)
+        toggle_switch('publish_program_to_marketing_site', False)
+
+    @responses.activate
+    def test_delete_and_no_marketing_site(self):
+        self.program.partner.marketing_site_url_root = None
+        self.program.save()
+        toggle_switch('publish_program_to_marketing_site', True)
+        self.program.delete()
         self.assertEqual(len(responses.calls), 0)
         toggle_switch('publish_program_to_marketing_site', False)
 
