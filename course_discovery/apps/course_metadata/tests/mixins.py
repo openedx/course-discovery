@@ -121,3 +121,12 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
             content_type='application/json',
             status=status
         )
+
+    def mock_node_delete(self, status):
+        responses.add(
+            responses.DELETE,
+            '{root}/node.json/{nid}'.format(root=self.api_root, nid=self.nid),
+            body='',
+            content_type='text/html',
+            status=status
+        )
