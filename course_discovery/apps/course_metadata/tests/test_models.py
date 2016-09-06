@@ -268,7 +268,7 @@ class AbstractValueModelTests(TestCase):
 
 
 @ddt.ddt
-class ProgramTests(MarketingSitePublisherTestMixin, TestCase):
+class ProgramTests(MarketingSitePublisherTestMixin):
     """Tests of the Program model."""
 
     def setUp(self):
@@ -395,7 +395,12 @@ class ProgramTests(MarketingSitePublisherTestMixin, TestCase):
     def test_save_without_publish(self):
         self.program.title = FuzzyText().fuzz()
         self.program.save()
-        self.assertEqual(len(responses.calls), 0)
+        self.assert_responses_call_count(0)
+
+    @responses.activate
+    def test_delete_without_publish(self):
+        self.program.delete()
+        self.assert_responses_call_count(0)
 
     @responses.activate
     def test_save_and_publish_success(self):
@@ -409,8 +414,7 @@ class ProgramTests(MarketingSitePublisherTestMixin, TestCase):
         toggle_switch('publish_program_to_marketing_site', True)
         self.program.title = FuzzyText().fuzz()
         self.program.save()
-        self.assertEqual(len(responses.calls), 6)
-        toggle_switch('publish_program_to_marketing_site', False)
+        self.assert_responses_call_count(6)
 
     @responses.activate
     def test_save_and_no_marketing_site(self):
@@ -419,8 +423,28 @@ class ProgramTests(MarketingSitePublisherTestMixin, TestCase):
         toggle_switch('publish_program_to_marketing_site', True)
         self.program.title = FuzzyText().fuzz()
         self.program.save()
-        self.assertEqual(len(responses.calls), 0)
-        toggle_switch('publish_program_to_marketing_site', False)
+        self.assert_responses_call_count(0)
+
+    @responses.activate
+    def test_delete_and_publish_success(self):
+        self.program.partner.marketing_site_url_root = self.api_root
+        self.program.partner.marketing_site_api_username = self.username
+        self.program.partner.marketing_site_api_password = self.password
+        self.program.save()
+        self.mock_api_client(200)
+        self.mock_node_retrieval(self.program.uuid)
+        self.mock_node_delete(204)
+        toggle_switch('publish_program_to_marketing_site', True)
+        self.program.delete()
+        self.assert_responses_call_count(5)
+
+    @responses.activate
+    def test_delete_and_no_marketing_site(self):
+        self.program.partner.marketing_site_url_root = None
+        self.program.save()
+        toggle_switch('publish_program_to_marketing_site', True)
+        self.program.delete()
+        self.assert_responses_call_count(0)
 
     def test_course_update_caught_exception(self):
         """ Test that the index update process failing will not cause the program save to error """
