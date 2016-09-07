@@ -1,10 +1,11 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 
 from simple_history.admin import SimpleHistoryAdmin
 from course_discovery.apps.course_metadata.forms import ProgramAdminForm
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
+from course_discovery.apps.course_metadata.publishers import ProgramPublisherException
 
 
 class SeatInline(admin.TabularInline):
@@ -84,6 +85,7 @@ class ProgramAdmin(admin.ModelAdmin):
         'credit_backing_organizations'
     )
     fields += filter_horizontal
+    save_error = None
 
     def custom_course_runs_display(self, obj):
         return ", ".join([str(run) for run in obj.course_runs])
@@ -91,13 +93,27 @@ class ProgramAdmin(admin.ModelAdmin):
     custom_course_runs_display.short_description = "Included course runs"
 
     def response_add(self, request, obj, post_url_continue=None):
-        return HttpResponseRedirect(reverse('admin_metadata:update_course_runs', kwargs={'pk': obj.pk}))
+        if self.save_error:
+            return self.response_post_save_add(request, obj)
+        else:
+            return HttpResponseRedirect(reverse('admin_metadata:update_course_runs', kwargs={'pk': obj.pk}))
 
     def response_change(self, request, obj):
-        if '_continue'in request.POST or '_save' in request.POST:
-            return HttpResponseRedirect(reverse('admin_metadata:update_course_runs', kwargs={'pk': obj.pk}))
+        if self.save_error:
+            return self.response_post_save_change(request, obj)
         else:
-            return HttpResponseRedirect(reverse('admin:course_metadata_program_add'))
+            if any(status in request.POST for status in ['_continue', '_save']):
+                return HttpResponseRedirect(reverse('admin_metadata:update_course_runs', kwargs={'pk': obj.pk}))
+            else:
+                return HttpResponseRedirect(reverse('admin:course_metadata_program_add'))
+
+    def save_model(self, request, obj, form, change):
+        try:
+            obj.save()
+            self.save_error = False
+        except ProgramPublisherException as ex:
+            messages.add_message(request, messages.ERROR, ex.message)
+            self.save_error = True
 
 
 @admin.register(ProgramType)
