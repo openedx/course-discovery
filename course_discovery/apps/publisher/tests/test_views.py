@@ -49,6 +49,7 @@ class CreateUpdateCourseViewTests(TestCase):
         # Create unique course number
         course_number = '{}.1.456'.format(self.course.number)
         course_dict = model_to_dict(self.course)
+        course_dict.pop('verification_deadline')
         course_dict['number'] = course_number
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
 
@@ -69,6 +70,7 @@ class CreateUpdateCourseViewTests(TestCase):
     def test_update_course_with_staff(self):
         """ Verify that staff user can update an existing course. """
         course_dict = model_to_dict(self.course)
+        course_dict.pop('verification_deadline')
         updated_course_title = 'Updated {}'.format(self.course.title)
         course_dict['title'] = updated_course_title
         self.assertNotEqual(self.course.title, updated_course_title)
@@ -126,6 +128,7 @@ class CreateUpdateCourseViewTests(TestCase):
         non_staff_user, group = create_non_staff_user_and_login(self)
 
         course_dict = model_to_dict(self.course)
+        course_dict.pop('verification_deadline')
         updated_course_title = 'Updated {}'.format(self.course.title)
         course_dict['title'] = updated_course_title
         self.assertNotEqual(self.course.title, updated_course_title)
