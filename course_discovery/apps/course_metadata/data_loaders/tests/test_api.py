@@ -144,7 +144,6 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
             'end': self.loader.parse_date(body['end']),
             'enrollment_start': self.loader.parse_date(body['enrollment_start']),
             'enrollment_end': self.loader.parse_date(body['enrollment_end']),
-            'pacing_type': self.loader.get_pacing_type(body),
             'card_image_url': None,
             'title_override': None,
             'short_description_override': None,
@@ -159,6 +158,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
                 'short_description_override': self.loader.clean_string(body['short_description']),
                 'video': self.loader.get_courserun_video(body),
                 'status': CourseRun.Status.Published,
+                'pacing_type': self.loader.get_pacing_type(body),
             })
 
         for field, value in expected_values.items():

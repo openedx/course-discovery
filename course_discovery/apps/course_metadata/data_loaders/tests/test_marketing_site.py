@@ -387,6 +387,17 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
 
         self.assertIsNone(self.loader.get_video({}))
 
+    @ddt.unpack
+    @ddt.data(
+        (True, CourseRun.Pacing.Self),
+        (False, CourseRun.Pacing.Instructor),
+        (None, CourseRun.Pacing.Instructor),
+        ('', CourseRun.Pacing.Instructor),
+    )
+    def test_get_pacing_type(self, data_value, expected_pacing_type):
+        data = {'field_course_self_paced': data_value}
+        self.assertEqual(self.loader.get_pacing_type(data), expected_pacing_type)
+
     def assert_course_loaded(self, data):
         course = self._get_course(data)
 
@@ -432,7 +443,8 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
             'slug': data['url'].split('/')[-1],
             'card_image_url': (data.get('field_course_image_promoted') or {}).get('url'),
             'status': self.loader.get_course_run_status(data),
-            'start': start
+            'start': start,
+            'pacing_type': self.loader.get_pacing_type(data),
         }
 
         for field, value in expected_values.items():

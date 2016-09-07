@@ -388,6 +388,10 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         image_url = self._get_nested_url(data.get('field_course_image_featured_card'))
         return self.get_or_create_video(video_url, image_url)
 
+    def get_pacing_type(self, data):
+        self_paced = data.get('field_course_self_paced', False)
+        return CourseRun.Pacing.Self if self_paced else CourseRun.Pacing.Instructor
+
     def create_course_run(self, course, data):
         uuid = data['uuid']
         key = data['field_course_id']
@@ -406,6 +410,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'card_image_url': self._get_nested_url(data.get('field_course_image_promoted')),
             'status': self.get_course_run_status(data),
             'start': start,
+            'pacing_type': self.get_pacing_type(data),
         }
 
         try:

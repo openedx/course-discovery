@@ -1979,7 +1979,7 @@ MARKETING_SITE_API_COURSE_BODIES = [
         'field_course_code_override': None,
         'field_course_video_link_mp4': [],
         'field_course_video_duration': None,
-        'field_course_self_paced': False,
+        'field_course_self_paced': True,
         'field_course_new': None,
         'field_course_registration_dates': {
             'value': '1384348442',
