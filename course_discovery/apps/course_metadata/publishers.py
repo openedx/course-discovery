@@ -89,6 +89,29 @@ class MarketingSitePublisher(object):
                 'title': program_before.title,
             }
 
+    def _get_api_client(self, program):
+        if not program.partner.has_marketing_site:
+            return
+
+        if not (program.partner.marketing_site_api_username and program.partner.marketing_site_api_password):
+            msg = 'Marketing Site API credentials are not properly configured for Partner [{partner}]!'.format(
+                partner=program.partner.short_code)
+            raise ProgramPublisherException(msg)
+
+        if self.data_before and \
+                self.data_before.get('title') == program.title and \
+                self.data_before.get('status') == program.status and \
+                self.data_before.get('type') == program.type:
+            # We don't need to publish to marketing site because
+            # nothing we care about has changed. This would save at least 4 network calls
+            return
+
+        return MarketingSiteAPIClient(
+            program.partner.marketing_site_api_username,
+            program.partner.marketing_site_api_password,
+            program.partner.marketing_site_url_root
+        )
+
     def _get_node_data(self, program, user_id):
         return {
             'type': str(program.type).lower(),
@@ -128,34 +151,25 @@ class MarketingSitePublisher(object):
         else:
             raise ProgramPublisherException("Marketing site page creation failed!")
 
+    def _delete_node(self, api_client, nid):
+        node_url = '{root}/node.json/{nid}'.format(root=api_client.api_url, nid=nid)
+        api_client.api_session.delete(node_url)
+
     def publish_program(self, program):
-        if not program.partner.has_marketing_site:
-            return
+        api_client = self._get_api_client(program)
+        if api_client:
+            node_data = self._get_node_data(program, api_client.user_id)
+            nid = self._get_node_id(api_client, program.uuid)
+            if nid:
+                # We would like to edit the existing node
+                self._edit_node(api_client, nid, node_data)
+            else:
+                # We should create a new node
+                self._create_node(api_client, node_data)
 
-        if not (program.partner.marketing_site_api_username and program.partner.marketing_site_api_password):
-            msg = 'Marketing Site API credentials are not properly configured for Partner [{partner}]!'.format(
-                partner=program.partner.short_code)
-            raise ProgramPublisherException(msg)
-
-        if self.data_before and \
-                self.data_before.get('title') == program.title and \
-                self.data_before.get('status') == program.status and \
-                self.data_before.get('type') == program.type:
-            # We don't need to publish to marketing site because
-            # nothing we care about has changed. This would save at least 4 network calls
-            return
-
-        api_client = MarketingSiteAPIClient(
-            program.partner.marketing_site_api_username,
-            program.partner.marketing_site_api_password,
-            program.partner.marketing_site_url_root
-        )
-
-        node_data = self._get_node_data(program, api_client.user_id)
-        nid = self._get_node_id(api_client, program.uuid)
-        if nid:
-            # We would like to edit the existing node
-            self._edit_node(api_client, nid, node_data)
-        else:
-            # We should create a new node
-            self._create_node(api_client, node_data)
+    def delete_program(self, program):
+        api_client = self._get_api_client(program)
+        if api_client:
+            nid = self._get_node_id(api_client, program.uuid)
+            if nid:
+                self._delete_node(api_client, nid)

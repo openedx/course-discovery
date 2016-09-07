@@ -216,3 +216,30 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin, TestCase):
         publisher = MarketingSitePublisher(self.program)
         publisher.publish_program(self.program)
         self.assertEqual(len(responses.calls), 0)
+
+    @responses.activate
+    def test_publish_program_no_credential(self):
+        self.program.partner.marketing_site_api_password = None
+        self.program.partner.marketing_site_api_username = None
+        self.program.save()  # pylint: disable=no-member
+        publisher = MarketingSitePublisher()
+        with self.assertRaises(ProgramPublisherException):
+            publisher.publish_program(self.program)
+            self.assertEqual(len(responses.calls), 0)
+
+    @responses.activate
+    def test_publish_delete_program(self):
+        self.mock_api_client(200)
+        self.mock_node_retrieval(self.program.uuid)
+        self.mock_node_delete(204)
+        publisher = MarketingSitePublisher()
+        publisher.delete_program(self.program)
+        self.assertEqual(len(responses.calls), 5)
+
+    @responses.activate
+    def test_publish_delete_non_existent_program(self):
+        self.mock_api_client(200)
+        self.mock_node_retrieval(self.program.uuid, exists=False)
+        publisher = MarketingSitePublisher()
+        publisher.delete_program(self.program)
+        self.assertEqual(len(responses.calls), 4)
