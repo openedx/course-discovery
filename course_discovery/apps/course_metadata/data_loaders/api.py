@@ -124,11 +124,9 @@ class CoursesApiDataLoader(AbstractDataLoader):
             'end': self.parse_date(body['end']),
             'enrollment_start': self.parse_date(body['enrollment_start']),
             'enrollment_end': self.parse_date(body['enrollment_end']),
-            'pacing_type': self.get_pacing_type(body),
         }
 
-        # When using a marketing site, only date (excluding start date) and pacing information
-        # should come from the Course API.
+        # When using a marketing site, only dates (excluding start) should come from the Course API.
         if not self.partner.has_marketing_site:
             defaults.update({
                 'start': self.parse_date(body['start']),
@@ -137,6 +135,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                 'short_description_override': body['short_description'],
                 'video': self.get_courserun_video(body),
                 'status': CourseRun.Status.Published,
+                'pacing_type': self.get_pacing_type(body),
             })
 
         course_run, __ = course.course_runs.update_or_create(key__iexact=key, defaults=defaults)
