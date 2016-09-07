@@ -19,8 +19,11 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 logger = logging.getLogger(__name__)
 
 
-class ChangedByMixin(object):
+class ChangedByMixin(models.Model):
     changed_by = models.ForeignKey(User, null=True, blank=True)
+
+    class Meta:
+        abstract = True
 
 
 class State(TimeStampedModel, ChangedByMixin):
@@ -203,7 +206,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     def __str__(self):
         return '{course}: {start_date}'.format(course=self.course.title, start_date=self.start)
 
-    def change_state(self, target=State.DRAFT):
+    def change_state(self, target=State.DRAFT, user=None):
         if target == State.NEEDS_REVIEW:
             self.state.needs_review()
         elif target == State.NEEDS_FINAL_APPROVAL:
@@ -214,6 +217,9 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
             self.state.publish()
         else:
             self.state.draft()
+
+        if user:
+            self.state.changed_by = user
 
         self.state.save()
 

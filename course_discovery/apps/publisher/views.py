@@ -13,7 +13,7 @@ from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import get_objects_for_user
 
 from course_discovery.apps.publisher.forms import CourseForm, CourseRunForm, SeatForm
-from course_discovery.apps.publisher.mixins import ViewPermissionMixin, check_view_permission
+from course_discovery.apps.publisher import mixins
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
@@ -21,7 +21,7 @@ from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 SEATS_HIDDEN_FIELDS = ['price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours']
 
 
-class CourseRunListView(ListView):
+class CourseRunListView(mixins.LoginRequiredMixin, ListView):
     """ Create Course View."""
     template_name = 'publisher/course_runs_list.html'
 
@@ -35,7 +35,7 @@ class CourseRunListView(ListView):
         return [CourseRunWrapper(course_run) for course_run in course_runs]
 
 
-class CourseRunDetailView(ViewPermissionMixin, DetailView):
+class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, DetailView):
     """ Course Run Detail View."""
     model = CourseRun
     template_name = 'publisher/course_run_detail.html'
@@ -48,33 +48,25 @@ class CourseRunDetailView(ViewPermissionMixin, DetailView):
 
 
 # pylint: disable=attribute-defined-outside-init
-class CreateCourseView(CreateView):
+class CreateCourseView(mixins.LoginRequiredMixin, mixins.FormValidMixin, CreateView):
     """ Create Course View."""
     model = Course
     form_class = CourseForm
     template_name = 'publisher/course_form.html'
     success_url = 'publisher:publisher_courses_edit'
-
-    def form_valid(self, form):
-        self.object = form.save()
-        self.object.assign_user_groups(self.request.user)
-        return HttpResponseRedirect(self.get_success_url())
+    assign_user_groups = True
 
     def get_success_url(self):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
 
-class UpdateCourseView(ViewPermissionMixin, UpdateView):
+class UpdateCourseView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, mixins.FormValidMixin, UpdateView):
     """ Update Course View."""
     model = Course
     form_class = CourseForm
     permission_required = Course.VIEW_PERMISSION
     template_name = 'publisher/course_form.html'
     success_url = 'publisher:publisher_courses_edit'
-
-    def form_valid(self, form):
-        self.object = form.save()
-        return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
@@ -85,28 +77,25 @@ class UpdateCourseView(ViewPermissionMixin, UpdateView):
         return context
 
 
-class CreateCourseRunView(CreateView):
+class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.FormValidMixin, CreateView):
     """ Create Course Run View."""
     model = CourseRun
     form_class = CourseRunForm
     template_name = 'publisher/course_run_form.html'
     success_url = 'publisher:publisher_course_runs_edit'
 
-    def form_valid(self, form):
-        self.object = form.save()
-        return HttpResponseRedirect(self.get_success_url())
-
     def get_success_url(self):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
 
-class UpdateCourseRunView(ViewPermissionMixin, UpdateView):
+class UpdateCourseRunView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, mixins.FormValidMixin, UpdateView):
     """ Update Course Run View."""
     model = CourseRun
     form_class = CourseRunForm
     permission_required = Course.VIEW_PERMISSION
     template_name = 'publisher/course_run_form.html'
     success_url = 'publisher:publisher_course_runs_edit'
+    change_state = True
 
     def get_context_data(self, **kwargs):
         context = super(UpdateCourseRunView, self).get_context_data(**kwargs)
@@ -116,16 +105,11 @@ class UpdateCourseRunView(ViewPermissionMixin, UpdateView):
         context['comment_object'] = self.object
         return context
 
-    def form_valid(self, form):
-        self.object = form.save()
-        self.object.change_state()
-        return HttpResponseRedirect(self.get_success_url())
-
     def get_success_url(self):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
 
-class CreateSeatView(CreateView):
+class CreateSeatView(mixins.LoginRequiredMixin, mixins.FormValidMixin, CreateView):
     """ Create Seat View."""
     model = Seat
     form_class = SeatForm
@@ -137,15 +121,11 @@ class CreateSeatView(CreateView):
         context['hidden_fields'] = SEATS_HIDDEN_FIELDS
         return context
 
-    def form_valid(self, form):
-        self.object = form.save()
-        return HttpResponseRedirect(self.get_success_url())
-
     def get_success_url(self):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
 
-class UpdateSeatView(ViewPermissionMixin, UpdateView):
+class UpdateSeatView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, mixins.FormValidMixin, UpdateView):
     """ Update Seat View."""
     model = Seat
     form_class = SeatForm
@@ -159,15 +139,11 @@ class UpdateSeatView(ViewPermissionMixin, UpdateView):
         context['comment_object'] = self.object
         return context
 
-    def form_valid(self, form):
-        self.object = form.save()
-        return HttpResponseRedirect(self.get_success_url())
-
     def get_success_url(self):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
 
-class ChangeStateView(View):
+class ChangeStateView(mixins.LoginRequiredMixin, View):
     """ Change Workflow State View"""
 
     def post(self, request, course_run_id):
@@ -175,10 +151,10 @@ class ChangeStateView(View):
         try:
             course_run = CourseRun.objects.get(id=course_run_id)
 
-            if not check_view_permission(request.user, course_run.course):
+            if not mixins.check_view_permission(request.user, course_run.course):
                 return HttpResponseForbidden()
 
-            course_run.change_state(target=state)
+            course_run.change_state(target=state, user=self.request.user)
             # pylint: disable=no-member
             messages.success(
                 request, _('Content moved to `{state}` successfully.').format(state=course_run.current_state)

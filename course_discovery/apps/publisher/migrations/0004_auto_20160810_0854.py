@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
                 'ordering': ('-modified', '-created'),
                 'abstract': False,
             },
-            bases=(models.Model, course_discovery.apps.publisher.models.ChangedByMixin),
+            bases=(models.Model,),
         ),
         migrations.AddField(
             model_name='courserun',

@@ -28,6 +28,21 @@ class CreateUpdateCourseViewTests(TestCase):
         self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
+    def test_course_form_without_login(self):
+        """ Verify that user can't access new course form page when not logged in. """
+        self.client.logout()
+        response = self.client.get(reverse('publisher:publisher_courses_new'))
+
+        self.assertRedirects(
+            response,
+            expected_url='{url}?next={next}'.format(
+                url=reverse('login'),
+                next=reverse('publisher:publisher_courses_new')
+            ),
+            status_code=302,
+            target_status_code=302
+        )
+
     def test_create_course(self):
         """ Verify that we can create a new course. """
         # Create unique course number
@@ -56,6 +71,7 @@ class CreateUpdateCourseViewTests(TestCase):
         updated_course_title = 'Updated {}'.format(self.course.title)
         course_dict['title'] = updated_course_title
         self.assertNotEqual(self.course.title, updated_course_title)
+        self.assertNotEqual(self.course.changed_by, self.user)
         response = self.client.post(
             reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id}),
             course_dict
@@ -71,6 +87,7 @@ class CreateUpdateCourseViewTests(TestCase):
         course = Course.objects.get(id=self.course.id)
         # Assert that course is updated.
         self.assertEqual(course.title, updated_course_title)
+        self.assertEqual(course.changed_by, self.user)
 
         # add new and check the comment on edit page.
         comment = CommentFactory(content_object=self.course, user=self.user, site=self.site)
@@ -166,6 +183,21 @@ class CreateUpdateCourseRunViewTests(TestCase):
         for key in key_list:
             data_dict.pop(key)
 
+    def test_courserun_form_without_login(self):
+        """ Verify that user can't access new course run form page when not logged in. """
+        self.client.logout()
+        response = self.client.get(reverse('publisher:publisher_course_runs_new'))
+
+        self.assertRedirects(
+            response,
+            expected_url='{url}?next={next}'.format(
+                url=reverse('login'),
+                next=reverse('publisher:publisher_course_runs_new')
+            ),
+            status_code=302,
+            target_status_code=302
+        )
+
     def test_create_course_run(self):
         """ Verify that we can create a new course run. """
         lms_course_id = 'course-v1:testX+AS12131+2016_q4'
@@ -191,6 +223,7 @@ class CreateUpdateCourseRunViewTests(TestCase):
         updated_lms_course_id = 'course-v1:testX+AS121+2018_q1'
         self.course_run_dict['lms_course_id'] = updated_lms_course_id
         self.assertNotEqual(self.course_run.lms_course_id, updated_lms_course_id)
+        self.assertNotEqual(self.course_run.changed_by, self.user)
         response = self.client.post(
             reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id}),
             self.course_run_dict
@@ -206,6 +239,7 @@ class CreateUpdateCourseRunViewTests(TestCase):
         course_run = CourseRun.objects.get(id=self.course_run.id)
         # Assert that course run is updated.
         self.assertEqual(course_run.lms_course_id, updated_lms_course_id)
+        self.assertEqual(course_run.changed_by, self.user)
 
         # add new and check the comment on edit page.
         comment = CommentFactory(content_object=self.course_run, user=self.user, site=self.site)
@@ -295,6 +329,21 @@ class SeatsCreateUpdateViewTests(TestCase):
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.seat_edit_url = reverse('publisher:publisher_seats_edit', kwargs={'pk': self.seat.id})
 
+    def test_seat_form_without_login(self):
+        """ Verify that user can't access new seat form page when not logged in. """
+        self.client.logout()
+        response = self.client.get(reverse('publisher:publisher_seats_new'))
+
+        self.assertRedirects(
+            response,
+            expected_url='{url}?next={next}'.format(
+                url=reverse('login'),
+                next=reverse('publisher:publisher_seats_new')
+            ),
+            status_code=302,
+            target_status_code=302
+        )
+
     def test_seat_view_page(self):
         """ Verify that we can open new seat page. """
         response = self.client.get(reverse('publisher:publisher_seats_new'))
@@ -323,6 +372,7 @@ class SeatsCreateUpdateViewTests(TestCase):
         self.seat_dict['price'] = updated_seat_price
         self.seat_dict['type'] = Seat.VERIFIED
         self.assertNotEqual(self.seat.price, updated_seat_price)
+        self.assertNotEqual(self.seat.changed_by, self.user)
         response = self.client.post(
             reverse('publisher:publisher_seats_edit', kwargs={'pk': self.seat.id}),
             self.seat_dict
@@ -338,6 +388,7 @@ class SeatsCreateUpdateViewTests(TestCase):
         seat = Seat.objects.get(id=self.seat.id)
         # Assert that seat is updated.
         self.assertEqual(seat.price, updated_seat_price)
+        self.assertEqual(seat.changed_by, self.user)
         self.assertEqual(seat.type, Seat.VERIFIED)
 
         self.seat_dict['type'] = Seat.HONOR
@@ -445,6 +496,21 @@ class CourseRunDetailTests(TestCase):
         self.page_url = reverse('publisher:publisher_course_run_detail', args=[self.course_run.id])
         self.wrapped_course_run = CourseRunWrapper(self.course_run)
         self.date_format = '%b %d, %Y, %H:%M:%S %p'
+
+    def test_page_without_login(self):
+        """ Verify that user can't access detail page when not logged in. """
+        self.client.logout()
+        response = self.client.get(reverse('publisher:publisher_course_run_detail', args=[self.course_run.id]))
+
+        self.assertRedirects(
+            response,
+            expected_url='{url}?next={next}'.format(
+                url=reverse('login'),
+                next=reverse('publisher:publisher_course_run_detail', args=[self.course_run.id])
+            ),
+            status_code=302,
+            target_status_code=302
+        )
 
     def test_page_without_data_staff(self):
         """ Verify that staff user can access detail page without any data
@@ -634,6 +700,21 @@ class ChangeStateViewTests(TestCase):
         self.page_url = reverse('publisher:publisher_course_run_detail', args=[self.course_run.id])
         self.change_state_url = reverse('publisher:publisher_change_state', args=[self.course_run.id])
 
+    def test_page_without_login(self):
+        """ Verify that user can't access change state endpoint when not logged in. """
+        self.client.logout()
+        response = self.client.post(self.change_state_url, data={'state': State.NEEDS_REVIEW})
+
+        self.assertRedirects(
+            response,
+            expected_url='{url}?next={next}'.format(
+                url=reverse('login'),
+                next=self.change_state_url
+            ),
+            status_code=302,
+            target_status_code=302
+        )
+
     def test_change_state_with_staff(self):
         """ Verify that staff user can change workflow state from detail page. """
         response = self.client.get(self.page_url)
@@ -676,3 +757,34 @@ class ChangeStateViewTests(TestCase):
 
         # assert that state is changed to `NEEDS_REVIEW`
         self.assertContains(response, State.NEEDS_REVIEW.title().replace('_', ' '))
+
+
+class CourseRunListViewTests(TestCase):
+    """ Tests for the `CourseRunListView`. """
+
+    def setUp(self):
+        super(CourseRunListViewTests, self).setUp()
+        self.user = UserFactory(is_staff=True)
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.page_url = reverse('publisher:publisher_course_runs')
+
+    def test_page_without_login(self):
+        """ Verify that user can't access course runs list page when not logged in. """
+        self.client.logout()
+        response = self.client.get(self.page_url)
+
+        self.assertRedirects(
+            response,
+            expected_url='{url}?next={next}'.format(
+                url=reverse('login'),
+                next=self.page_url
+            ),
+            status_code=302,
+            target_status_code=302
+        )
+
+    def test_page_with_login(self):
+        """ Verify that user can access course runs list page when logged in. """
+        response = self.client.get(self.page_url)
+
+        self.assertEqual(response.status_code, 200)

@@ -37,6 +37,7 @@ class CourseForm(BaseCourseForm):
     class Meta:
         model = Course
         fields = '__all__'
+        exclude = ('changed_by',)
 
 
 class CourseRunForm(BaseCourseForm):
@@ -45,7 +46,7 @@ class CourseRunForm(BaseCourseForm):
     class Meta:
         model = CourseRun
         fields = '__all__'
-        exclude = ('state',)
+        exclude = ('state', 'changed_by',)
 
 
 class SeatForm(BaseCourseForm):
@@ -54,7 +55,7 @@ class SeatForm(BaseCourseForm):
     class Meta:
         model = Seat
         fields = '__all__'
-        exclude = ('currency',)
+        exclude = ('currency', 'changed_by',)
 
     def save(self, commit=True):
         seat = super(SeatForm, self).save(commit=False)
