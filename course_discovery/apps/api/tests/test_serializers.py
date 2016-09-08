@@ -584,6 +584,7 @@ class AffiliateWindowSerializerTests(TestCase):
 class CourseRunSearchSerializerTests(TestCase):
     def test_data(self):
         course_run = CourseRunFactory(transcript_languages=LanguageTag.objects.filter(code__in=['en-us', 'zh-cn']))
+        ProgramFactory(courses=[course_run.course])
         serializer = self.serialize_course_run(course_run)
         course_run_key = CourseKey.from_string(course_run.key)
 
@@ -610,6 +611,7 @@ class CourseRunSearchSerializerTests(TestCase):
             'availability': course_run.availability,
             'published': course_run.status == CourseRun.Status.Published,
             'partner': course_run.course.partner.short_code,
+            'program_types': course_run.program_types,
         }
         self.assertDictEqual(serializer.data, expected)
 

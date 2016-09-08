@@ -112,6 +112,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     type = indexes.CharField(model_attr='type', null=True, faceted=True)
     image_url = indexes.CharField(model_attr='card_image_url', null=True)
     partner = indexes.CharField(null=True, faceted=True)
+    program_types = indexes.MultiValueField()
     published = indexes.BooleanField(null=False, faceted=True)
 
     def prepare_partner(self, obj):
@@ -146,6 +147,9 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
 
     def prepare_marketing_url(self, obj):
         return obj.marketing_url
+
+    def prepare_program_types(self, obj):
+        return obj.program_types
 
 
 class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
