@@ -1,4 +1,3 @@
-from django.test import TestCase
 import responses
 
 from course_discovery.apps.course_metadata.publishers import (
@@ -14,7 +13,7 @@ from course_discovery.apps.course_metadata.tests.mixins import (
 from course_discovery.apps.course_metadata.models import Program
 
 
-class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin, TestCase):
+class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
     """
     Unit test cases for MarketinSiteAPIClient
     """
@@ -30,7 +29,7 @@ class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin, TestCase):
     def test_init_session(self):
         self.mock_login_response(200)
         session = self.api_client.init_session
-        self.assertEqual(len(responses.calls), 2)
+        self.assert_responses_call_count(2)
         self.assertIsNotNone(session)
 
     @responses.activate
@@ -44,7 +43,7 @@ class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin, TestCase):
         self.mock_login_response(200)
         self.mock_csrf_token_response(200)
         csrf_token = self.api_client.csrf_token
-        self.assertEqual(len(responses.calls), 3)
+        self.assert_responses_call_count(3)
         self.assertEqual(self.csrf_token, csrf_token)
 
     @responses.activate
@@ -59,7 +58,7 @@ class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin, TestCase):
         self.mock_login_response(200)
         self.mock_user_id_response(200)
         user_id = self.api_client.user_id
-        self.assertEqual(len(responses.calls), 3)
+        self.assert_responses_call_count(3)
         self.assertEqual(self.user_id, user_id)
 
     @responses.activate
@@ -74,7 +73,7 @@ class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin, TestCase):
         self.mock_login_response(200)
         self.mock_csrf_token_response(200)
         api_session = self.api_client.api_session
-        self.assertEqual(len(responses.calls), 3)
+        self.assert_responses_call_count(3)
         self.assertIsNotNone(api_session)
         self.assertEqual(api_session.headers.get('Content-Type'), 'application/json')
         self.assertEqual(api_session.headers.get('X-CSRF-Token'), self.csrf_token)
@@ -87,7 +86,7 @@ class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin, TestCase):
             self.api_client.api_session  # pylint: disable=pointless-statement
 
 
-class MarketingSitePublisherTests(MarketingSitePublisherTestMixin, TestCase):
+class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
     """
     Unit test cases for the MarketingSitePublisher
     """
@@ -125,7 +124,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin, TestCase):
         self.mock_node_retrieval(self.program.uuid)
         publisher = MarketingSitePublisher()
         node_id = publisher._get_node_id(self.api_client, self.program.uuid)  # pylint: disable=protected-access
-        self.assertEqual(len(responses.calls), 4)
+        self.assert_responses_call_count(4)
         self.assertEqual(node_id, self.nid)
 
     @responses.activate
@@ -143,7 +142,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin, TestCase):
         publisher = MarketingSitePublisher()
         publish_data = publisher._get_node_data(self.program, self.user_id)  # pylint: disable=protected-access
         publisher._edit_node(self.api_client, self.nid, publish_data)  # pylint: disable=protected-access
-        self.assertEqual(len(responses.calls), 4)
+        self.assert_responses_call_count(4)
 
     @responses.activate
     def test_edit_node_failed(self):
@@ -189,7 +188,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin, TestCase):
         self.mock_node_create(expected, 201)
         publisher = MarketingSitePublisher()
         publisher.publish_program(self.program)
-        self.assertEqual(len(responses.calls), 6)
+        self.assert_responses_call_count(6)
 
     @responses.activate
     def test_publish_program_edit(self):
@@ -198,7 +197,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin, TestCase):
         self.mock_node_edit(200)
         publisher = MarketingSitePublisher()
         publisher.publish_program(self.program)
-        self.assertEqual(len(responses.calls), 6)
+        self.assert_responses_call_count(6)
 
     @responses.activate
     def test_publish_modified_program(self):
@@ -208,11 +207,38 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin, TestCase):
         program_before = ProgramFactory()
         publisher = MarketingSitePublisher(program_before)
         publisher.publish_program(self.program)
-        self.assertEqual(len(responses.calls), 6)
+        self.assert_responses_call_count(6)
 
     @responses.activate
     def test_publish_unmodified_program(self):
         self.mock_api_client(200)
         publisher = MarketingSitePublisher(self.program)
         publisher.publish_program(self.program)
-        self.assertEqual(len(responses.calls), 0)
+        self.assert_responses_call_count(0)
+
+    @responses.activate
+    def test_publish_program_no_credential(self):
+        self.program.partner.marketing_site_api_password = None
+        self.program.partner.marketing_site_api_username = None
+        self.program.save()  # pylint: disable=no-member
+        publisher = MarketingSitePublisher()
+        with self.assertRaises(ProgramPublisherException):
+            publisher.publish_program(self.program)
+            self.assert_responses_call_count(0)
+
+    @responses.activate
+    def test_publish_delete_program(self):
+        self.mock_api_client(200)
+        self.mock_node_retrieval(self.program.uuid)
+        self.mock_node_delete(204)
+        publisher = MarketingSitePublisher()
+        publisher.delete_program(self.program)
+        self.assert_responses_call_count(5)
+
+    @responses.activate
+    def test_publish_delete_non_existent_program(self):
+        self.mock_api_client(200)
+        self.mock_node_retrieval(self.program.uuid, exists=False)
+        publisher = MarketingSitePublisher()
+        publisher.delete_program(self.program)
+        self.assert_responses_call_count(4)

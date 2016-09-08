@@ -1,12 +1,13 @@
 import json
 
+from django.test import TestCase
 from factory.fuzzy import FuzzyText, FuzzyInteger
 import responses
 
 from course_discovery.apps.core.tests.utils import FuzzyUrlRoot
 
 
-class MarketingSiteAPIClientTestMixin(object):
+class MarketingSiteAPIClientTestMixin(TestCase):
     """
     The mixing to help mock the responses for marketing site API Client
     """
@@ -70,6 +71,9 @@ class MarketingSiteAPIClientTestMixin(object):
             match_querystring=True
         )
 
+    def assert_responses_call_count(self, count):
+        self.assertEqual(len(responses.calls), count)
+
 
 class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
     """
@@ -119,5 +123,14 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
             '{root}/node.json'.format(root=self.api_root),
             body=json.dumps(response_data),
             content_type='application/json',
+            status=status
+        )
+
+    def mock_node_delete(self, status):
+        responses.add(
+            responses.DELETE,
+            '{root}/node.json/{nid}'.format(root=self.api_root, nid=self.nid),
+            body='',
+            content_type='text/html',
             status=status
         )
