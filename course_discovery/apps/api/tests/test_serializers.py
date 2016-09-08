@@ -229,6 +229,13 @@ class ProgramSerializerTests(TestCase):
         request = make_request()
         org_list = OrganizationFactory.create_batch(1)
         course_list = CourseFactory.create_batch(3)
+        for course in course_list:
+            CourseRunFactory.create_batch(
+                3,
+                course=course,
+                enrollment_start=datetime(2014, 1, 1),
+                start=datetime(2014, 1, 1)
+            )
         corporate_endorsements = CorporateEndorsementFactory.create_batch(1)
         individual_endorsements = EndorsementFactory.create_batch(1)
         staff = PersonFactory.create_batch(1)
@@ -310,7 +317,12 @@ class ProgramSerializerTests(TestCase):
         course_list = CourseFactory.create_batch(4)
         excluded_runs = []
         for course in course_list:
-            course_runs = CourseRunFactory.create_batch(3, course=course)
+            course_runs = CourseRunFactory.create_batch(
+                3,
+                course=course,
+                enrollment_start=datetime(2014, 1, 1),
+                start=datetime(2014, 1, 1)
+            )
             excluded_runs.append(course_runs[0])
 
         program = ProgramFactory(
@@ -360,6 +372,96 @@ class ProgramSerializerTests(TestCase):
         }
 
         self.assertDictEqual(serializer.data, expected)
+
+    def test_course_ordering(self):
+        """
+        Verify that courses in a program are ordered by ascending run start date,
+        with ties broken by earliest run enrollment start date.
+        """
+        request = make_request()
+        course_list = CourseFactory.create_batch(3)
+
+        # Create a course run with arbitrary start and empty enrollment_start.
+        CourseRunFactory(
+            course=course_list[2],
+            enrollment_start=None,
+            start=datetime(2014, 2, 1),
+        )
+
+        # Create a second run with matching start, but later enrollment_start.
+        CourseRunFactory(
+            course=course_list[1],
+            enrollment_start=datetime(2014, 1, 2),
+            start=datetime(2014, 2, 1),
+        )
+
+        # Create a third run with later start and enrollment_start.
+        CourseRunFactory(
+            course=course_list[0],
+            enrollment_start=datetime(2014, 2, 1),
+            start=datetime(2014, 3, 1),
+        )
+
+        program = ProgramFactory(courses=course_list)
+        serializer = ProgramSerializer(program, context={'request': request})
+
+        expected = ProgramCourseSerializer(
+            # The expected ordering is the reverse of course_list.
+            course_list[::-1],
+            many=True,
+            context={'request': request, 'program': program}
+        ).data
+
+        self.assertEqual(serializer.data['courses'], expected)
+
+    def test_course_ordering_with_exclusions(self):
+        """
+        Verify that excluded course runs aren't used when ordering courses.
+        """
+        request = make_request()
+        course_list = CourseFactory.create_batch(3)
+
+        # Create a course run with arbitrary start and empty enrollment_start.
+        # This run will be excluded from the program. If it wasn't excluded,
+        # the expected course ordering, by index, would be: 0, 2, 1.
+        excluded_run = CourseRunFactory(
+            course=course_list[0],
+            enrollment_start=None,
+            start=datetime(2014, 1, 1),
+        )
+
+        # Create a run with later start and empty enrollment_start.
+        CourseRunFactory(
+            course=course_list[2],
+            enrollment_start=None,
+            start=datetime(2014, 2, 1),
+        )
+
+        # Create a run with matching start, but later enrollment_start.
+        CourseRunFactory(
+            course=course_list[1],
+            enrollment_start=datetime(2014, 1, 2),
+            start=datetime(2014, 2, 1),
+        )
+
+        # Create a run with later start and enrollment_start.
+        CourseRunFactory(
+            course=course_list[0],
+            enrollment_start=datetime(2014, 2, 1),
+            start=datetime(2014, 3, 1),
+        )
+
+        program = ProgramFactory(courses=course_list, excluded_course_runs=[excluded_run])
+        serializer = ProgramSerializer(program, context={'request': request})
+
+        expected = ProgramCourseSerializer(
+            # The expected ordering is the reverse of course_list.
+            course_list[::-1],
+            many=True,
+            context={'request': request, 'program': program}
+        ).data
+
+        self.assertEqual(serializer.data['courses'], expected)
 
 
 class ContainedCourseRunsSerializerTests(TestCase):
