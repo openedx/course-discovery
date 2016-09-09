@@ -20,6 +20,9 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractMarketingSiteDataLoader(AbstractDataLoader):
+    PUBLISHED_STATUS_CODE = "1"
+    UNPUBLISHED_STATUS_CODE = "0"
+
     def __init__(self, partner, api_url, access_token=None, token_type=None):
         super(AbstractMarketingSiteDataLoader, self).__init__(partner, api_url, access_token, token_type)
 
@@ -99,6 +102,9 @@ class AbstractMarketingSiteDataLoader(AbstractDataLoader):
         field = field or {}
         return field.get('url')
 
+    def _get_published(data):
+        return data['status'] == self.PUBLISHED_STATUS_CODE
+
     @abc.abstractmethod
     def process_node(self, data):  # pragma: no cover
         pass
@@ -115,12 +121,22 @@ class XSeriesMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
 
     def process_node(self, data):
         marketing_slug = data['url'].split('/')[-1]
+        published = self._get_published(data)
 
         try:
             program = Program.objects.get(marketing_slug=marketing_slug, partner=self.partner)
         except Program.DoesNotExist:
-            logger.error('Program [%s] exists on the marketing site, but not in the Programs Service!', marketing_slug)
+            if published:
+                logger.error(
+                    'Program [%s] exists on the marketing site, but not in the Programs Service!', marketing_slug
+                )
             return None
+
+        if not published:
+            logger.info(
+                'Program [%s] unpublished on marketing site.  Deleting!', marketing_slug
+            )
+            program.delete()
 
         card_image_url = self._get_nested_url(data.get('field_card_image'))
         video_url = self._get_nested_url(data.get('field_product_video'))
@@ -343,8 +359,10 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         return kwargs
 
     def process_node(self, data):
-        course_run_key = CourseKey.from_string(data['field_course_id'])
+        course_run_key_string = data['field_course_id']
+        course_run_key = CourseKey.from_string(course_run_key_string)
         key = self.get_course_key_from_course_run_key(course_run_key)
+        published = self._get_published(data)
 
         defaults = {
             'key': key,
@@ -356,14 +374,18 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'level_type': self.get_level_type(data['field_course_level']),
             'card_image_url': self._get_nested_url(data.get('field_course_image_promoted')),
         }
-        course, __ = Course.objects.update_or_create(key__iexact=key, partner=self.partner, defaults=defaults)
 
-        self.set_subjects(course, data)
-        self.set_authoring_organizations(course, data)
-        self.create_course_run(course, data)
+        if published:
+            course, __ = Course.objects.update_or_create(key__iexact=key, partner=self.partner, defaults=defaults)
 
-        logger.info('Processed course with key [%s].', key)
-        return course
+            self.set_subjects(course, data)
+            self.set_authoring_organizations(course, data)
+            self.create_course_run(course, data)
+
+            logger.info('Processed course with key [%s].', key)
+            return course
+        else:
+            self.remove_course_run(course_run_key_string)
 
     def get_description(self, data):
         description = (data.get('field_course_body', {}) or {}).get('value')
@@ -425,6 +447,13 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
 
         logger.info('Processed course run with UUID [%s].', uuid)
         return course_run
+
+    def remove_course_run(self, key):
+        try:
+            course_run = CourseRun.objects.get(key__iexact=key)
+            course_run.delete()
+        except CourseRun.DoesNotExist:
+            pass
 
     def _get_objects_by_uuid(self, object_type, raw_objects_data):
         uuids = [_object.get('uuid') for _object in raw_objects_data]
