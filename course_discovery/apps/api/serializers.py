@@ -1,10 +1,12 @@
 # pylint: disable=abstract-method
+from datetime import datetime
 import json
 from urllib.parse import urlencode
 
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
 from drf_haystack.serializers import HaystackSerializer, HaystackFacetSerializer
+import pytz
 from rest_framework import serializers
 from rest_framework.fields import DictField
 from taggit_serializer.serializers import TagListSerializerField, TaggitSerializer
@@ -380,15 +382,55 @@ class ProgramSerializer(serializers.ModelSerializer):
     staff = PersonSerializer(many=True)
 
     def get_courses(self, program):
+        courses = self.sort_courses(program)
+
         course_serializer = ProgramCourseSerializer(
-            program.courses,
+            courses,
             many=True,
             context={
                 'request': self.context.get('request'),
                 'program': program
             }
         )
+
         return course_serializer.data
+
+    def sort_courses(self, program):
+        """
+        Sorting by enrollment start then by course start yields a list ordered by course start, with
+        ties broken by enrollment start. This works because Python sorting is stable: two objects with
+        equal keys appear in the same order in sorted output as they appear in the input.
+
+        Courses are only created if there's at least one course run belonging to that course, so
+        course_runs should never be empty. If it is, key functions in this method attempting to find the
+        min of an empty sequence will raise a ValueError.
+        """
+        def min_run_enrollment_start(course):
+            # Enrollment starts may be empty. When this is the case, we make the same assumption as
+            # the LMS: no enrollment_start is equivalent to (offset-aware) datetime.min.
+            min_datetime = datetime.min.replace(tzinfo=pytz.UTC)
+
+            # Course runs excluded from the program are excluded here, too.
+            #
+            # If this becomes a candidate for optimization in the future, be careful sorting null values
+            # in the database. PostgreSQL and MySQL sort null values as if they are higher than non-null
+            # values, while SQLite does the opposite.
+            #
+            # For more, refer to https://docs.djangoproject.com/en/1.10/ref/models/querysets/#latest.
+            run = min(program.course_runs.filter(course=course), key=lambda run: run.enrollment_start or min_datetime)
+
+            return run.enrollment_start or min_datetime
+
+        def min_run_start(course):
+            run = min(program.course_runs.filter(course=course), key=lambda run: run.start)
+
+            return run.start
+
+        courses = list(program.courses.all())
+        courses.sort(key=min_run_enrollment_start)
+        courses.sort(key=min_run_start)
+
+        return courses
 
     class Meta:
         model = Program
