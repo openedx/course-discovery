@@ -10,9 +10,7 @@ from course_discovery.apps.course_metadata.models import Program, CourseRun
 class ProgramAdminForm(forms.ModelForm):
     class Meta:
         model = Program
-        exclude = (
-            'category',
-        )
+        fields = '__all__'
         widgets = {
             'courses': autocomplete.ModelSelect2Multiple(
                 url='admin_metadata:course-autocomplete',

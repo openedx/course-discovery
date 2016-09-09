@@ -49,7 +49,6 @@ COURSE_RUN_SEARCH_FIELDS = (
 )
 
 PROGRAM_FACET_FIELD_OPTIONS = {
-    'category': {},
     'status': {},
     'type': {},
     'seat_types': {},

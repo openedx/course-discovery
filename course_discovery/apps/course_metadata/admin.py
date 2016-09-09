@@ -66,7 +66,7 @@ class CourseRunAdmin(admin.ModelAdmin):
 class ProgramAdmin(admin.ModelAdmin):
     form = ProgramAdminForm
     inlines = [FaqsInline, IndividualEndorsementInline, CorporateEndorsementsInline]
-    list_display = ('id', 'uuid', 'title', 'category', 'type', 'partner', 'status',)
+    list_display = ('id', 'uuid', 'title', 'type', 'partner', 'status',)
     list_filter = ('partner', 'type', 'status',)
     ordering = ('uuid', 'title', 'status')
     readonly_fields = ('uuid', 'custom_course_runs_display', 'excluded_course_runs',)

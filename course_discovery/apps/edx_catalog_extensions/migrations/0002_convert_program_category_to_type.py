@@ -4,12 +4,9 @@ from __future__ import unicode_literals
 from django.db import migrations
 
 
-def set_program_types(apps, schema_editor):
-    Program = apps.get_model('course_metadata', 'Program')
-    ProgramType = apps.get_model('course_metadata', 'ProgramType')
-    xseries_type = ProgramType.objects.get(name='XSeries')
-
-    Program.objects.filter(category__iexact='xseries').update(type=xseries_type)
+# NOTE (CCB): This migration is intentionally blank to avoid ghost migrations in production.
+# The category field has been removed from the Program model. When we do squash migrations, this migration
+# should be removed.
 
 
 class Migration(migrations.Migration):
@@ -18,5 +15,4 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(set_program_types, reverse_code=migrations.RunPython.noop)
     ]
