@@ -369,7 +369,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
 
         defaults = {
             'key': key,
-            'title': data['field_course_course_title']['value'],
+            'title': self.clean_html(data['field_course_course_title']['value']),
             'number': data['field_course_code'],
             'full_description': self.get_description(data),
             'video': self.get_video(data),
