@@ -98,6 +98,10 @@ class MarketingSitePublisher(object):
                 partner=program.partner.short_code)
             raise ProgramPublisherException(msg)
 
+        if program.type.name != 'MicroMasters':
+            # Currently, we should not publish any programs that are not MicroMasters types to Marketing Site
+            return
+
         if self.data_before and \
                 all(self.data_before[key] == getattr(program, key) for key in ['title', 'status', 'type']):
             # We don't need to publish to marketing site because

@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
+from course_discovery.apps.course_metadata.models import ProgramType
 from course_discovery.apps.course_metadata.tests import factories, toggle_switch
 
 
@@ -13,7 +14,7 @@ MARKETING_SITE_PUBLISHERS_MODULE = 'course_discovery.apps.course_metadata.publis
 class SignalsTest(TestCase):
     def setUp(self):
         super(SignalsTest, self).setUp()
-        self.program = factories.ProgramFactory()
+        self.program = factories.ProgramFactory(type=ProgramType.objects.get(name='MicroMasters'))
 
     def test_delete_program_signal_no_publish(self, delete_program_mock):
         toggle_switch('publish_program_to_marketing_site', False)

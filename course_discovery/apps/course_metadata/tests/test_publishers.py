@@ -10,7 +10,7 @@ from course_discovery.apps.course_metadata.tests.mixins import (
     MarketingSiteAPIClientTestMixin,
     MarketingSitePublisherTestMixin,
 )
-from course_discovery.apps.course_metadata.models import Program
+from course_discovery.apps.course_metadata.models import Program, ProgramType
 
 
 class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
@@ -96,6 +96,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.program.partner.marketing_site_url_root = self.api_root
         self.program.partner.marketing_site_api_username = self.username
         self.program.partner.marketing_site_api_password = self.password
+        self.program.type = ProgramType.objects.get(name='MicroMasters')
         self.program.save()  # pylint: disable=no-member
         self.api_client = MarketingSiteAPIClient(
             self.username,
@@ -217,10 +218,16 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.assert_responses_call_count(0)
 
     @responses.activate
+    def test_publish_xseries_program(self):
+        self.program.type = ProgramType.objects.get(name='XSeries')
+        publisher = MarketingSitePublisher()
+        publisher.publish_program(self.program)
+        self.assert_responses_call_count(0)
+
+    @responses.activate
     def test_publish_program_no_credential(self):
         self.program.partner.marketing_site_api_password = None
         self.program.partner.marketing_site_api_username = None
-        self.program.save()  # pylint: disable=no-member
         publisher = MarketingSitePublisher()
         with self.assertRaises(ProgramPublisherException):
             publisher.publish_program(self.program)
