@@ -43,7 +43,18 @@ class Command(BaseCommand):
             help='The short code for a specific partner to refresh.'
         )
 
+        parser.add_argument(
+            '-w', '--max_workers',
+            type=int,
+            action='store',
+            dest='max_workers',
+            default=7,
+            help='Number of worker threads to use when traversing paginated responses.'
+        )
+
     def handle(self, *args, **options):
+        max_workers = options.get('max_workers')
+
         # For each partner defined...
         partners = Partner.objects.all()
 
@@ -56,7 +67,6 @@ class Command(BaseCommand):
             raise CommandError('No partners available!')
 
         for partner in partners:
-
             access_token = options.get('access_token')
             token_type = options.get('token_type')
 
@@ -94,7 +104,7 @@ class Command(BaseCommand):
             for api_url, loader_class in data_loaders:
                 if api_url:
                     try:
-                        loader_class(partner, api_url, access_token, token_type).ingest()
+                        loader_class(partner, api_url, access_token, token_type, max_workers).ingest()
                     except Exception:  # pylint: disable=broad-except
                         logger.exception('%s failed!', loader_class.__name__)
 

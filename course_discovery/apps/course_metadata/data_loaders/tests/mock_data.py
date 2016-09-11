@@ -930,7 +930,6 @@ MARKETING_SITE_API_SPONSOR_BODIES = [
         'title': 'Turkcell Akademi',
         'url': 'https://www.edx.org/sponsorer/turkcell-akademi',
         'uuid': 'fcb48e7e-8f1b-4d4b-8bb0-77617aaad9ba'
-
     },
     {
         'body': [],

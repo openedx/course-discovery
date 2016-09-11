@@ -1,10 +1,12 @@
-import logging
+import concurrent.futures
 from decimal import Decimal
 from io import BytesIO
+import logging
+import math
 
-import requests
 from django.core.files import File
 from opaque_keys.edx.keys import CourseKey
+import requests
 
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
@@ -60,40 +62,47 @@ class CoursesApiDataLoader(AbstractDataLoader):
     """ Loads course runs from the Courses API. """
 
     def ingest(self):
-        api_url = self.partner.courses_api_url
-        count = None
-        page = 1
+        logger.info('Refreshing Courses and CourseRuns from %s...', self.partner.courses_api_url)
 
-        logger.info('Refreshing Courses and CourseRuns from %s...', api_url)
+        initial_page = 1
+        response = self._request(initial_page)
+        count = response['pagination']['count']
+        pages = response['pagination']['num_pages']
+        self._process_response(response)
 
-        while page:
-            response = self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE)
-            count = response['pagination']['count']
-            results = response['results']
-            logger.info('Retrieved %d course runs...', len(results))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            futures = [executor.submit(self._request, page) for page in range(initial_page + 1, pages + 1)]
 
-            if response['pagination']['next']:
-                page += 1
-            else:
-                page = None
+        for future in futures:  # pragma: no cover
+            response = future.result()
+            self._process_response(response)
 
-            for body in results:
-                course_run_id = body['id']
-
-                try:
-                    body = self.clean_strings(body)
-                    course = self.update_course(body)
-                    self.update_course_run(course, body)
-                except:  # pylint: disable=bare-except
-                    msg = 'An error occurred while updating {course_run} from {api_url}'.format(
-                        course_run=course_run_id,
-                        api_url=api_url
-                    )
-                    logger.exception(msg)
-
-        logger.info('Retrieved %d course runs from %s.', count, api_url)
+        logger.info('Retrieved %d course runs from %s.', count, self.partner.courses_api_url)
 
         self.delete_orphans()
+
+    def _request(self, page):
+        """Make a request."""
+        return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE)
+
+    def _process_response(self, response):
+        """Process a response."""
+        results = response['results']
+        logger.info('Retrieved %d course runs...', len(results))
+
+        for body in results:
+            course_run_id = body['id']
+
+            try:
+                body = self.clean_strings(body)
+                course = self.update_course(body)
+                self.update_course_run(course, body)
+            except:  # pylint: disable=bare-except
+                msg = 'An error occurred while updating {course_run} from {api_url}'.format(
+                    course_run=course_run_id,
+                    api_url=self.partner.courses_api_url
+                )
+                logger.exception(msg)
 
     def update_course(self, body):
         course_run_key = CourseKey.from_string(body['id'])
@@ -170,30 +179,36 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     """ Loads course seats from the E-Commerce API. """
 
     def ingest(self):
-        api_url = self.partner.ecommerce_api_url
-        count = None
-        page = 1
+        logger.info('Refreshing course seats from %s...', self.partner.ecommerce_api_url)
 
-        logger.info('Refreshing course seats from %s...', api_url)
+        response = self._request(1)
+        count = response['count']
+        pages = math.ceil(count / self.PAGE_SIZE)
+        self._process_response(response)
 
-        while page:
-            response = self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE, include_products=True)
-            count = response['count']
-            results = response['results']
-            logger.info('Retrieved %d course seats...', len(results))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            futures = [executor.submit(self._request, page) for page in range(2, pages + 1)]
 
-            if response['next']:
-                page += 1
-            else:
-                page = None
+        for future in futures:  # pragma: no cover
+            response = future.result()
+            self._process_response(response)
 
-            for body in results:
-                body = self.clean_strings(body)
-                self.update_seats(body)
-
-        logger.info('Retrieved %d course seats from %s.', count, api_url)
+        logger.info('Retrieved %d course seats from %s.', count, self.partner.ecommerce_api_url)
 
         self.delete_orphans()
+
+    def _request(self, page):
+        """Make a request."""
+        return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE, include_products=True)
+
+    def _process_response(self, response):
+        """Process a response."""
+        results = response['results']
+        logger.info('Retrieved %d course seats...', len(results))
+
+        for body in results:
+            body = self.clean_strings(body)
+            self.update_seats(body)
 
     def update_seats(self, body):
         course_run_key = body['id']

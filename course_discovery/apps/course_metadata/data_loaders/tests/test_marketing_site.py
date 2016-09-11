@@ -1,5 +1,6 @@
 import datetime
 import json
+import math
 from urllib.parse import parse_qs, urlparse
 from uuid import UUID
 
@@ -45,7 +46,9 @@ class AbstractMarketingSiteDataLoaderTestMixin(DataLoaderTestMixin):
             page_size = 1
 
             body = {
-                'list': [data[page]]
+                'list': [data[page]],
+                'first': '{}?page={}'.format(url, 0),
+                'last': '{}?page={}'.format(url, math.ceil(count / page_size) - 1),
             }
 
             if (page * page_size) < count - 1:
