@@ -1,9 +1,9 @@
 import ddt
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from course_discovery.apps.course_metadata.forms import ProgramAdminForm
-from course_discovery.apps.course_metadata.models import Program
 
+from course_discovery.apps.course_metadata.choices import ProgramStatus
+from course_discovery.apps.course_metadata.forms import ProgramAdminForm
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
 from course_discovery.apps.core.tests.helpers import make_image_file
@@ -109,7 +109,7 @@ class AdminTests(TestCase):
 
     def test_program_without_image_and_active_status(self):
         """ Verify that new program cannot be added without `image` and active status together."""
-        data = self._post_data(Program.Status.Active)
+        data = self._post_data(ProgramStatus.Active)
         form = ProgramAdminForm(data, {'banner_image': ''})
         self.assertFalse(form.is_valid())
         self.assertEqual(form.errors['__all__'], ['Status cannot be change to active without banner image.'])
@@ -117,9 +117,9 @@ class AdminTests(TestCase):
             form.save()
 
     @ddt.data(
-        Program.Status.Deleted,
-        Program.Status.Retired,
-        Program.Status.Unpublished
+        ProgramStatus.Deleted,
+        ProgramStatus.Retired,
+        ProgramStatus.Unpublished
     )
     def test_program_without_image_and_non_active_status(self, status):
         """ Verify that new program can be added without `image` and non-active
@@ -129,10 +129,10 @@ class AdminTests(TestCase):
         self.valid_post_form(data, {'banner_image': ''})
 
     @ddt.data(
-        Program.Status.Deleted,
-        Program.Status.Retired,
-        Program.Status.Unpublished,
-        Program.Status.Active
+        ProgramStatus.Deleted,
+        ProgramStatus.Retired,
+        ProgramStatus.Unpublished,
+        ProgramStatus.Active
     )
     def test_program_with_image(self, status):
         """ Verify that new program can be added with `image` and any status."""
@@ -157,7 +157,7 @@ class AdminTests(TestCase):
 
     def test_new_program_without_courses(self):
         """ Verify that new program can be added without `courses`."""
-        data = self._post_data(Program.Status.Unpublished)
+        data = self._post_data(ProgramStatus.Unpublished)
         data['courses'] = []
         form = ProgramAdminForm(data)
         self.assertTrue(form.is_valid())

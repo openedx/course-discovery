@@ -9,6 +9,7 @@ from opaque_keys.edx.keys import CourseKey
 import requests
 
 from course_discovery.apps.core.models import Currency
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
     Video, Organization, Seat, CourseRun, Program, Course, ProgramType,
@@ -141,7 +142,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                 'title_override': body['name'],
                 'short_description_override': body['short_description'],
                 'video': self.get_courserun_video(body),
-                'status': CourseRun.Status.Published,
+                'status': CourseRunStatus.Published,
                 'pacing_type': self.get_pacing_type(body),
             })
 
@@ -157,9 +158,9 @@ class CoursesApiDataLoader(AbstractDataLoader):
             pacing = pacing.lower()
 
         if pacing == 'instructor':
-            return CourseRun.Pacing.Instructor
+            return CourseRunPacing.Instructor
         elif pacing == 'self':
-            return CourseRun.Pacing.Self
+            return CourseRunPacing.Self
         else:
             return None
 

@@ -10,7 +10,6 @@ from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
-from djchoices import DjangoChoices, ChoiceItem
 from haystack import connections
 from haystack.query import SearchQuerySet
 from simple_history.models import HistoricalRecords
@@ -20,6 +19,7 @@ from taggit.managers import TaggableManager
 import waffle
 
 from course_discovery.apps.core.models import Currency, Partner
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing, ProgramStatus
 from course_discovery.apps.course_metadata.publishers import MarketingSitePublisher
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
@@ -325,22 +325,11 @@ class Course(TimeStampedModel):
 class CourseRun(TimeStampedModel):
     """ CourseRun model. """
 
-    class Status(DjangoChoices):
-        Published = ChoiceItem('published', _('Published'))
-        Unpublished = ChoiceItem('unpublished', _('Unpublished'))
-
-    class Pacing(DjangoChoices):
-        # Translators: Instructor-paced refers to course runs that operate on a schedule set by the instructor,
-        # similar to a normal university course.
-        Instructor = ChoiceItem('instructor_paced', _('Instructor-paced'))
-        # Translators: Self-paced refers to course runs that operate on the student's schedule.
-        Self = ChoiceItem('self_paced', _('Self-paced'))
-
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
     course = models.ForeignKey(Course, related_name='course_runs')
     key = models.CharField(max_length=255, unique=True)
-    status = models.CharField(max_length=255, null=False, blank=False, db_index=True, choices=Status.choices,
-                              validators=[Status.validator])
+    status = models.CharField(max_length=255, null=False, blank=False, db_index=True, choices=CourseRunStatus.choices,
+                              validators=[CourseRunStatus.validator])
     title_override = models.CharField(
         max_length=255, default=None, null=True, blank=True,
         help_text=_(
@@ -369,8 +358,8 @@ class CourseRun(TimeStampedModel):
         help_text=_('Estimated maximum number of hours per week needed to complete a course run.'))
     language = models.ForeignKey(LanguageTag, null=True, blank=True)
     transcript_languages = models.ManyToManyField(LanguageTag, blank=True, related_name='transcript_courses')
-    pacing_type = models.CharField(max_length=255, db_index=True, null=True, blank=True, choices=Pacing.choices,
-                                   validators=[Pacing.validator])
+    pacing_type = models.CharField(max_length=255, db_index=True, null=True, blank=True,
+                                   choices=CourseRunPacing.choices, validators=[CourseRunPacing.validator])
     syllabus = models.ForeignKey(SyllabusItem, default=None, null=True, blank=True)
     card_image_url = models.URLField(null=True, blank=True)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
@@ -588,12 +577,6 @@ class ProgramType(TimeStampedModel):
 
 
 class Program(TimeStampedModel):
-    class Status(DjangoChoices):
-        Unpublished = ChoiceItem('unpublished', _('Unpublished'))
-        Active = ChoiceItem('active', _('Active'))
-        Retired = ChoiceItem('retired', _('Retired'))
-        Deleted = ChoiceItem('deleted', _('Deleted'))
-
     uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     title = models.CharField(
         help_text=_('The user-facing display title for this Program.'), max_length=255, unique=True)
@@ -602,7 +585,7 @@ class Program(TimeStampedModel):
     type = models.ForeignKey(ProgramType, null=True, blank=True)
     status = models.CharField(
         help_text=_('The lifecycle status of this Program.'), max_length=24, null=False, blank=False, db_index=True,
-        choices=Status.choices, validators=[Status.validator]
+        choices=ProgramStatus.choices, validators=[ProgramStatus.validator]
     )
     marketing_slug = models.CharField(
         help_text=_('Slug used to generate links to the marketing site'), blank=True, max_length=255, db_index=True)
@@ -721,7 +704,7 @@ class Program(TimeStampedModel):
 
     @property
     def is_active(self):
-        return self.status == self.Status.Active
+        return self.status == ProgramStatus.Active
 
     def save(self, *args, **kwargs):
         if waffle.switch_is_active('publish_program_to_marketing_site') and \

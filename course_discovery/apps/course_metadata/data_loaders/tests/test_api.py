@@ -8,6 +8,7 @@ from django.test import TestCase
 from pytz import UTC
 
 from course_discovery.apps.core.tests.utils import mock_api_callback, mock_jpeg_callback
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing
 from course_discovery.apps.course_metadata.data_loaders.api import (
     OrganizationsApiDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader, AbstractDataLoader, ProgramsApiDataLoader
 )
@@ -157,7 +158,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
                 'title_override': body['name'],
                 'short_description_override': self.loader.clean_string(body['short_description']),
                 'video': self.loader.get_courserun_video(body),
-                'status': CourseRun.Status.Published,
+                'status': CourseRunStatus.Published,
                 'pacing_type': self.loader.get_pacing_type(body),
             })
 
@@ -215,10 +216,10 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         ('', None),
         ('foo', None),
         (None, None),
-        ('instructor', CourseRun.Pacing.Instructor),
-        ('Instructor', CourseRun.Pacing.Instructor),
-        ('self', CourseRun.Pacing.Self),
-        ('Self', CourseRun.Pacing.Self),
+        ('instructor', CourseRunPacing.Instructor),
+        ('Instructor', CourseRunPacing.Instructor),
+        ('self', CourseRunPacing.Self),
+        ('Self', CourseRunPacing.Self),
     )
     def test_get_pacing_type(self, pacing, expected_pacing_type):
         """ Verify the method returns a pacing type corresponding to the API response's pacing field. """

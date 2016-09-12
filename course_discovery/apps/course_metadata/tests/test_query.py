@@ -4,6 +4,7 @@ import ddt
 import pytz
 from django.test import TestCase
 
+from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory
 
@@ -72,11 +73,18 @@ class CourseRunQuerySetTests(TestCase):
         self.assertEqual(CourseRun.objects.marketable().count(), 0)
 
 
+@ddt.ddt
 class ProgramQuerySetTests(TestCase):
-    def test_marketable(self):
-        """ Verify the method filters Programs to those with marketing slugs. """
-        program = ProgramFactory()
-        self.assertEqual(list(Program.objects.marketable()), [program])
+    @ddt.data(
+        (ProgramStatus.Unpublished, False),
+        (ProgramStatus.Active, True),
+    )
+    @ddt.unpack
+    def test_marketable(self, status, is_marketable):
+        """ Verify the method filters Programs to those which are active and have marketing slugs. """
+        program = ProgramFactory(status=status)
+        expected = [program] if is_marketable else []
+        self.assertEqual(list(Program.objects.marketable()), expected)
 
     def test_marketable_exclusions(self):
         """ Verify the method excludes Programs without a marketing slug. """

@@ -4,6 +4,8 @@ import pytz
 from django.db import models
 from django.db.models.query_utils import Q
 
+from course_discovery.apps.course_metadata.choices import ProgramStatus
+
 
 class CourseQuerySet(models.QuerySet):
     def active(self):
@@ -54,10 +56,16 @@ class ProgramQuerySet(models.QuerySet):
     def marketable(self):
         """ Returns Programs that can be marketed to learners.
 
-         A Program is considered marketable if it has a defined marketing slug.
+         A Program is considered marketable if it is active and has a defined marketing slug.
 
          Returns:
             QuerySet
          """
 
-        return self.exclude(marketing_slug__isnull=True).exclude(marketing_slug='')
+        return self.filter(
+            status=ProgramStatus.Active
+        ).exclude(
+            marketing_slug__isnull=True
+        ).exclude(
+            marketing_slug=''
+        )

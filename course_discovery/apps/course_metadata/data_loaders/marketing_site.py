@@ -11,6 +11,7 @@ from django.db.models import Q
 from django.utils.functional import cached_property
 from opaque_keys.edx.keys import CourseKey
 
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
     Course, Organization, Person, Subject, Program, Position, LevelType, CourseRun
@@ -382,7 +383,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         # If the course already exists update the fields only if the course_run we got from drupal is published.
         # People often put temp data into required drupal fields for unpublished courses. We don't want to  overwrite
         # the course info with this data, so we only update course info from published sources.
-        published = self.get_course_run_status(data) == CourseRun.Status.Published
+        published = self.get_course_run_status(data) == CourseRunStatus.Published
         if not created and published:
             for attr, value in defaults.items():
                 setattr(course, attr, value)
@@ -403,7 +404,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         return description
 
     def get_course_run_status(self, data):
-        return CourseRun.Status.Published if bool(int(data['status'])) else CourseRun.Status.Unpublished
+        return CourseRunStatus.Published if bool(int(data['status'])) else CourseRunStatus.Unpublished
 
     def get_level_type(self, name):
         level_type = None
@@ -420,7 +421,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
 
     def get_pacing_type(self, data):
         self_paced = data.get('field_course_self_paced', False)
-        return CourseRun.Pacing.Self if self_paced else CourseRun.Pacing.Instructor
+        return CourseRunPacing.Self if self_paced else CourseRunPacing.Instructor
 
     def create_course_run(self, course, data):
         uuid = data['uuid']

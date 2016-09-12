@@ -11,14 +11,14 @@ import responses
 from django.test import TestCase
 from opaque_keys.edx.keys import CourseKey
 
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
     XSeriesMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
     SponsorMarketingSiteDataLoader, PersonMarketingSiteDataLoader, CourseMarketingSiteDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
-from course_discovery.apps.course_metadata.models import Organization, Subject, Program, Video, Person, Course, \
-    CourseRun
+from course_discovery.apps.course_metadata.models import Organization, Subject, Program, Video, Person, Course
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -364,8 +364,8 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
 
     @ddt.unpack
     @ddt.data(
-        ('0', CourseRun.Status.Unpublished),
-        ('1', CourseRun.Status.Published),
+        ('0', CourseRunStatus.Unpublished),
+        ('1', CourseRunStatus.Published),
     )
     def test_get_course_run_status(self, marketing_site_status, expected):
         data = {'status': marketing_site_status}
@@ -394,10 +394,10 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
 
     @ddt.unpack
     @ddt.data(
-        (True, CourseRun.Pacing.Self),
-        (False, CourseRun.Pacing.Instructor),
-        (None, CourseRun.Pacing.Instructor),
-        ('', CourseRun.Pacing.Instructor),
+        (True, CourseRunPacing.Self),
+        (False, CourseRunPacing.Instructor),
+        (None, CourseRunPacing.Instructor),
+        ('', CourseRunPacing.Instructor),
     )
     def test_get_pacing_type(self, data_value, expected_pacing_type):
         data = {'field_course_self_paced': data_value}

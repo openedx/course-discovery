@@ -3,6 +3,7 @@ import json
 from haystack import indexes
 from opaque_keys.edx.keys import CourseKey
 
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 
 
@@ -125,7 +126,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
         return obj.course.partner.short_code
 
     def prepare_published(self, obj):
-        return obj.status == CourseRun.Status.Published
+        return obj.status == CourseRunStatus.Published
 
     def _prepare_language(self, language):
         if language:
@@ -187,7 +188,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     published = indexes.BooleanField(null=False, faceted=True)
 
     def prepare_published(self, obj):
-        return obj.status == Program.Status.Active
+        return obj.status == ProgramStatus.Active
 
     def prepare_organizations(self, obj):
         return self.prepare_authoring_organizations(obj) + self.prepare_credit_backing_organizations(obj)
