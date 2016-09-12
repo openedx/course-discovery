@@ -1,5 +1,4 @@
 from course_discovery.settings.production import *
-from course_discovery.settings.shared.debug_toolbar import *
 
 DEBUG = True
 
@@ -8,8 +7,9 @@ LOGGING['handlers']['local'] = {
     'class': 'logging.NullHandler',
 }
 
+
+# Determine which requests should render Django Debug Toolbar
 INTERNAL_IPS = ('127.0.0.1',)
-# END TOOLBAR CONFIGURATION
 
 
 HAYSTACK_CONNECTIONS = {

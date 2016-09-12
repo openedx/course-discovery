@@ -1,5 +1,4 @@
 from course_discovery.settings.base import *
-from course_discovery.settings.shared.debug_toolbar import *
 
 DEBUG = True
 
@@ -31,8 +30,8 @@ DATABASES = {
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # END EMAIL CONFIGURATION
 
+# Determine which requests should render Django Debug Toolbar
 INTERNAL_IPS = ('127.0.0.1',)
-# END TOOLBAR CONFIGURATION
 
 # AUTHENTICATION
 # Set these to the correct values for your OAuth2/OpenID Connect provider (e.g., devstack)
