@@ -61,7 +61,6 @@ class AbstractMarketingSiteDataLoader(AbstractDataLoader):
         """ Load data for all supported objects (e.g. courses, runs). """
         initial_page = 0
         response = self._request(initial_page)
-        self._check_status_code(response)
         self._process_response(response)
 
         data = response.json()
