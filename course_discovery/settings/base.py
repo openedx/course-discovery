@@ -51,6 +51,7 @@ THIRD_PARTY_APPS = [
     'taggit',
     'taggit_serializer',
     'solo',
+    'cachalot',
 ]
 
 PROJECT_APPS = [

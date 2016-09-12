@@ -12,7 +12,7 @@ from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
 from djchoices import DjangoChoices, ChoiceItem
 from haystack import connections
-from haystack.query import SearchQuerySet
+from haystack.query import SearchQuerySet, RelatedSearchQuerySet
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
@@ -294,7 +294,7 @@ class Course(TimeStampedModel):
         )
 
     @classmethod
-    def search(cls, query):
+    def search(cls, query, queryset=None):
         """ Queries the search index.
 
         Args:
@@ -304,9 +304,13 @@ class Course(TimeStampedModel):
             QuerySet
         """
         query = clean_query(query)
-        results = SearchQuerySet().models(cls).raw_search(query)
-        ids = [result.pk for result in results]
-        return cls.objects.filter(pk__in=ids)
+        sqs = RelatedSearchQuerySet().models(cls).raw_search(query).load_all()
+
+        if queryset:
+            sqs = sqs.load_all_queryset(cls, queryset)
+
+        return [result.object for result in sqs]
+        # return sqs
 
     def save(self, *args, **kwargs):
         super(Course, self).save(*args, **kwargs)
@@ -346,9 +350,9 @@ class CourseRun(TimeStampedModel):
         help_text=_(
             "Title specific for this run of a course. Leave this value blank to default to the parent course's title."))
     start = models.DateTimeField(null=True, blank=True)
-    end = models.DateTimeField(null=True, blank=True)
+    end = models.DateTimeField(null=True, blank=True, db_index=True)
     enrollment_start = models.DateTimeField(null=True, blank=True)
-    enrollment_end = models.DateTimeField(null=True, blank=True)
+    enrollment_end = models.DateTimeField(null=True, blank=True, db_index=True)
     announcement = models.DateTimeField(null=True, blank=True)
     short_description_override = models.CharField(
         max_length=255, default=None, null=True, blank=True,

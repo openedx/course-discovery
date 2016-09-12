@@ -33,7 +33,13 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
         Returns:
             QuerySet
         """
-        return Course.search(self.query)
+        queryset = Course.objects.all().active()
+        queryset = queryset \
+            .select_related('partner', 'level_type', 'video') \
+            .prefetch_related('authoring_organizations', 'authoring_organizations__tags',
+                              'sponsoring_organizations', 'sponsoring_organizations__tags', 'subjects',
+                              'prerequisites', 'expected_learning_items', )
+        return Course.search(self.query, queryset)
 
     @property
     def courses_count(self):

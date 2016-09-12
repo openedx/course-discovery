@@ -109,7 +109,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
         """
 
         catalog = self.get_object()
-        queryset = catalog.courses().active()
+        queryset = catalog.courses()
 
         page = self.paginate_queryset(queryset)
         serializer = serializers.CourseSerializerExcludingClosedRuns(page, many=True, context={'request': request})
