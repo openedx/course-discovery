@@ -1,0 +1,917 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-09-09 13:42+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: course_discovery/apps/api/filters.py:44
+#, python-brace-format
+msgid "No user with the username [{username}] exists."
+msgstr ""
+
+#: course_discovery/apps/api/filters.py:48
+msgid ""
+"Only staff users are permitted to filter by username. Remove the username "
+"parameter."
+msgstr ""
+
+#: course_discovery/apps/api/serializers.py:214
+msgid "Number of courses contained in this catalog"
+msgstr ""
+
+#: course_discovery/apps/api/serializers.py:217
+msgid "Usernames of users with explicit access to view this catalog"
+msgstr ""
+
+#: course_discovery/apps/api/serializers.py:252
+msgid "Language in which the course is administered"
+msgstr ""
+
+#: course_discovery/apps/api/serializers.py:292
+msgid "Dictionary mapping course run IDs to boolean values"
+msgstr ""
+
+#: course_discovery/apps/api/serializers.py:342
+msgid "Dictionary mapping course IDs to boolean values"
+msgstr ""
+
+#: course_discovery/apps/api/serializers.py:374
+msgid "Languages that course runs in this program are offered in."
+msgstr ""
+
+#: course_discovery/apps/api/serializers.py:378
+msgid ""
+"Languages that course runs in this program have available transcripts in."
+msgstr ""
+
+#: course_discovery/apps/api/views.py:22
+msgid "You are not permitted to access the API documentation."
+msgstr ""
+
+#: course_discovery/apps/catalogs/models.py:15
+msgid "Catalog name"
+msgstr ""
+
+#: course_discovery/apps/catalogs/models.py:16
+msgid "Query to retrieve catalog contents"
+msgstr ""
+
+#: course_discovery/apps/core/admin.py:17
+msgid "Personal info"
+msgstr ""
+
+#: course_discovery/apps/core/admin.py:18
+msgid "Permissions"
+msgstr ""
+
+#: course_discovery/apps/core/admin.py:19
+msgid "Important dates"
+msgstr ""
+
+#: course_discovery/apps/core/admin.py:45
+msgid "OpenID Connect"
+msgstr ""
+
+#: course_discovery/apps/core/admin.py:47
+msgid ""
+"OpenID Connect is used for front-end authentication as well as getting "
+"access to the APIs."
+msgstr ""
+
+#: course_discovery/apps/core/admin.py:50
+msgid "API Configuration"
+msgstr ""
+
+#: course_discovery/apps/core/admin.py:51
+msgid "Configure the APIs that will be used to retrieve data."
+msgstr ""
+
+#: course_discovery/apps/core/admin.py:54
+msgid "Marketing Site Configuration"
+msgstr ""
+
+#: course_discovery/apps/core/admin.py:55
+msgid ""
+"Configure the marketing site URLs that will be used to retrieve data and "
+"create URLs."
+msgstr ""
+
+#. Translators: 'period_choices' is a list of possible values, like ('second', 'minute', 'hour')
+#: course_discovery/apps/core/forms.py:24
+#, python-brace-format
+msgid "period must be one of {period_choices}."
+msgstr ""
+
+#: course_discovery/apps/core/forms.py:27
+msgid "'rate' must be in the format defined by DRF, such as '100/hour'."
+msgstr ""
+
+#: course_discovery/apps/core/models.py:12
+msgid "Full Name"
+msgstr ""
+
+#: course_discovery/apps/core/models.py:13
+msgid "Referral Tracking ID"
+msgstr ""
+
+#: course_discovery/apps/core/models.py:42
+msgid ""
+"The rate of requests to limit this user to. The format is specified by "
+"Django Rest Framework (see http://www.django-rest-framework.org/api-guide/"
+"throttling/)."
+msgstr ""
+
+#: course_discovery/apps/core/models.py:62
+msgid "Short Code"
+msgstr ""
+
+#: course_discovery/apps/core/models.py:63
+msgid ""
+"Convenient code/slug used to identify this Partner (e.g. for management "
+"commands.)"
+msgstr ""
+
+#: course_discovery/apps/core/models.py:64
+msgid "Courses API URL"
+msgstr ""
+
+#: course_discovery/apps/core/models.py:65
+msgid "E-Commerce API URL"
+msgstr ""
+
+#: course_discovery/apps/core/models.py:67
+msgid "Organizations API URL"
+msgstr ""
+
+#: course_discovery/apps/core/models.py:68
+msgid "Programs API URL"
+msgstr ""
+
+#: course_discovery/apps/core/models.py:70
+msgid "Marketing Site API URL"
+msgstr ""
+
+#: course_discovery/apps/core/models.py:72
+msgid "Marketing Site URL"
+msgstr ""
+
+#: course_discovery/apps/core/models.py:74
+msgid "Marketing Site API Username"
+msgstr ""
+
+#: course_discovery/apps/core/models.py:76
+msgid "Marketing Site API Password"
+msgstr ""
+
+#: course_discovery/apps/core/models.py:77
+msgid "OpenID Connect URL"
+msgstr ""
+
+#: course_discovery/apps/core/models.py:78
+msgid "OpenID Connect Key"
+msgstr ""
+
+#: course_discovery/apps/core/models.py:79
+msgid "OpenID Connect Secret"
+msgstr ""
+
+#: course_discovery/apps/core/models.py:85
+#: course_discovery/templates/publisher/course_runs_list.html:15
+msgid "Partner"
+msgstr ""
+
+#: course_discovery/apps/core/models.py:86
+msgid "Partners"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/forms.py:52
+msgid "Status cannot be change to active without banner image."
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:74
+msgid "Facebook"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:75
+msgid "Twitter"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:76
+msgid "Blog"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:77
+msgid "Others"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:111
+#: course_discovery/apps/course_metadata/models.py:155
+#: course_discovery/apps/course_metadata/models.py:186
+#: course_discovery/apps/course_metadata/models.py:236
+#: course_discovery/apps/course_metadata/models.py:339
+#: course_discovery/apps/course_metadata/models.py:597
+msgid "UUID"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:118
+msgid "Leave this field blank to have the value generated automatically."
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:200
+msgid "People"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:252
+msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:329
+#: course_discovery/apps/publisher/models.py:42
+msgid "Published"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:330
+#: course_discovery/apps/course_metadata/models.py:592
+msgid "Unpublished"
+msgstr ""
+
+#. Translators: Instructor-paced refers to course runs that operate on a schedule set by the instructor,
+#. similar to a normal university course.
+#: course_discovery/apps/course_metadata/models.py:335
+msgid "Instructor-paced"
+msgstr ""
+
+#. Translators: Self-paced refers to course runs that operate on the student's schedule.
+#: course_discovery/apps/course_metadata/models.py:337
+msgid "Self-paced"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:347
+msgid ""
+"Title specific for this run of a course. Leave this value blank to default "
+"to the parent course's title."
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:356
+msgid ""
+"Short description specific for this run of a course. Leave this value blank "
+"to default to the parent course's short_description attribute."
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:361
+msgid ""
+"Full description specific for this run of a course. Leave this value blank "
+"to default to the parent course's full_description attribute."
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:366
+#: course_discovery/apps/publisher/models.py:161
+msgid ""
+"Estimated minimum number of hours per week needed to complete a course run."
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:369
+#: course_discovery/apps/publisher/models.py:164
+msgid ""
+"Estimated maximum number of hours per week needed to complete a course run."
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:476
+msgid "Archived"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:478
+msgid "Current"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:480
+msgid "Starting Soon"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:482
+msgid "Upcoming"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:518
+#: course_discovery/apps/publisher/models.py:245
+msgid "Honor"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:519
+#: course_discovery/apps/publisher/models.py:246
+msgid "Audit"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:520
+#: course_discovery/apps/publisher/models.py:247
+msgid "Verified"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:521
+msgid "Professional"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:522
+#: course_discovery/apps/publisher/models.py:250
+msgid "Credit"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:571
+msgid "FAQ"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:572
+msgid "FAQs"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:581
+msgid ""
+"Seat types that qualify for completion of programs of this type. Learners "
+"completing associated courses, but enrolled in other seat types, will NOT "
+"have their completion of the course counted toward the completion of the "
+"program."
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:593
+msgid "Active"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:594
+msgid "Retired"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:595
+msgid "Deleted"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:599
+msgid "The user-facing display title for this Program."
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:601
+msgid "A brief, descriptive subtitle for the Program."
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:603
+msgid "The category / type of Program."
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:606
+msgid "The lifecycle status of this Program."
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:610
+msgid "Slug used to generate links to the marketing site"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:632
+msgid "Image used atop detail pages"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:633
+msgid "Image used for discovery cards"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:645
+msgid "The description of credit redemption for courses in program"
+msgstr ""
+
+#: course_discovery/apps/edx_haystack_extensions/models.py:13
+msgid "Function Score"
+msgstr ""
+
+#: course_discovery/apps/edx_haystack_extensions/models.py:14
+msgid "JSON string containing an elasticsearch function score config."
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:38
+msgid "Draft"
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:39
+msgid "Needs Review"
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:40
+msgid "Needs Final Approval"
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:41
+msgid "Finalized"
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:82
+msgid "Course title"
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:83
+msgid "Course number"
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:85
+msgid "Course subtitle"
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:87
+msgid "About this course"
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:89
+#: course_discovery/templates/publisher/course_run_detail/_all.html:41
+msgid "Partner Name"
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:92
+msgid "Course level"
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:94
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:123
+msgid "What you'll learn"
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:137
+msgid "Level 1"
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:138
+msgid "Level 2"
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:139
+msgid "Level 3"
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:140
+msgid "Level 4"
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:141
+msgid "Level 5"
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:170
+msgid "Length of course, in number of weeks"
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:181
+msgid "SEO review on your course title and short description"
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:184
+msgid "Please add top 10 comma separated keywords for your course content"
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:188
+msgid ""
+"Please add any additional notes or special instructions for the course About "
+"Page."
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:196
+msgid "Comma separated list of edX usernames or emails of admins."
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:200
+msgid "Comma separated list of edX usernames or emails of additional staff."
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:248
+msgid "Professional (with ID verification)"
+msgstr ""
+
+#: course_discovery/apps/publisher/models.py:249
+msgid "Professional (no ID verifiation)"
+msgstr ""
+
+#: course_discovery/apps/publisher/views.py:160
+#, python-brace-format
+msgid "Content moved to `{state}` successfully."
+msgstr ""
+
+#: course_discovery/apps/publisher/views.py:164
+msgid "There was an error in changing state."
+msgstr ""
+
+#: course_discovery/apps/publisher/wrappers.py:6
+msgid "Send For Review"
+msgstr ""
+
+#: course_discovery/apps/publisher/wrappers.py:7
+msgid "Send For Final Approval"
+msgstr ""
+
+#: course_discovery/apps/publisher/wrappers.py:8
+msgid "Finalize"
+msgstr ""
+
+#: course_discovery/apps/publisher/wrappers.py:9
+msgid "Publish"
+msgstr ""
+
+#: course_discovery/apps/publisher_comments/models.py:8
+msgid "modified"
+msgstr ""
+
+#: course_discovery/templates/comments/add_auth_comments.html:6
+msgid "Add new comment"
+msgstr ""
+
+#: course_discovery/templates/comments/comments_list.html:7
+#, python-format
+msgid ""
+"\n"
+"            Total Comments %(comment_count)s\n"
+"        "
+msgstr ""
+
+#: course_discovery/templates/comments/edit_comment.html:4
+#: course_discovery/templates/publisher/course_run_form.html:4
+#: course_discovery/templates/publisher/course_run_form.html:11
+msgid "Course Run Form"
+msgstr ""
+
+#: course_discovery/templates/comments/edit_comment.html:10
+msgid "Edit Comment"
+msgstr ""
+
+#: course_discovery/templates/comments/edit_comment.html:18
+#: course_discovery/templates/publisher/course_form.html:19
+#: course_discovery/templates/publisher/course_run_form.html:29
+#: course_discovery/templates/publisher/seat_form.html:20
+msgid "Save"
+msgstr ""
+
+#: course_discovery/templates/metadata/admin/course_run.html:4
+msgid "CourseRun Selection Form"
+msgstr ""
+
+#: course_discovery/templates/metadata/admin/course_run.html:24
+msgid "Cancel"
+msgstr ""
+
+#: course_discovery/templates/metadata/admin/course_run.html:27
+msgid "Back to Program"
+msgstr ""
+
+#: course_discovery/templates/metadata/admin/course_run.html:29
+msgid "Save Course Run"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_form.html:4
+#: course_discovery/templates/publisher/course_form.html:11
+msgid "Course Form"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_form.html:25
+msgid "Add Course Run"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail.html:6
+msgid "Course Run Detail"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail.html:11
+msgid "All"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail.html:12
+msgid "STUDIO"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail.html:13
+msgid "CAT"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail.html:14
+msgid "DRUPAL"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail.html:20
+msgid "Courses"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail.html:45
+#: course_discovery/templates/publisher/course_run_form.html:16
+#: course_discovery/templates/publisher/course_runs_list.html:18
+msgid "Status"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:6
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:6
+msgid "Title"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:13
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:13
+#: course_discovery/templates/publisher/course_run_detail/_studio.html:21
+msgid "Number"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:20
+#: course_discovery/templates/publisher/course_run_detail/_cat.html:7
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:20
+msgid "Course ID"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:27
+msgid "Is Re-run?"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:33
+msgid "Course Subtitle"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:49
+msgid "Subjects"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:58
+msgid "Part of an Xseries?"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:66
+msgid "Xseries Name"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:74
+msgid "Part of a Micromasters?"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:82
+msgid "Micromasters Name"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:90
+msgid "Enrollment Type"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:98
+#: course_discovery/templates/publisher/course_run_detail/_credit_seat.html:8
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:155
+#: course_discovery/templates/publisher/course_run_detail/_seats.html:8
+msgid "Price"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:106
+msgid "Course Start Date"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:114
+msgid "Course End Date"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:122
+msgid "Certificate Generation Date Exception Request"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:130
+msgid "Course Length (weeks)"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:138
+#: course_discovery/templates/publisher/course_run_detail/_studio.html:57
+msgid "Pacing Type"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:146
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:84
+msgid "Estimated Effort"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:151
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:89
+msgid "to"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:151
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:89
+msgid "hours per week"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:158
+msgid "Course Languages"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:166
+msgid "Video Translation Languages"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:174
+msgid "Course Level"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:181
+msgid "About This Course"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:189
+msgid "What You'll Learn"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:197
+msgid "Learner Testimonial"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:205
+msgid "Syllabus"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:213
+msgid "Prerequisites"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:221
+msgid "Search Engine Optimization Review"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:229
+msgid "Top 10 Keywords"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:237
+msgid "edX Username or email address of Course Team Admin(s)"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:245
+msgid "edX Username or email address of additional course team members (Staff)"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:253
+msgid "Additional Notes"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_all.html:262
+msgid "Edit"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_cat.html:14
+msgid "Course Type"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_credit_seat.html:2
+msgid "Credit Seats"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_credit_seat.html:7
+msgid "Credit Provider"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_credit_seat.html:9
+#: course_discovery/templates/publisher/course_run_detail/_seats.html:9
+msgid "Currency"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_credit_seat.html:10
+msgid "Credit Hours"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_credit_seat.html:11
+#: course_discovery/templates/publisher/course_run_detail/_seats.html:10
+msgid "Upgrade Deadline"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_credit_seat.html:24
+msgid "No Credit Seats Available."
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:27
+msgid "Sub Title"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:34
+msgid "School"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:41
+msgid "Subject"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:49
+msgid "XSeries"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:57
+#: course_discovery/templates/publisher/course_run_detail/_studio.html:29
+msgid "Start Date"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:63
+#: course_discovery/templates/publisher/course_run_detail/_studio.html:36
+msgid "End Date"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:70
+msgid "Self Paced"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:77
+msgid "Staff"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:95
+msgid "Languages"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:102
+msgid "Video Translations"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:109
+msgid "Level"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:116
+msgid "About this Course"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:130
+msgid "Prerequisite"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:137
+msgid "Keywords"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:144
+msgid "Sponsors"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:161
+msgid "Enrollments"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_drupal.html:164
+msgid "Seats"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_seats.html:7
+msgid "Seat Type"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_seats.html:23
+msgid "No Seats Available."
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_studio.html:7
+msgid "Course Name"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_studio.html:14
+msgid "Organization"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_studio.html:43
+msgid "Enrollment Start Date"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_detail/_studio.html:50
+msgid "Enrollment End Date"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_run_form.html:36
+msgid "Add Seat"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_runs_list.html:4
+#: course_discovery/templates/publisher/course_runs_list.html:10
+msgid "Course Run List"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_runs_list.html:13
+msgid "Course Run Title"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_runs_list.html:14
+msgid "Course Run Start Date"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_runs_list.html:16
+msgid "Target Content?"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_runs_list.html:17
+msgid "Priority"
+msgstr ""
+
+#: course_discovery/templates/publisher/course_runs_list.html:19
+msgid "Last Updated"
+msgstr ""
+
+#: course_discovery/templates/publisher/seat_form.html:5
+#: course_discovery/templates/publisher/seat_form.html:12
+msgid "Seat Form"
+msgstr ""
