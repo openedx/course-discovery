@@ -36,6 +36,45 @@ from course_discovery.apps.course_metadata.models import Course, CourseRun, Part
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
+PREFETCH_FIELDS = {
+    'course_run': (
+        'course__partner', 'course__level_type', 'course__programs', 'course__programs__type',
+        'course__programs__partner', 'seats', 'transcript_languages', 'seats__currency', 'staff',
+        'staff__position', 'staff__position__organization', 'language',
+    ),
+    'course': (
+        'level_type', 'video', 'programs', 'course_runs', 'subjects', 'prerequisites', 'expected_learning_items',
+        'authoring_organizations', 'authoring_organizations__tags', 'authoring_organizations__partner',
+        'sponsoring_organizations', 'sponsoring_organizations__tags', 'sponsoring_organizations__partner',
+    ),
+}
+
+
+def prefetch_related_objects_for_courses(queryset):
+    """
+    Pre-fetches the related objects that will be serialized with a `Course`.
+
+    Pre-fetching allows us to consolidate our database queries rather than run
+    thousands of queries as we serialize the data. For details, see the links below:
+
+        - https://docs.djangoproject.com/en/1.10/ref/models/querysets/#select-related
+        - https://docs.djangoproject.com/en/1.10/ref/models/querysets/#prefetch-related
+
+    Args:
+        queryset (QuerySet): original query
+
+    Returns:
+        QuerySet
+    """
+    # Prefetch the data for the related course runs
+    course_run_prefetch_fields = PREFETCH_FIELDS['course_run']
+    course_run_prefetch_fields = ['course_runs__' + field for field in course_run_prefetch_fields]
+    queryset = queryset.prefetch_related(*course_run_prefetch_fields)
+
+    queryset = queryset.select_related('level_type', 'video')
+    queryset = queryset.prefetch_related(*PREFETCH_FIELDS['course'])
+    return queryset
+
 
 # pylint: disable=no-member
 class CatalogViewSet(viewsets.ModelViewSet):
@@ -110,6 +149,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
 
         catalog = self.get_object()
         queryset = catalog.courses().active()
+        queryset = prefetch_related_objects_for_courses(queryset)
 
         page = self.paginate_queryset(queryset)
         serializer = serializers.CourseSerializerExcludingClosedRuns(page, many=True, context={'request': request})
@@ -187,6 +227,7 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = Course.search(q)
         else:
             queryset = super(CourseViewSet, self).get_queryset()
+            queryset = prefetch_related_objects_for_courses(queryset)
 
         return queryset.order_by(Lower('key'))
 
@@ -249,11 +290,7 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
         else:
             queryset = super(CourseRunViewSet, self).get_queryset().filter(course__partner=partner)
             queryset = queryset.select_related('course', 'language', 'video')
-            queryset = queryset.prefetch_related(
-                'course__partner', 'course__level_type', 'course__programs', 'course__programs__type',
-                'course__programs__partner', 'seats', 'transcript_languages', 'seats__currency', 'staff',
-                'staff__position', 'staff__position__organization'
-            )
+            queryset = queryset.prefetch_related(*PREFETCH_FIELDS['course_run'])
             return queryset
 
     def list(self, request, *args, **kwargs):
