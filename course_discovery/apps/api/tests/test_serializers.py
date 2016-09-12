@@ -57,6 +57,10 @@ def serialize_language_to_code(language):
     return language.code
 
 
+def get_uuids(items):
+    return [str(item.uuid) for item in items]
+
+
 class CatalogSerializerTests(TestCase):
     def test_data(self):
         user = UserFactory()
@@ -714,6 +718,9 @@ class CourseRunSearchSerializerTests(TestCase):
             'published': course_run.status == CourseRun.Status.Published,
             'partner': course_run.course.partner.short_code,
             'program_types': course_run.program_types,
+            'authoring_organization_uuids': get_uuids(course_run.authoring_organizations.all()),
+            'subject_uuids': get_uuids(course_run.subjects.all()),
+            'staff_uuids': get_uuids(course_run.staff.all())
         }
         self.assertDictEqual(serializer.data, expected)
 
@@ -744,6 +751,9 @@ class ProgramSearchSerializerTests(TestCase):
             'status': program.status,
             'published': program.status == Program.Status.Active,
             'partner': program.partner.short_code,
+            'authoring_organization_uuids': get_uuids(program.authoring_organizations.all()),
+            'subject_uuids': get_uuids([course.subjects for course in program.courses.all()]),
+            'staff_uuids': get_uuids([course.staff for course in program.course_runs.all()])
         }
 
     def test_data(self):
