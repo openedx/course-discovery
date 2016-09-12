@@ -1,4 +1,5 @@
 import json
+import math
 
 from urllib.parse import parse_qs, urlparse
 from factory.fuzzy import (
@@ -68,6 +69,7 @@ def mock_api_callback(url, data, results_key=True, pagination=False):
         body = {
             'count': count,
             'next': next_url,
+            'num_pages': math.ceil(count / page_size),
             'previous': previous_url,
         }
 

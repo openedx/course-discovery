@@ -1,7 +1,8 @@
 import abc
+import concurrent.futures
 import datetime
 import logging
-from urllib.parse import urlencode
+from urllib.parse import parse_qs, urlencode, urlparse
 from uuid import UUID
 
 import pytz
@@ -20,8 +21,8 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractMarketingSiteDataLoader(AbstractDataLoader):
-    def __init__(self, partner, api_url, access_token=None, token_type=None):
-        super(AbstractMarketingSiteDataLoader, self).__init__(partner, api_url, access_token, token_type)
+    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None):
+        super(AbstractMarketingSiteDataLoader, self).__init__(partner, api_url, access_token, token_type, max_workers)
 
         if not (self.partner.marketing_site_api_username and self.partner.marketing_site_api_password):
             msg = 'Marketing Site API credentials are not properly configured for Partner [{partner}]!'.format(
@@ -58,40 +59,61 @@ class AbstractMarketingSiteDataLoader(AbstractDataLoader):
 
     def ingest(self):
         """ Load data for all supported objects (e.g. courses, runs). """
-        page = 0
-        query_kwargs = self.get_query_kwargs()
+        initial_page = 0
+        response = self._request(initial_page)
+        self._check_status_code(response)
+        self._process_response(response)
 
-        while page is not None and page >= 0:  # pragma: no cover
-            kwargs = {
-                'page': page,
-            }
-            kwargs.update(query_kwargs)
+        data = response.json()
+        if 'next' in data:
+            # Add one to avoid requesting the first page again and to make sure
+            # we get the last page when range() is used below.
+            pages = [self._extract_page(url) + 1 for url in (data['first'], data['last'])]
 
-            qs = urlencode(kwargs)
-            url = '{root}/node.json?{qs}'.format(root=self.api_url, qs=qs)
-            response = self.api_client.get(url)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+                futures = [executor.submit(self._request, page) for page in range(*pages)]
 
-            status_code = response.status_code
-            if status_code is not 200:
-                msg = 'Failed to retrieve data from {url}\nStatus Code: {status}\nBody: {body}'.format(
-                    url=url, status=status_code, body=response.content)
-                logger.error(msg)
-                raise Exception(msg)
+            for future in futures:
+                response = future.result()
+                self._process_response(response)
 
-            data = response.json()
+    def _request(self, page):
+        """Make a request to the marketing site."""
+        kwargs = {'page': page}
+        kwargs.update(self.get_query_kwargs())
 
-            for datum in data['list']:
-                try:
-                    url = datum['url']
-                    datum = self.clean_strings(datum)
-                    self.process_node(datum)
-                except:  # pylint: disable=bare-except
-                    logger.exception('Failed to load %s.', url)
+        qs = urlencode(kwargs)
+        url = '{root}/node.json?{qs}'.format(root=self.api_url, qs=qs)
 
-            if 'next' in data:
-                page += 1
-            else:
-                break
+        return self.api_client.get(url)
+
+    def _check_status_code(self, response):
+        """Check the status code on a response from the marketing site."""
+        status_code = response.status_code
+        if status_code != 200:
+            msg = 'Failed to retrieve data from {url}\nStatus Code: {status}\nBody: {body}'.format(
+                url=response.url, status=status_code, body=response.content)
+            logger.error(msg)
+            raise Exception(msg)
+
+    def _extract_page(self, url):
+        """Extract page number from a marketing site URL."""
+        qs = parse_qs(urlparse(url).query)
+
+        return int(qs['page'][0])
+
+    def _process_response(self, response):
+        """Process a response from the marketing site."""
+        self._check_status_code(response)
+
+        data = response.json()
+        for node in data['list']:
+            try:
+                url = node['url']
+                node = self.clean_strings(node)
+                self.process_node(node)
+            except:  # pylint: disable=bare-except
+                logger.exception('Failed to load %s.', url)
 
     def _get_nested_url(self, field):
         """ Helper method that retrieves the nested `url` field in the specified field, if it exists.

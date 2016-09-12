@@ -23,7 +23,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
     PAGE_SIZE = 50
     SUPPORTED_TOKEN_TYPES = ('bearer', 'jwt',)
 
-    def __init__(self, partner, api_url, access_token=None, token_type=None):
+    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None):
         """
         Arguments:
             partner (Partner): Partner which owns the APIs and data being loaded
@@ -41,6 +41,8 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         self.token_type = token_type
         self.partner = partner
         self.api_url = api_url.strip('/')
+
+        self.max_workers = max_workers
 
     @cached_property
     def api_client(self):
