@@ -65,13 +65,13 @@ class CoursesApiDataLoader(AbstractDataLoader):
         logger.info('Refreshing Courses and CourseRuns from %s...', self.partner.courses_api_url)
 
         initial_page = 1
-        response = self._request(initial_page)
+        response = self._make_request(initial_page)
         count = response['pagination']['count']
         pages = response['pagination']['num_pages']
         self._process_response(response)
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            futures = [executor.submit(self._request, page) for page in range(initial_page + 1, pages + 1)]
+            futures = [executor.submit(self._make_request, page) for page in range(initial_page + 1, pages + 1)]
 
         for future in futures:  # pragma: no cover
             response = future.result()
@@ -81,12 +81,10 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
         self.delete_orphans()
 
-    def _request(self, page):
-        """Make a request."""
+    def _make_request(self, page):
         return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE)
 
     def _process_response(self, response):
-        """Process a response."""
         results = response['results']
         logger.info('Retrieved %d course runs...', len(results))
 
@@ -181,13 +179,14 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     def ingest(self):
         logger.info('Refreshing course seats from %s...', self.partner.ecommerce_api_url)
 
-        response = self._request(1)
+        initial_page = 1
+        response = self._make_request(initial_page)
         count = response['count']
         pages = math.ceil(count / self.PAGE_SIZE)
         self._process_response(response)
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            futures = [executor.submit(self._request, page) for page in range(2, pages + 1)]
+            futures = [executor.submit(self._make_request, page) for page in range(initial_page + 1, pages + 1)]
 
         for future in futures:  # pragma: no cover
             response = future.result()
@@ -197,12 +196,10 @@ class EcommerceApiDataLoader(AbstractDataLoader):
 
         self.delete_orphans()
 
-    def _request(self, page):
-        """Make a request."""
+    def _make_request(self, page):
         return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE, include_products=True)
 
     def _process_response(self, response):
-        """Process a response."""
         results = response['results']
         logger.info('Retrieved %d course seats...', len(results))
 
@@ -271,8 +268,8 @@ class ProgramsApiDataLoader(AbstractDataLoader):
     image_height = 480
     XSERIES = None
 
-    def __init__(self, partner, api_url, access_token=None, token_type=None):
-        super(ProgramsApiDataLoader, self).__init__(partner, api_url, access_token, token_type)
+    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None):
+        super(ProgramsApiDataLoader, self).__init__(partner, api_url, access_token, token_type, max_workers)
         self.XSERIES = ProgramType.objects.get(name='XSeries')
 
     def ingest(self):
