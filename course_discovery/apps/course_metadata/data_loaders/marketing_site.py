@@ -377,7 +377,16 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'level_type': self.get_level_type(data['field_course_level']),
             'card_image_url': self._get_nested_url(data.get('field_course_image_promoted')),
         }
-        course, __ = Course.objects.update_or_create(key__iexact=key, partner=self.partner, defaults=defaults)
+        course, created = Course.objects.get_or_create(key__iexact=key, partner=self.partner, defaults=defaults)
+
+        # If the course already exists update the fields only if the course_run we got from drupal is published.
+        # People often put temp data into required drupal fields for unpublished courses. We don't want to  overwrite
+        # the course info with this data, so we only update course info from published sources.
+        published = self.get_course_run_status(data) == CourseRun.Status.Published
+        if not created and published:
+            for attr, value in defaults.items():
+                setattr(course, attr, value)
+                course.save()
 
         self.set_subjects(course, data)
         self.set_authoring_organizations(course, data)
