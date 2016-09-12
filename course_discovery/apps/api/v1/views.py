@@ -247,7 +247,14 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
             qs.model = self.queryset.model
             return qs
         else:
-            return super(CourseRunViewSet, self).get_queryset().filter(course__partner=partner)
+            queryset = super(CourseRunViewSet, self).get_queryset().filter(course__partner=partner)
+            queryset = queryset.select_related('course', 'language', 'video')
+            queryset = queryset.prefetch_related(
+                'course__partner', 'course__level_type', 'course__programs', 'course__programs__type',
+                'course__programs__partner', 'seats', 'transcript_languages', 'seats__currency', 'staff',
+                'staff__position', 'staff__position__organization'
+            )
+            return queryset
 
     def list(self, request, *args, **kwargs):
         """ List all courses runs.
