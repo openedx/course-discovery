@@ -42,6 +42,9 @@ class BaseIndex(indexes.SearchIndex):
     def index_queryset(self, using=None):
         return self.model.objects.all()
 
+    def prepare_authoring_organization_uuids(self, obj):
+        return [str(organization.uuid) for organization in obj.authoring_organizations.all()]
+
 
 class BaseCourseIndex(OrganizationsMixin, BaseIndex):
     key = indexes.CharField(model_attr='key', stored=True)
@@ -114,6 +117,9 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     partner = indexes.CharField(null=True, faceted=True)
     program_types = indexes.MultiValueField()
     published = indexes.BooleanField(null=False, faceted=True)
+    authoring_organization_uuids = indexes.MultiValueField()
+    staff_uuids = indexes.MultiValueField()
+    subject_uuids = indexes.MultiValueField()
 
     def prepare_partner(self, obj):
         return obj.course.partner.short_code
@@ -151,6 +157,12 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     def prepare_program_types(self, obj):
         return obj.program_types
 
+    def prepare_staff_uuids(self, obj):
+        return [str(staff.uuid) for staff in obj.staff.all()]
+
+    def prepare_subject_uuids(self, obj):
+        return [str(subject.uuid) for subject in obj.subjects.all()]
+
 
 class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     model = Program
@@ -162,6 +174,9 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     marketing_url = indexes.CharField(null=True)
     organizations = indexes.MultiValueField(faceted=True)
     authoring_organizations = indexes.MultiValueField(faceted=True)
+    authoring_organization_uuids = indexes.MultiValueField()
+    subject_uuids = indexes.MultiValueField()
+    staff_uuids = indexes.MultiValueField()
     authoring_organization_bodies = indexes.MultiValueField()
     credit_backing_organizations = indexes.MultiValueField(faceted=True)
     card_image_url = indexes.CharField(model_attr='card_image_url', null=True)
@@ -179,6 +194,12 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
 
     def prepare_authoring_organization_bodies(self, obj):
         return [self.format_organization_body(organization) for organization in obj.authoring_organizations.all()]
+
+    def prepare_subject_uuids(self, obj):
+        return [str(subject.uuid) for course in obj.courses.all() for subject in course.subjects.all()]
+
+    def prepare_staff_uuids(self, obj):
+        return [str(staff.uuid) for course_run in obj.course_runs.all() for staff in course_run.staff.all()]
 
     def prepare_credit_backing_organizations(self, obj):
         return self._prepare_organizations(obj.credit_backing_organizations.all())
