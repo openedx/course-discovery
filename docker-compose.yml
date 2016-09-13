@@ -13,13 +13,15 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./docker/volumes/db:/var/lib/mysql
+      - ./.dev/volumes/db:/var/lib/mysql
 
   es:
     image: elasticsearch:1.5.2
     container_name: es
     volumes:
-      - ./docker/volumes/es:/es-data
+      - ./.dev/volumes/es/data:/usr/share/elasticsearch/data
+      - ./.dev/volumes/es/logs:/usr/share/elasticsearch/logs
+      - ./.dev/volumes/es/plugins:/usr/share/elasticsearch/plugins
     ports:
       - "9200:9200"
       - "9300:9300"

@@ -71,7 +71,7 @@ class AutocompleteTests(TestCase):
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data['results'], [])
 
-    @ddt.data('you', 'des')
+    @ddt.data('dummyurl', 'testing')
     def test_video_autocomplete(self, search_key):
         """ Verify video autocomplete returns the data. """
         response = self.client.get(reverse('admin_metadata:video-autocomplete'))
