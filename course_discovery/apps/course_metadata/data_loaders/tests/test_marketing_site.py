@@ -325,6 +325,8 @@ class PersonMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
 class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
     loader_class = CourseMarketingSiteDataLoader
     mocked_data = mock_data.MARKETING_SITE_API_COURSE_BODIES
+    mocked_data.append(mock_data.MARKETING_SITE_API_UNPUBLISHED_COPY_COURSE_BODY)
+    mocked_data.append(mock_data.MARKETING_SITE_API_PUBLISHED_COPY_COURSE_BODY)
 
     def _get_uuids(self, items):
         return [item['uuid'] for item in items]
@@ -425,6 +427,19 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
 
         self.validate_relationships(data, data_map)
 
+    def assert_no_override_unpublished_course_fields(self, data):
+        course = self._get_course(data)
+
+        expected_values = {
+            'title': data['field_course_course_title']['value'],
+            'full_description': self.loader.get_description(data),
+            'short_description': self.loader.clean_html(data['field_course_sub_title_short']),
+            'card_image_url': (data.get('field_course_image_promoted') or {}).get('url'),
+        }
+
+        for field, value in expected_values.items():
+            self.assertNotEqual(getattr(course, field), value)
+
     def validate_relationships(self, data, data_map):
         for relationship, field in data_map.items():
             expected = sorted(self._get_uuids(data.get(field, [])))
@@ -469,9 +484,20 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
     def test_ingest(self):
         self.mock_login_response()
         data = self.mock_api()
+        published_course_run_key = mock_data.MARKETING_SITE_API_PUBLISHED_COPY_COURSE_BODY['field_course_id']
 
         self.loader.ingest()
 
         for datum in data:
             self.assert_course_run_loaded(datum)
-            self.assert_course_loaded(datum)
+
+            if datum['field_course_code'] == mock_data.MULTI_COURSE_RUN_COURSE_NUMBER:
+                # For the original course and the unpublished course ensure course fields are not present.
+                if datum['field_course_id'] != published_course_run_key:
+                    self.assert_no_override_unpublished_course_fields(datum)
+                # For the latest published course ensure course fields match the latest saved course.
+                else:
+                    self.assert_course_loaded(datum)
+
+            else:
+                self.assert_course_loaded(datum)
