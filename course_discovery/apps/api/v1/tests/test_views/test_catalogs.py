@@ -141,9 +141,10 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         CourseRunFactory(enrollment_end=enrollment_end, course__title='ABC Test Course 2')
         CourseRunFactory(enrollment_end=enrollment_end, course=self.course)
 
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertListEqual(response.data['results'], self.serialize_catalog_course(courses, many=True))
+        with self.assertNumQueries(40):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertListEqual(response.data['results'], self.serialize_catalog_course(courses, many=True))
 
     def test_contains(self):
         """ Verify the endpoint returns a filtered list of courses contained in the catalog. """
@@ -165,7 +166,9 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         SeatFactory(type='credit', course_run=self.course_run, credit_provider='Hogwarts', credit_hours=4)
 
         url = reverse('api:v1:catalog-csv', kwargs={'id': self.catalog.id})
-        response = self.client.get(url)
+
+        with self.assertNumQueries(24):
+            response = self.client.get(url)
 
         course_run = self.serialize_catalog_flat_course_run(self.course_run)
         expected = ','.join([

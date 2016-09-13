@@ -35,7 +35,9 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
         """ Verify the endpoint returns the details for a single course. """
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
 
-        response = self.client.get(url)
+        with self.assertNumQueries(9):
+            response = self.client.get(url)
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, self.serialize_course_run(self.course_run))
 
@@ -43,7 +45,9 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
         """ Verify the endpoint returns a list of all catalogs. """
         url = reverse('api:v1:course_run-list')
 
-        response = self.client.get(url)
+        with self.assertNumQueries(11):
+            response = self.client.get(url)
+
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(
             response.data['results'],
@@ -57,7 +61,9 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
         query = 'title:Some random title'
         url = '{root}?q={query}'.format(root=reverse('api:v1:course_run-list'), query=query)
 
-        response = self.client.get(url)
+        with self.assertNumQueries(37):
+            response = self.client.get(url)
+
         actual_sorted = sorted(response.data['results'], key=lambda course_run: course_run['key'])
         expected_sorted = sorted(self.serialize_course_run(course_runs, many=True),
                                  key=lambda course_run: course_run['key'])

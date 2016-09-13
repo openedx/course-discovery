@@ -19,20 +19,22 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns the details for a single course. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
 
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, self.serialize_course(self.course))
+        with self.assertNumQueries(19):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, self.serialize_course(self.course))
 
     def test_list(self):
         """ Verify the endpoint returns a list of all courses. """
         url = reverse('api:v1:course-list')
 
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertListEqual(
-            response.data['results'],
-            self.serialize_course(Course.objects.all().order_by(Lower('key')), many=True)
-        )
+        with self.assertNumQueries(25):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertListEqual(
+                response.data['results'],
+                self.serialize_course(Course.objects.all().order_by(Lower('key')), many=True)
+            )
 
     def test_list_query(self):
         """ Verify the endpoint returns a filtered list of courses """
@@ -42,8 +44,9 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         query = 'title:' + title
         url = '{root}?q={query}'.format(root=reverse('api:v1:course-list'), query=query)
 
-        response = self.client.get(url)
-        self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
+        with self.assertNumQueries(62):
+            response = self.client.get(url)
+            self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
     def test_list_key_filter(self):
         """ Verify the endpoint returns a list of courses filtered by the specified keys. """
@@ -52,5 +55,6 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         keys = ','.join([course.key for course in courses])
         url = '{root}?keys={keys}'.format(root=reverse('api:v1:course-list'), keys=keys)
 
-        response = self.client.get(url)
-        self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
+        with self.assertNumQueries(38):
+            response = self.client.get(url)
+            self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
