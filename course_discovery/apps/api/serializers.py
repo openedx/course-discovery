@@ -1,9 +1,7 @@
 # pylint: disable=abstract-method
-import datetime
 import json
 from urllib.parse import urlencode
 
-import pytz
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
 from drf_haystack.serializers import HaystackSerializer, HaystackFacetSerializer
@@ -85,7 +83,7 @@ PREFETCH_FIELDS = {
 }
 
 SELECT_RELATED_FIELDS = {
-    'course': ['level_type', 'video', ],
+    'course': ['level_type', 'video', 'partner', ],
     'course_run': ['course', 'language', 'video', ],
     'program': ['type', 'video', 'partner', ],
 }
@@ -227,13 +225,21 @@ class SeatSerializer(serializers.ModelSerializer):
         fields = ('type', 'price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours',)
 
 
-class OrganizationSerializer(TaggitSerializer, serializers.ModelSerializer):
+class MinimalOrganizationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organization
+        fields = ('uuid', 'key', 'name',)
+
+
+class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
     """Serializer for the ``Organization`` model."""
     tags = TagListSerializerField()
 
-    class Meta(object):
+    class Meta(MinimalOrganizationSerializer.Meta):
         model = Organization
-        fields = ('key', 'name', 'description', 'homepage_url', 'tags', 'logo_image_url', 'marketing_url')
+        fields = MinimalOrganizationSerializer.Meta.fields + (
+            'description', 'homepage_url', 'tags', 'logo_image_url', 'marketing_url'
+        )
 
 
 class CatalogSerializer(serializers.ModelSerializer):
@@ -271,7 +277,13 @@ class NestedProgramSerializer(serializers.ModelSerializer):
         read_only_fields = ('uuid', 'marketing_url',)
 
 
-class CourseRunSerializer(TimestampModelSerializer):
+class MinimalCourseRunSerializer(TimestampModelSerializer):
+    class Meta:
+        model = CourseRun
+        fields = ('key', 'uuid', 'title',)
+
+
+class CourseRunSerializer(MinimalCourseRunSerializer):
     """Serializer for the ``CourseRun`` model."""
     course = serializers.SlugRelatedField(read_only=True, slug_field='key')
     content_language = serializers.SlugRelatedField(
@@ -287,13 +299,13 @@ class CourseRunSerializer(TimestampModelSerializer):
     marketing_url = serializers.SerializerMethodField()
     level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
 
-    class Meta(object):
+    class Meta(MinimalCourseRunSerializer.Meta):
         model = CourseRun
-        fields = (
-            'course', 'key', 'title', 'short_description', 'full_description', 'start', 'end',
-            'enrollment_start', 'enrollment_end', 'announcement', 'image', 'video', 'seats',
-            'content_language', 'transcript_languages', 'instructors', 'staff',
-            'pacing_type', 'min_effort', 'max_effort', 'modified', 'marketing_url', 'level_type', 'availability',
+        fields = MinimalCourseRunSerializer.Meta.fields + (
+            'course', 'short_description', 'full_description', 'start', 'end', 'enrollment_start', 'enrollment_end',
+            'announcement', 'image', 'video', 'seats', 'content_language', 'transcript_languages', 'instructors',
+            'staff', 'pacing_type', 'min_effort', 'max_effort', 'modified', 'marketing_url', 'level_type',
+            'availability',
         )
 
     def get_marketing_url(self, obj):
@@ -320,7 +332,15 @@ class ContainedCourseRunsSerializer(serializers.Serializer):
     )
 
 
-class CourseSerializer(TimestampModelSerializer):
+class MinimalCourseSerializer(TimestampModelSerializer):
+    owners = MinimalOrganizationSerializer(many=True, source='authoring_organizations')
+
+    class Meta:
+        model = Course
+        fields = ('key', 'uuid', 'title', 'course_runs', 'owners',)
+
+
+class CourseSerializer(MinimalCourseSerializer):
     """Serializer for the ``Course`` model."""
     level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
     subjects = SubjectSerializer(many=True)
@@ -333,12 +353,11 @@ class CourseSerializer(TimestampModelSerializer):
     course_runs = CourseRunSerializer(many=True)
     marketing_url = serializers.SerializerMethodField()
 
-    class Meta(object):
+    class Meta(MinimalCourseSerializer.Meta):
         model = Course
-        fields = (
-            'key', 'title', 'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites',
-            'expected_learning_items', 'image', 'video', 'owners', 'sponsors', 'modified', 'course_runs',
-            'marketing_url',
+        fields = MinimalCourseSerializer.Meta.fields + (
+            'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites',
+            'expected_learning_items', 'image', 'video', 'sponsors', 'modified', 'marketing_url',
         )
 
     def get_marketing_url(self, obj):
@@ -370,29 +389,55 @@ class ContainedCoursesSerializer(serializers.Serializer):
     )
 
 
-class ProgramCourseSerializer(CourseSerializer):
+class ProgramCourseSerializer(MinimalCourseSerializer):
     """Serializer used to filter out excluded course runs in a course associated with the program"""
     course_runs = serializers.SerializerMethodField()
 
     def get_course_runs(self, course):
-        course_runs = self.context['course_runs']
-        course_runs = [course_run for course_run in course_runs if course_run.course == course]
+        program = self.context['program']
+        course_runs = list(course.course_runs.all())
+        excluded_course_runs = list(program.excluded_course_runs.all())
+        course_runs = [course_run for course_run in course_runs if course_run not in excluded_course_runs]
 
         if self.context.get('published_course_runs_only'):
             course_runs = [course_run for course_run in course_runs if course_run.status == CourseRunStatus.Published]
 
-        return CourseRunSerializer(
+        return MinimalCourseRunSerializer(
             course_runs,
             many=True,
             context={'request': self.context.get('request')}
         ).data
 
 
-class ProgramSerializer(serializers.ModelSerializer):
-    courses = serializers.SerializerMethodField()
-    authoring_organizations = OrganizationSerializer(many=True)
-    type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
+class MinimalProgramSerializer(serializers.ModelSerializer):
+    authoring_organizations = MinimalOrganizationSerializer(many=True)
     banner_image = StdImageSerializerField()
+    courses = serializers.SerializerMethodField()
+    type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
+
+    def get_courses(self, program):
+        course_serializer = ProgramCourseSerializer(
+            program.courses.all(),
+            many=True,
+            context={
+                'request': self.context.get('request'),
+                'program': program,
+                'published_course_runs_only': self.context.get('published_course_runs_only'),
+            }
+        )
+
+        return course_serializer.data
+
+    class Meta:
+        model = Program
+        fields = (
+            'uuid', 'title', 'subtitle', 'type', 'status', 'marketing_slug', 'marketing_url', 'banner_image', 'courses',
+            'authoring_organizations', 'card_image_url',
+        )
+        read_only_fields = ('uuid', 'marketing_url', 'banner_image')
+
+
+class ProgramSerializer(MinimalProgramSerializer):
     video = VideoSerializer()
     expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
     faq = FAQSerializer(many=True)
@@ -411,90 +456,14 @@ class ProgramSerializer(serializers.ModelSerializer):
     subjects = SubjectSerializer(many=True)
     staff = PersonSerializer(many=True)
 
-    def get_courses(self, program):
-        courses, course_runs = self.sort_courses(program)
-
-        course_serializer = ProgramCourseSerializer(
-            courses,
-            many=True,
-            context={
-                'request': self.context.get('request'),
-                'program': program,
-                'published_course_runs_only': self.context.get('published_course_runs_only'),
-                'course_runs': course_runs,
-            }
-        )
-
-        return course_serializer.data
-
-    def sort_courses(self, program):
-        """
-        Sorting by enrollment start then by course start yields a list ordered by course start, with
-        ties broken by enrollment start. This works because Python sorting is stable: two objects with
-        equal keys appear in the same order in sorted output as they appear in the input.
-
-        Courses are only created if there's at least one course run belonging to that course, so
-        course_runs should never be empty. If it is, key functions in this method attempting to find the
-        min of an empty sequence will raise a ValueError.
-        """
-        course_runs = program.course_runs.select_related(*SELECT_RELATED_FIELDS['course_run'])
-        course_runs = course_runs.prefetch_related(*PREFETCH_FIELDS['course_run'])
-        course_runs = list(course_runs)
-
-        def min_run_enrollment_start(course):
-            # Enrollment starts may be empty. When this is the case, we make the same assumption as
-            # the LMS: no enrollment_start is equivalent to (offset-aware) datetime.datetime.min.
-            min_datetime = datetime.datetime.min.replace(tzinfo=pytz.UTC)
-
-            # Course runs excluded from the program are excluded here, too.
-            #
-            # If this becomes a candidate for optimization in the future, be careful sorting null values
-            # in the database. PostgreSQL and MySQL sort null values as if they are higher than non-null
-            # values, while SQLite does the opposite.
-            #
-            # For more, refer to https://docs.djangoproject.com/en/1.10/ref/models/querysets/#latest.
-            _course_runs = [course_run for course_run in course_runs if course_run.course == course]
-
-            # Return early if we have no course runs since min() will fail.
-            if not _course_runs:
-                return min_datetime
-
-            run = min(_course_runs, key=lambda run: run.enrollment_start or min_datetime)
-
-            return run.enrollment_start or min_datetime
-
-        def min_run_start(course):
-            # Course starts may be empty. Since this means the course can't be started, missing course
-            # start date is equivalent to (offset-aware) datetime.datetime.max.
-            max_datetime = datetime.datetime.max.replace(tzinfo=pytz.UTC)
-
-            _course_runs = [course_run for course_run in course_runs if course_run.course == course]
-
-            # Return early if we have no course runs since min() will fail.
-            if not _course_runs:
-                return max_datetime
-
-            run = min(_course_runs, key=lambda run: run.start or max_datetime)
-
-            return run.start or max_datetime
-
-        courses = list(program.courses.all())
-        courses.sort(key=min_run_enrollment_start)
-        courses.sort(key=min_run_start)
-
-        return courses, course_runs
-
-    class Meta:
+    class Meta(MinimalProgramSerializer.Meta):
         model = Program
-        fields = (
-            'uuid', 'title', 'subtitle', 'type', 'status', 'marketing_slug', 'marketing_url', 'courses',
-            'overview', 'weeks_to_complete', 'min_hours_effort_per_week', 'max_hours_effort_per_week',
-            'authoring_organizations', 'banner_image', 'banner_image_url', 'card_image_url', 'video',
+        fields = MinimalProgramSerializer.Meta.fields + (
+            'overview', 'weeks_to_complete', 'min_hours_effort_per_week', 'max_hours_effort_per_week', 'video',
             'expected_learning_items', 'faq', 'credit_backing_organizations', 'corporate_endorsements',
             'job_outlook_items', 'individual_endorsements', 'languages', 'transcript_languages', 'subjects',
-            'price_ranges', 'staff', 'credit_redemption_overview'
+            'price_ranges', 'staff', 'credit_redemption_overview',
         )
-        read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 
 
 class AffiliateWindowSerializer(serializers.ModelSerializer):
