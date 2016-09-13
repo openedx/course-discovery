@@ -46,9 +46,14 @@ class ProgramAdminForm(forms.ModelForm):
 
     def clean(self):
         status = self.cleaned_data.get('status')
+        marketing_slug = self.cleaned_data.get('marketing_slug')
         banner_image = self.cleaned_data.get('banner_image')
-        if status == ProgramStatus.Active and not banner_image:
-            raise ValidationError(_('Status cannot be change to active without banner image.'))
+
+        if status == ProgramStatus.Active and not (marketing_slug and banner_image):
+            raise ValidationError(_(
+                'Programs can only be activated if they have a marketing slug and a banner image.'
+            ))
+
         return self.cleaned_data
 
 
