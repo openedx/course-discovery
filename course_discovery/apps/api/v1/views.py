@@ -3,12 +3,10 @@ import logging
 import os
 from io import StringIO
 
-import pytz
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.db import transaction
-from django.db.models import Q
 from django.db.models.functions import Lower
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -492,14 +490,10 @@ class AffiliateWindowViewSet(viewsets.ViewSet):
         if not catalog.has_object_read_permission(request):
             raise PermissionDenied
 
-        courses = catalog.courses().active()
-
-        seats = Seat.objects.filter(
-            (Q(course_run__end__gte=datetime.datetime.now(pytz.UTC)) | Q(course_run__end__isnull=True)) &
-            Q(course_run__course__in=courses) & Q(type__in=[Seat.VERIFIED, Seat.PROFESSIONAL]) &
-            (Q(course_run__enrollment_end__isnull=True) |
-             Q(course_run__enrollment_end__gte=datetime.datetime.now(pytz.UTC)))
-        )
+        courses = catalog.courses()
+        course_runs = CourseRun.objects.filter(course__in=courses).active().marketable()
+        seats = Seat.objects.filter(type__in=[Seat.VERIFIED, Seat.PROFESSIONAL]).filter(course_run__in=course_runs)
+        seats = seats.select_related('course_run').prefetch_related('course_run__course', 'course_run__course__partner')
 
         serializer = serializers.AffiliateWindowSerializer(seats, many=True)
         return Response(serializer.data)

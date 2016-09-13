@@ -45,7 +45,9 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
 
     def test_affiliate_with_supported_seats(self):
         """ Verify that endpoint returns course runs for verified and professional seats only. """
-        response = self.client.get(self.affiliate_url)
+        with self.assertNumQueries(11):
+            response = self.client.get(self.affiliate_url)
+
         self.assertEqual(response.status_code, 200)
         root = ET.fromstring(response.content)
         self.assertEqual(1, len(root.findall('product')))
@@ -126,8 +128,10 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
 
         # Superusers can view all catalogs
         self.client.force_authenticate(superuser)
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+
+        with self.assertNumQueries(8):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
 
         # Regular users can only view catalogs belonging to them
         self.client.force_authenticate(self.user)
@@ -135,5 +139,6 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
         self.assertEqual(response.status_code, 403)
 
         catalog.viewers = [self.user]
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        with self.assertNumQueries(8):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
