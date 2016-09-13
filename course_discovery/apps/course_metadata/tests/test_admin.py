@@ -1,3 +1,5 @@
+import itertools
+
 import ddt
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -24,6 +26,33 @@ class AdminTests(TestCase):
         self.program = factories.ProgramFactory(
             courses=self.courses, excluded_course_runs=[self.excluded_course_run]
         )
+
+    def _post_data(self, status=ProgramStatus.Unpublished, marketing_slug='/foo'):
+        return {
+            'title': 'some test title',
+            'courses': [self.courses[0].id],
+            'type': self.program.type.id,
+            'status': status,
+            'marketing_slug': marketing_slug,
+            'partner': self.program.partner.id
+        }
+
+    def assert_form_valid(self, data, files):
+        form = ProgramAdminForm(data=data, files=files)
+        self.assertTrue(form.is_valid())
+        program = form.save()
+        response = self.client.get(reverse('admin:course_metadata_program_change', args=(program.id,)))
+        self.assertEqual(response.status_code, 200)
+
+    def assert_form_invalid(self, data, files):
+        form = ProgramAdminForm(data=data, files=files)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors['__all__'],
+            ['Programs can only be activated if they have a marketing slug and a banner image.']
+        )
+        with self.assertRaises(ValueError):
+            form.save()
 
     def test_program_detail_form(self):
         """ Verify in admin panel program detail form load successfully. """
@@ -107,57 +136,42 @@ class AdminTests(TestCase):
         response = self.client.get(reverse('admin_metadata:update_course_runs', args=(self.program.id,)))
         self.assertNotContains(response, '<input checked="checked")')
 
-    def test_program_without_image_and_active_status(self):
-        """ Verify that new program cannot be added without `image` and active status together."""
-        data = self._post_data(ProgramStatus.Active)
-        form = ProgramAdminForm(data, {'banner_image': ''})
-        self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors['__all__'], ['Status cannot be change to active without banner image.'])
-        with self.assertRaises(ValueError):
-            form.save()
-
     @ddt.data(
-        ProgramStatus.Deleted,
-        ProgramStatus.Retired,
-        ProgramStatus.Unpublished
+        *itertools.product(
+            (
+                (False, False, False),
+                (True, False, False),
+                (False, True, False),
+                (True, True, True)
+            ),
+            ProgramStatus.labels
+        )
     )
-    def test_program_without_image_and_non_active_status(self, status):
-        """ Verify that new program can be added without `image` and non-active
-        status using admin form.
-        """
-        data = self._post_data(status)
-        self.valid_post_form(data, {'banner_image': ''})
+    @ddt.unpack
+    def test_program_activation_restrictions(self, booleans, label):
+        """Verify that program activation requires both a marketing slug and a banner image."""
+        has_marketing_slug, has_banner_image, can_be_activated = booleans
+        status = getattr(ProgramStatus, label)
 
-    @ddt.data(
-        ProgramStatus.Deleted,
-        ProgramStatus.Retired,
-        ProgramStatus.Unpublished,
-        ProgramStatus.Active
-    )
-    def test_program_with_image(self, status):
-        """ Verify that new program can be added with `image` and any status."""
-        data = self._post_data(status)
-        self.valid_post_form(data, {'banner_image': make_image_file('test_banner.jpg')})
+        marketing_slug = '/foo' if has_marketing_slug else ''
+        banner_image = make_image_file('test_banner.jpg') if has_banner_image else ''
 
-    def _post_data(self, status):
-        return {
-            'title': 'some test title',
-            'courses': [self.courses[0].id],
-            'type': self.program.type.id,
-            'status': status,
-            'partner': self.program.partner.id
-        }
+        data = self._post_data(status=status, marketing_slug=marketing_slug)
+        files = {'banner_image': banner_image}
 
-    def valid_post_form(self, data, file_data):
-        form = ProgramAdminForm(data, file_data)
-        self.assertTrue(form.is_valid())
-        program = form.save()
-        response = self.client.get(reverse('admin:course_metadata_program_change', args=(program.id,)))
-        self.assertEqual(response.status_code, 200)
+        if status == ProgramStatus.Active:
+            if can_be_activated:
+                # Transitioning to an active status should require a marketing slug and banner image.
+                self.assert_form_valid(data, files)
+            else:
+                self.assert_form_invalid(data, files)
+        else:
+            # All other status transitions should be valid regardless of marketing slug and banner image.
+            self.assert_form_valid(data, files)
 
     def test_new_program_without_courses(self):
         """ Verify that new program can be added without `courses`."""
-        data = self._post_data(ProgramStatus.Unpublished)
+        data = self._post_data()
         data['courses'] = []
         form = ProgramAdminForm(data)
         self.assertTrue(form.is_valid())
