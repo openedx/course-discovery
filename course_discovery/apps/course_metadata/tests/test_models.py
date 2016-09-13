@@ -14,10 +14,10 @@ import responses
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
+from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     AbstractMediaModel, AbstractNamedModel, AbstractValueModel,
-    CorporateEndorsement, Program, Course, CourseRun, Endorsement,
-    FAQ, SeatType, ProgramType,
+    CorporateEndorsement, Course, CourseRun, Endorsement, FAQ, SeatType, ProgramType,
 )
 from course_discovery.apps.course_metadata.tests import factories, toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ImageFactory
@@ -386,10 +386,10 @@ class ProgramTests(MarketingSitePublisherTestMixin):
         program = self.create_program_with_seats()
         self.assertEqual(program.seat_types, set(['credit', 'verified']))
 
-    @ddt.data(Program.Status.choices)
+    @ddt.data(ProgramStatus.choices)
     def test_is_active(self, status):
         self.program.status = status
-        self.assertEqual(self.program.is_active, status == Program.Status.Active)
+        self.assertEqual(self.program.is_active, status == ProgramStatus.Active)
 
     @responses.activate
     def test_save_without_publish(self):

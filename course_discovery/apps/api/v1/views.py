@@ -402,7 +402,8 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
               paramType: query
               multiple: false
             - name: marketable
-              description: Retrieve marketable programs. A program is considered marketable if it has a marketing slug.
+              description: Retrieve marketable programs. A program is considered marketable if it is active
+                and has a marketing slug.
               required: false
               type: integer
               paramType: query

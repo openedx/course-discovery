@@ -11,6 +11,7 @@ from rest_framework.test import APITestCase
 from course_discovery.apps.api.serializers import CourseRunSearchSerializer, ProgramSearchSerializer
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD, PartnerFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory
 
@@ -82,7 +83,7 @@ class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, Login
 
         # Generate data that should be indexed and returned by the query
         course_run = CourseRunFactory(course__partner=self.partner, course__title='Software Testing',
-                                      status=CourseRun.Status.Published)
+                                      status=CourseRunStatus.Published)
         response = self.get_search_response('software', faceted=faceted)
 
         self.assertEqual(response.status_code, 200)
@@ -119,13 +120,13 @@ class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, Login
         """ Verify the endpoint returns availability facets with the results. """
         now = datetime.datetime.utcnow()
         archived = CourseRunFactory(course__partner=self.partner, start=now - datetime.timedelta(weeks=2),
-                                    end=now - datetime.timedelta(weeks=1), status=CourseRun.Status.Published)
+                                    end=now - datetime.timedelta(weeks=1), status=CourseRunStatus.Published)
         current = CourseRunFactory(course__partner=self.partner, start=now - datetime.timedelta(weeks=2),
-                                   end=now + datetime.timedelta(weeks=1), status=CourseRun.Status.Published)
+                                   end=now + datetime.timedelta(weeks=1), status=CourseRunStatus.Published)
         starting_soon = CourseRunFactory(course__partner=self.partner, start=now + datetime.timedelta(days=10),
-                                         end=now + datetime.timedelta(days=90), status=CourseRun.Status.Published)
+                                         end=now + datetime.timedelta(days=90), status=CourseRunStatus.Published)
         upcoming = CourseRunFactory(course__partner=self.partner, start=now + datetime.timedelta(days=61),
-                                    end=now + datetime.timedelta(days=90), status=CourseRun.Status.Published)
+                                    end=now + datetime.timedelta(days=90), status=CourseRunStatus.Published)
 
         response = self.get_search_response(faceted=True)
         self.assertEqual(response.status_code, 200)
@@ -184,11 +185,11 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
     def test_results_only_include_published_objects(self):
         """ Verify the search results only include items with status set to 'Published'. """
         # These items should NOT be in the results
-        CourseRunFactory(course__partner=self.partner, status=CourseRun.Status.Unpublished)
-        ProgramFactory(partner=self.partner, status=Program.Status.Unpublished)
+        CourseRunFactory(course__partner=self.partner, status=CourseRunStatus.Unpublished)
+        ProgramFactory(partner=self.partner, status=ProgramStatus.Unpublished)
 
-        course_run = CourseRunFactory(course__partner=self.partner, status=CourseRun.Status.Published)
-        program = ProgramFactory(partner=self.partner, status=Program.Status.Active)
+        course_run = CourseRunFactory(course__partner=self.partner, status=CourseRunStatus.Published)
+        program = ProgramFactory(partner=self.partner, status=ProgramStatus.Active)
 
         response = self.get_search_response()
         self.assertEqual(response.status_code, 200)
@@ -199,13 +200,13 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
     def test_results_filtered_by_default_partner(self):
         """ Verify the search results only include items related to the default partner if no partner is
         specified on the request. If a partner is included, the data should be filtered to the requested partner. """
-        course_run = CourseRunFactory(course__partner=self.partner, status=CourseRun.Status.Published)
-        program = ProgramFactory(partner=self.partner, status=Program.Status.Active)
+        course_run = CourseRunFactory(course__partner=self.partner, status=CourseRunStatus.Published)
+        program = ProgramFactory(partner=self.partner, status=ProgramStatus.Active)
 
         # This data should NOT be in the results
         other_partner = PartnerFactory()
-        other_course_run = CourseRunFactory(course__partner=other_partner, status=CourseRun.Status.Published)
-        other_program = ProgramFactory(partner=other_partner, status=Program.Status.Active)
+        other_course_run = CourseRunFactory(course__partner=other_partner, status=CourseRunStatus.Published)
+        other_program = ProgramFactory(partner=other_partner, status=ProgramStatus.Active)
         self.assertNotEqual(other_program.partner.short_code, self.partner.short_code)
         self.assertNotEqual(other_course_run.course.partner.short_code, self.partner.short_code)
 

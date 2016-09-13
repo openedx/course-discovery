@@ -1,5 +1,6 @@
 import responses
 
+from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.publishers import (
     MarketingSiteAPIClient,
     MarketingSitePublisher,
@@ -10,7 +11,7 @@ from course_discovery.apps.course_metadata.tests.mixins import (
     MarketingSiteAPIClientTestMixin,
     MarketingSitePublisherTestMixin,
 )
-from course_discovery.apps.course_metadata.models import Program, ProgramType
+from course_discovery.apps.course_metadata.models import ProgramType
 
 
 class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
@@ -115,7 +116,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
             'author': {
                 'id': self.user_id,
             },
-            'status': 1 if self.program.status == Program.Status.Active else 0
+            'status': 1 if self.program.status == ProgramStatus.Active else 0
         }
         self.assertDictEqual(publish_data, expected)
 

@@ -20,6 +20,7 @@ from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, SubjectFactory, PrerequisiteFactory, ImageFactory, VideoFactory,
@@ -715,7 +716,7 @@ class CourseRunSearchSerializerTests(TestCase):
             'type': course_run.type,
             'level_type': course_run.level_type.name,
             'availability': course_run.availability,
-            'published': course_run.status == CourseRun.Status.Published,
+            'published': course_run.status == CourseRunStatus.Published,
             'partner': course_run.course.partner.short_code,
             'program_types': course_run.program_types,
             'authoring_organization_uuids': get_uuids(course_run.authoring_organizations.all()),
@@ -749,7 +750,7 @@ class ProgramSearchSerializerTests(TestCase):
             'content_type': 'program',
             'card_image_url': program.card_image_url,
             'status': program.status,
-            'published': program.status == Program.Status.Active,
+            'published': program.status == ProgramStatus.Active,
             'partner': program.partner.short_code,
             'authoring_organization_uuids': get_uuids(program.authoring_organizations.all()),
             'subject_uuids': get_uuids([course.subjects for course in program.courses.all()]),

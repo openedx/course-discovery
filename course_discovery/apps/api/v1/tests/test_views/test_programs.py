@@ -1,12 +1,15 @@
+import ddt
 from django.core.urlresolvers import reverse
 from rest_framework.test import APITestCase, APIRequestFactory
 
 from course_discovery.apps.api.serializers import ProgramSerializer
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
+from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Program
 from course_discovery.apps.course_metadata.tests.factories import ProgramFactory
 
 
+@ddt.ddt
 class ProgramViewSetTests(APITestCase):
     list_path = reverse('api:v1:program-list')
 
@@ -83,11 +86,18 @@ class ProgramViewSetTests(APITestCase):
 
         self.assert_list_results(url, expected)
 
-    def test_filter_by_marketable(self):
+    @ddt.data(
+        (ProgramStatus.Unpublished, False),
+        (ProgramStatus.Active, True),
+    )
+    @ddt.unpack
+    def test_filter_by_marketable(self, status, is_marketable):
         """ Verify the endpoint filters programs to those that are marketable. """
         url = self.list_path + '?marketable=1'
         ProgramFactory(marketing_slug='')
-        expected = ProgramFactory.create_batch(3)
-        expected.reverse()
+        programs = ProgramFactory.create_batch(3, status=status)
+        programs.reverse()
+
+        expected = programs if is_marketable else []
         self.assertEqual(list(Program.objects.marketable()), expected)
         self.assert_list_results(url, expected)

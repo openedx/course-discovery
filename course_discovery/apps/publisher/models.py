@@ -12,8 +12,8 @@ from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 
 from course_discovery.apps.core.models import User, Currency
+from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import LevelType, Subject, Person, Organization
-from course_discovery.apps.course_metadata.models import CourseRun as CourseMetadataCourseRun
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 logger = logging.getLogger(__name__)
@@ -152,8 +152,8 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     enrollment_end = models.DateTimeField(null=True, blank=True)
     certificate_generation = models.DateTimeField(null=True, blank=True)
     pacing_type = models.CharField(
-        max_length=255, db_index=True, null=True, blank=True, choices=CourseMetadataCourseRun.Pacing.choices,
-        validators=[CourseMetadataCourseRun.Pacing.validator]
+        max_length=255, db_index=True, null=True, blank=True, choices=CourseRunPacing.choices,
+        validators=[CourseRunPacing.validator]
     )
     staff = SortedManyToManyField(Person, blank=True, related_name='publisher_course_runs_staffed')
     min_effort = models.PositiveSmallIntegerField(

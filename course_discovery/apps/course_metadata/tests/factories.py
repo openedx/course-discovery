@@ -6,6 +6,7 @@ from pytz import UTC
 
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import FuzzyURL
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing, ProgramStatus
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -106,7 +107,7 @@ class CourseFactory(factory.DjangoModelFactory):
 
 
 class CourseRunFactory(factory.DjangoModelFactory):
-    status = CourseRun.Status.Published
+    status = CourseRunStatus.Published
     uuid = factory.LazyFunction(uuid4)
     key = FuzzyText(prefix='course-run-id/', suffix='/fake')
     course = factory.SubFactory(CourseFactory)
@@ -123,7 +124,7 @@ class CourseRunFactory(factory.DjangoModelFactory):
     video = factory.SubFactory(VideoFactory)
     min_effort = FuzzyInteger(1, 10)
     max_effort = FuzzyInteger(10, 20)
-    pacing_type = FuzzyChoice([name for name, __ in CourseRun.Pacing.choices])
+    pacing_type = FuzzyChoice([name for name, __ in CourseRunPacing.choices])
     slug = FuzzyText()
 
     @factory.post_generation
@@ -240,7 +241,7 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
     subtitle = 'test-subtitle'
     type = factory.SubFactory(ProgramTypeFactory)
-    status = Program.Status.Unpublished
+    status = ProgramStatus.Unpublished
     marketing_slug = factory.Sequence(lambda n: 'test-slug-{}'.format(n))  # pylint: disable=unnecessary-lambda
     banner_image_url = FuzzyText(prefix='https://example.com/program/banner')
     card_image_url = FuzzyText(prefix='https://example.com/program/card')
