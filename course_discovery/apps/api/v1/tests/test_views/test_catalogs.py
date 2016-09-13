@@ -141,7 +141,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         CourseRunFactory(enrollment_end=enrollment_end, course__title='ABC Test Course 2')
         CourseRunFactory(enrollment_end=enrollment_end, course=self.course)
 
-        with self.assertNumQueries(40):
+        with self.assertNumQueries(41):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertListEqual(response.data['results'], self.serialize_catalog_course(courses, many=True))
@@ -167,7 +167,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
         url = reverse('api:v1:catalog-csv', kwargs={'id': self.catalog.id})
 
-        with self.assertNumQueries(24):
+        with self.assertNumQueries(21):
             response = self.client.get(url)
 
         course_run = self.serialize_catalog_flat_course_run(self.course_run)
