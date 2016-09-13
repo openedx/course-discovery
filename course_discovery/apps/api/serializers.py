@@ -559,7 +559,7 @@ class FlattenedCourseRunWithCourseSerializer(CourseRunSerializer):
         )
 
     def get_level_type(self, obj):
-        return obj.course.level_type
+        return obj.level_type.name
 
     def get_course_key(self, obj):
         return obj.course.key

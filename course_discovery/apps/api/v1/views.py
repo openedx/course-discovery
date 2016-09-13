@@ -37,16 +37,21 @@ logger = logging.getLogger(__name__)
 User = get_user_model()
 
 PREFETCH_FIELDS = {
-    'course_run': (
+    'course_run': [
         'course__partner', 'course__level_type', 'course__programs', 'course__programs__type',
         'course__programs__partner', 'seats', 'transcript_languages', 'seats__currency', 'staff',
         'staff__position', 'staff__position__organization', 'language',
-    ),
-    'course': (
+    ],
+    'course': [
         'level_type', 'video', 'programs', 'course_runs', 'subjects', 'prerequisites', 'expected_learning_items',
         'authoring_organizations', 'authoring_organizations__tags', 'authoring_organizations__partner',
         'sponsoring_organizations', 'sponsoring_organizations__tags', 'sponsoring_organizations__partner',
-    ),
+    ],
+}
+
+SELECT_RELATED_FIELDS = {
+    'course': ['level_type', 'video', ],
+    'course_run': ['course', 'language', 'video', ],
 }
 
 
@@ -67,11 +72,11 @@ def prefetch_related_objects_for_courses(queryset):
         QuerySet
     """
     # Prefetch the data for the related course runs
-    course_run_prefetch_fields = PREFETCH_FIELDS['course_run']
+    course_run_prefetch_fields = PREFETCH_FIELDS['course_run'] + SELECT_RELATED_FIELDS['course_run']
     course_run_prefetch_fields = ['course_runs__' + field for field in course_run_prefetch_fields]
     queryset = queryset.prefetch_related(*course_run_prefetch_fields)
 
-    queryset = queryset.select_related('level_type', 'video')
+    queryset = queryset.select_related(*SELECT_RELATED_FIELDS['course'])
     queryset = queryset.prefetch_related(*PREFETCH_FIELDS['course'])
     return queryset
 
@@ -192,11 +197,14 @@ class CatalogViewSet(viewsets.ModelViewSet):
         serializer: serializers.FlattenedCourseRunWithCourseSerializer
         """
         catalog = self.get_object()
-        courses = catalog.courses().active()
-        course_runs = []
+        courses = catalog.courses()
+        course_runs = CourseRun.objects.filter(course__in=courses).active().marketable()
 
-        for course in courses:
-            course_runs += list(course.course_runs.active().marketable())
+        # We use select_related and prefetch_related to decrease our database query count
+        course_runs = course_runs.select_related(*SELECT_RELATED_FIELDS['course_run'])
+        prefetch_fields = ['course__' + field for field in PREFETCH_FIELDS['course']]
+        prefetch_fields += PREFETCH_FIELDS['course_run']
+        course_runs = course_runs.prefetch_related(*prefetch_fields)
 
         serializer = serializers.FlattenedCourseRunWithCourseSerializer(
             course_runs, many=True, context={'request': request}
@@ -289,7 +297,7 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
             return qs
         else:
             queryset = super(CourseRunViewSet, self).get_queryset().filter(course__partner=partner)
-            queryset = queryset.select_related('course', 'language', 'video')
+            queryset = queryset.select_related(*SELECT_RELATED_FIELDS['course_run'])
             queryset = queryset.prefetch_related(*PREFETCH_FIELDS['course_run'])
             return queryset
 
