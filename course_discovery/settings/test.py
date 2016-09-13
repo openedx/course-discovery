@@ -51,3 +51,5 @@ COMPRESS_ENABLED = True
 COMPRESS_OFFLINE = True
 
 SOLO_CACHE = None
+
+LOGGING['handlers']['local'] = {'class': 'logging.NullHandler'}
