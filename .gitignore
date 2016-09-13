@@ -84,4 +84,4 @@ docs/_build/
 course_discovery/static/bower_components/
 node_modules/
 course_discovery/media/
-docker/volumes/
+.dev/
