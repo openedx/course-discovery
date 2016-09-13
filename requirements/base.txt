@@ -28,7 +28,7 @@ drf-haystack==1.6.0rc1
 dry-rest-permissions==0.1.6
 edx-auth-backends==0.5.2
 edx-ccx-keys==0.2.0
-edx-django-release-util==0.1.0
+edx-django-release-util==0.1.1
 edx-drf-extensions==1.1.1
 edx-opaque-keys==0.3.1
 edx-rest-api-client==1.6.0
