@@ -40,6 +40,8 @@ services:
     container_name: course-discovery
     volumes:
       - .:/edx/app/discovery/discovery
+      - ./course_discovery/media:/edx/var/discovery/media
+      - ./course_discovery/assets:/edx/var/discovery/staticfiles
     command: /edx/app/discovery/devstack.sh start
     depends_on:
       - "db"
