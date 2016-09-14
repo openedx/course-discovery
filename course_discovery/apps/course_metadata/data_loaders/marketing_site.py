@@ -387,7 +387,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         if not created and published:
             for attr, value in defaults.items():
                 setattr(course, attr, value)
-                course.save()
+            course.save()
 
         self.set_subjects(course, data)
         self.set_authoring_organizations(course, data)
