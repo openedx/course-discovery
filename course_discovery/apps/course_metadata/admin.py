@@ -40,7 +40,7 @@ class CorporateEndorsementsInline(admin.TabularInline):
 
 
 @admin.register(Course)
-class CourseAdmin(admin.ModelAdmin):
+class CourseAdmin(SimpleHistoryAdmin):
     list_display = ('uuid', 'key', 'title',)
     list_filter = ('partner',)
     ordering = ('key', 'title',)
@@ -49,7 +49,7 @@ class CourseAdmin(admin.ModelAdmin):
 
 
 @admin.register(CourseRun)
-class CourseRunAdmin(admin.ModelAdmin):
+class CourseRunAdmin(SimpleHistoryAdmin):
     inlines = (SeatInline,)
     list_display = ('uuid', 'key', 'title',)
     list_filter = (
@@ -159,7 +159,7 @@ class SubjectAdmin(admin.ModelAdmin):
 
 
 @admin.register(Person)
-class PersonAdmin(admin.ModelAdmin):
+class PersonAdmin(SimpleHistoryAdmin):
     inlines = (PositionInline,)
     list_display = ('uuid', 'family_name', 'given_name', 'slug',)
     list_filter = ('partner',)
