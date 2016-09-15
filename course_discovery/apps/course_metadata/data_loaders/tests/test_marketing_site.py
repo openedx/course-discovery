@@ -457,6 +457,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
 
         expected_values = {
             'key': data['field_course_id'],
+            'title_override': data['field_course_course_title']['value'],
             'language': language,
             'slug': data['url'].split('/')[-1],
             'card_image_url': (data.get('field_course_image_promoted') or {}).get('url'),

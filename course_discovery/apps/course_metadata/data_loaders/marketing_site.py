@@ -368,9 +368,12 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         course_run_key = CourseKey.from_string(data['field_course_id'])
         key = self.get_course_key_from_course_run_key(course_run_key)
 
+        # Clean the title for the course and course run
+        data['field_course_course_title']['value'] = self.clean_html(data['field_course_course_title']['value'])
+
         defaults = {
             'key': key,
-            'title': self.clean_html(data['field_course_course_title']['value']),
+            'title': data['field_course_course_title']['value'],
             'number': data['field_course_code'],
             'full_description': self.get_description(data),
             'video': self.get_video(data),
@@ -436,6 +439,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'key': key,
             'course': course,
             'uuid': uuid,
+            'title_override': data['field_course_course_title']['value'],
             'language': language,
             'slug': slug,
             'card_image_url': self._get_nested_url(data.get('field_course_image_promoted')),
