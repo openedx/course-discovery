@@ -2,7 +2,6 @@ from django.contrib import admin, messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 
-from simple_history.admin import SimpleHistoryAdmin
 from course_discovery.apps.course_metadata.forms import ProgramAdminForm
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 from course_discovery.apps.course_metadata.publishers import ProgramPublisherException
@@ -40,7 +39,7 @@ class CorporateEndorsementsInline(admin.TabularInline):
 
 
 @admin.register(Course)
-class CourseAdmin(SimpleHistoryAdmin):
+class CourseAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'key', 'title',)
     list_filter = ('partner',)
     ordering = ('key', 'title',)
@@ -49,7 +48,7 @@ class CourseAdmin(SimpleHistoryAdmin):
 
 
 @admin.register(CourseRun)
-class CourseRunAdmin(SimpleHistoryAdmin):
+class CourseRunAdmin(admin.ModelAdmin):
     inlines = (SeatInline,)
     list_display = ('uuid', 'key', 'title',)
     list_filter = (
@@ -143,7 +142,7 @@ class FAQAdmin(admin.ModelAdmin):
 
 
 @admin.register(Organization)
-class OrganizationAdmin(SimpleHistoryAdmin):
+class OrganizationAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'key', 'name',)
     list_filter = ('partner',)
     readonly_fields = ('uuid',)
@@ -159,7 +158,7 @@ class SubjectAdmin(admin.ModelAdmin):
 
 
 @admin.register(Person)
-class PersonAdmin(SimpleHistoryAdmin):
+class PersonAdmin(admin.ModelAdmin):
     inlines = (PositionInline,)
     list_display = ('uuid', 'family_name', 'given_name', 'slug',)
     list_filter = ('partner',)

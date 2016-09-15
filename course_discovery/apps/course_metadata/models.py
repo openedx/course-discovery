@@ -12,7 +12,6 @@ from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
 from haystack import connections
 from haystack.query import SearchQuerySet
-from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
 from taggit.managers import TaggableManager
@@ -161,7 +160,6 @@ class Organization(TimeStampedModel):
     logo_image_url = models.URLField(null=True, blank=True)
     banner_image_url = models.URLField(null=True, blank=True)
 
-    history = HistoricalRecords()
     tags = TaggableManager(blank=True)
 
     class Meta:
@@ -190,8 +188,6 @@ class Person(TimeStampedModel):
     bio = models.TextField(null=True, blank=True)
     profile_image_url = models.URLField(null=True, blank=True)
     slug = AutoSlugField(populate_from=('given_name', 'family_name'), editable=True)
-
-    history = HistoricalRecords()
 
     class Meta:
         unique_together = (
@@ -253,7 +249,6 @@ class Course(TimeStampedModel):
         )
     )
 
-    history = HistoricalRecords()
     objects = CourseQuerySet.as_manager()
 
     class Meta:
@@ -365,7 +360,6 @@ class CourseRun(TimeStampedModel):
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     slug = models.CharField(max_length=255, blank=True, null=True, db_index=True)
 
-    history = HistoricalRecords()
     objects = CourseRunQuerySet.as_manager()
 
     @property
@@ -525,8 +519,6 @@ class Seat(TimeStampedModel):
     upgrade_deadline = models.DateTimeField(null=True, blank=True)
     credit_provider = models.CharField(max_length=255, null=True, blank=True)
     credit_hours = models.IntegerField(null=True, blank=True)
-
-    history = HistoricalRecords()
 
     class Meta(object):
         unique_together = (
