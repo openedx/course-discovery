@@ -176,6 +176,7 @@ class CourseRunSerializerTests(TestCase):
         self.assertDictEqual(serializer.data, expected)
 
 
+@ddt.ddt
 class ProgramCourseSerializerTests(TestCase):
     def setUp(self):
         super(ProgramCourseSerializerTests, self).setUp()
@@ -227,6 +228,38 @@ class ProgramCourseSerializerTests(TestCase):
         expected['course_runs'] = CourseRunSerializer([course_runs[1]], many=True,
                                                       context={'request': self.request}).data
         self.assertDictEqual(serializer.data, expected)
+
+    @ddt.data(
+        [CourseRunStatus.Unpublished, 1],
+        [CourseRunStatus.Unpublished, 0],
+        [CourseRunStatus.Published, 1],
+        [CourseRunStatus.Published, 0]
+    )
+    @ddt.unpack
+    def test_with_published_only_querystring(self, course_run_status, published_course_runs_only):
+        """
+        Test the serializer's ability to filter out course_runs based on
+        "published_course_runs_only" query string
+        """
+        expected = CourseSerializer(self.course_list, many=True, context={'request': self.request}).data
+
+        for course in self.course_list:
+            CourseRunFactory.create_batch(2, status=course_run_status, course=course)
+        serializer = ProgramCourseSerializer(
+            self.course_list,
+            many=True,
+            context={
+                'request': self.request,
+                'program': self.program,
+                'published_course_runs_only': published_course_runs_only
+            }
+        )
+        validate_data = serializer.data
+
+        if not published_course_runs_only or course_run_status != CourseRunStatus.Unpublished:
+            expected = CourseSerializer(self.course_list, many=True, context={'request': self.request}).data
+
+        self.assertSequenceEqual(validate_data, expected)
 
 
 class ProgramSerializerTests(TestCase):

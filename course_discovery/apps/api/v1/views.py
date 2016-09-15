@@ -397,6 +397,11 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = filters.ProgramFilter
 
+    def get_serializer_context(self, *args, **kwargs):
+        context = super().get_serializer_context(*args, **kwargs)
+        context['published_course_runs_only'] = int(self.request.GET.get('published_course_runs_only', 0))
+        return context
+
     def list(self, request, *args, **kwargs):
         """ List all programs.
         ---
@@ -414,6 +419,12 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
               type: integer
               paramType: query
               multiple: false
+            - name: published_course_runs_only
+              description: Filter course runs by published ones only
+              required: false
+              type: integer
+              paramType: query
+              mulitple: false
         """
         return super(ProgramViewSet, self).list(request, *args, **kwargs)
 
