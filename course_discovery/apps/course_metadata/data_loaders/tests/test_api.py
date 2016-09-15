@@ -58,6 +58,17 @@ class AbstractDataLoaderTest(TestCase):
         for instance in instances:
             self.assertFalse(instance.__class__.objects.filter(pk=instance.pk).exists())  # pylint: disable=no-member
 
+    def test_clean_html(self):
+        """ Verify the method removes unnecessary HTML attributes. """
+        data = (
+            ('', '',),
+            ('<p>Hello!</p>', 'Hello!'),
+            ('<em>Testing</em>', '<em>Testing</em>'),
+        )
+
+        for content, expected in data:
+            self.assertEqual(AbstractDataLoader.clean_html(content), expected)
+
 
 @ddt.ddt
 class OrganizationsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase):
