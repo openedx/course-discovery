@@ -1,6 +1,8 @@
 import abc
+import re
 
 import html2text
+import markdown
 from dateutil.parser import parse
 from django.utils.functional import cached_property
 from edx_rest_api_client.client import EdxRestApiClient
@@ -22,6 +24,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
 
     PAGE_SIZE = 50
     SUPPORTED_TOKEN_TYPES = ('bearer', 'jwt',)
+    MARKDOWN_CLEANUP_REGEX = re.compile(r'^<p>(.*)</p>$')
 
     def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None):
         """
@@ -82,12 +85,19 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
 
     @classmethod
     def clean_html(cls, content):
-        """Cleans HTML from a string and returns a Markdown version."""
-        stripped = content.replace('&nbsp;', '')
+        """Cleans HTML from a string.
+
+        This method converts the HTML to a Markdown string (to remove styles, classes, and other unsupported
+        attributes), and converts the Markdown back to HTML.
+        """
+        cleaned = content.replace('&nbsp;', '')
         html_converter = html2text.HTML2Text()
         html_converter.wrap_links = False
         html_converter.body_width = None
-        return html_converter.handle(stripped).strip()
+        cleaned = html_converter.handle(cleaned).strip()
+        cleaned = markdown.markdown(cleaned)
+        cleaned = cls.MARKDOWN_CLEANUP_REGEX.sub(r'\1', cleaned)
+        return cleaned
 
     @classmethod
     def parse_date(cls, date_string):
