@@ -89,17 +89,23 @@ class OrganizationsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, T
         )
         return bodies
 
-    def assert_organization_loaded(self, body):
+    def assert_organization_loaded(self, body, partner_has_marketing_site=True):
         """ Assert an Organization corresponding to the specified data body was properly loaded into the database. """
         organization = Organization.objects.get(key=AbstractDataLoader.clean_string(body['short_name']))
-        self.assertEqual(organization.name, AbstractDataLoader.clean_string(body['name']))
-        self.assertEqual(organization.description, AbstractDataLoader.clean_string(body['description']))
-        self.assertEqual(organization.logo_image_url, AbstractDataLoader.clean_string(body['logo']))
+        if not partner_has_marketing_site:
+            self.assertEqual(organization.name, AbstractDataLoader.clean_string(body['name']))
+            self.assertEqual(organization.description, AbstractDataLoader.clean_string(body['description']))
+            self.assertEqual(organization.logo_image_url, AbstractDataLoader.clean_string(body['logo']))
 
     @responses.activate
-    def test_ingest(self):
+    @ddt.data(True, False)
+    def test_ingest(self, partner_has_marketing_site):
         """ Verify the method ingests data from the Organizations API. """
         api_data = self.mock_api()
+        if not partner_has_marketing_site:
+            self.partner.marketing_site_url_root = None
+            self.partner.save()  # pylint: disable=no-member
+
         self.assertEqual(Organization.objects.count(), 0)
 
         self.loader.ingest()
@@ -112,7 +118,7 @@ class OrganizationsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, T
         self.assertEqual(Organization.objects.count(), expected_num_orgs)
 
         for datum in api_data:
-            self.assert_organization_loaded(datum)
+            self.assert_organization_loaded(datum, partner_has_marketing_site)
 
         # Verify multiple calls to ingest data do NOT result in data integrity errors.
         self.loader.ingest()
