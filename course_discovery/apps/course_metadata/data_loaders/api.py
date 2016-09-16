@@ -50,11 +50,15 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
         key = body['short_name']
         defaults = {
             'key': key,
-            'name': body['name'],
-            'description': body['description'],
-            'logo_image_url': body['logo'],
-            'partner': self.partner,
+            'partner': self.partner
         }
+        if not self.partner.has_marketing_site:
+            defaults.update({
+                'name': body['name'],
+                'description': body['description'],
+                'logo_image_url': body['logo']
+            })
+
         Organization.objects.update_or_create(key__iexact=key, defaults=defaults)
         logger.info('Processed organization "%s"', key)
 
