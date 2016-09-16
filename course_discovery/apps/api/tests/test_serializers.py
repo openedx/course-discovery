@@ -502,6 +502,46 @@ class ProgramSerializerTests(TestCase):
 
         self.assertEqual(serializer.data['courses'], expected)
 
+    def test_course_ordering_with_no_start(self):
+        """
+        Verify that a courses run with missing start date appears last when ordering courses.
+        """
+        request = make_request()
+        course_list = CourseFactory.create_batch(3)
+
+        # Create a course run with arbitrary start and empty enrollment_start.
+        CourseRunFactory(
+            course=course_list[2],
+            enrollment_start=None,
+            start=datetime(2014, 2, 1),
+        )
+
+        # Create a second run with matching start, but later enrollment_start.
+        CourseRunFactory(
+            course=course_list[1],
+            enrollment_start=datetime(2014, 1, 2),
+            start=datetime(2014, 2, 1),
+        )
+
+        # Create a third run with empty start and enrollment_start.
+        CourseRunFactory(
+            course=course_list[0],
+            enrollment_start=None,
+            start=None,
+        )
+
+        program = ProgramFactory(courses=course_list)
+        serializer = ProgramSerializer(program, context={'request': request})
+
+        expected = ProgramCourseSerializer(
+            # The expected ordering is the reverse of course_list.
+            course_list[::-1],
+            many=True,
+            context={'request': request, 'program': program, 'course_runs': program.course_runs}
+        ).data
+
+        self.assertEqual(serializer.data['courses'], expected)
+
 
 class ContainedCourseRunsSerializerTests(TestCase):
     def test_data(self):

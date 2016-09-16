@@ -459,10 +459,14 @@ class ProgramSerializer(serializers.ModelSerializer):
             return run.enrollment_start or min_datetime
 
         def min_run_start(course):
-            _course_runs = [course_run for course_run in course_runs if course_run.course == course]
-            run = min(_course_runs, key=lambda run: run.start)
+            # Course starts may be empty. Since this means the course can't be started, missing course
+            # start date is equivalent to (offset-aware) datetime.datetime.max.
+            max_datetime = datetime.datetime.max.replace(tzinfo=pytz.UTC)
 
-            return run.start
+            _course_runs = [course_run for course_run in course_runs if course_run.course == course]
+            run = min(_course_runs, key=lambda run: run.start or max_datetime)
+
+            return run.start or max_datetime
 
         courses = list(program.courses.all())
         courses.sort(key=min_run_enrollment_start)
