@@ -13,6 +13,7 @@ from taggit_serializer.serializers import TagListSerializerField, TaggitSerializ
 
 from course_discovery.apps.api.fields import StdImageSerializerField, ImageField
 from course_discovery.apps.catalogs.models import Catalog
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Image, Organization, Person, Prerequisite, Seat, Subject, Video, Program, ProgramType, FAQ,
     CorporateEndorsement, Endorsement, Position
@@ -353,6 +354,8 @@ class ProgramCourseSerializer(CourseSerializer):
     def get_course_runs(self, course):
         program = self.context['program']
         course_runs = program.course_runs.filter(course=course)
+        if self.context.get('published_course_runs_only'):
+            course_runs = course_runs.filter(status=CourseRunStatus.Published)
         return CourseRunSerializer(
             course_runs,
             many=True,
@@ -391,7 +394,8 @@ class ProgramSerializer(serializers.ModelSerializer):
             many=True,
             context={
                 'request': self.context.get('request'),
-                'program': program
+                'program': program,
+                'published_course_runs_only': self.context.get('published_course_runs_only'),
             }
         )
 
