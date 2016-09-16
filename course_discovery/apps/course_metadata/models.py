@@ -5,6 +5,7 @@ from urllib.parse import urljoin
 from uuid import uuid4
 
 import pytz
+import waffle
 from django.db import models, transaction
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
@@ -15,7 +16,6 @@ from haystack.query import SearchQuerySet
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
 from taggit.managers import TaggableManager
-import waffle
 
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing, ProgramStatus
@@ -639,24 +639,28 @@ class Program(TimeStampedModel):
 
     @property
     def languages(self):
-        return set(course_run.language for course_run in self.course_runs if course_run.language is not None)
+        course_runs = self.course_runs.select_related('language')
+        return set(course_run.language for course_run in course_runs if course_run.language is not None)
 
     @property
     def transcript_languages(self):
-        languages = [list(course_run.transcript_languages.all()) for course_run in self.course_runs]
+        course_runs = self.course_runs.prefetch_related('transcript_languages')
+        languages = [list(course_run.transcript_languages.all()) for course_run in course_runs]
         languages = itertools.chain.from_iterable(languages)
         return set(languages)
 
     @property
     def subjects(self):
-        subjects = [list(course.subjects.all()) for course in self.courses.all()]
+        courses = self.courses.prefetch_related('subjects')
+        subjects = [list(course.subjects.all()) for course in courses]
         subjects = itertools.chain.from_iterable(subjects)
         return set(subjects)
 
     @property
     def seats(self):
         applicable_seat_types = self.type.applicable_seat_types.values_list('slug', flat=True)
-        return Seat.objects.filter(course_run__in=self.course_runs, type__in=applicable_seat_types)
+        return Seat.objects.filter(course_run__in=self.course_runs, type__in=applicable_seat_types) \
+            .select_related('currency')
 
     @property
     def seat_types(self):
@@ -699,8 +703,7 @@ class Program(TimeStampedModel):
         return self.status == ProgramStatus.Active
 
     def save(self, *args, **kwargs):
-        if waffle.switch_is_active('publish_program_to_marketing_site') and \
-                self.partner.has_marketing_site:
+        if waffle.switch_is_active('publish_program_to_marketing_site') and self.partner.has_marketing_site:
             # Before save, get from database the existing data if exists
             existing_program = None
             if self.id:

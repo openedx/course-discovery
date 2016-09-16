@@ -1,12 +1,12 @@
 # pylint: disable=abstract-method
-from datetime import datetime
+import datetime
 import json
 from urllib.parse import urlencode
 
+import pytz
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
 from drf_haystack.serializers import HaystackSerializer, HaystackFacetSerializer
-import pytz
 from rest_framework import serializers
 from rest_framework.fields import DictField
 from taggit_serializer.serializers import TagListSerializerField, TaggitSerializer
@@ -66,6 +66,29 @@ BASE_PROGRAM_FIELDS = (
 PROGRAM_SEARCH_FIELDS = BASE_PROGRAM_FIELDS + ('authoring_organizations', 'authoring_organization_uuids',
                                                'subject_uuids', 'staff_uuids',)
 PROGRAM_FACET_FIELDS = BASE_PROGRAM_FIELDS + ('organizations',)
+
+PREFETCH_FIELDS = {
+    'course_run': [
+        'course__partner', 'course__level_type', 'course__programs', 'course__programs__type',
+        'course__programs__partner', 'seats', 'transcript_languages', 'seats__currency', 'staff',
+        'staff__position', 'staff__position__organization', 'language',
+    ],
+    'course': [
+        'level_type', 'video', 'programs', 'course_runs', 'subjects', 'prerequisites', 'expected_learning_items',
+        'authoring_organizations', 'authoring_organizations__tags', 'authoring_organizations__partner',
+        'sponsoring_organizations', 'sponsoring_organizations__tags', 'sponsoring_organizations__partner',
+    ],
+    'program': [
+        'authoring_organizations', 'authoring_organizations__tags', 'authoring_organizations__partner',
+        'excluded_course_runs', 'courses', 'courses__authoring_organizations', 'courses__course_runs',
+    ],
+}
+
+SELECT_RELATED_FIELDS = {
+    'course': ['level_type', 'video', ],
+    'course_run': ['course', 'language', 'video', ],
+    'program': ['type', 'video', 'partner', ],
+}
 
 
 def get_marketing_url_for_user(user, marketing_url):
@@ -352,10 +375,12 @@ class ProgramCourseSerializer(CourseSerializer):
     course_runs = serializers.SerializerMethodField()
 
     def get_course_runs(self, course):
-        program = self.context['program']
-        course_runs = program.course_runs.filter(course=course)
+        course_runs = self.context['course_runs']
+        course_runs = [course_run for course_run in course_runs if course_run.course == course]
+
         if self.context.get('published_course_runs_only'):
-            course_runs = course_runs.filter(status=CourseRunStatus.Published)
+            course_runs = [course_run for course_run in course_runs if course_run.status == CourseRunStatus.Published]
+
         return CourseRunSerializer(
             course_runs,
             many=True,
@@ -387,7 +412,7 @@ class ProgramSerializer(serializers.ModelSerializer):
     staff = PersonSerializer(many=True)
 
     def get_courses(self, program):
-        courses = self.sort_courses(program)
+        courses, course_runs = self.sort_courses(program)
 
         course_serializer = ProgramCourseSerializer(
             courses,
@@ -396,6 +421,7 @@ class ProgramSerializer(serializers.ModelSerializer):
                 'request': self.context.get('request'),
                 'program': program,
                 'published_course_runs_only': self.context.get('published_course_runs_only'),
+                'course_runs': course_runs,
             }
         )
 
@@ -411,10 +437,14 @@ class ProgramSerializer(serializers.ModelSerializer):
         course_runs should never be empty. If it is, key functions in this method attempting to find the
         min of an empty sequence will raise a ValueError.
         """
+        course_runs = program.course_runs.select_related(*SELECT_RELATED_FIELDS['course_run'])
+        course_runs = course_runs.prefetch_related(*PREFETCH_FIELDS['course_run'])
+        course_runs = list(course_runs)
+
         def min_run_enrollment_start(course):
             # Enrollment starts may be empty. When this is the case, we make the same assumption as
-            # the LMS: no enrollment_start is equivalent to (offset-aware) datetime.min.
-            min_datetime = datetime.min.replace(tzinfo=pytz.UTC)
+            # the LMS: no enrollment_start is equivalent to (offset-aware) datetime.datetime.min.
+            min_datetime = datetime.datetime.min.replace(tzinfo=pytz.UTC)
 
             # Course runs excluded from the program are excluded here, too.
             #
@@ -423,12 +453,14 @@ class ProgramSerializer(serializers.ModelSerializer):
             # values, while SQLite does the opposite.
             #
             # For more, refer to https://docs.djangoproject.com/en/1.10/ref/models/querysets/#latest.
-            run = min(program.course_runs.filter(course=course), key=lambda run: run.enrollment_start or min_datetime)
+            _course_runs = [course_run for course_run in course_runs if course_run.course == course]
+            run = min(_course_runs, key=lambda run: run.enrollment_start or min_datetime)
 
             return run.enrollment_start or min_datetime
 
         def min_run_start(course):
-            run = min(program.course_runs.filter(course=course), key=lambda run: run.start)
+            _course_runs = [course_run for course_run in course_runs if course_run.course == course]
+            run = min(_course_runs, key=lambda run: run.start)
 
             return run.start
 
@@ -436,7 +468,7 @@ class ProgramSerializer(serializers.ModelSerializer):
         courses.sort(key=min_run_enrollment_start)
         courses.sort(key=min_run_start)
 
-        return courses
+        return courses, course_runs
 
     class Meta:
         model = Program

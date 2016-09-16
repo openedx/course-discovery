@@ -34,24 +34,6 @@ from course_discovery.apps.course_metadata.models import Course, CourseRun, Part
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
-PREFETCH_FIELDS = {
-    'course_run': [
-        'course__partner', 'course__level_type', 'course__programs', 'course__programs__type',
-        'course__programs__partner', 'seats', 'transcript_languages', 'seats__currency', 'staff',
-        'staff__position', 'staff__position__organization', 'language',
-    ],
-    'course': [
-        'level_type', 'video', 'programs', 'course_runs', 'subjects', 'prerequisites', 'expected_learning_items',
-        'authoring_organizations', 'authoring_organizations__tags', 'authoring_organizations__partner',
-        'sponsoring_organizations', 'sponsoring_organizations__tags', 'sponsoring_organizations__partner',
-    ],
-}
-
-SELECT_RELATED_FIELDS = {
-    'course': ['level_type', 'video', ],
-    'course_run': ['course', 'language', 'video', ],
-}
-
 
 def prefetch_related_objects_for_courses(queryset):
     """
@@ -69,13 +51,33 @@ def prefetch_related_objects_for_courses(queryset):
     Returns:
         QuerySet
     """
+    _prefetch_fields = serializers.PREFETCH_FIELDS
+    _select_related_fields = serializers.SELECT_RELATED_FIELDS
+
     # Prefetch the data for the related course runs
-    course_run_prefetch_fields = PREFETCH_FIELDS['course_run'] + SELECT_RELATED_FIELDS['course_run']
+    course_run_prefetch_fields = _prefetch_fields['course_run'] + _select_related_fields['course_run']
     course_run_prefetch_fields = ['course_runs__' + field for field in course_run_prefetch_fields]
     queryset = queryset.prefetch_related(*course_run_prefetch_fields)
 
-    queryset = queryset.select_related(*SELECT_RELATED_FIELDS['course'])
-    queryset = queryset.prefetch_related(*PREFETCH_FIELDS['course'])
+    queryset = queryset.select_related(*_select_related_fields['course'])
+    queryset = queryset.prefetch_related(*_prefetch_fields['course'])
+    return queryset
+
+
+def prefetch_related_objects_for_programs(queryset):
+    """
+    Pre-fetches the related objects that will be serialized with a `Program`.
+    Args:
+        queryset (QuerySet): original query
+    Returns:
+        QuerySet
+    """
+    course = serializers.PREFETCH_FIELDS['course'] + serializers.SELECT_RELATED_FIELDS['course']
+    course = ['courses__' + field for field in course]
+    queryset = queryset.prefetch_related(*course)
+
+    queryset = queryset.select_related(*serializers.SELECT_RELATED_FIELDS['program'])
+    queryset = queryset.prefetch_related(*serializers.PREFETCH_FIELDS['program'])
     return queryset
 
 
@@ -199,9 +201,9 @@ class CatalogViewSet(viewsets.ModelViewSet):
         course_runs = CourseRun.objects.filter(course__in=courses).active().marketable()
 
         # We use select_related and prefetch_related to decrease our database query count
-        course_runs = course_runs.select_related(*SELECT_RELATED_FIELDS['course_run'])
-        prefetch_fields = ['course__' + field for field in PREFETCH_FIELDS['course']]
-        prefetch_fields += PREFETCH_FIELDS['course_run']
+        course_runs = course_runs.select_related(*serializers.SELECT_RELATED_FIELDS['course_run'])
+        prefetch_fields = ['course__' + field for field in serializers.PREFETCH_FIELDS['course']]
+        prefetch_fields += serializers.PREFETCH_FIELDS['course_run']
         course_runs = course_runs.prefetch_related(*prefetch_fields)
 
         serializer = serializers.FlattenedCourseRunWithCourseSerializer(
@@ -295,8 +297,8 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
             return qs
         else:
             queryset = super(CourseRunViewSet, self).get_queryset().filter(course__partner=partner)
-            queryset = queryset.select_related(*SELECT_RELATED_FIELDS['course_run'])
-            queryset = queryset.prefetch_related(*PREFETCH_FIELDS['course_run'])
+            queryset = queryset.select_related(*serializers.SELECT_RELATED_FIELDS['course_run'])
+            queryset = queryset.prefetch_related(*serializers.PREFETCH_FIELDS['course_run'])
             return queryset
 
     def list(self, request, *args, **kwargs):
@@ -391,7 +393,7 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
     """ Program resource. """
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
-    queryset = Program.objects.all()
+    queryset = prefetch_related_objects_for_programs(Program.objects.all())
     permission_classes = (IsAuthenticated,)
     serializer_class = serializers.ProgramSerializer
     filter_backends = (DjangoFilterBackend,)

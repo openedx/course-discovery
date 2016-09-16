@@ -191,7 +191,7 @@ class ProgramCourseSerializerTests(TestCase):
         serializer = ProgramCourseSerializer(
             self.course_list,
             many=True,
-            context={'request': self.request, 'program': self.program}
+            context={'request': self.request, 'program': self.program, 'course_runs': self.program.course_runs}
         )
 
         expected = CourseSerializer(self.course_list, many=True, context={'request': self.request}).data
@@ -204,7 +204,7 @@ class ProgramCourseSerializerTests(TestCase):
         serializer = ProgramCourseSerializer(
             self.course_list,
             many=True,
-            context={'request': self.request, 'program': self.program}
+            context={'request': self.request, 'program': self.program, 'course_runs': self.program.course_runs}
         )
 
         expected = CourseSerializer(self.course_list, many=True, context={'request': self.request}).data
@@ -221,7 +221,7 @@ class ProgramCourseSerializerTests(TestCase):
         excluded_runs.append(course_runs[0])
         program = ProgramFactory(courses=[course], excluded_course_runs=excluded_runs)
 
-        serializer_context = {'request': self.request, 'program': program}
+        serializer_context = {'request': self.request, 'program': program, 'course_runs': program.course_runs}
         serializer = ProgramCourseSerializer(course, context=serializer_context)
 
         expected = CourseSerializer(course, context=serializer_context).data
@@ -251,7 +251,8 @@ class ProgramCourseSerializerTests(TestCase):
             context={
                 'request': self.request,
                 'program': self.program,
-                'published_course_runs_only': published_course_runs_only
+                'published_course_runs_only': published_course_runs_only,
+                'course_runs': self.program.course_runs
             }
         )
         validate_data = serializer.data
@@ -320,7 +321,7 @@ class ProgramSerializerTests(TestCase):
             'courses': ProgramCourseSerializer(
                 program.courses,
                 many=True,
-                context={'request': request, 'program': program}
+                context={'request': request, 'program': program, 'course_runs': program.course_runs}
             ).data,
             'corporate_endorsements': CorporateEndorsementSerializer(program.corporate_endorsements, many=True).data,
             'credit_backing_organizations': OrganizationSerializer(
@@ -386,7 +387,7 @@ class ProgramSerializerTests(TestCase):
             'courses': ProgramCourseSerializer(
                 program.courses,
                 many=True,
-                context={'request': request, 'program': program}
+                context={'request': request, 'program': program, 'course_runs': program.course_runs}
             ).data,
             'corporate_endorsements': CorporateEndorsementSerializer(program.corporate_endorsements, many=True).data,
             'credit_backing_organizations': OrganizationSerializer(
@@ -447,7 +448,7 @@ class ProgramSerializerTests(TestCase):
             # The expected ordering is the reverse of course_list.
             course_list[::-1],
             many=True,
-            context={'request': request, 'program': program}
+            context={'request': request, 'program': program, 'course_runs': program.course_runs}
         ).data
 
         self.assertEqual(serializer.data['courses'], expected)
@@ -496,7 +497,7 @@ class ProgramSerializerTests(TestCase):
             # The expected ordering is the reverse of course_list.
             course_list[::-1],
             many=True,
-            context={'request': request, 'program': program}
+            context={'request': request, 'program': program, 'course_runs': program.course_runs}
         ).data
 
         self.assertEqual(serializer.data['courses'], expected)
