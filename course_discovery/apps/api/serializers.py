@@ -525,9 +525,8 @@ class FlattenedCourseRunWithCourseSerializer(CourseRunSerializer):
     sponsors = serializers.SerializerMethodField()
     subjects = serializers.SerializerMethodField()
     prerequisites = serializers.SerializerMethodField()
-    level_type = serializers.SerializerMethodField()
     expected_learning_items = serializers.SerializerMethodField()
-    course_key = serializers.SerializerMethodField()
+    course_key = serializers.SlugRelatedField(read_only=True, source='course', slug_field='key')
     image = ImageField(read_only=True, source='card_image_url')
 
     class Meta(object):
@@ -597,12 +596,6 @@ class FlattenedCourseRunWithCourseSerializer(CourseRunSerializer):
         return ','.join(
             [expected_learning_item.value for expected_learning_item in obj.course.expected_learning_items.all()]
         )
-
-    def get_level_type(self, obj):
-        return obj.level_type.name
-
-    def get_course_key(self, obj):
-        return obj.course.key
 
 
 class QueryFacetFieldSerializer(serializers.Serializer):
