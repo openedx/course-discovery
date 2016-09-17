@@ -22,8 +22,10 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractMarketingSiteDataLoader(AbstractDataLoader):
-    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None):
-        super(AbstractMarketingSiteDataLoader, self).__init__(partner, api_url, access_token, token_type, max_workers)
+    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None, is_threadsafe=False):
+        super(AbstractMarketingSiteDataLoader, self).__init__(
+            partner, api_url, access_token, token_type, max_workers, is_threadsafe
+        )
 
         if not (self.partner.marketing_site_api_username and self.partner.marketing_site_api_password):
             msg = 'Marketing Site API credentials are not properly configured for Partner [{partner}]!'.format(
@@ -69,13 +71,21 @@ class AbstractMarketingSiteDataLoader(AbstractDataLoader):
             # Add one to avoid requesting the first page again and to make sure
             # we get the last page when range() is used below.
             pages = [self._extract_page(url) + 1 for url in (data['first'], data['last'])]
+            pagerange = range(*pages)
 
             with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-                futures = [executor.submit(self._request, page) for page in range(*pages)]
+                if self.is_threadsafe:  # pragma: no cover
+                    for page in pagerange:
+                        executor.submit(self._load_data, page)
+                else:
+                    for future in [executor.submit(self._request, page) for page in pagerange]:
+                        response = future.result()
+                        self._process_response(response)
 
-            for future in futures:
-                response = future.result()
-                self._process_response(response)
+    def _load_data(self, page):  # pragma: no cover
+        """Make a request for the given page and process the response."""
+        response = self._request(page)
+        self._process_response(response)
 
     def _request(self, page):
         """Make a request to the marketing site."""

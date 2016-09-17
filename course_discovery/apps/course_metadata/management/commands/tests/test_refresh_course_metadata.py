@@ -1,5 +1,6 @@
 import json
 
+import ddt
 import mock
 import responses
 from django.core.management import call_command, CommandError
@@ -15,11 +16,14 @@ from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
     SponsorMarketingSiteDataLoader, PersonMarketingSiteDataLoader, CourseMarketingSiteDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
+from course_discovery.apps.course_metadata.tests import toggle_switch
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 
 ACCESS_TOKEN = 'secret'
 JSON = 'application/json'
 
 
+@ddt.ddt
 class RefreshCourseMetadataCommandTests(TestCase):
     def setUp(self):
         super(RefreshCourseMetadataCommandTests, self).setUp()
@@ -106,6 +110,23 @@ class RefreshCourseMetadataCommandTests(TestCase):
             content_type=JSON
         )
         return bodies
+
+    @ddt.data(True, False)
+    def test_refresh_course_metadata(self, is_parallel):
+        if is_parallel:
+            for name in ['threaded_metadata_write', 'parallel_refresh_pipeline']:
+                toggle_switch(name)
+
+        with responses.RequestsMock() as rsps:
+            self.mock_access_token_api(rsps)
+            self.mock_apis()
+
+            # Courses must exist for the command to use multiple threads. If there are no
+            # courses, the command won't risk race conditions between threads trying to
+            # create the same course.
+            CourseFactory(partner=self.partner)
+
+            call_command('refresh_course_metadata')
 
     def test_refresh_course_metadata_with_invalid_partner_code(self):
         """ Verify an error is raised if an invalid partner code is passed on the command line. """

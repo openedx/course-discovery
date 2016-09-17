@@ -75,16 +75,25 @@ class CoursesApiDataLoader(AbstractDataLoader):
         pages = response['pagination']['num_pages']
         self._process_response(response)
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            futures = [executor.submit(self._make_request, page) for page in range(initial_page + 1, pages + 1)]
+        pagerange = range(initial_page + 1, pages + 1)
 
-        for future in futures:  # pragma: no cover
-            response = future.result()
-            self._process_response(response)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:  # pragma: no cover
+            if self.is_threadsafe:
+                for page in pagerange:
+                    executor.submit(self._load_data, page)
+            else:
+                for future in [executor.submit(self._make_request, page) for page in pagerange]:
+                    response = future.result()
+                    self._process_response(response)
 
         logger.info('Retrieved %d course runs from %s.', count, self.partner.courses_api_url)
 
         self.delete_orphans()
+
+    def _load_data(self, page):  # pragma: no cover
+        """Make a request for the given page and process the response."""
+        response = self._make_request(page)
+        self._process_response(response)
 
     def _make_request(self, page):
         return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE)
@@ -190,16 +199,25 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         pages = math.ceil(count / self.PAGE_SIZE)
         self._process_response(response)
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            futures = [executor.submit(self._make_request, page) for page in range(initial_page + 1, pages + 1)]
+        pagerange = range(initial_page + 1, pages + 1)
 
-        for future in futures:  # pragma: no cover
-            response = future.result()
-            self._process_response(response)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:  # pragma: no cover
+            if self.is_threadsafe:
+                for page in pagerange:
+                    executor.submit(self._load_data, page)
+            else:
+                for future in [executor.submit(self._make_request, page) for page in pagerange]:
+                    response = future.result()
+                    self._process_response(response)
 
         logger.info('Retrieved %d course seats from %s.', count, self.partner.ecommerce_api_url)
 
         self.delete_orphans()
+
+    def _load_data(self, page):  # pragma: no cover
+        """Make a request for the given page and process the response."""
+        response = self._make_request(page)
+        self._process_response(response)
 
     def _make_request(self, page):
         return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE, include_products=True)
@@ -273,8 +291,10 @@ class ProgramsApiDataLoader(AbstractDataLoader):
     image_height = 480
     XSERIES = None
 
-    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None):
-        super(ProgramsApiDataLoader, self).__init__(partner, api_url, access_token, token_type, max_workers)
+    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None, is_threadsafe=False):
+        super(ProgramsApiDataLoader, self).__init__(
+            partner, api_url, access_token, token_type, max_workers, is_threadsafe
+        )
         self.XSERIES = ProgramType.objects.get(name='XSeries')
 
     def ingest(self):
