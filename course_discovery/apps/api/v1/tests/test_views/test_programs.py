@@ -6,7 +6,7 @@ from course_discovery.apps.api.serializers import ProgramSerializer
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Program
-from course_discovery.apps.course_metadata.tests.factories import ProgramFactory
+from course_discovery.apps.course_metadata.tests.factories import ProgramFactory, CourseFactory
 
 
 @ddt.ddt
@@ -20,6 +20,14 @@ class ProgramViewSetTests(APITestCase):
         self.request = APIRequestFactory().get('/')
         self.request.user = self.user
 
+    def assert_retrieve_success(self, program):
+        """ Verify the retrieve endpoint succesfully returns a serialized program. """
+        url = reverse('api:v1:program-detail', kwargs={'uuid': program.uuid})
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, ProgramSerializer(program, context={'request': self.request}).data)
+
     def test_authentication(self):
         """ Verify the endpoint requires the user to be authenticated. """
         response = self.client.get(self.list_path)
@@ -29,14 +37,16 @@ class ProgramViewSetTests(APITestCase):
         response = self.client.get(self.list_path)
         self.assertEqual(response.status_code, 403)
 
-    def test_get(self):
+    def test_retrieve(self):
         """ Verify the endpoint returns the details for a single program. """
         program = ProgramFactory()
-        url = reverse('api:v1:program-detail', kwargs={'uuid': program.uuid})
+        self.assert_retrieve_success(program)
 
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, ProgramSerializer(program, context={'request': self.request}).data)
+    def test_retrieve_without_course_runs(self):
+        """ Verify the endpoint returns data for a program even if the program's courses have no course runs. """
+        course = CourseFactory()
+        program = ProgramFactory(courses=[course])
+        self.assert_retrieve_success(program)
 
     def assert_list_results(self, url, expected):
         """

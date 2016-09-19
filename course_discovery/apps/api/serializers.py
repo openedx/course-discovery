@@ -454,6 +454,11 @@ class ProgramSerializer(serializers.ModelSerializer):
             #
             # For more, refer to https://docs.djangoproject.com/en/1.10/ref/models/querysets/#latest.
             _course_runs = [course_run for course_run in course_runs if course_run.course == course]
+
+            # Return early if we have no course runs since min() will fail.
+            if not _course_runs:
+                return min_datetime
+
             run = min(_course_runs, key=lambda run: run.enrollment_start or min_datetime)
 
             return run.enrollment_start or min_datetime
@@ -464,6 +469,11 @@ class ProgramSerializer(serializers.ModelSerializer):
             max_datetime = datetime.datetime.max.replace(tzinfo=pytz.UTC)
 
             _course_runs = [course_run for course_run in course_runs if course_run.course == course]
+
+            # Return early if we have no course runs since min() will fail.
+            if not _course_runs:
+                return max_datetime
+
             run = min(_course_runs, key=lambda run: run.start or max_datetime)
 
             return run.start or max_datetime
