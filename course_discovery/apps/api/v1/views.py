@@ -572,8 +572,8 @@ class BaseHaystackViewSet(FacetMixin, HaystackViewSet):
         facet_serializer_cls = self.get_facet_serializer_class()
         field_queries = getattr(facet_serializer_cls.Meta, 'field_queries', {})
 
-        # Ensure we only return published items
-        queryset = queryset.filter(published=True)
+        # Ensure we only return published, non-hidden items
+        queryset = queryset.filter(published=True).exclude(hidden=True)
 
         for facet in self.request.query_params.getlist('selected_query_facets'):
             query = field_queries.get(facet)

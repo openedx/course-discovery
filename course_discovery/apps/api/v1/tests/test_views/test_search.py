@@ -197,6 +197,20 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
         self.assertListEqual(response_data['objects']['results'],
                              [self.serialize_course_run(course_run), self.serialize_program(program)])
 
+    def test_hidden_runs_excluded(self):
+        """Search results should not include hidden runs."""
+        visible_run = CourseRunFactory(course__partner=self.partner)
+        hidden_run = CourseRunFactory(course__partner=self.partner, hidden=True)
+
+        self.assertEqual(CourseRun.objects.get(hidden=True), hidden_run)
+
+        response = self.get_search_response()
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(
+            data['objects']['results'],
+            [self.serialize_course_run(visible_run)]
+        )
+
     def test_results_filtered_by_default_partner(self):
         """ Verify the search results only include items related to the default partner if no partner is
         specified on the request. If a partner is included, the data should be filtered to the requested partner. """
