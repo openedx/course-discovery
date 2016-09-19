@@ -118,6 +118,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     partner = indexes.CharField(null=True, faceted=True)
     program_types = indexes.MultiValueField()
     published = indexes.BooleanField(null=False, faceted=True)
+    hidden = indexes.BooleanField(model_attr='hidden', faceted=True)
     authoring_organization_uuids = indexes.MultiValueField()
     staff_uuids = indexes.MultiValueField()
     subject_uuids = indexes.MultiValueField()

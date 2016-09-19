@@ -53,6 +53,7 @@ class CourseRunAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'key', 'title',)
     list_filter = (
         'course__partner',
+        'hidden',
         ('language', admin.RelatedOnlyFieldListFilter,),
         'status',
     )
