@@ -14,6 +14,8 @@ from drf_haystack.mixins import FacetMixin
 from drf_haystack.viewsets import HaystackViewSet
 from dry_rest_permissions.generics import DRYPermissions
 from edx_rest_framework_extensions.permissions import IsSuperuser
+from haystack.inputs import AutoQuery
+from haystack.query import SQ
 from rest_framework import status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import PermissionDenied, ParseError
@@ -601,6 +603,10 @@ class BaseHaystackViewSet(FacetMixin, HaystackViewSet):
 
     def filter_facet_queryset(self, queryset):
         queryset = super().filter_facet_queryset(queryset)
+
+        q = self.request.query_params.get('q')
+        if q:
+            queryset = queryset.filter(SQ(text=AutoQuery(q)) | SQ(title=AutoQuery(q)))
 
         facet_serializer_cls = self.get_facet_serializer_class()
         field_queries = getattr(facet_serializer_cls.Meta, 'field_queries', {})
