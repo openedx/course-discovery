@@ -426,6 +426,11 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         self_paced = data.get('field_course_self_paced', False)
         return CourseRunPacing.Self if self_paced else CourseRunPacing.Instructor
 
+    def get_hidden(self, data):
+        # 'couse' [sic]. The field is misspelled on Drupal. ಠ_ಠ
+        hidden = data.get('field_couse_is_hidden', False)
+        return hidden is True
+
     def create_course_run(self, course, data):
         uuid = data['uuid']
         key = data['field_course_id']
@@ -446,6 +451,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'status': self.get_course_run_status(data),
             'start': start,
             'pacing_type': self.get_pacing_type(data),
+            'hidden': self.get_hidden(data),
         }
 
         try:
