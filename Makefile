@@ -96,3 +96,7 @@ open-devstack:
 
 accept:
 	nosetests --with-ignore-docstrings -v acceptance_tests
+
+make dev.test:
+	coverage run ./manage.py test course_discovery --settings=course_discovery.settings.devstack_test --keepdb
+	coverage report
