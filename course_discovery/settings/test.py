@@ -23,3 +23,5 @@ DATABASES = {
 JWT_AUTH['JWT_SECRET_KEY'] = 'course-discovery-jwt-secret-key'
 
 LOGGING['handlers']['local'] = {'class': 'logging.NullHandler'}
+
+REST_FRAMEWORK_EXTENSIONS['DEFAULT_CACHE_RESPONSE_TIMEOUT'] = 0
