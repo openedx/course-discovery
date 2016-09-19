@@ -331,6 +331,11 @@ REST_FRAMEWORK = {
     },
 }
 
+REST_FRAMEWORK_EXTENSIONS = {
+    'DEFAULT_CACHE_ERRORS': False,
+    'DEFAULT_CACHE_RESPONSE_TIMEOUT': 1800,
+}
+
 # NOTE (CCB): JWT_SECRET_KEY is intentionally not set here to avoid production releases with a public value.
 # Set a value in a downstream settings file.
 JWT_AUTH = {

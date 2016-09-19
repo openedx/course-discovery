@@ -20,6 +20,7 @@ from rest_framework.exceptions import PermissionDenied, ParseError
 from rest_framework.filters import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
 from course_discovery.apps.api import filters
 from course_discovery.apps.api import serializers
@@ -389,7 +390,7 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
+class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
     """ Program resource. """
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
