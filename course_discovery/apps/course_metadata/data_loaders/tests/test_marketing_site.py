@@ -372,6 +372,22 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         self.assertEqual(self.loader.get_course_run_status(data), expected)
 
     @ddt.data(
+        (True, True),
+        ('foo', False),
+        ('', False),
+        (None, False),
+    )
+    @ddt.unpack
+    def test_get_hidden(self, hidden, expected):
+        """Verify that the get_hidden method returns the correct Boolean value."""
+        data = {'field_couse_is_hidden': hidden}
+        self.assertEqual(self.loader.get_hidden(data), expected)
+
+    def test_get_hidden_missing(self):
+        """Verify that the get_hidden method can cope with a missing field."""
+        self.assertEqual(self.loader.get_hidden({}), False)
+
+    @ddt.data(
         {'field_course_body': {'value': 'Test'}},
         {'field_course_description': {'value': 'Test'}},
         {'field_course_description': {'value': 'Test2'}, 'field_course_body': {'value': 'Test'}},
@@ -464,6 +480,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
             'status': self.loader.get_course_run_status(data),
             'start': start,
             'pacing_type': self.loader.get_pacing_type(data),
+            'hidden': self.loader.get_hidden(data),
         }
 
         for field, value in expected_values.items():
