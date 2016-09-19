@@ -4,6 +4,7 @@ import django_filters
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
+from django.http import QueryDict
 from django.utils.translation import ugettext as _
 from drf_haystack.filters import HaystackFacetFilter, HaystackFilter as DefaultHaystackFilter
 from drf_haystack.query import FacetQueryBuilder
@@ -59,14 +60,29 @@ class FacetQueryBuilderWithQueries(FacetQueryBuilder):
         return query
 
 
-class HaystackFacetFilterWithQueries(HaystackFacetFilter):
-    query_builder_class = FacetQueryBuilderWithQueries
-
-
-class HaystackFilter(DefaultHaystackFilter):
+class HaystackRequestFilterMixin:
     @staticmethod
     def get_request_filters(request):
         filters = HaystackFacetFilter.get_request_filters(request)
+
+        # Remove items with empty values
+        filters = dict((k, v) for k, v in filters.items() if v)
+
+        # Convert the dict to a QueryDict to maintain the contract of the original method.
+        query_dict = QueryDict('', mutable=True)
+        query_dict.update(filters)
+
+        return query_dict
+
+
+class HaystackFacetFilterWithQueries(HaystackRequestFilterMixin, HaystackFacetFilter):
+    query_builder_class = FacetQueryBuilderWithQueries
+
+
+class HaystackFilter(HaystackRequestFilterMixin, DefaultHaystackFilter):
+    @staticmethod
+    def get_request_filters(request):
+        filters = HaystackRequestFilterMixin.get_request_filters(request)
 
         # Return data for the default partner, if no partner is requested
         if not any(field in filters for field in ('partner', 'partner_exact')):
