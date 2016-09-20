@@ -1,4 +1,3 @@
-import unittest
 from datetime import datetime
 from urllib.parse import urlencode
 
@@ -8,15 +7,16 @@ from haystack.query import SearchQuerySet
 from opaque_keys.edx.keys import CourseKey
 from rest_framework.test import APIRequestFactory
 
-from course_discovery.apps.api.fields import ImageField
+from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.api.serializers import (
-    CatalogSerializer, CourseSerializer, CourseRunSerializer, ContainedCoursesSerializer, ImageSerializer,
+    CatalogSerializer, CourseRunSerializer, ContainedCoursesSerializer, ImageSerializer,
     SubjectSerializer, PrerequisiteSerializer, VideoSerializer, OrganizationSerializer, SeatSerializer,
     PersonSerializer, AffiliateWindowSerializer, ContainedCourseRunsSerializer, CourseRunSearchSerializer,
     ProgramSerializer, ProgramSearchSerializer, ProgramCourseSerializer, NestedProgramSerializer,
     CourseRunWithProgramsSerializer, CourseWithProgramsSerializer, CorporateEndorsementSerializer,
     FAQSerializer, EndorsementSerializer, PositionSerializer, FlattenedCourseRunWithCourseSerializer,
-    MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalCourseRunSerializer
+    MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalCourseRunSerializer, MinimalProgramSerializer,
+    CourseSerializer
 )
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import User
@@ -32,7 +32,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
-# pylint:disable=no-member
+# pylint:disable=no-member, test-inherits-tests
 
 def json_date_format(datetime_obj):
     return datetime.strftime(datetime_obj, "%Y-%m-%dT%H:%M:%S.%fZ")
@@ -94,20 +94,36 @@ class CatalogSerializerTests(TestCase):
         self.assertEqual(User.objects.filter(username=username).count(), 0)  # pylint: disable=no-member
 
 
-class CourseSerializerTests(TestCase):
-    def test_data(self):
-        course = CourseFactory()
-        video = course.video
+class MinimalCourseSerializerTests(TestCase):
+    serializer_class = MinimalCourseSerializer
 
-        request = make_request()
+    def get_expected_data(self, course, request):
+        context = {'request': request}
 
-        CourseRunFactory.create_batch(3, course=course)
-        serializer = CourseWithProgramsSerializer(course, context={'request': request})
-
-        expected = {
-            'uuid': str(course.uuid),
+        return {
             'key': course.key,
+            'uuid': str(course.uuid),
             'title': course.title,
+            'course_runs': MinimalCourseRunSerializer(course.course_runs, many=True, context=context).data,
+            'owners': MinimalOrganizationSerializer(course.authoring_organizations, many=True, context=context).data,
+        }
+
+    def test_data(self):
+        request = make_request()
+        organizations = OrganizationFactory()
+        course = CourseFactory(authoring_organizations=[organizations])
+        CourseRunFactory.create_batch(2, course=course)
+        serializer = self.serializer_class(course, context={'request': request})
+        expected = self.get_expected_data(course, request)
+        self.assertDictEqual(serializer.data, expected)
+
+
+class CourseSerializerTests(MinimalCourseSerializerTests):
+    serializer_class = CourseSerializer
+
+    def get_expected_data(self, course, request):
+        expected = super().get_expected_data(course, request)
+        expected.update({
             'short_description': course.short_description,
             'full_description': course.full_description,
             'level_type': course.level_type.name,
@@ -115,11 +131,9 @@ class CourseSerializerTests(TestCase):
             'prerequisites': [],
             'expected_learning_items': [],
             'image': ImageField().to_representation(course.card_image_url),
-            'video': VideoSerializer(video).data,
-            'owners': OrganizationSerializer(course.authoring_organizations, many=True).data,
+            'video': VideoSerializer(course.video).data,
             'sponsors': OrganizationSerializer(course.sponsoring_organizations, many=True).data,
             'modified': json_date_format(course.modified),  # pylint: disable=no-member
-            'course_runs': CourseRunSerializer(course.course_runs, many=True, context={'request': request}).data,
             'marketing_url': '{url}?{params}'.format(
                 url=course.marketing_url,
                 params=urlencode({
@@ -127,23 +141,47 @@ class CourseSerializerTests(TestCase):
                     'utm_medium': request.user.referral_tracking_id,
                 })
             ),
+            'course_runs': CourseRunSerializer(course.course_runs, many=True, context={'request': request}).data,
+            'owners': OrganizationSerializer(course.authoring_organizations, many=True).data,
+        })
+        return expected
+
+
+class CourseWithProgramsSerializerTests(CourseSerializerTests):  # pylint: disable=test-inherits-tests
+    serializer_class = CourseWithProgramsSerializer
+
+    def get_expected_data(self, course, request):
+        expected = super().get_expected_data(course, request)
+        expected.update({
             'programs': NestedProgramSerializer(course.programs, many=True, context={'request': request}).data,
+        })
+        return expected
+
+
+class MinimalCourseRunSerializerTests(TestCase):
+    serializer_class = MinimalCourseRunSerializer
+
+    def get_expected_data(self, course_run, request):  # pylint: disable=unused-argument
+        return {
+            'key': course_run.key,
+            'uuid': str(course_run.uuid),
+            'title': course_run.title,
         }
 
-        self.assertDictEqual(serializer.data, expected)
-
-
-class CourseRunSerializerTests(TestCase):
     def test_data(self):
         request = make_request()
         course_run = CourseRunFactory()
-        course = course_run.course
-        video = course_run.video
-        serializer = CourseRunSerializer(course_run, context={'request': request})
-        ProgramFactory(courses=[course])
+        serializer = self.serializer_class(course_run, context={'request': request})
+        expected = self.get_expected_data(course_run, request)
+        self.assertDictEqual(serializer.data, expected)
 
-        expected = {
-            'uuid': str(course_run.uuid),
+
+class CourseRunSerializerTests(MinimalCourseRunSerializerTests):  # pylint: disable=test-inherits-tests
+    serializer_class = CourseRunSerializer
+
+    def get_expected_data(self, course_run, request):
+        expected = super().get_expected_data(course_run, request)
+        expected.update({
             'course': course_run.course.key,
             'key': course_run.key,
             'title': course_run.title,  # pylint: disable=no-member
@@ -155,7 +193,7 @@ class CourseRunSerializerTests(TestCase):
             'enrollment_end': json_date_format(course_run.enrollment_end),
             'announcement': json_date_format(course_run.announcement),
             'image': ImageField().to_representation(course_run.card_image_url),
-            'video': VideoSerializer(video).data,
+            'video': VideoSerializer(course_run.video).data,
             'pacing_type': course_run.pacing_type,
             'content_language': course_run.language.code,
             'transcript_languages': [],
@@ -174,9 +212,8 @@ class CourseRunSerializerTests(TestCase):
             ),
             'level_type': course_run.level_type.name,
             'availability': course_run.availability,
-        }
-
-        self.assertDictEqual(serializer.data, expected)
+        })
+        return expected
 
 
 class CourseRunWithProgramsSerializerTests(TestCase):
@@ -195,7 +232,6 @@ class CourseRunWithProgramsSerializerTests(TestCase):
         self.assertDictEqual(serializer.data, expected)
 
 
-@unittest.skip('This test is disabled until we can determine why assertDictEqual() fails for two equivalent inputs.')
 class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover
     def serialize_seats(self, course_run):
         seats = {
@@ -245,7 +281,7 @@ class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover
     def get_expected_data(self, request, course_run):
         course = course_run.course
         serializer_context = {'request': request}
-        expected = CourseRunSerializer(course_run, context=serializer_context).data
+        expected = dict(CourseRunSerializer(course_run, context=serializer_context).data)
         expected.update({
             'subjects': self.serialize_items(course.subjects.all(), 'name'),
             'seats': self.serialize_seats(course_run),
@@ -286,10 +322,7 @@ class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover
         self.assertDictEqual(serializer.data, expected)
 
 
-@ddt.ddt
 class ProgramCourseSerializerTests(TestCase):
-    maxDiff = None
-
     def setUp(self):
         super(ProgramCourseSerializerTests, self).setUp()
         self.request = make_request()
@@ -310,7 +343,6 @@ class ProgramCourseSerializerTests(TestCase):
 
         self.assertSequenceEqual(serializer.data, expected)
 
-    @unittest.skip('@clintonb to fix later')
     def test_with_runs(self):
         for course in self.course_list:
             CourseRunFactory.create_batch(2, course=course)
@@ -342,104 +374,97 @@ class ProgramCourseSerializerTests(TestCase):
                                                              context={'request': self.request}).data
         self.assertDictEqual(serializer.data, expected)
 
-    @unittest.skip('@clintonb to fix later')
-    @ddt.data(
-        [CourseRunStatus.Unpublished, 1],
-        [CourseRunStatus.Unpublished, 0],
-        [CourseRunStatus.Published, 1],
-        [CourseRunStatus.Published, 0]
-    )
-    @ddt.unpack
-    def test_with_published_only_querystring(self, course_run_status, published_course_runs_only):
-        """
-        Test the serializer's ability to filter out course_runs based on
-        "published_course_runs_only" query string
-        """
-        expected = CourseSerializer(self.course_list, many=True, context={'request': self.request}).data
+    def test_with_published_course_runs_only_context(self):
+        """ Verify setting the published_course_runs_only context value excludes unpublished course runs. """
+        # Create a program and course. The course should have both published and un-published course runs.
+        course = CourseFactory()
+        courses = [course]
+        program = ProgramFactory(courses=courses)
+        unpublished_course_run = CourseRunFactory(status=CourseRunStatus.Unpublished, course=course)
+        CourseRunFactory(status=CourseRunStatus.Published, course=course)
 
-        for course in self.course_list:
-            CourseRunFactory.create_batch(2, status=course_run_status, course=course)
+        # We do NOT expect the results to included the unpublished data
+        expected = MinimalCourseSerializer(courses, many=True, context={'request': self.request}).data
+        expected[0]['course_runs'] = [course_run for course_run in expected[0]['course_runs'] if
+                                      course_run['uuid'] != str(unpublished_course_run.uuid)]
+        self.assertEqual(len(expected[0]['course_runs']), 1)
+
         serializer = ProgramCourseSerializer(
-            self.course_list,
+            courses,
             many=True,
             context={
                 'request': self.request,
-                'program': self.program,
-                'published_course_runs_only': published_course_runs_only,
+                'program': program,
+                'published_course_runs_only': True,
             }
         )
-        validate_data = serializer.data
 
-        if not published_course_runs_only or course_run_status != CourseRunStatus.Unpublished:
-            expected = MinimalCourseSerializer(self.course_list, many=True, context={'request': self.request}).data
-
-        self.assertSequenceEqual(validate_data, expected)
+        self.assertSequenceEqual(serializer.data, expected)
 
 
-class ProgramSerializerTests(TestCase):
-    maxDiff = None
+class MinimalProgramSerializerTests(TestCase):
+    serializer_class = MinimalProgramSerializer
 
-    @unittest.skip('@clintonb to fix later')
-    def test_data(self):
-        request = make_request()
-        org_list = OrganizationFactory.create_batch(1)
-        course_list = CourseFactory.create_batch(3)
-        for course in course_list:
-            CourseRunFactory.create_batch(
-                3,
-                course=course,
-                enrollment_start=datetime(2014, 1, 1),
-                start=datetime(2014, 1, 1)
-            )
-        corporate_endorsements = CorporateEndorsementFactory.create_batch(1)
-        individual_endorsements = EndorsementFactory.create_batch(1)
-        staff = PersonFactory.create_batch(1)
-        job_outlook_items = JobOutlookItemFactory.create_batch(1)
-        expected_learning_items = ExpectedLearningItemFactory.create_batch(1)
+    def create_program(self):
+        organizations = OrganizationFactory.create_batch(2)
+        person = PersonFactory()
+
+        courses = CourseFactory.create_batch(3)
+        for course in courses:
+            CourseRunFactory.create_batch(2, course=course, staff=[person])
+
         program = ProgramFactory(
-            authoring_organizations=org_list,
-            courses=course_list,
-            credit_backing_organizations=org_list,
-            corporate_endorsements=corporate_endorsements,
-            individual_endorsements=individual_endorsements,
-            expected_learning_items=expected_learning_items,
-            staff=staff,
-            job_outlook_items=job_outlook_items,
+            courses=courses,
+            authoring_organizations=organizations,
+            credit_backing_organizations=organizations,
+            corporate_endorsements=CorporateEndorsementFactory.create_batch(1),
+            individual_endorsements=EndorsementFactory.create_batch(1),
+            expected_learning_items=ExpectedLearningItemFactory.create_batch(1),
+            job_outlook_items=JobOutlookItemFactory.create_batch(1),
+            banner_image=make_image_file('test_banner.jpg'),
+            video=VideoFactory()
         )
-        program.banner_image = make_image_file('test_banner.jpg')
-        program.save()
-        serializer = ProgramSerializer(program, context={'request': request})
-        expected_banner_image_urls = {
-            size_key: {
-                'url': '{}{}'.format(
-                    'http://testserver',
-                    getattr(program.banner_image, size_key).url
-                ),
-                'width': program.banner_image.field.variations[size_key]['width'],
-                'height': program.banner_image.field.variations[size_key]['height']
-            }
-            for size_key in program.banner_image.field.variations
-        }
+        return program
 
-        expected = {
+    def get_expected_data(self, program, request):
+        image_field = StdImageSerializerField()
+        image_field._context = {'request': request}  # pylint: disable=protected-access
+
+        return {
             'uuid': str(program.uuid),
             'title': program.title,
             'subtitle': program.subtitle,
             'type': program.type.name,
+            'status': program.status,
             'marketing_slug': program.marketing_slug,
             'marketing_url': program.marketing_url,
-            'card_image_url': program.card_image_url,
-            'video': None,
-            'banner_image': expected_banner_image_urls,
+            'banner_image': image_field.to_representation(program.banner_image),
+            'courses': ProgramCourseSerializer(program.courses, many=True,
+                                               context={'request': request, 'program': program}).data,
             'authoring_organizations': MinimalOrganizationSerializer(program.authoring_organizations, many=True).data,
+            'card_image_url': program.card_image_url,
+        }
+
+    def test_data(self):
+        request = make_request()
+        program = self.create_program()
+        serializer = self.serializer_class(program, context={'request': request})
+        expected = self.get_expected_data(program, request)
+        self.assertDictEqual(serializer.data, expected)
+
+
+class ProgramSerializerTests(MinimalProgramSerializerTests):  # pylint: disable=test-inherits-tests
+    serializer_class = ProgramSerializer
+
+    def get_expected_data(self, program, request):
+        expected = super().get_expected_data(program, request)
+        expected.update({
+            'marketing_slug': program.marketing_slug,
+            'marketing_url': program.marketing_url,
+            'video': VideoSerializer(program.video).data,
             'credit_redemption_overview': program.credit_redemption_overview,
-            'courses': ProgramCourseSerializer(
-                program.courses.all(),
-                many=True,
-                context={'request': request, 'program': program}
-            ).data,
             'corporate_endorsements': CorporateEndorsementSerializer(program.corporate_endorsements, many=True).data,
-            'credit_backing_organizations': MinimalOrganizationSerializer(
+            'credit_backing_organizations': OrganizationSerializer(
                 program.credit_backing_organizations,
                 many=True
             ).data,
@@ -450,80 +475,28 @@ class ProgramSerializerTests(TestCase):
             'job_outlook_items': [item.value for item in program.job_outlook_items.all()],
             'languages': [serialize_language_to_code(l) for l in program.languages],
             'weeks_to_complete': program.weeks_to_complete,
-            'max_hours_effort_per_week': None,
-            'min_hours_effort_per_week': None,
-            'overview': None,
+            'max_hours_effort_per_week': program.max_hours_effort_per_week,
+            'min_hours_effort_per_week': program.min_hours_effort_per_week,
+            'overview': program.overview,
             'price_ranges': [],
-            'status': program.status,
-            'subjects': [],
-            'transcript_languages': [],
-        }
+            'subjects': SubjectSerializer(program.subjects, many=True).data,
+            'transcript_languages': [serialize_language_to_code(l) for l in program.transcript_languages],
+        })
+        return expected
 
-        self.assertDictEqual(serializer.data, expected)
-
-    def test_with_exclusions(self):
+    def test_data_with_exclusions(self):
         """
         Verify we can specify program excluded_course_runs and the serializers will
         render the course_runs with exclusions
         """
         request = make_request()
-        org_list = OrganizationFactory.create_batch(1)
-        course_list = CourseFactory.create_batch(4)
-        excluded_runs = []
-        for course in course_list:
-            course_runs = CourseRunFactory.create_batch(
-                3,
-                course=course,
-                enrollment_start=datetime(2014, 1, 1),
-                start=datetime(2014, 1, 1)
-            )
-            excluded_runs.append(course_runs[0])
+        program = self.create_program()
 
-        program = ProgramFactory(
-            authoring_organizations=org_list,
-            courses=course_list,
-            excluded_course_runs=excluded_runs
-        )
+        excluded_course_run = program.courses.all()[0].course_runs.all()[0]
+        program.excluded_course_runs.add(excluded_course_run)
+
+        expected = self.get_expected_data(program, request)
         serializer = ProgramSerializer(program, context={'request': request})
-
-        expected = {
-            'uuid': str(program.uuid),
-            'title': program.title,
-            'subtitle': program.subtitle,
-            'type': program.type.name,
-            'marketing_slug': program.marketing_slug,
-            'marketing_url': program.marketing_url,
-            'card_image_url': program.card_image_url,
-            'banner_image': {},
-            'video': None,
-            'authoring_organizations': MinimalOrganizationSerializer(program.authoring_organizations, many=True).data,
-            'credit_redemption_overview': program.credit_redemption_overview,
-            'courses': ProgramCourseSerializer(
-                program.courses,
-                many=True,
-                context={'request': request, 'program': program}
-            ).data,
-            'corporate_endorsements': CorporateEndorsementSerializer(program.corporate_endorsements, many=True).data,
-            'credit_backing_organizations': MinimalOrganizationSerializer(
-                program.credit_backing_organizations,
-                many=True
-            ).data,
-            'expected_learning_items': [],
-            'faq': FAQSerializer(program.faq, many=True).data,
-            'individual_endorsements': EndorsementSerializer(program.individual_endorsements, many=True).data,
-            'staff': PersonSerializer(program.staff, many=True).data,
-            'job_outlook_items': [],
-            'languages': [serialize_language_to_code(l) for l in program.languages],
-            'weeks_to_complete': program.weeks_to_complete,
-            'max_hours_effort_per_week': None,
-            'min_hours_effort_per_week': None,
-            'overview': None,
-            'price_ranges': [],
-            'status': program.status,
-            'subjects': [],
-            'transcript_languages': [],
-        }
-
         self.assertDictEqual(serializer.data, expected)
 
 
@@ -649,27 +622,45 @@ class VideoSerializerTests(TestCase):
         self.assertDictEqual(serializer.data, expected)
 
 
-class OrganizationSerializerTests(TestCase):
-    maxDiff = None
+class MinimalOrganizationSerializerTests(TestCase):
+    serializer_class = MinimalOrganizationSerializer
 
-    def test_data(self):
-        organization = OrganizationFactory()
-        TAG = 'test'
-        organization.tags.add(TAG)
-        serializer = OrganizationSerializer(organization)
+    def create_organization(self):
+        return OrganizationFactory()
 
-        expected = {
+    def get_expected_data(self, organization):
+        return {
             'uuid': str(organization.uuid),
             'key': organization.key,
             'name': organization.name,
+        }
+
+    def test_data(self):
+        organization = self.create_organization()
+        serializer = self.serializer_class(organization)
+        expected = self.get_expected_data(organization)
+        self.assertDictEqual(serializer.data, expected)
+
+
+class OrganizationSerializerTests(MinimalOrganizationSerializerTests):
+    TAG = 'test-tag'
+    serializer_class = OrganizationSerializer
+
+    def create_organization(self):
+        organization = super().create_organization()
+        organization.tags.add(self.TAG)
+        return organization
+
+    def get_expected_data(self, organization):
+        expected = super().get_expected_data(organization)
+        expected.update({
             'description': organization.description,
             'homepage_url': organization.homepage_url,
             'logo_image_url': organization.logo_image_url,
-            'tags': [TAG],
+            'tags': [self.TAG],
             'marketing_url': organization.marketing_url,
-        }
-
-        self.assertDictEqual(serializer.data, expected)
+        })
+        return expected
 
 
 class SeatSerializerTests(TestCase):

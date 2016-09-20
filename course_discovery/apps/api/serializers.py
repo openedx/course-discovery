@@ -238,7 +238,7 @@ class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
     class Meta(MinimalOrganizationSerializer.Meta):
         model = Organization
         fields = MinimalOrganizationSerializer.Meta.fields + (
-            'description', 'homepage_url', 'tags', 'logo_image_url', 'marketing_url'
+            'description', 'homepage_url', 'tags', 'logo_image_url', 'marketing_url',
         )
 
 
@@ -333,6 +333,7 @@ class ContainedCourseRunsSerializer(serializers.Serializer):
 
 
 class MinimalCourseSerializer(TimestampModelSerializer):
+    course_runs = MinimalCourseRunSerializer(many=True)
     owners = MinimalOrganizationSerializer(many=True, source='authoring_organizations')
 
     class Meta:

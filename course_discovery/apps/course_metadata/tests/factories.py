@@ -239,13 +239,17 @@ class ProgramFactory(factory.django.DjangoModelFactory):
 
     title = factory.Sequence(lambda n: 'test-program-{}'.format(n))  # pylint: disable=unnecessary-lambda
     uuid = factory.LazyFunction(uuid4)
-    subtitle = 'test-subtitle'
+    subtitle = FuzzyText()
     type = factory.SubFactory(ProgramTypeFactory)
     status = ProgramStatus.Unpublished
     marketing_slug = factory.Sequence(lambda n: 'test-slug-{}'.format(n))  # pylint: disable=unnecessary-lambda
     banner_image_url = FuzzyText(prefix='https://example.com/program/banner')
     card_image_url = FuzzyText(prefix='https://example.com/program/card')
     partner = factory.SubFactory(PartnerFactory)
+    overview = FuzzyText()
+    weeks_to_complete = FuzzyInteger(1)
+    min_hours_effort_per_week = FuzzyInteger(2)
+    max_hours_effort_per_week = FuzzyInteger(4)
     credit_redemption_overview = FuzzyText()
 
     @factory.post_generation
@@ -287,11 +291,6 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     def individual_endorsements(self, create, extracted, **kwargs):
         if create:  # pragma: no cover
             add_m2m_data(self.individual_endorsements, extracted)
-
-    @factory.post_generation
-    def staff(self, create, extracted, **kwargs):
-        if create:  # pragma: no cover
-            add_m2m_data(self.staff, extracted)
 
     @factory.post_generation
     def job_outlook_items(self, create, extracted, **kwargs):

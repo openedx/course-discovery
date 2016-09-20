@@ -395,6 +395,7 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_value_regex = '[0-9a-f-]+'
     queryset = prefetch_related_objects_for_programs(Program.objects.all())
     permission_classes = (IsAuthenticated,)
+    serializer_class = serializers.ProgramSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_class = filters.ProgramFilter
 
@@ -402,12 +403,6 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
         context = super().get_serializer_context(*args, **kwargs)
         context['published_course_runs_only'] = int(self.request.GET.get('published_course_runs_only', 0))
         return context
-
-    def get_serializer_class(self):
-        if self.action == 'list':
-            return serializers.MinimalProgramSerializer
-
-        return serializers.ProgramSerializer
 
     def list(self, request, *args, **kwargs):
         """ List all programs.
