@@ -333,6 +333,7 @@ class ContainedCourseRunsSerializer(serializers.Serializer):
 
 
 class MinimalCourseSerializer(TimestampModelSerializer):
+    course_runs = MinimalCourseRunSerializer(many=True)
     owners = MinimalOrganizationSerializer(many=True, source='authoring_organizations')
 
     class Meta:

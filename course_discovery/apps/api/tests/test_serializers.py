@@ -1,4 +1,3 @@
-import unittest
 from datetime import datetime
 from urllib.parse import urlencode
 
@@ -10,7 +9,7 @@ from rest_framework.test import APIRequestFactory
 
 from course_discovery.apps.api.fields import ImageField
 from course_discovery.apps.api.serializers import (
-    CatalogSerializer, CourseSerializer, CourseRunSerializer, ContainedCoursesSerializer, ImageSerializer,
+    CatalogSerializer, CourseRunSerializer, ContainedCoursesSerializer, ImageSerializer,
     SubjectSerializer, PrerequisiteSerializer, VideoSerializer, OrganizationSerializer, SeatSerializer,
     PersonSerializer, AffiliateWindowSerializer, ContainedCourseRunsSerializer, CourseRunSearchSerializer,
     ProgramSerializer, ProgramSearchSerializer, ProgramCourseSerializer, NestedProgramSerializer,
@@ -195,7 +194,6 @@ class CourseRunWithProgramsSerializerTests(TestCase):
         self.assertDictEqual(serializer.data, expected)
 
 
-@unittest.skip('This test is disabled until we can determine why assertDictEqual() fails for two equivalent inputs.')
 class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover
     def serialize_seats(self, course_run):
         seats = {
@@ -245,7 +243,7 @@ class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover
     def get_expected_data(self, request, course_run):
         course = course_run.course
         serializer_context = {'request': request}
-        expected = CourseRunSerializer(course_run, context=serializer_context).data
+        expected = dict(CourseRunSerializer(course_run, context=serializer_context).data)
         expected.update({
             'subjects': self.serialize_items(course.subjects.all(), 'name'),
             'seats': self.serialize_seats(course_run),
@@ -288,8 +286,6 @@ class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover
 
 @ddt.ddt
 class ProgramCourseSerializerTests(TestCase):
-    maxDiff = None
-
     def setUp(self):
         super(ProgramCourseSerializerTests, self).setUp()
         self.request = make_request()
@@ -310,7 +306,6 @@ class ProgramCourseSerializerTests(TestCase):
 
         self.assertSequenceEqual(serializer.data, expected)
 
-    @unittest.skip('@clintonb to fix later')
     def test_with_runs(self):
         for course in self.course_list:
             CourseRunFactory.create_batch(2, course=course)
@@ -342,86 +337,37 @@ class ProgramCourseSerializerTests(TestCase):
                                                              context={'request': self.request}).data
         self.assertDictEqual(serializer.data, expected)
 
-    @unittest.skip('@clintonb to fix later')
-    @ddt.data(
-        [CourseRunStatus.Unpublished, 1],
-        [CourseRunStatus.Unpublished, 0],
-        [CourseRunStatus.Published, 1],
-        [CourseRunStatus.Published, 0]
-    )
-    @ddt.unpack
-    def test_with_published_only_querystring(self, course_run_status, published_course_runs_only):
-        """
-        Test the serializer's ability to filter out course_runs based on
-        "published_course_runs_only" query string
-        """
-        expected = CourseSerializer(self.course_list, many=True, context={'request': self.request}).data
+    def test_with_published_course_runs_only_context(self):
+        """ Verify setting the published_course_runs_only context value excludes unpublished course runs. """
+        # Create a program and course. The course should have both published and un-published course runs.
+        course = CourseFactory()
+        courses = [course]
+        program = ProgramFactory(courses=courses)
+        unpublished_course_run = CourseRunFactory(status=CourseRunStatus.Unpublished, course=course)
+        CourseRunFactory(status=CourseRunStatus.Published, course=course)
 
-        for course in self.course_list:
-            CourseRunFactory.create_batch(2, status=course_run_status, course=course)
+        # We do NOT expect the results to included the unpublished data
+        expected = MinimalCourseSerializer(courses, many=True, context={'request': self.request}).data
+        expected[0]['course_runs'] = [course_run for course_run in expected[0]['course_runs'] if
+                                      course_run['uuid'] != str(unpublished_course_run.uuid)]
+        self.assertEqual(len(expected[0]['course_runs']), 1)
+
         serializer = ProgramCourseSerializer(
-            self.course_list,
+            courses,
             many=True,
             context={
                 'request': self.request,
-                'program': self.program,
-                'published_course_runs_only': published_course_runs_only,
+                'program': program,
+                'published_course_runs_only': True,
             }
         )
-        validate_data = serializer.data
 
-        if not published_course_runs_only or course_run_status != CourseRunStatus.Unpublished:
-            expected = MinimalCourseSerializer(self.course_list, many=True, context={'request': self.request}).data
-
-        self.assertSequenceEqual(validate_data, expected)
+        self.assertSequenceEqual(serializer.data, expected)
 
 
 class ProgramSerializerTests(TestCase):
-    maxDiff = None
-
-    @unittest.skip('@clintonb to fix later')
-    def test_data(self):
-        request = make_request()
-        org_list = OrganizationFactory.create_batch(1)
-        course_list = CourseFactory.create_batch(3)
-        for course in course_list:
-            CourseRunFactory.create_batch(
-                3,
-                course=course,
-                enrollment_start=datetime(2014, 1, 1),
-                start=datetime(2014, 1, 1)
-            )
-        corporate_endorsements = CorporateEndorsementFactory.create_batch(1)
-        individual_endorsements = EndorsementFactory.create_batch(1)
-        staff = PersonFactory.create_batch(1)
-        job_outlook_items = JobOutlookItemFactory.create_batch(1)
-        expected_learning_items = ExpectedLearningItemFactory.create_batch(1)
-        program = ProgramFactory(
-            authoring_organizations=org_list,
-            courses=course_list,
-            credit_backing_organizations=org_list,
-            corporate_endorsements=corporate_endorsements,
-            individual_endorsements=individual_endorsements,
-            expected_learning_items=expected_learning_items,
-            staff=staff,
-            job_outlook_items=job_outlook_items,
-        )
-        program.banner_image = make_image_file('test_banner.jpg')
-        program.save()
-        serializer = ProgramSerializer(program, context={'request': request})
-        expected_banner_image_urls = {
-            size_key: {
-                'url': '{}{}'.format(
-                    'http://testserver',
-                    getattr(program.banner_image, size_key).url
-                ),
-                'width': program.banner_image.field.variations[size_key]['width'],
-                'height': program.banner_image.field.variations[size_key]['height']
-            }
-            for size_key in program.banner_image.field.variations
-        }
-
-        expected = {
+    def get_expected_data(self, program, request):
+        return {
             'uuid': str(program.uuid),
             'title': program.title,
             'subtitle': program.subtitle,
@@ -429,8 +375,18 @@ class ProgramSerializerTests(TestCase):
             'marketing_slug': program.marketing_slug,
             'marketing_url': program.marketing_url,
             'card_image_url': program.card_image_url,
-            'video': None,
-            'banner_image': expected_banner_image_urls,
+            'video': VideoSerializer(program.video),
+            'banner_image': {
+                size_key: {
+                    'url': '{}{}'.format(
+                        'http://testserver',
+                        getattr(program.banner_image, size_key).url
+                    ),
+                    'width': program.banner_image.field.variations[size_key]['width'],
+                    'height': program.banner_image.field.variations[size_key]['height']
+                }
+                for size_key in program.banner_image.field.variations
+            },
             'authoring_organizations': MinimalOrganizationSerializer(program.authoring_organizations, many=True).data,
             'credit_redemption_overview': program.credit_redemption_overview,
             'courses': ProgramCourseSerializer(
@@ -450,80 +406,56 @@ class ProgramSerializerTests(TestCase):
             'job_outlook_items': [item.value for item in program.job_outlook_items.all()],
             'languages': [serialize_language_to_code(l) for l in program.languages],
             'weeks_to_complete': program.weeks_to_complete,
-            'max_hours_effort_per_week': None,
-            'min_hours_effort_per_week': None,
-            'overview': None,
+            'max_hours_effort_per_week': program.max_hours_effort_per_week,
+            'min_hours_effort_per_week': program.min_hours_effort_per_week,
+            'overview': program.overview,
             'price_ranges': [],
             'status': program.status,
-            'subjects': [],
-            'transcript_languages': [],
+            'subjects': SubjectSerializer(program.subjects, many=True),
+            'transcript_languages': [language.code for language in program.transcript_languages],
         }
 
+    def create_program(self):
+        organization = OrganizationFactory()
+        courses = CourseFactory.create_batch(3)
+        for course in courses:
+            CourseRunFactory.create_batch(2, course=course, staff=[PersonFactory()])
+        corporate_endorsements = CorporateEndorsementFactory.create_batch(1)
+        individual_endorsements = EndorsementFactory.create_batch(1)
+        job_outlook_items = JobOutlookItemFactory.create_batch(1)
+        expected_learning_items = ExpectedLearningItemFactory.create_batch(1)
+        program = ProgramFactory(
+            authoring_organizations=[organization],
+            courses=courses,
+            credit_backing_organizations=[organization],
+            corporate_endorsements=corporate_endorsements,
+            individual_endorsements=individual_endorsements,
+            expected_learning_items=expected_learning_items,
+            job_outlook_items=job_outlook_items,
+            banner_image=make_image_file('test_banner.jpg')
+        )
+        return program
+
+    def test_data(self):
+        request = make_request()
+        program = self.create_program()
+        expected = self.get_expected_data(program, request)
+        serializer = ProgramSerializer(program, context={'request': request})
         self.assertDictEqual(serializer.data, expected)
 
-    def test_with_exclusions(self):
+    def test_data_with_exclusions(self):
         """
         Verify we can specify program excluded_course_runs and the serializers will
         render the course_runs with exclusions
         """
         request = make_request()
-        org_list = OrganizationFactory.create_batch(1)
-        course_list = CourseFactory.create_batch(4)
-        excluded_runs = []
-        for course in course_list:
-            course_runs = CourseRunFactory.create_batch(
-                3,
-                course=course,
-                enrollment_start=datetime(2014, 1, 1),
-                start=datetime(2014, 1, 1)
-            )
-            excluded_runs.append(course_runs[0])
+        program = self.create_program()
 
-        program = ProgramFactory(
-            authoring_organizations=org_list,
-            courses=course_list,
-            excluded_course_runs=excluded_runs
-        )
+        excluded_course_run = program.courses.all()[0].course_runs.all()[0]
+        program.excluded_course_runs.add(excluded_course_run)
+
+        expected = self.get_expected_data(program, request)
         serializer = ProgramSerializer(program, context={'request': request})
-
-        expected = {
-            'uuid': str(program.uuid),
-            'title': program.title,
-            'subtitle': program.subtitle,
-            'type': program.type.name,
-            'marketing_slug': program.marketing_slug,
-            'marketing_url': program.marketing_url,
-            'card_image_url': program.card_image_url,
-            'banner_image': {},
-            'video': None,
-            'authoring_organizations': MinimalOrganizationSerializer(program.authoring_organizations, many=True).data,
-            'credit_redemption_overview': program.credit_redemption_overview,
-            'courses': ProgramCourseSerializer(
-                program.courses,
-                many=True,
-                context={'request': request, 'program': program}
-            ).data,
-            'corporate_endorsements': CorporateEndorsementSerializer(program.corporate_endorsements, many=True).data,
-            'credit_backing_organizations': MinimalOrganizationSerializer(
-                program.credit_backing_organizations,
-                many=True
-            ).data,
-            'expected_learning_items': [],
-            'faq': FAQSerializer(program.faq, many=True).data,
-            'individual_endorsements': EndorsementSerializer(program.individual_endorsements, many=True).data,
-            'staff': PersonSerializer(program.staff, many=True).data,
-            'job_outlook_items': [],
-            'languages': [serialize_language_to_code(l) for l in program.languages],
-            'weeks_to_complete': program.weeks_to_complete,
-            'max_hours_effort_per_week': None,
-            'min_hours_effort_per_week': None,
-            'overview': None,
-            'price_ranges': [],
-            'status': program.status,
-            'subjects': [],
-            'transcript_languages': [],
-        }
-
         self.assertDictEqual(serializer.data, expected)
 
 
@@ -650,8 +582,6 @@ class VideoSerializerTests(TestCase):
 
 
 class OrganizationSerializerTests(TestCase):
-    maxDiff = None
-
     def test_data(self):
         organization = OrganizationFactory()
         TAG = 'test'
