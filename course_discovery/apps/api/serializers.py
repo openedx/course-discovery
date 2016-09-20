@@ -238,7 +238,7 @@ class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
     class Meta(MinimalOrganizationSerializer.Meta):
         model = Organization
         fields = MinimalOrganizationSerializer.Meta.fields + (
-            'description', 'homepage_url', 'tags', 'logo_image_url', 'marketing_url'
+            'description', 'homepage_url', 'tags', 'logo_image_url', 'marketing_url',
         )
 
 
