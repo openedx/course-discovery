@@ -40,17 +40,15 @@ class ProgramViewSetTests(APITestCase):
     def test_retrieve(self):
         """ Verify the endpoint returns the details for a single program. """
         program = ProgramFactory()
-        with self.assertNumQueries(34):
-            self.assert_retrieve_success(program)
+        self.assert_retrieve_success(program)
 
     def test_retrieve_without_course_runs(self):
         """ Verify the endpoint returns data for a program even if the program's courses have no course runs. """
         course = CourseFactory()
         program = ProgramFactory(courses=[course])
-        with self.assertNumQueries(49):
-            self.assert_retrieve_success(program)
+        self.assert_retrieve_success(program)
 
-    def assert_list_results(self, url, expected, expected_query_count):
+    def assert_list_results(self, url, expected):
         """
         Asserts the results serialized/returned at the URL matches those that are expected.
         Args:
@@ -64,9 +62,7 @@ class ProgramViewSetTests(APITestCase):
         Returns:
             None
         """
-        with self.assertNumQueries(expected_query_count):
-            response = self.client.get(url)
-
+        response = self.client.get(url)
         self.assertEqual(
             response.data['results'],
             ProgramSerializer(expected, many=True, context={'request': self.request}).data
@@ -76,17 +72,17 @@ class ProgramViewSetTests(APITestCase):
         """ Verify the endpoint returns a list of all programs. """
         expected = ProgramFactory.create_batch(3)
         expected.reverse()
-        self.assert_list_results(self.list_path, expected, 40)
+        self.assert_list_results(self.list_path, expected)
 
     def test_filter_by_type(self):
         """ Verify that the endpoint filters programs to those of a given type. """
         program_type_name = 'foo'
         program = ProgramFactory(type__name=program_type_name)
         url = self.list_path + '?type=' + program_type_name
-        self.assert_list_results(url, [program], 18)
+        self.assert_list_results(url, [program])
 
         url = self.list_path + '?type=bar'
-        self.assert_list_results(url, [], 4)
+        self.assert_list_results(url, [])
 
     def test_filter_by_uuids(self):
         """ Verify that the endpoint filters programs to those matching the provided UUIDs. """
@@ -98,14 +94,14 @@ class ProgramViewSetTests(APITestCase):
         # Create a third program, which should be filtered out.
         ProgramFactory()
 
-        self.assert_list_results(url, expected, 29)
+        self.assert_list_results(url, expected)
 
     @ddt.data(
-        (ProgramStatus.Unpublished, False, 4),
-        (ProgramStatus.Active, True, 40),
+        (ProgramStatus.Unpublished, False),
+        (ProgramStatus.Active, True),
     )
     @ddt.unpack
-    def test_filter_by_marketable(self, status, is_marketable, expected_query_count):
+    def test_filter_by_marketable(self, status, is_marketable):
         """ Verify the endpoint filters programs to those that are marketable. """
         url = self.list_path + '?marketable=1'
         ProgramFactory(marketing_slug='')
@@ -114,4 +110,4 @@ class ProgramViewSetTests(APITestCase):
 
         expected = programs if is_marketable else []
         self.assertEqual(list(Program.objects.marketable()), expected)
-        self.assert_list_results(url, expected, expected_query_count)
+        self.assert_list_results(url, expected)
