@@ -106,6 +106,7 @@ class MinimalCourseSerializerTests(TestCase):
             'title': course.title,
             'course_runs': MinimalCourseRunSerializer(course.course_runs, many=True, context=context).data,
             'owners': MinimalOrganizationSerializer(course.authoring_organizations, many=True, context=context).data,
+            'image': ImageField().to_representation(course.card_image_url),
         }
 
     def test_data(self):
@@ -130,7 +131,6 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'subjects': [],
             'prerequisites': [],
             'expected_learning_items': [],
-            'image': ImageField().to_representation(course.card_image_url),
             'video': VideoSerializer(course.video).data,
             'sponsors': OrganizationSerializer(course.sponsoring_organizations, many=True).data,
             'modified': json_date_format(course.modified),  # pylint: disable=no-member
@@ -166,6 +166,15 @@ class MinimalCourseRunSerializerTests(TestCase):
             'key': course_run.key,
             'uuid': str(course_run.uuid),
             'title': course_run.title,
+            'short_description': course_run.short_description,
+            'image': ImageField().to_representation(course_run.card_image_url),
+            'marketing_url': '{url}?{params}'.format(
+                url=course_run.marketing_url,
+                params=urlencode({
+                    'utm_source': request.user.username,
+                    'utm_medium': request.user.referral_tracking_id,
+                })
+            ),
         }
 
     def test_data(self):
@@ -185,14 +194,12 @@ class CourseRunSerializerTests(MinimalCourseRunSerializerTests):  # pylint: disa
             'course': course_run.course.key,
             'key': course_run.key,
             'title': course_run.title,  # pylint: disable=no-member
-            'short_description': course_run.short_description,  # pylint: disable=no-member
             'full_description': course_run.full_description,  # pylint: disable=no-member
             'start': json_date_format(course_run.start),
             'end': json_date_format(course_run.end),
             'enrollment_start': json_date_format(course_run.enrollment_start),
             'enrollment_end': json_date_format(course_run.enrollment_end),
             'announcement': json_date_format(course_run.announcement),
-            'image': ImageField().to_representation(course_run.card_image_url),
             'video': VideoSerializer(course_run.video).data,
             'pacing_type': course_run.pacing_type,
             'content_language': course_run.language.code,
@@ -203,13 +210,6 @@ class CourseRunSerializerTests(MinimalCourseRunSerializerTests):  # pylint: disa
             'staff': [],
             'seats': [],
             'modified': json_date_format(course_run.modified),  # pylint: disable=no-member
-            'marketing_url': '{url}?{params}'.format(
-                url=course_run.marketing_url,
-                params=urlencode({
-                    'utm_source': request.user.username,
-                    'utm_medium': request.user.referral_tracking_id,
-                })
-            ),
             'level_type': course_run.level_type.name,
             'availability': course_run.availability,
         })

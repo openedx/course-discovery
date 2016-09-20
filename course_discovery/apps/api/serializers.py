@@ -278,9 +278,15 @@ class NestedProgramSerializer(serializers.ModelSerializer):
 
 
 class MinimalCourseRunSerializer(TimestampModelSerializer):
+    image = ImageField(read_only=True, source='card_image_url')
+    marketing_url = serializers.SerializerMethodField()
+
     class Meta:
         model = CourseRun
-        fields = ('key', 'uuid', 'title',)
+        fields = ('key', 'uuid', 'title', 'image', 'short_description', 'marketing_url',)
+
+    def get_marketing_url(self, obj):
+        return get_marketing_url_for_user(self.context['request'].user, obj.marketing_url)
 
 
 class CourseRunSerializer(MinimalCourseRunSerializer):
@@ -291,27 +297,22 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         help_text=_('Language in which the course is administered')
     )
     transcript_languages = serializers.SlugRelatedField(many=True, read_only=True, slug_field='code')
-    image = ImageField(read_only=True, source='card_image_url')
     video = VideoSerializer()
     seats = SeatSerializer(many=True)
     instructors = serializers.SerializerMethodField(help_text='This field is deprecated. Use staff.')
     staff = PersonSerializer(many=True)
-    marketing_url = serializers.SerializerMethodField()
     level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
 
     class Meta(MinimalCourseRunSerializer.Meta):
         model = CourseRun
         fields = MinimalCourseRunSerializer.Meta.fields + (
-            'course', 'short_description', 'full_description', 'start', 'end', 'enrollment_start', 'enrollment_end',
-            'announcement', 'image', 'video', 'seats', 'content_language', 'transcript_languages', 'instructors',
-            'staff', 'pacing_type', 'min_effort', 'max_effort', 'modified', 'marketing_url', 'level_type',
-            'availability',
+            'course', 'full_description', 'start', 'end', 'enrollment_start', 'enrollment_end', 'announcement', 'image',
+            'video', 'seats', 'content_language', 'transcript_languages', 'instructors', 'staff', 'pacing_type',
+            'min_effort', 'max_effort', 'modified', 'level_type', 'availability',
         )
 
-    def get_marketing_url(self, obj):
-        return get_marketing_url_for_user(self.context['request'].user, obj.marketing_url)
-
     def get_instructors(self, obj):  # pylint: disable=unused-argument
+        # This field is deprecated.
         return []
 
 
@@ -335,10 +336,11 @@ class ContainedCourseRunsSerializer(serializers.Serializer):
 class MinimalCourseSerializer(TimestampModelSerializer):
     course_runs = MinimalCourseRunSerializer(many=True)
     owners = MinimalOrganizationSerializer(many=True, source='authoring_organizations')
+    image = ImageField(read_only=True, source='card_image_url')
 
     class Meta:
         model = Course
-        fields = ('key', 'uuid', 'title', 'course_runs', 'owners',)
+        fields = ('key', 'uuid', 'title', 'course_runs', 'owners', 'image',)
 
 
 class CourseSerializer(MinimalCourseSerializer):
@@ -347,7 +349,6 @@ class CourseSerializer(MinimalCourseSerializer):
     subjects = SubjectSerializer(many=True)
     prerequisites = PrerequisiteSerializer(many=True)
     expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
-    image = ImageField(read_only=True, source='card_image_url')
     video = VideoSerializer()
     owners = OrganizationSerializer(many=True, source='authoring_organizations')
     sponsors = OrganizationSerializer(many=True, source='sponsoring_organizations')
@@ -358,7 +359,7 @@ class CourseSerializer(MinimalCourseSerializer):
         model = Course
         fields = MinimalCourseSerializer.Meta.fields + (
             'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites',
-            'expected_learning_items', 'image', 'video', 'sponsors', 'modified', 'marketing_url',
+            'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url',
         )
 
     def get_marketing_url(self, obj):
