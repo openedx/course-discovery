@@ -40,14 +40,14 @@ class ProgramViewSetTests(APITestCase):
     def test_retrieve(self):
         """ Verify the endpoint returns the details for a single program. """
         program = ProgramFactory()
-        with self.assertNumQueries(15):
+        with self.assertNumQueries(34):
             self.assert_retrieve_success(program)
 
     def test_retrieve_without_course_runs(self):
         """ Verify the endpoint returns data for a program even if the program's courses have no course runs. """
         course = CourseFactory()
         program = ProgramFactory(courses=[course])
-        with self.assertNumQueries(15):
+        with self.assertNumQueries(49):
             self.assert_retrieve_success(program)
 
     def assert_list_results(self, url, expected, expected_query_count):
