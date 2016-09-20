@@ -1,6 +1,7 @@
 import datetime
 import itertools
 import logging
+from collections import defaultdict
 from urllib.parse import urljoin
 from uuid import uuid4
 
@@ -635,57 +636,66 @@ class Program(TimeStampedModel):
 
     @property
     def course_runs(self):
+        """
+        Warning! Only call this method after retrieving programs from `ProgramSerializer.prefetch_queryset()`.
+        Otherwise, this method will incur many, many queries when fetching related courses and course runs.
+        """
         excluded_course_run_ids = [course_run.id for course_run in self.excluded_course_runs.all()]
-        return CourseRun.objects.filter(course__programs=self).exclude(id__in=excluded_course_run_ids)
+
+        for course in self.courses.all():
+            for run in course.course_runs.all():
+                if run.id not in excluded_course_run_ids:
+                    yield run
 
     @property
     def languages(self):
-        course_runs = self.course_runs.select_related('language')
-        return set(course_run.language for course_run in course_runs if course_run.language is not None)
+        return set(course_run.language for course_run in self.course_runs if course_run.language is not None)
 
     @property
     def transcript_languages(self):
-        course_runs = self.course_runs.prefetch_related('transcript_languages')
-        languages = [list(course_run.transcript_languages.all()) for course_run in course_runs]
+        languages = [course_run.transcript_languages.all() for course_run in self.course_runs]
         languages = itertools.chain.from_iterable(languages)
         return set(languages)
 
     @property
     def subjects(self):
-        courses = self.courses.prefetch_related('subjects')
-        subjects = [list(course.subjects.all()) for course in courses]
+        subjects = [course.subjects.all() for course in self.courses.all()]
         subjects = itertools.chain.from_iterable(subjects)
         return set(subjects)
 
     @property
     def seats(self):
-        applicable_seat_types = self.type.applicable_seat_types.values_list('slug', flat=True)
-        return Seat.objects.filter(course_run__in=self.course_runs, type__in=applicable_seat_types) \
-            .select_related('currency')
+        applicable_seat_types = set(seat_type.slug for seat_type in self.type.applicable_seat_types.all())
+
+        for run in self.course_runs:
+            for seat in run.seats.all():
+                if seat.type in applicable_seat_types:
+                    yield seat
 
     @property
     def seat_types(self):
-        return set(self.seats.values_list('type', flat=True))
+        return set(seat.type for seat in self.seats)
 
     @property
     def price_ranges(self):
-        seats = self.seats.values('currency').annotate(models.Min('price'), models.Max('price'))
-        price_ranges = []
+        currencies = defaultdict(list)
+        for seat in self.seats:
+            currencies[seat.currency].append(seat.price)
 
-        for seat in seats:
+        price_ranges = []
+        for currency, prices in currencies.items():
             price_ranges.append({
-                'currency': seat['currency'],
-                'min': seat['price__min'],
-                'max': seat['price__max'],
+                'currency': currency.code,
+                'min': min(prices),
+                'max': max(prices),
             })
+
         return price_ranges
 
     @property
     def start(self):
         """ Start datetime, calculated by determining the earliest start datetime of all related course runs. """
-        course_runs = self.course_runs
-
-        if course_runs:
+        if self.course_runs:
             start_dates = [course_run.start for course_run in self.course_runs if course_run.start]
 
             if start_dates:
@@ -695,7 +705,7 @@ class Program(TimeStampedModel):
 
     @property
     def staff(self):
-        staff = [list(course_run.staff.all()) for course_run in self.course_runs]
+        staff = [course_run.staff.all() for course_run in self.course_runs]
         staff = itertools.chain.from_iterable(staff)
         return set(staff)
 
