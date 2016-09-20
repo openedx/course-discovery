@@ -81,8 +81,8 @@ class ProgramAdmin(admin.ModelAdmin):
         'min_hours_effort_per_week', 'max_hours_effort_per_week',
     )
     fields += (
-        'courses', 'custom_course_runs_display', 'excluded_course_runs', 'authoring_organizations',
-        'credit_backing_organizations'
+        'courses', 'order_courses_by_start_date', 'custom_course_runs_display', 'excluded_course_runs',
+        'authoring_organizations', 'credit_backing_organizations'
     )
     fields += filter_horizontal
     save_error = None
@@ -109,11 +109,17 @@ class ProgramAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         try:
+            # courses are ordered by django id, but form.cleaned_data is ordered correctly
+            obj.courses = form.cleaned_data.get('courses')
             obj.save()
             self.save_error = False
         except ProgramPublisherException as ex:
             messages.add_message(request, messages.ERROR, ex.message)
             self.save_error = True
+
+    class Media:
+        js = ('bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
+              'js/sortable_select.js')
 
 
 @admin.register(ProgramType)

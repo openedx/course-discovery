@@ -434,6 +434,15 @@ class ProgramSerializerTests(TestCase):
         expected = self.get_expected_data(program, request)
         self.assertDictEqual(dict(serializer.data), expected)
 
+    def test_data_without_course_sorting(self):
+        request = make_request()
+        program = self.create_program()
+        program.order_courses_by_start_date = False
+        program.save()
+        serializer = ProgramSerializer(program, context={'request': request})
+        expected = self.get_expected_data(program, request)
+        self.assertDictEqual(dict(serializer.data), expected)
+
     def test_data_with_exclusions(self):
         """
         Verify we can specify program excluded_course_runs and the serializers will

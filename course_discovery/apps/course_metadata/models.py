@@ -583,7 +583,11 @@ class Program(TimeStampedModel):
     )
     marketing_slug = models.CharField(
         help_text=_('Slug used to generate links to the marketing site'), blank=True, max_length=255, db_index=True)
-    courses = models.ManyToManyField(Course, related_name='programs')
+    courses = SortedManyToManyField(Course, related_name='programs')
+    order_courses_by_start_date = models.BooleanField(
+        default=True, verbose_name='Order Courses By Start Date',
+        help_text=_('If this box is not checked, courses will be ordered as in the courses select box above.')
+    )
     # NOTE (CCB): Editors of this field should validate the values to ensure only CourseRuns associated
     # with related Courses are stored.
     excluded_course_runs = models.ManyToManyField(CourseRun, blank=True)

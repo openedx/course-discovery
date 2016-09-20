@@ -14,6 +14,7 @@
     "underscore": "~1.8.3",
     "moment": "~2.13.0",
     "pikaday": "https://github.com/owenmead/Pikaday.git#1.4.0",
-    "clipboard": "1.5.12"
+    "clipboard": "1.5.12",
+    "jquery-ui": "1.10.3"
   }
 }
