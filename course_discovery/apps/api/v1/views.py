@@ -64,23 +64,6 @@ def prefetch_related_objects_for_courses(queryset):
     return queryset
 
 
-def prefetch_related_objects_for_programs(queryset):
-    """
-    Pre-fetches the related objects that will be serialized with a `Program`.
-    Args:
-        queryset (QuerySet): original query
-    Returns:
-        QuerySet
-    """
-    course = serializers.PREFETCH_FIELDS['course'] + serializers.SELECT_RELATED_FIELDS['course']
-    course = ['courses__' + field for field in course]
-    queryset = queryset.prefetch_related(*course)
-
-    queryset = queryset.select_related(*serializers.SELECT_RELATED_FIELDS['program'])
-    queryset = queryset.prefetch_related(*serializers.PREFETCH_FIELDS['program'])
-    return queryset
-
-
 # pylint: disable=no-member
 class CatalogViewSet(viewsets.ModelViewSet):
     """ Catalog resource. """
@@ -393,11 +376,15 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
     """ Program resource. """
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
-    queryset = prefetch_related_objects_for_programs(Program.objects.all())
     permission_classes = (IsAuthenticated,)
     serializer_class = serializers.ProgramSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_class = filters.ProgramFilter
+
+    def get_queryset(self):
+        # This method prevents prefetches on the program queryset from "stacking,"
+        # which happens when the queryset is stored in a class property.
+        return self.serializer_class.prefetch_queryset()
 
     def get_serializer_context(self, *args, **kwargs):
         context = super().get_serializer_context(*args, **kwargs)

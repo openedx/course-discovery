@@ -40,14 +40,14 @@ class ProgramViewSetTests(APITestCase):
     def test_retrieve(self):
         """ Verify the endpoint returns the details for a single program. """
         program = ProgramFactory()
-        with self.assertNumQueries(34):
+        with self.assertNumQueries(33):
             self.assert_retrieve_success(program)
 
     def test_retrieve_without_course_runs(self):
         """ Verify the endpoint returns data for a program even if the program's courses have no course runs. """
         course = CourseFactory()
         program = ProgramFactory(courses=[course])
-        with self.assertNumQueries(49):
+        with self.assertNumQueries(55):
             self.assert_retrieve_success(program)
 
     def assert_list_results(self, url, expected, expected_query_count):
@@ -76,14 +76,14 @@ class ProgramViewSetTests(APITestCase):
         """ Verify the endpoint returns a list of all programs. """
         expected = ProgramFactory.create_batch(3)
         expected.reverse()
-        self.assert_list_results(self.list_path, expected, 40)
+        self.assert_list_results(self.list_path, expected, 14)
 
     def test_filter_by_type(self):
         """ Verify that the endpoint filters programs to those of a given type. """
         program_type_name = 'foo'
         program = ProgramFactory(type__name=program_type_name)
         url = self.list_path + '?type=' + program_type_name
-        self.assert_list_results(url, [program], 18)
+        self.assert_list_results(url, [program], 14)
 
         url = self.list_path + '?type=bar'
         self.assert_list_results(url, [], 4)
@@ -98,11 +98,11 @@ class ProgramViewSetTests(APITestCase):
         # Create a third program, which should be filtered out.
         ProgramFactory()
 
-        self.assert_list_results(url, expected, 29)
+        self.assert_list_results(url, expected, 14)
 
     @ddt.data(
         (ProgramStatus.Unpublished, False, 4),
-        (ProgramStatus.Active, True, 40),
+        (ProgramStatus.Active, True, 14),
     )
     @ddt.unpack
     def test_filter_by_marketable(self, status, is_marketable, expected_query_count):

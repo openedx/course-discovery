@@ -100,7 +100,7 @@ class AdminTests(TestCase):
         """ Verify that course selection page with posting the data. """
 
         self.assertEqual(1, self.program.excluded_course_runs.all().count())
-        self.assertEqual(3, len(self.program.course_runs.all()))
+        self.assertEqual(3, sum(1 for _ in self.program.course_runs))
 
         params = {
             'excluded_course_runs': [self.excluded_course_run.id, self.course_runs[0].id],
@@ -114,7 +114,7 @@ class AdminTests(TestCase):
             target_status_code=200
         )
         self.assertEqual(2, self.program.excluded_course_runs.all().count())
-        self.assertEqual(2, len(self.program.course_runs.all()))
+        self.assertEqual(2, sum(1 for _ in self.program.course_runs))
 
     def test_page_with_post_without_course_run(self):
         """ Verify that course selection page without posting any selected excluded check run. """
@@ -132,7 +132,7 @@ class AdminTests(TestCase):
             target_status_code=200
         )
         self.assertEqual(0, self.program.excluded_course_runs.all().count())
-        self.assertEqual(4, len(self.program.course_runs.all()))
+        self.assertEqual(4, sum(1 for _ in self.program.course_runs))
         response = self.client.get(reverse('admin_metadata:update_course_runs', args=(self.program.id,)))
         self.assertNotContains(response, '<input checked="checked")')
 
