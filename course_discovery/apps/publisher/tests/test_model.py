@@ -130,6 +130,8 @@ class CourseTests(TestCase):
         self.assertFalse(self.user2.has_perm(Course.VIEW_PERMISSION, self.course))
 
     def test_get_user_groups(self):
+        """ Verify the get_group_users method return the lists of group users
+        which has permission for that course. """
         self.assertEqual(0, len(self.course.get_group_users))
         self.assertEqual(0, len(self.course2.get_group_users))
 
