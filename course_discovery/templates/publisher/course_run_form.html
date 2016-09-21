@@ -6,7 +6,7 @@
 
 {% block content %}
     <div class="layout-full layout">
-        <div class="card course-form">
+        <div class="publisher-container">
             <div class="course-information">
                 <h4 class="hd-4">{% trans "Course Run Form" %}</h4>
                 <div class="status-information">
@@ -32,7 +32,7 @@
              <div class="comment-container">
                  <span class="item">
                    {% if object.id %}
-                        <a href="{% url 'publisher:publisher_seats_new' %}" target="_blank" class="btn btn-neutral btn-add">
+                        <a href="{% url 'publisher:publisher_seats_new' %}" class="btn btn-neutral btn-add">
                             {% trans "Add Seat" %}
                         </a>
                    {% endif %}

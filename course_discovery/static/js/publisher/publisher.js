@@ -1,4 +1,4 @@
-$(".administration-navbar .container > button").click(function(event) {
+$(".administration-nav .tab-container > button").click(function(event) {
     event.preventDefault();
     $(this).addClass("selected");
     $(this).siblings().removeClass("selected");

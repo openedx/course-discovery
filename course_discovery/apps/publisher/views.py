@@ -14,7 +14,7 @@ from guardian.shortcuts import get_objects_for_user
 
 from course_discovery.apps.publisher.forms import CourseForm, CourseRunForm, SeatForm
 from course_discovery.apps.publisher import mixins
-from course_discovery.apps.publisher.models import Course, CourseRun, Seat
+from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
 
@@ -32,7 +32,18 @@ class CourseRunListView(mixins.LoginRequiredMixin, ListView):
             courses = get_objects_for_user(self.request.user, Course.VIEW_PERMISSION, Course)
             course_runs = CourseRun.objects.filter(course__in=courses).select_related('course').all()
 
-        return [CourseRunWrapper(course_run) for course_run in course_runs]
+        return course_runs
+
+    def get_context_data(self, **kwargs):
+        context = super(CourseRunListView, self).get_context_data(**kwargs)
+        course_runs = context.get('object_list')
+        published_courseruns = course_runs.filter(
+            state__name=State.PUBLISHED
+        ).select_related('course').all().order_by('-state__modified')[:5]
+        unpublished_courseruns = course_runs.exclude(state__name=State.PUBLISHED)
+        context['object_list'] = [CourseRunWrapper(course_run) for course_run in unpublished_courseruns]
+        context['published_courseruns'] = [CourseRunWrapper(course_run) for course_run in published_courseruns]
+        return context
 
 
 class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, DetailView):

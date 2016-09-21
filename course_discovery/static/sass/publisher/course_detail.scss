@@ -1,8 +1,7 @@
 // ------------------------------
 // // edX Course Discovery: Course Detail
 // ------------------------------
-
-
+$light-gray: rgba(204, 204, 204, 1);
 // ------------------------------
 // #TYPOGRAPHY
 // ------------------------------
@@ -13,10 +12,50 @@
   margin-bottom: 10px;
 }
 
+.course-detail {
+    @include margin(0);
+}
+
 .container {
-  width: 1170px;
-  margin: auto;
-  overflow: auto;
+    .layout-header {
+        img, h1 {
+            padding: 20px;
+            @include float(left);
+        }
+    }
+    .layout, .layout-flush {
+        margin-left: 0;
+        margin-right: 0;
+        max-width: 100%;
+
+        .layout-col-menu {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .menu-list {
+
+            .item {
+                border-bottom: 2px solid $white;
+                margin-bottom: 0;
+                padding-bottom: 0;
+
+                a {
+                    width: 100%;
+                    height: 100%;
+                    background: $light-gray;
+                    border: 0;
+                    border-radius: 0;
+                    text-decoration: none;
+
+                    &.active {
+                        background: palette(primary, accent);
+                        color: $white;
+                    }
+                }
+            }
+        }
+    }
 
   .tabs {
       width: 100%;
@@ -28,13 +67,13 @@
   }
 }
 
-nav {
-  border-bottom: 2px solid #cacaca;
-  background-color: #f6f6f6;
+.administration-nav {
   font-size: 18px;
   font-weight: 600;
+  display: inline-block;
+  margin: 5px 0 5px;
 
-  .container {
+  .tab-container {
 
     button {
       display: block;
@@ -153,7 +192,7 @@ nav {
 
 
 .page-header {
-  padding-bottom: 9px;
+  padding-top: 10px;
   margin: 0 0 20px;
   border-bottom: 1px solid #eeeeee;
 
@@ -162,6 +201,10 @@ nav {
     color: black;
     font-weight: 600;
   }
+}
+
+.publisher-footer {
+    padding: 20px;
 }
 
 .help-block {
@@ -197,4 +240,21 @@ nav {
     font-weight: bold;
     font-size: 16px;
   }
+}
+
+.border-left {
+    border-left: 1px solid;
+}
+
+.border-top {
+    border-top: 1px solid;
+}
+
+.empty-courserun-text {
+    padding: 100px 160px;
+
+    p {
+        padding: 0;
+        margin: 0;
+    }
 }

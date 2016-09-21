@@ -6,71 +6,69 @@
 {% trans "Course Run Detail" %}
 {% endblock title %}
 {% block content %}
-<nav class="administration-navbar">
-    <div class="container">
-        <button class="selected" data-tab="#tab-1">{% trans "All" %}</button>
-        <button data-tab="#tab-2">{% trans "STUDIO" %}</button>
-        <button data-tab="#tab-3">{% trans "CAT" %}</button>
-        <button data-tab="#tab-4">{% trans "DRUPAL" %}</button>
-        <button data-tab="#tab-5">{% trans "Salesforce" %}</button>
-    </div>
-</nav>
+<div class="publisher-container course-detail">
+    <nav class="administration-nav">
+        <div class="tab-container">
+            <button class="selected" data-tab="#tab-1">{% trans "All" %}</button>
+            <button data-tab="#tab-2">{% trans "STUDIO" %}</button>
+            <button data-tab="#tab-3">{% trans "CAT" %}</button>
+            <button data-tab="#tab-4">{% trans "DRUPAL" %}</button>
+            <button data-tab="#tab-5">{% trans "Salesforce" %}</button>
+        </div>
+    </nav>
 
-<div id="app" class="container">
-    <ol class="breadcrumb">
-        <li><a href="{% url 'publisher:publisher_course_runs' %}">{% trans "Courses" %}</a></li>
-        <li class="active">{{ object.title }}</li>
-    </ol>
-    <div class="page-header">
-        <h2 class="hd-2 emphasized">
-            <span class="course-name">{{ object.title }}</span>
-        </h2>
-    </div>
-    <div class="alert-messages">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}" role="alert" aria-labelledby="alert-title-{{ message.tags }}" tabindex="-1">
-                    <div class="alert-message-with-action">
-                        <p class="alert-copy">
-                            {{ message }}
-                        </p>
+    <div id="app">
+        <div class="page-header">
+            <h2 class="hd-2 emphasized">
+                <span class="course-name">{{ object.title }}</span>
+            </h2>
+        </div>
+        <div class="alert-messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" role="alert" aria-labelledby="alert-title-{{ message.tags }}" tabindex="-1">
+                        <div class="alert-message-with-action">
+                            <p class="alert-copy">
+                                {{ message }}
+                            </p>
+                        </div>
                     </div>
-                </div>
-            {% endfor %}
-        {% endif %}
-    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
 
-    <div class="status-information">
-        <div class="info-item">
-            <span class="item">
-                <span class="heading">{% trans "Status" %}:</span>
-                <span>{{ object.workflow_state }}</span>
-            </span>
+        <div class="status-information">
+            <div class="info-item">
+                <span class="item">
+                    <span class="heading">{% trans "Status" %}:</span>
+                    <span>{{ object.workflow_state }}</span>
+                </span>
+            </div>
         </div>
-    </div>
 
-    <div class="tabs">
-        <div id="tab-1" class="tab-content active">
-            {% include 'publisher/course_run_detail/_all.html' %}
+        <div class="tabs">
+            <div id="tab-1" class="tab-content active">
+                {% include 'publisher/course_run_detail/_all.html' %}
+            </div>
+            <div id="tab-2" class="tab-content">
+                {% include 'publisher/course_run_detail/_studio.html' %}
+            </div>
+            <div id="tab-3" class="tab-content">
+                {% include 'publisher/course_run_detail/_cat.html' %}
+            </div>
+            <div id="tab-4" class="tab-content">
+                {% include 'publisher/course_run_detail/_drupal.html' %}
+            </div>
+            <div id="tab-5" class="tab-content">
+                {% include 'publisher/course_run_detail/_salesforce.html' %}
+            </div>
         </div>
-        <div id="tab-2" class="tab-content">
-            {% include 'publisher/course_run_detail/_studio.html' %}
-        </div>
-        <div id="tab-3" class="tab-content">
-            {% include 'publisher/course_run_detail/_cat.html' %}
-        </div>
-        <div id="tab-4" class="tab-content">
-            {% include 'publisher/course_run_detail/_drupal.html' %}
-        </div>
-        <div id="tab-5" class="tab-content">
-            {% include 'publisher/course_run_detail/_salesforce.html' %}
-        </div>
-    </div>
 
-    <div class="actions">
-        <form action="{% url 'publisher:publisher_change_state' course_run_id=object.id %}" method="post"> {% csrf_token %}
-            <button type="submit" value="{{ object.change_state_button.value }}" class="btn-brand btn-small btn-states" name="state">{{ object.change_state_button.text }}</button>
-        </form>
+        <div class="actions">
+            <form action="{% url 'publisher:publisher_change_state' course_run_id=object.id %}" method="post"> {% csrf_token %}
+                <button type="submit" value="{{ object.change_state_button.value }}" class="btn-brand btn-small btn-states" name="state">{{ object.change_state_button.text }}</button>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}
