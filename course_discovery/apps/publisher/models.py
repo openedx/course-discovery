@@ -7,7 +7,7 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from django_fsm import FSMField, transition
-from guardian.shortcuts import assign_perm
+from guardian.shortcuts import assign_perm, get_users_with_perms
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 import waffle
@@ -126,6 +126,10 @@ class Course(TimeStampedModel, ChangedByMixin):
     def assign_user_groups(self, user):
         for group in user.groups.all():
             assign_perm(self.VIEW_PERMISSION, group, self)
+
+    @property
+    def get_group_users(self):
+        return get_users_with_perms(self)
 
 
 class CourseRun(TimeStampedModel, ChangedByMixin):

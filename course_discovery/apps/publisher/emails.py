@@ -9,12 +9,11 @@ log = logging.getLogger(__name__)
 
 
 def setup_email_for_state(course_run):
-    from course_discovery.apps.publisher.mixins import get_group_users_with_permission
     try:
         changed_by_user = course_run.state.changed_by
         txt_template = 'publisher/emails/change_state.txt'
         html_template = 'publisher/emails/change_state.html'
-        users_list = get_group_users_with_permission(changed_by_user, course_run.course)
+        users_list = course_run.course.get_group_users
         to_addresses = [
             user.email for user in users_list
             if hasattr(user, 'attributes') and user.attributes.enable_notification

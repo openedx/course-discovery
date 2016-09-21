@@ -11,8 +11,6 @@ log = logging.getLogger(__name__)
 
 
 def setup_email_for_comment(comment):
-    from course_discovery.apps.publisher.mixins import get_group_users_with_permission
-
     try:
         model_class = comment.content_type.model_class()
         publisher_obj = model_class.objects.filter(pk=comment.object_pk)[0]
@@ -30,7 +28,8 @@ def setup_email_for_comment(comment):
 
         txt_template = 'publisher/emails/comments.txt'
         html_template = 'publisher/emails/comments.html'
-        users_list = get_group_users_with_permission(comment.user, course_obj)
+        users_list = course_obj.get_group_users
+
         to_addresses = [
             user.email for user in users_list
             if hasattr(user, 'attributes') and user.attributes.enable_notification
