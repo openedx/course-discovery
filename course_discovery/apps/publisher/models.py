@@ -129,6 +129,7 @@ class Course(TimeStampedModel, ChangedByMixin):
 
     @property
     def get_group_users(self):
+        """ Returns queryset of all User objects with any object permissions for the given course."""
         return get_users_with_perms(self)
 
 

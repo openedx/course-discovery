@@ -99,6 +99,12 @@ class CourseTests(TestCase):
         super(CourseTests, self).setUp()
         self.course = factories.CourseFactory()
         self.course2 = factories.CourseFactory()
+        self.user1 = UserFactory()
+        self.user2 = UserFactory()
+        self.group_a = factories.GroupFactory(name="Test Group A")
+        self.group_b = factories.GroupFactory(name="Test Group B")
+        self.user1.groups.add(self.group_a)
+        self.user2.groups.add(self.group_b)
 
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the course title. """
@@ -111,24 +117,31 @@ class CourseTests(TestCase):
         )
 
     def test_assign_user_groups(self):
-        user1 = UserFactory()
-        user2 = UserFactory()
-        group_a = factories.GroupFactory(name="Test Group A")
-        group_b = factories.GroupFactory(name="Test Group B")
-        user1.groups.add(group_a)
-        user2.groups.add(group_b)
+        self.assertFalse(self.user1.has_perm(Course.VIEW_PERMISSION, self.course))
+        self.assertFalse(self.user2.has_perm(Course.VIEW_PERMISSION, self.course2))
 
-        self.assertFalse(user1.has_perm(Course.VIEW_PERMISSION, self.course))
-        self.assertFalse(user2.has_perm(Course.VIEW_PERMISSION, self.course2))
+        self.course.assign_user_groups(self.user1)
+        self.course2.assign_user_groups(self.user2)
 
-        self.course.assign_user_groups(user1)
-        self.course2.assign_user_groups(user2)
+        self.assertTrue(self.user1.has_perm(Course.VIEW_PERMISSION, self.course))
+        self.assertTrue(self.user2.has_perm(Course.VIEW_PERMISSION, self.course2))
 
-        self.assertTrue(user1.has_perm(Course.VIEW_PERMISSION, self.course))
-        self.assertTrue(user2.has_perm(Course.VIEW_PERMISSION, self.course2))
+        self.assertFalse(self.user1.has_perm(Course.VIEW_PERMISSION, self.course2))
+        self.assertFalse(self.user2.has_perm(Course.VIEW_PERMISSION, self.course))
 
-        self.assertFalse(user1.has_perm(Course.VIEW_PERMISSION, self.course2))
-        self.assertFalse(user2.has_perm(Course.VIEW_PERMISSION, self.course))
+    def test_get_user_groups(self):
+        self.assertEqual(0, len(self.course.get_group_users))
+        self.assertEqual(0, len(self.course2.get_group_users))
+
+        self.course.assign_user_groups(self.user1)
+        self.course2.assign_user_groups(self.user2)
+
+        self.assertListEqual([self.user1.id], [user.id for user in self.course.get_group_users])
+        self.assertListEqual([self.user2.id], [user.id for user in self.course2.get_group_users])
+
+        user3 = UserFactory()
+        user3.groups.add(self.group_a)
+        self.assertListEqual([self.user1.id, user3.id], [user.id for user in self.course.get_group_users])
 
 
 class SeatTests(TestCase):
