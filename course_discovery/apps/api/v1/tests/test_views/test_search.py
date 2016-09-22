@@ -236,12 +236,3 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
         response_data = json.loads(response.content.decode('utf-8'))
         self.assertListEqual(response_data['objects']['results'],
                              [self.serialize_course_run(other_course_run), self.serialize_program(other_program)])
-
-    def test_empty_query(self):
-        """ Verify, when the query (q) parameter is empty, the endpoint behaves as if the parameter
-        was not provided. """
-        course_run = CourseRunFactory(course__partner=self.partner, status=CourseRunStatus.Published)
-        response = self.get_search_response({'q': ''})
-        self.assertEqual(response.status_code, 200)
-        response_data = json.loads(response.content.decode('utf-8'))
-        self.assertListEqual(response_data['objects']['results'], [self.serialize_course_run(course_run)])
