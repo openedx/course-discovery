@@ -4,9 +4,13 @@ from rest_framework.test import APITestCase, APIRequestFactory
 
 from course_discovery.apps.api.serializers import ProgramSerializer
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
+from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Program
-from course_discovery.apps.course_metadata.tests.factories import ProgramFactory, CourseFactory
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseFactory, CourseRunFactory, VideoFactory, OrganizationFactory, PersonFactory, ProgramFactory,
+    CorporateEndorsementFactory, EndorsementFactory, JobOutlookItemFactory, ExpectedLearningItemFactory
+)
 
 
 @ddt.ddt
@@ -19,6 +23,26 @@ class ProgramViewSetTests(APITestCase):
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.request = APIRequestFactory().get('/')
         self.request.user = self.user
+
+    def create_program(self):
+        organizations = [OrganizationFactory()]
+        person = PersonFactory()
+
+        course = CourseFactory()
+        CourseRunFactory(course=course, staff=[person])
+
+        program = ProgramFactory(
+            courses=[course],
+            authoring_organizations=organizations,
+            credit_backing_organizations=organizations,
+            corporate_endorsements=CorporateEndorsementFactory.create_batch(1),
+            individual_endorsements=EndorsementFactory.create_batch(1),
+            expected_learning_items=ExpectedLearningItemFactory.create_batch(1),
+            job_outlook_items=JobOutlookItemFactory.create_batch(1),
+            banner_image=make_image_file('test_banner.jpg'),
+            video=VideoFactory()
+        )
+        return program
 
     def assert_retrieve_success(self, program):
         """ Verify the retrieve endpoint succesfully returns a serialized program. """
@@ -39,8 +63,8 @@ class ProgramViewSetTests(APITestCase):
 
     def test_retrieve(self):
         """ Verify the endpoint returns the details for a single program. """
-        program = ProgramFactory()
-        with self.assertNumQueries(33):
+        program = self.create_program()
+        with self.assertNumQueries(89):
             self.assert_retrieve_success(program)
 
     def test_retrieve_without_course_runs(self):
@@ -74,9 +98,9 @@ class ProgramViewSetTests(APITestCase):
 
     def test_list(self):
         """ Verify the endpoint returns a list of all programs. """
-        expected = ProgramFactory.create_batch(3)
+        expected = [self.create_program() for __ in range(3)]
         expected.reverse()
-        self.assert_list_results(self.list_path, expected, 14)
+        self.assert_list_results(self.list_path, expected, 41)
 
     def test_filter_by_type(self):
         """ Verify that the endpoint filters programs to those of a given type. """

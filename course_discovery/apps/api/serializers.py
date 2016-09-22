@@ -229,7 +229,7 @@ class CorporateEndorsementSerializer(serializers.ModelSerializer):
     @classmethod
     def prefetch_queryset(cls):
         return CorporateEndorsement.objects.all().select_related('image').prefetch_related(
-            Prefetch('endorser', queryset=EndorsementSerializer.prefetch_queryset()),
+            Prefetch('individual_endorsements', queryset=EndorsementSerializer.prefetch_queryset()),
         )
 
     class Meta(object):
