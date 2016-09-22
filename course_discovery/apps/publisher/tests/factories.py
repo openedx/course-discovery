@@ -7,6 +7,7 @@ from factory.fuzzy import FuzzyText, FuzzyChoice, FuzzyDecimal, FuzzyDateTime, F
 from pytz import UTC
 
 from course_discovery.apps.core.models import Currency
+from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -17,6 +18,13 @@ class StateFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = State
+
+
+class GroupFactory(factory.DjangoModelFactory):
+    name = FuzzyText(prefix="Test Group ")
+
+    class Meta:
+        model = Group
 
 
 class CourseFactory(factory.DjangoModelFactory):
@@ -33,6 +41,9 @@ class CourseFactory(factory.DjangoModelFactory):
     primary_subject = factory.SubFactory(factories.SubjectFactory)
     secondary_subject = factory.SubFactory(factories.SubjectFactory)
     tertiary_subject = factory.SubFactory(factories.SubjectFactory)
+
+    team_admin = factory.SubFactory(UserFactory)
+    institution = factory.SubFactory(GroupFactory)
 
     class Meta:
         model = Course
@@ -67,10 +78,3 @@ class SeatFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = Seat
-
-
-class GroupFactory(factory.DjangoModelFactory):
-    name = FuzzyText(prefix="Test Group ")
-
-    class Meta:
-        model = Group

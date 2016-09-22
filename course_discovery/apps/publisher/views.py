@@ -3,16 +3,20 @@ Course publisher views.
 """
 from django.contrib import messages
 from django.core.urlresolvers import reverse
+from django.db import transaction
 from django.http import HttpResponseRedirect, HttpResponseForbidden
+from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
+
 from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import get_objects_for_user
-
-from course_discovery.apps.publisher.forms import CourseForm, CourseRunForm, SeatForm
+from course_discovery.apps.publisher.forms import (
+    CourseForm, CourseRunForm, SeatForm, CustomCourseForm, CustomCourseRunForm, CustomSeatForm
+)
 from course_discovery.apps.publisher import mixins
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
@@ -59,16 +63,71 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin,
 
 
 # pylint: disable=attribute-defined-outside-init
-class CreateCourseView(mixins.LoginRequiredMixin, mixins.FormValidMixin, CreateView):
+class CreateCourseView(mixins.LoginRequiredMixin, CreateView):
     """ Create Course View."""
     model = Course
-    form_class = CourseForm
-    template_name = 'publisher/course_form.html'
-    success_url = 'publisher:publisher_courses_edit'
-    assign_user_groups = True
+    course_form = CustomCourseForm
+    run_form = CustomCourseRunForm
+    seat_form = CustomSeatForm
+    template_name = 'publisher/add_course_form.html'
+    success_url = 'publisher:publisher_courses_readonly'
 
-    def get_success_url(self):
-        return reverse(self.success_url, kwargs={'pk': self.object.id})
+    def get_success_url(self, course_id):  # pylint: disable=arguments-differ
+        return reverse(self.success_url, kwargs={'pk': course_id})
+
+    def get_context_data(self):
+        return {
+            'course_form': self.course_form,
+            'run_form': self.run_form,
+            'seat_form': self.seat_form
+        }
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name, self.get_context_data())
+
+    def post(self, request, *args, **kwargs):
+        ctx = self.get_context_data()
+        course_form = self.course_form(request.POST, request.FILES)
+        run_form = self.run_form(request.POST)
+        seat_form = self.seat_form(request.POST)
+        if course_form.is_valid() and run_form.is_valid() and seat_form.is_valid():
+            try:
+                with transaction.atomic():
+                    seat = seat_form.save(commit=False)
+                    run_course = run_form.save(commit=False)
+                    course = course_form.save(commit=False)
+                    course.changed_by = self.request.user
+                    course.save()
+
+                    run_course.course = course
+                    run_course.changed_by = self.request.user
+                    run_course.save()
+
+                    # commit false does not save m2m object.
+                    run_form.save_m2m()
+                    seat.course_run = run_course
+                    seat.changed_by = self.request.user
+                    seat.save()
+
+                    # assign guardian permission.
+                    course.assign_permission_by_group()
+
+                    messages.success(
+                        request, _('Course created successfully.')
+                    )
+                    return HttpResponseRedirect(self.get_success_url(course.id))
+            except Exception as e:  # pylint: disable=broad-except
+                messages.error(request, str(e))
+
+        messages.error(request, _('Please fill all required field.'))
+        ctx.update(
+            {
+                'course_form': course_form,
+                'run_form': run_form,
+                'seat_form': seat_form
+            }
+        )
+        return render(request, self.template_name, ctx, status=400)
 
 
 class UpdateCourseView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, mixins.FormValidMixin, UpdateView):
@@ -85,6 +144,17 @@ class UpdateCourseView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, mi
     def get_context_data(self, **kwargs):
         context = super(UpdateCourseView, self).get_context_data(**kwargs)
         context['comment_object'] = self.object
+        return context
+
+
+class ReadOnlyView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, DetailView):
+    """ Course Run Detail View."""
+    model = Course
+    template_name = 'publisher/view_course_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ReadOnlyView, self).get_context_data(**kwargs)
+        context['comment_object'] = self
         return context
 
 

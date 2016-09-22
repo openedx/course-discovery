@@ -1,9 +1,11 @@
 """
 Course publisher forms.
 """
+from django.contrib.auth.models import Group
 from django import forms
 
-from course_discovery.apps.publisher.models import Course, CourseRun, Seat
+from course_discovery.apps.course_metadata.models import Person
+from course_discovery.apps.publisher.models import Course, CourseRun, Seat, User
 
 
 class BaseCourseForm(forms.ModelForm):
@@ -39,6 +41,33 @@ class CourseForm(BaseCourseForm):
         fields = '__all__'
         exclude = ('changed_by',)
 
+    def __init__(self, *args, **kwargs):
+        self.instance = kwargs.get('initial', {})
+        super(CourseForm, self).__init__(*args, **kwargs)
+        self.fields['prerequisites'].label = 'Prerequisites'
+        self.fields['short_description'].label = 'Brief Description'
+        self.fields['full_description'].label = 'Full Description'
+        self.fields['expected_learnings'].label = 'Expected Learnings'
+
+
+class CustomCourseForm(CourseForm):
+    """ Course Form. """
+
+    title = forms.CharField(label='Course Title', required=True, max_length=255)
+    number = forms.CharField(label='Course Number', required=True, max_length=255)
+    institution = forms.ModelChoiceField(queryset=Group.objects.all(), required=True)
+    team_admin = forms.ModelChoiceField(queryset=User.objects.filter(is_staff=True), required=True)
+
+    class Meta:
+        model = Course
+        fields = (
+            'title', 'number', 'short_description', 'full_description',
+            'expected_learnings', 'level_type', 'primary_subject', 'secondary_subject',
+            'tertiary_subject', 'prerequisites', 'level_type', 'image', 'team_admin',
+            'level_type', 'institution',
+        )
+        exclude = ('changed_by',)
+
 
 class CourseRunForm(BaseCourseForm):
     """ Course Run Form. """
@@ -47,6 +76,38 @@ class CourseRunForm(BaseCourseForm):
         model = CourseRun
         fields = '__all__'
         exclude = ('state', 'changed_by',)
+
+
+class CustomCourseRunForm(CourseRunForm):
+    """ Course Run Form. """
+
+    priority = forms.ChoiceField(required=False, choices=CourseRun.PRIORITY_LEVELS)
+    contacted_partner_manager = forms.BooleanField(
+        widget=forms.RadioSelect(choices=((1, "Yes"), (0, "No"))), initial=0, required=False
+    )
+    start = forms.DateTimeField(required=True)
+    staff = forms.ModelMultipleChoiceField(
+        queryset=Person.objects.all(), widget=forms.SelectMultiple, required=False
+    )
+    target_content = forms.BooleanField(
+        widget=forms.RadioSelect(choices=((1, "Yes"), (0, "No"))), initial=0, required=False
+    )
+
+    class Meta:
+        model = CourseRun
+        fields = (
+            'keywords', 'start', 'end', 'length',
+            'transcript_languages', 'language', 'min_effort', 'max_effort', 'keywords',
+            'contacted_partner_manager', 'target_content', 'pacing_type', 'is_seo_review',
+            'video_language', 'staff',
+        )
+
+    def __init__(self, *args, **kwargs):
+        self.instance = kwargs.get('initial', {})
+        super(CustomCourseRunForm, self).__init__(*args, **kwargs)
+        self.fields['language'].label = 'Content Language'
+        self.fields['priority'].label = 'Level Type'
+        self.fields['target_content'].label = 'Priority content'
 
 
 class SeatForm(BaseCourseForm):
@@ -76,3 +137,21 @@ class SeatForm(BaseCourseForm):
             seat.save()
 
         return seat
+
+
+class CustomSeatForm(SeatForm):
+    """ Course Seat Form. """
+
+    class Meta:
+        model = Seat
+        fields = ('price', 'type')
+
+    def clean(self):
+        price = self.cleaned_data.get('price')
+        seat_type = self.cleaned_data.get('type')
+
+        if seat_type in [Seat.PROFESSIONAL, Seat.NO_ID_PROFESSIONAL, Seat.VERIFIED, Seat.CREDIT] \
+                and not price:
+            self.add_error('price', 'Only honor/audit seats can be without price.')
+
+        return self.cleaned_data

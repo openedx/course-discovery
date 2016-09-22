@@ -105,10 +105,97 @@ $light-gray: rgba(204, 204, 204, 1);
     margin-bottom: 20px;
 }
 
+.publisher-layout {
+  background: rgb(242, 242, 242);
+  padding: 15px;
+  margin-bottom: 20px;
+
+  .layout-title {
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  .course-form {
+    margin: 0;
+    box-shadow: none;
+  }
+}
+
+input,
+select {
+  max-width: 100%;
+}
+
+.required {
+  color: red;
+  font-size: 12px;
+}
+
+.checkbox-inline {
+  ul {
+    list-style: none;
+    margin-left: 0;
+    margin-bottom: 15px;
+
+    li {
+      display: inline-block;
+      margin-right: 10px;
+
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+}
+
 .course-information {
   margin-bottom: 30px;
-  @include float(left);
-  width: 50%;
+
+  input, select {
+    margin-bottom: 15px;
+  }
+  .hd-4 {
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgb(51, 51, 51);
+  }
+
+  .field-title {
+    border-bottom: 1px solid rgb(51, 51, 51);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-weight: bold;
+  }
+  .course-tabs{
+    list-style: none;
+    @include float(left);
+    @include margin-right(10px);
+    padding: 10px;
+    border-bottom: 2px solid #ccc;
+    color: #ccc;
+    text-align: center;
+
+    &:hover{
+      color: #337ab7;
+      border-bottom: 2px solid #337ab7;
+    }
+  }
+  .course-tabs.active{
+    border-bottom: 2px solid #337ab7;
+    color: #337ab7;
+  }
+  .content{
+    display: none;
+    p{
+      margin: 0;
+    }
+    p:first-of-type{
+      margin-bottom: 20px;
+    }
+  }
+  .content.active{
+    display: inline-block;
+  }
 
   .info-item {
     margin-bottom: 15px;

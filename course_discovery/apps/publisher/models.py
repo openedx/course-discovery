@@ -1,4 +1,5 @@
 import logging
+from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 
 from django.db import models
@@ -129,6 +130,11 @@ class Course(TimeStampedModel, ChangedByMixin):
         }
     )
 
+    institution = models.ForeignKey(
+        Group, null=True, blank=True, related_name='publisher_courses_group',
+        verbose_name=_("Institute that will be providing the course.")
+    )
+
     history = HistoricalRecords()
 
     def __str__(self):
@@ -146,6 +152,9 @@ class Course(TimeStampedModel, ChangedByMixin):
     def assign_user_groups(self, user):
         for group in user.groups.all():
             assign_perm(self.VIEW_PERMISSION, group, self)
+
+    def assign_permission_by_group(self):
+        assign_perm(self.VIEW_PERMISSION, self.institution, self)
 
 
 class CourseRun(TimeStampedModel, ChangedByMixin):
