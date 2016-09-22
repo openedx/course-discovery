@@ -1,9 +1,12 @@
 """
 Course publisher forms.
 """
+from django.contrib.auth.models import Group
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 
-from course_discovery.apps.publisher.models import Course, CourseRun, Seat
+from course_discovery.apps.course_metadata.models import Person
+from course_discovery.apps.publisher.models import Course, CourseRun, Seat, User
 
 
 class BaseCourseForm(forms.ModelForm):
@@ -40,6 +43,24 @@ class CourseForm(BaseCourseForm):
         exclude = ('changed_by',)
 
 
+class CustomCourseForm(CourseForm):
+    """ Course Form. """
+
+    institution = forms.ModelChoiceField(queryset=Group.objects.all(), required=True)
+    title = forms.CharField(label='Course Title', required=True, max_length=255)
+    number = forms.CharField(label='Course Number', required=True, max_length=255)
+    team_admin = forms.ModelChoiceField(queryset=User.objects.filter(is_staff=True), required=True)
+
+    class Meta(CourseForm.Meta):
+        model = Course
+        fields = (
+            'title', 'number', 'short_description', 'full_description',
+            'expected_learnings', 'level_type', 'primary_subject', 'secondary_subject',
+            'tertiary_subject', 'prerequisites', 'level_type', 'image', 'team_admin',
+            'level_type', 'institution',
+        )
+
+
 class CourseRunForm(BaseCourseForm):
     """ Course Run Form. """
 
@@ -47,6 +68,30 @@ class CourseRunForm(BaseCourseForm):
         model = CourseRun
         fields = '__all__'
         exclude = ('state', 'changed_by',)
+
+
+class CustomCourseRunForm(CourseRunForm):
+    """ Course Run Form. """
+
+    contacted_partner_manager = forms.BooleanField(
+        widget=forms.RadioSelect(choices=((1, _("Yes")), (0, _("No")))), initial=0, required=False
+    )
+    start = forms.DateTimeField(required=True)
+    staff = forms.ModelMultipleChoiceField(
+        queryset=Person.objects.all(), widget=forms.SelectMultiple, required=False
+    )
+    target_content = forms.BooleanField(
+        widget=forms.RadioSelect(
+            choices=((1, _("Yes")), (0, _("No")))), initial=0, required=False
+    )
+
+    class Meta(CourseRunForm.Meta):
+        fields = (
+            'keywords', 'start', 'end', 'length',
+            'transcript_languages', 'language', 'min_effort', 'max_effort', 'keywords',
+            'contacted_partner_manager', 'target_content', 'pacing_type', 'is_seo_review',
+            'video_language', 'staff',
+        )
 
 
 class SeatForm(BaseCourseForm):
@@ -76,3 +121,20 @@ class SeatForm(BaseCourseForm):
             seat.save()
 
         return seat
+
+    def clean(self):
+        price = self.cleaned_data.get('price')
+        seat_type = self.cleaned_data.get('type')
+
+        if seat_type in [Seat.PROFESSIONAL, Seat.NO_ID_PROFESSIONAL, Seat.VERIFIED, Seat.CREDIT] \
+                and not price:
+            self.add_error('price', _('Only honor/audit seats can be without price.'))
+
+        return self.cleaned_data
+
+
+class CustomSeatForm(SeatForm):
+    """ Course Seat Form. """
+
+    class Meta(SeatForm.Meta):
+        fields = ('price', 'type')
