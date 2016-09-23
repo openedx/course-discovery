@@ -59,14 +59,34 @@ class FacetQueryBuilderWithQueries(FacetQueryBuilder):
         return query
 
 
-class HaystackFacetFilterWithQueries(HaystackFacetFilter):
-    query_builder_class = FacetQueryBuilderWithQueries
-
-
-class HaystackFilter(DefaultHaystackFilter):
+class HaystackRequestFilterMixin:
     @staticmethod
     def get_request_filters(request):
         filters = HaystackFacetFilter.get_request_filters(request)
+
+        # Remove items with empty values.
+        #
+        # NOTE 1: We copy the keys list to avoid a RuntimeError that occurs when modifying a dict while iterating.
+        #
+        # NOTE 2: We filter in this fashion, as opposed to dictionary comprehension, due to the fact that filters
+        # is a `QueryDict` object, not a `dict`. Dictionary comprehension will not preserve the values of
+        # `QueryDict.getlist()`. Since we support multiple values for a single parameter, dictionary comprehension is a
+        # dealbreaker (and production breaker).
+        for key in list(filters.keys()):
+            if not filters[key]:
+                del filters[key]
+
+        return filters
+
+
+class HaystackFacetFilterWithQueries(HaystackRequestFilterMixin, HaystackFacetFilter):
+    query_builder_class = FacetQueryBuilderWithQueries
+
+
+class HaystackFilter(HaystackRequestFilterMixin, DefaultHaystackFilter):
+    @staticmethod
+    def get_request_filters(request):
+        filters = HaystackRequestFilterMixin.get_request_filters(request)
 
         # Return data for the default partner, if no partner is requested
         if not any(field in filters for field in ('partner', 'partner_exact')):
