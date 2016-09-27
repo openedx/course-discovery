@@ -89,22 +89,28 @@ class Command(BaseCommand):
                     raise
 
             data_loaders = (
-                (partner.marketing_site_url_root, SubjectMarketingSiteDataLoader,),
-                (partner.marketing_site_url_root, SchoolMarketingSiteDataLoader,),
-                (partner.marketing_site_url_root, SponsorMarketingSiteDataLoader,),
-                (partner.marketing_site_url_root, PersonMarketingSiteDataLoader,),
-                (partner.marketing_site_url_root, CourseMarketingSiteDataLoader,),
-                (partner.organizations_api_url, OrganizationsApiDataLoader,),
-                (partner.courses_api_url, CoursesApiDataLoader,),
-                (partner.ecommerce_api_url, EcommerceApiDataLoader,),
-                (partner.programs_api_url, ProgramsApiDataLoader,),
-                (partner.marketing_site_url_root, XSeriesMarketingSiteDataLoader,),
+                (partner.marketing_site_url_root, SubjectMarketingSiteDataLoader, None),
+                (partner.marketing_site_url_root, SchoolMarketingSiteDataLoader, None),
+                (partner.marketing_site_url_root, SponsorMarketingSiteDataLoader, None),
+                (partner.marketing_site_url_root, PersonMarketingSiteDataLoader, None),
+                (partner.marketing_site_url_root, CourseMarketingSiteDataLoader, None),
+                (partner.organizations_api_url, OrganizationsApiDataLoader, None),
+                (partner.courses_api_url, CoursesApiDataLoader, None),
+                (partner.ecommerce_api_url, EcommerceApiDataLoader, 1),
+                (partner.programs_api_url, ProgramsApiDataLoader, None),
+                (partner.marketing_site_url_root, XSeriesMarketingSiteDataLoader, None),
             )
 
-            for api_url, loader_class in data_loaders:
+            for api_url, loader_class, max_workers_override in data_loaders:
                 if api_url:
                     try:
-                        loader_class(partner, api_url, access_token, token_type, max_workers).ingest()
+                        loader_class(
+                            partner,
+                            api_url,
+                            access_token,
+                            token_type,
+                            (max_workers_override or max_workers)
+                        ).ingest()
                     except Exception:  # pylint: disable=broad-except
                         logger.exception('%s failed!', loader_class.__name__)
 
