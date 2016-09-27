@@ -129,6 +129,14 @@ class CourseSerializerTests(TestCase):
 
         self.assertDictEqual(serializer.data, expected)
 
+    def test_exclude_utm(self):
+        request = make_request()
+        course = CourseFactory()
+        CourseRunFactory.create_batch(3, course=course)
+        serializer = CourseWithProgramsSerializer(course, context={'request': request, 'exclude_utm': 1})
+
+        self.assertEqual(serializer.data['marketing_url'], course.marketing_url)
+
 
 class CourseRunSerializerTests(TestCase):
     def test_data(self):
@@ -173,6 +181,13 @@ class CourseRunSerializerTests(TestCase):
         }
 
         self.assertDictEqual(serializer.data, expected)
+
+    def test_exclude_utm(self):
+        request = make_request()
+        course_run = CourseRunFactory()
+        serializer = CourseRunSerializer(course_run, context={'request': request, 'exclude_utm': 1})
+
+        self.assertEqual(serializer.data['marketing_url'], course_run.marketing_url)
 
 
 class CourseRunWithProgramsSerializerTests(TestCase):

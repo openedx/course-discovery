@@ -11,6 +11,7 @@ from dry_rest_permissions.generics import DRYPermissionFiltersBase
 from guardian.shortcuts import get_objects_for_user
 from rest_framework.exceptions import PermissionDenied, NotFound
 
+from course_discovery.apps.api.utils import cast2int
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 
@@ -105,14 +106,7 @@ class CharListFilter(django_filters.CharFilter):
 
 class FilterSetMixin:
     def _apply_filter(self, name, queryset, value):
-        try:
-            if int(value):
-                queryset = getattr(queryset, name)()
-        except ValueError:
-            logger.exception('The "%s" filter requires an integer value of either 0 or 1. %s is invalid', name, value)
-            raise
-
-        return queryset
+        return getattr(queryset, name)() if cast2int(value, name) else queryset
 
     def filter_active(self, queryset, value):
         return self._apply_filter('active', queryset, value)

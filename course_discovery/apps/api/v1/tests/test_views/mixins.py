@@ -8,12 +8,15 @@ from rest_framework.test import APIRequestFactory
 
 from course_discovery.apps.api.serializers import (
     CatalogSerializer, CourseWithProgramsSerializer, CourseSerializerExcludingClosedRuns,
-    FlattenedCourseRunWithCourseSerializer
+    CourseRunWithProgramsSerializer, ProgramSerializer, FlattenedCourseRunWithCourseSerializer
 )
 
 
 class SerializationMixin(object):
     def _get_request(self, format=None):
+        if getattr(self, 'request', None):
+            return self.request
+
         query_data = {}
         if format:
             query_data['format'] = format
@@ -21,20 +24,30 @@ class SerializationMixin(object):
         request.user = self.user
         return request
 
-    def _serialize_object(self, serializer, obj, many=False, format=None):
-        return serializer(obj, many=many, context={'request': self._get_request(format)}).data
+    def _serialize_object(self, serializer, obj, many=False, format=None, extra_context=None):
+        context = {'request': self._get_request(format)}
+        if extra_context:
+            context.update(extra_context)
 
-    def serialize_catalog(self, catalog, many=False, format=None):
-        return self._serialize_object(CatalogSerializer, catalog, many, format)
+        return serializer(obj, many=many, context=context).data
 
-    def serialize_course(self, course, many=False, format=None):
-        return self._serialize_object(CourseWithProgramsSerializer, course, many, format)
+    def serialize_catalog(self, catalog, many=False, format=None, extra_context=None):
+        return self._serialize_object(CatalogSerializer, catalog, many, format, extra_context)
 
-    def serialize_catalog_course(self, course, many=False, format=None):
-        return self._serialize_object(CourseSerializerExcludingClosedRuns, course, many, format)
+    def serialize_course(self, course, many=False, format=None, extra_context=None):
+        return self._serialize_object(CourseWithProgramsSerializer, course, many, format, extra_context)
 
-    def serialize_catalog_flat_course_run(self, course_run, many=False, format=None):
-        return self._serialize_object(FlattenedCourseRunWithCourseSerializer, course_run, many, format)
+    def serialize_course_run(self, run, many=False, format=None, extra_context=None):
+        return self._serialize_object(CourseRunWithProgramsSerializer, run, many, format, extra_context)
+
+    def serialize_program(self, program, many=False, format=None, extra_context=None):
+        return self._serialize_object(ProgramSerializer, program, many, format, extra_context)
+
+    def serialize_catalog_course(self, course, many=False, format=None, extra_context=None):
+        return self._serialize_object(CourseSerializerExcludingClosedRuns, course, many, format, extra_context)
+
+    def serialize_catalog_flat_course_run(self, course_run, many=False, format=None, extra_context=None):
+        return self._serialize_object(FlattenedCourseRunWithCourseSerializer, course_run, many, format, extra_context)
 
 
 class OAuth2Mixin(object):

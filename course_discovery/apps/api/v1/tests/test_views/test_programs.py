@@ -2,7 +2,7 @@ import ddt
 from django.core.urlresolvers import reverse
 from rest_framework.test import APITestCase, APIRequestFactory
 
-from course_discovery.apps.api.serializers import ProgramSerializer
+from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.choices import ProgramStatus
@@ -14,7 +14,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
 
 
 @ddt.ddt
-class ProgramViewSetTests(APITestCase):
+class ProgramViewSetTests(SerializationMixin, APITestCase):
     list_path = reverse('api:v1:program-list')
 
     def setUp(self):
@@ -50,7 +50,7 @@ class ProgramViewSetTests(APITestCase):
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, ProgramSerializer(program, context={'request': self.request}).data)
+        self.assertEqual(response.data, self.serialize_program(program))
 
     def test_authentication(self):
         """ Verify the endpoint requires the user to be authenticated. """
@@ -89,7 +89,7 @@ class ProgramViewSetTests(APITestCase):
         with self.assertNumQueries(55):
             self.assert_retrieve_success(program)
 
-    def assert_list_results(self, url, expected, expected_query_count):
+    def assert_list_results(self, url, expected, expected_query_count, extra_context=None):
         """
         Asserts the results serialized/returned at the URL matches those that are expected.
         Args:
@@ -108,7 +108,7 @@ class ProgramViewSetTests(APITestCase):
 
         self.assertEqual(
             response.data['results'],
-            ProgramSerializer(expected, many=True, context={'request': self.request}).data
+            self.serialize_program(expected, many=True, extra_context=extra_context)
         )
 
     def test_list(self):
@@ -154,3 +154,9 @@ class ProgramViewSetTests(APITestCase):
         expected = programs if is_marketable else []
         self.assertEqual(list(Program.objects.marketable()), expected)
         self.assert_list_results(url, expected, expected_query_count)
+
+    def test_list_exclude_utm(self):
+        """ Verify the endpoint returns marketing URLs without UTM parameters. """
+        url = self.list_path + '?exclude_utm=1'
+        program = self.create_program()
+        self.assert_list_results(url, [program], 33, extra_context={'exclude_utm': 1})
