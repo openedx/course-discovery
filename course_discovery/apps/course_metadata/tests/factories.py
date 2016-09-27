@@ -251,6 +251,7 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     min_hours_effort_per_week = FuzzyInteger(2)
     max_hours_effort_per_week = FuzzyInteger(4)
     credit_redemption_overview = FuzzyText()
+    order_courses_by_start_date = True
 
     @factory.post_generation
     def courses(self, create, extracted, **kwargs):

@@ -493,7 +493,10 @@ class ProgramSerializer(serializers.ModelSerializer):
         )
 
     def get_courses(self, program):
-        courses, course_runs = self.sort_courses(program)
+        if program.order_courses_by_start_date:
+            courses, course_runs = self.sort_courses(program)
+        else:
+            courses, course_runs = program.courses.all(), program.course_runs
 
         course_serializer = ProgramCourseSerializer(
             courses,

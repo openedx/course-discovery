@@ -67,6 +67,21 @@ class ProgramViewSetTests(APITestCase):
         with self.assertNumQueries(89):
             self.assert_retrieve_success(program)
 
+    @ddt.data(
+        (True),
+        (False),
+    )
+    def test_retrieve_with_sorting_flag(self, order_courses_by_start_date=True):
+        """ Verify the number of queries is the same with sorting flag set to true. """
+        course_list = CourseFactory.create_batch(3)
+        for course in course_list:
+            CourseRunFactory(course=course)
+        program = ProgramFactory(courses=course_list, order_courses_by_start_date=order_courses_by_start_date)
+        num_queries = 132 if order_courses_by_start_date else 114
+        with self.assertNumQueries(num_queries):
+            self.assert_retrieve_success(program)
+        self.assertEqual(course_list, list(program.courses.all()))  # pylint: disable=no-member
+
     def test_retrieve_without_course_runs(self):
         """ Verify the endpoint returns data for a program even if the program's courses have no course runs. """
         course = CourseFactory()
