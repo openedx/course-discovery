@@ -75,6 +75,7 @@ PREFETCH_FIELDS = {
         'course__programs',
         'course__programs__partner',
         'course__programs__type',
+        'course__programs__excluded_course_runs',
         'language',
         'seats',
         'seats__currency',
@@ -350,7 +351,13 @@ class CourseRunSerializer(TimestampModelSerializer):
 
 class CourseRunWithProgramsSerializer(CourseRunSerializer):
     """A ``CourseRunSerializer`` which includes programs derived from parent course."""
-    programs = NestedProgramSerializer(many=True)
+    programs = serializers.SerializerMethodField()
+
+    def get_programs(self, obj):
+        programs = [program for program in obj.programs.all()
+                    if obj.id not in (run.id for run in program.excluded_course_runs.all())]
+
+        return NestedProgramSerializer(programs, many=True).data
 
     class Meta(CourseRunSerializer.Meta):
         model = CourseRun

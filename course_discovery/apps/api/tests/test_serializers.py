@@ -190,6 +190,23 @@ class CourseRunWithProgramsSerializerTests(TestCase):
 
         self.assertDictEqual(serializer.data, expected)
 
+    def test_data_excluded_course_run(self):
+        """
+        If a course run is excluded on a program, that program should not be
+        returned for that course run on the course run endpoint.
+        """
+        request = make_request()
+        course_run = CourseRunFactory()
+        serializer_context = {'request': request}
+        serializer = CourseRunWithProgramsSerializer(course_run, context=serializer_context)
+        ProgramFactory(courses=[course_run.course], excluded_course_runs=[course_run])
+        expected = CourseRunSerializer(course_run, context=serializer_context).data
+        expected.update({
+            'programs': [],
+        })
+
+        self.assertDictEqual(serializer.data, expected)
+
 
 class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover
     def serialize_seats(self, course_run):
