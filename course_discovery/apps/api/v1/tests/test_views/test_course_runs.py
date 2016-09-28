@@ -8,7 +8,7 @@ from django.db.models.functions import Lower
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase, APIRequestFactory
 
-from course_discovery.apps.api.serializers import CourseRunWithProgramsSerializer
+from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.models import CourseRun
@@ -16,7 +16,7 @@ from course_discovery.apps.course_metadata.tests.factories import CourseRunFacto
 
 
 @ddt.ddt
-class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
+class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestCase):
     def setUp(self):
         super(CourseRunViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
@@ -27,9 +27,6 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
         self.refresh_index()
         self.request = APIRequestFactory().get('/')
         self.request.user = self.user
-
-    def serialize_course_run(self, course_run, **kwargs):
-        return CourseRunWithProgramsSerializer(course_run, context={'request': self.request}, **kwargs).data
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single course. """
@@ -78,11 +75,14 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 400)
 
-    def assert_list_results(self, url, expected):
+    def assert_list_results(self, url, expected, extra_context=None):
         expected = sorted(expected, key=lambda course_run: course_run.key.lower())
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertListEqual(response.data['results'], self.serialize_course_run(expected, many=True))
+        self.assertListEqual(
+            response.data['results'],
+            self.serialize_course_run(expected, many=True, extra_context=extra_context)
+        )
 
     def test_filter_by_keys(self):
         """ Verify the endpoint returns a list of course runs filtered by the specified keys. """
@@ -125,6 +125,11 @@ class CourseRunViewSetTests(ElasticsearchTestMixin, APITestCase):
         expected = [active_enrollment_end, active_no_enrollment_end]
         url = reverse('api:v1:course_run-list') + '?active=1'
         self.assert_list_results(url, expected)
+
+    def test_list_exclude_utm(self):
+        """ Verify the endpoint returns marketing URLs without UTM parameters. """
+        url = reverse('api:v1:course_run-list') + '?exclude_utm=1'
+        self.assert_list_results(url, CourseRun.objects.all(), extra_context={'exclude_utm': 1})
 
     def test_contains_single_course_run(self):
         """ Verify that a single course_run is contained in a query """

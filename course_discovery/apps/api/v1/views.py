@@ -26,6 +26,7 @@ from course_discovery.apps.api import serializers
 from course_discovery.apps.api.exceptions import InvalidPartnerError
 from course_discovery.apps.api.pagination import PageNumberPagination
 from course_discovery.apps.api.renderers import AffiliateWindowXMLRenderer, CourseRunCSVRenderer
+from course_discovery.apps.api.utils import cast2int
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_RUN_ID_REGEX
@@ -33,6 +34,13 @@ from course_discovery.apps.course_metadata.models import Course, CourseRun, Part
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
+
+
+def get_query_param(request, name):
+    """
+    Get a query parameter and cast it to an integer.
+    """
+    return cast2int(request.query_params.get(name), name)
 
 
 def prefetch_related_objects_for_courses(queryset):
@@ -222,6 +230,14 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
 
         return queryset.order_by(Lower('key'))
 
+    def get_serializer_context(self, *args, **kwargs):
+        context = super().get_serializer_context(*args, **kwargs)
+        context.update({
+            'exclude_utm': get_query_param(self.request, 'exclude_utm'),
+        })
+
+        return context
+
     def list(self, request, *args, **kwargs):
         """ List all courses.
          ---
@@ -236,6 +252,12 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
               description: Filter by keys (comma-separated list)
               required: false
               type: string
+              paramType: query
+              multiple: false
+            - name: exclude_utm
+              description: Exclude UTM parameters from marketing URLs.
+              required: false
+              type: integer
               paramType: query
               multiple: false
         """
@@ -284,6 +306,14 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = queryset.prefetch_related(*serializers.PREFETCH_FIELDS['course_run'])
             return queryset
 
+    def get_serializer_context(self, *args, **kwargs):
+        context = super().get_serializer_context(*args, **kwargs)
+        context.update({
+            'exclude_utm': get_query_param(self.request, 'exclude_utm'),
+        })
+
+        return context
+
     def list(self, request, *args, **kwargs):
         """ List all courses runs.
         ---
@@ -316,6 +346,12 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
             - name: marketable
               description: Retrieve marketable course runs. A course run is considered marketable if it has a
                 marketing slug.
+              required: false
+              type: integer
+              paramType: query
+              multiple: false
+            - name: exclude_utm
+              description: Exclude UTM parameters from marketing URLs.
               required: false
               type: integer
               paramType: query
@@ -388,7 +424,11 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_serializer_context(self, *args, **kwargs):
         context = super().get_serializer_context(*args, **kwargs)
-        context['published_course_runs_only'] = int(self.request.GET.get('published_course_runs_only', 0))
+        context.update({
+            'published_course_runs_only': get_query_param(self.request, 'published_course_runs_only'),
+            'exclude_utm': get_query_param(self.request, 'exclude_utm'),
+        })
+
         return context
 
     def list(self, request, *args, **kwargs):
@@ -414,6 +454,12 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
               type: integer
               paramType: query
               mulitple: false
+            - name: exclude_utm
+              description: Exclude UTM parameters from marketing URLs.
+              required: false
+              type: integer
+              paramType: query
+              multiple: false
         """
         return super(ProgramViewSet, self).list(request, *args, **kwargs)
 

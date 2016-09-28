@@ -9,6 +9,8 @@ from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 
 
 class CourseViewSetTests(SerializationMixin, APITestCase):
+    maxDiff = None
+
     def setUp(self):
         super(CourseViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
@@ -58,3 +60,14 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         with self.assertNumQueries(35):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
+
+    def test_list_exclude_utm(self):
+        """ Verify the endpoint returns marketing URLs without UTM parameters. """
+        url = reverse('api:v1:course-list') + '?exclude_utm=1'
+
+        response = self.client.get(url)
+        context = {'exclude_utm': 1}
+        self.assertEqual(
+            response.data['results'],
+            self.serialize_course([self.course], many=True, extra_context=context)
+        )

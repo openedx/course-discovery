@@ -107,24 +107,30 @@ SELECT_RELATED_FIELDS = {
 }
 
 
-def get_marketing_url_for_user(user, marketing_url):
+def get_marketing_url_for_user(user, marketing_url, exclude_utm=False):
     """
     Return the given marketing URL with affiliate query parameters for the user.
 
     Arguments:
-        user (User): the user to use to construct the query parameters.
-        marketing_url (str | None): the base URL.
+        user (User): Used to construct UTM query parameters.
+        marketing_url (str | None): Base URL to which UTM parameters may be appended.
+
+    Keyword Arguments:
+        exclude_utm (bool): Whether to exclude UTM parameters from marketing URLs.
 
     Returns:
         str | None
     """
-    if marketing_url is None:
+    if not marketing_url:
         return None
-    params = urlencode({
-        'utm_source': user.username,
-        'utm_medium': user.referral_tracking_id,
-    })
-    return '{url}?{params}'.format(url=marketing_url, params=params)
+    elif exclude_utm:
+        return marketing_url
+    else:
+        params = urlencode({
+            'utm_source': user.username,
+            'utm_medium': user.referral_tracking_id,
+        })
+        return '{url}?{params}'.format(url=marketing_url, params=params)
 
 
 class TimestampModelSerializer(serializers.ModelSerializer):
@@ -343,7 +349,11 @@ class CourseRunSerializer(TimestampModelSerializer):
         )
 
     def get_marketing_url(self, obj):
-        return get_marketing_url_for_user(self.context['request'].user, obj.marketing_url)
+        return get_marketing_url_for_user(
+            self.context['request'].user,
+            obj.marketing_url,
+            exclude_utm=self.context.get('exclude_utm')
+        )
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
         return []
@@ -405,7 +415,11 @@ class CourseSerializer(TimestampModelSerializer):
         )
 
     def get_marketing_url(self, obj):
-        return get_marketing_url_for_user(self.context['request'].user, obj.marketing_url)
+        return get_marketing_url_for_user(
+            self.context['request'].user,
+            obj.marketing_url,
+            exclude_utm=self.context.get('exclude_utm')
+        )
 
 
 class CourseWithProgramsSerializer(CourseSerializer):
@@ -447,7 +461,10 @@ class ProgramCourseSerializer(CourseSerializer):
         return CourseRunSerializer(
             course_runs,
             many=True,
-            context={'request': self.context.get('request')}
+            context={
+                'request': self.context.get('request'),
+                'exclude_utm': self.context.get('exclude_utm'),
+            }
         ).data
 
 
@@ -510,8 +527,9 @@ class ProgramSerializer(serializers.ModelSerializer):
             many=True,
             context={
                 'request': self.context.get('request'),
-                'program': program,
                 'published_course_runs_only': self.context.get('published_course_runs_only'),
+                'exclude_utm': self.context.get('exclude_utm'),
+                'program': program,
                 'course_runs': course_runs,
             }
         )
