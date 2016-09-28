@@ -1,8 +1,9 @@
 # pylint: disable=no-member
-import ddt
 from unittest import mock
 
 from django.test import TestCase
+
+import ddt
 
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.models import Seat, State
