@@ -2,3 +2,19 @@ SOCIAL_AUTH_EDX_OIDC_KEY = 'replace-me'
 SOCIAL_AUTH_EDX_OIDC_SECRET = 'replace-me'
 SOCIAL_AUTH_EDX_OIDC_URL_ROOT = 'http://127.0.0.1:8000/oauth'
 SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY = SOCIAL_AUTH_EDX_OIDC_SECRET
+
+# For default email backend following settings require
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 25
+EMAIL_USE_TLS = False
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+
+# For django-ses following credentials require for sending emails. For more details check the
+# documentation https://github.com/django-ses/django-ses.
+EMAIL_BACKEND = 'django_ses.SESBackend'
+AWS_ACCESS_KEY_ID ='replace-me'
+AWS_SECRET_ACCESS_KEY = 'replace-me'
+AWS_SES_REGION_NAME = 'replace-me'
+AWS_SES_REGION_ENDPOINT = 'replace-me'

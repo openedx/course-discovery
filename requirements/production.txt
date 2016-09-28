@@ -2,6 +2,7 @@
 -r base.txt
 
 certifi==2016.8.8
+django-ses==0.8.1
 gevent==1.1.2
 gunicorn==19.6.0
 mysqlclient==1.3.7
