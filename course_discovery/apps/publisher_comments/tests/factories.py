@@ -17,7 +17,7 @@ class CommentFactory(factory.DjangoModelFactory):
 
     comment = FuzzyText(prefix="Test Comment for çօմɾʂҽ")
     content_object = factory.SubFactory(CourseRunFactory)
-    user = UserFactory()
+    user = factory.SubFactory(UserFactory)
     site = factory.SubFactory(SiteFactory)
 
     class Meta:

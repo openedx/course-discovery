@@ -21,6 +21,7 @@ class AdminTests(TestCase):
 
     def test_comment_detail_form(self):
         """ Verify in admin panel comment detail form contain the custom modified field. """
+        # pylint: disable=no-member
         resp = self.client.get(reverse('admin:publisher_comments_comments_change', args=(self.comment.id,)))
         self.assertContains(resp, 'modified')
 
@@ -28,6 +29,6 @@ class AdminTests(TestCase):
         """ Verify in admin panel for comments loads only three models in content type drop down. """
         form = CommentsAdminForm(instance=self.comment)
         self.assertListEqual(
-            sorted([con.model for con in form.fields['content_type']._queryset]),
+            sorted([con.model for con in form.fields['content_type']._queryset]),   # pylint: disable=protected-access
             sorted(['courserun', 'seat', 'course'])
         )

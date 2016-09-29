@@ -1,7 +1,8 @@
 from datetime import datetime
 
-import factory
 from django.contrib.auth.models import Group
+
+import factory
 from factory.fuzzy import FuzzyText, FuzzyChoice, FuzzyDecimal, FuzzyDateTime, FuzzyInteger
 from pytz import UTC
 

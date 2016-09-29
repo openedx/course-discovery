@@ -1,3 +1,4 @@
+# pylint: disable=no-member
 import ddt
 from mock import patch
 from django.conf import settings
@@ -647,10 +648,10 @@ class CourseRunDetailTests(TestCase):
 
     def _assert_dates(self, response):
         """ Helper method to test all dates. """
-        for value in [
-            self.course_run.start, self.course_run.end,
-            self.course_run.enrollment_start, self.course_run.enrollment_end
-        ]:
+        for value in [self.course_run.start,
+                      self.course_run.end,
+                      self.course_run.enrollment_start,
+                      self.course_run.enrollment_end]:
             self.assertContains(response, value.strftime(self.date_format))
 
     def _assert_subjects(self, response):
@@ -681,7 +682,7 @@ class CourseRunDetailTests(TestCase):
         """ Verify that `ViewPermissionMixin.get_course` return none
         if `publisher_object` doesn't have `course` attr.
         """
-        non_staff_user, group = create_non_staff_user_and_login(self)
+        non_staff_user, group = create_non_staff_user_and_login(self)   # pylint: disable=unused-variable
         page_url = reverse('publisher:publisher_course_run_detail', args=[self.course_run.id])
         with patch.object(CourseRunDetailView, 'get_object', return_value=non_staff_user):
             response = self.client.get(page_url)

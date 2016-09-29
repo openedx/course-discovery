@@ -10,6 +10,7 @@ from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
 
 
+# pylint: disable=no-member
 class CommentsTests(TestCase):
     """ Tests for the Comment functionality on `Courser`, `CourseRun` And `Seat` edit pages. """
     def setUp(self):
@@ -43,7 +44,7 @@ class CommentsTests(TestCase):
         self.assertContains(response, 'Total Comments 0')
 
         comments = []
-        for num in range(1, 10):
+        for num in range(1, 10):    # pylint: disable=unused-variable
             comments.append(self._generate_comment(content_object=content_object, user=self.user))
         response = self.client.get(reverse(page_path, kwargs={'pk': content_object.id}))
         for comment in comments:
