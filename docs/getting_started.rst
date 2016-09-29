@@ -111,7 +111,7 @@ Additional optional attributes can be specified:
 +===============================+=========================================+====================================================+
 | courses-api-url               | LMS Courses API Endpoint                | https://lms.example.com/api/v1/courses/            |
 +-------------------------------+-----------------------------------------+----------------------------------------------------+
-| ecommerce-api-url             | Ecommerce API Endpoint                  | https://ecommerce.example.com/api/v2/             |
+| ecommerce-api-url             | Ecommerce API Endpoint                  | https://ecommerce.example.com/api/v2/              |
 +-------------------------------+-----------------------------------------+----------------------------------------------------+
 | organizations-api-url         | Organizations API Endpoint              | https://orgs.example.com/api/v1/organizations/     |
 +-------------------------------+-----------------------------------------+----------------------------------------------------+
