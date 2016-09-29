@@ -1,10 +1,11 @@
 # pylint: disable=no-member
+from datetime import datetime, timedelta
 from unittest import mock
 
 from django.test import TestCase
-
 import ddt
 
+from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.models import Seat, State
 from course_discovery.apps.publisher.tests import factories
@@ -19,11 +20,9 @@ class CourseRunWrapperTests(TestCase):
         super(CourseRunWrapperTests, self).setUp()
         self.course_run = factories.CourseRunFactory()
         self.course = self.course_run.course
-        organization_1 = OrganizationFactory()
-        organization_2 = OrganizationFactory()
+        organization = OrganizationFactory()
 
-        self.course.organizations.add(organization_1)
-        self.course.organizations.add(organization_2)
+        self.course.organizations.add(organization)
         self.course.save()
 
         self.wrapped_course_run = CourseRunWrapper(self.course_run)
@@ -34,6 +33,8 @@ class CourseRunWrapperTests(TestCase):
 
     def test_partner(self):
         """ Verify that the wrapper can return partner values. """
+        organization = OrganizationFactory()
+        self.course.organizations.add(organization)
         partner = "/".join([org.key for org in self.course_run.course.organizations.all()])
         self.assertEqual(self.wrapped_course_run.partner, partner)
 
@@ -101,3 +102,47 @@ class CourseRunWrapperTests(TestCase):
     def test_workflow_state(self):
         """ Verify that the wrapper can return workflow state. """
         self.assertEqual(self.wrapped_course_run.workflow_state, State.DRAFT.title())
+
+    def test_organization_name(self):
+        """ Verify that the wrapper return the organization name. """
+        course = factories.CourseFactory()
+        course_run = factories.CourseRunFactory(course=course)
+        wrapped_course_run = CourseRunWrapper(course_run)
+        self.assertEqual(wrapped_course_run.organization_name, None)
+
+        organization = OrganizationFactory()
+        course.organizations.add(organization)
+        wrapped_course_run = CourseRunWrapper(course_run)
+        self.assertEqual(wrapped_course_run.organization_name, organization.name)
+
+    def test_is_authored_in_studio(self):
+        """ Verify that the wrapper return the is_authored_in_studio. """
+        self.assertFalse(self.wrapped_course_run.is_authored_in_studio)
+        self.course_run.lms_course_id = 'test/course/id'
+        self.course_run.save()
+        self.assertTrue(self.wrapped_course_run.is_authored_in_studio)
+
+    def test_is_multiple_partner_course(self):
+        """ Verify that the wrapper return the is_multiple_partner_course. """
+        self.assertFalse(self.wrapped_course_run.is_multiple_partner_course)
+        organization = OrganizationFactory()
+        self.course.organizations.add(organization)
+
+        self.assertTrue(self.wrapped_course_run.is_multiple_partner_course)
+
+    def test_is_self_paced(self):
+        """ Verify that the wrapper return the is_self_paced. """
+        self.course_run.pacing_type = CourseRunPacing.Instructor
+        self.course_run.save()
+        self.assertFalse(self.wrapped_course_run.is_self_paced)
+        self.course_run.pacing_type = CourseRunPacing.Self
+        self.course_run.save()
+        self.assertTrue(self.wrapped_course_run.is_self_paced)
+
+    def test_mdc_submission_due_date(self):
+        """ Verify that the wrapper return the mdc_submission_due_date. """
+        current_date = datetime.today()
+        expected_date = current_date - timedelta(days=10)
+        self.course_run.start = current_date
+        self.course_run.save()
+        self.assertEqual(self.wrapped_course_run.mdc_submission_due_date, expected_date)

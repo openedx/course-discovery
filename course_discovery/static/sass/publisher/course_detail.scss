@@ -18,6 +18,11 @@
   margin: auto;
   overflow: auto;
 
+  .tabs {
+      width: 100%;
+      display: inline-block;
+  }
+
   .actions {
       margin-top: 30px;
   }

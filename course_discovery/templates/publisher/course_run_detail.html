@@ -12,6 +12,7 @@
         <button data-tab="#tab-2">{% trans "STUDIO" %}</button>
         <button data-tab="#tab-3">{% trans "CAT" %}</button>
         <button data-tab="#tab-4">{% trans "DRUPAL" %}</button>
+        <button data-tab="#tab-5">{% trans "Salesforce" %}</button>
     </div>
 </nav>
 
@@ -48,7 +49,7 @@
         </div>
     </div>
 
-    <div class="tab">
+    <div class="tabs">
         <div id="tab-1" class="tab-content active">
             {% include 'publisher/course_run_detail/_all.html' %}
         </div>
@@ -60,6 +61,9 @@
         </div>
         <div id="tab-4" class="tab-content">
             {% include 'publisher/course_run_detail/_drupal.html' %}
+        </div>
+        <div id="tab-5" class="tab-content">
+            {% include 'publisher/course_run_detail/_salesforce.html' %}
         </div>
     </div>
 

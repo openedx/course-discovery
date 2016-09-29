@@ -1,5 +1,9 @@
 """Publisher Wrapper Classes"""
+from datetime import timedelta
+
 from django.utils.translation import ugettext_lazy as _
+
+from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.publisher.models import Seat, State
 
 CHANGE_STATE_BUTTON_VALUES = {
@@ -51,14 +55,21 @@ class CourseRunWrapper(BaseWrapper):
 
     @property
     def persons(self):
-        return ', '.join([person.name for person in self.wrapped_obj.staff.all()])
+        return ', '.join([person.full_name for person in self.wrapped_obj.staff.all()])
 
     @property
     def verified_seat_price(self):
-        seats = [seat for seat in self.wrapped_obj.seats.all() if seat.type == Seat.VERIFIED]
-        if not seats:
+        seat = self.wrapped_obj.seats.filter(type=Seat.VERIFIED).first()
+        if not seat:
             return None
-        return seats[0].price
+        return seat.price
+
+    @property
+    def verified_seat_expiry(self):
+        seat = self.wrapped_obj.seats.filter(type=Seat.VERIFIED).first()
+        if not seat:
+            return None
+        return seat.upgrade_deadline
 
     @property
     def number(self):
@@ -119,10 +130,10 @@ class CourseRunWrapper(BaseWrapper):
 
     @property
     def organization_key(self):
-        organizations = self.wrapped_obj.course.organizations.all()
-        if not organizations:
+        organization = self.wrapped_obj.course.organizations.first()
+        if not organization:
             return None
-        return organizations[0].key
+        return organization.key
 
     @property
     def workflow_state(self):
@@ -131,3 +142,43 @@ class CourseRunWrapper(BaseWrapper):
     @property
     def change_state_button(self):
         return CHANGE_STATE_BUTTON_VALUES.get(self.wrapped_obj.state.name)
+
+    @property
+    def organization_name(self):
+        organization = self.wrapped_obj.course.organizations.first()
+        if not organization:
+            return None
+        return organization.name
+
+    @property
+    def is_authored_in_studio(self):
+        if self.wrapped_obj.lms_course_id:
+            return True
+
+        return False
+
+    @property
+    def is_multiple_partner_course(self):
+        organizations_count = self.wrapped_obj.course.organizations.all().count()
+        if organizations_count > 1:
+            return True
+
+        return False
+
+    @property
+    def is_self_paced(self):
+        if self.wrapped_obj.pacing_type == CourseRunPacing.Self:
+            return True
+
+        return False
+
+    @property
+    def mdc_submission_due_date(self):
+        if self.wrapped_obj.start:
+            return self.wrapped_obj.start - timedelta(days=10)
+
+        return None
+
+    @property
+    def verification_deadline(self):
+        return self.wrapped_obj.course.verification_deadline
