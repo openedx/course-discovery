@@ -258,7 +258,7 @@
 </div>
 
 <div class="comment-container">
-    <a href="{% url 'publisher:publisher_course_runs_edit' pk=object.id %}" target="_blank" class="btn btn-neutral btn-add">
+    <a href="{% url 'publisher:publisher_course_runs_edit' pk=object.id %}" class="btn btn-neutral btn-add">
         <span class="icon fa fa-edit" aria-hidden="true"></span>&nbsp;&nbsp;{% trans "Edit" %}
     </a>
     {% include 'comments/comments_list.html' %}

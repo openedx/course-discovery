@@ -792,3 +792,29 @@ class CourseRunListViewTests(TestCase):
         response = self.client.get(self.page_url)
 
         self.assertEqual(response.status_code, 200)
+
+    def test_published_and_unpublished_course_runs(self):
+        """ Verify that user can access published and un-published course runs. """
+        # Create two courses with `DRAFT` and `NEEDS_REVIEW` state
+        draft_state = factories.StateFactory(name=State.DRAFT)
+        in_review_state = factories.StateFactory(name=State.NEEDS_REVIEW)
+        factories.CourseRunFactory(state=draft_state)
+        factories.CourseRunFactory(state=in_review_state)
+
+        response = self.client.get(self.page_url)
+        self.assertEqual(response.status_code, 200)
+
+        # Verify that we have 2 in progress and 0 published course runs
+        self.assertEqual(len(response.context['object_list']), 2)
+        self.assertEqual(len(response.context['published_courseruns']), 0)
+
+        # create a course with `PUBLISHED` state
+        published_state = factories.StateFactory(name=State.PUBLISHED)
+        factories.CourseRunFactory(state=published_state)
+
+        response = self.client.get(self.page_url)
+        self.assertEqual(response.status_code, 200)
+
+        # Verify that we have 2 in progress and 1 published course runs
+        self.assertEqual(len(response.context['object_list']), 2)
+        self.assertEqual(len(response.context['published_courseruns']), 1)

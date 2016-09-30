@@ -1,0 +1,9 @@
+{% load staticfiles %}
+<header class="header">
+    <div class="layout layout-header">
+        {% url 'publisher:publisher_course_runs' as course_runs_url %}
+        <a href="{{ course_runs_url }}">
+            <img src="{% static 'images/logo.png' %}">
+        </a>
+    </div>
+</header>

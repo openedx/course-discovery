@@ -9,7 +9,7 @@
 <head lang="{{ language_code }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock title %}</title>
+    <title>{% block title %}{% endblock title %} | {{ platform_name }}</title>
     <script type="text/javascript" language="javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="{% static 'bower_components/underscore/underscore.js' %}"></script>
     <script src="{% static 'bower_components/moment/moment.js' %}"></script>
@@ -35,9 +35,41 @@
 </head>
 
 <body>
-{% block content %}
+<div class="container">
+    <br>
+    {% include 'header.html' %}
+    <br>
+    <div class="layout-1q3q layout-flush border-top">
+        <main class="layout-col layout-col-a layout-col-menu">
+            <div class="institute-logo">
+                <img width="250" height="200" src="{% static 'images/institute-logo.png' %}">
+            </div>
+            <ul class="list-divided menu-list">
+                <li class="item">
+                    {% url 'publisher:publisher_course_runs' as course_runs_url %}
+                    <a class="btn {% if request.path == course_runs_url %}active{% endif %}" href="{{ course_runs_url }}">
+                        {% trans "Course Runs" %}
+                    </a>
+                </li>
+                <li class="item">
+                    <a class="btn {% if request.path == new_course_url %}active{% endif %}" href="/publisher/course/">
+                        {% trans "Courses" %}
+                    </a>
+                </li>
+            </ul>
+        </main>
 
-{% endblock content %}
+        <aside class="layout-col layout-col-b border-left">
+            {% block content %}
+
+            {% endblock content %}
+        </aside>
+
+    </div>
+
+    {% include 'footer.html' %}
+
+</div>
 
 {% block extra_js %}
 
