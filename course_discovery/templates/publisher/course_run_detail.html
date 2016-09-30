@@ -68,9 +68,11 @@
     </div>
 
     <div class="actions">
-        <form action="{% url 'publisher:publisher_change_state' course_run_id=object.id %}" method="post"> {% csrf_token %}
-            <button type="submit" value="{{ object.change_state_button.value }}" class="btn-brand btn-small btn-states" name="state">{{ object.change_state_button.text }}</button>
-        </form>
+        {% if object.change_state_button %}
+            <form action="{% url 'publisher:publisher_change_state' course_run_id=object.id %}" method="post"> {% csrf_token %}
+                <button type="submit" value="{{ object.change_state_button.value }}" class="btn-brand btn-small btn-states" name="state">{{ object.change_state_button.text }}</button>
+            </form>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
