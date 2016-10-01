@@ -54,6 +54,7 @@ production-requirements:
 
 test: clean
 	coverage run ./manage.py test course_discovery --settings=course_discovery.settings.test
+	coverage combine
 	coverage report
 
 quality:
