@@ -2,6 +2,7 @@
 branch = True
 data_file = .coverage
 source=course_discovery
+concurrency=multiprocessing
 omit =
     course_discovery/settings*
     course_discovery/conf*

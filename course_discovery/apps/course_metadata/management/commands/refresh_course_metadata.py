@@ -3,6 +3,7 @@ import itertools
 import logging
 
 from django.core.management import BaseCommand, CommandError
+from django.db import connections
 from edx_rest_api_client.client import EdxRestApiClient
 import waffle
 
@@ -25,6 +26,24 @@ def execute_loader(loader_class, *loader_args):
         loader_class(*loader_args).ingest()
     except Exception:  # pylint: disable=broad-except
         logger.exception('%s failed!', loader_class.__name__)
+
+
+def execute_parallel_loader(loader_class, *loader_args):
+    """
+    ProcessPoolExecutor uses the multiprocessing module. Multiprocessing forks processes,
+    causing connection objects to be copied across processes. The key goal when running
+    multiple Python processes is to prevent any database connections from being shared
+    across processes. Depending on specifics of the driver and OS, the issues that arise
+    here range from non-working connections to socket connections that are used by multiple
+    processes concurrently, leading to broken messaging (e.g., 'MySQL server has gone away').
+
+    To get around this, we force each process to open its own connection to the database by
+    closing the existing, copied connection as soon as we're within the new process. This works
+    because Django is smart enough to initialize a new connection the next time one is necessary.
+    """
+    connections.close_all()
+
+    execute_loader(loader_class, *loader_args)
 
 
 class Command(BaseCommand):
@@ -105,7 +124,7 @@ class Command(BaseCommand):
             # to create courses. If courses do exist, this command is likely being run
             # as an update, significantly lowering the probability of race conditions.
             courses_exist = Course.objects.filter(partner=partner).exists()
-            is_threadsafe = True if courses_exist and waffle.switch_is_active('threaded_metadata_write') else False
+            is_threadsafe = courses_exist and waffle.switch_is_active('threaded_metadata_write')
 
             logger.info(
                 'Command is{negation} using threads to write data.'.format(negation='' if is_threadsafe else ' not')
@@ -140,7 +159,7 @@ class Command(BaseCommand):
                         for loader_class, api_url, max_workers_override in stage:
                             if api_url:
                                 executor.submit(
-                                    execute_loader,
+                                    execute_parallel_loader,
                                     loader_class,
                                     partner,
                                     api_url,
