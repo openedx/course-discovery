@@ -1,7 +1,10 @@
+import concurrent.futures
+import itertools
 import logging
 
 from django.core.management import BaseCommand, CommandError
 from edx_rest_api_client.client import EdxRestApiClient
+import waffle
 
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.data_loaders.api import (
@@ -11,8 +14,17 @@ from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
     XSeriesMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
     SponsorMarketingSiteDataLoader, PersonMarketingSiteDataLoader, CourseMarketingSiteDataLoader,
 )
+from course_discovery.apps.course_metadata.models import Course
+
 
 logger = logging.getLogger(__name__)
+
+
+def execute_loader(loader_class, *loader_args):
+    try:
+        loader_class(*loader_args).ingest()
+    except Exception:  # pylint: disable=broad-except
+        logger.exception('%s failed!', loader_class.__name__)
 
 
 class Command(BaseCommand):
@@ -88,30 +100,67 @@ class Command(BaseCommand):
                     logger.exception('No access token provided or acquired through client_credential flow.')
                     raise
 
-            data_loaders = (
-                (partner.marketing_site_url_root, SubjectMarketingSiteDataLoader, None),
-                (partner.marketing_site_url_root, SchoolMarketingSiteDataLoader, None),
-                (partner.marketing_site_url_root, SponsorMarketingSiteDataLoader, None),
-                (partner.marketing_site_url_root, PersonMarketingSiteDataLoader, None),
-                (partner.marketing_site_url_root, CourseMarketingSiteDataLoader, None),
-                (partner.organizations_api_url, OrganizationsApiDataLoader, None),
-                (partner.courses_api_url, CoursesApiDataLoader, None),
-                (partner.ecommerce_api_url, EcommerceApiDataLoader, 1),
-                (partner.programs_api_url, ProgramsApiDataLoader, None),
-                (partner.marketing_site_url_root, XSeriesMarketingSiteDataLoader, None),
+            # If no courses exist for this partner, this command is likely being run on a
+            # new catalog installation. In that case, we don't want multiple threads racing
+            # to create courses. If courses do exist, this command is likely being run
+            # as an update, significantly lowering the probability of race conditions.
+            courses_exist = Course.objects.filter(partner=partner).exists()
+            is_threadsafe = True if courses_exist and waffle.switch_is_active('threaded_metadata_write') else False
+
+            logger.info(
+                'Command is{negation} using threads to write data.'.format(negation='' if is_threadsafe else ' not')
             )
 
-            for api_url, loader_class, max_workers_override in data_loaders:
-                if api_url:
-                    try:
-                        loader_class(
+            pipeline = (
+                (
+                    (SubjectMarketingSiteDataLoader, partner.marketing_site_url_root, None),
+                    (SchoolMarketingSiteDataLoader, partner.marketing_site_url_root, None),
+                    (SponsorMarketingSiteDataLoader, partner.marketing_site_url_root, None),
+                    (PersonMarketingSiteDataLoader, partner.marketing_site_url_root, None),
+                ),
+                (
+                    (CourseMarketingSiteDataLoader, partner.marketing_site_url_root, None),
+                    (OrganizationsApiDataLoader, partner.organizations_api_url, None),
+                ),
+                (
+                    (CoursesApiDataLoader, partner.courses_api_url, None),
+                ),
+                (
+                    (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),
+                    (ProgramsApiDataLoader, partner.programs_api_url, None),
+                ),
+                (
+                    (XSeriesMarketingSiteDataLoader, partner.marketing_site_url_root, None),
+                ),
+            )
+
+            if waffle.switch_is_active('parallel_refresh_pipeline'):
+                for stage in pipeline:
+                    with concurrent.futures.ProcessPoolExecutor() as executor:
+                        for loader_class, api_url, max_workers_override in stage:
+                            if api_url:
+                                executor.submit(
+                                    execute_loader,
+                                    loader_class,
+                                    partner,
+                                    api_url,
+                                    access_token,
+                                    token_type,
+                                    (max_workers_override or max_workers),
+                                    is_threadsafe,
+                                )
+            else:
+                # Flatten pipeline and run serially.
+                for loader_class, api_url, max_workers_override in itertools.chain(*(stage for stage in pipeline)):
+                    if api_url:
+                        execute_loader(
+                            loader_class,
                             partner,
                             api_url,
                             access_token,
                             token_type,
-                            (max_workers_override or max_workers)
-                        ).ingest()
-                    except Exception:  # pylint: disable=broad-except
-                        logger.exception('%s failed!', loader_class.__name__)
+                            (max_workers_override or max_workers),
+                            is_threadsafe,
+                        )
 
             # TODO Cleanup CourseRun overrides equivalent to the Course values.

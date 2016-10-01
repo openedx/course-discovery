@@ -26,13 +26,15 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
     SUPPORTED_TOKEN_TYPES = ('bearer', 'jwt',)
     MARKDOWN_CLEANUP_REGEX = re.compile(r'^<p>(.*)</p>$')
 
-    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None):
+    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None, is_threadsafe=False):
         """
         Arguments:
             partner (Partner): Partner which owns the APIs and data being loaded
             api_url (str): URL of the API from which data is loaded
             access_token (str): OAuth2 access token
             token_type (str): The type of access token passed in (e.g. Bearer, JWT)
+            max_workers (int): Number of worker threads to use when traversing paginated responses.
+            is_threadsafe (bool): True if multiple threads can be used to write data.
         """
         if token_type:
             token_type = token_type.lower()
@@ -46,6 +48,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         self.api_url = api_url.strip('/')
 
         self.max_workers = max_workers
+        self.is_threadsafe = is_threadsafe
 
     @cached_property
     def api_client(self):
