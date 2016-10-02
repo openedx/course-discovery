@@ -3,7 +3,7 @@ import itertools
 import logging
 
 from django.core.management import BaseCommand, CommandError
-from django.db import connections
+from django.db import connection
 from edx_rest_api_client.client import EdxRestApiClient
 import waffle
 
@@ -39,9 +39,10 @@ def execute_parallel_loader(loader_class, *loader_args):
 
     To get around this, we force each process to open its own connection to the database by
     closing the existing, copied connection as soon as we're within the new process. This works
-    because Django is smart enough to initialize a new connection the next time one is necessary.
+    because as long as there is no existing, open connection, Django is smart enough to initialize
+    a new connection the next time one is necessary.
     """
-    connections.close_all()
+    connection.close()
 
     execute_loader(loader_class, *loader_args)
 
@@ -118,6 +119,30 @@ class Command(BaseCommand):
                 except Exception:
                     logger.exception('No access token provided or acquired through client_credential flow.')
                     raise
+
+            # The Linux kernel implements copy-on-write when fork() is called to create a new
+            # process. Pages that the parent and child processes share, such as the database
+            # connection, are marked read-only. If a write is performed on a read-only page
+            # (e.g., closing the connection), it is then copied, since the memory is no longer
+            # identical between the two processes. This leads to the following behavior:
+            #
+            # 1) Newly forked process
+            #       parent
+            #              -> connection (Django open, MySQL open)
+            #       child
+            #
+            # 2) Child process closes the connection
+            #       parent -> connection (*Django open, MySQL closed*)
+            #       child  -> connection (Django closed, MySQL closed)
+            #
+            # Calling connection.close() from a child process causes the MySQL server to
+            # close a connection which the parent process thinks is still usable. Since
+            # the parent process thinks the connection is still open, Django won't attempt
+            # to open a new one, and the parent ends up running a query on a closed connection.
+            # This results in a 'MySQL server has gone away' error.
+            #
+            # To resolve this, we force Django to reconnect to the database before running any queries.
+            connection.connect()
 
             # If no courses exist for this partner, this command is likely being run on a
             # new catalog installation. In that case, we don't want multiple threads racing

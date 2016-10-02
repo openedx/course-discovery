@@ -4,7 +4,7 @@ import ddt
 import mock
 import responses
 from django.core.management import call_command, CommandError
-from django.test import TestCase
+from django.test import TransactionTestCase
 
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import mock_api_callback
@@ -24,7 +24,7 @@ JSON = 'application/json'
 
 
 @ddt.ddt
-class RefreshCourseMetadataCommandTests(TestCase):
+class RefreshCourseMetadataCommandTests(TransactionTestCase):
     def setUp(self):
         super(RefreshCourseMetadataCommandTests, self).setUp()
         self.partner = PartnerFactory()
