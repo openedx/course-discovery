@@ -49,8 +49,8 @@ class CustomCourseForm(CourseForm):
     """ Course Form. """
 
     institution = forms.ModelChoiceField(queryset=Group.objects.all(), required=True)
-    title = forms.CharField(label='Course Title', required=True, max_length=255)
-    number = forms.CharField(label='Course Number', required=True, max_length=255)
+    title = forms.CharField(label=_('Course Title'), required=True)
+    number = forms.CharField(label=_('Course Number'), required=True)
     team_admin = forms.ModelChoiceField(queryset=User.objects.filter(is_staff=True), required=True)
 
     class Meta(CourseForm.Meta):
@@ -78,7 +78,8 @@ class CustomCourseRunForm(CourseRunForm):
     contacted_partner_manager = forms.BooleanField(
         widget=forms.RadioSelect(choices=((1, _("Yes")), (0, _("No")))), initial=0, required=False
     )
-    start = forms.DateTimeField(required=True)
+    start = forms.DateTimeField(label=_('Course start date'), required=True)
+    end = forms.DateTimeField(label=_('Course end date'), required=False)
     staff = forms.ModelMultipleChoiceField(
         queryset=Person.objects.all(), widget=forms.SelectMultiple, required=False
     )
@@ -86,12 +87,13 @@ class CustomCourseRunForm(CourseRunForm):
         widget=forms.RadioSelect(
             choices=((1, _("Yes")), (0, _("No")))), initial=0, required=False
     )
+    is_self_paced = forms.BooleanField(label=_('Yes, course will be Self-Paced'), required=False)
 
     class Meta(CourseRunForm.Meta):
         fields = (
             'length', 'transcript_languages', 'language', 'min_effort', 'max_effort',
             'contacted_partner_manager', 'target_content', 'pacing_type',
-            'video_language', 'staff', 'start', 'end',
+            'video_language', 'staff', 'start', 'end', 'is_self_paced',
         )
 
 

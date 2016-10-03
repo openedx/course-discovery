@@ -11,10 +11,7 @@ from django.db import transaction
 from django.http import HttpResponseRedirect, HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import View
-from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, UpdateView
-from django.views.generic.list import ListView
+from django.views.generic import View, CreateView, UpdateView, DetailView, ListView
 from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import get_objects_for_user
 from rest_framework.generics import UpdateAPIView
@@ -177,15 +174,23 @@ class ReadOnlyView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, Detail
         return context
 
 
-class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.FormValidMixin, CreateView):
+class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
     """ Create Course Run View."""
     model = CourseRun
-    form_class = CourseRunForm
-    template_name = 'publisher/course_run_form.html'
-    success_url = 'publisher:publisher_course_runs_edit'
+    run_form = CustomCourseRunForm
+    course_form = CustomCourseForm
+    seat_form = CustomSeatForm
+    template_name = 'publisher/add_courserun_form.html'
+    success_url = 'publisher:publisher_course_run_detail'
+    fields = ()
 
-    def get_success_url(self):
-        return reverse(self.success_url, kwargs={'pk': self.object.id})
+    def get_context_data(self, **kwargs):
+        context = {
+            'course_form': self.course_form,
+            'run_form': self.run_form,
+            'seat_form': self.seat_form
+        }
+        return context
 
 
 class UpdateCourseRunView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, mixins.FormValidMixin, UpdateView):

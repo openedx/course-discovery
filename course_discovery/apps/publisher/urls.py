@@ -18,7 +18,7 @@ urlpatterns = [
         views.ChangeStateView.as_view(),
         name='publisher_change_state'
     ),
-    url(r'^seats/new$', views.CreateSeatView.as_view(), name='publisher_seats_new'),
+    url(r'^seats/new/$', views.CreateSeatView.as_view(), name='publisher_seats_new'),
     url(r'^seats/(?P<pk>\d+)/edit/$', views.UpdateSeatView.as_view(), name='publisher_seats_edit'),
     url(
         r'^user/toggle/email_settings/$',
