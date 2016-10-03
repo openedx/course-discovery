@@ -22,6 +22,7 @@ from rest_framework.exceptions import PermissionDenied, ParseError
 from rest_framework.filters import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+import waffle
 
 from course_discovery.apps.api import filters
 from course_discovery.apps.api import serializers
@@ -415,14 +416,19 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
     permission_classes = (IsAuthenticated,)
-    serializer_class = serializers.ProgramSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_class = filters.ProgramFilter
+
+    def get_serializer_class(self):
+        if self.action == 'list' and waffle.switch_is_active('reduced_program_data'):
+            return serializers.MinimalProgramSerializer
+
+        return serializers.ProgramSerializer
 
     def get_queryset(self):
         # This method prevents prefetches on the program queryset from "stacking,"
         # which happens when the queryset is stored in a class property.
-        return self.serializer_class.prefetch_queryset()
+        return self.get_serializer_class().prefetch_queryset()
 
     def get_serializer_context(self, *args, **kwargs):
         context = super().get_serializer_context(*args, **kwargs)
