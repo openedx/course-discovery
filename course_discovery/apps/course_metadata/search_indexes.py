@@ -6,6 +6,15 @@ from opaque_keys.edx.keys import CourseKey
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 
+# http://django-haystack.readthedocs.io/en/v2.5.0/boost.html#field-boost
+# Boost title over all other parameters (multiplicative)
+# The max boost received from our boosting functions is ~6.
+# Having a boost of 25 for title gives most relevant titles a score higher
+# than our other boosting (which is what we want). But it's all relative.
+# If we altered our boosting functions to have a max score of 10
+# we would probably want to bump this number.
+TITLE_FIELD_BOOST = 25.0
+
 
 class OrganizationsMixin:
     def format_organization(self, organization):
@@ -49,7 +58,7 @@ class BaseIndex(indexes.SearchIndex):
 
 class BaseCourseIndex(OrganizationsMixin, BaseIndex):
     key = indexes.CharField(model_attr='key', stored=True)
-    title = indexes.CharField(model_attr='title')
+    title = indexes.CharField(model_attr='title', boost=TITLE_FIELD_BOOST)
     short_description = indexes.CharField(model_attr='short_description', null=True)
     full_description = indexes.CharField(model_attr='full_description', null=True)
     subjects = indexes.MultiValueField(faceted=True)
@@ -170,7 +179,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     model = Program
 
     uuid = indexes.CharField(model_attr='uuid')
-    title = indexes.CharField(model_attr='title')
+    title = indexes.CharField(model_attr='title', boost=TITLE_FIELD_BOOST)
     subtitle = indexes.CharField(model_attr='subtitle')
     type = indexes.CharField(model_attr='type__name', faceted=True)
     marketing_url = indexes.CharField(null=True)
