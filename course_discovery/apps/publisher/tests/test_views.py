@@ -1,7 +1,9 @@
 # pylint: disable=no-member
 import json
+from datetime import datetime
 
 import ddt
+import factory
 from mock import patch
 
 from django.db import IntegrityError
@@ -12,6 +14,7 @@ from django.core.urlresolvers import reverse
 from django.forms import model_to_dict
 from django.test import TestCase
 from guardian.shortcuts import assign_perm
+from testfixtures import LogCapture
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
@@ -21,7 +24,7 @@ from course_discovery.apps.publisher.models import Course, CourseRun, Seat, Stat
 from course_discovery.apps.publisher.tests import factories, JSON_CONTENT_TYPE
 from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
-from course_discovery.apps.publisher.views import CourseRunDetailView
+from course_discovery.apps.publisher.views import CourseRunDetailView, logger as publisher_views_logger
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
 
@@ -43,7 +46,7 @@ class CreateUpdateCourseViewTests(TestCase):
         self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.group_2 = factories.GroupFactory()
-        self.start_date_time = '2050-07-08 05:59:53'
+        self.start_date_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     def test_course_form_without_login(self):
         """ Verify that user can't access new course form page when not logged in. """
@@ -299,8 +302,13 @@ class CreateUpdateCourseRunViewTests(TestCase):
 
     def setUp(self):
         super(CreateUpdateCourseRunViewTests, self).setUp()
+        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.course = factories.CourseFactory(team_admin=self.user)
         self.course_run = factories.CourseRunFactory()
         self.course_run_dict = model_to_dict(self.course_run)
+        self.course_run_dict.update(
+            {'number': self.course.number, 'team_admin': self.course.team_admin.id, 'is_self_paced': True}
+        )
         self._pop_valuse_from_dict(
             self.course_run_dict,
             [
@@ -308,7 +316,7 @@ class CreateUpdateCourseRunViewTests(TestCase):
                 'priority', 'certificate_generation', 'video_language'
             ]
         )
-        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.course_run_dict['start'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
@@ -316,47 +324,113 @@ class CreateUpdateCourseRunViewTests(TestCase):
         for key in key_list:
             data_dict.pop(key)
 
+    def test_courserun_form_with_login(self):
+        """ Verify that user can access new course run form page when logged in. """
+        response = self.client.get(
+            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id})
+        )
+
+        self.assertEqual(response.status_code, 200)
+
     def test_courserun_form_without_login(self):
         """ Verify that user can't access new course run form page when not logged in. """
         self.client.logout()
-        response = self.client.get(reverse('publisher:publisher_course_runs_new'))
+        response = self.client.get(
+            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id})
+        )
 
         self.assertRedirects(
             response,
             expected_url='{url}?next={next}'.format(
                 url=reverse('login'),
-                next=reverse('publisher:publisher_course_runs_new')
+                next=reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id})
             ),
             status_code=302,
             target_status_code=302
         )
 
-    def test_create_course_run(self):
-        """ Verify that we can create a new course run. """
-        lms_course_id = 'course-v1:testX+AS12131+2016_q4'
-        self.course_run_dict['lms_course_id'] = lms_course_id
-        self.course_run_dict['start'] = '2050-07-08 05:59:53'
-        response = self.client.post(reverse('publisher:publisher_course_runs_new'), self.course_run_dict)
+    def test_create_course_run_and_seat_with_errors(self):
+        """ Verify that without providing required data course run and seat
+        cannot be created.
+        """
+        response = self.client.post(
+            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
+            self.course_run_dict
+        )
+        self.assertEqual(response.status_code, 400)
 
-        course_run = CourseRun.objects.get(course=self.course_run.course, lms_course_id=lms_course_id)
+        post_data = model_to_dict(self.course)
+        post_data.update(self.course_run_dict)
+        post_data.update(factory.build(dict, FACTORY_CLASS=factories.SeatFactory))
+        self._pop_valuse_from_dict(post_data, ['id', 'upgrade_deadline', 'image', 'team_admin'])
+
+        response = self.client.post(
+            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
+            post_data
+        )
+        self.assertEqual(response.status_code, 400)
+
+        with patch('django.forms.models.BaseModelForm.is_valid') as mocked_is_valid:
+            mocked_is_valid.return_value = True
+            with LogCapture(publisher_views_logger.name) as log_capture:
+                response = self.client.post(
+                    reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
+                    post_data
+                )
+
+                self.assertEqual(response.status_code, 400)
+                log_capture.check(
+                    (
+                        publisher_views_logger.name,
+                        'ERROR',
+                        'Unable to create course run and seat for course [{}].'.format(self.course.id)
+                    )
+                )
+
+    def test_create_course_run_and_seat(self):
+        """ Verify that we can create a new course run with seat. """
+        updated_course_number = '{number}.2'.format(number=self.course.number)
+        new_price = 450
+        post_data = self.course_run_dict
+        seat = factories.SeatFactory(course_run=self.course_run, type=Seat.HONOR, price=0)
+        post_data.update(**model_to_dict(seat))
+        post_data.update(
+            {
+                'number': updated_course_number,
+                'type': Seat.VERIFIED,
+                'price': new_price
+            }
+        )
+        self._pop_valuse_from_dict(post_data, ['id', 'course', 'course_run'])
+
+        response = self.client.post(
+            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
+            post_data
+        )
+
+        new_seat = Seat.objects.get(type=post_data['type'], price=post_data['price'])
         self.assertRedirects(
             response,
-            expected_url=reverse('publisher:publisher_course_runs_edit', kwargs={'pk': course_run.id}),
+            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': new_seat.course_run.id}),
             status_code=302,
             target_status_code=200
         )
 
-        self.assertEqual(course_run.lms_course_id, lms_course_id)
+        # Verify that new seat and new course run are unique
+        self.assertNotEqual(new_seat.type, seat.type)
+        self.assertEqual(new_seat.type, Seat.VERIFIED)
+        self.assertNotEqual(new_seat.price, seat.price)
+        self.assertEqual(new_seat.price, new_price)
+        self.assertNotEqual(new_seat.course_run, self.course_run)
 
-        response = self.client.get(reverse('publisher:publisher_course_runs_new'))
-        self.assertNotContains(response, 'Add new comment')
-        self.assertNotContains(response, 'Total Comments')
+        self.course = new_seat.course_run.course
+        # Verify that number is updated for parent course
+        self.assertEqual(self.course.number, updated_course_number)
 
     def test_update_course_run_with_staff(self):
         """ Verify that staff user can update an existing course run. """
         updated_lms_course_id = 'course-v1:testX+AS121+2018_q1'
         self.course_run_dict['lms_course_id'] = updated_lms_course_id
-        self.course_run_dict['start'] = '2050-07-08 05:59:53'
 
         self.assertNotEqual(self.course_run.lms_course_id, updated_lms_course_id)
         self.assertNotEqual(self.course_run.changed_by, self.user)
@@ -390,7 +464,6 @@ class CreateUpdateCourseRunViewTests(TestCase):
 
         updated_lms_course_id = 'course-v1:testX+AS121+2018_q1'
         self.course_run_dict['lms_course_id'] = updated_lms_course_id
-        self.course_run_dict['start'] = '2050-07-08 05:59:53'
         self.assertNotEqual(self.course_run.lms_course_id, updated_lms_course_id)
 
         response = self.client.get(
@@ -414,7 +487,6 @@ class CreateUpdateCourseRunViewTests(TestCase):
         non_staff_user, group = create_non_staff_user_and_login(self)
 
         updated_lms_course_id = 'course-v1:testX+AS121+2018_q1'
-        self.course_run_dict['start'] = '2050-07-08 05:59:53'
         self.course_run_dict['lms_course_id'] = updated_lms_course_id
         self.assertNotEqual(self.course_run.lms_course_id, updated_lms_course_id)
 

@@ -1,0 +1,13 @@
+{% if messages %}
+    <div class="alert-messages">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" role="alert" aria-labelledby="alert-title-{{ message.tags }}" tabindex="-1">
+                <div class="alert-message-with-action">
+                    <p class="alert-copy">
+                        {{ message }}
+                    </p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
