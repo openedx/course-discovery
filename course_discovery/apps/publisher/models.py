@@ -10,10 +10,12 @@ from django_fsm import FSMField, transition
 from guardian.shortcuts import assign_perm
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
+from stdimage.models import StdImageField
 
 from course_discovery.apps.core.models import User, Currency
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import LevelType, Subject, Person, Organization
+from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 logger = logging.getLogger(__name__)
@@ -112,6 +114,21 @@ class Course(TimeStampedModel, ChangedByMixin):
         Subject, default=None, null=True, blank=True, related_name='publisher_courses_tertiary'
     )
 
+    team_admin = models.ForeignKey(User, null=True, blank=True, related_name='team_admin_user')
+    image = StdImageField(
+        upload_to=UploadToFieldNamePath(
+            populate_from='number',
+            path='media/publisher/courses/images'
+        ),
+        blank=True,
+        null=True,
+        variations={
+            'large': (2120, 1192),
+            'medium': (1440, 480),
+            'thumbnail': (100, 100, True),
+        }
+    )
+
     history = HistoricalRecords()
 
     def __str__(self):
@@ -183,9 +200,8 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     is_micromasters = models.BooleanField(default=False)
     micromasters_name = models.CharField(max_length=255, null=True, blank=True)
     contacted_partner_manager = models.BooleanField(default=False)
-    seo_review = models.TextField(
-        default=None, null=True, blank=True, help_text=_("SEO review on your course title and short description")
-    )
+    is_seo_review = models.BooleanField(default=False)
+
     keywords = models.TextField(
         default=None, blank=True, help_text=_("Please add top 10 comma separated keywords for your course content")
     )
@@ -206,6 +222,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
             "Comma separated list of edX usernames or emails of additional staff."
         )
     )
+    video_language = models.ForeignKey(LanguageTag, null=True, blank=True, related_name='video_language')
 
     history = HistoricalRecords()
 

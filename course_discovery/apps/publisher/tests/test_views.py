@@ -9,6 +9,7 @@ from django.test import TestCase
 from guardian.shortcuts import assign_perm
 
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
+from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
@@ -17,6 +18,7 @@ from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
 
 
+@ddt.ddt
 class CreateUpdateCourseViewTests(TestCase):
     """ Tests for the publisher `CreateCourseView` and `UpdateCourseView`. """
 
@@ -44,13 +46,23 @@ class CreateUpdateCourseViewTests(TestCase):
             target_status_code=302
         )
 
-    def test_create_course(self):
-        """ Verify that we can create a new course. """
-        # Create unique course number
-        course_number = '{}.1.456'.format(self.course.number)
+    @ddt.data(
+        {'number': 'course_1', 'image': '', 'team_admin': False},
+        {'number': 'course_2', 'image': make_image_file('test_banner.jpg'), 'team_admin': False},
+        {'number': 'course_3', 'image': make_image_file('test_banner1.jpg'), 'team_admin': True}
+    )
+    def test_create_course(self, data):
+        """ Verify that new course can be created with different data sets. """
         course_dict = model_to_dict(self.course)
         course_dict.pop('verification_deadline')
-        course_dict['number'] = course_number
+        course_dict.update(**data)
+
+        if data['team_admin']:
+            course_dict['team_admin'] = self.user.id
+        else:
+            course_dict['team_admin'] = ''
+
+        course_number = course_dict['number']
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
 
         course = Course.objects.get(number=course_number)
@@ -71,6 +83,9 @@ class CreateUpdateCourseViewTests(TestCase):
         """ Verify that staff user can update an existing course. """
         course_dict = model_to_dict(self.course)
         course_dict.pop('verification_deadline')
+        course_dict.pop('image')
+        course_dict.pop('team_admin')
+
         updated_course_title = 'Updated {}'.format(self.course.title)
         course_dict['title'] = updated_course_title
         self.assertNotEqual(self.course.title, updated_course_title)
@@ -126,9 +141,11 @@ class CreateUpdateCourseViewTests(TestCase):
     def test_update_course_with_non_staff(self):
         """ Tests for update course with non staff user. """
         non_staff_user, group = create_non_staff_user_and_login(self)
-
         course_dict = model_to_dict(self.course)
         course_dict.pop('verification_deadline')
+        course_dict.pop('image')
+        course_dict.pop('team_admin')
+
         updated_course_title = 'Updated {}'.format(self.course.title)
         course_dict['title'] = updated_course_title
         self.assertNotEqual(self.course.title, updated_course_title)
@@ -148,7 +165,6 @@ class CreateUpdateCourseViewTests(TestCase):
             reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id}),
             course_dict
         )
-
         self.assertRedirects(
             response,
             expected_url=reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id}),
@@ -177,7 +193,10 @@ class CreateUpdateCourseRunViewTests(TestCase):
         self.course_run_dict = model_to_dict(self.course_run)
         self._pop_valuse_from_dict(
             self.course_run_dict,
-            ['start', 'end', 'enrollment_start', 'enrollment_end', 'priority', 'certificate_generation']
+            [
+                'start', 'end', 'enrollment_start', 'enrollment_end',
+                'priority', 'certificate_generation', 'video_language'
+            ]
         )
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.site = Site.objects.get(pk=settings.SITE_ID)
