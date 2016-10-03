@@ -243,6 +243,8 @@ class CreateUpdateCourseRunViewTests(TestCase):
 
     def setUp(self):
         super(CreateUpdateCourseRunViewTests, self).setUp()
+        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.course = factories.CourseFactory(team_admin=self.user)
         self.course_run = factories.CourseRunFactory()
         self.course_run_dict = model_to_dict(self.course_run)
         self._pop_valuse_from_dict(
@@ -252,7 +254,6 @@ class CreateUpdateCourseRunViewTests(TestCase):
                 'priority', 'certificate_generation', 'video_language'
             ]
         )
-        self.user = UserFactory(is_staff=True, is_superuser=True)
         self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
@@ -275,26 +276,36 @@ class CreateUpdateCourseRunViewTests(TestCase):
             target_status_code=302
         )
 
-    def test_create_course_run(self):
-        """ Verify that we can create a new course run. """
-        lms_course_id = 'course-v1:testX+AS12131+2016_q4'
-        self.course_run_dict['lms_course_id'] = lms_course_id
-        self.course_run_dict['start'] = '2050-07-08 05:59:53'
+    def test_create_course_run_and_seat_with_errors(self):
+        """ Verify that without providing required data course run and seat
+        cannot be created.
+        """
         response = self.client.post(reverse('publisher:publisher_course_runs_new'), self.course_run_dict)
+        self.assertEqual(response.status_code, 400)
 
-        course_run = CourseRun.objects.get(course=self.course_run.course, lms_course_id=lms_course_id)
+    def test_create_course_run_and_seat(self):
+        """ Verify that we can create a new course run with seat. """
+        post_data = model_to_dict(self.course)
+        self.course_run_dict['start'] = '2050-07-08 05:59:53'
+        post_data.update(self.course_run_dict)
+        seat = factories.SeatFactory(course_run=self.course_run, type=Seat.HONOR, price=0)
+        post_data.update(**model_to_dict(seat))
+        self._pop_valuse_from_dict(post_data, ['id', 'upgrade_deadline', 'image'])
+        post_data.update({'course_id': self.course.id, 'type': Seat.VERIFIED, 'price': 450})
+
+        response = self.client.post(reverse('publisher:publisher_course_runs_new'), post_data)
+        new_seat = Seat.objects.get(type=post_data['type'], price=post_data['price'])
         self.assertRedirects(
             response,
-            expected_url=reverse('publisher:publisher_course_runs_edit', kwargs={'pk': course_run.id}),
+            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': new_seat.course_run.id}),
             status_code=302,
             target_status_code=200
         )
 
-        self.assertEqual(course_run.lms_course_id, lms_course_id)
-
-        response = self.client.get(reverse('publisher:publisher_course_runs_new'))
-        self.assertNotContains(response, 'Add new comment')
-        self.assertNotContains(response, 'Total Comments')
+        # Verify that new seat and new course run is unique
+        self.assertNotEqual(new_seat.type, seat.type)
+        self.assertNotEqual(new_seat.price, seat.price)
+        self.assertNotEqual(new_seat.course_run, self.course_run)
 
     def test_update_course_run_with_staff(self):
         """ Verify that staff user can update an existing course run. """

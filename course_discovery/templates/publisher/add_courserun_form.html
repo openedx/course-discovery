@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load staticfiles %}
+{% block title %}
+{% trans "New Run" %}
+{% endblock title %}
+
+{% block content %}
+<div>
+<h1 class="hd-1 emphasized">{% trans "New Run" %}</h1>
+
+<div class="alert-messages">
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }}" role="alert" aria-labelledby="alert-title-{{ message.tags }}" tabindex="-1">
+    <div class="alert-message-with-action">
+        <p class="alert-copy">
+            {{ message }}
+        </p>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+
+<form class="form" method="post" action="" enctype="multipart/form-data">
+{% csrf_token %}
+<div class="layout-full layout publisher-layout">
+    <h2 class="layout-title">{% trans "Base information" %}</h2>
+
+    <div class="card course-form">
+        <div class="course-information">
+            <h4 class="hd-4">{% trans "New Run" %}</h4>
+            <fieldset class="form-group grid-container grid-manual">
+
+                <div class="field-title">{% trans "INSTITUTION INFORMATION" %}</div>
+                <div class="row">
+                    <div class="col col-6 help-text">
+                        {% blocktrans %}
+                            Please choose the school that will be providing the course.
+                            Once chosen then you can select an administrator for the studio shell.
+                        {% endblocktrans %}
+                        <p class="margin-top10">
+                            {% with link_start='<a href="#">' link_end='</a>' %}
+                                {% blocktrans %}
+                                    {{ link_start }}Can't find your institution or admin?{{ link_end }}
+                                {% endblocktrans %}
+                            {% endwith %}
+                        </p>
+                    </div>
+                    <div class="col col-6">
+                        <label class="field-label">{{ course_form.institution.label_tag }}
+                            <span class="required">* {% trans "required" %}</span>
+                        </label>
+                        {{ course_form.institution}}
+
+                        <label class="field-label">
+                            {{ course_form.team_admin.label_tag }}
+                            <span class="required">* {% trans "required" %}</span>
+                        </label>
+                        {{ course_form.team_admin }}
+
+                    </div>
+                </div>
+
+                <div class="field-title">{% trans "Course Title" %}</div>
+                <div class="row">
+                    <div class="col col-6 help-text">
+                        {% trans "Type ahead to see a litst of courses from your institution." %}
+                        <p class="margin-top10">
+                            {% url 'publisher:publisher_courses_new' as new_course_url %}
+                            {% with link_start='<a href="' link_middle='">' link_end='</a>' %}
+                                {% blocktrans %}
+                                    Can't find your course? {{ link_start }}{{ new_course_url }}{{ link_middle }}create a new course{{ link_end }}
+                                {% endblocktrans %}
+                            {% endwith %}
+                        </p>
+                    </div>
+                    <div class="col col-6">
+
+                        <label class="field-label ">{{ course_form.title.label }}
+                            <span class="required">* {% trans "required" %}</span>
+                        </label>
+                        {{ course_form.title}}
+                        <input type="hidden" id="course_id" name="course_id">
+
+                        <label class="field-label ">{{ run_form.contacted_partner_manager.label_tag }}</label>
+                        <div class="checkbox-inline">{{ run_form.contacted_partner_manager}}</div>
+
+                        <label class="field-label">{{ run_form.target_content.label_tag }}</label>
+                        <div class="checkbox-inline">{{ run_form.target_content}}</div>
+
+                    </div>
+                </div>
+
+                <div class="field-title">{% trans "Start Date" %}</div>
+                <div class="row">
+                    <div class="col col-6 help-text">
+                        {% blocktrans %}
+                            Start on a weekday (preferably Tuesday, Wednesday, or Thursday) and avoid major U.S. holidays
+                            for best access to edX staff.
+                            Approximate dates are acceptable; If you are unable to give an exact date, please identify a
+                            month in which the course will be offered.
+                        {% endblocktrans %}
+                    </div>
+                    <div class="col col-6">
+                        <label class="field-label ">{{ run_form.start.label_tag }}
+                            <span class="required">* {% trans "required" %}</span>
+                        </label>
+                        {{ run_form.start }}
+                    </div>
+                </div>
+
+                <div class="field-title">{% trans "Course Number" %}</div>
+                <div class="row">
+                    <div class="col col-6 help-text">
+                        {% blocktrans %}
+                            Courses split into several modules can be denoted by adding .1, .2, etc. at the end of the
+                            course number before the “x”
+                            No special html characters, accents, spaces, dashes, or underscores
+                            10 character limit
+                        {% endblocktrans %}
+                    </div>
+                    <div class="col col-6">
+                        <label class="field-label ">{{ course_form.number.label_tag }}
+                            <span class="required">* {% trans "required" %}</span>
+                        </label>
+                        {{ course_form.number }}
+                    </div>
+                </div>
+
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+
+<div class="layout-full layout publisher-layout">
+<h2 class="layout-title">{% trans "About page information" %}</h2>
+
+<div class="card course-form">
+<div class="course-information">
+    <fieldset class="form-group grid-container grid-manual">
+
+        <div class="field-title">{% trans "End Date" %}</div>
+        <div class="row">
+            <div class="col col-6 help-text">
+                {% trans "The date when this self-paced course run will end, replaced by an updated version of the course" %}
+            </div>
+            <div class="col col-6">
+                <label class="field-label ">{{ run_form.end.label_tag }}</label>
+                {{ run_form.end }}
+            </div>
+        </div>
+
+        <div class="field-title">{% trans "Seat Type" %}</div>
+        <div class="row">
+            <div class="col col-6 help-text">
+                {% trans "If Verified or Professional Ed, indicate certificate price in US dollars (minimum of $49)" %}
+            </div>
+            <div class="col col-6">
+                <div class="row">
+                    <div class="col col-6">
+                        <label class="field-label ">{{ seat_form.type.label_tag }}
+                            <span class="required">* {% trans "required" %}</span>
+                        </label>
+                        {{ seat_form.type}}
+                    </div>
+                    <div class="col col-6">
+                        <label class="field-label ">{{ seat_form.price.label_tag }}</label>
+                        {{ seat_form.price}}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </fieldset>
+</div>
+</div>
+</div>
+
+<div class="layout-full layout publisher-layout">
+<div class="card course-form">
+<div class="course-information">
+    <fieldset class="form-group grid-container grid-manual">
+            <button class="btn-brand btn-base" type="submit">{% trans "Save Draft" %}</button>
+
+    </fieldset>
+</div>
+</div>
+</div>
+
+</form>
+</div>
+</div>
+
+{% endblock content %}
+
+{% block extra_js %}
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="{% static 'js/publisher/publisher.js' %}"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var courseId = '{{ request.POST.course_id }}',
+                courseTitle = '{{ request.POST.title }}',
+                teamAdminId = '{{ request.POST.team_admin }}',
+                institutionId = '{{ request.POST.institution }}',
+                courseNumber = '{{ request.POST.number }}',
+                autoCompleteObjects = {{ course_names|safe }};
+
+            if (courseId && courseTitle) {
+                $("#course_id").val(courseId);
+                $("#id_title").val(courseTitle);
+                $("#id_number").val(courseNumber);
+                $("#id_team_admin").val(teamAdminId);
+                $("#id_institution").val(institutionId);
+            }
+            $("#id_title").autocomplete({
+                source: autoCompleteObjects,
+                select: function(event, ui) {
+                    $("#course_id").val(ui.item.id);
+                    $("#id_number").val(ui.item.course_number);
+                    $("#id_institution").val(ui.item.institution);
+                    $("#id_team_admin").val(ui.item.team_admin);
+                }
+            });
+        });
+    </script>
+{% endblock %}

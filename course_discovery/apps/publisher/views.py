@@ -158,15 +158,82 @@ class ReadOnlyView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, Detail
         return context
 
 
-class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.FormValidMixin, CreateView):
+class CreateCourseRunView(CreateCourseView):
     """ Create Course Run View."""
     model = CourseRun
-    form_class = CourseRunForm
-    template_name = 'publisher/course_run_form.html'
-    success_url = 'publisher:publisher_course_runs_edit'
+    template_name = 'publisher/add_courserun_form.html'
+    success_url = 'publisher:publisher_course_run_detail'
 
-    def get_success_url(self):
-        return reverse(self.success_url, kwargs={'pk': self.object.id})
+    def get_context_data(self, **kwargs):
+        context = super(CreateCourseRunView, self).get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_staff:
+            courses = Course.objects.all()
+        else:
+            courses = get_objects_for_user(user, Course.VIEW_PERMISSION, Course)
+
+        course_names = []
+        for course in courses:
+            course_names.append({
+                'id': course.id,
+                'label': course.title,
+                'value': course.title,
+                'team_admin': course.team_admin.id,
+                'institution': course.institution.id,
+                'course_number': course.number
+            })
+        context['course_names'] = course_names
+        return context
+
+    def post(self, request, *args, **kwargs):
+        ctx = self.get_context_data()
+        course_form = self.course_form(request.POST)
+        run_form = self.run_form(request.POST)
+        seat_form = self.seat_form(request.POST)
+        course_id = request.POST.get('course_id')
+        if course_id and run_form.is_valid() and seat_form.is_valid():
+            course = Course.objects.get(id=course_id)
+            with transaction.atomic():
+                seat = seat_form.save(commit=False)
+                course_form = course_form.save(commit=False)
+                course_run = run_form.save(commit=False)
+                user = self.request.user
+
+                course.team_admin = course_form.team_admin
+                course.institution = course_form.institution
+                course.changed_by = user
+                course.save()
+
+                course_run.course = course
+                course_run.changed_by = user
+                course_run.save()
+
+                # commit false does not save m2m object.
+                run_form.save_m2m()
+                seat.course_run = course_run
+                seat.changed_by = user
+                seat.save()
+
+                # assign guardian permission.
+                course.assign_permission_by_group()
+
+                # pylint: disable=no-member
+                success_msg = _('Course run created successfully for course "{course_title}".').format(
+                    course_title=course.title
+                )
+                messages.success(request, success_msg)
+                return HttpResponseRedirect(reverse(self.success_url, kwargs={'pk': course_run.id}))
+        else:
+            messages.error(request, _('Please fill all required fields.'))
+            ctx.update(
+                {
+                    'course_form': self.course_form,
+                    'run_form': run_form,
+                    'seat_form': seat_form
+                }
+            )
+
+        return render(request, self.template_name, ctx, status=400)
 
 
 class UpdateCourseRunView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, mixins.FormValidMixin, UpdateView):
