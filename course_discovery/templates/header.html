@@ -1,9 +1,50 @@
 {% load staticfiles %}
+{% load i18n %}
 <header class="header">
-    <div class="layout layout-header">
-        {% url 'publisher:publisher_course_runs' as course_runs_url %}
-        <a href="{{ course_runs_url }}">
-            <img src="{% static 'images/logo.png' %}">
-        </a>
+    <div class="layout-1q1h1q layout-flush layout-header">
+        <nav class="layout-col layout-col-a">
+            {% url 'publisher:publisher_course_runs' as course_runs_url %}
+            <a href="{{ course_runs_url }}">
+                <img src="{% static 'images/logo.png' %}">
+            </a>
+        </nav>
+
+        <main class="layout-col layout-col-b"></main>
+
+        <aside class="layout-col layout-col-c">
+            <nav class="nav-account" aria-label="{% trans 'Account' %}">
+                <h2 class="sr-only">{% trans "Account Navigation" %}</h2>
+                <ol>
+                    <li class="nav-item nav-account-help">
+                        <h3 class="title">
+                            <span class="label">
+                                <a href="https://edx.readthedocs.io/projects/edx-partner-course-staff/en/latest/getting_started/get_started.html" title="{% trans 'Contextual Online Help' %}" target="_blank">
+                                    {% trans "Help" %}
+                                </a>
+                            </span>
+                        </h3>
+                    </li>
+                    <li class="nav-item nav-account-user">
+                        <h3 class="title">
+                            <span class="label">
+                                <a href="#" title="{{ user.username }}">{{ user.username|truncatechars:10 }}</a>
+                            </span>
+                            <span class="icon fa fa-caret-down"></span>
+                        </h3>
+                    </li>
+                </ol>
+
+                <div class="wrapper wrapper-nav-sub">
+                    <div class="nav-sub">
+                        <div class="nav-menu-item nav-email-notification">
+                            <span><b>{% trans "Email notifications" %}</b></span>
+                        </div>
+                        <div class="nav-menu-item nav-account-signout">
+                            <a class="btn-neutral" href="/logout">{% trans "Sign Out" %}</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </aside>
     </div>
 </header>

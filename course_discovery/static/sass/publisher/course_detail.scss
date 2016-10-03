@@ -13,14 +13,153 @@ $light-gray: rgba(204, 204, 204, 1);
 }
 
 .course-detail {
-    @include margin(0);
+    @include margin(0px, 0px, 0px, 0px);
 }
 
 .container {
     .layout-header {
         img, h1 {
-            padding: 20px;
             @include float(left);
+            @include padding(20px, 20px, 20px, 20px);
+        }
+
+        .layout-col {
+
+            .nav-account {
+                @include padding(35px, 0px, 35px, 0px);
+                @include margin-right(20px);
+                @include float(right);
+                width: auto;
+                display: inline-block;
+                position: relative;
+                vertical-align: middle;
+
+                ol {
+                    margin-bottom: 0;
+                }
+
+                .wrapper-nav-sub {
+                    @include right(0);
+                    display: none;
+                    opacity: 1.0;
+                    pointer-events: auto;
+                    overflow: visible;
+                    height: auto;
+                    position: absolute;
+
+                    &.is-shown {
+                        display: block;
+                    }
+
+                    .nav-sub {
+                        border-radius: 4px;
+                        box-sizing: border-box;
+                        box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+                        position: relative;
+                        width: 100%;
+                        border: 1px solid #ccc;
+                        background: #fff;
+
+                        &:before {
+                            @include right(20px);
+                            @include margin-right(-11px);
+                            border-color: rgba(178,178,178,0);
+                            border-bottom-color: #ccc;
+                            border-width: 11px;
+                            bottom: 100%;
+                            content: " ";
+                            height: 0;
+                            width: 0;
+                            position: absolute;
+                            pointer-events: none;
+                        }
+
+                        &:after {
+                            @include right(20px);
+                            border-color: rgba(255,255,255,0);
+                            border-bottom-color: #fff;
+                            border-width: 10px;
+                            bottom: 100%;
+                            content: " ";
+                            height: 0;
+                            width: 0;
+                            position: absolute;
+                            pointer-events: none;
+                            @include margin-right(-10px);
+                        }
+
+                        .nav-menu-item {
+                            @include padding(20px, 20px, 20px, 20px);
+                        }
+
+                        .nav-account-signout {
+                            border-top: 1px solid #ccc;
+
+                            a {
+                                @include text-align(center);
+                                text-decoration: none;
+                                width: 100%;
+                            }
+                        }
+                    }
+                }
+
+                .nav-account-user {
+
+                    .title.is-selected {
+                        box-shadow: inset 0 1px 2px 1px rgba(0,0,0,0.1);
+                        border-color: #ccc;
+                    }
+                }
+
+                .nav-item {
+                    display: inline-block;
+                    vertical-align: middle;
+                    margin-bottom: 0;
+
+                    .title {
+                        @include padding(5px, 10px, 5px, 10px);
+                        color: #666;
+                        margin-bottom: 0;
+                        border: 1px solid transparent;
+                        border-radius: 4px;
+                        max-width: 150px;
+
+                        .fa-caret-down {
+                            opacity: 0.25;
+                        }
+
+                        &:hover {
+                            cursor: pointer;
+                            color: #065683;
+                            border-color: #ccc;
+
+                            .label {
+
+                                a {
+                                    color: #065683;
+                                }
+                            }
+
+                            .fa-caret-down {
+                                opacity: 1.0;
+                                color: #065683;
+                            }
+                        }
+
+                        .label {
+
+                            a {
+                                color: #666;
+                                font-weight: 800;
+                                font-size: 18px;
+                                vertical-align: baseline;
+                                text-decoration: none;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
     .layout, .layout-flush {
@@ -31,6 +170,11 @@ $light-gray: rgba(204, 204, 204, 1);
         .layout-col-menu {
             padding-left: 0;
             padding-right: 0;
+            width: 20%;
+        }
+
+        .layout-col-container {
+            width: 80%;
         }
 
         .menu-list {
@@ -65,6 +209,78 @@ $light-gray: rgba(204, 204, 204, 1);
   .actions {
       margin-top: 30px;
   }
+
+    .wrapper-footer {
+        @include margin(0px, 0px, 20px, 0px);
+        @include padding(20px, 20px, 20px, 20px);
+        position: relative;
+        width: 100%;
+        border-top: 1px solid #e5e5e5;
+
+        .primary {
+            max-width: 1280px;
+            min-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            color: #333;
+            font-size: 0.75rem;
+
+            .footer-content-primary {
+                display: table;
+                width: 100%;
+                clear: both;
+
+                .colophon {
+                    @include float(left);
+                    @include margin-right(14.28571%);
+                    width: 31.91489%;
+                }
+
+                .nav-peripheral {
+                    @include float(right);
+                    @include text-align(right);
+                    width: 48.93617%;
+
+                    .nav-item {
+                        @include margin-right(20px);
+                        display: inline-block;
+                    }
+                }
+            }
+
+            .footer-content-secondary {
+                margin-top: 20px;
+                display: table;
+                width: 100%;
+                clear: both;
+
+                .footer-about-copyright {
+                    @include float(left);
+                    @include margin-right(14.28571%);
+                    width: 31.91489%;
+                    display: inline-block;
+                    vertical-align: middle;
+                }
+
+                .footer-about-openedx {
+                    @include float(right);
+                    @include text-align(right);
+                    display: inline-block;
+                    vertical-align: middle;
+
+                    a {
+                        display: inline-block;
+
+                        img {
+                            display: block;
+                            width: 120px;
+                        }
+                    }
+                }
+
+            }
+        }
+    }
 }
 
 .administration-nav {
@@ -201,10 +417,6 @@ $light-gray: rgba(204, 204, 204, 1);
     color: black;
     font-weight: 600;
   }
-}
-
-.publisher-footer {
-    padding: 20px;
 }
 
 .help-block {
