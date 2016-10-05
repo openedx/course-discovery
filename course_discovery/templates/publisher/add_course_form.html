@@ -182,6 +182,13 @@
                         {{ seat_form.price}}
                     </div>
                 </div>
+                {% if seat_form.price.errors %}
+                    <div class="field-message has-error">
+                        <span class="field-message-content">
+                            {{ seat_form.price.errors|escape }}
+                        </span>
+                    </div>
+                {% endif %}
             </div>
 
         </div>
@@ -423,14 +430,14 @@
 </div>
 
 <div class="layout-full publisher-layout layout">
-<div class="card course-form">
-<div class="course-information">
-    <fieldset class="form-group grid-container grid-manual">
-            <button class="btn-brand btn-base" type="submit">{% trans "Save Draft" %}</button>
+    <div class="card course-form">
+        <div class="course-information">
+            <fieldset class="form-group grid-container grid-manual">
+                    <button class="btn-brand btn-base" type="submit">{% trans "Save Draft" %}</button>
 
-    </fieldset>
-</div>
-</div>
+            </fieldset>
+        </div>
+    </div>
 </div>
 
 </form>
