@@ -129,3 +129,22 @@ class StateTests(TestCase):
             str(self.state),
             self.state.get_name_display()
         )
+
+
+class UserAttributeTests(TestCase):
+    """ Tests for the publisher `UserAttribute` model. """
+
+    def setUp(self):
+        super(UserAttributeTests, self).setUp()
+        self.user_attr = factories.UserAttributeFactory()
+
+    def test_str(self):
+        """ Verify casting an instance to a string returns a string containing the user name and
+        current enable status. """
+        self.assertEqual(
+            str(self.user_attr),
+            '{user}: {enable_email_notification}'.format(
+                user=self.user_attr.user,
+                enable_email_notification=self.user_attr.enable_email_notification
+            )
+        )

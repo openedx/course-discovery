@@ -11,7 +11,7 @@ from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State
+from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State, UserAttributes
 
 
 class StateFactory(factory.DjangoModelFactory):
@@ -77,3 +77,10 @@ class GroupFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = Group
+
+
+class UserAttributeFactory(factory.DjangoModelFactory):
+    user = factory.SubFactory(UserFactory)
+
+    class Meta:
+        model = UserAttributes
