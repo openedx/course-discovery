@@ -85,18 +85,18 @@ class Course(TimeStampedModel, ChangedByMixin):
     title = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_('Course title'))
     number = models.CharField(max_length=50, null=True, blank=True, verbose_name=_('Course number'))
     short_description = models.CharField(
-        max_length=255, default=None, null=True, blank=True, verbose_name=_('Course subtitle')
+        max_length=255, default=None, null=True, blank=True, verbose_name=_('Brief Description')
     )
-    full_description = models.TextField(default=None, null=True, blank=True, verbose_name=_('About this course'))
+    full_description = models.TextField(default=None, null=True, blank=True, verbose_name=_('Full Description'))
     organizations = models.ManyToManyField(
         Organization, blank=True, related_name='publisher_courses', verbose_name=_('Partner Name')
     )
     level_type = models.ForeignKey(
-        LevelType, default=None, null=True, blank=True, related_name='publisher_courses', verbose_name=_('Course level')
+        LevelType, default=None, null=True, blank=True, related_name='publisher_courses', verbose_name=_('Level Type')
     )
-    expected_learnings = models.TextField(default=None, null=True, blank=True, verbose_name=_("What you'll learn"))
+    expected_learnings = models.TextField(default=None, null=True, blank=True, verbose_name=_("Expected Learnings"))
     syllabus = models.TextField(default=None, null=True, blank=True)
-    prerequisites = models.TextField(default=None, null=True, blank=True)
+    prerequisites = models.TextField(default=None, null=True, blank=True, verbose_name=_('Prerequisites'))
     learner_testimonial = models.CharField(max_length=50, null=True, blank=True)
     verification_deadline = models.DateTimeField(
         null=True,
@@ -194,7 +194,10 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     max_effort = models.PositiveSmallIntegerField(
         null=True, blank=True,
         help_text=_('Estimated maximum number of hours per week needed to complete a course run.'))
-    language = models.ForeignKey(LanguageTag, null=True, blank=True, related_name='publisher_course_runs')
+    language = models.ForeignKey(
+        LanguageTag, null=True, blank=True,
+        related_name='publisher_course_runs', verbose_name=_('Content Language')
+    )
     transcript_languages = models.ManyToManyField(
         LanguageTag, blank=True, related_name='publisher_transcript_course_runs'
     )
@@ -222,6 +225,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     target_content = models.BooleanField(default=False)
     priority = models.CharField(
         max_length=5, choices=PRIORITY_LEVELS, null=True, blank=True
+
     )
     course_team_admins = models.TextField(
         default=None, blank=True, null=True, help_text=_("Comma separated list of edX usernames or emails of admins.")

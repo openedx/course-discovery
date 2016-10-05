@@ -3,6 +3,7 @@ Course publisher forms.
 """
 from django.contrib.auth.models import Group
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat, User
@@ -41,14 +42,6 @@ class CourseForm(BaseCourseForm):
         fields = '__all__'
         exclude = ('changed_by',)
 
-    def __init__(self, *args, **kwargs):
-        self.instance = kwargs.get('initial', {})
-        super(CourseForm, self).__init__(*args, **kwargs)
-        self.fields['prerequisites'].label = 'Prerequisites'
-        self.fields['short_description'].label = 'Brief Description'
-        self.fields['full_description'].label = 'Full Description'
-        self.fields['expected_learnings'].label = 'Expected Learnings'
-
 
 class CustomCourseForm(CourseForm):
     """ Course Form. """
@@ -81,7 +74,6 @@ class CourseRunForm(BaseCourseForm):
 class CustomCourseRunForm(CourseRunForm):
     """ Course Run Form. """
 
-    priority = forms.ChoiceField(required=False, choices=CourseRun.PRIORITY_LEVELS)
     contacted_partner_manager = forms.BooleanField(
         widget=forms.RadioSelect(choices=((1, "Yes"), (0, "No"))), initial=0, required=False
     )
@@ -101,13 +93,6 @@ class CustomCourseRunForm(CourseRunForm):
             'contacted_partner_manager', 'target_content', 'pacing_type', 'is_seo_review',
             'video_language', 'staff',
         )
-
-    def __init__(self, *args, **kwargs):
-        self.instance = kwargs.get('initial', {})
-        super(CustomCourseRunForm, self).__init__(*args, **kwargs)
-        self.fields['language'].label = 'Content Language'
-        self.fields['priority'].label = 'Level Type'
-        self.fields['target_content'].label = 'Priority content'
 
 
 class SeatForm(BaseCourseForm):
@@ -152,6 +137,6 @@ class CustomSeatForm(SeatForm):
 
         if seat_type in [Seat.PROFESSIONAL, Seat.NO_ID_PROFESSIONAL, Seat.VERIFIED, Seat.CREDIT] \
                 and not price:
-            self.add_error('price', 'Only honor/audit seats can be without price.')
+            self.add_error('price', _('Only honor/audit seats can be without price.'))
 
         return self.cleaned_data
