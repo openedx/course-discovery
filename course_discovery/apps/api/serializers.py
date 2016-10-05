@@ -267,7 +267,13 @@ class SeatSerializer(serializers.ModelSerializer):
         fields = ('type', 'price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours',)
 
 
-class OrganizationSerializer(TaggitSerializer, serializers.ModelSerializer):
+class MinimalOrganizationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organization
+        fields = ('uuid', 'key', 'name',)
+
+
+class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
     """Serializer for the ``Organization`` model."""
     tags = TagListSerializerField()
 
@@ -275,9 +281,10 @@ class OrganizationSerializer(TaggitSerializer, serializers.ModelSerializer):
     def prefetch_queryset(cls):
         return Organization.objects.all().select_related('partner').prefetch_related('tags')
 
-    class Meta(object):
-        model = Organization
-        fields = ('key', 'name', 'description', 'homepage_url', 'tags', 'logo_image_url', 'marketing_url')
+    class Meta(MinimalOrganizationSerializer.Meta):
+        fields = MinimalOrganizationSerializer.Meta.fields + (
+            'description', 'homepage_url', 'tags', 'logo_image_url', 'marketing_url',
+        )
 
 
 class CatalogSerializer(serializers.ModelSerializer):
@@ -315,38 +322,17 @@ class NestedProgramSerializer(serializers.ModelSerializer):
         read_only_fields = ('uuid', 'marketing_url',)
 
 
-class CourseRunSerializer(TimestampModelSerializer):
-    """Serializer for the ``CourseRun`` model."""
-    course = serializers.SlugRelatedField(read_only=True, slug_field='key')
-    content_language = serializers.SlugRelatedField(
-        read_only=True, slug_field='code', source='language',
-        help_text=_('Language in which the course is administered')
-    )
-    transcript_languages = serializers.SlugRelatedField(many=True, read_only=True, slug_field='code')
+class MinimalCourseRunSerializer(TimestampModelSerializer):
     image = ImageField(read_only=True, source='card_image_url')
-    video = VideoSerializer()
-    seats = SeatSerializer(many=True)
-    instructors = serializers.SerializerMethodField(help_text='This field is deprecated. Use staff.')
-    staff = PersonSerializer(many=True)
     marketing_url = serializers.SerializerMethodField()
-    level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
 
     @classmethod
     def prefetch_queryset(cls):
-        return CourseRun.objects.all().select_related('course', 'language', 'video').prefetch_related(
-            'transcript_languages',
-            Prefetch('seats', queryset=SeatSerializer.prefetch_queryset()),
-            Prefetch('staff', queryset=PersonSerializer.prefetch_queryset()),
-        )
+        return CourseRun.objects.all().select_related('course').prefetch_related('course__partner')
 
     class Meta:
         model = CourseRun
-        fields = (
-            'course', 'key', 'title', 'short_description', 'full_description', 'start', 'end',
-            'enrollment_start', 'enrollment_end', 'announcement', 'image', 'video', 'seats',
-            'content_language', 'transcript_languages', 'instructors', 'staff',
-            'pacing_type', 'min_effort', 'max_effort', 'modified', 'marketing_url', 'level_type', 'availability',
-        )
+        fields = ('key', 'uuid', 'title', 'image', 'short_description', 'marketing_url',)
 
     def get_marketing_url(self, obj):
         return get_marketing_url_for_user(
@@ -355,7 +341,39 @@ class CourseRunSerializer(TimestampModelSerializer):
             exclude_utm=self.context.get('exclude_utm')
         )
 
+
+class CourseRunSerializer(MinimalCourseRunSerializer):
+    """Serializer for the ``CourseRun`` model."""
+    course = serializers.SlugRelatedField(read_only=True, slug_field='key')
+    content_language = serializers.SlugRelatedField(
+        read_only=True, slug_field='code', source='language',
+        help_text=_('Language in which the course is administered')
+    )
+    transcript_languages = serializers.SlugRelatedField(many=True, read_only=True, slug_field='code')
+    video = VideoSerializer()
+    seats = SeatSerializer(many=True)
+    instructors = serializers.SerializerMethodField(help_text='This field is deprecated. Use staff.')
+    staff = PersonSerializer(many=True)
+    level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
+
+    @classmethod
+    def prefetch_queryset(cls):
+        queryset = super().prefetch_queryset()
+        return queryset.select_related('language', 'video').prefetch_related(
+            'transcript_languages',
+            Prefetch('seats', queryset=SeatSerializer.prefetch_queryset()),
+            Prefetch('staff', queryset=PersonSerializer.prefetch_queryset()),
+        )
+
+    class Meta(MinimalCourseRunSerializer.Meta):
+        fields = MinimalCourseRunSerializer.Meta.fields + (
+            'course', 'full_description', 'start', 'end', 'enrollment_start', 'enrollment_end', 'announcement',
+            'video', 'seats', 'content_language', 'transcript_languages', 'instructors', 'staff', 'pacing_type',
+            'min_effort', 'max_effort', 'modified', 'level_type', 'availability',
+        )
+
     def get_instructors(self, obj):  # pylint: disable=unused-argument
+        # This field is deprecated. Use the staff field.
         return []
 
 
@@ -382,13 +400,29 @@ class ContainedCourseRunsSerializer(serializers.Serializer):
     )
 
 
-class CourseSerializer(TimestampModelSerializer):
+class MinimalCourseSerializer(TimestampModelSerializer):
+    course_runs = MinimalCourseRunSerializer(many=True)
+    owners = MinimalOrganizationSerializer(many=True, source='authoring_organizations')
+    image = ImageField(read_only=True, source='card_image_url')
+
+    @classmethod
+    def prefetch_queryset(cls):
+        return Course.objects.all().select_related('partner').prefetch_related(
+            'authoring_organizations',
+            Prefetch('course_runs', queryset=MinimalCourseRunSerializer.prefetch_queryset()),
+        )
+
+    class Meta:
+        model = Course
+        fields = ('key', 'uuid', 'title', 'course_runs', 'owners', 'image',)
+
+
+class CourseSerializer(MinimalCourseSerializer):
     """Serializer for the ``Course`` model."""
     level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
     subjects = SubjectSerializer(many=True)
     prerequisites = PrerequisiteSerializer(many=True)
     expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
-    image = ImageField(read_only=True, source='card_image_url')
     video = VideoSerializer()
     owners = OrganizationSerializer(many=True, source='authoring_organizations')
     sponsors = OrganizationSerializer(many=True, source='sponsoring_organizations')
@@ -406,12 +440,11 @@ class CourseSerializer(TimestampModelSerializer):
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset()),
         )
 
-    class Meta:
+    class Meta(MinimalCourseSerializer.Meta):
         model = Course
-        fields = (
-            'key', 'title', 'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites',
-            'expected_learning_items', 'image', 'video', 'owners', 'sponsors', 'modified', 'course_runs',
-            'marketing_url',
+        fields = MinimalCourseSerializer.Meta.fields + (
+            'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites',
+            'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url',
         )
 
     def get_marketing_url(self, obj):
@@ -447,8 +480,13 @@ class ContainedCoursesSerializer(serializers.Serializer):
     )
 
 
-class ProgramCourseSerializer(CourseSerializer):
-    """Serializer used to filter out excluded course runs in a course associated with the program"""
+class MinimalProgramCourseSerializer(MinimalCourseSerializer):
+    """
+    Serializer used to filter out excluded course runs in a course associated with the program.
+
+    Notes:
+        This is shared by both MinimalProgramSerializer and ProgramSerializer!
+    """
     course_runs = serializers.SerializerMethodField()
 
     def get_course_runs(self, course):
@@ -458,7 +496,7 @@ class ProgramCourseSerializer(CourseSerializer):
         if self.context.get('published_course_runs_only'):
             course_runs = [course_run for course_run in course_runs if course_run.status == CourseRunStatus.Published]
 
-        return CourseRunSerializer(
+        return MinimalCourseRunSerializer(
             course_runs,
             many=True,
             context={
@@ -468,53 +506,31 @@ class ProgramCourseSerializer(CourseSerializer):
         ).data
 
 
-class ProgramSerializer(serializers.ModelSerializer):
-    courses = serializers.SerializerMethodField()
-    authoring_organizations = OrganizationSerializer(many=True)
-    type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
+class MinimalProgramSerializer(serializers.ModelSerializer):
+    authoring_organizations = MinimalOrganizationSerializer(many=True)
     banner_image = StdImageSerializerField()
-    video = VideoSerializer()
-    expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
-    faq = FAQSerializer(many=True)
-    credit_backing_organizations = OrganizationSerializer(many=True)
-    corporate_endorsements = CorporateEndorsementSerializer(many=True)
-    job_outlook_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
-    individual_endorsements = EndorsementSerializer(many=True)
-    languages = serializers.SlugRelatedField(
-        many=True, read_only=True, slug_field='code',
-        help_text=_('Languages that course runs in this program are offered in.'),
-    )
-    transcript_languages = serializers.SlugRelatedField(
-        many=True, read_only=True, slug_field='code',
-        help_text=_('Languages that course runs in this program have available transcripts in.'),
-    )
-    subjects = SubjectSerializer(many=True)
-    staff = PersonSerializer(many=True)
+    courses = serializers.SerializerMethodField()
+    type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
 
     @classmethod
     def prefetch_queryset(cls):
-        """
-        Prefetch the related objects that will be serialized with a `Program`.
-
-        We use Pefetch objects so that we can prefetch and select all the way down the
-        chain of related fields from programs to course runs (i.e., we want control over
-        the querysets that we're prefetching).
-        """
-        return Program.objects.all().select_related('type', 'video', 'partner').prefetch_related(
+        return Program.objects.all().select_related('type', 'partner').prefetch_related(
             'excluded_course_runs',
-            'expected_learning_items',
-            'faq',
-            'job_outlook_items',
             # `type` is serialized by a third-party serializer. Providing this field name allows us to
             # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
             # `ProgramType` on `Program`.
             'type__applicable_seat_types',
-            Prefetch('courses', queryset=ProgramCourseSerializer.prefetch_queryset()),
-            Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset()),
-            Prefetch('credit_backing_organizations', queryset=OrganizationSerializer.prefetch_queryset()),
-            Prefetch('corporate_endorsements', queryset=CorporateEndorsementSerializer.prefetch_queryset()),
-            Prefetch('individual_endorsements', queryset=EndorsementSerializer.prefetch_queryset()),
+            'authoring_organizations',
+            Prefetch('courses', queryset=MinimalProgramCourseSerializer.prefetch_queryset()),
         )
+
+    class Meta:
+        model = Program
+        fields = (
+            'uuid', 'title', 'subtitle', 'type', 'status', 'marketing_slug', 'marketing_url', 'banner_image',
+            'courses', 'authoring_organizations', 'card_image_url',
+        )
+        read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 
     def get_courses(self, program):
         if program.order_courses_by_start_date:
@@ -522,7 +538,7 @@ class ProgramSerializer(serializers.ModelSerializer):
         else:
             courses, course_runs = program.courses.all(), program.course_runs
 
-        course_serializer = ProgramCourseSerializer(
+        course_serializer = MinimalProgramCourseSerializer(
             courses,
             many=True,
             context={
@@ -591,17 +607,62 @@ class ProgramSerializer(serializers.ModelSerializer):
 
         return courses, course_runs
 
-    class Meta:
+
+class ProgramSerializer(MinimalProgramSerializer):
+    authoring_organizations = OrganizationSerializer(many=True)
+    video = VideoSerializer()
+    expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
+    faq = FAQSerializer(many=True)
+    credit_backing_organizations = OrganizationSerializer(many=True)
+    corporate_endorsements = CorporateEndorsementSerializer(many=True)
+    job_outlook_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
+    individual_endorsements = EndorsementSerializer(many=True)
+    languages = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field='code',
+        help_text=_('Languages that course runs in this program are offered in.'),
+    )
+    transcript_languages = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field='code',
+        help_text=_('Languages that course runs in this program have available transcripts in.'),
+    )
+    subjects = SubjectSerializer(many=True)
+    staff = PersonSerializer(many=True)
+
+    @classmethod
+    def prefetch_queryset(cls):
+        """
+        Prefetch the related objects that will be serialized with a `Program`.
+
+        We use Pefetch objects so that we can prefetch and select all the way down the
+        chain of related fields from programs to course runs (i.e., we want control over
+        the querysets that we're prefetching).
+        """
+        return Program.objects.all().select_related('type', 'video', 'partner').prefetch_related(
+            'excluded_course_runs',
+            'expected_learning_items',
+            'faq',
+            'job_outlook_items',
+            # `type` is serialized by a third-party serializer. Providing this field name allows us to
+            # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
+            # `ProgramType` on `Program`.
+            'type__applicable_seat_types',
+            # We need the full Course prefetch here to get CourseRun information that methods on the Program
+            # model iterate across (e.g. language). These fields aren't prefetched by the minimal Course serializer.
+            Prefetch('courses', queryset=CourseSerializer.prefetch_queryset()),
+            Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset()),
+            Prefetch('credit_backing_organizations', queryset=OrganizationSerializer.prefetch_queryset()),
+            Prefetch('corporate_endorsements', queryset=CorporateEndorsementSerializer.prefetch_queryset()),
+            Prefetch('individual_endorsements', queryset=EndorsementSerializer.prefetch_queryset()),
+        )
+
+    class Meta(MinimalProgramSerializer.Meta):
         model = Program
-        fields = (
-            'uuid', 'title', 'subtitle', 'type', 'status', 'marketing_slug', 'marketing_url', 'courses',
-            'overview', 'weeks_to_complete', 'min_hours_effort_per_week', 'max_hours_effort_per_week',
-            'authoring_organizations', 'banner_image', 'banner_image_url', 'card_image_url', 'video',
+        fields = MinimalProgramSerializer.Meta.fields + (
+            'overview', 'weeks_to_complete', 'min_hours_effort_per_week', 'max_hours_effort_per_week', 'video',
             'expected_learning_items', 'faq', 'credit_backing_organizations', 'corporate_endorsements',
             'job_outlook_items', 'individual_endorsements', 'languages', 'transcript_languages', 'subjects',
             'price_ranges', 'staff', 'credit_redemption_overview',
         )
-        read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 
 
 class AffiliateWindowSerializer(serializers.ModelSerializer):

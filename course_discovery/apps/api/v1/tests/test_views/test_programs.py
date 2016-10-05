@@ -2,11 +2,14 @@ import ddt
 from django.core.urlresolvers import reverse
 from rest_framework.test import APITestCase, APIRequestFactory
 
+from course_discovery.apps.api.serializers import MinimalProgramSerializer, ProgramSerializer
+from course_discovery.apps.api.v1.views import ProgramViewSet
 from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Program
+from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, VideoFactory, OrganizationFactory, PersonFactory, ProgramFactory,
     CorporateEndorsementFactory, EndorsementFactory, JobOutlookItemFactory, ExpectedLearningItemFactory
@@ -64,20 +67,17 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
     def test_retrieve(self):
         """ Verify the endpoint returns the details for a single program. """
         program = self.create_program()
-        with self.assertNumQueries(89):
+        with self.assertNumQueries(72):
             self.assert_retrieve_success(program)
 
-    @ddt.data(
-        (True),
-        (False),
-    )
-    def test_retrieve_with_sorting_flag(self, order_courses_by_start_date=True):
+    @ddt.data(True, False)
+    def test_retrieve_with_sorting_flag(self, order_courses_by_start_date):
         """ Verify the number of queries is the same with sorting flag set to true. """
         course_list = CourseFactory.create_batch(3)
         for course in course_list:
             CourseRunFactory(course=course)
         program = ProgramFactory(courses=course_list, order_courses_by_start_date=order_courses_by_start_date)
-        num_queries = 132 if order_courses_by_start_date else 114
+        num_queries = 82 if order_courses_by_start_date else 80
         with self.assertNumQueries(num_queries):
             self.assert_retrieve_success(program)
         self.assertEqual(course_list, list(program.courses.all()))  # pylint: disable=no-member
@@ -86,7 +86,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns data for a program even if the program's courses have no course runs. """
         course = CourseFactory()
         program = ProgramFactory(courses=[course])
-        with self.assertNumQueries(55):
+        with self.assertNumQueries(46):
             self.assert_retrieve_success(program)
 
     def assert_list_results(self, url, expected, expected_query_count, extra_context=None):
@@ -115,7 +115,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of all programs. """
         expected = [self.create_program() for __ in range(3)]
         expected.reverse()
-        self.assert_list_results(self.list_path, expected, 41)
+        self.assert_list_results(self.list_path, expected, 36)
 
     def test_filter_by_type(self):
         """ Verify that the endpoint filters programs to those of a given type. """
@@ -159,4 +159,17 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns marketing URLs without UTM parameters. """
         url = self.list_path + '?exclude_utm=1'
         program = self.create_program()
-        self.assert_list_results(url, [program], 33, extra_context={'exclude_utm': 1})
+        self.assert_list_results(url, [program], 32, extra_context={'exclude_utm': 1})
+
+    @ddt.data(True, False)
+    def test_minimal_serializer_use(self, is_minimal):
+        """ Verify that the list view uses the minimal serializer. """
+        toggle_switch('reduced_program_data', active=is_minimal)
+
+        action_serializer_mapping = {
+            'list': MinimalProgramSerializer if is_minimal else ProgramSerializer,
+            'detail': ProgramSerializer,
+        }
+
+        for action, serializer in action_serializer_mapping.items():
+            self.assertEqual(ProgramViewSet(action=action).get_serializer_class(), serializer)
