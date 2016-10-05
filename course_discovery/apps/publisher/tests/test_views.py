@@ -71,32 +71,21 @@ class CreateUpdateCourseViewTests(TestCase):
         """ Verify that new course, course run and seat can be created
         with different data sets.
         """
+        self._assert_records(1)
         course_dict = self._post_data(data, self.course, self.course_run, self.seat)
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=data['image'])
         course = Course.objects.get(number=data['number'])
-        self.assertRedirects(
-            response,
-            expected_url=reverse('publisher:publisher_courses_readonly', kwargs={'pk': course.id}),
-            status_code=302,
-            target_status_code=200
-        )
+
         if data['image']:
             self._assert_image(course)
-        self.assertTrue(self.user.has_perm(Course.VIEW_PERMISSION, course))
 
-        course_run = course.publisher_course_runs.all()[0]
-        seat = course_run.seats.all()[0]
-        self.assertEqual(seat.type, self.seat.type)
-        self.assertEqual(seat.price, self.seat.price)
+        self._assert_test_data(response, course, self.seat.type, self.seat.price)
 
     def test_create_with_transaction(self):
         """ Verify that in case of any error transactions roll back and no object
         created in db.
         """
-        self.assertEqual(Course.objects.all().count(), 1)
-        self.assertEqual(CourseRun.objects.all().count(), 1)
-        self.assertEqual(Seat.objects.all().count(), 1)
-
+        self._assert_records(1)
         data = {'number': 'course_2', 'image': make_image_file('test_banner.jpg')}
         course_dict = self._post_data(data, self.course, self.course_run, self.seat)
         with patch.object(Course, "assign_permission_by_group") as mock_method:
@@ -104,9 +93,7 @@ class CreateUpdateCourseViewTests(TestCase):
             response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=data['image'])
 
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(Course.objects.all().count(), 1)
-        self.assertEqual(CourseRun.objects.all().count(), 1)
-        self.assertEqual(Seat.objects.all().count(), 1)
+        self._assert_records(1)
 
     def test_update_course_with_staff(self):
         """ Verify that staff user can update an existing course. """
@@ -212,6 +199,35 @@ class CreateUpdateCourseViewTests(TestCase):
         self.assertContains(response, 'Add new comment')
         self.assertContains(response, comment.comment)
 
+    @ddt.data(Seat.VERIFIED, Seat.PROFESSIONAL, Seat.NO_ID_PROFESSIONAL, Seat.CREDIT)
+    def test_create_course_without_price(self, seat_type):
+        """ Verify that if seat type is not honor/audit then price should be given.
+        Otherwise it will throw error.
+        """
+        self._assert_records(1)
+        data = {'number': 'course_1', 'image': ''}
+        course_dict = self._post_data(data, self.course, self.course_run, self.seat)
+        course_dict['price'] = 0
+        course_dict['type'] = seat_type
+        response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=data['image'])
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.context['seat_form'].errors['price'][0], 'Only honor/audit seats can be without price.'
+        )
+        self._assert_records(1)
+
+    @ddt.data(Seat.AUDIT, Seat.HONOR)
+    def test_create_course_without_price(self, seat_type):
+        """ Verify that if seat type is honor/audit then price is not required. """
+        self._assert_records(1)
+        data = {'number': 'course_1', 'image': ''}
+        course_dict = self._post_data(data, self.course, self.course_run, self.seat)
+        course_dict['price'] = 0
+        course_dict['type'] = seat_type
+        response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=data['image'])
+        course = Course.objects.get(number=data['number'])
+        self._assert_test_data(response, course, seat_type, 0)
+
     def _post_data(self, data, course, course_run, seat):
         course_dict = model_to_dict(course)
         course_dict.update(**data)
@@ -236,6 +252,28 @@ class CreateUpdateCourseViewTests(TestCase):
             sized_file = getattr(course.image, size_key, None)
             self.assertIsNotNone(sized_file)
             self.assertIn(image_url_prefix, sized_file.url)
+
+    def _assert_records(self, count):
+        # DRY method to count records in db.
+        self.assertEqual(Course.objects.all().count(), count)
+        self.assertEqual(CourseRun.objects.all().count(), count)
+        self.assertEqual(Seat.objects.all().count(), count)
+
+    def _assert_test_data(self, response, course, expected_type, expected_price):
+        # DRY method to assert response and data.
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_courses_readonly', kwargs={'pk': course.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        self.assertTrue(self.user.has_perm(Course.VIEW_PERMISSION, course))
+        course_run = course.publisher_course_runs.all()[0]
+        seat = course_run.seats.all()[0]
+        self.assertEqual(seat.type, expected_type)
+        self.assertEqual(seat.price, expected_price)
+        self._assert_records(2)
 
 
 class CreateUpdateCourseRunViewTests(TestCase):
