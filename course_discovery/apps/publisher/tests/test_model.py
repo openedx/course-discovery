@@ -62,6 +62,14 @@ class CourseTests(TestCase):
         self.course = factories.CourseFactory()
         self.course2 = factories.CourseFactory()
 
+        self.user1 = UserFactory()
+        self.user2 = UserFactory()
+        self.user3 = UserFactory()
+        self.group_a = factories.GroupFactory()
+        self.group_b = factories.GroupFactory()
+        self.user1.groups.add(self.group_a)
+        self.user2.groups.add(self.group_b)
+
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the course title. """
         self.assertEqual(str(self.course), self.course.title)
@@ -72,25 +80,48 @@ class CourseTests(TestCase):
             reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id})
         )
 
-    def test_assign_user_groups(self):
-        user1 = UserFactory()
-        user2 = UserFactory()
-        group_a = factories.GroupFactory(name="Test Group A")
-        group_b = factories.GroupFactory(name="Test Group B")
-        user1.groups.add(group_a)
-        user2.groups.add(group_b)
+    def test_assign_permission_by_group(self):
+        """ Verify that permission can be assigned using the group. """
+        self.assert_user_cannot_view_course(self.user1, self.course)
+        self.assert_user_cannot_view_course(self.user2, self.course2)
 
-        self.assertFalse(user1.has_perm(Course.VIEW_PERMISSION, self.course))
-        self.assertFalse(user2.has_perm(Course.VIEW_PERMISSION, self.course2))
+        self.course.assign_permission_by_group(self.group_a)
+        self.course2.assign_permission_by_group(self.group_b)
 
-        self.course.assign_user_groups(user1)
-        self.course2.assign_user_groups(user2)
+        self.assert_user_can_view_course(self.user1, self.course)
+        self.assert_user_can_view_course(self.user2, self.course2)
 
-        self.assertTrue(user1.has_perm(Course.VIEW_PERMISSION, self.course))
-        self.assertTrue(user2.has_perm(Course.VIEW_PERMISSION, self.course2))
+        self.assert_user_cannot_view_course(self.user1, self.course2)
+        self.assert_user_cannot_view_course(self.user2, self.course)
 
-        self.assertFalse(user1.has_perm(Course.VIEW_PERMISSION, self.course2))
-        self.assertFalse(user2.has_perm(Course.VIEW_PERMISSION, self.course))
+        self.assertEqual(self.course.group_institution, self.group_a)
+        self.assertEqual(self.course2.group_institution, self.group_b)
+
+    def assert_user_cannot_view_course(self, user, course):
+        """ Asserts the user can NOT view the course. """
+        self.assertFalse(user.has_perm(Course.VIEW_PERMISSION, course))
+
+    def assert_user_can_view_course(self, user, course):
+        """ Asserts the user can view the course. """
+        self.assertTrue(user.has_perm(Course.VIEW_PERMISSION, course))
+
+    def test_group_institution(self):
+        """ Verify the method returns groups permitted to access the course."""
+        self.assertEqual(self.course.group_institution, None)
+        self.course.assign_permission_by_group(self.group_a)
+        self.assertEqual(self.course.group_institution, self.group_a)
+
+    def test_get_group_users_emails(self):
+        """ Verify the method returns the email addresses of users who are
+        permitted to access the course AND have not disabled email notifications.
+        """
+        self.user3.groups.add(self.group_a)
+        self.course.assign_permission_by_group(self.group_a)
+        self.assertListEqual(self.course.get_group_users_emails(), [self.user1.email, self.user3.email])
+
+        # The email addresses of users who have disabled email notifications should NOT be returned.
+        factories.UserAttributeFactory(user=self.user1, enable_email_notification=False)
+        self.assertListEqual(self.course.get_group_users_emails(), [self.user3.email])
 
     def test_keywords_data(self):
         """ Verify that the property returns the keywords as comma separated string. """

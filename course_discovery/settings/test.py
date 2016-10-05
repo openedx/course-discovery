@@ -23,3 +23,5 @@ DATABASES = {
 JWT_AUTH['JWT_SECRET_KEY'] = 'course-discovery-jwt-secret-key'
 
 LOGGING['handlers']['local'] = {'class': 'logging.NullHandler'}
+
+PUBLISHER_FROM_EMAIL = 'test@example.com'

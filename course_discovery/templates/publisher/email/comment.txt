@@ -1,0 +1,11 @@
+{% load i18n %}
+
+{% blocktrans with first_name=comment.user.first_name object_type=object_type|lower title=course.title number=course.number trimmed %}
+{{ first_name }} commented on a {{ object_type }} belonging to the course {{ title }} ({{ number }}).
+{% endblocktrans %}
+
+{{ comment.comment }}
+
+{% trans "View comment:" %} {{ page_url }}
+
+{% trans "The edX team" %}
