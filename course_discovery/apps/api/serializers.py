@@ -292,7 +292,8 @@ class CatalogSerializer(serializers.ModelSerializer):
     courses_count = serializers.IntegerField(read_only=True, help_text=_('Number of courses contained in this catalog'))
     viewers = serializers.SlugRelatedField(slug_field='username', queryset=User.objects.all(), many=True,
                                            allow_null=True, allow_empty=True, required=False,
-                                           help_text=_('Usernames of users with explicit access to view this catalog'))
+                                           help_text=_('Usernames of users with explicit access to view this catalog'),
+                                           style={'base_template': 'input.html'})
 
     def create(self, validated_data):
         viewers = validated_data.pop('viewers')
