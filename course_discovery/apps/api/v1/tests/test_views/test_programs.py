@@ -77,8 +77,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         for course in course_list:
             CourseRunFactory(course=course)
         program = ProgramFactory(courses=course_list, order_courses_by_start_date=order_courses_by_start_date)
-        num_queries = 82 if order_courses_by_start_date else 80
-        with self.assertNumQueries(num_queries):
+        with self.assertNumQueries(82):
             self.assert_retrieve_success(program)
         self.assertEqual(course_list, list(program.courses.all()))  # pylint: disable=no-member
 

@@ -536,7 +536,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
         if program.order_courses_by_start_date:
             courses, course_runs = self.sort_courses(program)
         else:
-            courses, course_runs = program.courses.all(), program.course_runs
+            courses, course_runs = program.courses.all(), list(program.course_runs)
 
         course_serializer = MinimalProgramCourseSerializer(
             courses,
