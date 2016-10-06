@@ -50,6 +50,18 @@ auth_header: &auth_header
   required: true
   type: "string"
 
+limit_qs_parameter: &limit_qs_parameter
+  in: querystring
+  name: limit
+  required: false
+  type: number
+
+offset_qs_parameter: &offset_qs_parameter
+  in: querystring
+  name: offset
+  required: false
+  type: number
+
 # AWS API Gateway vendor extension point. This information is used
 #  by https://github.com/awslabs/aws-apigateway-importer.
 x-amazon-apigateway-integration: &apigateway_integration
@@ -76,6 +88,8 @@ endpoints:
           produces: *produces
           parameters:
             - *auth_header
+            - *limit_qs_parameter
+            - *offset_qs_parameter
           operationId: "get_catalogs"
           responses: *responses
           x-amazon-apigateway-integration:
@@ -102,6 +116,8 @@ endpoints:
           parameters:
             - *auth_header
             - *id_parameter
+            - *limit_qs_parameter
+            - *offset_qs_parameter
           operationId: "get_catalog_courses"
           responses: *responses
           x-amazon-apigateway-integration:
