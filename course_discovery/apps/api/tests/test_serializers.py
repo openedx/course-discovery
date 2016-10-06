@@ -370,7 +370,7 @@ class MinimalProgramCourseSerializerTests(TestCase):
             context={
                 'request': request,
                 'program': program,
-                'course_runs': program.course_runs
+                'course_runs': list(program.course_runs)
             }
         )
         expected = MinimalCourseSerializer(program.courses, many=True, context={'request': request}).data
@@ -399,7 +399,7 @@ class MinimalProgramCourseSerializerTests(TestCase):
         excluded_runs.append(course_runs[0])
         program = ProgramFactory(courses=[course], excluded_course_runs=excluded_runs)
 
-        serializer_context = {'request': request, 'program': program, 'course_runs': program.course_runs}
+        serializer_context = {'request': request, 'program': program, 'course_runs': list(program.course_runs)}
         serializer = MinimalProgramCourseSerializer(course, context=serializer_context)
 
         expected = MinimalCourseSerializer(course, context=serializer_context).data
@@ -428,7 +428,7 @@ class MinimalProgramCourseSerializerTests(TestCase):
                 'request': request,
                 'program': program,
                 'published_course_runs_only': True,
-                'course_runs': program.course_runs,
+                'course_runs': list(program.course_runs),
             }
         )
 
@@ -478,7 +478,7 @@ class MinimalProgramSerializerTests(TestCase):
                 context={
                     'request': request,
                     'program': program,
-                    'course_runs': program.course_runs,
+                    'course_runs': list(program.course_runs),
                 }).data,
             'authoring_organizations': MinimalOrganizationSerializer(program.authoring_organizations, many=True).data,
             'card_image_url': program.card_image_url,
@@ -518,7 +518,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'overview': program.overview,
             'price_ranges': program.price_ranges,
             'subjects': SubjectSerializer(program.subjects, many=True).data,
-            'transcript_languages': [serialize_language_to_code(l) for l in program.transcript_languages],
+            'transcript_languages': [serialize_language_to_code(l) for l in program.transcript_languages]
         })
 
         return expected
@@ -670,9 +670,11 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
 
     def test_data_without_course_sorting(self):
         request = make_request()
+
         program = self.create_program()
         program.order_courses_by_start_date = False
         program.save()
+
         serializer = self.serializer_class(program, context={'request': request})
         expected = self.get_expected_data(program, request)
         self.assertDictEqual(serializer.data, expected)
@@ -985,7 +987,7 @@ class ProgramSearchSerializerTests(TestCase):
             'partner': program.partner.short_code,
             'authoring_organization_uuids': get_uuids(program.authoring_organizations.all()),
             'subject_uuids': get_uuids([course.subjects for course in program.courses.all()]),
-            'staff_uuids': get_uuids([course.staff for course in program.course_runs])
+            'staff_uuids': get_uuids([course.staff for course in list(program.course_runs)])
         }
 
     def test_data(self):
