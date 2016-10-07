@@ -100,6 +100,11 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         cleaned = html_converter.handle(cleaned).strip()
         cleaned = markdown.markdown(cleaned)
         cleaned = cls.MARKDOWN_CLEANUP_REGEX.sub(r'\1', cleaned)
+
+        # html2text does not handle ampersands properly.
+        # See https://github.com/Alir3z4/html2text/issues/109.
+        cleaned = cleaned.replace('&amp;', '&')
+
         return cleaned
 
     @classmethod
