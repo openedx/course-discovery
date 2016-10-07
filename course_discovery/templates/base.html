@@ -36,9 +36,7 @@
 
 <body>
 <div class="container">
-    <br>
     {% include 'header.html' %}
-    <br>
     <div class="layout-1q3q layout-flush border-top">
         <main class="layout-col layout-col-a layout-col-menu">
             <div class="institute-logo">
@@ -59,7 +57,7 @@
             </ul>
         </main>
 
-        <aside class="layout-col layout-col-b border-left">
+        <aside class="layout-col layout-col-b border-left layout-col-container">
             {% block content %}
 
             {% endblock content %}
