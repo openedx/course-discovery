@@ -64,6 +64,7 @@ class AbstractDataLoaderTest(TestCase):
             ('', '',),
             ('<p>Hello!</p>', 'Hello!'),
             ('<em>Testing</em>', '<em>Testing</em>'),
+            ('Hello&amp;world&nbsp;!', 'Hello&world!')
         )
 
         for content, expected in data:

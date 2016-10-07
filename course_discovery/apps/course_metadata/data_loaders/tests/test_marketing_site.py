@@ -423,7 +423,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         course = self._get_course(data)
 
         expected_values = {
-            'title': data['field_course_course_title']['value'],
+            'title': self.loader.clean_html(data['field_course_course_title']['value']),
             'number': data['field_course_code'],
             'full_description': self.loader.get_description(data),
             'video': self.loader.get_video(data),
@@ -473,7 +473,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
 
         expected_values = {
             'key': data['field_course_id'],
-            'title_override': data['field_course_course_title']['value'],
+            'title_override': self.loader.clean_html(data['field_course_course_title']['value']),
             'language': language,
             'slug': data['url'].split('/')[-1],
             'card_image_url': (data.get('field_course_image_promoted') or {}).get('url'),

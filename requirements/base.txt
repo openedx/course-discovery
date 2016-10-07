@@ -33,7 +33,7 @@ edx-drf-extensions==1.1.1
 edx-opaque-keys==0.3.1
 edx-rest-api-client==1.6.0
 elasticsearch>=1.0.0,<2.0.0
-html2text==2016.5.29
+html2text==2016.9.19
 jsonfield==1.0.3
 markdown==2.6.6
 pillow==3.3.0
