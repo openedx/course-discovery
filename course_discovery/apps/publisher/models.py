@@ -7,7 +7,7 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from django_fsm import FSMField, transition
-from guardian.shortcuts import assign_perm
+from guardian.shortcuts import assign_perm, get_groups_with_perms
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
@@ -84,18 +84,18 @@ class Course(TimeStampedModel, ChangedByMixin):
     title = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_('Course title'))
     number = models.CharField(max_length=50, null=True, blank=True, verbose_name=_('Course number'))
     short_description = models.CharField(
-        max_length=255, default=None, null=True, blank=True, verbose_name=_('Course subtitle')
+        max_length=255, default=None, null=True, blank=True, verbose_name=_('Brief Description')
     )
-    full_description = models.TextField(default=None, null=True, blank=True, verbose_name=_('About this course'))
+    full_description = models.TextField(default=None, null=True, blank=True, verbose_name=_('Full Description'))
     organizations = models.ManyToManyField(
         Organization, blank=True, related_name='publisher_courses', verbose_name=_('Partner Name')
     )
     level_type = models.ForeignKey(
-        LevelType, default=None, null=True, blank=True, related_name='publisher_courses', verbose_name=_('Course level')
+        LevelType, default=None, null=True, blank=True, related_name='publisher_courses', verbose_name=_('Level Type')
     )
-    expected_learnings = models.TextField(default=None, null=True, blank=True, verbose_name=_("What you'll learn"))
+    expected_learnings = models.TextField(default=None, null=True, blank=True, verbose_name=_("Expected Learnings"))
     syllabus = models.TextField(default=None, null=True, blank=True)
-    prerequisites = models.TextField(default=None, null=True, blank=True)
+    prerequisites = models.TextField(default=None, null=True, blank=True, verbose_name=_('Prerequisites'))
     learner_testimonial = models.CharField(max_length=50, null=True, blank=True)
     verification_deadline = models.DateTimeField(
         null=True,
@@ -147,6 +147,15 @@ class Course(TimeStampedModel, ChangedByMixin):
         for group in user.groups.all():
             assign_perm(self.VIEW_PERMISSION, group, self)
 
+    def assign_permission_by_group(self, institution):
+        assign_perm(self.VIEW_PERMISSION, institution, self)
+
+    @property
+    def get_group_institution(self):
+        """ Returns the Group object with for the given course object. """
+        available_groups = get_groups_with_perms(self)
+        return available_groups[0] if available_groups else None
+
 
 class CourseRun(TimeStampedModel, ChangedByMixin):
     """ Publisher CourseRun model. It contains fields related to the course run intake form."""
@@ -185,7 +194,10 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     max_effort = models.PositiveSmallIntegerField(
         null=True, blank=True,
         help_text=_('Estimated maximum number of hours per week needed to complete a course run.'))
-    language = models.ForeignKey(LanguageTag, null=True, blank=True, related_name='publisher_course_runs')
+    language = models.ForeignKey(
+        LanguageTag, null=True, blank=True,
+        related_name='publisher_course_runs', verbose_name=_('Content Language')
+    )
     transcript_languages = models.ManyToManyField(
         LanguageTag, blank=True, related_name='publisher_transcript_course_runs'
     )

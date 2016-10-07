@@ -7,6 +7,7 @@ from course_discovery.apps.publisher import views
 
 urlpatterns = [
     url(r'^courses/new$', views.CreateCourseView.as_view(), name='publisher_courses_new'),
+    url(r'^courses/(?P<pk>\d+)/view/$', views.ReadOnlyView.as_view(), name='publisher_courses_readonly'),
     url(r'^courses/(?P<pk>\d+)/edit/$', views.UpdateCourseView.as_view(), name='publisher_courses_edit'),
     url(r'^course_runs/(?P<pk>\d+)/$', views.CourseRunDetailView.as_view(), name='publisher_course_run_detail'),
     url(r'^course_runs/$', views.CourseRunListView.as_view(), name='publisher_course_runs'),

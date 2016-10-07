@@ -7,6 +7,7 @@ from factory.fuzzy import FuzzyText, FuzzyChoice, FuzzyDecimal, FuzzyDateTime, F
 from pytz import UTC
 
 from course_discovery.apps.core.models import Currency
+from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -33,6 +34,8 @@ class CourseFactory(factory.DjangoModelFactory):
     primary_subject = factory.SubFactory(factories.SubjectFactory)
     secondary_subject = factory.SubFactory(factories.SubjectFactory)
     tertiary_subject = factory.SubFactory(factories.SubjectFactory)
+
+    team_admin = factory.SubFactory(UserFactory)
 
     class Meta:
         model = Course
