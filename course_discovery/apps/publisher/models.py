@@ -321,3 +321,17 @@ def create_workflow_state(course_run):
         state = State()
         state.save()
         course_run.state = state
+
+
+class UserAttributes(TimeStampedModel):
+    """ Record additional metadata about a user. """
+    user = models.OneToOneField(User, related_name='attributes')
+    enable_email_notification = models.BooleanField(default=True)
+
+    def __str__(self):
+        return '{user}: {email_notification}'.format(
+            user=self.user, email_notification=self.enable_email_notification
+        )
+
+    class Meta:
+        verbose_name_plural = 'UserAttributes'
