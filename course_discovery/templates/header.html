@@ -37,7 +37,12 @@
                 <div class="wrapper wrapper-nav-sub">
                     <div class="nav-sub">
                         <div class="nav-menu-item nav-email-notification">
-                            <span><b>{% trans "Email notifications" %}</b></span>
+                            <span class="email-switch-label"><b>{% trans "Email notifications" %}</b></span>
+                            <label class="switch">
+                                <input id="email-switch" type="checkbox" data-isEnabled="{{ is_email_notification_enabled }}" {% if is_email_notification_enabled %}checked{% endif %}>
+                                <div class="slider"></div>
+                            </label>
+                            <span class="switch-label">{% if is_email_notification_enabled %} {% trans "ON" %} {% else %} {% trans "OFF" %} {% endif %}</span>
                         </div>
                         <div class="nav-menu-item nav-account-signout">
                             <a class="btn-neutral" href="/logout">{% trans "Sign Out" %}</a>

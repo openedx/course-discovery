@@ -1,11 +1,13 @@
 """
 Course publisher views.
 """
+import json
+
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import HttpResponseRedirect, HttpResponseForbidden
+from django.http import HttpResponseRedirect, HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
@@ -19,7 +21,7 @@ from course_discovery.apps.publisher.forms import (
     CourseForm, CourseRunForm, SeatForm, CustomCourseForm, CustomCourseRunForm, CustomSeatForm
 )
 from course_discovery.apps.publisher import mixins
-from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State
+from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State, UserAttributes
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
 
@@ -246,3 +248,15 @@ class ChangeStateView(mixins.LoginRequiredMixin, View):
         except (CourseRun.DoesNotExist, TransitionNotAllowed):
             messages.error(request, _('There was an error in changing state.'))
             return HttpResponseRedirect(reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run_id}))
+
+
+class ToggleEmailNotification(mixins.LoginRequiredMixin, View):
+    """ Toggle User Email Notification Settings."""
+
+    def post(self, request):
+        is_enabled = json.loads(request.POST.get('is_enabled'))
+        user_attribute, __ = UserAttributes.objects.get_or_create(user=request.user)
+        user_attribute.enable_email_notification = is_enabled
+        user_attribute.save()
+
+        return JsonResponse({'is_enabled': is_enabled})

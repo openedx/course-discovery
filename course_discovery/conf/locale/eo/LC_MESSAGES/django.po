@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-19 18:33+0000\n"
+"POT-Creation-Date: 2016-10-21 07:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -783,6 +783,14 @@ msgstr "Hélp Ⱡ'σяєм ι#"
 #: course_discovery/templates/header.html
 msgid "Email notifications"
 msgstr "Émäïl nötïfïçätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: course_discovery/templates/header.html
+msgid "ON"
+msgstr "ÖN Ⱡ'σя#"
+
+#: course_discovery/templates/header.html
+msgid "OFF"
+msgstr "ÖFF Ⱡ'σяєм#"
 
 #: course_discovery/templates/header.html
 msgid "Sign Out"

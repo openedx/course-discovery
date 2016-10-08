@@ -1,4 +1,6 @@
 # pylint: disable=no-member
+import json
+
 import ddt
 from mock import patch
 
@@ -10,11 +12,13 @@ from django.forms import model_to_dict
 from django.test import TestCase
 from guardian.shortcuts import assign_perm
 
+from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
+from course_discovery.apps.publisher.utils import is_email_notification_enabled
 from course_discovery.apps.publisher.views import CourseRunDetailView
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
@@ -942,3 +946,36 @@ class CourseRunListViewTests(TestCase):
         # Verify that we have 2 in progress and 1 published course runs
         self.assertEqual(len(response.context['object_list']), 2)
         self.assertEqual(len(response.context['published_courseruns']), 1)
+
+
+class ToggleEmailNotificationTests(TestCase):
+    """ Tests for `ToggleEmailNotification` view. """
+
+    def setUp(self):
+        super(ToggleEmailNotificationTests, self).setUp()
+        self.user = UserFactory()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.toggle_email_settings_url = reverse('publisher:publisher_toggle_email_settings')
+
+    def test_toggle_email_notification(self):
+        """ Test that user can toggle email notification settings."""
+
+        # Verify that by default email notification is enabled for the user
+        self.assertEqual(is_email_notification_enabled(self.user), True)
+
+        # Verify that user can disable email notifications
+        self.assert_toggle_email_notification(False)
+
+        # Verify that user can enable email notifications
+        self.assert_toggle_email_notification(True)
+
+    def assert_toggle_email_notification(self, is_enabled):
+        """ Assert user can toggle email notifications."""
+        response = self.client.post(self.toggle_email_settings_url, data={'is_enabled': json.dumps(is_enabled)})
+
+        self.assertEqual(response.status_code, 200)
+
+        # Reload user object from database to test the changes
+        user = User.objects.get(username=self.user.username)
+
+        self.assertEqual(is_email_notification_enabled(user), is_enabled)

@@ -21,4 +21,8 @@ urlpatterns = [
     ),
     url(r'^seats/new$', views.CreateSeatView.as_view(), name='publisher_seats_new'),
     url(r'^seats/(?P<pk>\d+)/edit/$', views.UpdateSeatView.as_view(), name='publisher_seats_edit'),
+    url(
+        r'^user/toggle/email_settings/$',
+        views.ToggleEmailNotification.as_view(),
+        name='publisher_toggle_email_settings'),
 ]
