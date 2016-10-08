@@ -19,8 +19,11 @@ LOGGING['handlers']['local']['level'] = 'INFO'
 # the values read from disk should UPDATE the pre-configured dicts.
 DICT_UPDATE_KEYS = ('JWT_AUTH',)
 
-# This may be overridden by the YAML in PROGRAMS_CFG, but it should be here as a default.
+# This may be overridden by the YAML in DISCOVERY_CFG, but it should be here as a default.
 MEDIA_STORAGE_BACKEND = {}
+
+# This may be overridden by the YAML in DISCOVERY_CFG, but it should be here as a default.
+EMAIL_CONFIG = {}
 
 CONFIG_FILE = get_env_setting('COURSE_DISCOVERY_CFG')
 with open(CONFIG_FILE) as f:
@@ -39,6 +42,9 @@ with open(CONFIG_FILE) as f:
     # Unpack media storage settings.
     # It's important we unpack here because of https://github.com/edx/configuration/pull/3307
     vars().update(MEDIA_STORAGE_BACKEND)
+
+    # Unpack email backend settings
+    vars().update(EMAIL_CONFIG)
 
 
 if 'EXTRA_APPS' in locals():
