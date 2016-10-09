@@ -6,6 +6,6 @@
 
 {{ comment.comment }}
 
-{% trans "View comment:" %} {{ page_url }}
+{% trans "View comment: " %}{{ page_url }}
 
 {% trans "The edX team" %}

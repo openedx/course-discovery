@@ -1,6 +1,6 @@
 import logging
-from django.core.urlresolvers import reverse
 
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
@@ -12,12 +12,14 @@ from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
 from taggit.managers import TaggableManager
+import waffle
 
 from course_discovery.apps.core.models import User, Currency
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import LevelType, Subject, Person, Organization
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from course_discovery.apps.publisher.emails import send_email_for_change_state
 
 logger = logging.getLogger(__name__)
 
@@ -276,6 +278,9 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
             self.state.changed_by = user
 
         self.state.save()
+
+        if waffle.switch_is_active('enable_publisher_email_notifications'):
+            send_email_for_change_state(self)
 
     @property
     def current_state(self):

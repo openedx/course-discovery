@@ -1,0 +1,19 @@
+{% extends "publisher/email/email_base.html" %}
+{% load i18n %}
+
+{% block body %}
+<!-- Message Body -->
+        <p>{% trans "Hi," %}</p>
+
+        <p>
+           {% blocktrans trimmed %}
+                The following course run has been submitted for {{ state_name }}.
+           {% endblocktrans %}
+        </p>
+
+        <p>
+            <a href="{{ course_run_page_url }}">{% trans "View Course" %}</a>
+        </p>
+        <p>{% trans "The edX team" %}</p>
+<!-- End Message Body -->
+{% endblock body %}

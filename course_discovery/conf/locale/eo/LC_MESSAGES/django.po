@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-25 21:30+0500\n"
+"POT-Creation-Date: 2016-10-28 14:40+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -493,6 +493,13 @@ msgid "JSON string containing an elasticsearch function score config."
 msgstr ""
 "JSÖN strïng çöntäïnïng än élästïçséärçh fünçtïön sçöré çönfïg. Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Course Run {title}-{pacing_type}-{start} state has been changed."
+msgstr ""
+"Çöürsé Rün {title}-{pacing_type}-{start} stäté häs ßéén çhängéd. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/forms.py
 msgid "Yes"
@@ -1696,6 +1703,34 @@ msgstr ""
 "Lööks lïké ýöü hävén't püßlïsh ä çöürsé ýét Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
 
+#: templates/publisher/email/change_state.html
+#: templates/publisher/email/change_state.txt
+msgid "Hi,"
+msgstr "Hï, Ⱡ'σяєм#"
+
+#: templates/publisher/email/change_state.html
+#: templates/publisher/email/change_state.txt
+#, python-format
+msgid "The following course run has been submitted for %(state_name)s."
+msgstr ""
+"Thé föllöwïng çöürsé rün häs ßéén süßmïttéd för %(state_name)s. Ⱡ'σяєм ιρѕυм"
+" ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: templates/publisher/email/change_state.html
+msgid "View Course"
+msgstr "Vïéw Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: templates/publisher/email/change_state.html
+#: templates/publisher/email/change_state.txt
+#: templates/publisher/email/comment.html
+#: templates/publisher/email/comment.txt
+msgid "The edX team"
+msgstr "Thé édX téäm Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: templates/publisher/email/change_state.txt
+msgid "View Course:"
+msgstr "Vïéw Çöürsé: Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
 #: templates/publisher/email/comment.html
 #: templates/publisher/email/comment.txt
 #, python-format
@@ -1710,14 +1745,9 @@ msgstr ""
 msgid "View comment"
 msgstr "Vïéw çömmént Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: templates/publisher/email/comment.html
 #: templates/publisher/email/comment.txt
-msgid "The edX team"
-msgstr "Thé édX téäm Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
-
-#: templates/publisher/email/comment.txt
-msgid "View comment:"
-msgstr "Vïéw çömmént: Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+msgid "View comment: "
+msgstr "Vïéw çömmént:  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: templates/publisher/seat_form.html
 msgid "Seat Form"
