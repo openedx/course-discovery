@@ -101,6 +101,8 @@ class CreateCourseView(mixins.LoginRequiredMixin, CreateView):
                     course = course_form.save(commit=False)
                     course.changed_by = self.request.user
                     course.save()
+                    # commit false does not save m2m object. Keyword field is m2m.
+                    course_form.save_m2m()
 
                     run_course.course = course
                     run_course.changed_by = self.request.user

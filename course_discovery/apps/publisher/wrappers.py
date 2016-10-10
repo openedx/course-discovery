@@ -182,3 +182,7 @@ class CourseRunWrapper(BaseWrapper):
     @property
     def verification_deadline(self):
         return self.wrapped_obj.course.verification_deadline
+
+    @property
+    def keywords(self):
+        return self.wrapped_obj.course.keywords_data

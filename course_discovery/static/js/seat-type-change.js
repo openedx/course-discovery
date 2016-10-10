@@ -10,33 +10,27 @@ $(function () {
         change_fields;
 
     show_verified_fields= function () {
-        $('.field-price').show();
-        $('.field-upgrade_deadline').show();
+        $('#id_price').prop("readonly", false);
     };
 
     hide_verified_fields = function () {
-        $('.field-price').hide();
-        $('.field-upgrade_deadline').hide();
+        $('#id_price').prop("readonly", true).val('0.00');
     };
 
     show_professional_fields = function () {
-        $('.field-price').show();
+        $('#id_price').prop("readonly", false);
     };
 
     hide_professional_fields = function () {
-        $('.field-price').hide();
+        $('#id_price').prop("readonly", true).val('0.00');
     };
 
     show_credit_fields = function () {
         show_verified_fields();
-        $('.field-credit_provider').show();
-        $('.field-credit_hours').show();
     };
 
     hide_credit_fields = function () {
         hide_verified_fields();
-        $('.field-credit_provider').hide();
-        $('.field-credit_hours').hide();
     };
 
     hide_all_fields = function () {
@@ -70,7 +64,7 @@ $(function () {
 
     change_fields();
 
-    $('.field-type .input-select').change(function () {
+    $('#id_type').change(function () {
        change_fields(this);
     });
 });
