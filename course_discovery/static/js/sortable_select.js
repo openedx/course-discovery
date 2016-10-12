@@ -1,44 +1,49 @@
-function updateSelect2Data(visibleCourseTitles){
+function updateSelect2Data(el){
     var i, j,
-        visibleCourseTitlesLength,
+        visibleTitlesLength,
         selectOptionsLength,
-        visibleCourseTitles = [],
+        visibleTitles = [],
         selectOptions = [],
         items = [],
-        selectOptionsSelector = '.field-courses .select2-hidden-accessible';
+        selectOptionsElement = $(el).find('.select2-hidden-accessible'),
+        selectChoicesElement = $(el).find('.select2-selection__choice'),
+        selectOptionElement = $(selectOptionsElement).find('option');
 
-    $('.field-courses .select2-selection__choice').each(function(index, value){
+    selectChoicesElement.each(function(index, value){
         if (value.title){
-            visibleCourseTitles.push(value.title);
+            visibleTitles.push(value.title);
         }
     });
 
-    $('.field-courses .select2-hidden-accessible option').each(function(index, value){
+    selectOptionElement.each(function(index, value){
         selectOptions.push({id: value.value, text: value.text});
     });
 
     // Update select2 options with new data
-    visibleCourseTitlesLength = visibleCourseTitles.length;
+    visibleTitlesLength = visibleTitles.length;
     selectOptionsLength = selectOptions.length;
-    for (i = 0; i < visibleCourseTitlesLength; i++) {
+    for (i = 0; i < visibleTitlesLength; i++) {
         for (j = 0; j < selectOptionsLength; j++) {
-            if (selectOptions[j].text === visibleCourseTitles[i]){
+            if (selectOptions[j].text === visibleTitles[i]){
                 items.push('<option selected="selected" value="' + selectOptions[j].id + '">' +
                            selectOptions[j].text + '</option>'
                 );
             }
         }
     }
+
     if (items){
-        $(selectOptionsSelector).html(items.join('\n'));
+        selectOptionsElement.html(items.join('\n'));
     }
 }
+
 $(window).load(function(){
     $(function() {
-        var domSelector = '.field-courses .select2-selection--multiple';
-        $('.field-courses ul.select2-selection__rendered').sortable({
-            containment: 'parent',
-            update: updateSelect2Data
+        $('.sortable-select').parents('.form-row').each(function(index, el){
+            $(el).find('ul.select2-selection__rendered').sortable({
+                containment: 'parent',
+                update: function(){updateSelect2Data(el);}
+            })
         })
     })
 });
