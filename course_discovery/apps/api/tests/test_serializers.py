@@ -161,10 +161,42 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
     def get_expected_data(self, course, request):
         expected = super().get_expected_data(course, request)
         expected.update({
-            'programs': NestedProgramSerializer(course.programs, many=True, context={'request': request}).data,
+            'programs': NestedProgramSerializer(
+                course.programs,
+                many=True,
+                context={'request': request}
+            ).data,
         })
 
         return expected
+
+    def setUp(self):
+        super().setUp()
+        self.request = make_request()
+        self.course = CourseFactory()
+        self.deleted_program = ProgramFactory(
+            courses=[self.course],
+            status=ProgramStatus.Deleted
+        )
+
+    def test_exclude_deleted_programs(self):
+        """
+        If the associated program is deleted,
+        CourseWithProgramsSerializer should not return any serialized programs
+        """
+        serializer = self.serializer_class(self.course, context={'request': self.request})
+        self.assertEqual(serializer.data['programs'], [])
+
+    def test_include_deleted_programs(self):
+        """
+        If the associated program is deleted, but we are sending in the 'include_deleted_programs' flag
+        CourseWithProgramsSerializer should return deleted programs
+        """
+        serializer = self.serializer_class(
+            self.course,
+            context={'request': self.request, 'include_deleted_programs': 1}
+        )
+        self.assertEqual(serializer.data, self.get_expected_data(self.course, self.request))
 
 
 class MinimalCourseRunSerializerTests(TestCase):
@@ -234,16 +266,23 @@ class CourseRunSerializerTests(MinimalCourseRunSerializerTests):
 
 
 class CourseRunWithProgramsSerializerTests(TestCase):
-    def test_data(self):
-        request = make_request()
-        course_run = CourseRunFactory()
-        serializer_context = {'request': request}
-        serializer = CourseRunWithProgramsSerializer(course_run, context=serializer_context)
-        ProgramFactory(courses=[course_run.course])
+    def setUp(self):
+        super().setUp()
+        self.request = make_request()
+        self.course_run = CourseRunFactory()
+        self.serializer_context = {'request': self.request}
 
-        expected = CourseRunSerializer(course_run, context=serializer_context).data
+    def test_data(self):
+        serializer = CourseRunWithProgramsSerializer(self.course_run, context=self.serializer_context)
+        ProgramFactory(courses=[self.course_run.course])
+
+        expected = CourseRunSerializer(self.course_run, context=self.serializer_context).data
         expected.update({
-            'programs': NestedProgramSerializer(course_run.course.programs, many=True, context=serializer_context).data,
+            'programs': NestedProgramSerializer(
+                self.course_run.course.programs,
+                many=True,
+                context=self.serializer_context
+            ).data,
         })
 
         self.assertDictEqual(serializer.data, expected)
@@ -253,17 +292,36 @@ class CourseRunWithProgramsSerializerTests(TestCase):
         If a course run is excluded on a program, that program should not be
         returned for that course run on the course run endpoint.
         """
-        request = make_request()
-        course_run = CourseRunFactory()
-        serializer_context = {'request': request}
-        serializer = CourseRunWithProgramsSerializer(course_run, context=serializer_context)
-        ProgramFactory(courses=[course_run.course], excluded_course_runs=[course_run])
-        expected = CourseRunSerializer(course_run, context=serializer_context).data
+        serializer = CourseRunWithProgramsSerializer(self.course_run, context=self.serializer_context)
+        ProgramFactory(courses=[self.course_run.course], excluded_course_runs=[self.course_run])
+        expected = CourseRunSerializer(self.course_run, context=self.serializer_context).data
         expected.update({
             'programs': [],
         })
 
         self.assertDictEqual(serializer.data, expected)
+
+    def test_exclude_deleted_programs(self):
+        """
+        If the associated program is deleted,
+        CourseRunWithProgramsSerializer should not return any serialized programs
+        """
+        ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Deleted)
+        serializer = CourseRunWithProgramsSerializer(self.course_run, context=self.serializer_context)
+        self.assertEqual(serializer.data['programs'], [])
+
+    def test_include_deleted_programs(self):
+        """
+        If the associated program is deleted, but we are sending in the 'include_deleted_programs' flag
+        CourseRunWithProgramsSerializer should return deleted programs
+        """
+        deleted_program = ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Deleted)
+        self.serializer_context['include_deleted_programs'] = 1
+        serializer = CourseRunWithProgramsSerializer(self.course_run, context=self.serializer_context)
+        self.assertEqual(
+            serializer.data['programs'],
+            NestedProgramSerializer([deleted_program], many=True, context=self.serializer_context).data
+        )
 
 
 class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover

@@ -15,7 +15,7 @@ from taggit_serializer.serializers import TagListSerializerField, TaggitSerializ
 
 from course_discovery.apps.api.fields import StdImageSerializerField, ImageField
 from course_discovery.apps.catalogs.models import Catalog
-from course_discovery.apps.course_metadata.choices import CourseRunStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Image, Organization, Person, Prerequisite, Seat, Subject, Video, Program, ProgramType, FAQ,
     CorporateEndorsement, Endorsement, Position
@@ -384,8 +384,11 @@ class CourseRunWithProgramsSerializer(CourseRunSerializer):
     programs = serializers.SerializerMethodField()
 
     def get_programs(self, obj):
+        # Filter out non-deleted programs which this course_run is part of the program course_run exclusion
         programs = [program for program in obj.programs.all()
-                    if obj.id not in (run.id for run in program.excluded_course_runs.all())]
+                    if (self.context.get('include_deleted_programs') or
+                        program.status != ProgramStatus.Deleted) and
+                    obj.id not in (run.id for run in program.excluded_course_runs.all())]
 
         return NestedProgramSerializer(programs, many=True).data
 
@@ -459,7 +462,15 @@ class CourseSerializer(MinimalCourseSerializer):
 
 class CourseWithProgramsSerializer(CourseSerializer):
     """A ``CourseSerializer`` which includes programs."""
-    programs = NestedProgramSerializer(many=True)
+    programs = serializers.SerializerMethodField()
+
+    def get_programs(self, obj):
+        if self.context.get('include_deleted_programs'):
+            eligible_programs = obj.programs.all()
+        else:
+            eligible_programs = obj.programs.exclude(status=ProgramStatus.Deleted)
+
+        return NestedProgramSerializer(eligible_programs, many=True).data
 
     class Meta(CourseSerializer.Meta):
         model = Course

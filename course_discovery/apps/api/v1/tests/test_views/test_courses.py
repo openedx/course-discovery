@@ -4,8 +4,9 @@ from rest_framework.test import APITestCase
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
+from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Course
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory, ProgramFactory
 
 
 class CourseViewSetTests(SerializationMixin, APITestCase):
@@ -21,16 +22,41 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns the details for a single course. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
 
-        with self.assertNumQueries(18):
+        with self.assertNumQueries(19):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, self.serialize_course(self.course))
+
+    def test_get_exclude_deleted_programs(self):
+        """ Verify the endpoint returns no deleted associated programs """
+        ProgramFactory(courses=[self.course], status=ProgramStatus.Deleted)
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
+        with self.assertNumQueries(12):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data.get('programs'), [])
+
+    def test_get_include_deleted_programs(self):
+        """
+        Verify the endpoint returns associated deleted programs
+        with the 'include_deleted_programs' flag set to True
+        """
+        ProgramFactory(courses=[self.course], status=ProgramStatus.Deleted)
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
+        url += '?include_deleted_programs=1'
+        with self.assertNumQueries(22):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response.data,
+                self.serialize_course(self.course, extra_context={'include_deleted_programs': True})
+            )
 
     def test_list(self):
         """ Verify the endpoint returns a list of all courses. """
         url = reverse('api:v1:course-list')
 
-        with self.assertNumQueries(24):
+        with self.assertNumQueries(25):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertListEqual(
@@ -57,7 +83,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         keys = ','.join([course.key for course in courses])
         url = '{root}?keys={keys}'.format(root=reverse('api:v1:course-list'), keys=keys)
 
-        with self.assertNumQueries(35):
+        with self.assertNumQueries(38):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 

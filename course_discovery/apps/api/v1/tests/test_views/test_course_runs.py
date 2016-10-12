@@ -11,8 +11,9 @@ from rest_framework.test import APITestCase, APIRequestFactory
 from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
+from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRun
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, PartnerFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, PartnerFactory, ProgramFactory
 
 
 @ddt.ddt
@@ -37,6 +38,35 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, self.serialize_course_run(self.course_run))
+
+    def test_get_exclude_deleted_programs(self):
+        """ Verify the endpoint returns no associated deleted programs """
+        ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Deleted)
+
+        url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
+
+        with self.assertNumQueries(12):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data.get('programs'), [])
+
+    def test_get_include_deleted_programs(self):
+        """
+        Verify the endpoint returns associated deleted programs
+        with the 'include_deleted_programs' flag set to True
+        """
+        ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Deleted)
+
+        url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
+        url += '?include_deleted_programs=1'
+
+        with self.assertNumQueries(19):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response.data,
+                self.serialize_course_run(self.course_run, extra_context={'include_deleted_programs': True})
+            )
 
     def test_list(self):
         """ Verify the endpoint returns a list of all catalogs. """
