@@ -22,7 +22,6 @@ from rest_framework.exceptions import PermissionDenied, ParseError
 from rest_framework.filters import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-import waffle
 
 from course_discovery.apps.api import filters
 from course_discovery.apps.api import serializers
@@ -420,7 +419,7 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
     filter_class = filters.ProgramFilter
 
     def get_serializer_class(self):
-        if self.action == 'list' and waffle.switch_is_active('reduced_program_data'):
+        if self.action == 'list':
             return serializers.MinimalProgramSerializer
 
         return serializers.ProgramSerializer

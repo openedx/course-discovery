@@ -2,14 +2,13 @@ import ddt
 from django.core.urlresolvers import reverse
 from rest_framework.test import APITestCase, APIRequestFactory
 
-from course_discovery.apps.api.serializers import MinimalProgramSerializer, ProgramSerializer
+from course_discovery.apps.api.serializers import MinimalProgramSerializer
 from course_discovery.apps.api.v1.views import ProgramViewSet
 from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Program
-from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, VideoFactory, OrganizationFactory, PersonFactory, ProgramFactory,
     CorporateEndorsementFactory, EndorsementFactory, JobOutlookItemFactory, ExpectedLearningItemFactory
@@ -114,14 +113,14 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of all programs. """
         expected = [self.create_program() for __ in range(3)]
         expected.reverse()
-        self.assert_list_results(self.list_path, expected, 36)
+        self.assert_list_results(self.list_path, expected, 11)
 
     def test_filter_by_type(self):
         """ Verify that the endpoint filters programs to those of a given type. """
         program_type_name = 'foo'
         program = ProgramFactory(type__name=program_type_name)
         url = self.list_path + '?type=' + program_type_name
-        self.assert_list_results(url, [program], 14)
+        self.assert_list_results(url, [program], 8)
 
         url = self.list_path + '?type=bar'
         self.assert_list_results(url, [], 4)
@@ -136,11 +135,11 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         # Create a third program, which should be filtered out.
         ProgramFactory()
 
-        self.assert_list_results(url, expected, 14)
+        self.assert_list_results(url, expected, 8)
 
     @ddt.data(
         (ProgramStatus.Unpublished, False, 4),
-        (ProgramStatus.Active, True, 14),
+        (ProgramStatus.Active, True, 8),
     )
     @ddt.unpack
     def test_filter_by_marketable(self, status, is_marketable, expected_query_count):
@@ -158,17 +157,8 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns marketing URLs without UTM parameters. """
         url = self.list_path + '?exclude_utm=1'
         program = self.create_program()
-        self.assert_list_results(url, [program], 32, extra_context={'exclude_utm': 1})
+        self.assert_list_results(url, [program], 11, extra_context={'exclude_utm': 1})
 
-    @ddt.data(True, False)
-    def test_minimal_serializer_use(self, is_minimal):
+    def test_minimal_serializer_use(self):
         """ Verify that the list view uses the minimal serializer. """
-        toggle_switch('reduced_program_data', active=is_minimal)
-
-        action_serializer_mapping = {
-            'list': MinimalProgramSerializer if is_minimal else ProgramSerializer,
-            'detail': ProgramSerializer,
-        }
-
-        for action, serializer in action_serializer_mapping.items():
-            self.assertEqual(ProgramViewSet(action=action).get_serializer_class(), serializer)
+        self.assertEqual(ProgramViewSet(action='list').get_serializer_class(), MinimalProgramSerializer)
