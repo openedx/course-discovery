@@ -340,6 +340,7 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
         context.update({
             'exclude_utm': get_query_param(self.request, 'exclude_utm'),
             'include_deleted_programs': get_query_param(self.request, 'include_deleted_programs'),
+            'include_unpublished_programs': get_query_param(self.request, 'include_unpublished_programs'),
         })
 
         return context
@@ -388,6 +389,12 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
               multiple: false
             - name: include_deleted_programs
               description: Will include deleted programs in the associated programs array
+              required: false
+              type: integer
+              paramType: query
+              multiple: false
+            - name: include_unpublished_programs
+              description: Will include unpublished programs in the associated programs array
               required: false
               type: integer
               paramType: query
