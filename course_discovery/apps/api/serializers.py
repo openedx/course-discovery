@@ -4,6 +4,7 @@ import json
 from urllib.parse import urlencode
 
 import pytz
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models.query import Prefetch
 from django.utils.translation import ugettext_lazy as _
@@ -29,7 +30,7 @@ COMMON_SEARCH_FIELD_ALIASES = {
 }
 COURSE_RUN_FACET_FIELD_OPTIONS = {
     'level_type': {},
-    'organizations': {},
+    'organizations': {'size': settings.SEARCH_FACET_LIMIT},
     'prerequisites': {},
     'subjects': {},
     'language': {},

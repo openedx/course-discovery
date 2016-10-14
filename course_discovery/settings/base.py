@@ -362,6 +362,9 @@ HAYSTACK_CONNECTIONS = {
 
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
+# Elasticsearch search query facet "size" option to increase from the default value of "100"
+# See  https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-facets-terms-facet.html#_accuracy_control
+SEARCH_FACET_LIMIT = 10000
 
 DEFAULT_PARTNER_ID = None
 
