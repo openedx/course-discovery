@@ -2,7 +2,9 @@ import itertools
 
 import ddt
 from django.core.urlresolvers import reverse
-from django.test import TestCase
+from django.test import TestCase, LiveServerTestCase
+from selenium import webdriver
+from selenium.webdriver.common.action_chains import ActionChains
 
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.forms import ProgramAdminForm
@@ -179,3 +181,75 @@ class AdminTests(TestCase):
         self.assertEqual(0, program.courses.all().count())
         response = self.client.get(reverse('admin:course_metadata_program_change', args=(program.id,)))
         self.assertEqual(response.status_code, 200)
+
+
+class ProgramAdminFunctionalTests(LiveServerTestCase):
+    """ Functional Tests for Admin page."""
+    def setUp(self):
+        super(ProgramAdminFunctionalTests, self).setUp()
+        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.course_runs = factories.CourseRunFactory.create_batch(2)
+        self.courses = [course_run.course for course_run in self.course_runs]
+
+        self.excluded_course_run = factories.CourseRunFactory(course=self.courses[0])
+        self.program = factories.ProgramFactory(
+            courses=self.courses, excluded_course_runs=[self.excluded_course_run]
+        )
+        self.browser = webdriver.Firefox()
+
+        # Get Page
+        domain = self.live_server_url
+        url = reverse('admin:course_metadata_program_change', args=(self.program.id,))
+        self.browser.get(domain + url)
+
+        # Login
+        username = self.browser.find_element_by_id('id_username')
+        password = self.browser.find_element_by_id('id_password')
+        username.send_keys(self.user.username)
+        password.send_keys(USER_PASSWORD)
+        self.browser.find_element_by_css_selector('input[type=submit]').click()
+
+        # This window size is close to the window size when running on travis
+        self.browser.set_window_size(548, 768)
+
+    def tearDown(self):
+        super(ProgramAdminFunctionalTests, self).tearDown()
+        self.browser.quit()
+
+    def test_all_fields(self):
+        # Make sure that all expected fields are present
+        classes = [css_class for field in self.browser.find_elements_by_class_name('form-row')
+                   for css_class in field.get_attribute('class').split(' ')
+                   if css_class.startswith('field-') or css_class.startswith('dynamic-')]
+        expected_classes = ['field-title', 'field-subtitle', 'field-status', 'field-type',
+                            'field-partner', 'field-banner_image', 'field-banner_image_url',
+                            'field-card_image_url', 'field-marketing_slug', 'field-overview',
+                            'field-credit_redemption_overview', 'field-video',
+                            'field-weeks_to_complete', 'field-min_hours_effort_per_week',
+                            'field-max_hours_effort_per_week', 'field-courses',
+                            'field-order_courses_by_start_date', 'field-custom_course_runs_display',
+                            'field-excluded_course_runs', 'field-authoring_organizations',
+                            'field-credit_backing_organizations', 'field-job_outlook_items',
+                            'field-expected_learning_items', 'dynamic-Program_faq',
+                            'dynamic-Program_individual_endorsements',
+                            'dynamic-Program_corporate_endorsements']
+        self.assertEqual(classes, expected_classes)
+
+    def test_sortable_select_drag_and_drop(self):
+        # Get order of select elements
+        hidden_options_text = [el.text for el in
+                               self.browser.find_elements_by_css_selector('.field-courses option')]
+        first_select_element = self.browser.find_element_by_css_selector('.field-courses .select2-selection__choice')
+
+        # Drag and drop
+        first_select_element.click()
+        ActionChains(self.browser).drag_and_drop_by_offset(first_select_element, 500, 0).perform()
+
+        # Simulate expected drag and drop
+        hidden_options_text = [hidden_options_text[1], hidden_options_text[0]]
+
+        # Get actual results of drag and drop
+        new_hidden_options_text = [el.text for el in
+                                   self.browser.find_elements_by_css_selector('.field-courses option')]
+        self.assertEqual(hidden_options_text, new_hidden_options_text)
