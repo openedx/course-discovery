@@ -222,6 +222,16 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.CourseWithProgramsSerializer
 
     def get_queryset(self):
+        """ List one course
+        ---
+        parameters:
+            - name: include_deleted_programs
+              description: Will include deleted programs in the associated programs array
+              required: false
+              type: integer
+              paramType: query
+              multiple: false
+        """
         q = self.request.query_params.get('q', None)
 
         if q:
@@ -301,6 +311,16 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
         return partner
 
     def get_queryset(self):
+        """ List one course run
+        ---
+        parameters:
+            - name: include_deleted_programs
+              description: Will include deleted programs in the associated programs array
+              required: false
+              type: integer
+              paramType: query
+              multiple: false
+        """
         q = self.request.query_params.get('q', None)
         partner = self._get_partner()
 
