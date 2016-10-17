@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-13 14:43+0000\n"
+"POT-Creation-Date: 2016-10-19 18:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -376,6 +376,12 @@ msgstr ""
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
 
 #: course_discovery/apps/course_metadata/models.py
+msgid "Estimated number of weeks needed to complete this course run."
+msgstr ""
+"Éstïmätéd nümßér öf wééks néédéd tö çömplété thïs çöürsé rün. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: course_discovery/apps/course_metadata/models.py
 msgid "Archived"
 msgstr "Àrçhïvéd Ⱡ'σяєм ιρѕυм ∂#"
 
@@ -470,6 +476,14 @@ msgid ""
 msgstr ""
 "Ìf thïs ßöx ïs nöt çhéçkéd, çöürsés wïll ßé ördéréd äs ïn thé çöürsés séléçt"
 " ßöx äßövé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+
+#: course_discovery/apps/course_metadata/models.py
+msgid ""
+"This field is now deprecated (ECOM-6021).Estimated number of weeks needed to"
+" complete a course run belonging to this program."
+msgstr ""
+"Thïs fïéld ïs nöw dépréçätéd (ÉÇÖM-6021).Éstïmätéd nümßér öf wééks néédéd tö"
+" çömplété ä çöürsé rün ßélöngïng tö thïs prögräm. Ⱡ'σяєм #"
 
 #: course_discovery/apps/course_metadata/models.py
 msgid "Image used atop detail pages"

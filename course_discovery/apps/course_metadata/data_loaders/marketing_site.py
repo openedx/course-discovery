@@ -5,6 +5,7 @@ import logging
 from urllib.parse import parse_qs, urlencode, urlparse
 from uuid import UUID
 
+from dateutil import rrule
 import pytz
 import requests
 from django.db.models import Q
@@ -449,6 +450,9 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         language = language_tags[0] if language_tags else None
         start = data.get('field_course_start_date')
         start = datetime.datetime.fromtimestamp(int(start), tz=pytz.UTC) if start else None
+        end = data.get('field_course_end_date')
+        end = datetime.datetime.fromtimestamp(int(end), tz=pytz.UTC) if end else None
+        weeks_to_complete = data.get('field_course_required_weeks')
 
         defaults = {
             'key': key,
@@ -463,6 +467,12 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'pacing_type': self.get_pacing_type(data),
             'hidden': self.get_hidden(data),
         }
+
+        if weeks_to_complete:
+            defaults['weeks_to_complete'] = int(weeks_to_complete)
+        elif start and end:
+            weeks_to_complete = rrule.rrule(rrule.WEEKLY, dtstart=start, until=end).count()
+            defaults['weeks_to_complete'] = int(weeks_to_complete)
 
         try:
             course_run, __ = CourseRun.objects.update_or_create(key__iexact=key, defaults=defaults)

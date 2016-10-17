@@ -66,7 +66,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
     def test_retrieve(self):
         """ Verify the endpoint returns the details for a single program. """
         program = self.create_program()
-        with self.assertNumQueries(72):
+        with self.assertNumQueries(75):
             self.assert_retrieve_success(program)
 
     @ddt.data(True, False)
@@ -76,7 +76,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         for course in course_list:
             CourseRunFactory(course=course)
         program = ProgramFactory(courses=course_list, order_courses_by_start_date=order_courses_by_start_date)
-        with self.assertNumQueries(82):
+        with self.assertNumQueries(87):
             self.assert_retrieve_success(program)
         self.assertEqual(course_list, list(program.courses.all()))  # pylint: disable=no-member
 
@@ -84,7 +84,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns data for a program even if the program's courses have no course runs. """
         course = CourseFactory()
         program = ProgramFactory(courses=[course])
-        with self.assertNumQueries(46):
+        with self.assertNumQueries(49):
             self.assert_retrieve_success(program)
 
     def assert_list_results(self, url, expected, expected_query_count, extra_context=None):
