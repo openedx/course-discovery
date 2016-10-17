@@ -32,8 +32,10 @@ before_script:
 
 script:
     # Ensure documentation can be compiled
-    - cd docs && make html
-    - cd ..
+    - cd docs && make html && cd ..
+
+    # Check if translation files are up-to-date
+    - make validate_translations
 
     # Compile static assets and validate the code
     - make static -e DJANGO_SETTINGS_MODULE="course_discovery.settings.test"
