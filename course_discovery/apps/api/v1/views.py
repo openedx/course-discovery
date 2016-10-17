@@ -236,6 +236,7 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
         context = super().get_serializer_context(*args, **kwargs)
         context.update({
             'exclude_utm': get_query_param(self.request, 'exclude_utm'),
+            'include_deleted_programs': get_query_param(self.request, 'include_deleted_programs'),
         })
 
         return context
@@ -258,6 +259,12 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
               multiple: false
             - name: exclude_utm
               description: Exclude UTM parameters from marketing URLs.
+              required: false
+              type: integer
+              paramType: query
+              multiple: false
+            - name: include_deleted_programs
+              description: Will include deleted programs in the associated programs array
               required: false
               type: integer
               paramType: query
@@ -312,6 +319,7 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
         context = super().get_serializer_context(*args, **kwargs)
         context.update({
             'exclude_utm': get_query_param(self.request, 'exclude_utm'),
+            'include_deleted_programs': get_query_param(self.request, 'include_deleted_programs'),
         })
 
         return context
@@ -354,6 +362,12 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
               multiple: false
             - name: exclude_utm
               description: Exclude UTM parameters from marketing URLs.
+              required: false
+              type: integer
+              paramType: query
+              multiple: false
+            - name: include_deleted_programs
+              description: Will include deleted programs in the associated programs array
               required: false
               type: integer
               paramType: query
