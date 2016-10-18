@@ -68,6 +68,35 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
                 self.serialize_course_run(self.course_run, extra_context={'include_deleted_programs': True})
             )
 
+    def test_get_exclude_unpublished_programs(self):
+        """ Verify the endpoint returns no associated unpublished programs """
+        ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Unpublished)
+
+        url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
+
+        with self.assertNumQueries(12):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data.get('programs'), [])
+
+    def test_get_include_unpublished_programs(self):
+        """
+        Verify the endpoint returns associated unpublished programs
+        with the 'include_unpublished_programs' flag set to True
+        """
+        ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Unpublished)
+
+        url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
+        url += '?include_unpublished_programs=1'
+
+        with self.assertNumQueries(19):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response.data,
+                self.serialize_course_run(self.course_run, extra_context={'include_unpublished_programs': True})
+            )
+
     def test_list(self):
         """ Verify the endpoint returns a list of all catalogs. """
         url = reverse('api:v1:course_run-list')
