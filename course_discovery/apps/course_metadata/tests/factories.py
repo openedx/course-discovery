@@ -241,7 +241,7 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
     subtitle = FuzzyText()
     type = factory.SubFactory(ProgramTypeFactory)
-    status = ProgramStatus.Unpublished
+    status = ProgramStatus.Active
     marketing_slug = factory.Sequence(lambda n: 'test-slug-{}'.format(n))  # pylint: disable=unnecessary-lambda
     banner_image_url = FuzzyText(prefix='https://example.com/program/banner')
     card_image_url = FuzzyText(prefix='https://example.com/program/card')
