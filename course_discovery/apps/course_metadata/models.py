@@ -366,8 +366,12 @@ class CourseRun(TimeStampedModel):
 
     @property
     def program_types(self):
-        # Exclude unpublished programs from list so we don't identify that program type if not available
-        all_programs = [program for program in self.programs.all() if program.status != ProgramStatus.Unpublished]
+        """
+        Exclude unpublished and deleted programs from list
+        so we don't identify that program type if not available
+        """
+        program_statuses_to_exclude = (ProgramStatus.Unpublished, ProgramStatus.Deleted)
+        all_programs = [program for program in self.programs.exclude(status__in=program_statuses_to_exclude)]
         return [program.type.name for program in all_programs]
 
     @property
