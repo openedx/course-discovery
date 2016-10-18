@@ -111,6 +111,8 @@ class ProgramAdmin(admin.ModelAdmin):
         try:
             # courses are ordered by django id, but form.cleaned_data is ordered correctly
             obj.courses = form.cleaned_data.get('courses')
+            obj.authoring_organizations = form.cleaned_data.get('authoring_organizations')
+            obj.credit_backing_organizations = form.cleaned_data.get('credit_backing_organizations')
             obj.save()
             self.save_error = False
         except ProgramPublisherException as ex:
