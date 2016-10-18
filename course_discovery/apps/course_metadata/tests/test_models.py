@@ -167,8 +167,14 @@ class CourseRunTests(TestCase):
         """ Verify the property exludes program types that are unpublished. """
         courses = [self.course_run.course]
         program = factories.ProgramFactory(courses=courses)
-        other_program = factories.ProgramFactory(courses=courses, status=ProgramStatus.Unpublished)
-        self.assertCountEqual(self.course_run.program_types, [program.type.name])
+        factories.ProgramFactory(courses=courses, status=ProgramStatus.Unpublished)
+        self.assertEqual(self.course_run.program_types, [program.type.name])
+
+    def test_exclude_deleted_program_types(self):
+        """ Verify the program types property exclude programs that are deleted """
+        active_program = factories.ProgramFactory(courses=[self.course_run.course])
+        factories.ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Deleted)
+        self.assertEqual(self.course_run.program_types, [active_program.type.name])
 
 
 class OrganizationTests(TestCase):

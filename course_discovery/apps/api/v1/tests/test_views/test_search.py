@@ -171,6 +171,37 @@ class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, Login
         }
         self.assertDictContainsSubset(expected, response_data['queries'])
 
+    def test_exclude_deleted_program_types(self):
+        """ Verify the deleted programs do not show in the program_types representation. """
+        self._test_exclude_program_types(ProgramStatus.Deleted)
+
+    def test_exclude_unpublished_program_types(self):
+        """ Verify the unpublished programs do not show in the program_types representation. """
+        self._test_exclude_program_types(ProgramStatus.Unpublished)
+
+    def _test_exclude_program_types(self, program_status):
+        """ Verify that programs with the provided type do not show in the program_types representation. """
+        course_run = CourseRunFactory(course__partner=self.partner, course__title='Software Testing',
+                                      status=CourseRunStatus.Published)
+        active_program = ProgramFactory(courses=[course_run.course], status=ProgramStatus.Active)
+        ProgramFactory(courses=[course_run.course], status=program_status)
+
+        with self.assertNumQueries(11):
+            response = self.get_search_response('software', faceted=False)
+
+            self.assertEqual(response.status_code, 200)
+            response_data = json.loads(response.content.decode('utf-8'))
+
+            # Validate the search results
+            expected = {
+                'count': 1,
+                'results': [
+                    self.serialize_course_run(course_run)
+                ]
+            }
+            self.assertDictContainsSubset(expected, response_data)
+            self.assertEqual(response_data['results'][0].get('program_types'), [active_program.type.name])
+
 
 class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin, ElasticsearchTestMixin, APITestCase):
     path = reverse('api:v1:search-all-facets')
