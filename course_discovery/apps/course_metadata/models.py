@@ -366,7 +366,9 @@ class CourseRun(TimeStampedModel):
 
     @property
     def program_types(self):
-        return [program.type.name for program in self.programs.all()]
+        # Exclude unpublished programs from list so we don't identify that program type if not available
+        all_programs = [program for program in self.programs.all() if program.status != ProgramStatus.Unpublished]
+        return [program.type.name for program in all_programs]
 
     @property
     def marketing_url(self):
