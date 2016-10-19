@@ -39,6 +39,7 @@ COURSE_RUN_FACET_FIELD_OPTIONS = {
     'content_type': {},
     'type': {},
     'seat_types': {},
+    'mobile_available': {},
 }
 
 COURSE_RUN_FACET_FIELD_QUERIES = {
@@ -51,7 +52,7 @@ COURSE_RUN_SEARCH_FIELDS = (
     'text', 'key', 'title', 'short_description', 'full_description', 'start', 'end', 'enrollment_start',
     'enrollment_end', 'pacing_type', 'language', 'transcript_languages', 'marketing_url', 'content_type', 'org',
     'number', 'seat_types', 'image_url', 'type', 'level_type', 'availability', 'published', 'partner', 'program_types',
-    'authoring_organization_uuids', 'subject_uuids', 'staff_uuids',
+    'authoring_organization_uuids', 'subject_uuids', 'staff_uuids', 'mobile_available',
 )
 
 PROGRAM_FACET_FIELD_OPTIONS = {
@@ -371,7 +372,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         fields = MinimalCourseRunSerializer.Meta.fields + (
             'course', 'full_description', 'start', 'end', 'enrollment_start', 'enrollment_end', 'announcement',
             'video', 'seats', 'content_language', 'transcript_languages', 'instructors', 'staff', 'pacing_type',
-            'min_effort', 'max_effort', 'modified', 'level_type', 'availability',
+            'min_effort', 'max_effort', 'modified', 'level_type', 'availability', 'mobile_available',
         )
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
