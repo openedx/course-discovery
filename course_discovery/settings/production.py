@@ -19,7 +19,7 @@ LOGGING['handlers']['local']['level'] = 'INFO'
 # the values read from disk should UPDATE the pre-configured dicts.
 DICT_UPDATE_KEYS = ('JWT_AUTH',)
 
-# This may be overridden by the YAML in PROGRAMS_CFG, but it should be here as a default.
+# This may be overridden by the YAML in DISCOVERY_CFG, but it should be here as a default.
 MEDIA_STORAGE_BACKEND = {}
 
 CONFIG_FILE = get_env_setting('COURSE_DISCOVERY_CFG')
