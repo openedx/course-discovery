@@ -4,6 +4,7 @@ import math
 from urllib.parse import parse_qs, urlparse
 from uuid import UUID
 
+from dateutil import rrule
 import ddt
 import mock
 import pytz
@@ -470,6 +471,9 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         language = self.loader.get_language_tags_from_names(language_names).first()
         start = data.get('field_course_start_date')
         start = datetime.datetime.fromtimestamp(int(start), tz=pytz.UTC) if start else None
+        end = data.get('field_course_end_date')
+        end = datetime.datetime.fromtimestamp(int(end), tz=pytz.UTC) if end else None
+        weeks_to_complete = data.get('field_course_required_weeks')
 
         expected_values = {
             'key': data['field_course_id'],
@@ -482,6 +486,12 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
             'pacing_type': self.loader.get_pacing_type(data),
             'hidden': self.loader.get_hidden(data),
         }
+
+        if weeks_to_complete:
+            expected_values['weeks_to_complete'] = int(weeks_to_complete)
+        elif start and end:
+            weeks_to_complete = rrule.rrule(rrule.WEEKLY, dtstart=start, until=end).count()
+            expected_values['weeks_to_complete'] = int(weeks_to_complete)
 
         for field, value in expected_values.items():
             self.assertEqual(getattr(course_run, field), value)

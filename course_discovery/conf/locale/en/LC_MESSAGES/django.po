@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-13 14:43+0000\n"
+"POT-Creation-Date: 2016-10-19 18:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,31 +28,31 @@ msgid ""
 "parameter."
 msgstr ""
 
-#: course_discovery/apps/api/serializers.py:292
+#: course_discovery/apps/api/serializers.py:293
 msgid "Number of courses contained in this catalog"
 msgstr ""
 
-#: course_discovery/apps/api/serializers.py:295
+#: course_discovery/apps/api/serializers.py:296
 msgid "Usernames of users with explicit access to view this catalog"
 msgstr ""
 
-#: course_discovery/apps/api/serializers.py:351
+#: course_discovery/apps/api/serializers.py:352
 msgid "Language in which the course is administered"
 msgstr ""
 
-#: course_discovery/apps/api/serializers.py:400
+#: course_discovery/apps/api/serializers.py:407
 msgid "Dictionary mapping course run IDs to boolean values"
 msgstr ""
 
-#: course_discovery/apps/api/serializers.py:480
+#: course_discovery/apps/api/serializers.py:495
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: course_discovery/apps/api/serializers.py:623
+#: course_discovery/apps/api/serializers.py:638
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: course_discovery/apps/api/serializers.py:627
+#: course_discovery/apps/api/serializers.py:642
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -231,128 +231,132 @@ msgstr ""
 msgid "Deleted"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/forms.py:76
+#: course_discovery/apps/course_metadata/forms.py:79
 msgid ""
 "Programs can only be activated if they have a marketing slug and a banner "
 "image."
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:74
+#: course_discovery/apps/course_metadata/models.py:75
 msgid "Facebook"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:75
+#: course_discovery/apps/course_metadata/models.py:76
 msgid "Twitter"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:76
+#: course_discovery/apps/course_metadata/models.py:77
 msgid "Blog"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:77
+#: course_discovery/apps/course_metadata/models.py:78
 msgid "Others"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:111
-#: course_discovery/apps/course_metadata/models.py:155
-#: course_discovery/apps/course_metadata/models.py:185
-#: course_discovery/apps/course_metadata/models.py:233
-#: course_discovery/apps/course_metadata/models.py:324
-#: course_discovery/apps/course_metadata/models.py:574
+#: course_discovery/apps/course_metadata/models.py:112
+#: course_discovery/apps/course_metadata/models.py:156
+#: course_discovery/apps/course_metadata/models.py:186
+#: course_discovery/apps/course_metadata/models.py:234
+#: course_discovery/apps/course_metadata/models.py:325
+#: course_discovery/apps/course_metadata/models.py:578
 msgid "UUID"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:118
+#: course_discovery/apps/course_metadata/models.py:119
 msgid "Leave this field blank to have the value generated automatically."
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:197
+#: course_discovery/apps/course_metadata/models.py:198
 msgid "People"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:249
+#: course_discovery/apps/course_metadata/models.py:250
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:332
+#: course_discovery/apps/course_metadata/models.py:333
 msgid ""
 "Title specific for this run of a course. Leave this value blank to default "
 "to the parent course's title."
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:341
+#: course_discovery/apps/course_metadata/models.py:342
 msgid ""
 "Short description specific for this run of a course. Leave this value blank "
 "to default to the parent course's short_description attribute."
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:346
+#: course_discovery/apps/course_metadata/models.py:347
 msgid ""
 "Full description specific for this run of a course. Leave this value blank "
 "to default to the parent course's full_description attribute."
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:351
+#: course_discovery/apps/course_metadata/models.py:352
 #: course_discovery/apps/publisher/models.py:193
 msgid ""
 "Estimated minimum number of hours per week needed to complete a course run."
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:354
+#: course_discovery/apps/course_metadata/models.py:355
 #: course_discovery/apps/publisher/models.py:196
 msgid ""
 "Estimated maximum number of hours per week needed to complete a course run."
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:461
-msgid "Archived"
-msgstr ""
-
-#: course_discovery/apps/course_metadata/models.py:463
-msgid "Current"
+#: course_discovery/apps/course_metadata/models.py:358
+msgid "Estimated number of weeks needed to complete this course run."
 msgstr ""
 
 #: course_discovery/apps/course_metadata/models.py:465
-msgid "Starting Soon"
+msgid "Archived"
 msgstr ""
 
 #: course_discovery/apps/course_metadata/models.py:467
+msgid "Current"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:469
+msgid "Starting Soon"
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:471
 msgid "Upcoming"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:503
+#: course_discovery/apps/course_metadata/models.py:507
 #: course_discovery/apps/publisher/models.py:280
 msgid "Honor"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:504
+#: course_discovery/apps/course_metadata/models.py:508
 #: course_discovery/apps/publisher/models.py:281
 msgid "Audit"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:505
+#: course_discovery/apps/course_metadata/models.py:509
 #: course_discovery/apps/publisher/models.py:282
 msgid "Verified"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:506
+#: course_discovery/apps/course_metadata/models.py:510
 msgid "Professional"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:507
+#: course_discovery/apps/course_metadata/models.py:511
 #: course_discovery/apps/publisher/models.py:285
 msgid "Credit"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:554
+#: course_discovery/apps/course_metadata/models.py:558
 msgid "FAQ"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:555
+#: course_discovery/apps/course_metadata/models.py:559
 msgid "FAQs"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:564
+#: course_discovery/apps/course_metadata/models.py:568
 msgid ""
 "Seat types that qualify for completion of programs of this type. Learners "
 "completing associated courses, but enrolled in other seat types, will NOT "
@@ -360,37 +364,43 @@ msgid ""
 "program."
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:576
+#: course_discovery/apps/course_metadata/models.py:580
 msgid "The user-facing display title for this Program."
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:578
+#: course_discovery/apps/course_metadata/models.py:582
 msgid "A brief, descriptive subtitle for the Program."
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:581
+#: course_discovery/apps/course_metadata/models.py:585
 msgid "The lifecycle status of this Program."
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:585
+#: course_discovery/apps/course_metadata/models.py:589
 msgid "Slug used to generate links to the marketing site"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:589
+#: course_discovery/apps/course_metadata/models.py:593
 msgid ""
 "If this box is not checked, courses will be ordered as in the courses select "
 "box above."
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:611
+#: course_discovery/apps/course_metadata/models.py:603
+msgid ""
+"This field is now deprecated (ECOM-6021).Estimated number of weeks needed to "
+"complete a course run belonging to this program."
+msgstr ""
+
+#: course_discovery/apps/course_metadata/models.py:619
 msgid "Image used atop detail pages"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:612
+#: course_discovery/apps/course_metadata/models.py:620
 msgid "Image used for discovery cards"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:624
+#: course_discovery/apps/course_metadata/models.py:632
 msgid "The description of credit redemption for courses in program"
 msgstr ""
 

@@ -126,6 +126,7 @@ class CourseRunFactory(factory.DjangoModelFactory):
     max_effort = FuzzyInteger(10, 20)
     pacing_type = FuzzyChoice([name for name, __ in CourseRunPacing.choices])
     slug = FuzzyText()
+    weeks_to_complete = FuzzyInteger(1)
 
     @factory.post_generation
     def staff(self, create, extracted, **kwargs):

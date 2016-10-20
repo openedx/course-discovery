@@ -9,6 +9,7 @@ import pytz
 import waffle
 from django.db import models, transaction
 from django.db.models.query_utils import Q
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
@@ -352,6 +353,9 @@ class CourseRun(TimeStampedModel):
     max_effort = models.PositiveSmallIntegerField(
         null=True, blank=True,
         help_text=_('Estimated maximum number of hours per week needed to complete a course run.'))
+    weeks_to_complete = models.PositiveSmallIntegerField(
+        null=True, blank=True,
+        help_text=_('Estimated number of weeks needed to complete this course run.'))
     language = models.ForeignKey(LanguageTag, null=True, blank=True)
     transcript_languages = models.ManyToManyField(LanguageTag, blank=True, related_name='transcript_courses')
     pacing_type = models.CharField(max_length=255, db_index=True, null=True, blank=True,
@@ -599,7 +603,11 @@ class Program(TimeStampedModel):
     excluded_course_runs = models.ManyToManyField(CourseRun, blank=True)
     partner = models.ForeignKey(Partner, null=True, blank=False)
     overview = models.TextField(null=True, blank=True)
-    weeks_to_complete = models.PositiveSmallIntegerField(null=True, blank=True)
+    # The weeks_to_complete field is now deprecated
+    weeks_to_complete = models.PositiveSmallIntegerField(
+        null=True, blank=True,
+        help_text=_('This field is now deprecated (ECOM-6021).'
+                    'Estimated number of weeks needed to complete a course run belonging to this program.'))
     min_hours_effort_per_week = models.PositiveSmallIntegerField(null=True, blank=True)
     max_hours_effort_per_week = models.PositiveSmallIntegerField(null=True, blank=True)
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_programs')
@@ -635,6 +643,19 @@ class Program(TimeStampedModel):
 
     def __str__(self):
         return self.title
+
+    @cached_property
+    def _course_run_weeks_to_complete(self):
+        return [course_run.weeks_to_complete for course_run in self.course_runs
+                if course_run.weeks_to_complete is not None]
+
+    @property
+    def weeks_to_complete_min(self):
+        return min(self._course_run_weeks_to_complete) if self._course_run_weeks_to_complete else None
+
+    @property
+    def weeks_to_complete_max(self):
+        return max(self._course_run_weeks_to_complete) if self._course_run_weeks_to_complete else None
 
     @property
     def marketing_url(self):

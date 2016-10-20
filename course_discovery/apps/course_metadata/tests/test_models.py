@@ -311,6 +311,14 @@ class ProgramTests(MarketingSitePublisherTestMixin):
         """Verify that a program is properly converted to a str."""
         self.assertEqual(str(self.program), self.program.title)
 
+    def test_weeks_to_complete_range(self):
+        """ Verify that weeks to complete range works correctly """
+        weeks_to_complete_values = [course_run.weeks_to_complete for course_run in self.course_runs]
+        expected_min = min(weeks_to_complete_values) if weeks_to_complete_values else None
+        expected_max = max(weeks_to_complete_values) if weeks_to_complete_values else None
+        self.assertEqual(self.program.weeks_to_complete_min, expected_min)
+        self.assertEqual(self.program.weeks_to_complete_max, expected_max)
+
     def test_marketing_url(self):
         """ Verify the property creates a complete marketing URL. """
         expected = '{root}/{type}/{slug}'.format(root=self.program.partner.marketing_site_url_root.strip('/'),
