@@ -466,6 +466,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'start': start,
             'pacing_type': self.get_pacing_type(data),
             'hidden': self.get_hidden(data),
+            'weeks_to_complete': None,
         }
 
         if weeks_to_complete:
