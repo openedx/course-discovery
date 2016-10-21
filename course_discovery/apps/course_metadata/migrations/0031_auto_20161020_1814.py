@@ -14,11 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='courserun',
             name='weeks_to_complete',
-            field=models.PositiveSmallIntegerField(blank=True, help_text='Estimated number of weeks needed to complete this course run.', null=True),
-        ),
-        migrations.AlterField(
-            model_name='program',
-            name='weeks_to_complete',
-            field=models.PositiveSmallIntegerField(blank=True, help_text='This field is now deprecated (ECOM-6021).Estimated number of weeks needed to complete a course run belonging to this program.', null=True),
+            field=models.PositiveSmallIntegerField(null=True, blank=True, help_text='This field is now deprecated (ECOM-6021).Estimated number of weeks needed to complete a course run.'),
         ),
     ]
