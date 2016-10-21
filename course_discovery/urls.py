@@ -43,6 +43,8 @@ urlpatterns = auth_urlpatterns + [
         )
     ),
     url(r'^comments/', include('django_comments.urls')),
+    url(r'^i18n/', include('django.conf.urls.i18n')),
+    url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog', name='javascript-catalog'),
 ]
 
 if settings.DEBUG:  # pragma: no cover

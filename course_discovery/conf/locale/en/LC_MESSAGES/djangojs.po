@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-19 18:34+0000\n"
+"POT-Creation-Date: 2016-10-21 07:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,4 +19,12 @@ msgstr ""
 
 #: course_discovery/static/js/catalogs-change-form.js:17
 msgid "Preview"
+msgstr ""
+
+#: course_discovery/static/js/publisher/views/navbar.js:33
+msgid "OFF"
+msgstr ""
+
+#: course_discovery/static/js/publisher/views/navbar.js:46
+msgid "ON"
 msgstr ""

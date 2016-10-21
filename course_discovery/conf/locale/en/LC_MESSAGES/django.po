@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-19 18:33+0000\n"
+"POT-Creation-Date: 2016-10-21 07:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -258,7 +258,7 @@ msgstr ""
 #: course_discovery/apps/course_metadata/models.py:186
 #: course_discovery/apps/course_metadata/models.py:234
 #: course_discovery/apps/course_metadata/models.py:325
-#: course_discovery/apps/course_metadata/models.py:578
+#: course_discovery/apps/course_metadata/models.py:584
 msgid "UUID"
 msgstr ""
 
@@ -308,55 +308,55 @@ msgstr ""
 msgid "Estimated number of weeks needed to complete this course run."
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:465
+#: course_discovery/apps/course_metadata/models.py:471
 msgid "Archived"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:467
+#: course_discovery/apps/course_metadata/models.py:473
 msgid "Current"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:469
+#: course_discovery/apps/course_metadata/models.py:475
 msgid "Starting Soon"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:471
+#: course_discovery/apps/course_metadata/models.py:477
 msgid "Upcoming"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:507
+#: course_discovery/apps/course_metadata/models.py:513
 #: course_discovery/apps/publisher/models.py:280
 msgid "Honor"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:508
+#: course_discovery/apps/course_metadata/models.py:514
 #: course_discovery/apps/publisher/models.py:281
 msgid "Audit"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:509
+#: course_discovery/apps/course_metadata/models.py:515
 #: course_discovery/apps/publisher/models.py:282
 msgid "Verified"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:510
+#: course_discovery/apps/course_metadata/models.py:516
 msgid "Professional"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:511
+#: course_discovery/apps/course_metadata/models.py:517
 #: course_discovery/apps/publisher/models.py:285
 msgid "Credit"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:558
+#: course_discovery/apps/course_metadata/models.py:564
 msgid "FAQ"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:559
+#: course_discovery/apps/course_metadata/models.py:565
 msgid "FAQs"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:568
+#: course_discovery/apps/course_metadata/models.py:574
 msgid ""
 "Seat types that qualify for completion of programs of this type. Learners "
 "completing associated courses, but enrolled in other seat types, will NOT "
@@ -364,43 +364,43 @@ msgid ""
 "program."
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:580
+#: course_discovery/apps/course_metadata/models.py:586
 msgid "The user-facing display title for this Program."
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:582
+#: course_discovery/apps/course_metadata/models.py:588
 msgid "A brief, descriptive subtitle for the Program."
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:585
+#: course_discovery/apps/course_metadata/models.py:591
 msgid "The lifecycle status of this Program."
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:589
+#: course_discovery/apps/course_metadata/models.py:595
 msgid "Slug used to generate links to the marketing site"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:593
+#: course_discovery/apps/course_metadata/models.py:599
 msgid ""
 "If this box is not checked, courses will be ordered as in the courses select "
 "box above."
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:603
+#: course_discovery/apps/course_metadata/models.py:609
 msgid ""
 "This field is now deprecated (ECOM-6021).Estimated number of weeks needed to "
 "complete a course run belonging to this program."
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:619
+#: course_discovery/apps/course_metadata/models.py:625
 msgid "Image used atop detail pages"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:620
+#: course_discovery/apps/course_metadata/models.py:626
 msgid "Image used for discovery cards"
 msgstr ""
 
-#: course_discovery/apps/course_metadata/models.py:632
+#: course_discovery/apps/course_metadata/models.py:638
 msgid "The description of credit redemption for courses in program"
 msgstr ""
 
@@ -540,20 +540,20 @@ msgstr ""
 msgid "Professional (no ID verifiation)"
 msgstr ""
 
-#: course_discovery/apps/publisher/views.py:118
+#: course_discovery/apps/publisher/views.py:120
 msgid "Course created successfully."
 msgstr ""
 
-#: course_discovery/apps/publisher/views.py:124
+#: course_discovery/apps/publisher/views.py:126
 msgid "Please fill all required field."
 msgstr ""
 
-#: course_discovery/apps/publisher/views.py:243
+#: course_discovery/apps/publisher/views.py:245
 #, python-brace-format
 msgid "Content moved to `{state}` successfully."
 msgstr ""
 
-#: course_discovery/apps/publisher/views.py:247
+#: course_discovery/apps/publisher/views.py:249
 msgid "There was an error in changing state."
 msgstr ""
 
@@ -577,11 +577,11 @@ msgstr ""
 msgid "modified"
 msgstr ""
 
-#: course_discovery/templates/base.html:49
+#: course_discovery/templates/base.html:52
 msgid "Course Runs"
 msgstr ""
 
-#: course_discovery/templates/base.html:54
+#: course_discovery/templates/base.html:57
 msgid "Courses"
 msgstr ""
 
@@ -662,7 +662,15 @@ msgstr ""
 msgid "Email notifications"
 msgstr ""
 
-#: course_discovery/templates/header.html:43
+#: course_discovery/templates/header.html:45
+msgid "ON"
+msgstr ""
+
+#: course_discovery/templates/header.html:45
+msgid "OFF"
+msgstr ""
+
+#: course_discovery/templates/header.html:48
 msgid "Sign Out"
 msgstr ""
 

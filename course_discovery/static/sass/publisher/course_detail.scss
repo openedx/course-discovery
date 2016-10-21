@@ -46,6 +46,7 @@ $light-gray: rgba(204, 204, 204, 1);
                     overflow: visible;
                     height: auto;
                     position: absolute;
+                    width: 340px;
 
                     &.is-shown {
                         display: block;
@@ -99,6 +100,69 @@ $light-gray: rgba(204, 204, 204, 1);
                                 @include text-align(center);
                                 text-decoration: none;
                                 width: 100%;
+                            }
+                        }
+
+                        .on-off-text {
+                            @include text-align(left);
+                        }
+
+                        .nav-email-notification {
+                            .email-switch-label {
+                                @include margin-right(60px);
+                            }
+
+                            .switch {
+                                @include margin-right(10px);
+                                position: relative;
+                                display: inline-block;
+                                width: 36px;
+                                height: 20px;
+                                vertical-align: middle;
+                            }
+
+                            .switch input {
+                                display:none;
+                            }
+
+                            .slider {
+                                @include left(0);
+                                @include right(0);
+                                position: absolute;
+                                cursor: pointer;
+                                top: 0;
+                                bottom: 0;
+                                background-color: #ccc;
+                                -webkit-transition: .4s;
+                                transition: .4s;
+                                border-radius: 20px;
+                            }
+
+                            .slider:before {
+                                @include left(2px);
+                                position: absolute;
+                                content: "";
+                                height: 16px;
+                                width: 16px;
+                                bottom: 2px;
+                                background-color: white;
+                                -webkit-transition: .4s;
+                                transition: .4s;
+                                border-radius: 50%;
+                            }
+
+                            input:checked + .slider {
+                                background-color: #333;
+                            }
+
+                            input:focus + .slider {
+                                box-shadow: 0 0 1px #333;
+                            }
+
+                            input:checked + .slider:before {
+                                -webkit-transform: translateX(16px);
+                                -ms-transform: translateX(16px);
+                                transform: translateX(16px);
                             }
                         }
                     }
