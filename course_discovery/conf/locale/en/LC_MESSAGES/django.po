@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-21 07:12+0000\n"
+"POT-Creation-Date: 2016-10-23 15:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -199,7 +199,7 @@ msgid "Partners"
 msgstr ""
 
 #: course_discovery/apps/course_metadata/choices.py:6
-#: course_discovery/apps/publisher/models.py:44
+#: course_discovery/apps/publisher/models.py:45
 msgid "Published"
 msgstr ""
 
@@ -293,13 +293,13 @@ msgid ""
 msgstr ""
 
 #: course_discovery/apps/course_metadata/models.py:352
-#: course_discovery/apps/publisher/models.py:193
+#: course_discovery/apps/publisher/models.py:204
 msgid ""
 "Estimated minimum number of hours per week needed to complete a course run."
 msgstr ""
 
 #: course_discovery/apps/course_metadata/models.py:355
-#: course_discovery/apps/publisher/models.py:196
+#: course_discovery/apps/publisher/models.py:207
 msgid ""
 "Estimated maximum number of hours per week needed to complete a course run."
 msgstr ""
@@ -325,17 +325,17 @@ msgid "Upcoming"
 msgstr ""
 
 #: course_discovery/apps/course_metadata/models.py:513
-#: course_discovery/apps/publisher/models.py:280
+#: course_discovery/apps/publisher/models.py:287
 msgid "Honor"
 msgstr ""
 
 #: course_discovery/apps/course_metadata/models.py:514
-#: course_discovery/apps/publisher/models.py:281
+#: course_discovery/apps/publisher/models.py:288
 msgid "Audit"
 msgstr ""
 
 #: course_discovery/apps/course_metadata/models.py:515
-#: course_discovery/apps/publisher/models.py:282
+#: course_discovery/apps/publisher/models.py:289
 msgid "Verified"
 msgstr ""
 
@@ -344,7 +344,7 @@ msgid "Professional"
 msgstr ""
 
 #: course_discovery/apps/course_metadata/models.py:517
-#: course_discovery/apps/publisher/models.py:285
+#: course_discovery/apps/publisher/models.py:292
 msgid "Credit"
 msgstr ""
 
@@ -412,148 +412,144 @@ msgstr ""
 msgid "JSON string containing an elasticsearch function score config."
 msgstr ""
 
-#: course_discovery/apps/publisher/forms.py:77
-#: course_discovery/apps/publisher/forms.py:85
+#: course_discovery/apps/publisher/forms.py:79
+#: course_discovery/apps/publisher/forms.py:87
 msgid "Yes"
 msgstr ""
 
-#: course_discovery/apps/publisher/forms.py:77
-#: course_discovery/apps/publisher/forms.py:85
+#: course_discovery/apps/publisher/forms.py:79
+#: course_discovery/apps/publisher/forms.py:87
 msgid "No"
 msgstr ""
 
-#: course_discovery/apps/publisher/forms.py:131
+#: course_discovery/apps/publisher/forms.py:132
 msgid "Only honor/audit seats can be without price."
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:40
+#: course_discovery/apps/publisher/models.py:41
 msgid "Draft"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:41
+#: course_discovery/apps/publisher/models.py:42
 msgid "Needs Review"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:42
+#: course_discovery/apps/publisher/models.py:43
 msgid "Needs Final Approval"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:43
+#: course_discovery/apps/publisher/models.py:44
 msgid "Finalized"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:84
+#: course_discovery/apps/publisher/models.py:85
 msgid "Course title"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:85
+#: course_discovery/apps/publisher/models.py:86
 msgid "Course number"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:87
-#: course_discovery/templates/publisher/add_course_form.html:199
+#: course_discovery/apps/publisher/models.py:88
+#: course_discovery/templates/publisher/add_course_form.html:195
 msgid "Brief Description"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:89
+#: course_discovery/apps/publisher/models.py:90
 msgid "Full Description"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:91
+#: course_discovery/apps/publisher/models.py:92
 #: course_discovery/templates/publisher/course_run_detail/_all.html:41
 msgid "Partner Name"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:94
+#: course_discovery/apps/publisher/models.py:95
 msgid "Level Type"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:96
+#: course_discovery/apps/publisher/models.py:97
 msgid "Expected Learnings"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:98
+#: course_discovery/apps/publisher/models.py:99
 #: course_discovery/templates/publisher/course_run_detail/_all.html:213
 msgid "Prerequisites"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:103
+#: course_discovery/apps/publisher/models.py:104
 msgid "Verification deadline"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:104
+#: course_discovery/apps/publisher/models.py:105
 msgid "Last date/time on which verification for this product can be submitted."
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:169
+#: course_discovery/apps/publisher/models.py:180
 msgid "Level 1"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:170
+#: course_discovery/apps/publisher/models.py:181
 msgid "Level 2"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:171
+#: course_discovery/apps/publisher/models.py:182
 msgid "Level 3"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:172
+#: course_discovery/apps/publisher/models.py:183
 msgid "Level 4"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:173
+#: course_discovery/apps/publisher/models.py:184
 msgid "Level 5"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:199
+#: course_discovery/apps/publisher/models.py:210
 msgid "Content Language"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:205
-#: course_discovery/templates/publisher/add_course_form.html:402
+#: course_discovery/apps/publisher/models.py:216
+#: course_discovery/templates/publisher/add_course_form.html:398
 msgid "Length of course, in number of weeks"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:218
-msgid "Please add top 10 comma separated keywords for your course content"
-msgstr ""
-
-#: course_discovery/apps/publisher/models.py:222
+#: course_discovery/apps/publisher/models.py:229
 msgid ""
 "Please add any additional notes or special instructions for the course About "
 "Page."
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:230
+#: course_discovery/apps/publisher/models.py:237
 msgid "Comma separated list of edX usernames or emails of admins."
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:234
+#: course_discovery/apps/publisher/models.py:241
 msgid "Comma separated list of edX usernames or emails of additional staff."
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:283
+#: course_discovery/apps/publisher/models.py:290
 msgid "Professional (with ID verification)"
 msgstr ""
 
-#: course_discovery/apps/publisher/models.py:284
+#: course_discovery/apps/publisher/models.py:291
 msgid "Professional (no ID verifiation)"
 msgstr ""
 
-#: course_discovery/apps/publisher/views.py:120
+#: course_discovery/apps/publisher/views.py:122
 msgid "Course created successfully."
 msgstr ""
 
-#: course_discovery/apps/publisher/views.py:126
+#: course_discovery/apps/publisher/views.py:128
 msgid "Please fill all required field."
 msgstr ""
 
-#: course_discovery/apps/publisher/views.py:245
+#: course_discovery/apps/publisher/views.py:247
 #, python-brace-format
 msgid "Content moved to `{state}` successfully."
 msgstr ""
 
-#: course_discovery/apps/publisher/views.py:249
+#: course_discovery/apps/publisher/views.py:251
 msgid "There was an error in changing state."
 msgstr ""
 
@@ -698,366 +694,366 @@ msgstr ""
 msgid "Course Form"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:32
+#: course_discovery/templates/publisher/add_course_form.html:28
 #: course_discovery/templates/publisher/view_course_form.html:23
 msgid "Base information"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:38
+#: course_discovery/templates/publisher/add_course_form.html:34
 #: course_discovery/templates/publisher/view_course_form.html:29
 msgid "INSTITUTION INFORMATION"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:41
+#: course_discovery/templates/publisher/add_course_form.html:37
 msgid ""
 "Please choose the school that will be providing the course. Once chosen then "
 "you can select an administrator for the studio shell."
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:45
-#: course_discovery/templates/publisher/add_course_form.html:51
-#: course_discovery/templates/publisher/add_course_form.html:92
-#: course_discovery/templates/publisher/add_course_form.html:115
-#: course_discovery/templates/publisher/add_course_form.html:140
-#: course_discovery/templates/publisher/add_course_form.html:178
+#: course_discovery/templates/publisher/add_course_form.html:41
+#: course_discovery/templates/publisher/add_course_form.html:47
+#: course_discovery/templates/publisher/add_course_form.html:88
+#: course_discovery/templates/publisher/add_course_form.html:111
+#: course_discovery/templates/publisher/add_course_form.html:136
+#: course_discovery/templates/publisher/add_course_form.html:174
 msgid "required"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:58
+#: course_discovery/templates/publisher/add_course_form.html:54
 msgid "Course Title"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:64
+#: course_discovery/templates/publisher/add_course_form.html:60
 msgid "Best Practices"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:67
+#: course_discovery/templates/publisher/add_course_form.html:63
 msgid "Example"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:72
+#: course_discovery/templates/publisher/add_course_form.html:68
 msgid "Concise 70 characters maximum; < 50 chars. recommended."
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:74
+#: course_discovery/templates/publisher/add_course_form.html:70
 msgid "Descriptive - clearly indicates what the course is about."
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:76
+#: course_discovery/templates/publisher/add_course_form.html:72
 msgid "SEO-optimized and targeted to a global audience."
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:78
+#: course_discovery/templates/publisher/add_course_form.html:74
 msgid ""
 "If the course falls in a sequence, our titling convention is: \"Course "
 "Title: Subtitle\""
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:81
+#: course_discovery/templates/publisher/add_course_form.html:77
 msgid "English Grammar and Essay Writing Sequence Courses:"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:83
+#: course_discovery/templates/publisher/add_course_form.html:79
 msgid "Introduction to Statistics"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:84
+#: course_discovery/templates/publisher/add_course_form.html:80
 msgid "Statistics: Inference"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:85
+#: course_discovery/templates/publisher/add_course_form.html:81
 msgid "Statistics: Probability"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:100
+#: course_discovery/templates/publisher/add_course_form.html:96
 msgid "Priority content"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:107
+#: course_discovery/templates/publisher/add_course_form.html:103
 #: course_discovery/templates/publisher/course_run_detail/_drupal.html:57
 #: course_discovery/templates/publisher/course_run_detail/_salesforce.html:162
 #: course_discovery/templates/publisher/course_run_detail/_studio.html:29
 msgid "Start Date"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:110
+#: course_discovery/templates/publisher/add_course_form.html:106
 msgid ""
 "Start on a weekday (preferably Tuesday, Wednesday, or Thursday) and avoid "
 "major U.S. holidays for best access to edX staff."
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:111
+#: course_discovery/templates/publisher/add_course_form.html:107
 msgid ""
 "Approximate dates are acceptable; If you are unable to give an exact date, "
 "please identify a month in which the course will be offered."
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:121
+#: course_discovery/templates/publisher/add_course_form.html:117
 #: course_discovery/templates/publisher/course_run_detail/_all.html:138
 #: course_discovery/templates/publisher/course_run_detail/_studio.html:57
 msgid "Pacing Type"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:124
+#: course_discovery/templates/publisher/add_course_form.html:120
 msgid ""
 "Will your course be open to students at the same time as it is announced?"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:132
+#: course_discovery/templates/publisher/add_course_form.html:128
 msgid "Course Number"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:135
+#: course_discovery/templates/publisher/add_course_form.html:131
 msgid ""
 "Courses split into several modules can be denoted by adding .1, .2, etc. at "
 "the end of the course number before the “x”"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:136
+#: course_discovery/templates/publisher/add_course_form.html:132
 msgid ""
 "No special html characters, accents, spaces, dashes, or underscores 10 "
 "character limit"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:153
+#: course_discovery/templates/publisher/add_course_form.html:149
 msgid "About page information"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:158
+#: course_discovery/templates/publisher/add_course_form.html:154
 #: course_discovery/templates/publisher/course_run_detail/_drupal.html:63
 #: course_discovery/templates/publisher/course_run_detail/_salesforce.html:169
 #: course_discovery/templates/publisher/course_run_detail/_studio.html:36
 msgid "End Date"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:161
-#: course_discovery/templates/publisher/add_course_form.html:172
+#: course_discovery/templates/publisher/add_course_form.html:157
+#: course_discovery/templates/publisher/add_course_form.html:168
 msgid ""
 "The date when this self-paced course run will end, replaced by an updated "
 "version of the course"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:169
+#: course_discovery/templates/publisher/add_course_form.html:165
 #: course_discovery/templates/publisher/course_run_detail/_seats.html:7
 msgid "Seat Type"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:203
+#: course_discovery/templates/publisher/add_course_form.html:199
 msgid ""
 "Reads as a tag line - a short, engaging description for students browsing "
 "course listings"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:205
+#: course_discovery/templates/publisher/add_course_form.html:201
 msgid "Conveys why someone should take the course"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:206
-#: course_discovery/templates/publisher/add_course_form.html:221
+#: course_discovery/templates/publisher/add_course_form.html:202
+#: course_discovery/templates/publisher/add_course_form.html:217
 msgid "SEO optimized and targeted to a global audience"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:215
+#: course_discovery/templates/publisher/add_course_form.html:211
 msgid "FULL DESCRIPTION"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:218
+#: course_discovery/templates/publisher/add_course_form.html:214
 msgid "Summarized description of course content"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:220
+#: course_discovery/templates/publisher/add_course_form.html:216
 msgid "Describe why a learner should take this course"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:222
+#: course_discovery/templates/publisher/add_course_form.html:218
 msgid ""
 "Text should be easily scannable, using bullet points to highlight instead of "
 "long, dense text paragraphs"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:225
+#: course_discovery/templates/publisher/add_course_form.html:221
 msgid ""
 "Note: the first 4-5 lines will be visible to the learner immediately upon "
 "clicking the page;"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:226
+#: course_discovery/templates/publisher/add_course_form.html:222
 msgid ""
 "additional text will be hidden yet available via \"See More\" clickable text "
 "under the first 4-5 lines"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:237
+#: course_discovery/templates/publisher/add_course_form.html:233
 msgid "EXPECTED LEARNINGS"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:241
+#: course_discovery/templates/publisher/add_course_form.html:237
 msgid "Answer to the question: \"What will you learn from this course?\""
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:242
+#: course_discovery/templates/publisher/add_course_form.html:238
 msgid "bulleted items, approximately 4-10 words per bullet"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:251
+#: course_discovery/templates/publisher/add_course_form.html:247
 msgid "COURSE STAFF"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:255
+#: course_discovery/templates/publisher/add_course_form.html:251
 msgid ""
 "If there is more than one instructor, please indicate the order in which the "
 "instructors should be listed"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:257
+#: course_discovery/templates/publisher/add_course_form.html:253
 msgid "Limited to the primary instructors a learner will encounter in videos"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:265
+#: course_discovery/templates/publisher/add_course_form.html:261
 msgid "KEYWORDS"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:268
+#: course_discovery/templates/publisher/add_course_form.html:264
 msgid "Some instructions here???"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:279
+#: course_discovery/templates/publisher/add_course_form.html:275
 msgid "SUBJECT FIELD"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:282
+#: course_discovery/templates/publisher/add_course_form.html:278
 msgid ""
 "Only one primary subject will appear on the About Page; please select one "
 "primary subject and a maximum of two additional subject areas for search."
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:308
+#: course_discovery/templates/publisher/add_course_form.html:304
 msgid "COURSE IMAGE"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:311
+#: course_discovery/templates/publisher/add_course_form.html:307
 msgid ""
 "Select an eye-catching, colorful image that captures the content and essence "
 "of your course"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:313
+#: course_discovery/templates/publisher/add_course_form.html:309
 msgid "Do not include text or headlines"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:314
+#: course_discovery/templates/publisher/add_course_form.html:310
 msgid "Choose an image that you have permission to use."
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:315
+#: course_discovery/templates/publisher/add_course_form.html:311
 msgid "This can be a stock photo (try Flickr creative commons, "
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:316
+#: course_discovery/templates/publisher/add_course_form.html:312
 msgid ""
 "Stock Vault, Stock XCHNG, iStock Photo) or an image custom designed for your "
 "course"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:318
+#: course_discovery/templates/publisher/add_course_form.html:314
 msgid "Sequenced courses should each have a unique image"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:319
+#: course_discovery/templates/publisher/add_course_form.html:315
 msgid "Size: 2120 x 1192 pixels"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:328
+#: course_discovery/templates/publisher/add_course_form.html:324
 msgid "PREREQUISITES"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:332
+#: course_discovery/templates/publisher/add_course_form.html:328
 msgid ""
 "List concepts and level (basic, advanced, undergraduate, graduate) students "
 "should be familiar with"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:334
+#: course_discovery/templates/publisher/add_course_form.html:330
 msgid "If there are no prerequisites, please list \"None.\""
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:335
+#: course_discovery/templates/publisher/add_course_form.html:331
 msgid "200 character limit, including spaces"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:344
+#: course_discovery/templates/publisher/add_course_form.html:340
 msgid "ESTIMATED EFFORT"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:348
+#: course_discovery/templates/publisher/add_course_form.html:344
 msgid ""
 "Number of hours per week the learner should expect to spend on the course to "
 "be successful"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:350
+#: course_discovery/templates/publisher/add_course_form.html:346
 msgid "Should be realistic, and can be a range"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:356
+#: course_discovery/templates/publisher/add_course_form.html:352
 msgid "Min Effort"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:360
+#: course_discovery/templates/publisher/add_course_form.html:356
 msgid "Max Effort"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:369
+#: course_discovery/templates/publisher/add_course_form.html:365
 msgid "LANGUAGE(S)"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:374
+#: course_discovery/templates/publisher/add_course_form.html:370
 msgid "Course content (navigation and course content excluding videos)"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:377
+#: course_discovery/templates/publisher/add_course_form.html:373
 msgid "Videos (language spoken in course videos)"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:380
+#: course_discovery/templates/publisher/add_course_form.html:376
 msgid "Video transcript (video caption language)"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:398
+#: course_discovery/templates/publisher/add_course_form.html:394
 msgid "LENGTH"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:403
+#: course_discovery/templates/publisher/add_course_form.html:399
 msgid "If the time between start/end dates is not exact, ex: 8.5 weeks, "
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:404
+#: course_discovery/templates/publisher/add_course_form.html:400
 msgid "indicate whether the course should be listed as 8 weeks or 9 weeks."
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:414
+#: course_discovery/templates/publisher/add_course_form.html:410
 msgid "LEVEL TYPE"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:418
+#: course_discovery/templates/publisher/add_course_form.html:414
 msgid ""
 "Introductory - No prerequisites; an individual with some to all of a "
 "secondary school degree could complete"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:421
+#: course_discovery/templates/publisher/add_course_form.html:417
 msgid ""
 "Intermediate - Basic prerequisites; a secondary school degree likely "
 "required to be successful as well as some university"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:424
+#: course_discovery/templates/publisher/add_course_form.html:420
 msgid ""
 "Advanced - Significant number of prerequisites required; course geared to "
 "3rd or 4th year university student or a masters degree student"
 msgstr ""
 
-#: course_discovery/templates/publisher/add_course_form.html:442
+#: course_discovery/templates/publisher/add_course_form.html:438
 msgid "Save Draft"
 msgstr ""
 

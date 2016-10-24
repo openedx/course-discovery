@@ -4,10 +4,6 @@
 {% block title %}
 {% trans "Course Form" %}
 {% endblock title %}
-{% block extra_js %}
-<script src="{% static 'js/publisher/publisher.js' %}"></script>
-{% endblock %}
-
 {% block content %}
 
 <div>
@@ -268,11 +264,11 @@
                         {% trans "Some instructions here???" %}
                     </div>
                     <div class="col col-6">
-                        <label class="field-label ">{{ run_form.keywords.label_tag }}</label>
-                        {{ run_form.keywords}}
+                        <label class="field-label ">{{ course_form.keywords.label_tag }}</label>
+                        {{ course_form.keywords}}
 
-                        <label class="field-label ">{{ run_form.is_seo_review.label_tag }}</label>
-                        {{ run_form.is_seo_review}}
+                        <label class="field-label ">{{ course_form.is_seo_review.label_tag }}</label>
+                        {{ course_form.is_seo_review}}
                     </div>
                 </div>
 
@@ -451,3 +447,8 @@
 </div>
 
 {% endblock content %}
+
+{% block extra_js %}
+    <script src="{% static 'js/publisher/publisher.js' %}"></script>
+    <script src="{% static 'js/seat-type-change.js' %}"></script>
+{% endblock %}

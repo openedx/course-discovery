@@ -37,6 +37,8 @@ class BaseCourseForm(forms.ModelForm):
 class CourseForm(BaseCourseForm):
     """ Course Form. """
 
+    short_description = forms.CharField(widget=forms.Textarea, max_length=255, required=False)
+
     class Meta:
         model = Course
         fields = '__all__'
@@ -57,7 +59,7 @@ class CustomCourseForm(CourseForm):
             'title', 'number', 'short_description', 'full_description',
             'expected_learnings', 'level_type', 'primary_subject', 'secondary_subject',
             'tertiary_subject', 'prerequisites', 'level_type', 'image', 'team_admin',
-            'level_type', 'institution',
+            'level_type', 'institution', 'is_seo_review', 'keywords',
         )
 
 
@@ -87,10 +89,9 @@ class CustomCourseRunForm(CourseRunForm):
 
     class Meta(CourseRunForm.Meta):
         fields = (
-            'keywords', 'start', 'end', 'length',
-            'transcript_languages', 'language', 'min_effort', 'max_effort', 'keywords',
-            'contacted_partner_manager', 'target_content', 'pacing_type', 'is_seo_review',
-            'video_language', 'staff',
+            'length', 'transcript_languages', 'language', 'min_effort', 'max_effort',
+            'contacted_partner_manager', 'target_content', 'pacing_type',
+            'video_language', 'staff', 'start', 'end',
         )
 
 

@@ -11,6 +11,7 @@ from guardian.shortcuts import assign_perm, get_groups_with_perms
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
+from taggit.managers import TaggableManager
 
 from course_discovery.apps.core.models import User, Currency
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
@@ -129,6 +130,9 @@ class Course(TimeStampedModel, ChangedByMixin):
         }
     )
 
+    is_seo_review = models.BooleanField(default=False)
+    keywords = TaggableManager(blank=True, verbose_name='keywords')
+
     history = HistoricalRecords()
 
     def __str__(self):
@@ -155,6 +159,14 @@ class Course(TimeStampedModel, ChangedByMixin):
         """ Returns the Group object with for the given course object. """
         available_groups = get_groups_with_perms(self)
         return available_groups[0] if available_groups else None
+
+    @property
+    def keywords_data(self):
+        keywords = self.keywords.all()
+        if keywords:
+            return ', '.join(k.name for k in keywords)
+
+        return None
 
 
 class CourseRun(TimeStampedModel, ChangedByMixin):
@@ -212,11 +224,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     is_micromasters = models.BooleanField(default=False)
     micromasters_name = models.CharField(max_length=255, null=True, blank=True)
     contacted_partner_manager = models.BooleanField(default=False)
-    is_seo_review = models.BooleanField(default=False)
 
-    keywords = models.TextField(
-        default=None, blank=True, help_text=_("Please add top 10 comma separated keywords for your course content")
-    )
     notes = models.TextField(
         default=None, null=True, blank=True, help_text=_(
             "Please add any additional notes or special instructions for the course About Page."

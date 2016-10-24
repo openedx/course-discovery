@@ -92,6 +92,16 @@ class CourseTests(TestCase):
         self.assertFalse(user1.has_perm(Course.VIEW_PERMISSION, self.course2))
         self.assertFalse(user2.has_perm(Course.VIEW_PERMISSION, self.course))
 
+    def test_keywords_data(self):
+        """ Verify that the property returns the keywords as comma separated string. """
+        self.assertFalse(self.course.keywords_data)
+        self.course.keywords.add('abc')
+        self.assertEqual(self.course.keywords_data, 'abc')
+
+        self.course.keywords.add('def')
+        self.assertIn('abc', self.course.keywords_data)
+        self.assertIn('def', self.course.keywords_data)
+
 
 class SeatTests(TestCase):
     """ Tests for the publisher `Seat` model. """

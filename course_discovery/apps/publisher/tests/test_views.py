@@ -237,6 +237,7 @@ class CreateUpdateCourseViewTests(TestCase):
     def _post_data(self, data, course, course_run, seat):
         course_dict = model_to_dict(course)
         course_dict.update(**data)
+        course_dict['keywords'] = 'abc def xyz'
         if course_run:
             course_dict.update(**model_to_dict(course_run))
             course_dict.pop('video_language')
@@ -286,6 +287,9 @@ class CreateUpdateCourseViewTests(TestCase):
         self._assert_records(2)
         response = self.client.get(reverse('publisher:publisher_courses_readonly', kwargs={'pk': course.id}))
         self.assertEqual(response.status_code, 200)
+
+        # django-taggit stores data without any order. For test .
+        self.assertEqual(sorted([c.name for c in course.keywords.all()]), ['abc', 'def', 'xyz'])
 
 
 class CreateUpdateCourseRunViewTests(TestCase):

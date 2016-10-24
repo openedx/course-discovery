@@ -146,3 +146,10 @@ class CourseRunWrapperTests(TestCase):
         self.course_run.start = current_date
         self.course_run.save()
         self.assertEqual(self.wrapped_course_run.mdc_submission_due_date, expected_date)
+
+    def test_keywords(self):
+        """ Verify that the wrapper return the course keywords. """
+        self.assertEqual(
+            self.wrapped_course_run.keywords,
+            self.course.keywords_data
+        )

@@ -54,7 +54,6 @@ class CourseRunFactory(factory.DjangoModelFactory):
     language = factory.Iterator(LanguageTag.objects.all())
     pacing_type = FuzzyChoice([name for name, __ in CourseRunPacing.choices])
     length = FuzzyInteger(1, 10)
-    keywords = "Test1, Test2, Test3"
     notes = "Testing notes"
 
     class Meta:
