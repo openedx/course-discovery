@@ -13,6 +13,10 @@ class UserFactory(factory.DjangoModelFactory):
     is_active = True
     is_superuser = False
     is_staff = False
+    email = factory.Faker('email')
+    first_name = factory.Faker('first_name')
+    last_name = factory.Faker('last_name')
+    full_name = factory.LazyAttribute(lambda user: ' '.join((user.first_name, user.last_name)))
 
     class Meta:
         model = User
