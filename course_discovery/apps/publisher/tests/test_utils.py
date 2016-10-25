@@ -1,10 +1,11 @@
 """ Tests publisher.utils"""
-
+from django.contrib.auth.models import Group
 from django.test import TestCase
 
 from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.publisher.constants import ADMIN_GROUP_NAME
 from course_discovery.apps.publisher.tests import factories
-from course_discovery.apps.publisher.utils import is_email_notification_enabled
+from course_discovery.apps.publisher.utils import is_email_notification_enabled, is_publisher_admin
 
 
 class PublisherUtilsTests(TestCase):
@@ -33,7 +34,18 @@ class PublisherUtilsTests(TestCase):
 
         # Disabled email notification
         user_attribute.enable_email_notification = False
-        user_attribute.save()   # pylint: disable=no-member
+        user_attribute.save()  # pylint: disable=no-member
 
         # Verify that email notifications are disabled for the user
         self.assertEqual(is_email_notification_enabled(self.user), False)
+
+    def test_is_publisher_admin(self):
+        """ Verify the function returns a boolean indicating if the user
+        is a member of the administrative group.
+        """
+        self.assertFalse(self.user.groups.filter(name=ADMIN_GROUP_NAME).exists())
+        self.assertFalse(is_publisher_admin(self.user))
+
+        admin_group = Group.objects.get(name=ADMIN_GROUP_NAME)
+        self.user.groups.add(admin_group)
+        self.assertTrue(is_publisher_admin(self.user))
