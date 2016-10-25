@@ -17,12 +17,14 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import get_objects_for_user
+from rest_framework.generics import UpdateAPIView
 
 from course_discovery.apps.publisher.forms import (
     CourseForm, CourseRunForm, SeatForm, CustomCourseForm, CustomCourseRunForm, CustomSeatForm
 )
 from course_discovery.apps.publisher import mixins
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State, UserAttributes
+from course_discovery.apps.publisher.serializers import UpdateCourseKeySerializer
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
 
@@ -83,6 +85,9 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin,
         context['object'] = CourseRunWrapper(context['object'])
         context['comment_object'] = self.object.course
         return context
+
+    def patch(self, *args, **kwargs):
+        return UpdateCourseKeyView.as_view()(self.request, *args, **kwargs)
 
 
 # pylint: disable=attribute-defined-outside-init
@@ -282,3 +287,8 @@ class ToggleEmailNotification(mixins.LoginRequiredMixin, View):
         user_attribute.save()
 
         return JsonResponse({'is_enabled': is_enabled})
+
+
+class UpdateCourseKeyView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, UpdateAPIView):
+    queryset = CourseRun.objects.all()
+    serializer_class = UpdateCourseKeySerializer
