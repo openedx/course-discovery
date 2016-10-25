@@ -467,6 +467,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'pacing_type': self.get_pacing_type(data),
             'hidden': self.get_hidden(data),
             'weeks_to_complete': None,
+            'mobile_available': data.get('field_course_enrollment_mobile') or False,
         }
 
         if weeks_to_complete:

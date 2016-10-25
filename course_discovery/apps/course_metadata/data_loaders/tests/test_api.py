@@ -178,6 +178,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
                 'video': self.loader.get_courserun_video(body),
                 'status': CourseRunStatus.Published,
                 'pacing_type': self.loader.get_pacing_type(body),
+                'mobile_available': body['mobile_available'],
             })
 
         for field, value in expected_values.items():

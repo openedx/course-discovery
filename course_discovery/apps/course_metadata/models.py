@@ -365,6 +365,7 @@ class CourseRun(TimeStampedModel):
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     slug = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     hidden = models.BooleanField(default=False)
+    mobile_available = models.BooleanField(default=False)
 
     objects = CourseRunQuerySet.as_manager()
 
