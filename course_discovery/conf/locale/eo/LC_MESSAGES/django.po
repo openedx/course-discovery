@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-23 15:52+0000\n"
+"POT-Creation-Date: 2016-10-25 10:56-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,14 +17,14 @@ msgstr ""
 "Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: course_discovery/apps/api/filters.py
+#: apps/api/filters.py
 #, python-brace-format
 msgid "No user with the username [{username}] exists."
 msgstr ""
 "Nö üsér wïth thé üsérnämé [{username}] éxïsts. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя#"
 
-#: course_discovery/apps/api/filters.py
+#: apps/api/filters.py
 msgid ""
 "Only staff users are permitted to filter by username. Remove the username "
 "parameter."
@@ -32,81 +32,81 @@ msgstr ""
 "Önlý stäff üsérs äré pérmïttéd tö fïltér ßý üsérnämé. Rémövé thé üsérnämé "
 "pärämétér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
-#: course_discovery/apps/api/serializers.py
+#: apps/api/serializers.py
 msgid "Number of courses contained in this catalog"
 msgstr ""
 "Nümßér öf çöürsés çöntäïnéd ïn thïs çätälög Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
 
-#: course_discovery/apps/api/serializers.py
+#: apps/api/serializers.py
 msgid "Usernames of users with explicit access to view this catalog"
 msgstr ""
 "Ûsérnämés öf üsérs wïth éxplïçït äççéss tö vïéw thïs çätälög Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/apps/api/serializers.py
+#: apps/api/serializers.py
 msgid "Language in which the course is administered"
 msgstr ""
 "Längüägé ïn whïçh thé çöürsé ïs ädmïnïstéréd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
 
-#: course_discovery/apps/api/serializers.py
+#: apps/api/serializers.py
 msgid "Dictionary mapping course run IDs to boolean values"
 msgstr ""
 "Dïçtïönärý mäppïng çöürsé rün ÌDs tö ßööléän välüés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/apps/api/serializers.py
+#: apps/api/serializers.py
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 "Dïçtïönärý mäppïng çöürsé ÌDs tö ßööléän välüés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
 " ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/apps/api/serializers.py
+#: apps/api/serializers.py
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 "Längüägés thät çöürsé rüns ïn thïs prögräm äré öfféréd ïn. Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/apps/api/serializers.py
+#: apps/api/serializers.py
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
 "Längüägés thät çöürsé rüns ïn thïs prögräm hävé äväïläßlé tränsçrïpts ïn. "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
-#: course_discovery/apps/api/views.py
+#: apps/api/views.py
 msgid "You are not permitted to access the API documentation."
 msgstr ""
 "Ýöü äré nöt pérmïttéd tö äççéss thé ÀPÌ döçüméntätïön. Ⱡ'σяєм ιρѕυм ∂σłσя "
 "ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/apps/catalogs/models.py
+#: apps/catalogs/models.py
 msgid "Catalog name"
 msgstr "Çätälög nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: course_discovery/apps/catalogs/models.py
+#: apps/catalogs/models.py
 msgid "Query to retrieve catalog contents"
 msgstr ""
 "Qüérý tö rétrïévé çätälög çönténts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
 
-#: course_discovery/apps/core/admin.py
+#: apps/core/admin.py
 msgid "Personal info"
 msgstr "Pérsönäl ïnfö Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
-#: course_discovery/apps/core/admin.py
+#: apps/core/admin.py
 msgid "Permissions"
 msgstr "Pérmïssïöns Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
-#: course_discovery/apps/core/admin.py
+#: apps/core/admin.py
 msgid "Important dates"
 msgstr "Ìmpörtänt dätés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
-#: course_discovery/apps/core/admin.py
+#: apps/core/admin.py
 msgid "OpenID Connect"
 msgstr "ÖpénÌD Çönnéçt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
-#: course_discovery/apps/core/admin.py
+#: apps/core/admin.py
 msgid ""
 "OpenID Connect is used for front-end authentication as well as getting "
 "access to the APIs."
@@ -114,21 +114,21 @@ msgstr ""
 "ÖpénÌD Çönnéçt ïs üséd för frönt-énd äüthéntïçätïön äs wéll äs géttïng "
 "äççéss tö thé ÀPÌs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
-#: course_discovery/apps/core/admin.py
+#: apps/core/admin.py
 msgid "API Configuration"
 msgstr "ÀPÌ Çönfïgürätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
-#: course_discovery/apps/core/admin.py
+#: apps/core/admin.py
 msgid "Configure the APIs that will be used to retrieve data."
 msgstr ""
 "Çönfïgüré thé ÀPÌs thät wïll ßé üséd tö rétrïévé dätä. Ⱡ'σяєм ιρѕυм ∂σłσя "
 "ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/apps/core/admin.py
+#: apps/core/admin.py
 msgid "Marketing Site Configuration"
 msgstr "Märkétïng Sïté Çönfïgürätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
-#: course_discovery/apps/core/admin.py
+#: apps/core/admin.py
 msgid ""
 "Configure the marketing site URLs that will be used to retrieve data and "
 "create URLs."
@@ -138,27 +138,27 @@ msgstr ""
 
 #. Translators: 'period_choices' is a list of possible values, like ('second',
 #. 'minute', 'hour')
-#: course_discovery/apps/core/forms.py
+#: apps/core/forms.py
 #, python-brace-format
 msgid "period must be one of {period_choices}."
 msgstr ""
 "pérïöd müst ßé öné öf {period_choices}. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
-#: course_discovery/apps/core/forms.py
+#: apps/core/forms.py
 msgid "'rate' must be in the format defined by DRF, such as '100/hour'."
 msgstr ""
 "'räté' müst ßé ïn thé förmät défïnéd ßý DRF, süçh äs '100/höür'. Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/apps/core/models.py
+#: apps/core/models.py
 msgid "Full Name"
 msgstr "Füll Nämé Ⱡ'σяєм ιρѕυм ∂σł#"
 
-#: course_discovery/apps/core/models.py
+#: apps/core/models.py
 msgid "Referral Tracking ID"
 msgstr "Référräl Träçkïng ÌD Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
-#: course_discovery/apps/core/models.py
+#: apps/core/models.py
 msgid ""
 "The rate of requests to limit this user to. The format is specified by "
 "Django Rest Framework (see http://www.django-rest-framework.org/api-"
@@ -173,11 +173,11 @@ msgstr ""
 "νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт "
 "σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт#"
 
-#: course_discovery/apps/core/models.py
+#: apps/core/models.py
 msgid "Short Code"
 msgstr "Shört Çödé Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: course_discovery/apps/core/models.py
+#: apps/core/models.py
 msgid ""
 "Convenient code/slug used to identify this Partner (e.g. for management "
 "commands.)"
@@ -185,96 +185,92 @@ msgstr ""
 "Çönvénïént çödé/slüg üséd tö ïdéntïfý thïs Pärtnér (é.g. för mänägémént "
 "çömmänds.) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
-#: course_discovery/apps/core/models.py
+#: apps/core/models.py
 msgid "Courses API URL"
 msgstr "Çöürsés ÀPÌ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
-#: course_discovery/apps/core/models.py
+#: apps/core/models.py
 msgid "E-Commerce API URL"
 msgstr "É-Çömmérçé ÀPÌ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
-#: course_discovery/apps/core/models.py
+#: apps/core/models.py
 msgid "Organizations API URL"
 msgstr "Örgänïzätïöns ÀPÌ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
-#: course_discovery/apps/core/models.py
+#: apps/core/models.py
 msgid "Programs API URL"
 msgstr "Prögräms ÀPÌ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
-#: course_discovery/apps/core/models.py
+#: apps/core/models.py
 msgid "Marketing Site API URL"
 msgstr "Märkétïng Sïté ÀPÌ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
-#: course_discovery/apps/core/models.py
+#: apps/core/models.py
 msgid "Marketing Site URL"
 msgstr "Märkétïng Sïté ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
-#: course_discovery/apps/core/models.py
+#: apps/core/models.py
 msgid "Marketing Site API Username"
 msgstr "Märkétïng Sïté ÀPÌ Ûsérnämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
 
-#: course_discovery/apps/core/models.py
+#: apps/core/models.py
 msgid "Marketing Site API Password"
 msgstr "Märkétïng Sïté ÀPÌ Pässwörd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
 
-#: course_discovery/apps/core/models.py
+#: apps/core/models.py
 msgid "OpenID Connect URL"
 msgstr "ÖpénÌD Çönnéçt ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
-#: course_discovery/apps/core/models.py
+#: apps/core/models.py
 msgid "OpenID Connect Key"
 msgstr "ÖpénÌD Çönnéçt Kéý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
-#: course_discovery/apps/core/models.py
+#: apps/core/models.py
 msgid "OpenID Connect Secret"
 msgstr "ÖpénÌD Çönnéçt Séçrét Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
-#: course_discovery/apps/core/models.py
-#: course_discovery/templates/publisher/course_runs_list.html
-#: course_discovery/templates/publisher/course_runs_list.html
+#: apps/core/models.py templates/publisher/course_runs_list.html
 msgid "Partner"
 msgstr "Pärtnér Ⱡ'σяєм ιρѕυм #"
 
-#: course_discovery/apps/core/models.py
+#: apps/core/models.py
 msgid "Partners"
 msgstr "Pärtnérs Ⱡ'σяєм ιρѕυм ∂#"
 
-#: course_discovery/apps/course_metadata/choices.py
-#: course_discovery/apps/publisher/models.py
+#: apps/course_metadata/choices.py apps/publisher/models.py
 msgid "Published"
 msgstr "Püßlïshéd Ⱡ'σяєм ιρѕυм ∂σł#"
 
-#: course_discovery/apps/course_metadata/choices.py
-#: course_discovery/apps/course_metadata/choices.py
+#: apps/course_metadata/choices.py
 msgid "Unpublished"
 msgstr "Ûnpüßlïshéd Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #. Translators: Instructor-paced refers to course runs that operate on a
 #. schedule set by the instructor,
 #. similar to a normal university course.
-#: course_discovery/apps/course_metadata/choices.py
+#: apps/course_metadata/choices.py
 msgid "Instructor-paced"
 msgstr "Ìnstrüçtör-päçéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #. Translators: Self-paced refers to course runs that operate on the student's
 #. schedule.
-#: course_discovery/apps/course_metadata/choices.py
+#: apps/course_metadata/choices.py
 msgid "Self-paced"
 msgstr "Sélf-päçéd Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: course_discovery/apps/course_metadata/choices.py
+#: apps/course_metadata/choices.py
 msgid "Active"
 msgstr "Àçtïvé Ⱡ'σяєм ιρѕυ#"
 
-#: course_discovery/apps/course_metadata/choices.py
+#: apps/course_metadata/choices.py
 msgid "Retired"
 msgstr "Rétïréd Ⱡ'σяєм ιρѕυм #"
 
-#: course_discovery/apps/course_metadata/choices.py
+#: apps/course_metadata/choices.py
 msgid "Deleted"
 msgstr "Délétéd Ⱡ'σяєм ιρѕυм #"
 
-#: course_discovery/apps/course_metadata/forms.py
+#: apps/course_metadata/forms.py
 msgid ""
 "Programs can only be activated if they have a marketing slug and a banner "
 "image."
@@ -282,48 +278,43 @@ msgstr ""
 "Prögräms çän önlý ßé äçtïvätéd ïf théý hävé ä märkétïng slüg änd ä ßännér "
 "ïmägé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "Facebook"
 msgstr "Fäçéßöök Ⱡ'σяєм ιρѕυм ∂#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "Twitter"
 msgstr "Twïttér Ⱡ'σяєм ιρѕυм #"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "Blog"
 msgstr "Blög Ⱡ'σяєм ι#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "Others"
 msgstr "Öthérs Ⱡ'σяєм ιρѕυ#"
 
-#: course_discovery/apps/course_metadata/models.py
-#: course_discovery/apps/course_metadata/models.py
-#: course_discovery/apps/course_metadata/models.py
-#: course_discovery/apps/course_metadata/models.py
-#: course_discovery/apps/course_metadata/models.py
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "UUID"
 msgstr "ÛÛÌD Ⱡ'σяєм ι#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "Leave this field blank to have the value generated automatically."
 msgstr ""
 "Léävé thïs fïéld ßlänk tö hävé thé välüé générätéd äütömätïçällý. Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "People"
 msgstr "Péöplé Ⱡ'σяєм ιρѕυ#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
 msgstr ""
 "Çöürsé nümßér förmät é.g ÇS002x, BÌÖ1.1x, BÌÖ1.2x Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid ""
 "Title specific for this run of a course. Leave this value blank to default "
 "to the parent course's title."
@@ -331,7 +322,7 @@ msgstr ""
 "Tïtlé spéçïfïç för thïs rün öf ä çöürsé. Léävé thïs välüé ßlänk tö défäült "
 "tö thé pärént çöürsé's tïtlé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid ""
 "Short description specific for this run of a course. Leave this value blank "
 "to default to the parent course's short_description attribute."
@@ -345,7 +336,7 @@ msgstr ""
 "¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
 "ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαв#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid ""
 "Full description specific for this run of a course. Leave this value blank "
 "to default to the parent course's full_description attribute."
@@ -359,77 +350,71 @@ msgstr ""
 "¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
 "ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαвσя#"
 
-#: course_discovery/apps/course_metadata/models.py
-#: course_discovery/apps/publisher/models.py
+#: apps/course_metadata/models.py apps/publisher/models.py
 msgid ""
 "Estimated minimum number of hours per week needed to complete a course run."
 msgstr ""
 "Éstïmätéd mïnïmüm nümßér öf höürs pér wéék néédéd tö çömplété ä çöürsé rün. "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
 
-#: course_discovery/apps/course_metadata/models.py
-#: course_discovery/apps/publisher/models.py
+#: apps/course_metadata/models.py apps/publisher/models.py
 msgid ""
 "Estimated maximum number of hours per week needed to complete a course run."
 msgstr ""
 "Éstïmätéd mäxïmüm nümßér öf höürs pér wéék néédéd tö çömplété ä çöürsé rün. "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "Estimated number of weeks needed to complete this course run."
 msgstr ""
 "Éstïmätéd nümßér öf wééks néédéd tö çömplété thïs çöürsé rün. Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "Archived"
 msgstr "Àrçhïvéd Ⱡ'σяєм ιρѕυм ∂#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "Current"
 msgstr "Çürrént Ⱡ'σяєм ιρѕυм #"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "Starting Soon"
 msgstr "Stärtïng Söön Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "Upcoming"
 msgstr "Ûpçömïng Ⱡ'σяєм ιρѕυм ∂#"
 
-#: course_discovery/apps/course_metadata/models.py
-#: course_discovery/apps/publisher/models.py
+#: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Honor"
 msgstr "Hönör Ⱡ'σяєм ιρѕ#"
 
-#: course_discovery/apps/course_metadata/models.py
-#: course_discovery/apps/publisher/models.py
+#: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Audit"
 msgstr "Àüdït Ⱡ'σяєм ιρѕ#"
 
-#: course_discovery/apps/course_metadata/models.py
-#: course_discovery/apps/publisher/models.py
+#: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Verified"
 msgstr "Vérïfïéd Ⱡ'σяєм ιρѕυм ∂#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "Professional"
 msgstr "Pröféssïönäl Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: course_discovery/apps/course_metadata/models.py
-#: course_discovery/apps/publisher/models.py
+#: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Credit"
 msgstr "Çrédït Ⱡ'σяєм ιρѕυ#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "FAQ"
 msgstr "FÀQ Ⱡ'σяєм#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "FAQs"
 msgstr "FÀQs Ⱡ'σяєм ι#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid ""
 "Seat types that qualify for completion of programs of this type. Learners "
 "completing associated courses, but enrolled in other seat types, will NOT "
@@ -445,31 +430,31 @@ msgstr ""
 "¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт"
 " єѕѕє ¢ιłłυм ∂σłσяє є#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "The user-facing display title for this Program."
 msgstr ""
 "Thé üsér-fäçïng dïspläý tïtlé för thïs Prögräm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
 " ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "A brief, descriptive subtitle for the Program."
 msgstr ""
 "À ßrïéf, désçrïptïvé süßtïtlé för thé Prögräm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя α#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "The lifecycle status of this Program."
 msgstr ""
 "Thé lïféçýçlé stätüs öf thïs Prögräm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "Slug used to generate links to the marketing site"
 msgstr ""
 "Slüg üséd tö généräté lïnks tö thé märkétïng sïté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid ""
 "If this box is not checked, courses will be ordered as in the courses select"
 " box above."
@@ -477,7 +462,7 @@ msgstr ""
 "Ìf thïs ßöx ïs nöt çhéçkéd, çöürsés wïll ßé ördéréd äs ïn thé çöürsés séléçt"
 " ßöx äßövé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid ""
 "This field is now deprecated (ECOM-6021).Estimated number of weeks needed to"
 " complete a course run belonging to this program."
@@ -485,140 +470,134 @@ msgstr ""
 "Thïs fïéld ïs nöw dépréçätéd (ÉÇÖM-6021).Éstïmätéd nümßér öf wééks néédéd tö"
 " çömplété ä çöürsé rün ßélöngïng tö thïs prögräm. Ⱡ'σяєм #"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "Image used atop detail pages"
 msgstr "Ìmägé üséd ätöp détäïl pägés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "Image used for discovery cards"
 msgstr "Ìmägé üséd för dïsçövérý çärds Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
-#: course_discovery/apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "The description of credit redemption for courses in program"
 msgstr ""
 "Thé désçrïptïön öf çrédït rédémptïön för çöürsés ïn prögräm Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/apps/edx_haystack_extensions/models.py
+#: apps/edx_haystack_extensions/models.py
 msgid "Function Score"
 msgstr "Fünçtïön Sçöré Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
-#: course_discovery/apps/edx_haystack_extensions/models.py
+#: apps/edx_haystack_extensions/models.py
 msgid "JSON string containing an elasticsearch function score config."
 msgstr ""
 "JSÖN strïng çöntäïnïng än élästïçséärçh fünçtïön sçöré çönfïg. Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/apps/publisher/forms.py
-#: course_discovery/apps/publisher/forms.py
+#: apps/publisher/forms.py
 msgid "Yes"
 msgstr "Ýés Ⱡ'σяєм#"
 
-#: course_discovery/apps/publisher/forms.py
-#: course_discovery/apps/publisher/forms.py
+#: apps/publisher/forms.py
 msgid "No"
 msgstr "Nö Ⱡ'σя#"
 
-#: course_discovery/apps/publisher/forms.py
+#: apps/publisher/forms.py
 msgid "Only honor/audit seats can be without price."
 msgstr ""
 "Önlý hönör/äüdït séäts çän ßé wïthöüt prïçé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid "Draft"
 msgstr "Dräft Ⱡ'σяєм ιρѕ#"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid "Needs Review"
 msgstr "Nééds Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid "Needs Final Approval"
 msgstr "Nééds Fïnäl Àppröväl Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid "Finalized"
 msgstr "Fïnälïzéd Ⱡ'σяєм ιρѕυм ∂σł#"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid "Course title"
 msgstr "Çöürsé tïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid "Course number"
 msgstr "Çöürsé nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
-#: course_discovery/apps/publisher/models.py
-#: course_discovery/templates/publisher/add_course_form.html
+#: apps/publisher/models.py templates/publisher/add_course_form.html
 msgid "Brief Description"
 msgstr "Brïéf Désçrïptïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid "Full Description"
 msgstr "Füll Désçrïptïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
-#: course_discovery/apps/publisher/models.py
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: apps/publisher/models.py templates/publisher/course_run_detail/_all.html
 msgid "Partner Name"
 msgstr "Pärtnér Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid "Level Type"
 msgstr "Lévél Týpé Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid "Expected Learnings"
 msgstr "Éxpéçtéd Léärnïngs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
-#: course_discovery/apps/publisher/models.py
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: apps/publisher/models.py templates/publisher/course_run_detail/_all.html
 msgid "Prerequisites"
 msgstr "Préréqüïsïtés Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid "Verification deadline"
 msgstr "Vérïfïçätïön déädlïné Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid ""
 "Last date/time on which verification for this product can be submitted."
 msgstr ""
 "Läst däté/tïmé ön whïçh vérïfïçätïön för thïs prödüçt çän ßé süßmïttéd. "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid "Level 1"
 msgstr "Lévél 1 Ⱡ'σяєм ιρѕυм #"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid "Level 2"
 msgstr "Lévél 2 Ⱡ'σяєм ιρѕυм #"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid "Level 3"
 msgstr "Lévél 3 Ⱡ'σяєм ιρѕυм #"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid "Level 4"
 msgstr "Lévél 4 Ⱡ'σяєм ιρѕυм #"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid "Level 5"
 msgstr "Lévél 5 Ⱡ'σяєм ιρѕυм #"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid "Content Language"
 msgstr "Çöntént Längüägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
-#: course_discovery/apps/publisher/models.py
-#: course_discovery/templates/publisher/add_course_form.html
+#: apps/publisher/models.py templates/publisher/add_course_form.html
 msgid "Length of course, in number of weeks"
 msgstr ""
 "Léngth öf çöürsé, ïn nümßér öf wééks Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid ""
 "Please add any additional notes or special instructions for the course About"
 " Page."
@@ -626,205 +605,192 @@ msgstr ""
 "Pléäsé ädd äný äddïtïönäl nötés ör spéçïäl ïnstrüçtïöns för thé çöürsé Àßöüt"
 " Pägé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid "Comma separated list of edX usernames or emails of admins."
 msgstr ""
 "Çömmä sépärätéd lïst öf édX üsérnämés ör émäïls öf ädmïns. Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid "Comma separated list of edX usernames or emails of additional staff."
 msgstr ""
 "Çömmä sépärätéd lïst öf édX üsérnämés ör émäïls öf äddïtïönäl stäff. Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid "Professional (with ID verification)"
 msgstr ""
 "Pröféssïönäl (wïth ÌD vérïfïçätïön) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
 
-#: course_discovery/apps/publisher/models.py
+#: apps/publisher/models.py
 msgid "Professional (no ID verifiation)"
 msgstr ""
 "Pröféssïönäl (nö ÌD vérïfïätïön) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
-#: course_discovery/apps/publisher/views.py
+#: apps/publisher/views.py
 msgid "Course created successfully."
 msgstr "Çöürsé çréätéd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
-#: course_discovery/apps/publisher/views.py
+#: apps/publisher/views.py
 msgid "Please fill all required field."
 msgstr "Pléäsé fïll äll réqüïréd fïéld. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
-#: course_discovery/apps/publisher/views.py
+#: apps/publisher/views.py
 #, python-brace-format
 msgid "Content moved to `{state}` successfully."
 msgstr ""
 "Çöntént mövéd tö `{state}` süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
 
-#: course_discovery/apps/publisher/views.py
+#: apps/publisher/views.py
 msgid "There was an error in changing state."
 msgstr ""
 "Théré wäs än érrör ïn çhängïng stäté. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
 
-#: course_discovery/apps/publisher/wrappers.py
+#: apps/publisher/wrappers.py
 msgid "Send For Review"
 msgstr "Sénd För Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
-#: course_discovery/apps/publisher/wrappers.py
+#: apps/publisher/wrappers.py
 msgid "Send For Final Approval"
 msgstr "Sénd För Fïnäl Àppröväl Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
-#: course_discovery/apps/publisher/wrappers.py
+#: apps/publisher/wrappers.py
 msgid "Finalize"
 msgstr "Fïnälïzé Ⱡ'σяєм ιρѕυм ∂#"
 
-#: course_discovery/apps/publisher/wrappers.py
+#: apps/publisher/wrappers.py
 msgid "Publish"
 msgstr "Püßlïsh Ⱡ'σяєм ιρѕυм #"
 
-#: course_discovery/apps/publisher_comments/models.py
+#: apps/publisher_comments/models.py
 msgid "modified"
 msgstr "mödïfïéd Ⱡ'σяєм ιρѕυм ∂#"
 
-#: course_discovery/templates/base.html
+#: templates/base.html
 msgid "Course Runs"
 msgstr "Çöürsé Rüns Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
-#: course_discovery/templates/base.html
+#: templates/base.html
 msgid "Courses"
 msgstr "Çöürsés Ⱡ'σяєм ιρѕυм #"
 
-#: course_discovery/templates/comments/add_auth_comments.html
+#: templates/comments/add_auth_comments.html
 msgid "Add new comment"
 msgstr "Àdd néw çömmént Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
-#: course_discovery/templates/comments/comments_list.html
+#: templates/comments/comments_list.html
 #, python-format
-msgid ""
-"\n"
-"            Total Comments %(comment_count)s\n"
-"        "
-msgstr ""
-"\n"
-"            Tötäl Çömménts %(comment_count)s\n"
-"         Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
+msgid "Total Comments %(comment_count)s"
+msgstr "Tötäl Çömménts %(comment_count)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
-#: course_discovery/templates/comments/edit_comment.html
-#: course_discovery/templates/publisher/course_run_form.html
-#: course_discovery/templates/publisher/course_run_form.html
+#: templates/comments/edit_comment.html
+#: templates/publisher/course_run_form.html
 msgid "Course Run Form"
 msgstr "Çöürsé Rün Förm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
-#: course_discovery/templates/comments/edit_comment.html
+#: templates/comments/edit_comment.html
 msgid "Edit Comment"
 msgstr "Édït Çömmént Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: course_discovery/templates/comments/edit_comment.html
-#: course_discovery/templates/publisher/course_form.html
-#: course_discovery/templates/publisher/course_run_form.html
-#: course_discovery/templates/publisher/seat_form.html
+#: templates/comments/edit_comment.html templates/publisher/course_form.html
+#: templates/publisher/course_run_form.html templates/publisher/seat_form.html
 msgid "Save"
 msgstr "Sävé Ⱡ'σяєм ι#"
 
-#: course_discovery/templates/footer.html
+#: templates/footer.html
 msgid "Terms of Service"
 msgstr "Térms öf Sérvïçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
-#: course_discovery/templates/footer.html
+#: templates/footer.html
 msgid "Privacy Policy"
 msgstr "Prïväçý Pölïçý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
-#: course_discovery/templates/footer.html
+#: templates/footer.html
 msgid "Legal"
 msgstr "Légäl Ⱡ'σяєм ιρѕ#"
 
-#: course_discovery/templates/footer.html
+#: templates/footer.html
 #, python-format
 msgid ""
-"\n"
-"                        EdX, Open edX, Publisher, and the edX and Open edX logos are registered trademarks or trademarks of %(link_start)sedX Inc.%(link_end)s\n"
-"                    "
+"EdX, Open edX, Publisher, and the edX and Open edX logos are registered "
+"trademarks or trademarks of %(link_start)sedX Inc.%(link_end)s"
 msgstr ""
-"\n"
-"                        ÉdX, Öpén édX, Püßlïshér, änd thé édX änd Öpén édX lögös äré régïstéréd trädémärks ör trädémärks öf %(link_start)sédX Ìnç.%(link_end)s\n"
-"                     Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυ#"
+"ÉdX, Öpén édX, Püßlïshér, änd thé édX änd Öpén édX lögös äré régïstéréd "
+"trädémärks ör trädémärks öf %(link_start)sédX Ìnç.%(link_end)s Ⱡ'σяєм ιρѕυм "
+"∂σł#"
 
-#: course_discovery/templates/footer.html
-#: course_discovery/templates/footer.html
+#: templates/footer.html
 msgid "Powered by Open edX"
 msgstr "Pöwéréd ßý Öpén édX Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
-#: course_discovery/templates/header.html
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/header.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Account"
 msgstr "Àççöünt Ⱡ'σяєм ιρѕυм #"
 
-#: course_discovery/templates/header.html
+#: templates/header.html
 msgid "Account Navigation"
 msgstr "Àççöünt Nävïgätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
-#: course_discovery/templates/header.html
+#: templates/header.html
 msgid "Contextual Online Help"
 msgstr "Çöntéxtüäl Önlïné Hélp Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
-#: course_discovery/templates/header.html
+#: templates/header.html
 msgid "Help"
 msgstr "Hélp Ⱡ'σяєм ι#"
 
-#: course_discovery/templates/header.html
+#: templates/header.html
 msgid "Email notifications"
 msgstr "Émäïl nötïfïçätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
-#: course_discovery/templates/header.html
+#: templates/header.html
 msgid "ON"
 msgstr "ÖN Ⱡ'σя#"
 
-#: course_discovery/templates/header.html
+#: templates/header.html
 msgid "OFF"
 msgstr "ÖFF Ⱡ'σяєм#"
 
-#: course_discovery/templates/header.html
+#: templates/header.html
 msgid "Sign Out"
 msgstr "Sïgn Öüt Ⱡ'σяєм ιρѕυм ∂#"
 
-#: course_discovery/templates/metadata/admin/course_run.html
+#: templates/metadata/admin/course_run.html
 msgid "CourseRun Selection Form"
 msgstr "ÇöürséRün Séléçtïön Förm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
-#: course_discovery/templates/metadata/admin/course_run.html
+#: templates/metadata/admin/course_run.html
 msgid "Cancel"
 msgstr "Çänçél Ⱡ'σяєм ιρѕυ#"
 
-#: course_discovery/templates/metadata/admin/course_run.html
+#: templates/metadata/admin/course_run.html
 msgid "Back to Program"
 msgstr "Bäçk tö Prögräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
-#: course_discovery/templates/metadata/admin/course_run.html
+#: templates/metadata/admin/course_run.html
 msgid "Save Course Run"
 msgstr "Sävé Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
-#: course_discovery/templates/publisher/add_course_form.html
-#: course_discovery/templates/publisher/course_form.html
-#: course_discovery/templates/publisher/course_form.html
-#: course_discovery/templates/publisher/view_course_form.html
-#: course_discovery/templates/publisher/view_course_form.html
+#: templates/publisher/add_course_form.html
+#: templates/publisher/course_form.html
+#: templates/publisher/view_course_form.html
 msgid "Course Form"
 msgstr "Çöürsé Förm Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
-#: course_discovery/templates/publisher/add_course_form.html
-#: course_discovery/templates/publisher/view_course_form.html
+#: templates/publisher/add_course_form.html
+#: templates/publisher/view_course_form.html
 msgid "Base information"
 msgstr "Bäsé ïnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
-#: course_discovery/templates/publisher/add_course_form.html
-#: course_discovery/templates/publisher/view_course_form.html
+#: templates/publisher/add_course_form.html
+#: templates/publisher/view_course_form.html
 msgid "INSTITUTION INFORMATION"
 msgstr "ÌNSTÌTÛTÌÖN ÌNFÖRMÀTÌÖN Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "Please choose the school that will be providing the course. Once chosen then"
 " you can select an administrator for the studio shell."
@@ -832,46 +798,41 @@ msgstr ""
 "Pléäsé çhöösé thé sçhööl thät wïll ßé prövïdïng thé çöürsé. Önçé çhösén thén"
 " ýöü çän séléçt än ädmïnïsträtör för thé stüdïö shéll. Ⱡ'#"
 
-#: course_discovery/templates/publisher/add_course_form.html
-#: course_discovery/templates/publisher/add_course_form.html
-#: course_discovery/templates/publisher/add_course_form.html
-#: course_discovery/templates/publisher/add_course_form.html
-#: course_discovery/templates/publisher/add_course_form.html
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "required"
 msgstr "réqüïréd Ⱡ'σяєм ιρѕυм ∂#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Course Title"
 msgstr "Çöürsé Tïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Best Practices"
 msgstr "Bést Präçtïçés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Example"
 msgstr "Éxämplé Ⱡ'σяєм ιρѕυм #"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Concise 70 characters maximum; < 50 chars. recommended."
 msgstr ""
 "Çönçïsé 70 çhäräçtérs mäxïmüm; < 50 çhärs. réçömméndéd. Ⱡ'σяєм ιρѕυм ∂σłσя "
 "ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Descriptive - clearly indicates what the course is about."
 msgstr ""
 "Désçrïptïvé - çléärlý ïndïçätés whät thé çöürsé ïs äßöüt. Ⱡ'σяєм ιρѕυм ∂σłσя"
 " ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "SEO-optimized and targeted to a global audience."
 msgstr ""
 "SÉÖ-öptïmïzéd änd tärgétéd tö ä glößäl äüdïénçé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "If the course falls in a sequence, our titling convention is: \"Course "
 "Title: Subtitle\""
@@ -879,36 +840,36 @@ msgstr ""
 "Ìf thé çöürsé fälls ïn ä séqüénçé, öür tïtlïng çönvéntïön ïs: \"Çöürsé "
 "Tïtlé: Süßtïtlé\" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "English Grammar and Essay Writing Sequence Courses:"
 msgstr ""
 "Énglïsh Grämmär änd Éssäý Wrïtïng Séqüénçé Çöürsés: Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Introduction to Statistics"
 msgstr "Ìntrödüçtïön tö Stätïstïçs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Statistics: Inference"
 msgstr "Stätïstïçs: Ìnférénçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Statistics: Probability"
 msgstr "Stätïstïçs: Prößäßïlïtý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Priority content"
 msgstr "Prïörïtý çöntént Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
-#: course_discovery/templates/publisher/add_course_form.html
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
-#: course_discovery/templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/add_course_form.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
 msgid "Start Date"
 msgstr "Stärt Däté Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "Start on a weekday (preferably Tuesday, Wednesday, or Thursday) and avoid "
 "major U.S. holidays for best access to edX staff."
@@ -916,7 +877,7 @@ msgstr ""
 "Stärt ön ä wéékdäý (préféräßlý Tüésdäý, Wédnésdäý, ör Thürsdäý) änd ävöïd "
 "mäjör Û.S. hölïdäýs för ßést äççéss tö édX stäff. Ⱡ'σяєм ιρ#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "Approximate dates are acceptable; If you are unable to give an exact date, "
 "please identify a month in which the course will be offered."
@@ -930,24 +891,24 @@ msgstr ""
 "¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
 "ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαвσяυ#"
 
-#: course_discovery/templates/publisher/add_course_form.html
-#: course_discovery/templates/publisher/course_run_detail/_all.html
-#: course_discovery/templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/add_course_form.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_studio.html
 msgid "Pacing Type"
 msgstr "Päçïng Týpé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "Will your course be open to students at the same time as it is announced?"
 msgstr ""
 "Wïll ýöür çöürsé ßé öpén tö stüdénts ät thé sämé tïmé äs ït ïs ännöünçéd? "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Course Number"
 msgstr "Çöürsé Nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "Courses split into several modules can be denoted by adding .1, .2, etc. at "
 "the end of the course number before the “x”"
@@ -955,7 +916,7 @@ msgstr ""
 "Çöürsés splït ïntö sévéräl mödülés çän ßé dénötéd ßý äddïng .1, .2, étç. ät "
 "thé énd öf thé çöürsé nümßér ßéföré thé “x” Ⱡ'σяєм ιρѕυм#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "No special html characters, accents, spaces, dashes, or underscores 10 "
 "character limit"
@@ -963,19 +924,18 @@ msgstr ""
 "Nö spéçïäl html çhäräçtérs, äççénts, späçés, däshés, ör ündérsçörés 10 "
 "çhäräçtér lïmït Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "About page information"
 msgstr "Àßöüt pägé ïnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
-#: course_discovery/templates/publisher/add_course_form.html
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
-#: course_discovery/templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/add_course_form.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
 msgid "End Date"
 msgstr "Énd Däté Ⱡ'σяєм ιρѕυм ∂#"
 
-#: course_discovery/templates/publisher/add_course_form.html
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "The date when this self-paced course run will end, replaced by an updated "
 "version of the course"
@@ -983,12 +943,12 @@ msgstr ""
 "Thé däté whén thïs sélf-päçéd çöürsé rün wïll énd, répläçéd ßý än üpdätéd "
 "vérsïön öf thé çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
-#: course_discovery/templates/publisher/add_course_form.html
-#: course_discovery/templates/publisher/course_run_detail/_seats.html
+#: templates/publisher/add_course_form.html
+#: templates/publisher/course_run_detail/_seats.html
 msgid "Seat Type"
 msgstr "Séät Týpé Ⱡ'σяєм ιρѕυм ∂σł#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "Reads as a tag line - a short, engaging description for students browsing "
 "course listings"
@@ -996,36 +956,35 @@ msgstr ""
 "Réäds äs ä täg lïné - ä shört, éngägïng désçrïptïön för stüdénts ßröwsïng "
 "çöürsé lïstïngs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Conveys why someone should take the course"
 msgstr ""
 "Çönvéýs whý söméöné shöüld täké thé çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
 
-#: course_discovery/templates/publisher/add_course_form.html
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "SEO optimized and targeted to a global audience"
 msgstr ""
 "SÉÖ öptïmïzéd änd tärgétéd tö ä glößäl äüdïénçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
 " ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "FULL DESCRIPTION"
 msgstr "FÛLL DÉSÇRÌPTÌÖN Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Summarized description of course content"
 msgstr ""
 "Sümmärïzéd désçrïptïön öf çöürsé çöntént Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Describe why a learner should take this course"
 msgstr ""
 "Désçrïßé whý ä léärnér shöüld täké thïs çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя α#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "Text should be easily scannable, using bullet points to highlight instead of"
 " long, dense text paragraphs"
@@ -1033,7 +992,7 @@ msgstr ""
 "Téxt shöüld ßé éäsïlý sçännäßlé, üsïng ßüllét pöïnts tö hïghlïght ïnstéäd öf"
 " löng, dénsé téxt pärägräphs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "Note: the first 4-5 lines will be visible to the learner immediately upon "
 "clicking the page;"
@@ -1041,7 +1000,7 @@ msgstr ""
 "Nöté: thé fïrst 4-5 lïnés wïll ßé vïsïßlé tö thé léärnér ïmmédïätélý üpön "
 "çlïçkïng thé pägé; Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "additional text will be hidden yet available via \"See More\" clickable text"
 " under the first 4-5 lines"
@@ -1049,27 +1008,27 @@ msgstr ""
 "äddïtïönäl téxt wïll ßé hïddén ýét äväïläßlé vïä \"Séé Möré\" çlïçkäßlé téxt"
 " ündér thé fïrst 4-5 lïnés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "EXPECTED LEARNINGS"
 msgstr "ÉXPÉÇTÉD LÉÀRNÌNGS Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Answer to the question: \"What will you learn from this course?\""
 msgstr ""
 "Ànswér tö thé qüéstïön: \"Whät wïll ýöü léärn fröm thïs çöürsé?\" Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "bulleted items, approximately 4-10 words per bullet"
 msgstr ""
 "ßüllétéd ïtéms, äppröxïmätélý 4-10 wörds pér ßüllét Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "COURSE STAFF"
 msgstr "ÇÖÛRSÉ STÀFF Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "If there is more than one instructor, please indicate the order in which the"
 " instructors should be listed"
@@ -1077,25 +1036,25 @@ msgstr ""
 "Ìf théré ïs möré thän öné ïnstrüçtör, pléäsé ïndïçäté thé ördér ïn whïçh thé"
 " ïnstrüçtörs shöüld ßé lïstéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт #"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Limited to the primary instructors a learner will encounter in videos"
 msgstr ""
 "Lïmïtéd tö thé prïmärý ïnstrüçtörs ä léärnér wïll énçöüntér ïn vïdéös Ⱡ'σяєм"
 " ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "KEYWORDS"
 msgstr "KÉÝWÖRDS Ⱡ'σяєм ιρѕυм ∂#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Some instructions here???"
 msgstr "Sömé ïnstrüçtïöns héré??? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "SUBJECT FIELD"
 msgstr "SÛBJÉÇT FÌÉLD Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "Only one primary subject will appear on the About Page; please select one "
 "primary subject and a maximum of two additional subject areas for search."
@@ -1109,11 +1068,11 @@ msgstr ""
 "¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
 "ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм #"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "COURSE IMAGE"
 msgstr "ÇÖÛRSÉ ÌMÀGÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "Select an eye-catching, colorful image that captures the content and essence"
 " of your course"
@@ -1121,24 +1080,24 @@ msgstr ""
 "Séléçt än éýé-çätçhïng, çölörfül ïmägé thät çäptürés thé çöntént änd éssénçé"
 " öf ýöür çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Do not include text or headlines"
 msgstr ""
 "Dö nöt ïnçlüdé téxt ör héädlïnés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Choose an image that you have permission to use."
 msgstr ""
 "Çhöösé än ïmägé thät ýöü hävé pérmïssïön tö üsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "This can be a stock photo (try Flickr creative commons, "
 msgstr ""
 "Thïs çän ßé ä stöçk phötö (trý Flïçkr çréätïvé çömmöns,  Ⱡ'σяєм ιρѕυм ∂σłσя "
 "ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "Stock Vault, Stock XCHNG, iStock Photo) or an image custom designed for your"
 " course"
@@ -1146,21 +1105,21 @@ msgstr ""
 "Stöçk Väült, Stöçk XÇHNG, ïStöçk Phötö) ör än ïmägé çüstöm désïgnéd för ýöür"
 " çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Sequenced courses should each have a unique image"
 msgstr ""
 "Séqüénçéd çöürsés shöüld éäçh hävé ä ünïqüé ïmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Size: 2120 x 1192 pixels"
 msgstr "Sïzé: 2120 x 1192 pïxéls Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "PREREQUISITES"
 msgstr "PRÉRÉQÛÌSÌTÉS Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "List concepts and level (basic, advanced, undergraduate, graduate) students "
 "should be familiar with"
@@ -1168,23 +1127,23 @@ msgstr ""
 "Lïst çönçépts änd lévél (ßäsïç, ädvänçéd, ündérgrädüäté, grädüäté) stüdénts "
 "shöüld ßé fämïlïär wïth Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "If there are no prerequisites, please list \"None.\""
 msgstr ""
 "Ìf théré äré nö préréqüïsïtés, pléäsé lïst \"Nöné.\" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "200 character limit, including spaces"
 msgstr ""
 "200 çhäräçtér lïmït, ïnçlüdïng späçés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "ESTIMATED EFFORT"
 msgstr "ÉSTÌMÀTÉD ÉFFÖRT Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "Number of hours per week the learner should expect to spend on the course to"
 " be successful"
@@ -1192,63 +1151,63 @@ msgstr ""
 "Nümßér öf höürs pér wéék thé léärnér shöüld éxpéçt tö spénd ön thé çöürsé tö"
 " ßé süççéssfül Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Should be realistic, and can be a range"
 msgstr ""
 "Shöüld ßé réälïstïç, änd çän ßé ä rängé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Min Effort"
 msgstr "Mïn Éffört Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Max Effort"
 msgstr "Mäx Éffört Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "LANGUAGE(S)"
 msgstr "LÀNGÛÀGÉ(S) Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Course content (navigation and course content excluding videos)"
 msgstr ""
 "Çöürsé çöntént (nävïgätïön änd çöürsé çöntént éxçlüdïng vïdéös) Ⱡ'σяєм ιρѕυм"
 " ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Videos (language spoken in course videos)"
 msgstr ""
 "Vïdéös (längüägé spökén ïn çöürsé vïdéös) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Video transcript (video caption language)"
 msgstr ""
 "Vïdéö tränsçrïpt (vïdéö çäptïön längüägé) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "LENGTH"
 msgstr "LÉNGTH Ⱡ'σяєм ιρѕυ#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "If the time between start/end dates is not exact, ex: 8.5 weeks, "
 msgstr ""
 "Ìf thé tïmé ßétwéén stärt/énd dätés ïs nöt éxäçt, éx: 8.5 wééks,  Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "indicate whether the course should be listed as 8 weeks or 9 weeks."
 msgstr ""
 "ïndïçäté whéthér thé çöürsé shöüld ßé lïstéd äs 8 wééks ör 9 wééks. Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "LEVEL TYPE"
 msgstr "LÉVÉL TÝPÉ Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "Introductory - No prerequisites; an individual with some to all of a "
 "secondary school degree could complete"
@@ -1256,7 +1215,7 @@ msgstr ""
 "Ìntrödüçtörý - Nö préréqüïsïtés; än ïndïvïdüäl wïth sömé tö äll öf ä "
 "séçöndärý sçhööl dégréé çöüld çömplété Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "Intermediate - Basic prerequisites; a secondary school degree likely "
 "required to be successful as well as some university"
@@ -1264,7 +1223,7 @@ msgstr ""
 "Ìntérmédïäté - Bäsïç préréqüïsïtés; ä séçöndärý sçhööl dégréé lïkélý "
 "réqüïréd tö ßé süççéssfül äs wéll äs sömé ünïvérsïtý Ⱡ'σяєм ιρѕυ#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid ""
 "Advanced - Significant number of prerequisites required; course geared to "
 "3rd or 4th year university student or a masters degree student"
@@ -1278,465 +1237,456 @@ msgstr ""
 "¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
 "ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαвσя#"
 
-#: course_discovery/templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html
 msgid "Save Draft"
 msgstr "Sävé Dräft Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: course_discovery/templates/publisher/course_form.html
+#: templates/publisher/course_form.html
 msgid "Add Course Run"
 msgstr "Àdd Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
-#: course_discovery/templates/publisher/course_run_detail.html
+#: templates/publisher/course_run_detail.html
 msgid "Course Run Detail"
 msgstr "Çöürsé Rün Détäïl Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
-#: course_discovery/templates/publisher/course_run_detail.html
+#: templates/publisher/course_run_detail.html
 msgid "All"
 msgstr "Àll Ⱡ'σяєм#"
 
-#: course_discovery/templates/publisher/course_run_detail.html
+#: templates/publisher/course_run_detail.html
 msgid "STUDIO"
 msgstr "STÛDÌÖ Ⱡ'σяєм ιρѕυ#"
 
-#: course_discovery/templates/publisher/course_run_detail.html
+#: templates/publisher/course_run_detail.html
 msgid "CAT"
 msgstr "ÇÀT Ⱡ'σяєм#"
 
-#: course_discovery/templates/publisher/course_run_detail.html
+#: templates/publisher/course_run_detail.html
 msgid "DRUPAL"
 msgstr "DRÛPÀL Ⱡ'σяєм ιρѕυ#"
 
-#: course_discovery/templates/publisher/course_run_detail.html
+#: templates/publisher/course_run_detail.html
 msgid "Salesforce"
 msgstr "Sälésförçé Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: course_discovery/templates/publisher/course_run_detail.html
-#: course_discovery/templates/publisher/course_run_form.html
-#: course_discovery/templates/publisher/course_runs_list.html
-#: course_discovery/templates/publisher/course_runs_list.html
+#: templates/publisher/course_run_detail.html
+#: templates/publisher/course_run_form.html
+#: templates/publisher/course_runs_list.html
 msgid "Status"
 msgstr "Stätüs Ⱡ'σяєм ιρѕυ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Title"
 msgstr "Tïtlé Ⱡ'σяєм ιρѕ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
-#: course_discovery/templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
 msgid "Number"
 msgstr "Nümßér Ⱡ'σяєм ιρѕυ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
-#: course_discovery/templates/publisher/course_run_detail/_cat.html
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_cat.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Course ID"
 msgstr "Çöürsé ÌD Ⱡ'σяєм ιρѕυм ∂σł#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Is Re-run?"
 msgstr "Ìs Ré-rün? Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Course Subtitle"
 msgstr "Çöürsé Süßtïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Subjects"
 msgstr "Süßjéçts Ⱡ'σяєм ιρѕυм ∂#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Part of an Xseries?"
 msgstr "Pärt öf än Xsérïés? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Xseries Name"
 msgstr "Xsérïés Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Part of a Micromasters?"
 msgstr "Pärt öf ä Mïçrömästérs? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Micromasters Name"
 msgstr "Mïçrömästérs Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Enrollment Type"
 msgstr "Énröllmént Týpé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
-#: course_discovery/templates/publisher/course_run_detail/_credit_seat.html
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
-#: course_discovery/templates/publisher/course_run_detail/_seats.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_credit_seat.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_seats.html
 msgid "Price"
 msgstr "Prïçé Ⱡ'σяєм ιρѕ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Course Start Date"
 msgstr "Çöürsé Stärt Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Course End Date"
 msgstr "Çöürsé Énd Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Certificate Generation Date Exception Request"
 msgstr ""
 "Çértïfïçäté Générätïön Däté Éxçéptïön Réqüést Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Course Length (weeks)"
 msgstr "Çöürsé Léngth (wééks) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Estimated Effort"
 msgstr "Éstïmätéd Éffört Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "to"
 msgstr "tö Ⱡ'σя#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "hours per week"
 msgstr "höürs pér wéék Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Course Languages"
 msgstr "Çöürsé Längüägés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Video Translation Languages"
 msgstr "Vïdéö Tränslätïön Längüägés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Level"
 msgstr "Çöürsé Lévél Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "About This Course"
 msgstr "Àßöüt Thïs Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "What You'll Learn"
 msgstr "Whät Ýöü'll Léärn Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Learner Testimonial"
 msgstr "Léärnér Téstïmönïäl Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Syllabus"
 msgstr "Sýlläßüs Ⱡ'σяєм ιρѕυм ∂#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Search Engine Optimization Review"
 msgstr ""
 "Séärçh Éngïné Öptïmïzätïön Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Top 10 Keywords"
 msgstr "Töp 10 Kéýwörds Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "edX Username or email address of Course Team Admin(s)"
 msgstr ""
 "édX Ûsérnämé ör émäïl äddréss öf Çöürsé Téäm Àdmïn(s) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
 " αмєт, ¢σηѕє¢тєтυя α#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid ""
 "edX Username or email address of additional course team members (Staff)"
 msgstr ""
 "édX Ûsérnämé ör émäïl äddréss öf äddïtïönäl çöürsé téäm mémßérs (Stäff) "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Additional Notes"
 msgstr "Àddïtïönäl Nötés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
-#: course_discovery/templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Edit"
 msgstr "Édït Ⱡ'σяєм ι#"
 
-#: course_discovery/templates/publisher/course_run_detail/_cat.html
+#: templates/publisher/course_run_detail/_cat.html
 msgid "Course Type"
 msgstr "Çöürsé Týpé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
-#: course_discovery/templates/publisher/course_run_detail/_credit_seat.html
+#: templates/publisher/course_run_detail/_credit_seat.html
 msgid "Credit Seats"
 msgstr "Çrédït Séäts Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_credit_seat.html
+#: templates/publisher/course_run_detail/_credit_seat.html
 msgid "Credit Provider"
 msgstr "Çrédït Prövïdér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
-#: course_discovery/templates/publisher/course_run_detail/_credit_seat.html
-#: course_discovery/templates/publisher/course_run_detail/_seats.html
+#: templates/publisher/course_run_detail/_credit_seat.html
+#: templates/publisher/course_run_detail/_seats.html
 msgid "Currency"
 msgstr "Çürrénçý Ⱡ'σяєм ιρѕυм ∂#"
 
-#: course_discovery/templates/publisher/course_run_detail/_credit_seat.html
+#: templates/publisher/course_run_detail/_credit_seat.html
 msgid "Credit Hours"
 msgstr "Çrédït Höürs Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_credit_seat.html
-#: course_discovery/templates/publisher/course_run_detail/_seats.html
+#: templates/publisher/course_run_detail/_credit_seat.html
+#: templates/publisher/course_run_detail/_seats.html
 msgid "Upgrade Deadline"
 msgstr "Ûpgrädé Déädlïné Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
-#: course_discovery/templates/publisher/course_run_detail/_credit_seat.html
+#: templates/publisher/course_run_detail/_credit_seat.html
 msgid "No Credit Seats Available."
 msgstr "Nö Çrédït Séäts Àväïläßlé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Sub Title"
 msgstr "Süß Tïtlé Ⱡ'σяєм ιρѕυм ∂σł#"
 
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "School"
 msgstr "Sçhööl Ⱡ'σяєм ιρѕυ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Subject"
 msgstr "Süßjéçt Ⱡ'σяєм ιρѕυм #"
 
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "XSeries"
 msgstr "XSérïés Ⱡ'σяєм ιρѕυм #"
 
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Self Paced"
 msgstr "Sélf Päçéd Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Staff"
 msgstr "Stäff Ⱡ'σяєм ιρѕ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Languages"
 msgstr "Längüägés Ⱡ'σяєм ιρѕυм ∂σł#"
 
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Video Translations"
 msgstr "Vïdéö Tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Level"
 msgstr "Lévél Ⱡ'σяєм ιρѕ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "About this Course"
 msgstr "Àßöüt thïs Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "What you'll learn"
 msgstr "Whät ýöü'll léärn Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Prerequisite"
 msgstr "Préréqüïsïté Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Keywords"
 msgstr "Kéýwörds Ⱡ'σяєм ιρѕυм ∂#"
 
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Sponsors"
 msgstr "Spönsörs Ⱡ'σяєм ιρѕυм ∂#"
 
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Enrollments"
 msgstr "Énröllménts Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
-#: course_discovery/templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Seats"
 msgstr "Séäts Ⱡ'σяєм ιρѕ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Course"
 msgstr "Çöürsé Ⱡ'σяєм ιρѕυ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Authored in Studio?"
 msgstr "Àüthöréd ïn Stüdïö? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Multiple Partner Course?"
 msgstr "Mültïplé Pärtnér Çöürsé? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Subject Area"
 msgstr "Süßjéçt Àréä Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Language: Course Text"
 msgstr "Längüägé: Çöürsé Téxt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Language: Transcripts"
 msgstr "Längüägé: Tränsçrïpts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Language: Video"
 msgstr "Längüägé: Vïdéö Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Run"
 msgstr "Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "New or Rerun?"
 msgstr "Néw ör Rérün? Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Platform"
 msgstr "Plätförm Ⱡ'σяєм ιρѕυм ∂#"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Faculty"
 msgstr "Fäçültý Ⱡ'σяєм ιρѕυм #"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Run Display Name"
 msgstr "Çöürsé Rün Dïspläý Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Run Number"
 msgstr "Çöürsé Rün Nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "edX Course Run ID"
 msgstr "édX Çöürsé Rün ÌD Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Certificate Type"
 msgstr "Çértïfïçäté Týpé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Course $ (minimum)"
 msgstr "Çöürsé $ (mïnïmüm) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Self Paced?"
 msgstr "Sélf Päçéd? Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "MDC Submission Due Date"
 msgstr "MDÇ Süßmïssïön Düé Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Verified Conversion Date"
 msgstr "Vérïfïéd Çönvérsïön Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Verified Registration Expiration Date"
 msgstr ""
 "Vérïfïéd Régïsträtïön Éxpïrätïön Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_salesforce.html
 msgid "Certificate Issued Date"
 msgstr "Çértïfïçäté Ìssüéd Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_seats.html
+#: templates/publisher/course_run_detail/_seats.html
 msgid "No Seats Available."
 msgstr "Nö Séäts Àväïläßlé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
-#: course_discovery/templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/course_run_detail/_studio.html
 msgid "Course Name"
 msgstr "Çöürsé Nämé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
-#: course_discovery/templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/course_run_detail/_studio.html
 msgid "Organization"
 msgstr "Örgänïzätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: course_discovery/templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/course_run_detail/_studio.html
 msgid "Enrollment Start Date"
 msgstr "Énröllmént Stärt Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
-#: course_discovery/templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/course_run_detail/_studio.html
 msgid "Enrollment End Date"
 msgstr "Énröllmént Énd Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
-#: course_discovery/templates/publisher/course_run_form.html
+#: templates/publisher/course_run_form.html
 msgid "Add Seat"
 msgstr "Àdd Séät Ⱡ'σяєм ιρѕυм ∂#"
 
-#: course_discovery/templates/publisher/course_runs_list.html
+#: templates/publisher/course_runs_list.html
 msgid "Course Run List"
 msgstr "Çöürsé Rün Lïst Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
-#: course_discovery/templates/publisher/course_runs_list.html
+#: templates/publisher/course_runs_list.html
 msgid "Course runs in progress"
 msgstr "Çöürsé rüns ïn prögréss Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
-#: course_discovery/templates/publisher/course_runs_list.html
+#: templates/publisher/course_runs_list.html
 msgid "Welcome to edX Publisher. It looks like you don't have any courses."
 msgstr ""
 "Wélçömé tö édX Püßlïshér. Ìt lööks lïké ýöü dön't hävé äný çöürsés. Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
-#: course_discovery/templates/publisher/course_runs_list.html
+#: templates/publisher/course_runs_list.html
 #, python-format
 msgid ""
-"\n"
-"                                    Please %(link_start)s%(new_course_url)s%(link_middle)sadd a new course%(link_end)s to create your first run\n"
-"                                "
+"Please %(link_start)s%(new_course_url)s%(link_middle)sadd a new "
+"course%(link_end)s to create your first run"
 msgstr ""
-"\n"
-"                                    Pléäsé %(link_start)s%(new_course_url)s%(link_middle)sädd ä néw çöürsé%(link_end)s tö çréäté ýöür fïrst rün\n"
-"                                 Ⱡ'#"
+"Pléäsé %(link_start)s%(new_course_url)s%(link_middle)sädd ä néw "
+"çöürsé%(link_end)s tö çréäté ýöür fïrst rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя α#"
 
-#: course_discovery/templates/publisher/course_runs_list.html
-#: course_discovery/templates/publisher/course_runs_list.html
+#: templates/publisher/course_runs_list.html
 msgid "Course Run Title"
 msgstr "Çöürsé Rün Tïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
-#: course_discovery/templates/publisher/course_runs_list.html
-#: course_discovery/templates/publisher/course_runs_list.html
+#: templates/publisher/course_runs_list.html
 msgid "Course Run Start Date"
 msgstr "Çöürsé Rün Stärt Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
-#: course_discovery/templates/publisher/course_runs_list.html
-#: course_discovery/templates/publisher/course_runs_list.html
+#: templates/publisher/course_runs_list.html
 msgid "Target Content?"
 msgstr "Tärgét Çöntént? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
-#: course_discovery/templates/publisher/course_runs_list.html
-#: course_discovery/templates/publisher/course_runs_list.html
+#: templates/publisher/course_runs_list.html
 msgid "Priority"
 msgstr "Prïörïtý Ⱡ'σяєм ιρѕυм ∂#"
 
-#: course_discovery/templates/publisher/course_runs_list.html
-#: course_discovery/templates/publisher/course_runs_list.html
+#: templates/publisher/course_runs_list.html
 msgid "Last Updated"
 msgstr "Läst Ûpdätéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: course_discovery/templates/publisher/course_runs_list.html
+#: templates/publisher/course_runs_list.html
 msgid "Recently published courses"
 msgstr "Réçéntlý püßlïshéd çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
-#: course_discovery/templates/publisher/course_runs_list.html
+#: templates/publisher/course_runs_list.html
 msgid "Looks like you haven't publish a course yet"
 msgstr ""
 "Lööks lïké ýöü hävén't püßlïsh ä çöürsé ýét Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
 
-#: course_discovery/templates/publisher/seat_form.html
-#: course_discovery/templates/publisher/seat_form.html
+#: templates/publisher/seat_form.html
 msgid "Seat Form"
 msgstr "Séät Förm Ⱡ'σяєм ιρѕυм ∂σł#"
 
-#: course_discovery/templates/publisher/view_course_form.html
+#: templates/publisher/view_course_form.html
 msgid "Course information"
 msgstr "Çöürsé ïnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"

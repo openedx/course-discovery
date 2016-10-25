@@ -15,7 +15,7 @@
                         <p>
                             {% url 'publisher:publisher_courses_new' as new_course_url %}
                             {% with link_start='<a href="' link_middle='">' link_end='</a>' %}
-                                {% blocktrans %}
+                                {% blocktrans trimmed %}
                                     Please {{ link_start }}{{ new_course_url }}{{ link_middle }}add a new course{{ link_end }} to create your first run
                                 {% endblocktrans %}
                             {% endwith %}

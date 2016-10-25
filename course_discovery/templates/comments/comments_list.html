@@ -4,7 +4,7 @@
 <div class="comments-container">
     {% get_comment_count for comment_object as comment_count %}
     <h4 class="hd-4">
-        {% blocktrans with comment_count=comment_count %}
+        {% blocktrans trimmed with comment_count=comment_count %}
             Total Comments {{ comment_count }}
         {% endblocktrans %}
     </h4>

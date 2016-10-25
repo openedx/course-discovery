@@ -83,3 +83,15 @@ locales:
 # The locales used for fake-accented English, for testing.
 dummy_locales:
     - eo
+
+ignore_dirs:
+    - assets
+    - static/bower_components
+    - static/build
+
+# How should the generate step merge files?
+generate_merge:
+    django.po:
+        - django-partial.po
+    djangojs.po:
+        - djangojs-partial.po
