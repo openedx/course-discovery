@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-23 15:52+0000\n"
+"POT-Creation-Date: 2016-10-25 10:56-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,14 +17,14 @@ msgstr ""
 "Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: course_discovery/static/js/catalogs-change-form.js
+#: static/js/catalogs-change-form.js
 msgid "Preview"
 msgstr "Prévïéw Ⱡ'σяєм ιρѕυм #"
 
-#: course_discovery/static/js/publisher/views/navbar.js
+#: static/js/publisher/views/navbar.js
 msgid "OFF"
 msgstr "ÖFF Ⱡ'σяєм#"
 
-#: course_discovery/static/js/publisher/views/navbar.js
+#: static/js/publisher/views/navbar.js
 msgid "ON"
 msgstr "ÖN Ⱡ'σя#"

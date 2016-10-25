@@ -73,8 +73,9 @@ html_coverage:
 	coverage html && open htmlcov/index.html
 
 extract_translations:
-	python manage.py makemessages -l en -v1 -d django --ignore="docs/*" --ignore="course_discovery/assets/*" --ignore="node_modules/*" --ignore="course_discovery/static/bower_components/*" --ignore="course_discovery/static/build/*"
-	python manage.py makemessages -l en -v1 -d djangojs --ignore="docs/*" --ignore="course_discovery/assets/*" --ignore="node_modules/*" --ignore="course_discovery/static/bower_components/*" --ignore="course_discovery/static/build/*"
+	# NOTE: We need PYTHONPATH defined to avoid ImportError(s) on Travis CI.
+	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" i18n_tool extract --verbose
+	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" i18n_tool generate --verbose
 
 dummy_translations:
 	cd course_discovery && i18n_tool dummy
