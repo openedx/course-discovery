@@ -2,6 +2,7 @@
 Course publisher views.
 """
 import json
+import logging
 from datetime import datetime, timedelta
 
 from django.contrib import messages
@@ -17,12 +18,15 @@ from guardian.shortcuts import get_objects_for_user
 from rest_framework.generics import UpdateAPIView
 
 from course_discovery.apps.publisher.forms import (
-    CourseForm, CourseRunForm, SeatForm, CustomCourseForm, CustomCourseRunForm, CustomSeatForm
-)
+    CourseForm, CourseRunForm, SeatForm, CustomCourseForm, CustomCourseRunForm, CustomSeatForm,
+    UpdateCourseForm)
 from course_discovery.apps.publisher import mixins
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State, UserAttributes
 from course_discovery.apps.publisher.serializers import UpdateCourseKeySerializer
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
+
+
+logger = logging.getLogger(__name__)
 
 
 SEATS_HIDDEN_FIELDS = ['price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours']
@@ -177,20 +181,71 @@ class ReadOnlyView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, Detail
 class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
     """ Create Course Run View."""
     model = CourseRun
+    course_form = UpdateCourseForm
     run_form = CustomCourseRunForm
-    course_form = CustomCourseForm
     seat_form = CustomSeatForm
     template_name = 'publisher/add_courserun_form.html'
     success_url = 'publisher:publisher_course_run_detail'
+    parent_course = None
     fields = ()
 
+    def get_parent_course(self):
+        if not self.parent_course:
+            self.parent_course = get_object_or_404(Course, pk=self.kwargs.get('parent_course_id'))
+
+        return self.parent_course
+
     def get_context_data(self, **kwargs):
+        parent_course = self.get_parent_course()
+        course_form = self.course_form(instance=parent_course)
         context = {
-            'course_form': self.course_form,
+            'parent_course': parent_course,
+            'course_form': course_form,
             'run_form': self.run_form,
-            'seat_form': self.seat_form
+            'seat_form': self.seat_form,
+            'is_team_admin_hidden': parent_course.team_admin and 'team_admin' not in course_form.errors
         }
         return context
+
+    def post(self, request, *args, **kwargs):
+        user = self.request.user
+        parent_course = self.get_parent_course()
+        course_form = self.course_form(request.POST, instance=self.get_parent_course())
+        run_form = self.run_form(request.POST)
+        seat_form = self.seat_form(request.POST)
+
+        if course_form.is_valid() and run_form.is_valid() and seat_form.is_valid():
+            try:
+                with transaction.atomic():
+                    course = course_form.save(changed_by=user)
+                    course_run = run_form.save(course=course, changed_by=user)
+                    seat_form.save(course_run=course_run, changed_by=user)
+
+                    # pylint: disable=no-member
+                    success_msg = _('Course run created successfully for course "{course_title}".').format(
+                        course_title=course.title
+                    )
+                    messages.success(request, success_msg)
+                    return HttpResponseRedirect(reverse(self.success_url, kwargs={'pk': course_run.id}))
+            except Exception as error:  # pylint: disable=broad-except
+                # pylint: disable=no-member
+                error_msg = _('There was an error saving course run, {error}').format(error=error)
+                messages.error(request, error_msg)
+                logger.exception('Unable to save course run for course [%s].', parent_course.id)
+        else:
+            messages.error(request, _('Please fill all required fields.'))
+
+        context = self.get_context_data()
+        context.update(
+            {
+                'course_form': course_form,
+                'run_form': run_form,
+                'seat_form': seat_form,
+                'is_team_admin_hidden': parent_course.team_admin and 'team_admin' not in course_form.errors
+            }
+        )
+
+        return render(request, self.template_name, context, status=400)
 
 
 class UpdateCourseRunView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, mixins.FormValidMixin, UpdateView):

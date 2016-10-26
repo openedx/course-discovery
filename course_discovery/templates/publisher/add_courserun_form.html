@@ -11,10 +11,10 @@
         <h1 class="hd-1 emphasized">{% trans "New Course Run" %}</h1>
         <div class="copy-base">
             <p>
-                {% url 'publisher:publisher_courses_readonly' as course_url %}
+                {% url 'publisher:publisher_courses_readonly' parent_course.id as course_url %}
                 {% with link_start='<a href="' link_middle='">' link_end='</a>' %}
                 {% blocktrans %}
-                    The fields below will only affect this new course run. If you feel the need edit information from the parent course then you may do so on the {{ link_start }}{{ course_url }}{{ link_middle }}parent course for this run{{ link_end }}
+                    The fields below will only affect this new course run. If you feel the need edit information from the parent course then you may do so on the {{ link_start }}{{ course_url }}{{ link_middle }}parent course for this run{{ link_end }}.
                 {% endblocktrans %}
                 {% endwith %}
             </p>
@@ -70,19 +70,32 @@
                                 <div class="col col-6">
 
                                     <label class="field-label ">
-                                        {{ course_form.title.label }}
-                                        {% if course_form.title.field.required %}
-                                            <span class="required">* {% trans "required" %}</span>
-                                        {% endif %}
+                                        <label class="field-label">
+                                            {% trans "Course Title" %}
+                                        </label>
                                     </label>
-                                    {{ course_form.title }}
+                                    <span class="field-readonly">{{ parent_course.title }}</span>
 
                                     <div class="field-admin margin-top20">
                                         <label class="field-label">
                                             {% trans "Institution Course Admin" %}
+                                            {% if course_form.team_admin.field.required %}
+                                                <span class="required">* {% trans "required" %}</span>
+                                            {% endif %}
                                         </label>
-                                        {{ course_form.team_admin }}
+                                        <div id="field-team-admin" {% if is_team_admin_hidden %}class="hidden"{% endif %}>
+                                            {{ course_form.team_admin }}
+                                        </div>
                                     </div>
+                                    {% if parent_course.team_admin %}
+                                        <div class="field-admin-name margin-top20 {% if course_form.team_admin.errors %}hidden{% endif %}">
+                                            <span class="field-readonly">{{ parent_course.team_admin.username }}</span>
+                                            <input id="team-admin-id" type="hidden" value="{{ parent_course.team_admin.id }}">
+                                            <div>
+                                                <a id="change-admin" href="#">{% trans "Change" %}</a>
+                                            </div>
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
 
@@ -225,4 +238,5 @@
 
 {% block extra_js %}
     <script src="{% static 'js/publisher/publisher.js' %}"></script>
+    <script src="{% static 'js/seat-type-change.js' %}"></script>
 {% endblock %}

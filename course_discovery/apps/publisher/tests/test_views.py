@@ -1,9 +1,9 @@
 # pylint: disable=no-member
 import json
 from datetime import datetime
-from unittest import skip
 
 import ddt
+import factory
 from mock import patch
 
 from django.db import IntegrityError
@@ -326,7 +326,7 @@ class CreateUpdateCourseRunViewTests(TestCase):
     def test_courserun_form_with_login(self):
         """ Verify that user can access new course run form page when logged in. """
         response = self.client.get(
-            reverse('publisher:publisher_course_runs_new')
+            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id})
         )
 
         self.assertEqual(response.status_code, 200)
@@ -335,35 +335,88 @@ class CreateUpdateCourseRunViewTests(TestCase):
         """ Verify that user can't access new course run form page when not logged in. """
         self.client.logout()
         response = self.client.get(
-            reverse('publisher:publisher_course_runs_new')
+            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id})
         )
 
         self.assertRedirects(
             response,
             expected_url='{url}?next={next}'.format(
                 url=reverse('login'),
-                next=reverse('publisher:publisher_course_runs_new')
+                next=reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id})
             ),
             status_code=302,
             target_status_code=302
         )
 
-    @skip('Will be enabled in ECOM-6208')
-    def test_create_course_run(self):
-        """ Verify that we can create a new course run. """
-        lms_course_id = 'course-v1:testX+AS12131+2016_q4'
-        self.course_run_dict['lms_course_id'] = lms_course_id
-        response = self.client.post(reverse('publisher:publisher_course_runs_new'), self.course_run_dict)
+    def test_create_course_run_and_seat_with_errors(self):
+        """ Verify that without providing required data course run and seat
+        cannot be created.
+        """
+        response = self.client.post(
+            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
+            self.course_run_dict
+        )
+        self.assertEqual(response.status_code, 400)
 
-        course_run = CourseRun.objects.get(course=self.course_run.course, lms_course_id=lms_course_id)
+        post_data = model_to_dict(self.course)
+        post_data.update(self.course_run_dict)
+        post_data.update(factory.build(dict, FACTORY_CLASS=factories.SeatFactory))
+        self._pop_valuse_from_dict(post_data, ['id', 'upgrade_deadline', 'image', 'team_admin'])
+
+        response = self.client.post(
+            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
+            post_data
+        )
+        self.assertEqual(response.status_code, 400)
+
+        with patch('django.forms.models.BaseModelForm.is_valid') as mocked_is_valid:
+            mocked_is_valid.return_value = True
+            response = self.client.post(
+                reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
+                post_data
+            )
+
+            self.assertEqual(response.status_code, 400)
+
+    def test_create_course_run_and_seat(self):
+        """ Verify that we can create a new course run with seat. """
+        updated_course_number = '{number}.2'.format(number=self.course.number)
+        new_price = 450
+        post_data = self.course_run_dict
+        seat = factories.SeatFactory(course_run=self.course_run, type=Seat.HONOR, price=0)
+        post_data.update(**model_to_dict(seat))
+        post_data.update(
+            {
+                'number': updated_course_number,
+                'type': Seat.VERIFIED,
+                'price': new_price
+            }
+        )
+        self._pop_valuse_from_dict(post_data, ['id', 'course', 'course_run'])
+
+        response = self.client.post(
+            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
+            post_data
+        )
+
+        new_seat = Seat.objects.get(type=post_data['type'], price=post_data['price'])
         self.assertRedirects(
             response,
-            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id}),
+            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': new_seat.course_run.id}),
             status_code=302,
             target_status_code=200
         )
 
-        self.assertEqual(course_run.lms_course_id, lms_course_id)
+        # Verify that new seat and new course run are unique
+        self.assertNotEqual(new_seat.type, seat.type)
+        self.assertEqual(new_seat.type, Seat.VERIFIED)
+        self.assertNotEqual(new_seat.price, seat.price)
+        self.assertEqual(new_seat.price, new_price)
+        self.assertNotEqual(new_seat.course_run, self.course_run)
+
+        self.course = new_seat.course_run.course
+        # Verify that number is updated for parent course
+        self.assertEqual(self.course.number, updated_course_number)
 
     def test_update_course_run_with_staff(self):
         """ Verify that staff user can update an existing course run. """

@@ -419,6 +419,7 @@ msgid "Studio instance created"
 msgstr ""
 
 #: apps/publisher/forms.py templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "Course Title"
 msgstr ""
 
@@ -564,6 +565,20 @@ msgstr ""
 
 #: apps/publisher/views.py
 msgid "Please fill all required field."
+msgstr ""
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid "Course run created successfully for course \"{course_title}\"."
+msgstr ""
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid "There was an error saving course run, {error}"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "Please fill all required fields."
 msgstr ""
 
 #: apps/publisher/views.py
@@ -1081,7 +1096,7 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"                    The fields below will only affect this new course run. If you feel the need edit information from the parent course then you may do so on the %(link_start)s%(course_url)s%(link_middle)sparent course for this run%(link_end)s\n"
+"                    The fields below will only affect this new course run. If you feel the need edit information from the parent course then you may do so on the %(link_start)s%(course_url)s%(link_middle)sparent course for this run%(link_end)s.\n"
 "                "
 msgstr ""
 
@@ -1110,6 +1125,10 @@ msgstr ""
 
 #: templates/publisher/add_courserun_form.html
 msgid "Institution Course Admin"
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid "Change"
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html

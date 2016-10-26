@@ -21,7 +21,7 @@
             </div>
             <div class="comment-container">
                 {% if object.id %}
-                    <a href="{% url 'publisher:publisher_course_runs_new' %}" class="btn btn-neutral btn-add">
+                    <a href="{% url 'publisher:publisher_course_runs_new' object.id %}" class="btn btn-neutral btn-add">
                         {% trans "Add Course Run" %}
                     </a>
                 {% endif %}

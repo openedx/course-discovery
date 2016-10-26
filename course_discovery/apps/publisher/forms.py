@@ -5,6 +5,7 @@ from django.contrib.auth.models import Group
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
+from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat, User
 
@@ -63,6 +64,28 @@ class CustomCourseForm(CourseForm):
         )
 
 
+class UpdateCourseForm(BaseCourseForm):
+    """ Course form to update specific fields for already created course. """
+
+    number = forms.CharField(label=_('Course Number'), required=True)
+    team_admin = forms.ModelChoiceField(queryset=User.objects.filter(is_staff=True), required=True)
+
+    class Meta:
+        model = Course
+        fields = ('number', 'team_admin',)
+
+    def save(self, commit=True, changed_by=None):   # pylint: disable=arguments-differ
+        course = super(UpdateCourseForm, self).save(commit=False)
+
+        if changed_by:
+            course.changed_by = changed_by
+
+        if commit:
+            course.save()
+
+        return course
+
+
 class CourseRunForm(BaseCourseForm):
     """ Course Run Form. """
 
@@ -96,6 +119,27 @@ class CustomCourseRunForm(CourseRunForm):
             'video_language', 'staff', 'start', 'end', 'is_self_paced',
         )
 
+    def clean(self):
+        super(CustomCourseRunForm, self).clean()
+        self.cleaned_data['pacing_type'] = CourseRunPacing.Self if self.cleaned_data['is_self_paced']\
+            else CourseRunPacing.Instructor
+
+        return self.cleaned_data
+
+    def save(self, commit=True, course=None, changed_by=None):  # pylint: disable=arguments-differ
+        course_run = super(CustomCourseRunForm, self).save(commit=False)
+
+        if course:
+            course_run.course = course
+
+        if changed_by:
+            course_run.changed_by = changed_by
+
+        if commit:
+            course_run.save()
+
+        return course_run
+
 
 class SeatForm(BaseCourseForm):
     """ Course Seat Form. """
@@ -105,7 +149,7 @@ class SeatForm(BaseCourseForm):
         fields = '__all__'
         exclude = ('currency', 'changed_by',)
 
-    def save(self, commit=True):
+    def save(self, commit=True, course_run=None, changed_by=None):  # pylint: disable=arguments-differ
         seat = super(SeatForm, self).save(commit=False)
         if seat.type in [Seat.HONOR, Seat.AUDIT]:
             seat.price = 0.00
@@ -119,6 +163,12 @@ class SeatForm(BaseCourseForm):
             seat.upgrade_deadline = None
             seat.credit_provider = ''
             seat.credit_hours = None
+
+        if course_run:
+            seat.course_run = course_run
+
+        if changed_by:
+            seat.changed_by = changed_by
 
         if commit:
             seat.save()

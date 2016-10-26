@@ -17,4 +17,10 @@ $(document).ready(function(){
         $(this).addClass('active');
         $tabContent.addClass('active');
     });
+
+    $("#change-admin").click(function (e) {
+        e.preventDefault();
+        $(".field-admin-name").hide();
+        $("#field-team-admin").show();
+    });
 });

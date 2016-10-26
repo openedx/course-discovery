@@ -525,6 +525,7 @@ msgid "Studio instance created"
 msgstr "Stüdïö ïnstänçé çréätéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
 #: apps/publisher/forms.py templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "Course Title"
 msgstr "Çöürsé Tïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
@@ -685,6 +686,25 @@ msgstr "Çöürsé çréätéd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σ
 #: apps/publisher/views.py
 msgid "Please fill all required field."
 msgstr "Pléäsé fïll äll réqüïréd fïéld. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid "Course run created successfully for course \"{course_title}\"."
+msgstr ""
+"Çöürsé rün çréätéd süççéssfüllý för çöürsé \"{course_title}\". Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid "There was an error saving course run, {error}"
+msgstr ""
+"Théré wäs än érrör sävïng çöürsé rün, {error} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/publisher/views.py
+msgid "Please fill all required fields."
+msgstr ""
+"Pléäsé fïll äll réqüïréd fïélds. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
 #: apps/publisher/views.py
 #, python-brace-format
@@ -1316,12 +1336,12 @@ msgstr "Néw Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 #, python-format
 msgid ""
 "\n"
-"                    The fields below will only affect this new course run. If you feel the need edit information from the parent course then you may do so on the %(link_start)s%(course_url)s%(link_middle)sparent course for this run%(link_end)s\n"
+"                    The fields below will only affect this new course run. If you feel the need edit information from the parent course then you may do so on the %(link_start)s%(course_url)s%(link_middle)sparent course for this run%(link_end)s.\n"
 "                "
 msgstr ""
 "\n"
-"                    Thé fïélds ßélöw wïll önlý äfféçt thïs néw çöürsé rün. Ìf ýöü féél thé nééd édït ïnförmätïön fröm thé pärént çöürsé thén ýöü mäý dö sö ön thé %(link_start)s%(course_url)s%(link_middle)spärént çöürsé för thïs rün%(link_end)s\n"
-"                 Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяι#"
+"                    Thé fïélds ßélöw wïll önlý äfféçt thïs néw çöürsé rün. Ìf ýöü féél thé nééd édït ïnförmätïön fröm thé pärént çöürsé thén ýöü mäý dö sö ön thé %(link_start)s%(course_url)s%(link_middle)spärént çöürsé för thïs rün%(link_end)s.\n"
+"                 Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ρα#"
 
 #: templates/publisher/add_courserun_form.html
 msgid "Studio instance information"
@@ -1353,6 +1373,10 @@ msgstr "Séqüénçé Çöürsés: Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α
 #: templates/publisher/add_courserun_form.html
 msgid "Institution Course Admin"
 msgstr "Ìnstïtütïön Çöürsé Àdmïn Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: templates/publisher/add_courserun_form.html
+msgid "Change"
+msgstr "Çhängé Ⱡ'σяєм ιρѕυ#"
 
 #: templates/publisher/add_courserun_form.html
 msgid "COURSE START DATE"
