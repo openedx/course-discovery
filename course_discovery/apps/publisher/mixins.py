@@ -41,16 +41,12 @@ class LoginRequiredMixin(object):
 
 class FormValidMixin(object):
     change_state = False
-    assign_user_groups = False
 
     def form_valid(self, form):
         user = self.request.user
         publisher_object = form.save(commit=False)
         publisher_object.changed_by = user
         publisher_object.save()
-
-        if self.assign_user_groups:
-            publisher_object.assign_user_groups(user)
 
         if self.change_state:
             publisher_object.change_state(user=user)

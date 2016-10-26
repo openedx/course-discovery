@@ -1,0 +1,19 @@
+{% extends "publisher/email/email_base.html" %}
+{% load i18n %}
+{% block body %}
+<!-- Message Body -->
+        <p>
+            {% blocktrans with first_name=comment.user.first_name object_type=object_type|lower title=course.title number=course.number trimmed %}
+                {{ first_name }} commented on a {{ object_type }} belonging to the course {{ title }} ({{ number }}).
+            {% endblocktrans %}
+        </p>
+        <p>
+            {{ comment.comment }}
+        </p>
+
+        <p>
+            <a href="{{ page_url }}">{% trans "View comment" %}</a>
+        </p>
+        <p>{% trans "The edX team" %}</p>
+<!-- End Message Body -->
+{% endblock body %}

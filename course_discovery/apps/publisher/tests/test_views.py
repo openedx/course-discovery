@@ -275,7 +275,7 @@ class CreateUpdateCourseViewTests(TestCase):
             status_code=302,
             target_status_code=200
         )
-        self.assertEqual(course.get_group_institution, self.group)
+        self.assertEqual(course.group_institution, self.group)
         self.assertEqual(course.team_admin, self.user)
         self.assertTrue(self.user.has_perm(Course.VIEW_PERMISSION, course))
         course_run = course.publisher_course_runs.all()[0]

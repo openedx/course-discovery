@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-25 11:39-0400\n"
+"POT-Creation-Date: 2016-10-25 21:30+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -551,6 +551,16 @@ msgstr ""
 msgid "Publish"
 msgstr ""
 
+#: apps/publisher_comments/emails.py
+#, python-brace-format
+msgid "New comment added in course run: {title}-{pacing_type}-{start}"
+msgstr ""
+
+#: apps/publisher_comments/emails.py
+#, python-brace-format
+msgid "New comment added in Course: {title}"
+msgstr ""
+
 #: apps/publisher_comments/models.py
 msgid "modified"
 msgstr ""
@@ -605,7 +615,7 @@ msgid ""
 "trademarks or trademarks of %(link_start)sedX Inc.%(link_end)s"
 msgstr ""
 
-#: templates/footer.html
+#: templates/footer.html templates/footer.html.py
 msgid "Powered by Open edX"
 msgstr ""
 
@@ -1444,6 +1454,27 @@ msgstr ""
 
 #: templates/publisher/course_runs_list.html
 msgid "Looks like you haven't publish a course yet"
+msgstr ""
+
+#: templates/publisher/email/comment.html
+#: templates/publisher/email/comment.txt
+#, python-format
+msgid ""
+"%(first_name)s commented on a %(object_type)s belonging to the course "
+"%(title)s (%(number)s)."
+msgstr ""
+
+#: templates/publisher/email/comment.html
+msgid "View comment"
+msgstr ""
+
+#: templates/publisher/email/comment.html
+#: templates/publisher/email/comment.txt
+msgid "The edX team"
+msgstr ""
+
+#: templates/publisher/email/comment.txt
+msgid "View comment:"
 msgstr ""
 
 #: templates/publisher/seat_form.html

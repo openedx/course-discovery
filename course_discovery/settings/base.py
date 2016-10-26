@@ -379,6 +379,7 @@ TAGGIT_CASE_INSENSITIVE = True
 SOLO_CACHE = 'default'
 SOLO_CACHE_TIMEOUT = 3600
 
+PUBLISHER_FROM_EMAIL = None
 
 # Django Debug Toolbar settings
 # http://django-debug-toolbar.readthedocs.org/en/latest/installation.html
@@ -409,3 +410,4 @@ if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
         'debug_toolbar.panels.redirects.RedirectsPanel',
         'elastic_panel.panel.ElasticDebugPanel'
     ]
+

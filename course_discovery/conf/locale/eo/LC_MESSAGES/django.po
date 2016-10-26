@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-25 10:56-0400\n"
+"POT-Creation-Date: 2016-10-25 21:30+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -664,6 +664,19 @@ msgstr "Fïnälïzé Ⱡ'σяєм ιρѕυм ∂#"
 msgid "Publish"
 msgstr "Püßlïsh Ⱡ'σяєм ιρѕυм #"
 
+#: apps/publisher_comments/emails.py
+#, python-brace-format
+msgid "New comment added in course run: {title}-{pacing_type}-{start}"
+msgstr ""
+"Néw çömmént äddéd ïn çöürsé rün: {title}-{pacing_type}-{start} Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/publisher_comments/emails.py
+#, python-brace-format
+msgid "New comment added in Course: {title}"
+msgstr ""
+"Néw çömmént äddéd ïn Çöürsé: {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
 #: apps/publisher_comments/models.py
 msgid "modified"
 msgstr "mödïfïéd Ⱡ'σяєм ιρѕυм ∂#"
@@ -721,7 +734,7 @@ msgstr ""
 "trädémärks ör trädémärks öf %(link_start)sédX Ìnç.%(link_end)s Ⱡ'σяєм ιρѕυм "
 "∂σł#"
 
-#: templates/footer.html
+#: templates/footer.html templates/footer.html.py
 msgid "Powered by Open edX"
 msgstr "Pöwéréd ßý Öpén édX Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
@@ -1682,6 +1695,29 @@ msgid "Looks like you haven't publish a course yet"
 msgstr ""
 "Lööks lïké ýöü hävén't püßlïsh ä çöürsé ýét Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
+
+#: templates/publisher/email/comment.html
+#: templates/publisher/email/comment.txt
+#, python-format
+msgid ""
+"%(first_name)s commented on a %(object_type)s belonging to the course "
+"%(title)s (%(number)s)."
+msgstr ""
+"%(first_name)s çömméntéd ön ä %(object_type)s ßélöngïng tö thé çöürsé "
+"%(title)s (%(number)s). Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: templates/publisher/email/comment.html
+msgid "View comment"
+msgstr "Vïéw çömmént Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: templates/publisher/email/comment.html
+#: templates/publisher/email/comment.txt
+msgid "The edX team"
+msgstr "Thé édX téäm Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: templates/publisher/email/comment.txt
+msgid "View comment:"
+msgstr "Vïéw çömmént: Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: templates/publisher/seat_form.html
 msgid "Seat Form"

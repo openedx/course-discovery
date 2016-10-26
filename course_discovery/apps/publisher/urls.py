@@ -12,7 +12,6 @@ urlpatterns = [
     url(r'^course_runs/(?P<pk>\d+)/$', views.CourseRunDetailView.as_view(), name='publisher_course_run_detail'),
     url(r'^course_runs/$', views.CourseRunListView.as_view(), name='publisher_course_runs'),
     url(r'^course_runs/new$', views.CreateCourseRunView.as_view(), name='publisher_course_runs_new'),
-    url(r'^course_runs/(?P<pk>\d+)/$', views.CourseRunDetailView.as_view(), name='publisher_course_run_detail'),
     url(r'^course_runs/(?P<pk>\d+)/edit/$', views.UpdateCourseRunView.as_view(), name='publisher_course_runs_edit'),
     url(
         r'^course_runs/(?P<course_run_id>\d+)/change_state/$',

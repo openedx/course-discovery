@@ -1,10 +1,12 @@
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.core import mail
 from django.core.urlresolvers import reverse
 from django.forms import model_to_dict
 from django.test import TestCase
 
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
+from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.publisher.models import Seat
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
@@ -16,15 +18,22 @@ class CommentsTests(TestCase):
     def setUp(self):
         super(CommentsTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.group = factories.GroupFactory()
+        self.user.groups.add(self.group)
+
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.site = Site.objects.get(pk=settings.SITE_ID)
         self.course_edit_page = 'publisher:publisher_courses_edit'
         self.course_run_edit_page = 'publisher:publisher_course_runs_edit'
         self.seat_edit_page = 'publisher:publisher_seats_edit'
         self.edit_comment_page = 'publisher_comments:comment_edit'
-        self.course = factories.CourseFactory()
-        self.course_run = factories.CourseRunFactory()
+
         self.seat = factories.SeatFactory(type=Seat.PROFESSIONAL, credit_hours=0)
+        self.course_run = self.seat.course_run
+        self.course = self.course_run.course
+
+        self.course.assign_permission_by_group(self.group)
+        toggle_switch('enable_publisher_email_notifications', True)
 
     def test_course_edit_page_with_multiple_comments(self):
         """ Verify course edit page can load multiple comments"""
@@ -33,24 +42,6 @@ class CommentsTests(TestCase):
     def test_course_run_edit_page_with_multiple_comments(self):
         """ Verify course-run edit page can load multiple comments"""
         self._add_assert_multiple_comments(self.course_run, self.course_run_edit_page)
-
-    def test_seat_edit_page_with_multiple_comments(self):
-        """ Verify seat edit page can load multiple comments"""
-        self._add_assert_multiple_comments(self.seat, self.seat_edit_page)
-
-    def _add_assert_multiple_comments(self, content_object, page_path):
-        """ DRY method to add comments on edit page for specific object. """
-        response = self.client.get(reverse(page_path, kwargs={'pk': content_object.id}))
-        self.assertContains(response, 'Total Comments 0')
-
-        comments = []
-        for num in range(1, 10):    # pylint: disable=unused-variable
-            comments.append(self._generate_comment(content_object=content_object, user=self.user))
-        response = self.client.get(reverse(page_path, kwargs={'pk': content_object.id}))
-        for comment in comments:
-            self.assertContains(response, comment.comment)
-
-        self.assertContains(response, 'Total Comments 9')
 
     def test_comment_edit_with_course(self):
         """ Verify that only comments attached with specific course appears on edited page. """
@@ -93,6 +84,15 @@ class CommentsTests(TestCase):
         self._edit_comment_page(
             self.seat, reverse(self.seat_edit_page, kwargs={'pk': self.seat.id})
         )
+
+    def test_mail_outbox_count(self):
+        """ Verify that separate emails send for adding and editing the comment . """
+        self._edit_comment_page(
+            self.course, reverse(self.course_edit_page, kwargs={'pk': self.course.id})
+        )
+
+        # mail has 2 emails one due to newly added comment and other is due to editing.
+        self.assertEqual(len(mail.outbox), 2)
 
     def test_edit_comment_of_other_user(self):
         """ Verify that comment can be edited by the comment author only. """
@@ -150,3 +150,21 @@ class CommentsTests(TestCase):
             data[content] = self._generate_comment(content_object=content, user=self.user)
 
         return data
+
+    def _add_assert_multiple_comments(self, content_object, page_path):
+        """ DRY method to add comments on edit page for specific object. """
+        response = self.client.get(reverse(page_path, kwargs={'pk': content_object.id}))
+        self.assertContains(response, 'Total Comments 0')
+
+        comments = []
+        for __ in range(1, 2):
+            comments.append(self._generate_comment(content_object=content_object, user=self.user))
+
+        # assert emails send
+        self.assertEqual(len(mail.outbox), 1)
+
+        response = self.client.get(reverse(page_path, kwargs={'pk': content_object.id}))
+        for comment in comments:
+            self.assertContains(response, comment.comment)
+
+        self.assertContains(response, 'Total Comments 1')

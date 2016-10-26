@@ -7,7 +7,7 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from django_fsm import FSMField, transition
-from guardian.shortcuts import assign_perm, get_groups_with_perms
+from guardian.shortcuts import assign_perm, get_groups_with_perms, get_users_with_perms
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
@@ -147,18 +147,29 @@ class Course(TimeStampedModel, ChangedByMixin):
             ('view_course', 'Can view course'),
         )
 
-    def assign_user_groups(self, user):
-        for group in user.groups.all():
-            assign_perm(self.VIEW_PERMISSION, group, self)
-
     def assign_permission_by_group(self, institution):
+        """ Assigns permission on the course against the group. """
         assign_perm(self.VIEW_PERMISSION, institution, self)
 
     @property
-    def get_group_institution(self):
-        """ Returns the Group object with for the given course object. """
+    def group_institution(self):
+        """ Returns the group object having permissions on the given course.
+        Course will be associated with one group only.
+        """
         available_groups = get_groups_with_perms(self)
         return available_groups[0] if available_groups else None
+
+    def get_group_users_emails(self):
+        """ Returns the list of users emails with enable email notifications
+        against a course group. By default if attribute value does not exists
+        then user will be eligible for emails.
+        """
+        users_list = get_users_with_perms(self)
+        emails = [
+            user.email for user in users_list
+            if not hasattr(user, 'attributes') or user.attributes.enable_email_notification
+        ]
+        return emails
 
     @property
     def keywords_data(self):
