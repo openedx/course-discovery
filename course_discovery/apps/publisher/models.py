@@ -78,6 +78,37 @@ class State(TimeStampedModel, ChangedByMixin):
         pass
 
 
+class UserRole(TimeStampedModel):
+    """ UserRole model. """
+
+    COORDINATOR = 'partner_coordinator'
+    REVIEWER = 'reviewer'
+    PUBLISHER = 'publisher'
+
+    ROLES_TYPE_CHOICES = (
+        (COORDINATOR, _('Partner Coordinator')),
+        (REVIEWER, _('Reviewer')),
+        (PUBLISHER, _('Publisher')),
+    )
+
+    user = models.ForeignKey(User, related_name='roles')
+    role = models.CharField(max_length=63, choices=ROLES_TYPE_CHOICES, verbose_name='Role Type')
+    is_active = models.BooleanField(default=True)
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return '{user}: {role}'.format(
+            user=self.user, role=self.role
+        )
+
+    class Meta(object):
+
+        unique_together = (
+            ('user', 'role'),
+        )
+
+
 class Course(TimeStampedModel, ChangedByMixin):
     """ Publisher Course model. It contains fields related to the course intake form."""
     VIEW_PERMISSION = 'view_course'
@@ -254,6 +285,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         )
     )
     video_language = models.ForeignKey(LanguageTag, null=True, blank=True, related_name='video_language')
+    user_role = models.ManyToManyField(UserRole, blank=True, related_name='publisher_course_runs')
 
     history = HistoricalRecords()
 
@@ -354,3 +386,4 @@ class UserAttributes(TimeStampedModel):
 
     class Meta:
         verbose_name_plural = 'UserAttributes'
+
