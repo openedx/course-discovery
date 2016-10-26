@@ -1,4 +1,5 @@
 import logging
+from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 
 from django.db import models
@@ -387,3 +388,20 @@ class UserAttributes(TimeStampedModel):
     class Meta:
         verbose_name_plural = 'UserAttributes'
 
+
+class OrganizationGroup(TimeStampedModel):
+    """ OrganizationGroup model. """
+    organization = models.ForeignKey(Organization)
+    group = models.ForeignKey(Group)
+
+    history = HistoricalRecords()
+
+    class Meta(object):
+        unique_together = (
+            ('organization', 'group'),
+        )
+
+    def __str__(self):
+        return '{organization}: {group}'.format(
+            organization=self.organization, group=self.group
+        )
