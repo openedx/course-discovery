@@ -167,6 +167,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
             'title_override': None,
             'short_description_override': None,
             'video': None,
+            'hidden': body.get('hidden', False),
         }
 
         if not partner_has_marketing_site:

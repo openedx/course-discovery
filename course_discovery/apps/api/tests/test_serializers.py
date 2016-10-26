@@ -244,6 +244,7 @@ class CourseRunSerializerTests(MinimalCourseRunSerializerTests):
             'video': VideoSerializer(course_run.video).data,
             'pacing_type': course_run.pacing_type,
             'mobile_available': course_run.mobile_available,
+            'hidden': course_run.hidden,
             'content_language': course_run.language.code,
             'transcript_languages': [],
             'min_effort': course_run.min_effort,
