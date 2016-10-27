@@ -28,49 +28,6 @@ def drop_seat_types(apps, schema_editor):
     SeatType = apps.get_model('course_metadata', 'SeatType')
     SeatType.objects.filter(name__in=SEAT_TYPES).delete()
 
-def delete_partnerless_courses(apps, schema_editor):
-    Course = apps.get_model('course_metadata', 'Course')
-    Course.objects.filter(partner__isnull=True).delete()
-
-def add_uuid_to_courses_and_course_runs(apps, schema_editor):
-    Course = apps.get_model('course_metadata', 'Course')
-    CourseRun = apps.get_model('course_metadata', 'CourseRun')
-
-    for objects in (Course.objects.filter(uuid__isnull=True), CourseRun.objects.filter(uuid__isnull=True)):
-        for obj in objects:
-            obj.uuid = uuid.uuid4()
-            obj.save()
-
-def remove_duplicate_courses(apps, schema_editor):
-    Course = apps.get_model('course_metadata', 'Course')
-    duplicates = Course.objects.raw('SELECT'
-                                    '   c.* '
-                                    'FROM '
-                                    '  course_metadata_course AS c'
-                                    '  JOIN ('
-                                    '    SELECT'
-                                    '      LOWER(`key`) AS `key`,'
-                                    '      COUNT(1)'
-                                    '    FROM'
-                                    '      course_metadata_course'
-                                    '    GROUP BY'
-                                    '      LOWER(`key`)'
-                                    '    HAVING'
-                                    '      COUNT(1) > 1'
-                                    '  ) AS dupes ON dupes.key = LOWER(c.key)')
-
-    for course in duplicates:
-        course.delete()
-
-def clear_slug_values(apps, schema_editor):
-    """
-    Clears all data in the CourseRun.slug column.
-
-    The data is invalid, and needs to be removed so that it can be refreshed.
-    """
-    CourseRun = apps.get_model('course_metadata', 'CourseRun')
-    CourseRun.objects.all().update(slug=None)
-
 NAMES = ('threaded_metadata_write', 'parallel_refresh_pipeline')
 
 def create_switches(apps, schema_editor):
@@ -103,82 +60,50 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='CorporateEndorsement',
+            name='Image',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('corporation_name', models.CharField(max_length=128)),
-                ('statement', models.TextField()),
+                ('src', models.URLField(max_length=255, unique=True)),
+                ('description', models.CharField(blank=True, max_length=255, null=True)),
+                ('height', models.IntegerField(blank=True, null=True)),
+                ('width', models.IntegerField(blank=True, null=True)),
             ],
             options={
                 'abstract': False,
-                'ordering': ('-modified', '-created'),
-                'get_latest_by': 'modified',
             },
         ),
         migrations.CreateModel(
-            name='Course',
+            name='Video',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
+                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
+                ('src', models.URLField(max_length=255, unique=True)),
+                ('description', models.CharField(blank=True, max_length=255, null=True)),
+                ('image', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='course_metadata.Image')),
+            ],
+            options={
+                'abstract': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='Person',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
                 ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, verbose_name='UUID')),
-                ('key', models.CharField(max_length=255)),
-                ('title', models.CharField(blank=True, default=None, max_length=255, null=True)),
-                ('short_description', models.CharField(blank=True, default=None, max_length=255, null=True)),
-                ('full_description', models.TextField(blank=True, default=None, null=True)),
-                ('card_image_url', models.URLField(blank=True, null=True)),
-                ('slug', django_extensions.db.fields.AutoSlugField(blank=True, editable=False, populate_from='key')),
-                ('number', models.CharField(blank=True, help_text='Course number format e.g CS002x, BIO1.1x, BIO1.2x', max_length=50, null=True)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='CourseRun',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, verbose_name='UUID')),
-                ('key', models.CharField(max_length=255, unique=True)),
-                ('status', models.CharField(choices=[('published', 'Published'), ('unpublished', 'Unpublished')], db_index=True, max_length=255, validators=[djchoices.choices.ChoicesValidator({'published': 'Published', 'unpublished': 'Unpublished'})])),
-                ('title_override', models.CharField(blank=True, default=None, help_text="Title specific for this run of a course. Leave this value blank to default to the parent course's title.", max_length=255, null=True)),
-                ('start', models.DateTimeField(blank=True, null=True)),
-                ('end', models.DateTimeField(blank=True, db_index=True, null=True)),
-                ('enrollment_start', models.DateTimeField(blank=True, null=True)),
-                ('enrollment_end', models.DateTimeField(blank=True, db_index=True, null=True)),
-                ('announcement', models.DateTimeField(blank=True, null=True)),
-                ('short_description_override', models.CharField(blank=True, default=None, help_text="Short description specific for this run of a course. Leave this value blank to default to the parent course's short_description attribute.", max_length=255, null=True)),
-                ('full_description_override', models.TextField(blank=True, default=None, help_text="Full description specific for this run of a course. Leave this value blank to default to the parent course's full_description attribute.", null=True)),
-                ('min_effort', models.PositiveSmallIntegerField(blank=True, help_text='Estimated minimum number of hours per week needed to complete a course run.', null=True)),
-                ('max_effort', models.PositiveSmallIntegerField(blank=True, help_text='Estimated maximum number of hours per week needed to complete a course run.', null=True)),
-                ('weeks_to_complete', models.PositiveSmallIntegerField(blank=True, help_text='Estimated number of weeks needed to complete this course run.', null=True)),
-                ('pacing_type', models.CharField(blank=True, choices=[('instructor_paced', 'Instructor-paced'), ('self_paced', 'Self-paced')], db_index=True, max_length=255, null=True, validators=[djchoices.choices.ChoicesValidator({'instructor_paced': 'Instructor-paced', 'self_paced': 'Self-paced'})])),
-                ('card_image_url', models.URLField(blank=True, null=True)),
-                ('slug', models.CharField(blank=True, db_index=True, max_length=255, null=True)),
-                ('hidden', models.BooleanField(default=False)),
-                ('mobile_available', models.BooleanField(default=False)),
-                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='course_runs', to='course_metadata.Course')),
-                ('language', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='ietf_language_tags.LanguageTag')),
+                ('given_name', models.CharField(max_length=255)),
+                ('family_name', models.CharField(blank=True, max_length=255, null=True)),
+                ('bio', models.TextField(blank=True, null=True)),
+                ('profile_image_url', models.URLField(blank=True, null=True)),
+                ('slug', django_extensions.db.fields.AutoSlugField(blank=True, editable=False, populate_from=('given_name', 'family_name'))),
+                ('partner', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='core.Partner')),
             ],
             options={
-                'abstract': False,
-                'ordering': ('-modified', '-created'),
-                'get_latest_by': 'modified',
-            },
-        ),
-        migrations.CreateModel(
-            name='CourseRunSocialNetwork',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('type', models.CharField(choices=[('facebook', 'Facebook'), ('twitter', 'Twitter'), ('blog', 'Blog'), ('others', 'Others')], db_index=True, max_length=15)),
-                ('value', models.CharField(max_length=500)),
-                ('course_run', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='course_run_networks', to='course_metadata.CourseRun')),
-            ],
-            options={
-                'verbose_name_plural': 'CourseRun SocialNetwork',
+                'verbose_name_plural': 'People',
             },
         ),
         migrations.CreateModel(
@@ -188,6 +113,24 @@ class Migration(migrations.Migration):
                 ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
                 ('quote', models.TextField()),
+                ('endorser', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='course_metadata.Person'))
+            ],
+            options={
+                'abstract': False,
+                'ordering': ('-modified', '-created'),
+                'get_latest_by': 'modified',
+            },
+        ),
+        migrations.CreateModel(
+            name='CorporateEndorsement',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
+                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
+                ('corporation_name', models.CharField(max_length=128)),
+                ('statement', models.TextField()),
+                ('image', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='course_metadata.Image')),
+                ('individual_endorsements', sortedm2m.fields.SortedManyToManyField(help_text=None, to='course_metadata.Endorsement')),
             ],
             options={
                 'abstract': False,
@@ -219,21 +162,6 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'FAQ',
                 'verbose_name_plural': 'FAQs',
-            },
-        ),
-        migrations.CreateModel(
-            name='Image',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('src', models.URLField(max_length=255, unique=True)),
-                ('description', models.CharField(blank=True, max_length=255, null=True)),
-                ('height', models.IntegerField(blank=True, null=True)),
-                ('width', models.IntegerField(blank=True, null=True)),
-            ],
-            options={
-                'abstract': False,
             },
         ),
         migrations.CreateModel(
@@ -279,24 +207,6 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='Person',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, verbose_name='UUID')),
-                ('given_name', models.CharField(max_length=255)),
-                ('family_name', models.CharField(blank=True, max_length=255, null=True)),
-                ('bio', models.TextField(blank=True, null=True)),
-                ('profile_image_url', models.URLField(blank=True, null=True)),
-                ('slug', django_extensions.db.fields.AutoSlugField(blank=True, editable=False, populate_from=('given_name', 'family_name'))),
-                ('partner', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='core.Partner')),
-            ],
-            options={
-                'verbose_name_plural': 'People',
-            },
-        ),
-        migrations.CreateModel(
             name='PersonSocialNetwork',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
@@ -340,6 +250,156 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
+            name='SeatType',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
+                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
+                ('name', models.CharField(max_length=64, unique=True)),
+                ('slug', django_extensions.db.fields.AutoSlugField(blank=True, editable=False, populate_from='name')),
+            ],
+            options={
+                'abstract': False,
+                'ordering': ('-modified', '-created'),
+                'get_latest_by': 'modified',
+            },
+        ),
+        migrations.CreateModel(
+            name='ProgramType',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
+                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
+                ('name', models.CharField(max_length=32, unique=True)),
+                ('applicable_seat_types', models.ManyToManyField(help_text='Seat types that qualify for completion of programs of this type. Learners completing associated courses, but enrolled in other seat types, will NOT have their completion of the course counted toward the completion of the program.', to='course_metadata.SeatType')),
+            ],
+            options={
+                'abstract': False,
+                'ordering': ('-modified', '-created'),
+                'get_latest_by': 'modified',
+            },
+        ),
+        migrations.CreateModel(
+            name='Subject',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
+                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
+                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, verbose_name='UUID')),
+                ('name', models.CharField(max_length=255)),
+                ('subtitle', models.CharField(blank=True, max_length=255, null=True)),
+                ('description', models.TextField(blank=True, null=True)),
+                ('banner_image_url', models.URLField(blank=True, null=True)),
+                ('card_image_url', models.URLField(blank=True, null=True)),
+                ('slug', django_extensions.db.fields.AutoSlugField(blank=True, editable=False, help_text='Leave this field blank to have the value generated automatically.', populate_from='name')),
+                ('partner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='core.Partner')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Course',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
+                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
+                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, verbose_name='UUID')),
+                ('key', models.CharField(max_length=255)),
+                ('title', models.CharField(blank=True, default=None, max_length=255, null=True)),
+                ('short_description', models.CharField(blank=True, default=None, max_length=255, null=True)),
+                ('full_description', models.TextField(blank=True, default=None, null=True)),
+                ('card_image_url', models.URLField(blank=True, null=True)),
+                ('slug', django_extensions.db.fields.AutoSlugField(blank=True, editable=False, populate_from='key')),
+                ('number', models.CharField(blank=True, help_text='Course number format e.g CS002x, BIO1.1x, BIO1.2x', max_length=50, null=True)),
+                ('authoring_organizations', sortedm2m.fields.SortedManyToManyField(blank=True, help_text=None, related_name='authored_courses', to='course_metadata.Organization')),
+                ('expected_learning_items',sortedm2m.fields.SortedManyToManyField(blank=True, help_text=None, to='course_metadata.ExpectedLearningItem')),
+                ('level_type', models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='course_metadata.LevelType')),
+                ('partner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='core.Partner')),
+                ('prerequisites', models.ManyToManyField(blank=True, to='course_metadata.Prerequisite')),
+                ('sponsoring_organizations', sortedm2m.fields.SortedManyToManyField(blank=True, help_text=None, related_name='sponsored_courses', to='course_metadata.Organization')),
+                ('subjects', models.ManyToManyField(blank=True, to='course_metadata.Subject')),
+                ('video', models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='course_metadata.Video')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='SyllabusItem',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
+                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
+                ('value', models.CharField(max_length=255)),
+                ('parent', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='children', to='course_metadata.SyllabusItem')),
+            ],
+            options={
+                'abstract': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='CourseRun',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
+                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
+                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, verbose_name='UUID')),
+                ('key', models.CharField(max_length=255, unique=True)),
+                ('status', models.CharField(choices=[('published', 'Published'), ('unpublished', 'Unpublished')], db_index=True, max_length=255, validators=[djchoices.choices.ChoicesValidator({'published': 'Published', 'unpublished': 'Unpublished'})])),
+                ('title_override', models.CharField(blank=True, default=None, help_text="Title specific for this run of a course. Leave this value blank to default to the parent course's title.", max_length=255, null=True)),
+                ('start', models.DateTimeField(blank=True, null=True)),
+                ('end', models.DateTimeField(blank=True, db_index=True, null=True)),
+                ('enrollment_start', models.DateTimeField(blank=True, null=True)),
+                ('enrollment_end', models.DateTimeField(blank=True, db_index=True, null=True)),
+                ('announcement', models.DateTimeField(blank=True, null=True)),
+                ('short_description_override', models.CharField(blank=True, default=None, help_text="Short description specific for this run of a course. Leave this value blank to default to the parent course's short_description attribute.", max_length=255, null=True)),
+                ('full_description_override', models.TextField(blank=True, default=None, help_text="Full description specific for this run of a course. Leave this value blank to default to the parent course's full_description attribute.", null=True)),
+                ('min_effort', models.PositiveSmallIntegerField(blank=True, help_text='Estimated minimum number of hours per week needed to complete a course run.', null=True)),
+                ('max_effort', models.PositiveSmallIntegerField(blank=True, help_text='Estimated maximum number of hours per week needed to complete a course run.', null=True)),
+                ('weeks_to_complete', models.PositiveSmallIntegerField(blank=True, help_text='Estimated number of weeks needed to complete this course run.', null=True)),
+                ('pacing_type', models.CharField(blank=True, choices=[('instructor_paced', 'Instructor-paced'), ('self_paced', 'Self-paced')], db_index=True, max_length=255, null=True, validators=[djchoices.choices.ChoicesValidator({'instructor_paced': 'Instructor-paced', 'self_paced': 'Self-paced'})])),
+                ('card_image_url', models.URLField(blank=True, null=True)),
+                ('slug', models.CharField(blank=True, db_index=True, max_length=255, null=True)),
+                ('hidden', models.BooleanField(default=False)),
+                ('mobile_available', models.BooleanField(default=False)),
+                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='course_runs', to='course_metadata.Course')),
+                ('language', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='ietf_language_tags.LanguageTag')),
+                ('staff', sortedm2m.fields.SortedManyToManyField(blank=True, help_text=None, related_name='courses_staffed', to='course_metadata.Person')),
+                ('syllabus', models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='course_metadata.SyllabusItem')),
+                ('transcript_languages', models.ManyToManyField(blank=True, related_name='transcript_courses', to='ietf_language_tags.LanguageTag')),
+                ('video', models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='course_metadata.Video')),
+            ],
+            options={
+                'abstract': False,
+                'ordering': ('-modified', '-created'),
+                'get_latest_by': 'modified',
+            },
+        ),
+        migrations.CreateModel(
+            name='Seat',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
+                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
+                ('type', models.CharField(choices=[('honor', 'Honor'), ('audit', 'Audit'), ('verified', 'Verified'), ('professional', 'Professional'), ('credit', 'Credit')], max_length=63)),
+                ('price', models.DecimalField(decimal_places=2, default=0.0, max_digits=10)),
+                ('upgrade_deadline', models.DateTimeField(blank=True, null=True)),
+                ('credit_provider', models.CharField(blank=True, max_length=255, null=True)),
+                ('credit_hours', models.IntegerField(blank=True, null=True)),
+                ('course_run', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='seats', to='course_metadata.CourseRun')),
+                ('currency', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='core.Currency')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='CourseRunSocialNetwork',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
+                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
+                ('type', models.CharField(choices=[('facebook', 'Facebook'), ('twitter', 'Twitter'), ('blog', 'Blog'), ('others', 'Others')], db_index=True, max_length=15)),
+                ('value', models.CharField(max_length=500)),
+                ('course_run', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='course_run_networks', to='course_metadata.CourseRun')),
+            ],
+            options={
+                'verbose_name_plural': 'CourseRun SocialNetwork',
+            },
+        ),
+        migrations.CreateModel(
             name='Program',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
@@ -369,189 +429,14 @@ class Migration(migrations.Migration):
                 ('individual_endorsements', sortedm2m.fields.SortedManyToManyField(blank=True, help_text=None, to='course_metadata.Endorsement')),
                 ('job_outlook_items', sortedm2m.fields.SortedManyToManyField(blank=True, help_text=None, to='course_metadata.JobOutlookItem')),
                 ('partner', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='core.Partner')),
+                ('type', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='course_metadata.ProgramType')),
+                ('video', models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='course_metadata.Video')),
             ],
             options={
                 'abstract': False,
                 'ordering': ('-modified', '-created'),
                 'get_latest_by': 'modified',
             },
-        ),
-        migrations.CreateModel(
-            name='ProgramType',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('name', models.CharField(max_length=32, unique=True)),
-            ],
-            options={
-                'abstract': False,
-                'ordering': ('-modified', '-created'),
-                'get_latest_by': 'modified',
-            },
-        ),
-        migrations.CreateModel(
-            name='Seat',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('type', models.CharField(choices=[('honor', 'Honor'), ('audit', 'Audit'), ('verified', 'Verified'), ('professional', 'Professional'), ('credit', 'Credit')], max_length=63)),
-                ('price', models.DecimalField(decimal_places=2, default=0.0, max_digits=10)),
-                ('upgrade_deadline', models.DateTimeField(blank=True, null=True)),
-                ('credit_provider', models.CharField(blank=True, max_length=255, null=True)),
-                ('credit_hours', models.IntegerField(blank=True, null=True)),
-                ('course_run', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='seats', to='course_metadata.CourseRun')),
-                ('currency', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='core.Currency')),
-            ],
-        ),
-        migrations.CreateModel(
-            name='SeatType',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('name', models.CharField(max_length=64, unique=True)),
-                ('slug', django_extensions.db.fields.AutoSlugField(blank=True, editable=False, populate_from='name')),
-            ],
-            options={
-                'abstract': False,
-                'ordering': ('-modified', '-created'),
-                'get_latest_by': 'modified',
-            },
-        ),
-        migrations.CreateModel(
-            name='Subject',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, verbose_name='UUID')),
-                ('name', models.CharField(max_length=255)),
-                ('subtitle', models.CharField(blank=True, max_length=255, null=True)),
-                ('description', models.TextField(blank=True, null=True)),
-                ('banner_image_url', models.URLField(blank=True, null=True)),
-                ('card_image_url', models.URLField(blank=True, null=True)),
-                ('slug', django_extensions.db.fields.AutoSlugField(blank=True, editable=False, help_text='Leave this field blank to have the value generated automatically.', populate_from='name')),
-                ('partner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='core.Partner')),
-            ],
-        ),
-        migrations.CreateModel(
-            name='SyllabusItem',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('value', models.CharField(max_length=255)),
-                ('parent', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='children', to='course_metadata.SyllabusItem')),
-            ],
-            options={
-                'abstract': False,
-            },
-        ),
-        migrations.CreateModel(
-            name='Video',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('src', models.URLField(max_length=255, unique=True)),
-                ('description', models.CharField(blank=True, max_length=255, null=True)),
-                ('image', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='course_metadata.Image')),
-            ],
-            options={
-                'abstract': False,
-            },
-        ),
-        migrations.AddField(
-            model_name='programtype',
-            name='applicable_seat_types',
-            field=models.ManyToManyField(help_text='Seat types that qualify for completion of programs of this type. Learners completing associated courses, but enrolled in other seat types, will NOT have their completion of the course counted toward the completion of the program.', to='course_metadata.SeatType'),
-        ),
-        migrations.AddField(
-            model_name='program',
-            name='type',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='course_metadata.ProgramType'),
-        ),
-        migrations.AddField(
-            model_name='program',
-            name='video',
-            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='course_metadata.Video'),
-        ),
-        migrations.AddField(
-            model_name='endorsement',
-            name='endorser',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='course_metadata.Person'),
-        ),
-        migrations.AddField(
-            model_name='courserun',
-            name='staff',
-            field=sortedm2m.fields.SortedManyToManyField(blank=True, help_text=None, related_name='courses_staffed', to='course_metadata.Person'),
-        ),
-        migrations.AddField(
-            model_name='courserun',
-            name='syllabus',
-            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='course_metadata.SyllabusItem'),
-        ),
-        migrations.AddField(
-            model_name='courserun',
-            name='transcript_languages',
-            field=models.ManyToManyField(blank=True, related_name='transcript_courses', to='ietf_language_tags.LanguageTag'),
-        ),
-        migrations.AddField(
-            model_name='courserun',
-            name='video',
-            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='course_metadata.Video'),
-        ),
-        migrations.AddField(
-            model_name='course',
-            name='authoring_organizations',
-            field=sortedm2m.fields.SortedManyToManyField(blank=True, help_text=None, related_name='authored_courses', to='course_metadata.Organization'),
-        ),
-        migrations.AddField(
-            model_name='course',
-            name='expected_learning_items',
-            field=sortedm2m.fields.SortedManyToManyField(blank=True, help_text=None, to='course_metadata.ExpectedLearningItem'),
-        ),
-        migrations.AddField(
-            model_name='course',
-            name='level_type',
-            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='course_metadata.LevelType'),
-        ),
-        migrations.AddField(
-            model_name='course',
-            name='partner',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='core.Partner'),
-        ),
-        migrations.AddField(
-            model_name='course',
-            name='prerequisites',
-            field=models.ManyToManyField(blank=True, to='course_metadata.Prerequisite'),
-        ),
-        migrations.AddField(
-            model_name='course',
-            name='sponsoring_organizations',
-            field=sortedm2m.fields.SortedManyToManyField(blank=True, help_text=None, related_name='sponsored_courses', to='course_metadata.Organization'),
-        ),
-        migrations.AddField(
-            model_name='course',
-            name='subjects',
-            field=models.ManyToManyField(blank=True, to='course_metadata.Subject'),
-        ),
-        migrations.AddField(
-            model_name='course',
-            name='video',
-            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='course_metadata.Video'),
-        ),
-        migrations.AddField(
-            model_name='corporateendorsement',
-            name='image',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='course_metadata.Image'),
-        ),
-        migrations.AddField(
-            model_name='corporateendorsement',
-            name='individual_endorsements',
-            field=sortedm2m.fields.SortedManyToManyField(help_text=None, to='course_metadata.Endorsement'),
         ),
         migrations.AlterUniqueTogether(
             name='subject',
@@ -585,22 +470,6 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             code=create_switches,
             reverse_code=delete_switches,
-        ),
-        migrations.RunPython(
-            code=clear_slug_values,
-            reverse_code=django.db.migrations.operations.special.RunPython.noop,
-        ),
-        migrations.RunPython(
-            code=remove_duplicate_courses,
-            reverse_code=django.db.migrations.operations.special.RunPython.noop,
-        ),
-        migrations.RunPython(
-            code=add_uuid_to_courses_and_course_runs,
-            reverse_code=django.db.migrations.operations.special.RunPython.noop,
-        ),
-        migrations.RunPython(
-            code=delete_partnerless_courses,
-            reverse_code=django.db.migrations.operations.special.RunPython.noop,
         ),
         migrations.RunPython(
             code=add_seat_types,
