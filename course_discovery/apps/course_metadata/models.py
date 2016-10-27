@@ -331,7 +331,7 @@ class CourseRun(TimeStampedModel):
         max_length=255, default=None, null=True, blank=True,
         help_text=_(
             "Title specific for this run of a course. Leave this value blank to default to the parent course's title."))
-    start = models.DateTimeField(null=True, blank=True)
+    start = models.DateTimeField(null=True, blank=True, db_index=True)
     end = models.DateTimeField(null=True, blank=True, db_index=True)
     enrollment_start = models.DateTimeField(null=True, blank=True)
     enrollment_end = models.DateTimeField(null=True, blank=True, db_index=True)

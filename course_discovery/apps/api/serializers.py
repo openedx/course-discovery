@@ -385,14 +385,16 @@ class CourseRunWithProgramsSerializer(CourseRunSerializer):
     programs = serializers.SerializerMethodField()
 
     def get_programs(self, obj):
+        programs = []
         # Filter out non-deleted programs which this course_run is part of the program course_run exclusion
-        programs = [program for program in obj.programs.all()
-                    if (self.context.get('include_deleted_programs') or
-                        program.status != ProgramStatus.Deleted) and
-                    obj.id not in (run.id for run in program.excluded_course_runs.all())]
-        # If flag is not set, remove programs from list that are unpublished
-        if not self.context.get('include_unpublished_programs'):
-            programs = [program for program in programs if program.status != ProgramStatus.Unpublished]
+        if obj.programs:
+            programs = [program for program in obj.programs.all()
+                        if (self.context.get('include_deleted_programs') or
+                            program.status != ProgramStatus.Deleted) and
+                        obj.id not in (run.id for run in program.excluded_course_runs.all())]
+            # If flag is not set, remove programs from list that are unpublished
+            if not self.context.get('include_unpublished_programs'):
+                programs = [program for program in programs if program.status != ProgramStatus.Unpublished]
 
         return NestedProgramSerializer(programs, many=True).data
 
