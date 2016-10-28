@@ -164,6 +164,7 @@ class Course(TimeStampedModel, ChangedByMixin):
 
     is_seo_review = models.BooleanField(default=False)
     keywords = TaggableManager(blank=True, verbose_name='keywords')
+    user_role = models.ManyToManyField(UserRole, blank=True, related_name='publisher_courses')
 
     history = HistoricalRecords()
 
@@ -391,11 +392,20 @@ class UserAttributes(TimeStampedModel):
 
 class OrganizationsRoles(TimeStampedModel):
     """ Organization model for roles. """
-    organization = models.OneToOneField(Organization)
+    COORDINATOR = 'partner_coordinator'
+    REVIEWER = 'reviewer'
+    PUBLISHER = 'publisher'
+
+    ROLES_TYPE_CHOICES = (
+        (COORDINATOR, _('Partner Coordinator')),
+        (REVIEWER, _('Reviewer')),
+        (PUBLISHER, _('Publisher')),
+    )
+
+    organization = models.ForeignKey(Organization)
     group = models.ForeignKey(Group)
-    coordinator = models.ForeignKey(User, related_name='organization_coordinator')
-    publisher = models.ForeignKey(User, related_name='organization_publisher')
-    reviewer = models.ForeignKey(User, related_name='organization_reviewer')
+    user = models.ForeignKey(User, related_name='organizations_roles')
+    role = models.CharField(max_length=63, choices=ROLES_TYPE_CHOICES, verbose_name='Role Type')
 
     history = HistoricalRecords()
 
@@ -406,3 +416,6 @@ class OrganizationsRoles(TimeStampedModel):
 
     class Meta:
         verbose_name_plural = 'Organizations'
+
+
+
