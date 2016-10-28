@@ -1,0 +1,55 @@
+{% load i18n %}
+
+{% if studio_count > 0 %}
+    <p>{% trans "The list below are the courses that need a studio instance to start development." %}</p>
+    <div class="table-view">
+        <table class="data-table-studio display" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                    <th role="button">
+                        {% trans "Course Name" %}
+                    </th>
+                    <th role="button">
+                        {% trans "Institution" %}
+                    </th>
+                    <th role="button">
+                        {% trans "Start Date" %}
+                    </th>
+                    <th role="button">
+                        {% trans "Course Number" %}
+                    </th>
+                    <th id="column-title" role="button">
+                        {% trans "Studio Course Run Key" %}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course_run in studio_request_courses %}
+                    <tr>
+                        <td id="course-title-{{ course_run.title }}">
+                            <a href="{% url 'publisher:publisher_course_run_detail' course_run.id %}">{{ course_run.title }}</a>
+                        </td>
+                        <td>{% if course_run.course.group_institution %}{{ course_run.course.group_institution }}{% endif %}</td>
+                        <td>
+                             {{ course_run.start|date:"Y-m-d" }}
+                        </td>
+                        <td>
+                            {{ course_run.number }}
+                        </td>
+                        <td>
+                            <div class="form-group">
+                                <input type="text" class="field-input input-text small" aria-labelledby="course-title-{{ course_run.title }} column-title" />
+                                <button class="btn-inline">{% trans "Add" %}</button>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% else %}
+    <div class="depth depth-0">
+        <p class="empty-courserun-text">{% trans "There are no course-runs require studio instance." %}</p>
+    </div>
+{% endif %}
