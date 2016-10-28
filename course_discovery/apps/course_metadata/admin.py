@@ -1,6 +1,8 @@
 from django.contrib import admin, messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.course_metadata.forms import ProgramAdminForm
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
@@ -88,9 +90,9 @@ class ProgramAdmin(admin.ModelAdmin):
     save_error = None
 
     def custom_course_runs_display(self, obj):
-        return ", ".join([str(run) for run in obj.course_runs])
+        return mark_safe('<br>'.join([str(run) for run in obj.course_runs]))
 
-    custom_course_runs_display.short_description = "Included course runs"
+    custom_course_runs_display.short_description = _('Included course runs')
 
     def response_add(self, request, obj, post_url_continue=None):
         if self.save_error:
