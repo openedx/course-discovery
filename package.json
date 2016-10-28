@@ -10,7 +10,9 @@
     "requirejs": "^2.2.0"
   },
   "devDependencies": {
+    "geckodriver": "^1.2.0",
     "gulp": "^3.9.1",
-    "gulp-jscs": "4.0.0"
+    "gulp-jscs": "4.0.0",
+    "phantomjs": "^2.1.7"
   }
 }

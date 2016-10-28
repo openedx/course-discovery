@@ -55,7 +55,7 @@ production-requirements:
 	pip install -r requirements.txt --exists-action w
 
 test: clean
-	coverage run ./manage.py test course_discovery --settings=course_discovery.settings.test
+	PATH=$$PATH:$(NODE_BIN) coverage run ./manage.py test course_discovery --settings=course_discovery.settings.test
 	coverage combine
 	coverage report
 
