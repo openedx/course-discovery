@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-11 10:35+0500\n"
+"POT-Creation-Date: 2016-11-11 17:27+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -412,6 +412,10 @@ msgstr ""
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Course Run {title}-{pacing_type}-{start} state has been changed."
+msgstr ""
+
+#: apps/publisher/emails.py
+msgid "Studio instance created"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -1531,6 +1535,8 @@ msgstr ""
 #: templates/publisher/email/change_state.txt
 #: templates/publisher/email/comment.html
 #: templates/publisher/email/comment.txt
+#: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
 msgid "The edX team"
 msgstr ""
 
@@ -1552,6 +1558,21 @@ msgstr ""
 
 #: templates/publisher/email/comment.txt
 msgid "View comment: "
+msgstr ""
+
+#: templates/publisher/email/studio_instance_created.html
+#, python-format
+msgid ""
+"Studio instance created for the following course run: "
+"%(link_start)s%(course_run_page_url)s%(link_middle)scourse run "
+"link%(link_end)s."
+msgstr ""
+
+#: templates/publisher/email/studio_instance_created.txt
+#, python-format
+msgid ""
+"Studio instance created for the following course run: "
+"%(course_run_page_url)s"
 msgstr ""
 
 #: templates/publisher/seat_form.html

@@ -13,7 +13,7 @@
         <ul role="tablist" class="tabs">
             <li role="tab" id="tab-progress" class="tab" aria-selected="true" aria-expanded="false" aria-controls="progress" tabindex="0"><span>0</span>{% trans "IN PROGRESS" %}</li>
             <li role="tab" id="tab-preview" class="tab" aria-selected="false" aria-expanded="false" aria-controls="preview" tabindex="-1"><span>0</span>{% trans "PREVIEW READY" %}</li>
-            <li role="tab" id="tab-studio" class="tab" aria-selected="false" aria-expanded="true" aria-controls="studio" tabindex="-1" data-studio-count="{{ studio_count }}"><span>{{ studio_count }}</span>{% trans "STUDIO REQUEST" %}</li>
+            <li role="tab" id="tab-studio" class="tab" aria-selected="false" aria-expanded="true" aria-controls="studio" tabindex="-1" data-studio-count="{{ studio_count }}"><span id="studio-count">{{ studio_count }}</span>{% trans "STUDIO REQUEST" %}</li>
         </ul>
 
         <div role="tabpanel" id="progress" class="tab-panel" aria-labelledby="tab-progress" aria-hidden="false" tabindex="-1">

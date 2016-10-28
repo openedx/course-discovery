@@ -9,9 +9,11 @@ from django.core import mail
 from guardian.shortcuts import assign_perm
 import pytz
 import mock
+from testfixtures import LogCapture
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests import toggle_switch
+from course_discovery.apps.publisher import emails
 from course_discovery.apps.publisher.models import State, Course
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.factories import UserAttributeFactory
@@ -121,3 +123,60 @@ class StateChangeEmailTests(TestCase):
         # add the start date again for other tests.
         self.course_run.start = datetime.datetime.now(pytz.UTC)
         self.course_run.save()
+
+
+class StudioInstanceCreatedEmailTests(TestCase):
+    """ Tests for the email functionality for studio instance created. """
+
+    def setUp(self):
+        super(StudioInstanceCreatedEmailTests, self).setUp()
+        self.user = UserFactory()
+
+        self.group = factories.GroupFactory()
+        self.user.groups.add(self.group)
+
+        self.course_run = factories.CourseRunFactory()
+
+        assign_perm(Course.VIEW_PERMISSION, self.group, self.course_run.course)
+
+        UserAttributeFactory(user=self.user, enable_email_notification=True)
+
+        toggle_switch('enable_publisher_email_notifications', True)
+
+    @mock.patch('django.core.mail.message.EmailMessage.send', mock.Mock(side_effect=TypeError))
+    def test_email_with_error(self):
+        """ Verify that emails for studio instance created."""
+
+        with LogCapture(emails.logger.name) as l:
+            emails.send_email_for_studio_instance_created(self.course_run)
+            l.check(
+                (
+                    emails.logger.name,
+                    'ERROR',
+                    'Failed to send email notifications for course_run [{}]'.format(self.course_run.id)
+                )
+            )
+
+    def test_email_sent_successfully(self):
+        """ Verify that emails sent successfully for studio instance created."""
+
+        emails.send_email_for_studio_instance_created(self.course_run)
+
+        # assert email sent
+        self.assert_email_sent(
+            reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id}),
+            'Studio instance created',
+            'Studio instance created for the following course run'
+        )
+
+    def assert_email_sent(self, object_path, subject, expected_body):
+        """ DRY method to assert sent email data"""
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual([settings.PUBLISHER_FROM_EMAIL], mail.outbox[0].to)
+        self.assertEqual([self.user.email], mail.outbox[0].bcc)
+        self.assertEqual(str(mail.outbox[0].subject), subject)
+
+        body = mail.outbox[0].body.strip()
+        self.assertIn(expected_body, body)
+        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=object_path)
+        self.assertIn(page_url, body)
