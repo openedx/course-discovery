@@ -1,4 +1,5 @@
 import logging
+from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 
 from django.db import models
@@ -78,6 +79,37 @@ class State(TimeStampedModel, ChangedByMixin):
         pass
 
 
+class UserRole(TimeStampedModel):
+    """ UserRole model. """
+
+    COORDINATOR = 'partner_coordinator'
+    REVIEWER = 'reviewer'
+    PUBLISHER = 'publisher'
+
+    ROLES_TYPE_CHOICES = (
+        (COORDINATOR, _('Partner Coordinator')),
+        (REVIEWER, _('Reviewer')),
+        (PUBLISHER, _('Publisher')),
+    )
+
+    user = models.ForeignKey(User, related_name='roles')
+    role = models.CharField(max_length=63, choices=ROLES_TYPE_CHOICES, verbose_name='Role Type')
+    is_active = models.BooleanField(default=True)
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return '{user}: {role}'.format(
+            user=self.user, role=self.role
+        )
+
+    class Meta(object):
+
+        unique_together = (
+            ('user', 'role'),
+        )
+
+
 class Course(TimeStampedModel, ChangedByMixin):
     """ Publisher Course model. It contains fields related to the course intake form."""
     VIEW_PERMISSION = 'view_course'
@@ -132,6 +164,7 @@ class Course(TimeStampedModel, ChangedByMixin):
 
     is_seo_review = models.BooleanField(default=False)
     keywords = TaggableManager(blank=True, verbose_name='keywords')
+    user_role = models.ManyToManyField(UserRole, blank=True, related_name='publisher_courses')
 
     history = HistoricalRecords()
 
@@ -254,6 +287,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         )
     )
     video_language = models.ForeignKey(LanguageTag, null=True, blank=True, related_name='video_language')
+    user_role = models.ManyToManyField(UserRole, blank=True, related_name='publisher_course_runs')
 
     history = HistoricalRecords()
 
@@ -354,3 +388,34 @@ class UserAttributes(TimeStampedModel):
 
     class Meta:
         verbose_name_plural = 'UserAttributes'
+
+
+class OrganizationsRoles(TimeStampedModel):
+    """ Organization model for roles. """
+    COORDINATOR = 'partner_coordinator'
+    REVIEWER = 'reviewer'
+    PUBLISHER = 'publisher'
+
+    ROLES_TYPE_CHOICES = (
+        (COORDINATOR, _('Partner Coordinator')),
+        (REVIEWER, _('Reviewer')),
+        (PUBLISHER, _('Publisher')),
+    )
+
+    organization = models.ForeignKey(Organization)
+    group = models.ForeignKey(Group)
+    user = models.ForeignKey(User, related_name='organizations_roles')
+    role = models.CharField(max_length=63, choices=ROLES_TYPE_CHOICES, verbose_name='Role Type')
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return '{organization}'.format(
+            organization=self.organization
+        )
+
+    class Meta:
+        verbose_name_plural = 'Organizations'
+
+
+
