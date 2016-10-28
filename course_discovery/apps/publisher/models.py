@@ -389,9 +389,27 @@ class UserAttributes(TimeStampedModel):
         verbose_name_plural = 'UserAttributes'
 
 
+class OrganizationRoles(TimeStampedModel):
+    """ OrganizationRoles model for roles. """
+    organization = models.OneToOneField(Organization)
+    coordinator = models.ForeignKey(User, related_name='organization_coordinator')
+    publisher = models.ForeignKey(User, related_name='organization_publisher')
+    reviewer = models.ForeignKey(User, related_name='organization_reviewer')
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return '{organization}'.format(
+            organization=self.organization
+        )
+
+    class Meta:
+        verbose_name_plural = 'OrganizationRoles'
+
+
 class OrganizationGroup(TimeStampedModel):
     """ OrganizationGroup model. """
-    organization = models.ForeignKey(Organization)
+    organization = models.OneToOneField(Organization)
     group = models.ForeignKey(Group)
 
     history = HistoricalRecords()
