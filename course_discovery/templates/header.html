@@ -3,8 +3,7 @@
 <header class="header">
     <div class="layout-1q1h1q layout-flush layout-header">
         <nav class="layout-col layout-col-a">
-            {% url 'publisher:publisher_course_runs' as course_runs_url %}
-            <a href="{{ course_runs_url }}">
+            <a href="{% url 'publisher:publisher_dashboard' %}">
                 <img src="{% static 'images/logo.png' %}">
             </a>
         </nav>

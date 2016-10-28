@@ -895,14 +895,19 @@ class ChangeStateViewTests(TestCase):
         self.assertContains(response, State.NEEDS_REVIEW.title().replace('_', ' '))
 
 
-class CourseRunListViewTests(TestCase):
-    """ Tests for the `CourseRunListView`. """
+class DashboardTests(TestCase):
+    """ Tests for the `Dashboard`. """
 
     def setUp(self):
-        super(CourseRunListViewTests, self).setUp()
+        super(DashboardTests, self).setUp()
         self.user = UserFactory(is_staff=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.page_url = reverse('publisher:publisher_course_runs')
+        self.page_url = reverse('publisher:publisher_dashboard')
+
+        # Create courses with `DRAFT` and `NEEDS_REVIEW` and PUBLISHED state
+        self.course_run_1 = factories.CourseRunFactory(state=factories.StateFactory(name=State.DRAFT))
+        self.course_run_2 = factories.CourseRunFactory(state=factories.StateFactory(name=State.NEEDS_REVIEW))
+        self.course_run_3 = factories.CourseRunFactory(state=factories.StateFactory(name=State.PUBLISHED))
 
     def test_page_without_login(self):
         """ Verify that user can't access course runs list page when not logged in. """
@@ -922,34 +927,42 @@ class CourseRunListViewTests(TestCase):
     def test_page_with_login(self):
         """ Verify that user can access course runs list page when logged in. """
         response = self.client.get(self.page_url)
-
         self.assertEqual(response.status_code, 200)
 
-    def test_published_and_unpublished_course_runs(self):
-        """ Verify that user can access published and un-published course runs. """
-        # Create two courses with `DRAFT` and `NEEDS_REVIEW` state
-        draft_state = factories.StateFactory(name=State.DRAFT)
-        in_review_state = factories.StateFactory(name=State.NEEDS_REVIEW)
-        factories.CourseRunFactory(state=draft_state)
-        factories.CourseRunFactory(state=in_review_state)
+    def test_different_course_runs_counts(self):
+        """ Verify that user can access published and un-published and
+        studio requests course runs. """
+        self.assert_dashboard_reponse(2, 1, 2)
 
+    def test_studio_request_course_runs(self):
+        """ Verify that page loads the list course runs which need studio request. """
+        self.course_run_1.lms_course_id = 'test'
+        self.course_run_1.save()
+        self.assert_dashboard_reponse(2, 1, 1)
+        self.course_run_2.lms_course_id = 'test-2'
+        self.course_run_2.save()
+        self.assert_dashboard_reponse(2, 1, 0)
+
+    def assert_dashboard_reponse(self, unpublished_count, published_count, studio_requests):
         response = self.client.get(self.page_url)
         self.assertEqual(response.status_code, 200)
 
-        # Verify that we have 2 in progress and 0 published course runs
-        self.assertEqual(len(response.context['object_list']), 2)
-        self.assertEqual(len(response.context['published_courseruns']), 0)
+        self.assertEqual(len(response.context['unpublished_courseruns']), unpublished_count)
+        self.assertEqual(len(response.context['published_courseruns']), published_count)
+        self.assertEqual(len(response.context['studio_request_courses']), studio_requests)
 
-        # create a course with `PUBLISHED` state
-        published_state = factories.StateFactory(name=State.PUBLISHED)
-        factories.CourseRunFactory(state=published_state)
+        if studio_requests > 0:
+            self.assertContains(response, '<table class="data-table-studio display"')
+        else:
+            self.assertContains(response, 'There are no course-runs require studio instance.')
 
-        response = self.client.get(self.page_url)
-        self.assertEqual(response.status_code, 200)
-
-        # Verify that we have 2 in progress and 1 published course runs
-        self.assertEqual(len(response.context['object_list']), 2)
-        self.assertEqual(len(response.context['published_courseruns']), 1)
+    def test_without_studio_request_course_runs(self):
+        """ Verify that studio tab indicates a message if no course-run available. """
+        self.course_run_1.lms_course_id = 'test'
+        self.course_run_1.save()
+        self.course_run_2.lms_course_id = 'test-2'
+        self.course_run_2.save()
+        self.assert_dashboard_reponse(2, 1, 0)
 
 
 class ToggleEmailNotificationTests(TestCase):

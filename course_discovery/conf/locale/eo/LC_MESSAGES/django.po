@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-03 17:29-0400\n"
+"POT-Creation-Date: 2016-11-09 17:00+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -707,9 +707,9 @@ msgstr ""
 msgid "modified"
 msgstr "mödïfïéd Ⱡ'σяєм ιρѕυм ∂#"
 
-#: templates/base.html
-msgid "Course Runs"
-msgstr "Çöürsé Rüns Ⱡ'σяєм ιρѕυм ∂σłσя #"
+#: templates/base.html templates/publisher/dashboard.html
+msgid "Dashboard"
+msgstr "Däshßöärd Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: templates/base.html
 msgid "Courses"
@@ -901,6 +901,7 @@ msgstr "Prïörïtý çöntént Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_salesforce.html
 #: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard.html
 msgid "Start Date"
 msgstr "Stärt Däté Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
@@ -939,7 +940,7 @@ msgstr ""
 "Wïll ýöür çöürsé ßé öpén tö stüdénts ät thé sämé tïmé äs ït ïs ännöünçéd? "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
-#: templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html templates/publisher/dashboard.html
 msgid "Course Number"
 msgstr "Çöürsé Nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
@@ -1645,6 +1646,7 @@ msgid "No Seats Available."
 msgstr "Nö Séäts Àväïläßlé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
 #: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard.html
 msgid "Course Name"
 msgstr "Çöürsé Nämé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
@@ -1717,6 +1719,52 @@ msgid "Looks like you haven't publish a course yet"
 msgstr ""
 "Lööks lïké ýöü hävén't püßlïsh ä çöürsé ýét Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
+
+#: templates/publisher/dashboard.html
+msgid "Course runs"
+msgstr "Çöürsé rüns Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: templates/publisher/dashboard.html
+msgid "IN PROGRESS"
+msgstr "ÌN PRÖGRÉSS Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: templates/publisher/dashboard.html
+msgid "PREVIEW READY"
+msgstr "PRÉVÌÉW RÉÀDÝ Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: templates/publisher/dashboard.html
+msgid "STUDIO REQUEST"
+msgstr "STÛDÌÖ RÉQÛÉST Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#: templates/publisher/dashboard.html
+msgid "In Progress"
+msgstr "Ìn Prögréss Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: templates/publisher/dashboard.html
+msgid ""
+"The list below are the are course that need a studio instance to start "
+"development."
+msgstr ""
+"Thé lïst ßélöw äré thé äré çöürsé thät nééd ä stüdïö ïnstänçé tö stärt "
+"dévélöpmént. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: templates/publisher/dashboard.html
+msgid "Institution"
+msgstr "Ìnstïtütïön Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: templates/publisher/dashboard.html
+msgid "Studio Course Run Key"
+msgstr "Stüdïö Çöürsé Rün Kéý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: templates/publisher/dashboard.html
+msgid "ADD"
+msgstr "ÀDD Ⱡ'σяєм#"
+
+#: templates/publisher/dashboard.html
+msgid "There are no course-runs require studio instance."
+msgstr ""
+"Théré äré nö çöürsé-rüns réqüïré stüdïö ïnstänçé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/email/change_state.html
 #: templates/publisher/email/change_state.txt
