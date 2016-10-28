@@ -10,6 +10,190 @@
     -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   }
+    padding: 35px 30px;
+
+    .nav-tabs {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+            float: left;
+            background: #f2f2f2;
+            margin-right: 1px;
+            position: relative;
+            border: {
+                width: 2px;
+                style: solid;
+                color: #f2f2f2;
+                bottom-width: 0;
+            }
+
+            a {
+                display: block;
+                text-align: center;
+                padding: 12px 20px;
+                font-weight: 600;
+                font-size: 15px;
+                color: #949494;
+                text-transform: uppercase;
+                text-decoration: none;
+
+                span {
+                    display: block;
+                    margin-bottom: 8px;
+                    font-size: 22px;
+                }
+            }
+
+            &.active {
+                background: white;
+                border: {
+                    width: 2px;
+                    style: solid;
+                    color: #169bd5;
+                    bottom-width: 0;
+                }
+
+                a {
+                    color: #169bd5;
+                }
+
+                &:after {
+                    content: '';
+                    height: 2px;
+                    background: white;
+                    position: absolute;
+                    right: 0;
+                    left: 0;
+                    bottom: -2px;
+                    z-index: 1;
+                }
+            }
+
+            &:hover {
+                border-color: #eee;
+
+                a {
+                    background: #eee;
+                    color: #757575;
+                }
+
+                &.active {
+                    border-color: #169bd5;
+
+                    a {
+                        background: white;
+                        color: #169bd5;
+                    }
+                }
+            }
+        }
+
+        &:before,
+        &:after {
+            content: '';
+            display: table;
+            clear: both;
+        }
+    }
+
+    .tabs-container {
+        border: 2px solid #169bd5;
+        background-color: #fff;
+        margin-bottom: 50px;
+
+        .tab-content {
+            padding: 35px 20px;
+
+            p {
+                margin-top: 0;
+            }
+
+            .form-group {
+
+                input {
+                    height: 25px;
+                    border-radius: 0;
+                    border: 1px solid #bebebe;
+                    padding-left: 6px;
+                    padding-right: 6px;
+                    width: 50%;
+                    box-shadow: inset 0px 1px #666;
+                }
+
+                .btn-inline {
+                    background: #169bd5;
+                    border-radius: 4px;
+                    padding: 3px 20px;
+                    border: none;
+                    height: 25px;
+                    color: white;
+                    margin-left: 6px;
+
+                    &:hover {
+                        cursor: pointer;
+                        background: #0e8dc4;
+                    }
+                }
+            }
+
+            .table-view {
+                display: table;
+                width: 100%;
+                border: {
+                    width: 0 1px 1px 0;
+                    style: solid;
+                    color: #797979;
+                }
+
+                .table-row {
+                    display: table-row;
+                    text-align: center;
+
+                    .table-col {
+                        display: table-cell;
+                        vertical-align: middle;
+                        padding: 10px 5px;
+                        color: #333;
+                        font-size: 14px;
+                        border: {
+                            width: 1px 0 0 1px;
+                            style: solid;
+                            color: #797979;
+                        }
+
+                        &:first-child {
+                            text-align: left;
+                        }
+                    }
+
+                    &.table-head {
+
+                        .table-col {
+                            background: #ccc !important;
+                            font-weight: bold;
+
+                            &:first-child {
+                                text-align: center;
+                            }
+                        }
+                    }
+                }
+
+                &.table-striped {
+                    .table-row {
+
+                        &:nth-child(odd) {
+                            .table-col {
+                                background: #f2f2f2;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 
