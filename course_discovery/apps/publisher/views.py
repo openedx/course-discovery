@@ -30,7 +30,7 @@ SEATS_HIDDEN_FIELDS = ['price', 'currency', 'upgrade_deadline', 'credit_provider
 
 class CourseRunListView(mixins.LoginRequiredMixin, ListView):
     """ Create Course View."""
-    template_name = 'publisher/course_runs_list.html'
+    template_name = 'publisher/dashboard.html'
 
     def get_queryset(self):
         if self.request.user.is_staff:
