@@ -109,7 +109,7 @@ Additional optional attributes can be specified:
 +-------------------------------+-----------------------------------------+----------------------------------------------------+
 | Attribute/Argument            | Description                             | Notes / Example Values                             |
 +===============================+=========================================+====================================================+
-| courses-api-url               | LMS Courses API Endpoint                | https://lms.example.com/api/v1/courses/            |
+| courses-api-url               | LMS Courses API Endpoint                | https://lms.example.com/api/courses/v1/            |
 +-------------------------------+-----------------------------------------+----------------------------------------------------+
 | ecommerce-api-url             | Ecommerce API Endpoint                  | https://ecommerce.example.com/api/v2/              |
 +-------------------------------+-----------------------------------------+----------------------------------------------------+
