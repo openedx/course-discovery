@@ -1,4 +1,4 @@
-from dal import widgets
+from dal import autocomplete, widgets
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
@@ -16,7 +16,6 @@ class HackDjangoAutocompleteMixin(object):
     # fact an issue?
 
     class QuerySetSelectMixin2(widgets.WidgetMixin):
-
         def filter_choices_to_render(self, selected_choices):
             # preserve ordering of selected_choices in queryset
             # https://codybonney.com/creating-a-queryset-from-a-list-while-preserving-order-using-django/
@@ -33,7 +32,7 @@ class ProgramAdminForm(HackDjangoAutocompleteMixin, forms.ModelForm):
     class Meta:
         model = Program
         fields = '__all__'
-        from dal import autocomplete
+
         widgets = {
             'courses': autocomplete.ModelSelect2Multiple(
                 url='admin_metadata:course-autocomplete',

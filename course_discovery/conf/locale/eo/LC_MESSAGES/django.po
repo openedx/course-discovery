@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-28 14:40+0500\n"
+"POT-Creation-Date: 2016-10-31 12:13-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -236,6 +236,24 @@ msgstr "Pärtnér Ⱡ'σяєм ιρѕυм #"
 #: apps/core/models.py
 msgid "Partners"
 msgstr "Pärtnérs Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/admin.py
+msgid "Included course runs"
+msgstr "Ìnçlüdéd çöürsé rüns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/admin.py
+msgid ""
+"An error occurred while publishing the program to the marketing site. Please"
+" try again. If the error perisists, please contact the Engineering Team."
+msgstr ""
+"Àn érrör öççürréd whïlé püßlïshïng thé prögräm tö thé märkétïng sïté. Pléäsé"
+" trý ägäïn. Ìf thé érrör pérïsïsts, pléäsé çöntäçt thé Éngïnéérïng Téäm. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ "
+"тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм,"
+" qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
+"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм#"
 
 #: apps/course_metadata/choices.py apps/publisher/models.py
 msgid "Published"
@@ -741,7 +759,7 @@ msgstr ""
 "trädémärks ör trädémärks öf %(link_start)sédX Ìnç.%(link_end)s Ⱡ'σяєм ιρѕυм "
 "∂σł#"
 
-#: templates/footer.html templates/footer.html.py
+#: templates/footer.html
 msgid "Powered by Open edX"
 msgstr "Pöwéréd ßý Öpén édX Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
