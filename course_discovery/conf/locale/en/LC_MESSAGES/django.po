@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-25 21:30+0500\n"
+"POT-Creation-Date: 2016-10-28 14:40+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -397,6 +397,11 @@ msgstr ""
 
 #: apps/edx_haystack_extensions/models.py
 msgid "JSON string containing an elasticsearch function score config."
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Course Run {title}-{pacing_type}-{start} state has been changed."
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -1456,6 +1461,32 @@ msgstr ""
 msgid "Looks like you haven't publish a course yet"
 msgstr ""
 
+#: templates/publisher/email/change_state.html
+#: templates/publisher/email/change_state.txt
+msgid "Hi,"
+msgstr ""
+
+#: templates/publisher/email/change_state.html
+#: templates/publisher/email/change_state.txt
+#, python-format
+msgid "The following course run has been submitted for %(state_name)s."
+msgstr ""
+
+#: templates/publisher/email/change_state.html
+msgid "View Course"
+msgstr ""
+
+#: templates/publisher/email/change_state.html
+#: templates/publisher/email/change_state.txt
+#: templates/publisher/email/comment.html
+#: templates/publisher/email/comment.txt
+msgid "The edX team"
+msgstr ""
+
+#: templates/publisher/email/change_state.txt
+msgid "View Course:"
+msgstr ""
+
 #: templates/publisher/email/comment.html
 #: templates/publisher/email/comment.txt
 #, python-format
@@ -1468,13 +1499,8 @@ msgstr ""
 msgid "View comment"
 msgstr ""
 
-#: templates/publisher/email/comment.html
 #: templates/publisher/email/comment.txt
-msgid "The edX team"
-msgstr ""
-
-#: templates/publisher/email/comment.txt
-msgid "View comment:"
+msgid "View comment: "
 msgstr ""
 
 #: templates/publisher/seat_form.html
