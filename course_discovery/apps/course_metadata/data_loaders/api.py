@@ -157,7 +157,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                 'video': self.get_courserun_video(body),
                 'status': CourseRunStatus.Published,
                 'pacing_type': self.get_pacing_type(body),
-                'mobile_available': body.get('mobile_available'),
+                'mobile_available': body.get('mobile_available') or False,
             })
 
         course_run, __ = course.course_runs.update_or_create(key__iexact=key, defaults=defaults)

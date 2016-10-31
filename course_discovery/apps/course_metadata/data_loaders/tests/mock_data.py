@@ -38,7 +38,7 @@ COURSES_API_BODIES = [
         'short_description': '',
         'start': '2015-06-15T13:00:00Z',
         'pacing': 'self',
-        'mobile_available': False,
+        'mobile_available': True,
     },
     {
         'effort': None,
@@ -83,7 +83,7 @@ COURSES_API_BODIES = [
         'org': 'KyotoUx',
         'short_description': '',
         'start': None,
-        'mobile_available': False,
+        'mobile_available': None,
     },
 ]
 
