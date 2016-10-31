@@ -4,19 +4,25 @@ import ddt
 from django.core.urlresolvers import reverse
 from django.test import TestCase, LiveServerTestCase
 from selenium import webdriver
-from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.wait import WebDriverWait
 
-from course_discovery.apps.course_metadata.choices import ProgramStatus
-from course_discovery.apps.course_metadata.forms import ProgramAdminForm
-from course_discovery.apps.course_metadata.tests import factories
+from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
 from course_discovery.apps.core.tests.helpers import make_image_file
+from course_discovery.apps.course_metadata.choices import ProgramStatus
+from course_discovery.apps.course_metadata.forms import ProgramAdminForm
+from course_discovery.apps.course_metadata.models import Program, ProgramType
+from course_discovery.apps.course_metadata.tests import factories
 
 
 # pylint: disable=no-member
 @ddt.ddt
 class AdminTests(TestCase):
     """ Tests Admin page."""
+
     def setUp(self):
         super(AdminTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
@@ -185,71 +191,144 @@ class AdminTests(TestCase):
 
 class ProgramAdminFunctionalTests(LiveServerTestCase):
     """ Functional Tests for Admin page."""
+    create_view_name = 'admin:course_metadata_program_add'
+    edit_view_name = 'admin:course_metadata_program_change'
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.browser = webdriver.Firefox()
+        cls.browser.implicitly_wait(10)
+        cls.browser.set_window_size(1024, 768)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.browser.quit()
+        super().tearDownClass()
+
+    @classmethod
+    def _build_url(cls, path):
+        """ Returns a URL for the live test server. """
+        return cls.live_server_url + path
+
+    @classmethod
+    def _wait_for_page_load(cls, body_class):
+        """ Wait for the page to load. """
+        WebDriverWait(cls.browser, 2).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, 'body.' + body_class))
+        )
+
     def setUp(self):
-        super(ProgramAdminFunctionalTests, self).setUp()
-        self.user = UserFactory(is_staff=True, is_superuser=True)
-        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        super().setUp()
+
         self.course_runs = factories.CourseRunFactory.create_batch(2)
         self.courses = [course_run.course for course_run in self.course_runs]
 
         self.excluded_course_run = factories.CourseRunFactory(course=self.courses[0])
         self.program = factories.ProgramFactory(
-            courses=self.courses, excluded_course_runs=[self.excluded_course_run]
+            courses=self.courses, excluded_course_runs=[self.excluded_course_run], status=ProgramStatus.Unpublished
         )
-        self.browser = webdriver.Firefox()
 
-        # Get Page
-        domain = self.live_server_url
-        url = reverse('admin:course_metadata_program_change', args=(self.program.id,))
-        self.browser.get(domain + url)
+        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self._login()
 
-        # Login
-        username = self.browser.find_element_by_id('id_username')
-        password = self.browser.find_element_by_id('id_password')
-        username.send_keys(self.user.username)
-        password.send_keys(USER_PASSWORD)
+    def _login(self):
+        """ Log into Django admin. """
+        self.browser.get(self._build_url(reverse('admin:login')))
+        self.browser.find_element_by_id('id_username').send_keys(self.user.username)
+        self.browser.find_element_by_id('id_password').send_keys(USER_PASSWORD)
         self.browser.find_element_by_css_selector('input[type=submit]').click()
+        self._wait_for_page_load('dashboard')
 
-        # This window size is close to the window size when running on travis
-        self.browser.set_window_size(548, 768)
+    def _wait_for_add_edit_page_to_load(self):
+        self._wait_for_page_load('change-form')
 
-    def tearDown(self):
-        super(ProgramAdminFunctionalTests, self).tearDown()
-        self.browser.quit()
+    def _wait_for_excluded_course_runs_page_to_load(self):
+        self._wait_for_page_load('change-program-excluded-course-runs-form')
 
-    def test_all_fields(self):
-        # Make sure that all expected fields are present
-        classes = [css_class for field in self.browser.find_elements_by_class_name('form-row')
-                   for css_class in field.get_attribute('class').split(' ')
-                   if css_class.startswith('field-') or css_class.startswith('dynamic-')]
-        expected_classes = ['field-title', 'field-subtitle', 'field-status', 'field-type',
-                            'field-partner', 'field-banner_image', 'field-banner_image_url',
-                            'field-card_image_url', 'field-marketing_slug', 'field-overview',
-                            'field-credit_redemption_overview', 'field-video',
-                            'field-weeks_to_complete', 'field-min_hours_effort_per_week',
-                            'field-max_hours_effort_per_week', 'field-courses',
-                            'field-order_courses_by_start_date', 'field-custom_course_runs_display',
-                            'field-excluded_course_runs', 'field-authoring_organizations',
-                            'field-credit_backing_organizations', 'field-job_outlook_items',
-                            'field-expected_learning_items', 'dynamic-Program_faq',
-                            'dynamic-Program_individual_endorsements',
-                            'dynamic-Program_corporate_endorsements']
-        self.assertEqual(classes, expected_classes)
+    def _navigate_to_edit_page(self):
+        url = self._build_url(reverse(self.edit_view_name, args=(self.program.id,)))
+        self.browser.get(url)
+        self._wait_for_add_edit_page_to_load()
 
-    def test_sortable_select_drag_and_drop(self):
-        # Get order of select elements
-        hidden_options_text = [el.text for el in
-                               self.browser.find_elements_by_css_selector('.field-courses option')]
-        first_select_element = self.browser.find_element_by_css_selector('.field-courses .select2-selection__choice')
+    def _select_option(self, select_id, option_value):
+        select = Select(self.browser.find_element_by_id(select_id))
+        select.select_by_value(option_value)
 
-        # Drag and drop
-        first_select_element.click()
-        ActionChains(self.browser).drag_and_drop_by_offset(first_select_element, 500, 0).perform()
+    def _submit_program_form(self):
+        self.browser.find_element_by_css_selector('input[type=submit][name=_save]').click()
+        self._wait_for_excluded_course_runs_page_to_load()
 
-        # Simulate expected drag and drop
-        hidden_options_text = [hidden_options_text[1], hidden_options_text[0]]
+    def assert_form_fields_present(self):
+        """ Asserts the correct fields are rendered on the form. """
+        # Check the model fields
+        actual = []
+        for element in self.browser.find_elements_by_class_name('form-row'):
+            actual += [_class for _class in element.get_attribute('class').split(' ') if _class.startswith('field-')]
 
-        # Get actual results of drag and drop
-        new_hidden_options_text = [el.text for el in
-                                   self.browser.find_elements_by_css_selector('.field-courses option')]
-        self.assertEqual(hidden_options_text, new_hidden_options_text)
+        expected = [
+            'field-title', 'field-subtitle', 'field-status', 'field-type', 'field-partner', 'field-banner_image',
+            'field-banner_image_url', 'field-card_image_url', 'field-marketing_slug', 'field-overview',
+            'field-credit_redemption_overview', 'field-video', 'field-weeks_to_complete',
+            'field-min_hours_effort_per_week', 'field-max_hours_effort_per_week', 'field-courses',
+            'field-order_courses_by_start_date', 'field-custom_course_runs_display', 'field-excluded_course_runs',
+            'field-authoring_organizations', 'field-credit_backing_organizations', 'field-job_outlook_items',
+            'field-expected_learning_items',
+        ]
+        self.assertEqual(actual, expected)
+
+        # Check the inline fields
+        expected = ['Program_faq-group', 'Program_individual_endorsements-group',
+                    'Program_corporate_endorsements-group']
+        actual = [element.get_attribute('id') for element in self.browser.find_elements_by_class_name('inline-group')]
+        self.assertEqual(actual, expected)
+
+    def test_program_creation(self):
+        url = self._build_url(reverse(self.create_view_name))
+        self.browser.get(url)
+        self._wait_for_add_edit_page_to_load()
+        self.assert_form_fields_present()
+
+        program = factories.ProgramFactory.build(
+            partner=Partner.objects.first(),
+            status=ProgramStatus.Unpublished,
+            type=ProgramType.objects.first()
+        )
+        self.browser.find_element_by_id('id_title').send_keys(program.title)
+        self.browser.find_element_by_id('id_subtitle').send_keys(program.subtitle)
+        self._select_option('id_status', program.status)
+        self._select_option('id_type', str(program.type.id))
+        self._select_option('id_partner', str(program.partner.id))
+        self._submit_program_form()
+
+        actual = Program.objects.latest()
+        self.assertEqual(actual.title, program.title)
+        self.assertEqual(actual.subtitle, program.subtitle)
+        self.assertEqual(actual.status, program.status)
+        self.assertEqual(actual.type, program.type)
+        self.assertEqual(actual.partner, program.partner)
+
+    def test_program_update(self):
+        self._navigate_to_edit_page()
+        self.assert_form_fields_present()
+
+        title = 'Test Program'
+        subtitle = 'This is a test.'
+
+        # Update the program
+        data = (
+            ('title', title),
+            ('subtitle', subtitle),
+        )
+
+        for field, value in data:
+            element = self.browser.find_element_by_id('id_' + field)
+            element.clear()
+            element.send_keys(value)
+
+        self._submit_program_form()
+
+        # Verify the program was updated
+        self.program = Program.objects.get(pk=self.program.pk)
+        self.assertEqual(self.program.title, title)
+        self.assertEqual(self.program.subtitle, subtitle)

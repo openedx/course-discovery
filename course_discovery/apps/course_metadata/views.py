@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView, UpdateView
 
 from course_discovery.apps.course_metadata.forms import CourseRunSelectionForm
@@ -25,7 +26,10 @@ class CourseRunSelectionAdmin(UpdateView):
     def get_context_data(self, **kwargs):
         if self.request.user.is_authenticated() and self.request.user.is_staff:
             context = super(CourseRunSelectionAdmin, self).get_context_data(**kwargs)
-            context['program_id'] = self.object.id
+            context.update({
+                'program_id': self.object.id,
+                'title': _('Change program excluded course runs')
+            })
             return context
         raise Http404
 
