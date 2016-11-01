@@ -623,7 +623,7 @@ class Program(TimeStampedModel):
             'x-small': (348, 116),
         }
     )
-    banner_image_url = models.URLField(null=True, blank=True, help_text=_('Image used atop detail pages'))
+    banner_image_url = models.URLField(null=True, blank=True, help_text='DEPRECATED: Use the banner image field.')
     card_image_url = models.URLField(null=True, blank=True, help_text=_('Image used for discovery cards'))
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
