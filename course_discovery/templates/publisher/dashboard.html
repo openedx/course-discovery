@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load i18n %}
+
 {% block title %}
 {% trans "Dashboard" %}
 {% endblock title %}
@@ -11,71 +12,39 @@
         <ul class="nav-tabs">
             <li class="active"><a href="#tab-1"><span>7</span> IN PROGRESS</a></li>
             <li><a href="#tab-2"><span>2</span>PREVIEW READY</a></li>
-            <li><a href="#tab-3"><span>50</span>PUBLISHED COURSE RUNS</a></li>
+            <li><a href="#tab-3"><span>50</span>STUDIO REQUEST</a></li>
         </ul>
         <div class="tabs-container">
-            <div id="tab-1" class="tab-content">
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatum dolore, aliquid quasi, explicabo molestias ab iste nobis eligendi! Laboriosam veritatis culpa, soluta pariatur corporis maxime quas quia obcaecati asperiores debitis!</p>
+            <div id="tab-1" class="tab-content" style="display:none;"></div>
+            <div id="tab-2" class="tab-content" style="display:none;"></div>
+            <div id="tab-3" class="tab-content" style="display:block;">
+                <p>{% trans "The list below are the are course that need a studio instance to start development." %}</p>
                 <div class="table-view">
                     <div class="table-row table-head">
                         <div class="table-col">
-                            Course Name
+                            {% trans "Course Name" %}
                         </div>
                         <div class="table-col">
-                            Institution
+                            {% trans "Start Date" %}
                         </div>
                         <div class="table-col">
-                            Start Date
+                            {% trans "Course Number" %}
                         </div>
                         <div class="table-col">
-                            Course Number
-                        </div>
-                        <div class="table-col">
-                            Project Coordinator
-                        </div>
-                        <div class="table-col">
-                            Studio URL
+                            {% trans "Studio URL" %}
                         </div>
                     </div>
-                    <div class="table-row">
-                        <div class="table-col">
-                            <a href="#!">Digital Branding and Engagement</a>
-                        </div>
-                        <div class="table-col">
-                            Curtin University
-                        </div>
-                        <div class="table-col">
-                            September 5, 2016
-                        </div>
-                        <div class="table-col">
-                            HRU1x
-                        </div>
-                        <div class="table-col">
-                            Eden Priog
-                        </div>
-                        <div class="table-col">
-                            <div class="form-group">
-                                <input type="text" placeholder="placeholder text" />
-                                <button class="btn-inline">ADD</button>
-                            </div>
-                        </div>
-                    </div>
-                    {% for course_run in object_list %}
+
+                    {% for course_run in unpublished_courseruns %}
                         <div class="table-row">
                             <div class="table-col">
-                                <a href="#!">Digital Branding and Engagement</a>
+                                <a href="#!">{{ course_run.title }}</a>
                             </div>
                             <div class="table-col">
-                                Curtin University
+                                 {{ course_run.start }}
                             </div>
                             <div class="table-col">
-                                September 5, 2016
-                            </div>
-                            <div class="table-col">
-                                HRU1x
-                            </div>
-                            <div class="table-col">
-                                Eden Priog
+                                {{ course_run.number }}
                             </div>
                             <div class="table-col">
                                 <div class="form-group">
@@ -86,16 +55,8 @@
                         </div>
                     {% endfor %}
                     </div>
+                    {% include 'paging.html' with paginated_data=unpublished_courseruns  %}
                 </div>
-            </div>
-            <div id="tab-2" class="tab-content" style="display:none;">
-                <h1>2222</h1>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatum dolore, aliquid quasi, explicabo molestias ab iste nobis eligendi! Laboriosam veritatis culpa, soluta pariatur corporis maxime quas quia obcaecati asperiores debitis!</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatum dolore, aliquid quasi, explicabo molestias ab iste nobis eligendi! Laboriosam veritatis culpa, soluta pariatur corporis maxime quas quia obcaecati asperiores debitis!</p>
-            </div>
-            <div id="tab-3" class="tab-content" style="display:none;">
-                <h1>3333</h1>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatum dolore, aliquid quasi, explicabo molestias ab iste nobis eligendi! Laboriosam veritatis culpa, soluta pariatur corporis maxime quas quia obcaecati asperiores debitis!</p>
             </div>
         </div>
 
