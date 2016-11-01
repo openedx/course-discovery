@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load i18n %}
-
 {% block title %}
 {% trans "Dashboard" %}
 {% endblock title %}
@@ -10,9 +9,9 @@
     <div class="publisher-container">
         <h1>Course runs</h1>
         <ul class="nav-tabs">
-            <li class="active"><a href="#tab-1"><span>7</span> IN PROGRESS</a></li>
-            <li><a href="#tab-2"><span>2</span>PREVIEW READY</a></li>
-            <li><a href="#tab-3"><span>50</span>STUDIO REQUEST</a></li>
+            <li class="active"><a href="#tab-1"><span>0</span>{% trans "IN PROGRESS" %}</a></li>
+            <li><a href="#tab-2"><span>0</span>{% trans "PREVIEW READY" %}</a></li>
+            <li><a href="#tab-3"><span>{{ need_studio_request_courses_count }} </span>{% trans "STUDIO REQUEST" %}</a></li>
         </ul>
         <div class="tabs-container">
             <div id="tab-1" class="tab-content" style="display:none;"></div>
@@ -35,7 +34,7 @@
                         </div>
                     </div>
 
-                    {% for course_run in unpublished_courseruns %}
+                    {% for course_run in need_studio_request_courses %}
                         <div class="table-row">
                             <div class="table-col">
                                 <a href="#!">{{ course_run.title }}</a>

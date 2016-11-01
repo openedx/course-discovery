@@ -47,15 +47,19 @@ class CourseRunListView(mixins.LoginRequiredMixin, ListView):
         context = super(CourseRunListView, self).get_context_data(**kwargs)
         course_runs = context.get('object_list')
         published_courseruns = course_runs.filter(
-            state__name=State.NEEDS_REVIEW
+            state__name=State.PUBLISHED
         ).select_related('course').all().order_by('-state__modified')
         unpublished_courseruns = course_runs.exclude(state__name=State.PUBLISHED)
+        need_studio_request_courses = unpublished_courseruns.filter(lms_course_id__isnull=True)
+
+        need_studio_request_courses = [CourseRunWrapper(course_run) for course_run in need_studio_request_courses]
         unpublished_courseruns = [CourseRunWrapper(course_run) for course_run in unpublished_courseruns]
-
         published_courseruns = [CourseRunWrapper(course_run) for course_run in published_courseruns]
-        context['unpublished_courseruns'] = self.paging(unpublished_courseruns)
 
+        context['unpublished_courseruns'] = self.paging(unpublished_courseruns)
         context['published_courseruns'] = self.paging(published_courseruns)
+        context['need_studio_request_courses'] = self.paging(need_studio_request_courses)
+        context['need_studio_request_courses_count'] = len(need_studio_request_courses)
 
         return context
 
