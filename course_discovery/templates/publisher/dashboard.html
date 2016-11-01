@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load i18n %}
+{% load staticfiles %}
 
 {% block title %}
 {% trans "Dashboard" %}
@@ -9,7 +10,7 @@
 
     <div class="publisher-container">
         <h1>Course runs</h1>
-        <ul class="nav-tabs">
+        <ul class="dashboard-nav-tabs">
             <li class="active"><a href="#tab-1"><span>7</span> IN PROGRESS</a></li>
             <li><a href="#tab-2"><span>2</span>PREVIEW READY</a></li>
             <li><a href="#tab-3"><span>50</span>STUDIO REQUEST</a></li>
@@ -37,8 +38,9 @@
 
                     {% for course_run in unpublished_courseruns %}
                         <div class="table-row">
+                            {% url 'publisher:publisher_course_run_detail' course_run.id as run_page_url %}
                             <div class="table-col">
-                                <a href="#!">{{ course_run.title }}</a>
+                                <a href="{{ run_page_url }}">{{ course_run.title }}</a>
                             </div>
                             <div class="table-col">
                                  {{ course_run.start }}
@@ -47,10 +49,8 @@
                                 {{ course_run.number }}
                             </div>
                             <div class="table-col">
-                                <div class="form-group">
-                                    <input type="text" placeholder="placeholder text" />
-                                    <button class="btn-inline">ADD</button>
-                                </div>
+                                <input type="text" class="field-input input-text" />
+                                <button data-course-run-url="{{ run_page_url }}" class="btn-inline btn-add-course-key">ADD</button>
                             </div>
                         </div>
                     {% endfor %}
@@ -61,18 +61,8 @@
         </div>
 
 {% endblock %}
+
 {% block extra_js %}
-    <script>
-        $(document).ready(function() {
-            $(".nav-tabs a").click(function(event) {
-                event.preventDefault();
-                $(this).parent().addClass("active");
-                $(this).parent().siblings().removeClass("active");
-                var tab = $(this).attr("href");
-                $(".tab-content").not(tab).css("display", "none");
-                $(tab).fadeIn();
-            });
-        });
-    </script>
+    <script src="{% static 'js/publisher/views/dashboard.js' %}"></script>
 {% endblock %}
 

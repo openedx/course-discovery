@@ -12,7 +12,7 @@
   }
     padding: 35px 30px;
 
-    .nav-tabs {
+    .dashboard-nav-tabs {
         list-style: none;
         padding: 0;
         margin: 0;
@@ -22,6 +22,7 @@
             background: #f2f2f2;
             margin-right: 1px;
             position: relative;
+            margin-bottom: 0;
             border: {
                 width: 2px;
                 style: solid;
@@ -48,6 +49,7 @@
 
             &.active {
                 background: white;
+                margin-bottom: 0;
                 border: {
                     width: 2px;
                     style: solid;
@@ -110,31 +112,23 @@
                 margin-top: 0;
             }
 
-            .form-group {
+            input {
+                height: 25px;
+                width: 50%;
+            }
 
-                input {
-                    height: 25px;
-                    border-radius: 0;
-                    border: 1px solid #bebebe;
-                    padding-left: 6px;
-                    padding-right: 6px;
-                    width: 50%;
-                    box-shadow: inset 0px 1px #666;
-                }
+            .btn-inline {
+                background: #169bd5;
+                border-radius: 4px;
+                padding: 3px 20px;
+                border: none;
+                height: 25px;
+                color: white;
+                margin-left: 6px;
 
-                .btn-inline {
-                    background: #169bd5;
-                    border-radius: 4px;
-                    padding: 3px 20px;
-                    border: none;
-                    height: 25px;
-                    color: white;
-                    margin-left: 6px;
-
-                    &:hover {
-                        cursor: pointer;
-                        background: #0e8dc4;
-                    }
+                &:hover {
+                    cursor: pointer;
+                    background: #0e8dc4;
                 }
             }
 
