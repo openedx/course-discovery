@@ -1,11 +1,11 @@
 {% extends 'admin/base_site.html' %}
 {% load i18n %}
-{% block title %}
-{% trans "CourseRun Selection Form" %}
-{% endblock title %}
+
+{% block bodyclass %}
+  change-program-excluded-course-runs-form
+{% endblock %}
 
 {% block content %}
-
 <form class="form" method="post" action="">
     {% csrf_token %}
     <fieldset class="module aligned ">
@@ -30,5 +30,4 @@
         </div>
     {% endblock %}
 </form>
-
 {% endblock %}

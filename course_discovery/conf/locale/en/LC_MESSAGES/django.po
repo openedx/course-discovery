@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-28 14:40+0500\n"
+"POT-Creation-Date: 2016-10-31 19:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -194,6 +194,16 @@ msgstr ""
 
 #: apps/core/models.py
 msgid "Partners"
+msgstr ""
+
+#: apps/course_metadata/admin.py
+msgid "Included course runs"
+msgstr ""
+
+#: apps/course_metadata/admin.py
+msgid ""
+"An error occurred while publishing the program to the marketing site. Please"
+" try again. If the error persists, please contact the Engineering Team."
 msgstr ""
 
 #: apps/course_metadata/choices.py apps/publisher/models.py
@@ -389,6 +399,10 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "The description of credit redemption for courses in program"
+msgstr ""
+
+#: apps/course_metadata/views.py
+msgid "Change program excluded course runs"
 msgstr ""
 
 #: apps/edx_haystack_extensions/models.py
@@ -620,7 +634,7 @@ msgid ""
 "trademarks or trademarks of %(link_start)sedX Inc.%(link_end)s"
 msgstr ""
 
-#: templates/footer.html templates/footer.html.py
+#: templates/footer.html
 msgid "Powered by Open edX"
 msgstr ""
 
@@ -655,10 +669,6 @@ msgstr ""
 
 #: templates/header.html
 msgid "Sign Out"
-msgstr ""
-
-#: templates/metadata/admin/course_run.html
-msgid "CourseRun Selection Form"
 msgstr ""
 
 #: templates/metadata/admin/course_run.html

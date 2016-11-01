@@ -1,4 +1,4 @@
-from dal import widgets
+from dal import autocomplete
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
@@ -8,32 +8,30 @@ from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Program, CourseRun
 
 
-class HackDjangoAutocompleteMixin(object):
-    # It seems to me there is an issue with the select 2 widget in django autocomplete.
-    # When the widget loads selected choices it loads them in order of django id, not the order
-    # they are stored in in the database. This workaround works, but not sure what approach
-    # would be less hacky. Perhaps opening a PR to the django autocomplete repo if this is
-    # fact an issue?
+def filter_choices_to_render_with_order_preserved(self, selected_choices):
+    """
+    Preserves ordering of selected_choices when creating the choices queryset.
 
-    class QuerySetSelectMixin2(widgets.WidgetMixin):
+    See https://codybonney.com/creating-a-queryset-from-a-list-while-preserving-order-using-django.
 
-        def filter_choices_to_render(self, selected_choices):
-            # preserve ordering of selected_choices in queryset
-            # https://codybonney.com/creating-a-queryset-from-a-list-while-preserving-order-using-django/
-            clauses = ' '.join(['WHEN id={} THEN {}'.format(pk, i) for i, pk in enumerate(selected_choices)])
-            ordering = 'CASE {} END'.format(clauses)
-            self.choices.queryset = self.choices.queryset.filter(
-                pk__in=[c for c in selected_choices if c]
-            ).extra(select={'ordering': ordering}, order_by=('ordering',))
-
-    widgets.QuerySetSelectMixin = QuerySetSelectMixin2
+    django-autocomplete's definition of this method on QuerySetSelectMixin loads selected choices in
+    order of primary key instead of the order in which the choices are actually stored.
+    """
+    clauses = ' '.join(['WHEN id={} THEN {}'.format(pk, i) for i, pk in enumerate(selected_choices)])
+    ordering = 'CASE {} END'.format(clauses)
+    self.choices.queryset = self.choices.queryset.filter(
+        pk__in=[c for c in selected_choices if c]
+    ).extra(select={'ordering': ordering}, order_by=('ordering',))
 
 
-class ProgramAdminForm(HackDjangoAutocompleteMixin, forms.ModelForm):
+class ProgramAdminForm(forms.ModelForm):
     class Meta:
         model = Program
         fields = '__all__'
-        from dal import autocomplete
+
+        # Monkey patch filter_choices_to_render with our own definition which preserves ordering.
+        autocomplete.ModelSelect2Multiple.filter_choices_to_render = filter_choices_to_render_with_order_preserved
+
         widgets = {
             'courses': autocomplete.ModelSelect2Multiple(
                 url='admin_metadata:course-autocomplete',

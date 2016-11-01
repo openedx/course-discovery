@@ -1,6 +1,8 @@
 from django.contrib import admin, messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.course_metadata.forms import ProgramAdminForm
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
@@ -85,38 +87,47 @@ class ProgramAdmin(admin.ModelAdmin):
         'authoring_organizations', 'credit_backing_organizations'
     )
     fields += filter_horizontal
-    save_error = None
+    save_error = False
 
     def custom_course_runs_display(self, obj):
-        return ", ".join([str(run) for run in obj.course_runs])
+        return mark_safe('<br>'.join([str(run) for run in obj.course_runs]))
 
-    custom_course_runs_display.short_description = "Included course runs"
+    custom_course_runs_display.short_description = _('Included course runs')
+
+    def _redirect_course_run_update_page(self, obj):
+        """ Returns a response redirect to a page where the user can update the
+        course runs for the program being edited.
+
+        Returns:
+            HttpResponseRedirect
+        """
+        return HttpResponseRedirect(reverse('admin_metadata:update_course_runs', kwargs={'pk': obj.pk}))
 
     def response_add(self, request, obj, post_url_continue=None):
         if self.save_error:
             return self.response_post_save_add(request, obj)
         else:
-            return HttpResponseRedirect(reverse('admin_metadata:update_course_runs', kwargs={'pk': obj.pk}))
+            return self._redirect_course_run_update_page(obj)
 
     def response_change(self, request, obj):
         if self.save_error:
             return self.response_post_save_change(request, obj)
         else:
             if any(status in request.POST for status in ['_continue', '_save']):
-                return HttpResponseRedirect(reverse('admin_metadata:update_course_runs', kwargs={'pk': obj.pk}))
+                return self._redirect_course_run_update_page(obj)
             else:
                 return HttpResponseRedirect(reverse('admin:course_metadata_program_add'))
 
     def save_model(self, request, obj, form, change):
         try:
-            # courses are ordered by django id, but form.cleaned_data is ordered correctly
-            obj.courses = form.cleaned_data.get('courses')
-            obj.authoring_organizations = form.cleaned_data.get('authoring_organizations')
-            obj.credit_backing_organizations = form.cleaned_data.get('credit_backing_organizations')
-            obj.save()
+            super().save_model(request, obj, form, change)
             self.save_error = False
-        except ProgramPublisherException as ex:
-            messages.add_message(request, messages.ERROR, ex.message)
+        except ProgramPublisherException:
+            # TODO Redirect the user back to the form so that he/she can try again.
+            logger.exception('An error occurred while publishing the program [%s] to the marketing site.', obj.uuid)
+            msg = _('An error occurred while publishing the program to the marketing site. Please try again. '
+                    'If the error persists, please contact the Engineering Team.')
+            messages.add_message(request, messages.ERROR, msg)
             self.save_error = True
 
     class Media:
