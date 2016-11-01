@@ -1,0 +1,18 @@
+{% load i18n %}
+<div class="pagination">
+    <span class="step-links">
+        {% if paginated_data.has_previous %}
+            <a href="?page={{ paginated_data.previous_page_number }}">{% trans "previous" %}</a>
+        {% endif %}
+
+        <span class="current">
+            {% blocktrans with number=paginated_data.number num_pages=paginated_data.paginator.num_pages trimmed %}
+                Page {{ number }} of {{ num_pages }}.
+            {% endblocktrans %}
+        </span>
+
+        {% if paginated_data.has_next %}
+            <a href="?page={{ paginated_data.next_page_number }}">{% trans "next" %}</a>
+        {% endif %}
+    </span>
+</div>

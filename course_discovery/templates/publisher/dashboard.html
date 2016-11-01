@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block title %}
+{% trans "Dashboard" %}
+{% endblock title %}
+
+{% block content %}
+
+    <div class="publisher-container">
+        <h1>Course runs</h1>
+        <ul class="dashboard-nav-tabs">
+            <li class="active"><a href="#tab-1"><span>7</span> IN PROGRESS</a></li>
+            <li><a href="#tab-2"><span>2</span>PREVIEW READY</a></li>
+            <li><a href="#tab-3"><span>50</span>STUDIO REQUEST</a></li>
+        </ul>
+        <div class="tabs-container">
+            <div id="tab-1" class="tab-content" style="display:none;"></div>
+            <div id="tab-2" class="tab-content" style="display:none;"></div>
+            <div id="tab-3" class="tab-content" style="display:block;">
+                <p>{% trans "The list below are the are course that need a studio instance to start development." %}</p>
+                <div class="table-view">
+                    <div class="table-row table-head">
+                        <div class="table-col">
+                            {% trans "Course Name" %}
+                        </div>
+                        <div class="table-col">
+                            {% trans "Start Date" %}
+                        </div>
+                        <div class="table-col">
+                            {% trans "Course Number" %}
+                        </div>
+                        <div class="table-col">
+                            {% trans "Studio URL" %}
+                        </div>
+                    </div>
+
+                    {% for course_run in unpublished_courseruns %}
+                        <div class="table-row">
+                            {% url 'publisher:publisher_course_run_detail' course_run.id as run_page_url %}
+                            <div class="table-col">
+                                <a href="{{ run_page_url }}">{{ course_run.title }}</a>
+                            </div>
+                            <div class="table-col">
+                                 {{ course_run.start }}
+                            </div>
+                            <div class="table-col">
+                                {{ course_run.number }}
+                            </div>
+                            <div class="table-col">
+                                <input type="text" class="field-input input-text" />
+                                <button data-course-run-url="{{ run_page_url }}" class="btn-inline btn-add-course-key">ADD</button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                    {% include 'paging.html' with paginated_data=unpublished_courseruns  %}
+                </div>
+            </div>
+        </div>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/publisher/views/dashboard.js' %}"></script>
+{% endblock %}
+

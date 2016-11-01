@@ -5,6 +5,7 @@ import json
 
 from django.contrib import messages
 from django.contrib.auth.models import Group
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponseRedirect, HttpResponseForbidden, JsonResponse
@@ -16,12 +17,14 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import get_objects_for_user
+from rest_framework.generics import UpdateAPIView
 
 from course_discovery.apps.publisher.forms import (
     CourseForm, CourseRunForm, SeatForm, CustomCourseForm, CustomCourseRunForm, CustomSeatForm
 )
 from course_discovery.apps.publisher import mixins
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State, UserAttributes
+from course_discovery.apps.publisher.serializers import UpdateCourseKeySerializer
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
 
@@ -30,7 +33,8 @@ SEATS_HIDDEN_FIELDS = ['price', 'currency', 'upgrade_deadline', 'credit_provider
 
 class CourseRunListView(mixins.LoginRequiredMixin, ListView):
     """ Create Course View."""
-    template_name = 'publisher/course_runs_list.html'
+    template_name = 'publisher/dashboard.html'
+    page_size = 5
 
     def get_queryset(self):
         if self.request.user.is_staff:
@@ -45,13 +49,31 @@ class CourseRunListView(mixins.LoginRequiredMixin, ListView):
         context = super(CourseRunListView, self).get_context_data(**kwargs)
         course_runs = context.get('object_list')
         published_courseruns = course_runs.filter(
-            state__name=State.PUBLISHED
-        ).select_related('course').all().order_by('-state__modified')[:5]
+            state__name=State.NEEDS_REVIEW
+        ).select_related('course').all().order_by('-state__modified')
         unpublished_courseruns = course_runs.exclude(state__name=State.PUBLISHED)
-        context['object_list'] = [CourseRunWrapper(course_run) for course_run in unpublished_courseruns]
-        context['published_courseruns'] = [CourseRunWrapper(course_run) for course_run in published_courseruns]
+        unpublished_courseruns = [CourseRunWrapper(course_run) for course_run in unpublished_courseruns]
+
+        published_courseruns = [CourseRunWrapper(course_run) for course_run in published_courseruns]
+        context['unpublished_courseruns'] = self.paging(unpublished_courseruns)
+
+        context['published_courseruns'] = self.paging(published_courseruns)
+
         return context
 
+    def paging(self, queryset):
+        # Paginate the query set
+        paginator = Paginator(queryset, self.page_size)
+        page = self.request.GET.get('page')
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            data = paginator.page(1)
+        except EmptyPage:
+            # If the page is too high or low
+            data = paginator.page(paginator.num_pages)
+
+        return data
 
 class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, DetailView):
     """ Course Run Detail View."""
@@ -63,6 +85,9 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin,
         context['object'] = CourseRunWrapper(context['object'])
         context['comment_object'] = self.object.course
         return context
+
+    def patch(self, *args, **kwargs):
+        return UpdateCourseKeyView.as_view()(self.request, *args, **kwargs)
 
 
 # pylint: disable=attribute-defined-outside-init
@@ -262,3 +287,8 @@ class ToggleEmailNotification(mixins.LoginRequiredMixin, View):
         user_attribute.save()
 
         return JsonResponse({'is_enabled': is_enabled})
+
+
+class UpdateCourseKeyView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, UpdateAPIView):
+    queryset = CourseRun.objects.all()
+    serializer_class = UpdateCourseKeySerializer
