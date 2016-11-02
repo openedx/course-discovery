@@ -937,7 +937,7 @@ class CourseRunListViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # Verify that we have 2 in progress and 0 published course runs
-        self.assertEqual(len(response.context['object_list']), 2)
+        self.assertEqual(len(response.context['unpublished_courseruns']), 2)
         self.assertEqual(len(response.context['published_courseruns']), 0)
 
         # create a course with `PUBLISHED` state
@@ -948,7 +948,7 @@ class CourseRunListViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # Verify that we have 2 in progress and 1 published course runs
-        self.assertEqual(len(response.context['object_list']), 2)
+        self.assertEqual(len(response.context['unpublished_courseruns']), 2)
         self.assertEqual(len(response.context['published_courseruns']), 1)
 
 
