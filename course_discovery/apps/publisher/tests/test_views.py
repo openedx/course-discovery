@@ -902,7 +902,7 @@ class CourseRunListViewTests(TestCase):
         super(CourseRunListViewTests, self).setUp()
         self.user = UserFactory(is_staff=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.page_url = reverse('publisher:publisher_course_runs')
+        self.page_url = reverse('publisher:publisher_dashboard')
 
     def test_page_without_login(self):
         """ Verify that user can't access course runs list page when not logged in. """

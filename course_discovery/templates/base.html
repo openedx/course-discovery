@@ -47,9 +47,9 @@
             </div>
             <ul class="list-divided menu-list">
                 <li class="item">
-                    {% url 'publisher:publisher_course_runs' as course_runs_url %}
-                    <a class="btn {% if request.path == course_runs_url %}active{% endif %}" href="{{ course_runs_url }}">
-                        {% trans "Course Runs" %}
+                    {% url 'publisher:publisher_dashboard' as dashboard_url %}
+                    <a class="btn {% if request.path == dashboard_url %}active{% endif %}" href="{{ dashboard_url }}">
+                        {% trans "Dashboard" %}
                     </a>
                 </li>
                 <li class="item">

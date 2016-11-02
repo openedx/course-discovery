@@ -1,0 +1,9 @@
+{% load i18n %}
+
+<div class="pagination">
+    {% with current_page=paginated_data.number page_range=paginated_data.paginator.page_range %}
+        {% for page in page_range %}
+            <a class="btn-page {% if current_page == page %}btn-brand{% else %}btn{% endif %}" href="?page={{ page }}">{{ page }}</a>
+        {% endfor %}
+    {% endwith %}
+</div>

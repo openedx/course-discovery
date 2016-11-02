@@ -5,6 +5,7 @@ import json
 
 from django.contrib import messages
 from django.contrib.auth.models import Group
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponseRedirect, HttpResponseForbidden, JsonResponse
@@ -30,7 +31,8 @@ SEATS_HIDDEN_FIELDS = ['price', 'currency', 'upgrade_deadline', 'credit_provider
 
 class CourseRunListView(mixins.LoginRequiredMixin, ListView):
     """ Create Course View."""
-    template_name = 'publisher/course_runs_list.html'
+    template_name = 'publisher/dashboard.html'
+    page_size = 5
 
     def get_queryset(self):
         if self.request.user.is_staff:
@@ -46,11 +48,34 @@ class CourseRunListView(mixins.LoginRequiredMixin, ListView):
         course_runs = context.get('object_list')
         published_courseruns = course_runs.filter(
             state__name=State.PUBLISHED
-        ).select_related('course').all().order_by('-state__modified')[:5]
+        ).select_related('course').all().order_by('-state__modified')
         unpublished_courseruns = course_runs.exclude(state__name=State.PUBLISHED)
-        context['object_list'] = [CourseRunWrapper(course_run) for course_run in unpublished_courseruns]
-        context['published_courseruns'] = [CourseRunWrapper(course_run) for course_run in published_courseruns]
+        need_studio_request_courses = unpublished_courseruns.filter(lms_course_id__isnull=True)
+
+        need_studio_request_courses = [CourseRunWrapper(course_run) for course_run in need_studio_request_courses]
+        unpublished_courseruns = [CourseRunWrapper(course_run) for course_run in unpublished_courseruns]
+        published_courseruns = [CourseRunWrapper(course_run) for course_run in published_courseruns]
+
+        context['unpublished_courseruns'] = self.paging(unpublished_courseruns)
+        context['published_courseruns'] = self.paging(published_courseruns)
+        context['need_studio_request_courses'] = self.paging(need_studio_request_courses)
+        context['need_studio_request_courses_count'] = len(need_studio_request_courses)
+
         return context
+
+    def paging(self, queryset):
+        # Paginate the query set
+        paginator = Paginator(queryset, self.page_size)
+        page = self.request.GET.get('page')
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            data = paginator.page(1)
+        except EmptyPage:
+            # If the page is too high or low
+            data = paginator.page(paginator.num_pages)
+
+        return data
 
 
 class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, DetailView):
