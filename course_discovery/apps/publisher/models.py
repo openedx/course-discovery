@@ -83,6 +83,10 @@ class State(TimeStampedModel, ChangedByMixin):
 class Course(TimeStampedModel, ChangedByMixin):
     """ Publisher Course model. It contains fields related to the course intake form."""
     VIEW_PERMISSION = 'view_course'
+    COORDINATOR = 'partner_coordinator'
+    REVIEWER = 'reviewer'
+    PUBLISHER = 'publisher'
+
 
     title = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_('Course title'))
     number = models.CharField(max_length=50, null=True, blank=True, verbose_name=_('Course number'))
@@ -147,6 +151,9 @@ class Course(TimeStampedModel, ChangedByMixin):
     class Meta(TimeStampedModel.Meta):
         permissions = (
             ('view_course', 'Can view course'),
+            ('partner_coordinator', 'partner coordinator'),
+            ('reviewer', 'reviewer'),
+            ('publisher', 'publisher'),
         )
 
     def assign_permission_by_group(self, institution):
@@ -160,6 +167,18 @@ class Course(TimeStampedModel, ChangedByMixin):
         """
         available_groups = get_groups_with_perms(self)
         return available_groups[0] if available_groups else None
+
+    def assign_permission_by_role(self, role, user):
+        """ Assigns permission on the course against the role and user. """
+        assign_perm(role, user, self)
+
+    @property
+    def user_role_permissions(self):
+        """ Returns the user object having permissions on the given course."""
+        # https://pythonhosted.org/django-guardian/api/guardian.shortcuts.html#get-users-with-perms
+
+        # return (dict): {<User: admin>: ['coordinator', 'publisher'], <User: waheed>: ['reviewer']}
+        return get_users_with_perms(self, attach_perms=True, with_superusers=False, with_group_users=False)
 
     def get_group_users_emails(self):
         """ Returns the list of users emails with enable email notifications
