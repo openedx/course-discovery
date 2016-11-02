@@ -77,6 +77,7 @@ class CourseRunListView(mixins.LoginRequiredMixin, ListView):
 
         return data
 
+
 class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, DetailView):
     """ Course Run Detail View."""
     model = CourseRun

@@ -7,16 +7,18 @@
 {% block content %}
 
     <div class="publisher-container">
-        <h1>Course runs</h1>
+        <h2 class="hd-2 emphasized">Course runs</h2>
         <ul class="nav-tabs">
-            <li class="active"><a href="#tab-1"><span>0</span>{% trans "IN PROGRESS" %}</a></li>
+            <li {% if need_studio_request_courses_count = 0 %}class="active"{% endif %}><a href="#tab-1"><span>0</span>{% trans "IN PROGRESS" %}</a></li>
             <li><a href="#tab-2"><span>0</span>{% trans "PREVIEW READY" %}</a></li>
-            <li><a href="#tab-3"><span>{{ need_studio_request_courses_count }} </span>{% trans "STUDIO REQUEST" %}</a></li>
+            <li {% if need_studio_request_courses_count > 0 %}class="active"{% endif %}>
+                <a href="#tab-3"><span>{{ need_studio_request_courses_count }} </span>{% trans "STUDIO REQUEST" %}</a>
+            </li>
         </ul>
         <div class="tabs-container">
-            <div id="tab-1" class="tab-content" style="display:none;"></div>
-            <div id="tab-2" class="tab-content" style="display:none;"></div>
-            <div id="tab-3" class="tab-content" style="display:block;">
+            <div id="tab-1" class="tab-content {% if need_studio_request_courses_count = 0 %}active{% endif %}"></div>
+            <div id="tab-2" class="tab-content"></div>
+            <div id="tab-3" class="tab-content {% if need_studio_request_courses_count > 0 %}active{% endif %}">
                 <p>{% trans "The list below are the are course that need a studio instance to start development." %}</p>
                 <div class="table-view">
                     <div class="table-row table-head">
@@ -37,7 +39,7 @@
                     {% for course_run in need_studio_request_courses %}
                         <div class="table-row">
                             <div class="table-col">
-                                <a href="#!">{{ course_run.title }}</a>
+                                <a href="{% url 'publisher:publisher_course_run_detail' course_run.id %}">{{ course_run.title }}</a>
                             </div>
                             <div class="table-col">
                                  {{ course_run.start }}
@@ -46,15 +48,13 @@
                                 {{ course_run.number }}
                             </div>
                             <div class="table-col">
-                                <div class="form-group">
-                                    <input type="text" placeholder="placeholder text" />
-                                    <button class="btn-inline">ADD</button>
-                                </div>
+                                <input type="text" class="field-input input-text" />
+                                <button class="btn-inline">ADD</button>
                             </div>
                         </div>
                     {% endfor %}
                     </div>
-                    {% include 'paging.html' with paginated_data=unpublished_courseruns  %}
+                    {% include 'paging.html' with paginated_data=need_studio_request_courses  %}
                 </div>
             </div>
         </div>
