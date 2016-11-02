@@ -12,11 +12,13 @@ class CourseQuerySet(models.QuerySet):
         """ Filters Courses to those with CourseRuns that are either currently open for enrollment,
         or will be open for enrollment in the future. """
 
+        now = datetime.datetime.now(pytz.UTC)
         return self.filter(
-            Q(course_runs__end__gt=datetime.datetime.now(pytz.UTC)) &
             (
-                Q(course_runs__enrollment_end__gt=datetime.datetime.now(pytz.UTC)) |
-                Q(course_runs__enrollment_end__isnull=True)
+                Q(course_runs__end__gt=now) | Q(course_runs__end__isnull=True)
+            ) &
+            (
+                Q(course_runs__enrollment_end__gt=now) | Q(course_runs__enrollment_end__isnull=True)
             )
         )
 
