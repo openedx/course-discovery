@@ -27,7 +27,7 @@ def drop_program_types(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('course_metadata', '0001_squashed_0033_courserun_mobile_available'),
+        ('course_metadata', '0012_create_seat_types'),
     ]
 
     operations = [
