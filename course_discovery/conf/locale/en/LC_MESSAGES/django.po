@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-28 14:40+0500\n"
+"POT-Creation-Date: 2016-11-02 17:57+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -570,8 +570,8 @@ msgstr ""
 msgid "modified"
 msgstr ""
 
-#: templates/base.html
-msgid "Course Runs"
+#: templates/base.html templates/publisher/dashboard.html
+msgid "Dashboard"
 msgstr ""
 
 #: templates/base.html
@@ -620,7 +620,7 @@ msgid ""
 "trademarks or trademarks of %(link_start)sedX Inc.%(link_end)s"
 msgstr ""
 
-#: templates/footer.html templates/footer.html.py
+#: templates/footer.html
 msgid "Powered by Open edX"
 msgstr ""
 
@@ -753,6 +753,7 @@ msgstr ""
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_salesforce.html
 #: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard.html
 msgid "Start Date"
 msgstr ""
 
@@ -779,7 +780,7 @@ msgid ""
 "Will your course be open to students at the same time as it is announced?"
 msgstr ""
 
-#: templates/publisher/add_course_form.html
+#: templates/publisher/add_course_form.html templates/publisher/dashboard.html
 msgid "Course Number"
 msgstr ""
 
@@ -1395,6 +1396,7 @@ msgid "No Seats Available."
 msgstr ""
 
 #: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard.html
 msgid "Course Name"
 msgstr ""
 
@@ -1459,6 +1461,28 @@ msgstr ""
 
 #: templates/publisher/course_runs_list.html
 msgid "Looks like you haven't publish a course yet"
+msgstr ""
+
+#: templates/publisher/dashboard.html
+msgid "IN PROGRESS"
+msgstr ""
+
+#: templates/publisher/dashboard.html
+msgid "PREVIEW READY"
+msgstr ""
+
+#: templates/publisher/dashboard.html
+msgid "STUDIO REQUEST"
+msgstr ""
+
+#: templates/publisher/dashboard.html
+msgid ""
+"The list below are the are course that need a studio instance to start "
+"development."
+msgstr ""
+
+#: templates/publisher/dashboard.html
+msgid "Studio URL"
 msgstr ""
 
 #: templates/publisher/email/change_state.html
