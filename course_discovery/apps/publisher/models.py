@@ -173,7 +173,19 @@ class Course(TimeStampedModel, ChangedByMixin):
         assign_perm(role, user, self)
 
     @property
-    def user_role_permissions(self):
+    def has_group_permissions(self):
+        """ check whether user belongs to valid group using the
+        course group and user group.
+        """
+        # https://pythonhosted.org/django-guardian/api/guardian.shortcuts.html#get-users-with-perms
+
+        # with group_users it will return the all users having permissions on that object.
+
+        # return (dict): {<User: admin>, <User: waheed>}
+        return get_users_with_perms(self, attach_perms=False, with_superusers=False, with_group_users=True)
+
+    @property
+    def has_role_permissions(self):
         """ Returns the user object having permissions on the given course."""
         # https://pythonhosted.org/django-guardian/api/guardian.shortcuts.html#get-users-with-perms
 

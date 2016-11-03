@@ -60,9 +60,30 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin,
 
     def get_context_data(self, **kwargs):
         context = super(CourseRunDetailView, self).get_context_data(**kwargs)
-        context['object'] = CourseRunWrapper(context['object'])
+        wrapper_object = CourseRunWrapper(context['object'])
+        context['object'] = wrapper_object
         context['comment_object'] = self.object.course
+
+        context['has_permission_on_current_state'] = self.has_permission_on_current_state(wrapper_object)
+
         return context
+
+    def has_permission_on_current_state(self, wrapper_object):
+        current_state = wrapper_object.state.name
+        # we can check that current state  with available user permissions and show hide the button
+
+    def user_available_permissions(self):
+        """ Available permissions on the course. """
+        has_role_permissions = []
+        course = self.get_course()
+        has_group_permissions = course.has_group_permissions
+        has_group = self.request.user in has_group_permissions
+
+        if has_group:
+            has_role_permissions = course.has_role_permissions
+            has_role_permissions = has_role_permissions.get(self.request.user)
+
+        return has_role_permissions
 
 
 # pylint: disable=attribute-defined-outside-init
@@ -161,6 +182,7 @@ class ReadOnlyView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, Detail
     def get_context_data(self, **kwargs):
         context = super(ReadOnlyView, self).get_context_data(**kwargs)
         context['comment_object'] = self
+
         return context
 
 
