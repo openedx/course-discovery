@@ -74,16 +74,16 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin,
 
     def user_available_permissions(self):
         """ Available permissions on the course. """
-        has_role_permissions = []
+        available_permissions = []
         course = self.get_course()
         has_group_permissions = course.has_group_permissions
         has_group = self.request.user in has_group_permissions
 
         if has_group:
-            has_role_permissions = course.has_role_permissions
-            has_role_permissions = has_role_permissions.get(self.request.user)
+            available_permissions = course.has_role_permissions
+            available_permissions = available_permissions.get(self.request.user)
 
-        return has_role_permissions
+        return available_permissions
 
 
 # pylint: disable=attribute-defined-outside-init
