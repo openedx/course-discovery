@@ -5,7 +5,6 @@ import json
 
 from django.contrib import messages
 from django.contrib.auth.models import Group
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponseRedirect, HttpResponseForbidden, JsonResponse
@@ -56,26 +55,11 @@ class CourseRunListView(mixins.LoginRequiredMixin, ListView):
         unpublished_courseruns = [CourseRunWrapper(course_run) for course_run in unpublished_courseruns]
         published_courseruns = [CourseRunWrapper(course_run) for course_run in published_courseruns]
 
-        context['unpublished_courseruns'] = self.paging(unpublished_courseruns)
-        context['published_courseruns'] = self.paging(published_courseruns)
-        context['need_studio_request_courses'] = self.paging(need_studio_request_courses)
-        context['need_studio_request_courses_count'] = len(need_studio_request_courses)
+        context['unpublished_courseruns'] = unpublished_courseruns
+        context['published_courseruns'] = published_courseruns
+        context['need_studio_request_courses'] = need_studio_request_courses
 
         return context
-
-    def paging(self, queryset):
-        # Paginate the query set
-        paginator = Paginator(queryset, self.page_size)
-        page = self.request.GET.get('page')
-        try:
-            data = paginator.page(page)
-        except PageNotAnInteger:
-            data = paginator.page(1)
-        except EmptyPage:
-            # If the page is too high or low
-            data = paginator.page(paginator.num_pages)
-
-        return data
 
 
 class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, DetailView):
