@@ -19,7 +19,7 @@ from haystack.query import SQ
 from rest_framework import status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import PermissionDenied, ParseError
-from rest_framework.filters import DjangoFilterBackend
+from rest_framework.filters import DjangoFilterBackend, OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -289,12 +289,13 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
 
 class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
     """ CourseRun resource. """
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
     filter_class = filters.CourseRunFilter
     lookup_field = 'key'
     lookup_value_regex = COURSE_RUN_ID_REGEX
-    queryset = CourseRun.objects.all().order_by(Lower('key'))
+    ordering_fields = ('start',)
     permission_classes = (IsAuthenticated,)
+    queryset = CourseRun.objects.all().order_by(Lower('key'))
     serializer_class = serializers.CourseRunWithProgramsSerializer
 
     def _get_partner(self):

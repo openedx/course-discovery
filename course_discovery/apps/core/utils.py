@@ -67,8 +67,13 @@ class SearchQuerySetWrapper(object):
     def __init__(self, qs):
         self.qs = qs
 
-    def count(self):
-        return self.qs.count()
+    def __getattr__(self, item):
+        try:
+            super().__getattr__(item)
+        except AttributeError:
+            # If the attribute is not found on this class,
+            # proxy the request to the SearchQuerySet.
+            return getattr(self.qs, item)
 
     def __iter__(self):
         for result in self.qs:

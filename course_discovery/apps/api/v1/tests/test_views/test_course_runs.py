@@ -110,6 +110,19 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
             self.serialize_course_run(CourseRun.objects.all().order_by(Lower('key')), many=True)
         )
 
+    def test_list_sorted_by_course_start_date(self):
+        """ Verify the endpoint returns a list of all catalogs sorted by course start date. """
+        url = '{root}?ordering=start'.format(root=reverse('api:v1:course_run-list'))
+
+        with self.assertNumQueries(11):
+            response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertListEqual(
+            response.data['results'],
+            self.serialize_course_run(CourseRun.objects.all().order_by('start'), many=True)
+        )
+
     def test_list_query(self):
         """ Verify the endpoint returns a filtered list of courses """
         course_runs = CourseRunFactory.create_batch(3, title='Some random title', course__partner=self.partner)
