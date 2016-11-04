@@ -39,6 +39,7 @@ COURSES_API_BODIES = [
         'start': '2015-06-15T13:00:00Z',
         'pacing': 'self',
         'mobile_available': True,
+        'hidden': False,
     },
     {
         'effort': None,
@@ -61,6 +62,7 @@ COURSES_API_BODIES = [
         'start': '2015-10-29T09:00:00Z',
         'pacing': 'instructor,',
         'mobile_available': False,
+        'hidden': False,
     },
     {
         # Add a second run of KyotoUx+000x (3T2016) to test merging data across
@@ -84,6 +86,7 @@ COURSES_API_BODIES = [
         'short_description': '',
         'start': None,
         'mobile_available': None,
+        'hidden': True,
     },
 ]
 

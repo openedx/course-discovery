@@ -372,7 +372,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         fields = MinimalCourseRunSerializer.Meta.fields + (
             'course', 'full_description', 'start', 'end', 'enrollment_start', 'enrollment_end', 'announcement',
             'video', 'seats', 'content_language', 'transcript_languages', 'instructors', 'staff', 'pacing_type',
-            'min_effort', 'max_effort', 'modified', 'level_type', 'availability', 'mobile_available',
+            'min_effort', 'max_effort', 'modified', 'level_type', 'availability', 'mobile_available', 'hidden',
         )
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument

@@ -96,7 +96,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         self._process_response(response)
 
     def _make_request(self, page):
-        return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE)
+        return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE, username='course_discovery_worker')
 
     def _process_response(self, response):
         results = response['results']
@@ -140,11 +140,13 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
     def update_course_run(self, course, body):
         key = body['id']
+
         defaults = {
             'key': key,
             'end': self.parse_date(body['end']),
             'enrollment_start': self.parse_date(body['enrollment_start']),
             'enrollment_end': self.parse_date(body['enrollment_end']),
+            'hidden': body.get('hidden', False),
         }
 
         # When using a marketing site, only dates (excluding start) should come from the Course API.
