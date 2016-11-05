@@ -201,15 +201,6 @@ class Course(TimeStampedModel, ChangedByMixin):
         # return (dict): {<User: admin>: ['coordinator', 'publisher'], <User: waheed>: ['reviewer']}
         return get_users_with_perms(self, attach_perms=True, with_superusers=False, with_group_users=False)
 
-    @property
-    def has_role(self):
-        """ Returns the user object having permissions on the given course."""
-        # https://pythonhosted.org/django-guardian/api/guardian.shortcuts.html#get-users-with-perms
-
-        # return (dict): {<User: admin>: ['coordinator', 'publisher'], <User: waheed>: ['reviewer']}
-        return get_users_with_perms(self, attach_perms=True, with_superusers=False, with_group_users=False)
-
-
     def get_group_users_emails(self):
         """ Returns the list of users emails with enable email notifications
         against a course group. By default if attribute value does not exists
