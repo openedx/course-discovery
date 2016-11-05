@@ -1,4 +1,5 @@
 import logging
+from django.contrib.auth.models import Group
 
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -158,7 +159,15 @@ class Course(TimeStampedModel, ChangedByMixin):
 
     def assign_permission_by_group(self, institution):
         """ Assigns permission on the course against the group. """
+
         assign_perm(self.VIEW_PERMISSION, institution, self)
+
+    def assign_permission_by_default_org_users(self, institution):
+        """ Assigns permission on the course against the group. """
+        default_users = institution.organization.organization.roles.all()
+        for role in default_users:
+            assign_perm(role.role, role.user, self)
+
 
     @property
     def group_institution(self):
@@ -191,6 +200,15 @@ class Course(TimeStampedModel, ChangedByMixin):
 
         # return (dict): {<User: admin>: ['coordinator', 'publisher'], <User: waheed>: ['reviewer']}
         return get_users_with_perms(self, attach_perms=True, with_superusers=False, with_group_users=False)
+
+    @property
+    def has_role(self):
+        """ Returns the user object having permissions on the given course."""
+        # https://pythonhosted.org/django-guardian/api/guardian.shortcuts.html#get-users-with-perms
+
+        # return (dict): {<User: admin>: ['coordinator', 'publisher'], <User: waheed>: ['reviewer']}
+        return get_users_with_perms(self, attach_perms=True, with_superusers=False, with_group_users=False)
+
 
     def get_group_users_emails(self):
         """ Returns the list of users emails with enable email notifications
@@ -390,3 +408,48 @@ class UserAttributes(TimeStampedModel):
 
     class Meta:
         verbose_name_plural = 'UserAttributes'
+
+
+class OrganizationsGroup(TimeStampedModel):
+    organization = models.OneToOneField(Organization, related_name='group')
+    group = models.OneToOneField(Group, related_name='organization')
+
+
+class OrganizationsRoles(TimeStampedModel):
+    """ Organization model for roles. """
+    COORDINATOR = 'partner_coordinator'
+    REVIEWER = 'reviewer'
+    PUBLISHER = 'publisher'
+
+    ROLES_TYPE_CHOICES = (
+        (COORDINATOR, _('Partner Coordinator')),
+        (REVIEWER, _('Reviewer')),
+        (PUBLISHER, _('Publisher')),
+    )
+
+    organization = models.ForeignKey(Organization, related_name='roles')
+    user = models.ForeignKey(User, related_name='organizations_roles')
+    role = models.CharField(max_length=63, choices=ROLES_TYPE_CHOICES, verbose_name='Role Type')
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return '{organization}'.format(
+            organization=self.organization
+        )
+
+    class Meta:
+        unique_together = (
+            ('organization', 'user', 'role'),
+        )
+        verbose_name_plural = 'Organizations'
+
+    # @classmethod
+    # def organization_users(cls, organization):
+    #     """
+    #     Returns:
+    #         QuerySet
+    #     """
+    #     from nose.tools import set_trace; set_trace()
+    #     group_objects = cls.objects.filter(organization=organization)
+    #

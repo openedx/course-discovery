@@ -139,6 +139,8 @@ class CreateCourseView(mixins.LoginRequiredMixin, CreateView):
                     # assign guardian permission.
                     course.assign_permission_by_group(institution)
 
+                    course.assign_permission_by_default_org_users(institution)
+
                     messages.success(
                         request, _('Course created successfully.')
                     )
