@@ -23,9 +23,10 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractMarketingSiteDataLoader(AbstractDataLoader):
-    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None, is_threadsafe=False):
+    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None,
+                 is_threadsafe=False, **kwargs):
         super(AbstractMarketingSiteDataLoader, self).__init__(
-            partner, api_url, access_token, token_type, max_workers, is_threadsafe
+            partner, api_url, access_token, token_type, max_workers, is_threadsafe, **kwargs
         )
 
         if not (self.partner.marketing_site_api_username and self.partner.marketing_site_api_password):
