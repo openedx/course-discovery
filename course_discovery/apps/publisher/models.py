@@ -349,7 +349,6 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         return get_users_with_perms(self, attach_perms=False, with_superusers=False, with_group_users=True)
 
 
-
 class Seat(TimeStampedModel, ChangedByMixin):
     """ Seat model. """
     HONOR = 'honor'
