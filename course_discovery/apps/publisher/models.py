@@ -336,6 +336,19 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         # return (dict): {<User: admin>: ['coordinator', 'publisher'], <User: waheed>: ['reviewer']}
         return get_users_with_perms(self, attach_perms=True, with_superusers=False, with_group_users=False)
 
+    @property
+    def has_group_permissions(self):
+        """ check whether user belongs to valid group using the
+        course group and user group.
+        """
+        # https://pythonhosted.org/django-guardian/api/guardian.shortcuts.html#get-users-with-perms
+
+        # with group_users it will return the all users having permissions on that object.
+
+        # return (dict): {<User: admin>, <User: waheed>}
+        return get_users_with_perms(self, attach_perms=False, with_superusers=False, with_group_users=True)
+
+
 
 class Seat(TimeStampedModel, ChangedByMixin):
     """ Seat model. """
