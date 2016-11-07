@@ -149,25 +149,10 @@ class Course(TimeStampedModel, ChangedByMixin):
     def post_back_url(self):
         return reverse('publisher:publisher_courses_edit', kwargs={'pk': self.id})
 
-    class Meta(TimeStampedModel.Meta):
-        permissions = (
-            ('view_course', 'Can view course'),
-            ('partner_coordinator', 'partner coordinator'),
-            ('reviewer', 'reviewer'),
-            ('publisher', 'publisher'),
-        )
-
     def assign_permission_by_group(self, institution):
         """ Assigns permission on the course against the group. """
 
         assign_perm(self.VIEW_PERMISSION, institution, self)
-
-    def assign_permission_by_default_org_users(self, institution):
-        """ Assigns permission on the course against the group. """
-        default_users = institution.organization.organization.roles.all()
-        for role in default_users:
-            assign_perm(role.role, role.user, self)
-
 
     @property
     def group_institution(self):
@@ -329,6 +314,27 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     @property
     def post_back_url(self):
         return reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.id})
+
+    class Meta(TimeStampedModel.Meta):
+        permissions = (
+            ('partner_coordinator', 'partner coordinator'),
+            ('reviewer', 'reviewer'),
+            ('publisher', 'publisher'),
+        )
+
+    def assign_permission_by_default_org_users(self, institution):
+        """ Assigns permission on the course against the group. """
+        default_users = institution.organization.organization.roles.all()
+        for role in default_users:
+            assign_perm(role.role, role.user, self)
+
+    @property
+    def user_permissions(self):
+        """ Returns the user object having permissions on the given course."""
+        # https://pythonhosted.org/django-guardian/api/guardian.shortcuts.html#get-users-with-perms
+
+        # return (dict): {<User: admin>: ['coordinator', 'publisher'], <User: waheed>: ['reviewer']}
+        return get_users_with_perms(self, attach_perms=True, with_superusers=False, with_group_users=False)
 
 
 class Seat(TimeStampedModel, ChangedByMixin):
