@@ -96,7 +96,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         self._process_response(response)
 
     def _make_request(self, page):
-        return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE, username='course_discovery_worker')
+        return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE)
 
     def _process_response(self, response):
         results = response['results']
