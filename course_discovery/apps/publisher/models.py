@@ -359,3 +359,32 @@ class UserAttributes(TimeStampedModel):
 
     class Meta:
         verbose_name_plural = 'UserAttributes'
+
+
+class OrganizationUserRole(TimeStampedModel):
+    """ Organization model for roles. """
+    COORDINATOR = 'partner_coordinator'
+    REVIEWER = 'reviewer'
+    PUBLISHER = 'publisher'
+
+    ROLES_TYPE_CHOICES = (
+        (COORDINATOR, _('Partner Coordinator')),
+        (REVIEWER, _('Reviewer')),
+        (PUBLISHER, _('Publisher')),
+    )
+
+    organization = models.ForeignKey(Organization, related_name='roles')
+    user = models.ForeignKey(User, related_name='organizations_roles')
+    role = models.CharField(max_length=63, choices=ROLES_TYPE_CHOICES, verbose_name='Role Type')
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return '{organization}: {user}: {role}'.format(
+            organization=self.organization, user=self.user, role=self.role
+        )
+
+    class Meta:
+        unique_together = (
+            ('organization', 'user', 'role'),
+        )
