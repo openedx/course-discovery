@@ -3,14 +3,15 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# Renzo Lucioni, 2016
 # Tamara V. Borlenghi <tamaraprincess@yahoo.com.ar>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-11-03 17:29-0400\n"
-"PO-Revision-Date: 2016-11-04 09:40+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"PO-Revision-Date: 2016-11-08 22:25+0000\n"
+"Last-Translator: Renzo Lucioni\n"
 "Language-Team: Spanish (Argentina) (http://www.transifex.com/open-edx/edx-platform/language/es_AR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -21,7 +22,7 @@ msgstr ""
 #: apps/api/filters.py
 #, python-brace-format
 msgid "No user with the username [{username}] exists."
-msgstr "No existe ningún usuario  [{usuario}] con este nombre."
+msgstr "No existe ningún usuario [{username}] con este nombre."
 
 #: apps/api/filters.py
 msgid ""
@@ -115,7 +116,7 @@ msgstr ""
 #: apps/core/forms.py
 #, python-brace-format
 msgid "period must be one of {period_choices}."
-msgstr "Debe ser uno de estos { opciones de períodos}."
+msgstr "Debe ser uno de estos {period_choices}."
 
 #: apps/core/forms.py
 msgid "'rate' must be in the format defined by DRF, such as '100/hour'."
