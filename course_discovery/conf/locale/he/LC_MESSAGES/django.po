@@ -1,0 +1,1524 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# 
+# Translators:
+# e2f_HE c1 <e2f_HE_c1@outlook.com>, 2016
+# e2f he_r1 <e2f_he_r1@outlook.com>, 2016
+# ido nahmias <inahmias@gmail.com>, 2016
+# qualityalltext <quality@alltext.co.il>, 2016
+# Yoav Caspin <yoavc@pmo.gov.il>, 2016
+msgid ""
+msgstr ""
+"Project-Id-Version: edx-platform\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-11-03 17:29-0400\n"
+"PO-Revision-Date: 2016-11-07 09:57+0000\n"
+"Last-Translator: qualityalltext <quality@alltext.co.il>\n"
+"Language-Team: Hebrew (http://www.transifex.com/open-edx/edx-platform/language/he/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: he\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: apps/api/filters.py
+#, python-brace-format
+msgid "No user with the username [{username}] exists."
+msgstr "לא קיים משתמש בעל שם משתמש [{username}] "
+
+#: apps/api/filters.py
+msgid ""
+"Only staff users are permitted to filter by username. Remove the username "
+"parameter."
+msgstr "רק משתמשים מתוך חברי הסגל רשאים לסנן על פי שם משתמש. הסר את פרמטר שם המשתמש."
+
+#: apps/api/serializers.py
+msgid "Number of courses contained in this catalog"
+msgstr "מספר הקורסים הנמצאים בקטלוג זה."
+
+#: apps/api/serializers.py
+msgid "Usernames of users with explicit access to view this catalog"
+msgstr "שמות משתמשים של משתמשים בעלי גישה מפורשת לצפייה בקטלוג זה"
+
+#: apps/api/serializers.py
+msgid "Language in which the course is administered"
+msgstr "השפה בה הקורס מנוהל"
+
+#: apps/api/serializers.py
+msgid "Dictionary mapping course run IDs to boolean values"
+msgstr "מיפוי מילוני להשלמת מזהי קורס לערכים בוליאניים"
+
+#: apps/api/serializers.py
+msgid "Dictionary mapping course IDs to boolean values"
+msgstr "מיפוי מילוני למזהי קורס לערכים בוליאניים"
+
+#: apps/api/serializers.py
+msgid "Languages that course runs in this program are offered in."
+msgstr "השפות המוצעות בהרצות קורס שבתכנית זו."
+
+#: apps/api/serializers.py
+msgid ""
+"Languages that course runs in this program have available transcripts in."
+msgstr "לשפות שהקורס מפעיל בתכנית זו יש תמלילים."
+
+#: apps/api/views.py
+msgid "You are not permitted to access the API documentation."
+msgstr "אינך מורשה לגשת למסמכי ה-API"
+
+#: apps/catalogs/models.py
+msgid "Catalog name"
+msgstr "שם הקטלוג"
+
+#: apps/catalogs/models.py
+msgid "Query to retrieve catalog contents"
+msgstr "שאילתא לשליפת תכני קטלוג"
+
+#: apps/core/admin.py
+msgid "Personal info"
+msgstr "מידע אישי"
+
+#: apps/core/admin.py
+msgid "Permissions"
+msgstr "הרשאות"
+
+#: apps/core/admin.py
+msgid "Important dates"
+msgstr "תאריכים חשובים"
+
+#: apps/core/admin.py
+msgid "OpenID Connect"
+msgstr "OpenID Connect"
+
+#: apps/core/admin.py
+msgid ""
+"OpenID Connect is used for front-end authentication as well as getting "
+"access to the APIs."
+msgstr "OpenID Connect משמש לאימות הקצה הקדמי כמו גם קבלת גישה לממשקי API."
+
+#: apps/core/admin.py
+msgid "API Configuration"
+msgstr "תצורת API"
+
+#: apps/core/admin.py
+msgid "Configure the APIs that will be used to retrieve data."
+msgstr "הגדר את ממשקי ה-API שישמשו לאחזור נתונים."
+
+#: apps/core/admin.py
+msgid "Marketing Site Configuration"
+msgstr "תצורת אתר השיווק"
+
+#: apps/core/admin.py
+msgid ""
+"Configure the marketing site URLs that will be used to retrieve data and "
+"create URLs."
+msgstr "הגדר את ממשקי ה-API של אתר השיווק שישמשו לאחזור נתונים וליצירת כתובות URL."
+
+#. Translators: 'period_choices' is a list of possible values, like ('second',
+#. 'minute', 'hour')
+#: apps/core/forms.py
+#, python-brace-format
+msgid "period must be one of {period_choices}."
+msgstr "פרק הזמן חייב להיות אחד מ{period_choices}."
+
+#: apps/core/forms.py
+msgid "'rate' must be in the format defined by DRF, such as '100/hour'."
+msgstr "'תעריף' חייב להיות בפורמט המוגדר באמצעות DRF, כגון '100/שעה'."
+
+#: apps/core/models.py
+msgid "Full Name"
+msgstr "שם מלא"
+
+#: apps/core/models.py
+msgid "Referral Tracking ID"
+msgstr "מזהה מעקב פנייה"
+
+#: apps/core/models.py
+msgid ""
+"The rate of requests to limit this user to. The format is specified by "
+"Django Rest Framework (see http://www.django-rest-framework.org/api-"
+"guide/throttling/)."
+msgstr "תעריף הבקשות להגבלת משתמש זה. הפורמט נמצא במערכתDjango Rest Framework (ראה http://www.django-rest-framework.org/api-guide/throttling/)."
+
+#: apps/core/models.py
+msgid "Short Code"
+msgstr "קוד קצר"
+
+#: apps/core/models.py
+msgid ""
+"Convenient code/slug used to identify this Partner (e.g. for management "
+"commands.)"
+msgstr "קוד/סלאג המשמש לזיהוי שותף זה (לדוגמה, לפקודות ניהול)."
+
+#: apps/core/models.py
+msgid "Courses API URL"
+msgstr "כתובת URL לממשק API של קורסים"
+
+#: apps/core/models.py
+msgid "E-Commerce API URL"
+msgstr "כתובת URL לממשק API של מסחר אלקטרוני"
+
+#: apps/core/models.py
+msgid "Organizations API URL"
+msgstr "כתובת URL של ממשק API של ארגונים"
+
+#: apps/core/models.py
+msgid "Programs API URL"
+msgstr "כתובת URL לממשק API של תכניות"
+
+#: apps/core/models.py
+msgid "Marketing Site API URL"
+msgstr "כתובת URL לממשק API של אתר שיווק"
+
+#: apps/core/models.py
+msgid "Marketing Site URL"
+msgstr "כתובת URL של אתר שיווק"
+
+#: apps/core/models.py
+msgid "Marketing Site API Username"
+msgstr "שם משתמש לממשק API של אתר שיווק"
+
+#: apps/core/models.py
+msgid "Marketing Site API Password"
+msgstr "סיסמת API לאתר שיווק"
+
+#: apps/core/models.py
+msgid "OpenID Connect URL"
+msgstr "כתובת URL של OpenID Connect"
+
+#: apps/core/models.py
+msgid "OpenID Connect Key"
+msgstr "מקש OpenID Connect"
+
+#: apps/core/models.py
+msgid "OpenID Connect Secret"
+msgstr "OpenID Connect נסתר"
+
+#: apps/core/models.py templates/publisher/course_runs_list.html
+msgid "Partner"
+msgstr "שותף"
+
+#: apps/core/models.py
+msgid "Partners"
+msgstr "שותפים"
+
+#: apps/course_metadata/admin.py
+msgid "Included course runs"
+msgstr "כולל הרצות קורס"
+
+#: apps/course_metadata/admin.py
+msgid ""
+"An error occurred while publishing the program to the marketing site. Please"
+" try again. If the error persists, please contact the Engineering Team."
+msgstr "התרחשה שגיאה בעת פרסום התכנית באתר השיווק. נא נסה שנית. אם השגיאה חוזרת על עצמה, נא צור קשר עם צוות ההנדסה."
+
+#: apps/course_metadata/choices.py apps/publisher/models.py
+msgid "Published"
+msgstr "פורסם"
+
+#: apps/course_metadata/choices.py
+msgid "Unpublished"
+msgstr "לא פורסם"
+
+#. Translators: Instructor-paced refers to course runs that operate on a
+#. schedule set by the instructor,
+#. similar to a normal university course.
+#: apps/course_metadata/choices.py
+msgid "Instructor-paced"
+msgstr "מלווה במרצה"
+
+#. Translators: Self-paced refers to course runs that operate on the student's
+#. schedule.
+#: apps/course_metadata/choices.py
+msgid "Self-paced"
+msgstr "קצב אישי"
+
+#: apps/course_metadata/choices.py
+msgid "Active"
+msgstr "פעיל"
+
+#: apps/course_metadata/choices.py
+msgid "Retired"
+msgstr "פרש"
+
+#: apps/course_metadata/choices.py
+msgid "Deleted"
+msgstr "נמחק"
+
+#: apps/course_metadata/forms.py
+msgid ""
+"Programs can only be activated if they have a marketing slug and a banner "
+"image."
+msgstr "ניתן להפעיל תכניות רק אם יש להן סלאג שיווקי ותמונת באנר."
+
+#: apps/course_metadata/models.py
+msgid "Facebook"
+msgstr "פייסבוק"
+
+#: apps/course_metadata/models.py
+msgid "Twitter"
+msgstr "טוויטר"
+
+#: apps/course_metadata/models.py
+msgid "Blog"
+msgstr "בלוג"
+
+#: apps/course_metadata/models.py
+msgid "Others"
+msgstr "אחרים"
+
+#: apps/course_metadata/models.py
+msgid "UUID"
+msgstr "UUID"
+
+#: apps/course_metadata/models.py
+msgid "Leave this field blank to have the value generated automatically."
+msgstr "השאר שדה זה ריק כדי שהערך יווצר באופן אוטומטי."
+
+#: apps/course_metadata/models.py
+msgid "People"
+msgstr "אנשים"
+
+#: apps/course_metadata/models.py
+msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
+msgstr "תבנית מספר הקורס, לדוגמה CS002x‏ BIO1.1x, BIO1.2x"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Title specific for this run of a course. Leave this value blank to default "
+"to the parent course's title."
+msgstr "כותרת ספציפית להשלמת קורס זה. השאר ערך זה ריק כברירת מחדל לכותרת קורס האב."
+
+#: apps/course_metadata/models.py
+msgid ""
+"Short description specific for this run of a course. Leave this value blank "
+"to default to the parent course's short_description attribute."
+msgstr "תיאור קצר הספציפי להשלמת קורס זה. השאר ערך זה ריק כברירת מחדל למאפייני תיאור_קצר של קורס האב."
+
+#: apps/course_metadata/models.py
+msgid ""
+"Full description specific for this run of a course. Leave this value blank "
+"to default to the parent course's full_description attribute."
+msgstr "תיאור מלא וממוקד להשלמת הרצת קורס זה. השאֵר ערך זה ריק כברירת מחדל למאפייני תיאור_מלא של קורס הבסיס."
+
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid ""
+"Estimated minimum number of hours per week needed to complete a course run."
+msgstr "הערכת מספר השעות המינימלי בשבוע הנדרש לצורך השלמת הקורס."
+
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid ""
+"Estimated maximum number of hours per week needed to complete a course run."
+msgstr "הערכת מספר השעות המרבי בשבוע הנדרש לצורך השלמת הקורס."
+
+#: apps/course_metadata/models.py
+msgid "Estimated number of weeks needed to complete this course run."
+msgstr "הערכת מספר השבועות הנדרש לצורך השלמת הקורס."
+
+#: apps/course_metadata/models.py
+msgid "Archived"
+msgstr "מאוחסן בארכיון"
+
+#: apps/course_metadata/models.py
+msgid "Current"
+msgstr "נוכחי"
+
+#: apps/course_metadata/models.py
+msgid "Starting Soon"
+msgstr "מתחילים בקרוב"
+
+#: apps/course_metadata/models.py
+msgid "Upcoming"
+msgstr "בקרוב"
+
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid "Honor"
+msgstr "כבוד"
+
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid "Audit"
+msgstr "שומע חופשי"
+
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid "Verified"
+msgstr "מאומת"
+
+#: apps/course_metadata/models.py
+msgid "Professional"
+msgstr "מקצועי"
+
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid "Credit"
+msgstr "נקודות זכות"
+
+#: apps/course_metadata/models.py
+msgid "FAQ"
+msgstr "שאלות נפוצות"
+
+#: apps/course_metadata/models.py
+msgid "FAQs"
+msgstr "שאלות נפוצות"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Seat types that qualify for completion of programs of this type. Learners "
+"completing associated courses, but enrolled in other seat types, will NOT "
+"have their completion of the course counted toward the completion of the "
+"program."
+msgstr "סוגי המושב הכשירים להשלמת תכניות מסוג זה. הלומדים משלימים קורסים משויכים, אך נרשמים בסוגי כסאות אחרים, לא יוכלו להשלים את הקורס עד להשלמת התוכנית."
+
+#: apps/course_metadata/models.py
+msgid "The user-facing display title for this Program."
+msgstr "כותרת שם הקמפוס של המשתמש לתכנית זו."
+
+#: apps/course_metadata/models.py
+msgid "A brief, descriptive subtitle for the Program."
+msgstr "כתובית קצרה ותיאורית של התכנית."
+
+#: apps/course_metadata/models.py
+msgid "The lifecycle status of this Program."
+msgstr "סטטוס אורך החיים של תכנית זו."
+
+#: apps/course_metadata/models.py
+msgid "Slug used to generate links to the marketing site"
+msgstr "שימוש בסלאג ליצירת קישורים לאתר השיווק"
+
+#: apps/course_metadata/models.py
+msgid ""
+"If this box is not checked, courses will be ordered as in the courses select"
+" box above."
+msgstr "אם תיבה זו לא סומנה, הקורסים יוזמנו כפי שמוזמנים קורסים שסומנו בתיבה שלעיל."
+
+#: apps/course_metadata/models.py
+msgid ""
+"This field is now deprecated (ECOM-6021).Estimated number of weeks needed to"
+" complete a course run belonging to this program."
+msgstr "שדה זה אינו מומלץ לשימוש (ECOM-6021). הערכת מספר השבועות הנדרש לצורך השלמת הקורס השייך לתוכנית זו."
+
+#: apps/course_metadata/models.py
+msgid "Image used for discovery cards"
+msgstr "תמונה המשמשת לכרטיסי הגילוי"
+
+#: apps/course_metadata/models.py
+msgid "The description of credit redemption for courses in program"
+msgstr "תיאור מימוש הזכות לקורסים בתכנית"
+
+#: apps/course_metadata/views.py
+msgid "Change program excluded course runs"
+msgstr "שינוי תכנית מוציא מכלל אפשרות הרצות קורס"
+
+#: apps/edx_haystack_extensions/models.py
+msgid "Function Score"
+msgstr "ציון פונקציונלי"
+
+#: apps/edx_haystack_extensions/models.py
+msgid "JSON string containing an elasticsearch function score config."
+msgstr "מחרוזת JSON כוללת הגדרות ציון פונקציונלי של חיפוש אלסטי."
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Course Run {title}-{pacing_type}-{start} state has been changed."
+msgstr "מצב הרצת קורס {title}-{pacing_type}-{start} השתנה."
+
+#: apps/publisher/forms.py
+msgid "Yes"
+msgstr "כן"
+
+#: apps/publisher/forms.py
+msgid "No"
+msgstr "לא"
+
+#: apps/publisher/forms.py
+msgid "Only honor/audit seats can be without price."
+msgstr "רק מושבי כבוד/שומע חופשי הם ללא מחיר."
+
+#: apps/publisher/models.py
+msgid "Draft"
+msgstr "טיוטה"
+
+#: apps/publisher/models.py
+msgid "Needs Review"
+msgstr "זקוק לסקירה"
+
+#: apps/publisher/models.py
+msgid "Needs Final Approval"
+msgstr "זקוק לאישור סופי"
+
+#: apps/publisher/models.py
+msgid "Finalized"
+msgstr "הושלם"
+
+#: apps/publisher/models.py
+msgid "Course title"
+msgstr "כותרת הקורס"
+
+#: apps/publisher/models.py
+msgid "Course number"
+msgstr "מספר הקורס"
+
+#: apps/publisher/models.py templates/publisher/add_course_form.html
+msgid "Brief Description"
+msgstr "תיאור קצר"
+
+#: apps/publisher/models.py
+msgid "Full Description"
+msgstr "תיאור מלא"
+
+#: apps/publisher/models.py templates/publisher/course_run_detail/_all.html
+msgid "Partner Name"
+msgstr "שם השותף"
+
+#: apps/publisher/models.py
+msgid "Level Type"
+msgstr "סוג רמה"
+
+#: apps/publisher/models.py
+msgid "Expected Learnings"
+msgstr "לימודים צפויים"
+
+#: apps/publisher/models.py templates/publisher/course_run_detail/_all.html
+msgid "Prerequisites"
+msgstr "דרישות קדם"
+
+#: apps/publisher/models.py
+msgid "Verification deadline"
+msgstr "מועד אחרון לאימות"
+
+#: apps/publisher/models.py
+msgid ""
+"Last date/time on which verification for this product can be submitted."
+msgstr "התאריך/השעה האחרונים שניתן להגיש אימות עבור מוצר זה."
+
+#: apps/publisher/models.py
+msgid "Level 1"
+msgstr "רמה 1"
+
+#: apps/publisher/models.py
+msgid "Level 2"
+msgstr "רמה 2"
+
+#: apps/publisher/models.py
+msgid "Level 3"
+msgstr "רמה 3"
+
+#: apps/publisher/models.py
+msgid "Level 4"
+msgstr "רמה 4"
+
+#: apps/publisher/models.py
+msgid "Level 5"
+msgstr "רמה 5"
+
+#: apps/publisher/models.py
+msgid "Content Language"
+msgstr "שפת התוכן"
+
+#: apps/publisher/models.py templates/publisher/add_course_form.html
+msgid "Length of course, in number of weeks"
+msgstr "אורך הקורס במספר שבועות"
+
+#: apps/publisher/models.py
+msgid ""
+"Please add any additional notes or special instructions for the course About"
+" Page."
+msgstr "הוסף הערות נוספות כלשהן או הוראות מיוחדות לעמוד האודות של הקורס."
+
+#: apps/publisher/models.py
+msgid "Comma separated list of edX usernames or emails of admins."
+msgstr "רשימה מופרדת בפסיקים של שמות משתמשים או כתובות דואר אלקטרוני של מנהלי מערכת."
+
+#: apps/publisher/models.py
+msgid "Comma separated list of edX usernames or emails of additional staff."
+msgstr "רשימה מופרדת בפסיקים של שמות משתמשים או כתובות דואר אלקטרוני של חברי צוות נוספים."
+
+#: apps/publisher/models.py
+msgid "Professional (with ID verification)"
+msgstr "מקצועי (עם אימות זיהוי)"
+
+#: apps/publisher/models.py
+msgid "Professional (no ID verifiation)"
+msgstr "מקצועי (ללא אימות זיהוי)"
+
+#: apps/publisher/views.py
+msgid "Course created successfully."
+msgstr "הקורס נוצר בהצלחה."
+
+#: apps/publisher/views.py
+msgid "Please fill all required field."
+msgstr "אנא מלא את כל השדה הנדרש."
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid "Content moved to `{state}` successfully."
+msgstr "התוכן הועבר אל '{state}' בהצלחה."
+
+#: apps/publisher/views.py
+msgid "There was an error in changing state."
+msgstr "התרחשה שגיאה בעת שינוי המצב."
+
+#: apps/publisher/wrappers.py
+msgid "Send For Review"
+msgstr "נשלח לסקירה"
+
+#: apps/publisher/wrappers.py
+msgid "Send For Final Approval"
+msgstr "נשלח לאישור סופי"
+
+#: apps/publisher/wrappers.py
+msgid "Finalize"
+msgstr "השלם"
+
+#: apps/publisher/wrappers.py
+msgid "Publish"
+msgstr "פרסם"
+
+#: apps/publisher_comments/emails.py
+#, python-brace-format
+msgid "New comment added in course run: {title}-{pacing_type}-{start}"
+msgstr "נוספה הערה חדשה בהרצת הקורס: {title}-{pacing_type}-{start}"
+
+#: apps/publisher_comments/emails.py
+#, python-brace-format
+msgid "New comment added in Course: {title}"
+msgstr "נוספה הערה חדשה בקורס: {title}"
+
+#: apps/publisher_comments/models.py
+msgid "modified"
+msgstr "עבר שינויים"
+
+#: templates/base.html
+msgid "Course Runs"
+msgstr "הרצות קורס"
+
+#: templates/base.html
+msgid "Courses"
+msgstr "קורסים"
+
+#: templates/comments/add_auth_comments.html
+msgid "Add new comment"
+msgstr "הוסף הערה חדשה"
+
+#: templates/comments/comments_list.html
+#, python-format
+msgid "Total Comments %(comment_count)s"
+msgstr "סך כל ההערות %(comment_count)s"
+
+#: templates/comments/edit_comment.html
+#: templates/publisher/course_run_form.html
+msgid "Course Run Form"
+msgstr "טופס הרצת קורס"
+
+#: templates/comments/edit_comment.html
+msgid "Edit Comment"
+msgstr "ערוך הערה"
+
+#: templates/comments/edit_comment.html templates/publisher/course_form.html
+#: templates/publisher/course_run_form.html templates/publisher/seat_form.html
+msgid "Save"
+msgstr "שמור"
+
+#: templates/footer.html
+msgid "Terms of Service"
+msgstr "תנאי שימוש"
+
+#: templates/footer.html
+msgid "Privacy Policy"
+msgstr "מדיניות פרטיות"
+
+#: templates/footer.html
+msgid "Legal"
+msgstr "משפטי"
+
+#: templates/footer.html
+#, python-format
+msgid ""
+"EdX, Open edX, Publisher, and the edX and Open edX logos are registered "
+"trademarks or trademarks of %(link_start)sedX Inc.%(link_end)s"
+msgstr " Open edX‏, EdX וסמלי הלוגו של edX ו-Open edX הינם סימנים מסחריים רשומים או סימנים מסחריים של %(link_start)sedX Inc.%(link_end)s"
+
+#: templates/footer.html
+msgid "Powered by Open edX"
+msgstr "מופעל על ידי Open edX"
+
+#: templates/header.html
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Account"
+msgstr "חשבון"
+
+#: templates/header.html
+msgid "Account Navigation"
+msgstr "ניווט בחשבון"
+
+#: templates/header.html
+msgid "Contextual Online Help"
+msgstr "עזרה מקוונת לפי הקְשר"
+
+#: templates/header.html
+msgid "Help"
+msgstr "עזרה"
+
+#: templates/header.html
+msgid "Email notifications"
+msgstr "התראות דואר אלקטרוני"
+
+#: templates/header.html
+msgid "ON"
+msgstr "פעיל"
+
+#: templates/header.html
+msgid "OFF"
+msgstr "כבוי"
+
+#: templates/header.html
+msgid "Sign Out"
+msgstr "התנתק"
+
+#: templates/metadata/admin/course_run.html
+msgid "Cancel"
+msgstr "בטל"
+
+#: templates/metadata/admin/course_run.html
+msgid "Back to Program"
+msgstr "חזרה לתכנית"
+
+#: templates/metadata/admin/course_run.html
+msgid "Save Course Run"
+msgstr "שמור הרצת קורס"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/course_form.html
+#: templates/publisher/view_course_form.html
+msgid "Course Form"
+msgstr "טופס קורס"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/view_course_form.html
+msgid "Base information"
+msgstr "מידע בסיס"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/view_course_form.html
+msgid "INSTITUTION INFORMATION"
+msgstr "פרטי מוסד"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Please choose the school that will be providing the course. Once chosen then"
+" you can select an administrator for the studio shell."
+msgstr "בחר בבית הספר שיספק את הקורס. לאחר בחירת בית הספר תוכל לבחור מנהל מערכת עבור מעטפת הסטודיו."
+
+#: templates/publisher/add_course_form.html
+msgid "required"
+msgstr "נדרש"
+
+#: templates/publisher/add_course_form.html
+msgid "Course Title"
+msgstr "כותרת הקורס"
+
+#: templates/publisher/add_course_form.html
+msgid "Best Practices"
+msgstr "שיטות מומלצות"
+
+#: templates/publisher/add_course_form.html
+msgid "Example"
+msgstr "דוגמה"
+
+#: templates/publisher/add_course_form.html
+msgid "Concise 70 characters maximum; < 50 chars. recommended."
+msgstr "מכיל 70 תווים לכל היותר; מומלץ פחות מ-50 תווים."
+
+#: templates/publisher/add_course_form.html
+msgid "Descriptive - clearly indicates what the course is about."
+msgstr "תיאורי - מתאר בבירור מהו נושא הקורס."
+
+#: templates/publisher/add_course_form.html
+msgid "SEO-optimized and targeted to a global audience."
+msgstr "מְמוטב SEO ונועד לקהל גלובלי."
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"If the course falls in a sequence, our titling convention is: \"Course "
+"Title: Subtitle\""
+msgstr "אם הקורס נמצא ברצף, המוסכמה לכותרת היא: \"כותרת הקורס: כתובית\""
+
+#: templates/publisher/add_course_form.html
+msgid "English Grammar and Essay Writing Sequence Courses:"
+msgstr "קורסי המשך בדקדוק אנגלי ובכתיבת חיבורים:"
+
+#: templates/publisher/add_course_form.html
+msgid "Introduction to Statistics"
+msgstr "מבוא לסטטיסטיקה"
+
+#: templates/publisher/add_course_form.html
+msgid "Statistics: Inference"
+msgstr "סטטיסטיקה: הסקת מסקנות"
+
+#: templates/publisher/add_course_form.html
+msgid "Statistics: Probability"
+msgstr "סטטיסטיקה: הסתברות"
+
+#: templates/publisher/add_course_form.html
+msgid "Priority content"
+msgstr "תוכן בעל עדיפות"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Start Date"
+msgstr "תאריך התחלה"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Start on a weekday (preferably Tuesday, Wednesday, or Thursday) and avoid "
+"major U.S. holidays for best access to edX staff."
+msgstr "התחל ביום עבודה (עדיף ביום שלישי, רביעי או חמישי) והימנע מחגים מרכזיים על מנת לקבל גישה טובה יותר לצוות edX."
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Approximate dates are acceptable; If you are unable to give an exact date, "
+"please identify a month in which the course will be offered."
+msgstr "התאריכים המשוערים מקובלים; אם אינך יכול להתחייב על תאריך מדויק, אנא רשום חודש שבו יוצע הקורס."
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Pacing Type"
+msgstr "סוג קצב"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Will your course be open to students at the same time as it is announced?"
+msgstr "האם הקורס שלך יפַתח לסטודנטים בזמן שנקבע?"
+
+#: templates/publisher/add_course_form.html
+msgid "Course Number"
+msgstr "מספר הקורס"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Courses split into several modules can be denoted by adding .1, .2, etc. at "
+"the end of the course number before the “x”"
+msgstr "קורסים שמתפצלים למודולים שונים ניתן לציין על-ידי הוספת 1.,2., וכו' בסוף מספר הקורס ולפני האות \"x\""
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"No special html characters, accents, spaces, dashes, or underscores 10 "
+"character limit"
+msgstr "מגבלה של 10 תווים, ללא תווי html מיוחדים, הדגשות, רווחים, מקף או קו תחתון"
+
+#: templates/publisher/add_course_form.html
+msgid "About page information"
+msgstr "מידע על עמוד \"אודות\""
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "End Date"
+msgstr "תאריך סיום"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"The date when this self-paced course run will end, replaced by an updated "
+"version of the course"
+msgstr "התאריך שבו מסלול קורס זה בקצב אישי מסתיים ומוחלף בגרסה מעודכנת של הקורס"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/course_run_detail/_seats.html
+msgid "Seat Type"
+msgstr "סוג מושב"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Reads as a tag line - a short, engaging description for students browsing "
+"course listings"
+msgstr "נקרא כשורת תגית - תיאור קצר ומעניין שהסטודנטים יראו כשידפדפו ברשימות הקורס"
+
+#: templates/publisher/add_course_form.html
+msgid "Conveys why someone should take the course"
+msgstr "מציג מדוע כדאי לקחת את הקורס"
+
+#: templates/publisher/add_course_form.html
+msgid "SEO optimized and targeted to a global audience"
+msgstr "מְמוטב SEO ונועד לקהל גלובלי."
+
+#: templates/publisher/add_course_form.html
+msgid "FULL DESCRIPTION"
+msgstr "תיאור מלא"
+
+#: templates/publisher/add_course_form.html
+msgid "Summarized description of course content"
+msgstr "תיאור מקוצר של תוכן הקורס"
+
+#: templates/publisher/add_course_form.html
+msgid "Describe why a learner should take this course"
+msgstr "תאר מדוע על תלמיד לגשת לקורס זה"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Text should be easily scannable, using bullet points to highlight instead of"
+" long, dense text paragraphs"
+msgstr "על הטקסט להיות ניתן לסריקה בקלות, באמצעות נקודות תבליט להדגשה במקום פסקאות טקסט ארוכות וצפופות"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Note: the first 4-5 lines will be visible to the learner immediately upon "
+"clicking the page;"
+msgstr "הערה: 4-5 השורות הראשונות יהיו גלויות לתלמיד מיד בלחיצה על העמוד;"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"additional text will be hidden yet available via \"See More\" clickable text"
+" under the first 4-5 lines"
+msgstr "טקסט נוסף יוסתר אך עדיין יהיה זמין באמצעות הלחצן \"ראה עוד\" הנמצא מתחת ל-5-4 השורות הראשונות"
+
+#: templates/publisher/add_course_form.html
+msgid "EXPECTED LEARNINGS"
+msgstr "לימודים צפויים"
+
+#: templates/publisher/add_course_form.html
+msgid "Answer to the question: \"What will you learn from this course?\""
+msgstr "תשובה לשאלה: \"מה תלמד מקורס זה?\""
+
+#: templates/publisher/add_course_form.html
+msgid "bulleted items, approximately 4-10 words per bullet"
+msgstr "פריטים בתבליטים, כ-10-4 מילים לכל תבליט"
+
+#: templates/publisher/add_course_form.html
+msgid "COURSE STAFF"
+msgstr "צוות הקורס"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"If there is more than one instructor, please indicate the order in which the"
+" instructors should be listed"
+msgstr "אם יש יותר ממדריך אחד, ציין את הסדר שבו יש לרשום את המדריכים"
+
+#: templates/publisher/add_course_form.html
+msgid "Limited to the primary instructors a learner will encounter in videos"
+msgstr "מוגבל למדריכים ראשיים שיפגוש הלומד בסרטונים"
+
+#: templates/publisher/add_course_form.html
+msgid "KEYWORDS"
+msgstr "מילות מפתח"
+
+#: templates/publisher/add_course_form.html
+msgid "Some instructions here???"
+msgstr "אפשר לקבל הוראות?"
+
+#: templates/publisher/add_course_form.html
+msgid "SUBJECT FIELD"
+msgstr "שדה הנושא"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Only one primary subject will appear on the About Page; please select one "
+"primary subject and a maximum of two additional subject areas for search."
+msgstr "רק נושא ראשי אחד יופיע בעמוד \"אודות\"; בחר נושא ראשי אחד ושני תחומי נושא נוספים לכל היותר בחיפוש."
+
+#: templates/publisher/add_course_form.html
+msgid "COURSE IMAGE"
+msgstr "תמונת הקורס"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Select an eye-catching, colorful image that captures the content and essence"
+" of your course"
+msgstr "בחר תמונה בולטת וצבעונית המעבירה את תוכן ומהות הקורס."
+
+#: templates/publisher/add_course_form.html
+msgid "Do not include text or headlines"
+msgstr "אל תכלול טקסט או כותרות"
+
+#: templates/publisher/add_course_form.html
+msgid "Choose an image that you have permission to use."
+msgstr "בחר תמונה שקיבלת הרשאה להשתמש בה."
+
+#: templates/publisher/add_course_form.html
+msgid "This can be a stock photo (try Flickr creative commons, "
+msgstr "זו יכולה להיות תמונת מלאי (נסה את Flickr creative commons,"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Stock Vault, Stock XCHNG, iStock Photo) or an image custom designed for your"
+" course"
+msgstr "Stock Vault‏, Stock XCHNG‏, iStock Photo‏) או תמונה מותאמת אישית שעוצבה עבור הקורס"
+
+#: templates/publisher/add_course_form.html
+msgid "Sequenced courses should each have a unique image"
+msgstr "לכל קורס ברצף יש צורך בתמונה ייחודית"
+
+#: templates/publisher/add_course_form.html
+msgid "Size: 2120 x 1192 pixels"
+msgstr "גודל: 2120 x 1192 פיקסלים"
+
+#: templates/publisher/add_course_form.html
+msgid "PREREQUISITES"
+msgstr "דרישות מוקדמות"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"List concepts and level (basic, advanced, undergraduate, graduate) students "
+"should be familiar with"
+msgstr "רשום רעיונות ורמה (בסיסית, מתקדמת, לימודי הסמכה, לימודי תואר) שצריכים הסטודנטים להכיר"
+
+#: templates/publisher/add_course_form.html
+msgid "If there are no prerequisites, please list \"None.\""
+msgstr "אם אין דרישות מוקדמות, ציין \"ללא\"."
+
+#: templates/publisher/add_course_form.html
+msgid "200 character limit, including spaces"
+msgstr "מגבלת 200 תווים, כולל רווחים"
+
+#: templates/publisher/add_course_form.html
+msgid "ESTIMATED EFFORT"
+msgstr "מאמץ מוערך"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Number of hours per week the learner should expect to spend on the course to"
+" be successful"
+msgstr "צפי מספר השעות בשבוע שעל הלומד להקדיש לקורס כדי להצליח"
+
+#: templates/publisher/add_course_form.html
+msgid "Should be realistic, and can be a range"
+msgstr "יש לציין טווח ריאלי"
+
+#: templates/publisher/add_course_form.html
+msgid "Min Effort"
+msgstr "מאמץ מינימלי"
+
+#: templates/publisher/add_course_form.html
+msgid "Max Effort"
+msgstr "מאמץ מרבי"
+
+#: templates/publisher/add_course_form.html
+msgid "LANGUAGE(S)"
+msgstr "שפה(ות)"
+
+#: templates/publisher/add_course_form.html
+msgid "Course content (navigation and course content excluding videos)"
+msgstr "תוכן הקורס (ניווט ותוכן הקורס לא כולל סרטונים)"
+
+#: templates/publisher/add_course_form.html
+msgid "Videos (language spoken in course videos)"
+msgstr "סרטונים (שפה מדוברת בסרטוני הקורס)"
+
+#: templates/publisher/add_course_form.html
+msgid "Video transcript (video caption language)"
+msgstr "תמלולי הסרטון (שפת הכיתוב של הסרטון)"
+
+#: templates/publisher/add_course_form.html
+msgid "LENGTH"
+msgstr "אורך"
+
+#: templates/publisher/add_course_form.html
+msgid "If the time between start/end dates is not exact, ex: 8.5 weeks, "
+msgstr "אם הזמן שבין תאריך ההתחלה לסיום אינו מדויק, לדוגמה, 8.5 שבועות,"
+
+#: templates/publisher/add_course_form.html
+msgid "indicate whether the course should be listed as 8 weeks or 9 weeks."
+msgstr "ציין אם על הקורס להירשם כ-8 או כ-9 שבועות."
+
+#: templates/publisher/add_course_form.html
+msgid "LEVEL TYPE"
+msgstr "סוג הרמה"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Introductory - No prerequisites; an individual with some to all of a "
+"secondary school degree could complete"
+msgstr "פתיחה - ללא דרישות מקדימות; אדם שהשלים חלק או כל לימודי התיכון יכול להשלים"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Intermediate - Basic prerequisites; a secondary school degree likely "
+"required to be successful as well as some university"
+msgstr "ביניים - דרישות מקדימות בסיסיות; ייתכן שיש צורך בסיום לימודי התיכון ואף חלק מלימודי אוניברסיטה כדי להצליח "
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Advanced - Significant number of prerequisites required; course geared to "
+"3rd or 4th year university student or a masters degree student"
+msgstr "מתקדם - נדרש מספר משמעותי של דרישות מקדימות; הקורס עובר לסטודנטים של השנה השלישית או הרביעית באוניברסיטה או סטודנט בעל תואר שני"
+
+#: templates/publisher/add_course_form.html
+msgid "Save Draft"
+msgstr "שמור טיוטה"
+
+#: templates/publisher/course_form.html
+msgid "Add Course Run"
+msgstr "הוסף הרצת קורס"
+
+#: templates/publisher/course_run_detail.html
+msgid "Course Run Detail"
+msgstr "פרטי הרצת קורס"
+
+#: templates/publisher/course_run_detail.html
+msgid "All"
+msgstr "הכל"
+
+#: templates/publisher/course_run_detail.html
+msgid "STUDIO"
+msgstr "STUDIO"
+
+#: templates/publisher/course_run_detail.html
+msgid "CAT"
+msgstr "CAT"
+
+#: templates/publisher/course_run_detail.html
+msgid "DRUPAL"
+msgstr "DRUPAL"
+
+#: templates/publisher/course_run_detail.html
+msgid "Salesforce"
+msgstr "צוות מכירות"
+
+#: templates/publisher/course_run_detail.html
+#: templates/publisher/course_run_form.html
+#: templates/publisher/course_runs_list.html
+msgid "Status"
+msgstr "סטטוס"
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Title"
+msgstr "כותרת"
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Number"
+msgstr "מספר"
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_cat.html
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Course ID"
+msgstr "מזהה קורס"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Is Re-run?"
+msgstr "האם בהרצה נוספת?"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Course Subtitle"
+msgstr "כתובית הקורס"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Subjects"
+msgstr "נושאים"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Part of an Xseries?"
+msgstr "חלק מ-Xseries?"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Xseries Name"
+msgstr "השם של Xseries"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Part of a Micromasters?"
+msgstr "חלק מ-Micromasters?"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Micromasters Name"
+msgstr "השם של Micromasters"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Enrollment Type"
+msgstr "סוג הרשמה"
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_credit_seat.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_seats.html
+msgid "Price"
+msgstr "מחיר"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Course Start Date"
+msgstr "תאריך תחילת קורס"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Course End Date"
+msgstr "תאריך סיום הקורס"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Certificate Generation Date Exception Request"
+msgstr "תאריך בקשה לחריגים בעת יצירת תעודה"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Course Length (weeks)"
+msgstr "אורך הקורס (שבועות)"
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Estimated Effort"
+msgstr "מאמץ מוערך"
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "to"
+msgstr "אל"
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "hours per week"
+msgstr "שעות בשבוע"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Course Languages"
+msgstr "שפות הקורס"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Video Translation Languages"
+msgstr "שפות התרגום בסרטון הווידאו"
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Course Level"
+msgstr "רמת הקורס"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "About This Course"
+msgstr "אודות קורס זה"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "What You'll Learn"
+msgstr "מה תלמד"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Learner Testimonial"
+msgstr "עדות הלומד"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Syllabus"
+msgstr "סילבוס"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Search Engine Optimization Review"
+msgstr "ביקורת אופטימיזציה של מנוע חיפוש"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Top 10 Keywords"
+msgstr "10 מילות המפתח המובילות"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "edX Username or email address of Course Team Admin(s)"
+msgstr "שם משתמש או כתובת דואר אלקטרוני מטעם edX של מנהל(י) מערכת צוות הקורס"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid ""
+"edX Username or email address of additional course team members (Staff)"
+msgstr "שם משתמש או כתובת דואר אלקטרוני מטעם edX של חברי צוות נוספים בקורס (צוות הקורס)"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Additional Notes"
+msgstr "הערות נוספות"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Edit"
+msgstr "עריכה"
+
+#: templates/publisher/course_run_detail/_cat.html
+msgid "Course Type"
+msgstr "סוג קורס"
+
+#: templates/publisher/course_run_detail/_credit_seat.html
+msgid "Credit Seats"
+msgstr "מושבים לפי נקודות זכות"
+
+#: templates/publisher/course_run_detail/_credit_seat.html
+msgid "Credit Provider"
+msgstr "ספק נקודות זכות"
+
+#: templates/publisher/course_run_detail/_credit_seat.html
+#: templates/publisher/course_run_detail/_seats.html
+msgid "Currency"
+msgstr "מטבע"
+
+#: templates/publisher/course_run_detail/_credit_seat.html
+msgid "Credit Hours"
+msgstr "שעות של נקודות זכות"
+
+#: templates/publisher/course_run_detail/_credit_seat.html
+#: templates/publisher/course_run_detail/_seats.html
+msgid "Upgrade Deadline"
+msgstr "מועד שדרוג"
+
+#: templates/publisher/course_run_detail/_credit_seat.html
+msgid "No Credit Seats Available."
+msgstr "אין מושבים לפי נקודות זכות"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Sub Title"
+msgstr "כותרת משנה"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "School"
+msgstr "בית ספר"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Subject"
+msgstr "נושא"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "XSeries"
+msgstr "XSeries"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Self Paced"
+msgstr "קצב אישי"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Staff"
+msgstr "צוות"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Languages"
+msgstr "שפות"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Video Translations"
+msgstr "תרגומי סרטון הווידאו"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Level"
+msgstr "רמה"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "About this Course"
+msgstr "אודות קורס זה"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "What you'll learn"
+msgstr "מה תלמד"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Prerequisite"
+msgstr "דרישה מוקדמת"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Keywords"
+msgstr "מילות מפתח"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Sponsors"
+msgstr "אחראים"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Enrollments"
+msgstr "הרשמות"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Seats"
+msgstr "מושבים"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Course"
+msgstr "קורס"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Authored in Studio?"
+msgstr "נוצר בסטודיו?"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Multiple Partner Course?"
+msgstr "קורס שותפים מרובים"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Subject Area"
+msgstr "תחום הנושא"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Language: Course Text"
+msgstr "שפה: טקסט הקורס"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Language: Transcripts"
+msgstr "שפה: תמלולים"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Language: Video"
+msgstr "שפה: סרטון וידאו"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Course Run"
+msgstr "הרצת קורס"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "New or Rerun?"
+msgstr "חדש או הרצה חוזרת?"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Platform"
+msgstr "פלטפורמה"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Faculty"
+msgstr "פקולטה"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Course Run Display Name"
+msgstr "שם התצוגה להרצת קורס"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Course Run Number"
+msgstr "מספר הרצת קורס"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "edX Course Run ID"
+msgstr "מזהה הרצת קורס של edX"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Certificate Type"
+msgstr "סוג תעודה"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Course $ (minimum)"
+msgstr "מחיר הקורס בדולרים (מינימום)"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Self Paced?"
+msgstr "בקצב אישי?"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "MDC Submission Due Date"
+msgstr "מועד הגשת MDC"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Verified Conversion Date"
+msgstr "תאריך ההמרה המאומתת"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Verified Registration Expiration Date"
+msgstr "תאריך התפוגה של ההרשמה המאומתת"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Certificate Issued Date"
+msgstr "תאריך התעודות שהונפקו"
+
+#: templates/publisher/course_run_detail/_seats.html
+msgid "No Seats Available."
+msgstr "אין מושבים זמינים."
+
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Course Name"
+msgstr "שם הקורס"
+
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Organization"
+msgstr "ארגון"
+
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Enrollment Start Date"
+msgstr "תאריך תחילת ההרשמה"
+
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Enrollment End Date"
+msgstr "תאריך סיום ההרשמה"
+
+#: templates/publisher/course_run_form.html
+msgid "Add Seat"
+msgstr "הוסף מושב"
+
+#: templates/publisher/course_runs_list.html
+msgid "Course Run List"
+msgstr "רשימת הרצת קורס"
+
+#: templates/publisher/course_runs_list.html
+msgid "Course runs in progress"
+msgstr "הרצות קורס הנמצאות בתהליך"
+
+#: templates/publisher/course_runs_list.html
+msgid "Welcome to edX Publisher. It looks like you don't have any courses."
+msgstr "ברוך הבא ל-edX Publisher. נראה שאין לך קורסים בכלל."
+
+#: templates/publisher/course_runs_list.html
+#, python-format
+msgid ""
+"Please %(link_start)s%(new_course_url)s%(link_middle)sadd a new "
+"course%(link_end)s to create your first run"
+msgstr "אנא %(link_start)s%(new_course_url)s%(link_middle)sהוסף קורס חדש%(link_end)s כדי ליצור את ההרצה הראשונה שלך"
+
+#: templates/publisher/course_runs_list.html
+msgid "Course Run Title"
+msgstr "כותרת הרצת קורס"
+
+#: templates/publisher/course_runs_list.html
+msgid "Course Run Start Date"
+msgstr "תאריך תחילת הרצת קורס"
+
+#: templates/publisher/course_runs_list.html
+msgid "Target Content?"
+msgstr "תוכן יעד?"
+
+#: templates/publisher/course_runs_list.html
+msgid "Priority"
+msgstr "עדיפות"
+
+#: templates/publisher/course_runs_list.html
+msgid "Last Updated"
+msgstr "עדכון אחרון"
+
+#: templates/publisher/course_runs_list.html
+msgid "Recently published courses"
+msgstr "קורסים שפורסמו לאחרונה"
+
+#: templates/publisher/course_runs_list.html
+msgid "Looks like you haven't publish a course yet"
+msgstr "נראה שלא פרסמת עדיין קורס"
+
+#: templates/publisher/email/change_state.html
+#: templates/publisher/email/change_state.txt
+msgid "Hi,"
+msgstr "היי,"
+
+#: templates/publisher/email/change_state.html
+#: templates/publisher/email/change_state.txt
+#, python-format
+msgid "The following course run has been submitted for %(state_name)s."
+msgstr "הרצת הקורס הבאה הוגשה עבור %(state_name)s."
+
+#: templates/publisher/email/change_state.html
+msgid "View Course"
+msgstr "צפה בקורס"
+
+#: templates/publisher/email/change_state.html
+#: templates/publisher/email/change_state.txt
+#: templates/publisher/email/comment.html
+#: templates/publisher/email/comment.txt
+msgid "The edX team"
+msgstr "צוות edX"
+
+#: templates/publisher/email/change_state.txt
+msgid "View Course:"
+msgstr "צפה בקורס:"
+
+#: templates/publisher/email/comment.html
+#: templates/publisher/email/comment.txt
+#, python-format
+msgid ""
+"%(first_name)s commented on a %(object_type)s belonging to the course "
+"%(title)s (%(number)s)."
+msgstr "%(first_name)s הגיב על %(object_type)s השייך לקורס %(title)s (%(number)s)."
+
+#: templates/publisher/email/comment.html
+msgid "View comment"
+msgstr "הצג הערה"
+
+#: templates/publisher/email/comment.txt
+msgid "View comment: "
+msgstr "הצג הערה:"
+
+#: templates/publisher/seat_form.html
+msgid "Seat Form"
+msgstr "טופס מושב"
+
+#: templates/publisher/view_course_form.html
+msgid "Course information"
+msgstr "מידע אודות הקורס"
