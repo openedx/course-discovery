@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-09 17:56+0500\n"
+"POT-Creation-Date: 2016-11-09 17:57+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1403,6 +1403,7 @@ msgid "No Seats Available."
 msgstr ""
 
 #: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard/published.html
 #: templates/publisher/dashboard/studio_requests.html
 msgid "Course Name"
 msgstr ""
@@ -1467,6 +1468,7 @@ msgid "Recently published courses"
 msgstr ""
 
 #: templates/publisher/course_runs_list.html
+#: templates/publisher/dashboard/published.html
 msgid "Looks like you haven't publish a course yet"
 msgstr ""
 
@@ -1487,17 +1489,46 @@ msgid "STUDIO REQUEST"
 msgstr ""
 
 #: templates/publisher/dashboard.html
+msgid "PUBLISHED COURSE RUNS"
+msgstr ""
+
+#: templates/publisher/dashboard.html
 msgid "In Progress"
+msgstr ""
+
+#: templates/publisher/dashboard/published.html
+#, python-format
+msgid ""
+"\n"
+"            The list below contains all course runs previews for course team approved. Once approved, %(platform_name)s Marketing team will publish the course and you will be notified via email when course is live on edx.org\n"
+"        "
+msgstr ""
+
+#: templates/publisher/dashboard/published.html
+#: templates/publisher/dashboard/studio_requests.html
+msgid "Institution"
+msgstr ""
+
+#: templates/publisher/dashboard/published.html
+msgid "Start"
+msgstr ""
+
+#: templates/publisher/dashboard/published.html
+msgid "End"
+msgstr ""
+
+#: templates/publisher/dashboard/published.html
+msgid "Published Date"
+msgstr ""
+
+#: templates/publisher/dashboard/published.html
+msgid "Target Content"
 msgstr ""
 
 #: templates/publisher/dashboard/studio_requests.html
 msgid ""
 "The list below are the are course that need a studio instance to start "
 "development."
-msgstr ""
-
-#: templates/publisher/dashboard/studio_requests.html
-msgid "Institution"
 msgstr ""
 
 #: templates/publisher/dashboard/studio_requests.html
