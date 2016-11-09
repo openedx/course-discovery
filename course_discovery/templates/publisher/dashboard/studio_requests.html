@@ -1,0 +1,55 @@
+{% load i18n %}
+
+{% if studio_count > 0 %}
+    <p>{% trans "The list below are the are course that need a studio instance to start development." %}</p>
+    <div class="table-view">
+        <table class="data-table-studio display" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                    <th>
+                        {% trans "Course Name" %}
+                    </th>
+                    <th>
+                        {% trans "Institution" %}
+                    </th>
+                    <th>
+                        {% trans "Start Date" %}
+                    </th>
+                    <th>
+                        {% trans "Course Number" %}
+                    </th>
+                    <th>
+                        {% trans "Studio Course Run Key" %}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course_run in studio_request_courses %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'publisher:publisher_course_run_detail' course_run.id %}">{{ course_run.title }}</a>
+                        </td>
+                        <td>{% if course_run.course.group_institution %}{{ course_run.course.group_institution }}{% endif %}</td>
+                        <td>
+                             {{ course_run.start|date:"Y-m-d" }}
+                        </td>
+                        <td>
+                            {{ course_run.number }}
+                        </td>
+                        <td>
+                            <div class="form-group">
+                                <input type="text" class="field-input input-text small" />
+                                <button class="btn-inline">{% trans "ADD" %}</button>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% else %}
+    <div class="depth depth-0">
+        <p class="empty-courserun-text">{% trans "There are no course-runs require studio instance." %}</p>
+    </div>
+{% endif %}
