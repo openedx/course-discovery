@@ -942,6 +942,8 @@ class DashboardTests(TestCase):
         self.course_run_2.lms_course_id = 'test-2'
         self.course_run_2.save()
         self.assert_dashboard_reponse(2, 1, 0)
+        factories.CourseRunFactory(state=factories.StateFactory(name=State.PUBLISHED))
+        self.assert_dashboard_reponse(2, 2, 0)
 
     def assert_dashboard_reponse(self, unpublished_count, published_count, studio_requests):
         response = self.client.get(self.page_url)

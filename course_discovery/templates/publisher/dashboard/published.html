@@ -1,0 +1,62 @@
+{% load i18n %}
+
+{% if published_courseruns|length_is:"0" %}
+    <div class="depth depth-0">
+        <p class="empty-courserun-text">{% trans "Looks like you haven't publish a course yet" %}</p>
+    </div>
+{% else %}
+    <p>
+        {% blocktrans %}
+            The list below contains all course runs previews for course team approved. Once approved, {{ platform_name }} Marketing team will publish the course and you will be notified via email when course is live on edx.org
+        {% endblocktrans %}
+    </p>
+    <table class="data-table-published display" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th>
+                    {% trans "Course Name" %}
+                </th>
+                <th>
+                    {% trans "Institution" %}
+                </th>
+                <th>
+                    {% trans "Start" %}
+                </th>
+                <th>
+                    {% trans "End" %}
+                </th>
+                <th>
+                    {% trans "Published Date" %}
+                </th>
+                <th>
+                    {% trans "Target Content" %}
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for course_run in published_courseruns %}
+                <tr>
+                    <td>
+                        <a href="{% url 'publisher:publisher_course_run_detail' course_run.id %}">{{ course_run.title }}</a>
+                    </td>
+                    <td>{% if course_run.course.group_institution %}
+                            {{ course_run.course.group_institution }}
+                        {% endif %}
+                    </td>
+                    <td>
+                         {{ course_run.start|date:"Y-m-d" }}
+                    </td>
+                    <td>
+                        {{ course_run.end|date:"Y-m-d" }}
+                    </td>
+                    <td>
+                        {{ course_run.state.modified|date:"Y-m-d" }}
+                    </td>
+                    <td>
+                        {% if course_run.target_content %}Y{% else %}N{% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}

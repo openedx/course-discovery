@@ -47,6 +47,7 @@ $light-gray: rgba(204, 204, 204, 1);
                     height: auto;
                     position: absolute;
                     width: 340px;
+                    z-index: 10001;
 
                     &.is-shown {
                         display: block;
@@ -614,10 +615,6 @@ select {
 }
 
 .empty-courserun-text {
-    padding: 100px 160px;
-
-    p {
-        padding: 0;
-        margin: 0;
-    }
+    @include padding(100px, 160px, 100px, 160px);
+    margin-bottom: 0;
 }
