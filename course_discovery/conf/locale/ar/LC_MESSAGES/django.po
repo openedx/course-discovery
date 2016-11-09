@@ -1,0 +1,1527 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# 
+# Translators:
+# Ahmed Jazzar <ajazzar@qrf.org>, 2016
+# Amira 111111111111111111 <amirasaad698@gmail.com>, 2016
+# AR C2 <e2f458fd4s512@outlook.com>, 2016
+# AR R1 <e2far1@hotmail.com>, 2016
+# Natalia Berdnikov <nberdnikov@edx.org>, 2016
+# omarithawi <oithawi@qrf.org>, 2016
+# qualityalltext <quality@alltext.co.il>, 2016
+# shefaa abu jabel <shefaa.aj@gmail.com>, 2016
+msgid ""
+msgstr ""
+"Project-Id-Version: edx-platform\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-11-03 17:29-0400\n"
+"PO-Revision-Date: 2016-11-08 08:16+0000\n"
+"Last-Translator: shefaa abu jabel <shefaa.aj@gmail.com>\n"
+"Language-Team: Arabic (http://www.transifex.com/open-edx/edx-platform/language/ar/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ar\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+#: apps/api/filters.py
+#, python-brace-format
+msgid "No user with the username [{username}] exists."
+msgstr "لا يوجد مستخدم بهذا الاسم [{username}]."
+
+#: apps/api/filters.py
+msgid ""
+"Only staff users are permitted to filter by username. Remove the username "
+"parameter."
+msgstr "يُسمح للمستخدمين من الموظفين فقط بالتصفية حسب اسم المستخدم. أزل معلمة اسم المستخدم."
+
+#: apps/api/serializers.py
+msgid "Number of courses contained in this catalog"
+msgstr "عدد الدورات الواردة في هذا الكتالوج"
+
+#: apps/api/serializers.py
+msgid "Usernames of users with explicit access to view this catalog"
+msgstr "أسماء المستخدمين الذين لديهم وصول مباشر لاستعراض هذا الكتالوج "
+
+#: apps/api/serializers.py
+msgid "Language in which the course is administered"
+msgstr "اللغة التي يتم تعليم الدورة بها"
+
+#: apps/api/serializers.py
+msgid "Dictionary mapping course run IDs to boolean values"
+msgstr "دورة البحث في القاموس تشغل معَرفات هوية على قيم منطقية "
+
+#: apps/api/serializers.py
+msgid "Dictionary mapping course IDs to boolean values"
+msgstr "معَرفات الهوية لدورة البحث في القاموس مضبوطة على قيم منطقية"
+
+#: apps/api/serializers.py
+msgid "Languages that course runs in this program are offered in."
+msgstr "اللغات التي تتوفر بها الدورات في هذا البرنامج."
+
+#: apps/api/serializers.py
+msgid ""
+"Languages that course runs in this program have available transcripts in."
+msgstr "اللغات التي تتوفر بها نصوص للدورات في هذا البرنامج."
+
+#: apps/api/views.py
+msgid "You are not permitted to access the API documentation."
+msgstr "لا يُسمح لك بالوصول إلى وثائق API. "
+
+#: apps/catalogs/models.py
+msgid "Catalog name"
+msgstr "اسم الكتالوج"
+
+#: apps/catalogs/models.py
+msgid "Query to retrieve catalog contents"
+msgstr "استفسار لاستعادة محتويات الكتالوج"
+
+#: apps/core/admin.py
+msgid "Personal info"
+msgstr "المعلومات الشخصية"
+
+#: apps/core/admin.py
+msgid "Permissions"
+msgstr "الصلاحيات"
+
+#: apps/core/admin.py
+msgid "Important dates"
+msgstr "تواريخ مهمّة"
+
+#: apps/core/admin.py
+msgid "OpenID Connect"
+msgstr "OpenID Connect"
+
+#: apps/core/admin.py
+msgid ""
+"OpenID Connect is used for front-end authentication as well as getting "
+"access to the APIs."
+msgstr "يُستخدم OpenID Connect من أجل مصادقة الواجهة الأمامية بالإضافة إلى الوصول إلى واجهة برمجة التطبيقات API."
+
+#: apps/core/admin.py
+msgid "API Configuration"
+msgstr "تكوين واجهة برمجة التطبيقات API"
+
+#: apps/core/admin.py
+msgid "Configure the APIs that will be used to retrieve data."
+msgstr "تكوين واجهة برمجة التطبيقات التي ستستخدم لاستعادة البيانات."
+
+#: apps/core/admin.py
+msgid "Marketing Site Configuration"
+msgstr "ترتيب موقع التسويق"
+
+#: apps/core/admin.py
+msgid ""
+"Configure the marketing site URLs that will be used to retrieve data and "
+"create URLs."
+msgstr "ترتيب روابط موقع التسويق التي سيتم استخدامها في استعادة البيانات وإنشاء الروابط."
+
+#. Translators: 'period_choices' is a list of possible values, like ('second',
+#. 'minute', 'hour')
+#: apps/core/forms.py
+#, python-brace-format
+msgid "period must be one of {period_choices}."
+msgstr "الفترة يجب أن تكون واحدة من {period_choices}. "
+
+#: apps/core/forms.py
+msgid "'rate' must be in the format defined by DRF, such as '100/hour'."
+msgstr "’المعدل‘ يجب أن يكون بالتنسيق المحدد بواسطة DRF مثل \"100/الساعة\". "
+
+#: apps/core/models.py
+msgid "Full Name"
+msgstr "الاسم الكامل"
+
+#: apps/core/models.py
+msgid "Referral Tracking ID"
+msgstr "معرف تتبع مسار الإحالة"
+
+#: apps/core/models.py
+msgid ""
+"The rate of requests to limit this user to. The format is specified by "
+"Django Rest Framework (see http://www.django-rest-framework.org/api-"
+"guide/throttling/)."
+msgstr "معدل الطلبات لتقييد المستخدم. التنسيق محدد بواسطة Django Rest Framework (see http://www.django-rest-framework.org/api-guide/throttling/).  "
+
+#: apps/core/models.py
+msgid "Short Code"
+msgstr "رمز مختصر"
+
+#: apps/core/models.py
+msgid ""
+"Convenient code/slug used to identify this Partner (e.g. for management "
+"commands.)"
+msgstr "رمز مختصر/مناسب المستخدم لتحديد هذا الشريك (مثلاً: أوامر الإدارة)."
+
+#: apps/core/models.py
+msgid "Courses API URL"
+msgstr "رابط واجهة برمجة التطبيقات للدورات"
+
+#: apps/core/models.py
+msgid "E-Commerce API URL"
+msgstr "رابط واجهة برمجة التطبيقات للتجارة الإلكترونية"
+
+#: apps/core/models.py
+msgid "Organizations API URL"
+msgstr "رابط واجهة برمجة التطبيقات للمؤسسات"
+
+#: apps/core/models.py
+msgid "Programs API URL"
+msgstr "رابط واجهة برمجة التطبيقات للبرامج"
+
+#: apps/core/models.py
+msgid "Marketing Site API URL"
+msgstr "رابط واجهة برمجة التطبيقات لموقع التسويق"
+
+#: apps/core/models.py
+msgid "Marketing Site URL"
+msgstr "رابط موقع التسويق"
+
+#: apps/core/models.py
+msgid "Marketing Site API Username"
+msgstr "اسم المستخدم لواجهة برمجة التطبيقات لموقع التسويق"
+
+#: apps/core/models.py
+msgid "Marketing Site API Password"
+msgstr "كلمة المرور لواجهة برمجة التطبيقات لموقع التسويق"
+
+#: apps/core/models.py
+msgid "OpenID Connect URL"
+msgstr "رابط OpenID Connect"
+
+#: apps/core/models.py
+msgid "OpenID Connect Key"
+msgstr "مفتاح OpenID Connect"
+
+#: apps/core/models.py
+msgid "OpenID Connect Secret"
+msgstr "OpenID Connect سري"
+
+#: apps/core/models.py templates/publisher/course_runs_list.html
+msgid "Partner"
+msgstr "شريك"
+
+#: apps/core/models.py
+msgid "Partners"
+msgstr "شركاء"
+
+#: apps/course_metadata/admin.py
+msgid "Included course runs"
+msgstr "مجريات الدورات الموجودة"
+
+#: apps/course_metadata/admin.py
+msgid ""
+"An error occurred while publishing the program to the marketing site. Please"
+" try again. If the error persists, please contact the Engineering Team."
+msgstr "لقد حدث خطأ أثناء نشر البرنامج في موقع التسويق. حاول مرة اخرى. إذا استمر الخطأ، يرجى الاتصال بفريق الهندسة."
+
+#: apps/course_metadata/choices.py apps/publisher/models.py
+msgid "Published"
+msgstr "تم النشر"
+
+#: apps/course_metadata/choices.py
+msgid "Unpublished"
+msgstr "لم يتم النشر"
+
+#. Translators: Instructor-paced refers to course runs that operate on a
+#. schedule set by the instructor,
+#. similar to a normal university course.
+#: apps/course_metadata/choices.py
+msgid "Instructor-paced"
+msgstr "مساق غير دائم"
+
+#. Translators: Self-paced refers to course runs that operate on the student's
+#. schedule.
+#: apps/course_metadata/choices.py
+msgid "Self-paced"
+msgstr "مساق دائم"
+
+#: apps/course_metadata/choices.py
+msgid "Active"
+msgstr "فعال"
+
+#: apps/course_metadata/choices.py
+msgid "Retired"
+msgstr "متقاعد"
+
+#: apps/course_metadata/choices.py
+msgid "Deleted"
+msgstr "محذوف"
+
+#: apps/course_metadata/forms.py
+msgid ""
+"Programs can only be activated if they have a marketing slug and a banner "
+"image."
+msgstr "لا يمكن تفعيل البرامج إلا إذا كان بها عنوان مختصر للتسويق وصورة شعار."
+
+#: apps/course_metadata/models.py
+msgid "Facebook"
+msgstr "فيسبوك"
+
+#: apps/course_metadata/models.py
+msgid "Twitter"
+msgstr "تويتر"
+
+#: apps/course_metadata/models.py
+msgid "Blog"
+msgstr "مدونة"
+
+#: apps/course_metadata/models.py
+msgid "Others"
+msgstr "غير ذلك"
+
+#: apps/course_metadata/models.py
+msgid "UUID"
+msgstr "معرف فريد عالمي \"UUID\""
+
+#: apps/course_metadata/models.py
+msgid "Leave this field blank to have the value generated automatically."
+msgstr "اترك هذا الحقل فارغاً حتى يتم توليد القيمة تلقائياً."
+
+#: apps/course_metadata/models.py
+msgid "People"
+msgstr "أشخاص"
+
+#: apps/course_metadata/models.py
+msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
+msgstr "صيغة رقم الدورة، مثلاً CS002x ،BIO1.1x ،BIO1.2x"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Title specific for this run of a course. Leave this value blank to default "
+"to the parent course's title."
+msgstr "عنوان محدد لمسار هذه الدورة التدريبية. اترك هذه القيمة فارغة على القيمة الافتراضية إلى عنوان الدورة التدريبية الأم."
+
+#: apps/course_metadata/models.py
+msgid ""
+"Short description specific for this run of a course. Leave this value blank "
+"to default to the parent course's short_description attribute."
+msgstr "وصف قصير محدد لمسار هذه الدورة التدريبية. اترك هذه القيمة فارغة على القيمة الافتراضية إلى سمة الدورة التدريبية الأم short_description."
+
+#: apps/course_metadata/models.py
+msgid ""
+"Full description specific for this run of a course. Leave this value blank "
+"to default to the parent course's full_description attribute."
+msgstr "وصف كامل محدد لمسار هذه الدورة التدريبية. اترك هذه القيمة فارغة على القيمة الافتراضية إلى سمة الدورة التدريبية الأم full_description."
+
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid ""
+"Estimated minimum number of hours per week needed to complete a course run."
+msgstr "الحد الأدنى المقدر لعدد الساعات لكل أسبوع الضرورية لإكمال مسار الدورة التدريبية."
+
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid ""
+"Estimated maximum number of hours per week needed to complete a course run."
+msgstr "الحد الأقصى المقدر لعدد الساعات لكل أسبوع الضرورية لإكمال مسار الدورة التدريبية."
+
+#: apps/course_metadata/models.py
+msgid "Estimated number of weeks needed to complete this course run."
+msgstr "تقدير عدد الأسابيع اللازم لإكمال تشغيل هذا المقرر."
+
+#: apps/course_metadata/models.py
+msgid "Archived"
+msgstr "تمت أرشفته"
+
+#: apps/course_metadata/models.py
+msgid "Current"
+msgstr "الحالي"
+
+#: apps/course_metadata/models.py
+msgid "Starting Soon"
+msgstr "ستبدأ قريباً"
+
+#: apps/course_metadata/models.py
+msgid "Upcoming"
+msgstr "مرتقبة"
+
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid "Honor"
+msgstr "فخري"
+
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid "Audit"
+msgstr "مستمع"
+
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid "Verified"
+msgstr "موثَّقة"
+
+#: apps/course_metadata/models.py
+msgid "Professional"
+msgstr "مهنيّ"
+
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid "Credit"
+msgstr "علامة"
+
+#: apps/course_metadata/models.py
+msgid "FAQ"
+msgstr "سؤال شائع"
+
+#: apps/course_metadata/models.py
+msgid "FAQs"
+msgstr "الأسئلة الشائعة"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Seat types that qualify for completion of programs of this type. Learners "
+"completing associated courses, but enrolled in other seat types, will NOT "
+"have their completion of the course counted toward the completion of the "
+"program."
+msgstr "أنواع المقاعد التي تؤهل إكمال البرامج من هذا النوع. للطلاب الذين أكملوا الدورات المرتبطة، في حين سجلوا في أنواع مقاعد أخرى، لن يتم احتساب إكمالهم للدورة عند نهاية البرنامج."
+
+#: apps/course_metadata/models.py
+msgid "The user-facing display title for this Program."
+msgstr "عنوان العرض المواجه للمستخدم لهذا البرنامج."
+
+#: apps/course_metadata/models.py
+msgid "A brief, descriptive subtitle for the Program."
+msgstr "عنوان فرعي وصفي مختصر للبرنامج."
+
+#: apps/course_metadata/models.py
+msgid "The lifecycle status of this Program."
+msgstr "حالة دورة حياة هذا البرنامج."
+
+#: apps/course_metadata/models.py
+msgid "Slug used to generate links to the marketing site"
+msgstr "الشارة المستخدمة لإنشاء روابط في الموقع التسويقي"
+
+#: apps/course_metadata/models.py
+msgid ""
+"If this box is not checked, courses will be ordered as in the courses select"
+" box above."
+msgstr "إذا لم يتم تحديد هذا المربع، سيتم ترتيب الدورات كما في مربع تحديد الدورات أعلاه."
+
+#: apps/course_metadata/models.py
+msgid ""
+"This field is now deprecated (ECOM-6021).Estimated number of weeks needed to"
+" complete a course run belonging to this program."
+msgstr "هذا الحقل ناقص الآن (ECOM-6021). عدد الأسابيع المقدرة اللازمة لإكمال مجرى الدورة التابع لهذا البرنامج."
+
+#: apps/course_metadata/models.py
+msgid "Image used for discovery cards"
+msgstr "الصورة المستخدمة لبطاقات الاستكشاف"
+
+#: apps/course_metadata/models.py
+msgid "The description of credit redemption for courses in program"
+msgstr "وصف استرداد المبلغ للدورات التعليمية في هذا البرنامج"
+
+#: apps/course_metadata/views.py
+msgid "Change program excluded course runs"
+msgstr "تغيير البرنامج استبعد مجرى الدورة"
+
+#: apps/edx_haystack_extensions/models.py
+msgid "Function Score"
+msgstr "نتيجة العملية"
+
+#: apps/edx_haystack_extensions/models.py
+msgid "JSON string containing an elasticsearch function score config."
+msgstr "سلسة JSON يحتوي على إمكانية البحث المرن لترتيب العلامات."
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Course Run {title}-{pacing_type}-{start} state has been changed."
+msgstr "تم تغيير حالة مجرى الدورة {title}-{pacing_type}-{start} "
+
+#: apps/publisher/forms.py
+msgid "Yes"
+msgstr "نعم"
+
+#: apps/publisher/forms.py
+msgid "No"
+msgstr "كلا"
+
+#: apps/publisher/forms.py
+msgid "Only honor/audit seats can be without price."
+msgstr "يمكن فقط لمقاعد الشرف/الاستماع أن تكون دون سعر."
+
+#: apps/publisher/models.py
+msgid "Draft"
+msgstr "مسودّة"
+
+#: apps/publisher/models.py
+msgid "Needs Review"
+msgstr "يحتاج للمراجعة"
+
+#: apps/publisher/models.py
+msgid "Needs Final Approval"
+msgstr "يحتاج للموافقة النهائية"
+
+#: apps/publisher/models.py
+msgid "Finalized"
+msgstr "اكتمل"
+
+#: apps/publisher/models.py
+msgid "Course title"
+msgstr "عنوان الدورة"
+
+#: apps/publisher/models.py
+msgid "Course number"
+msgstr "رقم الدورة"
+
+#: apps/publisher/models.py templates/publisher/add_course_form.html
+msgid "Brief Description"
+msgstr "وصف مختصر"
+
+#: apps/publisher/models.py
+msgid "Full Description"
+msgstr "وصف مفصّل"
+
+#: apps/publisher/models.py templates/publisher/course_run_detail/_all.html
+msgid "Partner Name"
+msgstr "اسم الشريك"
+
+#: apps/publisher/models.py
+msgid "Level Type"
+msgstr "نوع المستوى"
+
+#: apps/publisher/models.py
+msgid "Expected Learnings"
+msgstr "توقعات التعلم"
+
+#: apps/publisher/models.py templates/publisher/course_run_detail/_all.html
+msgid "Prerequisites"
+msgstr "المتطلبات الأساسية"
+
+#: apps/publisher/models.py
+msgid "Verification deadline"
+msgstr "الموعد النهائي للتحقق"
+
+#: apps/publisher/models.py
+msgid ""
+"Last date/time on which verification for this product can be submitted."
+msgstr "آخر تاريخ/توقيت الذي يمكن فيه تقديم التحقق من هذا المنتج."
+
+#: apps/publisher/models.py
+msgid "Level 1"
+msgstr "المستوى 1"
+
+#: apps/publisher/models.py
+msgid "Level 2"
+msgstr "المستوى 2"
+
+#: apps/publisher/models.py
+msgid "Level 3"
+msgstr "المستوى 3"
+
+#: apps/publisher/models.py
+msgid "Level 4"
+msgstr "المستوى 4"
+
+#: apps/publisher/models.py
+msgid "Level 5"
+msgstr "المستوى 5"
+
+#: apps/publisher/models.py
+msgid "Content Language"
+msgstr "لغة المحتوى"
+
+#: apps/publisher/models.py templates/publisher/add_course_form.html
+msgid "Length of course, in number of weeks"
+msgstr "مدة الدورة، بالأسابيع"
+
+#: apps/publisher/models.py
+msgid ""
+"Please add any additional notes or special instructions for the course About"
+" Page."
+msgstr "يرجى إضافة أية ملاحظات إضافية أو إرشادات خاصة عن الدورة في صفحة النبذة."
+
+#: apps/publisher/models.py
+msgid "Comma separated list of edX usernames or emails of admins."
+msgstr "قائمة المقسمة باستخدام الفواصل لأسماء مستخدمي edX أو عناوين البريد الإلكتروني للمشرفين."
+
+#: apps/publisher/models.py
+msgid "Comma separated list of edX usernames or emails of additional staff."
+msgstr "قائمة المقسكة بواسطة فواصل التي تشمل أسماء مستخدمي edX أو عناوين البريد الإلكتروني لأعضاء الطاقم الإضافيين."
+
+#: apps/publisher/models.py
+msgid "Professional (with ID verification)"
+msgstr "مهني (مع التحقق من معرف الهوية)"
+
+#: apps/publisher/models.py
+msgid "Professional (no ID verifiation)"
+msgstr "مهني (دون التحقق من معرف الهوية)"
+
+#: apps/publisher/views.py
+msgid "Course created successfully."
+msgstr "تم إنشاء الدورة بنجاح."
+
+#: apps/publisher/views.py
+msgid "Please fill all required field."
+msgstr "الرجاء ملء جميع الحقول المطلوبة."
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid "Content moved to `{state}` successfully."
+msgstr "تم نقل المحتوى إلى `{state}` بنجاح."
+
+#: apps/publisher/views.py
+msgid "There was an error in changing state."
+msgstr "حدث خطأ اثناء تغيير الحالة."
+
+#: apps/publisher/wrappers.py
+msgid "Send For Review"
+msgstr "إرسال للمراجعة"
+
+#: apps/publisher/wrappers.py
+msgid "Send For Final Approval"
+msgstr "إرسال للموافقة النهائية"
+
+#: apps/publisher/wrappers.py
+msgid "Finalize"
+msgstr "اكتمال"
+
+#: apps/publisher/wrappers.py
+msgid "Publish"
+msgstr "نشر"
+
+#: apps/publisher_comments/emails.py
+#, python-brace-format
+msgid "New comment added in course run: {title}-{pacing_type}-{start}"
+msgstr "تمت إضافة تعليق جديد في مسار الدورة: {title}-{pacing_type}-{start}"
+
+#: apps/publisher_comments/emails.py
+#, python-brace-format
+msgid "New comment added in Course: {title}"
+msgstr "تمت إضافة تعليق جديد في الدورة: {title}"
+
+#: apps/publisher_comments/models.py
+msgid "modified"
+msgstr "مُعدل"
+
+#: templates/base.html
+msgid "Course Runs"
+msgstr "مجرى الدورة"
+
+#: templates/base.html
+msgid "Courses"
+msgstr "الدورات"
+
+#: templates/comments/add_auth_comments.html
+msgid "Add new comment"
+msgstr "اضافة تعليق جديد"
+
+#: templates/comments/comments_list.html
+#, python-format
+msgid "Total Comments %(comment_count)s"
+msgstr "كل التعليقات %(comment_count)s"
+
+#: templates/comments/edit_comment.html
+#: templates/publisher/course_run_form.html
+msgid "Course Run Form"
+msgstr "نموذج مسار الدورة"
+
+#: templates/comments/edit_comment.html
+msgid "Edit Comment"
+msgstr "تعديل التعليق"
+
+#: templates/comments/edit_comment.html templates/publisher/course_form.html
+#: templates/publisher/course_run_form.html templates/publisher/seat_form.html
+msgid "Save"
+msgstr "حفظ"
+
+#: templates/footer.html
+msgid "Terms of Service"
+msgstr "شروط الخدمة"
+
+#: templates/footer.html
+msgid "Privacy Policy"
+msgstr "سياسة الخصوصية"
+
+#: templates/footer.html
+msgid "Legal"
+msgstr "قانوني"
+
+#: templates/footer.html
+#, python-format
+msgid ""
+"EdX, Open edX, Publisher, and the edX and Open edX logos are registered "
+"trademarks or trademarks of %(link_start)sedX Inc.%(link_end)s"
+msgstr "تعتبر شعارات EdX وOpen edX وPublisher وedX وOpen edX علامات تجارية مسجلة أو علامات تجارية التابعة ل %(link_start)sedX Inc.%(link_end)s"
+
+#: templates/footer.html
+msgid "Powered by Open edX"
+msgstr "تتم إدارته من قبل Open edX"
+
+#: templates/header.html
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Account"
+msgstr "حساب"
+
+#: templates/header.html
+msgid "Account Navigation"
+msgstr "تصفّح الحساب"
+
+#: templates/header.html
+msgid "Contextual Online Help"
+msgstr "مساعدة سياقية مباشرة"
+
+#: templates/header.html
+msgid "Help"
+msgstr "مساعدة"
+
+#: templates/header.html
+msgid "Email notifications"
+msgstr "إشعارات البريد الإلكتروني"
+
+#: templates/header.html
+msgid "ON"
+msgstr "مُفعّل"
+
+#: templates/header.html
+msgid "OFF"
+msgstr "غير مُفعّل"
+
+#: templates/header.html
+msgid "Sign Out"
+msgstr "تسجيل الخروج"
+
+#: templates/metadata/admin/course_run.html
+msgid "Cancel"
+msgstr "إلغاء"
+
+#: templates/metadata/admin/course_run.html
+msgid "Back to Program"
+msgstr "عودة إلى البرنامج"
+
+#: templates/metadata/admin/course_run.html
+msgid "Save Course Run"
+msgstr "حفظ تشغيل الدورة"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/course_form.html
+#: templates/publisher/view_course_form.html
+msgid "Course Form"
+msgstr "نموذج الدورة"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/view_course_form.html
+msgid "Base information"
+msgstr "معلومات أساسية"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/view_course_form.html
+msgid "INSTITUTION INFORMATION"
+msgstr "معلومات المؤسسة التعليمية"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Please choose the school that will be providing the course. Once chosen then"
+" you can select an administrator for the studio shell."
+msgstr "الرجاء اختيار المدرسة التي ستمرر الدورة. عند الانتهاء من الاختيار يمكن اختيار مُشرف لهيكل الأستوديو."
+
+#: templates/publisher/add_course_form.html
+msgid "required"
+msgstr "مطلوب"
+
+#: templates/publisher/add_course_form.html
+msgid "Course Title"
+msgstr "عنوان المقرر"
+
+#: templates/publisher/add_course_form.html
+msgid "Best Practices"
+msgstr "أفضل الممارسات"
+
+#: templates/publisher/add_course_form.html
+msgid "Example"
+msgstr "مثال"
+
+#: templates/publisher/add_course_form.html
+msgid "Concise 70 characters maximum; < 50 chars. recommended."
+msgstr "محدود ل 70 حرف كحد أقصى؛ يفضل <50 من حرف."
+
+#: templates/publisher/add_course_form.html
+msgid "Descriptive - clearly indicates what the course is about."
+msgstr "الوصف التوضيحي - يصف بوضوح ما الذي تتناوله الدورة."
+
+#: templates/publisher/add_course_form.html
+msgid "SEO-optimized and targeted to a global audience."
+msgstr "مزود بخاصية تحسين محركات البحث SEO وموجه للجمهور العالمي."
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"If the course falls in a sequence, our titling convention is: \"Course "
+"Title: Subtitle\""
+msgstr "إذا تم تدريس هذه الدورة بالتسلسل، فستكون الطريقة المتعارف عليها للتسمية: \"عنوان المقرر: عنوان فرعي\""
+
+#: templates/publisher/add_course_form.html
+msgid "English Grammar and Essay Writing Sequence Courses:"
+msgstr "تسلسل دورات علم قواعد اللغة الإنجليزية وكتابة المقالات:"
+
+#: templates/publisher/add_course_form.html
+msgid "Introduction to Statistics"
+msgstr "مقدمة في الإحصاء"
+
+#: templates/publisher/add_course_form.html
+msgid "Statistics: Inference"
+msgstr "الإحصاء: الاستدلال الاحصائي"
+
+#: templates/publisher/add_course_form.html
+msgid "Statistics: Probability"
+msgstr "الإحصاء: الاحتمالات"
+
+#: templates/publisher/add_course_form.html
+msgid "Priority content"
+msgstr "أولويات المحتوى"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Start Date"
+msgstr "تاريخ البدء"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Start on a weekday (preferably Tuesday, Wednesday, or Thursday) and avoid "
+"major U.S. holidays for best access to edX staff."
+msgstr "ابدأ بأحد أيام العمل (مثل الثلاثاء والأربعاء والخميس) وتجنب عطلات الولايات المتحدة الكبرى حتى تتمكن من الوصول بشكل أفضل إلى موظفي edX."
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Approximate dates are acceptable; If you are unable to give an exact date, "
+"please identify a month in which the course will be offered."
+msgstr "يتم قبول التواريخ التقريبية؛ إذا لم تكن قادراً على تقديم تاريخ محدد، الرجاء تحديد الشهر الذي سيتم فتح الدورة خلاله."
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Pacing Type"
+msgstr "نوع الدراسة"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Will your course be open to students at the same time as it is announced?"
+msgstr "هل سيتم فتح الدورة للطلاب في الوقت المعلن عنه؟"
+
+#: templates/publisher/add_course_form.html
+msgid "Course Number"
+msgstr "رقم المقرر"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Courses split into several modules can be denoted by adding .1, .2, etc. at "
+"the end of the course number before the “x”"
+msgstr "يمكن تقديم الدورات المكونة من عدة وحدات بإضافة الأرقام .1, .2, الخ، في نهاية رقم الدورة قبل “x”"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"No special html characters, accents, spaces, dashes, or underscores 10 "
+"character limit"
+msgstr "لا يوجد أحرف، ألوان، مسافات أو خطوط سفلية  html خاصة المحددة ل10 أحرف"
+
+#: templates/publisher/add_course_form.html
+msgid "About page information"
+msgstr "معلومات صفحة اللمحة"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "End Date"
+msgstr "تاريخ الانتهاء"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"The date when this self-paced course run will end, replaced by an updated "
+"version of the course"
+msgstr "التاريخ الذي سينتهي فيه تشغيل هذه الدورة بالتعلم الذاتي، حين يتم استبدالها بنسخة محدثة من الدورة"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/course_run_detail/_seats.html
+msgid "Seat Type"
+msgstr "نوع المقعد"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Reads as a tag line - a short, engaging description for students browsing "
+"course listings"
+msgstr "كتابة سطر تعريف - عبارة عن وصف قصير لجذب الطلاب لتصفح قوائم الدورة"
+
+#: templates/publisher/add_course_form.html
+msgid "Conveys why someone should take the course"
+msgstr "يوضح السبب لما يُوصى أي شخص بتعلم هذه الدورة"
+
+#: templates/publisher/add_course_form.html
+msgid "SEO optimized and targeted to a global audience"
+msgstr "مزود بخاصية تحسين محركات البحث SEO وموجه للجمهور العالمي"
+
+#: templates/publisher/add_course_form.html
+msgid "FULL DESCRIPTION"
+msgstr "وصف مفصّل"
+
+#: templates/publisher/add_course_form.html
+msgid "Summarized description of course content"
+msgstr "وصف ملخص لمحتوى المقرر"
+
+#: templates/publisher/add_course_form.html
+msgid "Describe why a learner should take this course"
+msgstr "اشرح لماذا ينبغي للطلاب تعلم هذه الدورة"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Text should be easily scannable, using bullet points to highlight instead of"
+" long, dense text paragraphs"
+msgstr "يجب أن يكون من السهل الاطلاع على النص، باستخدام التعداد النقطي لإبراز النقاط بدلاً من الفقرات النصية الطويلة المكثفة"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Note: the first 4-5 lines will be visible to the learner immediately upon "
+"clicking the page;"
+msgstr "ملاحظة: ستكون أول 4-5 أسطر مرئية للطالب مباشرة بمجرد النقر على الصفحة؛"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"additional text will be hidden yet available via \"See More\" clickable text"
+" under the first 4-5 lines"
+msgstr "سيتم إخفاء النص الإضافي ومع ذلك سيبقى متاحاً من خلال النص القابل للنقر \"انظر المزيد\" أسفل الأسطر 4-5 الأولى"
+
+#: templates/publisher/add_course_form.html
+msgid "EXPECTED LEARNINGS"
+msgstr "توقعات التعلم"
+
+#: templates/publisher/add_course_form.html
+msgid "Answer to the question: \"What will you learn from this course?\""
+msgstr "إجابة للسؤال: \"ما الذي ستتعلمه في هذه الدورة؟\""
+
+#: templates/publisher/add_course_form.html
+msgid "bulleted items, approximately 4-10 words per bullet"
+msgstr "عناصر التعداد النقطي، حوالي 4-10 كلمات في كل نقطة"
+
+#: templates/publisher/add_course_form.html
+msgid "COURSE STAFF"
+msgstr "طاقم الدورة"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"If there is more than one instructor, please indicate the order in which the"
+" instructors should be listed"
+msgstr "إذا كان هناك أكثر من معلم واحد، يرجى تحديد ترتيب المعلمين في القائمة"
+
+#: templates/publisher/add_course_form.html
+msgid "Limited to the primary instructors a learner will encounter in videos"
+msgstr "يقتصر على المعملين الأساسيين الذين سيراهم الطالب في مقاطع الفيديو"
+
+#: templates/publisher/add_course_form.html
+msgid "KEYWORDS"
+msgstr "الكلمات الرئيسية"
+
+#: templates/publisher/add_course_form.html
+msgid "Some instructions here???"
+msgstr "هل يوجد بعض الإرشادات هنا؟؟؟"
+
+#: templates/publisher/add_course_form.html
+msgid "SUBJECT FIELD"
+msgstr "خانة الموضوع"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Only one primary subject will appear on the About Page; please select one "
+"primary subject and a maximum of two additional subject areas for search."
+msgstr "سيظهر موضوع أساسي واحد على صفحة \"عن الدورة\"؛ لذا يرجى تحديد موضوع أساسي واحد وموضوعين إضافيين فرعيين للبحث كحد أقصى."
+
+#: templates/publisher/add_course_form.html
+msgid "COURSE IMAGE"
+msgstr "صورة الدورة"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Select an eye-catching, colorful image that captures the content and essence"
+" of your course"
+msgstr "اختر صورة لافتة للنظر وملونة لمثيل محتوى وجوهر هذه الدورة"
+
+#: templates/publisher/add_course_form.html
+msgid "Do not include text or headlines"
+msgstr "يحظر إدخال النصوص أو العناوين"
+
+#: templates/publisher/add_course_form.html
+msgid "Choose an image that you have permission to use."
+msgstr "استخدم صورة التي لديك الإذن باستخدامها."
+
+#: templates/publisher/add_course_form.html
+msgid "This can be a stock photo (try Flickr creative commons, "
+msgstr "ويشمل ذلك مواقع الصور المجانية (اطلع على موقع Flickr الإبداعي،"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Stock Vault, Stock XCHNG, iStock Photo) or an image custom designed for your"
+" course"
+msgstr "Stock Vault، Stock XCHNG، iStock Photo) أو صورة مصممة خصيصًا لمقررك"
+
+#: templates/publisher/add_course_form.html
+msgid "Sequenced courses should each have a unique image"
+msgstr "يجب أن يكون لكل من الدورات المتسلسلة صورة فريدة"
+
+#: templates/publisher/add_course_form.html
+msgid "Size: 2120 x 1192 pixels"
+msgstr "الحجم: 2120 × 1192 بيكسل"
+
+#: templates/publisher/add_course_form.html
+msgid "PREREQUISITES"
+msgstr "المتطلبات الأساسية"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"List concepts and level (basic, advanced, undergraduate, graduate) students "
+"should be familiar with"
+msgstr "مفاهيم ومستوى القائمة (أساسي، متقدم،  المرحلة الجامعية أو الدراسات العليا) التي ينبغي أن يبلغها الطالب"
+
+#: templates/publisher/add_course_form.html
+msgid "If there are no prerequisites, please list \"None.\""
+msgstr "إذا لم يكن هناك متطلبات أساسية، الرجاء اختيار \"لا يوجد\""
+
+#: templates/publisher/add_course_form.html
+msgid "200 character limit, including spaces"
+msgstr "الحد الأقصى للأحرف 200 حرف، يشمل الفراغات"
+
+#: templates/publisher/add_course_form.html
+msgid "ESTIMATED EFFORT"
+msgstr "المجهود المُقدر"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Number of hours per week the learner should expect to spend on the course to"
+" be successful"
+msgstr "عدد الساعات الأسبوعية التي من المتوقع ان يقضيها الطالب في تعلم الدورة من أجل تحقيق النجاح"
+
+#: templates/publisher/add_course_form.html
+msgid "Should be realistic, and can be a range"
+msgstr "يجب أن يكون واقعي، وقد يكون ضمن نطاق"
+
+#: templates/publisher/add_course_form.html
+msgid "Min Effort"
+msgstr "القدر الأدنى للمجهود"
+
+#: templates/publisher/add_course_form.html
+msgid "Max Effort"
+msgstr "القدر الأقصى للمجهود"
+
+#: templates/publisher/add_course_form.html
+msgid "LANGUAGE(S)"
+msgstr "اللغة (ات)"
+
+#: templates/publisher/add_course_form.html
+msgid "Course content (navigation and course content excluding videos)"
+msgstr "محتوى الدورة (التصفح ومحتوى الدورة باستثناء مقاطع الفيديو)"
+
+#: templates/publisher/add_course_form.html
+msgid "Videos (language spoken in course videos)"
+msgstr "مقاطع الفيديو (لغة الحديث في مقاطع الفيديو في الدورة)"
+
+#: templates/publisher/add_course_form.html
+msgid "Video transcript (video caption language)"
+msgstr "نص الفيديو (لغة لقطات الفيديو)"
+
+#: templates/publisher/add_course_form.html
+msgid "LENGTH"
+msgstr "المدة"
+
+#: templates/publisher/add_course_form.html
+msgid "If the time between start/end dates is not exact, ex: 8.5 weeks, "
+msgstr "إذا لم يكن الوقت بين تاريخ البدء/النهاية محدد بدقة، مثل: 8.5 أسابيع،"
+
+#: templates/publisher/add_course_form.html
+msgid "indicate whether the course should be listed as 8 weeks or 9 weeks."
+msgstr "التحديد ما إذا كانت مدة الدورة يجب أن تكون 8 أم 9 أسابيع."
+
+#: templates/publisher/add_course_form.html
+msgid "LEVEL TYPE"
+msgstr "نوع المستوى"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Introductory - No prerequisites; an individual with some to all of a "
+"secondary school degree could complete"
+msgstr "تمهيدي - لا يوجد متطلبات أساسية؛ يستطيع الشخص الحاصل على دراسة ثانوية جزئية أو كاملة انهاء هذه الدورة "
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Intermediate - Basic prerequisites; a secondary school degree likely "
+"required to be successful as well as some university"
+msgstr "متوسط - يوجد متطلبات أساسية؛ قد يكون هناك حاجة لشهادة مدرسة ثانوية من أجل النجاح في الدورة وأيضاً إلى مستوى من الدراسة الجامعية"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Advanced - Significant number of prerequisites required; course geared to "
+"3rd or 4th year university student or a masters degree student"
+msgstr "متقدم - يوجد عدد كبير من المتطلبات الأساسية؛ هذه الدورة مُعدة لطلاب السنة 3 أو 4 في الجامعة أو طلاب درجة الماجستير"
+
+#: templates/publisher/add_course_form.html
+msgid "Save Draft"
+msgstr "حفظ المسودة"
+
+#: templates/publisher/course_form.html
+msgid "Add Course Run"
+msgstr "أضف مسار الدورة"
+
+#: templates/publisher/course_run_detail.html
+msgid "Course Run Detail"
+msgstr "تفاصيل تشغيل الدورة"
+
+#: templates/publisher/course_run_detail.html
+msgid "All"
+msgstr "الكل"
+
+#: templates/publisher/course_run_detail.html
+msgid "STUDIO"
+msgstr "STUDIO"
+
+#: templates/publisher/course_run_detail.html
+msgid "CAT"
+msgstr "CAT"
+
+#: templates/publisher/course_run_detail.html
+msgid "DRUPAL"
+msgstr "DRUPAL"
+
+#: templates/publisher/course_run_detail.html
+msgid "Salesforce"
+msgstr "Salesforce"
+
+#: templates/publisher/course_run_detail.html
+#: templates/publisher/course_run_form.html
+#: templates/publisher/course_runs_list.html
+msgid "Status"
+msgstr "الحالة"
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Title"
+msgstr "العنوان"
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Number"
+msgstr "الرقم"
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_cat.html
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Course ID"
+msgstr "معرف الدورة"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Is Re-run?"
+msgstr "إعادة تشغيل؟"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Course Subtitle"
+msgstr "العنوان الفرعي للدورة"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Subjects"
+msgstr "المواضيع"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Part of an Xseries?"
+msgstr "جزء من Xseries؟"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Xseries Name"
+msgstr "اسم Xseries"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Part of a Micromasters?"
+msgstr "جزء من Micromasters؟"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Micromasters Name"
+msgstr "اسم Micromasters"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Enrollment Type"
+msgstr "نوع التسجيل"
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_credit_seat.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_seats.html
+msgid "Price"
+msgstr "السعر"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Course Start Date"
+msgstr "تاريخ بدء الدورة"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Course End Date"
+msgstr "تاريح انتهاء الدورة"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Certificate Generation Date Exception Request"
+msgstr "طلب استثناء تاريخ إصدار الشهادة"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Course Length (weeks)"
+msgstr "مدة الدورة (بالأسابيع)"
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Estimated Effort"
+msgstr "المجهود المُقدر"
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "to"
+msgstr "إلى"
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "hours per week"
+msgstr "عدد الساعات في الأسبوع"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Course Languages"
+msgstr "لغات الدورة"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Video Translation Languages"
+msgstr "لغات ترجمة الفيديو"
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Course Level"
+msgstr "مستوى الدورة"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "About This Course"
+msgstr "عن هذه الدورة"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "What You'll Learn"
+msgstr "ما الذي ستتعلمه"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Learner Testimonial"
+msgstr "شهادات الطلاب"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Syllabus"
+msgstr "المقرر الدراسي"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Search Engine Optimization Review"
+msgstr "البحث عن استعراض لمُحسن محرك البحث"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Top 10 Keywords"
+msgstr "أبرز 10 كلمات أساسية"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "edX Username or email address of Course Team Admin(s)"
+msgstr "اسم مستخدم edX أو عنوان البريد الإلكتروني لمشرف (مشرفي) فريق الدورة"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid ""
+"edX Username or email address of additional course team members (Staff)"
+msgstr "اسم مستخدم edX أو عنوان البريد الإلكتروني لأعضاء فريق الدورة الآخرين (الموظفين)"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Additional Notes"
+msgstr "ملاحظات إضافية"
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Edit"
+msgstr "تحرير"
+
+#: templates/publisher/course_run_detail/_cat.html
+msgid "Course Type"
+msgstr "نوع الدورة"
+
+#: templates/publisher/course_run_detail/_credit_seat.html
+msgid "Credit Seats"
+msgstr "مقاعد الدورة"
+
+#: templates/publisher/course_run_detail/_credit_seat.html
+msgid "Credit Provider"
+msgstr "مقدم الدورة"
+
+#: templates/publisher/course_run_detail/_credit_seat.html
+#: templates/publisher/course_run_detail/_seats.html
+msgid "Currency"
+msgstr "العملة"
+
+#: templates/publisher/course_run_detail/_credit_seat.html
+msgid "Credit Hours"
+msgstr "الساعات المعتمدة"
+
+#: templates/publisher/course_run_detail/_credit_seat.html
+#: templates/publisher/course_run_detail/_seats.html
+msgid "Upgrade Deadline"
+msgstr "الموعد النهائي للتحديث "
+
+#: templates/publisher/course_run_detail/_credit_seat.html
+msgid "No Credit Seats Available."
+msgstr "لا تتوفر مقاعد معتمدة في الدورة"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Sub Title"
+msgstr " العنوان الفرعي"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "School"
+msgstr "المدرسة"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Subject"
+msgstr "الموضوع"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "XSeries"
+msgstr "XSeries"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Self Paced"
+msgstr "تعلّم ذاتيّ"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Staff"
+msgstr "الطاقم"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Languages"
+msgstr "اللغات"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Video Translations"
+msgstr "ترجمات الفيديو"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Level"
+msgstr "المستوى"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "About this Course"
+msgstr "عن هذه الجلسة"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "What you'll learn"
+msgstr "ما الذي ستتعلمه"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Prerequisite"
+msgstr "المتطلبات الأساسية"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Keywords"
+msgstr "كلمات أساسية"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Sponsors"
+msgstr "الجهات الراعية"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Enrollments"
+msgstr "التسجيلات "
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Seats"
+msgstr "المقاعد"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Course"
+msgstr "الدورة"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Authored in Studio?"
+msgstr "مؤلفة في الاستوديو؟"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Multiple Partner Course?"
+msgstr "هل الدورة متعددة الشركاء؟"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Subject Area"
+msgstr "مجال الموضوع"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Language: Course Text"
+msgstr "اللغة: نص الدورة"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Language: Transcripts"
+msgstr "اللغة: نصوص"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Language: Video"
+msgstr "اللغة: فيديو"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Course Run"
+msgstr "مسار الدورة"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "New or Rerun?"
+msgstr "جديد أم إعادة تشغيل؟"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Platform"
+msgstr "المنصة"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Faculty"
+msgstr "الكلية"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Course Run Display Name"
+msgstr "اسم عرض تشغيل الدورة"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Course Run Number"
+msgstr "رقم تشغيل الدورة"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "edX Course Run ID"
+msgstr "معرف تشغيل دورة edX"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Certificate Type"
+msgstr "نوع الشهادة"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Course $ (minimum)"
+msgstr "سعر الدورة $ (كحد أدنى)"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Self Paced?"
+msgstr "تعلم ذاتي؟"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "MDC Submission Due Date"
+msgstr "تاريخ استحقاق تقديمات MDC"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Verified Conversion Date"
+msgstr "تاريخ التحويل المعتمد"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Verified Registration Expiration Date"
+msgstr "تاريخ انتهاء صلاحية التسجيل المعتمد"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Certificate Issued Date"
+msgstr "تاريخ إصدار الشهادة"
+
+#: templates/publisher/course_run_detail/_seats.html
+msgid "No Seats Available."
+msgstr "لا تتوفر مقاعد في الدورة"
+
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Course Name"
+msgstr "اسم الدورة"
+
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Organization"
+msgstr "المؤسسة"
+
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Enrollment Start Date"
+msgstr "تاريخ بدء التسجيل"
+
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Enrollment End Date"
+msgstr "تاريخ انتهاء التسجيل"
+
+#: templates/publisher/course_run_form.html
+msgid "Add Seat"
+msgstr "أضف مقعد"
+
+#: templates/publisher/course_runs_list.html
+msgid "Course Run List"
+msgstr "قائمة تشغيل الدورة"
+
+#: templates/publisher/course_runs_list.html
+msgid "Course runs in progress"
+msgstr "جارٍ عملية تشغيل الدورة"
+
+#: templates/publisher/course_runs_list.html
+msgid "Welcome to edX Publisher. It looks like you don't have any courses."
+msgstr "مرحباً بك في edX Publisher. يبدو أنه ليس لديك أي دورات."
+
+#: templates/publisher/course_runs_list.html
+#, python-format
+msgid ""
+"Please %(link_start)s%(new_course_url)s%(link_middle)sadd a new "
+"course%(link_end)s to create your first run"
+msgstr "يرجى %(link_start)s%(new_course_url)s%(link_middle)sإضافة دورة جديدة%(link_end)s من أجل إنشاء أول تشغيل التابع لك"
+
+#: templates/publisher/course_runs_list.html
+msgid "Course Run Title"
+msgstr "عنوان الدورة"
+
+#: templates/publisher/course_runs_list.html
+msgid "Course Run Start Date"
+msgstr "تاريخ بدء الدورة"
+
+#: templates/publisher/course_runs_list.html
+msgid "Target Content?"
+msgstr "المحتوى المستهدف؟"
+
+#: templates/publisher/course_runs_list.html
+msgid "Priority"
+msgstr "الأولوية"
+
+#: templates/publisher/course_runs_list.html
+msgid "Last Updated"
+msgstr "آخر تحديث"
+
+#: templates/publisher/course_runs_list.html
+msgid "Recently published courses"
+msgstr "دورات التي نُشرت مؤخراً"
+
+#: templates/publisher/course_runs_list.html
+msgid "Looks like you haven't publish a course yet"
+msgstr "يبدو أنك لم تنشر أي دورة بعد"
+
+#: templates/publisher/email/change_state.html
+#: templates/publisher/email/change_state.txt
+msgid "Hi,"
+msgstr "مرحباً"
+
+#: templates/publisher/email/change_state.html
+#: templates/publisher/email/change_state.txt
+#, python-format
+msgid "The following course run has been submitted for %(state_name)s."
+msgstr "تم تقديم مجرى الدورة التالية ل %(state_name)s"
+
+#: templates/publisher/email/change_state.html
+msgid "View Course"
+msgstr "عرض الدورة"
+
+#: templates/publisher/email/change_state.html
+#: templates/publisher/email/change_state.txt
+#: templates/publisher/email/comment.html
+#: templates/publisher/email/comment.txt
+msgid "The edX team"
+msgstr "فريق edX"
+
+#: templates/publisher/email/change_state.txt
+msgid "View Course:"
+msgstr "عرض الدورة:"
+
+#: templates/publisher/email/comment.html
+#: templates/publisher/email/comment.txt
+#, python-format
+msgid ""
+"%(first_name)s commented on a %(object_type)s belonging to the course "
+"%(title)s (%(number)s)."
+msgstr "علق %(first_name)s  على %(object_type)s التي تنتمي إلى الدورة %(title)s (%(number)s)."
+
+#: templates/publisher/email/comment.html
+msgid "View comment"
+msgstr "عرض التعليق"
+
+#: templates/publisher/email/comment.txt
+msgid "View comment: "
+msgstr "عرض التعليق:"
+
+#: templates/publisher/seat_form.html
+msgid "Seat Form"
+msgstr "شكل المقعد"
+
+#: templates/publisher/view_course_form.html
+msgid "Course information"
+msgstr "معلومات الدورة"
