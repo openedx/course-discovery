@@ -2,6 +2,7 @@
 Course publisher views.
 """
 import json
+from datetime import datetime, timedelta
 
 from django.contrib import messages
 from django.contrib.auth.models import Group
@@ -45,7 +46,8 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
         context = super(Dashboard, self).get_context_data(**kwargs)
         course_runs = context.get('object_list')
         published_courseruns = course_runs.filter(
-            state__name=State.PUBLISHED
+            state__name=State.PUBLISHED,
+            state__modified__gt=datetime.today() - timedelta(days=30)
         ).select_related('course').all().order_by('-state__modified')
         unpublished_courseruns = course_runs.exclude(state__name=State.PUBLISHED)
         studio_request_courses = unpublished_courseruns.filter(lms_course_id__isnull=True)
