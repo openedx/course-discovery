@@ -161,7 +161,7 @@ class FAQAdmin(admin.ModelAdmin):
     list_display = ('question',)
 
 
-class OrgInline(admin.TabularInline):
+class OrganizationInline(admin.TabularInline):
 
     # course-meta-data models are importing in publisher app. So just for safe side
     # to avoid any circular issue importing the publisher model here.
@@ -172,7 +172,7 @@ class OrgInline(admin.TabularInline):
 
 @admin.register(Organization)
 class OrganizationAdmin(admin.ModelAdmin):
-    inlines = [OrgInline, ]
+    inlines = [OrganizationInline, ]
     list_display = ('uuid', 'key', 'name',)
     list_filter = ('partner',)
     readonly_fields = ('uuid',)
