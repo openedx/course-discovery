@@ -397,8 +397,17 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         self.assertEqual(self.loader.get_description(data), 'Test')
 
     def test_get_video(self):
+        """Verify that method gets video from any of 'field_course_video' or 'field_product_video.'"""
         image_url = 'https://example.com/image.jpg'
         video_url = 'https://example.com/video.mp4'
+        data = {
+            'field_course_video': {'url': video_url},
+            'field_course_image_featured_card': {'url': image_url}
+        }
+        video = self.loader.get_video(data)
+        self.assertEqual(video.src, video_url)
+        self.assertEqual(video.image.src, image_url)
+
         data = {
             'field_product_video': {'url': video_url},
             'field_course_image_featured_card': {'url': image_url}
