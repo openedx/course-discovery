@@ -517,26 +517,6 @@ class ManagementViewSet(viewsets.ViewSet):
     permission_classes = (IsSuperuser,)
 
     @list_route(methods=['post'])
-    def refresh_course_metadata(self, request):
-        """ Refresh the course metadata from external data sources.
-        ---
-        parameters:
-            - name: access_token
-              description: OAuth access token to use in lieu of that issued to the service.
-              required: false
-              type: string
-              paramType: form
-              multiple: false
-        """
-        access_token = request.data.get('access_token')
-        kwargs = {'access_token': access_token} if access_token else {}
-        name = 'refresh_course_metadata'
-
-        output = self.run_command(request, name, **kwargs)
-
-        return Response(output, content_type='text/plain')
-
-    @list_route(methods=['post'])
     def update_index(self, request):
         """ Update the search index. """
         name = 'update_index'

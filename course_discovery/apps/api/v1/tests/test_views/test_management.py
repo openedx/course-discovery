@@ -57,18 +57,6 @@ class ManagementCommandViewTestMixin(object):
         self.assertDictContainsSubset(expected, kwargs)
 
 
-class RefreshCourseMetadataTests(ManagementCommandViewTestMixin, APITestCase):
-    """ Tests for the refresh_course_metadata management endpoint. """
-    call_command_path = 'course_discovery.apps.api.v1.views.call_command'
-    command_name = 'refresh_course_metadata'
-    path = reverse('api:v1:management-refresh-course-metadata')
-
-    def test_success_response(self):
-        """ Verify a successful response calls the management command and returns the plain text output. """
-        super(RefreshCourseMetadataTests, self).test_success_response()
-        self.assert_successful_response(access_token='abc123')
-
-
 class UpdateIndexTests(ManagementCommandViewTestMixin, APITestCase):
     """ Tests for the update_index management endpoint. """
     call_command_path = 'course_discovery.apps.api.v1.views.call_command'

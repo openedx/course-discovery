@@ -21,12 +21,11 @@ Retrieving Course Metadata
 The ``refresh_course_metadata`` command in :file:`course_discovery/apps/course_metadata/management/commands/refresh_course_metadata.py` is used to retrieve metadata. This is run daily in production through a Jenkins job, and can be manually run to set up your local environment. The data loaders are each run in series by the command. The data
 loaders should be idempotent -- that is, running this command once will populate the database, and if nothing has
 changed upstream then running it again should not change the database.
-
-For example, if you use the JWT access token "secret-ecommerce-key" to authenticate API calls, run the following:
+The command retrieves a JWT access token from the configured OpenID Connect provider.
 
 .. code-block:: bash
 
-    $ ./manage.py refresh_course_metadata --access_token secret-ecommerce-key --token_type jwt
+    $ ./manage.py refresh_course_metadata
 
 QuerySets
 ---------

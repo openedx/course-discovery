@@ -96,7 +96,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         self._process_response(response)
 
     def _make_request(self, page):
-        return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE, username='course_discovery_worker')
+        return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE, username=self.username)
 
     def _process_response(self, response):
         results = response['results']
@@ -294,9 +294,10 @@ class ProgramsApiDataLoader(AbstractDataLoader):
     image_height = 480
     XSERIES = None
 
-    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None, is_threadsafe=False):
+    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None,
+                 is_threadsafe=False, **kwargs):
         super(ProgramsApiDataLoader, self).__init__(
-            partner, api_url, access_token, token_type, max_workers, is_threadsafe
+            partner, api_url, access_token, token_type, max_workers, is_threadsafe, **kwargs
         )
         self.XSERIES = ProgramType.objects.get(name='XSeries')
 

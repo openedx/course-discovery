@@ -5,6 +5,7 @@ import logging
 from django.core.management import BaseCommand, CommandError
 from django.db import connection
 from edx_rest_api_client.client import EdxRestApiClient
+import jwt
 import waffle
 
 from course_discovery.apps.core.models import Partner
@@ -21,9 +22,9 @@ from course_discovery.apps.course_metadata.models import Course
 logger = logging.getLogger(__name__)
 
 
-def execute_loader(loader_class, *loader_args):
+def execute_loader(loader_class, *loader_args, **loader_kwargs):
     try:
-        loader_class(*loader_args).ingest()
+        loader_class(*loader_args, **loader_kwargs).ingest()
     except Exception:  # pylint: disable=broad-except
         logger.exception('%s failed!', loader_class.__name__)
 
@@ -51,22 +52,6 @@ class Command(BaseCommand):
     help = 'Refresh course metadata from external sources.'
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            '--access_token',
-            action='store',
-            dest='access_token',
-            default=None,
-            help='OAuth2 access token used to authenticate API calls.'
-        )
-
-        parser.add_argument(
-            '--token_type',
-            action='store',
-            dest='token_type',
-            default=None,
-            help='The type of access token being passed  (e.g. Bearer, JWT).'
-        )
-
         parser.add_argument(
             '--partner_code',
             action='store',
@@ -98,27 +83,22 @@ class Command(BaseCommand):
         if not partners:
             raise CommandError('No partners available!')
 
+        token_type = 'JWT'
         for partner in partners:
-            access_token = options.get('access_token')
-            token_type = options.get('token_type')
+            logger.info('Retrieving access token for partner [{}]'.format(partner_code))
 
-            if access_token and not token_type:
-                raise CommandError('The token_type must be specified when passing in an access token!')
-
-            if not access_token:
-                logger.info('No access token provided. Retrieving access token using client_credential flow...')
-                token_type = 'JWT'
-
-                try:
-                    access_token, __ = EdxRestApiClient.get_oauth_access_token(
-                        '{root}/access_token'.format(root=partner.oidc_url_root.strip('/')),
-                        partner.oidc_key,
-                        partner.oidc_secret,
-                        token_type=token_type
-                    )
-                except Exception:
-                    logger.exception('No access token provided or acquired through client_credential flow.')
-                    raise
+            try:
+                access_token, __ = EdxRestApiClient.get_oauth_access_token(
+                    '{root}/access_token'.format(root=partner.oidc_url_root.strip('/')),
+                    partner.oidc_key,
+                    partner.oidc_secret,
+                    token_type=token_type
+                )
+            except Exception:
+                logger.exception('No access token acquired through client_credential flow.')
+                raise
+            username = jwt.decode(access_token, verify=False)['preferred_username']
+            kwargs = {'username': username} if username else {}
 
             # The Linux kernel implements copy-on-write when fork() is called to create a new
             # process. Pages that the parent and child processes share, such as the database
@@ -192,6 +172,7 @@ class Command(BaseCommand):
                                     token_type,
                                     (max_workers_override or max_workers),
                                     is_threadsafe,
+                                    **kwargs,
                                 )
             else:
                 # Flatten pipeline and run serially.
@@ -205,6 +186,7 @@ class Command(BaseCommand):
                             token_type,
                             (max_workers_override or max_workers),
                             is_threadsafe,
+                            **kwargs,
                         )
 
             # TODO Cleanup CourseRun overrides equivalent to the Course values.

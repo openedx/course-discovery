@@ -1,6 +1,7 @@
 import json
 
 import ddt
+import jwt
 import mock
 import responses
 from django.core.management import call_command, CommandError
@@ -19,8 +20,8 @@ from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 
-ACCESS_TOKEN = 'secret'
 JSON = 'application/json'
+ACCESS_TOKEN = str(jwt.encode({'preferred_username': 'bob'}, 'secret'), 'utf-8')
 
 
 @ddt.ddt
@@ -134,11 +135,15 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
             command_args = ['--partner_code=invalid']
             call_command('refresh_course_metadata', *command_args)
 
-    def test_refresh_course_metadata_with_no_token_type(self):
-        """ Verify an error is raised if an access token is passed in without a token type. """
-        with self.assertRaises(CommandError):
-            command_args = ['--access_token=test-access-token']
-            call_command('refresh_course_metadata', *command_args)
+    def test_refresh_course_metadata_errors_with_no_token(self):
+        """ Verify an exception is raised and an error is logged if an access token is not acquired. """
+        with mock.patch('edx_rest_api_client.client.EdxRestApiClient.get_oauth_access_token', side_effect=Exception):
+            logger = 'course_discovery.apps.course_metadata.management.commands.refresh_course_metadata.logger'
+            with mock.patch(logger) as mock_logger:
+                with self.assertRaises(Exception):
+                    call_command('refresh_course_metadata')
+            expected_calls = [mock.call('No access token acquired through client_credential flow.')]
+            mock_logger.exception.assert_has_calls(expected_calls)
 
     def test_refresh_course_metadata_with_loader_exception(self):
         """ Verify execution continues if an individual data loader fails. """

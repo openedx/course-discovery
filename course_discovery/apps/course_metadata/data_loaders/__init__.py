@@ -23,10 +23,10 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
     """
 
     PAGE_SIZE = 50
-    SUPPORTED_TOKEN_TYPES = ('bearer', 'jwt',)
     MARKDOWN_CLEANUP_REGEX = re.compile(r'^<p>(.*)</p>$')
 
-    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None, is_threadsafe=False):
+    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None,
+                 is_threadsafe=False, **kwargs):
         """
         Arguments:
             partner (Partner): Partner which owns the APIs and data being loaded
@@ -39,9 +39,6 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         if token_type:
             token_type = token_type.lower()
 
-            if token_type not in self.SUPPORTED_TOKEN_TYPES:
-                raise ValueError('The token type {token_type} is invalid!'.format(token_type=token_type))
-
         self.access_token = access_token
         self.token_type = token_type
         self.partner = partner
@@ -49,6 +46,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
 
         self.max_workers = max_workers
         self.is_threadsafe = is_threadsafe
+        self.username = kwargs.get('username')
 
     @cached_property
     def api_client(self):
