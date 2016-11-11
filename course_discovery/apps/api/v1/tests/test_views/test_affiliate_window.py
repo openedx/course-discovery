@@ -14,6 +14,7 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMi
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import Seat
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, SeatFactory
 
@@ -142,3 +143,16 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
         with self.assertNumQueries(8):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
+
+    def test_unpublished_status(self):
+        """ Verify the endpoint does not return CourseRuns in a non-published state. """
+        self.course_run.status = CourseRunStatus.Unpublished
+        self.course_run.save()
+
+        CourseRunFactory(course=self.course, status=CourseRunStatus.Unpublished)
+
+        response = self.client.get(self.affiliate_url)
+
+        self.assertEqual(response.status_code, 200)
+        root = ET.fromstring(response.content)
+        self.assertEqual(0, len(root.findall('product')))

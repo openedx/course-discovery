@@ -4,6 +4,7 @@ import ddt
 import pytz
 from django.test import TestCase
 
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory
@@ -77,6 +78,17 @@ class CourseRunQuerySetTests(TestCase):
         """ Verify the method excludes CourseRuns without a slug. """
         CourseRunFactory(slug=slug)
         self.assertEqual(CourseRun.objects.marketable().count(), 0)
+
+    @ddt.data(
+        (CourseRunStatus.Unpublished, 0),
+        (CourseRunStatus.Published, 1)
+    )
+    @ddt.unpack
+    def test_marketable_unpublished_exclusions(self, status, count):
+        """ Verify the method excludes CourseRuns with Unpublished status. """
+        CourseRunFactory(status=status)
+
+        self.assertEqual(CourseRun.objects.marketable().count(), count)
 
 
 @ddt.ddt
