@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-11 17:27+0500\n"
+"POT-Creation-Date: 2016-11-15 13:47+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1407,6 +1407,7 @@ msgid "No Seats Available."
 msgstr ""
 
 #: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard/published.html
 #: templates/publisher/dashboard/studio_requests.html
 msgid "Course Name"
 msgstr ""
@@ -1491,17 +1492,49 @@ msgid "STUDIO REQUEST"
 msgstr ""
 
 #: templates/publisher/dashboard.html
+msgid "PUBLISHED COURSE RUNS"
+msgstr ""
+
+#: templates/publisher/dashboard.html
 msgid "In Progress"
+msgstr ""
+
+#: templates/publisher/dashboard/published.html
+msgid "Looks like you haven't published any course yet"
+msgstr ""
+
+#: templates/publisher/dashboard/published.html
+#, python-format
+msgid ""
+"The list below contains all course runs published in the past "
+"%(default_published_days)s days."
+msgstr ""
+
+#: templates/publisher/dashboard/published.html
+#: templates/publisher/dashboard/studio_requests.html
+msgid "Institution"
+msgstr ""
+
+#: templates/publisher/dashboard/published.html
+msgid "Start"
+msgstr ""
+
+#: templates/publisher/dashboard/published.html
+msgid "End"
+msgstr ""
+
+#: templates/publisher/dashboard/published.html
+msgid "Published Date"
+msgstr ""
+
+#: templates/publisher/dashboard/published.html
+msgid "Target Content"
 msgstr ""
 
 #: templates/publisher/dashboard/studio_requests.html
 msgid ""
 "The list below are the courses that need a studio instance to start "
 "development."
-msgstr ""
-
-#: templates/publisher/dashboard/studio_requests.html
-msgid "Institution"
 msgstr ""
 
 #: templates/publisher/dashboard/studio_requests.html

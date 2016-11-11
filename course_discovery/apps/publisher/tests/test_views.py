@@ -902,14 +902,31 @@ class DashboardTests(TestCase):
 
     def setUp(self):
         super(DashboardTests, self).setUp()
-        self.user = UserFactory(is_staff=True)
-        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+        self.user1 = UserFactory()
+        self.group_a = factories.GroupFactory()
+        self.user1.groups.add(self.group_a)
+
+        self.user2 = UserFactory()
+        self.group_b = factories.GroupFactory()
+        self.user2.groups.add(self.group_b)
+
+        self.client.login(username=self.user1.username, password=USER_PASSWORD)
         self.page_url = reverse('publisher:publisher_dashboard')
 
-        # Create courses with `DRAFT` and `NEEDS_REVIEW` and PUBLISHED state
-        self.course_run_1 = factories.CourseRunFactory(state=factories.StateFactory(name=State.DRAFT))
-        self.course_run_2 = factories.CourseRunFactory(state=factories.StateFactory(name=State.NEEDS_REVIEW))
-        self.course_run_3 = factories.CourseRunFactory(state=factories.StateFactory(name=State.PUBLISHED))
+        # group-a course
+        self.course_run_1 = self._create_course_assign_permissions(State.DRAFT, self.group_a)
+        self.course_run_2 = self._create_course_assign_permissions(State.NEEDS_REVIEW, self.group_a)
+        self.course_run_3 = self._create_course_assign_permissions(State.PUBLISHED, self.group_a)
+
+        # group-b course
+        self._create_course_assign_permissions(State.DRAFT, self.group_b)
+
+    def _create_course_assign_permissions(self, state, group):
+        """ DRY method to create course and assign the permissions"""
+        course_run = factories.CourseRunFactory(state=factories.StateFactory(name=state))
+        course_run.course.assign_permission_by_group(group)
+        return course_run
 
     def test_page_without_login(self):
         """ Verify that user can't access course runs list page when not logged in. """
@@ -931,26 +948,39 @@ class DashboardTests(TestCase):
         response = self.client.get(self.page_url)
         self.assertEqual(response.status_code, 200)
 
+    def test_page_with_different_group_user(self):
+        """ Verify that user from one group can access only that group courses. """
+        self.client.logout()
+        self.client.login(username=self.user2.username, password=USER_PASSWORD)
+        self.assert_dashboard_response(1, 0, 1)
+
+    def test_page_with_staff_user(self):
+        """ Verify that staff user can see all tabs with all course runs from all groups. """
+        self.client.logout()
+        staff_user = UserFactory(is_staff=True)
+        self.client.login(username=staff_user.username, password=USER_PASSWORD)
+        self.assert_dashboard_response(3, 1, 3)
+
     def test_different_course_runs_counts(self):
         """ Verify that user can access published, un-published and
         studio requests course runs. """
-        self.assert_dashboard_reponse(2, 1, 2)
+        self.assert_dashboard_response(2, 1, 2)
 
     def test_studio_request_course_runs(self):
         """ Verify that page loads the list course runs which need studio request. """
         self.course_run_1.lms_course_id = 'test'
         self.course_run_1.save()
-        self.assert_dashboard_reponse(2, 1, 1)
+        self.assert_dashboard_response(2, 1, 1)
         self.course_run_2.lms_course_id = 'test-2'
         self.course_run_2.save()
-        self.assert_dashboard_reponse(2, 1, 0)
+        self.assert_dashboard_response(2, 1, 0)
 
-    def assert_dashboard_reponse(self, unpublished_count, published_count, studio_requests):
+    def assert_dashboard_response(self, unpublished_count, published_count, studio_requests):
         response = self.client.get(self.page_url)
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(len(response.context['unpublished_courseruns']), unpublished_count)
-        self.assertEqual(len(response.context['published_courseruns']), published_count)
+        self.assertEqual(len(response.context['unpublished_course_runs']), unpublished_count)
+        self.assertEqual(len(response.context['published_course_runs']), published_count)
         self.assertEqual(len(response.context['studio_request_courses']), studio_requests)
 
         if studio_requests > 0:
@@ -958,13 +988,24 @@ class DashboardTests(TestCase):
         else:
             self.assertContains(response, 'There are no course-runs require studio instance.')
 
+        if published_count > 0:
+            self.assertContains(response, '<table class="data-table-published display"')
+            self.assertContains(response, 'The list below contains all course runs published in the past 30 days')
+        else:
+            self.assertContains(response, "Looks like you haven't published any course yet")
+
     def test_without_studio_request_course_runs(self):
         """ Verify that studio tab indicates a message if no course-run available. """
         self.course_run_1.lms_course_id = 'test'
         self.course_run_1.save()
         self.course_run_2.lms_course_id = 'test-2'
         self.course_run_2.save()
-        self.assert_dashboard_reponse(2, 1, 0)
+        self.assert_dashboard_response(2, 1, 0)
+
+    def test_without_published_course_runs(self):
+        """ Verify that published tab indicates a message if no course-run available. """
+        self.course_run_3.change_state(target=State.DRAFT)
+        self.assert_dashboard_response(3, 0, 3)
 
 
 class ToggleEmailNotificationTests(TestCase):

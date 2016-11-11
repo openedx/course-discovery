@@ -7,13 +7,14 @@
 {% endblock title %}
 
 {% block content %}
-    {% with studio_count=studio_request_courses|length %}
+    {% with studio_count=studio_request_courses|length published_count=published_course_runs|length %}
     <div class="publisher-container">
         <h2 class="hd-2 emphasized">{% trans "Course runs" %}</h2>
         <ul role="tablist" class="tabs">
             <li role="tab" id="tab-progress" class="tab" aria-selected="true" aria-expanded="false" aria-controls="progress" tabindex="0"><span>0</span>{% trans "IN PROGRESS" %}</li>
             <li role="tab" id="tab-preview" class="tab" aria-selected="false" aria-expanded="false" aria-controls="preview" tabindex="-1"><span>0</span>{% trans "PREVIEW READY" %}</li>
-            <li role="tab" id="tab-studio" class="tab" aria-selected="false" aria-expanded="true" aria-controls="studio" tabindex="-1" data-studio-count="{{ studio_count }}"><span id="studio-count">{{ studio_count }}</span>{% trans "STUDIO REQUEST" %}</li>
+            <li role="tab" id="tab-studio" class="tab" aria-selected="false" aria-expanded="true" aria-controls="studio" tabindex="-1" data-studio-count="{{ studio_count }}"><span>{{ studio_count }}</span>{% trans "STUDIO REQUEST" %}</li>
+            <li role="tab" id="tab-published" class="tab" aria-selected="false" aria-expanded="false" aria-controls="published" tabindex="-1"><span>{{ published_count }}</span>{% trans "PUBLISHED COURSE RUNS" %}</li>
         </ul>
 
         <div role="tabpanel" id="progress" class="tab-panel" aria-labelledby="tab-progress" aria-hidden="false" tabindex="-1">
@@ -28,6 +29,9 @@
 
         <div role="tabpanel" id="studio" class="tab-panel" aria-labelledby="tab-studio" aria-hidden="false" tabindex="0">
             {% include "publisher/dashboard/studio_requests.html" %}
+        </div>
+        <div role="tabpanel" id="published" class="tab-panel" aria-labelledby="tab-published" aria-hidden="false" tabindex="0">
+            {% include "publisher/dashboard/published.html" %}
         </div>
     </div>
 
