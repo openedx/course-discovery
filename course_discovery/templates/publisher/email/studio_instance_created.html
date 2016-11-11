@@ -1,0 +1,12 @@
+{% extends "publisher/email/email_base.html" %}
+{% load i18n %}
+{% block body %}
+<!-- Message Body -->
+        <p>
+            {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' trimmed %}
+                Studio instance created for the following course run: {{ link_start }}{{ course_run_page_url }}{{ link_middle }}course run link{{ link_end }}.
+            {% endblocktrans %}
+        </p>
+        <p>{% trans "The edX team" %}</p>
+<!-- End Message Body -->
+{% endblock body %}

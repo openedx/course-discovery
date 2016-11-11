@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-11 10:35+0500\n"
+"POT-Creation-Date: 2016-11-07 12:54+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -520,6 +520,10 @@ msgstr ""
 "Çöürsé Rün {title}-{pacing_type}-{start} stäté häs ßéén çhängéd. Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
+#: apps/publisher/emails.py
+msgid "Studio instance created"
+msgstr "Stüdïö ïnstänçé çréätéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
 #: apps/publisher/forms.py
 msgid "Yes"
 msgstr "Ýés Ⱡ'σяєм#"
@@ -901,7 +905,7 @@ msgstr "Prïörïtý çöntént Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_salesforce.html
 #: templates/publisher/course_run_detail/_studio.html
-#: templates/publisher/dashboard/studio_requests.html
+#: templates/publisher/dashboard.html
 msgid "Start Date"
 msgstr "Stärt Däté Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
@@ -940,8 +944,7 @@ msgstr ""
 "Wïll ýöür çöürsé ßé öpén tö stüdénts ät thé sämé tïmé äs ït ïs ännöünçéd? "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
-#: templates/publisher/add_course_form.html
-#: templates/publisher/dashboard/studio_requests.html
+#: templates/publisher/add_course_form.html templates/publisher/dashboard.html
 msgid "Course Number"
 msgstr "Çöürsé Nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
@@ -1647,7 +1650,7 @@ msgid "No Seats Available."
 msgstr "Nö Séäts Àväïläßlé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
 #: templates/publisher/course_run_detail/_studio.html
-#: templates/publisher/dashboard/studio_requests.html
+#: templates/publisher/dashboard.html
 msgid "Course Name"
 msgstr "Çöürsé Nämé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
@@ -1738,34 +1741,24 @@ msgid "STUDIO REQUEST"
 msgstr "STÛDÌÖ RÉQÛÉST Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: templates/publisher/dashboard.html
-msgid "In Progress"
-msgstr "Ìn Prögréss Ⱡ'σяєм ιρѕυм ∂σłσя #"
-
-#: templates/publisher/dashboard/studio_requests.html
 msgid ""
-"The list below are the courses that need a studio instance to start "
+"The list below are the are course that need a studio instance to start "
 "development."
 msgstr ""
-"Thé lïst ßélöw äré thé çöürsés thät nééd ä stüdïö ïnstänçé tö stärt "
-"dévélöpmént. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+"Thé lïst ßélöw äré thé äré çöürsé thät nééd ä stüdïö ïnstänçé tö stärt "
+"dévélöpmént. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
-#: templates/publisher/dashboard/studio_requests.html
+#: templates/publisher/dashboard.html
 msgid "Institution"
 msgstr "Ìnstïtütïön Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
-#: templates/publisher/dashboard/studio_requests.html
-msgid "Studio Course Run Key"
-msgstr "Stüdïö Çöürsé Rün Kéý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+#: templates/publisher/dashboard.html
+msgid "Studio URL"
+msgstr "Stüdïö ÛRL Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: templates/publisher/dashboard/studio_requests.html
-msgid "Add"
-msgstr "Àdd Ⱡ'σяєм#"
-
-#: templates/publisher/dashboard/studio_requests.html
-msgid "There are no course-runs require studio instance."
-msgstr ""
-"Théré äré nö çöürsé-rüns réqüïré stüdïö ïnstänçé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
-"αмєт, ¢σηѕє¢тєтυя α#"
+#: templates/publisher/dashboard.html
+msgid "ADD"
+msgstr "ÀDD Ⱡ'σяєм#"
 
 #: templates/publisher/email/change_state.html
 #: templates/publisher/email/change_state.txt
@@ -1788,6 +1781,8 @@ msgstr "Vïéw Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 #: templates/publisher/email/change_state.txt
 #: templates/publisher/email/comment.html
 #: templates/publisher/email/comment.txt
+#: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
 msgid "The edX team"
 msgstr "Thé édX téäm Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
@@ -1812,6 +1807,26 @@ msgstr "Vïéw çömmént Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 #: templates/publisher/email/comment.txt
 msgid "View comment: "
 msgstr "Vïéw çömmént:  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#: templates/publisher/email/studio_instance_created.html
+#, python-format
+msgid ""
+"Studio instance created for the following course run: "
+"%(link_start)s%(course_run_page_url)s%(link_middle)scourse run "
+"link%(link_end)s."
+msgstr ""
+"Stüdïö ïnstänçé çréätéd för thé föllöwïng çöürsé rün: "
+"%(link_start)s%(course_run_page_url)s%(link_middle)sçöürsé rün "
+"lïnk%(link_end)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: templates/publisher/email/studio_instance_created.txt
+#, python-format
+msgid ""
+"Studio instance created for the following course run: "
+"%(course_run_page_url)s"
+msgstr ""
+"Stüdïö ïnstänçé çréätéd för thé föllöwïng çöürsé rün: "
+"%(course_run_page_url)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/seat_form.html
 msgid "Seat Form"

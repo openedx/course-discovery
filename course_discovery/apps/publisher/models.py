@@ -20,6 +20,8 @@ from course_discovery.apps.course_metadata.models import LevelType, Subject, Per
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.emails import send_email_for_change_state
+from course_discovery.apps.publisher.utils import is_email_notification_enabled
+
 
 logger = logging.getLogger(__name__)
 
@@ -167,10 +169,8 @@ class Course(TimeStampedModel, ChangedByMixin):
         then user will be eligible for emails.
         """
         users_list = get_users_with_perms(self)
-        emails = [
-            user.email for user in users_list
-            if not hasattr(user, 'attributes') or user.attributes.enable_email_notification
-        ]
+        emails = [user.email for user in users_list if is_email_notification_enabled(user)]
+
         return emails
 
     @property

@@ -1,0 +1,7 @@
+{% load i18n %}
+
+{% blocktrans trimmed %}
+    Studio instance created for the following course run: {{ course_run_page_url }}
+{% endblocktrans %}
+
+{% trans "The edX team" %}
