@@ -55,6 +55,7 @@ class CourseRunFactory(factory.DjangoModelFactory):
     pacing_type = FuzzyChoice([name for name, __ in CourseRunPacing.choices])
     length = FuzzyInteger(1, 10)
     notes = "Testing notes"
+    preview_url = FuzzyText(prefix='https://example.com/')
 
     class Meta:
         model = CourseRun

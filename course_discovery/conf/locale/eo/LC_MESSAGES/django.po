@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-15 13:47+0500\n"
+"POT-Creation-Date: 2016-11-17 23:20+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -905,7 +905,7 @@ msgstr "Prïörïtý çöntént Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_salesforce.html
 #: templates/publisher/course_run_detail/_studio.html
-#: templates/publisher/dashboard/studio_requests.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid "Start Date"
 msgstr "Stärt Däté Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
@@ -945,7 +945,7 @@ msgstr ""
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/dashboard/studio_requests.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid "Course Number"
 msgstr "Çöürsé Nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
@@ -1651,12 +1651,16 @@ msgid "No Seats Available."
 msgstr "Nö Séäts Àväïläßlé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
 #: templates/publisher/course_run_detail/_studio.html
-#: templates/publisher/dashboard/published.html
-#: templates/publisher/dashboard/studio_requests.html
+#: templates/publisher/dashboard/_preview_ready.html
+#: templates/publisher/dashboard/_published.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid "Course Name"
 msgstr "Çöürsé Nämé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard/_preview_ready.html
+#: templates/publisher/dashboard/_published.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid "Organization"
 msgstr "Örgänïzätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
@@ -1750,13 +1754,42 @@ msgstr "PÛBLÌSHÉD ÇÖÛRSÉ RÛNS Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт
 msgid "In Progress"
 msgstr "Ìn Prögréss Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
-#: templates/publisher/dashboard/published.html
+#: templates/publisher/dashboard/_preview_ready.html
+msgid "There are no course runs marked for preview."
+msgstr ""
+"Théré äré nö çöürsé rüns märkéd för prévïéw. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: templates/publisher/dashboard/_preview_ready.html
+msgid ""
+"The list below contains all course runs awaiting course team approval. Once "
+"approved, the marketing team will push the course run. you will be notified "
+"via email when the course runs are live on the production site."
+msgstr ""
+"Thé lïst ßélöw çöntäïns äll çöürsé rüns äwäïtïng çöürsé téäm äppröväl. Önçé "
+"äpprövéd, thé märkétïng téäm wïll püsh thé çöürsé rün. ýöü wïll ßé nötïfïéd "
+"vïä émäïl whén thé çöürsé rüns äré lïvé ön thé prödüçtïön sïté. Ⱡ'σяєм ιρѕυм"
+" ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
+"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
+"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя.#"
+
+#: templates/publisher/dashboard/_preview_ready.html
+msgid "Approved"
+msgstr "Àpprövéd Ⱡ'σяєм ιρѕυм ∂#"
+
+#: templates/publisher/dashboard/_preview_ready.html
+msgid "Preview URL"
+msgstr "Prévïéw ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: templates/publisher/dashboard/_published.html
 msgid "Looks like you haven't published any course yet"
 msgstr ""
 "Lööks lïké ýöü hävén't püßlïshéd äný çöürsé ýét Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
 " ¢σηѕє¢тєтυя α#"
 
-#: templates/publisher/dashboard/published.html
+#: templates/publisher/dashboard/_published.html
 #, python-format
 msgid ""
 "The list below contains all course runs published in the past "
@@ -1765,28 +1798,23 @@ msgstr ""
 "Thé lïst ßélöw çöntäïns äll çöürsé rüns püßlïshéd ïn thé päst "
 "%(default_published_days)s däýs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
-#: templates/publisher/dashboard/published.html
-#: templates/publisher/dashboard/studio_requests.html
-msgid "Institution"
-msgstr "Ìnstïtütïön Ⱡ'σяєм ιρѕυм ∂σłσя #"
-
-#: templates/publisher/dashboard/published.html
+#: templates/publisher/dashboard/_published.html
 msgid "Start"
 msgstr "Stärt Ⱡ'σяєм ιρѕ#"
 
-#: templates/publisher/dashboard/published.html
+#: templates/publisher/dashboard/_published.html
 msgid "End"
 msgstr "Énd Ⱡ'σяєм#"
 
-#: templates/publisher/dashboard/published.html
+#: templates/publisher/dashboard/_published.html
 msgid "Published Date"
 msgstr "Püßlïshéd Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
-#: templates/publisher/dashboard/published.html
+#: templates/publisher/dashboard/_published.html
 msgid "Target Content"
 msgstr "Tärgét Çöntént Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
-#: templates/publisher/dashboard/studio_requests.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid ""
 "The list below are the courses that need a studio instance to start "
 "development."
@@ -1794,15 +1822,15 @@ msgstr ""
 "Thé lïst ßélöw äré thé çöürsés thät nééd ä stüdïö ïnstänçé tö stärt "
 "dévélöpmént. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
-#: templates/publisher/dashboard/studio_requests.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid "Studio Course Run Key"
 msgstr "Stüdïö Çöürsé Rün Kéý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
-#: templates/publisher/dashboard/studio_requests.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid "Add"
 msgstr "Àdd Ⱡ'σяєм#"
 
-#: templates/publisher/dashboard/studio_requests.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid "There are no course-runs require studio instance."
 msgstr ""
 "Théré äré nö çöürsé-rüns réqüïré stüdïö ïnstänçé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "

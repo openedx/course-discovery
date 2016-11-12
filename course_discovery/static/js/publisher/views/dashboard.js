@@ -1,6 +1,6 @@
 
 $(document).ready(function() {
-    var data_table_studio = $('.data-table-studio').addClass('nowrap').DataTable({
+    var data_table_studio = $('.data-table-studio').DataTable({
         "autoWidth": false
     });
 
@@ -46,7 +46,11 @@ $(document).ready(function() {
         });
     });
 
-    $('.data-table-published').addClass('nowrap').DataTable({
+    $('.data-table-published').DataTable({
         "autoWidth": false
     });
+
+     $('.data-table-preview').DataTable({
+          "autoWidth": false
+     });
 });
