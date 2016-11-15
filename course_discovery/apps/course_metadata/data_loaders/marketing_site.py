@@ -430,7 +430,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         return level_type
 
     def get_video(self, data):
-        video_url = self._get_nested_url(data.get('field_product_video'))
+        video_url = self._get_nested_url(data.get('field_course_video') or data.get('field_product_video'))
         image_url = self._get_nested_url(data.get('field_course_image_featured_card'))
         return self.get_or_create_video(video_url, image_url)
 
@@ -469,6 +469,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'hidden': self.get_hidden(data),
             'weeks_to_complete': None,
             'mobile_available': data.get('field_course_enrollment_mobile') or False,
+            'video': course.video,
         }
 
         if weeks_to_complete:
