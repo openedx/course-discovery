@@ -29,7 +29,7 @@ def execute_loader(loader_class, *loader_args, **loader_kwargs):
         logger.exception('%s failed!', loader_class.__name__)
 
 
-def execute_parallel_loader(loader_class, *loader_args):
+def execute_parallel_loader(loader_class, *loader_args, **loader_kwargs):
     """
     ProcessPoolExecutor uses the multiprocessing module. Multiprocessing forks processes,
     causing connection objects to be copied across processes. The key goal when running
@@ -45,7 +45,7 @@ def execute_parallel_loader(loader_class, *loader_args):
     """
     connection.close()
 
-    execute_loader(loader_class, *loader_args)
+    execute_loader(loader_class, *loader_args, **loader_kwargs)
 
 
 class Command(BaseCommand):

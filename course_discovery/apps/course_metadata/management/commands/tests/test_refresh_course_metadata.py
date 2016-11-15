@@ -17,6 +17,7 @@ from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
     SponsorMarketingSiteDataLoader, PersonMarketingSiteDataLoader, CourseMarketingSiteDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
+from course_discovery.apps.course_metadata.management.commands.refresh_course_metadata import execute_parallel_loader
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 
@@ -29,7 +30,18 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
     def setUp(self):
         super(RefreshCourseMetadataCommandTests, self).setUp()
         self.partner = PartnerFactory()
-
+        partner = self.partner
+        self.pipeline = [(SubjectMarketingSiteDataLoader, partner.marketing_site_url_root, None),
+                         (SchoolMarketingSiteDataLoader, partner.marketing_site_url_root, None),
+                         (SponsorMarketingSiteDataLoader, partner.marketing_site_url_root, None),
+                         (PersonMarketingSiteDataLoader, partner.marketing_site_url_root, None),
+                         (CourseMarketingSiteDataLoader, partner.marketing_site_url_root, None),
+                         (OrganizationsApiDataLoader, partner.organizations_api_url, None),
+                         (CoursesApiDataLoader, partner.courses_api_url, None),
+                         (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),
+                         (ProgramsApiDataLoader, partner.programs_api_url, None),
+                         (XSeriesMarketingSiteDataLoader, partner.marketing_site_url_root, None)]
+        self.kwargs = {'username': 'bob'}
         self.mock_access_token_api()
 
     def mock_apis(self):
@@ -112,11 +124,24 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
         )
         return bodies
 
-    @ddt.data(True, False)
-    def test_refresh_course_metadata(self, is_parallel):
-        if is_parallel:
-            for name in ['threaded_metadata_write', 'parallel_refresh_pipeline']:
-                toggle_switch(name)
+    def test_refresh_course_metadata_serial(self):
+        with responses.RequestsMock() as rsps:
+            self.mock_access_token_api(rsps)
+            self.mock_apis()
+
+            with mock.patch('course_discovery.apps.course_metadata.management.commands.'
+                            'refresh_course_metadata.execute_loader') as mock_executor:
+                call_command('refresh_course_metadata')
+
+                # Set up expected calls
+                expected_calls = [mock.call(loader_class, self.partner, api_url,
+                                            ACCESS_TOKEN, 'JWT', max_workers_override or 7, False, **self.kwargs)
+                                  for loader_class, api_url, max_workers_override in self.pipeline]
+                mock_executor.assert_has_calls(expected_calls)
+
+    def test_refresh_course_metadata_parallel(self):
+        for name in ['threaded_metadata_write', 'parallel_refresh_pipeline']:
+            toggle_switch(name)
 
         with responses.RequestsMock() as rsps:
             self.mock_access_token_api(rsps)
@@ -126,8 +151,15 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
             # courses, the command won't risk race conditions between threads trying to
             # create the same course.
             CourseFactory(partner=self.partner)
+            with mock.patch('concurrent.futures.ProcessPoolExecutor.submit') as mock_executor:
+                call_command('refresh_course_metadata')
 
-            call_command('refresh_course_metadata')
+                # Set up expected calls
+                expected_calls = [mock.call(execute_parallel_loader, loader_class,
+                                            self.partner, api_url, ACCESS_TOKEN,
+                                            'JWT', max_workers_override or 7, True, **self.kwargs)
+                                  for loader_class, api_url, max_workers_override in self.pipeline]
+                mock_executor.assert_has_calls(expected_calls, any_order=True)
 
     def test_refresh_course_metadata_with_invalid_partner_code(self):
         """ Verify an error is raised if an invalid partner code is passed on the command line. """
