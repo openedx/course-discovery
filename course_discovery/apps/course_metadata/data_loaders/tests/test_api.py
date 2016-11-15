@@ -133,8 +133,9 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
     def api_url(self):
         return self.partner.courses_api_url
 
-    def mock_api(self):
-        bodies = mock_data.COURSES_API_BODIES
+    def mock_api(self, bodies=None):
+        if not bodies:
+            bodies = mock_data.COURSES_API_BODIES
         url = self.api_url + 'courses/'
         responses.add_callback(
             responses.GET,
@@ -185,6 +186,8 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         for field, value in expected_values.items():
             self.assertEqual(getattr(course_run, field), value, 'Field {} is invalid.'.format(field))
 
+        return course_run
+
     @responses.activate
     @ddt.data(True, False)
     def test_ingest(self, partner_has_marketing_site):
@@ -226,6 +229,39 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
                     self.partner.courses_api_url
                 )
                 mock_logger.exception.assert_called_with(msg)
+
+    @responses.activate
+    def test_ingest_canonical(self):
+        """ Verify the method ingests data from the Courses API. """
+        self.assertEqual(Course.objects.count(), 0)
+        self.assertEqual(CourseRun.objects.count(), 0)
+
+        self.mock_api([
+            mock_data.COURSES_API_BODY_ORIGINAL,
+            mock_data.COURSES_API_BODY_SECOND,
+            mock_data.COURSES_API_BODY_UPDATED,
+        ])
+        self.loader.ingest()
+
+        # Verify the CourseRun was created correctly by no errors raised
+        course_run_orig = CourseRun.objects.get(key=mock_data.COURSES_API_BODY_ORIGINAL['id'])
+
+        # Verify that a course has been created and set as canonical by no errors raised
+        course = course_run_orig.canonical_for_course
+
+        # Verify the CourseRun was created correctly by no errors raised
+        course_run_second = CourseRun.objects.get(key=mock_data.COURSES_API_BODY_SECOND['id'])
+
+        # Verify not set as canonical
+        with self.assertRaises(AttributeError):
+            course_run_second.canonical_for_course  # pylint: disable=pointless-statement
+
+        # Verify second course not used to update course
+        self.assertNotEqual(mock_data.COURSES_API_BODY_SECOND['name'], course.title)
+        # Verify udpated canonical course used to update course
+        self.assertEqual(mock_data.COURSES_API_BODY_UPDATED['name'], course.title)
+        # Verify the updated course run updated the original course run
+        self.assertEqual(mock_data.COURSES_API_BODY_UPDATED['hidden'], course_run_orig.hidden)
 
     def test_get_pacing_type_field_missing(self):
         """ Verify the method returns None if the API response does not include a pacing field. """
