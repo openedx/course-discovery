@@ -1,0 +1,12 @@
+# Packages required for local development
+-r test.txt
+-r docs.txt
+
+django-debug-toolbar==1.5
+django-elasticsearch-debug-toolbar==1.0.4
+# i18n
+transifex-client==0.12.2
+edx-i18n-tools==0.3.4
+
+# docker devstack
+#docker-compose>=1.8.1,<2.0.0
