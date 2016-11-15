@@ -4,6 +4,7 @@ import pytz
 from django.db import models
 from django.db.models.query_utils import Q
 
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 
 
@@ -45,13 +46,13 @@ class CourseRunQuerySet(models.QuerySet):
     def marketable(self):
         """ Returns CourseRuns that can be marketed to learners.
 
-         A CourseRun is considered marketable if it has a defined slug.
+         A CourseRun is considered marketable if it has a defined slug and has been published.
 
          Returns:
             QuerySet
          """
 
-        return self.exclude(slug__isnull=True).exclude(slug='')
+        return self.exclude(slug__isnull=True).exclude(slug='').filter(status=CourseRunStatus.Published)
 
 
 class ProgramQuerySet(models.QuerySet):
