@@ -17,6 +17,8 @@ class AutocompleteTests(TestCase):
         self.user = UserFactory(is_staff=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.courses = factories.CourseFactory.create_batch(3, title='Some random course title')
+        for course in self.courses:
+            factories.CourseRunFactory(course=course)
         self.organizations = factories.OrganizationFactory.create_batch(3)
 
     @ddt.data('dum', 'ing')
@@ -40,6 +42,34 @@ class AutocompleteTests(TestCase):
         """ Verify course autocomplete returns empty list for un-authorized users. """
         self._make_user_non_staff()
         response = self.client.get(reverse('admin_metadata:course-autocomplete'))
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(data['results'], [])
+
+    @ddt.data('ing', 'dum')
+    def test_course_run_autocomplete(self, search_key):
+        """ Verify course run autocomplete returns the data. """
+        response = self.client.get(reverse('admin_metadata:course-run-autocomplete'))
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(data['results']), 3)
+        # update the first course title
+        course = self.courses[0]
+        course.title = 'this is some thing new'
+        course.save()
+        course_run = self.courses[0].course_runs.first()
+        course_run.key = 'edx/dummy/testrun'
+        course_run.save()
+
+        response = self.client.get(
+            reverse('admin_metadata:course-run-autocomplete') + '?q={q}'.format(q=search_key)
+        )
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(data['results'][0]['text'], str(course_run))
+
+    def test_course_run_autocomplete_un_authorize_user(self):
+        """ Verify course run autocomplete returns empty list for un-authorized users. """
+        self._make_user_non_staff()
+        response = self.client.get(reverse('admin_metadata:course-run-autocomplete'))
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data['results'], [])
 
@@ -77,7 +107,7 @@ class AutocompleteTests(TestCase):
         response = self.client.get(reverse('admin_metadata:video-autocomplete'))
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(data['results']), 3)
+        self.assertEqual(len(data['results']), 6)
 
         self.courses[0].video.src = 'http://www.youtube.com/dummyurl'
         self.courses[0].video.description = 'testing description'

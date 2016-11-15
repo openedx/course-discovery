@@ -232,6 +232,9 @@ class Course(TimeStampedModel):
     """ Course model. """
     partner = models.ForeignKey(Partner)
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
+    canonical_course_run = models.OneToOneField(
+        'course_metadata.CourseRun', related_name='canonical_for_course', default=None, null=True, blank=True
+    )
     key = models.CharField(max_length=255)
     title = models.CharField(max_length=255, default=None, null=True, blank=True)
     short_description = models.CharField(max_length=255, default=None, null=True, blank=True)

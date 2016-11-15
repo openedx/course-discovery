@@ -4,7 +4,7 @@ from django.http import HttpResponseRedirect
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from course_discovery.apps.course_metadata.forms import ProgramAdminForm
+from course_discovery.apps.course_metadata.forms import ProgramAdminForm, CourseAdminForm
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 from course_discovery.apps.course_metadata.publishers import ProgramPublisherException
 
@@ -42,6 +42,7 @@ class CorporateEndorsementsInline(admin.TabularInline):
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
+    form = CourseAdminForm
     list_display = ('uuid', 'key', 'title',)
     list_filter = ('partner',)
     ordering = ('key', 'title',)
