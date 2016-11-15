@@ -8,7 +8,7 @@ from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
 
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def send_email_for_change_state(course_run):
@@ -48,4 +48,40 @@ def send_email_for_change_state(course_run):
         email_msg.attach_alternative(html_content, 'text/html')
         email_msg.send()
     except Exception:  # pylint: disable=broad-except
-        log.exception('Failed to send email notifications for change state of course-run %s', course_run.id)
+        logger.exception('Failed to send email notifications for change state of course-run %s', course_run.id)
+
+
+def send_email_for_studio_instance_created(course_run):
+    """ Send an email to course team on studio instance creation.
+
+        Arguments:
+            course_run (CourseRun): CourseRun object
+    """
+    try:
+        object_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
+        subject = _('Studio instance created')
+
+        to_addresses = course_run.course.get_group_users_emails()
+        from_address = settings.PUBLISHER_FROM_EMAIL
+
+        context = {
+            'course_run': course_run,
+            'course_run_page_url': 'https://{host}{path}'.format(
+                host=Site.objects.get_current().domain.strip('/'), path=object_path
+            )
+        }
+
+        txt_template_path = 'publisher/email/studio_instance_created.txt'
+        html_template_path = 'publisher/email/studio_instance_created.html'
+
+        txt_template = get_template(txt_template_path)
+        plain_content = txt_template.render(context)
+        html_template = get_template(html_template_path)
+        html_content = html_template.render(context)
+        email_msg = EmailMultiAlternatives(
+            subject, plain_content, from_address, to=[settings.PUBLISHER_FROM_EMAIL], bcc=to_addresses
+        )
+        email_msg.attach_alternative(html_content, 'text/html')
+        email_msg.send()
+    except Exception:  # pylint: disable=broad-except
+        logger.exception('Failed to send email notifications for course_run [%s]', course_run.id)

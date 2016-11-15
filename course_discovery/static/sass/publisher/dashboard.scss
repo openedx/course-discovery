@@ -1,6 +1,13 @@
 .publisher-container {
   font-family: "Open Sans", Arial, Helvetica, sans-serif;
 
+  .studio-instance-success {
+       display: none;
+       p.copy-meta {
+           @include padding(15px, 15px, 15px, 15px);
+       }
+   }
+
   .tabs {
     @include padding(0, 0, 0, 0);
     @include margin(0, 0, 0, 0);

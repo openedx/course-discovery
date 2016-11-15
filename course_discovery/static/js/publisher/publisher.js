@@ -18,9 +18,3 @@ $(document).ready(function(){
     })
 
 });
-
-function alertTimeout(wait) {
-    setTimeout(function(){
-        $('.alert-messages').html('');
-    }, wait);
-}
