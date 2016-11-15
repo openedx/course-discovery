@@ -45,4 +45,8 @@ $(document).ready(function() {
             }
         });
     });
+
+    $('.data-table-published').addClass('nowrap').DataTable({
+        "autoWidth": false
+    });
 });

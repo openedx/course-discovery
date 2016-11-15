@@ -2,6 +2,7 @@
 Course publisher views.
 """
 import json
+from datetime import datetime, timedelta
 
 from django.contrib import messages
 from django.contrib.auth.models import Group
@@ -33,6 +34,7 @@ SEATS_HIDDEN_FIELDS = ['price', 'currency', 'upgrade_deadline', 'credit_provider
 class Dashboard(mixins.LoginRequiredMixin, ListView):
     """ Create Course View."""
     template_name = 'publisher/dashboard.html'
+    default_published_days = 30
 
     def get_queryset(self):
         if self.request.user.is_staff:
@@ -46,15 +48,17 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(Dashboard, self).get_context_data(**kwargs)
         course_runs = context.get('object_list')
-        published_courseruns = course_runs.filter(
-            state__name=State.PUBLISHED
+        published_course_runs = course_runs.filter(
+            state__name=State.PUBLISHED,
+            state__modified__gt=datetime.today() - timedelta(days=self.default_published_days)
         ).select_related('state').all().order_by('-state__modified')
-        unpublished_courseruns = course_runs.exclude(state__name=State.PUBLISHED)
-        studio_request_courses = unpublished_courseruns.filter(lms_course_id__isnull=True)
+        unpublished_course_runs = course_runs.exclude(state__name=State.PUBLISHED)
+        studio_request_courses = unpublished_course_runs.filter(lms_course_id__isnull=True)
 
         context['studio_request_courses'] = [CourseRunWrapper(course_run) for course_run in studio_request_courses]
-        context['unpublished_courseruns'] = [CourseRunWrapper(course_run) for course_run in unpublished_courseruns]
-        context['published_courseruns'] = [CourseRunWrapper(course_run) for course_run in published_courseruns]
+        context['unpublished_course_runs'] = [CourseRunWrapper(course_run) for course_run in unpublished_course_runs]
+        context['published_course_runs'] = [CourseRunWrapper(course_run) for course_run in published_course_runs]
+        context['default_published_days'] = self.default_published_days
 
         return context
 

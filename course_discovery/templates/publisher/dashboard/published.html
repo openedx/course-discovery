@@ -1,0 +1,59 @@
+{% load i18n %}
+{% if published_count == 0 %}
+    <p>{% trans "Looks like you haven't published any course yet" %}</p>
+{% else %}
+    <p>
+        {% blocktrans trimmed %}
+            The list below contains all course runs published in the past {{ default_published_days }} days.
+        {% endblocktrans %}
+    </p>
+    <table class="data-table-published display" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th role="button">
+                    {% trans "Course Name" %}
+                </th>
+                <th role="button">
+                    {% trans "Institution" %}
+                </th>
+                <th role="button">
+                    {% trans "Start" %}
+                </th>
+                <th role="button">
+                    {% trans "End" %}
+                </th>
+                <th role="button">
+                    {% trans "Published Date" %}
+                </th>
+                <th role="button">
+                    {% trans "Target Content" %}
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for course_run in published_course_runs %}
+                <tr>
+                    <td>
+                        <a href="{% url 'publisher:publisher_course_run_detail' course_run.id %}">{{ course_run.title }}</a>
+                    </td>
+                    <td>{% if course_run.course.group_institution %}
+                            {{ course_run.course.group_institution }}
+                        {% endif %}
+                    </td>
+                    <td>
+                         {{ course_run.start|date:"Y-m-d" }}
+                    </td>
+                    <td>
+                        {{ course_run.end|date:"Y-m-d" }}
+                    </td>
+                    <td>
+                        {{ course_run.state.modified|date:"Y-m-d" }}
+                    </td>
+                    <td>
+                        {% if course_run.target_content %}Y{% else %}N{% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
