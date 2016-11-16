@@ -1,7 +1,7 @@
 from django.db.models import Q
 
 from dal import autocomplete
-from .models import Course, Organization, Video
+from .models import Course, CourseRun, Organization, Video
 
 
 class CourseAutocomplete(autocomplete.Select2QuerySetView):
@@ -10,6 +10,18 @@ class CourseAutocomplete(autocomplete.Select2QuerySetView):
             qs = Course.objects.all()
             if self.q:
                 qs = qs.filter(Q(key__icontains=self.q) | Q(title__icontains=self.q))
+
+            return qs
+
+        return []
+
+
+class CourseRunAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        if self.request.user.is_authenticated() and self.request.user.is_staff:
+            qs = CourseRun.objects.all().select_related('course')
+            if self.q:
+                qs = qs.filter(Q(key__icontains=self.q) | Q(course__title__icontains=self.q))
 
             return qs
 

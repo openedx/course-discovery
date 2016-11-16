@@ -325,9 +325,7 @@ class PersonMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
 @ddt.ddt
 class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
     loader_class = CourseMarketingSiteDataLoader
-    mocked_data = mock_data.MARKETING_SITE_API_COURSE_BODIES
-    mocked_data.append(mock_data.MARKETING_SITE_API_UNPUBLISHED_COPY_COURSE_BODY)
-    mocked_data.append(mock_data.MARKETING_SITE_API_PUBLISHED_COPY_COURSE_BODY)
+    mocked_data = mock_data.UNIQUE_MARKETING_SITE_API_COURSE_BODIES
 
     def _get_uuids(self, items):
         return [item['uuid'] for item in items]
@@ -513,6 +511,8 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         expected_transcript_languages = self.loader.get_language_tags_from_names(language_names)
         self.assertEqual(list(course_run.transcript_languages.all()), list(expected_transcript_languages))
 
+        return course_run
+
     def _get_course(self, data):
         course_run_key = CourseKey.from_string(data['field_course_id'])
         return Course.objects.get(key=self.loader.get_course_key_from_course_run_key(course_run_key),
@@ -522,20 +522,33 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
     def test_ingest(self):
         self.mock_login_response()
         data = self.mock_api()
-        published_course_run_key = mock_data.MARKETING_SITE_API_PUBLISHED_COPY_COURSE_BODY['field_course_id']
 
         self.loader.ingest()
 
         for datum in data:
             self.assert_course_run_loaded(datum)
+            self.assert_course_loaded(datum)
 
-            if datum['field_course_code'] == mock_data.MULTI_COURSE_RUN_COURSE_NUMBER:
-                # For the original course and the unpublished course ensure course fields are not present.
-                if datum['field_course_id'] != published_course_run_key:
-                    self.assert_no_override_unpublished_course_fields(datum)
-                # For the latest published course ensure course fields match the latest saved course.
-                else:
-                    self.assert_course_loaded(datum)
+    @responses.activate
+    def test_canonical(self):
+        self.mocked_data = [
+            mock_data.ORIGINAL_MARKETING_SITE_API_COURSE_BODY,
+            mock_data.NEW_RUN_MARKETING_SITE_API_COURSE_BODY,
+            mock_data.UPDATED_MARKETING_SITE_API_COURSE_BODY,
+        ]
+        self.mock_login_response()
+        self.mock_api()
 
-            else:
-                self.assert_course_loaded(datum)
+        self.loader.ingest()
+
+        course_run = self.assert_course_run_loaded(mock_data.UPDATED_MARKETING_SITE_API_COURSE_BODY)
+        self.assert_course_loaded(mock_data.UPDATED_MARKETING_SITE_API_COURSE_BODY)
+        self.assertTrue(course_run.canonical_for_course)
+
+        course_run = self.assert_course_run_loaded(mock_data.NEW_RUN_MARKETING_SITE_API_COURSE_BODY)
+        course = course_run.course
+
+        new_run_title = mock_data.NEW_RUN_MARKETING_SITE_API_COURSE_BODY['field_course_course_title']['value']
+        self.assertNotEqual(course.title, new_run_title)
+        with self.assertRaises(AttributeError):
+            course_run.canonical_for_course  # pylint: disable=pointless-statement

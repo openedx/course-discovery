@@ -377,11 +377,118 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         return kwargs
 
     def process_node(self, data):
+        course_run = self.get_course_run(data)
+
+        if course_run:
+            self.update_course_run(course_run, data)
+            try:
+                course = self.update_course(course_run.canonical_for_course, data)
+                self.set_subjects(course, data)
+                self.set_authoring_organizations(course, data)
+                logger.info('Processed course with key [%s].', course.key)
+            except AttributeError:
+                pass
+        else:
+            course, created = self.get_or_create_course(data)
+            course_run = self.create_course_run(course, data)
+            if created:
+                course.canonical_course_run = course_run
+                course.save()
+
+    def get_course_run(self, data):
+        course_run_key = data['field_course_id']
+        try:
+            return CourseRun.objects.get(key__iexact=course_run_key)
+        except CourseRun.DoesNotExist:
+            return None
+
+    def update_course_run(self, course_run, data):
+        validated_data = self.format_course_run_data(data, course_run.course)
+        self._update_instance(course_run, validated_data)
+        self.set_course_run_staff(course_run, data)
+        self.set_course_run_transcript_languages(course_run, data)
+
+        logger.info('Processed course run with UUID [%s].', course_run.uuid)
+
+    def create_course_run(self, course, data):
+        defaults = self.format_course_run_data(data, course)
+
+        course_run = CourseRun.objects.create(**defaults)
+        self.set_course_run_staff(course_run, data)
+        self.set_course_run_transcript_languages(course_run, data)
+
+        return course_run
+
+    def get_or_create_course(self, data):
         course_run_key = CourseKey.from_string(data['field_course_id'])
         key = self.get_course_key_from_course_run_key(course_run_key)
+        defaults = self.format_course_data(data, key=key)
 
-        # Clean the title for the course and course run
-        data['field_course_course_title']['value'] = self.clean_html(data['field_course_course_title']['value'])
+        course, created = Course.objects.get_or_create(key__iexact=key, partner=self.partner, defaults=defaults)
+
+        if created:
+            self.set_subjects(course, data)
+            self.set_authoring_organizations(course, data)
+
+        return (course, created)
+
+    def update_course(self, course, data):
+        validated_data = self.format_course_data(data)
+        self._update_instance(course, validated_data)
+
+        if self.get_course_run_status(data) != CourseRunStatus.Published:
+            logger.warning(
+                'Updating course [%s] with data from unpublished course_run [%s].', course.uuid, data['field_course_id']
+            )
+
+        return course
+
+    def _update_instance(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+    def format_course_run_data(self, data, course):
+        uuid = data['uuid']
+        key = data['field_course_id']
+        slug = data['url'].split('/')[-1]
+        language_tags = self._extract_language_tags(data['field_course_languages'])
+        language = language_tags[0] if language_tags else None
+        start = data.get('field_course_start_date')
+        start = datetime.datetime.fromtimestamp(int(start), tz=pytz.UTC) if start else None
+        end = data.get('field_course_end_date')
+        end = datetime.datetime.fromtimestamp(int(end), tz=pytz.UTC) if end else None
+        weeks_to_complete = data.get('field_course_required_weeks')
+
+        defaults = {
+            'key': key,
+            'uuid': uuid,
+            'title_override': self.clean_html(data['field_course_course_title']['value']),
+            'language': language,
+            'slug': slug,
+            'card_image_url': self._get_nested_url(data.get('field_course_image_promoted')),
+            'status': self.get_course_run_status(data),
+            'start': start,
+            'pacing_type': self.get_pacing_type(data),
+            'hidden': self.get_hidden(data),
+            'weeks_to_complete': None,
+            'mobile_available': data.get('field_course_enrollment_mobile') or False,
+            'video': course.video,
+            'course': course,
+        }
+
+        if weeks_to_complete:
+            defaults['weeks_to_complete'] = int(weeks_to_complete)
+        elif start and end:
+            weeks_to_complete = rrule.rrule(rrule.WEEKLY, dtstart=start, until=end).count()
+            defaults['weeks_to_complete'] = int(weeks_to_complete)
+
+        return defaults
+
+    def format_course_data(self, data, key=None):
+        if not key:
+            course_run_key = CourseKey.from_string(data['field_course_id'])
+            key = self.get_course_key_from_course_run_key(course_run_key)
 
         defaults = {
             'key': key,
@@ -393,23 +500,8 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'level_type': self.get_level_type(data['field_course_level']),
             'card_image_url': self._get_nested_url(data.get('field_course_image_promoted')),
         }
-        course, created = Course.objects.get_or_create(key__iexact=key, partner=self.partner, defaults=defaults)
 
-        # If the course already exists update the fields only if the course_run we got from drupal is published.
-        # People often put temp data into required drupal fields for unpublished courses. We don't want to  overwrite
-        # the course info with this data, so we only update course info from published sources.
-        published = self.get_course_run_status(data) == CourseRunStatus.Published
-        if not created and published:
-            for attr, value in defaults.items():
-                setattr(course, attr, value)
-            course.save()
-
-        self.set_subjects(course, data)
-        self.set_authoring_organizations(course, data)
-        self.create_course_run(course, data)
-
-        logger.info('Processed course with key [%s].', key)
-        return course
+        return defaults
 
     def get_description(self, data):
         description = (data.get('field_course_body', {}) or {}).get('value')
@@ -442,54 +534,6 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         # 'couse' [sic]. The field is misspelled on Drupal. ಠ_ಠ
         hidden = data.get('field_couse_is_hidden', False)
         return hidden is True
-
-    def create_course_run(self, course, data):
-        uuid = data['uuid']
-        key = data['field_course_id']
-        slug = data['url'].split('/')[-1]
-        language_tags = self._extract_language_tags(data['field_course_languages'])
-        language = language_tags[0] if language_tags else None
-        start = data.get('field_course_start_date')
-        start = datetime.datetime.fromtimestamp(int(start), tz=pytz.UTC) if start else None
-        end = data.get('field_course_end_date')
-        end = datetime.datetime.fromtimestamp(int(end), tz=pytz.UTC) if end else None
-        weeks_to_complete = data.get('field_course_required_weeks')
-
-        defaults = {
-            'key': key,
-            'course': course,
-            'uuid': uuid,
-            'title_override': self.clean_html(data['field_course_course_title']['value']),
-            'language': language,
-            'slug': slug,
-            'card_image_url': self._get_nested_url(data.get('field_course_image_promoted')),
-            'status': self.get_course_run_status(data),
-            'start': start,
-            'pacing_type': self.get_pacing_type(data),
-            'hidden': self.get_hidden(data),
-            'weeks_to_complete': None,
-            'mobile_available': data.get('field_course_enrollment_mobile') or False,
-            'video': course.video,
-        }
-
-        if weeks_to_complete:
-            defaults['weeks_to_complete'] = int(weeks_to_complete)
-        elif start and end:
-            weeks_to_complete = rrule.rrule(rrule.WEEKLY, dtstart=start, until=end).count()
-            defaults['weeks_to_complete'] = int(weeks_to_complete)
-
-        try:
-            course_run, __ = CourseRun.objects.update_or_create(key__iexact=key, defaults=defaults)
-        except TypeError:
-            # TODO Fix the data in Drupal (ECOM-5304)
-            logger.error('Multiple course runs are identified by the key [%s] or UUID [%s].', key, uuid)
-            return None
-
-        self.set_course_run_staff(course_run, data)
-        self.set_course_run_transcript_languages(course_run, data)
-
-        logger.info('Processed course run with UUID [%s].', uuid)
-        return course_run
 
     def _get_objects_by_uuid(self, object_type, raw_objects_data):
         uuids = [_object.get('uuid') for _object in raw_objects_data]
