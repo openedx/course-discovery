@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-18 17:35+0000\n"
+"POT-Creation-Date: 2016-11-23 14:30+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,6 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
+#, python-brace-format
 msgid "No user with the username [{username}] exists."
 msgstr ""
 "Nö üsér wïth thé üsérnämé [{username}] éxïsts. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
@@ -138,6 +139,7 @@ msgstr ""
 #. Translators: 'period_choices' is a list of possible values, like ('second',
 #. 'minute', 'hour')
 #: apps/core/forms.py
+#, python-brace-format
 msgid "period must be one of {period_choices}."
 msgstr ""
 "pérïöd müst ßé öné öf {period_choices}. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
@@ -512,6 +514,7 @@ msgstr ""
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/emails.py
+#, python-brace-format
 msgid "Course Run {title}-{pacing_type}-{start} state has been changed."
 msgstr ""
 "Çöürsé Rün {title}-{pacing_type}-{start} stäté häs ßéén çhängéd. Ⱡ'σяєм "
@@ -685,12 +688,14 @@ msgid "Please fill all required field."
 msgstr "Pléäsé fïll äll réqüïréd fïéld. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: apps/publisher/views.py
+#, python-brace-format
 msgid "Course run created successfully for course \"{course_title}\"."
 msgstr ""
 "Çöürsé rün çréätéd süççéssfüllý för çöürsé \"{course_title}\". Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/views.py
+#, python-brace-format
 msgid "There was an error saving course run, {error}"
 msgstr ""
 "Théré wäs än érrör sävïng çöürsé rün, {error} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
@@ -702,6 +707,7 @@ msgstr ""
 "Pléäsé fïll äll réqüïréd fïélds. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
 #: apps/publisher/views.py
+#, python-brace-format
 msgid "Content moved to `{state}` successfully."
 msgstr ""
 "Çöntént mövéd tö `{state}` süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
@@ -730,12 +736,14 @@ msgid "Publish"
 msgstr "Püßlïsh Ⱡ'σяєм ιρѕυм #"
 
 #: apps/publisher_comments/emails.py
+#, python-brace-format
 msgid "New comment added in course run: {title}-{pacing_type}-{start}"
 msgstr ""
 "Néw çömmént äddéd ïn çöürsé rün: {title}-{pacing_type}-{start} Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: apps/publisher_comments/emails.py
+#, python-brace-format
 msgid "New comment added in Course: {title}"
 msgstr ""
 "Néw çömmént äddéd ïn Çöürsé: {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
@@ -1811,6 +1819,7 @@ msgid "No Seats Available."
 msgstr "Nö Séäts Àväïläßlé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
 #: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_preview_ready.html
 #: templates/publisher/dashboard/_published.html
 #: templates/publisher/dashboard/_studio_requests.html
@@ -1910,9 +1919,34 @@ msgstr "STÛDÌÖ RÉQÛÉST Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 msgid "PUBLISHED COURSE RUNS"
 msgstr "PÛBLÌSHÉD ÇÖÛRSÉ RÛNS Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
-#: templates/publisher/dashboard.html
-msgid "In Progress"
-msgstr "Ìn Prögréss Ⱡ'σяєм ιρѕυм ∂σłσя #"
+#: templates/publisher/dashboard/_in_progress.html
+msgid "There are no in progress course runs."
+msgstr ""
+"Théré äré nö ïn prögréss çöürsé rüns. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
+
+#: templates/publisher/dashboard/_in_progress.html
+msgid "Institution"
+msgstr "Ìnstïtütïön Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: templates/publisher/dashboard/_in_progress.html
+#: templates/publisher/dashboard/_published.html
+msgid "Start"
+msgstr "Stärt Ⱡ'σяєм ιρѕ#"
+
+#: templates/publisher/dashboard/_in_progress.html
+#: templates/publisher/dashboard/_published.html
+msgid "End"
+msgstr "Énd Ⱡ'σяєм#"
+
+#: templates/publisher/dashboard/_in_progress.html
+#: templates/publisher/dashboard/_published.html
+msgid "Target Content"
+msgstr "Tärgét Çöntént Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#: templates/publisher/dashboard/_in_progress.html
+msgid "SEO Review"
+msgstr "SÉÖ Révïéw Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: templates/publisher/dashboard/_preview_ready.html
 msgid "There are no course runs marked for preview."
@@ -1959,20 +1993,8 @@ msgstr ""
 "%(default_published_days)s däýs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
 #: templates/publisher/dashboard/_published.html
-msgid "Start"
-msgstr "Stärt Ⱡ'σяєм ιρѕ#"
-
-#: templates/publisher/dashboard/_published.html
-msgid "End"
-msgstr "Énd Ⱡ'σяєм#"
-
-#: templates/publisher/dashboard/_published.html
 msgid "Published Date"
 msgstr "Püßlïshéd Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
-
-#: templates/publisher/dashboard/_published.html
-msgid "Target Content"
-msgstr "Tärgét Çöntént Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: templates/publisher/dashboard/_studio_requests.html
 msgid ""

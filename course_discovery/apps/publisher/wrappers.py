@@ -186,3 +186,7 @@ class CourseRunWrapper(BaseWrapper):
     @property
     def keywords(self):
         return self.wrapped_obj.course.keywords_data
+
+    @property
+    def is_seo_review(self):
+        return self.wrapped_obj.course.is_seo_review

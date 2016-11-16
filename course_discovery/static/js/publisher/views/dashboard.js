@@ -53,4 +53,9 @@ $(document).ready(function() {
      $('.data-table-preview').DataTable({
           "autoWidth": false
      });
+
+    $('.data-table-in-progress').DataTable({
+        "autoWidth": false
+    });
+
 });
