@@ -40,3 +40,4 @@ pillow==3.3.0
 pycountry==1.20
 python-dateutil==2.5.3
 pytz==2016.6.1
+requests==2.9.1
