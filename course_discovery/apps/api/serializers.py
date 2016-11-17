@@ -331,11 +331,15 @@ class MinimalCourseRunSerializer(TimestampModelSerializer):
 
     @classmethod
     def prefetch_queryset(cls):
-        return CourseRun.objects.all().select_related('course').prefetch_related('course__partner')
+        return CourseRun.objects.all().select_related('course').prefetch_related(
+            'course__partner',
+            Prefetch('seats', queryset=SeatSerializer.prefetch_queryset()),
+        )
 
     class Meta:
         model = CourseRun
-        fields = ('key', 'uuid', 'title', 'image', 'short_description', 'marketing_url',)
+        fields = ('key', 'uuid', 'title', 'image', 'short_description', 'marketing_url',
+                  'start', 'end', 'enrollment_start', 'enrollment_end', 'pacing_type', 'type',)
 
     def get_marketing_url(self, obj):
         return get_marketing_url_for_user(
@@ -364,15 +368,14 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         queryset = super().prefetch_queryset()
         return queryset.select_related('language', 'video').prefetch_related(
             'transcript_languages',
-            Prefetch('seats', queryset=SeatSerializer.prefetch_queryset()),
             Prefetch('staff', queryset=PersonSerializer.prefetch_queryset()),
         )
 
     class Meta(MinimalCourseRunSerializer.Meta):
         fields = MinimalCourseRunSerializer.Meta.fields + (
-            'course', 'full_description', 'start', 'end', 'enrollment_start', 'enrollment_end', 'announcement',
-            'video', 'seats', 'content_language', 'transcript_languages', 'instructors', 'staff', 'pacing_type',
-            'min_effort', 'max_effort', 'modified', 'level_type', 'availability', 'mobile_available', 'hidden',
+            'course', 'full_description', 'announcement', 'video', 'seats', 'content_language',
+            'transcript_languages', 'instructors', 'staff', 'min_effort', 'max_effort', 'modified',
+            'level_type', 'availability', 'mobile_available', 'hidden',
         )
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
