@@ -66,7 +66,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
     def test_retrieve(self):
         """ Verify the endpoint returns the details for a single program. """
         program = self.create_program()
-        with self.assertNumQueries(75):
+        with self.assertNumQueries(76):
             self.assert_retrieve_success(program)
 
     @ddt.data(True, False)
@@ -76,7 +76,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         for course in course_list:
             CourseRunFactory(course=course)
         program = ProgramFactory(courses=course_list, order_courses_by_start_date=order_courses_by_start_date)
-        with self.assertNumQueries(87):
+        with self.assertNumQueries(90):
             self.assert_retrieve_success(program)
         self.assertEqual(course_list, list(program.courses.all()))  # pylint: disable=no-member
 
@@ -113,7 +113,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of all programs. """
         expected = [self.create_program() for __ in range(3)]
         expected.reverse()
-        self.assert_list_results(self.list_path, expected, 11)
+        self.assert_list_results(self.list_path, expected, 13)
 
     def test_filter_by_type(self):
         """ Verify that the endpoint filters programs to those of a given type. """
@@ -157,7 +157,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns marketing URLs without UTM parameters. """
         url = self.list_path + '?exclude_utm=1'
         program = self.create_program()
-        self.assert_list_results(url, [program], 11, extra_context={'exclude_utm': 1})
+        self.assert_list_results(url, [program], 13, extra_context={'exclude_utm': 1})
 
     def test_minimal_serializer_use(self):
         """ Verify that the list view uses the minimal serializer. """

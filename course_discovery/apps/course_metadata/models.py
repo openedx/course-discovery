@@ -442,7 +442,7 @@ class CourseRun(TimeStampedModel):
 
     @property
     def seat_types(self):
-        return list(self.seats.values_list('type', flat=True))
+        return [seat.type for seat in self.seats.all()]
 
     @property
     def type(self):

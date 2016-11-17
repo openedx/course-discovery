@@ -216,6 +216,12 @@ class MinimalCourseRunSerializerTests(TestCase):
                     'utm_medium': request.user.referral_tracking_id,
                 })
             ),
+            'start': json_date_format(course_run.start),
+            'end': json_date_format(course_run.end),
+            'enrollment_start': json_date_format(course_run.enrollment_start),
+            'enrollment_end': json_date_format(course_run.enrollment_end),
+            'pacing_type': course_run.pacing_type,
+            'type': course_run.type,
         }
 
     def test_data(self):
@@ -236,13 +242,8 @@ class CourseRunSerializerTests(MinimalCourseRunSerializerTests):
             'key': course_run.key,
             'title': course_run.title,  # pylint: disable=no-member
             'full_description': course_run.full_description,  # pylint: disable=no-member
-            'start': json_date_format(course_run.start),
-            'end': json_date_format(course_run.end),
-            'enrollment_start': json_date_format(course_run.enrollment_start),
-            'enrollment_end': json_date_format(course_run.enrollment_end),
             'announcement': json_date_format(course_run.announcement),
             'video': VideoSerializer(course_run.video).data,
-            'pacing_type': course_run.pacing_type,
             'mobile_available': course_run.mobile_available,
             'hidden': course_run.hidden,
             'content_language': course_run.language.code,
