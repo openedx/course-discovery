@@ -1,5 +1,5 @@
 boto==2.42.0
-cryptography==1.4
+cryptography==1.5.3
 django==1.9.11
 django-autocomplete-light==3.1.8
 django-choices==1.4.3
@@ -36,7 +36,7 @@ elasticsearch>=1.0.0,<2.0.0
 html2text==2016.9.19
 jsonfield==1.0.3
 markdown==2.6.6
-pillow==3.3.0
+pillow==3.4.2
 pycountry==1.20
 python-dateutil==2.5.3
 pytz==2016.6.1
