@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-15 13:47+0500\n"
+"POT-Creation-Date: 2016-11-17 23:20+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -763,7 +763,7 @@ msgstr ""
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_salesforce.html
 #: templates/publisher/course_run_detail/_studio.html
-#: templates/publisher/dashboard/studio_requests.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid "Start Date"
 msgstr ""
 
@@ -791,7 +791,7 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/dashboard/studio_requests.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid "Course Number"
 msgstr ""
 
@@ -1407,12 +1407,16 @@ msgid "No Seats Available."
 msgstr ""
 
 #: templates/publisher/course_run_detail/_studio.html
-#: templates/publisher/dashboard/published.html
-#: templates/publisher/dashboard/studio_requests.html
+#: templates/publisher/dashboard/_preview_ready.html
+#: templates/publisher/dashboard/_published.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid "Course Name"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard/_preview_ready.html
+#: templates/publisher/dashboard/_published.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid "Organization"
 msgstr ""
 
@@ -1499,53 +1503,67 @@ msgstr ""
 msgid "In Progress"
 msgstr ""
 
-#: templates/publisher/dashboard/published.html
+#: templates/publisher/dashboard/_preview_ready.html
+msgid "There are no course runs marked for preview."
+msgstr ""
+
+#: templates/publisher/dashboard/_preview_ready.html
+msgid ""
+"The list below contains all course runs awaiting course team approval. Once "
+"approved, the marketing team will push the course run. you will be notified "
+"via email when the course runs are live on the production site."
+msgstr ""
+
+#: templates/publisher/dashboard/_preview_ready.html
+msgid "Approved"
+msgstr ""
+
+#: templates/publisher/dashboard/_preview_ready.html
+msgid "Preview URL"
+msgstr ""
+
+#: templates/publisher/dashboard/_published.html
 msgid "Looks like you haven't published any course yet"
 msgstr ""
 
-#: templates/publisher/dashboard/published.html
+#: templates/publisher/dashboard/_published.html
 #, python-format
 msgid ""
 "The list below contains all course runs published in the past "
 "%(default_published_days)s days."
 msgstr ""
 
-#: templates/publisher/dashboard/published.html
-#: templates/publisher/dashboard/studio_requests.html
-msgid "Institution"
-msgstr ""
-
-#: templates/publisher/dashboard/published.html
+#: templates/publisher/dashboard/_published.html
 msgid "Start"
 msgstr ""
 
-#: templates/publisher/dashboard/published.html
+#: templates/publisher/dashboard/_published.html
 msgid "End"
 msgstr ""
 
-#: templates/publisher/dashboard/published.html
+#: templates/publisher/dashboard/_published.html
 msgid "Published Date"
 msgstr ""
 
-#: templates/publisher/dashboard/published.html
+#: templates/publisher/dashboard/_published.html
 msgid "Target Content"
 msgstr ""
 
-#: templates/publisher/dashboard/studio_requests.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid ""
 "The list below are the courses that need a studio instance to start "
 "development."
 msgstr ""
 
-#: templates/publisher/dashboard/studio_requests.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid "Studio Course Run Key"
 msgstr ""
 
-#: templates/publisher/dashboard/studio_requests.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid "Add"
 msgstr ""
 
-#: templates/publisher/dashboard/studio_requests.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid "There are no course-runs require studio instance."
 msgstr ""
 

@@ -256,6 +256,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         )
     )
     video_language = models.ForeignKey(LanguageTag, null=True, blank=True, related_name='video_language')
+    preview_url = models.URLField(null=True, blank=True)
 
     history = HistoricalRecords()
 

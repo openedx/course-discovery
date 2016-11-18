@@ -60,6 +60,12 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
         context['published_course_runs'] = [CourseRunWrapper(course_run) for course_run in published_course_runs]
         context['default_published_days'] = self.default_published_days
 
+        preview_course_runs = course_runs.filter(
+            state__name=State.NEEDS_FINAL_APPROVAL, preview_url__isnull=False
+        ).select_related('state').order_by('-state__modified')
+
+        context['preview_course_runs'] = [CourseRunWrapper(course_run) for course_run in preview_course_runs]
+
         return context
 
 

@@ -921,6 +921,7 @@ class DashboardTests(TestCase):
 
         # group-b course
         self._create_course_assign_permissions(State.DRAFT, self.group_b)
+        self.table_class = "data-table-{id} display nowrap"
 
     def _create_course_assign_permissions(self, state, group):
         """ DRY method to create course and assign the permissions"""
@@ -943,56 +944,31 @@ class DashboardTests(TestCase):
             target_status_code=302
         )
 
-    def test_page_with_login(self):
-        """ Verify that user can access course runs list page when logged in. """
-        response = self.client.get(self.page_url)
-        self.assertEqual(response.status_code, 200)
-
     def test_page_with_different_group_user(self):
         """ Verify that user from one group can access only that group courses. """
         self.client.logout()
         self.client.login(username=self.user2.username, password=USER_PASSWORD)
-        self.assert_dashboard_response(1, 0, 1)
+        self.assert_dashboard_response()
 
     def test_page_with_staff_user(self):
         """ Verify that staff user can see all tabs with all course runs from all groups. """
         self.client.logout()
         staff_user = UserFactory(is_staff=True)
         self.client.login(username=staff_user.username, password=USER_PASSWORD)
-        self.assert_dashboard_response(3, 1, 3)
+        self.assert_dashboard_response()
 
     def test_different_course_runs_counts(self):
         """ Verify that user can access published, un-published and
         studio requests course runs. """
-        self.assert_dashboard_response(2, 1, 2)
+        self.assert_dashboard_response()
 
     def test_studio_request_course_runs(self):
         """ Verify that page loads the list course runs which need studio request. """
         self.course_run_1.lms_course_id = 'test'
         self.course_run_1.save()
-        self.assert_dashboard_response(2, 1, 1)
-        self.course_run_2.lms_course_id = 'test-2'
-        self.course_run_2.save()
-        self.assert_dashboard_response(2, 1, 0)
-
-    def assert_dashboard_response(self, unpublished_count, published_count, studio_requests):
-        response = self.client.get(self.page_url)
-        self.assertEqual(response.status_code, 200)
-
-        self.assertEqual(len(response.context['unpublished_course_runs']), unpublished_count)
-        self.assertEqual(len(response.context['published_course_runs']), published_count)
-        self.assertEqual(len(response.context['studio_request_courses']), studio_requests)
-
-        if studio_requests > 0:
-            self.assertContains(response, '<table class="data-table-studio display"')
-        else:
-            self.assertContains(response, 'There are no course-runs require studio instance.')
-
-        if published_count > 0:
-            self.assertContains(response, '<table class="data-table-published display"')
-            self.assertContains(response, 'The list below contains all course runs published in the past 30 days')
-        else:
-            self.assertContains(response, "Looks like you haven't published any course yet")
+        response = self.assert_dashboard_response()
+        self.assertContains(response, self.table_class.format(id='studio'))
+        self.assertEqual(len(response.context['studio_request_courses']), 1)
 
     def test_without_studio_request_course_runs(self):
         """ Verify that studio tab indicates a message if no course-run available. """
@@ -1000,12 +976,52 @@ class DashboardTests(TestCase):
         self.course_run_1.save()
         self.course_run_2.lms_course_id = 'test-2'
         self.course_run_2.save()
-        self.assert_dashboard_response(2, 1, 0)
+        response = self.assert_dashboard_response()
+        self.assertEqual(len(response.context['studio_request_courses']), 0)
+        self.assertContains(response, 'There are no course-runs require studio instance.')
 
     def test_without_published_course_runs(self):
         """ Verify that published tab indicates a message if no course-run available. """
         self.course_run_3.change_state(target=State.DRAFT)
-        self.assert_dashboard_response(3, 0, 3)
+        response = self.assert_dashboard_response()
+        self.assertEqual(len(response.context['published_course_runs']), 0)
+        self.assertContains(response, "Looks like you haven't published any course yet")
+
+    def test_published_course_runs(self):
+        """ Verify that published tab loads course runs list. """
+        response = self.assert_dashboard_response()
+        self.assertEqual(len(response.context['published_course_runs']), 1)
+        self.assertContains(response, self.table_class.format(id='published'))
+        self.assertContains(response, 'The list below contains all course runs published in the past 30 days')
+
+    def test_with_preview_ready_course_runs(self):
+        """ Verify that preview ready tabs loads the course runs list. """
+        self.course_run_2.change_state(target=State.NEEDS_FINAL_APPROVAL)
+        self.course_run_2.save()
+        response = self.assert_dashboard_response()
+        self.assertEqual(len(response.context['preview_course_runs']), 1)
+        self.assertContains(response, self.table_class.format(id='preview'))
+        self.assertContains(response, 'The list below contains all course runs awaiting course team approval')
+
+    def test_without_preview_ready_course_runs(self):
+        """ Verify preview ready tabs shows a message if no course run available. """
+        response = self.assert_dashboard_response()
+        self.assertEqual(len(response.context['preview_course_runs']), 0)
+        self.assertContains(response, 'There are no course runs marked for preview.')
+
+    def test_without_preview_url(self):
+        """ Verify preview ready tabs shows a message if no course run available. """
+        self.course_run_2.preview_url = None
+        self.course_run_2.save()
+        response = self.assert_dashboard_response()
+        self.assertEqual(len(response.context['preview_course_runs']), 0)
+        self.assertContains(response, 'There are no course runs marked for preview.')
+
+    def assert_dashboard_response(self):
+        """ Dry method to assert the response."""
+        response = self.client.get(self.page_url)
+        self.assertEqual(response.status_code, 200)
+        return response
 
 
 class ToggleEmailNotificationTests(TestCase):
