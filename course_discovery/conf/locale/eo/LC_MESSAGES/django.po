@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-17 23:20+0500\n"
+"POT-Creation-Date: 2016-11-18 17:35+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
-#, python-brace-format
 msgid "No user with the username [{username}] exists."
 msgstr ""
 "Nö üsér wïth thé üsérnämé [{username}] éxïsts. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
@@ -139,7 +138,6 @@ msgstr ""
 #. Translators: 'period_choices' is a list of possible values, like ('second',
 #. 'minute', 'hour')
 #: apps/core/forms.py
-#, python-brace-format
 msgid "period must be one of {period_choices}."
 msgstr ""
 "pérïöd müst ßé öné öf {period_choices}. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
@@ -514,7 +512,6 @@ msgstr ""
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/emails.py
-#, python-brace-format
 msgid "Course Run {title}-{pacing_type}-{start} state has been changed."
 msgstr ""
 "Çöürsé Rün {title}-{pacing_type}-{start} stäté häs ßéén çhängéd. Ⱡ'σяєм "
@@ -524,6 +521,16 @@ msgstr ""
 msgid "Studio instance created"
 msgstr "Stüdïö ïnstänçé çréätéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
+#: apps/publisher/forms.py templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "Course Title"
+msgstr "Çöürsé Tïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/publisher/forms.py templates/publisher/add_course_form.html
+#: templates/publisher/dashboard/_studio_requests.html
+msgid "Course Number"
+msgstr "Çöürsé Nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
 #: apps/publisher/forms.py
 msgid "Yes"
 msgstr "Ýés Ⱡ'σяєм#"
@@ -531,6 +538,18 @@ msgstr "Ýés Ⱡ'σяєм#"
 #: apps/publisher/forms.py
 msgid "No"
 msgstr "Nö Ⱡ'σя#"
+
+#: apps/publisher/forms.py
+msgid "Course start date"
+msgstr "Çöürsé stärt däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: apps/publisher/forms.py
+msgid "Course end date"
+msgstr "Çöürsé énd däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/publisher/forms.py
+msgid "Yes, course will be Self-Paced"
+msgstr "Ýés, çöürsé wïll ßé Sélf-Päçéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: apps/publisher/forms.py
 msgid "Only honor/audit seats can be without price."
@@ -666,7 +685,23 @@ msgid "Please fill all required field."
 msgstr "Pléäsé fïll äll réqüïréd fïéld. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: apps/publisher/views.py
-#, python-brace-format
+msgid "Course run created successfully for course \"{course_title}\"."
+msgstr ""
+"Çöürsé rün çréätéd süççéssfüllý för çöürsé \"{course_title}\". Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/publisher/views.py
+msgid "There was an error saving course run, {error}"
+msgstr ""
+"Théré wäs än érrör sävïng çöürsé rün, {error} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/publisher/views.py
+msgid "Please fill all required fields."
+msgstr ""
+"Pléäsé fïll äll réqüïréd fïélds. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: apps/publisher/views.py
 msgid "Content moved to `{state}` successfully."
 msgstr ""
 "Çöntént mövéd tö `{state}` süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
@@ -695,14 +730,12 @@ msgid "Publish"
 msgstr "Püßlïsh Ⱡ'σяєм ιρѕυм #"
 
 #: apps/publisher_comments/emails.py
-#, python-brace-format
 msgid "New comment added in course run: {title}-{pacing_type}-{start}"
 msgstr ""
 "Néw çömmént äddéd ïn çöürsé rün: {title}-{pacing_type}-{start} Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: apps/publisher_comments/emails.py
-#, python-brace-format
 msgid "New comment added in Course: {title}"
 msgstr ""
 "Néw çömmént äddéd ïn Çöürsé: {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
@@ -838,40 +871,43 @@ msgstr ""
 " ýöü çän séléçt än ädmïnïsträtör för thé stüdïö shéll. Ⱡ'#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "required"
 msgstr "réqüïréd Ⱡ'σяєм ιρѕυм ∂#"
 
 #: templates/publisher/add_course_form.html
-msgid "Course Title"
-msgstr "Çöürsé Tïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
-
-#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "Best Practices"
 msgstr "Bést Präçtïçés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "Example"
 msgstr "Éxämplé Ⱡ'σяєм ιρѕυм #"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "Concise 70 characters maximum; < 50 chars. recommended."
 msgstr ""
 "Çönçïsé 70 çhäräçtérs mäxïmüm; < 50 çhärs. réçömméndéd. Ⱡ'σяєм ιρѕυм ∂σłσя "
 "ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "Descriptive - clearly indicates what the course is about."
 msgstr ""
 "Désçrïptïvé - çléärlý ïndïçätés whät thé çöürsé ïs äßöüt. Ⱡ'σяєм ιρѕυм ∂σłσя"
 " ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "SEO-optimized and targeted to a global audience."
 msgstr ""
 "SÉÖ-öptïmïzéd änd tärgétéd tö ä glößäl äüdïénçé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid ""
 "If the course falls in a sequence, our titling convention is: \"Course "
 "Title: Subtitle\""
@@ -886,14 +922,17 @@ msgstr ""
 "αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "Introduction to Statistics"
 msgstr "Ìntrödüçtïön tö Stätïstïçs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "Statistics: Inference"
 msgstr "Stätïstïçs: Ìnférénçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "Statistics: Probability"
 msgstr "Stätïstïçs: Prößäßïlïtý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
@@ -938,16 +977,12 @@ msgid "Pacing Type"
 msgstr "Päçïng Týpé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid ""
 "Will your course be open to students at the same time as it is announced?"
 msgstr ""
 "Wïll ýöür çöürsé ßé öpén tö stüdénts ät thé sämé tïmé äs ït ïs ännöünçéd? "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/dashboard/_studio_requests.html
-msgid "Course Number"
-msgstr "Çöürsé Nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: templates/publisher/add_course_form.html
 msgid ""
@@ -966,6 +1001,7 @@ msgstr ""
 "çhäräçtér lïmït Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "About page information"
 msgstr "Àßöüt pägé ïnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
@@ -977,6 +1013,7 @@ msgid "End Date"
 msgstr "Énd Däté Ⱡ'σяєм ιρѕυм ∂#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid ""
 "The date when this self-paced course run will end, replaced by an updated "
 "version of the course"
@@ -1279,8 +1316,131 @@ msgstr ""
 "ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαвσя#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "Save Draft"
 msgstr "Sävé Dräft Ⱡ'σяєм ιρѕυм ∂σłσ#"
+
+#: templates/publisher/add_courserun_form.html
+msgid "New Course Run"
+msgstr "Néw Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#: templates/publisher/add_courserun_form.html
+#, python-format
+msgid ""
+"\n"
+"                    The fields below will only affect this new course run. If you feel the need edit information from the parent course then you may do so on the %(link_start)s%(course_url)s%(link_middle)sparent course for this run%(link_end)s.\n"
+"                "
+msgstr ""
+"\n"
+"                    Thé fïélds ßélöw wïll önlý äfféçt thïs néw çöürsé rün. Ìf ýöü féél thé nééd édït ïnförmätïön fröm thé pärént çöürsé thén ýöü mäý dö sö ön thé %(link_start)s%(course_url)s%(link_middle)spärént çöürsé för thïs rün%(link_end)s.\n"
+"                 Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ρα#"
+
+#: templates/publisher/add_courserun_form.html
+msgid "Studio instance information"
+msgstr "Stüdïö ïnstänçé ïnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+
+#: templates/publisher/add_courserun_form.html
+msgid ""
+"\n"
+"                                    The information in this section is required to create a course studio instance. You must fill all required information but are welcome to come back and enter the rest of the information when you are ready to announce the course, or you can do it all at once if you are ready to do so.\n"
+"                                "
+msgstr ""
+"\n"
+"                                    Thé ïnförmätïön ïn thïs séçtïön ïs réqüïréd tö çréäté ä çöürsé stüdïö ïnstänçé. Ýöü müst fïll äll réqüïréd ïnförmätïön ßüt äré wélçömé tö çömé ßäçk änd éntér thé rést öf thé ïnförmätïön whén ýöü äré réädý tö ännöünçé thé çöürsé, ör ýöü çän dö ït äll ät önçé ïf ýöü äré réädý tö dö sö.\n"
+"                                 Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι#"
+
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE TITLE"
+msgstr "ÇÖÛRSÉ TÌTLÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: templates/publisher/add_courserun_form.html
+msgid "English Grammar and Essay Writing"
+msgstr ""
+"Énglïsh Grämmär änd Éssäý Wrïtïng Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: templates/publisher/add_courserun_form.html
+msgid "Sequence Courses:"
+msgstr "Séqüénçé Çöürsés: Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: templates/publisher/add_courserun_form.html
+msgid "Institution Course Admin"
+msgstr "Ìnstïtütïön Çöürsé Àdmïn Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: templates/publisher/add_courserun_form.html
+msgid "Change"
+msgstr "Çhängé Ⱡ'σяєм ιρѕυ#"
+
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE START DATE"
+msgstr "ÇÖÛRSÉ STÀRT DÀTÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: templates/publisher/add_courserun_form.html
+msgid ""
+"\n"
+"                                            Start on a weekday (preferably Tuesday, Wednesday, or Thursday) and avoid major U.S. holidays\n"
+"                                            for best access to edX staff.\n"
+"                                        "
+msgstr ""
+"\n"
+"                                            Stärt ön ä wéékdäý (préféräßlý Tüésdäý, Wédnésdäý, ör Thürsdäý) änd ävöïd mäjör Û.S. hölïdäýs\n"
+"                                            för ßést äççéss tö édX stäff.\n"
+"                                         Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂#"
+
+#: templates/publisher/add_courserun_form.html
+msgid ""
+"\n"
+"                                            Approximate dates are acceptable; If you are unable to give an exact date, please identify a\n"
+"                                            month in which the course will be offered.\n"
+"                                        "
+msgstr ""
+"\n"
+"                                            Àppröxïmäté dätés äré äççéptäßlé; Ìf ýöü äré ünäßlé tö gïvé än éxäçt däté, pléäsé ïdéntïfý ä\n"
+"                                            mönth ïn whïçh thé çöürsé wïll ßé öfféréd.\n"
+"                                         Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ι#"
+
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE NUMBER"
+msgstr "ÇÖÛRSÉ NÛMBÉR Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: templates/publisher/add_courserun_form.html
+msgid ""
+"\n"
+"                                            Courses split into several modules can be denoted by adding .1, .2, etc. at the end of the\n"
+"                                            course number before the “x”\n"
+"                                            No special html characters, accents, spaces, dashes, or underscores\n"
+"                                            10 character limit\n"
+"                                        "
+msgstr ""
+"\n"
+"                                            Çöürsés splït ïntö sévéräl mödülés çän ßé dénötéd ßý äddïng .1, .2, étç. ät thé énd öf thé\n"
+"                                            çöürsé nümßér ßéföré thé “x”\n"
+"                                            Nö spéçïäl html çhäräçtérs, äççénts, späçés, däshés, ör ündérsçörés\n"
+"                                            10 çhäräçtér lïmït\n"
+"                                        #"
+
+#: templates/publisher/add_courserun_form.html
+msgid "Example:"
+msgstr "Éxämplé: Ⱡ'σяєм ιρѕυм ∂#"
+
+#: templates/publisher/add_courserun_form.html
+msgid "etc."
+msgstr "étç. Ⱡ'σяєм ι#"
+
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE END DATE"
+msgstr "ÇÖÛRSÉ ÉND DÀTÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: templates/publisher/add_courserun_form.html
+msgid "CERTIFICATE TYPE AND PRICE"
+msgstr "ÇÉRTÌFÌÇÀTÉ TÝPÉ ÀND PRÌÇÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: templates/publisher/add_courserun_form.html
+msgid ""
+"If Verified or Professional Ed, indicate certificate price in US dollars "
+"(minimum of $49)"
+msgstr ""
+"Ìf Vérïfïéd ör Pröféssïönäl Éd, ïndïçäté çértïfïçäté prïçé ïn ÛS döllärs "
+"(mïnïmüm öf $49) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: templates/publisher/course_form.html
 msgid "Add Course Run"

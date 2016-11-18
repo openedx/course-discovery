@@ -23,19 +23,8 @@
                 <span class="course-name">{{ object.title }}</span>
             </h2>
         </div>
-        <div class="alert-messages">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}" role="alert" aria-labelledby="alert-title-{{ message.tags }}" tabindex="-1">
-                        <div class="alert-message-with-action">
-                            <p class="alert-copy">
-                                {{ message }}
-                            </p>
-                        </div>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        </div>
+
+        {% include 'alert_messages.html' %}
 
         <div class="status-information">
             <div class="info-item">
