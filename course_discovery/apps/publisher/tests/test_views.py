@@ -14,6 +14,7 @@ from django.core.urlresolvers import reverse
 from django.forms import model_to_dict
 from django.test import TestCase
 from guardian.shortcuts import assign_perm
+from testfixtures import LogCapture
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
@@ -23,7 +24,7 @@ from course_discovery.apps.publisher.models import Course, CourseRun, Seat, Stat
 from course_discovery.apps.publisher.tests import factories, JSON_CONTENT_TYPE
 from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
-from course_discovery.apps.publisher.views import CourseRunDetailView
+from course_discovery.apps.publisher.views import CourseRunDetailView, logger as publisher_views_logger
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
 
@@ -371,12 +372,20 @@ class CreateUpdateCourseRunViewTests(TestCase):
 
         with patch('django.forms.models.BaseModelForm.is_valid') as mocked_is_valid:
             mocked_is_valid.return_value = True
-            response = self.client.post(
-                reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
-                post_data
-            )
+            with LogCapture(publisher_views_logger.name) as log_capture:
+                response = self.client.post(
+                    reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
+                    post_data
+                )
 
-            self.assertEqual(response.status_code, 400)
+                self.assertEqual(response.status_code, 400)
+                log_capture.check(
+                    (
+                        publisher_views_logger.name,
+                        'ERROR',
+                        'Unable to create course run and seat for course [{}].'.format(self.course.id)
+                    )
+                )
 
     def test_create_course_run_and_seat(self):
         """ Verify that we can create a new course run with seat. """

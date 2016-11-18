@@ -208,7 +208,7 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
         return context
 
     def post(self, request, *args, **kwargs):
-        user = self.request.user
+        user = request.user
         parent_course = self.get_parent_course()
         course_form = self.course_form(request.POST, instance=self.get_parent_course())
         run_form = self.run_form(request.POST)
@@ -231,7 +231,7 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
                 # pylint: disable=no-member
                 error_msg = _('There was an error saving course run, {error}').format(error=error)
                 messages.error(request, error_msg)
-                logger.exception('Unable to save course run for course [%s].', parent_course.id)
+                logger.exception('Unable to create course run and seat for course [%s].', parent_course.id)
         else:
             messages.error(request, _('Please fill all required fields.'))
 
