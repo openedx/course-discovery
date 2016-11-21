@@ -17,7 +17,7 @@ from course_discovery.apps.api.serializers import (
     CourseRunWithProgramsSerializer, CourseWithProgramsSerializer, CorporateEndorsementSerializer,
     FAQSerializer, EndorsementSerializer, PositionSerializer, FlattenedCourseRunWithCourseSerializer,
     MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalCourseRunSerializer, MinimalProgramSerializer,
-    CourseSerializer
+    CourseSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer
 )
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import User
@@ -1099,3 +1099,57 @@ class ProgramSearchSerializerTests(TestCase):
 
         expected = self._create_expected_data(program)
         self.assertDictEqual(serializer.data, expected)
+
+
+class TypeaheadCourseRunSearchSerializerTests(TestCase):
+    def test_data(self):
+        course_run = CourseRunFactory()
+        serialized_course = self.serialize_course_run(course_run)
+        course_run_key = CourseKey.from_string(course_run.key)
+
+        expected = {
+            'key': course_run.key,
+            'title': course_run.title,
+            'content_type': 'courserun',
+            'additional_details': course_run_key.org
+        }
+        self.assertDictEqual(serialized_course.data, expected)
+
+    def serialize_course_run(self, course_run):
+        """ Serializes the given `CourseRun` as a typeahead result. """
+        result = SearchQuerySet().models(CourseRun).filter(key=course_run.key)[0]
+        serializer = TypeaheadCourseRunSearchSerializer(result)
+        return serializer
+
+
+class TypeaheadProgramSearchSerializerTests(TestCase):
+    def _create_expected_data(self, program):
+        return {
+            'uuid': str(program.uuid),
+            'title': program.title,
+            'type': program.type.name,
+            'content_type': 'program',
+            'additional_details': program.authoring_organizations.first().key
+        }
+
+    def test_data(self):
+        authoring_organization = OrganizationFactory()
+        program = ProgramFactory(authoring_organizations=[authoring_organization])
+
+        serialized_program = self.serialize_program(program)
+
+        expected = self._create_expected_data(program)
+        self.assertDictEqual(serialized_program.data, expected)
+
+    def test_data_multiple_authoring_organizations(self):
+        authoring_organizations = OrganizationFactory.create_batch(3)
+        program = ProgramFactory(authoring_organizations=authoring_organizations)
+        serialized_program = self.serialize_program(program)
+        expected = ', '.join([org.key for org in authoring_organizations])
+        self.assertEqual(serialized_program.data['additional_details'], expected)
+
+    def serialize_program(self, program):
+        """ Serializes the given `Program` as a typeahead result. """
+        result = SearchQuerySet().models(Program).filter(uuid=program.uuid)[0]
+        serializer = TypeaheadProgramSearchSerializer(result)
+        return serializer

@@ -913,6 +913,20 @@ class CourseRunSearchSerializer(HaystackSerializer):
         index_classes = [CourseRunIndex]
 
 
+class TypeaheadCourseRunSearchSerializer(HaystackSerializer):
+    additional_details = serializers.SerializerMethodField()
+
+    def get_additional_details(self, result):
+        """ Value of the grey text next to the typeahead result title. """
+        return result.org
+
+    class Meta:
+        field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        fields = ['key', 'title', 'content_type']
+        ignore_fields = COMMON_IGNORED_FIELDS
+        index_classes = [CourseRunIndex]
+
+
 class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
     serialize_objects = True
 
@@ -938,6 +952,21 @@ class ProgramSearchSerializer(HaystackSerializer):
         index_classes = [ProgramIndex]
 
 
+class TypeaheadProgramSearchSerializer(HaystackSerializer):
+    additional_details = serializers.SerializerMethodField()
+
+    def get_additional_details(self, result):
+        """ Value of the grey text next to the typeahead result title. """
+        authoring_organizations = [json.loads(org) for org in result.authoring_organization_bodies]
+        return ', '.join([org['key'] for org in authoring_organizations])
+
+    class Meta:
+        field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        fields = ['uuid', 'title', 'content_type', 'type']
+        ignore_fields = COMMON_IGNORED_FIELDS
+        index_classes = [ProgramIndex]
+
+
 class ProgramFacetSerializer(BaseHaystackFacetSerializer):
     serialize_objects = True
 
@@ -958,6 +987,17 @@ class AggregateSearchSerializer(HaystackSerializer):
             CourseRunIndex: CourseRunSearchSerializer,
             CourseIndex: CourseSearchSerializer,
             ProgramIndex: ProgramSearchSerializer,
+        }
+
+
+class TypeaheadSearchSerializer(HaystackSerializer):
+    class Meta:
+        field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        fields = COURSE_RUN_SEARCH_FIELDS + PROGRAM_SEARCH_FIELDS
+        ignore_fields = COMMON_IGNORED_FIELDS
+        serializers = {
+            ProgramIndex: TypeaheadProgramSearchSerializer,
+            CourseRunIndex: TypeaheadCourseRunSearchSerializer,
         }
 
 
