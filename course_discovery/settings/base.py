@@ -5,8 +5,8 @@ from os.path import abspath, dirname, join
 from sys import path
 
 here = lambda *x: join(abspath(dirname(__file__)), *x)
-PROJECT_ROOT = here("..")
-root = lambda *x: join(abspath(PROJECT_ROOT), *x)
+PROJECT_ROOT = here('..')
+root = lambda *x: abspath(join(abspath(PROJECT_ROOT), *x))
 
 path.append(root('apps'))
 
@@ -52,6 +52,7 @@ THIRD_PARTY_APPS = [
     'taggit_autosuggest',
     'taggit_serializer',
     'solo',
+    'webpack_loader',
 ]
 
 PROJECT_APPS = [
@@ -151,14 +152,12 @@ STATICFILES_FINDERS = (
     'compressor.finders.CompressorFinder',
 )
 
-COMPRESS_PRECOMPILERS = (
-    ('text/x-scss', 'django_libsass.SassCompiler'),
-)
-
-# Minify CSS
-COMPRESS_CSS_FILTERS = [
-    'compressor.filters.css_default.CssAbsoluteFilter',
-]
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': 'bundles/',
+        'STATS_FILE': root('..', 'webpack-stats.json'),
+    }
+}
 
 # TEMPLATE CONFIGURATION
 # See: https://docs.djangoproject.com/en/1.8/ref/settings/#templates

@@ -89,3 +89,5 @@ course_discovery/media/
 course_discovery/static/bower_components/
 docs/_build/
 node_modules/
+course_discovery/static/bundles/
+webpack-stats.json
