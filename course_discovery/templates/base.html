@@ -7,23 +7,9 @@
 <!DOCTYPE html>
 <html>
 <head lang="{{ language_code }}">
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock title %} | {{ platform_name }}</title>
-    <script type="text/javascript" language="javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
-    <script src="{% static 'bower_components/js-cookie/src/js.cookie.js' %}"></script>
-    <script src="{% static 'bower_components/underscore/underscore.js' %}"></script>
-    <script src="{% static 'bower_components/moment/moment.js' %}"></script>
-    <script src="{% static 'bower_components/pikaday/pikaday.js' %}"></script>
-    <script src="{% static 'bower_components/datatables/media/js/jquery.dataTables.js' %}"></script>
-    <script src="{% static 'js/publisher/views/navbar.js' %}"></script>
-    <script src="{% static 'js/utils.js' %}"></script>
-    <script src="{% url 'javascript-catalog' %}"></script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            addDatePicker();
-        });
-    </script>
 
     {% compress css %}
         {% block stylesheets %}
@@ -32,9 +18,11 @@
             {% else %}
                 <link rel="stylesheet" href="{% static 'sass/main-ltr.scss' %}" type="text/x-scss">
             {% endif %}
-            <link rel="stylesheet" href="{% static 'bower_components/font-awesome/css/font-awesome.css' %}" type="text/x-scss">
+            <link rel="stylesheet" href="{% static 'bower_components/font-awesome/css/font-awesome.css' %}"
+                  type="text/x-scss">
             <link rel="stylesheet" href="{% static 'bower_components/pikaday/css/pikaday.css' %}" type="text/x-scss">
-            <link rel="stylesheet" href="{% static 'bower_components/datatables/media/css/jquery.dataTables.css' %}" type="text/x-scss">
+            <link rel="stylesheet" href="{% static 'bower_components/datatables/media/css/jquery.dataTables.css' %}"
+                  type="text/x-scss">
         {% endblock %}
     {% endcompress %}
 </head>
@@ -74,8 +62,25 @@
 
 </div>
 
-{% block extra_js %}
+{% compress js %}
+    <script src="{% static 'bower_components/jquery/dist/jquery.js' %}"></script>
+    <script src="{% static 'bower_components/js-cookie/src/js.cookie.js' %}"></script>
+    <script src="{% static 'bower_components/underscore/underscore.js' %}"></script>
+    <script src="{% static 'bower_components/moment/moment.js' %}"></script>
+    <script src="{% static 'bower_components/pikaday/pikaday.js' %}"></script>
+    <script src="{% static 'bower_components/datatables/media/js/jquery.dataTables.js' %}"></script>
+    <script src="{% static 'js/publisher/views/navbar.js' %}"></script>
+    <script src="{% static 'js/utils.js' %}"></script>
+{% endcompress %}
 
+<script src="{% url 'javascript-catalog' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        addDatePicker();
+    });
+</script>
+
+{% block extra_js %}
 {% endblock %}
 </body>
 </html>
