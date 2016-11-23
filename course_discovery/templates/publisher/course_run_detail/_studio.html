@@ -5,21 +5,21 @@
         <div class="info-item">
             <div class="heading">
                 {% trans "Course Name" %}
-                {% include "publisher/course_run_detail/clipboard.html" %}
+                {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">{{ object.title }} </div>
         </div>
         <div class="info-item">
             <div class="heading">
                 {% trans "Organization" %}
-                {% include "publisher/course_run_detail/clipboard.html" %}
+                {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">{{ object.organization_name }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
                 {% trans "Number" %}
-                {% include "publisher/course_run_detail/clipboard.html" %}
+                {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">{{  object.number }}</div>
         </div>
@@ -27,35 +27,35 @@
         <div class="info-item">
             <div class="heading">
                 {% trans "Start Date" %}
-                {% include "publisher/course_run_detail/clipboard.html" %}
+                {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">{{ object.start|date:"M d, Y, H:i:s A" }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
                 {% trans "End Date" %}
-                {% include "publisher/course_run_detail/clipboard.html" %}
+                {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">{{ object.end|date:"M d, Y, H:i:s A" }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
                 {% trans "Enrollment Start Date" %}
-                {% include "publisher/course_run_detail/clipboard.html" %}
+                {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">{{ object.enrollment_start|date:"M d, Y, H:i:s A" }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
                 {% trans "Enrollment End Date" %}
-                {% include "publisher/course_run_detail/clipboard.html" %}
+                {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">{{ object.enrollment_end|date:"M d, Y, H:i:s A" }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
                 {% trans "Pacing Type" %}
-                {% include "publisher/course_run_detail/clipboard.html" %}
+                {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">{{ object.pacing_type }}</div>
         </div>
