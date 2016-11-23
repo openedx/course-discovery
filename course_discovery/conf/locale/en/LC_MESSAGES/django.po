@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-23 14:30+0500\n"
+"POT-Creation-Date: 2016-11-23 16:57-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -620,14 +620,6 @@ msgstr ""
 msgid "modified"
 msgstr ""
 
-#: templates/base.html templates/publisher/dashboard.html
-msgid "Dashboard"
-msgstr ""
-
-#: templates/base.html
-msgid "Courses"
-msgstr ""
-
 #: templates/comments/add_auth_comments.html
 msgid "Add new comment"
 msgstr ""
@@ -651,62 +643,6 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: templates/footer.html
-msgid "Terms of Service"
-msgstr ""
-
-#: templates/footer.html
-msgid "Privacy Policy"
-msgstr ""
-
-#: templates/footer.html
-msgid "Legal"
-msgstr ""
-
-#: templates/footer.html
-#, python-format
-msgid ""
-"EdX, Open edX, Publisher, and the edX and Open edX logos are registered "
-"trademarks or trademarks of %(link_start)sedX Inc.%(link_end)s"
-msgstr ""
-
-#: templates/footer.html
-msgid "Powered by Open edX"
-msgstr ""
-
-#: templates/header.html
-#: templates/publisher/course_run_detail/_salesforce.html
-msgid "Account"
-msgstr ""
-
-#: templates/header.html
-msgid "Account Navigation"
-msgstr ""
-
-#: templates/header.html
-msgid "Contextual Online Help"
-msgstr ""
-
-#: templates/header.html
-msgid "Help"
-msgstr ""
-
-#: templates/header.html
-msgid "Email notifications"
-msgstr ""
-
-#: templates/header.html
-msgid "ON"
-msgstr ""
-
-#: templates/header.html
-msgid "OFF"
-msgstr ""
-
-#: templates/header.html
-msgid "Sign Out"
-msgstr ""
-
 #: templates/metadata/admin/course_run.html
 msgid "Cancel"
 msgstr ""
@@ -717,6 +653,62 @@ msgstr ""
 
 #: templates/metadata/admin/course_run.html
 msgid "Save Course Run"
+msgstr ""
+
+#: templates/publisher/_footer.html
+msgid "Terms of Service"
+msgstr ""
+
+#: templates/publisher/_footer.html
+msgid "Privacy Policy"
+msgstr ""
+
+#: templates/publisher/_footer.html
+msgid "Legal"
+msgstr ""
+
+#: templates/publisher/_footer.html
+#, python-format
+msgid ""
+"EdX, Open edX, Publisher, and the edX and Open edX logos are registered "
+"trademarks or trademarks of %(link_start)sedX Inc.%(link_end)s"
+msgstr ""
+
+#: templates/publisher/_footer.html
+msgid "Powered by Open edX"
+msgstr ""
+
+#: templates/publisher/_header.html
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Account"
+msgstr ""
+
+#: templates/publisher/_header.html
+msgid "Account Navigation"
+msgstr ""
+
+#: templates/publisher/_header.html
+msgid "Contextual Online Help"
+msgstr ""
+
+#: templates/publisher/_header.html
+msgid "Help"
+msgstr ""
+
+#: templates/publisher/_header.html
+msgid "Email notifications"
+msgstr ""
+
+#: templates/publisher/_header.html
+msgid "ON"
+msgstr ""
+
+#: templates/publisher/_header.html
+msgid "OFF"
+msgstr ""
+
+#: templates/publisher/_header.html
+msgid "Sign Out"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
@@ -1185,6 +1177,14 @@ msgstr ""
 msgid ""
 "If Verified or Professional Ed, indicate certificate price in US dollars "
 "(minimum of $49)"
+msgstr ""
+
+#: templates/publisher/base.html templates/publisher/dashboard.html
+msgid "Dashboard"
+msgstr ""
+
+#: templates/publisher/base.html
+msgid "Courses"
 msgstr ""
 
 #: templates/publisher/course_form.html
