@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% load compress %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block stylesheets %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'bower_components/font-awesome/css/font-awesome.css' %}" type="text/x-scss">
+    <link rel="stylesheet" href="{% static 'bower_components/pikaday/css/pikaday.css' %}" type="text/x-scss">
+    <link rel="stylesheet" href="{% static 'bower_components/datatables/media/css/jquery.dataTables.css' %}"
+          type="text/x-scss">
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        {% include 'publisher/_header.html' %}
+        <div class="layout-1q3q layout-flush border-top">
+            <main class="layout-col layout-col-a layout-col-menu">
+                <div class="institute-logo">
+                    <img width="250" height="200" src="{% static 'images/institute-logo.png' %}">
+                </div>
+                <ul class="list-divided menu-list">
+                    <li class="item">
+                        {% url 'publisher:publisher_dashboard' as dashboard_url %}
+                        <a class="btn {% if request.path == dashboard_url %}active{% endif %}"
+                           href="{{ dashboard_url }}">
+                            {% trans "Dashboard" %}
+                        </a>
+                    </li>
+                    <li class="item">
+                        <a class="btn {% if request.path == new_course_url %}active{% endif %}"
+                           href="/publisher/course/">
+                            {% trans "Courses" %}
+                        </a>
+                    </li>
+                </ul>
+            </main>
+
+            <aside class="layout-col layout-col-b border-left layout-col-container">
+                {% block page_content %}{% endblock %}
+            </aside>
+
+        </div>
+
+        {% include 'publisher/_footer.html' %}
+    </div>
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+
+    {% compress js %}
+        <script src="{% static 'bower_components/jquery/dist/jquery.js' %}"></script>
+        <script src="{% static 'bower_components/js-cookie/src/js.cookie.js' %}"></script>
+        <script src="{% static 'bower_components/underscore/underscore.js' %}"></script>
+        <script src="{% static 'bower_components/moment/moment.js' %}"></script>
+        <script src="{% static 'bower_components/pikaday/pikaday.js' %}"></script>
+        <script src="{% static 'bower_components/datatables/media/js/jquery.dataTables.js' %}"></script>
+        <script src="{% static 'js/publisher/views/navbar.js' %}"></script>
+        <script src="{% static 'js/utils.js' %}"></script>
+    {% endcompress %}
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            addDatePicker();
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+{% endblock %}

@@ -1,11 +1,14 @@
-{% extends 'base.html' %}
+{% extends 'publisher/base.html' %}
+
 {% load compress %}
 {% load i18n %}
 {% load staticfiles %}
+
 {% block title %}
-{% trans "Course Run Detail" %}
+    {% trans "Course Run Detail" %}
 {% endblock title %}
-{% block content %}
+
+{% block page_content %}
 <div class="publisher-container course-detail">
     <nav class="administration-nav">
         <div class="tab-container">

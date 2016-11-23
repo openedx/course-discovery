@@ -1,10 +1,10 @@
-{% extends 'base.html' %}
+{% extends 'publisher/base.html' %}
 {% load i18n %}
 {% block title %}
     {% trans "Course Run List" %}
 {% endblock title %}
 
-{% block content %}
+{% block page_content %}
     <div class="layout-full layout">
         <div class="publisher-container">
             <h2 class="hd-2 emphasized">{{ object_list|length }} {% trans "Course runs in progress" %}</h2>
@@ -84,5 +84,4 @@
             </div>
         </div>
     </div>
-
 {% endblock %}
