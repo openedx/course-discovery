@@ -49,11 +49,14 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(Dashboard, self).get_context_data(**kwargs)
         course_runs = context.get('object_list')
+
         published_course_runs = course_runs.filter(
             state__name=State.PUBLISHED,
             state__modified__gt=datetime.today() - timedelta(days=self.default_published_days)
-        ).select_related('state').all().order_by('-state__modified')
+        ).select_related('state').order_by('-state__modified')
+
         unpublished_course_runs = course_runs.exclude(state__name=State.PUBLISHED)
+
         studio_request_courses = unpublished_course_runs.filter(lms_course_id__isnull=True)
 
         context['studio_request_courses'] = [CourseRunWrapper(course_run) for course_run in studio_request_courses]
@@ -61,10 +64,15 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
         context['published_course_runs'] = [CourseRunWrapper(course_run) for course_run in published_course_runs]
         context['default_published_days'] = self.default_published_days
 
-        preview_course_runs = course_runs.filter(
-            state__name=State.NEEDS_FINAL_APPROVAL, preview_url__isnull=False
+        in_progress_course_runs = course_runs.filter(
+            state__name=State.NEEDS_FINAL_APPROVAL
         ).select_related('state').order_by('-state__modified')
 
+        preview_course_runs = in_progress_course_runs.filter(
+            preview_url__isnull=False
+        ).order_by('-state__modified')
+
+        context['in_progress_course_runs'] = [CourseRunWrapper(course_run) for course_run in in_progress_course_runs]
         context['preview_course_runs'] = [CourseRunWrapper(course_run) for course_run in preview_course_runs]
 
         return context

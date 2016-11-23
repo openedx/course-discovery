@@ -1089,6 +1089,21 @@ class DashboardTests(TestCase):
         self.assertEqual(len(response.context['preview_course_runs']), 0)
         self.assertContains(response, 'There are no course runs marked for preview.')
 
+    def test_without_in_progress_course_runs(self):
+        """ Verify in progress tabs shows a message if no course run available. """
+        response = self.assert_dashboard_response()
+        self.assertEqual(len(response.context['in_progress_course_runs']), 0)
+        self.assertContains(response, 'There are no in progress course runs.')
+
+    def test_with_in_progress_course_runs(self):
+        """ Verify that in progress tabs loads the course runs list. """
+        self.course_run_2.change_state(target=State.NEEDS_FINAL_APPROVAL)
+        self.course_run_2.save()
+
+        response = self.assert_dashboard_response()
+        self.assertEqual(len(response.context['in_progress_course_runs']), 1)
+        self.assertContains(response, self.table_class.format(id='in-progress'))
+
     def assert_dashboard_response(self):
         """ Dry method to assert the response."""
         response = self.client.get(self.page_url)

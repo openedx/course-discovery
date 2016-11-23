@@ -1,4 +1,5 @@
 .publisher-container {
+  @include padding(5px, 5px, 5px, 5px);
   font-family: "Open Sans", Arial, Helvetica, sans-serif;
 
   .studio-instance-success {
@@ -18,7 +19,6 @@
       @include padding(12px, 20px, 12px, 20px);
       @include margin-right(1px);
       @include float(left);
-      outline: none;
       background: #f2f2f2;
       margin-bottom: 0 !important;
       position: relative;
@@ -28,6 +28,7 @@
       color: #949494;
       text-transform: capitalize;
       text-decoration: none;
+      z-index: 999;
       border: {
         width: 2px;
         style: solid;
@@ -45,6 +46,7 @@
         cursor: default;
         background: white;
         color: #169bd5;
+        z-index: 1001;
         border: {
           width: 2px;
           style: solid;
@@ -78,10 +80,6 @@
         }
       }
 
-      &:focus {
-        box-shadow: none;
-        border:1px solid #169bd5;
-      }
     }
 
     &:before,
@@ -134,6 +132,8 @@
       input {
         @include padding-left(6px);
         @include padding-right(6px);
+        padding-top: 0;
+        padding-bottom: 0;
         height: 25px;
         border-radius: 0;
         border: 1px solid #bebebe;

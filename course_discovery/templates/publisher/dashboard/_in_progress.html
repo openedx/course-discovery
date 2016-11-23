@@ -1,0 +1,54 @@
+{% load i18n %}
+{% if in_progress_count == 0 %}
+    <p>{% trans "There are no in progress course runs." %}</p>
+{% else %}
+    <table class="data-table-in-progress display nowrap" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th role="button">
+                    {% trans "Course Name" %}
+                </th>
+                <th role="button">
+                    {% trans "Institution" %}
+                </th>
+                <th role="button">
+                    {% trans "Start" %}
+                </th>
+                <th role="button">
+                    {% trans "End" %}
+                </th>
+                <th role="button">
+                    {% trans "Target Content" %}
+                </th>
+                <th role="button">
+                    {% trans "SEO Review" %}
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for course_run in in_progress_course_runs %}
+                <tr>
+                    <td>
+                        <a href="{% url 'publisher:publisher_course_run_detail' course_run.id %}">{{ course_run.title }}</a>
+                    </td>
+                    <td>{% if course_run.course.group_institution %}
+                            {{ course_run.course.group_institution }}
+                        {% endif %}
+                    </td>
+                    <td>
+                         {{ course_run.start|date:"Y-m-d" }}
+                    </td>
+                    <td>
+                        {{ course_run.end|date:"Y-m-d" }}
+                    </td>
+                    <td>
+                        {% if course_run.target_content %}Y{% else %}N{% endif %}
+                    </td>
+                    <td>
+                        {% if course_run.is_seo_review %}Y{% else %}N{% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}

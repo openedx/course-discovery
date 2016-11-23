@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-18 17:35+0000\n"
+"POT-Creation-Date: 2016-11-23 14:30+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,7 @@ msgstr ""
 "Language: \n"
 
 #: apps/api/filters.py
+#, python-brace-format
 msgid "No user with the username [{username}] exists."
 msgstr ""
 
@@ -110,6 +111,7 @@ msgstr ""
 #. Translators: 'period_choices' is a list of possible values, like ('second',
 #. 'minute', 'hour')
 #: apps/core/forms.py
+#, python-brace-format
 msgid "period must be one of {period_choices}."
 msgstr ""
 
@@ -408,6 +410,7 @@ msgid "JSON string containing an elasticsearch function score config."
 msgstr ""
 
 #: apps/publisher/emails.py
+#, python-brace-format
 msgid "Course Run {title}-{pacing_type}-{start} state has been changed."
 msgstr ""
 
@@ -565,10 +568,12 @@ msgid "Please fill all required field."
 msgstr ""
 
 #: apps/publisher/views.py
+#, python-brace-format
 msgid "Course run created successfully for course \"{course_title}\"."
 msgstr ""
 
 #: apps/publisher/views.py
+#, python-brace-format
 msgid "There was an error saving course run, {error}"
 msgstr ""
 
@@ -577,6 +582,7 @@ msgid "Please fill all required fields."
 msgstr ""
 
 #: apps/publisher/views.py
+#, python-brace-format
 msgid "Content moved to `{state}` successfully."
 msgstr ""
 
@@ -601,10 +607,12 @@ msgid "Publish"
 msgstr ""
 
 #: apps/publisher_comments/emails.py
+#, python-brace-format
 msgid "New comment added in course run: {title}-{pacing_type}-{start}"
 msgstr ""
 
 #: apps/publisher_comments/emails.py
+#, python-brace-format
 msgid "New comment added in Course: {title}"
 msgstr ""
 
@@ -1539,6 +1547,7 @@ msgid "No Seats Available."
 msgstr ""
 
 #: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_preview_ready.html
 #: templates/publisher/dashboard/_published.html
 #: templates/publisher/dashboard/_studio_requests.html
@@ -1631,8 +1640,31 @@ msgstr ""
 msgid "PUBLISHED COURSE RUNS"
 msgstr ""
 
-#: templates/publisher/dashboard.html
-msgid "In Progress"
+#: templates/publisher/dashboard/_in_progress.html
+msgid "There are no in progress course runs."
+msgstr ""
+
+#: templates/publisher/dashboard/_in_progress.html
+msgid "Institution"
+msgstr ""
+
+#: templates/publisher/dashboard/_in_progress.html
+#: templates/publisher/dashboard/_published.html
+msgid "Start"
+msgstr ""
+
+#: templates/publisher/dashboard/_in_progress.html
+#: templates/publisher/dashboard/_published.html
+msgid "End"
+msgstr ""
+
+#: templates/publisher/dashboard/_in_progress.html
+#: templates/publisher/dashboard/_published.html
+msgid "Target Content"
+msgstr ""
+
+#: templates/publisher/dashboard/_in_progress.html
+msgid "SEO Review"
 msgstr ""
 
 #: templates/publisher/dashboard/_preview_ready.html
@@ -1666,19 +1698,7 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/dashboard/_published.html
-msgid "Start"
-msgstr ""
-
-#: templates/publisher/dashboard/_published.html
-msgid "End"
-msgstr ""
-
-#: templates/publisher/dashboard/_published.html
 msgid "Published Date"
-msgstr ""
-
-#: templates/publisher/dashboard/_published.html
-msgid "Target Content"
 msgstr ""
 
 #: templates/publisher/dashboard/_studio_requests.html

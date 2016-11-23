@@ -153,3 +153,14 @@ class CourseRunWrapperTests(TestCase):
             self.wrapped_course_run.keywords,
             self.course.keywords_data
         )
+
+    @ddt.data(True, False)
+    def test_is_seo_reviews(self, is_seo_review):
+        """ Verify that the wrapper return the is_seo_review. """
+        self.course.is_seo_review = is_seo_review
+        self.course.save()
+
+        self.assertEqual(
+            self.wrapped_course_run.is_seo_review,
+            self.course.is_seo_review
+        )

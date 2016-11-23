@@ -7,19 +7,30 @@
 {% endblock title %}
 
 {% block content %}
-    {% with studio_count=studio_request_courses|length published_count=published_course_runs|length preview_count=preview_course_runs|length %}
+    {% with studio_count=studio_request_courses|length published_count=published_course_runs|length preview_count=preview_course_runs|length in_progress_count=in_progress_course_runs|length %}
     <div class="publisher-container">
         <h2 class="hd-2 emphasized">{% trans "Course runs" %}</h2>
         <ul role="tablist" class="tabs">
-            <li role="tab" id="tab-progress" class="tab" aria-selected="true" aria-expanded="false" aria-controls="progress" tabindex="0"><span>0</span>{% trans "IN PROGRESS" %}</li>
-            <li role="tab" id="tab-preview" class="tab" aria-selected="false" aria-expanded="false" aria-controls="preview" tabindex="-1"><span>{{ preview_count }}</span>{% trans "PREVIEW READY" %}</li>
-            <li role="tab" id="tab-studio" class="tab" aria-selected="false" aria-expanded="true" aria-controls="studio" tabindex="-1" data-studio-count="{{ studio_count }}"><span>{{ studio_count }}</span>{% trans "STUDIO REQUEST" %}</li>
-            <li role="tab" id="tab-published" class="tab" aria-selected="false" aria-expanded="false" aria-controls="published" tabindex="-1"><span>{{ published_count }}</span>{% trans "PUBLISHED COURSE RUNS" %}</li>
+            <li role="tab" id="tab-progress" class="tab" aria-selected="true" aria-expanded="false"
+                aria-controls="progress" tabindex="0">
+                <span>{{ in_progress_count }}</span>{% trans "IN PROGRESS" %}
+            </li>
+            <li role="tab" id="tab-preview" class="tab" aria-selected="false" aria-expanded="false"
+                aria-controls="preview" tabindex="-1">
+                <span>{{ preview_count }}</span>{% trans "PREVIEW READY" %}
+            </li>
+            <li role="tab" id="tab-studio" class="tab" aria-selected="false" aria-expanded="true"
+                aria-controls="studio" tabindex="-1" data-studio-count="{{ studio_count }}">
+                <span>{{ studio_count }}</span>{% trans "STUDIO REQUEST" %}
+            </li>
+            <li role="tab" id="tab-published" class="tab" aria-selected="false" aria-expanded="false"
+                aria-controls="published" tabindex="-1">
+                <span>{{ published_count }}</span>{% trans "PUBLISHED COURSE RUNS" %}
+            </li>
         </ul>
 
         <div role="tabpanel" id="progress" class="tab-panel" aria-labelledby="tab-progress" aria-hidden="false" tabindex="-1">
-            <h2>{% trans "In Progress" %}</h2>
-            <p></p>
+             {% include "publisher/dashboard/_in_progress.html" %}
         </div>
 
         <div role="tabpanel" id="preview" class="tab-panel" aria-labelledby="tab-preview" aria-hidden="true" tabindex="-1">
