@@ -11,7 +11,6 @@ django-filter==1.0.4
 django-fsm==2.6.0
 django-guardian==1.4.8
 django-haystack==2.5.0
-django-libsass==0.7
 django-simple-history==1.8.1
 django-solo==1.1.2
 django-sortedm2m==1.4.0
@@ -21,6 +20,7 @@ django-taggit==0.22.1
 django-taggit-autosuggest==0.3.0
 django-taggit-serializer==0.1.5
 django-waffle==0.11.1
+django-webpack-loader==0.5.0
 djangorestframework==3.6.3
 djangorestframework-csv==1.4.1
 djangorestframework-jwt==1.8.0

@@ -1,0 +1,14 @@
+$icon-font-path: '~bootstrap-sass/assets/fonts/bootstrap/';
+@import '~bootstrap-sass/assets/stylesheets/bootstrap';
+@import '~datatables.net-bs/css/dataTables.bootstrap.css';
+
+#queryForm {
+  margin: 25px 0;
+}
+
+.intro,
+.examples,
+.fields,
+.preview {
+  margin-bottom: 30px;
+}

@@ -15,13 +15,13 @@
 // ------------------------------
 // #LIB
 // ------------------------------
-@import "lib";
-@import '../bower_components/edx-pattern-library/pattern-library/sass/edx-pattern-library';
+@import 'lib';
+@import '~edx-pattern-library/pattern-library/sass/edx-pattern-library';
 
 // ------------------------------
 // #EXTENSIONS
 // ------------------------------
-@import "base";
+@import 'base';
 @import 'publisher/color-palette';
 @import "publisher/lib";
 @import 'publisher/layout';

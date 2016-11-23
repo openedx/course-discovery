@@ -1,3 +1,6 @@
+require('bootstrap-sass');
+require('datatables.net-bs')();
+
 var $alertNoResults, $alertQueryInvalid, $query, $table;
 
 function processApiResponse(response) {
@@ -23,7 +26,7 @@ function getApiResponse(url) {
  * Form submission handler. Sends the query to the server and displays the list of courses.\
  */
 function onSubmit(e) {
-    var url = '/api/v1/course_runs/?q=' + encodeURIComponent($query.val());
+    var url = '/api/v1/course_runs/?limit=100&q=' + encodeURIComponent($query.val());
 
     e.preventDefault();
 
@@ -83,6 +86,7 @@ $(document).ready(function () {
     $table = $('#courses').DataTable({
         info: true,
         paging: true,
+        autoWidth: true,
         columns: [
             {
                 title: 'Course Run Key',
