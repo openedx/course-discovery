@@ -3,7 +3,7 @@ NODE_BIN=./node_modules/.bin
 
 .PHONY: accept clean compile_translations dummy_translations extract_translations fake_translations help html_coverage \
 	migrate pull_translations push_translations quality requirements production-requirements test \
-	update_translations validate
+	update_translations validate stop-devstack
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -27,6 +27,7 @@ help:
 	@echo "  static                               gather all static assets for production"
 	@echo "  clean_static                         remove all generated static files"
 	@echo "  start-devstack                       run a local development copy of the server"
+	@echo "  stop-devstack                        shutdown the local development server"
 	@echo "  open-devstack                        open a shell on the server started by start-devstack"
 	@echo "  detect_changed_source_translations   check if translation files are up-to-date"
 	@echo "  validate_translations                install fake translations and check if translation files are up-to-date"
@@ -93,6 +94,9 @@ push_translations:
 
 start-devstack:
 	docker-compose up
+
+stop-devstack:
+	docker-compose down
 
 open-devstack:
 	docker-compose up -d
