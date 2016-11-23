@@ -1,11 +1,13 @@
-{% extends 'base.html' %}
+{% extends 'publisher/base.html' %}
+
 {% load i18n %}
 {% load staticfiles %}
-{% block title %}
-{% trans "Course Form" %}
-{% endblock title %}
-{% block content %}
 
+{% block title %}
+    {% trans "Course Form" %}
+{% endblock title %}
+
+{% block page_content %}
 <div>
 <h1 class="hd-1 emphasized">New Course</h1>
 
@@ -445,8 +447,7 @@
 </form>
 </div>
 </div>
-
-{% endblock content %}
+{% endblock %}
 
 {% block extra_js %}
     <script src="{% static 'js/publisher/publisher.js' %}"></script>

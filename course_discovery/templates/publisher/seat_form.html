@@ -1,11 +1,11 @@
-{% extends 'base.html' %}
+{% extends 'publisher/base.html' %}
 {% load i18n %}
 {% load staticfiles %}
 {% block title %}
     {% trans "Seat Form" %}
 {% endblock title %}
 
-{% block content %}
+{% block page_content %}
     <div class="layout-full layout publisher-layout">
         <div class="publisher-container">
             <div class="course-information">
@@ -27,7 +27,7 @@
         </div>
     </div>
 
-{% endblock content %}
+{% endblock %}
 
 {% block extra_js %}
     <script src="{% static 'js/seat-type-change.js' %}"></script>

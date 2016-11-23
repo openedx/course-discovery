@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'publisher/base.html' %}
 {% load i18n %}
 {% load staticfiles %}
 
@@ -6,7 +6,7 @@
 {% trans "Dashboard" %}
 {% endblock title %}
 
-{% block content %}
+{% block page_content %}
     {% with studio_count=studio_request_courses|length published_count=published_course_runs|length preview_count=preview_course_runs|length in_progress_count=in_progress_course_runs|length %}
     <div class="publisher-container">
         <h2 class="hd-2 emphasized">{% trans "Course runs" %}</h2>
@@ -48,6 +48,7 @@
 
     {% endwith %}
 {% endblock %}
+
 {% block extra_js %}
     <script src="{% static 'js/tabs.js' %}"></script>
     <script src="{% static 'js/publisher/views/dashboard.js' %}"></script>

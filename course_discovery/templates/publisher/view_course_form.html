@@ -1,10 +1,10 @@
-{% extends 'base.html' %}
+{% extends 'publisher/base.html' %}
 {% load i18n %}
 {% block title %}
     {% trans "Course Form" %}
 {% endblock title %}
 
-{% block content %}
+{% block page_content %}
     {% include 'alert_messages.html' %}
 
 <div class="layout-full publisher-layout layout">
@@ -39,4 +39,4 @@
             </div>
         </div>
     </div>
-{% endblock content %}
+{% endblock %}
