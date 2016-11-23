@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-23 14:30+0500\n"
+"POT-Creation-Date: 2016-11-23 16:57-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -752,14 +752,6 @@ msgstr ""
 msgid "modified"
 msgstr "mödïfïéd Ⱡ'σяєм ιρѕυм ∂#"
 
-#: templates/base.html templates/publisher/dashboard.html
-msgid "Dashboard"
-msgstr "Däshßöärd Ⱡ'σяєм ιρѕυм ∂σł#"
-
-#: templates/base.html
-msgid "Courses"
-msgstr "Çöürsés Ⱡ'σяєм ιρѕυм #"
-
 #: templates/comments/add_auth_comments.html
 msgid "Add new comment"
 msgstr "Àdd néw çömmént Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
@@ -783,65 +775,6 @@ msgstr "Édït Çömmént Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 msgid "Save"
 msgstr "Sävé Ⱡ'σяєм ι#"
 
-#: templates/footer.html
-msgid "Terms of Service"
-msgstr "Térms öf Sérvïçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
-
-#: templates/footer.html
-msgid "Privacy Policy"
-msgstr "Prïväçý Pölïçý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
-
-#: templates/footer.html
-msgid "Legal"
-msgstr "Légäl Ⱡ'σяєм ιρѕ#"
-
-#: templates/footer.html
-#, python-format
-msgid ""
-"EdX, Open edX, Publisher, and the edX and Open edX logos are registered "
-"trademarks or trademarks of %(link_start)sedX Inc.%(link_end)s"
-msgstr ""
-"ÉdX, Öpén édX, Püßlïshér, änd thé édX änd Öpén édX lögös äré régïstéréd "
-"trädémärks ör trädémärks öf %(link_start)sédX Ìnç.%(link_end)s Ⱡ'σяєм ιρѕυм "
-"∂σł#"
-
-#: templates/footer.html
-msgid "Powered by Open edX"
-msgstr "Pöwéréd ßý Öpén édX Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
-
-#: templates/header.html
-#: templates/publisher/course_run_detail/_salesforce.html
-msgid "Account"
-msgstr "Àççöünt Ⱡ'σяєм ιρѕυм #"
-
-#: templates/header.html
-msgid "Account Navigation"
-msgstr "Àççöünt Nävïgätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
-
-#: templates/header.html
-msgid "Contextual Online Help"
-msgstr "Çöntéxtüäl Önlïné Hélp Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
-
-#: templates/header.html
-msgid "Help"
-msgstr "Hélp Ⱡ'σяєм ι#"
-
-#: templates/header.html
-msgid "Email notifications"
-msgstr "Émäïl nötïfïçätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
-
-#: templates/header.html
-msgid "ON"
-msgstr "ÖN Ⱡ'σя#"
-
-#: templates/header.html
-msgid "OFF"
-msgstr "ÖFF Ⱡ'σяєм#"
-
-#: templates/header.html
-msgid "Sign Out"
-msgstr "Sïgn Öüt Ⱡ'σяєм ιρѕυм ∂#"
-
 #: templates/metadata/admin/course_run.html
 msgid "Cancel"
 msgstr "Çänçél Ⱡ'σяєм ιρѕυ#"
@@ -853,6 +786,65 @@ msgstr "Bäçk tö Prögräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 #: templates/metadata/admin/course_run.html
 msgid "Save Course Run"
 msgstr "Sävé Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: templates/publisher/_footer.html
+msgid "Terms of Service"
+msgstr "Térms öf Sérvïçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: templates/publisher/_footer.html
+msgid "Privacy Policy"
+msgstr "Prïväçý Pölïçý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#: templates/publisher/_footer.html
+msgid "Legal"
+msgstr "Légäl Ⱡ'σяєм ιρѕ#"
+
+#: templates/publisher/_footer.html
+#, python-format
+msgid ""
+"EdX, Open edX, Publisher, and the edX and Open edX logos are registered "
+"trademarks or trademarks of %(link_start)sedX Inc.%(link_end)s"
+msgstr ""
+"ÉdX, Öpén édX, Püßlïshér, änd thé édX änd Öpén édX lögös äré régïstéréd "
+"trädémärks ör trädémärks öf %(link_start)sédX Ìnç.%(link_end)s Ⱡ'σяєм ιρѕυм "
+"∂σł#"
+
+#: templates/publisher/_footer.html
+msgid "Powered by Open edX"
+msgstr "Pöwéréd ßý Öpén édX Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: templates/publisher/_header.html
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Account"
+msgstr "Àççöünt Ⱡ'σяєм ιρѕυм #"
+
+#: templates/publisher/_header.html
+msgid "Account Navigation"
+msgstr "Àççöünt Nävïgätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: templates/publisher/_header.html
+msgid "Contextual Online Help"
+msgstr "Çöntéxtüäl Önlïné Hélp Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: templates/publisher/_header.html
+msgid "Help"
+msgstr "Hélp Ⱡ'σяєм ι#"
+
+#: templates/publisher/_header.html
+msgid "Email notifications"
+msgstr "Émäïl nötïfïçätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: templates/publisher/_header.html
+msgid "ON"
+msgstr "ÖN Ⱡ'σя#"
+
+#: templates/publisher/_header.html
+msgid "OFF"
+msgstr "ÖFF Ⱡ'σяєм#"
+
+#: templates/publisher/_header.html
+msgid "Sign Out"
+msgstr "Sïgn Öüt Ⱡ'σяєм ιρѕυм ∂#"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_form.html
@@ -1449,6 +1441,14 @@ msgid ""
 msgstr ""
 "Ìf Vérïfïéd ör Pröféssïönäl Éd, ïndïçäté çértïfïçäté prïçé ïn ÛS döllärs "
 "(mïnïmüm öf $49) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: templates/publisher/base.html templates/publisher/dashboard.html
+msgid "Dashboard"
+msgstr "Däshßöärd Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: templates/publisher/base.html
+msgid "Courses"
+msgstr "Çöürsés Ⱡ'σяєм ιρѕυм #"
 
 #: templates/publisher/course_form.html
 msgid "Add Course Run"
