@@ -940,7 +940,8 @@ class SeatSerializerTests(TestCase):
             'currency': seat.currency.code,
             'upgrade_deadline': json_date_format(seat.upgrade_deadline),
             'credit_provider': seat.credit_provider,  # pylint: disable=no-member
-            'credit_hours': seat.credit_hours  # pylint: disable=no-member
+            'credit_hours': seat.credit_hours,  # pylint: disable=no-member
+            'sku': seat.sku
         }
 
         self.assertDictEqual(serializer.data, expected)

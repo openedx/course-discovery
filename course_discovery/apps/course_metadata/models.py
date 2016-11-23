@@ -535,6 +535,7 @@ class Seat(TimeStampedModel):
     upgrade_deadline = models.DateTimeField(null=True, blank=True)
     credit_provider = models.CharField(max_length=255, null=True, blank=True)
     credit_hours = models.IntegerField(null=True, blank=True)
+    sku = models.CharField(max_length=128, null=True, blank=True)
 
     class Meta(object):
         unique_together = (

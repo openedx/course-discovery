@@ -305,6 +305,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         stock_record = product_body['stockrecords'][0]
         currency_code = stock_record['price_currency']
         price = Decimal(stock_record['price_excl_tax'])
+        sku = stock_record['partner_sku']
 
         try:
             currency = Currency.objects.get(code=currency_code)
@@ -323,6 +324,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
 
         defaults = {
             'price': price,
+            'sku': sku,
             'upgrade_deadline': self.parse_date(product_body.get('expires')),
             'credit_hours': credit_hours,
         }

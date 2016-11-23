@@ -70,6 +70,7 @@ class SeatFactory(factory.DjangoModelFactory):
     price = FuzzyDecimal(0.0, 650.0)
     currency = factory.Iterator(Currency.objects.all())
     upgrade_deadline = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
+    sku = FuzzyText(length=8)
 
     class Meta:
         model = Seat

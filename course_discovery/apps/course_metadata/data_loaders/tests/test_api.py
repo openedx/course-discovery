@@ -345,6 +345,7 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
             stock_record = product['stockrecords'][0]
             price_currency = stock_record['price_currency']
             price = Decimal(stock_record['price_excl_tax'])
+            sku = stock_record['partner_sku']
             certificate_type = Seat.AUDIT
             credit_provider = None
             credit_hours = None
@@ -372,6 +373,7 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
             self.assertEqual(seat.credit_provider, credit_provider)
             self.assertEqual(seat.credit_hours, credit_hours)
             self.assertEqual(seat.upgrade_deadline, upgrade_deadline)
+            self.assertEqual(seat.sku, sku)
 
     @responses.activate
     def test_ingest(self):

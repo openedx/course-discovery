@@ -259,6 +259,7 @@ class SeatSerializer(serializers.ModelSerializer):
     upgrade_deadline = serializers.DateTimeField()
     credit_provider = serializers.CharField()
     credit_hours = serializers.IntegerField()
+    sku = serializers.CharField()
 
     @classmethod
     def prefetch_queryset(cls):
@@ -266,7 +267,7 @@ class SeatSerializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = Seat
-        fields = ('type', 'price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours',)
+        fields = ('type', 'price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours', 'sku',)
 
 
 class MinimalOrganizationSerializer(serializers.ModelSerializer):
