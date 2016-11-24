@@ -1,10 +1,13 @@
 # pylint: disable=no-member
 import ddt
+from django.db import IntegrityError
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django_fsm import TransitionNotAllowed
 
 from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
+from course_discovery.apps.publisher.constants import COORDINATOR
 from course_discovery.apps.publisher.models import State, Course
 from course_discovery.apps.publisher.tests import factories
 
@@ -189,3 +192,33 @@ class UserAttributeTests(TestCase):
                 enable_email_notification=self.user_attr.enable_email_notification
             )
         )
+
+
+class OrganizationUserRoleTests(TestCase):
+    """Tests of the OrganizationUserRole model."""
+
+    def setUp(self):
+        super(OrganizationUserRoleTests, self).setUp()
+        self.user = UserFactory()
+        self.organization = OrganizationFactory()
+        self.role = COORDINATOR
+        self.org_user_role = factories.OrganizationUserRoleFactory(
+            user=self.user, organization=self.organization, role=COORDINATOR
+        )
+
+    def test_str(self):
+        """Verify that a organization-user-role is properly converted to a str."""
+        self.assertEqual(
+            str(self.org_user_role), '{organization}: {user}: {role}'.format(
+                organization=self.org_user_role.organization,
+                user=self.org_user_role.user,
+                role=self.org_user_role.role
+            )
+        )
+
+    def test_unique_constraint(self):
+        """Verify that a organization-user-role not allow same user roles under one organization."""
+        with self.assertRaises(IntegrityError):
+            factories.OrganizationUserRoleFactory(
+                user=self.user, organization=self.organization, role=COORDINATOR
+            )
