@@ -56,7 +56,7 @@ $(function() {
                 var key = e.which,
                     focused = $(e.currentTarget),
                     index = $(e.currentTarget).parent().find('.tab').index(focused),
-                    total = $(e.currentTarget).parent().find('.tab').size() - 1,
+                    total = $(e.currentTarget).parent().find('.tab').length - 1,
                     panel = $(focused).attr('aria-controls');
                 
                 switch (key) {

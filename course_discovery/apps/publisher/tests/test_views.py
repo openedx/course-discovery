@@ -993,7 +993,7 @@ class DashboardTests(TestCase):
 
         # group-b course
         self._create_course_assign_permissions(State.DRAFT, self.group_b)
-        self.table_class = "data-table-{id} display nowrap"
+        self.table_class = "data-table-{id} display"
 
     def _create_course_assign_permissions(self, state, group):
         """ DRY method to create course and assign the permissions"""

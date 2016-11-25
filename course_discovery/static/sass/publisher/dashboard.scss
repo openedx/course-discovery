@@ -1,5 +1,6 @@
 .publisher-container {
-  @include padding(5px, 5px, 5px, 5px);
+  @include margin(0, 0, 0, 0);
+    @include padding-left(5px);
   font-family: "Open Sans", Arial, Helvetica, sans-serif;
 
   .studio-instance-success {
@@ -91,7 +92,7 @@
   }
 
   .tab-panel {
-    @include padding(35px, 20px, 35px, 20px);
+    @include padding(20px, 20px, 20px, 20px);
     display: none;
     border: 2px solid #169bd5;
     background-color: #fff;
@@ -121,7 +122,7 @@
       tr {
 
         td {
-            @include text-align(right);
+            @include text-align(left);
         }
       }
     }
@@ -213,4 +214,3 @@
     }
   }
 }
-
