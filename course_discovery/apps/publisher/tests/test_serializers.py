@@ -28,8 +28,7 @@ class UpdateCourseKeySerializerTests(TestCase):
     def test_validation(self):
         self.course_run.lms_course_id = 'course-v1:edxTest+TC101+2016_Q1'
         self.course_run.save()  # pylint: disable=no-member
-        serializer = self.serializer_class(self.course_run)
-        serializer.context['request'] = self.request
+        serializer = self.serializer_class(self.course_run, context={'request': self.request})
         expected = serializer.validate(serializer.data)
         self.assertEqual(self.get_expected_data(), expected)
 

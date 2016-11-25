@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from course_discovery.apps.publisher.models import (
-    Course, CourseRun, OrganizationUserRole, Seat, State, UserAttributes
+    Course, CourseRun, CourseUserRole, OrganizationUserRole, Seat, State, UserAttributes
 )
 
 admin.site.register(Course)
@@ -10,3 +10,8 @@ admin.site.register(OrganizationUserRole)
 admin.site.register(Seat)
 admin.site.register(State)
 admin.site.register(UserAttributes)
+
+
+@admin.register(CourseUserRole)
+class CourseUserRoleAdmin(admin.ModelAdmin):
+    raw_id_fields = ('user',)

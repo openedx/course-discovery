@@ -17,19 +17,30 @@ from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import get_objects_for_user
 from rest_framework.generics import UpdateAPIView
 
+from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.forms import (
-    CourseForm, CourseRunForm, SeatForm, CustomCourseForm, CustomCourseRunForm, CustomSeatForm,
-    UpdateCourseForm)
+    CourseForm, CourseRunForm, SeatForm, CustomCourseForm, CustomCourseRunForm,
+    CustomSeatForm, UpdateCourseForm
+)
 from course_discovery.apps.publisher import mixins
-from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State, UserAttributes
+from course_discovery.apps.publisher.models import (
+    Course, CourseRun, Seat, State, UserAttributes
+)
 from course_discovery.apps.publisher.serializers import UpdateCourseKeySerializer
+from course_discovery.apps.publisher.utils import is_internal_user, get_internal_users
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
-
 
 logger = logging.getLogger(__name__)
 
 
 SEATS_HIDDEN_FIELDS = ['price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours']
+
+ROLE_WIDGET_HEADINGS = {
+    PublisherUserRole.PartnerCoordinator: _('PARTNER COORDINATOR'),
+    PublisherUserRole.MarketingReviewer: _('MARKETING'),
+    PublisherUserRole.Publisher: _('PUBLISHER'),
+    PublisherUserRole.CourseTeam: _('Course Team')
+}
 
 
 class Dashboard(mixins.LoginRequiredMixin, ListView):
@@ -83,10 +94,32 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin,
     model = CourseRun
     template_name = 'publisher/course_run_detail.html'
 
+    def get_role_widgets_data(self, course_roles):
+        """ Create role widgets list for course user roles. """
+        role_widgets = []
+        for course_role in course_roles:
+            role_widgets.append(
+                {
+                    'user_course_role': course_role,
+                    'heading': ROLE_WIDGET_HEADINGS.get(course_role.role)
+                }
+            )
+
+        return role_widgets
+
     def get_context_data(self, **kwargs):
         context = super(CourseRunDetailView, self).get_context_data(**kwargs)
-        context['object'] = CourseRunWrapper(context['object'])
-        context['comment_object'] = self.object.course
+
+        course_run = CourseRunWrapper(self.get_object())
+        context['object'] = course_run
+        context['comment_object'] = course_run.course
+
+        # Show role assignment widgets if user is an internal user.
+        if is_internal_user(self.request.user):
+            course_roles = course_run.course.course_user_roles.exclude(role=PublisherUserRole.CourseTeam)
+            context['role_widgets'] = self.get_role_widgets_data(course_roles)
+            context['user_list'] = get_internal_users()
+
         return context
 
     def patch(self, *args, **kwargs):
