@@ -1,0 +1,44 @@
+{% load i18n %}
+
+<div class="approval-widget">
+    <a href="{% url 'publisher:publisher_course_runs_edit' pk=object.id %}" class="btn btn-neutral btn-course-edit">{% trans "EDIT" %}</a>
+    {% if role_widget %}
+        <div class="role-widget">
+            <hr>
+            <span class="role-heading">
+                <strong>{{ role_widget.heading }}</strong>
+            </span>
+            <div class="role-assignment-container">
+                <div id="user-role-container">
+                    <span class="field-readonly user-full-name">{{ role_widget.user_course_role.user.full_name }}</span>
+                    <a id="change-role-assignment" href="#">{% trans "change owner" %}</a>
+                </div>
+                <div id="change-role-container">
+                    <select id="select-users-by-role">
+                        {% for user in role_widget.users_by_role %}
+                            <option {% if role_widget.user_course_role.user == user%}selected="selected"{% endif %} value="{{ user.id }}">
+                                {{ user.full_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <input type="hidden" id="role-name" value="{{ role_widget.user_course_role.role }}">
+                    <button type="button" class="btn-neutral btn-change-assignment" data-api-endpoint="{% url 'publisher:publisher_change_role_assignment' object.course.id %}">
+                        {% trans "CHANGE" %}
+                    </button>
+                </div>
+            </div>
+            <hr>
+        </div>
+    {% endif %}
+
+    <div class="actions">
+        <form action="{% url 'publisher:publisher_change_state' course_run_id=object.id %}" method="post"> {% csrf_token %}
+            <button type="submit" value="{{ object.change_state_button.value }}" class="btn-brand btn-small btn-states" name="state">{{ object.change_state_button.text }}</button>
+        </form>
+    </div>
+
+    <div class="comment-container">
+        {% include 'comments/comments_list.html' %}
+        {% include 'comments/add_auth_comments.html' %}
+    </div>
+</div>

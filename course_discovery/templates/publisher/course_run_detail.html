@@ -9,64 +9,64 @@
 {% endblock title %}
 
 {% block page_content %}
-<div class="publisher-container course-detail">
-    <nav class="administration-nav">
-        <div class="tab-container">
-            <button class="selected" data-tab="#tab-1">{% trans "All" %}</button>
-            <button data-tab="#tab-2">{% trans "STUDIO" %}</button>
-            <button data-tab="#tab-3">{% trans "CAT" %}</button>
-            <button data-tab="#tab-4">{% trans "DRUPAL" %}</button>
-            <button data-tab="#tab-5">{% trans "Salesforce" %}</button>
-        </div>
-    </nav>
+<div class="layout-1t2t layout-flush publisher-container course-detail">
+    <main class="layout-col layout-col-b">
+        <nav class="administration-nav">
+            <div class="tab-container">
+                <button class="selected" data-tab="#tab-1">{% trans "All" %}</button>
+                <button data-tab="#tab-2">{% trans "STUDIO" %}</button>
+                <button data-tab="#tab-3">{% trans "CAT" %}</button>
+                <button data-tab="#tab-4">{% trans "DRUPAL" %}</button>
+                <button data-tab="#tab-5">{% trans "Salesforce" %}</button>
+            </div>
+        </nav>
 
-    <div id="app">
-        <div class="page-header">
-            <h2 class="hd-2 emphasized">
-                <span class="course-name">{{ object.title }}</span>
-            </h2>
-        </div>
+        <div id="app">
+            <div class="page-header">
+                <h2 class="hd-2 emphasized">
+                    <span class="course-name">{{ object.title }}</span>
+                </h2>
+            </div>
 
-        {% include 'alert_messages.html' %}
+            {% include 'alert_messages.html' %}
 
-        <div class="status-information">
-            <div class="info-item">
-                <span class="item">
-                    <span class="heading">{% trans "Status" %}:</span>
-                    <span>{{ object.workflow_state }}</span>
-                </span>
+            <div class="status-information">
+                <div class="info-item">
+                    <span class="item">
+                        <span class="heading">{% trans "Status" %}:</span>
+                        <span>{{ object.workflow_state }}</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <div id="tab-1" class="tab-content active">
+                    {% include 'publisher/course_run_detail/_all.html' %}
+                </div>
+                <div id="tab-2" class="tab-content">
+                    {% include 'publisher/course_run_detail/_studio.html' %}
+                </div>
+                <div id="tab-3" class="tab-content">
+                    {% include 'publisher/course_run_detail/_cat.html' %}
+                </div>
+                <div id="tab-4" class="tab-content">
+                    {% include 'publisher/course_run_detail/_drupal.html' %}
+                </div>
+                <div id="tab-5" class="tab-content">
+                    {% include 'publisher/course_run_detail/_salesforce.html' %}
+                </div>
             </div>
         </div>
-
-        <div class="tabs">
-            <div id="tab-1" class="tab-content active">
-                {% include 'publisher/course_run_detail/_all.html' %}
-            </div>
-            <div id="tab-2" class="tab-content">
-                {% include 'publisher/course_run_detail/_studio.html' %}
-            </div>
-            <div id="tab-3" class="tab-content">
-                {% include 'publisher/course_run_detail/_cat.html' %}
-            </div>
-            <div id="tab-4" class="tab-content">
-                {% include 'publisher/course_run_detail/_drupal.html' %}
-            </div>
-            <div id="tab-5" class="tab-content">
-                {% include 'publisher/course_run_detail/_salesforce.html' %}
-            </div>
-        </div>
-
-        <div class="actions">
-            <form action="{% url 'publisher:publisher_change_state' course_run_id=object.id %}" method="post"> {% csrf_token %}
-                <button type="submit" value="{{ object.change_state_button.value }}" class="btn-brand btn-small btn-states" name="state">{{ object.change_state_button.text }}</button>
-            </form>
-        </div>
-    </div>
+    </main>
+    <aside class="layout-col layout-col-a">
+        {% include 'publisher/course_run_detail/_approval_widget.html' %}
+    </aside>
 </div>
 {% endblock %}
 
 {% block extra_js %}
     <script src="{% static 'bower_components/clipboard/dist/clipboard.min.js' %}"></script>
+    <script src="{% static 'js/publisher/views/course_detail.js' %}"></script>
     <script src="{% static 'js/publisher/publisher.js' %}"></script>
     <script>
         new Clipboard(".btn-copy", {
