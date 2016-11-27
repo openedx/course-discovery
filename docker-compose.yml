@@ -33,7 +33,7 @@ services:
 
   course-discovery:
     # Uncomment this line to use the official course-discovery base image
-    image: edxops/course-discovery:latest
+    image: edxops/course-discovery:bilal-test
 
     # Uncomment the next two lines to build from a local configuration repo
     # build: ../configuration/docker/build/discovery/
@@ -55,3 +55,4 @@ services:
       - "18381:18381"
       - "8381:8381"
       - "48381:48381"
+    command: tail -f /dev/null
