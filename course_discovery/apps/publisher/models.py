@@ -1,6 +1,6 @@
 import logging
-from django.contrib.auth.models import Group
 
+from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import pre_save
@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from django_fsm import FSMField, transition
+from guardian.shortcuts import assign_perm, get_users_with_perms
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
@@ -19,10 +20,9 @@ from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import LevelType, Subject, Person, Organization
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.constants import COORDINATOR, REVIEWER, PUBLISHER
+from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.emails import send_email_for_change_state
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
-
 
 logger = logging.getLogger(__name__)
 
@@ -152,15 +152,25 @@ class Course(TimeStampedModel, ChangedByMixin):
             ('view_course', 'Can view course'),
         )
 
+    def assign_permission_by_group(self, group):
+        """ Assigns permission on the course against the group. """
+        assign_perm(self.VIEW_PERMISSION, group, self)
+
+    @property
+    def group_organization(self):
+        """ Returns the group-organization object associated with the course via organization.
+        It should come from the group-organization table not from M2M field.
+        """
+        if self.organizations.exists():
+            return self.organizations.first().publisher_organizations
+        return None
+
     def get_group_users_emails(self):
         """ Returns the list of users emails with enable email notifications
         against a course group. By default if attribute value does not exists
         then user will be eligible for emails.
         """
-        group = self.get_group_from_organizations()
-        users_list = []
-        if group:
-            users_list = group.user_set.all()
+        users_list = get_users_with_perms(self)
         emails = [user.email for user in users_list if is_email_notification_enabled(user)]
 
         return emails
@@ -172,11 +182,6 @@ class Course(TimeStampedModel, ChangedByMixin):
             return ', '.join(k.name for k in keywords)
 
         return None
-
-    def get_group_from_organizations(self):
-        """ Returns the first group associated with organizations."""
-        groups = [grp_org.publisher_organizations.group for grp_org in self.organizations.all()]
-        return groups[0] if groups else None
 
 
 class CourseRun(TimeStampedModel, ChangedByMixin):
@@ -361,15 +366,12 @@ class UserAttributes(TimeStampedModel):
 
 class OrganizationUserRole(TimeStampedModel):
     """ User Roles model for Organization. """
-    ROLES_TYPE_CHOICES = (
-        (COORDINATOR, _('Partner Coordinator')),
-        (REVIEWER, _('Reviewer')),
-        (PUBLISHER, _('Publisher')),
-    )
 
-    organization = models.ForeignKey(Organization, related_name='user_roles')
+    organization = models.ForeignKey(Organization, related_name='organization_user_roles')
     user = models.ForeignKey(User, related_name='organization_user_roles')
-    role = models.CharField(max_length=63, choices=ROLES_TYPE_CHOICES, verbose_name='Role Type')
+    role = models.CharField(
+        max_length=63, choices=PublisherUserRole.choices, verbose_name=_('Organization Role')
+    )
 
     history = HistoricalRecords()
 
@@ -381,6 +383,29 @@ class OrganizationUserRole(TimeStampedModel):
     def __str__(self):
         return '{organization}: {user}: {role}'.format(
             organization=self.organization,
+            user=self.user,
+            role=self.role
+        )
+
+
+class CourseUserRole(TimeStampedModel, ChangedByMixin):
+    """ User Course Roles model. """
+    course = models.ForeignKey(Course, related_name='course_user_roles')
+    user = models.ForeignKey(User, related_name='course_user_roles')
+    role = models.CharField(
+        max_length=63, choices=PublisherUserRole.choices, verbose_name=_('Course Role')
+    )
+
+    history = HistoricalRecords()
+
+    class Meta:
+        unique_together = (
+            ('course', 'user', 'role'),
+        )
+
+    def __str__(self):
+        return '{course}: {user}: {role}'.format(
+            course=self.course,
             user=self.user,
             role=self.role
         )

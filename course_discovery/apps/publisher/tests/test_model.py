@@ -4,11 +4,13 @@ from django.db import IntegrityError
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django_fsm import TransitionNotAllowed
+from guardian.shortcuts import get_groups_with_perms
 
 from course_discovery.apps.core.tests.factories import UserFactory
-from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
-from course_discovery.apps.publisher.constants import COORDINATOR
-from course_discovery.apps.publisher.models import State
+from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.models import (
+    State, Course, CourseUserRole, GroupOrganization, OrganizationUserRole
+)
 from course_discovery.apps.publisher.tests import factories
 
 
@@ -75,6 +77,9 @@ class CourseTests(TestCase):
         self.user1.groups.add(self.group_organization_1.group)
         self.user2.groups.add(self.group_organization_2.group)
 
+        self.course.organizations.add(self.group_organization_1.organization)
+        self.course2.organizations.add(self.group_organization_2.organization)
+
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the course title. """
         self.assertEqual(str(self.course), self.course.title)
@@ -85,14 +90,13 @@ class CourseTests(TestCase):
             reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id})
         )
 
-    def test_assign_organization_to_course(self):
-        """ Verify that only group associated users can view the course. """
+    def test_assign_permission_by_group(self):
+        """ Verify that permission can be assigned using the group. """
         self.assert_user_cannot_view_course(self.user1, self.course)
         self.assert_user_cannot_view_course(self.user2, self.course2)
 
-        # assign the organization to the course
-        self.course.organizations.add(self.group_organization_1.organization)
-        self.course2.organizations.add(self.group_organization_2.organization)
+        self.course.assign_permission_by_group(self.group_organization_1.group)
+        self.course2.assign_permission_by_group(self.group_organization_2.group)
 
         self.assert_user_can_view_course(self.user1, self.course)
         self.assert_user_can_view_course(self.user2, self.course2)
@@ -100,33 +104,36 @@ class CourseTests(TestCase):
         self.assert_user_cannot_view_course(self.user1, self.course2)
         self.assert_user_cannot_view_course(self.user2, self.course)
 
-        self.assertEqual(self.course.get_group_from_organizations(), self.group_organization_1.group)
-        self.assertEqual(self.course2.get_group_from_organizations(), self.group_organization_2.group)
+        self.assertEqual(self.course.group_organization.group, self.group_organization_1.group)
+        self.assertEqual(self.course2.group_organization.group, self.group_organization_2.group)
 
     def assert_user_cannot_view_course(self, user, course):
         """ Asserts the user can NOT view the course. """
-        organization_group = course.get_group_from_organizations()
-        return organization_group in user.groups.all()
+        self.assertFalse(user.has_perm(Course.VIEW_PERMISSION, course))
 
     def assert_user_can_view_course(self, user, course):
         """ Asserts the user can view the course. """
-        organization_group = course.get_group_from_organizations()
-        return organization_group in user.groups.all()
+        self.assertTrue(user.has_perm(Course.VIEW_PERMISSION, course))
 
     def test_group_organization(self):
+        """ Verify the method returns group-organization object."""
+        self.assertEqual(factories.CourseFactory().group_organization, None)
+
+        self.assertEqual(self.course.group_organization, self.group_organization_1)
+        self.assertEqual(self.course2.group_organization, self.group_organization_2)
+
+    def test_group_by_permission(self):
         """ Verify the method returns groups permitted to access the course."""
-        self.assertEqual(self.course.get_group_from_organizations(), None)
-        self.course.organizations.add(self.group_organization_1.organization)
-        self.assertEqual(self.course.get_group_from_organizations(), self.group_organization_1.group)
+        self.assertFalse(get_groups_with_perms(self.course))
+        self.course.assign_permission_by_group(self.group_organization_1.group)
+        self.assertEqual(get_groups_with_perms(self.course)[0], self.group_organization_1.group)
 
     def test_get_group_users_emails(self):
         """ Verify the method returns the email addresses of users who are
         permitted to access the course AND have not disabled email notifications.
         """
         self.user3.groups.add(self.group_organization_1.group)
-
-        self.course.organizations.add(self.group_organization_1.organization)
-
+        self.course.assign_permission_by_group(self.group_organization_1.group)
         self.assertListEqual(self.course.get_group_users_emails(), [self.user1.email, self.user3.email])
 
         # The email addresses of users who have disabled email notifications should NOT be returned.
@@ -206,15 +213,10 @@ class OrganizationUserRoleTests(TestCase):
 
     def setUp(self):
         super(OrganizationUserRoleTests, self).setUp()
-        self.user = UserFactory()
-        self.organization = OrganizationFactory()
-        self.role = COORDINATOR
-        self.org_user_role = factories.OrganizationUserRoleFactory(
-            user=self.user, organization=self.organization, role=COORDINATOR
-        )
+        self.org_user_role = factories.OrganizationUserRoleFactory(role=PublisherUserRole.PartnerCoordinator)
 
     def test_str(self):
-        """Verify that a organization-user-role is properly converted to a str."""
+        """Verify that a OrganizationUserRole is properly converted to a str."""
         self.assertEqual(
             str(self.org_user_role), '{organization}: {user}: {role}'.format(
                 organization=self.org_user_role.organization,
@@ -224,8 +226,57 @@ class OrganizationUserRoleTests(TestCase):
         )
 
     def test_unique_constraint(self):
-        """Verify that a organization-user-role not allow same user roles under one organization."""
+        """ Verify a user cannot have multiple rows for the same organization-role combination. """
         with self.assertRaises(IntegrityError):
-            factories.OrganizationUserRoleFactory(
-                user=self.user, organization=self.organization, role=COORDINATOR
+            OrganizationUserRole.objects.create(
+                user=self.org_user_role.user,
+                organization=self.org_user_role.organization,
+                role=self.org_user_role.role
+            )
+
+
+class CourseUserRoleTests(TestCase):
+    """Tests of the CourseUserRole model."""
+
+    def setUp(self):
+        super(CourseUserRoleTests, self).setUp()
+        self.course_user_role = factories.CourseUserRoleFactory(role=PublisherUserRole.PartnerCoordinator)
+
+    def test_str(self):
+        """Verify that a CourseUserRole is properly converted to a str."""
+        expected_str = '{course}: {user}: {role}'.format(
+            course=self.course_user_role.course, user=self.course_user_role.user, role=self.course_user_role.role
+        )
+        self.assertEqual(str(self.course_user_role), expected_str)
+
+    def test_unique_constraint(self):
+        """ Verify a user cannot have multiple rows for the same course-role combination."""
+        with self.assertRaises(IntegrityError):
+            CourseUserRole.objects.create(
+                course=self.course_user_role.course, user=self.course_user_role.user, role=self.course_user_role.role
+            )
+
+
+class GroupOrganizationTests(TestCase):
+    """Tests of the GroupOrganization model."""
+
+    def setUp(self):
+        super(GroupOrganizationTests, self).setUp()
+        self.group_organization = factories.GroupOrganizationFactory()
+        self.group_2 = factories.GroupFactory()
+
+    def test_str(self):
+        """Verify that a GroupOrganization is properly converted to a str."""
+        expected_str = '{organization}: {group}'.format(
+            organization=self.group_organization.organization, group=self.group_organization.group
+        )
+        self.assertEqual(str(self.group_organization), expected_str)
+
+    def test_one_to_one_constraint(self):
+        """ Verify that same group or organization have only one record."""
+
+        with self.assertRaises(IntegrityError):
+            GroupOrganization.objects.create(
+                group=self.group_2,
+                organization=self.group_organization.organization
             )

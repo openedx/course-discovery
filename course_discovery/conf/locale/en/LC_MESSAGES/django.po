@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-30 19:28+0500\n"
+"POT-Creation-Date: 2016-12-01 21:14+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -409,6 +409,22 @@ msgstr ""
 msgid "JSON string containing an elasticsearch function score config."
 msgstr ""
 
+#: apps/publisher/choices.py
+msgid "Partner Coordinator"
+msgstr ""
+
+#: apps/publisher/choices.py
+msgid "Marketing Reviewer"
+msgstr ""
+
+#: apps/publisher/choices.py
+msgid "Publisher"
+msgstr ""
+
+#: apps/publisher/choices.py
+msgid "Course Team"
+msgstr ""
+
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Course Run {title}-{pacing_type}-{start} state has been changed."
@@ -560,15 +576,11 @@ msgid "Professional (no ID verifiation)"
 msgstr ""
 
 #: apps/publisher/models.py
-msgid "Partner Coordinator"
+msgid "Organization Role"
 msgstr ""
 
 #: apps/publisher/models.py
-msgid "Reviewer"
-msgstr ""
-
-#: apps/publisher/models.py
-msgid "Publisher"
+msgid "Course Role"
 msgstr ""
 
 #: apps/publisher/views.py

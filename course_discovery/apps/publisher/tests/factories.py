@@ -11,8 +11,9 @@ from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.models import (
-    Course, CourseRun, GroupOrganization, OrganizationUserRole, Seat, State, UserAttributes
+    Course, CourseRun, CourseUserRole, GroupOrganization, OrganizationUserRole, Seat, State, UserAttributes
 )
 
 
@@ -91,10 +92,19 @@ class UserAttributeFactory(factory.DjangoModelFactory):
 class OrganizationUserRoleFactory(factory.DjangoModelFactory):
     organization = factory.SubFactory(factories.OrganizationFactory)
     user = factory.SubFactory(UserFactory)
-    role = FuzzyChoice([name for name, __ in OrganizationUserRole.ROLES_TYPE_CHOICES])
+    role = FuzzyChoice(PublisherUserRole.values.keys())
 
     class Meta:
         model = OrganizationUserRole
+
+
+class CourseUserRoleFactory(factory.DjangoModelFactory):
+    course = factory.SubFactory(CourseFactory)
+    user = factory.SubFactory(UserFactory)
+    role = FuzzyChoice(PublisherUserRole.values.keys())
+
+    class Meta:
+        model = CourseUserRole
 
 
 class GroupOrganizationFactory(factory.DjangoModelFactory):

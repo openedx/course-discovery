@@ -34,6 +34,7 @@ class CommentsTests(TestCase):
         self.course = self.course_run.course
 
         self.course.organizations.add(self.group_organization.organization)
+        self.course.assign_permission_by_group(self.group_organization.group)
         toggle_switch('enable_publisher_email_notifications', True)
 
     def test_course_edit_page_with_multiple_comments(self):
