@@ -37,6 +37,8 @@ from course_discovery.apps.course_metadata.models import Course, CourseRun, Part
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
+RESULT_COUNT = 3
+
 
 def get_query_param(request, name):
     """
@@ -676,3 +678,30 @@ class AggregateSearchViewSet(BaseHaystackViewSet):
     """ Search all content types. """
     facet_serializer_class = serializers.AggregateFacetSearchSerializer
     serializer_class = serializers.AggregateSearchSerializer
+
+
+class TypeaheadSearchViewSet(BaseHaystackViewSet):
+    """
+    Typeahead for courses and programs.
+    """
+
+    serializer_class = serializers.TypeaheadSearchSerializer
+    index_models = (CourseRun, Program,)
+
+    def list(self, request, *args, **kwargs):
+        response = super(TypeaheadSearchViewSet, self).list(request, *args, **kwargs)
+        results = response.data['results']
+        course_runs, programs = [], []
+        for item in results:
+            # Items are grouped by content type so we don't need it in the response
+            item_type = item.pop('content_type', None)
+            programs_length = len(programs)
+            course_run_length = len(course_runs)
+            if item_type == 'courserun' and course_run_length < RESULT_COUNT:
+                course_runs.append(item)
+            elif item_type == 'program' and programs_length < RESULT_COUNT:
+                programs.append(item)
+            elif programs_length == RESULT_COUNT and course_run_length == RESULT_COUNT:
+                break
+        response.data = {'course_runs': course_runs, 'programs': programs}
+        return response

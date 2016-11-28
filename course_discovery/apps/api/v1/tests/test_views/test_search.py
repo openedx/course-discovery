@@ -8,12 +8,15 @@ from django.core.urlresolvers import reverse
 from haystack.query import SearchQuerySet
 from rest_framework.test import APITestCase
 
-from course_discovery.apps.api.serializers import CourseRunSearchSerializer, ProgramSearchSerializer
+from course_discovery.apps.api.serializers import (CourseRunSearchSerializer, ProgramSearchSerializer,
+                                                   TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer)
+from course_discovery.apps.api.v1.views import RESULT_COUNT
+
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD, PartnerFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRun, Program
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory, OrganizationFactory
 
 
 class SerializationMixin:
@@ -24,6 +27,22 @@ class SerializationMixin:
     def serialize_program(self, program):
         result = SearchQuerySet().models(Program).filter(uuid=program.uuid)[0]
         return ProgramSearchSerializer(result).data
+
+
+class TypeaheadSerializationMixin:
+    def serialize_course_run(self, course_run):
+        result = SearchQuerySet().models(CourseRun).filter(key=course_run.key)[0]
+        data = TypeaheadCourseRunSearchSerializer(result).data
+        # Items are grouped by content type so we don't need it in the response
+        data.pop('content_type')
+        return data
+
+    def serialize_program(self, program):
+        result = SearchQuerySet().models(Program).filter(uuid=program.uuid)[0]
+        data = TypeaheadProgramSearchSerializer(result).data
+        # Items are grouped by content type so we don't need it in the response
+        data.pop('content_type')
+        return data
 
 
 class LoginMixin:
@@ -279,3 +298,41 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
         response_data = json.loads(response.content.decode('utf-8'))
         self.assertListEqual(response_data['objects']['results'],
                              [self.serialize_course_run(course_run), self.serialize_program(program)])
+
+
+class TypeaheadSearchViewSet(TypeaheadSerializationMixin, LoginMixin, APITestCase):
+    path = reverse('api:v1:search-typeahead-list')
+
+    def get_typeahead_response(self):
+        return self.client.get(self.path)
+
+    def test_typeahead(self):
+        """ Test typeahead response. """
+        course_run = CourseRunFactory()
+        program = ProgramFactory()
+        response = self.get_typeahead_response()
+        self.assertEqual(response.status_code, 200)
+        response_data = response.json()
+        self.assertDictEqual(response_data, {'course_runs': [self.serialize_course_run(course_run)],
+                                             'programs': [self.serialize_program(program)]})
+
+    def test_typeahead_multiple_results(self):
+        """ Test typeahead response with max number of course_runs and programs. """
+        CourseRunFactory.create_batch(RESULT_COUNT + 1)
+        ProgramFactory.create_batch(RESULT_COUNT + 1)
+        response = self.get_typeahead_response()
+        self.assertEqual(response.status_code, 200)
+        response_data = response.json()
+        self.assertEqual(len(response_data['course_runs']), RESULT_COUNT)
+        self.assertEqual(len(response_data['programs']), RESULT_COUNT)
+
+    def test_typeahead_multiple_authoring_organizations(self):
+        """ Test typeahead response with multiple authoring organizations. """
+        authoring_organizations = OrganizationFactory.create_batch(3)
+        course_run = CourseRunFactory(authoring_organizations=authoring_organizations)
+        program = ProgramFactory(authoring_organizations=authoring_organizations)
+        response = self.get_typeahead_response()
+        self.assertEqual(response.status_code, 200)
+        response_data = response.json()
+        self.assertDictEqual(response_data, {'course_runs': [self.serialize_course_run(course_run)],
+                                             'programs': [self.serialize_program(program)]})
