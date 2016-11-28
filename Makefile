@@ -3,7 +3,7 @@ NODE_BIN=./node_modules/.bin
 
 .PHONY: accept clean compile_translations dummy_translations extract_translations fake_translations help html_coverage \
 	migrate pull_translations push_translations quality requirements production-requirements test \
-	update_translations validate stop-devstack
+	update_translations validate stop-devstack static
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
