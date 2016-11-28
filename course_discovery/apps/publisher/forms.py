@@ -1,13 +1,12 @@
 """
 Course publisher forms.
 """
-from django.contrib.auth.models import Group
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import Person
-from course_discovery.apps.publisher.models import Course, CourseRun, Seat, User
+from course_discovery.apps.publisher.models import Course, CourseRun, Seat, User, GroupOrganization
 
 
 class BaseCourseForm(forms.ModelForm):
@@ -49,7 +48,7 @@ class CourseForm(BaseCourseForm):
 class CustomCourseForm(CourseForm):
     """ Course Form. """
 
-    institution = forms.ModelChoiceField(queryset=Group.objects.all(), required=True)
+    organization = forms.ModelChoiceField(queryset=GroupOrganization.objects.all(), required=True)
     title = forms.CharField(label=_('Course Title'), required=True)
     number = forms.CharField(label=_('Course Number'), required=True)
     team_admin = forms.ModelChoiceField(queryset=User.objects.filter(is_staff=True), required=True)
@@ -60,7 +59,7 @@ class CustomCourseForm(CourseForm):
             'title', 'number', 'short_description', 'full_description',
             'expected_learnings', 'level_type', 'primary_subject', 'secondary_subject',
             'tertiary_subject', 'prerequisites', 'level_type', 'image', 'team_admin',
-            'level_type', 'institution', 'is_seo_review', 'keywords',
+            'level_type', 'organization', 'is_seo_review', 'keywords',
         )
 
 

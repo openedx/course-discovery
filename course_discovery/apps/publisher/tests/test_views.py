@@ -4,6 +4,7 @@ from datetime import datetime
 
 import ddt
 import factory
+from django.http import Http404
 from mock import patch
 
 from django.db import IntegrityError
@@ -13,7 +14,6 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.forms import model_to_dict
 from django.test import TestCase
-from guardian.shortcuts import assign_perm
 from testfixtures import LogCapture
 
 from course_discovery.apps.core.models import User
@@ -36,16 +36,15 @@ class CreateUpdateCourseViewTests(TestCase):
     def setUp(self):
         super(CreateUpdateCourseViewTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
-        self.group = factories.GroupFactory()
+        self.group_organization_1 = factories.GroupOrganizationFactory()
 
         self.course = factories.CourseFactory(team_admin=self.user)
         self.course_run = factories.CourseRunFactory(course=self.course)
         self.seat = factories.SeatFactory(course_run=self.course_run, type=Seat.VERIFIED, price=2)
 
-        self.user.groups.add(self.group)
+        self.user.groups.add(self.group_organization_1.group)
         self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.group_2 = factories.GroupFactory()
         self.start_date_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     def test_course_form_without_login(self):
@@ -99,8 +98,8 @@ class CreateUpdateCourseViewTests(TestCase):
         self._assert_records(1)
         data = {'number': 'course_2', 'image': make_image_file('test_banner.jpg')}
         course_dict = self._post_data(data, self.course, self.course_run, self.seat)
-        with patch.object(Course, "assign_permission_by_group") as mock_method:
-            mock_method.side_effect = IntegrityError
+        with patch('course_discovery.apps.publisher.views.GroupOrganization') as mock_method:
+            mock_method.side_effect = Http404
             response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=data['image'])
 
         self.assertEqual(response.status_code, 400)
@@ -155,9 +154,11 @@ class CreateUpdateCourseViewTests(TestCase):
 
         self.assertEqual(response.status_code, 403)
 
+        group_organization = factories.GroupOrganizationFactory(group=group)
         # assign user a group and assign view permission on that group
         non_staff_user.groups.add(group)
-        assign_perm(Course.VIEW_PERMISSION, group, self.course)
+
+        self.course.organizations.add(group_organization.organization)
 
         response = self.client.get(
             reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id})
@@ -184,9 +185,11 @@ class CreateUpdateCourseViewTests(TestCase):
         # verify that non staff user can't update course without permission
         self.assertEqual(response.status_code, 403)
 
+        group_organization = factories.GroupOrganizationFactory(group=group)
         # assign user a group and assign view permission on that group
         non_staff_user.groups.add(group)
-        assign_perm(Course.VIEW_PERMISSION, group, self.course)
+
+        self.course.organizations.add(group_organization.organization)
 
         response = self.client.post(
             reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id}),
@@ -249,7 +252,7 @@ class CreateUpdateCourseViewTests(TestCase):
             course_dict.pop('end')
             course_dict.pop('priority')
             course_dict['start'] = self.start_date_time
-            course_dict['institution'] = self.group.id
+            course_dict['organization'] = self.group_organization_1.organization.id
         if seat:
             course_dict.update(**model_to_dict(seat))
             course_dict.pop('verification_deadline')
@@ -280,7 +283,7 @@ class CreateUpdateCourseViewTests(TestCase):
             status_code=302,
             target_status_code=200
         )
-        self.assertEqual(course.group_institution, self.group)
+        # self.assertEqual(course.group_institution, self.group_organization_1)
         self.assertEqual(course.team_admin, self.user)
         self.assertTrue(self.user.has_perm(Course.VIEW_PERMISSION, course))
         course_run = course.publisher_course_runs.all()[0]
@@ -472,9 +475,11 @@ class CreateUpdateCourseRunViewTests(TestCase):
 
         self.assertEqual(response.status_code, 403)
 
+        group_organization = factories.GroupOrganizationFactory(group=group)
         # assign user a group and assign view permission on that group
         non_staff_user.groups.add(group)
-        assign_perm(Course.VIEW_PERMISSION, group, self.course_run.course)
+
+        self.course_run.course.organizations.add(group_organization.organization)
 
         response = self.client.get(
             reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id})
@@ -499,8 +504,11 @@ class CreateUpdateCourseRunViewTests(TestCase):
         self.assertEqual(response.status_code, 403)
 
         # assign user a group and assign view permission on that group
+        group_organization = factories.GroupOrganizationFactory(group=group)
+        # assign user a group and assign view permission on that group
         non_staff_user.groups.add(group)
-        assign_perm(Course.VIEW_PERMISSION, group, self.course_run.course)
+
+        self.course_run.course.organizations.add(group_organization.organization)
 
         response = self.client.post(
             reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id}),
@@ -538,6 +546,7 @@ class SeatsCreateUpdateViewTests(TestCase):
         self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.seat_edit_url = reverse('publisher:publisher_seats_edit', kwargs={'pk': self.seat.id})
+        self.group_organization_1 = factories.GroupOrganizationFactory()
 
     def test_seat_form_without_login(self):
         """ Verify that user can't access new seat form page when not logged in. """
@@ -628,9 +637,11 @@ class SeatsCreateUpdateViewTests(TestCase):
 
         self.assertEqual(response.status_code, 403)
 
-        # assign user a group and assign view permission on that group
-        non_staff_user.groups.add(group)
-        assign_perm(Course.VIEW_PERMISSION, group, self.seat.course_run.course)
+        # assign user a group and assign organization to the course
+        group_organization_1 = factories.GroupOrganizationFactory(group=group)
+        non_staff_user.groups.add(group_organization_1.group)
+        self.seat.course_run.course.organizations.add(group_organization_1.organization)
+
         response = self.client.get(reverse('publisher:publisher_seats_edit', kwargs={'pk': self.seat.id}))
 
         self.assertEqual(response.status_code, 200)
@@ -653,9 +664,10 @@ class SeatsCreateUpdateViewTests(TestCase):
         # verify that non staff user can't update course seat without permission
         self.assertEqual(response.status_code, 403)
 
-        # assign user a group and assign view permission on that group
-        non_staff_user.groups.add(group)
-        assign_perm(Course.VIEW_PERMISSION, group, self.seat.course_run.course)
+        # assign user a group and assign organization to the course
+        group_organization_1 = factories.GroupOrganizationFactory(group=group)
+        non_staff_user.groups.add(group_organization_1.group)
+        self.seat.course_run.course.organizations.add(group_organization_1.organization)
 
         response = self.client.post(
             reverse('publisher:publisher_seats_edit', kwargs={'pk': self.seat.id}),
@@ -744,8 +756,11 @@ class CourseRunDetailTests(TestCase):
         response = self.client.get(self.page_url)
         self.assertEqual(response.status_code, 403)
 
+        group_organization = factories.GroupOrganizationFactory(group=group)
+        # assign user a group and assign view permission on that group
         non_staff_user.groups.add(group)
-        assign_perm(Course.VIEW_PERMISSION, group, self.course)
+
+        self.course.organizations.add(group_organization.organization)
 
         response = self.client.get(self.page_url)
 
@@ -955,9 +970,12 @@ class ChangeStateViewTests(TestCase):
         # verify that non staff user can't change workflow state without permission
         self.assertEqual(response.status_code, 403)
 
+        group_organization = factories.GroupOrganizationFactory(group=group)
         # assign user a group and assign view permission on that group
         non_staff_user.groups.add(group)
-        assign_perm(Course.VIEW_PERMISSION, group, self.course)
+
+        self.course.organizations.add(group_organization.organization)
+
         response = self.client.get(self.page_url)
 
         self.assertContains(response, 'Status:')
@@ -976,29 +994,29 @@ class DashboardTests(TestCase):
         super(DashboardTests, self).setUp()
 
         self.user1 = UserFactory()
-        self.group_a = factories.GroupFactory()
-        self.user1.groups.add(self.group_a)
+        self.group_organization_1 = factories.GroupOrganizationFactory()
+        self.user1.groups.add(self.group_organization_1.group)
 
         self.user2 = UserFactory()
-        self.group_b = factories.GroupFactory()
-        self.user2.groups.add(self.group_b)
+        self.group_organization_2 = factories.GroupOrganizationFactory()
+        self.user2.groups.add(self.group_organization_2.group)
 
         self.client.login(username=self.user1.username, password=USER_PASSWORD)
         self.page_url = reverse('publisher:publisher_dashboard')
 
-        # group-a course
-        self.course_run_1 = self._create_course_assign_permissions(State.DRAFT, self.group_a)
-        self.course_run_2 = self._create_course_assign_permissions(State.NEEDS_REVIEW, self.group_a)
-        self.course_run_3 = self._create_course_assign_permissions(State.PUBLISHED, self.group_a)
+        # create course and assign an organization
+        self.course_run_1 = self._create_assign_organization(State.DRAFT, self.group_organization_1.organization)
+        self.course_run_2 = self._create_assign_organization(State.NEEDS_REVIEW, self.group_organization_1.organization)
+        self.course_run_3 = self._create_assign_organization(State.PUBLISHED, self.group_organization_1.organization)
 
         # group-b course
-        self._create_course_assign_permissions(State.DRAFT, self.group_b)
+        self._create_assign_organization(State.DRAFT, self.group_organization_2.organization)
         self.table_class = "data-table-{id} display"
 
-    def _create_course_assign_permissions(self, state, group):
+    def _create_assign_organization(self, state, organization):
         """ DRY method to create course and assign the permissions"""
         course_run = factories.CourseRunFactory(state=factories.StateFactory(name=state))
-        course_run.course.assign_permission_by_group(group)
+        course_run.course.organizations.add(organization)
         return course_run
 
     def test_page_without_login(self):
@@ -1152,9 +1170,11 @@ class UpdateCourseKeyViewTests(TestCase):
         self.course_run = factories.CourseRunFactory()
         self.user = UserFactory(is_staff=True, is_superuser=True)
 
-        self.group = factories.GroupFactory()
-        self.user.groups.add(self.group)
-        assign_perm(Course.VIEW_PERMISSION, self.group, self.course_run.course)
+        self.group_organization_1 = factories.GroupOrganizationFactory()
+
+        self.user.groups.add(self.group_organization_1.group)
+        # assign_perm(Course.VIEW_PERMISSION, self.group_organization_1.group, self.course_run.course)
+        self.course_run.course.organizations.add(self.group_organization_1.organization)
 
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.update_course_key_url = reverse(

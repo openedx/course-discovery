@@ -8,7 +8,7 @@ from django_fsm import TransitionNotAllowed
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.constants import COORDINATOR
-from course_discovery.apps.publisher.models import State, Course
+from course_discovery.apps.publisher.models import State
 from course_discovery.apps.publisher.tests import factories
 
 
@@ -68,10 +68,12 @@ class CourseTests(TestCase):
         self.user1 = UserFactory()
         self.user2 = UserFactory()
         self.user3 = UserFactory()
-        self.group_a = factories.GroupFactory()
-        self.group_b = factories.GroupFactory()
-        self.user1.groups.add(self.group_a)
-        self.user2.groups.add(self.group_b)
+
+        self.group_organization_1 = factories.GroupOrganizationFactory()
+        self.group_organization_2 = factories.GroupOrganizationFactory()
+
+        self.user1.groups.add(self.group_organization_1.group)
+        self.user2.groups.add(self.group_organization_2.group)
 
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the course title. """
@@ -83,13 +85,14 @@ class CourseTests(TestCase):
             reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id})
         )
 
-    def test_assign_permission_by_group(self):
-        """ Verify that permission can be assigned using the group. """
+    def test_assign_organization_to_course(self):
+        """ Verify that only group associated users can view the course. """
         self.assert_user_cannot_view_course(self.user1, self.course)
         self.assert_user_cannot_view_course(self.user2, self.course2)
 
-        self.course.assign_permission_by_group(self.group_a)
-        self.course2.assign_permission_by_group(self.group_b)
+        # assign the organization to the course
+        self.course.organizations.add(self.group_organization_1.organization)
+        self.course2.organizations.add(self.group_organization_2.organization)
 
         self.assert_user_can_view_course(self.user1, self.course)
         self.assert_user_can_view_course(self.user2, self.course2)
@@ -97,29 +100,33 @@ class CourseTests(TestCase):
         self.assert_user_cannot_view_course(self.user1, self.course2)
         self.assert_user_cannot_view_course(self.user2, self.course)
 
-        self.assertEqual(self.course.group_institution, self.group_a)
-        self.assertEqual(self.course2.group_institution, self.group_b)
+        self.assertEqual(self.course.get_group_from_organizations(), self.group_organization_1.group)
+        self.assertEqual(self.course2.get_group_from_organizations(), self.group_organization_2.group)
 
     def assert_user_cannot_view_course(self, user, course):
         """ Asserts the user can NOT view the course. """
-        self.assertFalse(user.has_perm(Course.VIEW_PERMISSION, course))
+        organization_group = course.get_group_from_organizations()
+        return organization_group in user.groups.all()
 
     def assert_user_can_view_course(self, user, course):
         """ Asserts the user can view the course. """
-        self.assertTrue(user.has_perm(Course.VIEW_PERMISSION, course))
+        organization_group = course.get_group_from_organizations()
+        return organization_group in user.groups.all()
 
-    def test_group_institution(self):
+    def test_group_organization(self):
         """ Verify the method returns groups permitted to access the course."""
-        self.assertEqual(self.course.group_institution, None)
-        self.course.assign_permission_by_group(self.group_a)
-        self.assertEqual(self.course.group_institution, self.group_a)
+        self.assertEqual(self.course.get_group_from_organizations(), None)
+        self.course.organizations.add(self.group_organization_1.organization)
+        self.assertEqual(self.course.get_group_from_organizations(), self.group_organization_1.group)
 
     def test_get_group_users_emails(self):
         """ Verify the method returns the email addresses of users who are
         permitted to access the course AND have not disabled email notifications.
         """
-        self.user3.groups.add(self.group_a)
-        self.course.assign_permission_by_group(self.group_a)
+        self.user3.groups.add(self.group_organization_1.group)
+
+        self.course.organizations.add(self.group_organization_1.organization)
+
         self.assertListEqual(self.course.get_group_users_emails(), [self.user1.email, self.user3.email])
 
         # The email addresses of users who have disabled email notifications should NOT be returned.

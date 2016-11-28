@@ -57,4 +57,4 @@ class FormValidMixin(object):
 
 
 def check_view_permission(user, course):
-    return user.is_staff or user.has_perm(Course.VIEW_PERMISSION, course)
+    return user.is_staff or (course and course.get_group_from_organizations() in user.groups.all())

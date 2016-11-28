@@ -12,7 +12,7 @@ from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.models import (
-    Course, CourseRun, OrganizationUserRole, Seat, State, UserAttributes
+    Course, CourseRun, GroupOrganization, OrganizationUserRole, Seat, State, UserAttributes
 )
 
 
@@ -95,3 +95,11 @@ class OrganizationUserRoleFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = OrganizationUserRole
+
+
+class GroupOrganizationFactory(factory.DjangoModelFactory):
+    organization = factory.SubFactory(factories.OrganizationFactory)
+    group = factory.SubFactory(GroupFactory)
+
+    class Meta:
+        model = GroupOrganization

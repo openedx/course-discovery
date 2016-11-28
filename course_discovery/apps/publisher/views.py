@@ -6,7 +6,6 @@ import logging
 from datetime import datetime, timedelta
 
 from django.contrib import messages
-from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponseRedirect, HttpResponseForbidden, JsonResponse
@@ -14,14 +13,13 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View, CreateView, UpdateView, DetailView, ListView
 from django_fsm import TransitionNotAllowed
-from guardian.shortcuts import get_objects_for_user
 from rest_framework.generics import UpdateAPIView
 
 from course_discovery.apps.publisher.forms import (
     CourseForm, CourseRunForm, SeatForm, CustomCourseForm, CustomCourseRunForm, CustomSeatForm,
     UpdateCourseForm)
 from course_discovery.apps.publisher import mixins
-from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State, UserAttributes
+from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State, UserAttributes, GroupOrganization
 from course_discovery.apps.publisher.serializers import UpdateCourseKeySerializer
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
@@ -38,11 +36,18 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
     default_published_days = 30
 
     def get_queryset(self):
+
         if self.request.user.is_staff:
             course_runs = CourseRun.objects.select_related('course').all()
+
         else:
-            courses = get_objects_for_user(self.request.user, Course.VIEW_PERMISSION, Course)
-            course_runs = CourseRun.objects.filter(course__in=courses).select_related('course').all()
+            organizations = GroupOrganization.objects.filter(
+                group__in=self.request.user.groups.all()
+            ).values_list('organization')
+
+            course_runs = CourseRun.objects.filter(
+                course__organizations__in=organizations
+            ).select_related('course').all()
 
         return course_runs
 
@@ -142,9 +147,8 @@ class CreateCourseView(mixins.LoginRequiredMixin, CreateView):
                     seat.changed_by = self.request.user
                     seat.save()
 
-                    institution = get_object_or_404(Group, pk=course_form.data['institution'])
-                    # assign guardian permission.
-                    course.assign_permission_by_group(institution)
+                    group_organization = get_object_or_404(GroupOrganization, pk=course_form.data['organization'])
+                    course.organizations.add(group_organization.organization)
 
                     messages.success(
                         request, _('Course created successfully.')

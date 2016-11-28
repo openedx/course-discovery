@@ -6,7 +6,6 @@ from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.core import mail
-from guardian.shortcuts import assign_perm
 import pytz
 import mock
 from testfixtures import LogCapture
@@ -14,7 +13,7 @@ from testfixtures import LogCapture
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.publisher import emails
-from course_discovery.apps.publisher.models import State, Course
+from course_discovery.apps.publisher.models import State
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.factories import UserAttributeFactory
 
@@ -32,17 +31,19 @@ class StateChangeEmailTests(TestCase):
 
         cls.site = Site.objects.get(pk=settings.SITE_ID)
 
-        cls.group = factories.GroupFactory()
-        cls.user.groups.add(cls.group)
-        cls.user_2.groups.add(cls.group)
-        cls.user_3.groups.add(cls.group)
+        cls.group_organization_1 = factories.GroupOrganizationFactory()
+
+        # assign users a group
+        cls.user.groups.add(cls.group_organization_1.group)
+        cls.user_2.groups.add(cls.group_organization_1.group)
+        cls.user_3.groups.add(cls.group_organization_1.group)
 
         cls.seat = factories.SeatFactory()
         cls.course_run = cls.seat.course_run
         cls.course = cls.course_run.course
 
-        assign_perm(Course.VIEW_PERMISSION, cls.group, cls.course)
-
+        # adding the course organization
+        cls.course.organizations.add(cls.group_organization_1.organization)
         # NOTE: We intentionally do NOT create an attribute for user_2.
         # By default this user WILL receive email notifications.
 
@@ -94,9 +95,9 @@ class StateChangeEmailTests(TestCase):
     )
     def test_email_without_group(self, target_state):
         """ Verify that no email send if course group has no users. """
-        self.user.groups.remove(self.group)
-        self.user_2.groups.remove(self.group)
-        self.user_3.groups.remove(self.group)
+        self.user.groups.remove(self.group_organization_1.group)
+        self.user_2.groups.remove(self.group_organization_1.group)
+        self.user_3.groups.remove(self.group_organization_1.group)
 
         self.course_run.change_state(target=target_state)
         self.assertEqual(len(mail.outbox), 0)
@@ -131,13 +132,12 @@ class StudioInstanceCreatedEmailTests(TestCase):
     def setUp(self):
         super(StudioInstanceCreatedEmailTests, self).setUp()
         self.user = UserFactory()
-
-        self.group = factories.GroupFactory()
-        self.user.groups.add(self.group)
+        self.group_organization_1 = factories.GroupOrganizationFactory()
+        self.user.groups.add(self.group_organization_1.group)
 
         self.course_run = factories.CourseRunFactory()
 
-        assign_perm(Course.VIEW_PERMISSION, self.group, self.course_run.course)
+        self.course_run.course.organizations.add(self.group_organization_1.organization)
 
         UserAttributeFactory(user=self.user, enable_email_notification=True)
 
