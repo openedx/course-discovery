@@ -1,5 +1,6 @@
 import logging
 
+from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import pre_save
@@ -7,7 +8,7 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from django_fsm import FSMField, transition
-from guardian.shortcuts import assign_perm, get_groups_with_perms, get_users_with_perms
+from guardian.shortcuts import assign_perm, get_users_with_perms
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
@@ -151,17 +152,9 @@ class Course(TimeStampedModel, ChangedByMixin):
             ('view_course', 'Can view course'),
         )
 
-    def assign_permission_by_group(self, institution):
+    def assign_permission_by_group(self, group):
         """ Assigns permission on the course against the group. """
-        assign_perm(self.VIEW_PERMISSION, institution, self)
-
-    @property
-    def group_institution(self):
-        """ Returns the group object having permissions on the given course.
-        Course will be associated with one group only.
-        """
-        available_groups = get_groups_with_perms(self)
-        return available_groups[0] if available_groups else None
+        assign_perm(self.VIEW_PERMISSION, group, self)
 
     def get_group_users_emails(self):
         """ Returns the list of users emails with enable email notifications
@@ -406,4 +399,17 @@ class CourseUserRole(TimeStampedModel, ChangedByMixin):
             course=self.course,
             user=self.user,
             role=self.role
+        )
+
+
+class OrganizationExtension(TimeStampedModel):
+    """ Organization-Extension relation model. """
+    organization = models.OneToOneField(Organization, related_name='organization_extension')
+    group = models.OneToOneField(Group, related_name='organization_extension')
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return '{organization}: {group}'.format(
+            organization=self.organization, group=self.group
         )

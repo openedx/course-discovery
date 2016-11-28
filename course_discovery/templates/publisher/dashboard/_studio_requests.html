@@ -33,7 +33,9 @@
                             <td id="course-title-{{ course_run.title }}">
                                 <a href="{{ run_page_url }}" id="course-title">{{ course_run.title }}</a>
                             </td>
-                            <td>{% if course_run.course.group_institution %}{{ course_run.course.group_institution }}{% endif %}</td>
+                            <td>
+                                {% if course_run.course.organizations.first %}{{ course_run.course.organizations.first.name }}{% endif %}
+                            </td>
                             <td id="course-start">
                                  {{ course_run.start|date:"Y-m-d" }}
                             </td>

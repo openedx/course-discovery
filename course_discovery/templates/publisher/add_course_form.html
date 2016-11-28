@@ -39,10 +39,10 @@
                         {% trans "Please choose the school that will be providing the course. Once chosen then you can select an administrator for the studio shell." %}
                     </div>
                     <div class="col col-6">
-                        <label class="field-label">{{ course_form.institution.label_tag }}
+                        <label class="field-label">{{ course_form.organization.label_tag }}
                             <span class="required">* {% trans "required" %}</span>
                         </label>
-                        {{ course_form.institution}}
+                        {{ course_form.organization }}
 
                         <label class="field-label">
                             {{ course_form.team_admin.label_tag }}

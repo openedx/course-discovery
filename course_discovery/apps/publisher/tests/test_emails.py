@@ -31,8 +31,9 @@ class StateChangeEmailTests(TestCase):
         cls.user_3 = UserFactory()
 
         cls.site = Site.objects.get(pk=settings.SITE_ID)
+        cls.organization_extension = factories.OrganizationExtensionFactory()
 
-        cls.group = factories.GroupFactory()
+        cls.group = cls.organization_extension.group
         cls.user.groups.add(cls.group)
         cls.user_2.groups.add(cls.group)
         cls.user_3.groups.add(cls.group)

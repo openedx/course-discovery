@@ -18,8 +18,9 @@ class CommentsTests(TestCase):
     def setUp(self):
         super(CommentsTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
-        self.group = factories.GroupFactory()
-        self.user.groups.add(self.group)
+        self.organization_extension = factories.OrganizationExtensionFactory()
+
+        self.user.groups.add(self.organization_extension.group)
 
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.site = Site.objects.get(pk=settings.SITE_ID)
@@ -32,7 +33,8 @@ class CommentsTests(TestCase):
         self.course_run = self.seat.course_run
         self.course = self.course_run.course
 
-        self.course.assign_permission_by_group(self.group)
+        self.course.organizations.add(self.organization_extension.organization)
+        self.course.assign_permission_by_group(self.organization_extension.group)
         toggle_switch('enable_publisher_email_notifications', True)
 
     def test_course_edit_page_with_multiple_comments(self):
