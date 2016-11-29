@@ -391,6 +391,9 @@ class CourseRoleAssignmentView(mixins.LoginRequiredMixin, View):
         user_id = request.POST.get('user_id')
         try:
             course = Course.objects.get(id=course_id)
+            if not mixins.check_view_permission(request.user, course):
+                return HttpResponseForbidden()
+
             users_default_role = OrganizationUserRole.objects.get(
                 organization=course.organizations.first(), user=request.user
             )
@@ -398,8 +401,6 @@ class CourseRoleAssignmentView(mixins.LoginRequiredMixin, View):
             new_user = User.objects.get(id=user_id)
             current_users_role.user = new_user
             current_users_role.save()
-            if not mixins.check_view_permission(request.user, course):
-                return HttpResponseForbidden()
 
             return JsonResponse({'success': True, 'full_name': new_user.full_name})
         except (CourseUserRole.DoesNotExist, OrganizationUserRole.DoesNotExist):

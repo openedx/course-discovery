@@ -11,7 +11,7 @@ urlpatterns = [
     url(r'^courses/(?P<pk>\d+)/view/$', views.ReadOnlyView.as_view(), name='publisher_courses_readonly'),
     url(r'^courses/(?P<pk>\d+)/edit/$', views.UpdateCourseView.as_view(), name='publisher_courses_edit'),
     url(
-        r'^courses/(?P<course_id>\d+)/change/role_assignment/$',
+        r'^courses/(?P<course_id>\d+)/role_assignments/$',
         views.CourseRoleAssignmentView.as_view(),
         name='publisher_change_role_assignment'
     ),
