@@ -162,9 +162,19 @@ class FAQAdmin(admin.ModelAdmin):
     list_display = ('question',)
 
 
+class OrganizationUserRoleInline(admin.TabularInline):
+
+    # course-meta-data models are importing in publisher app. So just for safe side
+    # to avoid any circular issue importing the publisher model here.
+    from course_discovery.apps.publisher.models import OrganizationUserRole
+    model = OrganizationUserRole
+    extra = 3
+
+
 @admin.register(Organization)
 class OrganizationAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'key', 'name',)
+    inlines = [OrganizationUserRoleInline, ]
     list_filter = ('partner',)
     readonly_fields = ('uuid',)
     search_fields = ('uuid', 'name', 'key',)

@@ -19,6 +19,7 @@ from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import LevelType, Subject, Person, Organization
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from course_discovery.apps.publisher.constants import COORDINATOR, REVIEWER, PUBLISHER
 from course_discovery.apps.publisher.emails import send_email_for_change_state
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
 
@@ -360,3 +361,30 @@ class UserAttributes(TimeStampedModel):
 
     class Meta:
         verbose_name_plural = 'UserAttributes'
+
+
+class OrganizationUserRole(TimeStampedModel):
+    """ User Roles model for Organization. """
+    ROLES_TYPE_CHOICES = (
+        (COORDINATOR, _('Partner Coordinator')),
+        (REVIEWER, _('Reviewer')),
+        (PUBLISHER, _('Publisher')),
+    )
+
+    organization = models.ForeignKey(Organization, related_name='user_roles')
+    user = models.ForeignKey(User, related_name='organization_user_roles')
+    role = models.CharField(max_length=63, choices=ROLES_TYPE_CHOICES, verbose_name='Role Type')
+
+    history = HistoricalRecords()
+
+    class Meta:
+        unique_together = (
+            ('organization', 'user', 'role'),
+        )
+
+    def __str__(self):
+        return '{organization}: {user}: {role}'.format(
+            organization=self.organization,
+            user=self.user,
+            role=self.role
+        )
