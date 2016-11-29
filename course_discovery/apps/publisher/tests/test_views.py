@@ -20,11 +20,15 @@ from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
+from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
+from course_discovery.apps.publisher.constants import REVIEWER, COORDINATOR
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State
 from course_discovery.apps.publisher.tests import factories, JSON_CONTENT_TYPE
 from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
-from course_discovery.apps.publisher.views import CourseRunDetailView, logger as publisher_views_logger
+from course_discovery.apps.publisher.views import (
+    CourseRunDetailView, logger as publisher_views_logger, ROLE_WIDGET_HEADINGS
+)
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
 
@@ -897,6 +901,34 @@ class CourseRunDetailTests(TestCase):
             response = self.client.get(page_url)
             self.assertEqual(response.status_code, 403)
 
+    def test_detail_page_with_role_assignment(self):
+        """ Verify that detail page contains role assignment data. """
+        user2 = UserFactory(is_staff=True)
+        # Create a Marketing reviewer group and assign two users.
+        reviewer_group = factories.GroupFactory(name=REVIEWER)
+        self.user.groups.add(reviewer_group)
+        user2.groups.add(reviewer_group)
+
+        organization = OrganizationFactory(name='testX')
+        self.course.organizations.add(organization)
+
+        user_default_role = factories.OrganizationUserRoleFactory(
+            user=self.user, role=REVIEWER, organization=organization
+        )
+        user_course_role = factories.CourseUserRoleFactory(
+            course=self.course, user=self.user, role=user_default_role.role
+        )
+        response = self.client.get(self.page_url)
+
+        role_widget = response.context['role_widget']
+        users_by_role = role_widget.get('users_by_role')
+
+        self.assertEqual(role_widget.get('user_course_role'), user_course_role)
+        self.assertEqual(len(users_by_role), 2)
+        self.assertIn(self.user, users_by_role)
+        self.assertIn(user2, users_by_role)
+        self.assertEqual(role_widget.get('heading'), ROLE_WIDGET_HEADINGS.get(user_course_role.role))
+
 
 class ChangeStateViewTests(TestCase):
     """ Tests for the `ChangeStateView`. """
@@ -1218,3 +1250,78 @@ class UpdateCourseKeyViewTests(TestCase):
         self.assertIn(expected_body, body)
         page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=object_path)
         self.assertIn(page_url, body)
+
+
+class CourseRoleAssignmentViewTests(TestCase):
+    """ Tests for `CourseRoleAssignmentView` """
+
+    def setUp(self):
+        super(CourseRoleAssignmentViewTests, self).setUp()
+        self.course = factories.CourseFactory()
+        self.user = UserFactory()
+
+        # Create a Marketing reviewer group and assign two users.
+        reviewer_group = factories.GroupFactory(name=REVIEWER)
+        self.user.groups.add(reviewer_group)
+        self.user2 = UserFactory()
+        self.user2.groups.add(reviewer_group)
+        assign_perm(Course.VIEW_PERMISSION, reviewer_group, self.course)
+
+        self.user3 = UserFactory()
+        # Create a coordinator group and assign it to user3.
+        coordinator_group = factories.GroupFactory(name=COORDINATOR)
+        self.user3.groups.add(coordinator_group)
+        assign_perm(Course.VIEW_PERMISSION, coordinator_group, self.course)
+
+        organization = OrganizationFactory(name='testX')
+        self.course.organizations.add(organization)
+
+        self.user_default_role = factories.OrganizationUserRoleFactory(
+            user=self.user, role=REVIEWER, organization=organization
+        )
+        self.user_course_role = factories.CourseUserRoleFactory(
+            course=self.course, user=self.user, role=self.user_default_role.role
+        )
+
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.change_assignment_url = reverse(
+            'publisher:publisher_change_role_assignment', kwargs={'course_id': self.course.id}
+        )
+
+    def test_change_role_assignment_without_perm(self):
+        """ Test that user can't change role assignment without permission. """
+        user = UserFactory()
+        self.client.logout()
+        self.client.login(username=user.username, password=USER_PASSWORD)
+        response = self.client.post(
+            self.change_assignment_url, data={'user_id': self.user2.id, 'role_name': self.user_course_role.role}
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_change_role_assignment(self):
+        """ Verify that user can change course role assignment. """
+        response = self.client.post(
+            self.change_assignment_url, data={'user_id': self.user2.id, 'role_name': self.user_course_role.role}
+        )
+        self.assert_role_assignment(response, True, self.user2)
+
+        self.client.logout()
+        self.client.login(username=self.user3.username, password=USER_PASSWORD)
+
+        response = self.client.post(
+            self.change_assignment_url, data={'user_id': self.user3.id, 'role_name': self.user_course_role.role}
+        )
+        # verify that user3 can't change reviewer role for this course and
+        # verify that role assignment is not changed to user3.
+        self.assert_role_assignment(response, False, self.user2)
+
+    def assert_role_assignment(self, response, success, user):
+        self.assertEqual(response.status_code, 200)
+        expected_json = {'success': success}
+
+        if success:
+            expected_json['full_name'] = user.full_name
+
+        self.assertJSONEqual(str(response.content, encoding='utf8'), expected_json)
+
+        self.assertEqual(user, self.course.course_roles.get(role=self.user_course_role.role).user)

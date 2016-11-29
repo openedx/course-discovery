@@ -19,7 +19,7 @@ from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import LevelType, Subject, Person, Organization
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.constants import COORDINATOR, REVIEWER, PUBLISHER
+from course_discovery.apps.publisher.constants import COORDINATOR, REVIEWER, PUBLISHER, COURSE_TEAM
 from course_discovery.apps.publisher.emails import send_email_for_change_state
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
 
@@ -369,6 +369,7 @@ class OrganizationUserRole(TimeStampedModel):
         (COORDINATOR, _('Partner Coordinator')),
         (REVIEWER, _('Reviewer')),
         (PUBLISHER, _('Publisher')),
+        (COURSE_TEAM, _('Course Team')),
     )
 
     organization = models.ForeignKey(Organization, related_name='user_roles')
@@ -385,6 +386,29 @@ class OrganizationUserRole(TimeStampedModel):
     def __str__(self):
         return '{organization}: {user}: {role}'.format(
             organization=self.organization,
+            user=self.user,
+            role=self.role
+        )
+
+
+class CourseUserRole(TimeStampedModel, ChangedByMixin):
+    """ User Course Roles model. """
+    course = models.ForeignKey(Course, related_name='course_roles')
+    user = models.ForeignKey(User, related_name='course_user_roles')
+    role = models.CharField(
+        max_length=63, choices=OrganizationUserRole.ROLES_TYPE_CHOICES, verbose_name='Course Role Type'
+    )
+
+    history = HistoricalRecords()
+
+    class Meta:
+        unique_together = (
+            ('course', 'user', 'role'),
+        )
+
+    def __str__(self):
+        return '{course}: {user}: {role}'.format(
+            course=self.course,
             user=self.user,
             role=self.role
         )

@@ -2,7 +2,7 @@
 {% load staticfiles %}
 {% load comments %}
 {% if user.is_authenticated and comment_object %}
-    <div class="comments-container">
+    <div>
         <p>{% trans 'Add new comment' %}</p>
         <div>
             {% get_comment_form for comment_object as form %}

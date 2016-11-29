@@ -637,3 +637,54 @@ select {
 .hidden {
     display: none;
 }
+
+.approval-widget {
+
+    .btn-course-edit {
+        @include padding(2px, 20px, 3px, 20px);
+        font-weight: 400;
+        font-size: 14px;
+        background: white;
+        border-radius: 5px;
+
+        &:hover, &:focus {
+            border-color: #065683;
+            background: #065683;
+            color: #f2f8fb;
+        }
+    }
+
+    .role-heading {
+        color: #999999;
+    }
+
+    .role-assignment-container {
+
+        .field-readonly {
+            @include margin-right(10px);
+        }
+
+        #change-role-container {
+            display: none;
+
+            #select-users-by-role {
+                @include margin-right(20px);
+            }
+
+            .btn-change-assignment {
+                @include padding(2px, 10px, 3px, 10px);
+                font-weight: 400;
+                font-size: 14px;
+                background: white;
+                border-radius: 5px;
+
+                &:hover, &:focus {
+                    border-color: #065683;
+                    background: #065683;
+                    color: #f2f8fb;
+                }
+            }
+
+        }
+    }
+}

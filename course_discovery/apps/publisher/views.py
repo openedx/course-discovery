@@ -17,11 +17,14 @@ from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import get_objects_for_user
 from rest_framework.generics import UpdateAPIView
 
+from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.forms import (
     CourseForm, CourseRunForm, SeatForm, CustomCourseForm, CustomCourseRunForm, CustomSeatForm,
     UpdateCourseForm)
 from course_discovery.apps.publisher import mixins
-from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State, UserAttributes
+from course_discovery.apps.publisher.constants import COORDINATOR, REVIEWER, PUBLISHER, COURSE_TEAM
+from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State, UserAttributes, CourseUserRole, \
+    OrganizationUserRole
 from course_discovery.apps.publisher.serializers import UpdateCourseKeySerializer
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
@@ -30,6 +33,12 @@ logger = logging.getLogger(__name__)
 
 
 SEATS_HIDDEN_FIELDS = ['price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours']
+
+ROLE_WIDGET_HEADINGS = {
+    COORDINATOR: _('PRODUCT COORDINATOR'),
+    REVIEWER: _('MARKETING'),
+    PUBLISHER: _('PUBLISHER')
+}
 
 
 class Dashboard(mixins.LoginRequiredMixin, ListView):
@@ -85,8 +94,27 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin,
 
     def get_context_data(self, **kwargs):
         context = super(CourseRunDetailView, self).get_context_data(**kwargs)
-        context['object'] = CourseRunWrapper(context['object'])
-        context['comment_object'] = self.object.course
+        course_run = CourseRunWrapper(context['object'])
+        context['object'] = course_run
+        context['comment_object'] = course_run.course
+        try:
+            user_course_role = course_run.course.course_roles.get(user=self.request.user)
+        except CourseUserRole.DoesNotExist:
+            try:
+                users_default_role = OrganizationUserRole.objects.get(
+                    organization__name=course_run.organization_name, user=self.request.user
+                )
+                user_course_role = course_run.course.course_roles.get(role=users_default_role.role)
+            except (CourseUserRole.DoesNotExist, OrganizationUserRole.DoesNotExist):
+                user_course_role = None
+
+        if user_course_role and user_course_role.role != COURSE_TEAM:
+            context['role_widget'] = {
+                'users_by_role': User.objects.filter(groups__name=user_course_role.role),
+                'user_course_role': user_course_role,
+                'heading': ROLE_WIDGET_HEADINGS.get(user_course_role.role)
+            }
+
         return context
 
     def patch(self, *args, **kwargs):
@@ -354,3 +382,27 @@ class ToggleEmailNotification(mixins.LoginRequiredMixin, View):
 class UpdateCourseKeyView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, UpdateAPIView):
     queryset = CourseRun.objects.all()
     serializer_class = UpdateCourseKeySerializer
+
+
+class CourseRoleAssignmentView(mixins.LoginRequiredMixin, View):
+    """ Course Role Assignment View. """
+
+    def post(self, request, course_id):
+        user_id = request.POST.get('user_id')
+        try:
+            course = Course.objects.get(id=course_id)
+            if not mixins.check_view_permission(request.user, course):
+                return HttpResponseForbidden()
+
+            users_default_role = OrganizationUserRole.objects.get(
+                organization=course.organizations.first(), user=request.user
+            )
+            current_users_role = course.course_roles.get(role=users_default_role.role)
+            new_user = User.objects.get(id=user_id)
+            current_users_role.user = new_user
+            current_users_role.save()
+
+            return JsonResponse({'success': True, 'full_name': new_user.full_name})
+        except (CourseUserRole.DoesNotExist, OrganizationUserRole.DoesNotExist):
+            logger.exception('Unable to change role assignment for course [%s] to user [%s]', course_id, user_id)
+            return JsonResponse({'success': False})
