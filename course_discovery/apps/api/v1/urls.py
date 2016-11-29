@@ -9,6 +9,7 @@ partners_router.register(r'affiliate_window/catalogs', views.AffiliateWindowView
 partners_urls = partners_router.urls
 urlpatterns = [
     url(r'^partners/', include(partners_urls, namespace='partners')),
+    url(r'search/typeahead', views.TypeaheadSearchView.as_view(), name='search-typeahead')
 ]
 
 router = routers.SimpleRouter()
@@ -18,7 +19,6 @@ router.register(r'course_runs', views.CourseRunViewSet, base_name='course_run')
 router.register(r'management', views.ManagementViewSet, base_name='management')
 router.register(r'programs', views.ProgramViewSet, base_name='program')
 router.register(r'search/all', views.AggregateSearchViewSet, base_name='search-all')
-router.register(r'search/typeahead', views.TypeaheadSearchViewSet, base_name='search-typeahead')
 router.register(r'search/courses', views.CourseSearchViewSet, base_name='search-courses')
 router.register(r'search/course_runs', views.CourseRunSearchViewSet, base_name='search-course_runs')
 router.register(r'search/programs', views.ProgramSearchViewSet, base_name='search-programs')
