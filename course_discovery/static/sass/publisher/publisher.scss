@@ -228,18 +228,20 @@ $light-gray: rgba(204, 204, 204, 1);
         }
     }
     .layout, .layout-flush {
-        margin-left: 0;
-        margin-right: 0;
+        @include margin-left(0);
+        @include margin-right(0);
         max-width: 100%;
 
         .layout-col-menu {
-            padding-left: 0;
-            padding-right: 0;
+            @include margin-left(0);
+            @include padding-left(0);
+            @include padding-right(0);
             width: 20%;
         }
 
         .layout-col-container {
-            width: 80%;
+            @include padding(20px, 20px, 20px, 20px);
+            width: 78%;
         }
 
         .menu-list {
@@ -353,16 +355,16 @@ $light-gray: rgba(204, 204, 204, 1);
   font-size: 18px;
   font-weight: 600;
   display: inline-block;
-  margin: 5px 0 5px;
+  @include margin(5px, 0px, 5px, 0px);
 
   .tab-container {
 
     button {
-      display: block;
-      padding: 10px;
-      color: #0ea6ec;
+      @include padding(5px, 5px, 5px, 5px);
+      @include margin(5px, 5px, 5px, 5px);
       @include float(left);
-      margin: 0 5px;
+      display: block;
+      color: #0ea6ec;
       border: none;
       background-color: transparent;
 
@@ -370,17 +372,12 @@ $light-gray: rgba(204, 204, 204, 1);
         border-bottom: 4px solid #0ea6ec;
         color: black;
       }
-
-      &:first-child {
-        @include margin-left(30px);
-      }
     }
   }
 }
 
 #app {
   background: #fff;
-  padding: 0 30px 30px;
 }
 
 .alert-messages .alert {
@@ -388,8 +385,8 @@ $light-gray: rgba(204, 204, 204, 1);
 }
 
 .publisher-layout {
+  @include padding(15px, 15px, 15px, 15px);
   background: rgb(242, 242, 242);
-  padding: 15px;
   margin-bottom: 20px;
 
   .layout-title {
@@ -398,7 +395,7 @@ $light-gray: rgba(204, 204, 204, 1);
   }
 
   .course-form {
-    margin: 0;
+    @include margin(0px, 0px, 0px, 0px);
     box-shadow: none;
   }
 }
@@ -415,8 +412,8 @@ select {
 
 .checkbox-inline {
   ul {
+    @include margin-left(0);
     list-style: none;
-    margin-left: 0;
     margin-bottom: 15px;
 
     li {
@@ -424,7 +421,7 @@ select {
       @include margin-right(10px);
 
       &:last-child {
-        margin-right: 0;
+        @include margin-right(0);
       }
     }
   }
@@ -452,10 +449,10 @@ select {
       font-weight: bold;
   }
   .course-tabs{
-    list-style: none;
     @include float(left);
     @include margin-right(10px);
-    padding: 10px;
+    @include padding(10px, 10px, 10px, 10px);
+    list-style: none;
     border-bottom: 3px solid #ccc;
     color: #ccc;
     text-align: center;
@@ -472,7 +469,7 @@ select {
   .content{
     display: none;
     p{
-      margin: 0;
+        @include margin(0px, 0px, 0px, 0px);
     }
     p:first-of-type{
       margin-bottom: 20px;
@@ -496,12 +493,12 @@ select {
       font-size: 16px;
 
       .btn-copy {
-        text-decoration: none;
         @include margin-left(10px);
-        padding-top: 2px;
-        padding-bottom: 2px;
         @include padding-left(5px);
         @include padding-right(5px);
+        text-decoration: none;
+        padding-top: 2px;
+        padding-bottom: 2px;
       }
     }
   }
@@ -531,12 +528,12 @@ select {
 }
 
 .breadcrumb {
-  padding: 8px 15px;
+  @include padding-left(0);
+  @include padding(8px, 15px, 8px, 15px);
+  @include margin(0, 0, 1.25rem, 0);
   list-style: none;
   background: white;
   border-radius: 3px;
-  padding-left: 0;
-  margin: 0 0 1.25rem;
 
   > li {
     display: inline-block;
@@ -552,8 +549,8 @@ select {
     }
 
     + li:before {
+      @include padding(0px, 5px, 0px, 5px);
       content: " / ";
-      padding: 0 5px;
       color: #ccc;
     }
 
@@ -570,12 +567,12 @@ select {
 
 
 .page-header {
+  @include margin(0, 0, 20px, 0);
   padding-top: 10px;
-  margin: 0 0 20px;
   border-bottom: 1px solid #eeeeee;
 
   .hd-1 {
-    margin: 0;
+    @include margin(0, 0, 0, 0);
     color: black;
     font-weight: 600;
   }
@@ -617,7 +614,7 @@ select {
 }
 
 .border-left {
-    border-left: 1px solid;
+    @include border-left(1px solid);
 }
 
 .border-top {
@@ -625,11 +622,11 @@ select {
 }
 
 .empty-courserun-text {
-    padding: 100px 160px;
+    @include padding(100px, 160px, 100px, 160px);
 
     p {
-        padding: 0;
-        margin: 0;
+        @include padding(0px, 0px, 0px, 0px);
+        @include margin(0px, 0px, 0px, 0px);
     }
 }
 
