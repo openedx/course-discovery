@@ -965,6 +965,7 @@ class TypeaheadCourseRunSearchSerializer(serializers.Serializer):
     org = serializers.CharField()
     title = serializers.CharField()
     key = serializers.CharField()
+    marketing_url = serializers.CharField()
 
     class Meta:
         fields = ['key', 'title']
@@ -975,6 +976,7 @@ class TypeaheadProgramSearchSerializer(serializers.Serializer):
     uuid = serializers.CharField()
     title = serializers.CharField()
     type = serializers.CharField()
+    marketing_url = serializers.CharField()
 
     def get_orgs(self, result):
         authoring_organizations = [json.loads(org) for org in result.authoring_organization_bodies]

@@ -32,6 +32,7 @@ from course_discovery.apps.api.renderers import AffiliateWindowXMLRenderer, Cour
 from course_discovery.apps.api.utils import cast2int
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
+from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Partner, Program, Seat
 
@@ -688,8 +689,12 @@ class TypeaheadSearchView(APIView):
 
     def get_results(self, query):
         query = '*{}*'.format(query.lower())
-        course_runs = SearchQuerySet().models(CourseRun).raw_search(query)[:self.RESULT_COUNT]
-        programs = SearchQuerySet().models(Program).raw_search(query)[:self.RESULT_COUNT]
+        course_runs = SearchQuerySet().models(CourseRun).raw_search(query)
+        course_runs = course_runs.filter(published=True).exclude(hidden=True)
+        course_runs = course_runs[:self.RESULT_COUNT]
+        programs = SearchQuerySet().models(Program).raw_search(query)
+        programs = programs.filter(status=ProgramStatus.Active)
+        programs = programs[:self.RESULT_COUNT]
         return course_runs, programs
 
     def get(self, request, *args, **kwargs):

@@ -311,7 +311,7 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, APITestC
         """ Test typeahead response. """
         title = "Python"
         course_run = CourseRunFactory(title=title)
-        program = ProgramFactory(title=title)
+        program = ProgramFactory(title=title, status=ProgramStatus.Active)
         response = self.get_typeahead_response(title)
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
@@ -324,7 +324,7 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, APITestC
         title = "Test"
         for i in range(RESULT_COUNT + 1):
             CourseRunFactory(title="{}{}".format(title, i))
-            ProgramFactory(title="{}{}".format(title, i))
+            ProgramFactory(title="{}{}".format(title, i), status=ProgramStatus.Active)
         response = self.get_typeahead_response(title)
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
@@ -336,7 +336,9 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, APITestC
         title = "Design"
         authoring_organizations = OrganizationFactory.create_batch(3)
         course_run = CourseRunFactory(title=title, authoring_organizations=authoring_organizations)
-        program = ProgramFactory(title=title, authoring_organizations=authoring_organizations)
+        program = ProgramFactory(
+            title=title, authoring_organizations=authoring_organizations, status=ProgramStatus.Active
+        )
         response = self.get_typeahead_response(title)
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
@@ -347,8 +349,27 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, APITestC
         """ Test typeahead response with partial term search. """
         title = "Learn Data Science"
         course_run = CourseRunFactory(title=title)
-        program = ProgramFactory(title=title)
+        program = ProgramFactory(title=title, status=ProgramStatus.Active)
         query = "Data Sci"
+        response = self.get_typeahead_response(query)
+        self.assertEqual(response.status_code, 200)
+        response_data = response.json()
+        expected_response_data = {
+            'course_runs': [self.serialize_course_run(course_run)],
+            'programs': [self.serialize_program(program)]
+        }
+        self.assertDictEqual(response_data, expected_response_data)
+
+    def test_unpublished_and_hidden_courses(self):
+        """ Verify that typeahead does not return unpublished or hidden courses
+        or programs that are not active. """
+        title = "Supply Chain"
+        course_run = CourseRunFactory(title=title)
+        CourseRunFactory(title=title + "_unpublished", status=CourseRunStatus.Unpublished)
+        CourseRunFactory(title=title + "_hidden", hidden=True)
+        program = ProgramFactory(title=title, status=ProgramStatus.Active)
+        ProgramFactory(title=title + "_unpublished", status=ProgramStatus.Unpublished)
+        query = "Supply"
         response = self.get_typeahead_response(query)
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
