@@ -4,7 +4,6 @@ from datetime import datetime
 
 import ddt
 import factory
-from django.http import Http404
 from mock import patch
 
 from django.conf import settings
@@ -12,6 +11,7 @@ from django.contrib.sites.models import Site
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.forms import model_to_dict
+from django.http import Http404
 from django.test import TestCase
 from testfixtures import LogCapture
 
