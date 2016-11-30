@@ -1037,7 +1037,27 @@ class DashboardTests(TestCase):
         """ Verify that user from one group can access only that group courses. """
         self.client.logout()
         self.client.login(username=self.user2.username, password=USER_PASSWORD)
-        self.assert_dashboard_response()
+        response = self.assert_dashboard_response()
+        self.assertContains(response, self.table_class.format(id='studio'))
+        self.assertEqual(len(response.context['studio_request_courses']), 1)
+        self.assertContains(response, 'There are no in progress course runs.')
+        self.assertContains(response, 'There are no course runs marked for preview.')
+
+    def test_page_with_user_having_no_data(self):
+        """ Verify that user whose belonging group has no course can access the page
+        but without any data.
+        """
+        self.client.logout()
+        user = UserFactory()
+        group_organization = factories.GroupOrganizationFactory()
+        user.groups.add(group_organization.group)
+        self.client.login(username=user.username, password=USER_PASSWORD)
+        response = self.assert_dashboard_response()
+
+        self.assertContains(response, 'There are no course-runs require studio instance.')
+        self.assertContains(response, 'There are no in progress course runs.')
+        self.assertContains(response, 'There are no course runs marked for preview.')
+        self.assertContains(response, "Looks like you haven't published any course yet")
 
     def test_page_with_staff_user(self):
         """ Verify that staff user can see all tabs with all course runs from all groups. """
