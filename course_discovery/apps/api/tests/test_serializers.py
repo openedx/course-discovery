@@ -1110,7 +1110,8 @@ class TypeaheadCourseRunSearchSerializerTests(TestCase):
         expected = {
             'key': course_run.key,
             'title': course_run.title,
-            'org': course_run_key.org
+            'org': course_run_key.org,
+            'marketing_url': course_run.marketing_url
         }
         self.assertDictEqual(serialized_course.data, expected)
 
@@ -1127,7 +1128,8 @@ class TypeaheadProgramSearchSerializerTests(TestCase):
             'uuid': str(program.uuid),
             'title': program.title,
             'type': program.type.name,
-            'orgs': list(program.authoring_organizations.all().values_list('key', flat=True))
+            'orgs': list(program.authoring_organizations.all().values_list('key', flat=True)),
+            'marketing_url': program.marketing_url
         }
 
     def test_data(self):
