@@ -1110,8 +1110,7 @@ class TypeaheadCourseRunSearchSerializerTests(TestCase):
         expected = {
             'key': course_run.key,
             'title': course_run.title,
-            'content_type': 'courserun',
-            'additional_details': course_run_key.org
+            'org': course_run_key.org
         }
         self.assertDictEqual(serialized_course.data, expected)
 
@@ -1128,16 +1127,13 @@ class TypeaheadProgramSearchSerializerTests(TestCase):
             'uuid': str(program.uuid),
             'title': program.title,
             'type': program.type.name,
-            'content_type': 'program',
-            'additional_details': program.authoring_organizations.first().key
+            'orgs': list(program.authoring_organizations.all().values_list('key', flat=True))
         }
 
     def test_data(self):
         authoring_organization = OrganizationFactory()
         program = ProgramFactory(authoring_organizations=[authoring_organization])
-
         serialized_program = self.serialize_program(program)
-
         expected = self._create_expected_data(program)
         self.assertDictEqual(serialized_program.data, expected)
 
@@ -1145,8 +1141,8 @@ class TypeaheadProgramSearchSerializerTests(TestCase):
         authoring_organizations = OrganizationFactory.create_batch(3)
         program = ProgramFactory(authoring_organizations=authoring_organizations)
         serialized_program = self.serialize_program(program)
-        expected = ', '.join([org.key for org in authoring_organizations])
-        self.assertEqual(serialized_program.data['additional_details'], expected)
+        expected = [org.key for org in authoring_organizations]
+        self.assertEqual(serialized_program.data['orgs'], expected)
 
     def serialize_program(self, program):
         """ Serializes the given `Program` as a typeahead result. """

@@ -10,8 +10,7 @@ from rest_framework.test import APITestCase
 
 from course_discovery.apps.api.serializers import (CourseRunSearchSerializer, ProgramSearchSerializer,
                                                    TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer)
-from course_discovery.apps.api.v1.views import RESULT_COUNT
-
+from course_discovery.apps.api.v1.views import TypeaheadSearchView
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD, PartnerFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
@@ -33,15 +32,11 @@ class TypeaheadSerializationMixin:
     def serialize_course_run(self, course_run):
         result = SearchQuerySet().models(CourseRun).filter(key=course_run.key)[0]
         data = TypeaheadCourseRunSearchSerializer(result).data
-        # Items are grouped by content type so we don't need it in the response
-        data.pop('content_type')
         return data
 
     def serialize_program(self, program):
         result = SearchQuerySet().models(Program).filter(uuid=program.uuid)[0]
         data = TypeaheadProgramSearchSerializer(result).data
-        # Items are grouped by content type so we don't need it in the response
-        data.pop('content_type')
         return data
 
 
@@ -300,27 +295,37 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
                              [self.serialize_course_run(course_run), self.serialize_program(program)])
 
 
-class TypeaheadSearchViewSet(TypeaheadSerializationMixin, LoginMixin, APITestCase):
-    path = reverse('api:v1:search-typeahead-list')
+class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, APITestCase):
+    path = reverse('api:v1:search-typeahead')
 
-    def get_typeahead_response(self):
-        return self.client.get(self.path)
+    def get_typeahead_response(self, query=None):
+        qs = ''
+
+        if query:
+            qs = urllib.parse.urlencode({'q': query})
+
+        url = '{path}?{qs}'.format(path=self.path, qs=qs)
+        return self.client.get(url)
 
     def test_typeahead(self):
         """ Test typeahead response. """
-        course_run = CourseRunFactory()
-        program = ProgramFactory()
-        response = self.get_typeahead_response()
+        title = "Python"
+        course_run = CourseRunFactory(title=title)
+        program = ProgramFactory(title=title)
+        response = self.get_typeahead_response(title)
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
         self.assertDictEqual(response_data, {'course_runs': [self.serialize_course_run(course_run)],
                                              'programs': [self.serialize_program(program)]})
 
     def test_typeahead_multiple_results(self):
-        """ Test typeahead response with max number of course_runs and programs. """
-        CourseRunFactory.create_batch(RESULT_COUNT + 1)
-        ProgramFactory.create_batch(RESULT_COUNT + 1)
-        response = self.get_typeahead_response()
+        """ Verify the typeahead responses always returns a limited number of results, even if there are more hits. """
+        RESULT_COUNT = TypeaheadSearchView.RESULT_COUNT
+        title = "Test"
+        for i in range(RESULT_COUNT + 1):
+            CourseRunFactory(title="{}{}".format(title, i))
+            ProgramFactory(title="{}{}".format(title, i))
+        response = self.get_typeahead_response(title)
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
         self.assertEqual(len(response_data['course_runs']), RESULT_COUNT)
@@ -328,11 +333,31 @@ class TypeaheadSearchViewSet(TypeaheadSerializationMixin, LoginMixin, APITestCas
 
     def test_typeahead_multiple_authoring_organizations(self):
         """ Test typeahead response with multiple authoring organizations. """
+        title = "Design"
         authoring_organizations = OrganizationFactory.create_batch(3)
-        course_run = CourseRunFactory(authoring_organizations=authoring_organizations)
-        program = ProgramFactory(authoring_organizations=authoring_organizations)
-        response = self.get_typeahead_response()
+        course_run = CourseRunFactory(title=title, authoring_organizations=authoring_organizations)
+        program = ProgramFactory(title=title, authoring_organizations=authoring_organizations)
+        response = self.get_typeahead_response(title)
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
         self.assertDictEqual(response_data, {'course_runs': [self.serialize_course_run(course_run)],
                                              'programs': [self.serialize_program(program)]})
+
+    def test_partial_term_search(self):
+        """ Test typeahead response with partial term search. """
+        title = "Learn Data Science"
+        course_run = CourseRunFactory(title=title)
+        program = ProgramFactory(title=title)
+        query = "Data Sci"
+        response = self.get_typeahead_response(query)
+        self.assertEqual(response.status_code, 200)
+        response_data = response.json()
+        expected_response_data = {'course_runs': [self.serialize_course_run(course_run)],
+                                  'programs': [self.serialize_program(program)]}
+        self.assertDictEqual(response_data, expected_response_data)
+
+    def test_exception(self):
+        """ Verify the view raises an error if the 'q' query string parameter is not provided. """
+        response = self.get_typeahead_response()
+        self.assertEqual(response.status_code, 400)
+        self.assertDictEqual(response.data, {'detail': 'The \'q\' querystring parameter is required for searching.'})

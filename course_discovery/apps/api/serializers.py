@@ -913,20 +913,6 @@ class CourseRunSearchSerializer(HaystackSerializer):
         index_classes = [CourseRunIndex]
 
 
-class TypeaheadCourseRunSearchSerializer(HaystackSerializer):
-    additional_details = serializers.SerializerMethodField()
-
-    def get_additional_details(self, result):
-        """ Value of the grey text next to the typeahead result title. """
-        return result.org
-
-    class Meta:
-        field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        fields = ['key', 'title', 'content_type']
-        ignore_fields = COMMON_IGNORED_FIELDS
-        index_classes = [CourseRunIndex]
-
-
 class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
     serialize_objects = True
 
@@ -948,21 +934,6 @@ class ProgramSearchSerializer(HaystackSerializer):
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
         field_options = PROGRAM_FACET_FIELD_OPTIONS
         fields = PROGRAM_SEARCH_FIELDS
-        ignore_fields = COMMON_IGNORED_FIELDS
-        index_classes = [ProgramIndex]
-
-
-class TypeaheadProgramSearchSerializer(HaystackSerializer):
-    additional_details = serializers.SerializerMethodField()
-
-    def get_additional_details(self, result):
-        """ Value of the grey text next to the typeahead result title. """
-        authoring_organizations = [json.loads(org) for org in result.authoring_organization_bodies]
-        return ', '.join([org['key'] for org in authoring_organizations])
-
-    class Meta:
-        field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        fields = ['uuid', 'title', 'content_type', 'type']
         ignore_fields = COMMON_IGNORED_FIELDS
         index_classes = [ProgramIndex]
 
@@ -990,15 +961,32 @@ class AggregateSearchSerializer(HaystackSerializer):
         }
 
 
-class TypeaheadSearchSerializer(HaystackSerializer):
+class TypeaheadCourseRunSearchSerializer(serializers.Serializer):
+    org = serializers.CharField()
+    title = serializers.CharField()
+    key = serializers.CharField()
+
     class Meta:
-        field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        fields = COURSE_RUN_SEARCH_FIELDS + PROGRAM_SEARCH_FIELDS
-        ignore_fields = COMMON_IGNORED_FIELDS
-        serializers = {
-            ProgramIndex: TypeaheadProgramSearchSerializer,
-            CourseRunIndex: TypeaheadCourseRunSearchSerializer,
-        }
+        fields = ['key', 'title']
+
+
+class TypeaheadProgramSearchSerializer(serializers.Serializer):
+    orgs = serializers.SerializerMethodField()
+    uuid = serializers.CharField()
+    title = serializers.CharField()
+    type = serializers.CharField()
+
+    def get_orgs(self, result):
+        authoring_organizations = [json.loads(org) for org in result.authoring_organization_bodies]
+        return [org['key'] for org in authoring_organizations]
+
+    class Meta:
+        fields = ['uuid', 'title', 'type']
+
+
+class TypeaheadSearchSerializer(serializers.Serializer):
+    course_runs = TypeaheadCourseRunSearchSerializer(many=True)
+    programs = TypeaheadProgramSearchSerializer(many=True)
 
 
 class AggregateFacetSearchSerializer(BaseHaystackFacetSerializer):

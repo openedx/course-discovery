@@ -15,13 +15,14 @@ from drf_haystack.viewsets import HaystackViewSet
 from dry_rest_permissions.generics import DRYPermissions
 from edx_rest_framework_extensions.permissions import IsSuperuser
 from haystack.inputs import AutoQuery
-from haystack.query import SQ
+from haystack.query import SQ, SearchQuerySet
 from rest_framework import status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import PermissionDenied, ParseError
 from rest_framework.filters import DjangoFilterBackend, OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from course_discovery.apps.api import filters
 from course_discovery.apps.api import serializers
@@ -36,8 +37,6 @@ from course_discovery.apps.course_metadata.models import Course, CourseRun, Part
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
-
-RESULT_COUNT = 3
 
 
 def get_query_param(request, name):
@@ -680,28 +679,24 @@ class AggregateSearchViewSet(BaseHaystackViewSet):
     serializer_class = serializers.AggregateSearchSerializer
 
 
-class TypeaheadSearchViewSet(BaseHaystackViewSet):
+class TypeaheadSearchView(APIView):
     """
     Typeahead for courses and programs.
     """
+    RESULT_COUNT = 3
+    permission_classes = (IsAuthenticated,)
 
-    serializer_class = serializers.TypeaheadSearchSerializer
-    index_models = (CourseRun, Program,)
+    def get_results(self, query):
+        query = '*{}*'.format(query.lower())
+        course_runs = SearchQuerySet().models(CourseRun).raw_search(query)[:self.RESULT_COUNT]
+        programs = SearchQuerySet().models(Program).raw_search(query)[:self.RESULT_COUNT]
+        return course_runs, programs
 
-    def list(self, request, *args, **kwargs):
-        response = super(TypeaheadSearchViewSet, self).list(request, *args, **kwargs)
-        results = response.data['results']
-        course_runs, programs = [], []
-        for item in results:
-            # Items are grouped by content type so we don't need it in the response
-            item_type = item.pop('content_type', None)
-            programs_length = len(programs)
-            course_run_length = len(course_runs)
-            if item_type == 'courserun' and course_run_length < RESULT_COUNT:
-                course_runs.append(item)
-            elif item_type == 'program' and programs_length < RESULT_COUNT:
-                programs.append(item)
-            elif programs_length == RESULT_COUNT and course_run_length == RESULT_COUNT:
-                break
-        response.data = {'course_runs': course_runs, 'programs': programs}
-        return response
+    def get(self, request, *args, **kwargs):
+        query = request.query_params.get('q')
+        if not query:
+            raise ParseError("The 'q' querystring parameter is required for searching.")
+        course_runs, programs = self.get_results(query)
+        data = {'course_runs': course_runs, 'programs': programs}
+        serializer = serializers.TypeaheadSearchSerializer(data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
