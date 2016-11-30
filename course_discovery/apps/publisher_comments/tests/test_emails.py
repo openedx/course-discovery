@@ -28,17 +28,17 @@ class CommentsEmailTests(TestCase):
 
         self.site = Site.objects.get(pk=settings.SITE_ID)
 
-        self.group = factories.GroupFactory(name='abc')
+        self.group_organization = factories.GroupOrganizationFactory()
 
-        self.user.groups.add(self.group)
-        self.user_2.groups.add(self.group)
-        self.user_3.groups.add(self.group)
+        self.user.groups.add(self.group_organization.group)
+        self.user_2.groups.add(self.group_organization.group)
+        self.user_3.groups.add(self.group_organization.group)
 
         self.seat = factories.SeatFactory()
         self.course_run = self.seat.course_run
         self.course = self.course_run.course
 
-        assign_perm(Course.VIEW_PERMISSION, self.group, self.course)
+        self.course.organizations.add(self.group_organization.organization)
 
         # NOTE: We intentionally do NOT create an attribute for user_2.
         # By default this user WILL receive email notifications.
@@ -89,9 +89,9 @@ class CommentsEmailTests(TestCase):
 
     def test_email_without_different_group(self):
         """ Verify the emails behaviour if course group has no users. """
-        self.user.groups.remove(self.group)
-        self.user_2.groups.remove(self.group)
-        self.user_3.groups.remove(self.group)
+        self.user.groups.remove(self.group_organization.group)
+        self.user_2.groups.remove(self.group_organization.group)
+        self.user_3.groups.remove(self.group_organization.group)
         self.create_comment(content_object=self.course)
         self.assertEqual(len(mail.outbox), 0)
 
