@@ -5,14 +5,11 @@
 apt update
 apt install -y xvfb firefox gettext wget
 
-cd
-wget https://github.com/mozilla/geckodriver/releases/download/v0.11.1/geckodriver-v0.11.1-linux64.tar.gz
-tar xvzf geckodriver-v0.11.1-linux64.tar.gz
-mv geckodriver /usr/bin/
-
 pip install --upgrade selenium
 
 cd /edx/app/discovery/discovery
+export PATH=$PATH:$PWD/node_modules/.bin
+
 # Make it so bower can run without sudo.
 # https://github.com/GeoNode/geonode/pull/1070
 echo '{ "allow_root": true }' > /root/.bowerrc
