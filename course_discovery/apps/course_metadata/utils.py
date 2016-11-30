@@ -1,3 +1,4 @@
+from stdimage.models import StdImageFieldFile
 from stdimage.utils import UploadTo
 
 RESERVED_ELASTICSEARCH_QUERY_OPERATORS = ('AND', 'OR', 'NOT', 'TO',)
@@ -42,3 +43,23 @@ class UploadToFieldNamePath(UploadTo):
             'name': field_value
         })
         return super(UploadToFieldNamePath, self).__call__(instance, filename)
+
+
+def custom_render_variations(file_name, variations, storage, replace=True):
+    """ Utility method used to override default behaviour of StdImageFieldFile by
+    passing it replace=True.
+
+    Args:
+        file_name (str): name of the image file.
+        variations (dict): dict containing variations of image
+        storage (Storage): Storage class responsible for storing the image.
+
+    Returns:
+        False (bool): to prevent its default behaviour
+    """
+
+    for variation in variations.values():
+        StdImageFieldFile.render_variation(file_name, variation, replace, storage)
+
+    # to prevent default behaviour
+    return False

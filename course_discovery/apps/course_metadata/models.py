@@ -24,7 +24,7 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus, Cours
 from course_discovery.apps.course_metadata.publishers import MarketingSitePublisher
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
-from course_discovery.apps.course_metadata.utils import clean_query
+from course_discovery.apps.course_metadata.utils import clean_query, custom_render_variations
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 logger = logging.getLogger(__name__)
@@ -625,7 +625,8 @@ class Program(TimeStampedModel):
             'medium': (726, 242),
             'small': (435, 145),
             'x-small': (348, 116),
-        }
+        },
+        render_variations=custom_render_variations
     )
     banner_image_url = models.URLField(null=True, blank=True, help_text='DEPRECATED: Use the banner image field.')
     card_image_url = models.URLField(null=True, blank=True, help_text=_('Image used for discovery cards'))
