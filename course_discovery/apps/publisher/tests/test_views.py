@@ -7,7 +7,6 @@ import factory
 from django.http import Http404
 from mock import patch
 
-from django.db import IntegrityError
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core import mail
