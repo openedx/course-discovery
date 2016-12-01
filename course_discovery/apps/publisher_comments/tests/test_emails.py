@@ -15,6 +15,7 @@ from course_discovery.apps.publisher.tests.factories import UserAttributeFactory
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
 
 
+# pylint: disable=no-member
 @ddt.ddt
 class CommentsEmailTests(TestCase):
     """ Tests for the e-mail functionality for course, course-run and seats. """

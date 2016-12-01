@@ -248,18 +248,7 @@ class CorporateEndorsementSerializer(serializers.ModelSerializer):
 
 class SeatSerializer(serializers.ModelSerializer):
     """Serializer for the ``Seat`` model."""
-    type = serializers.ChoiceField(
-        choices=[name for name, __ in Seat.SEAT_TYPE_CHOICES]
-    )
-    price = serializers.DecimalField(
-        decimal_places=Seat.PRICE_FIELD_CONFIG['decimal_places'],
-        max_digits=Seat.PRICE_FIELD_CONFIG['max_digits']
-    )
     currency = serializers.SlugRelatedField(read_only=True, slug_field='code')
-    upgrade_deadline = serializers.DateTimeField()
-    credit_provider = serializers.CharField()
-    credit_hours = serializers.IntegerField()
-    sku = serializers.CharField()
 
     @classmethod
     def prefetch_queryset(cls):

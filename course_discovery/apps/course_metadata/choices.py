@@ -20,3 +20,11 @@ class ProgramStatus(DjangoChoices):
     Active = ChoiceItem('active', _('Active'))
     Retired = ChoiceItem('retired', _('Retired'))
     Deleted = ChoiceItem('deleted', _('Deleted'))
+
+
+class SeatType(DjangoChoices):
+    Audit = ChoiceItem('audit', _('Audit'))
+    Credit = ChoiceItem('credit', _('Credit'))
+    Honor = ChoiceItem('honor', _('Honor'))
+    Professional = ChoiceItem('professional', _('Professional'))
+    Verified = ChoiceItem('verified', _('Verified'))

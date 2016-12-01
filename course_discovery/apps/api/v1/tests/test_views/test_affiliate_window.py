@@ -14,8 +14,7 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMi
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
-from course_discovery.apps.course_metadata.choices import CourseRunStatus
-from course_discovery.apps.course_metadata.models import Seat
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, SeatType
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, SeatFactory
 
 
@@ -33,7 +32,7 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
         self.course_end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=60)
         self.course_run = CourseRunFactory(enrollment_end=self.enrollment_end, end=self.course_end)
 
-        self.seat_verified = SeatFactory(course_run=self.course_run, type=Seat.VERIFIED)
+        self.seat_verified = SeatFactory(course_run=self.course_run, type=SeatType.Verified)
         self.course = self.course_run.course
         self.affiliate_url = reverse('api:v1:partners:affiliate_window-detail', kwargs={'pk': self.catalog.id})
         self.refresh_index()
@@ -58,7 +57,7 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
         )
 
         # Add professional seat.
-        seat_professional = SeatFactory(course_run=self.course_run, type=Seat.PROFESSIONAL)
+        seat_professional = SeatFactory(course_run=self.course_run, type=SeatType.Professional)
 
         response = self.client.get(self.affiliate_url)
         root = ET.fromstring(response.content)
@@ -73,7 +72,7 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
             seat_professional
         )
 
-    @ddt.data(Seat.CREDIT, Seat.HONOR, Seat.AUDIT)
+    @ddt.data(SeatType.Credit, SeatType.Honor, SeatType.Audit)
     def test_with_non_supported_seats(self, non_supporting_seat):
         """ Verify that endpoint returns no data for honor, credit and audit seats. """
 

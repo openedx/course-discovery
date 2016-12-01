@@ -9,10 +9,10 @@ from opaque_keys.edx.keys import CourseKey
 import requests
 
 from course_discovery.apps.core.models import Currency
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing, SeatType
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    Video, Organization, Seat, CourseRun, Program, Course, ProgramType,
+    Video, Organization, CourseRun, Program, Course, ProgramType,
 )
 
 logger = logging.getLogger(__name__)
@@ -315,7 +315,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
 
         attributes = {attribute['name']: attribute['value'] for attribute in product_body['attribute_values']}
 
-        seat_type = attributes.get('certificate_type', Seat.AUDIT)
+        seat_type = attributes.get('certificate_type', SeatType.Audit)
         credit_provider = attributes.get('credit_provider')
 
         credit_hours = attributes.get('credit_hours')
@@ -335,7 +335,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     def get_certificate_type(self, product):
         return next(
             (att['value'] for att in product['attribute_values'] if att['name'] == 'certificate_type'),
-            Seat.AUDIT
+            SeatType.Audit
         )
 
 
