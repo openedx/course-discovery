@@ -8,9 +8,11 @@ from django.core.urlresolvers import reverse
 from haystack.query import SearchQuerySet
 from rest_framework.test import APITestCase
 
-from course_discovery.apps.api.serializers import (CourseRunSearchSerializer, ProgramSearchSerializer,
-                                                   TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer)
-from course_discovery.apps.api.v1.views import TypeaheadSearchView
+from course_discovery.apps.api.serializers import (
+    CourseRunSearchSerializer, ProgramSearchSerializer, TypeaheadCourseRunSearchSerializer,
+    TypeaheadProgramSearchSerializer
+)
+from course_discovery.apps.api.v1.views.search import TypeaheadSearchView
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD, PartnerFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
