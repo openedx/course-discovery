@@ -1,11 +1,8 @@
 import datetime
 import logging
-import os
-from io import StringIO
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.management import call_command
 from django.db import transaction
 from django.db.models.functions import Lower
 from django.http import HttpResponse
@@ -13,7 +10,6 @@ from django.shortcuts import get_object_or_404
 from drf_haystack.mixins import FacetMixin
 from drf_haystack.viewsets import HaystackViewSet
 from dry_rest_permissions.generics import DRYPermissions
-from edx_rest_framework_extensions.permissions import IsSuperuser
 from haystack.inputs import AutoQuery
 from haystack.query import SQ, SearchQuerySet
 from rest_framework import status, viewsets
@@ -513,39 +509,6 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
               multiple: false
         """
         return super(ProgramViewSet, self).list(request, *args, **kwargs)
-
-
-class ManagementViewSet(viewsets.ViewSet):
-    permission_classes = (IsSuperuser,)
-
-    @list_route(methods=['post'])
-    def update_index(self, request):
-        """ Update the search index. """
-        name = 'update_index'
-
-        output = self.run_command(request, name)
-
-        return Response(output, content_type='text/plain')
-
-    def run_command(self, request, name, **kwargs):
-        # Capture all output and logging
-        out = StringIO()
-        err = StringIO()
-        log = StringIO()
-
-        root_logger = logging.getLogger()
-        log_handler = logging.StreamHandler(log)
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        log_handler.setFormatter(formatter)
-        root_logger.addHandler(log_handler)
-
-        logger.info('Running [%s] per request of [%s]...', name, request.user.username)
-        call_command(name, settings=os.environ['DJANGO_SETTINGS_MODULE'], stdout=out, stderr=err, **kwargs)
-
-        # Format the output for display
-        output = 'STDOUT\n{out}\n\nSTDERR\n{err}\n\nLOG\n{log}'.format(out=out.getvalue(), err=err.getvalue(),
-                                                                       log=log.getvalue())
-        return output
 
 
 class AffiliateWindowViewSet(viewsets.ViewSet):
