@@ -20,7 +20,9 @@ from stdimage.models import StdImageField
 from taggit.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, Partner
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing, ProgramStatus
+from course_discovery.apps.course_metadata.choices import (
+    CourseRunStatus, CourseRunPacing, ProgramStatus, SeatType as SeatTypeChoices
+)
 from course_discovery.apps.course_metadata.publishers import MarketingSitePublisher
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
@@ -507,20 +509,6 @@ class SeatType(TimeStampedModel):
 
 class Seat(TimeStampedModel):
     """ Seat model. """
-    HONOR = 'honor'
-    AUDIT = 'audit'
-    VERIFIED = 'verified'
-    PROFESSIONAL = 'professional'
-    CREDIT = 'credit'
-
-    SEAT_TYPE_CHOICES = (
-        (HONOR, _('Honor')),
-        (AUDIT, _('Audit')),
-        (VERIFIED, _('Verified')),
-        (PROFESSIONAL, _('Professional')),
-        (CREDIT, _('Credit')),
-    )
-
     PRICE_FIELD_CONFIG = {
         'decimal_places': 2,
         'max_digits': 10,
@@ -529,7 +517,7 @@ class Seat(TimeStampedModel):
     }
     course_run = models.ForeignKey(CourseRun, related_name='seats')
     # TODO Replace with FK to SeatType model
-    type = models.CharField(max_length=63, choices=SEAT_TYPE_CHOICES)
+    type = models.CharField(max_length=63, choices=SeatTypeChoices.choices, validators=[SeatTypeChoices.validator])
     price = models.DecimalField(**PRICE_FIELD_CONFIG)
     currency = models.ForeignKey(Currency)
     upgrade_deadline = models.DateTimeField(null=True, blank=True)

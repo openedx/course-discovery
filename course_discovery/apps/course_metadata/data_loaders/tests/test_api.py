@@ -8,14 +8,14 @@ from django.test import TestCase
 from pytz import UTC
 
 from course_discovery.apps.core.tests.utils import mock_api_callback, mock_jpeg_callback
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing, SeatType
 from course_discovery.apps.course_metadata.data_loaders.api import (
     OrganizationsApiDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader, AbstractDataLoader, ProgramsApiDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON, JPEG, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import ApiClientTestMixin, DataLoaderTestMixin
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Organization, Seat, Program, ProgramType,
+    Course, CourseRun, Organization, Program, ProgramType,
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseRunFactory, SeatFactory, ImageFactory, VideoFactory, OrganizationFactory, CourseFactory,
@@ -318,10 +318,10 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
         credit_run = CourseRunFactory(title_override='credit', key='credit/course/run')
         no_currency_run = CourseRunFactory(title_override='no currency', key='nocurrency/course/run')
 
-        SeatFactory(course_run=audit_run, type=Seat.PROFESSIONAL)
-        SeatFactory(course_run=verified_run, type=Seat.PROFESSIONAL)
-        SeatFactory(course_run=credit_run, type=Seat.PROFESSIONAL)
-        SeatFactory(course_run=no_currency_run, type=Seat.PROFESSIONAL)
+        SeatFactory(course_run=audit_run, type=SeatType.Professional)
+        SeatFactory(course_run=verified_run, type=SeatType.Professional)
+        SeatFactory(course_run=credit_run, type=SeatType.Professional)
+        SeatFactory(course_run=no_currency_run, type=SeatType.Professional)
 
         bodies = mock_data.ECOMMERCE_API_BODIES
         url = self.api_url + 'courses/'
@@ -346,7 +346,7 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
             price_currency = stock_record['price_currency']
             price = Decimal(stock_record['price_excl_tax'])
             sku = stock_record['partner_sku']
-            certificate_type = Seat.AUDIT
+            certificate_type = SeatType.Audit
             credit_provider = None
             credit_hours = None
             if product['expires']:
@@ -401,7 +401,7 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
 
     @ddt.unpack
     @ddt.data(
-        ({"attribute_values": []}, Seat.AUDIT),
+        ({"attribute_values": []}, SeatType.Audit),
         ({"attribute_values": [{'name': 'certificate_type', 'value': 'professional'}]}, 'professional'),
         (
             {
@@ -412,7 +412,7 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
             },
             'credit'
         ),
-        ({"attribute_values": [{'name': 'other_data', 'value': 'other'}]}, Seat.AUDIT),
+        ({"attribute_values": [{'name': 'other_data', 'value': 'other'}]}, SeatType.Audit),
     )
     def test_get_certificate_type(self, product, expected_certificate_type):
         """ Verify the method returns the correct certificate type"""

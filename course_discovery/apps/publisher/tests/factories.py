@@ -1,18 +1,16 @@
 from datetime import datetime
 
-from django.contrib.auth.models import Group
-
 import factory
-from factory.fuzzy import FuzzyText, FuzzyChoice, FuzzyDecimal, FuzzyDateTime, FuzzyInteger
+from django.contrib.auth.models import Group
+from factory.fuzzy import FuzzyText, FuzzyChoice, FuzzyDateTime, FuzzyInteger   # pylint: disable=ungrouped-imports
 from pytz import UTC
 
-from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.models import (
-    Course, CourseRun, OrganizationUserRole, Seat, State, UserAttributes
+    Course, CourseRun, OrganizationUserRole, State, UserAttributes
 )
 
 
@@ -54,7 +52,7 @@ class CourseRunFactory(factory.DjangoModelFactory):
     min_effort = FuzzyInteger(1, 10)
     max_effort = FuzzyInteger(10, 20)
     language = factory.Iterator(LanguageTag.objects.all())
-    pacing_type = FuzzyChoice([name for name, __ in CourseRunPacing.choices])
+    pacing_type = FuzzyChoice(CourseRunPacing.values.keys())
     length = FuzzyInteger(1, 10)
     notes = "Testing notes"
     preview_url = FuzzyText(prefix='https://example.com/')
@@ -63,15 +61,8 @@ class CourseRunFactory(factory.DjangoModelFactory):
         model = CourseRun
 
 
-class SeatFactory(factory.DjangoModelFactory):
-    type = FuzzyChoice([name for name, __ in Seat.SEAT_TYPE_CHOICES])
-    price = FuzzyDecimal(0.0, 650.0)
-    currency = factory.Iterator(Currency.objects.all())
-    upgrade_deadline = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
+class SeatFactory(factories.SeatFactory):
     course_run = factory.SubFactory(CourseRunFactory)
-
-    class Meta:
-        model = Seat
 
 
 class GroupFactory(factory.DjangoModelFactory):

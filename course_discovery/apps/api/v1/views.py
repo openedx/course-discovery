@@ -32,7 +32,7 @@ from course_discovery.apps.api.renderers import AffiliateWindowXMLRenderer, Cour
 from course_discovery.apps.api.utils import cast2int
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
-from course_discovery.apps.course_metadata.choices import ProgramStatus
+from course_discovery.apps.course_metadata.choices import ProgramStatus, SeatType
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Partner, Program, Seat
 
@@ -569,7 +569,8 @@ class AffiliateWindowViewSet(viewsets.ViewSet):
 
         courses = catalog.courses()
         course_runs = CourseRun.objects.filter(course__in=courses).active().marketable()
-        seats = Seat.objects.filter(type__in=[Seat.VERIFIED, Seat.PROFESSIONAL]).filter(course_run__in=course_runs)
+        seat_types = [SeatType.Verified, SeatType.Professional]
+        seats = Seat.objects.filter(type__in=seat_types).filter(course_run__in=course_runs)
         seats = seats.select_related('course_run').prefetch_related('course_run__course', 'course_run__course__partner')
 
         serializer = serializers.AffiliateWindowSerializer(seats, many=True)

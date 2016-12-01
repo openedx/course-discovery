@@ -6,7 +6,6 @@ from pytz import UTC
 
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import FuzzyURL
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing, ProgramStatus
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -66,7 +65,7 @@ class PrerequisiteFactory(AbstractNamedModelFactory):
 
 
 class SeatFactory(factory.DjangoModelFactory):
-    type = FuzzyChoice([name for name, __ in Seat.SEAT_TYPE_CHOICES])
+    type = FuzzyChoice(SeatTypeChoices.values.keys())
     price = FuzzyDecimal(0.0, 650.0)
     currency = factory.Iterator(Currency.objects.all())
     upgrade_deadline = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
@@ -125,7 +124,7 @@ class CourseRunFactory(factory.DjangoModelFactory):
     video = factory.SubFactory(VideoFactory)
     min_effort = FuzzyInteger(1, 10)
     max_effort = FuzzyInteger(10, 20)
-    pacing_type = FuzzyChoice([name for name, __ in CourseRunPacing.choices])
+    pacing_type = FuzzyChoice(CourseRunPacing.values.keys())
     slug = FuzzyText()
     weeks_to_complete = FuzzyInteger(1)
 
