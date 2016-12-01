@@ -13,7 +13,7 @@ from rest_framework.exceptions import PermissionDenied, NotFound
 
 from course_discovery.apps.api.utils import cast2int
 from course_discovery.apps.core.models import Partner
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Program, Organization
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -97,11 +97,22 @@ class HaystackFilter(HaystackRequestFilterMixin, DefaultHaystackFilter):
 
 
 class CharListFilter(django_filters.CharFilter):
+    """ Filters a field via a comma-delimited list of values. """
+
     def filter(self, qs, value):  # pylint: disable=method-hidden
         if value not in (None, ''):
             value = value.split(',')
 
         return super(CharListFilter, self).filter(qs, value)
+
+
+class UUIDListFilter(CharListFilter):
+    """ Filters a field via a comma-delimited list of UUIDs. """
+
+    def __init__(self, name='uuid', label=None, widget=None, action=None,
+                 lookup_expr='in', required=False, distinct=False, exclude=False, **kwargs):
+        super().__init__(name=name, label=label, widget=widget, action=action, lookup_expr=lookup_expr,
+                         required=required, distinct=distinct, exclude=exclude, **kwargs)
 
 
 class FilterSetMixin:
@@ -116,7 +127,7 @@ class FilterSetMixin:
 
 
 class CourseFilter(django_filters.FilterSet):
-    keys = CharListFilter(name='key', lookup_type='in')
+    keys = CharListFilter(name='key', lookup_expr='in')
 
     class Meta:
         model = Course
@@ -126,7 +137,7 @@ class CourseFilter(django_filters.FilterSet):
 class CourseRunFilter(FilterSetMixin, django_filters.FilterSet):
     active = django_filters.MethodFilter()
     marketable = django_filters.MethodFilter()
-    keys = CharListFilter(name='key', lookup_type='in')
+    keys = CharListFilter(name='key', lookup_expr='in')
 
     @property
     def qs(self):
@@ -145,8 +156,15 @@ class CourseRunFilter(FilterSetMixin, django_filters.FilterSet):
 class ProgramFilter(FilterSetMixin, django_filters.FilterSet):
     marketable = django_filters.MethodFilter()
     type = django_filters.CharFilter(name='type__name', lookup_expr='iexact')
-    uuids = CharListFilter(name='uuid', lookup_type='in')
+    uuids = UUIDListFilter()
 
     class Meta:
         model = Program
-        fields = ['type', 'uuids']
+
+
+class OrganizationFilter(django_filters.FilterSet):
+    tags = CharListFilter(name='tags__name', lookup_expr='in')
+    uuids = UUIDListFilter()
+
+    class Meta:
+        model = Organization

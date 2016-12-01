@@ -1,6 +1,6 @@
 import ddt
 from django.core.urlresolvers import reverse
-from rest_framework.test import APITestCase, APIRequestFactory
+from rest_framework.test import APITestCase
 
 from course_discovery.apps.api.serializers import MinimalProgramSerializer
 from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
@@ -23,8 +23,6 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         super(ProgramViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.request = APIRequestFactory().get('/')
-        self.request.user = self.user
 
     def create_program(self):
         organizations = [OrganizationFactory()]
