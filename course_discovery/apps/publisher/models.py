@@ -19,10 +19,9 @@ from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import LevelType, Subject, Person, Organization
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.constants import COORDINATOR, REVIEWER, PUBLISHER
+from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.emails import send_email_for_change_state
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
-
 
 logger = logging.getLogger(__name__)
 
@@ -365,15 +364,12 @@ class UserAttributes(TimeStampedModel):
 
 class OrganizationUserRole(TimeStampedModel):
     """ User Roles model for Organization. """
-    ROLES_TYPE_CHOICES = (
-        (COORDINATOR, _('Partner Coordinator')),
-        (REVIEWER, _('Reviewer')),
-        (PUBLISHER, _('Publisher')),
-    )
 
-    organization = models.ForeignKey(Organization, related_name='user_roles')
+    organization = models.ForeignKey(Organization, related_name='organization_user_roles')
     user = models.ForeignKey(User, related_name='organization_user_roles')
-    role = models.CharField(max_length=63, choices=ROLES_TYPE_CHOICES, verbose_name='Role Type')
+    role = models.CharField(
+        max_length=63, choices=PublisherUserRole.choices, verbose_name=_('Organization Role')
+    )
 
     history = HistoricalRecords()
 
@@ -385,6 +381,29 @@ class OrganizationUserRole(TimeStampedModel):
     def __str__(self):
         return '{organization}: {user}: {role}'.format(
             organization=self.organization,
+            user=self.user,
+            role=self.role
+        )
+
+
+class CourseUserRole(TimeStampedModel, ChangedByMixin):
+    """ User Course Roles model. """
+    course = models.ForeignKey(Course, related_name='course_user_roles')
+    user = models.ForeignKey(User, related_name='course_user_roles')
+    role = models.CharField(
+        max_length=63, choices=PublisherUserRole.choices, verbose_name=_('Course Role')
+    )
+
+    history = HistoricalRecords()
+
+    class Meta:
+        unique_together = (
+            ('course', 'user', 'role'),
+        )
+
+    def __str__(self):
+        return '{course}: {user}: {role}'.format(
+            course=self.course,
             user=self.user,
             role=self.role
         )
