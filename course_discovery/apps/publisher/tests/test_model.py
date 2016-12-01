@@ -6,9 +6,8 @@ from django.test import TestCase
 from django_fsm import TransitionNotAllowed
 
 from course_discovery.apps.core.tests.factories import UserFactory
-from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
-from course_discovery.apps.publisher.constants import COORDINATOR
-from course_discovery.apps.publisher.models import State, Course
+from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.models import State, Course, CourseUserRole, OrganizationUserRole
 from course_discovery.apps.publisher.tests import factories
 
 
@@ -199,15 +198,10 @@ class OrganizationUserRoleTests(TestCase):
 
     def setUp(self):
         super(OrganizationUserRoleTests, self).setUp()
-        self.user = UserFactory()
-        self.organization = OrganizationFactory()
-        self.role = COORDINATOR
-        self.org_user_role = factories.OrganizationUserRoleFactory(
-            user=self.user, organization=self.organization, role=COORDINATOR
-        )
+        self.org_user_role = factories.OrganizationUserRoleFactory(role=PublisherUserRole.PartnerCoordinator)
 
     def test_str(self):
-        """Verify that a organization-user-role is properly converted to a str."""
+        """Verify that a OrganizationUserRole is properly converted to a str."""
         self.assertEqual(
             str(self.org_user_role), '{organization}: {user}: {role}'.format(
                 organization=self.org_user_role.organization,
@@ -217,8 +211,32 @@ class OrganizationUserRoleTests(TestCase):
         )
 
     def test_unique_constraint(self):
-        """Verify that a organization-user-role not allow same user roles under one organization."""
+        """ Verify a user cannot have multiple rows for the same organization-role combination. """
         with self.assertRaises(IntegrityError):
-            factories.OrganizationUserRoleFactory(
-                user=self.user, organization=self.organization, role=COORDINATOR
+            OrganizationUserRole.objects.create(
+                user=self.org_user_role.user,
+                organization=self.org_user_role.organization,
+                role=self.org_user_role.role
+            )
+
+
+class CourseUserRoleTests(TestCase):
+    """Tests of the CourseUserRole model."""
+
+    def setUp(self):
+        super(CourseUserRoleTests, self).setUp()
+        self.course_user_role = factories.CourseUserRoleFactory(role=PublisherUserRole.PartnerCoordinator)
+
+    def test_str(self):
+        """Verify that a CourseUserRole is properly converted to a str."""
+        expected_str = '{course}: {user}: {role}'.format(
+            course=self.course_user_role.course, user=self.course_user_role.user, role=self.course_user_role.role
+        )
+        self.assertEqual(str(self.course_user_role), expected_str)
+
+    def test_unique_constraint(self):
+        """ Verify a user cannot have multiple rows for the same course-role combination."""
+        with self.assertRaises(IntegrityError):
+            CourseUserRole.objects.create(
+                course=self.course_user_role.course, user=self.course_user_role.user, role=self.course_user_role.role
             )
