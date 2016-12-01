@@ -11,39 +11,25 @@ services:
       MYSQL_USER: "discov001"
       MYSQL_PASSWORD: "password"
       MYSQL_DATABASE: "discovery"
-    ports:
-      - "3306:3306"
-    volumes:
-      - ./.dev/volumes/db:/var/lib/mysql
-
   es:
     image: elasticsearch:1.5.2
     container_name: es
-    volumes:
-      - ./.dev/volumes/es/data:/usr/share/elasticsearch/data
-      - ./.dev/volumes/es/logs:/usr/share/elasticsearch/logs
-      - ./.dev/volumes/es/plugins:/usr/share/elasticsearch/plugins
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-
   memcache:
     image: memcached:1.4.24
     container_name: memcache
-
   course-discovery:
     # Uncomment this line to use the official course-discovery base image
-    image: edxops/course-discovery:latest
+    image: edxops/course-discovery:bilal-test
 
     # Uncomment the next two lines to build from a local configuration repo
     # build: ../configuration/docker/build/discovery/
 
     container_name: course-discovery
     volumes:
-      - .:/edx/app/discovery/discovery
-      - ./course_discovery/media:/edx/var/discovery/media
-      - ./course_discovery/assets:/edx/var/discovery/staticfiles
-    command: /edx/app/discovery/devstack.sh start
+      - ..:/edx/app/discovery/discovery
+      - ../course_discovery/media:/edx/var/discovery/media
+      - ../course_discovery/assets:/edx/var/discovery/staticfiles
+    command: tail -f /dev/null
     depends_on:
       - "db"
       - "es"
@@ -51,7 +37,3 @@ services:
     environment:
       TEST_ELASTICSEARCH_URL: "http://es:9200"
       ENABLE_DJANGO_TOOLBAR: 1
-    ports:
-      - "18381:18381"
-      - "8381:8381"
-      - "48381:48381"

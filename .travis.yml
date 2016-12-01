@@ -8,15 +8,13 @@ services:
 
 sudo: required
 
-# Cache the pip directory. "cache: pip" doesn't work due to install override. See https://github.com/travis-ci/travis-ci/issues/3239.
 cache:
   - directories:
-    - $HOME/.cache/pip
     - node_modules
     - course_discovery/static/bower_components
 
 before_install:
-    - docker-compose -f docker-compose.yml up -d
+    - docker-compose -f .travis/docker-compose-travis.yml up -d
 
 script:
     - docker exec course-discovery /edx/app/discovery/discovery/.travis/run_tests.sh
