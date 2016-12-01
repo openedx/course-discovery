@@ -174,7 +174,7 @@ class Course(TimeStampedModel, ChangedByMixin):
         return None
 
     def get_group_from_organizations(self):
-        """ Returns the list of organizations associated groups."""
+        """ Returns the first group associated with organizations."""
         groups = [grp_org.publisher_organizations.group for grp_org in self.organizations.all()]
         return groups[0] if groups else None
 
