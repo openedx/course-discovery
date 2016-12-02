@@ -14,8 +14,9 @@ from course_discovery.apps.api.v1.views import TypeaheadSearchView
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD, PartnerFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import CourseRun, Program
+from course_discovery.apps.course_metadata.models import CourseRun, Program, ProgramType
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory, OrganizationFactory
+from course_discovery.apps.edx_haystack_extensions.models import ElasticsearchBoostConfig
 
 
 class SerializationMixin:
@@ -297,6 +298,20 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
 
 class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, APITestCase):
     path = reverse('api:v1:search-typeahead')
+    function_score = {
+        'functions': [
+            {'filter': {'term': {'pacing_type_exact': 'self_paced'}}, 'weight': 1.0},
+            {'filter': {'term': {'type_exact': 'micromasters'}}, 'weight': 1.0},
+            {'linear': {'start': {'origin': 'now', 'scale': '1d', 'decay': 0.95}}, 'weight': 5.0}
+        ],
+        'boost': 1.0, 'score_mode': 'sum', 'boost_mode': 'sum',
+        'query': {
+            'query_string': {
+                'auto_generate_phrase_queries': True, 'analyze_wildcard': True,
+                'query': '((title:*pytho* OR course_key:*pytho*) AND status:(active))'
+            }
+        }
+    }
 
     def get_typeahead_response(self, query=None):
         qs = ''
@@ -305,6 +320,9 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, APITestC
             qs = urllib.parse.urlencode({'q': query})
 
         url = '{path}?{qs}'.format(path=self.path, qs=qs)
+        config = ElasticsearchBoostConfig.get_solo()
+        config.function_score = self.function_score
+        config.save()
         return self.client.get(url)
 
     def test_typeahead(self):
@@ -382,3 +400,39 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, APITestC
         response = self.get_typeahead_response()
         self.assertEqual(response.status_code, 400)
         self.assertDictEqual(response.data, {'detail': 'The \'q\' querystring parameter is required for searching.'})
+
+    def test_micromasters_boosting(self):
+        """ Verify micromasters are boosted over xseries."""
+        title = "test_micromasters_boosting"
+        ProgramFactory(
+            title=title + "1",
+            status=ProgramStatus.Active,
+            type=ProgramType.objects.get(name='MicroMasters')
+        )
+        ProgramFactory(title=title + "2", status=ProgramStatus.Active, type=ProgramType.objects.get(name='XSeries'))
+        response = self.get_typeahead_response(title)
+        self.assertEqual(response.status_code, 200)
+        response_data = response.json()
+        self.assertEqual(response_data['programs'][0]['type'], 'MicroMasters')
+        self.assertEqual(response_data['programs'][0]['title'], title + "1")
+
+    def test_start_date_boosting(self):
+        """ Verify upcoming courses are boosted over past courses."""
+        title = "test_start_date_boosting"
+        now = datetime.datetime.utcnow()
+        CourseRunFactory(title=title + "1", start=now - datetime.timedelta(weeks=10))
+        CourseRunFactory(title=title + "2", start=now + datetime.timedelta(weeks=1))
+        response = self.get_typeahead_response(title)
+        self.assertEqual(response.status_code, 200)
+        response_data = response.json()
+        self.assertEqual(response_data['course_runs'][0]['title'], title + "2")
+
+    def test_self_paced_boosting(self):
+        """ Verify that self paced courses are boosted over instructor led courses."""
+        title = "test_self_paced_boosting"
+        CourseRunFactory(title=title + "1", pacing_type='instructor_paced')
+        CourseRunFactory(title=title + "2", pacing_type='self_paced')
+        response = self.get_typeahead_response(title)
+        self.assertEqual(response.status_code, 200)
+        response_data = response.json()
+        self.assertEqual(response_data['course_runs'][0]['title'], title + "2")

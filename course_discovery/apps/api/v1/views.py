@@ -688,7 +688,7 @@ class TypeaheadSearchView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get_results(self, query):
-        query = '*{}*'.format(query.lower())
+        query = '(title:*{query}* OR course_key:*{query}*)'.format(query=query.lower())
         course_runs = SearchQuerySet().models(CourseRun).raw_search(query)
         course_runs = course_runs.filter(published=True).exclude(hidden=True)
         course_runs = course_runs[:self.RESULT_COUNT]
