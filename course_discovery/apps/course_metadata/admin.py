@@ -169,6 +169,7 @@ class OrganizationUserRoleInline(admin.TabularInline):
     from course_discovery.apps.publisher.models import OrganizationUserRole
     model = OrganizationUserRole
     extra = 3
+    raw_id_fields = ('user',)
 
 
 @admin.register(Organization)
