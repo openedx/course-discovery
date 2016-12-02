@@ -33,7 +33,7 @@ services:
 
   course-discovery:
     # Uncomment this line to use the official course-discovery base image
-    image: edxops/course-discovery:latest
+    image: edxops/discovery:latest
 
     # Uncomment the next two lines to build from a local configuration repo
     # build: ../configuration/docker/build/discovery/
