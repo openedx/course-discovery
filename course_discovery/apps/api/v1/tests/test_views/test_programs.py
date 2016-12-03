@@ -1,10 +1,10 @@
 import ddt
 from django.core.urlresolvers import reverse
-from rest_framework.test import APITestCase, APIRequestFactory
+from rest_framework.test import APITestCase
 
 from course_discovery.apps.api.serializers import MinimalProgramSerializer
-from course_discovery.apps.api.v1.views import ProgramViewSet
 from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
+from course_discovery.apps.api.v1.views.programs import ProgramViewSet
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.choices import ProgramStatus
@@ -23,8 +23,6 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         super(ProgramViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.request = APIRequestFactory().get('/')
-        self.request.user = self.user
 
     def create_program(self):
         organizations = [OrganizationFactory()]

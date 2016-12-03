@@ -9,7 +9,7 @@ from rest_framework.test import APIRequestFactory
 from course_discovery.apps.api.serializers import (
     CatalogSerializer, CourseWithProgramsSerializer, CourseSerializerExcludingClosedRuns,
     CourseRunWithProgramsSerializer, MinimalProgramSerializer, ProgramSerializer,
-    FlattenedCourseRunWithCourseSerializer,
+    FlattenedCourseRunWithCourseSerializer, OrganizationSerializer
 )
 
 
@@ -55,6 +55,9 @@ class SerializationMixin(object):
 
     def serialize_catalog_flat_course_run(self, course_run, many=False, format=None, extra_context=None):
         return self._serialize_object(FlattenedCourseRunWithCourseSerializer, course_run, many, format, extra_context)
+
+    def serialize_organization(self, organization, many=False, format=None, extra_context=None):
+        return self._serialize_object(OrganizationSerializer, organization, many, format, extra_context)
 
 
 class OAuth2Mixin(object):
