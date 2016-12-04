@@ -11,9 +11,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-03 17:29-0400\n"
-"PO-Revision-Date: 2016-11-07 20:46+0000\n"
-"Last-Translator: shefaa abu jabel <shefaa.aj@gmail.com>\n"
+"POT-Creation-Date: 2016-12-01 20:12+0500\n"
+"PO-Revision-Date: 2016-11-15 09:59+0000\n"
+"Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Arabic (http://www.transifex.com/open-edx/edx-platform/language/ar/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -24,6 +24,12 @@ msgstr ""
 #: static/js/catalogs-change-form.js
 msgid "Preview"
 msgstr "معاينة"
+
+#: static/js/publisher/views/dashboard.js
+msgid ""
+"You have successfully created a studio instance ({studioLinkTag}) for "
+"{courseRunDetail} with a start date of {startDate}"
+msgstr ""
 
 #: static/js/publisher/views/navbar.js
 msgid "OFF"

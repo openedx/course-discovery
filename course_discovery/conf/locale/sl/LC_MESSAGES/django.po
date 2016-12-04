@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-03 17:29-0400\n"
-"PO-Revision-Date: 2016-11-04 09:40+0000\n"
+"POT-Creation-Date: 2016-12-01 20:12+0500\n"
+"PO-Revision-Date: 2016-12-02 09:10+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Slovenian (http://www.transifex.com/open-edx/edx-platform/language/sl/)\n"
 "MIME-Version: 1.0\n"
@@ -410,9 +410,39 @@ msgstr ""
 msgid "JSON string containing an elasticsearch function score config."
 msgstr ""
 
+#: apps/publisher/choices.py
+msgid "Partner Coordinator"
+msgstr ""
+
+#: apps/publisher/choices.py
+msgid "Marketing Reviewer"
+msgstr ""
+
+#: apps/publisher/choices.py
+msgid "Publisher"
+msgstr ""
+
+#: apps/publisher/choices.py
+msgid "Course Team"
+msgstr ""
+
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Course Run {title}-{pacing_type}-{start} state has been changed."
+msgstr ""
+
+#: apps/publisher/emails.py
+msgid "Studio instance created"
+msgstr ""
+
+#: apps/publisher/forms.py templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "Course Title"
+msgstr ""
+
+#: apps/publisher/forms.py templates/publisher/add_course_form.html
+#: templates/publisher/dashboard/_studio_requests.html
+msgid "Course Number"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -421,6 +451,18 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "No"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Course start date"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Course end date"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Yes, course will be Self-Paced"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -534,12 +576,34 @@ msgstr ""
 msgid "Professional (no ID verifiation)"
 msgstr ""
 
+#: apps/publisher/models.py
+msgid "Organization Role"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Course Role"
+msgstr ""
+
 #: apps/publisher/views.py
 msgid "Course created successfully."
 msgstr ""
 
 #: apps/publisher/views.py
 msgid "Please fill all required field."
+msgstr ""
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid "Course run created successfully for course \"{course_title}\"."
+msgstr ""
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid "There was an error saving course run, {error}"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "Please fill all required fields."
 msgstr ""
 
 #: apps/publisher/views.py
@@ -581,14 +645,6 @@ msgstr ""
 msgid "modified"
 msgstr ""
 
-#: templates/base.html
-msgid "Course Runs"
-msgstr ""
-
-#: templates/base.html
-msgid "Courses"
-msgstr ""
-
 #: templates/comments/add_auth_comments.html
 msgid "Add new comment"
 msgstr ""
@@ -612,62 +668,6 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: templates/footer.html
-msgid "Terms of Service"
-msgstr ""
-
-#: templates/footer.html
-msgid "Privacy Policy"
-msgstr ""
-
-#: templates/footer.html
-msgid "Legal"
-msgstr ""
-
-#: templates/footer.html
-#, python-format
-msgid ""
-"EdX, Open edX, Publisher, and the edX and Open edX logos are registered "
-"trademarks or trademarks of %(link_start)sedX Inc.%(link_end)s"
-msgstr ""
-
-#: templates/footer.html
-msgid "Powered by Open edX"
-msgstr ""
-
-#: templates/header.html
-#: templates/publisher/course_run_detail/_salesforce.html
-msgid "Account"
-msgstr ""
-
-#: templates/header.html
-msgid "Account Navigation"
-msgstr ""
-
-#: templates/header.html
-msgid "Contextual Online Help"
-msgstr ""
-
-#: templates/header.html
-msgid "Help"
-msgstr ""
-
-#: templates/header.html
-msgid "Email notifications"
-msgstr ""
-
-#: templates/header.html
-msgid "ON"
-msgstr ""
-
-#: templates/header.html
-msgid "OFF"
-msgstr ""
-
-#: templates/header.html
-msgid "Sign Out"
-msgstr ""
-
 #: templates/metadata/admin/course_run.html
 msgid "Cancel"
 msgstr ""
@@ -678,6 +678,62 @@ msgstr ""
 
 #: templates/metadata/admin/course_run.html
 msgid "Save Course Run"
+msgstr ""
+
+#: templates/publisher/_footer.html
+msgid "Terms of Service"
+msgstr ""
+
+#: templates/publisher/_footer.html
+msgid "Privacy Policy"
+msgstr ""
+
+#: templates/publisher/_footer.html
+msgid "Legal"
+msgstr ""
+
+#: templates/publisher/_footer.html
+#, python-format
+msgid ""
+"EdX, Open edX, Publisher, and the edX and Open edX logos are registered "
+"trademarks or trademarks of %(link_start)sedX Inc.%(link_end)s"
+msgstr ""
+
+#: templates/publisher/_footer.html
+msgid "Powered by Open edX"
+msgstr ""
+
+#: templates/publisher/_header.html
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Account"
+msgstr ""
+
+#: templates/publisher/_header.html
+msgid "Account Navigation"
+msgstr ""
+
+#: templates/publisher/_header.html
+msgid "Contextual Online Help"
+msgstr ""
+
+#: templates/publisher/_header.html
+msgid "Help"
+msgstr ""
+
+#: templates/publisher/_header.html
+msgid "Email notifications"
+msgstr ""
+
+#: templates/publisher/_header.html
+msgid "ON"
+msgstr ""
+
+#: templates/publisher/_header.html
+msgid "OFF"
+msgstr ""
+
+#: templates/publisher/_header.html
+msgid "Sign Out"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
@@ -703,34 +759,37 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "required"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
-msgid "Course Title"
-msgstr ""
-
-#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "Best Practices"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "Example"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "Concise 70 characters maximum; < 50 chars. recommended."
 msgstr ""
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "Descriptive - clearly indicates what the course is about."
 msgstr ""
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "SEO-optimized and targeted to a global audience."
 msgstr ""
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid ""
 "If the course falls in a sequence, our titling convention is: \"Course "
 "Title: Subtitle\""
@@ -741,14 +800,17 @@ msgid "English Grammar and Essay Writing Sequence Courses:"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "Introduction to Statistics"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "Statistics: Inference"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "Statistics: Probability"
 msgstr ""
 
@@ -760,6 +822,7 @@ msgstr ""
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_salesforce.html
 #: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid "Start Date"
 msgstr ""
 
@@ -782,12 +845,9 @@ msgid "Pacing Type"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid ""
 "Will your course be open to students at the same time as it is announced?"
-msgstr ""
-
-#: templates/publisher/add_course_form.html
-msgid "Course Number"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
@@ -803,6 +863,7 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "About page information"
 msgstr ""
 
@@ -814,6 +875,7 @@ msgid "End Date"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid ""
 "The date when this self-paced course run will end, replaced by an updated "
 "version of the course"
@@ -1039,7 +1101,115 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
 msgid "Save Draft"
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid "New Course Run"
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+#, python-format
+msgid ""
+"\n"
+"                    The fields below will only affect this new course run. If you feel the need edit information from the parent course then you may do so on the %(link_start)s%(course_url)s%(link_middle)sparent course for this run%(link_end)s.\n"
+"                "
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid "Studio instance information"
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid ""
+"\n"
+"                                    The information in this section is required to create a course studio instance. You must fill all required information but are welcome to come back and enter the rest of the information when you are ready to announce the course, or you can do it all at once if you are ready to do so.\n"
+"                                "
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE TITLE"
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid "English Grammar and Essay Writing"
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid "Sequence Courses:"
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid "Institution Course Admin"
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid "Change"
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE START DATE"
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid ""
+"\n"
+"                                            Start on a weekday (preferably Tuesday, Wednesday, or Thursday) and avoid major U.S. holidays\n"
+"                                            for best access to edX staff.\n"
+"                                        "
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid ""
+"\n"
+"                                            Approximate dates are acceptable; If you are unable to give an exact date, please identify a\n"
+"                                            month in which the course will be offered.\n"
+"                                        "
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE NUMBER"
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid ""
+"\n"
+"                                            Courses split into several modules can be denoted by adding .1, .2, etc. at the end of the\n"
+"                                            course number before the “x”\n"
+"                                            No special html characters, accents, spaces, dashes, or underscores\n"
+"                                            10 character limit\n"
+"                                        "
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid "Example:"
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid "etc."
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE END DATE"
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid "CERTIFICATE TYPE AND PRICE"
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid ""
+"If Verified or Professional Ed, indicate certificate price in US dollars "
+"(minimum of $49)"
+msgstr ""
+
+#: templates/publisher/base.html templates/publisher/dashboard.html
+msgid "Dashboard"
+msgstr ""
+
+#: templates/publisher/base.html
+msgid "Courses"
 msgstr ""
 
 #: templates/publisher/course_form.html
@@ -1402,10 +1572,17 @@ msgid "No Seats Available."
 msgstr ""
 
 #: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard/_in_progress.html
+#: templates/publisher/dashboard/_preview_ready.html
+#: templates/publisher/dashboard/_published.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid "Course Name"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard/_preview_ready.html
+#: templates/publisher/dashboard/_published.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid "Organization"
 msgstr ""
 
@@ -1468,6 +1645,105 @@ msgstr ""
 msgid "Looks like you haven't publish a course yet"
 msgstr ""
 
+#: templates/publisher/dashboard.html
+msgid "Course runs"
+msgstr ""
+
+#: templates/publisher/dashboard.html
+msgid "IN PROGRESS"
+msgstr ""
+
+#: templates/publisher/dashboard.html
+msgid "PREVIEW READY"
+msgstr ""
+
+#: templates/publisher/dashboard.html
+msgid "STUDIO REQUEST"
+msgstr ""
+
+#: templates/publisher/dashboard.html
+msgid "PUBLISHED COURSE RUNS"
+msgstr ""
+
+#: templates/publisher/dashboard/_in_progress.html
+msgid "There are no in progress course runs."
+msgstr ""
+
+#: templates/publisher/dashboard/_in_progress.html
+msgid "Institution"
+msgstr ""
+
+#: templates/publisher/dashboard/_in_progress.html
+#: templates/publisher/dashboard/_published.html
+msgid "Start"
+msgstr ""
+
+#: templates/publisher/dashboard/_in_progress.html
+#: templates/publisher/dashboard/_published.html
+msgid "End"
+msgstr ""
+
+#: templates/publisher/dashboard/_in_progress.html
+#: templates/publisher/dashboard/_published.html
+msgid "Target Content"
+msgstr ""
+
+#: templates/publisher/dashboard/_in_progress.html
+msgid "SEO Review"
+msgstr ""
+
+#: templates/publisher/dashboard/_preview_ready.html
+msgid "There are no course runs marked for preview."
+msgstr ""
+
+#: templates/publisher/dashboard/_preview_ready.html
+msgid ""
+"The list below contains all course runs awaiting course team approval. Once "
+"approved, the marketing team will push the course run. you will be notified "
+"via email when the course runs are live on the production site."
+msgstr ""
+
+#: templates/publisher/dashboard/_preview_ready.html
+msgid "Approved"
+msgstr ""
+
+#: templates/publisher/dashboard/_preview_ready.html
+msgid "Preview URL"
+msgstr ""
+
+#: templates/publisher/dashboard/_published.html
+msgid "Looks like you haven't published any course yet"
+msgstr ""
+
+#: templates/publisher/dashboard/_published.html
+#, python-format
+msgid ""
+"The list below contains all course runs published in the past "
+"%(default_published_days)s days."
+msgstr ""
+
+#: templates/publisher/dashboard/_published.html
+msgid "Published Date"
+msgstr ""
+
+#: templates/publisher/dashboard/_studio_requests.html
+msgid ""
+"The list below are the courses that need a studio instance to start "
+"development."
+msgstr ""
+
+#: templates/publisher/dashboard/_studio_requests.html
+msgid "Studio Course Run Key"
+msgstr ""
+
+#: templates/publisher/dashboard/_studio_requests.html
+msgid "Add"
+msgstr ""
+
+#: templates/publisher/dashboard/_studio_requests.html
+msgid "There are no course-runs require studio instance."
+msgstr ""
+
 #: templates/publisher/email/change_state.html
 #: templates/publisher/email/change_state.txt
 msgid "Hi,"
@@ -1487,6 +1763,8 @@ msgstr ""
 #: templates/publisher/email/change_state.txt
 #: templates/publisher/email/comment.html
 #: templates/publisher/email/comment.txt
+#: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
 msgid "The edX team"
 msgstr ""
 
@@ -1508,6 +1786,21 @@ msgstr ""
 
 #: templates/publisher/email/comment.txt
 msgid "View comment: "
+msgstr ""
+
+#: templates/publisher/email/studio_instance_created.html
+#, python-format
+msgid ""
+"Studio instance created for the following course run: "
+"%(link_start)s%(course_run_page_url)s%(link_middle)scourse run "
+"link%(link_end)s."
+msgstr ""
+
+#: templates/publisher/email/studio_instance_created.txt
+#, python-format
+msgid ""
+"Studio instance created for the following course run: "
+"%(course_run_page_url)s"
 msgstr ""
 
 #: templates/publisher/seat_form.html
