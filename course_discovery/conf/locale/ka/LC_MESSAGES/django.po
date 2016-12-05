@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-12-01 20:12+0500\n"
-"PO-Revision-Date: 2016-12-04 14:58+0000\n"
+"PO-Revision-Date: 2016-12-05 13:07+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Georgian (http://www.transifex.com/open-edx/edx-platform/language/ka/)\n"
 "MIME-Version: 1.0\n"
@@ -328,7 +328,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Honor"
-msgstr ""
+msgstr "წარჩინებით"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Audit"
@@ -336,11 +336,11 @@ msgstr "აუდიტი"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Verified"
-msgstr ""
+msgstr "შემოწმებული"
 
 #: apps/course_metadata/models.py
 msgid "Professional"
-msgstr ""
+msgstr "პროფესიული"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Credit"
@@ -643,7 +643,7 @@ msgstr ""
 
 #: apps/publisher_comments/models.py
 msgid "modified"
-msgstr ""
+msgstr "მოდიფიცირებული"
 
 #: templates/comments/add_auth_comments.html
 msgid "Add new comment"
@@ -1222,7 +1222,7 @@ msgstr ""
 
 #: templates/publisher/course_run_detail.html
 msgid "All"
-msgstr ""
+msgstr "ყველა"
 
 #: templates/publisher/course_run_detail.html
 msgid "STUDIO"

@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-12-01 20:12+0500\n"
-"PO-Revision-Date: 2016-12-02 09:10+0000\n"
+"PO-Revision-Date: 2016-12-05 08:05+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Korean (Korea) (http://www.transifex.com/open-edx/edx-platform/language/ko_KR/)\n"
 "MIME-Version: 1.0\n"
@@ -369,15 +369,15 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "A brief, descriptive subtitle for the Program."
-msgstr ""
+msgstr "프로그램에 대한 소개를 나타내는 부제."
 
 #: apps/course_metadata/models.py
 msgid "The lifecycle status of this Program."
-msgstr ""
+msgstr "프로그램의 주기 상태."
 
 #: apps/course_metadata/models.py
 msgid "Slug used to generate links to the marketing site"
-msgstr ""
+msgstr "마케팅 사이트 링크 생성을 위해 사용되는 slug"
 
 #: apps/course_metadata/models.py
 msgid ""
