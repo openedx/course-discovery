@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+from django.conf import settings
 from haystack import connections as haystack_connections
 from haystack.management.commands.update_index import Command as HaystackCommand
 
@@ -84,5 +85,6 @@ class Command(HaystackCommand):
         """
         timestamp = datetime.datetime.utcnow().strftime('%Y%m%d_%H%M%S')
         index_name = '{alias}_{timestamp}'.format(alias=prefix, timestamp=timestamp)
-        backend.conn.indices.create(index=index_name)
+        index_settings = settings.ELASTICSEARCH_INDEX_SETTINGS
+        backend.conn.indices.create(index=index_name, body=index_settings)
         return index_name

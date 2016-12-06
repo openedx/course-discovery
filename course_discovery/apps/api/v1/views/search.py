@@ -121,23 +121,36 @@ class AggregateSearchViewSet(BaseHaystackViewSet):
 
 
 class TypeaheadSearchView(APIView):
-    """
-    Typeahead for courses and programs.
-    """
+    """ Typeahead for courses and programs. """
     RESULT_COUNT = 3
     permission_classes = (IsAuthenticated,)
 
     def get_results(self, query):
-        query = '(title:*{query}* OR course_key:*{query}*)'.format(query=query.lower())
-        course_runs = SearchQuerySet().models(CourseRun).raw_search(query)
+        course_runs = SearchQuerySet().models(CourseRun).filter(SQ(title_autocomplete=query) | SQ(course_key=query))
         course_runs = course_runs.filter(published=True).exclude(hidden=True)
         course_runs = course_runs[:self.RESULT_COUNT]
-        programs = SearchQuerySet().models(Program).raw_search(query)
+        programs = SearchQuerySet().models(Program).filter(SQ(title_autocomplete=query))
         programs = programs.filter(status=ProgramStatus.Active)
         programs = programs[:self.RESULT_COUNT]
         return course_runs, programs
 
     def get(self, request, *args, **kwargs):
+        """
+        Typeahead uses the ngram_analyzer as the index_analyzer to generate ngrams of the title during indexing.
+        i.e. Data Science -> da, dat, at, ata, data, etc...
+        Typeahead uses the lowercase analyzer as the search_analyzer.
+        The ngram_analyzer uses the lowercase filter as well, which makes typeahead case insensitive.
+        Available analyzers are defined in index _settings and field level analyzers are defined in the index _mapping.
+        NGrams are used rather than EdgeNgrams because NGrams allow partial searches across white space:
+        i.e. data sci - > data science, but not data analysis or scientific method
+        ---
+        parameters:
+            - name: q
+              description: "Search text"
+              paramType: query
+              required: true
+              type: string
+        """
         query = request.query_params.get('q')
         if not query:
             raise ParseError("The 'q' querystring parameter is required for searching.")

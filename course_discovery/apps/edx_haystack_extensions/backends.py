@@ -74,8 +74,37 @@ class NonClearingSearchBackendMixin(object):
 
 
 # pylint: disable=abstract-method
+class ConfigurableElasticBackend(ElasticsearchSearchBackend):
+
+    def specify_analyzers(self, mapping, field, index_analyzer, search_analyzer):
+        """ Specify separate index and search analyzers for the given field.
+          Args:
+            mapping (dict): /_mapping attribute on index (maps analyzers to fields)
+            field (str): which field to modify
+            index_analyzer (str): name of the index_analyzer (should be defined in the /_settings attribute)
+            search_analyzer (str): name of the search_analyzer (should be defined in the /_settings attribute)
+        """
+        # The generic analyzer is used for both if index_analyzer and search_analyzer are not specified
+        mapping[field].pop('analyzer')
+        mapping[field].update({
+            'index_analyzer': index_analyzer,
+            'search_analyzer': search_analyzer
+        })
+
+    def build_schema(self, fields):
+        content_field_name, mapping = super().build_schema(fields)
+        # Use the ngram analyzer as the index_analyzer and the lowercase analyzer as the search_analyzer
+        # This is necessary to support partial searches/typeahead
+        # If we used ngram analyzer for both, then 'running' would get split into ngrams like "ing"
+        # and all words containing ing would come back in typeahead.
+        self.specify_analyzers(mapping=mapping, field='title_autocomplete',
+                               index_analyzer='ngram_analyzer', search_analyzer='lowercase')
+        return (content_field_name, mapping)
+
+
+# pylint: disable=abstract-method
 class EdxElasticsearchSearchBackend(SimpleQuerySearchBackendMixin, NonClearingSearchBackendMixin,
-                                    ElasticsearchSearchBackend):
+                                    ConfigurableElasticBackend):
     pass
 
 
