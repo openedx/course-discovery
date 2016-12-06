@@ -5,8 +5,6 @@
 apt update
 apt install -y xvfb firefox gettext wget
 
-pip install --upgrade selenium
-
 cd /edx/app/discovery/discovery
 export PATH=$PATH:$PWD/node_modules/.bin
 
