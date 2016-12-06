@@ -11,7 +11,8 @@ from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Program
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, VideoFactory, OrganizationFactory, PersonFactory, ProgramFactory,
-    CorporateEndorsementFactory, EndorsementFactory, JobOutlookItemFactory, ExpectedLearningItemFactory
+    CorporateEndorsementFactory, EndorsementFactory, JobOutlookItemFactory, ExpectedLearningItemFactory,
+    ProgramTypeFactory
 )
 
 
@@ -160,3 +161,49 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
     def test_minimal_serializer_use(self):
         """ Verify that the list view uses the minimal serializer. """
         self.assertEqual(ProgramViewSet(action='list').get_serializer_class(), MinimalProgramSerializer)
+
+
+class ProgramTypeViewSetTests(SerializationMixin, APITestCase):
+    list_path = reverse('api:v1:program_type-list')
+
+    def setUp(self):
+        super(ProgramTypeViewSetTests, self).setUp()
+        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+    def test_authentication(self):
+        """ Verify the endpoint requires the user to be authenticated. """
+        response = self.client.get(self.list_path)
+        self.assertEqual(response.status_code, 200)
+
+        self.client.logout()
+        response = self.client.get(self.list_path)
+        self.assertEqual(response.status_code, 403)
+
+    def assert_list_results(self, url, expected, expected_query_count, extra_context=None):
+        """
+        Asserts the results serialized/returned at the URL matches those that are expected.
+        Args:
+            url (str): URL from which data should be retrieved
+            expected (list[ProgramType]): Expected program_types
+
+        Notes:
+            The API usually returns items in reverse order of creation (e.g. newest first). You may need to reverse
+            the values of `expected` if you encounter issues. This method will NOT do that reversal for you.
+
+        Returns:
+            None
+        """
+        with self.assertNumQueries(expected_query_count):
+            response = self.client.get(url)
+
+        self.assertEqual(
+            response.data['results'],
+            self.serialize_program_type(expected, many=True, extra_context=extra_context)
+        )
+
+    def test_list(self):
+        """ Verify the endpoint returns a list of all program_types. """
+        expected = ProgramTypeFactory.create_batch(2)
+        expected.reverse()
+        self.assert_list_results(self.list_path, expected, 4)
