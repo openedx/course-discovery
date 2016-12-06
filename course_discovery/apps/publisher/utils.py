@@ -1,6 +1,8 @@
 """ Publisher Utils."""
 from course_discovery.apps.core.models import User
-from course_discovery.apps.publisher.constants import ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME
+from course_discovery.apps.publisher.constants import (
+    ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PARTNER_COORDINATOR_GROUP_NAME
+)
 
 
 def is_email_notification_enabled(user):
@@ -50,3 +52,15 @@ def get_internal_users():
         list
     """
     return list(User.objects.filter(groups__name=INTERNAL_USER_GROUP_NAME))
+
+
+def is_partner_coordinator_user(user):
+    """ Returns True if the user is an partner coordinator user.
+
+    Arguments:
+        user (:obj:`User`): User whose permissions should be checked.
+
+    Returns:
+        bool: True, if user is an PC user; otherwise, False.
+    """
+    return user.groups.filter(name=PARTNER_COORDINATOR_GROUP_NAME).exists()

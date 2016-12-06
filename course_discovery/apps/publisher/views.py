@@ -27,7 +27,10 @@ from course_discovery.apps.publisher.models import (
     Course, CourseRun, Seat, State, UserAttributes
 )
 from course_discovery.apps.publisher.serializers import UpdateCourseKeySerializer
-from course_discovery.apps.publisher.utils import is_internal_user, get_internal_users, is_publisher_admin
+from course_discovery.apps.publisher.utils import (
+    is_internal_user, get_internal_users, is_publisher_admin,
+    is_partner_coordinator_user
+)
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
 logger = logging.getLogger(__name__)
@@ -56,6 +59,7 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
             internal_user_courses = Course.objects.filter(course_user_roles__user=user)
             course_runs = CourseRun.objects.filter(course__in=internal_user_courses).select_related('course').all()
         else:
+            # in future we will change permission from course to OrganizationExtension model
             courses = get_objects_for_user(user, Course.VIEW_PERMISSION, Course)
             course_runs = CourseRun.objects.filter(course__in=courses).select_related('course').all()
 
@@ -72,7 +76,16 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
 
         unpublished_course_runs = course_runs.exclude(state__name=State.PUBLISHED)
 
-        studio_request_courses = unpublished_course_runs.filter(lms_course_id__isnull=True)
+        # Studio requests needs to check depending upon the user role with course
+        # Also user should be part of partner coordinator group.
+        if is_publisher_admin(self.request.user):
+            studio_request_courses = unpublished_course_runs.filter(lms_course_id__isnull=True)
+        elif is_partner_coordinator_user(self.request.user):
+            studio_request_courses = unpublished_course_runs.filter(lms_course_id__isnull=True).filter(
+                course__course_user_roles__role=PublisherUserRole.PartnerCoordinator
+            )
+        else:
+            studio_request_courses = []
 
         context['studio_request_courses'] = [CourseRunWrapper(course_run) for course_run in studio_request_courses]
         context['unpublished_course_runs'] = [CourseRunWrapper(course_run) for course_run in unpublished_course_runs]

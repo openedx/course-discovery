@@ -23,7 +23,9 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.choices import PublisherUserRole
-from course_discovery.apps.publisher.constants import INTERNAL_USER_GROUP_NAME, ADMIN_GROUP_NAME
+from course_discovery.apps.publisher.constants import (
+    INTERNAL_USER_GROUP_NAME, ADMIN_GROUP_NAME, PARTNER_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME
+)
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State
 from course_discovery.apps.publisher.tests import factories, JSON_CONTENT_TYPE
 from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
@@ -1027,30 +1029,49 @@ class DashboardTests(TestCase):
     def setUp(self):
         super(DashboardTests, self).setUp()
 
-        self.user1 = UserFactory()
-        self.group_a = factories.GroupFactory()
-        self.user1.groups.add(self.group_a)
+        self.publisher_admin_group = Group.objects.get(name=ADMIN_GROUP_NAME)
+        self.group_internal = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
+        self.group_partner_coordinator = Group.objects.get(name=PARTNER_COORDINATOR_GROUP_NAME)
+        self.group_reviewer = Group.objects.get(name=REVIEWER_GROUP_NAME)
 
+        self.user1 = UserFactory()
         self.user2 = UserFactory()
-        self.group_b = factories.GroupFactory()
-        self.user2.groups.add(self.group_b)
+
+        self.user1.groups.add(self.group_internal)
+        self.user1.groups.add(self.group_partner_coordinator)
+        self.user1.groups.add(self.group_reviewer)
+        self.user2.groups.add(self.group_internal)
 
         self.client.login(username=self.user1.username, password=USER_PASSWORD)
         self.page_url = reverse('publisher:publisher_dashboard')
 
-        # group-a course
-        self.course_run_1 = self._create_course_assign_permissions(State.DRAFT, self.group_a)
-        self.course_run_2 = self._create_course_assign_permissions(State.NEEDS_REVIEW, self.group_a)
-        self.course_run_3 = self._create_course_assign_permissions(State.PUBLISHED, self.group_a)
+        pc = PublisherUserRole.PartnerCoordinator
 
-        # group-b course
-        self._create_course_assign_permissions(State.DRAFT, self.group_b)
+        # user1 courses data set ( 2 studio-request, 1 published, 1 in preview ready, 1 in progress )
+        self.course_run_1 = self._create_course_assign_role(State.DRAFT, self.user1, pc)
+        self.course_run_2 = self._create_course_assign_role(State.NEEDS_REVIEW, self.user1, pc)
+
+        # mark course as in progress
+        self.course_run_2.change_state(target=State.NEEDS_FINAL_APPROVAL)
+        self.course_run_2.save()
+
+        # mark course as in in preview
+        self.course_run_2.preview_url = 'http://'
+        self.course_run_2.save()
+
+        self.course_run_3 = self._create_course_assign_role(State.PUBLISHED, self.user1, pc)
+        self._create_course_assign_role(State.DRAFT, self.user1, PublisherUserRole.MarketingReviewer)
+
+        # user2 courses
+        self._create_course_assign_role(State.DRAFT, self.user2, pc)
         self.table_class = "data-table-{id} display"
 
-    def _create_course_assign_permissions(self, state, group):
+        # admin user can see all courses.
+
+    def _create_course_assign_role(self, state, user, role):
         """ DRY method to create course and assign the permissions"""
         course_run = factories.CourseRunFactory(state=factories.StateFactory(name=state))
-        course_run.course.assign_permission_by_group(group)
+        factories.CourseUserRoleFactory(course=course_run.course, role=role, user=user)
         return course_run
 
     def test_page_without_login(self):
@@ -1068,53 +1089,70 @@ class DashboardTests(TestCase):
             target_status_code=302
         )
 
-    def test_page_with_different_group_user(self):
-        """ Verify that user from one group can access only that group courses. """
+    def test_un_authorize_group_user_cannot_view_courses(self):
+        """ Verify that user from un-authorize group can access only that group courses. """
         self.client.logout()
-        self.client.login(username=self.user2.username, password=USER_PASSWORD)
-        self.assert_dashboard_response()
+        self.client.login(username=UserFactory(), password=USER_PASSWORD)
+        self.assert_dashboard_response(studio_count=0, published_count=0, progress_count=0, preview_count=0)
 
-    def test_page_with_staff_user(self):
-        """ Verify that staff user can see all tabs with all course runs from all groups. """
+    def test_with_internal_group(self):
+        """ Verify that internal user can see courses assigned to the groups. """
         self.client.logout()
-        staff_user = UserFactory(is_staff=True)
-        self.client.login(username=staff_user.username, password=USER_PASSWORD)
-        self.assert_dashboard_response()
+        self.client.login(username=self.user1.username, password=USER_PASSWORD)
+        self.assert_dashboard_response(studio_count=2, published_count=1, progress_count=1, preview_count=1)
 
-    def test_different_course_runs_counts(self):
-        """ Verify that user can access published, un-published and
-        studio requests course runs. """
-        self.assert_dashboard_response()
+    def test_with_permissions(self):
+        """ Verify that user can view only those courses on which user group have permissions assigned. """
+        self.client.logout()
+        user = UserFactory()
+        self.client.login(username=user.username, password=USER_PASSWORD)
+        assign_perm(Course.VIEW_PERMISSION, factories.GroupFactory(), self.course_run_1.course)
+        self.assert_dashboard_response(studio_count=0, published_count=0, progress_count=0, preview_count=0)
 
-    def test_studio_request_course_runs(self):
-        """ Verify that page loads the list course runs which need studio request. """
-        self.course_run_1.lms_course_id = 'test'
-        self.course_run_1.save()
-        response = self.assert_dashboard_response()
-        self.assertContains(response, self.table_class.format(id='studio'))
-        self.assertEqual(len(response.context['studio_request_courses']), 1)
+    def test_with_permissions_with_data(self):
+        """ Verify that user with assigned permission on course can see all tabs
+        with all course runs from all groups.
+        """
+        self.client.logout()
+        user = UserFactory()
+        group = factories.GroupFactory()
+        user.groups.add(group)
+
+        self.client.login(username=user.username, password=USER_PASSWORD)
+        assign_perm(Course.VIEW_PERMISSION, group, self.course_run_1.course)
+        assign_perm(Course.VIEW_PERMISSION, group, self.course_run_2.course)
+        self.assert_dashboard_response(studio_count=0, published_count=0, progress_count=1, preview_count=1)
+
+    def test_studio_request_course_runs_as_pc(self):
+        """ Verify that PC user can see only those courses on which he is assigned as PC role. """
+        self.assert_dashboard_response(studio_count=2, published_count=1, progress_count=1, preview_count=1)
+
+    def test_studio_request_course_runs_without_pc_group(self):
+        """ Verify that PC user can see only those courses on which he is assigned as PC role. """
+        self.client.logout()
+        self.user1.groups.remove(self.group_partner_coordinator)
+        self.client.login(username=self.user1.username, password=USER_PASSWORD)
+        self.assert_dashboard_response(studio_count=0, published_count=1, progress_count=1, preview_count=1)
 
     def test_without_studio_request_course_runs(self):
         """ Verify that studio tab indicates a message if no course-run available. """
-        self.course_run_1.lms_course_id = 'test'
+        self.course_run_1.lms_course_id = 'test-1'
         self.course_run_1.save()
         self.course_run_2.lms_course_id = 'test-2'
         self.course_run_2.save()
-        response = self.assert_dashboard_response()
-        self.assertEqual(len(response.context['studio_request_courses']), 0)
+        response = self.assert_dashboard_response(studio_count=0, published_count=1, progress_count=1, preview_count=1)
         self.assertContains(response, 'There are no course-runs require studio instance.')
 
     def test_without_published_course_runs(self):
         """ Verify that published tab indicates a message if no course-run available. """
         self.course_run_3.change_state(target=State.DRAFT)
-        response = self.assert_dashboard_response()
-        self.assertEqual(len(response.context['published_course_runs']), 0)
+        self.course_run_3.save()
+        response = self.assert_dashboard_response(studio_count=3, published_count=0, progress_count=1, preview_count=1)
         self.assertContains(response, "Looks like you haven't published any course yet")
 
     def test_published_course_runs(self):
         """ Verify that published tab loads course runs list. """
-        response = self.assert_dashboard_response()
-        self.assertEqual(len(response.context['published_course_runs']), 1)
+        response = self.assert_dashboard_response(studio_count=2, published_count=1, progress_count=1, preview_count=1)
         self.assertContains(response, self.table_class.format(id='published'))
         self.assertContains(response, 'The list below contains all course runs published in the past 30 days')
 
@@ -1122,13 +1160,14 @@ class DashboardTests(TestCase):
         """
         Verify that user can see all published course runs as a user in a role for a course.
         """
+        self.client.logout()
+
         internal_user = UserFactory()
         internal_user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         self.client.login(username=internal_user.username, password=USER_PASSWORD)
 
         # Verify that user cannot see any published course run
-        response = self.assert_dashboard_response()
-        self.assertEqual(len(response.context['published_course_runs']), 0)
+        self.assert_dashboard_response(studio_count=0, published_count=0, progress_count=0, preview_count=0)
 
         # assign user course role
         factories.CourseUserRoleFactory(
@@ -1136,63 +1175,52 @@ class DashboardTests(TestCase):
         )
 
         # Verify that user can see 1 published course run
-        response = self.assert_dashboard_response()
-        self.assertEqual(len(response.context['published_course_runs']), 1)
+        self.assert_dashboard_response(studio_count=0, published_count=1, progress_count=0, preview_count=0)
 
     def test_published_course_runs_as_admin(self):
         """
         Verify that publisher admin can see all published course runs.
         """
-        publisher_admin = UserFactory()
-        publisher_admin.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
-        self.client.login(username=publisher_admin.username, password=USER_PASSWORD)
-        factories.CourseRunFactory(state=factories.StateFactory(name=State.PUBLISHED))
+        self.client.logout()
 
-        response = self.assert_dashboard_response()
-        self.assertEqual(len(response.context['published_course_runs']), 2)
+        publisher_admin = UserFactory()
+        publisher_admin.groups.add(self.publisher_admin_group)
+        self.client.login(username=publisher_admin.username, password=USER_PASSWORD)
+        self.assert_dashboard_response(studio_count=4, published_count=1, progress_count=1, preview_count=1)
 
     def test_with_preview_ready_course_runs(self):
         """ Verify that preview ready tabs loads the course runs list. """
-        self.course_run_2.change_state(target=State.NEEDS_FINAL_APPROVAL)
-        self.course_run_2.save()
-        response = self.assert_dashboard_response()
-        self.assertEqual(len(response.context['preview_course_runs']), 1)
+        response = self.assert_dashboard_response(studio_count=2, preview_count=1, progress_count=1, published_count=1)
         self.assertContains(response, self.table_class.format(id='preview'))
         self.assertContains(response, 'The list below contains all course runs awaiting course team approval')
 
     def test_without_preview_ready_course_runs(self):
         """ Verify preview ready tabs shows a message if no course run available. """
-        response = self.assert_dashboard_response()
-        self.assertEqual(len(response.context['preview_course_runs']), 0)
+        self.course_run_2.preview_url = None
+        self.course_run_2.save()
+        response = self.assert_dashboard_response(studio_count=2, preview_count=0, progress_count=1, published_count=1)
         self.assertContains(response, 'There are no course runs marked for preview.')
 
     def test_without_preview_url(self):
         """ Verify preview ready tabs shows a message if no course run available. """
         self.course_run_2.preview_url = None
         self.course_run_2.save()
-        response = self.assert_dashboard_response()
-        self.assertEqual(len(response.context['preview_course_runs']), 0)
+        response = self.assert_dashboard_response(studio_count=2, preview_count=0, progress_count=1, published_count=1)
         self.assertContains(response, 'There are no course runs marked for preview.')
-
-    def test_without_in_progress_course_runs(self):
-        """ Verify in progress tabs shows a message if no course run available. """
-        response = self.assert_dashboard_response()
-        self.assertEqual(len(response.context['in_progress_course_runs']), 0)
-        self.assertContains(response, 'There are no in progress course runs.')
 
     def test_with_in_progress_course_runs(self):
         """ Verify that in progress tabs loads the course runs list. """
-        self.course_run_2.change_state(target=State.NEEDS_FINAL_APPROVAL)
-        self.course_run_2.save()
-
-        response = self.assert_dashboard_response()
-        self.assertEqual(len(response.context['in_progress_course_runs']), 1)
+        response = self.assert_dashboard_response(studio_count=2, preview_count=1, progress_count=1, published_count=1)
         self.assertContains(response, self.table_class.format(id='in-progress'))
 
-    def assert_dashboard_response(self):
+    def assert_dashboard_response(self, studio_count=0, published_count=0, progress_count=0, preview_count=0):
         """ Dry method to assert the response."""
         response = self.client.get(self.page_url)
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['studio_request_courses']), studio_count)
+        self.assertEqual(len(response.context['published_course_runs']), published_count)
+        self.assertEqual(len(response.context['in_progress_course_runs']), progress_count)
+        self.assertEqual(len(response.context['preview_course_runs']), preview_count)
         return response
 
 
