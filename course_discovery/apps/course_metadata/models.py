@@ -17,6 +17,7 @@ from haystack import connections
 from haystack.query import SearchQuerySet
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
+from stdimage.utils import UploadToAutoSlug
 from taggit.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, Partner
@@ -579,6 +580,18 @@ class ProgramType(TimeStampedModel):
         SeatType, help_text=_('Seat types that qualify for completion of programs of this type. Learners completing '
                               'associated courses, but enrolled in other seat types, will NOT have their completion '
                               'of the course counted toward the completion of the program.'),
+    )
+    logo_image = StdImageField(
+        upload_to=UploadToAutoSlug(populate_from='name', path='media/program_types/logo_images'),
+        blank=True,
+        null=True,
+        variations={
+            'large': (256, 256),
+            'medium': (128, 128),
+            'small': (64, 64),
+            'x-small': (32, 32),
+        },
+        help_text=_('Please provide an image file with transparent background'),
     )
 
     def __str__(self):

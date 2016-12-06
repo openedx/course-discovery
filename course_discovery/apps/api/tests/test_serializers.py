@@ -17,7 +17,7 @@ from course_discovery.apps.api.serializers import (
     CourseRunWithProgramsSerializer, CourseWithProgramsSerializer, CorporateEndorsementSerializer,
     FAQSerializer, EndorsementSerializer, PositionSerializer, FlattenedCourseRunWithCourseSerializer,
     MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalCourseRunSerializer, MinimalProgramSerializer,
-    CourseSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer
+    CourseSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, ProgramTypeSerializer
 )
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import User
@@ -28,7 +28,7 @@ from course_discovery.apps.course_metadata.models import CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, SubjectFactory, PrerequisiteFactory, ImageFactory, VideoFactory,
     OrganizationFactory, PersonFactory, SeatFactory, ProgramFactory, CorporateEndorsementFactory, EndorsementFactory,
-    JobOutlookItemFactory, ExpectedLearningItemFactory, PositionFactory
+    JobOutlookItemFactory, ExpectedLearningItemFactory, PositionFactory, ProgramTypeFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -761,6 +761,26 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
 
         serializer = self.serializer_class(program, context={'request': request})
         expected = self.get_expected_data(program, request)
+        self.assertDictEqual(serializer.data, expected)
+
+
+class ProgramTypeSerializerTests(TestCase):
+    serializer_class = ProgramTypeSerializer
+
+    def get_expected_data(self, program_type, request):
+        image_field = StdImageSerializerField()
+        image_field._context = {'request': request}  # pylint: disable=protected-access
+
+        return {
+            'name': program_type.name,
+            'logo_image': image_field.to_representation(program_type.logo_image),
+        }
+
+    def test_data(self):
+        request = make_request()
+        program_type = ProgramTypeFactory()
+        serializer = self.serializer_class(program_type, context={'request': request})
+        expected = self.get_expected_data(program_type, request)
         self.assertDictEqual(serializer.data, expected)
 
 
