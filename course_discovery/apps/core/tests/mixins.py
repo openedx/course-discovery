@@ -1,7 +1,7 @@
 import logging
 
 from django.conf import settings
-from elasticsearch import Elasticsearch
+from haystack import connections as haystack_connections
 
 from course_discovery.apps.core.utils import ElasticsearchUtils
 
@@ -12,12 +12,19 @@ class ElasticsearchTestMixin(object):
     @classmethod
     def setUpClass(cls):
         super(ElasticsearchTestMixin, cls).setUpClass()
-        host = settings.HAYSTACK_CONNECTIONS['default']['URL']
         cls.index = settings.HAYSTACK_CONNECTIONS['default']['INDEX_NAME']
-        cls.es = Elasticsearch(host)
+        # Make use of the changes in our custom ES backend
+        # This is required for typeahead autocomplete to work in the tests
+        connection = haystack_connections['default']
+        cls.backend = connection.get_backend()
+        # Without this line, haystack doesn't fully recreate the connection
+        # The first test using this backend succeeds, but the following tests
+        # do not set the Elasticsearch _mapping
 
     def setUp(self):
         super(ElasticsearchTestMixin, self).setUp()
+        self.backend.setup_complete = False
+        self.es = self.backend.conn
         self.reset_index()
         self.refresh_index()
 

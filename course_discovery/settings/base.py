@@ -350,6 +350,67 @@ SWAGGER_SETTINGS = {
     'permission_denied_handler': 'course_discovery.apps.api.views.api_docs_permission_denied_handler'
 }
 
+# Elasticsearch uses index settings to specify available analyzers.
+# We are adding the lowercase analyzer and tweaking the ngram analyzers here,
+# so we need to use these settings rather than the index defaults.
+# We are making these changes to enable autocomplete for the typeahead endpoint.
+ELASTICSEARCH_INDEX_SETTINGS = {
+    'settings': {
+        'analysis': {
+            'tokenizer': {
+                'haystack_edgengram_tokenizer': {
+                    'type': 'edgeNGram',
+                    'side': 'front',
+                    'min_gram': 2,
+                    'max_gram': 15
+                },
+                'haystack_ngram_tokenizer': {
+                    'type': 'nGram',
+                    'min_gram': 2,
+                    'max_gram': 15
+                }
+            },
+            'analyzer': {
+                'lowercase': {
+                    'type': 'custom',
+                    'tokenizer': 'keyword',
+                    'filter': [
+                        'lowercase'
+                    ]
+                },
+                'ngram_analyzer': {
+                    'type':'custom',
+                    'filter': [
+                        'haystack_ngram',
+                        'lowercase'
+                    ],
+                    'tokenizer': 'standard'
+                },
+                'edgengram_analyzer': {
+                    'type': 'custom',
+                    'filter': [
+                        'haystack_edgengram',
+                        'lowercase'
+                    ],
+                    'tokenizer': 'standard'
+                }
+            },
+            'filter': {
+                'haystack_edgengram': {
+                    'type': 'edgeNGram',
+                    'min_gram': 2,
+                    'max_gram': 15
+                },
+                'haystack_ngram': {
+                    'type': 'nGram',
+                    'min_gram': 2,
+                    'max_gram': 15
+                }
+            }
+        }
+    }
+}
+
 # Haystack configuration (http://django-haystack.readthedocs.io/en/v2.5.0/settings.html)
 HAYSTACK_ITERATOR_LOAD_PER_QUERY = 200
 

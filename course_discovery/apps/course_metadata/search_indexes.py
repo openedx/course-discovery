@@ -59,6 +59,7 @@ class BaseIndex(indexes.SearchIndex):
 class BaseCourseIndex(OrganizationsMixin, BaseIndex):
     key = indexes.CharField(model_attr='key', stored=True)
     title = indexes.CharField(model_attr='title', boost=TITLE_FIELD_BOOST)
+    title_autocomplete = indexes.NgramField(model_attr='title', boost=TITLE_FIELD_BOOST)
     short_description = indexes.CharField(model_attr='short_description', null=True)
     full_description = indexes.CharField(model_attr='full_description', null=True)
     subjects = indexes.MultiValueField(faceted=True)
@@ -181,6 +182,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
 
     uuid = indexes.CharField(model_attr='uuid')
     title = indexes.CharField(model_attr='title', boost=TITLE_FIELD_BOOST)
+    title_autocomplete = indexes.NgramField(model_attr='title', boost=TITLE_FIELD_BOOST)
     subtitle = indexes.CharField(model_attr='subtitle')
     type = indexes.CharField(model_attr='type__name', faceted=True)
     marketing_url = indexes.CharField(null=True)

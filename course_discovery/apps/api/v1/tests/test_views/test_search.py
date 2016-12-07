@@ -298,7 +298,7 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
                              [self.serialize_course_run(course_run), self.serialize_program(program)])
 
 
-class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, APITestCase):
+class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, ElasticsearchTestMixin, APITestCase):
     path = reverse('api:v1:search-typeahead')
     function_score = {
         'functions': [
@@ -307,12 +307,6 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, APITestC
             {'linear': {'start': {'origin': 'now', 'scale': '1d', 'decay': 0.95}}, 'weight': 5.0}
         ],
         'boost': 1.0, 'score_mode': 'sum', 'boost_mode': 'sum',
-        'query': {
-            'query_string': {
-                'auto_generate_phrase_queries': True, 'analyze_wildcard': True,
-                'query': '((title:*pytho* OR course_key:*pytho*) AND status:(active))'
-            }
-        }
     }
 
     def get_typeahead_response(self, query=None):
@@ -323,7 +317,7 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, APITestC
 
         url = '{path}?{qs}'.format(path=self.path, qs=qs)
         config = ElasticsearchBoostConfig.get_solo()
-        config.function_score = self.function_score
+        config.function_score.update(self.function_score)
         config.save()
         return self.client.get(url)
 
@@ -405,7 +399,7 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, APITestC
 
     def test_micromasters_boosting(self):
         """ Verify micromasters are boosted over xseries."""
-        title = "test_micromasters_boosting"
+        title = "micromasters"
         ProgramFactory(
             title=title + "1",
             status=ProgramStatus.Active,
@@ -420,7 +414,7 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, APITestC
 
     def test_start_date_boosting(self):
         """ Verify upcoming courses are boosted over past courses."""
-        title = "test_start_date_boosting"
+        title = "start"
         now = datetime.datetime.utcnow()
         CourseRunFactory(title=title + "1", start=now - datetime.timedelta(weeks=10))
         CourseRunFactory(title=title + "2", start=now + datetime.timedelta(weeks=1))
@@ -431,7 +425,7 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, APITestC
 
     def test_self_paced_boosting(self):
         """ Verify that self paced courses are boosted over instructor led courses."""
-        title = "test_self_paced_boosting"
+        title = "paced"
         CourseRunFactory(title=title + "1", pacing_type='instructor_paced')
         CourseRunFactory(title=title + "2", pacing_type='self_paced')
         response = self.get_typeahead_response(title)
