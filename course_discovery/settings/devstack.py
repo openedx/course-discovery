@@ -15,7 +15,7 @@ INTERNAL_IPS = ('127.0.0.1',)
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
-        'URL': 'http://es:9200/',
+        'URL': 'http://edx.devstack.elasticsearch:9200/',
         'INDEX_NAME': 'catalog',
     },
 }
