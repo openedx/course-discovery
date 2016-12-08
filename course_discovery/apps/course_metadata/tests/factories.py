@@ -142,6 +142,11 @@ class CourseRunFactory(factory.DjangoModelFactory):
         if create:  # pragma: no cover
             add_m2m_data(self.transcript_languages, extracted)
 
+    @factory.post_generation
+    def authoring_organizations(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.authoring_organizations, extracted)
+
 
 class OrganizationFactory(factory.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)

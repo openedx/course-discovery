@@ -52,7 +52,7 @@ COURSE_RUN_SEARCH_FIELDS = (
     'text', 'key', 'title', 'short_description', 'full_description', 'start', 'end', 'enrollment_start',
     'enrollment_end', 'pacing_type', 'language', 'transcript_languages', 'marketing_url', 'content_type', 'org',
     'number', 'seat_types', 'image_url', 'type', 'level_type', 'availability', 'published', 'partner', 'program_types',
-    'authoring_organization_uuids', 'subject_uuids', 'staff_uuids', 'mobile_available',
+    'authoring_organization_uuids', 'subject_uuids', 'staff_uuids', 'mobile_available', 'logo_image_urls',
 )
 
 PROGRAM_FACET_FIELD_OPTIONS = {
