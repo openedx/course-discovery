@@ -27,7 +27,7 @@ from course_discovery.apps.publisher.models import (
     Course, CourseRun, Seat, State, UserAttributes
 )
 from course_discovery.apps.publisher.serializers import UpdateCourseKeySerializer
-from course_discovery.apps.publisher.utils import is_internal_user, get_internal_users
+from course_discovery.apps.publisher.utils import is_internal_user, get_internal_users, is_publisher_admin
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
 logger = logging.getLogger(__name__)
@@ -49,10 +49,14 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
     default_published_days = 30
 
     def get_queryset(self):
-        if self.request.user.is_staff:
+        user = self.request.user
+        if is_publisher_admin(user):
             course_runs = CourseRun.objects.select_related('course').all()
+        elif is_internal_user(user):
+            internal_user_courses = Course.objects.filter(course_user_roles__user=user)
+            course_runs = CourseRun.objects.filter(course__in=internal_user_courses).select_related('course').all()
         else:
-            courses = get_objects_for_user(self.request.user, Course.VIEW_PERMISSION, Course)
+            courses = get_objects_for_user(user, Course.VIEW_PERMISSION, Course)
             course_runs = CourseRun.objects.filter(course__in=courses).select_related('course').all()
 
         return course_runs
