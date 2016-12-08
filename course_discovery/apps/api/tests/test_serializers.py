@@ -1008,11 +1008,12 @@ class AffiliateWindowSerializerTests(TestCase):
 
 class CourseRunSearchSerializerTests(TestCase):
     def test_data(self):
-        course_run = CourseRunFactory(transcript_languages=LanguageTag.objects.filter(code__in=['en-us', 'zh-cn']))
+        course_run = CourseRunFactory(transcript_languages=LanguageTag.objects.filter(code__in=['en-us', 'zh-cn']),
+                                      authoring_organizations=[OrganizationFactory()])
         ProgramFactory(courses=[course_run.course])
         serializer = self.serialize_course_run(course_run)
         course_run_key = CourseKey.from_string(course_run.key)
-
+        orgs = course_run.authoring_organizations.all()
         expected = {
             'transcript_languages': [serialize_language(l) for l in course_run.transcript_languages.all()],
             'short_description': course_run.short_description,
@@ -1038,6 +1039,7 @@ class CourseRunSearchSerializerTests(TestCase):
             'published': course_run.status == CourseRunStatus.Published,
             'partner': course_run.course.partner.short_code,
             'program_types': course_run.program_types,
+            'logo_image_urls': [org.logo_image_url for org in orgs],
             'authoring_organization_uuids': get_uuids(course_run.authoring_organizations.all()),
             'subject_uuids': get_uuids(course_run.subjects.all()),
             'staff_uuids': get_uuids(course_run.staff.all())

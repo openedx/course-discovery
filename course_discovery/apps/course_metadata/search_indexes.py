@@ -65,9 +65,14 @@ class BaseCourseIndex(OrganizationsMixin, BaseIndex):
     subjects = indexes.MultiValueField(faceted=True)
     organizations = indexes.MultiValueField(faceted=True)
     authoring_organizations = indexes.MultiValueField(faceted=True)
+    logo_image_urls = indexes.MultiValueField()
     sponsoring_organizations = indexes.MultiValueField(faceted=True)
     level_type = indexes.CharField(null=True, faceted=True)
     partner = indexes.CharField(model_attr='partner__short_code', null=True, faceted=True)
+
+    def prepare_logo_image_urls(self, obj):
+        orgs = obj.authoring_organizations.all()
+        return [org.logo_image_url for org in orgs]
 
     def prepare_subjects(self, obj):
         return [subject.name for subject in obj.subjects.all()]
