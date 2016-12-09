@@ -220,13 +220,13 @@ class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, Login
             self.assertEqual(response_data['results'][0].get('program_types'), [active_program.type.name])
 
 
+@ddt.ddt
 class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin, ElasticsearchTestMixin, APITestCase):
     path = reverse('api:v1:search-all-facets')
 
     def get_search_response(self, querystring=None):
         querystring = querystring or {}
         qs = urllib.parse.urlencode(querystring)
-
         url = '{path}?{qs}'.format(path=self.path, qs=qs)
         return self.client.get(url)
 
@@ -296,6 +296,24 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
         response_data = json.loads(response.content.decode('utf-8'))
         self.assertListEqual(response_data['objects']['results'],
                              [self.serialize_course_run(course_run), self.serialize_program(program)])
+
+    @ddt.data('start', '-start')
+    def test_results_ordered_by_start_date(self, ordering):
+        """ Verify the search results can be ordered by start date """
+        now = datetime.datetime.utcnow()
+        archived = CourseRunFactory(course__partner=self.partner, start=now - datetime.timedelta(weeks=2))
+        current = CourseRunFactory(course__partner=self.partner, start=now - datetime.timedelta(weeks=1))
+        starting_soon = CourseRunFactory(course__partner=self.partner, start=now + datetime.timedelta(weeks=3))
+        upcoming = CourseRunFactory(course__partner=self.partner, start=now + datetime.timedelta(weeks=4))
+        course_run_keys = [course_run.key for course_run in [archived, current, starting_soon, upcoming]]
+
+        response = self.get_search_response({"ordering": ordering})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['objects']['count'], 4)
+
+        course_runs = CourseRun.objects.filter(key__in=course_run_keys).order_by(ordering)
+        expected = [self.serialize_course_run(course_run) for course_run in course_runs]
+        self.assertEqual(response.data['objects']['results'], expected)
 
 
 class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, ElasticsearchTestMixin, APITestCase):
