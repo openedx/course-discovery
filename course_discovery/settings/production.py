@@ -6,7 +6,6 @@ import MySQLdb
 import yaml
 
 from course_discovery.settings.base import *
-from course_discovery.settings.utils import get_env_setting
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -22,7 +21,13 @@ DICT_UPDATE_KEYS = ('JWT_AUTH',)
 # This may be overridden by the YAML in DISCOVERY_CFG, but it should be here as a default.
 MEDIA_STORAGE_BACKEND = {}
 
-CONFIG_FILE = get_env_setting('COURSE_DISCOVERY_CFG')
+# TODO Drop the try-except block once https://github.com/edx/configuration/pull/3549 is merged and we are using the
+# common play for this service.
+try:
+    CONFIG_FILE = environ['DISCOVERY_CFG']
+except KeyError:
+    CONFIG_FILE = environ['COURSE_DISCOVERY_CFG']
+
 with open(CONFIG_FILE) as f:
     config_from_yaml = yaml.load(f)
 
@@ -39,7 +44,6 @@ with open(CONFIG_FILE) as f:
     # Unpack media storage settings.
     # It's important we unpack here because of https://github.com/edx/configuration/pull/3307
     vars().update(MEDIA_STORAGE_BACKEND)
-
 
 if 'EXTRA_APPS' in locals():
     INSTALLED_APPS += EXTRA_APPS
