@@ -432,3 +432,18 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, Elastics
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
         self.assertEqual(response_data['course_runs'][0]['title'], title + "2")
+
+    def test_typeahead_authoring_organizations_partial_search(self):
+        """ Test typeahead response with partial organization matching. """
+        authoring_organizations = OrganizationFactory.create_batch(3)
+        course_run = CourseRunFactory(authoring_organizations=authoring_organizations)
+        program = ProgramFactory(authoring_organizations=authoring_organizations)
+        partial_key = authoring_organizations[0].key[0:5]
+
+        response = self.get_typeahead_response(partial_key)
+        self.assertEqual(response.status_code, 200)
+        expected = {
+            'course_runs': [self.serialize_course_run(course_run)],
+            'programs': [self.serialize_program(program)]
+        }
+        self.assertDictEqual(response.data, expected)

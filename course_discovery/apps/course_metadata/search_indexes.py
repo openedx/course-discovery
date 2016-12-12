@@ -33,6 +33,9 @@ class OrganizationsMixin:
     def prepare_authoring_organizations(self, obj):
         return self._prepare_organizations(obj.authoring_organizations.all())
 
+    def prepare_authoring_organizations_autocomplete(self, obj):
+        return self.prepare_authoring_organizations(obj)
+
 
 class BaseIndex(indexes.SearchIndex):
     model = None
@@ -60,6 +63,7 @@ class BaseCourseIndex(OrganizationsMixin, BaseIndex):
     key = indexes.CharField(model_attr='key', stored=True)
     title = indexes.CharField(model_attr='title', boost=TITLE_FIELD_BOOST)
     title_autocomplete = indexes.NgramField(model_attr='title', boost=TITLE_FIELD_BOOST)
+    authoring_organizations_autocomplete = indexes.NgramField()
     short_description = indexes.CharField(model_attr='short_description', null=True)
     full_description = indexes.CharField(model_attr='full_description', null=True)
     subjects = indexes.MultiValueField(faceted=True)
@@ -193,6 +197,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     marketing_url = indexes.CharField(null=True)
     organizations = indexes.MultiValueField(faceted=True)
     authoring_organizations = indexes.MultiValueField(faceted=True)
+    authoring_organizations_autocomplete = indexes.NgramField()
     authoring_organization_uuids = indexes.MultiValueField()
     subject_uuids = indexes.MultiValueField()
     staff_uuids = indexes.MultiValueField()

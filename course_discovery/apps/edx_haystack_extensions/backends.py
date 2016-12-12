@@ -99,6 +99,8 @@ class ConfigurableElasticBackend(ElasticsearchSearchBackend):
         # and all words containing ing would come back in typeahead.
         self.specify_analyzers(mapping=mapping, field='title_autocomplete',
                                index_analyzer='ngram_analyzer', search_analyzer='lowercase')
+        self.specify_analyzers(mapping=mapping, field='authoring_organizations_autocomplete',
+                               index_analyzer='ngram_analyzer', search_analyzer='lowercase')
         return (content_field_name, mapping)
 
 
