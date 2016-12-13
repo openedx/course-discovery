@@ -640,8 +640,9 @@ select {
 
 .approval-widget {
 
-    .btn-course-edit {
+    .btn-course-edit, .btn-courserun-edit {
         @include padding(2px, 20px, 3px, 20px);
+        @include float(right);
         font-weight: 400;
         font-size: 14px;
         background: white;

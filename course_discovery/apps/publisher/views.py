@@ -127,12 +127,17 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin,
     def get_context_data(self, **kwargs):
         context = super(CourseRunDetailView, self).get_context_data(**kwargs)
 
+        user = self.request.user
         course_run = CourseRunWrapper(self.get_object())
         context['object'] = course_run
         context['comment_object'] = course_run.course
+        context['can_edit'] = any(
+            [user.has_perm(OrganizationExtension.EDIT_COURSE_RUN, org.organization_extension)
+             for org in course_run.course.organizations.all()]
+        )
 
         # Show role assignment widgets if user is an internal user.
-        if is_internal_user(self.request.user):
+        if is_internal_user(user):
             course_roles = course_run.course.course_user_roles.exclude(role=PublisherUserRole.CourseTeam)
             context['role_widgets'] = self.get_role_widgets_data(course_roles)
             context['user_list'] = get_internal_users()

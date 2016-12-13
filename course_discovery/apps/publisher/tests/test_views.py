@@ -26,7 +26,7 @@ from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.constants import (
     INTERNAL_USER_GROUP_NAME, ADMIN_GROUP_NAME, PARTNER_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME
 )
-from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State
+from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State, OrganizationExtension
 from course_discovery.apps.publisher.tests import factories, JSON_CONTENT_TYPE
 from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
 from course_discovery.apps.publisher.utils import is_email_notification_enabled, get_internal_users
@@ -921,6 +921,7 @@ class CourseRunDetailTests(TestCase):
 
         organization = OrganizationFactory()
         self.course.organizations.add(organization)
+        factories.OrganizationExtensionFactory(organization=organization)
 
         # create three course user roles for internal users
         for user, role in zip([pc_user, marketing_user, publisher_user], PublisherUserRole.choices):
@@ -951,6 +952,45 @@ class CourseRunDetailTests(TestCase):
 
         self.assertNotIn('role_widgets', response.context)
         self.assertNotIn('user_list', response.context)
+
+    def test_details_page_with_edit_permission(self):
+        """ Test that user can see edit button on course run detail page. """
+        user = self._create_user_and_login()
+        organization = OrganizationFactory()
+        self.course.organizations.add(organization)
+        organization_extension = factories.OrganizationExtensionFactory(organization=organization)
+
+        self.assert_can_edit_permission()
+
+        assign_perm(OrganizationExtension.EDIT_COURSE_RUN, user, organization_extension)
+
+        self.assert_can_edit_permission(can_edit=True)
+
+    def test_edit_permission_with_no_organization(self):
+        """ Test that user can't see edit button on course run detail page
+        if there is no organization in course.
+        """
+        _ = self._create_user_and_login()
+
+        self.assert_can_edit_permission()
+
+    def assert_can_edit_permission(self, can_edit=False):
+        """ Dry method to assert can_edit permission. """
+        response = self.client.get(self.page_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['can_edit'], can_edit)
+
+    def _create_user_and_login(self):
+        """ Create user and login, also assign view permission for course
+         and return the user.
+         """
+        user = UserFactory()
+        assign_perm(Course.VIEW_PERMISSION, user, self.course)
+
+        self.client.logout()
+        self.client.login(username=user.username, password=USER_PASSWORD)
+
+        return user
 
 
 class ChangeStateViewTests(TestCase):
