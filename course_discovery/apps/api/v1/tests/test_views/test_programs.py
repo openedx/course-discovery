@@ -8,7 +8,7 @@ from course_discovery.apps.api.v1.views.programs import ProgramViewSet
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.choices import ProgramStatus
-from course_discovery.apps.course_metadata.models import Program
+from course_discovery.apps.course_metadata.models import Program, ProgramType
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, VideoFactory, OrganizationFactory, PersonFactory, ProgramFactory,
     CorporateEndorsementFactory, EndorsementFactory, JobOutlookItemFactory, ExpectedLearningItemFactory,
@@ -205,6 +205,7 @@ class ProgramTypeViewSetTests(SerializationMixin, APITestCase):
 
     def test_list(self):
         """ Verify the endpoint returns a list of all program_types. """
-        expected = ProgramTypeFactory.create_batch(3)
-        expected.reverse()
+        ProgramTypeFactory.create_batch(3)
+        expected = ProgramType.objects.all()
+        # expected.reverse()
         self.assert_list_results(self.list_path, expected, 4)
