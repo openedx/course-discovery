@@ -126,12 +126,24 @@ class TypeaheadSearchView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get_results(self, query):
-        course_runs = SearchQuerySet().models(CourseRun).filter(SQ(title_autocomplete=query) | SQ(course_key=query))
+        sqs = SearchQuerySet()
+        clean_query = sqs.query.clean(query)
+
+        course_runs = sqs.models(CourseRun).filter(
+            SQ(title_autocomplete=clean_query) |
+            SQ(course_key=clean_query) |
+            SQ(authoring_organizations_autocomplete=clean_query)
+        )
         course_runs = course_runs.filter(published=True).exclude(hidden=True)
         course_runs = course_runs[:self.RESULT_COUNT]
-        programs = SearchQuerySet().models(Program).filter(SQ(title_autocomplete=query))
+
+        programs = sqs.models(Program).filter(
+            SQ(title_autocomplete=clean_query) |
+            SQ(authoring_organizations_autocomplete=clean_query)
+        )
         programs = programs.filter(status=ProgramStatus.Active)
         programs = programs[:self.RESULT_COUNT]
+
         return course_runs, programs
 
     def get(self, request, *args, **kwargs):
