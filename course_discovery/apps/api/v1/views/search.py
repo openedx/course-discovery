@@ -6,6 +6,7 @@ from haystack.query import SearchQuerySet
 from rest_framework import status
 from rest_framework.decorators import list_route
 from rest_framework.exceptions import ParseError
+from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -18,7 +19,9 @@ from course_discovery.apps.course_metadata.models import Course, CourseRun, Prog
 
 class BaseHaystackViewSet(FacetMixin, HaystackViewSet):
     document_uid_field = 'key'
-    facet_filter_backends = [filters.HaystackFacetFilterWithQueries, filters.HaystackFilter]
+    facet_filter_backends = [filters.HaystackFacetFilterWithQueries, filters.HaystackFilter, OrderingFilter]
+    ordering_fields = ('start',)
+
     load_all = True
     lookup_field = 'key'
     permission_classes = (IsAuthenticated,)
