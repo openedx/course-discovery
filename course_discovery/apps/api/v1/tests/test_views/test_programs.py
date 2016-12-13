@@ -199,11 +199,12 @@ class ProgramTypeViewSetTests(SerializationMixin, APITestCase):
 
         self.assertEqual(
             response.data['results'],
-            self.serialize_program_type(expected, many=True, extra_context=extra_context)
+            self.serialize_program_type(expected, many=True, extra_context=extra_context),
+            response.data['results']
         )
 
     def test_list(self):
         """ Verify the endpoint returns a list of all program_types. """
-        expected = ProgramTypeFactory.create_batch(1)
+        expected = ProgramTypeFactory.create_batch(3)
         expected.reverse()
         self.assert_list_results(self.list_path, expected, 4)
