@@ -23,7 +23,7 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.choices import PublisherUserRole
-from course_discovery.apps.publisher.constants import INTERNAL_USER_GROUP_NAME
+from course_discovery.apps.publisher.constants import INTERNAL_USER_GROUP_NAME, ADMIN_GROUP_NAME
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State
 from course_discovery.apps.publisher.tests import factories, JSON_CONTENT_TYPE
 from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
@@ -1117,6 +1117,39 @@ class DashboardTests(TestCase):
         self.assertEqual(len(response.context['published_course_runs']), 1)
         self.assertContains(response, self.table_class.format(id='published'))
         self.assertContains(response, 'The list below contains all course runs published in the past 30 days')
+
+    def test_published_course_runs_as_user_role(self):
+        """
+        Verify that user can see all published course runs as a user in a role for a course.
+        """
+        internal_user = UserFactory()
+        internal_user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        self.client.login(username=internal_user.username, password=USER_PASSWORD)
+
+        # Verify that user cannot see any published course run
+        response = self.assert_dashboard_response()
+        self.assertEqual(len(response.context['published_course_runs']), 0)
+
+        # assign user course role
+        factories.CourseUserRoleFactory(
+            course=self.course_run_3.course, user=internal_user, role=PublisherUserRole.PartnerCoordinator
+        )
+
+        # Verify that user can see 1 published course run
+        response = self.assert_dashboard_response()
+        self.assertEqual(len(response.context['published_course_runs']), 1)
+
+    def test_published_course_runs_as_admin(self):
+        """
+        Verify that publisher admin can see all published course runs.
+        """
+        publisher_admin = UserFactory()
+        publisher_admin.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+        self.client.login(username=publisher_admin.username, password=USER_PASSWORD)
+        factories.CourseRunFactory(state=factories.StateFactory(name=State.PUBLISHED))
+
+        response = self.assert_dashboard_response()
+        self.assertEqual(len(response.context['published_course_runs']), 2)
 
     def test_with_preview_ready_course_runs(self):
         """ Verify that preview ready tabs loads the course runs list. """
