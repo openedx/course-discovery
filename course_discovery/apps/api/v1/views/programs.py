@@ -1,9 +1,10 @@
-from rest_framework import viewsets
+from rest_framework import mixins, viewsets
 from rest_framework.filters import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.v1.views import get_query_param
+from course_discovery.apps.course_metadata.models import ProgramType
 
 
 # pylint: disable=no-member
@@ -66,3 +67,11 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
               multiple: false
         """
         return super(ProgramViewSet, self).list(request, *args, **kwargs)
+
+
+class ProgramTypeListViewSet(mixins.ListModelMixin,
+                             viewsets.GenericViewSet):
+    """ ProgramType resource. """
+    serializer_class = serializers.ProgramTypeSerializer
+    permission_classes = (IsAuthenticated,)
+    queryset = ProgramType.objects.all()

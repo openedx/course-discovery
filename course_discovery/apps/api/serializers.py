@@ -689,6 +689,19 @@ class ProgramSerializer(MinimalProgramSerializer):
         )
 
 
+class ProgramTypeSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Program Types
+    """
+    logo_image = StdImageSerializerField()
+
+    class Meta:
+        model = ProgramType
+        fields = (
+            'name', 'logo_image',
+        )
+
+
 class AffiliateWindowSerializer(serializers.ModelSerializer):
     """ Serializer for Affiliate Window product feeds. """
 
