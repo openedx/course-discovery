@@ -1,4 +1,5 @@
 import json
+import urllib
 
 from django.test import TestCase
 from factory.fuzzy import FuzzyText, FuzzyInteger
@@ -47,6 +48,15 @@ class MarketingSiteAPIClientTestMixin(TestCase):
             status=status
         )
 
+    def mock_admin_response(self, status):
+        """ Test that we can access the admin """
+        response_url = '{root}/admin'.format(root=self.api_root)
+        responses.add(
+            responses.GET,
+            response_url,
+            status=status
+        )
+
     def mock_csrf_token_response(self, status):
         responses.add(
             responses.GET,
@@ -81,10 +91,11 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
     """
     def setUp(self):
         super(MarketingSitePublisherTestMixin, self).setUp()
-        self.nid = FuzzyText().fuzz()
+        self.node_id = FuzzyText().fuzz()
 
     def mock_api_client(self, status):
         self.mock_login_response(status)
+        self.mock_admin_response(status)
         self.mock_csrf_token_response(status)
         self.mock_user_id_response(status)
 
@@ -94,7 +105,7 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
         if exists:
             data = {
                 'list': [{
-                    'nid': self.nid
+                    'nid': self.node_id
                 }]
             }
             status = 200
@@ -108,10 +119,65 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
             match_querystring=True
         )
 
+    def mock_add_alias(self, status=200):
+        node_url = 'node/{node_id}'.format(node_id=self.node_id)
+        alias = '{program_type}/{slug}'.format(
+            program_type=self.program.type.name.lower(),
+            slug=self.program.marketing_slug
+        )
+        data = {
+            'source': node_url,
+            'alias': alias,
+            'form_id': 'path_admin_form',
+            'op': 'Save'
+        }
+        responses.add(
+            responses.POST,
+            '{root}/admin/config/search/path/add'.format(root=self.api_root),
+            body=urllib.parse.urlencode(data),
+            status=status
+        )
+
+    def mock_delete_alias(self, status=200):
+        data = {
+            "confirm": 1,
+            "form_id": "path_admin_delete_confirm",
+            "op": "Confirm"
+        }
+        responses.add(
+            responses.POST,
+            '{root}/foo'.format(root=self.api_root),
+            body=urllib.parse.urlencode(data),
+            status=status
+        )
+
+    def mock_get_alias_form(self, status=200):
+        responses.add(
+            responses.GET,
+            '{root}/admin/config/search/path/add'.format(root=self.api_root),
+            status=status,
+            body='<html><form><input name="form_build_id" value="1">'
+                 '</input><input name="form_token" value="2"></input></form></html>'
+        )
+
+    def mock_get_delete_form(self, alias, status=200):
+        responses.add(
+            responses.GET,
+            '{root}/admin/config/search/path/list/{alias}'.format(root=self.api_root, alias=alias),
+            status=status,
+            body='<li class="delete last"><a href="/admin/config/search/path/delete/bar"></a></li>'
+        )
+
+        responses.add(
+            responses.POST,
+            '{root}/admin/config/search/path/delete/bar'.format(root=self.api_root),
+            status=status
+        )
+
     def mock_node_edit(self, status):
         responses.add(
             responses.PUT,
-            '{root}/node.json/{nid}'.format(root=self.api_root, nid=self.nid),
+            '{root}/node.json/{node_id}'.format(root=self.api_root, node_id=self.node_id),
             body=json.dumps({}),
             content_type='application/json',
             status=status
@@ -129,7 +195,7 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
     def mock_node_delete(self, status):
         responses.add(
             responses.DELETE,
-            '{root}/node.json/{nid}'.format(root=self.api_root, nid=self.nid),
+            '{root}/node.json/{node_id}'.format(root=self.api_root, node_id=self.node_id),
             body='',
             content_type='text/html',
             status=status

@@ -1,3 +1,4 @@
+import mock
 import responses
 
 from course_discovery.apps.course_metadata.choices import ProgramStatus
@@ -29,27 +30,31 @@ class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
     @responses.activate
     def test_init_session(self):
         self.mock_login_response(200)
+        self.mock_admin_response(200)
         session = self.api_client.init_session
-        self.assert_responses_call_count(2)
+        self.assert_responses_call_count(3)
         self.assertIsNotNone(session)
 
     @responses.activate
     def test_init_session_failed(self):
         self.mock_login_response(500)
+        self.mock_admin_response(500)
         with self.assertRaises(ProgramPublisherException):
             self.api_client.init_session  # pylint: disable=pointless-statement
 
     @responses.activate
     def test_csrf_token(self):
         self.mock_login_response(200)
+        self.mock_admin_response(200)
         self.mock_csrf_token_response(200)
         csrf_token = self.api_client.csrf_token
-        self.assert_responses_call_count(3)
+        self.assert_responses_call_count(4)
         self.assertEqual(self.csrf_token, csrf_token)
 
     @responses.activate
     def test_csrf_token_failed(self):
         self.mock_login_response(200)
+        self.mock_admin_response(200)
         self.mock_csrf_token_response(500)
         with self.assertRaises(ProgramPublisherException):
             self.api_client.csrf_token  # pylint: disable=pointless-statement
@@ -57,14 +62,16 @@ class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
     @responses.activate
     def test_user_id(self):
         self.mock_login_response(200)
+        self.mock_admin_response(200)
         self.mock_user_id_response(200)
         user_id = self.api_client.user_id
-        self.assert_responses_call_count(3)
+        self.assert_responses_call_count(4)
         self.assertEqual(self.user_id, user_id)
 
     @responses.activate
     def test_user_id_failed(self):
         self.mock_login_response(200)
+        self.mock_admin_response(200)
         self.mock_user_id_response(500)
         with self.assertRaises(ProgramPublisherException):
             self.api_client.user_id  # pylint: disable=pointless-statement
@@ -72,9 +79,10 @@ class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
     @responses.activate
     def test_api_session(self):
         self.mock_login_response(200)
+        self.mock_admin_response(200)
         self.mock_csrf_token_response(200)
         api_session = self.api_client.api_session
-        self.assert_responses_call_count(3)
+        self.assert_responses_call_count(4)
         self.assertIsNotNone(api_session)
         self.assertEqual(api_session.headers.get('Content-Type'), 'application/json')
         self.assertEqual(api_session.headers.get('X-CSRF-Token'), self.csrf_token)
@@ -82,6 +90,7 @@ class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
     @responses.activate
     def test_api_session_failed(self):
         self.mock_login_response(500)
+        self.mock_admin_response(500)
         self.mock_csrf_token_response(500)
         with self.assertRaises(ProgramPublisherException):
             self.api_client.api_session  # pylint: disable=pointless-statement
@@ -98,12 +107,14 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.program.partner.marketing_site_api_username = self.username
         self.program.partner.marketing_site_api_password = self.password
         self.program.type = ProgramType.objects.get(name='MicroMasters')
-        self.program.save()  # pylint: disable=no-member
-        self.api_client = MarketingSiteAPIClient(
-            self.username,
-            self.password,
-            self.api_root
-        )
+        with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
+            with mock.patch.object(MarketingSitePublisher, '_get_form_build_id_and_form_token', return_value={}):
+                self.program.save()  # pylint: disable=no-member
+                self.api_client = MarketingSiteAPIClient(
+                    self.username,
+                    self.password,
+                    self.api_root
+                )
 
     def test_get_node_data(self):
         publisher = MarketingSitePublisher()
@@ -126,8 +137,8 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_retrieval(self.program.uuid)
         publisher = MarketingSitePublisher()
         node_id = publisher._get_node_id(self.api_client, self.program.uuid)  # pylint: disable=protected-access
-        self.assert_responses_call_count(4)
-        self.assertEqual(node_id, self.nid)
+        self.assert_responses_call_count(5)
+        self.assertEqual(node_id, self.node_id)
 
     @responses.activate
     def test_get_non_existent_node_id(self):
@@ -143,8 +154,8 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_edit(200)
         publisher = MarketingSitePublisher()
         publish_data = publisher._get_node_data(self.program, self.user_id)  # pylint: disable=protected-access
-        publisher._edit_node(self.api_client, self.nid, publish_data)  # pylint: disable=protected-access
-        self.assert_responses_call_count(4)
+        publisher._edit_node(self.api_client, self.node_id, publish_data)  # pylint: disable=protected-access
+        self.assert_responses_call_count(5)
 
     @responses.activate
     def test_edit_node_failed(self):
@@ -153,14 +164,14 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         publisher = MarketingSitePublisher()
         publish_data = publisher._get_node_data(self.program, self.user_id)  # pylint: disable=protected-access
         with self.assertRaises(ProgramPublisherException):
-            publisher._edit_node(self.api_client, self.nid, publish_data)  # pylint: disable=protected-access
+            publisher._edit_node(self.api_client, self.node_id, publish_data)  # pylint: disable=protected-access
 
     @responses.activate
     def test_create_node(self):
         self.mock_api_client(200)
         expected = {
             'list': [{
-                'nid': self.nid
+                'nid': self.node_id
             }]
         }
         self.mock_node_create(expected, 201)
@@ -183,14 +194,17 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_api_client(200)
         expected = {
             'list': [{
-                'nid': self.nid
+                'node_id': self.node_id
             }]
         }
         self.mock_node_retrieval(self.program.uuid, exists=False)
         self.mock_node_create(expected, 201)
         publisher = MarketingSitePublisher()
-        publisher.publish_program(self.program)
-        self.assert_responses_call_count(6)
+        self.mock_add_alias()
+        with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
+            with mock.patch.object(MarketingSitePublisher, '_get_form_build_id_and_form_token', return_value={}):
+                publisher.publish_program(self.program)
+                self.assert_responses_call_count(8)
 
     @responses.activate
     def test_publish_program_edit(self):
@@ -198,8 +212,11 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_retrieval(self.program.uuid)
         self.mock_node_edit(200)
         publisher = MarketingSitePublisher()
-        publisher.publish_program(self.program)
-        self.assert_responses_call_count(6)
+        self.mock_add_alias()
+        with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
+            with mock.patch.object(MarketingSitePublisher, '_get_form_build_id_and_form_token', return_value={}):
+                publisher.publish_program(self.program)
+                self.assert_responses_call_count(8)
 
     @responses.activate
     def test_publish_modified_program(self):
@@ -208,8 +225,76 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_edit(200)
         program_before = ProgramFactory()
         publisher = MarketingSitePublisher(program_before)
-        publisher.publish_program(self.program)
-        self.assert_responses_call_count(6)
+        self.mock_add_alias()
+        self.mock_delete_alias()
+        with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
+            with mock.patch.object(MarketingSitePublisher, '_get_form_build_id_and_form_token', return_value={}):
+                with mock.patch.object(MarketingSitePublisher, '_get_delete_alias_url', return_value='/foo'):
+                    publisher.publish_program(self.program)
+                    self.assert_responses_call_count(9)
+
+    @responses.activate
+    def test_get_alias_form(self):
+        self.mock_api_client(200)
+        self.mock_node_retrieval(self.program.uuid)
+        self.mock_node_edit(200)
+        publisher = MarketingSitePublisher()
+        self.mock_add_alias()
+        self.mock_get_alias_form()
+        with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
+            publisher.publish_program(self.program)
+            self.assert_responses_call_count(9)
+
+    @responses.activate
+    def test_get_delete_form(self):
+        self.mock_api_client(200)
+        self.mock_node_retrieval(self.program.uuid)
+        self.mock_node_edit(200)
+        program_before = ProgramFactory()
+        publisher = MarketingSitePublisher(program_before)
+        self.mock_add_alias()
+        self.mock_get_delete_form(program_before.marketing_slug)
+        with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
+            with mock.patch.object(MarketingSitePublisher, '_get_form_build_id_and_form_token', return_value={}):
+                publisher.publish_program(self.program)
+                self.assert_responses_call_count(10)
+
+    @responses.activate
+    def test_get_alias_form_failed(self):
+        self.mock_api_client(200)
+        self.mock_node_retrieval(self.program.uuid)
+        self.mock_node_edit(200)
+        publisher = MarketingSitePublisher()
+        self.mock_add_alias()
+        self.mock_get_alias_form(500)
+        with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
+            with self.assertRaises(ProgramPublisherException):
+                publisher.publish_program(self.program)
+
+    @responses.activate
+    def test_get_delete_form_failed(self):
+        self.mock_api_client(200)
+        self.mock_node_retrieval(self.program.uuid)
+        self.mock_node_edit(200)
+        program_before = ProgramFactory()
+        publisher = MarketingSitePublisher(program_before)
+        self.mock_add_alias()
+        self.mock_get_delete_form(program_before.marketing_slug, 500)
+        with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
+            with mock.patch.object(MarketingSitePublisher, '_get_form_build_id_and_form_token', return_value={}):
+                with self.assertRaises(ProgramPublisherException):
+                    publisher.publish_program(self.program)
+
+    @responses.activate
+    def test_add_alias_failed(self):
+        self.mock_api_client(200)
+        self.mock_node_retrieval(self.program.uuid)
+        self.mock_node_edit(200)
+        publisher = MarketingSitePublisher()
+        self.mock_add_alias(500)
+        with mock.patch.object(MarketingSitePublisher, '_get_form_build_id_and_form_token', return_value={}):
+            with self.assertRaises(ProgramPublisherException):
+                publisher.publish_program(self.program)
 
     @responses.activate
     def test_publish_unmodified_program(self):
@@ -241,7 +326,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_delete(204)
         publisher = MarketingSitePublisher()
         publisher.delete_program(self.program)
-        self.assert_responses_call_count(5)
+        self.assert_responses_call_count(6)
 
     @responses.activate
     def test_publish_delete_non_existent_program(self):
@@ -249,4 +334,11 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_retrieval(self.program.uuid, exists=False)
         publisher = MarketingSitePublisher()
         publisher.delete_program(self.program)
-        self.assert_responses_call_count(4)
+        self.assert_responses_call_count(5)
+
+    @responses.activate
+    def test_publish_delete_xseries(self):
+        self.program = ProgramFactory(type=ProgramType.objects.get(name='XSeries'))
+        publisher = MarketingSitePublisher()
+        publisher.delete_program(self.program)
+        self.assert_responses_call_count(0)

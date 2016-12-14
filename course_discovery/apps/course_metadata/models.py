@@ -593,6 +593,8 @@ class ProgramType(TimeStampedModel):
         },
         help_text=_('Please provide an image file with transparent background'),
     )
+    slug = AutoSlugField(populate_from='name', editable=True, blank=True,
+                         help_text=_('Leave this field blank to have the value generated automatically.'))
 
     def __str__(self):
         return self.name
@@ -610,7 +612,7 @@ class Program(TimeStampedModel):
         choices=ProgramStatus.choices, validators=[ProgramStatus.validator]
     )
     marketing_slug = models.CharField(
-        help_text=_('Slug used to generate links to the marketing site'), blank=True, max_length=255, db_index=True)
+        help_text=_('Slug used to generate links to the marketing site'), unique=True, max_length=255, db_index=True)
     courses = SortedManyToManyField(Course, related_name='programs')
     order_courses_by_start_date = models.BooleanField(
         default=True, verbose_name='Order Courses By Start Date',

@@ -1,4 +1,6 @@
 import json
+
+from bs4 import BeautifulSoup
 import requests
 
 from django.utils.functional import cached_property
@@ -39,7 +41,9 @@ class MarketingSiteAPIClient(object):
         }
         response = session.post(login_url, data=login_data)
         expected_url = '{root}/users/{username}'.format(root=self.api_url, username=self.username)
-        if not (response.status_code == 200 and response.url == expected_url):
+        admin_url = '{root}/admin'.format(root=self.api_url)
+        can_access_admin = session.get(admin_url)
+        if not (can_access_admin.status_code == 200 and response.url == expected_url):
             raise ProgramPublisherException('Marketing Site Login failed!')
         return session
 
@@ -79,15 +83,11 @@ class MarketingSitePublisher(object):
     """
     This is the publisher that would publish the object data to marketing site
     """
-    data_before = None
+    program_before = None
 
     def __init__(self, program_before=None):
         if program_before:
-            self.data_before = {
-                'type': program_before.type,
-                'status': program_before.status,
-                'title': program_before.title,
-            }
+            self.program_before = program_before
 
     def _get_api_client(self, program):
         if not program.partner.has_marketing_site:
@@ -98,12 +98,13 @@ class MarketingSitePublisher(object):
                 partner=program.partner.short_code)
             raise ProgramPublisherException(msg)
 
-        if program.type.name != 'MicroMasters':
-            # Currently, we should not publish any programs that are not MicroMasters types to Marketing Site
+        if program.type.name not in ['MicroMasters', 'Professional Certificate']:
+            # We do not publish programs that are not MicroMasters or Professional Certificate to the Marketing Site
             return
 
-        if self.data_before and \
-                all(self.data_before[key] == getattr(program, key) for key in ['title', 'status', 'type']):
+        fields_that_trigger_publish = ['title', 'status', 'type', 'marketing_slug']
+        if self.program_before and \
+                all(getattr(self.program_before, key) == getattr(program, key) for key in fields_that_trigger_publish):
             # We don't need to publish to marketing site because
             # nothing we care about has changed. This would save at least 4 network calls
             return
@@ -130,17 +131,13 @@ class MarketingSitePublisher(object):
         node_url = '{root}/node.json?field_uuid={uuid}'.format(root=api_client.api_url, uuid=uuid)
         response = api_client.api_session.get(node_url)
         if response.status_code == 200:
-            found = response.json()
-            if found:
-                list_item = found.get('list')
-                if list_item:
-                    return list_item[0]['nid']
+            list_item = response.json().get('list')
+            return list_item[0]['nid']
 
-    def _edit_node(self, api_client, nid, node_data):
-        if node_data.get('uuid'):
-            # Drupal do not allow us to update the UUID field on node update
-            del node_data['uuid']
-        node_url = '{root}/node.json/{nid}'.format(root=api_client.api_url, nid=nid)
+    def _edit_node(self, api_client, node_id, node_data):
+        # Drupal does not allow us to update the UUID field on node update
+        node_data.pop('uuid', None)
+        node_url = '{root}/node.json/{node_id}'.format(root=api_client.api_url, node_id=node_id)
         response = api_client.api_session.put(node_url, data=json.dumps(node_data))
         if response.status_code != 200:
             raise ProgramPublisherException("Marketing site page edit failed!")
@@ -153,25 +150,93 @@ class MarketingSitePublisher(object):
         else:
             raise ProgramPublisherException("Marketing site page creation failed!")
 
-    def _delete_node(self, api_client, nid):
-        node_url = '{root}/node.json/{nid}'.format(root=api_client.api_url, nid=nid)
+    def _delete_node(self, api_client, node_id):
+        node_url = '{root}/node.json/{node_id}'.format(root=api_client.api_url, node_id=node_id)
         api_client.api_session.delete(node_url)
+
+    def _get_form_build_id_and_form_token(self, api_client, url):
+        form_attributes = {}
+        response = api_client.api_session.get(url)
+        if response.status_code != 200:
+            raise ProgramPublisherException('Marketing site alias form retrieval failed!')
+        form = BeautifulSoup(response.text, 'html.parser')
+        for field in ('form_build_id', 'form_token'):
+            form_attributes[field] = form.find('input', {'name': field}).get('value')
+        return form_attributes
+
+    def _get_delete_alias_url(self, api_client, url):
+        response = api_client.api_session.get(url)
+        if response.status_code != 200:
+            raise ProgramPublisherException('Marketing site alias form retrieval failed!')
+        form = BeautifulSoup(response.text, 'html.parser')
+        delete_element = form.select('.delete.last a')
+        return delete_element[0].get('href') if delete_element else None
+
+    def _get_headers(self):
+        headers = {
+            'content-type': 'application/x-www-form-urlencoded'
+        }
+        return headers
+
+    def _make_alias(self, program):
+        alias = '{program_type_slug}/{slug}'.format(program_type_slug=program.type.slug, slug=program.marketing_slug)
+        return alias
+
+    def _add_alias(self, api_client, node_id, alias, before_slug):
+        base_aliases_url = '{root}/admin/config/search/path'.format(root=api_client.api_url)
+        add_aliases_url = '{url}/add'.format(url=base_aliases_url)
+        node_url = 'node/{node_id}'.format(node_id=node_id)
+
+        data = {
+            'source': node_url,
+            'alias': alias,
+            'form_id': 'path_admin_form',
+            'op': 'Save'
+        }
+        form_attributes = self._get_form_build_id_and_form_token(api_client, add_aliases_url)
+        data.update(form_attributes)
+        headers = self._get_headers()
+        response = api_client.api_session.post(add_aliases_url, headers=headers, data=data)
+        if response.status_code != 200:
+            raise ProgramPublisherException('Marketing site alias creation failed!')
+
+        # Delete old alias after saving new one
+        if before_slug:
+            list_aliases_url = '{url}/list/{slug}'.format(url=base_aliases_url, slug=before_slug)
+            delete_alias_url = self._get_delete_alias_url(api_client, list_aliases_url)
+            if delete_alias_url:
+                delete_alias_url = '{root}{url}'.format(root=api_client.api_url, url=delete_alias_url)
+                data = {
+                    "confirm": 1,
+                    "form_id": "path_admin_delete_confirm",
+                    "op": "Confirm"
+                }
+                form_attributes = self._get_form_build_id_and_form_token(api_client, delete_alias_url)
+                data.update(form_attributes)
+                response = api_client.api_session.post(delete_alias_url, headers=headers, data=data)
+                if response.status_code != 200:
+                    raise ProgramPublisherException('Marketing site alias deletion failed!')
 
     def publish_program(self, program):
         api_client = self._get_api_client(program)
         if api_client:
             node_data = self._get_node_data(program, api_client.user_id)
-            nid = self._get_node_id(api_client, program.uuid)
-            if nid:
+            node_id = self._get_node_id(api_client, program.uuid)
+            if node_id:
                 # We would like to edit the existing node
-                self._edit_node(api_client, nid, node_data)
+                self._edit_node(api_client, node_id, node_data)
             else:
                 # We should create a new node
                 self._create_node(api_client, node_data)
+            before_alias = self._make_alias(self.program_before) if self.program_before else None
+            new_alias = self._make_alias(program)
+            before_slug = self.program_before.marketing_slug if self.program_before else None
+            if not self.program_before or (before_alias != new_alias):
+                self._add_alias(api_client, node_id, new_alias, before_slug)
 
     def delete_program(self, program):
         api_client = self._get_api_client(program)
         if api_client:
-            nid = self._get_node_id(api_client, program.uuid)
-            if nid:
-                self._delete_node(api_client, nid)
+            node_id = self._get_node_id(api_client, program.uuid)
+            if node_id:
+                self._delete_node(api_client, node_id)

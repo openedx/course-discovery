@@ -19,6 +19,7 @@ from course_discovery.apps.course_metadata.models import (
     AbstractMediaModel, AbstractNamedModel, AbstractValueModel,
     CorporateEndorsement, Course, CourseRun, Endorsement, FAQ, SeatType, ProgramType,
 )
+from course_discovery.apps.course_metadata.publishers import MarketingSitePublisher
 from course_discovery.apps.course_metadata.tests import factories, toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ImageFactory
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
@@ -434,8 +435,13 @@ class ProgramTests(MarketingSitePublisherTestMixin):
         self.mock_node_edit(200)
         toggle_switch('publish_program_to_marketing_site', True)
         self.program.title = FuzzyText().fuzz()
-        self.program.save()
-        self.assert_responses_call_count(6)
+        self.mock_add_alias()
+        self.mock_delete_alias()
+        with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
+            with mock.patch.object(MarketingSitePublisher, '_get_form_build_id_and_form_token', return_value={}):
+                with mock.patch.object(MarketingSitePublisher, '_get_delete_alias_url', return_value='/foo'):
+                    self.program.save()
+                    self.assert_responses_call_count(9)
 
     @responses.activate
     def test_xseries_program_save(self):
@@ -470,7 +476,7 @@ class ProgramTests(MarketingSitePublisherTestMixin):
         self.mock_node_delete(204)
         toggle_switch('publish_program_to_marketing_site', True)
         self.program.delete()
-        self.assert_responses_call_count(5)
+        self.assert_responses_call_count(6)
 
     @responses.activate
     def test_delete_and_no_marketing_site(self):
