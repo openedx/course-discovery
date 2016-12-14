@@ -3,9 +3,11 @@ from django.contrib.auth.models import Group
 from django.test import TestCase
 
 from course_discovery.apps.core.tests.factories import UserFactory
-from course_discovery.apps.publisher.constants import ADMIN_GROUP_NAME
+from course_discovery.apps.publisher.constants import ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME
 from course_discovery.apps.publisher.tests import factories
-from course_discovery.apps.publisher.utils import is_email_notification_enabled, is_publisher_admin
+from course_discovery.apps.publisher.utils import (
+    is_email_notification_enabled, is_publisher_admin, is_internal_user, get_internal_users
+)
 
 
 class PublisherUtilsTests(TestCase):
@@ -49,3 +51,21 @@ class PublisherUtilsTests(TestCase):
         admin_group = Group.objects.get(name=ADMIN_GROUP_NAME)
         self.user.groups.add(admin_group)
         self.assertTrue(is_publisher_admin(self.user))
+
+    def test_is_internal_user(self):
+        """ Verify the function returns a boolean indicating if the user
+        is a member of the internal user group.
+        """
+        self.assertFalse(is_internal_user(self.user))
+
+        internal_user_group = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
+        self.user.groups.add(internal_user_group)
+        self.assertTrue(is_internal_user(self.user))
+
+    def test_get_internal_user(self):
+        """ Verify the function returns all internal users. """
+        internal_user_group = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
+        self.assertEqual(get_internal_users(), [])
+
+        self.user.groups.add(internal_user_group)
+        self.assertEqual(get_internal_users(), [self.user])

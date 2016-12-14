@@ -256,12 +256,4 @@
         <div class="copy">{{ object.notes }}</div>
     </div>
 </div>
-
-<div class="comment-container">
-    <a href="{% url 'publisher:publisher_course_runs_edit' pk=object.id %}" class="btn btn-neutral btn-add">
-        <span class="icon fa fa-edit" aria-hidden="true"></span>&nbsp;&nbsp;{% trans "Edit" %}
-    </a>
-    {% include 'comments/comments_list.html' %}
-    {% include 'comments/add_auth_comments.html' %}
-</div>
 <div class="clearfix"></div>

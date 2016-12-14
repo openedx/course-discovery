@@ -8,6 +8,7 @@ from mock import patch
 
 from django.db import IntegrityError
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core import mail
 from django.core.urlresolvers import reverse
@@ -20,11 +21,16 @@ from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
+from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
+from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.constants import INTERNAL_USER_GROUP_NAME, ADMIN_GROUP_NAME
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State
 from course_discovery.apps.publisher.tests import factories, JSON_CONTENT_TYPE
 from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
-from course_discovery.apps.publisher.utils import is_email_notification_enabled
-from course_discovery.apps.publisher.views import CourseRunDetailView, logger as publisher_views_logger
+from course_discovery.apps.publisher.utils import is_email_notification_enabled, get_internal_users
+from course_discovery.apps.publisher.views import (
+    CourseRunDetailView, logger as publisher_views_logger, ROLE_WIDGET_HEADINGS
+)
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
 
@@ -897,6 +903,52 @@ class CourseRunDetailTests(TestCase):
             response = self.client.get(page_url)
             self.assertEqual(response.status_code, 403)
 
+    def test_detail_page_with_role_assignment(self):
+        """ Verify that detail page contains role assignment data for internal user. """
+
+        # Add users in internal user group
+        pc_user = UserFactory()
+        marketing_user = UserFactory()
+        publisher_user = UserFactory()
+        internal_user_group = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
+
+        internal_user_group.user_set.add(*(self.user, pc_user, marketing_user, publisher_user))
+
+        assign_perm(Course.VIEW_PERMISSION, internal_user_group, self.course)
+
+        organization = OrganizationFactory()
+        self.course.organizations.add(organization)
+
+        # create three course user roles for internal users
+        for user, role in zip([pc_user, marketing_user, publisher_user], PublisherUserRole.choices):
+            factories.CourseUserRoleFactory(course=self.course, user=user, role=role)
+
+        response = self.client.get(self.page_url)
+
+        expected_roles = []
+        for user_course_role in self.course.course_user_roles.all():
+            expected_roles.append(
+                {'user_course_role': user_course_role, 'heading': ROLE_WIDGET_HEADINGS.get(user_course_role.role)}
+            )
+        self.assertEqual(response.context['role_widgets'], expected_roles)
+
+        self.assertEqual(list(response.context['user_list']), list(get_internal_users()))
+
+    def test_detail_page_role_assignment_with_non_internal_user(self):
+        """ Verify that non internal user can't see change role assignment widget. """
+
+        # Create a non internal user and assign course view permission.
+        non_internal_user = UserFactory()
+        assign_perm(Course.VIEW_PERMISSION, non_internal_user, self.course)
+
+        self.client.logout()
+        self.client.login(username=non_internal_user.username, password=USER_PASSWORD)
+
+        response = self.client.get(self.page_url)
+
+        self.assertNotIn('role_widgets', response.context)
+        self.assertNotIn('user_list', response.context)
+
 
 class ChangeStateViewTests(TestCase):
     """ Tests for the `ChangeStateView`. """
@@ -1065,6 +1117,39 @@ class DashboardTests(TestCase):
         self.assertEqual(len(response.context['published_course_runs']), 1)
         self.assertContains(response, self.table_class.format(id='published'))
         self.assertContains(response, 'The list below contains all course runs published in the past 30 days')
+
+    def test_published_course_runs_as_user_role(self):
+        """
+        Verify that user can see all published course runs as a user in a role for a course.
+        """
+        internal_user = UserFactory()
+        internal_user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        self.client.login(username=internal_user.username, password=USER_PASSWORD)
+
+        # Verify that user cannot see any published course run
+        response = self.assert_dashboard_response()
+        self.assertEqual(len(response.context['published_course_runs']), 0)
+
+        # assign user course role
+        factories.CourseUserRoleFactory(
+            course=self.course_run_3.course, user=internal_user, role=PublisherUserRole.PartnerCoordinator
+        )
+
+        # Verify that user can see 1 published course run
+        response = self.assert_dashboard_response()
+        self.assertEqual(len(response.context['published_course_runs']), 1)
+
+    def test_published_course_runs_as_admin(self):
+        """
+        Verify that publisher admin can see all published course runs.
+        """
+        publisher_admin = UserFactory()
+        publisher_admin.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+        self.client.login(username=publisher_admin.username, password=USER_PASSWORD)
+        factories.CourseRunFactory(state=factories.StateFactory(name=State.PUBLISHED))
+
+        response = self.assert_dashboard_response()
+        self.assertEqual(len(response.context['published_course_runs']), 2)
 
     def test_with_preview_ready_course_runs(self):
         """ Verify that preview ready tabs loads the course runs list. """

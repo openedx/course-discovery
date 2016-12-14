@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load comments %}
 {% if comment_object %}
-<div class="comments-container">
+<div>
     {% get_comment_count for comment_object as comment_count %}
     <h4 class="hd-4">
         {% blocktrans with comment_count=comment_count trimmed %}

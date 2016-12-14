@@ -30,17 +30,13 @@ $(document).ready(function () {
 
     $("#email-switch").change(function(e) {
         var isEnabled = this.checked ? true : false,
-            switchLabel = gettext("OFF"),
-            headers = {
-                'X-CSRFToken': Cookies.get('course_discovery_csrftoken')
-            };
+            switchLabel = gettext("OFF");
         e.preventDefault();
 
         $.ajax({
             url: "/publisher/user/toggle/email_settings/",
             type: "POST",
             data: {is_enabled: isEnabled},
-            headers: headers,
             success: function (response) {
                 if (response.is_enabled) {
                     switchLabel = gettext("ON")
