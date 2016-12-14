@@ -57,7 +57,7 @@ class AdminTests(TestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(
             form.errors['__all__'],
-            ['Programs can only be activated if they have a marketing slug and a banner image.']
+            ['Programs can only be activated if they have a banner image.']
         )
         with self.assertRaises(ValueError):
             form.save()
@@ -147,10 +147,8 @@ class AdminTests(TestCase):
     @ddt.data(
         *itertools.product(
             (
-                (False, False, False),
-                (True, False, False),
-                (False, True, False),
-                (True, True, True)
+                (False, False),
+                (True, True)
             ),
             ProgramStatus.labels
         )
@@ -158,13 +156,12 @@ class AdminTests(TestCase):
     @ddt.unpack
     def test_program_activation_restrictions(self, booleans, label):
         """Verify that program activation requires both a marketing slug and a banner image."""
-        has_marketing_slug, has_banner_image, can_be_activated = booleans
+        has_banner_image, can_be_activated = booleans
         status = getattr(ProgramStatus, label)
 
-        marketing_slug = '/foo' if has_marketing_slug else ''
         banner_image = make_image_file('test_banner.jpg') if has_banner_image else ''
 
-        data = self._post_data(status=status, marketing_slug=marketing_slug)
+        data = self._post_data(status=status, marketing_slug='/foo')
         files = {'banner_image': banner_image}
 
         if status == ProgramStatus.Active:
@@ -292,10 +289,12 @@ class ProgramAdminFunctionalTests(LiveServerTestCase):
         program = factories.ProgramFactory.build(
             partner=Partner.objects.first(),
             status=ProgramStatus.Unpublished,
-            type=ProgramType.objects.first()
+            type=ProgramType.objects.first(),
+            marketing_slug='foo'
         )
         self.browser.find_element_by_id('id_title').send_keys(program.title)
         self.browser.find_element_by_id('id_subtitle').send_keys(program.subtitle)
+        self.browser.find_element_by_id('id_marketing_slug').send_keys(program.marketing_slug)
         self._select_option('id_status', program.status)
         self._select_option('id_type', str(program.type.id))
         self._select_option('id_partner', str(program.partner.id))
@@ -304,6 +303,7 @@ class ProgramAdminFunctionalTests(LiveServerTestCase):
         actual = Program.objects.latest()
         self.assertEqual(actual.title, program.title)
         self.assertEqual(actual.subtitle, program.subtitle)
+        self.assertEqual(actual.marketing_slug, program.marketing_slug)
         self.assertEqual(actual.status, program.status)
         self.assertEqual(actual.type, program.type)
         self.assertEqual(actual.partner, program.partner)
