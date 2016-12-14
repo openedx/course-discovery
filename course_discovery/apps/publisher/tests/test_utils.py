@@ -3,10 +3,13 @@ from django.contrib.auth.models import Group
 from django.test import TestCase
 
 from course_discovery.apps.core.tests.factories import UserFactory
-from course_discovery.apps.publisher.constants import ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME
+from course_discovery.apps.publisher.constants import (
+    ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PARTNER_COORDINATOR_GROUP_NAME
+)
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.utils import (
-    is_email_notification_enabled, is_publisher_admin, is_internal_user, get_internal_users
+    is_email_notification_enabled, is_publisher_admin, is_internal_user,
+    get_internal_users, is_partner_coordinator_user
 )
 
 
@@ -69,3 +72,13 @@ class PublisherUtilsTests(TestCase):
 
         self.user.groups.add(internal_user_group)
         self.assertEqual(get_internal_users(), [self.user])
+
+    def test_is_partner_coordinator_user(self):
+        """ Verify the function returns a boolean indicating if the user
+        is a member of the partner coordinator group.
+        """
+        self.assertFalse(is_partner_coordinator_user(self.user))
+
+        partner_coordinator_group = Group.objects.get(name=PARTNER_COORDINATOR_GROUP_NAME)
+        self.user.groups.add(partner_coordinator_group)
+        self.assertTrue(is_partner_coordinator_user(self.user))
