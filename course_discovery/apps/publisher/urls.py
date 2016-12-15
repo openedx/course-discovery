@@ -6,8 +6,8 @@ from django.conf.urls import url, include
 from course_discovery.apps.publisher import views
 
 urlpatterns = [
+    url(r'^$', views.Dashboard.as_view(), name='publisher_dashboard'),
     url(r'^api/', include('course_discovery.apps.publisher.api.urls', namespace='api')),
-    url(r'^dashboard/$', views.Dashboard.as_view(), name='publisher_dashboard'),
     url(r'^courses/new$', views.CreateCourseView.as_view(), name='publisher_courses_new'),
     url(r'^courses/(?P<pk>\d+)/view/$', views.ReadOnlyView.as_view(), name='publisher_courses_readonly'),
     url(r'^courses/(?P<pk>\d+)/edit/$', views.UpdateCourseView.as_view(), name='publisher_courses_edit'),
