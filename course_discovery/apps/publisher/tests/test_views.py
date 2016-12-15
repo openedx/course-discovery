@@ -44,16 +44,16 @@ class CreateUpdateCourseViewTests(TestCase):
     def setUp(self):
         super(CreateUpdateCourseViewTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
-        self.group = factories.GroupFactory()
+        self.organization_extension = factories.OrganizationExtensionFactory()
+        self.group = self.organization_extension.group
 
         self.course = factories.CourseFactory(team_admin=self.user)
         self.course_run = factories.CourseRunFactory(course=self.course)
         self.seat = factories.SeatFactory(course_run=self.course_run, type=Seat.VERIFIED, price=2)
 
-        self.user.groups.add(self.group)
+        self.user.groups.add(self.organization_extension.group)
         self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.group_2 = factories.GroupFactory()
         self.start_date_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     def test_course_form_without_login(self):
@@ -257,7 +257,7 @@ class CreateUpdateCourseViewTests(TestCase):
             course_dict.pop('end')
             course_dict.pop('priority')
             course_dict['start'] = self.start_date_time
-            course_dict['institution'] = self.group.id
+            course_dict['organization'] = self.organization_extension.organization.id
         if seat:
             course_dict.update(**model_to_dict(seat))
             course_dict.pop('verification_deadline')
@@ -288,7 +288,7 @@ class CreateUpdateCourseViewTests(TestCase):
             status_code=302,
             target_status_code=200
         )
-        self.assertEqual(course.group_institution, self.group)
+        self.assertEqual(course.organizations.first(), self.organization_extension.organization)
         self.assertEqual(course.team_admin, self.user)
         self.assertTrue(self.user.has_perm(Course.VIEW_PERMISSION, course))
         course_run = course.publisher_course_runs.all()[0]
@@ -303,6 +303,7 @@ class CreateUpdateCourseViewTests(TestCase):
 
         # django-taggit stores data without any order. For test .
         self.assertEqual(sorted([c.name for c in course.keywords.all()]), ['abc', 'def', 'xyz'])
+        self.assertEqual(course.organizations.first(), self.organization_extension.organization)
 
 
 class CreateUpdateCourseRunViewTests(TestCase):
@@ -1265,9 +1266,9 @@ class UpdateCourseKeyViewTests(TestCase):
         self.course_run = factories.CourseRunFactory()
         self.user = UserFactory(is_staff=True, is_superuser=True)
 
-        self.group = factories.GroupFactory()
-        self.user.groups.add(self.group)
-        assign_perm(Course.VIEW_PERMISSION, self.group, self.course_run.course)
+        self.organization_extension = factories.OrganizationExtensionFactory()
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(Course.VIEW_PERMISSION, self.organization_extension.group, self.course_run.course)
 
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.update_course_key_url = reverse(

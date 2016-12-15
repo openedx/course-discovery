@@ -6,7 +6,6 @@ import logging
 from datetime import datetime, timedelta
 
 from django.contrib import messages
-from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponseRedirect, HttpResponseForbidden, JsonResponse
@@ -24,7 +23,8 @@ from course_discovery.apps.publisher.forms import (
 )
 from course_discovery.apps.publisher import mixins
 from course_discovery.apps.publisher.models import (
-    Course, CourseRun, Seat, State, UserAttributes
+    Course, CourseRun, Seat, State, UserAttributes,
+    OrganizationExtension
 )
 from course_discovery.apps.publisher.serializers import UpdateCourseKeySerializer
 from course_discovery.apps.publisher.utils import (
@@ -192,9 +192,12 @@ class CreateCourseView(mixins.LoginRequiredMixin, CreateView):
                     seat.changed_by = self.request.user
                     seat.save()
 
-                    institution = get_object_or_404(Group, pk=course_form.data['institution'])
+                    organization_extension = get_object_or_404(
+                        OrganizationExtension, organization=course_form.data['organization']
+                    )
+                    course.organizations.add(organization_extension.organization)
                     # assign guardian permission.
-                    course.assign_permission_by_group(institution)
+                    course.assign_permission_by_group(organization_extension.group)
 
                     messages.success(
                         request, _('Course created successfully.')

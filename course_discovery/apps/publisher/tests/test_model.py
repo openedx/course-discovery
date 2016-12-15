@@ -4,10 +4,13 @@ from django.db import IntegrityError
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django_fsm import TransitionNotAllowed
+from guardian.shortcuts import get_groups_with_perms
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.publisher.choices import PublisherUserRole
-from course_discovery.apps.publisher.models import State, Course, CourseUserRole, OrganizationUserRole
+from course_discovery.apps.publisher.models import (
+    State, Course, CourseUserRole, OrganizationExtension, OrganizationUserRole
+)
 from course_discovery.apps.publisher.tests import factories
 
 
@@ -67,10 +70,15 @@ class CourseTests(TestCase):
         self.user1 = UserFactory()
         self.user2 = UserFactory()
         self.user3 = UserFactory()
-        self.group_a = factories.GroupFactory()
-        self.group_b = factories.GroupFactory()
-        self.user1.groups.add(self.group_a)
-        self.user2.groups.add(self.group_b)
+
+        self.org_extension_1 = factories.OrganizationExtensionFactory()
+        self.org_extension_2 = factories.OrganizationExtensionFactory()
+
+        self.user1.groups.add(self.org_extension_1.group)
+        self.user2.groups.add(self.org_extension_2.group)
+
+        self.course.organizations.add(self.org_extension_1.organization)
+        self.course2.organizations.add(self.org_extension_2.organization)
 
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the course title. """
@@ -87,8 +95,8 @@ class CourseTests(TestCase):
         self.assert_user_cannot_view_course(self.user1, self.course)
         self.assert_user_cannot_view_course(self.user2, self.course2)
 
-        self.course.assign_permission_by_group(self.group_a)
-        self.course2.assign_permission_by_group(self.group_b)
+        self.course.assign_permission_by_group(self.org_extension_1.group)
+        self.course2.assign_permission_by_group(self.org_extension_2.group)
 
         self.assert_user_can_view_course(self.user1, self.course)
         self.assert_user_can_view_course(self.user2, self.course2)
@@ -96,8 +104,8 @@ class CourseTests(TestCase):
         self.assert_user_cannot_view_course(self.user1, self.course2)
         self.assert_user_cannot_view_course(self.user2, self.course)
 
-        self.assertEqual(self.course.group_institution, self.group_a)
-        self.assertEqual(self.course2.group_institution, self.group_b)
+        self.assertEqual(self.course.organizations.first().organization_extension.group, self.org_extension_1.group)
+        self.assertEqual(self.course2.organizations.first().organization_extension.group, self.org_extension_2.group)
 
     def assert_user_cannot_view_course(self, user, course):
         """ Asserts the user can NOT view the course. """
@@ -107,18 +115,18 @@ class CourseTests(TestCase):
         """ Asserts the user can view the course. """
         self.assertTrue(user.has_perm(Course.VIEW_PERMISSION, course))
 
-    def test_group_institution(self):
+    def test_group_by_permission(self):
         """ Verify the method returns groups permitted to access the course."""
-        self.assertEqual(self.course.group_institution, None)
-        self.course.assign_permission_by_group(self.group_a)
-        self.assertEqual(self.course.group_institution, self.group_a)
+        self.assertFalse(get_groups_with_perms(self.course))
+        self.course.assign_permission_by_group(self.org_extension_1.group)
+        self.assertEqual(get_groups_with_perms(self.course)[0], self.org_extension_1.group)
 
     def test_get_group_users_emails(self):
         """ Verify the method returns the email addresses of users who are
         permitted to access the course AND have not disabled email notifications.
         """
-        self.user3.groups.add(self.group_a)
-        self.course.assign_permission_by_group(self.group_a)
+        self.user3.groups.add(self.org_extension_1.group)
+        self.course.assign_permission_by_group(self.org_extension_1.group)
         self.assertListEqual(self.course.get_group_users_emails(), [self.user1.email, self.user3.email])
 
         # The email addresses of users who have disabled email notifications should NOT be returned.
@@ -239,4 +247,29 @@ class CourseUserRoleTests(TestCase):
         with self.assertRaises(IntegrityError):
             CourseUserRole.objects.create(
                 course=self.course_user_role.course, user=self.course_user_role.user, role=self.course_user_role.role
+            )
+
+
+class GroupOrganizationTests(TestCase):
+    """Tests of the GroupOrganization model."""
+
+    def setUp(self):
+        super(GroupOrganizationTests, self).setUp()
+        self.organization_extension = factories.OrganizationExtensionFactory()
+        self.group_2 = factories.GroupFactory()
+
+    def test_str(self):
+        """Verify that a GroupOrganization is properly converted to a str."""
+        expected_str = '{organization}: {group}'.format(
+            organization=self.organization_extension.organization, group=self.organization_extension.group
+        )
+        self.assertEqual(str(self.organization_extension), expected_str)
+
+    def test_one_to_one_constraint(self):
+        """ Verify that same group or organization have only one record."""
+
+        with self.assertRaises(IntegrityError):
+            OrganizationExtension.objects.create(
+                group=self.group_2,
+                organization=self.organization_extension.organization
             )
