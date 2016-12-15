@@ -5,7 +5,7 @@ from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 from rest_framework import status
 from rest_framework.decorators import list_route
-from rest_framework.exceptions import ParseError
+from rest_framework.exceptions import ParseError, ValidationError
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -13,6 +13,7 @@ from rest_framework.views import APIView
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import PageNumberPagination
+from course_discovery.apps.api.v1.views import PartnerMixin
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 
@@ -123,12 +124,12 @@ class AggregateSearchViewSet(BaseHaystackViewSet):
     serializer_class = serializers.AggregateSearchSerializer
 
 
-class TypeaheadSearchView(APIView):
+class TypeaheadSearchView(PartnerMixin, APIView):
     """ Typeahead for courses and programs. """
     RESULT_COUNT = 3
     permission_classes = (IsAuthenticated,)
 
-    def get_results(self, query):
+    def get_results(self, query, partner):
         sqs = SearchQuerySet()
         clean_query = sqs.query.clean(query)
 
@@ -137,14 +138,14 @@ class TypeaheadSearchView(APIView):
             SQ(course_key=clean_query) |
             SQ(authoring_organizations_autocomplete=clean_query)
         )
-        course_runs = course_runs.filter(published=True).exclude(hidden=True)
+        course_runs = course_runs.filter(published=True).exclude(hidden=True).filter(partner=partner.short_code)
         course_runs = course_runs[:self.RESULT_COUNT]
 
         programs = sqs.models(Program).filter(
             SQ(title_autocomplete=clean_query) |
             SQ(authoring_organizations_autocomplete=clean_query)
         )
-        programs = programs.filter(status=ProgramStatus.Active)
+        programs = programs.filter(status=ProgramStatus.Active).filter(partner=partner.short_code)
         programs = programs[:self.RESULT_COUNT]
 
         return course_runs, programs
@@ -165,11 +166,17 @@ class TypeaheadSearchView(APIView):
               paramType: query
               required: true
               type: string
+            - name: partner
+              description: "Partner short code"
+              paramType: query
+              required: false
+              type: string
         """
         query = request.query_params.get('q')
+        partner = self.get_partner()
         if not query:
-            raise ParseError("The 'q' querystring parameter is required for searching.")
-        course_runs, programs = self.get_results(query)
+            raise ValidationError("The 'q' querystring parameter is required for searching.")
+        course_runs, programs = self.get_results(query, partner)
         data = {'course_runs': course_runs, 'programs': programs}
         serializer = serializers.TypeaheadSearchSerializer(data)
         return Response(serializer.data, status=status.HTTP_200_OK)
