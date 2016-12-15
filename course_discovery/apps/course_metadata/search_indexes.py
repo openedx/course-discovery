@@ -14,6 +14,10 @@ from course_discovery.apps.course_metadata.models import Course, CourseRun, Prog
 # If we altered our boosting functions to have a max score of 10
 # we would probably want to bump this number.
 TITLE_FIELD_BOOST = 25.0
+# We want to boost org the same as title
+# Primarily this is to prevent courses from other institutions
+# coming up first if there is a partial match on title
+ORG_FIELD_BOOST = TITLE_FIELD_BOOST
 
 
 class OrganizationsMixin:
@@ -29,6 +33,9 @@ class OrganizationsMixin:
 
     def _prepare_organizations(self, organizations):
         return [self.format_organization(organization) for organization in organizations]
+
+    def prepare_authoring_organization_bodies(self, obj):
+        return [self.format_organization_body(organization) for organization in obj.authoring_organizations.all()]
 
     def prepare_authoring_organizations(self, obj):
         return self._prepare_organizations(obj.authoring_organizations.all())
@@ -63,7 +70,8 @@ class BaseCourseIndex(OrganizationsMixin, BaseIndex):
     key = indexes.CharField(model_attr='key', stored=True)
     title = indexes.CharField(model_attr='title', boost=TITLE_FIELD_BOOST)
     title_autocomplete = indexes.NgramField(model_attr='title', boost=TITLE_FIELD_BOOST)
-    authoring_organizations_autocomplete = indexes.NgramField()
+    authoring_organizations_autocomplete = indexes.NgramField(boost=ORG_FIELD_BOOST)
+    authoring_organization_bodies = indexes.MultiValueField()
     short_description = indexes.CharField(model_attr='short_description', null=True)
     full_description = indexes.CharField(model_attr='full_description', null=True)
     subjects = indexes.MultiValueField(faceted=True)
@@ -197,7 +205,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     marketing_url = indexes.CharField(null=True)
     organizations = indexes.MultiValueField(faceted=True)
     authoring_organizations = indexes.MultiValueField(faceted=True)
-    authoring_organizations_autocomplete = indexes.NgramField()
+    authoring_organizations_autocomplete = indexes.NgramField(boost=ORG_FIELD_BOOST)
     authoring_organization_uuids = indexes.MultiValueField()
     subject_uuids = indexes.MultiValueField()
     staff_uuids = indexes.MultiValueField()
@@ -215,9 +223,6 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
 
     def prepare_organizations(self, obj):
         return self.prepare_authoring_organizations(obj) + self.prepare_credit_backing_organizations(obj)
-
-    def prepare_authoring_organization_bodies(self, obj):
-        return [self.format_organization_body(organization) for organization in obj.authoring_organizations.all()]
 
     def prepare_subject_uuids(self, obj):
         return [str(subject.uuid) for course in obj.courses.all() for subject in course.subjects.all()]

@@ -465,3 +465,33 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, Elastics
             'programs': [self.serialize_program(program)]
         }
         self.assertDictEqual(response.data, expected)
+
+    def test_typeahead_org_course_runs_come_up_first(self):
+        """ Test typeahead response to ensure org is taken into account. """
+        MITx = OrganizationFactory(key='MITx')
+        HarvardX = OrganizationFactory(key='HarvardX')
+        mit_run = CourseRunFactory(
+            authoring_organizations=[MITx, HarvardX],
+            title='MIT Testing1'
+        )
+        harvard_run = CourseRunFactory(
+            authoring_organizations=[HarvardX],
+            title='MIT Testing2'
+        )
+        mit_program = ProgramFactory(
+            authoring_organizations=[MITx, HarvardX],
+            title='MIT Testing1'
+        )
+        harvard_program = ProgramFactory(
+            authoring_organizations=[HarvardX],
+            title='MIT Testing2'
+        )
+        response = self.get_typeahead_response('mit')
+        self.assertEqual(response.status_code, 200)
+        expected = {
+            'course_runs': [self.serialize_course_run(mit_run),
+                            self.serialize_course_run(harvard_run)],
+            'programs': [self.serialize_program(mit_program),
+                         self.serialize_program(harvard_program)]
+        }
+        self.assertDictEqual(response.data, expected)

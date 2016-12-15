@@ -974,29 +974,23 @@ class AggregateSearchSerializer(HaystackSerializer):
         }
 
 
-class TypeaheadCourseRunSearchSerializer(serializers.Serializer):
-    org = serializers.CharField()
-    title = serializers.CharField()
-    key = serializers.CharField()
-    marketing_url = serializers.CharField()
-
-    class Meta:
-        fields = ['key', 'title']
-
-
-class TypeaheadProgramSearchSerializer(serializers.Serializer):
+class TypeaheadBaseSearchSerializer(serializers.Serializer):
     orgs = serializers.SerializerMethodField()
-    uuid = serializers.CharField()
     title = serializers.CharField()
-    type = serializers.CharField()
     marketing_url = serializers.CharField()
 
     def get_orgs(self, result):
         authoring_organizations = [json.loads(org) for org in result.authoring_organization_bodies]
         return [org['key'] for org in authoring_organizations]
 
-    class Meta:
-        fields = ['uuid', 'title', 'type']
+
+class TypeaheadCourseRunSearchSerializer(TypeaheadBaseSearchSerializer):
+    key = serializers.CharField()
+
+
+class TypeaheadProgramSearchSerializer(TypeaheadBaseSearchSerializer):
+    uuid = serializers.CharField()
+    type = serializers.CharField()
 
 
 class TypeaheadSearchSerializer(serializers.Serializer):
