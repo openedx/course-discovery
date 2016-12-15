@@ -404,10 +404,17 @@ class CourseUserRole(TimeStampedModel, ChangedByMixin):
 
 class OrganizationExtension(TimeStampedModel):
     """ Organization-Extension relation model. """
+    EDIT_COURSE_RUN = 'edit_course_run'
+
     organization = models.OneToOneField(Organization, related_name='organization_extension')
     group = models.OneToOneField(Group, related_name='organization_extension')
 
     history = HistoricalRecords()
+
+    class Meta(TimeStampedModel.Meta):
+        permissions = (
+            ('edit_course_run', 'Can edit course run'),
+        )
 
     def __str__(self):
         return '{organization}: {group}'.format(
