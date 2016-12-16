@@ -16,4 +16,4 @@ class Comments(CommentAbstractModel):
 def send_email(sender, instance, **kwargs):    # pylint: disable=unused-argument
     """ Send email on new comment. """
     if waffle.switch_is_active('enable_publisher_email_notifications'):
-        send_email_for_comment(instance)
+        send_email_for_comment(instance, kwargs.get('created', False))

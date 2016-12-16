@@ -129,9 +129,19 @@ class CourseTests(TestCase):
         self.course.assign_permission_by_group(self.org_extension_1.group)
         self.assertListEqual(self.course.get_group_users_emails(), [self.user1.email, self.user3.email])
 
+        # add user in course-user-role table
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.PartnerCoordinator, user=self.user2
+        )
+
+        self.assertListEqual(
+            self.course.get_group_users_emails(),
+            [self.user1.email, self.user2.email, self.user3.email]
+        )
+
         # The email addresses of users who have disabled email notifications should NOT be returned.
         factories.UserAttributeFactory(user=self.user1, enable_email_notification=False)
-        self.assertListEqual(self.course.get_group_users_emails(), [self.user3.email])
+        self.assertListEqual(self.course.get_group_users_emails(), [self.user2.email, self.user3.email])
 
     def test_keywords_data(self):
         """ Verify that the property returns the keywords as comma separated string. """

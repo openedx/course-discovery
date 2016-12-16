@@ -7,6 +7,7 @@ from django.test import TestCase
 
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
 from course_discovery.apps.course_metadata.tests import toggle_switch
+from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.models import Seat
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
@@ -20,8 +21,6 @@ class CommentsTests(TestCase):
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.organization_extension = factories.OrganizationExtensionFactory()
 
-        self.user.groups.add(self.organization_extension.group)
-
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.site = Site.objects.get(pk=settings.SITE_ID)
         self.course_edit_page = 'publisher:publisher_courses_edit'
@@ -34,7 +33,12 @@ class CommentsTests(TestCase):
         self.course = self.course_run.course
 
         self.course.organizations.add(self.organization_extension.organization)
-        self.course.assign_permission_by_group(self.organization_extension.group)
+
+        # assign the role against a course
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
+        )
+
         toggle_switch('enable_publisher_email_notifications', True)
 
     def test_course_edit_page_with_multiple_comments(self):

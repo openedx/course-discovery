@@ -160,8 +160,12 @@ class Course(TimeStampedModel, ChangedByMixin):
         """ Returns the list of users emails with enable email notifications
         against a course group. By default if attribute value does not exists
         then user will be eligible for emails.
+        Also get users from course-user-role table.
         """
-        users_list = get_users_with_perms(self)
+        users_list_perms = get_users_with_perms(self)
+        users_list_roles = [obj.user for obj in self.course_user_roles.all()]
+
+        users_list = set(list(users_list_perms) + list(users_list_roles))
         emails = [user.email for user in users_list if is_email_notification_enabled(user)]
 
         return emails
