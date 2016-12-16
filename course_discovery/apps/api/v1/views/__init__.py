@@ -1,9 +1,12 @@
 import logging
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 
 from course_discovery.apps.api import serializers
+from course_discovery.apps.api.exceptions import InvalidPartnerError
 from course_discovery.apps.api.utils import cast2int
+from course_discovery.apps.core.models import Partner
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -43,3 +46,18 @@ def prefetch_related_objects_for_courses(queryset):
     queryset = queryset.select_related(*_select_related_fields['course'])
     queryset = queryset.prefetch_related(*_prefetch_fields['course'])
     return queryset
+
+
+class PartnerMixin:
+    def get_partner(self):
+        """ Return the partner for the short_code passed in or the default partner """
+        partner_code = self.request.query_params.get('partner')
+        if partner_code:
+            try:
+                partner = Partner.objects.get(short_code=partner_code)
+            except Partner.DoesNotExist:
+                raise InvalidPartnerError('Unknown Partner: {}'.format(partner_code))
+        else:
+            partner = Partner.objects.get(id=settings.DEFAULT_PARTNER_ID)
+
+        return partner

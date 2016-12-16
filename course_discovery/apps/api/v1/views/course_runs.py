@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.db.models.functions import Lower
 from rest_framework import viewsets, status
 from rest_framework.decorators import list_route
@@ -7,16 +6,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
-from course_discovery.apps.api.exceptions import InvalidPartnerError
-from course_discovery.apps.api.v1.views import get_query_param
-from course_discovery.apps.core.models import Partner
+from course_discovery.apps.api.v1.views import get_query_param, PartnerMixin
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.models import CourseRun
 
 
 # pylint: disable=no-member
-class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
+class CourseRunViewSet(PartnerMixin, viewsets.ReadOnlyModelViewSet):
     """ CourseRun resource. """
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     filter_class = filters.CourseRunFilter
@@ -26,19 +23,6 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = CourseRun.objects.all().order_by(Lower('key'))
     serializer_class = serializers.CourseRunWithProgramsSerializer
-
-    def _get_partner(self):
-        """ Return the partner for the code passed in or the default partner """
-        partner_code = self.request.query_params.get('partner')
-        if partner_code:
-            try:
-                partner = Partner.objects.get(short_code=partner_code)
-            except Partner.DoesNotExist:
-                raise InvalidPartnerError('Unknown Partner')
-        else:
-            partner = Partner.objects.get(id=settings.DEFAULT_PARTNER_ID)
-
-        return partner
 
     def get_queryset(self):
         """ List one course run
@@ -52,7 +36,7 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
               multiple: false
         """
         q = self.request.query_params.get('q', None)
-        partner = self._get_partner()
+        partner = self.get_partner()
 
         if q:
             qs = SearchQuerySetWrapper(CourseRun.search(q).filter(partner=partner.short_code))
@@ -167,7 +151,7 @@ class CourseRunViewSet(viewsets.ReadOnlyModelViewSet):
         """
         query = request.GET.get('query')
         course_run_ids = request.GET.get('course_run_ids')
-        partner = self._get_partner()
+        partner = self.get_partner()
 
         if query and course_run_ids:
             course_run_ids = course_run_ids.split(',')
