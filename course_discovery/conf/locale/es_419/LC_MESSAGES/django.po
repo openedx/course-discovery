@@ -11,14 +11,15 @@
 # luisa rivero zambrano <luisarz11@hotmail.com>, 2016
 # Luis Benites <lbenitesanchez@gmail.com>, 2016
 # Luis Zapata <l.zapatagt@gmail.com>, 2016
+# Ned Weitzman <nweitzman@edx.org>, 2016
 # Renzo Lucioni <rlucioni@edx.org>, 2016
 # Ernesto Sánchez Benitez <sbernesto@gmail.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-01 20:12+0500\n"
-"PO-Revision-Date: 2016-12-02 09:10+0000\n"
+"POT-Creation-Date: 2016-12-14 15:06+0500\n"
+"PO-Revision-Date: 2016-12-15 09:16+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
 "MIME-Version: 1.0\n"
@@ -209,13 +210,13 @@ msgstr "Socios"
 
 #: apps/course_metadata/admin.py
 msgid "Included course runs"
-msgstr ""
+msgstr "Versiones incluidos del curso"
 
 #: apps/course_metadata/admin.py
 msgid ""
 "An error occurred while publishing the program to the marketing site. Please"
 " try again. If the error persists, please contact the Engineering Team."
-msgstr ""
+msgstr "Ocurrió un error mientras publicando el programa al sitio de mercadotecnia. Por favor, intente otra vez. Si el error siga, por favor contáctese con el equipo de ingeniería."
 
 #: apps/course_metadata/choices.py apps/publisher/models.py
 msgid "Published"
@@ -254,7 +255,7 @@ msgstr "Eliminado"
 msgid ""
 "Programs can only be activated if they have a marketing slug and a banner "
 "image."
-msgstr ""
+msgstr "Los programas se pueden activar solamente si cuentan con URL y pieza publicitaria de mercadotecnia."
 
 #: apps/course_metadata/models.py
 msgid "Facebook"
@@ -373,6 +374,10 @@ msgid ""
 msgstr "Tipos de asientos que cumplen los requisitos para la realización de programas de este tipo. A los alumnos que finalizan los cursos asociados, pero están inscritos en otros tipos de asiento, no se les contará la finalización del curso para la realización del programa."
 
 #: apps/course_metadata/models.py
+msgid "Please provide an image file with transparent background"
+msgstr ""
+
+#: apps/course_metadata/models.py
 msgid "The user-facing display title for this Program."
 msgstr "Título para mostrar de este programa."
 
@@ -392,7 +397,7 @@ msgstr "Slug usado para generar vínculos al sitio de marketing."
 msgid ""
 "If this box is not checked, courses will be ordered as in the courses select"
 " box above."
-msgstr ""
+msgstr "Si esta caja no está marcada, los cursos estarán el el mismo orden como están en la caja de selección de cursos arriba."
 
 #: apps/course_metadata/models.py
 msgid ""
@@ -430,9 +435,9 @@ msgstr ""
 
 #: apps/publisher/choices.py
 msgid "Publisher"
-msgstr ""
+msgstr "Publicador"
 
-#: apps/publisher/choices.py
+#: apps/publisher/choices.py apps/publisher/views.py
 msgid "Course Team"
 msgstr ""
 
@@ -473,11 +478,11 @@ msgstr "Fecha de finalización del curso"
 
 #: apps/publisher/forms.py
 msgid "Yes, course will be Self-Paced"
-msgstr ""
+msgstr "Sí, el curso se podrá hacer a tu propio ritmo"
 
 #: apps/publisher/forms.py
 msgid "Only honor/audit seats can be without price."
-msgstr ""
+msgstr "Solamente las plazas no verificadas pueden ser gratuitas."
 
 #: apps/publisher/models.py
 msgid "Draft"
@@ -521,7 +526,7 @@ msgstr "Tipo de Nivel"
 
 #: apps/publisher/models.py
 msgid "Expected Learnings"
-msgstr ""
+msgstr "Aprendizaje anticipado"
 
 #: apps/publisher/models.py templates/publisher/course_run_detail/_all.html
 msgid "Prerequisites"
@@ -558,7 +563,7 @@ msgstr "Nivel 5"
 
 #: apps/publisher/models.py
 msgid "Content Language"
-msgstr ""
+msgstr "Idioma del Contenido"
 
 #: apps/publisher/models.py templates/publisher/add_course_form.html
 msgid "Length of course, in number of weeks"
@@ -595,6 +600,18 @@ msgid "Course Role"
 msgstr ""
 
 #: apps/publisher/views.py
+msgid "PARTNER COORDINATOR"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "MARKETING"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "PUBLISHER"
+msgstr ""
+
+#: apps/publisher/views.py
 msgid "Course created successfully."
 msgstr "Curso creado correctamente"
 
@@ -605,12 +622,12 @@ msgstr "Por favor completar todos los campos requeridos."
 #: apps/publisher/views.py
 #, python-brace-format
 msgid "Course run created successfully for course \"{course_title}\"."
-msgstr ""
+msgstr "Instancia del curso generada para el curso \"{course_title}\"."
 
 #: apps/publisher/views.py
 #, python-brace-format
 msgid "There was an error saving course run, {error}"
-msgstr ""
+msgstr "Hubo un error guardando la instancia del curso, {error}"
 
 #: apps/publisher/views.py
 msgid "Please fill all required fields."
@@ -1036,11 +1053,11 @@ msgstr ""
 
 #: templates/publisher/add_course_form.html
 msgid "200 character limit, including spaces"
-msgstr ""
+msgstr "Límite de 200 carácteres, incluso los espacios"
 
 #: templates/publisher/add_course_form.html
 msgid "ESTIMATED EFFORT"
-msgstr ""
+msgstr "ESFUERZA APROXIMADA"
 
 #: templates/publisher/add_course_form.html
 msgid ""
@@ -1050,7 +1067,7 @@ msgstr ""
 
 #: templates/publisher/add_course_form.html
 msgid "Should be realistic, and can be a range"
-msgstr ""
+msgstr "Debe ser razonable, y puede ser una gama"
 
 #: templates/publisher/add_course_form.html
 msgid "Min Effort"
@@ -1062,7 +1079,7 @@ msgstr "Máximo esfuerzo"
 
 #: templates/publisher/add_course_form.html
 msgid "LANGUAGE(S)"
-msgstr ""
+msgstr "IDIOMA(S)"
 
 #: templates/publisher/add_course_form.html
 msgid "Course content (navigation and course content excluding videos)"
@@ -1078,7 +1095,7 @@ msgstr ""
 
 #: templates/publisher/add_course_form.html
 msgid "LENGTH"
-msgstr ""
+msgstr "DURACIÓN"
 
 #: templates/publisher/add_course_form.html
 msgid "If the time between start/end dates is not exact, ex: 8.5 weeks, "
@@ -1117,7 +1134,7 @@ msgstr "Guardar borrador"
 
 #: templates/publisher/add_courserun_form.html
 msgid "New Course Run"
-msgstr ""
+msgstr "Nueva Versión del Curso"
 
 #: templates/publisher/add_courserun_form.html
 #, python-format
@@ -1234,21 +1251,20 @@ msgstr "Detalles de la convocatoria de curso"
 msgid "All"
 msgstr "Todos"
 
+#. Translators: Studio is an edX tool for course creation.
 #: templates/publisher/course_run_detail.html
 msgid "STUDIO"
 msgstr "STUDIO"
 
+#. Translators: CAT is an acronym for Course Administration Tool.
 #: templates/publisher/course_run_detail.html
 msgid "CAT"
 msgstr "CAT"
 
+#. Translators: DRUPAL is an edX marketing site.
 #: templates/publisher/course_run_detail.html
 msgid "DRUPAL"
 msgstr "DRUPAL"
-
-#: templates/publisher/course_run_detail.html
-msgid "Salesforce"
-msgstr ""
 
 #: templates/publisher/course_run_detail.html
 #: templates/publisher/course_run_form.html
@@ -1395,9 +1411,17 @@ msgstr "Nombre de usuario o dirección de correo electrónico de miembros adicio
 msgid "Additional Notes"
 msgstr "Notas Adicionales"
 
-#: templates/publisher/course_run_detail/_all.html
-msgid "Edit"
-msgstr "Editar"
+#: templates/publisher/course_run_detail/_approval_widget.html
+msgid "EDIT"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_approval_widget.html
+msgid "change owner"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_approval_widget.html
+msgid "CHANGE"
+msgstr ""
 
 #: templates/publisher/course_run_detail/_cat.html
 msgid "Course Type"
