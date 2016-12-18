@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-01 20:12+0500\n"
-"PO-Revision-Date: 2016-12-02 09:10+0000\n"
+"POT-Creation-Date: 2016-12-14 15:06+0500\n"
+"PO-Revision-Date: 2016-12-15 09:16+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/open-edx/edx-platform/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
@@ -369,6 +369,10 @@ msgid ""
 msgstr ""
 
 #: apps/course_metadata/models.py
+msgid "Please provide an image file with transparent background"
+msgstr ""
+
+#: apps/course_metadata/models.py
 msgid "The user-facing display title for this Program."
 msgstr ""
 
@@ -428,7 +432,7 @@ msgstr ""
 msgid "Publisher"
 msgstr ""
 
-#: apps/publisher/choices.py
+#: apps/publisher/choices.py apps/publisher/views.py
 msgid "Course Team"
 msgstr ""
 
@@ -588,6 +592,18 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Course Role"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "PARTNER COORDINATOR"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "MARKETING"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "PUBLISHER"
 msgstr ""
 
 #: apps/publisher/views.py
@@ -1230,20 +1246,19 @@ msgstr ""
 msgid "All"
 msgstr ""
 
+#. Translators: Studio is an edX tool for course creation.
 #: templates/publisher/course_run_detail.html
 msgid "STUDIO"
 msgstr ""
 
+#. Translators: CAT is an acronym for Course Administration Tool.
 #: templates/publisher/course_run_detail.html
 msgid "CAT"
 msgstr ""
 
+#. Translators: DRUPAL is an edX marketing site.
 #: templates/publisher/course_run_detail.html
 msgid "DRUPAL"
-msgstr ""
-
-#: templates/publisher/course_run_detail.html
-msgid "Salesforce"
 msgstr ""
 
 #: templates/publisher/course_run_detail.html
@@ -1391,8 +1406,16 @@ msgstr ""
 msgid "Additional Notes"
 msgstr ""
 
-#: templates/publisher/course_run_detail/_all.html
-msgid "Edit"
+#: templates/publisher/course_run_detail/_approval_widget.html
+msgid "EDIT"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_approval_widget.html
+msgid "change owner"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_approval_widget.html
+msgid "CHANGE"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_cat.html

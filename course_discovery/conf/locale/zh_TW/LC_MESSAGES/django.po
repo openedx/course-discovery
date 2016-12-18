@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-01 20:12+0500\n"
-"PO-Revision-Date: 2016-12-02 09:10+0000\n"
+"POT-Creation-Date: 2016-12-14 15:06+0500\n"
+"PO-Revision-Date: 2016-12-15 09:16+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/open-edx/edx-platform/language/zh_TW/)\n"
 "MIME-Version: 1.0\n"
@@ -366,6 +366,10 @@ msgid ""
 msgstr "Seat 類型是完成系列課程的有資格者。學習者完成相關課程，並有選修其他類型，將不因此達陣而是逐步完成整個計畫的課程。"
 
 #: apps/course_metadata/models.py
+msgid "Please provide an image file with transparent background"
+msgstr ""
+
+#: apps/course_metadata/models.py
 msgid "The user-facing display title for this Program."
 msgstr "為該計畫使用端顯示標題"
 
@@ -425,7 +429,7 @@ msgstr ""
 msgid "Publisher"
 msgstr ""
 
-#: apps/publisher/choices.py
+#: apps/publisher/choices.py apps/publisher/views.py
 msgid "Course Team"
 msgstr ""
 
@@ -585,6 +589,18 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Course Role"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "PARTNER COORDINATOR"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "MARKETING"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "PUBLISHER"
 msgstr ""
 
 #: apps/publisher/views.py
@@ -1227,21 +1243,20 @@ msgstr "再次開課細節"
 msgid "All"
 msgstr "所有的"
 
+#. Translators: Studio is an edX tool for course creation.
 #: templates/publisher/course_run_detail.html
 msgid "STUDIO"
 msgstr "STUDIO"
 
+#. Translators: CAT is an acronym for Course Administration Tool.
 #: templates/publisher/course_run_detail.html
 msgid "CAT"
 msgstr "CAT"
 
+#. Translators: DRUPAL is an edX marketing site.
 #: templates/publisher/course_run_detail.html
 msgid "DRUPAL"
 msgstr "DRUPAL"
-
-#: templates/publisher/course_run_detail.html
-msgid "Salesforce"
-msgstr ""
 
 #: templates/publisher/course_run_detail.html
 #: templates/publisher/course_run_form.html
@@ -1388,9 +1403,17 @@ msgstr "添加課程團隊成員(Staff)的使用者名稱或電子郵件"
 msgid "Additional Notes"
 msgstr "補充說明"
 
-#: templates/publisher/course_run_detail/_all.html
-msgid "Edit"
-msgstr "編輯"
+#: templates/publisher/course_run_detail/_approval_widget.html
+msgid "EDIT"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_approval_widget.html
+msgid "change owner"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_approval_widget.html
+msgid "CHANGE"
+msgstr ""
 
 #: templates/publisher/course_run_detail/_cat.html
 msgid "Course Type"

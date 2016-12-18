@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-01 20:12+0500\n"
-"PO-Revision-Date: 2016-12-05 12:00+0000\n"
+"POT-Creation-Date: 2016-12-14 15:06+0500\n"
+"PO-Revision-Date: 2016-12-18 14:26+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Icelandic (http://www.transifex.com/open-edx/edx-platform/language/is/)\n"
 "MIME-Version: 1.0\n"
@@ -329,19 +329,19 @@ msgstr "Væntanlegt"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Honor"
-msgstr ""
+msgstr "Viðurkenning"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Audit"
-msgstr ""
+msgstr "Endurskoðun"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Verified"
-msgstr ""
+msgstr "Staðfest"
 
 #: apps/course_metadata/models.py
 msgid "Professional"
-msgstr ""
+msgstr "Faglegt"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Credit"
@@ -361,6 +361,10 @@ msgid ""
 "completing associated courses, but enrolled in other seat types, will NOT "
 "have their completion of the course counted toward the completion of the "
 "program."
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Please provide an image file with transparent background"
 msgstr ""
 
 #: apps/course_metadata/models.py
@@ -423,7 +427,7 @@ msgstr ""
 msgid "Publisher"
 msgstr ""
 
-#: apps/publisher/choices.py
+#: apps/publisher/choices.py apps/publisher/views.py
 msgid "Course Team"
 msgstr ""
 
@@ -448,11 +452,11 @@ msgstr "Námskeið númer "
 
 #: apps/publisher/forms.py
 msgid "Yes"
-msgstr ""
+msgstr "Já"
 
 #: apps/publisher/forms.py
 msgid "No"
-msgstr ""
+msgstr "Nei"
 
 #: apps/publisher/forms.py
 msgid "Course start date"
@@ -583,6 +587,18 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Course Role"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "PARTNER COORDINATOR"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "MARKETING"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "PUBLISHER"
 msgstr ""
 
 #: apps/publisher/views.py
@@ -772,7 +788,7 @@ msgstr ""
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
 msgid "Example"
-msgstr ""
+msgstr "Dæmi"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
@@ -1225,20 +1241,19 @@ msgstr ""
 msgid "All"
 msgstr ""
 
+#. Translators: Studio is an edX tool for course creation.
 #: templates/publisher/course_run_detail.html
 msgid "STUDIO"
 msgstr ""
 
+#. Translators: CAT is an acronym for Course Administration Tool.
 #: templates/publisher/course_run_detail.html
 msgid "CAT"
 msgstr ""
 
+#. Translators: DRUPAL is an edX marketing site.
 #: templates/publisher/course_run_detail.html
 msgid "DRUPAL"
-msgstr ""
-
-#: templates/publisher/course_run_detail.html
-msgid "Salesforce"
 msgstr ""
 
 #: templates/publisher/course_run_detail.html
@@ -1386,9 +1401,17 @@ msgstr ""
 msgid "Additional Notes"
 msgstr ""
 
-#: templates/publisher/course_run_detail/_all.html
-msgid "Edit"
-msgstr "Breyta"
+#: templates/publisher/course_run_detail/_approval_widget.html
+msgid "EDIT"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_approval_widget.html
+msgid "change owner"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_approval_widget.html
+msgid "CHANGE"
+msgstr ""
 
 #: templates/publisher/course_run_detail/_cat.html
 msgid "Course Type"
@@ -1405,7 +1428,7 @@ msgstr ""
 #: templates/publisher/course_run_detail/_credit_seat.html
 #: templates/publisher/course_run_detail/_seats.html
 msgid "Currency"
-msgstr ""
+msgstr "Gjaldmiðill"
 
 #: templates/publisher/course_run_detail/_credit_seat.html
 msgid "Credit Hours"
