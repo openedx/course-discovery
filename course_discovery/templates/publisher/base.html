@@ -29,8 +29,8 @@
                         </a>
                     </li>
                     <li class="item">
-                        <a class="btn {% if request.path == new_course_url %}active{% endif %}"
-                           href="/publisher/course/">
+                        {% url 'publisher:publisher_courses' as courses_url %}
+                        <a class="btn {% if request.path == courses_url %}active{% endif %}" href="{{ courses_url }}">
                             {% trans "Courses" %}
                         </a>
                     </li>

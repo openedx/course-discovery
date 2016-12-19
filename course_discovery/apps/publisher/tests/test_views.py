@@ -1372,3 +1372,48 @@ class UpdateCourseKeyViewTests(TestCase):
         self.assertIn(expected_body, body)
         page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=object_path)
         self.assertIn(page_url, body)
+
+
+class CourseListViewTests(TestCase):
+    """ Tests for `CourseListView` """
+
+    def setUp(self):
+        super(CourseListViewTests, self).setUp()
+        self.course = factories.CourseFactory()
+        self.user = UserFactory()
+
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.courses_url = reverse('publisher:publisher_courses')
+
+    def test_courses_with_no_courses(self):
+        """ Verify that user cannot see any course on course list page. """
+
+        self.assert_course_list_page(course_count=0)
+
+    def test_courses_with_admin(self):
+        """ Verify that admin user can see all courses on course list page. """
+        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+
+        self.assert_course_list_page(course_count=1)
+
+    def test_courses_with_course_user_role(self):
+        """ Verify that internal user can see course on course list page. """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        factories.CourseUserRoleFactory(course=self.course, user=self.user)
+
+        self.assert_course_list_page(course_count=1)
+
+    def test_courses_with_permission(self):
+        """ Verify that user can see course with permission on course list page. """
+        assign_perm(Course.VIEW_PERMISSION, self.user, self.course)
+
+        self.assert_course_list_page(course_count=1)
+
+    def assert_course_list_page(self, course_count):
+        """ Dry method to assert course list page content. """
+        response = self.client.get(self.courses_url)
+        self.assertContains(response, '{} Courses'.format(course_count))
+        self.assertContains(response, 'Add Course')
+        if course_count > 0:
+            self.assertContains(response, self.course.title)
+            self.assertContains(response, 'Edit')

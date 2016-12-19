@@ -174,6 +174,13 @@ class Course(TimeStampedModel, ChangedByMixin):
 
         return None
 
+    @property
+    def partner_coordinator(self):
+        try:
+            return self.course_user_roles.get(role=PublisherUserRole.PartnerCoordinator).user
+        except CourseUserRole.DoesNotExist:
+            return None
+
 
 class CourseRun(TimeStampedModel, ChangedByMixin):
     """ Publisher CourseRun model. It contains fields related to the course run intake form."""

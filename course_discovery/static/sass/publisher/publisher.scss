@@ -689,3 +689,28 @@ select {
         }
     }
 }
+
+.btn-course-edit {
+    @include padding(2px, 20px, 3px, 20px);
+    @include float(right);
+    font-weight: 400;
+    font-size: 14px;
+    border-radius: 5px;
+}
+
+.btn-course-add {
+    @include padding(4px, 20px, 4px, 20px);
+    @include margin-left(12px);
+    border-radius: 5px;
+}
+
+.course-count-heading {
+    display: inline-block;
+    font-weight: 700;
+    font-size: 24px;
+}
+
+.coursesTable {
+    @include padding(20px, 20px, 20px, 20px);
+    border: 2px solid #169bd5;
+}

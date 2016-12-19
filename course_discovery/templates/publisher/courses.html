@@ -1,0 +1,68 @@
+{% extends 'publisher/base.html' %}
+{% load i18n %}
+
+{% block title %}
+    {% trans "Courses" %}
+{% endblock title %}
+
+{% block page_content %}
+    <h2 class="hd-2 course-count-heading">{{ object_list.count }} Courses</h2>
+    <a href="{% url 'publisher:publisher_courses_new' %}" class="btn btn-brand btn-small btn-course-add">
+        {% trans "Add Course" %}
+    </a>
+    <div class="coursesTable">
+        <table id="dataTableCourse" class="display" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                    <th role="button">
+                        {% trans "Course Name" %}
+                    </th>
+                    <th role="button">
+                        {% trans "Institution" %}
+                    </th>
+                    <th role="button">
+                        {% trans "Partner Coordinator" %}
+                    </th>
+                    <th role="button">
+                        {% trans "Runs" %}
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in object_list %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'publisher:publisher_courses_readonly' course.id %}">{{ course.title }}</a>
+                        </td>
+                        <td>
+                            {% if course.organizations.first %}{{ course.organizations.first.name }}{% endif %}
+                        </td>
+                        <td>
+                            {{ course.partner_coordinator.full_name }}
+                        </td>
+                        <td>
+                             {{ course.publisher_course_runs.count }}
+                        </td>
+                        <td>
+                            <a href="{% url 'publisher:publisher_courses_edit' course.id %}" class="btn btn-brand btn-small btn-course-edit">
+                                {% trans "Edit" %}
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        $(document).ready(function() {
+            $('#dataTableCourse').DataTable({
+                "autoWidth": false,
+                "oLanguage": { "sEmptyTable": gettext("Looks like you haven't created any course yet") }
+            });
+        });
+    </script>
+{% endblock %}
