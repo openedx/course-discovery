@@ -1,11 +1,16 @@
 """ Tests publisher.utils"""
 from django.contrib.auth.models import Group
 from django.test import TestCase
+from guardian.shortcuts import assign_perm
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.publisher.constants import (
     ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PARTNER_COORDINATOR_GROUP_NAME
 )
+from course_discovery.apps.publisher.mixins import (
+    check_roles_access, check_course_organization_permission, check_user_course_access
+)
+from course_discovery.apps.publisher.models import OrganizationExtension
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.utils import (
     is_email_notification_enabled, is_publisher_admin, is_internal_user,
@@ -18,7 +23,12 @@ class PublisherUtilsTests(TestCase):
 
     def setUp(self):
         super(PublisherUtilsTests, self).setUp()
-        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.user = UserFactory()
+        self.course = factories.CourseFactory()
+        self.admin_group = Group.objects.get(name=ADMIN_GROUP_NAME)
+        self.internal_user_group = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
+        self.organization_extension = factories.OrganizationExtensionFactory()
+        self.course.organizations.add(self.organization_extension.organization)
 
     def test_email_notification_enabled_by_default(self):
         """ Test email notification is enabled for the user by default."""
@@ -82,3 +92,51 @@ class PublisherUtilsTests(TestCase):
         partner_coordinator_group = Group.objects.get(name=PARTNER_COORDINATOR_GROUP_NAME)
         self.user.groups.add(partner_coordinator_group)
         self.assertTrue(is_partner_coordinator_user(self.user))
+
+    def test_check_roles_access_with_admin(self):
+        """ Verify the function returns a boolean indicating if the user
+        access role wise.
+        """
+        self.assertFalse(check_roles_access(self.user))
+        self.user.groups.add(self.admin_group)
+        self.assertTrue(check_roles_access(self.user))
+
+    def test_check_roles_access_with_internal_user(self):
+        """ Verify the function returns a boolean indicating if the user
+        access role wise.
+        """
+        self.assertFalse(check_roles_access(self.user))
+        self.user.groups.add(self.internal_user_group)
+        self.assertTrue(check_roles_access(self.user))
+
+    def test_check_organization_permission_without_org(self):
+        """ Verify the function returns a boolean indicating if the user has
+        organization permission on given course.
+        """
+        self.assertFalse(check_course_organization_permission(self.user, self.course))
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE, self.user, self.organization_extension
+        )
+        self.assertTrue(check_course_organization_permission(self.user, self.course))
+
+    def test_check_user_access_with_roles(self):
+        """ Verify the function returns a boolean indicating if the user
+        organization permission on given course or user is internal or admin user.
+        """
+        self.assertFalse(check_user_course_access(self.user, self.course))
+        self.user.groups.add(self.admin_group)
+        self.assertTrue(check_user_course_access(self.user, self.course))
+        self.user.groups.remove(self.admin_group)
+        self.assertFalse(check_user_course_access(self.user, self.course))
+        self.user.groups.add(self.internal_user_group)
+        self.assertTrue(check_user_course_access(self.user, self.course))
+
+    def test_check_user_access_with_permission(self):
+        """ Verify the function returns a boolean indicating if the user
+        has view permission on organization
+        """
+        self.assertFalse(check_course_organization_permission(self.user, self.course))
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE, self.user, self.organization_extension
+        )
+        self.assertTrue(check_course_organization_permission(self.user, self.course))

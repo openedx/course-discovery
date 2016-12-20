@@ -53,7 +53,7 @@ def send_email_for_comment(comment, created=False):
                 title=course.title
             )
 
-        to_addresses = course.get_group_users_emails()
+        to_addresses = course.get_course_users_emails()
         from_address = settings.PUBLISHER_FROM_EMAIL
 
         context = {

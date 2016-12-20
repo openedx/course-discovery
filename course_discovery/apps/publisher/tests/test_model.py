@@ -4,12 +4,13 @@ from django.db import IntegrityError
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django_fsm import TransitionNotAllowed
-from guardian.shortcuts import get_groups_with_perms
+from guardian.shortcuts import assign_perm
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.mixins import check_course_organization_permission
 from course_discovery.apps.publisher.models import (
-    State, Course, CourseUserRole, OrganizationExtension, OrganizationUserRole
+    State, CourseUserRole, OrganizationExtension, OrganizationUserRole
 )
 from course_discovery.apps.publisher.tests import factories
 
@@ -80,6 +81,19 @@ class CourseTests(TestCase):
         self.course.organizations.add(self.org_extension_1.organization)
         self.course2.organizations.add(self.org_extension_2.organization)
 
+        # add user in course-user-role table
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.PartnerCoordinator, user=self.user1
+        )
+
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user2
+        )
+
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.Publisher, user=self.user3
+        )
+
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the course title. """
         self.assertEqual(str(self.course), self.course.title)
@@ -90,13 +104,16 @@ class CourseTests(TestCase):
             reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id})
         )
 
-    def test_assign_permission_by_group(self):
-        """ Verify that permission can be assigned using the group. """
+    def test_assign_permission_organization_extension(self):
+        """ Verify that permission can be assigned using the organization extension. """
         self.assert_user_cannot_view_course(self.user1, self.course)
         self.assert_user_cannot_view_course(self.user2, self.course2)
 
-        self.course.assign_permission_by_group(self.org_extension_1.group)
-        self.course2.assign_permission_by_group(self.org_extension_2.group)
+        self.course.organizations.add(self.org_extension_1.organization)
+        self.course2.organizations.add(self.org_extension_2.organization)
+
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.user1, self.org_extension_1)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.user2, self.org_extension_2)
 
         self.assert_user_can_view_course(self.user1, self.course)
         self.assert_user_can_view_course(self.user2, self.course2)
@@ -109,39 +126,24 @@ class CourseTests(TestCase):
 
     def assert_user_cannot_view_course(self, user, course):
         """ Asserts the user can NOT view the course. """
-        self.assertFalse(user.has_perm(Course.VIEW_PERMISSION, course))
+        self.assertFalse(check_course_organization_permission(user, course, ))
 
     def assert_user_can_view_course(self, user, course):
         """ Asserts the user can view the course. """
-        self.assertTrue(user.has_perm(Course.VIEW_PERMISSION, course))
+        self.assertTrue(check_course_organization_permission(user, course))
 
-    def test_group_by_permission(self):
-        """ Verify the method returns groups permitted to access the course."""
-        self.assertFalse(get_groups_with_perms(self.course))
-        self.course.assign_permission_by_group(self.org_extension_1.group)
-        self.assertEqual(get_groups_with_perms(self.course)[0], self.org_extension_1.group)
-
-    def test_get_group_users_emails(self):
+    def test_get_course_users_emails(self):
         """ Verify the method returns the email addresses of users who are
         permitted to access the course AND have not disabled email notifications.
         """
-        self.user3.groups.add(self.org_extension_1.group)
-        self.course.assign_permission_by_group(self.org_extension_1.group)
-        self.assertListEqual(self.course.get_group_users_emails(), [self.user1.email, self.user3.email])
-
-        # add user in course-user-role table
-        factories.CourseUserRoleFactory(
-            course=self.course, role=PublisherUserRole.PartnerCoordinator, user=self.user2
-        )
-
         self.assertListEqual(
-            self.course.get_group_users_emails(),
+            self.course.get_course_users_emails(),
             [self.user1.email, self.user2.email, self.user3.email]
         )
 
         # The email addresses of users who have disabled email notifications should NOT be returned.
         factories.UserAttributeFactory(user=self.user1, enable_email_notification=False)
-        self.assertListEqual(self.course.get_group_users_emails(), [self.user2.email, self.user3.email])
+        self.assertListEqual(self.course.get_course_users_emails(), [self.user2.email, self.user3.email])
 
     def test_keywords_data(self):
         """ Verify that the property returns the keywords as comma separated string. """
@@ -155,13 +157,13 @@ class CourseTests(TestCase):
 
     def test_partner_coordinator(self):
         """ Verify that the partner_coordinator property returns user if exist. """
-        self.assertIsNone(self.course.partner_coordinator)
+        self.assertIsNone(self.course2.partner_coordinator)
 
         factories.CourseUserRoleFactory(
-            course=self.course, user=self.user1, role=PublisherUserRole.PartnerCoordinator
+            course=self.course2, user=self.user1, role=PublisherUserRole.PartnerCoordinator
         )
 
-        self.assertEqual(self.user1, self.course.partner_coordinator)
+        self.assertEqual(self.user1, self.course2.partner_coordinator)
 
 
 class SeatTests(TestCase):

@@ -2,7 +2,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.utils.decorators import method_decorator
 
-from course_discovery.apps.publisher.models import Course, Seat
+from course_discovery.apps.publisher.models import Course, Seat, OrganizationExtension
+from course_discovery.apps.publisher.utils import is_publisher_admin, is_internal_user
 
 
 class ViewPermissionMixin(object):
@@ -20,7 +21,7 @@ class ViewPermissionMixin(object):
 
     def check_user(self, user):
         course = self.get_course()
-        return check_view_permission(user, course)
+        return check_user_course_access(user, course)
 
     def permission_failed(self):
         return HttpResponseForbidden()
@@ -56,5 +57,28 @@ class FormValidMixin(object):
         return HttpResponseRedirect(self.get_success_url())
 
 
-def check_view_permission(user, course):
-    return user.is_staff or user.has_perm(Course.VIEW_PERMISSION, course)
+def check_roles_access(user):
+    """ Return True if user is part of a role that gives implicit access. """
+    if is_publisher_admin(user) or is_internal_user(user):
+        return True
+
+    return False
+
+
+def check_course_organization_permission(user, course):
+    """ Return True if user has view permission on organization. """
+    if not hasattr(course, 'organizations'):
+        return False
+
+    return any(
+        [
+            user.has_perm(OrganizationExtension.VIEW_COURSE, org.organization_extension)
+            for org in course.organizations.all()
+        ]
+    )
+
+
+def check_user_course_access(user, course):
+    """ Return True if user is admin/internal user or has access permission. """
+
+    return check_roles_access(user) or check_course_organization_permission(user, course)

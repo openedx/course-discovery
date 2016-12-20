@@ -53,7 +53,7 @@ class CustomCourseForm(CourseForm):
     )
     title = forms.CharField(label=_('Course Title'), required=True)
     number = forms.CharField(label=_('Course Number'), required=True)
-    team_admin = forms.ModelChoiceField(queryset=User.objects.filter(is_staff=True), required=True)
+    team_admin = forms.ModelChoiceField(queryset=User.objects.all(), required=True)
 
     class Meta(CourseForm.Meta):
         model = Course
@@ -69,7 +69,7 @@ class UpdateCourseForm(BaseCourseForm):
     """ Course form to update specific fields for already created course. """
 
     number = forms.CharField(label=_('Course Number'), required=True)
-    team_admin = forms.ModelChoiceField(queryset=User.objects.filter(is_staff=True), required=True)
+    team_admin = forms.ModelChoiceField(queryset=User.objects.all(), required=True)
 
     class Meta:
         model = Course

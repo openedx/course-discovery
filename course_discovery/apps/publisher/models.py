@@ -8,7 +8,6 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from django_fsm import FSMField, transition
-from guardian.shortcuts import assign_perm, get_users_with_perms
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
@@ -85,7 +84,6 @@ class State(TimeStampedModel, ChangedByMixin):
 
 class Course(TimeStampedModel, ChangedByMixin):
     """ Publisher Course model. It contains fields related to the course intake form."""
-    VIEW_PERMISSION = 'view_course'
 
     title = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_('Course title'))
     number = models.CharField(max_length=50, null=True, blank=True, verbose_name=_('Course number'))
@@ -152,21 +150,14 @@ class Course(TimeStampedModel, ChangedByMixin):
             ('view_course', 'Can view course'),
         )
 
-    def assign_permission_by_group(self, group):
-        """ Assigns permission on the course against the group. """
-        assign_perm(self.VIEW_PERMISSION, group, self)
-
-    def get_group_users_emails(self):
+    def get_course_users_emails(self):
         """ Returns the list of users emails with enable email notifications
-        against a course group. By default if attribute value does not exists
+        against a course. By default if attribute value does not exists
         then user will be eligible for emails.
-        Also get users from course-user-role table.
         """
-        users_list_perms = get_users_with_perms(self)
         users_list_roles = [obj.user for obj in self.course_user_roles.all()]
 
-        users_list = set(list(users_list_perms) + list(users_list_roles))
-        emails = [user.email for user in users_list if is_email_notification_enabled(user)]
+        emails = [user.email for user in users_list_roles if is_email_notification_enabled(user)]
 
         return emails
 
@@ -416,6 +407,8 @@ class CourseUserRole(TimeStampedModel, ChangedByMixin):
 class OrganizationExtension(TimeStampedModel):
     """ Organization-Extension relation model. """
     EDIT_COURSE_RUN = 'edit_course_run'
+    VIEW_COURSE = 'publisher_view_course'
+    VIEW_COURSE_RUN = 'publisher_view_course_run'
 
     organization = models.OneToOneField(Organization, related_name='organization_extension')
     group = models.OneToOneField(Group, related_name='organization_extension')
@@ -425,6 +418,8 @@ class OrganizationExtension(TimeStampedModel):
     class Meta(TimeStampedModel.Meta):
         permissions = (
             ('edit_course_run', 'Can edit course run'),
+            ('publisher_view_course', 'Can view course'),
+            ('publisher_view_course_run', 'Can view the course run'),
         )
 
     def __str__(self):
