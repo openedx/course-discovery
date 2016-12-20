@@ -200,6 +200,46 @@ class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, Login
         """ Verify the unpublished programs do not show in the program_types representation. """
         self._test_exclude_program_types(ProgramStatus.Unpublished)
 
+    @ddt.data(
+        [{'title': 'Software Testing', 'excluded': True}],
+        [{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True}],
+        [{'title': 'Software Testing', 'excluded': False}, {'title': 'Software Testing 2', 'excluded': False}],
+        [{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True},
+         {'title': 'Software Testing 3', 'excluded': False}],
+    )
+    def test_excluded_course_run(self, course_runs):
+        course_list = []
+        course_run_list = []
+        excluded_course_run_list = []
+        non_excluded_course_run_list = []
+        for run in course_runs:
+            course_run = CourseRunFactory(course__partner=self.partner, course__title=run['title'],
+                                          status=CourseRunStatus.Published)
+            course_list.append(course_run.course)
+            course_run_list.append(course_run)
+            if run['excluded']:
+                excluded_course_run_list.append(course_run)
+            else:
+                non_excluded_course_run_list.append(course_run)
+
+        ProgramFactory(courses=course_list, status=ProgramStatus.Active, excluded_course_runs=excluded_course_run_list)
+
+        with self.assertNumQueries(6):
+            response = self.get_search_response('software', faceted=False)
+
+        self.assertEqual(response.status_code, 200)
+        response_data = response.json()
+
+        self.assertEqual(response_data['count'], len(course_run_list))
+        for result in response_data['results']:
+            for course_run in excluded_course_run_list:
+                if result.get('title') == course_run.title:
+                    self.assertEqual(result.get('program_types'), [])
+
+            for course_run in non_excluded_course_run_list:
+                if result.get('title') == course_run.title:
+                    self.assertEqual(result.get('program_types'), course_run.program_types)
+
     def _test_exclude_program_types(self, program_status):
         """ Verify that programs with the provided type do not show in the program_types representation. """
         course_run = CourseRunFactory(course__partner=self.partner, course__title='Software Testing',
