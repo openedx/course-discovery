@@ -388,8 +388,11 @@ class CourseRun(TimeStampedModel):
         so we don't identify that program type if not available
         """
         program_statuses_to_exclude = (ProgramStatus.Unpublished, ProgramStatus.Deleted)
-        all_programs = [program for program in self.programs.exclude(status__in=program_statuses_to_exclude)]
-        return [program.type.name for program in all_programs]
+        associated_programs = []
+        for program in self.programs.exclude(status__in=program_statuses_to_exclude):
+            if self not in program.excluded_course_runs.all():
+                associated_programs.append(program)
+        return [program.type.name for program in associated_programs]
 
     @property
     def marketing_url(self):
