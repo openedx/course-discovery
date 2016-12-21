@@ -81,6 +81,12 @@ class CourseRunViewSet(PartnerMixin, viewsets.ReadOnlyModelViewSet):
               type: string
               paramType: query
               multiple: false
+            - name: hidden
+              description: Filter based on wether the course run is hidden from search.
+              required: false
+              type: Boolean
+              paramType: query
+              multiple: false
             - name: active
               description: Retrieve active course runs. A course is considered active if its end date has not passed,
                 and it is open for enrollment.

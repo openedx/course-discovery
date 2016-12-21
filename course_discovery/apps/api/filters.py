@@ -150,7 +150,7 @@ class CourseRunFilter(FilterSetMixin, django_filters.FilterSet):
 
     class Meta:
         model = CourseRun
-        fields = ['keys']
+        fields = ['keys', 'hidden']
 
 
 class ProgramFilter(FilterSetMixin, django_filters.FilterSet):

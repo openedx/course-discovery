@@ -173,6 +173,16 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         url = reverse('api:v1:course_run-list') + '?marketable=1'
         self.assert_list_results(url, expected)
 
+    def test_filter_by_hidden(self):
+        """ Verify the endpoint filters course runs that are hidden. """
+        CourseRun.objects.all().delete()
+        course_runs = CourseRunFactory.create_batch(3, course__partner=self.partner)
+        hidden_course_runs = CourseRunFactory.create_batch(3, hidden=True, course__partner=self.partner)
+        url = reverse('api:v1:course_run-list')
+        self.assert_list_results(url, course_runs + hidden_course_runs)
+        url = reverse('api:v1:course_run-list') + '?hidden=False'
+        self.assert_list_results(url, course_runs)
+
     def test_filter_by_active(self):
         """ Verify the endpoint filters course runs to those that are active. """
         CourseRun.objects.all().delete()
