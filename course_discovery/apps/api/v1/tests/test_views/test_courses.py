@@ -1,14 +1,16 @@
+import ddt
 from django.db.models.functions import Lower
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
-from course_discovery.apps.course_metadata.choices import ProgramStatus
+from course_discovery.apps.course_metadata.choices import ProgramStatus, CourseRunStatus
 from course_discovery.apps.course_metadata.models import Course
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory, ProgramFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory, ProgramFactory
 
 
+@ddt.ddt
 class CourseViewSetTests(SerializationMixin, APITestCase):
     maxDiff = None
 
@@ -22,7 +24,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns the details for a single course. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
 
-        with self.assertNumQueries(19):
+        with self.assertNumQueries(20):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, self.serialize_course(self.course))
@@ -31,7 +33,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns no deleted associated programs """
         ProgramFactory(courses=[self.course], status=ProgramStatus.Deleted)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
-        with self.assertNumQueries(12):
+        with self.assertNumQueries(13):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data.get('programs'), [])
@@ -44,7 +46,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         ProgramFactory(courses=[self.course], status=ProgramStatus.Deleted)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
         url += '?include_deleted_programs=1'
-        with self.assertNumQueries(22):
+        with self.assertNumQueries(23):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
@@ -52,11 +54,29 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
                 self.serialize_course(self.course, extra_context={'include_deleted_programs': True})
             )
 
+    @ddt.data(1, 0)
+    def test_get_include_published_course_run(self, published_course_runs_only):
+        """
+        Verify the endpoint returns hides unpublished programs if
+        the 'published_course_runs_only' flag is set to True
+        """
+        published_course_run = CourseRunFactory(status=CourseRunStatus.Published)
+        unpublished_course_run = CourseRunFactory(status=CourseRunStatus.Unpublished)
+        self.course.course_runs.add(published_course_run, unpublished_course_run)
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
+        url += '?published_course_runs_only={}'.format(published_course_runs_only)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.data,
+            self.serialize_course(self.course, extra_context={'published_course_runs_only': published_course_runs_only})
+        )
+
     def test_list(self):
         """ Verify the endpoint returns a list of all courses. """
         url = reverse('api:v1:course-list')
 
-        with self.assertNumQueries(25):
+        with self.assertNumQueries(26):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertListEqual(
@@ -83,7 +103,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         keys = ','.join([course.key for course in courses])
         url = '{root}?keys={keys}'.format(root=reverse('api:v1:course-list'), keys=keys)
 
-        with self.assertNumQueries(38):
+        with self.assertNumQueries(41):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 

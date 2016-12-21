@@ -472,7 +472,23 @@ class CourseSerializer(MinimalCourseSerializer):
 
 class CourseWithProgramsSerializer(CourseSerializer):
     """A ``CourseSerializer`` which includes programs."""
+    course_runs = serializers.SerializerMethodField()
     programs = serializers.SerializerMethodField()
+
+    def get_course_runs(self, course):
+        course_runs = course.course_runs.exclude(hidden=True)
+
+        if self.context.get('published_course_runs_only'):
+            course_runs = course_runs.filter(status=CourseRunStatus.Published)
+
+        return CourseRunSerializer(
+            course_runs,
+            many=True,
+            context={
+                'request': self.context.get('request'),
+                'exclude_utm': self.context.get('exclude_utm'),
+            }
+        ).data
 
     def get_programs(self, obj):
         if self.context.get('include_deleted_programs'):

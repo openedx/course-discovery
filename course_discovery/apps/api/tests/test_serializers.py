@@ -155,6 +155,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
         self.assertEqual(serializer.data['marketing_url'], course.marketing_url)
 
 
+@ddt.ddt
 class CourseWithProgramsSerializerTests(CourseSerializerTests):
     serializer_class = CourseWithProgramsSerializer
 
@@ -197,6 +198,21 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
             context={'request': self.request, 'include_deleted_programs': 1}
         )
         self.assertEqual(serializer.data, self.get_expected_data(self.course, self.request))
+
+    @ddt.data(0, 1)
+    def test_published_course_runs_only(self, published_course_runs_only):
+        """
+        Test that the published_course_runs_only flag hides unpublished course runs
+        """
+        unpublished_course_run = CourseRunFactory(status=CourseRunStatus.Unpublished)
+        published_course_run = CourseRunFactory(status=CourseRunStatus.Published)
+        self.course.course_runs.add(unpublished_course_run, published_course_run)
+        self.request = make_request()
+        serializer = self.serializer_class(
+            self.course,
+            context={'request': self.request, 'published_course_runs_only': published_course_runs_only}
+        )
+        self.assertEqual(len(serializer.data['course_runs']), 2 - published_course_runs_only)
 
 
 class MinimalCourseRunSerializerTests(TestCase):
