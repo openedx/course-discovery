@@ -12,14 +12,14 @@
     {% get_comment_list for comment_object as comment_list %}
     <dl class="comments">
       {% for comment in comment_list reversed %}
-        <dt id="c{{ comment.comment_list }}">
-          {{ comment.modified }} - {{ comment.name }}
+        <dt>
+          <span class="datetime">{{ comment.modified }}</span> - <span>{{ comment.name }}</span>
           {% ifequal user comment.user %}
-            - <a href="{% url 'publisher_comments:comment_edit' comment.id %}" class="">Edit</a>
+            - <button class="btn-brand btn-small btn-comment comment-edit" data-url="{% url 'publisher_comments:api:comments' comment.id %}">Edit</button>
           {% endifequal %}
         </dt>
         <dd>
-          <p>{{ comment.comment }}</p>
+          {{ comment.comment }}
         </dd>
       {% endfor %}
     </dl>
