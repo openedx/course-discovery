@@ -5,11 +5,11 @@ from django.contrib.sites.models import Site
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from guardian.shortcuts import assign_perm
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests import toggle_switch
-from course_discovery.apps.publisher.models import Course
+from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.models import CourseUserRole
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.factories import UserAttributeFactory
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
@@ -30,16 +30,23 @@ class CommentsEmailTests(TestCase):
 
         self.organization_extension = factories.OrganizationExtensionFactory()
 
-        self.user.groups.add(self.organization_extension.group)
-        self.user_2.groups.add(self.organization_extension.group)
-        self.user_3.groups.add(self.organization_extension.group)
-
         self.seat = factories.SeatFactory()
         self.course_run = self.seat.course_run
         self.course = self.course_run.course
 
+        # assign the role against a course
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
+        )
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.PartnerCoordinator, user=self.user_2
+        )
+
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.Publisher, user=self.user_3
+        )
+
         self.course.organizations.add(self.organization_extension.organization)
-        assign_perm(Course.VIEW_PERMISSION, self.organization_extension.group, self.course)
 
         # NOTE: We intentionally do NOT create an attribute for user_2.
         # By default this user WILL receive email notifications.
@@ -79,7 +86,7 @@ class CommentsEmailTests(TestCase):
     def test_email_with_enable_waffle_switch(self, send_email_for_comment):
         """ Verify that send_email_for_comment called with enable waffle switch.. """
         comment = self.create_comment(content_object=self.course)
-        send_email_for_comment.assert_called_once_with(comment)
+        send_email_for_comment.assert_called_once_with(comment, True)
 
     @mock.patch('course_discovery.apps.publisher_comments.models.send_email_for_comment')
     def test_email_with_disable_waffle_switch(self, send_email_for_comment):
@@ -88,11 +95,10 @@ class CommentsEmailTests(TestCase):
         self.create_comment(content_object=self.course)
         send_email_for_comment.assert_not_called()
 
-    def test_email_without_different_group(self):
-        """ Verify the emails behaviour if course group has no users. """
-        self.user.groups.remove(self.organization_extension.group)
-        self.user_2.groups.remove(self.organization_extension.group)
-        self.user_3.groups.remove(self.organization_extension.group)
+    def test_email_without_any_role(self):
+        """ Verify the emails behaviour if course role has no users. """
+        CourseUserRole.objects.all().delete()
+
         self.create_comment(content_object=self.course)
         self.assertEqual(len(mail.outbox), 0)
 
@@ -130,6 +136,64 @@ class CommentsEmailTests(TestCase):
         self.assertIn(comment.comment, body)
         self.assertIn(page_url, body)
         self.assertIn('The edX team', body)
+
+    def test_email_with_roles(self):
+        """ Verify that emails send to the users against course-user-roles also."""
+        user_4 = UserFactory()
+        user_5 = UserFactory()
+
+        # assign the role against a course
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.MarketingReviewer, user=user_4
+        )
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.PartnerCoordinator, user=user_5
+        )
+        self.create_comment(content_object=self.course_run)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual([self.user.email, self.user_2.email, user_4.email, user_5.email], mail.outbox[0].to)
+
+    def test_email_for_roles_only(self):
+        """ Verify the emails send to the course roles users even if groups has no users. """
+        user_4 = UserFactory()
+        # assign the role against a course
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.MarketingReviewer, user=user_4
+        )
+
+        self.create_comment(content_object=self.course)
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_email_with_course_comment_editing(self):
+        """ Verify that after editing a comment against a course emails send
+        to multiple users.
+        """
+        comment = self.create_comment(content_object=self.course)
+        subject = 'New comment added in Course: {title}'.format(title=self.course.title)
+        self.assertEqual(str(mail.outbox[0].subject), subject)
+        self.assertIn(comment.comment, str(mail.outbox[0].body.strip()))
+
+        comment.comment = 'update the comment'
+        comment.save()  # pylint: disable=no-member
+        subject = 'Comment updated in Course: {title}'.format(title=self.course.title)
+        self.assertEqual(str(mail.outbox[1].subject), subject)
+        self.assertIn(comment.comment, str(mail.outbox[1].body.strip()), 'update the comment')
+
+    def test_email_with_course_run_comment_editing(self):
+        """ Verify that after editing a comment against a course emails send
+        to multiple users.
+        """
+        comment = self.create_comment(content_object=self.course_run)
+        comment.comment = 'Update the comment'
+        comment.save()  # pylint: disable=no-member
+
+        subject = 'Comment updated in course run: {title}-{pacing_type}-{start}'.format(
+            title=self.course_run.course.title,
+            pacing_type=self.course_run.get_pacing_type_display(),
+            start=self.course_run.start.strftime('%B %d, %Y')
+        )
+        self.assertEqual(str(mail.outbox[1].subject), subject)
+        self.assertIn(comment.comment, str(mail.outbox[1].body.strip()), 'Update the comment')
 
     def create_comment(self, content_object):
         """ DRY method to create the comment for a given content type."""
