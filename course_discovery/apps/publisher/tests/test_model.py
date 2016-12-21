@@ -143,6 +143,16 @@ class CourseTests(TestCase):
         self.assertIn('abc', self.course.keywords_data)
         self.assertIn('def', self.course.keywords_data)
 
+    def test_partner_coordinator(self):
+        """ Verify that the partner_coordinator property returns user if exist. """
+        self.assertIsNone(self.course.partner_coordinator)
+
+        factories.CourseUserRoleFactory(
+            course=self.course, user=self.user1, role=PublisherUserRole.PartnerCoordinator
+        )
+
+        self.assertEqual(self.user1, self.course.partner_coordinator)
+
 
 class SeatTests(TestCase):
     """ Tests for the publisher `Seat` model. """

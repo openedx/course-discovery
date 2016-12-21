@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-14 15:06+0500\n"
+"POT-Creation-Date: 2016-12-19 14:36+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -519,7 +519,7 @@ msgstr ""
 "JSÖN strïng çöntäïnïng än élästïçséärçh fünçtïön sçöré çönfïg. Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
-#: apps/publisher/choices.py
+#: apps/publisher/choices.py templates/publisher/courses.html
 msgid "Partner Coordinator"
 msgstr "Pärtnér Çöördïnätör Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
@@ -1488,7 +1488,7 @@ msgstr ""
 msgid "Dashboard"
 msgstr "Däshßöärd Ⱡ'σяєм ιρѕυм ∂σł#"
 
-#: templates/publisher/base.html
+#: templates/publisher/base.html templates/publisher/courses.html
 msgid "Courses"
 msgstr "Çöürsés Ⱡ'σяєм ιρѕυм #"
 
@@ -1868,6 +1868,7 @@ msgid "No Seats Available."
 msgstr "Nö Séäts Àväïläßlé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
 #: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/courses.html
 #: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_preview_ready.html
 #: templates/publisher/dashboard/_published.html
@@ -1948,6 +1949,23 @@ msgstr ""
 "Lööks lïké ýöü hävén't püßlïsh ä çöürsé ýét Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
 
+#: templates/publisher/courses.html
+msgid "Add Course"
+msgstr "Àdd Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσ#"
+
+#: templates/publisher/courses.html
+#: templates/publisher/dashboard/_in_progress.html
+msgid "Institution"
+msgstr "Ìnstïtütïön Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: templates/publisher/courses.html
+msgid "Runs"
+msgstr "Rüns Ⱡ'σяєм ι#"
+
+#: templates/publisher/courses.html
+msgid "Edit"
+msgstr "Édït Ⱡ'σяєм ι#"
+
 #: templates/publisher/dashboard.html
 msgid "Course runs"
 msgstr "Çöürsé rüns Ⱡ'σяєм ιρѕυм ∂σłσя #"
@@ -1973,10 +1991,6 @@ msgid "There are no in progress course runs."
 msgstr ""
 "Théré äré nö ïn prögréss çöürsé rüns. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
-
-#: templates/publisher/dashboard/_in_progress.html
-msgid "Institution"
-msgstr "Ìnstïtütïön Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_published.html

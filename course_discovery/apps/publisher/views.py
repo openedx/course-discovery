@@ -412,3 +412,19 @@ class ToggleEmailNotification(mixins.LoginRequiredMixin, View):
 class UpdateCourseKeyView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, UpdateAPIView):
     queryset = CourseRun.objects.all()
     serializer_class = UpdateCourseKeySerializer
+
+
+class CourseListView(mixins.LoginRequiredMixin, ListView):
+    """ Course List View."""
+    template_name = 'publisher/courses.html'
+
+    def get_queryset(self):
+        user = self.request.user
+        if is_publisher_admin(user):
+            courses = Course.objects.all()
+        elif is_internal_user(user):
+            courses = Course.objects.filter(course_user_roles__user=user).distinct()
+        else:
+            courses = get_objects_for_user(user, Course.VIEW_PERMISSION, Course)
+
+        return courses
