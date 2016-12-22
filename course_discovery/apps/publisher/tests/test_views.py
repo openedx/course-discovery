@@ -1,6 +1,6 @@
 # pylint: disable=no-member
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import ddt
 import factory
@@ -55,6 +55,7 @@ class CreateUpdateCourseViewTests(TestCase):
         self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.start_date_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self.end_date_time = (datetime.now() + timedelta(days=60)).strftime('%Y-%m-%d %H:%M:%S')
 
         # creating default organizations roles
         factories.OrganizationUserRoleFactory(
@@ -271,6 +272,18 @@ class CreateUpdateCourseViewTests(TestCase):
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=data['image'])
         self.assertEqual(response.status_code, 400)
 
+    @ddt.data('contacted_partner_manager', 'pacing_type')
+    def test_create_without_selecting_radio_buttons(self, button_field):
+        """
+        Verify that without selecting pacing type and contacted_partner_manager
+        course cannot be created.
+        """
+        data = {'number': 'course_1', 'image': ''}
+        course_dict = self._post_data(data, self.course, self.course_run, self.seat)
+        course_dict.pop(button_field)
+        response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
+        self.assertEqual(response.status_code, 400)
+
     def _post_data(self, data, course, course_run, seat):
         course_dict = model_to_dict(course)
         course_dict.update(**data)
@@ -282,6 +295,7 @@ class CreateUpdateCourseViewTests(TestCase):
             course_dict.pop('end')
             course_dict.pop('priority')
             course_dict['start'] = self.start_date_time
+            course_dict['end'] = self.end_date_time
             course_dict['organization'] = self.organization_extension.organization.id
         if seat:
             course_dict.update(**model_to_dict(seat))
@@ -319,7 +333,10 @@ class CreateUpdateCourseViewTests(TestCase):
         self.assertEqual(course.course_user_roles.filter(role=PublisherUserRole.CourseTeam).count(), 1)
         course_run = course.publisher_course_runs.all()[0]
         self.assertEqual(self.course_run.language, course_run.language)
+        self.assertEqual(self.course_run.contacted_partner_manager, course_run.contacted_partner_manager)
+        self.assertEqual(self.course_run.pacing_type, course_run.pacing_type)
         self.assertEqual(course_run.start.strftime("%Y-%m-%d %H:%M:%S"), self.start_date_time)
+        self.assertEqual(course_run.end.strftime("%Y-%m-%d %H:%M:%S"), self.end_date_time)
         seat = course_run.seats.all()[0]
         self.assertEqual(seat.type, expected_type)
         self.assertEqual(seat.price, expected_price)
@@ -357,6 +374,7 @@ class CreateUpdateCourseRunViewTests(TestCase):
             ]
         )
         self.course_run_dict['start'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self.course_run_dict['end'] = (datetime.now() + timedelta(days=60)).strftime('%Y-%m-%d %H:%M:%S')
         self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 

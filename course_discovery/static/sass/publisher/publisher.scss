@@ -398,6 +398,12 @@ $light-gray: rgba(204, 204, 204, 1);
     @include margin(0px, 0px, 0px, 0px);
     box-shadow: none;
   }
+  .input-checkbox{
+    &.has-error{
+      border-radius: 100%;
+      box-shadow: 0px 1px 0px 2px red;
+    }
+  }
 }
 
 input,
@@ -447,6 +453,11 @@ select {
   }
   .field-label {
       font-weight: bold;
+  }
+  .help-text {
+      p {
+        margin-bottom: 0;
+      }
   }
   .course-tabs{
     @include float(left);
