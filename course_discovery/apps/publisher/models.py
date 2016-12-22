@@ -118,7 +118,6 @@ class Course(TimeStampedModel, ChangedByMixin):
         Subject, default=None, null=True, blank=True, related_name='publisher_courses_tertiary'
     )
 
-    team_admin = models.ForeignKey(User, null=True, blank=True, related_name='team_admin_user')
     image = StdImageField(
         upload_to=UploadToFieldNamePath(
             populate_from='number',

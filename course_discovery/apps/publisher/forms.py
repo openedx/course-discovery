@@ -67,9 +67,12 @@ class CustomCourseForm(CourseForm):
         )
 
     def __init__(self, *args, **kwargs):
-        queryset = kwargs.pop('team_admin_queryset', None)
-        if queryset:
-            self.declared_fields['team_admin'].queryset = queryset
+        team_admin_id = kwargs.pop('team_admin_id', None)
+        if team_admin_id:
+            try:
+                self.declared_fields['team_admin'].queryset = User.objects.filter(id=team_admin_id)
+            except Exception:  # pylint: disable=broad-except
+                pass
 
         super(CustomCourseForm, self).__init__(*args, **kwargs)
 

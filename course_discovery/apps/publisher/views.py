@@ -15,8 +15,8 @@ from django.views.generic import View, CreateView, UpdateView, DetailView, ListV
 from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import get_objects_for_user
 from rest_framework.generics import UpdateAPIView
-
 from course_discovery.apps.core.models import User
+
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.forms import (
     CourseForm, CourseRunForm, SeatForm, CustomCourseForm, CustomCourseRunForm,
@@ -25,8 +25,7 @@ from course_discovery.apps.publisher.forms import (
 from course_discovery.apps.publisher import mixins
 from course_discovery.apps.publisher.models import (
     Course, CourseRun, Seat, State, UserAttributes,
-    OrganizationExtension
-)
+    OrganizationExtension, CourseUserRole)
 from course_discovery.apps.publisher.serializers import UpdateCourseKeySerializer
 from course_discovery.apps.publisher.utils import (
     is_internal_user, get_internal_users, is_publisher_admin,
@@ -181,8 +180,8 @@ class CreateCourseView(mixins.LoginRequiredMixin, CreateView):
         ctx = self.get_context_data()
 
         # add selected team admin into choice of ChoiceField
-        team_admin_queryset = User.objects.filter(id=self.request.POST.get('team_admin'))
-        course_form = self.course_form(request.POST, request.FILES, team_admin_queryset=team_admin_queryset)
+        team_admin_id = self.request.POST.get('team_admin')
+        course_form = self.course_form(request.POST, request.FILES, team_admin_id=team_admin_id)
         run_form = self.run_form(request.POST)
         seat_form = self.seat_form(request.POST)
 
@@ -214,6 +213,10 @@ class CreateCourseView(mixins.LoginRequiredMixin, CreateView):
 
                     # add default organization roles into course-user-roles
                     course.assign_organization_role(organization_extension.organization)
+
+                    # add team admin as CourseTeam role again course
+                    CourseUserRole.add_course_roles(course=course, role=PublisherUserRole.CourseTeam,
+                                                    user=User.objects.get(id=course_form.data['team_admin']))
 
                     messages.success(
                         request, _('Course created successfully.')
@@ -285,12 +288,13 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         parent_course = self.get_parent_course()
         course_form = self.course_form(instance=parent_course)
+        user_role = CourseUserRole.objects.get(course=parent_course, role=PublisherUserRole.CourseTeam)
         context = {
             'parent_course': parent_course,
             'course_form': course_form,
             'run_form': self.run_form,
             'seat_form': self.seat_form,
-            'is_team_admin_hidden': parent_course.team_admin and 'team_admin' not in course_form.errors
+            'is_team_admin_hidden': user_role.user and 'team_admin' not in course_form.errors
         }
         return context
 
@@ -323,12 +327,13 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
             messages.error(request, _('Please fill all required fields.'))
 
         context = self.get_context_data()
+        user_role = CourseUserRole.objects.get(course=parent_course, role=PublisherUserRole.CourseTeam)
         context.update(
             {
                 'course_form': course_form,
                 'run_form': run_form,
                 'seat_form': seat_form,
-                'is_team_admin_hidden': parent_course.team_admin and 'team_admin' not in course_form.errors
+                'is_team_admin_hidden': user_role.user and 'team_admin' not in course_form.errors
             }
         )
 

@@ -47,7 +47,7 @@ class CreateUpdateCourseViewTests(TestCase):
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.group = self.organization_extension.group
 
-        self.course = factories.CourseFactory(team_admin=self.user)
+        self.course = factories.CourseFactory()
         self.course_run = factories.CourseRunFactory(course=self.course)
         self.seat = factories.SeatFactory(course_run=self.course_run, type=Seat.VERIFIED, price=2)
 
@@ -129,7 +129,6 @@ class CreateUpdateCourseViewTests(TestCase):
         course_dict = model_to_dict(self.course)
         course_dict.pop('verification_deadline')
         course_dict.pop('image')
-        course_dict.pop('team_admin')
 
         updated_course_title = 'Updated {}'.format(self.course.title)
         course_dict['title'] = updated_course_title
@@ -184,7 +183,6 @@ class CreateUpdateCourseViewTests(TestCase):
         course_dict = model_to_dict(self.course)
         course_dict.pop('verification_deadline')
         course_dict.pop('image')
-        course_dict.pop('team_admin')
 
         updated_course_title = 'Updated {}'.format(self.course.title)
         course_dict['title'] = updated_course_title
@@ -255,9 +253,28 @@ class CreateUpdateCourseViewTests(TestCase):
         response = self.client.get(reverse('publisher:publisher_courses_new'))
         self.assertContains(response, '<input id="id_organization" name="organization" type="hidden"')
 
+    def test_create_form_with_multiple_organization(self):
+        """Verify that if there are more than one organization then there will be
+        a drop down of organization choices.
+        """
+        factories.OrganizationExtensionFactory()
+        response = self.client.get(reverse('publisher:publisher_courses_new'))
+        self.assertContains(response,
+                            '<select class="field-input input-select" id="id_organization" name="organization">')
+
+    def test_create_with_invalid_team_admin(self):
+        """ Verify that view returns status_code=400 with invalid team admin. """
+        data = {'number': 'course_1', 'image': ''}
+        course_dict = self._post_data(data, self.course, self.course_run, self.seat)
+        course_dict['team_admin'] = "-------"
+
+        response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=data['image'])
+        self.assertEqual(response.status_code, 400)
+
     def _post_data(self, data, course, course_run, seat):
         course_dict = model_to_dict(course)
         course_dict.update(**data)
+        course_dict['team_admin'] = self.user.id
         course_dict['keywords'] = 'abc def xyz'
         if course_run:
             course_dict.update(**model_to_dict(course_run))
@@ -299,7 +316,7 @@ class CreateUpdateCourseViewTests(TestCase):
             target_status_code=200
         )
         self.assertEqual(course.organizations.first(), self.organization_extension.organization)
-        self.assertEqual(course.team_admin, self.user)
+        self.assertEqual(course.course_user_roles.filter(role=PublisherUserRole.CourseTeam).count(), 1)
         course_run = course.publisher_course_runs.all()[0]
         self.assertEqual(self.course_run.language, course_run.language)
         self.assertEqual(course_run.start.strftime("%Y-%m-%d %H:%M:%S"), self.start_date_time)
@@ -323,13 +340,14 @@ class CreateUpdateCourseRunViewTests(TestCase):
     def setUp(self):
         super(CreateUpdateCourseRunViewTests, self).setUp()
         self.user = UserFactory()
-        self.course = factories.CourseFactory(team_admin=self.user)
+        self.course = factories.CourseFactory()
+        factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.CourseTeam, user=self.user)
         self.course_run = factories.CourseRunFactory()
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.course.organizations.add(self.organization_extension.organization)
         self.course_run_dict = model_to_dict(self.course_run)
         self.course_run_dict.update(
-            {'number': self.course.number, 'team_admin': self.course.team_admin.id, 'is_self_paced': True}
+            {'number': self.course.number, 'team_admin': self.user.id, 'is_self_paced': True}
         )
         self._pop_valuse_from_dict(
             self.course_run_dict,

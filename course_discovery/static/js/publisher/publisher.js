@@ -31,7 +31,7 @@ $(document).ready(function(){
 });
 
 $(document).on('change', '#id_organization', function (e) {
-    var org_id = $(this).value();
+    var org_id = this.value;
 
     // it will reset the select input
     $("#id_team_admin").prop("selectedIndex", 0);
