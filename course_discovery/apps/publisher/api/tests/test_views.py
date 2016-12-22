@@ -93,3 +93,56 @@ class CourseRoleAssignmentViewTests(TestCase):
         }
         self.assertDictEqual(response.data, expected)
         self.assertEqual(self.internal_user, self.course.course_user_roles.get(role=user_course_role.role).user)
+
+
+class OrganizationGroupUserViewTests(TestCase):
+
+    def setUp(self):
+        super(OrganizationGroupUserViewTests, self).setUp()
+
+        user = UserFactory.create(username="test_user", password=USER_PASSWORD)
+        self.client.login(username=user.username, password=USER_PASSWORD)
+
+        # create group and add test users in the group
+        group = factories.GroupFactory()
+        self.org_user1 = UserFactory.create(full_name="org user1")
+        self.org_user2 = UserFactory.create(full_name="org user2")
+        group.user_set.add(self.org_user1)
+        group.user_set.add(self.org_user2)
+
+        self.organization = OrganizationFactory()
+        factories.OrganizationExtensionFactory.create(organization=self.organization, group=group)
+
+    def test_get_organization_user_group(self):
+        """ Verify that view returns list of users associated with the group
+        related to given organization id.
+        """
+        response = self.client.get(path=self._get_organization_group_user_url(self.organization.id),
+                                   content_type=JSON_CONTENT_TYPE)
+        self.assertEqual(response.status_code, 200)
+
+        expected_results = [
+            {
+                "id": self.org_user1.id,
+                "full_name": self.org_user1.full_name
+            },
+            {
+                "id": self.org_user2.id,
+                "full_name": self.org_user2.full_name
+            }
+        ]
+
+        self.assertEqual(json.loads(response.content.decode("utf-8"))["results"], expected_results)
+
+    def test_get_organization_not_found(self):
+        """ Verify that view returns status=404 if organization is not found
+        in OrganizationExtension.
+        """
+        response = self.client.get(path=self._get_organization_group_user_url(org_id=0000),
+                                   content_type=JSON_CONTENT_TYPE)
+        self.assertEqual(response.status_code, 404)
+
+    def _get_organization_group_user_url(self, org_id):
+        return reverse(
+            'publisher:api:organization_group_users', kwargs={'pk': org_id}
+        )
