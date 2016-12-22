@@ -46,6 +46,7 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
         context.update({
             'exclude_utm': get_query_param(self.request, 'exclude_utm'),
             'include_deleted_programs': get_query_param(self.request, 'include_deleted_programs'),
+            'published_course_runs_only': get_query_param(self.request, 'published_course_runs_only'),
         })
 
         return context
@@ -66,6 +67,12 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
               type: string
               paramType: query
               multiple: false
+            - name: published_course_runs_only
+              description: Filter course runs by published ones only
+              required: false
+              type: integer
+              paramType: query
+              mulitple: false
             - name: exclude_utm
               description: Exclude UTM parameters from marketing URLs.
               required: false
