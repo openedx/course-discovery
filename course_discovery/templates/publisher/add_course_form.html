@@ -35,7 +35,7 @@
                     {% trans "Please choose the school that will be providing the course. Once chosen then you can select an administrator for the studio shell." %}
                   </div>
                   <div class="col col-6">
-                    {% if course_form.organization.choices|length > 1 %}
+                    {% if course_form.organization.field.queryset.all.count > 1 %}
                       <label class="field-label">{{ course_form.organization.label_tag }} <span
                           class="required">* {% trans "required" %}</span> </label>
                       {{ course_form.organization }}

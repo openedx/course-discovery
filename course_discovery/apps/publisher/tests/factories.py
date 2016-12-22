@@ -38,8 +38,6 @@ class CourseFactory(factory.DjangoModelFactory):
     secondary_subject = factory.SubFactory(factories.SubjectFactory)
     tertiary_subject = factory.SubFactory(factories.SubjectFactory)
 
-    team_admin = factory.SubFactory(UserFactory)
-
     class Meta:
         model = Course
 
