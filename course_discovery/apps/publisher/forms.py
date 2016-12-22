@@ -18,10 +18,10 @@ class BaseCourseForm(forms.ModelForm):
             field_classes = 'field-input input-text'
             if isinstance(field, forms.Textarea):
                 field_classes = 'field-textarea input-textarea'
+            if isinstance(field, (forms.BooleanField, forms.ChoiceField,)):
+                field_classes = 'field-input input-checkbox'
             if isinstance(field, (forms.ModelChoiceField, forms.TypedChoiceField,)):
                 field_classes = 'field-input input-select'
-            if isinstance(field, forms.BooleanField):
-                field_classes = 'field-input input-checkbox'
             if isinstance(field, forms.DateTimeField):
                 field_classes = '{} add-pikaday'.format(field_classes)
                 field.input_formats = ['YYYY-MM-DDTHH:mm:ss']
@@ -49,13 +49,17 @@ class CustomCourseForm(CourseForm):
     """ Course Form. """
     organization = forms.ModelChoiceField(
         queryset=Organization.objects.filter(organization_extension__organization_id__isnull=False),
+        label=_('Organization Name'),
         required=True
     )
     title = forms.CharField(label=_('Course Title'), required=True)
     number = forms.CharField(label=_('Course Number'), required=True)
 
     # users will be loaded through AJAX call based on organization
-    team_admin = forms.ModelChoiceField(queryset=User.objects.none(), required=True)
+    team_admin = forms.ModelChoiceField(
+        queryset=User.objects.none(), required=True,
+        label=_('Organization Course Admin'),
+    )
 
     class Meta(CourseForm.Meta):
         model = Course
@@ -111,11 +115,15 @@ class CourseRunForm(BaseCourseForm):
 class CustomCourseRunForm(CourseRunForm):
     """ Course Run Form. """
 
-    contacted_partner_manager = forms.BooleanField(
-        widget=forms.RadioSelect(choices=((1, _("Yes")), (0, _("No")))), initial=0, required=False
+    contacted_partner_manager = forms.ChoiceField(
+        label=_('Contacted PM'),
+        widget=forms.RadioSelect,
+        choices=((True, _("Yes")), (False, _("No"))),
+        required=True
     )
+
     start = forms.DateTimeField(label=_('Course start date'), required=True)
-    end = forms.DateTimeField(label=_('Course end date'), required=False)
+    end = forms.DateTimeField(label=_('Course end date'), required=True)
     staff = forms.ModelMultipleChoiceField(
         queryset=Person.objects.all(), widget=forms.SelectMultiple, required=False
     )
@@ -123,21 +131,19 @@ class CustomCourseRunForm(CourseRunForm):
         widget=forms.RadioSelect(
             choices=((1, _("Yes")), (0, _("No")))), initial=0, required=False
     )
-    is_self_paced = forms.BooleanField(label=_('Yes, course will be Self-Paced'), required=False)
+    pacing_type = forms.ChoiceField(
+        label=_('Pace'),
+        widget=forms.RadioSelect,
+        choices=CourseRunPacing.choices,
+        required=True
+    )
 
     class Meta(CourseRunForm.Meta):
         fields = (
             'length', 'transcript_languages', 'language', 'min_effort', 'max_effort',
-            'contacted_partner_manager', 'target_content', 'pacing_type',
-            'video_language', 'staff', 'start', 'end', 'is_self_paced',
+            'contacted_partner_manager', 'target_content', 'pacing_type', 'video_language',
+            'staff', 'start', 'end',
         )
-
-    def clean(self):
-        super(CustomCourseRunForm, self).clean()
-        self.cleaned_data['pacing_type'] = CourseRunPacing.Self if self.cleaned_data['is_self_paced']\
-            else CourseRunPacing.Instructor
-
-        return self.cleaned_data
 
     def save(self, commit=True, course=None, changed_by=None):  # pylint: disable=arguments-differ
         course_run = super(CustomCourseRunForm, self).save(commit=False)

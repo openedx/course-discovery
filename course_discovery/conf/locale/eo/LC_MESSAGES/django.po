@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-29 14:13+0500\n"
+"POT-Creation-Date: 2016-12-30 14:38+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -546,15 +546,25 @@ msgstr ""
 msgid "Studio instance created"
 msgstr "Stüdïö ïnstänçé çréätéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
-#: apps/publisher/forms.py templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
+#: apps/publisher/forms.py
+msgid "Organization Name"
+msgstr "Örgänïzätïön Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: apps/publisher/forms.py templates/publisher/add_courserun_form.html
 msgid "Course Title"
 msgstr "Çöürsé Tïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: apps/publisher/forms.py templates/publisher/add_course_form.html
-#: templates/publisher/dashboard/_studio_requests.html
+#: apps/publisher/forms.py templates/publisher/dashboard/_studio_requests.html
 msgid "Course Number"
 msgstr "Çöürsé Nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: apps/publisher/forms.py
+msgid "Organization Course Admin"
+msgstr "Örgänïzätïön Çöürsé Àdmïn Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/publisher/forms.py
+msgid "Contacted PM"
+msgstr "Çöntäçtéd PM Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/publisher/forms.py
 msgid "Yes"
@@ -573,8 +583,8 @@ msgid "Course end date"
 msgstr "Çöürsé énd däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: apps/publisher/forms.py
-msgid "Yes, course will be Self-Paced"
-msgstr "Ýés, çöürsé wïll ßé Sélf-Päçéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+msgid "Pace"
+msgstr "Päçé Ⱡ'σяєм ι#"
 
 #: apps/publisher/forms.py
 msgid "Only honor/audit seats can be without price."
@@ -912,27 +922,46 @@ msgid "Course Form"
 msgstr "Çöürsé Förm Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/view_course_form.html
-msgid "Base information"
-msgstr "Bäsé ïnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/view_course_form.html
-msgid "INSTITUTION INFORMATION"
-msgstr "ÌNSTÌTÛTÌÖN ÌNFÖRMÀTÌÖN Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+#: templates/publisher/add_courserun_form.html
+msgid "Studio instance information"
+msgstr "Stüdïö ïnstänçé ïnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
 
 #: templates/publisher/add_course_form.html
 msgid ""
-"Please choose the school that will be providing the course. Once chosen then"
-" you can select an administrator for the studio shell."
+"The information in this section is required to create a course studio "
+"instance. You must fill all required information but are welcome to come "
+"back and enter the rest of the information when you are ready to announce "
+"the course, or you can do it all at once if you are ready to do so."
 msgstr ""
-"Pléäsé çhöösé thé sçhööl thät wïll ßé prövïdïng thé çöürsé. Önçé çhösén thén"
-" ýöü çän séléçt än ädmïnïsträtör för thé stüdïö shéll. Ⱡ'#"
+"Thé ïnförmätïön ïn thïs séçtïön ïs réqüïréd tö çréäté ä çöürsé stüdïö "
+"ïnstänçé. Ýöü müst fïll äll réqüïréd ïnförmätïön ßüt äré wélçömé tö çömé "
+"ßäçk änd éntér thé rést öf thé ïnförmätïön whén ýöü äré réädý tö ännöünçé "
+"thé çöürsé, ör ýöü çän dö ït äll ät önçé ïf ýöü äré réädý tö dö sö. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
+"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
+"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυ#"
+
+#: templates/publisher/add_course_form.html
+msgid "CONTACTED PARTNER MANAGER"
+msgstr "ÇÖNTÀÇTÉD PÀRTNÉR MÀNÀGÉR Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Contacted a PM about the creation of a new course is important so that edx "
+"can help you on marketing efforts."
+msgstr ""
+"Çöntäçtéd ä PM äßöüt thé çréätïön öf ä néw çöürsé ïs ïmpörtänt sö thät édx "
+"çän hélp ýöü ön märkétïng éfförts. Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
 msgid "required"
 msgstr "réqüïréd Ⱡ'σяєм ιρѕυм ∂#"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE TITLE"
+msgstr "ÇÖÛRSÉ TÌTLÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
@@ -975,10 +1004,15 @@ msgstr ""
 "Tïtlé: Süßtïtlé\" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
 #: templates/publisher/add_course_form.html
-msgid "English Grammar and Essay Writing Sequence Courses:"
+#: templates/publisher/add_courserun_form.html
+msgid "English Grammar and Essay Writing"
 msgstr ""
-"Énglïsh Grämmär änd Éssäý Wrïtïng Séqüénçé Çöürsés: Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
-"αмєт, ¢σηѕє¢тєтυя α#"
+"Énglïsh Grämmär änd Éssäý Wrïtïng Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "Sequence Courses:"
+msgstr "Séqüénçé Çöürsés: Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
@@ -996,16 +1030,9 @@ msgid "Statistics: Probability"
 msgstr "Stätïstïçs: Prößäßïlïtý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
 #: templates/publisher/add_course_form.html
-msgid "Priority content"
-msgstr "Prïörïtý çöntént Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_salesforce.html
-#: templates/publisher/course_run_detail/_studio.html
-#: templates/publisher/dashboard/_studio_requests.html
-msgid "Start Date"
-msgstr "Stärt Däté Ⱡ'σяєм ιρѕυм ∂σłσ#"
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE START DATE"
+msgstr "ÇÖÛRSÉ STÀRT DÀTÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: templates/publisher/add_course_form.html
 msgid ""
@@ -1030,10 +1057,23 @@ msgstr ""
 "ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαвσяυ#"
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_studio.html
-msgid "Pacing Type"
-msgstr "Päçïng Týpé Ⱡ'σяєм ιρѕυм ∂σłσя #"
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE END DATE"
+msgstr "ÇÖÛRSÉ ÉND DÀTÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid ""
+"The date when this self-paced course run will end, replaced by an updated "
+"version of the course"
+msgstr ""
+"Thé däté whén thïs sélf-päçéd çöürsé rün wïll énd, répläçéd ßý än üpdätéd "
+"vérsïön öf thé çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "PACING TYPE"
+msgstr "PÀÇÌNG TÝPÉ Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
@@ -1044,6 +1084,11 @@ msgstr ""
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE NUMBER"
+msgstr "ÇÖÛRSÉ NÛMBÉR Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: templates/publisher/add_course_form.html
 msgid ""
 "Courses split into several modules can be denoted by adding .1, .2, etc. at "
 "the end of the course number before the “x”"
@@ -1052,33 +1097,19 @@ msgstr ""
 "thé énd öf thé çöürsé nümßér ßéföré thé “x” Ⱡ'σяєм ιρѕυм#"
 
 #: templates/publisher/add_course_form.html
-msgid ""
-"No special html characters, accents, spaces, dashes, or underscores 10 "
-"character limit"
+msgid "No special html characters, accents, spaces, dashes, or underscores"
 msgstr ""
-"Nö spéçïäl html çhäräçtérs, äççénts, späçés, däshés, ör ündérsçörés 10 "
-"çhäräçtér lïmït Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+"Nö spéçïäl html çhäräçtérs, äççénts, späçés, däshés, ör ündérsçörés Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: templates/publisher/add_course_form.html
+msgid "10 character limit"
+msgstr "10 çhäräçtér lïmït Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
 msgid "About page information"
 msgstr "Àßöüt pägé ïnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_salesforce.html
-#: templates/publisher/course_run_detail/_studio.html
-msgid "End Date"
-msgstr "Énd Däté Ⱡ'σяєм ιρѕυм ∂#"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-msgid ""
-"The date when this self-paced course run will end, replaced by an updated "
-"version of the course"
-msgstr ""
-"Thé däté whén thïs sélf-päçéd çöürsé rün wïll énd, répläçéd ßý än üpdätéd "
-"vérsïön öf thé çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_run_detail/_seats.html
@@ -1395,10 +1426,6 @@ msgstr ""
 "                 Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ρα#"
 
 #: templates/publisher/add_courserun_form.html
-msgid "Studio instance information"
-msgstr "Stüdïö ïnstänçé ïnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
-
-#: templates/publisher/add_courserun_form.html
 msgid ""
 "\n"
 "                                    The information in this section is required to create a course studio instance. You must fill all required information but are welcome to come back and enter the rest of the information when you are ready to announce the course, or you can do it all at once if you are ready to do so.\n"
@@ -1409,29 +1436,12 @@ msgstr ""
 "                                 Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι#"
 
 #: templates/publisher/add_courserun_form.html
-msgid "COURSE TITLE"
-msgstr "ÇÖÛRSÉ TÌTLÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
-
-#: templates/publisher/add_courserun_form.html
-msgid "English Grammar and Essay Writing"
-msgstr ""
-"Énglïsh Grämmär änd Éssäý Wrïtïng Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
-
-#: templates/publisher/add_courserun_form.html
-msgid "Sequence Courses:"
-msgstr "Séqüénçé Çöürsés: Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
-
-#: templates/publisher/add_courserun_form.html
 msgid "Institution Course Admin"
 msgstr "Ìnstïtütïön Çöürsé Àdmïn Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: templates/publisher/add_courserun_form.html
 msgid "Change"
 msgstr "Çhängé Ⱡ'σяєм ιρѕυ#"
-
-#: templates/publisher/add_courserun_form.html
-msgid "COURSE START DATE"
-msgstr "ÇÖÛRSÉ STÀRT DÀTÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: templates/publisher/add_courserun_form.html
 msgid ""
@@ -1458,10 +1468,6 @@ msgstr ""
 "                                         Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ι#"
 
 #: templates/publisher/add_courserun_form.html
-msgid "COURSE NUMBER"
-msgstr "ÇÖÛRSÉ NÛMBÉR Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
-
-#: templates/publisher/add_courserun_form.html
 msgid ""
 "\n"
 "                                            Courses split into several modules can be denoted by adding .1, .2, etc. at the end of the\n"
@@ -1484,10 +1490,6 @@ msgstr "Éxämplé: Ⱡ'σяєм ιρѕυм ∂#"
 #: templates/publisher/add_courserun_form.html
 msgid "etc."
 msgstr "étç. Ⱡ'σяєм ι#"
-
-#: templates/publisher/add_courserun_form.html
-msgid "COURSE END DATE"
-msgstr "ÇÖÛRSÉ ÉND DÀTÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: templates/publisher/add_courserun_form.html
 msgid "CERTIFICATE TYPE AND PRICE"
@@ -1619,6 +1621,11 @@ msgid "Course Length (weeks)"
 msgstr "Çöürsé Léngth (wééks) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Pacing Type"
+msgstr "Päçïng Týpé Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Estimated Effort"
 msgstr "Éstïmätéd Éffört Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
@@ -1745,6 +1752,19 @@ msgstr "Süßjéçt Ⱡ'σяєм ιρѕυм #"
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "XSeries"
 msgstr "XSérïés Ⱡ'σяєм ιρѕυм #"
+
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard/_studio_requests.html
+msgid "Start Date"
+msgstr "Stärt Däté Ⱡ'σяєм ιρѕυм ∂σłσ#"
+
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "End Date"
+msgstr "Énd Däté Ⱡ'σяєм ιρѕυм ∂#"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Self Paced"
@@ -2169,6 +2189,14 @@ msgstr ""
 #: templates/publisher/seat_form.html
 msgid "Seat Form"
 msgstr "Séät Förm Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: templates/publisher/view_course_form.html
+msgid "Base information"
+msgstr "Bäsé ïnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: templates/publisher/view_course_form.html
+msgid "INSTITUTION INFORMATION"
+msgstr "ÌNSTÌTÛTÌÖN ÌNFÖRMÀTÌÖN Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
 #: templates/publisher/view_course_form.html
 msgid "Course information"

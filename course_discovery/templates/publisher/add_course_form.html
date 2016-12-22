@@ -23,39 +23,31 @@
 <form class="form" method="post" action="" enctype="multipart/form-data">
 {% csrf_token %}
 <div class="layout-full publisher-layout layout">
-    <h2 class="layout-title">{% trans "Base information" %}</h2>
+    <h2 class="layout-title">{% trans "Studio instance information" %}</h2>
 
     <div class="card course-form">
+        <p>
+            {% trans "The information in this section is required to create a course studio instance. You must fill all required information but are welcome to come back and enter the rest of the information when you are ready to announce the course, or you can do it all at once if you are ready to do so." %}
+        </p>
         <div class="course-information">
             <fieldset class="form-group grid-container grid-manual">
 
-                <div class="field-title">{% trans "INSTITUTION INFORMATION" %}</div>
+                <div class="field-title">{% trans "CONTACTED PARTNER MANAGER" %}</div>
                 <div class="row">
-                  <div class="col col-6 help-text">
-                    {% trans "Please choose the school that will be providing the course. Once chosen then you can select an administrator for the studio shell." %}
-                  </div>
-                  <div class="col col-6">
-                    {% if course_form.organization.field.queryset.all.count > 1 %}
-                      <label class="field-label">{{ course_form.organization.label_tag }} <span
-                          class="required">* {% trans "required" %}</span> </label>
-                      {{ course_form.organization }}
-                    {% else %}
-                      {% with course_form.organization.field.queryset|first as organization %}
-                        <label id="organization-name" class="field-label"
-                               data-org_id="{{ organization.id }}">{{ course_form.organization.label_tag }} {{ organization.name }}
+                    <div class="col col-6 help-text">
+                        {% trans "Contacted a PM about the creation of a new course is important so that edx can help you on marketing efforts." %}
+                    </div>
+                    <div class="col col-6">
+                        <label class="field-label">
+                            {{ run_form.contacted_partner_manager.label_tag }}
+                            <span class="required">* {% trans "required" %}</span>
                         </label>
-                        <input id="id_organization" name="organization" type="hidden" value="{{ organization.id }}">
-                      {% endwith %}
-                    {% endif %}
 
-                    <label class="field-label">
-                      {{ course_form.team_admin.label_tag }} <span class="required">* {% trans "required" %}</span>
-                    </label> {{ course_form.team_admin }}
-
-                  </div>
+                        <div class="checkbox-inline">{{ run_form.contacted_partner_manager}}</div>
+                    </div>
                 </div>
 
-                <div class="field-title">{% trans "Course Title" %}</div>
+                <div class="field-title">{% trans "COURSE TITLE" %}</div>
                 <div class="row">
                     <div class="col col-6 help-text">
                         <div class="row">
@@ -70,41 +62,45 @@
                         </div>
                         <div id="tab-practices" class="content active">
                             <p>{% trans "Concise 70 characters maximum; < 50 chars. recommended." %}</p>
-
                             <p>{% trans "Descriptive - clearly indicates what the course is about." %}</p>
-
                             <p>{% trans "SEO-optimized and targeted to a global audience." %}</p>
-
                             <p>{% trans 'If the course falls in a sequence, our titling convention is: "Course Title: Subtitle"' %}</p>
                         </div>
                         <div id="tab-example" class="content">
-                            {% trans "English Grammar and Essay Writing Sequence Courses:" %}
-                            <ul>
-                                <li>{% trans "Introduction to Statistics" %}</li>
-                                <li>{% trans "Statistics: Inference" %}</li>
-                                <li>{% trans "Statistics: Probability" %}</li>
-                            </ul>
+                            <p>“{% trans "English Grammar and Essay Writing" %}”</p>
+                            <p>{% trans "Sequence Courses:" %}</p>
+                            <p>“{% trans "Introduction to Statistics" %}”</p>
+                            <p>“{% trans "Statistics: Inference" %}”</p>
+                            <p>“{% trans "Statistics: Probability" %}”</p>
                         </div>
                     </div>
                     <div class="col col-6">
+                        {% if course_form.organization.field.queryset.all.count > 1 %}
+                          <label class="field-label">{{ course_form.organization.label_tag }} <span
+                              class="required">* {% trans "required" %}</span> </label>
+                          {{ course_form.organization }}
+                        {% else %}
+                          {% with course_form.organization.field.queryset|first as organization %}
+                            <label id="organization-name" class="field-label"
+                                   data-org_id="{{ organization.id }}">{{ course_form.organization.label_tag }} {{ organization.name }}
+                            </label>
+                            <input id="id_organization" name="organization" type="hidden" value="{{ organization.id }}">
+                          {% endwith %}
+                        {% endif %}
+
+                        <label class="field-label">
+                          {{ course_form.team_admin.label_tag }} <span class="required">* {% trans "required" %}</span>
+                        </label> {{ course_form.team_admin }}
+
 
                         <label class="field-label ">{{ course_form.title.label }}
                             <span class="required">* {% trans "required" %}</span>
                         </label>
                         {{ course_form.title }}
-
-                        <label class="field-label ">{{ run_form.contacted_partner_manager.label_tag }}</label>
-
-                        <div class="checkbox-inline">{{ run_form.contacted_partner_manager}}</div>
-
-                        <label class="field-label">{% trans "Priority content" %}</label>
-
-                        <div class="checkbox-inline">{{ run_form.target_content}}</div>
-
                     </div>
                 </div>
 
-                <div class="field-title">{% trans "Start Date" %}</div>
+                <div class="field-title">{% trans "COURSE START DATE" %}</div>
                 <div class="row">
                     <div class="col col-6 help-text">
                         {% trans "Start on a weekday (preferably Tuesday, Wednesday, or Thursday) and avoid major U.S. holidays for best access to edX staff." %}
@@ -118,22 +114,41 @@
                     </div>
                 </div>
 
-                <div class="field-title">{% trans "Pacing Type" %}</div>
+
+                <div class="field-title">{% trans "COURSE END DATE" %}</div>
+                <div class="row">
+                    <div class="col col-6 help-text">
+                        {% trans "The date when this self-paced course run will end, replaced by an updated version of the course" %}
+                    </div>
+                    <div class="col col-6">
+                        <label class="field-label ">
+                            {{ run_form.end.label_tag }}
+                            <span class="required">* {% trans "required" %}</span>
+                        </label>
+                        {{ run_form.end }}
+                    </div>
+                </div>
+
+                <div class="field-title">{% trans "PACING TYPE" %}</div>
                 <div class="row">
                     <div class="col col-6 help-text">
                         {% trans "Will your course be open to students at the same time as it is announced?" %}
                     </div>
                     <div class="col col-6">
-                        <label class="field-label ">{{ run_form.pacing_type.label_tag }}</label>
-                        {{ run_form.pacing_type }}
+                        <label class="field-label">
+                            {{ run_form.pacing_type.label_tag }}
+                            <span class="required">* {% trans "required" %}</span>
+                        </label>
+                        <div class="checkbox-inline">{{ run_form.pacing_type }}</div>
                     </div>
                 </div>
 
-                <div class="field-title">{% trans "Course Number" %}</div>
+                <div class="field-title">{% trans "COURSE NUMBER" %}</div>
                 <div class="row">
                     <div class="col col-6 help-text">
-                        {% trans 'Courses split into several modules can be denoted by adding .1, .2, etc. at the end of the course number before the “x”' %}
-                        {% trans 'No special html characters, accents, spaces, dashes, or underscores 10 character limit' %}
+                        <p>{% trans 'Courses split into several modules can be denoted by adding .1, .2, etc. at the end of the course number before the “x”' %}</p>
+                        <p>{% trans 'No special html characters, accents, spaces, dashes, or underscores' %}</p>
+                        <p>{% trans '10 character limit' %}</p>
                     </div>
                     <div class="col col-6">
                         <label class="field-label ">{{ course_form.number.label_tag }}
@@ -154,17 +169,6 @@
     <div class="card course-form">
         <div class="course-information">
             <fieldset class="form-group grid-container grid-manual">
-
-                <div class="field-title">{% trans "End Date" %}</div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        {% trans "The date when this self-paced course run will end, replaced by an updated version of the course" %}
-                    </div>
-                    <div class="col col-6">
-                        <label class="field-label ">{{ run_form.end.label_tag }}</label>
-                        {{ run_form.end }}
-                    </div>
-                </div>
 
                 <div class="field-title">{% trans "Seat Type" %}</div>
                 <div class="row">

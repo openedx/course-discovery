@@ -124,11 +124,19 @@
                                     </label>
                                     {{ run_form.start }}
                                 </div>
+                            </div>
+
+                            <div class="field-title">{% trans "PACING TYPE" %}</div>
+                            <div class="row">
+                                <div class="col col-6 help-text">
+                                    {% trans "Will your course be open to students at the same time as it is announced?" %}
+                                </div>
                                 <div class="col col-6">
-                                    <div>
-                                        {% trans "Will your course be open to students at the same time as it is announced?" %}
-                                    </div>
-                                    {{ run_form.is_self_paced }} {{ run_form.is_self_paced.label_tag }}
+                                    <label class="field-label">
+                                        {{ run_form.pacing_type.label_tag }}
+                                        <span class="required">* {% trans "required" %}</span>
+                                    </label>
+                                    <div class="checkbox-inline">{{ run_form.pacing_type }}</div>
                                 </div>
                             </div>
 

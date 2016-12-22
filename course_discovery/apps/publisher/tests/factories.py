@@ -57,6 +57,7 @@ class CourseRunFactory(factory.DjangoModelFactory):
     length = FuzzyInteger(1, 10)
     notes = "Testing notes"
     preview_url = FuzzyText(prefix='https://example.com/')
+    contacted_partner_manager = FuzzyChoice((True, False))
 
     class Meta:
         model = CourseRun
