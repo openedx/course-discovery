@@ -53,7 +53,9 @@ class CustomCourseForm(CourseForm):
     )
     title = forms.CharField(label=_('Course Title'), required=True)
     number = forms.CharField(label=_('Course Number'), required=True)
-    team_admin = forms.ModelChoiceField(queryset=User.objects.all(), required=True)
+
+    # users will be loaded through AJAX call based on organization
+    team_admin = forms.ModelChoiceField(queryset=User.objects.none(), required=True)
 
     class Meta(CourseForm.Meta):
         model = Course
@@ -63,6 +65,13 @@ class CustomCourseForm(CourseForm):
             'tertiary_subject', 'prerequisites', 'level_type', 'image', 'team_admin',
             'level_type', 'organization', 'is_seo_review', 'keywords',
         )
+
+    def __init__(self, *args, **kwargs):
+        queryset = kwargs.pop('team_admin_queryset', None)
+        if queryset:
+            self.declared_fields['team_admin'].queryset = queryset
+
+        super(CustomCourseForm, self).__init__(*args, **kwargs)
 
 
 class UpdateCourseForm(BaseCourseForm):
