@@ -10,9 +10,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-14 15:06+0500\n"
-"PO-Revision-Date: 2016-12-19 16:05+0000\n"
-"Last-Translator: Renzo Lucioni <rlucioni@edx.org>\n"
+"POT-Creation-Date: 2016-12-21 15:19+0500\n"
+"PO-Revision-Date: 2016-12-22 08:25+0000\n"
+"Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Georgian (http://www.transifex.com/open-edx/edx-platform/language/ka/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -417,7 +417,7 @@ msgstr "მოქმედი ქულა"
 msgid "JSON string containing an elasticsearch function score config."
 msgstr "კონფიგურაციის ანგარიშის მოქნილი ძებნის ფუნქციის შემცველი JSON სტრიქონი."
 
-#: apps/publisher/choices.py
+#: apps/publisher/choices.py templates/publisher/courses.html
 msgid "Partner Coordinator"
 msgstr "პარტნიორი კოორდინატორი"
 
@@ -651,14 +651,29 @@ msgid "Publish"
 msgstr "გამოქვეყნება"
 
 #: apps/publisher_comments/emails.py
-#, python-brace-format
-msgid "New comment added in course run: {title}-{pacing_type}-{start}"
-msgstr "კურსის გაშვებას: {title}-{pacing_type}-{start} დაემატა ახალი კომენტარი"
+msgid "New comment added"
+msgstr ""
 
 #: apps/publisher_comments/emails.py
+msgid "Comment updated"
+msgstr ""
+
+#. Translators: subject_desc will be choice from ('New comment added',
+#. 'Comment updated'),
+#. 'pacing_type' will be choice from ('instructor-paced', 'self-paced'),
+#. 'title' and 'start' will be the value of course title & start date fields.
+#: apps/publisher_comments/emails.py
 #, python-brace-format
-msgid "New comment added in Course: {title}"
-msgstr "კურსს: {title}, დაემატა ახალი კომენტარი"
+msgid "{subject_desc} in course run: {title}-{pacing_type}-{start}"
+msgstr ""
+
+#. Translators: 'subject_desc' will be choice from ('New comment added',
+#. 'Comment updated')
+#. and 'title' will be the value of course title field.
+#: apps/publisher_comments/emails.py
+#, python-brace-format
+msgid "{subject_desc} in Course: {title}"
+msgstr ""
 
 #: apps/publisher_comments/models.py
 msgid "modified"
@@ -1227,7 +1242,7 @@ msgstr "თუ შემოწმებულია ან პროფესი
 msgid "Dashboard"
 msgstr "მართვის დაფა"
 
-#: templates/publisher/base.html
+#: templates/publisher/base.html templates/publisher/courses.html
 msgid "Courses"
 msgstr "კურსები"
 
@@ -1598,6 +1613,7 @@ msgid "No Seats Available."
 msgstr "ადგილები მიუწვდომელია."
 
 #: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/courses.html
 #: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_preview_ready.html
 #: templates/publisher/dashboard/_published.html
@@ -1671,6 +1687,23 @@ msgstr "ახლახანს გამოქვეყნებული კ�
 msgid "Looks like you haven't publish a course yet"
 msgstr "როგორც ჩანს ჯერ კურსი არ გამოგიქვეყნებიათ"
 
+#: templates/publisher/courses.html
+msgid "Add Course"
+msgstr ""
+
+#: templates/publisher/courses.html
+#: templates/publisher/dashboard/_in_progress.html
+msgid "Institution"
+msgstr "ინსტიტუტი"
+
+#: templates/publisher/courses.html
+msgid "Runs"
+msgstr ""
+
+#: templates/publisher/courses.html
+msgid "Edit"
+msgstr ""
+
 #: templates/publisher/dashboard.html
 msgid "Course runs"
 msgstr "კურსის გაშვებები"
@@ -1694,10 +1727,6 @@ msgstr "გამოქვეყნებული კურსის გაშ�
 #: templates/publisher/dashboard/_in_progress.html
 msgid "There are no in progress course runs."
 msgstr "არ არის მიმდინარე გაშვებული კურსები."
-
-#: templates/publisher/dashboard/_in_progress.html
-msgid "Institution"
-msgstr "ინსტიტუტი"
 
 #: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_published.html
