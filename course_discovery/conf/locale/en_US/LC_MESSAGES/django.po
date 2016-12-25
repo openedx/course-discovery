@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-14 15:06+0500\n"
-"PO-Revision-Date: 2016-12-15 09:16+0000\n"
+"POT-Creation-Date: 2016-12-21 15:19+0500\n"
+"PO-Revision-Date: 2016-12-22 08:25+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: English (United States) (http://www.transifex.com/open-edx/edx-platform/language/en_US/)\n"
 "MIME-Version: 1.0\n"
@@ -414,7 +414,7 @@ msgstr "Function Score"
 msgid "JSON string containing an elasticsearch function score config."
 msgstr "JSON string containing an elasticsearch function score config."
 
-#: apps/publisher/choices.py
+#: apps/publisher/choices.py templates/publisher/courses.html
 msgid "Partner Coordinator"
 msgstr "Partner Coordinator"
 
@@ -648,14 +648,29 @@ msgid "Publish"
 msgstr "Publish"
 
 #: apps/publisher_comments/emails.py
-#, python-brace-format
-msgid "New comment added in course run: {title}-{pacing_type}-{start}"
-msgstr "New comment added in course run: {title}-{pacing_type}-{start}"
+msgid "New comment added"
+msgstr "New comment added"
 
 #: apps/publisher_comments/emails.py
+msgid "Comment updated"
+msgstr "Comment updated"
+
+#. Translators: subject_desc will be choice from ('New comment added',
+#. 'Comment updated'),
+#. 'pacing_type' will be choice from ('instructor-paced', 'self-paced'),
+#. 'title' and 'start' will be the value of course title & start date fields.
+#: apps/publisher_comments/emails.py
 #, python-brace-format
-msgid "New comment added in Course: {title}"
-msgstr "New comment added in Course: {title}"
+msgid "{subject_desc} in course run: {title}-{pacing_type}-{start}"
+msgstr "{subject_desc} in course run: {title}-{pacing_type}-{start}"
+
+#. Translators: 'subject_desc' will be choice from ('New comment added',
+#. 'Comment updated')
+#. and 'title' will be the value of course title field.
+#: apps/publisher_comments/emails.py
+#, python-brace-format
+msgid "{subject_desc} in Course: {title}"
+msgstr "{subject_desc} in Course: {title}"
 
 #: apps/publisher_comments/models.py
 msgid "modified"
@@ -1224,7 +1239,7 @@ msgstr "If Verified or Professional Ed, indicate certificate price in US dollars
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: templates/publisher/base.html
+#: templates/publisher/base.html templates/publisher/courses.html
 msgid "Courses"
 msgstr "Courses"
 
@@ -1595,6 +1610,7 @@ msgid "No Seats Available."
 msgstr "No Seats Available."
 
 #: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/courses.html
 #: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_preview_ready.html
 #: templates/publisher/dashboard/_published.html
@@ -1668,6 +1684,23 @@ msgstr "Recently published courses"
 msgid "Looks like you haven't publish a course yet"
 msgstr "Looks like you haven't publish a course yet"
 
+#: templates/publisher/courses.html
+msgid "Add Course"
+msgstr "Add Course"
+
+#: templates/publisher/courses.html
+#: templates/publisher/dashboard/_in_progress.html
+msgid "Institution"
+msgstr "Institution"
+
+#: templates/publisher/courses.html
+msgid "Runs"
+msgstr "Runs"
+
+#: templates/publisher/courses.html
+msgid "Edit"
+msgstr "Edit"
+
 #: templates/publisher/dashboard.html
 msgid "Course runs"
 msgstr "Course runs"
@@ -1691,10 +1724,6 @@ msgstr "PUBLISHED COURSE RUNS"
 #: templates/publisher/dashboard/_in_progress.html
 msgid "There are no in progress course runs."
 msgstr "There are no in progress course runs."
-
-#: templates/publisher/dashboard/_in_progress.html
-msgid "Institution"
-msgstr "Institution"
 
 #: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_published.html
