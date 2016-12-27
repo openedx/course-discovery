@@ -165,6 +165,32 @@ class CourseTests(TestCase):
 
         self.assertEqual(self.user1, self.course2.partner_coordinator)
 
+    def test_assign_roles(self):
+        """
+        Verify that method `assign_organization_role' assign course-user-roles
+        for the organization against a course.
+        """
+        self.assertFalse(self.course2.course_user_roles.all())
+
+        # create default roles for organization
+        factories.OrganizationUserRoleFactory(
+            role=PublisherUserRole.PartnerCoordinator, organization=self.org_extension_2.organization
+        )
+        factories.OrganizationUserRoleFactory(
+            role=PublisherUserRole.PartnerCoordinator, organization=self.org_extension_2.organization
+        )
+
+        self.course2.assign_organization_role(self.org_extension_2.organization)
+        self.assertEqual(len(self.course2.course_user_roles.all()), 2)
+
+    def test_assign_roles_without_default_roles(self):
+        """
+        Verify that method `assign_organization_role' works fine even if no
+        default roles exists.
+        """
+        self.course2.assign_organization_role(self.org_extension_2.organization)
+        self.assertFalse(self.course2.course_user_roles.all())
+
 
 class SeatTests(TestCase):
     """ Tests for the publisher `Seat` model. """
@@ -256,6 +282,9 @@ class CourseUserRoleTests(TestCase):
     def setUp(self):
         super(CourseUserRoleTests, self).setUp()
         self.course_user_role = factories.CourseUserRoleFactory(role=PublisherUserRole.PartnerCoordinator)
+        self.course = factories.CourseFactory()
+        self.user = UserFactory()
+        self.marketing_reviewer_role = PublisherUserRole.MarketingReviewer
 
     def test_str(self):
         """Verify that a CourseUserRole is properly converted to a str."""
@@ -270,6 +299,32 @@ class CourseUserRoleTests(TestCase):
             CourseUserRole.objects.create(
                 course=self.course_user_role.course, user=self.course_user_role.user, role=self.course_user_role.role
             )
+
+    def test_add_course_roles(self):
+        """
+        Verify that method `add_course_roles` created the course user role.
+        """
+        course_role, created = CourseUserRole.add_course_roles(
+            self.course, self.marketing_reviewer_role, self.user
+        )
+        self.assertTrue(created)
+        self.assertEqual(course_role.course, self.course)
+        self.assertEqual(course_role.user, self.user)
+        self.assertEqual(course_role.role, self.marketing_reviewer_role)
+
+    def test_add_course_roles_with_existing_record(self):
+        """
+        Verify that method `add_course_roles` does not create the duplicate
+        course user role.
+        """
+        __, created = CourseUserRole.add_course_roles(
+            self.course, self.marketing_reviewer_role, self.user
+        )
+        self.assertTrue(created)
+        __, created = CourseUserRole.add_course_roles(
+            self.course, self.marketing_reviewer_role, self.user
+        )
+        self.assertFalse(created)
 
 
 class GroupOrganizationTests(TestCase):

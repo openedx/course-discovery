@@ -162,7 +162,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, CreateView):
     run_form = CustomCourseRunForm
     seat_form = CustomSeatForm
     template_name = 'publisher/add_course_form.html'
-    success_url = 'publisher:publisher_courses_readonly'
+    success_url = 'publisher:publisher_course_run_detail'
 
     def get_success_url(self, course_id):  # pylint: disable=arguments-differ
         return reverse(self.success_url, kwargs={'pk': course_id})
@@ -212,14 +212,21 @@ class CreateCourseView(mixins.LoginRequiredMixin, CreateView):
                     )
                     course.organizations.add(organization_extension.organization)
 
+                    # add default organization roles into course-user-roles
+                    course.assign_organization_role(organization_extension.organization)
+
                     messages.success(
                         request, _('Course created successfully.')
                     )
-                    return HttpResponseRedirect(self.get_success_url(course.id))
+                    return HttpResponseRedirect(self.get_success_url(run_course.id))
             except Exception as e:  # pylint: disable=broad-except
-                messages.error(request, str(e))
+                # pylint: disable=no-member
+                error_message = _('An error occurred while saving your changes. {error}').format(error=str(e))
+                messages.error(request, error_message)
 
-        messages.error(request, _('Please fill all required field.'))
+        if not messages.get_messages(request):
+            messages.error(request, _('Please fill all required fields.'))
+
         ctx.update(
             {
                 'course_form': course_form,

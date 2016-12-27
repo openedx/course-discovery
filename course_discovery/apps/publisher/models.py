@@ -176,6 +176,13 @@ class Course(TimeStampedModel, ChangedByMixin):
         except CourseUserRole.DoesNotExist:
             return None
 
+    def assign_organization_role(self, organization):
+        """
+        Create course-user-roles for the given organization against a course.
+        """
+        for user_role in organization.organization_user_roles.all():
+            CourseUserRole.add_course_roles(self, user_role.role, user_role.user)
+
 
 class CourseRun(TimeStampedModel, ChangedByMixin):
     """ Publisher CourseRun model. It contains fields related to the course run intake form."""
@@ -402,6 +409,22 @@ class CourseUserRole(TimeStampedModel, ChangedByMixin):
             user=self.user,
             role=self.role
         )
+
+    @classmethod
+    def add_course_roles(cls, course, role, user):
+        """
+        Create course roles.
+
+        Arguments:
+            course (obj): course object
+            role (str): role description
+            user (obj): User object
+
+        Returns:
+            obj: CourseUserRole object
+
+        """
+        return cls.objects.get_or_create(course=course, role=role, user=user)
 
 
 class OrganizationExtension(TimeStampedModel):

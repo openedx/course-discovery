@@ -56,6 +56,14 @@ class CreateUpdateCourseViewTests(TestCase):
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.start_date_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
+        # creating default organizations roles
+        factories.OrganizationUserRoleFactory(
+            role=PublisherUserRole.PartnerCoordinator, organization=self.organization_extension.organization
+        )
+        factories.OrganizationUserRoleFactory(
+            role=PublisherUserRole.MarketingReviewer, organization=self.organization_extension.organization
+        )
+
     def test_course_form_without_login(self):
         """ Verify that user can't access new course form page when not logged in. """
         self.client.logout()
@@ -282,9 +290,11 @@ class CreateUpdateCourseViewTests(TestCase):
 
     def _assert_test_data(self, response, course, expected_type, expected_price):
         # DRY method to assert response and data.
+        run_detail_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course.id})
+
         self.assertRedirects(
             response,
-            expected_url=reverse('publisher:publisher_courses_readonly', kwargs={'pk': course.id}),
+            expected_url=run_detail_path,
             status_code=302,
             target_status_code=200
         )
@@ -297,12 +307,14 @@ class CreateUpdateCourseViewTests(TestCase):
         self.assertEqual(seat.type, expected_type)
         self.assertEqual(seat.price, expected_price)
         self._assert_records(2)
-        response = self.client.get(reverse('publisher:publisher_courses_readonly', kwargs={'pk': course.id}))
+        response = self.client.get(run_detail_path)
         self.assertEqual(response.status_code, 200)
 
         # django-taggit stores data without any order. For test .
         self.assertEqual(sorted([c.name for c in course.keywords.all()]), ['abc', 'def', 'xyz'])
         self.assertEqual(course.organizations.first(), self.organization_extension.organization)
+
+        self.assertTrue(len(course.course_user_roles.all()), 2)
 
 
 class CreateUpdateCourseRunViewTests(TestCase):
