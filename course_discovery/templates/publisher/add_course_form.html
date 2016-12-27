@@ -13,15 +13,11 @@
 
 <div class="alert-messages">
 {% if messages %}
-{% for message in messages %}
-<div class="alert alert-{{ message.tags }}" role="alert" aria-labelledby="alert-title-{{ message.tags }}" tabindex="-1">
-    <div class="alert-message-with-action">
-        <p class="alert-copy">
-            {{ message }}
-        </p>
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}" role="alert" aria-labelledby="alert-title-{{ message.tags }}" tabindex="-1">
+        <div><p class="alert-copy">{{ message }}</p></div>
     </div>
-</div>
-{% endfor %}
+    {% endfor %}
 {% endif %}
 
 <form class="form" method="post" action="" enctype="multipart/form-data">
