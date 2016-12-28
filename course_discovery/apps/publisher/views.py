@@ -16,6 +16,7 @@ from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import get_objects_for_user
 from rest_framework.generics import UpdateAPIView
 
+from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.forms import (
     CourseForm, CourseRunForm, SeatForm, CustomCourseForm, CustomCourseRunForm,
@@ -178,9 +179,13 @@ class CreateCourseView(mixins.LoginRequiredMixin, CreateView):
 
     def post(self, request, *args, **kwargs):
         ctx = self.get_context_data()
-        course_form = self.course_form(request.POST, request.FILES)
+
+        # add selected team admin into choice of ChoiceField
+        team_admin_queryset = User.objects.filter(id=self.request.POST.get('team_admin'))
+        course_form = self.course_form(request.POST, request.FILES, team_admin_queryset=team_admin_queryset)
         run_form = self.run_form(request.POST)
         seat_form = self.seat_form(request.POST)
+
         if course_form.is_valid() and run_form.is_valid() and seat_form.is_valid():
             try:
                 with transaction.atomic():

@@ -35,22 +35,28 @@
 
                 <div class="field-title">{% trans "INSTITUTION INFORMATION" %}</div>
                 <div class="row">
-                    <div class="col col-6 help-text">
-                        {% trans "Please choose the school that will be providing the course. Once chosen then you can select an administrator for the studio shell." %}
-                    </div>
-                    <div class="col col-6">
-                        <label class="field-label">{{ course_form.organization.label_tag }}
-                            <span class="required">* {% trans "required" %}</span>
+                  <div class="col col-6 help-text">
+                    {% trans "Please choose the school that will be providing the course. Once chosen then you can select an administrator for the studio shell." %}
+                  </div>
+                  <div class="col col-6">
+                    {% if course_form.organization.choices|length > 1 %}
+                      <label class="field-label">{{ course_form.organization.label_tag }} <span
+                          class="required">* {% trans "required" %}</span> </label>
+                      {{ course_form.organization }}
+                    {% else %}
+                      {% with course_form.organization.field.queryset|first as organization %}
+                        <label id="organization-name" class="field-label"
+                               data-org_id="{{ organization.id }}">{{ course_form.organization.label_tag }} {{ organization.name }}
                         </label>
-                        {{ course_form.organization }}
+                        <input id="id_organization" name="organization" type="hidden" value="{{ organization.id }}">
+                      {% endwith %}
+                    {% endif %}
 
-                        <label class="field-label">
-                            {{ course_form.team_admin.label_tag }}
-                            <span class="required">* {% trans "required" %}</span>
-                        </label>
-                        {{ course_form.team_admin }}
+                    <label class="field-label">
+                      {{ course_form.team_admin.label_tag }} <span class="required">* {% trans "required" %}</span>
+                    </label> {{ course_form.team_admin }}
 
-                    </div>
+                  </div>
                 </div>
 
                 <div class="field-title">{% trans "Course Title" %}</div>

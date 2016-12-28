@@ -242,6 +242,11 @@ class CreateUpdateCourseViewTests(TestCase):
         course = Course.objects.get(number=data['number'])
         self._assert_test_data(response, course, seat_type, 0)
 
+    def test_create_form_with_single_organization(self):
+        """Verify that if there is only one organization then that organization will be shown as text. """
+        response = self.client.get(reverse('publisher:publisher_courses_new'))
+        self.assertContains(response, '<input id="id_organization" name="organization" type="hidden"')
+
     def _post_data(self, data, course, course_run, seat):
         course_dict = model_to_dict(course)
         course_dict.update(**data)
