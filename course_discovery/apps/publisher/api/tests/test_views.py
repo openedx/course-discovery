@@ -5,13 +5,10 @@ import ddt
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from guardian.shortcuts import assign_perm
 
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
-from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.constants import INTERNAL_USER_GROUP_NAME
-from course_discovery.apps.publisher.models import Course
 from course_discovery.apps.publisher.tests import factories, JSON_CONTENT_TYPE
 
 
@@ -33,10 +30,8 @@ class CourseRoleAssignmentViewTests(TestCase):
             self.other_internal_users.append(user)
             internal_user_group.user_set.add(user)
 
-        assign_perm(Course.VIEW_PERMISSION, internal_user_group, self.course)
-
-        organization = OrganizationFactory()
-        self.course.organizations.add(organization)
+        organization_extension = factories.OrganizationExtensionFactory()
+        self.course.organizations.add(organization_extension.organization)
 
         # Create three internal user course roles for internal users against a course
         # so we can test change role assignment on these roles.
@@ -54,7 +49,6 @@ class CourseRoleAssignmentViewTests(TestCase):
         """ Verify non-internal users cannot change role assignments. """
 
         non_internal_user = UserFactory()
-        assign_perm(Course.VIEW_PERMISSION, non_internal_user, self.course)
 
         self.client.logout()
         self.client.login(username=non_internal_user.username, password=USER_PASSWORD)
@@ -103,15 +97,12 @@ class OrganizationGroupUserViewTests(TestCase):
         user = UserFactory.create(username="test_user", password=USER_PASSWORD)
         self.client.login(username=user.username, password=USER_PASSWORD)
 
-        # create group and add test users in the group
-        group = factories.GroupFactory()
+        organization_extension = factories.OrganizationExtensionFactory()
         self.org_user1 = UserFactory.create(full_name="org user1")
         self.org_user2 = UserFactory.create(full_name="org user2")
-        group.user_set.add(self.org_user1)
-        group.user_set.add(self.org_user2)
-
-        self.organization = OrganizationFactory()
-        factories.OrganizationExtensionFactory.create(organization=self.organization, group=group)
+        organization_extension.group.user_set.add(self.org_user1)
+        organization_extension.group.user_set.add(self.org_user2)
+        self.organization = organization_extension.organization
 
     def test_get_organization_user_group(self):
         """ Verify that view returns list of users associated with the group

@@ -34,22 +34,23 @@ class CommentsEmailTests(TestCase):
         self.course_run = self.seat.course_run
         self.course = self.course_run.course
 
-        # assign the role against a course
+        self.course.organizations.add(self.organization_extension.organization)
+
+        # NOTE: We intentionally do NOT create an attribute for user_2.
+        # By default this user WILL receive email notifications.
+
+        # add user in course-user-role table
         factories.CourseUserRoleFactory(
-            course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
+            course=self.course, role=PublisherUserRole.PartnerCoordinator, user=self.user
         )
+
         factories.CourseUserRoleFactory(
             course=self.course, role=PublisherUserRole.PartnerCoordinator, user=self.user_2
         )
 
         factories.CourseUserRoleFactory(
-            course=self.course, role=PublisherUserRole.Publisher, user=self.user_3
+            course=self.course, role=PublisherUserRole.PartnerCoordinator, user=self.user_3
         )
-
-        self.course.organizations.add(self.organization_extension.organization)
-
-        # NOTE: We intentionally do NOT create an attribute for user_2.
-        # By default this user WILL receive email notifications.
 
         UserAttributeFactory(user=self.user, enable_email_notification=True)
         UserAttributeFactory(user=self.user_3, enable_email_notification=False)

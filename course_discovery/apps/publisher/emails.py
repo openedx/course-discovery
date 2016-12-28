@@ -22,7 +22,7 @@ def send_email_for_change_state(course_run):
         txt_template = 'publisher/email/change_state.txt'
         html_template = 'publisher/email/change_state.html'
 
-        to_addresses = course_run.course.get_group_users_emails()
+        to_addresses = course_run.course.get_course_users_emails()
         from_address = settings.PUBLISHER_FROM_EMAIL
         page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
         context = {
@@ -61,7 +61,7 @@ def send_email_for_studio_instance_created(course_run):
         object_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
         subject = _('Studio instance created')
 
-        to_addresses = course_run.course.get_group_users_emails()
+        to_addresses = course_run.course.get_course_users_emails()
         from_address = settings.PUBLISHER_FROM_EMAIL
 
         context = {

@@ -31,7 +31,6 @@ class CommentsTests(TestCase):
         self.seat = factories.SeatFactory(type=Seat.PROFESSIONAL, credit_hours=0)
         self.course_run = self.seat.course_run
         self.course = self.course_run.course
-
         self.course.organizations.add(self.organization_extension.organization)
 
         # assign the role against a course

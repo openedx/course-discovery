@@ -6,7 +6,6 @@ from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.core import mail
-from guardian.shortcuts import assign_perm
 import pytz
 import mock
 from testfixtures import LogCapture
@@ -14,7 +13,8 @@ from testfixtures import LogCapture
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.publisher import emails
-from course_discovery.apps.publisher.models import State, Course
+from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.models import State, CourseUserRole
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.factories import UserAttributeFactory
 
@@ -42,7 +42,16 @@ class StateChangeEmailTests(TestCase):
         cls.course_run = cls.seat.course_run
         cls.course = cls.course_run.course
 
-        assign_perm(Course.VIEW_PERMISSION, cls.group, cls.course)
+        # add user in course-user-role table
+        factories.CourseUserRoleFactory(
+            course=cls.course, role=PublisherUserRole.PartnerCoordinator, user=cls.user
+        )
+        factories.CourseUserRoleFactory(
+            course=cls.course, role=PublisherUserRole.MarketingReviewer, user=cls.user_2
+        )
+        factories.CourseUserRoleFactory(
+            course=cls.course, role=PublisherUserRole.Publisher, user=cls.user_3
+        )
 
         # NOTE: We intentionally do NOT create an attribute for user_2.
         # By default this user WILL receive email notifications.
@@ -94,10 +103,8 @@ class StateChangeEmailTests(TestCase):
         State.FINALIZED, State.PUBLISHED, State.DRAFT
     )
     def test_email_without_group(self, target_state):
-        """ Verify that no email send if course group has no users. """
-        self.user.groups.remove(self.group)
-        self.user_2.groups.remove(self.group)
-        self.user_3.groups.remove(self.group)
+        """ Verify that no email send if course user role has no users. """
+        CourseUserRole.objects.all().delete()
 
         self.course_run.change_state(target=target_state)
         self.assertEqual(len(mail.outbox), 0)
@@ -138,7 +145,10 @@ class StudioInstanceCreatedEmailTests(TestCase):
 
         self.course_run = factories.CourseRunFactory()
 
-        assign_perm(Course.VIEW_PERMISSION, self.group, self.course_run.course)
+        # add user in course-user-role table
+        factories.CourseUserRoleFactory(
+            course=self.course_run.course, role=PublisherUserRole.PartnerCoordinator, user=self.user
+        )
 
         UserAttributeFactory(user=self.user, enable_email_notification=True)
 

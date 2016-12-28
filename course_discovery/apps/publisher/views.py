@@ -59,9 +59,14 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
             internal_user_courses = Course.objects.filter(course_user_roles__user=user)
             course_runs = CourseRun.objects.filter(course__in=internal_user_courses).select_related('course').all()
         else:
-            # in future we will change permission from course to OrganizationExtension model
-            courses = get_objects_for_user(user, Course.VIEW_PERMISSION, Course)
-            course_runs = CourseRun.objects.filter(course__in=courses).select_related('course').all()
+            organizations = get_objects_for_user(
+                user, OrganizationExtension.VIEW_COURSE, OrganizationExtension,
+                use_groups=False,
+                with_superuser=False
+            ).values_list('organization')
+            course_runs = CourseRun.objects.filter(
+                course__organizations__in=organizations
+            ).select_related('course').all()
 
         return course_runs
 
@@ -201,8 +206,6 @@ class CreateCourseView(mixins.LoginRequiredMixin, CreateView):
                         OrganizationExtension, organization=course_form.data['organization']
                     )
                     course.organizations.add(organization_extension.organization)
-                    # assign guardian permission.
-                    course.assign_permission_by_group(organization_extension.group)
 
                     messages.success(
                         request, _('Course created successfully.')
@@ -226,7 +229,7 @@ class UpdateCourseView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, mi
     """ Update Course View."""
     model = Course
     form_class = CourseForm
-    permission_required = Course.VIEW_PERMISSION
+    permission_required = OrganizationExtension.VIEW_COURSE
     template_name = 'publisher/course_form.html'
     success_url = 'publisher:publisher_courses_edit'
 
@@ -324,7 +327,7 @@ class UpdateCourseRunView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin,
     """ Update Course Run View."""
     model = CourseRun
     form_class = CourseRunForm
-    permission_required = Course.VIEW_PERMISSION
+    permission_required = OrganizationExtension.VIEW_COURSE
     template_name = 'publisher/course_run_form.html'
     success_url = 'publisher:publisher_course_runs_edit'
     change_state = True
@@ -361,7 +364,7 @@ class UpdateSeatView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, mixi
     """ Update Seat View."""
     model = Seat
     form_class = SeatForm
-    permission_required = Course.VIEW_PERMISSION
+    permission_required = OrganizationExtension.EDIT_COURSE_RUN
     template_name = 'publisher/seat_form.html'
     success_url = 'publisher:publisher_seats_edit'
 
@@ -383,7 +386,7 @@ class ChangeStateView(mixins.LoginRequiredMixin, View):
         try:
             course_run = CourseRun.objects.get(id=course_run_id)
 
-            if not mixins.check_view_permission(request.user, course_run.course):
+            if not mixins.check_user_course_access(request.user, course_run.course):
                 return HttpResponseForbidden()
 
             course_run.change_state(target=state, user=self.request.user)
@@ -425,6 +428,13 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
         elif is_internal_user(user):
             courses = Course.objects.filter(course_user_roles__user=user).distinct()
         else:
-            courses = get_objects_for_user(user, Course.VIEW_PERMISSION, Course)
+            organizations = get_objects_for_user(
+                user,
+                OrganizationExtension.VIEW_COURSE,
+                OrganizationExtension,
+                use_groups=False,
+                with_superuser=False
+            ).values_list('organization')
+            courses = Course.objects.filter(organizations__in=organizations)
 
         return courses
