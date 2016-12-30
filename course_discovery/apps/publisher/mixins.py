@@ -1,9 +1,12 @@
+from functools import wraps
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.utils.decorators import method_decorator
 
 from course_discovery.apps.publisher.models import Course, Seat
-from course_discovery.apps.publisher.utils import is_publisher_admin, is_internal_user
+from course_discovery.apps.publisher.utils import (
+    is_publisher_admin, is_internal_user, is_publisher_user
+)
 
 
 class ViewPermissionMixin(object):
@@ -81,3 +84,27 @@ def check_course_organization_permission(user, course, permission):
             for org in course.organizations.all()
         ]
     )
+
+
+def publisher_user_required(func):
+    """
+    View decorator that requires that the user is part any publisher group
+    permissions.
+    """
+    @wraps(func)
+    def wrapped(request, *args, **kwargs):  # pylint: disable=missing-docstring
+        if is_publisher_user(request.user):
+            return func(request, *args, **kwargs)
+        else:
+            return HttpResponseForbidden(u"Must be Publisher user to perform this action.")
+
+    return wrapped
+
+
+class PublisherUserRequiredMixin(object):
+    """
+    Mixin to view the user is part of any publisher app group.
+    """
+    @method_decorator(publisher_user_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(PublisherUserRequiredMixin, self).dispatch(request, *args, **kwargs)

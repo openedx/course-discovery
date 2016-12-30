@@ -149,7 +149,7 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin,
 
 
 # pylint: disable=attribute-defined-outside-init
-class CreateCourseView(mixins.LoginRequiredMixin, CreateView):
+class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMixin, CreateView):
     """ Create Course View."""
     model = Course
     course_form = CustomCourseForm
@@ -239,7 +239,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, CreateView):
         return render(request, self.template_name, ctx, status=400)
 
 
-class UpdateCourseView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, mixins.FormValidMixin, UpdateView):
+class UpdateCourseView(mixins.ViewPermissionMixin, mixins.FormValidMixin, UpdateView):
     """ Update Course View."""
     model = Course
     form_class = CourseForm

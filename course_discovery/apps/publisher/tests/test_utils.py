@@ -1,18 +1,23 @@
 """ Tests publisher.utils"""
 from django.contrib.auth.models import Group
-from django.test import TestCase
-from guardian.shortcuts import assign_perm
+from django.test import TestCase, RequestFactory
+from mock import Mock
 
+from guardian.shortcuts import assign_perm
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.publisher.constants import (
-    ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PARTNER_COORDINATOR_GROUP_NAME
+    REVIEWER_GROUP_NAME, ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME,
+    PARTNER_COORDINATOR_GROUP_NAME
 )
-from course_discovery.apps.publisher.mixins import check_course_organization_permission, check_roles_access
+from course_discovery.apps.publisher.mixins import (
+    check_course_organization_permission, check_roles_access,
+    publisher_user_required
+)
 from course_discovery.apps.publisher.models import OrganizationExtension
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.utils import (
     is_email_notification_enabled, is_publisher_admin, is_internal_user,
-    get_internal_users, is_partner_coordinator_user
+    get_internal_users, is_partner_coordinator_user, is_publisher_user
 )
 
 
@@ -152,3 +157,39 @@ class PublisherUtilsTests(TestCase):
         self.assertTrue(
             check_course_organization_permission(self.user, self.course, OrganizationExtension.VIEW_COURSE)
         )
+
+    def test_is_publisher_user(self):
+        """ Verify the function returns a boolean indicating if the user
+        is part of any publisher app group.
+        """
+        self.assertFalse(is_publisher_user(self.user))
+        self.user.groups.add(Group.objects.get(name=REVIEWER_GROUP_NAME))
+        self.assertTrue(is_publisher_user(self.user))
+
+    def test_require_is_publisher_user_without_group(self):
+        """
+        Verify that decorator returns the error message if user is not part
+        of any publisher group.
+        """
+        func = Mock()
+        decorated_func = publisher_user_required(func)
+        request = RequestFactory()
+        request.user = self.user
+
+        response = decorated_func(request, self.user)
+        self.assertContains(response, "Must be Publisher user to perform this action.", status_code=403)
+        self.assertFalse(func.called)
+
+    def test_is_publisher_user_with_publisher_group(self):
+        """
+        Verify that decorator works fine with user is part of publisher
+        app group.
+        """
+        func = Mock()
+        decorated_func = publisher_user_required(func)
+        request = RequestFactory()
+        request.user = self.user
+        self.user.groups.add(self.internal_user_group)
+
+        decorated_func(request, self.user)
+        self.assertTrue(func.called)
