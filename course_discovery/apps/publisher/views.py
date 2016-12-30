@@ -179,9 +179,10 @@ class CreateCourseView(mixins.LoginRequiredMixin, CreateView):
     def post(self, request, *args, **kwargs):
         ctx = self.get_context_data()
 
-        # add selected team admin into choice of ChoiceField
-        team_admin_id = self.request.POST.get('team_admin')
-        course_form = self.course_form(request.POST, request.FILES, team_admin_id=team_admin_id)
+        # pass selected organization to CustomCourseForm to populate related
+        # choices into institution admin field
+        organization = self.request.POST.get('organization')
+        course_form = self.course_form(request.POST, request.FILES, organization=organization)
         run_form = self.run_form(request.POST)
         seat_form = self.seat_form(request.POST)
 

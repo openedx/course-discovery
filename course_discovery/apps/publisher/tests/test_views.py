@@ -46,6 +46,7 @@ class CreateUpdateCourseViewTests(TestCase):
         self.user = UserFactory()
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.group = self.organization_extension.group
+        self.user.groups.add(self.group)
 
         self.course = factories.CourseFactory()
         self.course_run = factories.CourseRunFactory(course=self.course)
@@ -262,15 +263,6 @@ class CreateUpdateCourseViewTests(TestCase):
         response = self.client.get(reverse('publisher:publisher_courses_new'))
         self.assertContains(response,
                             '<select class="field-input input-select" id="id_organization" name="organization">')
-
-    def test_create_with_invalid_team_admin(self):
-        """ Verify that view returns status_code=400 with invalid team admin. """
-        data = {'number': 'course_1', 'image': ''}
-        course_dict = self._post_data(data, self.course, self.course_run, self.seat)
-        course_dict['team_admin'] = "-------"
-
-        response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=data['image'])
-        self.assertEqual(response.status_code, 400)
 
     @ddt.data('contacted_partner_manager', 'pacing_type')
     def test_create_without_selecting_radio_buttons(self, button_field):
