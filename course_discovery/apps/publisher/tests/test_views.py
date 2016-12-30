@@ -46,6 +46,9 @@ class CreateUpdateCourseViewTests(TestCase):
     def setUp(self):
         super(CreateUpdateCourseViewTests, self).setUp()
         self.user = UserFactory()
+        self.internal_user_group = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
+        self.user.groups.add(self.internal_user_group)
+
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.group = self.organization_extension.group
         self.user.groups.add(self.group)
@@ -81,6 +84,18 @@ class CreateUpdateCourseViewTests(TestCase):
             ),
             status_code=302,
             target_status_code=302
+        )
+
+    def test_page_without_publisher_group_access(self):
+        """
+        Verify that user can't access new course form page if user is not the
+        part of any group.
+        """
+        self.client.logout()
+        self.client.login(username=UserFactory().username, password=USER_PASSWORD)
+        response = self.client.get(reverse('publisher:publisher_courses_new'))
+        self.assertContains(
+            response, "Must be Publisher user to perform this action.", status_code=403
         )
 
     def test_create_course_and_course_run_and_seat_with_errors(self):
@@ -180,28 +195,12 @@ class CreateUpdateCourseViewTests(TestCase):
         self.assertContains(response, 'Add new comment')
         self.assertContains(response, comment.comment)
 
-    def test_course_edit_page_without_admin_rights(self):
-        """ Verify that non publisher admin user can't access course edit page without rights. """
+    def test_update_course_without_publisher_admin_rights(self):
+        """ Verify that non-admin users cannot update the course. """
+        self.client.logout()
+        user = UserFactory()
+        self.client.login(username=user.username, password=USER_PASSWORD)
 
-        course_dict = model_to_dict(self.course)
-        updated_course_title = 'Updated {}'.format(self.course.title)
-        course_dict['title'] = updated_course_title
-        self.assertNotEqual(self.course.title, updated_course_title)
-        response = self.client.get(
-            reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id})
-        )
-
-        self.assertEqual(response.status_code, 403)
-
-        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
-        response = self.client.get(
-            reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id})
-        )
-
-        self.assertEqual(response.status_code, 200)
-
-    def test_update_course_without_admin_rights(self):
-        """ Tests for update course with non staff user. """
         course_dict = model_to_dict(self.course)
         course_dict.pop('verification_deadline')
         course_dict.pop('image')
@@ -217,7 +216,7 @@ class CreateUpdateCourseViewTests(TestCase):
         # verify that non staff user can't update course without permission
         self.assertEqual(response.status_code, 403)
 
-        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+        user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         response = self.client.post(
             reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id}),
             course_dict
@@ -234,7 +233,7 @@ class CreateUpdateCourseViewTests(TestCase):
         self.assertEqual(course.title, updated_course_title)
 
         # add new and check the comment on edit page.
-        comment = CommentFactory(content_object=self.course, user=self.user, site=self.site)
+        comment = CommentFactory(content_object=self.course, user=user, site=self.site)
         response = self.client.get(reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id}))
         self.assertContains(response, 'Total Comments 1')
         self.assertContains(response, 'Add new comment')

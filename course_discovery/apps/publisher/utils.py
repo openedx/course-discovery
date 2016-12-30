@@ -64,3 +64,15 @@ def is_partner_coordinator_user(user):
         bool: True, if user is an PC user; otherwise, False.
     """
     return user.groups.filter(name=PARTNER_COORDINATOR_GROUP_NAME).exists()
+
+
+def is_publisher_user(user):
+    """ Returns True if the user is part of any group.
+
+    Arguments:
+        user (:obj:`User`): User whose permissions should be checked.
+
+    Returns:
+        bool: True, if user is an publisher user; otherwise, False.
+    """
+    return user.groups.exists()
