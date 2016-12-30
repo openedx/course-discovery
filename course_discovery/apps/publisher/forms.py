@@ -6,7 +6,12 @@ from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import Person, Organization
-from course_discovery.apps.publisher.models import Course, CourseRun, Seat, User
+from course_discovery.apps.publisher.models import Course, CourseRun, Seat, User, OrganizationExtension
+
+
+class UserModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.get_full_name()
 
 
 class BaseCourseForm(forms.ModelForm):
@@ -56,7 +61,7 @@ class CustomCourseForm(CourseForm):
     number = forms.CharField(label=_('Course Number'), required=True)
 
     # users will be loaded through AJAX call based on organization
-    team_admin = forms.ModelChoiceField(
+    team_admin = UserModelChoiceField(
         queryset=User.objects.none(), required=True,
         label=_('Organization Course Admin'),
     )
@@ -71,12 +76,10 @@ class CustomCourseForm(CourseForm):
         )
 
     def __init__(self, *args, **kwargs):
-        team_admin_id = kwargs.pop('team_admin_id', None)
-        if team_admin_id:
-            try:
-                self.declared_fields['team_admin'].queryset = User.objects.filter(id=team_admin_id)
-            except Exception:  # pylint: disable=broad-except
-                pass
+        organization = kwargs.pop('organization', None)
+        if organization:
+            org_extension = OrganizationExtension.objects.get(organization=organization)
+            self.declared_fields['team_admin'].queryset = User.objects.filter(groups__name=org_extension.group)
 
         super(CustomCourseForm, self).__init__(*args, **kwargs)
 
