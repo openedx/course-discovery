@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-21 15:19+0500\n"
-"PO-Revision-Date: 2016-12-22 08:25+0000\n"
+"POT-Creation-Date: 2016-12-30 14:38+0500\n"
+"PO-Revision-Date: 2016-12-31 09:18+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Georgian (http://www.transifex.com/open-edx/edx-platform/language/ka/)\n"
 "MIME-Version: 1.0\n"
@@ -442,15 +442,25 @@ msgstr " {title}-{pacing_type}-{start} კურსის გაშვები�
 msgid "Studio instance created"
 msgstr "სტუდიოს ასლი შექმნილია"
 
-#: apps/publisher/forms.py templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
+#: apps/publisher/forms.py
+msgid "Organization Name"
+msgstr ""
+
+#: apps/publisher/forms.py templates/publisher/add_courserun_form.html
 msgid "Course Title"
 msgstr "კურსის სათაური"
 
-#: apps/publisher/forms.py templates/publisher/add_course_form.html
-#: templates/publisher/dashboard/_studio_requests.html
+#: apps/publisher/forms.py templates/publisher/dashboard/_studio_requests.html
 msgid "Course Number"
 msgstr "კურსის ნომერი"
+
+#: apps/publisher/forms.py
+msgid "Organization Course Admin"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Contacted PM"
+msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Yes"
@@ -469,8 +479,8 @@ msgid "Course end date"
 msgstr "კურსის დასრულების თარიღი"
 
 #: apps/publisher/forms.py
-msgid "Yes, course will be Self-Paced"
-msgstr "დიახ, კურსი თვითრეგულირებადი იქნება"
+msgid "Pace"
+msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Only honor/audit seats can be without price."
@@ -608,7 +618,12 @@ msgid "Course created successfully."
 msgstr "კურსი წარმატებით შეიქმნა."
 
 #: apps/publisher/views.py
-msgid "Please fill all required field."
+#, python-brace-format
+msgid "An error occurred while saving your changes. {error}"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "Please fill all required fields."
 msgstr "გთხოვთ ყველა მოთხოვნილი ველი შეავსოთ."
 
 #: apps/publisher/views.py
@@ -620,10 +635,6 @@ msgstr "კურსის გაშვება კურსისთვის 
 #, python-brace-format
 msgid "There was an error saving course run, {error}"
 msgstr "კურსის გაშვების შენახვისას გაჩნდა შეცდომა, {error}"
-
-#: apps/publisher/views.py
-msgid "Please fill all required fields."
-msgstr "გთხოვთ ყველა მოთხოვნილი ველი შეავსოთ."
 
 #: apps/publisher/views.py
 #, python-brace-format
@@ -777,25 +788,37 @@ msgid "Course Form"
 msgstr "კურსის ფორმა"
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/view_course_form.html
-msgid "Base information"
-msgstr "ძირითადი ინფორმაცია"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/view_course_form.html
-msgid "INSTITUTION INFORMATION"
-msgstr "ინსტიტუტის ინფორმაცია"
+#: templates/publisher/add_courserun_form.html
+msgid "Studio instance information"
+msgstr "სტუდიოს ასლის ინფორმაცია"
 
 #: templates/publisher/add_course_form.html
 msgid ""
-"Please choose the school that will be providing the course. Once chosen then"
-" you can select an administrator for the studio shell."
-msgstr "გთხოვთ აირჩიოთ სკოლა, რომელიც უზრუნველყოფს კურსს. ამის შემდეგ შეძლებთ სტუდიოს გარემოსთვის ადმინისტრატორის არჩევას. "
+"The information in this section is required to create a course studio "
+"instance. You must fill all required information but are welcome to come "
+"back and enter the rest of the information when you are ready to announce "
+"the course, or you can do it all at once if you are ready to do so."
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid "CONTACTED PARTNER MANAGER"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Contacted a PM about the creation of a new course is important so that edx "
+"can help you on marketing efforts."
+msgstr ""
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
 msgid "required"
 msgstr "სავალდებულო"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE TITLE"
+msgstr "კურსის სათაური"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
@@ -830,8 +853,14 @@ msgid ""
 msgstr "თუ კურსის თანმიმდევრობა აირევა, ჩვენი დასათაურების პირობა იქნება: \"კურსის სათაური: ქვესათაური\""
 
 #: templates/publisher/add_course_form.html
-msgid "English Grammar and Essay Writing Sequence Courses:"
-msgstr "ინგლისური გრამატიკა და ესეს წერის თანმიმდევრობის კურსები:"
+#: templates/publisher/add_courserun_form.html
+msgid "English Grammar and Essay Writing"
+msgstr "ინგლისური გრამატიკა და ესეს წერა"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "Sequence Courses:"
+msgstr "თანმიმდევრობითი კურსები:"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
@@ -849,16 +878,9 @@ msgid "Statistics: Probability"
 msgstr "სტატისტიკა: ვარაუდი"
 
 #: templates/publisher/add_course_form.html
-msgid "Priority content"
-msgstr "პრიორიტეტული შინაარსი"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_salesforce.html
-#: templates/publisher/course_run_detail/_studio.html
-#: templates/publisher/dashboard/_studio_requests.html
-msgid "Start Date"
-msgstr "დაწყების თარიღი"
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE START DATE"
+msgstr "კურსის დაწყების თარიღი"
 
 #: templates/publisher/add_course_form.html
 msgid ""
@@ -873,10 +895,21 @@ msgid ""
 msgstr "დაახლოებითი თარიღები მისაღებია; თუ ზუსტ თარიღს ვერ უთითებთ, გთხოვთ განსაზღვრეთ თვე, რომელშიც თავაზობთ კურსს."
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_studio.html
-msgid "Pacing Type"
-msgstr "მსვლელობის ტიპი"
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE END DATE"
+msgstr "კურსის დასრულების თარიღი"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid ""
+"The date when this self-paced course run will end, replaced by an updated "
+"version of the course"
+msgstr "ამ თვითრეგულირებადი კურსის გაშვების თარიღი დასრულდება კურსის განახლებული ვერსიით."
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "PACING TYPE"
+msgstr ""
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
@@ -885,35 +918,28 @@ msgid ""
 msgstr "თქვენი კურსი სტუდენტებისთვის გამოცხადებისთანავე ღია იქნება?"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE NUMBER"
+msgstr "კურსის ნომერი"
+
+#: templates/publisher/add_course_form.html
 msgid ""
 "Courses split into several modules can be denoted by adding .1, .2, etc. at "
 "the end of the course number before the “x”"
 msgstr "კურსები დაყოფილი რამოდენიმე მოდულად შესაძლებელია კურსის ნომრის ბოლოს, “x”-ის წინ  .1, .2, და ა. შ. ციფრების დამატებით აღინიშნოს  "
 
 #: templates/publisher/add_course_form.html
-msgid ""
-"No special html characters, accents, spaces, dashes, or underscores 10 "
-"character limit"
-msgstr "არ გამოიყენოთ html-ის სიმბოლოები, მახვილები, ჰარები, ტირეები ან ქვეტირეები 10 სიმბოლოიანი ლიმიტი."
+msgid "No special html characters, accents, spaces, dashes, or underscores"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid "10 character limit"
+msgstr ""
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
 msgid "About page information"
 msgstr "გვერდის შესახებ ინფორმაცია"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_salesforce.html
-#: templates/publisher/course_run_detail/_studio.html
-msgid "End Date"
-msgstr "დასრულების თარიღი"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-msgid ""
-"The date when this self-paced course run will end, replaced by an updated "
-"version of the course"
-msgstr "ამ თვითრეგულირებადი კურსის გაშვების თარიღი დასრულდება კურსის განახლებული ვერსიით."
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_run_detail/_seats.html
@@ -1152,27 +1178,11 @@ msgid ""
 msgstr "\nქვედა ველები მხოლოდ ამ ახალი კურსის გაშვებაზე იმოქმედებენ. თუ თქვენ თვლით რომ ინფორმაცია უნდა გასწორდეს მშობელ კურსზე, შეგიძლიათ გაასწოროთ აქ  %(link_start)s%(course_url)s%(link_middle)s მშობელი კურსი ამ გაშვებისთვის %(link_end)s"
 
 #: templates/publisher/add_courserun_form.html
-msgid "Studio instance information"
-msgstr "სტუდიოს ასლის ინფორმაცია"
-
-#: templates/publisher/add_courserun_form.html
 msgid ""
 "\n"
 "                                    The information in this section is required to create a course studio instance. You must fill all required information but are welcome to come back and enter the rest of the information when you are ready to announce the course, or you can do it all at once if you are ready to do so.\n"
 "                                "
 msgstr "\nინფორმაცია ამ განყოფილებაში მოთხოვნილია იმისთვის რომ კურსის სტუდიოს ასლი შეიქმნას. თქვენ უნდა შეავსოთ ყველა მოთხოვნილი ინფორმაცია, მაგრამ დარჩენილი ინფორმაცია შეგიძლიათ შეავსოთ, როდესაც კურსის გამოსაცხადებლად მზად იქნებით ან შეგიძლიათ ერთდროულად შეავსოთ თუ ამისთვის მზად იქნებით."
-
-#: templates/publisher/add_courserun_form.html
-msgid "COURSE TITLE"
-msgstr "კურსის სათაური"
-
-#: templates/publisher/add_courserun_form.html
-msgid "English Grammar and Essay Writing"
-msgstr "ინგლისური გრამატიკა და ესეს წერა"
-
-#: templates/publisher/add_courserun_form.html
-msgid "Sequence Courses:"
-msgstr "თანმიმდევრობითი კურსები:"
 
 #: templates/publisher/add_courserun_form.html
 msgid "Institution Course Admin"
@@ -1181,10 +1191,6 @@ msgstr "ინსტიტუტის კურსის ადმინის�
 #: templates/publisher/add_courserun_form.html
 msgid "Change"
 msgstr "ცვლილება"
-
-#: templates/publisher/add_courserun_form.html
-msgid "COURSE START DATE"
-msgstr "კურსის დაწყების თარიღი"
 
 #: templates/publisher/add_courserun_form.html
 msgid ""
@@ -1203,10 +1209,6 @@ msgid ""
 msgstr "\nდაახლოებითი თარიღები მისაღებია; თუ ვერ უთითებთ ზუსტ თარიღს, გთხოვთ განსაზღვრეთ\nთვე რომელშიც სთავაზობთ კურსს."
 
 #: templates/publisher/add_courserun_form.html
-msgid "COURSE NUMBER"
-msgstr "კურსის ნომერი"
-
-#: templates/publisher/add_courserun_form.html
 msgid ""
 "\n"
 "                                            Courses split into several modules can be denoted by adding .1, .2, etc. at the end of the\n"
@@ -1223,10 +1225,6 @@ msgstr "მაგალითი:"
 #: templates/publisher/add_courserun_form.html
 msgid "etc."
 msgstr "ა.შ."
-
-#: templates/publisher/add_courserun_form.html
-msgid "COURSE END DATE"
-msgstr "კურსის დასრულების თარიღი"
 
 #: templates/publisher/add_courserun_form.html
 msgid "CERTIFICATE TYPE AND PRICE"
@@ -1354,6 +1352,11 @@ msgid "Course Length (weeks)"
 msgstr "კურსის ხანგრძლივობა (კვირები)"
 
 #: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Pacing Type"
+msgstr "მსვლელობის ტიპი"
+
+#: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Estimated Effort"
 msgstr "სავარაუდო ძალისხმევა"
@@ -1475,6 +1478,19 @@ msgstr "საგანი"
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "XSeries"
 msgstr "XSeries"
+
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard/_studio_requests.html
+msgid "Start Date"
+msgstr "დაწყების თარიღი"
+
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "End Date"
+msgstr "დასრულების თარიღი"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Self Paced"
@@ -1861,6 +1877,14 @@ msgstr "შეიქმნა სტუდიოს ასლი კურსი
 #: templates/publisher/seat_form.html
 msgid "Seat Form"
 msgstr "ადგილის ფორმა"
+
+#: templates/publisher/view_course_form.html
+msgid "Base information"
+msgstr "ძირითადი ინფორმაცია"
+
+#: templates/publisher/view_course_form.html
+msgid "INSTITUTION INFORMATION"
+msgstr "ინსტიტუტის ინფორმაცია"
 
 #: templates/publisher/view_course_form.html
 msgid "Course information"

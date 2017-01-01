@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-21 15:19+0500\n"
-"PO-Revision-Date: 2016-12-22 08:25+0000\n"
+"POT-Creation-Date: 2016-12-30 14:38+0500\n"
+"PO-Revision-Date: 2016-12-31 09:18+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Spanish (Mexico) (http://www.transifex.com/open-edx/edx-platform/language/es_MX/)\n"
 "MIME-Version: 1.0\n"
@@ -439,14 +439,24 @@ msgstr ""
 msgid "Studio instance created"
 msgstr ""
 
-#: apps/publisher/forms.py templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
+#: apps/publisher/forms.py
+msgid "Organization Name"
+msgstr ""
+
+#: apps/publisher/forms.py templates/publisher/add_courserun_form.html
 msgid "Course Title"
 msgstr ""
 
-#: apps/publisher/forms.py templates/publisher/add_course_form.html
-#: templates/publisher/dashboard/_studio_requests.html
+#: apps/publisher/forms.py templates/publisher/dashboard/_studio_requests.html
 msgid "Course Number"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Organization Course Admin"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Contacted PM"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -466,7 +476,7 @@ msgid "Course end date"
 msgstr ""
 
 #: apps/publisher/forms.py
-msgid "Yes, course will be Self-Paced"
+msgid "Pace"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -605,7 +615,12 @@ msgid "Course created successfully."
 msgstr ""
 
 #: apps/publisher/views.py
-msgid "Please fill all required field."
+#, python-brace-format
+msgid "An error occurred while saving your changes. {error}"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "Please fill all required fields."
 msgstr ""
 
 #: apps/publisher/views.py
@@ -616,10 +631,6 @@ msgstr ""
 #: apps/publisher/views.py
 #, python-brace-format
 msgid "There was an error saving course run, {error}"
-msgstr ""
-
-#: apps/publisher/views.py
-msgid "Please fill all required fields."
 msgstr ""
 
 #: apps/publisher/views.py
@@ -774,24 +785,36 @@ msgid "Course Form"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/view_course_form.html
-msgid "Base information"
-msgstr ""
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/view_course_form.html
-msgid "INSTITUTION INFORMATION"
+#: templates/publisher/add_courserun_form.html
+msgid "Studio instance information"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
 msgid ""
-"Please choose the school that will be providing the course. Once chosen then"
-" you can select an administrator for the studio shell."
+"The information in this section is required to create a course studio "
+"instance. You must fill all required information but are welcome to come "
+"back and enter the rest of the information when you are ready to announce "
+"the course, or you can do it all at once if you are ready to do so."
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid "CONTACTED PARTNER MANAGER"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Contacted a PM about the creation of a new course is important so that edx "
+"can help you on marketing efforts."
 msgstr ""
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
 msgid "required"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE TITLE"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
@@ -827,7 +850,13 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_course_form.html
-msgid "English Grammar and Essay Writing Sequence Courses:"
+#: templates/publisher/add_courserun_form.html
+msgid "English Grammar and Essay Writing"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "Sequence Courses:"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
@@ -846,15 +875,8 @@ msgid "Statistics: Probability"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
-msgid "Priority content"
-msgstr ""
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_salesforce.html
-#: templates/publisher/course_run_detail/_studio.html
-#: templates/publisher/dashboard/_studio_requests.html
-msgid "Start Date"
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE START DATE"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
@@ -870,9 +892,20 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_studio.html
-msgid "Pacing Type"
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE END DATE"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid ""
+"The date when this self-paced course run will end, replaced by an updated "
+"version of the course"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "PACING TYPE"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
@@ -882,34 +915,27 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE NUMBER"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
 msgid ""
 "Courses split into several modules can be denoted by adding .1, .2, etc. at "
 "the end of the course number before the “x”"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
-msgid ""
-"No special html characters, accents, spaces, dashes, or underscores 10 "
-"character limit"
+msgid "No special html characters, accents, spaces, dashes, or underscores"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid "10 character limit"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
 msgid "About page information"
-msgstr ""
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_salesforce.html
-#: templates/publisher/course_run_detail/_studio.html
-msgid "End Date"
-msgstr ""
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-msgid ""
-"The date when this self-paced course run will end, replaced by an updated "
-"version of the course"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
@@ -1149,26 +1175,10 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
-msgid "Studio instance information"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
 msgid ""
 "\n"
 "                                    The information in this section is required to create a course studio instance. You must fill all required information but are welcome to come back and enter the rest of the information when you are ready to announce the course, or you can do it all at once if you are ready to do so.\n"
 "                                "
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "COURSE TITLE"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "English Grammar and Essay Writing"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "Sequence Courses:"
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
@@ -1177,10 +1187,6 @@ msgstr ""
 
 #: templates/publisher/add_courserun_form.html
 msgid "Change"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "COURSE START DATE"
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
@@ -1200,10 +1206,6 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
-msgid "COURSE NUMBER"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
 msgid ""
 "\n"
 "                                            Courses split into several modules can be denoted by adding .1, .2, etc. at the end of the\n"
@@ -1219,10 +1221,6 @@ msgstr ""
 
 #: templates/publisher/add_courserun_form.html
 msgid "etc."
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "COURSE END DATE"
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
@@ -1351,6 +1349,11 @@ msgid "Course Length (weeks)"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Pacing Type"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Estimated Effort"
 msgstr ""
@@ -1471,6 +1474,19 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "XSeries"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard/_studio_requests.html
+msgid "Start Date"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "End Date"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_drupal.html
@@ -1857,6 +1873,14 @@ msgstr ""
 
 #: templates/publisher/seat_form.html
 msgid "Seat Form"
+msgstr ""
+
+#: templates/publisher/view_course_form.html
+msgid "Base information"
+msgstr ""
+
+#: templates/publisher/view_course_form.html
+msgid "INSTITUTION INFORMATION"
 msgstr ""
 
 #: templates/publisher/view_course_form.html
