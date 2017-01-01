@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-21 15:19+0500\n"
-"PO-Revision-Date: 2016-12-22 08:25+0000\n"
+"POT-Creation-Date: 2016-12-30 14:38+0500\n"
+"PO-Revision-Date: 2016-12-31 09:18+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Hebrew (http://www.transifex.com/open-edx/edx-platform/language/he/)\n"
 "MIME-Version: 1.0\n"
@@ -369,7 +369,7 @@ msgstr "סוגי המושב הכשירים להשלמת תכניות מסוג ז
 
 #: apps/course_metadata/models.py
 msgid "Please provide an image file with transparent background"
-msgstr ""
+msgstr "אנא הזן קובץ תמונה עם רקע שקוף"
 
 #: apps/course_metadata/models.py
 msgid "The user-facing display title for this Program."
@@ -421,19 +421,19 @@ msgstr "מחרוזת JSON כוללת הגדרות ציון פונקציונלי 
 
 #: apps/publisher/choices.py templates/publisher/courses.html
 msgid "Partner Coordinator"
-msgstr ""
+msgstr "מתאם שותף"
 
 #: apps/publisher/choices.py
 msgid "Marketing Reviewer"
-msgstr ""
+msgstr "מבקר שיווק"
 
 #: apps/publisher/choices.py
 msgid "Publisher"
-msgstr ""
+msgstr "מוציא לאור"
 
 #: apps/publisher/choices.py apps/publisher/views.py
 msgid "Course Team"
-msgstr ""
+msgstr "צוות הקורס"
 
 #: apps/publisher/emails.py
 #, python-brace-format
@@ -442,17 +442,27 @@ msgstr "מצב הרצת קורס {title}-{pacing_type}-{start} השתנה."
 
 #: apps/publisher/emails.py
 msgid "Studio instance created"
+msgstr "דוגמא לסטודיו נוצרה"
+
+#: apps/publisher/forms.py
+msgid "Organization Name"
 msgstr ""
 
-#: apps/publisher/forms.py templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
+#: apps/publisher/forms.py templates/publisher/add_courserun_form.html
 msgid "Course Title"
 msgstr "כותרת הקורס"
 
-#: apps/publisher/forms.py templates/publisher/add_course_form.html
-#: templates/publisher/dashboard/_studio_requests.html
+#: apps/publisher/forms.py templates/publisher/dashboard/_studio_requests.html
 msgid "Course Number"
 msgstr "מספר הקורס"
+
+#: apps/publisher/forms.py
+msgid "Organization Course Admin"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Contacted PM"
+msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Yes"
@@ -464,14 +474,14 @@ msgstr "לא"
 
 #: apps/publisher/forms.py
 msgid "Course start date"
-msgstr ""
+msgstr "תאריך תחילת קורס"
 
 #: apps/publisher/forms.py
 msgid "Course end date"
-msgstr ""
+msgstr "תאריך סיום הקורס"
 
 #: apps/publisher/forms.py
-msgid "Yes, course will be Self-Paced"
+msgid "Pace"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -587,45 +597,46 @@ msgstr "מקצועי (ללא אימות זיהוי)"
 
 #: apps/publisher/models.py
 msgid "Organization Role"
-msgstr ""
+msgstr "תפקיד הארגון"
 
 #: apps/publisher/models.py
 msgid "Course Role"
-msgstr ""
+msgstr "תפקיד הקורס"
 
 #: apps/publisher/views.py
 msgid "PARTNER COORDINATOR"
-msgstr ""
+msgstr "מתאם שותף"
 
 #: apps/publisher/views.py
 msgid "MARKETING"
-msgstr ""
+msgstr "שיווק"
 
 #: apps/publisher/views.py
 msgid "PUBLISHER"
-msgstr ""
+msgstr "מוציא לאור"
 
 #: apps/publisher/views.py
 msgid "Course created successfully."
 msgstr "הקורס נוצר בהצלחה."
 
 #: apps/publisher/views.py
-msgid "Please fill all required field."
-msgstr "אנא מלא את כל השדה הנדרש."
-
-#: apps/publisher/views.py
 #, python-brace-format
-msgid "Course run created successfully for course \"{course_title}\"."
-msgstr ""
-
-#: apps/publisher/views.py
-#, python-brace-format
-msgid "There was an error saving course run, {error}"
+msgid "An error occurred while saving your changes. {error}"
 msgstr ""
 
 #: apps/publisher/views.py
 msgid "Please fill all required fields."
-msgstr ""
+msgstr "אנא מלא את כל השדות הנדרשים."
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid "Course run created successfully for course \"{course_title}\"."
+msgstr "הרצת הקורס נוצרה בהצלחה עבור קורס \"{course_title}\". "
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid "There was an error saving course run, {error}"
+msgstr "ארעה שגיאה בשמירת הרצת הקורס, {error} "
 
 #: apps/publisher/views.py
 #, python-brace-format
@@ -654,11 +665,11 @@ msgstr "פרסם"
 
 #: apps/publisher_comments/emails.py
 msgid "New comment added"
-msgstr ""
+msgstr "נוספה הערה חדשה"
 
 #: apps/publisher_comments/emails.py
 msgid "Comment updated"
-msgstr ""
+msgstr "הערה עודכנה"
 
 #. Translators: subject_desc will be choice from ('New comment added',
 #. 'Comment updated'),
@@ -667,7 +678,7 @@ msgstr ""
 #: apps/publisher_comments/emails.py
 #, python-brace-format
 msgid "{subject_desc} in course run: {title}-{pacing_type}-{start}"
-msgstr ""
+msgstr "{subject_desc} בהרצת הקורס: {title}-{pacing_type}-{start}"
 
 #. Translators: 'subject_desc' will be choice from ('New comment added',
 #. 'Comment updated')
@@ -675,7 +686,7 @@ msgstr ""
 #: apps/publisher_comments/emails.py
 #, python-brace-format
 msgid "{subject_desc} in Course: {title}"
-msgstr ""
+msgstr "{subject_desc} בקורס: {title}"
 
 #: apps/publisher_comments/models.py
 msgid "modified"
@@ -779,25 +790,37 @@ msgid "Course Form"
 msgstr "טופס קורס"
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/view_course_form.html
-msgid "Base information"
-msgstr "מידע בסיס"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/view_course_form.html
-msgid "INSTITUTION INFORMATION"
-msgstr "פרטי מוסד"
+#: templates/publisher/add_courserun_form.html
+msgid "Studio instance information"
+msgstr "מידע על דוגמא לסטודיו"
 
 #: templates/publisher/add_course_form.html
 msgid ""
-"Please choose the school that will be providing the course. Once chosen then"
-" you can select an administrator for the studio shell."
-msgstr "בחר בבית הספר שיספק את הקורס. לאחר בחירת בית הספר תוכל לבחור מנהל מערכת עבור מעטפת הסטודיו."
+"The information in this section is required to create a course studio "
+"instance. You must fill all required information but are welcome to come "
+"back and enter the rest of the information when you are ready to announce "
+"the course, or you can do it all at once if you are ready to do so."
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid "CONTACTED PARTNER MANAGER"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Contacted a PM about the creation of a new course is important so that edx "
+"can help you on marketing efforts."
+msgstr ""
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
 msgid "required"
 msgstr "נדרש"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE TITLE"
+msgstr "שם הקורס"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
@@ -832,8 +855,14 @@ msgid ""
 msgstr "אם הקורס נמצא ברצף, המוסכמה לכותרת היא: \"כותרת הקורס: כתובית\""
 
 #: templates/publisher/add_course_form.html
-msgid "English Grammar and Essay Writing Sequence Courses:"
-msgstr "קורסי המשך בדקדוק אנגלי ובכתיבת חיבורים:"
+#: templates/publisher/add_courserun_form.html
+msgid "English Grammar and Essay Writing"
+msgstr "דקדוק באנגלית וכתיבת חיבור"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "Sequence Courses:"
+msgstr "קורסי המשך:"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
@@ -851,16 +880,9 @@ msgid "Statistics: Probability"
 msgstr "סטטיסטיקה: הסתברות"
 
 #: templates/publisher/add_course_form.html
-msgid "Priority content"
-msgstr "תוכן בעל עדיפות"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_salesforce.html
-#: templates/publisher/course_run_detail/_studio.html
-#: templates/publisher/dashboard/_studio_requests.html
-msgid "Start Date"
-msgstr "תאריך התחלה"
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE START DATE"
+msgstr "תאריך תחילת קורס"
 
 #: templates/publisher/add_course_form.html
 msgid ""
@@ -875,10 +897,21 @@ msgid ""
 msgstr "התאריכים המשוערים מקובלים; אם אינך יכול להתחייב על תאריך מדויק, אנא רשום חודש שבו יוצע הקורס."
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_studio.html
-msgid "Pacing Type"
-msgstr "סוג קצב"
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE END DATE"
+msgstr "קורס ותאריך"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid ""
+"The date when this self-paced course run will end, replaced by an updated "
+"version of the course"
+msgstr "התאריך שבו מסלול קורס זה בקצב אישי מסתיים ומוחלף בגרסה מעודכנת של הקורס"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "PACING TYPE"
+msgstr ""
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
@@ -887,35 +920,28 @@ msgid ""
 msgstr "האם הקורס שלך יפַתח לסטודנטים בזמן שנקבע?"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE NUMBER"
+msgstr "מספר קורס"
+
+#: templates/publisher/add_course_form.html
 msgid ""
 "Courses split into several modules can be denoted by adding .1, .2, etc. at "
 "the end of the course number before the “x”"
 msgstr "קורסים שמתפצלים למודולים שונים ניתן לציין על-ידי הוספת 1.,2., וכו' בסוף מספר הקורס ולפני האות \"x\""
 
 #: templates/publisher/add_course_form.html
-msgid ""
-"No special html characters, accents, spaces, dashes, or underscores 10 "
-"character limit"
-msgstr "מגבלה של 10 תווים, ללא תווי html מיוחדים, הדגשות, רווחים, מקף או קו תחתון"
+msgid "No special html characters, accents, spaces, dashes, or underscores"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid "10 character limit"
+msgstr ""
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
 msgid "About page information"
 msgstr "מידע על עמוד \"אודות\""
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_salesforce.html
-#: templates/publisher/course_run_detail/_studio.html
-msgid "End Date"
-msgstr "תאריך סיום"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-msgid ""
-"The date when this self-paced course run will end, replaced by an updated "
-"version of the course"
-msgstr "התאריך שבו מסלול קורס זה בקצב אישי מסתיים ומוחלף בגרסה מעודכנת של הקורס"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_run_detail/_seats.html
@@ -1143,7 +1169,7 @@ msgstr "שמור טיוטה"
 
 #: templates/publisher/add_courserun_form.html
 msgid "New Course Run"
-msgstr ""
+msgstr "הרצת קורס חדשה"
 
 #: templates/publisher/add_courserun_form.html
 #, python-format
@@ -1151,42 +1177,22 @@ msgid ""
 "\n"
 "                    The fields below will only affect this new course run. If you feel the need edit information from the parent course then you may do so on the %(link_start)s%(course_url)s%(link_middle)sparent course for this run%(link_end)s.\n"
 "                "
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "Studio instance information"
-msgstr ""
+msgstr "\nהשדות להלן ישפיעו רק על הרצת הקורס החדשה הזו. אם אתה מרגיש צורך לערוך מידע מהקורס המקורי אתה יכול לעשות זאת ב- %(link_start)s%(course_url)s%(link_middle)s קורס המקורי עבור הרצה זו %(link_end)s."
 
 #: templates/publisher/add_courserun_form.html
 msgid ""
 "\n"
 "                                    The information in this section is required to create a course studio instance. You must fill all required information but are welcome to come back and enter the rest of the information when you are ready to announce the course, or you can do it all at once if you are ready to do so.\n"
 "                                "
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "COURSE TITLE"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "English Grammar and Essay Writing"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "Sequence Courses:"
-msgstr ""
+msgstr "\nהמידע בחלק זה דרוש ליצירת דוגמא לסטודיו בקורס. עליך למלא את כל המידע הדרוש, אך אתה מוזמן לחזור ולהזין את שאר המידע כשאתה מוכן להכריז על הקורס, או להזין הכל בבת אחת אם אתה מוכן לכך."
 
 #: templates/publisher/add_courserun_form.html
 msgid "Institution Course Admin"
-msgstr ""
+msgstr "מנהלת מוסד הקורס"
 
 #: templates/publisher/add_courserun_form.html
 msgid "Change"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "COURSE START DATE"
-msgstr ""
+msgstr "שינוי"
 
 #: templates/publisher/add_courserun_form.html
 msgid ""
@@ -1194,7 +1200,7 @@ msgid ""
 "                                            Start on a weekday (preferably Tuesday, Wednesday, or Thursday) and avoid major U.S. holidays\n"
 "                                            for best access to edX staff.\n"
 "                                        "
-msgstr ""
+msgstr "\nהתחל ביום עבודה (עדיף ביום שלישי, רביעי או חמישי) והימנע מחגים מרכזיים \nעל מנת לקבל גישה טובה יותר לצוות edX."
 
 #: templates/publisher/add_courserun_form.html
 msgid ""
@@ -1202,11 +1208,7 @@ msgid ""
 "                                            Approximate dates are acceptable; If you are unable to give an exact date, please identify a\n"
 "                                            month in which the course will be offered.\n"
 "                                        "
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "COURSE NUMBER"
-msgstr ""
+msgstr "\nתאריכים משוערים הם מקובלים; אם אינך יכול להתחייב על תאריך מדויק, אנא רשום \nחודש שבו יוצע הקורס."
 
 #: templates/publisher/add_courserun_form.html
 msgid ""
@@ -1216,33 +1218,29 @@ msgid ""
 "                                            No special html characters, accents, spaces, dashes, or underscores\n"
 "                                            10 character limit\n"
 "                                        "
-msgstr ""
+msgstr "\nניתן לציין קורסים המתפצלים לכמה יחידות תפקוד על ידי הוספת .1, .2, וכו' בסוף \nמספר הקורס לפני ה-“x”\n ללא תווי html מיוחדים, הדגשים, רווחים,מקפים, או קו תחתון\n ועם 10 תווים לכל היותר"
 
 #: templates/publisher/add_courserun_form.html
 msgid "Example:"
-msgstr ""
+msgstr "דוגמה:"
 
 #: templates/publisher/add_courserun_form.html
 msgid "etc."
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "COURSE END DATE"
-msgstr ""
+msgstr "וכדומה."
 
 #: templates/publisher/add_courserun_form.html
 msgid "CERTIFICATE TYPE AND PRICE"
-msgstr ""
+msgstr "סוג תעודה ומחיר"
 
 #: templates/publisher/add_courserun_form.html
 msgid ""
 "If Verified or Professional Ed, indicate certificate price in US dollars "
 "(minimum of $49)"
-msgstr ""
+msgstr "אם הנוסח מקצועי או מאומת, ציין את מחיר התעודה ב-US dollars (לפחות 49$)"
 
 #: templates/publisher/base.html templates/publisher/dashboard.html
 msgid "Dashboard"
-msgstr ""
+msgstr "לוח בקרה"
 
 #: templates/publisher/base.html templates/publisher/courses.html
 msgid "Courses"
@@ -1356,6 +1354,11 @@ msgid "Course Length (weeks)"
 msgstr "אורך הקורס (שבועות)"
 
 #: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Pacing Type"
+msgstr "סוג קצב"
+
+#: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Estimated Effort"
 msgstr "מאמץ מוערך"
@@ -1422,15 +1425,15 @@ msgstr "הערות נוספות"
 
 #: templates/publisher/course_run_detail/_approval_widget.html
 msgid "EDIT"
-msgstr ""
+msgstr "ערוך"
 
 #: templates/publisher/course_run_detail/_approval_widget.html
 msgid "change owner"
-msgstr ""
+msgstr "שנה בעלים"
 
 #: templates/publisher/course_run_detail/_approval_widget.html
 msgid "CHANGE"
-msgstr ""
+msgstr "שינוי"
 
 #: templates/publisher/course_run_detail/_cat.html
 msgid "Course Type"
@@ -1477,6 +1480,19 @@ msgstr "נושא"
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "XSeries"
 msgstr "XSeries"
+
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard/_studio_requests.html
+msgid "Start Date"
+msgstr "תאריך התחלה"
+
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "End Date"
+msgstr "תאריך סיום"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Self Paced"
@@ -1691,115 +1707,115 @@ msgstr "נראה שלא פרסמת עדיין קורס"
 
 #: templates/publisher/courses.html
 msgid "Add Course"
-msgstr ""
+msgstr "הוסף קורס"
 
 #: templates/publisher/courses.html
 #: templates/publisher/dashboard/_in_progress.html
 msgid "Institution"
-msgstr ""
+msgstr "מוסד"
 
 #: templates/publisher/courses.html
 msgid "Runs"
-msgstr ""
+msgstr "רץ"
 
 #: templates/publisher/courses.html
 msgid "Edit"
-msgstr ""
+msgstr "ערוך"
 
 #: templates/publisher/dashboard.html
 msgid "Course runs"
-msgstr ""
+msgstr "הרצות קורס "
 
 #: templates/publisher/dashboard.html
 msgid "IN PROGRESS"
-msgstr ""
+msgstr "בתהליך"
 
 #: templates/publisher/dashboard.html
 msgid "PREVIEW READY"
-msgstr ""
+msgstr "תצוגה מקדימה מוכנה"
 
 #: templates/publisher/dashboard.html
 msgid "STUDIO REQUEST"
-msgstr ""
+msgstr "בקשה לסטודיו"
 
 #: templates/publisher/dashboard.html
 msgid "PUBLISHED COURSE RUNS"
-msgstr ""
+msgstr "הרצות קורס מפורסם"
 
 #: templates/publisher/dashboard/_in_progress.html
 msgid "There are no in progress course runs."
-msgstr ""
+msgstr "אין הרצות קורס בתהליך."
 
 #: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_published.html
 msgid "Start"
-msgstr ""
+msgstr "התחל"
 
 #: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_published.html
 msgid "End"
-msgstr ""
+msgstr "סיים"
 
 #: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_published.html
 msgid "Target Content"
-msgstr ""
+msgstr "תוכן המטרה"
 
 #: templates/publisher/dashboard/_in_progress.html
 msgid "SEO Review"
-msgstr ""
+msgstr "סקירת SEO"
 
 #: templates/publisher/dashboard/_preview_ready.html
 msgid "There are no course runs marked for preview."
-msgstr ""
+msgstr "לא סומנו הרצות קורס לתצוגה מקדימה."
 
 #: templates/publisher/dashboard/_preview_ready.html
 msgid ""
 "The list below contains all course runs awaiting course team approval. Once "
 "approved, the marketing team will push the course run. you will be notified "
 "via email when the course runs are live on the production site."
-msgstr ""
+msgstr "הרשימה להלן כוללת את כל הרצות הקורס הממתינות לאישור צוות הקורס. ברגע שיאושרו, צוות השיווק יחל בהרצה. תקבל הודעה באמצעות דואר אלקטרוני כאשר יחלו הרצות הקורס באתר ההפקה."
 
 #: templates/publisher/dashboard/_preview_ready.html
 msgid "Approved"
-msgstr ""
+msgstr "מאושר"
 
 #: templates/publisher/dashboard/_preview_ready.html
 msgid "Preview URL"
-msgstr ""
+msgstr "כתובת URL לתצוגה מקדימה"
 
 #: templates/publisher/dashboard/_published.html
 msgid "Looks like you haven't published any course yet"
-msgstr ""
+msgstr "נראה כי לא פרסמת אף קורס עדיין"
 
 #: templates/publisher/dashboard/_published.html
 #, python-format
 msgid ""
 "The list below contains all course runs published in the past "
 "%(default_published_days)s days."
-msgstr ""
+msgstr "הרשימה להלן כוללת את כל הרצות הקורסים שפורסמו בימים %(default_published_days)s האחרונים."
 
 #: templates/publisher/dashboard/_published.html
 msgid "Published Date"
-msgstr ""
+msgstr "תאריך פרסום"
 
 #: templates/publisher/dashboard/_studio_requests.html
 msgid ""
 "The list below are the courses that need a studio instance to start "
 "development."
-msgstr ""
+msgstr "ברשימה להלן מופיעים הקורסים הזקוקים לדוגמא לסטודיו כדי להתחיל בפיתוח."
 
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Studio Course Run Key"
-msgstr ""
+msgstr "מפתח הרצה של קורס סטודיו"
 
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Add"
-msgstr ""
+msgstr "הוסף"
 
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "There are no course-runs require studio instance."
-msgstr ""
+msgstr "אין הרצות קורס הדורשות דוגמא לסטודיו."
 
 #: templates/publisher/email/change_state.html
 #: templates/publisher/email/change_state.txt
@@ -1851,18 +1867,26 @@ msgid ""
 "Studio instance created for the following course run: "
 "%(link_start)s%(course_run_page_url)s%(link_middle)scourse run "
 "link%(link_end)s."
-msgstr ""
+msgstr "דוגמא לסטודיו נוצרה עבור הרצת הקורס הבאה: %(link_start)s%(course_run_page_url)s%(link_middle)s קישור להרצת הקורס %(link_end)s."
 
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
 msgid ""
 "Studio instance created for the following course run: "
 "%(course_run_page_url)s"
-msgstr ""
+msgstr "דוגמא לסטודיו נוצרה עבור הרצת הקורס הבאה: %(course_run_page_url)s"
 
 #: templates/publisher/seat_form.html
 msgid "Seat Form"
 msgstr "טופס מושב"
+
+#: templates/publisher/view_course_form.html
+msgid "Base information"
+msgstr "מידע בסיס"
+
+#: templates/publisher/view_course_form.html
+msgid "INSTITUTION INFORMATION"
+msgstr "פרטי מוסד"
 
 #: templates/publisher/view_course_form.html
 msgid "Course information"

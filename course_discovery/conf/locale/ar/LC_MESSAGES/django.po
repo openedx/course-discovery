@@ -7,6 +7,8 @@
 # Amira 111111111111111111 <amirasaad698@gmail.com>, 2016
 # AR C2 <e2f458fd4s512@outlook.com>, 2016
 # AR R1 <e2far1@hotmail.com>, 2016
+# e2f_ar r3 <e2f_ar_r3@outlook.com>, 2016
+# e2f_ar t3 <e2f_ar_t3@outlook.com>, 2016
 # Natalia Berdnikov <nberdnikov@edx.org>, 2016
 # omarithawi <oithawi@qrf.org>, 2016
 # qualityalltext <quality@alltext.co.il>, 2016
@@ -15,8 +17,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-21 15:19+0500\n"
-"PO-Revision-Date: 2016-12-22 08:25+0000\n"
+"POT-Creation-Date: 2016-12-30 14:38+0500\n"
+"PO-Revision-Date: 2016-12-31 09:18+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Arabic (http://www.transifex.com/open-edx/edx-platform/language/ar/)\n"
 "MIME-Version: 1.0\n"
@@ -372,7 +374,7 @@ msgstr "أنواع المقاعد التي تؤهل إكمال البرامج م
 
 #: apps/course_metadata/models.py
 msgid "Please provide an image file with transparent background"
-msgstr ""
+msgstr "الرجاء تقديم ملف صورة بخلفية شفافة"
 
 #: apps/course_metadata/models.py
 msgid "The user-facing display title for this Program."
@@ -424,19 +426,19 @@ msgstr "سلسة JSON يحتوي على إمكانية البحث المرن ل�
 
 #: apps/publisher/choices.py templates/publisher/courses.html
 msgid "Partner Coordinator"
-msgstr ""
+msgstr "منسق شريك"
 
 #: apps/publisher/choices.py
 msgid "Marketing Reviewer"
-msgstr ""
+msgstr "مراجع التسويق"
 
 #: apps/publisher/choices.py
 msgid "Publisher"
-msgstr ""
+msgstr "ناشر"
 
 #: apps/publisher/choices.py apps/publisher/views.py
 msgid "Course Team"
-msgstr ""
+msgstr "فريق المقرر"
 
 #: apps/publisher/emails.py
 #, python-brace-format
@@ -445,17 +447,27 @@ msgstr "تم تغيير حالة مجرى الدورة {title}-{pacing_type}-{st
 
 #: apps/publisher/emails.py
 msgid "Studio instance created"
+msgstr "تم إنشاء مثيل استديو"
+
+#: apps/publisher/forms.py
+msgid "Organization Name"
 msgstr ""
 
-#: apps/publisher/forms.py templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
+#: apps/publisher/forms.py templates/publisher/add_courserun_form.html
 msgid "Course Title"
 msgstr "عنوان المقرر"
 
-#: apps/publisher/forms.py templates/publisher/add_course_form.html
-#: templates/publisher/dashboard/_studio_requests.html
+#: apps/publisher/forms.py templates/publisher/dashboard/_studio_requests.html
 msgid "Course Number"
 msgstr "رقم المقرر"
+
+#: apps/publisher/forms.py
+msgid "Organization Course Admin"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Contacted PM"
+msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Yes"
@@ -467,14 +479,14 @@ msgstr "كلا"
 
 #: apps/publisher/forms.py
 msgid "Course start date"
-msgstr ""
+msgstr "تاريخ بدء المقرر"
 
 #: apps/publisher/forms.py
 msgid "Course end date"
-msgstr ""
+msgstr "تاريح انتهاء المقرر"
 
 #: apps/publisher/forms.py
-msgid "Yes, course will be Self-Paced"
+msgid "Pace"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -590,45 +602,46 @@ msgstr "مهني (دون التحقق من معرف الهوية)"
 
 #: apps/publisher/models.py
 msgid "Organization Role"
-msgstr ""
+msgstr "دور المؤسسة"
 
 #: apps/publisher/models.py
 msgid "Course Role"
-msgstr ""
+msgstr "دور المقرر"
 
 #: apps/publisher/views.py
 msgid "PARTNER COORDINATOR"
-msgstr ""
+msgstr "المنسق الشريك"
 
 #: apps/publisher/views.py
 msgid "MARKETING"
-msgstr ""
+msgstr "التسويق"
 
 #: apps/publisher/views.py
 msgid "PUBLISHER"
-msgstr ""
+msgstr "الناشر"
 
 #: apps/publisher/views.py
 msgid "Course created successfully."
 msgstr "تم إنشاء الدورة بنجاح."
 
 #: apps/publisher/views.py
-msgid "Please fill all required field."
+#, python-brace-format
+msgid "An error occurred while saving your changes. {error}"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "Please fill all required fields."
 msgstr "الرجاء ملء جميع الحقول المطلوبة."
 
 #: apps/publisher/views.py
 #, python-brace-format
 msgid "Course run created successfully for course \"{course_title}\"."
-msgstr ""
+msgstr "تم إنشاء مجرى المقرر بنجاح للمقرر \"{course_title}\"."
 
 #: apps/publisher/views.py
 #, python-brace-format
 msgid "There was an error saving course run, {error}"
-msgstr ""
-
-#: apps/publisher/views.py
-msgid "Please fill all required fields."
-msgstr ""
+msgstr "حدث خطأ أثناء القيام بحفظ مجرى المقرر، {error}"
 
 #: apps/publisher/views.py
 #, python-brace-format
@@ -657,11 +670,11 @@ msgstr "نشر"
 
 #: apps/publisher_comments/emails.py
 msgid "New comment added"
-msgstr ""
+msgstr "تمت إضافة تعليق جديد"
 
 #: apps/publisher_comments/emails.py
 msgid "Comment updated"
-msgstr ""
+msgstr "تم تحديث التعليق"
 
 #. Translators: subject_desc will be choice from ('New comment added',
 #. 'Comment updated'),
@@ -670,7 +683,7 @@ msgstr ""
 #: apps/publisher_comments/emails.py
 #, python-brace-format
 msgid "{subject_desc} in course run: {title}-{pacing_type}-{start}"
-msgstr ""
+msgstr "تم إضافة {subject_desc} في مجرى المقرر: {title}-{pacing_type}-{start}"
 
 #. Translators: 'subject_desc' will be choice from ('New comment added',
 #. 'Comment updated')
@@ -678,7 +691,7 @@ msgstr ""
 #: apps/publisher_comments/emails.py
 #, python-brace-format
 msgid "{subject_desc} in Course: {title}"
-msgstr ""
+msgstr "تم إضافة {subject_desc} في المقرر: {title}"
 
 #: apps/publisher_comments/models.py
 msgid "modified"
@@ -782,25 +795,37 @@ msgid "Course Form"
 msgstr "نموذج الدورة"
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/view_course_form.html
-msgid "Base information"
-msgstr "معلومات أساسية"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/view_course_form.html
-msgid "INSTITUTION INFORMATION"
-msgstr "معلومات المؤسسة التعليمية"
+#: templates/publisher/add_courserun_form.html
+msgid "Studio instance information"
+msgstr "معلومات مثيل الاستديو"
 
 #: templates/publisher/add_course_form.html
 msgid ""
-"Please choose the school that will be providing the course. Once chosen then"
-" you can select an administrator for the studio shell."
-msgstr "الرجاء اختيار المدرسة التي ستمرر الدورة. عند الانتهاء من الاختيار يمكن اختيار مُشرف لهيكل الأستوديو."
+"The information in this section is required to create a course studio "
+"instance. You must fill all required information but are welcome to come "
+"back and enter the rest of the information when you are ready to announce "
+"the course, or you can do it all at once if you are ready to do so."
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid "CONTACTED PARTNER MANAGER"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"Contacted a PM about the creation of a new course is important so that edx "
+"can help you on marketing efforts."
+msgstr ""
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
 msgid "required"
 msgstr "مطلوب"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE TITLE"
+msgstr "عنوان المقرر"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
@@ -835,8 +860,14 @@ msgid ""
 msgstr "إذا تم تدريس هذه الدورة بالتسلسل، فستكون الطريقة المتعارف عليها للتسمية: \"عنوان المقرر: عنوان فرعي\""
 
 #: templates/publisher/add_course_form.html
-msgid "English Grammar and Essay Writing Sequence Courses:"
-msgstr "تسلسل دورات علم قواعد اللغة الإنجليزية وكتابة المقالات:"
+#: templates/publisher/add_courserun_form.html
+msgid "English Grammar and Essay Writing"
+msgstr "قواعد اللغة الإنجليزية وكتابة المقالات"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "Sequence Courses:"
+msgstr "تسلسل مقررات:"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
@@ -854,16 +885,9 @@ msgid "Statistics: Probability"
 msgstr "الإحصاء: الاحتمالات"
 
 #: templates/publisher/add_course_form.html
-msgid "Priority content"
-msgstr "أولويات المحتوى"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_salesforce.html
-#: templates/publisher/course_run_detail/_studio.html
-#: templates/publisher/dashboard/_studio_requests.html
-msgid "Start Date"
-msgstr "تاريخ البدء"
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE START DATE"
+msgstr "تاريخ بدء المقرر"
 
 #: templates/publisher/add_course_form.html
 msgid ""
@@ -878,10 +902,21 @@ msgid ""
 msgstr "يتم قبول التواريخ التقريبية؛ إذا لم تكن قادراً على تقديم تاريخ محدد، الرجاء تحديد الشهر الذي سيتم فتح الدورة خلاله."
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_studio.html
-msgid "Pacing Type"
-msgstr "نوع الدراسة"
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE END DATE"
+msgstr "تاريخ انتهاء المقرر"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid ""
+"The date when this self-paced course run will end, replaced by an updated "
+"version of the course"
+msgstr "التاريخ الذي سينتهي فيه تشغيل هذه الدورة بالتعلم الذاتي، حين يتم استبدالها بنسخة محدثة من الدورة"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "PACING TYPE"
+msgstr ""
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
@@ -890,35 +925,28 @@ msgid ""
 msgstr "هل سيتم فتح الدورة للطلاب في الوقت المعلن عنه؟"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "COURSE NUMBER"
+msgstr "رقم المقرر"
+
+#: templates/publisher/add_course_form.html
 msgid ""
 "Courses split into several modules can be denoted by adding .1, .2, etc. at "
 "the end of the course number before the “x”"
 msgstr "يمكن تقديم الدورات المكونة من عدة وحدات بإضافة الأرقام .1, .2, الخ، في نهاية رقم الدورة قبل “x”"
 
 #: templates/publisher/add_course_form.html
-msgid ""
-"No special html characters, accents, spaces, dashes, or underscores 10 "
-"character limit"
-msgstr "لا يوجد أحرف، ألوان، مسافات أو خطوط سفلية  html خاصة المحددة ل10 أحرف"
+msgid "No special html characters, accents, spaces, dashes, or underscores"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid "10 character limit"
+msgstr ""
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
 msgid "About page information"
 msgstr "معلومات صفحة اللمحة"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_salesforce.html
-#: templates/publisher/course_run_detail/_studio.html
-msgid "End Date"
-msgstr "تاريخ الانتهاء"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-msgid ""
-"The date when this self-paced course run will end, replaced by an updated "
-"version of the course"
-msgstr "التاريخ الذي سينتهي فيه تشغيل هذه الدورة بالتعلم الذاتي، حين يتم استبدالها بنسخة محدثة من الدورة"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_run_detail/_seats.html
@@ -1146,7 +1174,7 @@ msgstr "حفظ المسودة"
 
 #: templates/publisher/add_courserun_form.html
 msgid "New Course Run"
-msgstr ""
+msgstr "مجرى مقرر جديد"
 
 #: templates/publisher/add_courserun_form.html
 #, python-format
@@ -1154,42 +1182,22 @@ msgid ""
 "\n"
 "                    The fields below will only affect this new course run. If you feel the need edit information from the parent course then you may do so on the %(link_start)s%(course_url)s%(link_middle)sparent course for this run%(link_end)s.\n"
 "                "
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "Studio instance information"
-msgstr ""
+msgstr "\nستؤثر الحقول أدناه فقط على مجرى هذا المقرر. إذا كنت تشعر بحاجة إلى تحرير المعلومات من المقرر الأصل فيمكنك القيام بذلك على %(link_start)s%(course_url)s%(link_middle)sالمقرر الأصل لهذا المجرى%(link_end)s."
 
 #: templates/publisher/add_courserun_form.html
 msgid ""
 "\n"
 "                                    The information in this section is required to create a course studio instance. You must fill all required information but are welcome to come back and enter the rest of the information when you are ready to announce the course, or you can do it all at once if you are ready to do so.\n"
 "                                "
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "COURSE TITLE"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "English Grammar and Essay Writing"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "Sequence Courses:"
-msgstr ""
+msgstr "\nالمعلومات في هذا القسم مطلوبة لإنشاء مثيل استديو مقرر. يجب ملء جميع المعلومات المطلوبة ولكن نرحب بعودتك مرة أخرى وإدخال بقية المعلومات عندم تكون مستعدًا لإعلان هذا المقرر، أو يمكنك القيام بذلك ما أن تكون مستعدًا."
 
 #: templates/publisher/add_courserun_form.html
 msgid "Institution Course Admin"
-msgstr ""
+msgstr "مدير مقرر المؤسسة التعليمية"
 
 #: templates/publisher/add_courserun_form.html
 msgid "Change"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "COURSE START DATE"
-msgstr ""
+msgstr "تغيير"
 
 #: templates/publisher/add_courserun_form.html
 msgid ""
@@ -1197,7 +1205,7 @@ msgid ""
 "                                            Start on a weekday (preferably Tuesday, Wednesday, or Thursday) and avoid major U.S. holidays\n"
 "                                            for best access to edX staff.\n"
 "                                        "
-msgstr ""
+msgstr "\nابدأ بأحد أيام العمل (مثل الثلاثاء والأربعاء والخميس) وتجنب عطلات الولايات المتحدة الكبرى حتى تتمكن من الوصول\nبشكل أفضل إلى موظفي edX."
 
 #: templates/publisher/add_courserun_form.html
 msgid ""
@@ -1205,11 +1213,7 @@ msgid ""
 "                                            Approximate dates are acceptable; If you are unable to give an exact date, please identify a\n"
 "                                            month in which the course will be offered.\n"
 "                                        "
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "COURSE NUMBER"
-msgstr ""
+msgstr "\nيتم قبول التواريخ التقريبية؛ إذا لم تكن قادراً على تقديم تاريخ محدد، الرجاء تحديد\nالشهر الذي سيتم فتح المقرر خلاله."
 
 #: templates/publisher/add_courserun_form.html
 msgid ""
@@ -1219,33 +1223,29 @@ msgid ""
 "                                            No special html characters, accents, spaces, dashes, or underscores\n"
 "                                            10 character limit\n"
 "                                        "
-msgstr ""
+msgstr "\nقسّم المقرر إلى وحدات عديدة يمكن تسميتها بإضافة .1، .2، إلخ في نهارية رقم المقرر قبل “x”\nلا يوجد أحرف، ألوان، مسافات أو خطوط سفلية html خاصة المحددة لـ 10 أحرف"
 
 #: templates/publisher/add_courserun_form.html
 msgid "Example:"
-msgstr ""
+msgstr "مثال:"
 
 #: templates/publisher/add_courserun_form.html
 msgid "etc."
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "COURSE END DATE"
-msgstr ""
+msgstr "إلخ"
 
 #: templates/publisher/add_courserun_form.html
 msgid "CERTIFICATE TYPE AND PRICE"
-msgstr ""
+msgstr "نوع الشهادة وسعرها"
 
 #: templates/publisher/add_courserun_form.html
 msgid ""
 "If Verified or Professional Ed, indicate certificate price in US dollars "
 "(minimum of $49)"
-msgstr ""
+msgstr "إذا كانت الشهادة موثّقة للتعليم المهني، اذكر سعر الشهادة بالدولار الأمريكي (بحد أدنى 49 دولارًا)"
 
 #: templates/publisher/base.html templates/publisher/dashboard.html
 msgid "Dashboard"
-msgstr ""
+msgstr "صفحة المعلومات الرئيسية"
 
 #: templates/publisher/base.html templates/publisher/courses.html
 msgid "Courses"
@@ -1359,6 +1359,11 @@ msgid "Course Length (weeks)"
 msgstr "مدة الدورة (بالأسابيع)"
 
 #: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Pacing Type"
+msgstr "نوع الدراسة"
+
+#: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Estimated Effort"
 msgstr "المجهود المُقدر"
@@ -1425,15 +1430,15 @@ msgstr "ملاحظات إضافية"
 
 #: templates/publisher/course_run_detail/_approval_widget.html
 msgid "EDIT"
-msgstr ""
+msgstr "تحرير"
 
 #: templates/publisher/course_run_detail/_approval_widget.html
 msgid "change owner"
-msgstr ""
+msgstr "تغيير المالك"
 
 #: templates/publisher/course_run_detail/_approval_widget.html
 msgid "CHANGE"
-msgstr ""
+msgstr "تغيير"
 
 #: templates/publisher/course_run_detail/_cat.html
 msgid "Course Type"
@@ -1480,6 +1485,19 @@ msgstr "الموضوع"
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "XSeries"
 msgstr "XSeries"
+
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard/_studio_requests.html
+msgid "Start Date"
+msgstr "تاريخ البدء"
+
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "End Date"
+msgstr "تاريخ الانتهاء"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Self Paced"
@@ -1694,115 +1712,115 @@ msgstr "يبدو أنك لم تنشر أي دورة بعد"
 
 #: templates/publisher/courses.html
 msgid "Add Course"
-msgstr ""
+msgstr "إضافة مقرر"
 
 #: templates/publisher/courses.html
 #: templates/publisher/dashboard/_in_progress.html
 msgid "Institution"
-msgstr ""
+msgstr "المؤسسة التعليمية"
 
 #: templates/publisher/courses.html
 msgid "Runs"
-msgstr ""
+msgstr "مجريات"
 
 #: templates/publisher/courses.html
 msgid "Edit"
-msgstr ""
+msgstr "تحرير"
 
 #: templates/publisher/dashboard.html
 msgid "Course runs"
-msgstr ""
+msgstr "مجرى المقررات"
 
 #: templates/publisher/dashboard.html
 msgid "IN PROGRESS"
-msgstr ""
+msgstr "جار"
 
 #: templates/publisher/dashboard.html
 msgid "PREVIEW READY"
-msgstr ""
+msgstr "معاينة جاهزة"
 
 #: templates/publisher/dashboard.html
 msgid "STUDIO REQUEST"
-msgstr ""
+msgstr "طلب إستديو"
 
 #: templates/publisher/dashboard.html
 msgid "PUBLISHED COURSE RUNS"
-msgstr ""
+msgstr "مجرى المقررات المنشورة"
 
 #: templates/publisher/dashboard/_in_progress.html
 msgid "There are no in progress course runs."
-msgstr ""
+msgstr "لا يوجد تقدم في مجرى المقررات."
 
 #: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_published.html
 msgid "Start"
-msgstr ""
+msgstr "بدء"
 
 #: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_published.html
 msgid "End"
-msgstr ""
+msgstr "نهاية"
 
 #: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_published.html
 msgid "Target Content"
-msgstr ""
+msgstr "المحتوى المستهدف"
 
 #: templates/publisher/dashboard/_in_progress.html
 msgid "SEO Review"
-msgstr ""
+msgstr "مراجعة موجهة للجمهور العالمي"
 
 #: templates/publisher/dashboard/_preview_ready.html
 msgid "There are no course runs marked for preview."
-msgstr ""
+msgstr "لا يوجد مجرى مقررات محدد للمعاينة."
 
 #: templates/publisher/dashboard/_preview_ready.html
 msgid ""
 "The list below contains all course runs awaiting course team approval. Once "
 "approved, the marketing team will push the course run. you will be notified "
 "via email when the course runs are live on the production site."
-msgstr ""
+msgstr "تحتوي القائمة أدناه على جميع مجرى المقررات قيد اعتماد فريق المقرر. وبمجرد الاعتماد، سينشر فريق التسويق مجرى المقرر. سيتم إخطارك عبر البريد الإلكتروني عندما يكون مجرى المقررات حيًا على موقع الإنتاج."
 
 #: templates/publisher/dashboard/_preview_ready.html
 msgid "Approved"
-msgstr ""
+msgstr "موافق عليه"
 
 #: templates/publisher/dashboard/_preview_ready.html
 msgid "Preview URL"
-msgstr ""
+msgstr "معاينة URL"
 
 #: templates/publisher/dashboard/_published.html
 msgid "Looks like you haven't published any course yet"
-msgstr ""
+msgstr "يبدو أنك لم تنشر أي مقرر بعد"
 
 #: templates/publisher/dashboard/_published.html
 #, python-format
 msgid ""
 "The list below contains all course runs published in the past "
 "%(default_published_days)s days."
-msgstr ""
+msgstr "تحتوي القائمة أدناه على جميع مجريات المقرر التي تم نشرها في الأيام الـ%(default_published_days)s الماضية"
 
 #: templates/publisher/dashboard/_published.html
 msgid "Published Date"
-msgstr ""
+msgstr "التاريخ الذي تم نشره"
 
 #: templates/publisher/dashboard/_studio_requests.html
 msgid ""
 "The list below are the courses that need a studio instance to start "
 "development."
-msgstr ""
+msgstr "تحتوي القائمة أدناه على المقررات التي تحتاج إلى مثيل استديو لبدء التطوير."
 
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Studio Course Run Key"
-msgstr ""
+msgstr "مفتاح إستديو مجرى المقرر"
 
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Add"
-msgstr ""
+msgstr "إضافة"
 
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "There are no course-runs require studio instance."
-msgstr ""
+msgstr "لا يوجد مجرى مقررات تحتاج إلى مثيل إستديو."
 
 #: templates/publisher/email/change_state.html
 #: templates/publisher/email/change_state.txt
@@ -1854,18 +1872,26 @@ msgid ""
 "Studio instance created for the following course run: "
 "%(link_start)s%(course_run_page_url)s%(link_middle)scourse run "
 "link%(link_end)s."
-msgstr ""
+msgstr "تم إنشاء مثيل استديو لمجرى المقرر: %(link_start)s%(course_run_page_url)s%(link_middle)sرابط مجرى المقرر%(link_end)s."
 
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
 msgid ""
 "Studio instance created for the following course run: "
 "%(course_run_page_url)s"
-msgstr ""
+msgstr "تم إنشاء مثيل استديو لمجرى المقرر التالي: %(course_run_page_url)s"
 
 #: templates/publisher/seat_form.html
 msgid "Seat Form"
 msgstr "شكل المقعد"
+
+#: templates/publisher/view_course_form.html
+msgid "Base information"
+msgstr "معلومات أساسية"
+
+#: templates/publisher/view_course_form.html
+msgid "INSTITUTION INFORMATION"
+msgstr "معلومات المؤسسة التعليمية"
 
 #: templates/publisher/view_course_form.html
 msgid "Course information"
