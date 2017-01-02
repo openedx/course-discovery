@@ -14,7 +14,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View, CreateView, UpdateView, DetailView, ListView
 from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import get_objects_for_user
-from rest_framework.generics import UpdateAPIView
 from course_discovery.apps.core.models import User
 
 from course_discovery.apps.publisher.choices import PublisherUserRole
@@ -26,7 +25,6 @@ from course_discovery.apps.publisher import mixins
 from course_discovery.apps.publisher.models import (
     Course, CourseRun, Seat, State, UserAttributes,
     OrganizationExtension, CourseUserRole)
-from course_discovery.apps.publisher.serializers import UpdateCourseKeySerializer
 from course_discovery.apps.publisher.utils import (
     is_internal_user, get_internal_users, is_publisher_admin,
     is_partner_coordinator_user
@@ -148,9 +146,6 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin,
             context['user_list'] = get_internal_users()
 
         return context
-
-    def patch(self, *args, **kwargs):
-        return UpdateCourseKeyView.as_view()(self.request, *args, **kwargs)
 
 
 # pylint: disable=attribute-defined-outside-init
@@ -428,11 +423,6 @@ class ToggleEmailNotification(mixins.LoginRequiredMixin, View):
         user_attribute.save()
 
         return JsonResponse({'is_enabled': is_enabled})
-
-
-class UpdateCourseKeyView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, UpdateAPIView):
-    queryset = CourseRun.objects.all()
-    serializer_class = UpdateCourseKeySerializer
 
 
 class CourseListView(mixins.LoginRequiredMixin, ListView):
