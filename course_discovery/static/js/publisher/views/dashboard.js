@@ -13,7 +13,7 @@ $(document).ready(function() {
             return;
         }
 
-        var courseRunPageURL = $(this).data('courseRunUrl'),
+        var updateCourseKeyURL = $(this).data('update-course-key-url'),
             courseKeyValue = courseKeyInput.val().trim(),
             courseTitleTag = $courseRunParentTag.find("#course-title").html().trim(),
             startDateTag = $courseRunParentTag.find("#course-start").html().trim(),
@@ -29,7 +29,7 @@ $(document).ready(function() {
         e.preventDefault();
 
         $.ajax({
-            url: courseRunPageURL,
+            url: updateCourseKeyURL,
             type: "PATCH",
             data: JSON.stringify({lms_course_id: courseKeyValue}),
             contentType: "application/json",

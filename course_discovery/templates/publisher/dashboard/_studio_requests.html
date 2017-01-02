@@ -44,7 +44,7 @@
                             </td>
                             <td class="form-group">
                                 <input type="text" class="field-input input-text small" aria-labelledby="course-title-{{ course_run.title }} column-title" />
-                                <button data-course-run-url="{{ run_page_url }}" class="btn-inline btn-add-course-key">{% trans "Add" %}</button>
+                                <button data-update-course-key-url="{% url 'publisher:api:update_course_key' course_run.id %}" class="btn-inline btn-add-course-key">{% trans "Add" %}</button>
                             </td>
                     </tr>
                 {% endfor %}

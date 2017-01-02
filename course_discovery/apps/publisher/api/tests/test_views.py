@@ -2,13 +2,18 @@
 import json
 
 import ddt
+from django.conf import settings
 from django.contrib.auth.models import Group
+from django.contrib.sites.models import Site
+from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
+from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.constants import INTERNAL_USER_GROUP_NAME
+from course_discovery.apps.publisher.models import CourseRun
 from course_discovery.apps.publisher.tests import factories, JSON_CONTENT_TYPE
 
 
@@ -137,3 +142,90 @@ class OrganizationGroupUserViewTests(TestCase):
         return reverse(
             'publisher:api:organization_group_users', kwargs={'pk': org_id}
         )
+
+
+class UpdateCourseKeyViewTests(TestCase):
+
+    def setUp(self):
+        super(UpdateCourseKeyViewTests, self).setUp()
+        self.course_run = factories.CourseRunFactory()
+        self.user = UserFactory()
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+
+        self.organization_extension = factories.OrganizationExtensionFactory()
+        self.course_run.course.organizations.add(self.organization_extension.organization)
+
+        self.update_course_key_url = reverse(
+            'publisher:api:update_course_key', kwargs={'pk': self.course_run.id}
+        )
+
+        factories.CourseUserRoleFactory(
+            role=PublisherUserRole.PartnerCoordinator,
+            course=self.course_run.course,
+            user=self.user
+        )
+
+        factories.UserAttributeFactory(user=self.user, enable_email_notification=True)
+        toggle_switch('enable_publisher_email_notifications', True)
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+    def test_update_course_key_with_errors(self):
+        """
+        Test that api returns error with invalid course key.
+        """
+        invalid_course_id = 'invalid-course-key'
+        response = self.client.patch(
+            self.update_course_key_url,
+            data=json.dumps({'lms_course_id': invalid_course_id}),
+            content_type=JSON_CONTENT_TYPE
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.data.get('non_field_errors'), ['Invalid course key [{}]'.format(invalid_course_id)]
+        )
+
+    def test_update_course_key(self):
+        """
+        Test that internal user can update `lms_course_id` for a course run.
+        """
+        # Verify that `lms_course_id` and `changed_by` are None
+        self.assert_course_key_and_changed_by()
+
+        lms_course_id = 'course-v1:edxTest+TC12+2050Q1'
+        response = self.client.patch(
+            self.update_course_key_url,
+            data=json.dumps({'lms_course_id': lms_course_id}),
+            content_type=JSON_CONTENT_TYPE
+        )
+        self.assertEqual(response.status_code, 200)
+
+        # Verify that `lms_course_id` and `changed_by` are not None
+        self.assert_course_key_and_changed_by(lms_course_id=lms_course_id, changed_by=self.user)
+
+        # Assert email sent
+        self.assert_email_sent(
+            reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id}),
+            'Studio instance created',
+            'Studio instance created for the following course run'
+        )
+
+    def assert_course_key_and_changed_by(self, lms_course_id=None, changed_by=None):
+        self.course_run = CourseRun.objects.get(id=self.course_run.id)
+
+        self.assertEqual(self.course_run.lms_course_id, lms_course_id)
+        self.assertEqual(self.course_run.changed_by, changed_by)
+
+    def assert_email_sent(self, object_path, subject, expected_body):
+        """
+        DRY method to assert sent email data.
+        """
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual([settings.PUBLISHER_FROM_EMAIL], mail.outbox[0].to)
+        self.assertEqual([self.user.email], mail.outbox[0].bcc)
+        self.assertEqual(str(mail.outbox[0].subject), subject)
+
+        body = mail.outbox[0].body.strip()
+        self.assertIn(expected_body, body)
+        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=object_path)
+        self.assertIn(page_url, body)
