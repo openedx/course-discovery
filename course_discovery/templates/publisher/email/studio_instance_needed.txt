@@ -1,0 +1,18 @@
+{% load i18n %}
+
+<p>
+{% trans "Dear" %} {{ edx_pc_name }},
+</p>
+<p>
+{% trans "Please create a Studio instance for the following course." %}
+</p>
+
+<ul>
+<li><a href="{{ dashboard_link }}">{{ course_name }}</a></li>
+<li>{{ insitution_name }}</li>
+</ul>
+
+<p>{% trans "Thanks," %}
+ </br>
+ {{ course_team_admin_name }}
+</p>
