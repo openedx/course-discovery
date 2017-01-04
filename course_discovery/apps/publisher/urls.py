@@ -10,7 +10,7 @@ urlpatterns = [
     url(r'^api/', include('course_discovery.apps.publisher.api.urls', namespace='api')),
     url(r'^courses/$', views.CourseListView.as_view(), name='publisher_courses'),
     url(r'^courses/new/$', views.CreateCourseView.as_view(), name='publisher_courses_new'),
-    url(r'^courses/(?P<pk>\d+)/view/$', views.ReadOnlyView.as_view(), name='publisher_courses_readonly'),
+    url(r'^courses/(?P<pk>\d+)/$', views.CourseDetailView.as_view(), name='publisher_course_detail'),
     url(r'^courses/(?P<pk>\d+)/edit/$', views.UpdateCourseView.as_view(), name='publisher_courses_edit'),
     url(
         r'^courses/(?P<parent_course_id>\d+)/course_runs/new/$',

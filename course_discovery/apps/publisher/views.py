@@ -253,13 +253,13 @@ class UpdateCourseView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, mi
         return context
 
 
-class ReadOnlyView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, DetailView):
-    """ Course Run Detail View."""
+class CourseDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, DetailView):
+    """ Course Detail View."""
     model = Course
     template_name = 'publisher/view_course_form.html'
 
     def get_context_data(self, **kwargs):
-        context = super(ReadOnlyView, self).get_context_data(**kwargs)
+        context = super(CourseDetailView, self).get_context_data(**kwargs)
         context['comment_object'] = self
         return context
 
