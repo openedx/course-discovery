@@ -2,11 +2,13 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.utils.decorators import method_decorator
 
-from course_discovery.apps.publisher.models import Course, Seat, OrganizationExtension
+from course_discovery.apps.publisher.models import Course, Seat
 from course_discovery.apps.publisher.utils import is_publisher_admin, is_internal_user
 
 
 class ViewPermissionMixin(object):
+
+    permission = None
 
     def get_course(self):
         publisher_object = self.get_object()
@@ -19,15 +21,18 @@ class ViewPermissionMixin(object):
 
         return None
 
-    def check_user(self, user):
+    def has_user_access(self, user):
         course = self.get_course()
-        return check_user_course_access(user, course)
+        return (
+            check_roles_access(user) or
+            check_course_organization_permission(user, course, self.permission)
+        )
 
     def permission_failed(self):
         return HttpResponseForbidden()
 
     def dispatch(self, request, *args, **kwargs):
-        if not self.check_user(request.user):
+        if not self.has_user_access(request.user):
             return self.permission_failed()
 
         return super(ViewPermissionMixin, self).dispatch(request, *args, **kwargs)
@@ -65,20 +70,14 @@ def check_roles_access(user):
     return False
 
 
-def check_course_organization_permission(user, course):
+def check_course_organization_permission(user, course, permission):
     """ Return True if user has view permission on organization. """
     if not hasattr(course, 'organizations'):
         return False
 
     return any(
         [
-            user.has_perm(OrganizationExtension.VIEW_COURSE, org.organization_extension)
+            user.has_perm(permission, org.organization_extension)
             for org in course.organizations.all()
         ]
     )
-
-
-def check_user_course_access(user, course):
-    """ Return True if user is admin/internal user or has access permission. """
-
-    return check_roles_access(user) or check_course_organization_permission(user, course)

@@ -106,31 +106,31 @@ class CourseTests(TestCase):
 
     def test_assign_permission_organization_extension(self):
         """ Verify that permission can be assigned using the organization extension. """
-        self.assert_user_cannot_view_course(self.user1, self.course)
-        self.assert_user_cannot_view_course(self.user2, self.course2)
+        self.assert_user_cannot_view_course(self.user1, self.course, OrganizationExtension.VIEW_COURSE)
+        self.assert_user_cannot_view_course(self.user2, self.course2, OrganizationExtension.VIEW_COURSE)
 
         self.course.organizations.add(self.org_extension_1.organization)
         self.course2.organizations.add(self.org_extension_2.organization)
 
-        assign_perm(OrganizationExtension.VIEW_COURSE, self.user1, self.org_extension_1)
-        assign_perm(OrganizationExtension.VIEW_COURSE, self.user2, self.org_extension_2)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.org_extension_1.group, self.org_extension_1)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.org_extension_2.group, self.org_extension_2)
 
-        self.assert_user_can_view_course(self.user1, self.course)
-        self.assert_user_can_view_course(self.user2, self.course2)
+        self.assert_user_can_view_course(self.user1, self.course, OrganizationExtension.VIEW_COURSE)
+        self.assert_user_can_view_course(self.user2, self.course2, OrganizationExtension.VIEW_COURSE)
 
-        self.assert_user_cannot_view_course(self.user1, self.course2)
-        self.assert_user_cannot_view_course(self.user2, self.course)
+        self.assert_user_cannot_view_course(self.user1, self.course2, OrganizationExtension.VIEW_COURSE)
+        self.assert_user_cannot_view_course(self.user2, self.course, OrganizationExtension.VIEW_COURSE)
 
         self.assertEqual(self.course.organizations.first().organization_extension.group, self.org_extension_1.group)
         self.assertEqual(self.course2.organizations.first().organization_extension.group, self.org_extension_2.group)
 
-    def assert_user_cannot_view_course(self, user, course):
+    def assert_user_cannot_view_course(self, user, course, permission):
         """ Asserts the user can NOT view the course. """
-        self.assertFalse(check_course_organization_permission(user, course, ))
+        self.assertFalse(check_course_organization_permission(user, course, permission))
 
-    def assert_user_can_view_course(self, user, course):
+    def assert_user_can_view_course(self, user, course, permission):
         """ Asserts the user can view the course. """
-        self.assertTrue(check_course_organization_permission(user, course))
+        self.assertTrue(check_course_organization_permission(user, course, permission))
 
     def test_get_course_users_emails(self):
         """ Verify the method returns the email addresses of users who are

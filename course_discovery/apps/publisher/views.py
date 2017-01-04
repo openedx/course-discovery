@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import HttpResponseRedirect, HttpResponseForbidden, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View, CreateView, UpdateView, DetailView, ListView
@@ -59,7 +59,7 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
         else:
             organizations = get_objects_for_user(
                 user, OrganizationExtension.VIEW_COURSE, OrganizationExtension,
-                use_groups=False,
+                use_groups=True,
                 with_superuser=False
             ).values_list('organization')
             course_runs = CourseRun.objects.filter(
@@ -113,6 +113,7 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin,
     """ Course Run Detail View."""
     model = CourseRun
     template_name = 'publisher/course_run_detail.html'
+    permission = OrganizationExtension.VIEW_COURSE_RUN
 
     def get_role_widgets_data(self, course_roles):
         """ Create role widgets list for course user roles. """
@@ -134,9 +135,8 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin,
         course_run = CourseRunWrapper(self.get_object())
         context['object'] = course_run
         context['comment_object'] = course_run.course
-        context['can_edit'] = any(
-            [user.has_perm(OrganizationExtension.EDIT_COURSE_RUN, org.organization_extension)
-             for org in course_run.course.organizations.all()]
+        context['can_edit'] = mixins.check_course_organization_permission(
+            self.request.user, course_run.course, OrganizationExtension.EDIT_COURSE_RUN
         )
 
         # Show role assignment widgets if user is an internal user.
@@ -243,7 +243,7 @@ class UpdateCourseView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, mi
     """ Update Course View."""
     model = Course
     form_class = CourseForm
-    permission_required = OrganizationExtension.VIEW_COURSE
+    permission = OrganizationExtension.VIEW_COURSE
     template_name = 'publisher/course_form.html'
     success_url = 'publisher:publisher_courses_edit'
 
@@ -260,16 +260,16 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, De
     """ Course Detail View."""
     model = Course
     template_name = 'publisher/view_course_form.html'
+    permission = OrganizationExtension.VIEW_COURSE
 
     def get_context_data(self, **kwargs):
         context = super(CourseDetailView, self).get_context_data(**kwargs)
 
-        user = self.request.user
         context['comment_object'] = self
-        context['can_edit'] = any(
-            [user.has_perm(OrganizationExtension.EDIT_COURSE, org.organization_extension)
-             for org in self.object.organizations.all()]
+        context['can_edit'] = mixins.check_course_organization_permission(
+            self.request.user, self.object, OrganizationExtension.EDIT_COURSE
         )
+
         return context
 
 
@@ -349,7 +349,7 @@ class UpdateCourseRunView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin,
     """ Update Course Run View."""
     model = CourseRun
     form_class = CourseRunForm
-    permission_required = OrganizationExtension.VIEW_COURSE
+    permission = OrganizationExtension.VIEW_COURSE
     template_name = 'publisher/course_run_form.html'
     success_url = 'publisher:publisher_course_runs_edit'
     change_state = True
@@ -386,7 +386,7 @@ class UpdateSeatView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, mixi
     """ Update Seat View."""
     model = Seat
     form_class = SeatForm
-    permission_required = OrganizationExtension.EDIT_COURSE_RUN
+    permission = OrganizationExtension.EDIT_COURSE_RUN
     template_name = 'publisher/seat_form.html'
     success_url = 'publisher:publisher_seats_edit'
 
@@ -400,26 +400,25 @@ class UpdateSeatView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, mixi
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
 
-class ChangeStateView(mixins.LoginRequiredMixin, View):
+class ChangeStateView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, UpdateView):
     """ Change Workflow State View"""
 
-    def post(self, request, course_run_id):
+    model = CourseRun
+    permission = OrganizationExtension.EDIT_COURSE_RUN
+
+    def post(self, request, **kwargs):
         state = request.POST.get('state')
+        course_run = self.get_object()
         try:
-            course_run = CourseRun.objects.get(id=course_run_id)
-
-            if not mixins.check_user_course_access(request.user, course_run.course):
-                return HttpResponseForbidden()
-
             course_run.change_state(target=state, user=self.request.user)
             # pylint: disable=no-member
             messages.success(
                 request, _('Content moved to `{state}` successfully.').format(state=course_run.current_state)
             )
-            return HttpResponseRedirect(reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run_id}))
+            return HttpResponseRedirect(reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id}))
         except (CourseRun.DoesNotExist, TransitionNotAllowed):
             messages.error(request, _('There was an error in changing state.'))
-            return HttpResponseRedirect(reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run_id}))
+            return HttpResponseRedirect(reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id}))
 
 
 class ToggleEmailNotification(mixins.LoginRequiredMixin, View):
@@ -449,7 +448,7 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
                 user,
                 OrganizationExtension.VIEW_COURSE,
                 OrganizationExtension,
-                use_groups=False,
+                use_groups=True,
                 with_superuser=False
             ).values_list('organization')
             courses = Course.objects.filter(organizations__in=organizations)
