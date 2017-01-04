@@ -33,7 +33,7 @@
                 {% for course in object_list %}
                     <tr>
                         <td>
-                            <a href="{% url 'publisher:publisher_courses_readonly' course.id %}">{{ course.title }}</a>
+                            <a href="{% url 'publisher:publisher_course_detail' course.id %}">{{ course.title }}</a>
                         </td>
                         <td>
                             {% if course.organizations.first %}{{ course.organizations.first.name }}{% endif %}

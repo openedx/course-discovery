@@ -11,7 +11,7 @@
         <h1 class="hd-1 emphasized">{% trans "New Course Run" %}</h1>
         <div class="copy-base">
             <p>
-                {% url 'publisher:publisher_courses_readonly' parent_course.id as course_url %}
+                {% url 'publisher:publisher_course_detail' parent_course.id as course_url %}
                 {% with link_start='<a href="' link_middle='">' link_end='</a>' %}
                 {% blocktrans %}
                     The fields below will only affect this new course run. If you feel the need edit information from the parent course then you may do so on the {{ link_start }}{{ course_url }}{{ link_middle }}parent course for this run{{ link_end }}.

@@ -1388,3 +1388,49 @@ class CourseListViewTests(TestCase):
         if course_count > 0:
             self.assertContains(response, self.course.title)
             self.assertContains(response, 'Edit')
+
+
+class CourseDetailViewTests(TestCase):
+    """ Tests for the course detail view. """
+
+    def setUp(self):
+        super(CourseDetailViewTests, self).setUp()
+        self.course = factories.CourseFactory()
+        self.user = UserFactory()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+        self.organization_extension = factories.OrganizationExtensionFactory()
+        self.course.organizations.add(self.organization_extension.organization)
+
+        self.detail_page_url = reverse('publisher:publisher_course_detail', args=[self.course.id])
+
+    def test_detail_page_without_permission(self):
+        """
+        Verify that user cannot access course detail page without view permission.
+        """
+        response = self.client.get(self.detail_page_url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_detail_page_with_permission(self):
+        """
+        Verify that user can access course detail page with view permission.
+        """
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.user, self.organization_extension)
+        response = self.client.get(self.detail_page_url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_detail_page_with_internal_user(self):
+        """
+        Verify that internal user can access course detail page.
+        """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        response = self.client.get(self.detail_page_url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_detail_page_with_admin(self):
+        """
+        Verify that publisher admin can access course detail page.
+        """
+        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+        response = self.client.get(self.detail_page_url)
+        self.assertEqual(response.status_code, 200)
