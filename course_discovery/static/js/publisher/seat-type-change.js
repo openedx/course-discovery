@@ -4,8 +4,6 @@ $(function () {
         hide_verified_fields,
         show_professional_fields,
         hide_professional_fields,
-        show_credit_fields,
-        hide_credit_fields,
         hide_all_fields,
         change_fields;
 
@@ -25,18 +23,9 @@ $(function () {
         $('#id_price').prop("readonly", true).val('0.00');
     };
 
-    show_credit_fields = function () {
-        show_verified_fields();
-    };
-
-    hide_credit_fields = function () {
-        hide_verified_fields();
-    };
-
     hide_all_fields = function () {
         hide_verified_fields();
         hide_professional_fields();
-        hide_credit_fields()
     };
 
     change_fields = function (select_tag) {
@@ -51,10 +40,6 @@ $(function () {
         else if (selected_value === 'professional' || selected_value === 'no-id-professional') {
             hide_all_fields();
             show_professional_fields();
-        }
-        else if (selected_value === 'credit') {
-            hide_all_fields();
-            show_credit_fields();
         }
         else {
             hide_all_fields();

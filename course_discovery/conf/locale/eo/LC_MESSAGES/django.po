@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-04 12:31+0500\n"
+"POT-Creation-Date: 2017-01-05 12:31+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -585,10 +585,31 @@ msgid "Pace"
 msgstr "Päçé Ⱡ'σяєм ι#"
 
 #: apps/publisher/forms.py
-msgid "Only honor/audit seats can be without price."
+msgid "Only audit seat can be without price."
 msgstr ""
-"Önlý hönör/äüdït séäts çän ßé wïthöüt prïçé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя #"
+"Önlý äüdït séät çän ßé wïthöüt prïçé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
+
+#: apps/publisher/forms.py
+msgid "Choose course type"
+msgstr "Çhöösé çöürsé týpé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: apps/publisher/forms.py
+msgid "Audit Only"
+msgstr "Àüdït Önlý Ⱡ'σяєм ιρѕυм ∂σłσ#"
+
+#: apps/publisher/forms.py
+msgid "Verified Certificate"
+msgstr "Vérïfïéd Çértïfïçäté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/publisher/forms.py
+msgid "Professional Education"
+msgstr "Pröféssïönäl Édüçätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: apps/publisher/forms.py templates/publisher/add_course_form.html
+#: templates/publisher/course_run_detail/_seats.html
+msgid "Seat Type"
+msgstr "Séät Týpé Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: apps/publisher/models.py
 msgid "Draft"
@@ -1108,11 +1129,6 @@ msgstr "10 çhäräçtér lïmït Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α�
 #: templates/publisher/add_courserun_form.html
 msgid "About page information"
 msgstr "Àßöüt pägé ïnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_seats.html
-msgid "Seat Type"
-msgstr "Séät Týpé Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: templates/publisher/add_course_form.html
 msgid ""
@@ -2185,16 +2201,19 @@ msgstr ""
 "%(course_run_page_url)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
 msgid "Dear"
 msgstr "Déär Ⱡ'σяєм ι#"
 
 #: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
 msgid "Please create a Studio instance for the following course."
 msgstr ""
 "Pléäsé çréäté ä Stüdïö ïnstänçé för thé föllöwïng çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя"
 " ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
 msgid "Thanks,"
 msgstr "Thänks, Ⱡ'σяєм ιρѕυм #"
 

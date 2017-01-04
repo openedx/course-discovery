@@ -201,15 +201,33 @@ class SeatForm(BaseCourseForm):
         price = self.cleaned_data.get('price')
         seat_type = self.cleaned_data.get('type')
 
-        if seat_type in [Seat.PROFESSIONAL, Seat.NO_ID_PROFESSIONAL, Seat.VERIFIED, Seat.CREDIT] \
-                and not price:
-            self.add_error('price', _('Only honor/audit seats can be without price.'))
+        if seat_type in [Seat.PROFESSIONAL, Seat.VERIFIED] and not price:
+            self.add_error('price', _('Only audit seat can be without price.'))
 
         return self.cleaned_data
 
 
 class CustomSeatForm(SeatForm):
     """ Course Seat Form. """
+
+    def __init__(self, *args, **kwargs):
+        super(CustomSeatForm, self).__init__(*args, **kwargs)
+
+        field_classes = 'field-input input-select'
+
+        if 'type' in self.errors:
+            field_classes = '{} has-error'.format(field_classes)
+
+        self.fields['type'].widget.attrs = {'class': field_classes}
+
+    TYPE_CHOICES = [
+        ('', _('Choose course type')),
+        (Seat.AUDIT, _('Audit Only')),
+        (Seat.VERIFIED, _('Verified Certificate')),
+        (Seat.PROFESSIONAL, _('Professional Education')),
+    ]
+
+    type = forms.ChoiceField(choices=TYPE_CHOICES, required=True, label=_('Seat Type'))
 
     class Meta(SeatForm.Meta):
         fields = ('price', 'type')
