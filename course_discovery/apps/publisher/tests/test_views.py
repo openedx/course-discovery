@@ -218,7 +218,7 @@ class CreateUpdateCourseViewTests(TestCase):
         self.assertContains(response, 'Add new comment')
         self.assertContains(response, comment.comment)
 
-    @ddt.data(Seat.VERIFIED, Seat.PROFESSIONAL, Seat.NO_ID_PROFESSIONAL, Seat.CREDIT)
+    @ddt.data(Seat.VERIFIED, Seat.PROFESSIONAL)
     def test_create_course_without_price_with_error(self, seat_type):
         """ Verify that if seat type is not honor/audit then price should be given.
         Otherwise it will throw error.
@@ -231,22 +231,21 @@ class CreateUpdateCourseViewTests(TestCase):
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=data['image'])
         self.assertEqual(response.status_code, 400)
         self.assertEqual(
-            response.context['seat_form'].errors['price'][0], 'Only honor/audit seats can be without price.'
+            response.context['seat_form'].errors['price'][0], 'Only audit seat can be without price.'
         )
         self._assert_records(1)
 
-    @ddt.data(Seat.AUDIT, Seat.HONOR)
-    def test_create_course_without_price_with_success(self, seat_type):
-        """ Verify that if seat type is honor/audit then price is not required. """
+    def test_create_course_without_price_with_success(self):
+        """ Verify that if seat type is audit then price is not required. """
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         self._assert_records(1)
         data = {'number': 'course_1', 'image': ''}
         course_dict = self._post_data(data, self.course, self.course_run, self.seat)
         course_dict['price'] = 0
-        course_dict['type'] = seat_type
+        course_dict['type'] = Seat.AUDIT
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=data['image'])
         course = Course.objects.get(number=data['number'])
-        self._assert_test_data(response, course, seat_type, 0)
+        self._assert_test_data(response, course, Seat.AUDIT, 0)
 
     def test_create_form_with_single_organization(self):
         """Verify that if there is only one organization then that organization will be shown as text. """

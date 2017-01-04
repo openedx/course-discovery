@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-04 12:31+0500\n"
+"POT-Creation-Date: 2017-01-05 12:31+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -477,7 +477,28 @@ msgid "Pace"
 msgstr ""
 
 #: apps/publisher/forms.py
-msgid "Only honor/audit seats can be without price."
+msgid "Only audit seat can be without price."
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Choose course type"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Audit Only"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Verified Certificate"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Professional Education"
+msgstr ""
+
+#: apps/publisher/forms.py templates/publisher/add_course_form.html
+#: templates/publisher/course_run_detail/_seats.html
+msgid "Seat Type"
 msgstr ""
 
 #: apps/publisher/models.py
@@ -933,11 +954,6 @@ msgstr ""
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
 msgid "About page information"
-msgstr ""
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_seats.html
-msgid "Seat Type"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
@@ -1869,14 +1885,17 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
 msgid "Dear"
 msgstr ""
 
 #: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
 msgid "Please create a Studio instance for the following course."
 msgstr ""
 
 #: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
 msgid "Thanks,"
 msgstr ""
 
