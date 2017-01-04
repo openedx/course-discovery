@@ -472,7 +472,9 @@ class CreateUpdateCourseRunViewTests(TestCase):
             }
         )
         self._pop_valuse_from_dict(post_data, ['id', 'course', 'course_run'])
-        assign_perm(OrganizationExtension.VIEW_COURSE_RUN, self.user, self.organization_extension)
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
         response = self.client.post(
             reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
             post_data
@@ -633,9 +635,14 @@ class SeatsCreateUpdateViewTests(TestCase):
         """ Verify that we can create a new seat. """
         seat_price = 670.00
         self.seat_dict['price'] = seat_price
-        assign_perm(OrganizationExtension.VIEW_COURSE, self.user, self.organization_extension)
         response = self.client.post(reverse('publisher:publisher_seats_new'), self.seat_dict)
         seat = Seat.objects.get(course_run=self.seat.course_run, price=seat_price)
+
+        self.user.groups.add(self.organization_extension.group)
+        # edit permission require on seat edit page only.
+        assign_perm(
+            OrganizationExtension.EDIT_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
         self.assertRedirects(
             response,
             expected_url=reverse('publisher:publisher_seats_edit', kwargs={'pk': seat.id}),
@@ -799,7 +806,9 @@ class CourseRunDetailTests(TestCase):
         available for that course-run.
         """
         course_run = factories.CourseRunFactory(course=self.course)
-        assign_perm(OrganizationExtension.VIEW_COURSE_RUN, self.user, self.organization_extension)
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
         page_url = reverse('publisher:publisher_course_run_detail', args=[course_run.id])
         response = self.client.get(page_url)
         self.assertEqual(response.status_code, 200)
@@ -968,8 +977,6 @@ class CourseRunDetailTests(TestCase):
 
         internal_user_group.user_set.add(*(self.user, pc_user, marketing_user, publisher_user))
 
-        assign_perm(OrganizationExtension.VIEW_COURSE_RUN, internal_user_group, self.organization_extension)
-
         organization = OrganizationFactory()
         self.course.organizations.add(organization)
         factories.OrganizationExtensionFactory(organization=organization)
@@ -994,7 +1001,10 @@ class CourseRunDetailTests(TestCase):
 
         # Create a user and assign course view permission.
         user = UserFactory()
-        assign_perm(OrganizationExtension.VIEW_COURSE, user, self.organization_extension)
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+        user.groups.add(self.organization_extension.group)
 
         self.client.logout()
         self.client.login(username=user.username, password=USER_PASSWORD)
@@ -1006,22 +1016,25 @@ class CourseRunDetailTests(TestCase):
 
     def test_details_page_with_edit_permission(self):
         """ Test that user can see edit button on course run detail page. """
-        user = self._create_user_and_login()
+        user = self._create_user_and_login(OrganizationExtension.VIEW_COURSE_RUN)
         organization = OrganizationFactory()
         self.course.organizations.add(organization)
         organization_extension = factories.OrganizationExtensionFactory(organization=organization)
 
         self.assert_can_edit_permission()
 
-        assign_perm(OrganizationExtension.EDIT_COURSE_RUN, user, organization_extension)
+        assign_perm(
+            OrganizationExtension.EDIT_COURSE_RUN, organization_extension.group, organization_extension
+        )
 
+        user.groups.add(organization_extension.group)
         self.assert_can_edit_permission(can_edit=True)
 
     def test_edit_permission_with_no_organization(self):
         """ Test that user can't see edit button on course run detail page
         if there is no organization in course.
         """
-        self._create_user_and_login()
+        self._create_user_and_login(OrganizationExtension.VIEW_COURSE_RUN)
 
         self.assert_can_edit_permission()
 
@@ -1031,12 +1044,13 @@ class CourseRunDetailTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['can_edit'], can_edit)
 
-    def _create_user_and_login(self):
+    def _create_user_and_login(self, permission):
         """ Create user and login, also assign view permission for course
          and return the user.
          """
         user = UserFactory()
-        assign_perm(OrganizationExtension.VIEW_COURSE, user, self.organization_extension)
+        user.groups.add(self.organization_extension.group)
+        assign_perm(permission, self.organization_extension.group, self.organization_extension)
 
         self.client.logout()
         self.client.login(username=user.username, password=USER_PASSWORD)
@@ -1101,7 +1115,7 @@ class ChangeStateViewTests(TestCase):
         self.assertNotContains(response, State.PUBLISHED.title())
         self.assertContains(response, 'There was an error in changing state.')
 
-    def test_change_state_with_no_permissions(self):
+    def test_change_state_with_no_roles(self):
         """ Tests change state for non staff user. """
         non_staff_user, __ = create_non_staff_user_and_login(self)
         response = self.client.post(self.change_state_url, data={'state': State.NEEDS_REVIEW}, follow=True)
@@ -1208,7 +1222,7 @@ class DashboardTests(TestCase):
         self.client.login(username=user.username, password=USER_PASSWORD)
 
         self.organization_extension = factories.OrganizationExtensionFactory()
-        assign_perm(OrganizationExtension.VIEW_COURSE, user, self.organization_extension)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
         self.course_run_1.course.organizations.add(self.organization_extension.organization)
 
         self.assert_dashboard_response(studio_count=0, published_count=0, progress_count=0, preview_count=0)
@@ -1227,7 +1241,10 @@ class DashboardTests(TestCase):
         self.course_run_1.course.organizations.add(self.organization_extension.organization)
         self.course_run_2.course.organizations.add(self.organization_extension.organization)
 
-        assign_perm(OrganizationExtension.VIEW_COURSE, user, self.organization_extension)
+        user.groups.add(self.organization_extension.group)
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension
+        )
 
         self.assert_dashboard_response(studio_count=0, published_count=0, progress_count=1, preview_count=1)
 
@@ -1398,7 +1415,9 @@ class CourseListViewTests(TestCase):
         """ Verify that user can see course with permission on course list page. """
         organization_extension = factories.OrganizationExtensionFactory()
         self.course.organizations.add(organization_extension.organization)
-        assign_perm(OrganizationExtension.VIEW_COURSE, self.user, organization_extension)
+        self.user.groups.add(organization_extension.group)
+
+        assign_perm(OrganizationExtension.VIEW_COURSE, organization_extension.group, organization_extension)
 
         self.assert_course_list_page(course_count=1)
 
@@ -1437,7 +1456,8 @@ class CourseDetailViewTests(TestCase):
         """
         Verify that user can access course detail page with view permission.
         """
-        assign_perm(OrganizationExtension.VIEW_COURSE, self.user, self.organization_extension)
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
         response = self.client.get(self.detail_page_url)
         self.assertEqual(response.status_code, 200)
 
@@ -1457,14 +1477,15 @@ class CourseDetailViewTests(TestCase):
         response = self.client.get(self.detail_page_url)
         self.assertEqual(response.status_code, 200)
 
-    def test_details_page_with_edit_permission(self):
+    def test_details_page_with_permissions(self):
         """ Test that user can see edit button on course detail page. """
-        assign_perm(OrganizationExtension.VIEW_COURSE, self.user, self.organization_extension)
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
 
         # Verify that user cannot see edit button without edit permission.
         self.assert_can_edit_permission(can_edit=False)
 
-        assign_perm(OrganizationExtension.EDIT_COURSE, self.user, self.organization_extension)
+        assign_perm(OrganizationExtension.EDIT_COURSE, self.organization_extension.group, self.organization_extension)
 
         # Verify that user can see edit button with edit permission.
         self.assert_can_edit_permission(can_edit=True)

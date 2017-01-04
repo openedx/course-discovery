@@ -7,9 +7,7 @@ from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.publisher.constants import (
     ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PARTNER_COORDINATOR_GROUP_NAME
 )
-from course_discovery.apps.publisher.mixins import (
-    check_roles_access, check_course_organization_permission, check_user_course_access
-)
+from course_discovery.apps.publisher.mixins import check_course_organization_permission, check_roles_access
 from course_discovery.apps.publisher.models import OrganizationExtension
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.utils import (
@@ -113,30 +111,44 @@ class PublisherUtilsTests(TestCase):
         """ Verify the function returns a boolean indicating if the user has
         organization permission on given course.
         """
-        self.assertFalse(check_course_organization_permission(self.user, self.course))
-        assign_perm(
-            OrganizationExtension.VIEW_COURSE, self.user, self.organization_extension
+        self.assertFalse(
+            check_course_organization_permission(self.user, self.course, OrganizationExtension.VIEW_COURSE)
         )
-        self.assertTrue(check_course_organization_permission(self.user, self.course))
+
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension
+        )
+
+        self.assertTrue(
+            check_course_organization_permission(self.user, self.course, OrganizationExtension.VIEW_COURSE)
+        )
 
     def test_check_user_access_with_roles(self):
         """ Verify the function returns a boolean indicating if the user
         organization permission on given course or user is internal or admin user.
         """
-        self.assertFalse(check_user_course_access(self.user, self.course))
+        self.assertFalse(check_roles_access(self.user))
         self.user.groups.add(self.admin_group)
-        self.assertTrue(check_user_course_access(self.user, self.course))
+        self.assertTrue(check_roles_access(self.user))
         self.user.groups.remove(self.admin_group)
-        self.assertFalse(check_user_course_access(self.user, self.course))
+        self.assertFalse(check_roles_access(self.user))
         self.user.groups.add(self.internal_user_group)
-        self.assertTrue(check_user_course_access(self.user, self.course))
+        self.assertTrue(check_roles_access(self.user))
 
     def test_check_user_access_with_permission(self):
         """ Verify the function returns a boolean indicating if the user
         has view permission on organization
         """
-        self.assertFalse(check_course_organization_permission(self.user, self.course))
-        assign_perm(
-            OrganizationExtension.VIEW_COURSE, self.user, self.organization_extension
+        self.assertFalse(
+            check_course_organization_permission(self.user, self.course, OrganizationExtension.VIEW_COURSE)
         )
-        self.assertTrue(check_course_organization_permission(self.user, self.course))
+
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension
+        )
+
+        self.assertTrue(
+            check_course_organization_permission(self.user, self.course, OrganizationExtension.VIEW_COURSE)
+        )

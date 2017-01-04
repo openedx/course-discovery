@@ -2,18 +2,21 @@
 import json
 
 import ddt
+from mock import patch
+
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from guardian.shortcuts import assign_perm
 
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.constants import INTERNAL_USER_GROUP_NAME
-from course_discovery.apps.publisher.models import CourseRun
+from course_discovery.apps.publisher.models import CourseRun, OrganizationExtension
 from course_discovery.apps.publisher.tests import factories, JSON_CONTENT_TYPE
 
 
@@ -26,17 +29,17 @@ class CourseRoleAssignmentViewTests(TestCase):
 
         # Create an internal user group and assign four users.
         self.internal_user = UserFactory()
-        internal_user_group = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
+        self.internal_user_group = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
 
-        internal_user_group.user_set.add(self.internal_user)
+        self.internal_user_group.user_set.add(self.internal_user)
         self.other_internal_users = []
         for __ in range(3):
             user = UserFactory()
             self.other_internal_users.append(user)
-            internal_user_group.user_set.add(user)
+            self.internal_user_group.user_set.add(user)
 
-        organization_extension = factories.OrganizationExtensionFactory()
-        self.course.organizations.add(organization_extension.organization)
+        self.organization_extension = factories.OrganizationExtensionFactory()
+        self.course.organizations.add(self.organization_extension.organization)
 
         # Create three internal user course roles for internal users against a course
         # so we can test change role assignment on these roles.
@@ -64,6 +67,63 @@ class CourseRoleAssignmentViewTests(TestCase):
             content_type=JSON_CONTENT_TYPE
         )
         self.assertEqual(response.status_code, 403)
+
+    def test_role_assignment_with_view_permissions(self):
+        """ Verify user having permissions can change role assignments. """
+
+        # mocked the check_roles_access because it checks whether user is part of internal group
+        # or has org permissions. So if this method returns True then permission check by passes.
+
+        user = UserFactory()
+        user.groups.add(self.internal_user_group)
+
+        # assigning permission to the organization group
+        user.groups.add(self.organization_extension.group)
+
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension
+        )
+
+        self.client.logout()
+        self.client.login(username=user.username, password=USER_PASSWORD)
+
+        with patch('course_discovery.apps.publisher.api.permissions.check_roles_access') as mock_method:
+            mock_method.return_value = False
+
+            response = self.client.patch(
+                self.get_role_assignment_url(self.course.course_user_roles.first()),
+                data=json.dumps({'user': user.id}),
+                content_type=JSON_CONTENT_TYPE
+            )
+            self.assertEqual(response.status_code, 200)
+
+    def test_role_assignment_without_view_permissions(self):
+        """ Verify user having wrong permissions cannot change role assignments. """
+
+        # mocked the check_roles_access because it checks whether user is part of internal group
+        # or has org permissions. So if this method returns True then permission check by passes.
+
+        user = UserFactory()
+        user.groups.add(self.internal_user_group)
+
+        # assigning permission to the organization group
+        user.groups.add(self.organization_extension.group)
+
+        assign_perm(
+            OrganizationExtension.EDIT_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+
+        self.client.logout()
+        self.client.login(username=user.username, password=USER_PASSWORD)
+
+        with patch('course_discovery.apps.publisher.api.permissions.check_roles_access') as mock_method:
+            mock_method.return_value = False
+            response = self.client.patch(
+                self.get_role_assignment_url(self.course.course_user_roles.first()),
+                data=json.dumps({'user': user.id}),
+                content_type=JSON_CONTENT_TYPE
+            )
+            self.assertEqual(response.status_code, 403)
 
     def get_user_course_roles(self):
         return self.course.course_user_roles.all()
