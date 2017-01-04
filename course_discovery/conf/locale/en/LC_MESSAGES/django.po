@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-05 12:31+0500\n"
+"POT-Creation-Date: 2017-01-06 09:45-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -448,6 +448,20 @@ msgstr ""
 msgid "Course Number"
 msgstr ""
 
+#: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/add_course_form.html
+msgid "Brief Description"
+msgstr ""
+
+#: apps/publisher/forms.py apps/publisher/models.py
+msgid "Full Description"
+msgstr ""
+
+#: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/course_run_detail/_all.html
+msgid "Prerequisites"
+msgstr ""
+
 #: apps/publisher/forms.py
 msgid "Organization Course Admin"
 msgstr ""
@@ -525,14 +539,6 @@ msgstr ""
 msgid "Course number"
 msgstr ""
 
-#: apps/publisher/models.py templates/publisher/add_course_form.html
-msgid "Brief Description"
-msgstr ""
-
-#: apps/publisher/models.py
-msgid "Full Description"
-msgstr ""
-
 #: apps/publisher/models.py templates/publisher/course_run_detail/_all.html
 msgid "Partner Name"
 msgstr ""
@@ -543,10 +549,6 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Expected Learnings"
-msgstr ""
-
-#: apps/publisher/models.py templates/publisher/course_run_detail/_all.html
-msgid "Prerequisites"
 msgstr ""
 
 #: apps/publisher/models.py
@@ -1251,6 +1253,7 @@ msgid "Dashboard"
 msgstr ""
 
 #: templates/publisher/base.html templates/publisher/courses.html
+#: templates/publisher/view_course_form.html
 msgid "Courses"
 msgstr ""
 
@@ -1432,6 +1435,7 @@ msgid "Additional Notes"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_approval_widget.html
+#: templates/publisher/view_course_form.html
 msgid "EDIT"
 msgstr ""
 

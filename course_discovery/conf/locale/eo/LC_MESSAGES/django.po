@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-05 12:31+0500\n"
+"POT-Creation-Date: 2017-01-06 09:45-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -556,6 +556,20 @@ msgstr "Çöürsé Tïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 msgid "Course Number"
 msgstr "Çöürsé Nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
+#: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/add_course_form.html
+msgid "Brief Description"
+msgstr "Brïéf Désçrïptïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: apps/publisher/forms.py apps/publisher/models.py
+msgid "Full Description"
+msgstr "Füll Désçrïptïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/course_run_detail/_all.html
+msgid "Prerequisites"
+msgstr "Préréqüïsïtés Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
 #: apps/publisher/forms.py
 msgid "Organization Course Admin"
 msgstr "Örgänïzätïön Çöürsé Àdmïn Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
@@ -635,14 +649,6 @@ msgstr "Çöürsé tïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 msgid "Course number"
 msgstr "Çöürsé nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
-#: apps/publisher/models.py templates/publisher/add_course_form.html
-msgid "Brief Description"
-msgstr "Brïéf Désçrïptïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
-
-#: apps/publisher/models.py
-msgid "Full Description"
-msgstr "Füll Désçrïptïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
-
 #: apps/publisher/models.py templates/publisher/course_run_detail/_all.html
 msgid "Partner Name"
 msgstr "Pärtnér Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
@@ -654,10 +660,6 @@ msgstr "Lévél Týpé Ⱡ'σяєм ιρѕυм ∂σłσ#"
 #: apps/publisher/models.py
 msgid "Expected Learnings"
 msgstr "Éxpéçtéd Léärnïngs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
-
-#: apps/publisher/models.py templates/publisher/course_run_detail/_all.html
-msgid "Prerequisites"
-msgstr "Préréqüïsïtés Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: apps/publisher/models.py
 msgid "Verification deadline"
@@ -1522,6 +1524,7 @@ msgid "Dashboard"
 msgstr "Däshßöärd Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: templates/publisher/base.html templates/publisher/courses.html
+#: templates/publisher/view_course_form.html
 msgid "Courses"
 msgstr "Çöürsés Ⱡ'σяєм ιρѕυм #"
 
@@ -1710,6 +1713,7 @@ msgid "Additional Notes"
 msgstr "Àddïtïönäl Nötés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: templates/publisher/course_run_detail/_approval_widget.html
+#: templates/publisher/view_course_form.html
 msgid "EDIT"
 msgstr "ÉDÌT Ⱡ'σяєм ι#"
 

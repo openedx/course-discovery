@@ -11,6 +11,7 @@ from django_fsm import FSMField, transition
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
+from stdimage.validators import MaxSizeValidator, MinSizeValidator
 from taggit.managers import TaggableManager
 import waffle
 
@@ -126,10 +127,9 @@ class Course(TimeStampedModel, ChangedByMixin):
         blank=True,
         null=True,
         variations={
-            'large': (2120, 1192),
-            'medium': (1440, 480),
             'thumbnail': (100, 100, True),
-        }
+        },
+        validators=[MaxSizeValidator(2120, 1192), MinSizeValidator(2120, 1192), ]
     )
 
     is_seo_review = models.BooleanField(default=False)

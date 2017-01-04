@@ -226,6 +226,9 @@ class CreateCourseView(mixins.LoginRequiredMixin, CreateView):
         if not messages.get_messages(request):
             messages.error(request, _('Please fill all required fields.'))
 
+        if course_form.errors.get('image'):
+            messages.error(request, course_form.errors.get('image'))
+
         ctx.update(
             {
                 'course_form': course_form,

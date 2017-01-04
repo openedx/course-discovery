@@ -59,6 +59,15 @@ class CustomCourseForm(CourseForm):
     )
     title = forms.CharField(label=_('Course Title'), required=True)
     number = forms.CharField(label=_('Course Number'), required=True)
+    short_description = forms.CharField(
+        label=_('Brief Description'), max_length=140, widget=forms.Textarea, required=False
+    )
+    full_description = forms.CharField(
+        label=_('Full Description'), max_length=2500, widget=forms.Textarea, required=False
+    )
+    prerequisites = forms.CharField(
+        label=_('Prerequisites'), max_length=200, widget=forms.Textarea, required=False
+    )
 
     # users will be loaded through AJAX call based on organization
     team_admin = UserModelChoiceField(
