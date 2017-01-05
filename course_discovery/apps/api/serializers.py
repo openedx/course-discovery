@@ -806,7 +806,7 @@ class FlattenedCourseRunWithCourseSerializer(CourseRunSerializer):
                 else:
                     seats[seat.type][key] = SeatSerializer(seat).data[key]
 
-        for credit_attr in seats['credit'].keys():
+        for credit_attr in seats['credit']:
             seats['credit'][credit_attr] = ','.join([str(e) for e in seats['credit'][credit_attr]])
 
         return seats

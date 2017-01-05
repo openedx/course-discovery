@@ -36,7 +36,7 @@ def send_email_for_comment(comment, created=False):
             # Translators: subject_desc will be choice from ('New comment added', 'Comment updated'),
             # 'pacing_type' will be choice from ('instructor-paced', 'self-paced'),
             # 'title' and 'start' will be the value of course title & start date fields.
-            subject = _('{subject_desc} in course run: {title}-{pacing_type}-{start}').format(
+            subject = _('{subject_desc} in course run: {title}-{pacing_type}-{start}').format(  # pylint: disable=no-member
                 subject_desc=subject_desc,
                 title=course.title,
                 pacing_type=publisher_obj.get_pacing_type_display(),
@@ -48,7 +48,7 @@ def send_email_for_comment(comment, created=False):
 
             # Translators: 'subject_desc' will be choice from ('New comment added', 'Comment updated')
             # and 'title' will be the value of course title field.
-            subject = _('{subject_desc} in Course: {title}').format(
+            subject = _('{subject_desc} in Course: {title}').format(  # pylint: disable=no-member
                 subject_desc=subject_desc,
                 title=course.title
             )

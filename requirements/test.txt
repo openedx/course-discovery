@@ -4,7 +4,7 @@
 coverage==4.2
 ddt==1.1.0
 django-nose==1.4.4
-edx-lint==0.5.1
+edx-lint==0.5.2
 factory-boy==2.7.0
 freezegun==0.3.7
 lxml==3.6.1
