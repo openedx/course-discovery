@@ -329,7 +329,6 @@ class CreateUpdateCourseViewTests(TestCase):
         course_dict = model_to_dict(course)
         course_dict.update(**data)
         course_dict['team_admin'] = self.user.id
-        course_dict['keywords'] = 'abc def xyz'
         if course_run:
             course_dict.update(**model_to_dict(course_run))
             course_dict.pop('video_language')
@@ -386,7 +385,6 @@ class CreateUpdateCourseViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # django-taggit stores data without any order. For test .
-        self.assertEqual(sorted([c.name for c in course.keywords.all()]), ['abc', 'def', 'xyz'])
         self.assertEqual(course.organizations.first(), self.organization_extension.organization)
 
         self.assertTrue(len(course.course_user_roles.all()), 2)
