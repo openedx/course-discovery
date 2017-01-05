@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-12 12:07+0500\n"
+"POT-Creation-Date: 2017-01-12 13:57-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -557,7 +557,6 @@ msgid "Course Number"
 msgstr "Çöürsé Nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: apps/publisher/forms.py apps/publisher/models.py
-#: templates/publisher/add_course_form.html
 msgid "Brief Description"
 msgstr "Brïéf Désçrïptïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
@@ -573,6 +572,18 @@ msgstr "Préréqüïsïtés Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 #: apps/publisher/forms.py
 msgid "Organization Course Admin"
 msgstr "Örgänïzätïön Çöürsé Àdmïn Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/publisher/forms.py
+msgid "Primary"
+msgstr "Prïmärý Ⱡ'σяєм ιρѕυм #"
+
+#: apps/publisher/forms.py
+msgid "Secondary (optional)"
+msgstr "Séçöndärý (öptïönäl) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/publisher/forms.py
+msgid "Tertiary (optional)"
+msgstr "Tértïärý (öptïönäl) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
 #: apps/publisher/forms.py
 msgid "Contacted PM"
@@ -599,6 +610,22 @@ msgid "Pace"
 msgstr "Päçé Ⱡ'σяєм ι#"
 
 #: apps/publisher/forms.py
+msgid "Is XSeries?"
+msgstr "Ìs XSérïés? Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: apps/publisher/forms.py
+msgid "Is MicroMasters?"
+msgstr "Ìs MïçröMästérs? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: apps/publisher/forms.py
+msgid "XSeries Name"
+msgstr "XSérïés Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/publisher/forms.py
+msgid "MicroMasters Name"
+msgstr "MïçröMästérs Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: apps/publisher/forms.py
 msgid "Only audit seat can be without price."
 msgstr ""
 "Önlý äüdït séät çän ßé wïthöüt prïçé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
@@ -620,8 +647,7 @@ msgstr "Vérïfïéd Çértïfïçäté Ⱡ'σяєм ιρѕυм ∂σłσя ѕι
 msgid "Professional Education"
 msgstr "Pröféssïönäl Édüçätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
-#: apps/publisher/forms.py templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_seats.html
+#: apps/publisher/forms.py templates/publisher/course_run_detail/_seats.html
 msgid "Seat Type"
 msgstr "Séät Týpé Ⱡ'σяєм ιρѕυм ∂σł#"
 
@@ -1145,6 +1171,45 @@ msgid "About page information"
 msgstr "Àßöüt pägé ïnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
 #: templates/publisher/add_course_form.html
+msgid "PROGRAM ASSOCIATION"
+msgstr "PRÖGRÀM ÀSSÖÇÌÀTÌÖN Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: templates/publisher/add_course_form.html
+msgid "Is this course a part of any programs?"
+msgstr ""
+"Ìs thïs çöürsé ä pärt öf äný prögräms? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: templates/publisher/add_course_form.html
+msgid "Select the type or types of programs."
+msgstr ""
+"Séléçt thé týpé ör týpés öf prögräms. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
+
+#: templates/publisher/add_course_form.html
+msgid "Add the name of the program this course will be a part of."
+msgstr ""
+"Àdd thé nämé öf thé prögräm thïs çöürsé wïll ßé ä pärt öf. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "CERTIFICATE TYPE AND PRICE"
+msgstr "ÇÉRTÌFÌÇÀTÉ TÝPÉ ÀND PRÌÇÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"If Verified or Professional Education, indicate certificate price in US "
+"dollars (minimum of $49)"
+msgstr ""
+"Ìf Vérïfïéd ör Pröféssïönäl Édüçätïön, ïndïçäté çértïfïçäté prïçé ïn ÛS "
+"döllärs (mïnïmüm öf $49) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: templates/publisher/add_course_form.html
+msgid "BRIEF DESCRIPTION"
+msgstr "BRÌÉF DÉSÇRÌPTÌÖN Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: templates/publisher/add_course_form.html
 msgid ""
 "Reads as a tag line - a short, engaging description for students browsing "
 "course listings"
@@ -1163,6 +1228,12 @@ msgid "SEO optimized and targeted to a global audience"
 msgstr ""
 "SÉÖ öptïmïzéd änd tärgétéd tö ä glößäl äüdïénçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
 " ¢σηѕє¢тєтυя α#"
+
+#: templates/publisher/add_course_form.html
+msgid "140 character limit, including spaces."
+msgstr ""
+"140 çhäräçtér lïmït, ïnçlüdïng späçés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
 
 #: templates/publisher/add_course_form.html
 msgid "FULL DESCRIPTION"
@@ -1205,6 +1276,12 @@ msgstr ""
 " ündér thé fïrst 4-5 lïnés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
 #: templates/publisher/add_course_form.html
+msgid "2500 character limit, including spaces."
+msgstr ""
+"2500 çhäräçtér lïmït, ïnçlüdïng späçés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: templates/publisher/add_course_form.html
 msgid "EXPECTED LEARNINGS"
 msgstr "ÉXPÉÇTÉD LÉÀRNÌNGS Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
@@ -1237,14 +1314,6 @@ msgid "Limited to the primary instructors a learner will encounter in videos"
 msgstr ""
 "Lïmïtéd tö thé prïmärý ïnstrüçtörs ä léärnér wïll énçöüntér ïn vïdéös Ⱡ'σяєм"
 " ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
-
-#: templates/publisher/add_course_form.html
-msgid "KEYWORDS"
-msgstr "KÉÝWÖRDS Ⱡ'σяєм ιρѕυм ∂#"
-
-#: templates/publisher/add_course_form.html
-msgid "Some instructions here???"
-msgstr "Sömé ïnstrüçtïöns héré??? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: templates/publisher/add_course_form.html
 msgid "SUBJECT FIELD"
@@ -1334,6 +1403,16 @@ msgid "200 character limit, including spaces"
 msgstr ""
 "200 çhäräçtér lïmït, ïnçlüdïng späçés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
+
+#: templates/publisher/add_course_form.html
+msgid "200 character limit, including spaces."
+msgstr ""
+"200 çhäräçtér lïmït, ïnçlüdïng späçés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: templates/publisher/add_course_form.html
+msgid "SYLLABUS"
+msgstr "SÝLLÀBÛS Ⱡ'σяєм ιρѕυм ∂#"
 
 #: templates/publisher/add_course_form.html
 msgid "ESTIMATED EFFORT"
@@ -1518,10 +1597,6 @@ msgstr "Éxämplé: Ⱡ'σяєм ιρѕυм ∂#"
 #: templates/publisher/add_courserun_form.html
 msgid "etc."
 msgstr "étç. Ⱡ'σяєм ι#"
-
-#: templates/publisher/add_courserun_form.html
-msgid "CERTIFICATE TYPE AND PRICE"
-msgstr "ÇÉRTÌFÌÇÀTÉ TÝPÉ ÀND PRÌÇÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: templates/publisher/add_courserun_form.html
 msgid ""

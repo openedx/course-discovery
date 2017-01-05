@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-12 12:07+0500\n"
+"POT-Creation-Date: 2017-01-12 13:57-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -449,7 +449,6 @@ msgid "Course Number"
 msgstr ""
 
 #: apps/publisher/forms.py apps/publisher/models.py
-#: templates/publisher/add_course_form.html
 msgid "Brief Description"
 msgstr ""
 
@@ -464,6 +463,18 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Organization Course Admin"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Primary"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Secondary (optional)"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Tertiary (optional)"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -491,6 +502,22 @@ msgid "Pace"
 msgstr ""
 
 #: apps/publisher/forms.py
+msgid "Is XSeries?"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Is MicroMasters?"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "XSeries Name"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "MicroMasters Name"
+msgstr ""
+
+#: apps/publisher/forms.py
 msgid "Only audit seat can be without price."
 msgstr ""
 
@@ -510,8 +537,7 @@ msgstr ""
 msgid "Professional Education"
 msgstr ""
 
-#: apps/publisher/forms.py templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_seats.html
+#: apps/publisher/forms.py templates/publisher/course_run_detail/_seats.html
 msgid "Seat Type"
 msgstr ""
 
@@ -963,6 +989,37 @@ msgid "About page information"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
+msgid "PROGRAM ASSOCIATION"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid "Is this course a part of any programs?"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid "Select the type or types of programs."
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid "Add the name of the program this course will be a part of."
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "CERTIFICATE TYPE AND PRICE"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid ""
+"If Verified or Professional Education, indicate certificate price in US "
+"dollars (minimum of $49)"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid "BRIEF DESCRIPTION"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
 msgid ""
 "Reads as a tag line - a short, engaging description for students browsing "
 "course listings"
@@ -974,6 +1031,10 @@ msgstr ""
 
 #: templates/publisher/add_course_form.html
 msgid "SEO optimized and targeted to a global audience"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid "140 character limit, including spaces."
 msgstr ""
 
 #: templates/publisher/add_course_form.html
@@ -1007,6 +1068,10 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_course_form.html
+msgid "2500 character limit, including spaces."
+msgstr ""
+
+#: templates/publisher/add_course_form.html
 msgid "EXPECTED LEARNINGS"
 msgstr ""
 
@@ -1030,14 +1095,6 @@ msgstr ""
 
 #: templates/publisher/add_course_form.html
 msgid "Limited to the primary instructors a learner will encounter in videos"
-msgstr ""
-
-#: templates/publisher/add_course_form.html
-msgid "KEYWORDS"
-msgstr ""
-
-#: templates/publisher/add_course_form.html
-msgid "Some instructions here???"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
@@ -1102,6 +1159,14 @@ msgstr ""
 
 #: templates/publisher/add_course_form.html
 msgid "200 character limit, including spaces"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid "200 character limit, including spaces."
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid "SYLLABUS"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
@@ -1240,10 +1305,6 @@ msgstr ""
 
 #: templates/publisher/add_courserun_form.html
 msgid "etc."
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "CERTIFICATE TYPE AND PRICE"
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
