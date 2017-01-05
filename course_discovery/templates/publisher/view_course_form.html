@@ -11,6 +11,15 @@
   <a href="{% url 'publisher:publisher_courses' %}">{% trans "Courses" %}</a> > <span>{{ object.title }}</span>
 </div>
 
+<div class="approval-widget">
+    {% if can_edit %}
+        <a href="{% url 'publisher:publisher_courses_edit' pk=object.id %}" class="btn btn-neutral btn-course-edit">
+            {% trans "EDIT" %}
+        </a>
+        <div class="clearfix"></div>
+    {% endif %}
+</div>
+
 <div class="layout-full publisher-layout layout">
     <h2 class="layout-title">{% trans "Base information" %}</h2>
 
