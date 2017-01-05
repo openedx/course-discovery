@@ -1,11 +1,13 @@
 """
 Course publisher forms.
 """
+from dal import autocomplete
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import Person, Organization
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat, User, OrganizationExtension
 
 
@@ -148,6 +150,18 @@ class CustomCourseRunForm(CourseRunForm):
         widget=forms.RadioSelect,
         choices=CourseRunPacing.choices,
         required=True
+    )
+
+    transcript_languages = forms.ModelMultipleChoiceField(
+        queryset=LanguageTag.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='language_tags:language-tag-autocomplete',
+            attrs={
+                'data-minimum-input-length': 2
+            }
+        ),
+        required=False,
+
     )
 
     class Meta(CourseRunForm.Meta):

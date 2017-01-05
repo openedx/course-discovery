@@ -42,6 +42,7 @@ urlpatterns = auth_urlpatterns + [
             'course_discovery.apps.publisher_comments.urls', namespace='publisher_comments'
         )
     ),
+    url(r'^language-tags/', include('course_discovery.apps.ietf_language_tags.urls', namespace='language_tags')),
     url(r'^comments/', include('django_comments.urls')),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog', name='javascript-catalog'),
