@@ -36,7 +36,7 @@ def send_email_for_change_state(course_run):
         template = get_template(html_template)
         html_content = template.render(context)
 
-        subject = _('Course Run {title}-{pacing_type}-{start} state has been changed.').format(
+        subject = _('Course Run {title}-{pacing_type}-{start} state has been changed.').format(  # pylint: disable=no-member
             title=course_run.course.title,
             pacing_type=course_run.get_pacing_type_display(),
             start=course_run.start.strftime('%B %d, %Y') if course_run.start else ''
