@@ -729,3 +729,11 @@ select {
 #id_organization {
   width: auto;
 }
+
+.course-breadcrumb {
+  padding-bottom: 20px;
+
+  a {
+    text-decoration: underline;
+  }
+}

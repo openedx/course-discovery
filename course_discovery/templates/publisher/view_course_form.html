@@ -7,6 +7,10 @@
 {% block page_content %}
     {% include 'alert_messages.html' %}
 
+<div class="course-breadcrumb">
+  <a href="{% url 'publisher:publisher_courses' %}">{% trans "Courses" %}</a> > <span>{{ object.title }}</span>
+</div>
+
 <div class="layout-full publisher-layout layout">
     <h2 class="layout-title">{% trans "Base information" %}</h2>
 
