@@ -260,7 +260,13 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, De
 
     def get_context_data(self, **kwargs):
         context = super(CourseDetailView, self).get_context_data(**kwargs)
+
+        user = self.request.user
         context['comment_object'] = self
+        context['can_edit'] = any(
+            [user.has_perm(OrganizationExtension.EDIT_COURSE, org.organization_extension)
+             for org in self.object.organizations.all()]
+        )
         return context
 
 

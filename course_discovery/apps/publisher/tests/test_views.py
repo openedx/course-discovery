@@ -1434,3 +1434,21 @@ class CourseDetailViewTests(TestCase):
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         response = self.client.get(self.detail_page_url)
         self.assertEqual(response.status_code, 200)
+
+    def test_details_page_with_edit_permission(self):
+        """ Test that user can see edit button on course detail page. """
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.user, self.organization_extension)
+
+        # Verify that user cannot see edit button without edit permission.
+        self.assert_can_edit_permission(can_edit=False)
+
+        assign_perm(OrganizationExtension.EDIT_COURSE, self.user, self.organization_extension)
+
+        # Verify that user can see edit button with edit permission.
+        self.assert_can_edit_permission(can_edit=True)
+
+    def assert_can_edit_permission(self, can_edit):
+        """ Dry method to assert can_edit permission. """
+        response = self.client.get(self.detail_page_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['can_edit'], can_edit)

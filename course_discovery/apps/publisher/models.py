@@ -428,7 +428,8 @@ class CourseUserRole(TimeStampedModel, ChangedByMixin):
 
 class OrganizationExtension(TimeStampedModel):
     """ Organization-Extension relation model. """
-    EDIT_COURSE_RUN = 'edit_course_run'
+    EDIT_COURSE = 'publisher_edit_course'
+    EDIT_COURSE_RUN = 'publisher_edit_course_run'
     VIEW_COURSE = 'publisher_view_course'
     VIEW_COURSE_RUN = 'publisher_view_course_run'
 
@@ -439,7 +440,8 @@ class OrganizationExtension(TimeStampedModel):
 
     class Meta(TimeStampedModel.Meta):
         permissions = (
-            ('edit_course_run', 'Can edit course run'),
+            ('publisher_edit_course', 'Can edit course'),
+            ('publisher_edit_course_run', 'Can edit course run'),
             ('publisher_view_course', 'Can view course'),
             ('publisher_view_course_run', 'Can view the course run'),
         )
