@@ -28,6 +28,13 @@ $(document).ready(function(){
     if (org_id){
         loadAdminUsers(org_id);
     }
+
+    $('#id_is_micromasters').click( function(){
+        $('#micromasters_name_group').toggle(this.checked);
+    });
+    $('#id_is_xseries').click( function(e){
+        $('#xseries_name_group').toggle(this.checked);
+    });
 });
 
 $(document).on('change', '#id_organization', function (e) {

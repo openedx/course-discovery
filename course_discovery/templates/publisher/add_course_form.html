@@ -169,11 +169,58 @@
     <div class="card course-form">
         <div class="course-information">
             <fieldset class="form-group grid-container grid-manual">
-
-                <div class="field-title">{% trans "Seat Type" %}</div>
+                <div class="field-title">{% trans "PROGRAM ASSOCIATION" %}</div>
                 <div class="row">
                     <div class="col col-6 help-text">
-                        {% trans "The date when this self-paced course run will end, replaced by an updated version of the course" %}
+                        <ul>
+                            <li>{% trans "Is this course a part of any programs?" %}</li>
+                            <li>{% trans "Select the type or types of programs." %}</li>
+                            <li>{% trans "Add the name of the program this course will be a part of." %}</li>
+                        </ul>
+                    </div>
+                    <div class="col col-6">
+                        <div class="row">
+                            <div class="col col-5">
+                                <label class="field-label ">{{ run_form.is_micromasters.label_tag }}</label>
+                                {{ run_form.is_micromasters}}
+                            </div>
+                            <div class="col col-7 {% if run_form.micromasters_name %} hidden {% endif %}" id="micromasters_name_group">
+                                <label class="field-label ">{{ run_form.micromasters_name.label_tag }}</label>
+                                {{ run_form.micromasters_name }}
+                            </div>
+                            {% if run_form.micromasters_name.errors %}
+                            <div class="field-message has-error">
+                                <span class="field-message-content">
+                                    {{ run_form.micromasters_name.errors|escape }}
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="row">
+                            <div class="col col-5">
+                                <label class="field-label ">{{ run_form.is_xseries.label_tag }}</label>
+                                {{ run_form.is_xseries}}
+                            </div>
+                            <div class="col col-7 {% if run_form.xseries_name %} hidden {% endif %}" id="xseries_name_group">
+                                <label class="field-label ">{{ run_form.xseries_name.label_tag }}</label>
+                                {{ run_form.xseries_name}}
+                            </div>
+                            {% if run_form.xseries_name.errors %}
+                            <div class="field-message has-error">
+                                <span class="field-message-content">
+                                    {{ run_form.xseries_name.errors|escape }}
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="field-title">{% trans "CERTIFICATE TYPE AND PRICE" %}</div>
+                <div class="row">
+                    <div class="col col-6 help-text">
+                        {% trans "If Verified or Professional Education, indicate certificate price in US dollars (minimum of $49)" %}
                     </div>
                     <div class="col col-6">
                         <div class="row">
@@ -200,7 +247,7 @@
                 </div>
 
 
-                <div class="field-title">{% trans "Brief Description" %}</div>
+                <div class="field-title">{% trans "BRIEF DESCRIPTION" %}</div>
                 <div class="row">
                     <div class="col col-6 help-text">
                         <ul>
@@ -213,6 +260,7 @@
                     <div class="col col-6">
                         <label class="field-label ">{{ course_form.short_description.label_tag }}</label>
                         {{ course_form.short_description }}
+                        <p>{% trans "140 character limit, including spaces." %}</p>
                     </div>
                 </div>
 
@@ -234,6 +282,7 @@
                     <div class="col col-6">
                         <label class="field-label ">{{ course_form.full_description.label_tag }}</label>
                         {{ course_form.full_description }}
+                        <p>{% trans "2500 character limit, including spaces." %}</p>
                     </div>
                 </div>
 
@@ -263,20 +312,6 @@
                     </div>
                     <div class="col col-6">
                         {{ run_form.staff }}
-                    </div>
-                </div>
-
-                <div class="field-title">{% trans "KEYWORDS" %}</div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        {% trans "Some instructions here???" %}
-                    </div>
-                    <div class="col col-6">
-                        <label class="field-label ">{{ course_form.keywords.label_tag }}</label>
-                        {{ course_form.keywords}}
-
-                        <label class="field-label ">{{ course_form.is_seo_review.label_tag }}</label>
-                        {{ course_form.is_seo_review}}
                     </div>
                 </div>
 
@@ -342,6 +377,20 @@
                     <div class="col col-6">
                         <label class="field-label ">{{ course_form.prerequisites.label_tag }}</label>
                         {{ course_form.prerequisites }}
+                        <p>{% trans "200 character limit, including spaces." %}</p>
+                    </div>
+                </div>
+
+                <div class="field-title">{% trans "SYLLABUS" %}</div>
+                <div class="row">
+                    <div class="col col-6 help-text">
+                        <ul>
+                            <!-- Help text will go here when we have it.-->
+                        </ul>
+                    </div>
+                    <div class="col col-6">
+                        <label class="field-label ">{{ course_form.syllabus.label_tag }}</label>
+                        {{ course_form.syllabus }}
                     </div>
                 </div>
 
@@ -439,8 +488,8 @@
     </div>
 </div>
 
-<div class="layout-full publisher-layout layout">
-    <div class="card course-form">
+<div class="layout-full layout">
+    <div class="course-form">
         <div class="course-information">
             <fieldset class="form-group grid-container grid-manual">
                 <button class="btn-brand btn-base" type="submit">{% trans "Save Draft" %}</button>

@@ -6,7 +6,7 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
-from course_discovery.apps.course_metadata.models import Person, Organization
+from course_discovery.apps.course_metadata.models import Person, Organization, Subject
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.models import Course, CourseRun, Seat, User, OrganizationExtension
 
@@ -77,13 +77,30 @@ class CustomCourseForm(CourseForm):
         label=_('Organization Course Admin'),
     )
 
+    subjects = Subject.objects.all()
+    primary_subject = forms.ModelChoiceField(
+        queryset=subjects,
+        label=_('Primary'),
+        required=False
+    )
+    secondary_subject = forms.ModelChoiceField(
+        queryset=subjects,
+        label=_('Secondary (optional)'),
+        required=False
+    )
+    tertiary_subject = forms.ModelChoiceField(
+        queryset=subjects,
+        label=_('Tertiary (optional)'),
+        required=False
+    )
+
     class Meta(CourseForm.Meta):
         model = Course
         fields = (
             'title', 'number', 'short_description', 'full_description',
             'expected_learnings', 'level_type', 'primary_subject', 'secondary_subject',
             'tertiary_subject', 'prerequisites', 'level_type', 'image', 'team_admin',
-            'level_type', 'organization', 'is_seo_review', 'keywords',
+            'level_type', 'organization', 'is_seo_review', 'syllabus',
         )
 
     def __init__(self, *args, **kwargs):
@@ -161,14 +178,28 @@ class CustomCourseRunForm(CourseRunForm):
             }
         ),
         required=False,
-
     )
+
+    is_xseries = forms.BooleanField(
+        label=_('Is XSeries?'),
+        widget=forms.CheckboxInput,
+        required=False,
+    )
+
+    is_micromasters = forms.BooleanField(
+        label=_('Is MicroMasters?'),
+        widget=forms.CheckboxInput,
+        required=False,
+    )
+
+    xseries_name = forms.CharField(label=_('XSeries Name'), required=False)
+    micromasters_name = forms.CharField(label=_('MicroMasters Name'), required=False)
 
     class Meta(CourseRunForm.Meta):
         fields = (
             'length', 'transcript_languages', 'language', 'min_effort', 'max_effort',
             'contacted_partner_manager', 'target_content', 'pacing_type', 'video_language',
-            'staff', 'start', 'end',
+            'staff', 'start', 'end', 'is_xseries', 'xseries_name', 'is_micromasters', 'micromasters_name',
         )
 
     def save(self, commit=True, course=None, changed_by=None):  # pylint: disable=arguments-differ
