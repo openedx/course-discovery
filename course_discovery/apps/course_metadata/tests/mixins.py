@@ -101,14 +101,14 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
 
     def mock_node_retrieval(self, program_uuid, exists=True):
         data = {}
-        status = 404
+        status = 200
+        data = {
+            'list': []
+        }
         if exists:
-            data = {
-                'list': [{
-                    'nid': self.node_id
-                }]
-            }
-            status = 200
+            data['list'] = [{
+                'nid': self.node_id
+            }]
 
         responses.add(
             responses.GET,
