@@ -1512,6 +1512,20 @@ class CourseDetailViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['can_edit'], can_edit)
 
+    def test_details_page_with_course_runs(self):
+        """ Test that user can see course runs on course detail page. """
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
+
+        course_run = factories.CourseRunFactory(course=self.course)
+
+        response = self.client.get(self.detail_page_url)
+        self.assertContains(response, 'COURSE RUNS')
+        self.assertContains(response, 'ADD RUN')
+        self.assertContains(response, 'STUDIO URL -')
+        self.assertContains(response, 'Not yet created')
+        self.assertContains(response, reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id}))
+
 
 class CourseEditViewTests(TestCase):
     """ Tests for the course edit view. """

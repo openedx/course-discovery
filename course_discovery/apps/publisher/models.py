@@ -182,6 +182,10 @@ class Course(TimeStampedModel, ChangedByMixin):
         for user_role in organization.organization_user_roles.all():
             CourseUserRole.add_course_roles(self, user_role.role, user_role.user)
 
+    @property
+    def course_runs(self):
+        return self.publisher_course_runs.order_by('-created')
+
 
 class CourseRun(TimeStampedModel, ChangedByMixin):
     """ Publisher CourseRun model. It contains fields related to the course run intake form."""
@@ -291,6 +295,10 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     @property
     def post_back_url(self):
         return reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.id})
+
+    @property
+    def created_by(self):
+        return self.history.order_by('history_date').first().history_user     # pylint: disable=no-member
 
 
 class Seat(TimeStampedModel, ChangedByMixin):

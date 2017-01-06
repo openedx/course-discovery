@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-10 13:00+0500\n"
+"POT-Creation-Date: 2017-01-11 19:39+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -1254,8 +1254,36 @@ msgid "Dashboard"
 msgstr ""
 
 #: templates/publisher/base.html templates/publisher/courses.html
-#: templates/publisher/view_course_form.html
 msgid "Courses"
+msgstr ""
+
+#: templates/publisher/course_detail/_widgets.html
+#: templates/publisher/course_run_detail/_approval_widget.html
+msgid "EDIT"
+msgstr ""
+
+#: templates/publisher/course_detail/_widgets.html
+msgid "COURSE RUNS"
+msgstr ""
+
+#: templates/publisher/course_detail/_widgets.html
+msgid "ADD RUN"
+msgstr ""
+
+#: templates/publisher/course_detail/_widgets.html
+#, python-format
+msgid ""
+"\n"
+"                        Created %(created_date)s at %(created_time)s by %(created_by)s\n"
+"                    "
+msgstr ""
+
+#: templates/publisher/course_detail/_widgets.html
+msgid "STUDIO URL"
+msgstr ""
+
+#: templates/publisher/course_detail/_widgets.html
+msgid "Not yet created"
 msgstr ""
 
 #: templates/publisher/course_form.html
@@ -1437,11 +1465,6 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
 msgid "Additional Notes"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_approval_widget.html
-#: templates/publisher/view_course_form.html
-msgid "EDIT"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_approval_widget.html

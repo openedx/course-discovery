@@ -59,6 +59,17 @@ class CourseRunTests(TestCase):
         with self.assertRaises(TransitionNotAllowed):
             self.course_run.change_state(target=State.PUBLISHED)
 
+    def test_created_by(self):
+        """ Verify that property returns created_by. """
+        self.assertIsNone(self.course_run.created_by)
+
+        user = UserFactory()
+        history_object = self.course_run.history.first()
+        history_object.history_user = user
+        history_object.save()
+
+        self.assertEqual(self.course_run.created_by, user)
+
 
 class CourseTests(TestCase):
     """ Tests for the publisher `Course` model. """
@@ -190,6 +201,14 @@ class CourseTests(TestCase):
         """
         self.course2.assign_organization_role(self.org_extension_2.organization)
         self.assertFalse(self.course2.course_user_roles.all())
+
+    def test_course_runs(self):
+        """ Verify that property returns queryset of course runs. """
+        self.assertEqual(self.course.course_runs.count(), 0)
+
+        factories.CourseRunFactory(course=self.course)
+
+        self.assertEqual(self.course.course_runs.count(), 1)
 
 
 class SeatTests(TestCase):

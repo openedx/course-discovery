@@ -7,45 +7,44 @@
 {% block page_content %}
 {% include 'alert_messages.html' %}
 
-<div class="approval-widget">
-    {% if can_edit %}
-        <a href="{% url 'publisher:publisher_courses_edit' pk=object.id %}" class="btn btn-neutral btn-course-edit">
-            {% trans "EDIT" %}
-        </a>
-        <div class="clearfix"></div>
-    {% endif %}
-</div>
+<div class="layout-1t2t layout-flush publisher-container course-detail">
+    <main class="layout-col layout-col-b layout-col-b-custom">
+        <div class="layout-full layout">
+            <h2 class="layout-title">{% trans "Base information" %}</h2>
 
-<div class="layout-full publisher-layout layout">
-    <h2 class="layout-title">{% trans "Base information" %}</h2>
-
-    <div class="card course-form">
-        <div class="course-information">
-            <h4 class="hd-4">{% trans "Course Form" %}</h4>
-            <fieldset class="form-group grid-container grid-manual">
-                <div class="field-title">{% trans "INSTITUTION INFORMATION" %}</div>
-                <div class="row">
-                    <div class="col col-6">
-                        {{ object.get_group_institution }}
-                    </div>
-                </div>
-            </fieldset>
-        </div>
-    </div>
-</div>
-    <div class="layout-full layout">
-        <h2 class="layout-title">{% trans "Course information" %}</h2>
-        <div class="card course-form">
-            <div class="course-information">
-                    <fieldset class="form-group">
-                         <div class="field-row">
-                            <div class="field-col">
-                                <label class="field-label " for="title">{{ course_form.title.label }}</label>
-                                {{ object.title }}
+            <div class="card course-form">
+                <div class="course-information">
+                    <h4 class="hd-4">{% trans "Course Form" %}</h4>
+                    <fieldset class="form-group grid-container grid-manual">
+                        <div class="field-title">{% trans "INSTITUTION INFORMATION" %}</div>
+                        <div class="row">
+                            <div class="col col-6">
+                                {{ object.get_group_institution }}
                             </div>
                         </div>
-            </fieldset>
+                    </fieldset>
+                </div>
             </div>
         </div>
-    </div>
+        <div class="layout-full layout">
+            <h2 class="layout-title">{% trans "Course information" %}</h2>
+            <div class="card course-form">
+                <div class="course-information">
+                        <fieldset class="form-group">
+                             <div class="field-row">
+                                <div class="field-col">
+                                    <label class="field-label " for="title">{{ course_form.title.label }}</label>
+                                    {{ object.title }}
+                                </div>
+                            </div>
+                </fieldset>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <aside class="layout-col layout-col-a layout-col-a-custom">
+        {% include 'publisher/course_detail/_widgets.html' %}
+    </aside>
+</div>
 {% endblock %}

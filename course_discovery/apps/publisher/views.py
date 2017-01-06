@@ -280,7 +280,6 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
     def get_context_data(self, **kwargs):
         context = super(CourseDetailView, self).get_context_data(**kwargs)
 
-        context['comment_object'] = self
         context['can_edit'] = mixins.check_course_organization_permission(
             self.request.user, self.object, OrganizationExtension.EDIT_COURSE
         )
