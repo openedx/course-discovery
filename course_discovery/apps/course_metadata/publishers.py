@@ -117,7 +117,7 @@ class MarketingSitePublisher(object):
 
     def _get_node_data(self, program, user_id):
         return {
-            'type': str(program.type).lower(),
+            'type': str(program.type).lower().replace(' ', '_'),
             'title': program.title,
             'field_uuid': str(program.uuid),
             'uuid': str(program.uuid),
@@ -132,7 +132,8 @@ class MarketingSitePublisher(object):
         response = api_client.api_session.get(node_url)
         if response.status_code == 200:
             list_item = response.json().get('list')
-            return list_item[0]['nid']
+            if list_item:
+                return list_item[0]['nid']
 
     def _edit_node(self, api_client, node_id, node_data):
         # Drupal does not allow us to update the UUID field on node update
