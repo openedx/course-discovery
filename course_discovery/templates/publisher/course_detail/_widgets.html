@@ -1,0 +1,42 @@
+{% load i18n %}
+
+<div class="course-widgets">
+    {% if can_edit %}
+        <a href="{% url 'publisher:publisher_courses_edit' pk=object.id %}" class="btn btn-neutral btn-courserun-edit">
+            {% trans "EDIT" %}
+        </a>
+        <div class="clearfix"></div>
+    {% endif %}
+    <div class="margin-top20">
+        <h5 class="hd-5 emphasized course-runs-heading">{% trans "COURSE RUNS" %}</h5>
+        <a href="{% url 'publisher:publisher_course_runs_new' parent_course_id=object.id %}" class="btn btn-brand btn-small btn-courserun-add">
+            {% trans "ADD RUN" %}
+        </a>
+    </div>
+    <div class="course-run-list">
+        {% for course_run in course.course_runs %}
+            <div class="layout-1t2t layout-reversed course-run-item">
+                <div class="layout-col layout-col-a created-by">
+                    {% blocktrans with created_date=course_run.created.date created_time=course_run.created.time created_by=course_run.created_by.full_name %}
+                        Created {{ created_date }} at {{ created_time }} by {{ created_by }}
+                    {% endblocktrans %}
+                </div>
+                <div class="layout-col layout-col-b course-run-details">
+                    <div class="courserun-details">
+                        <a class="courserun-detail-link" href="{% url 'publisher:publisher_course_run_detail' pk=course_run.id %}">
+                            {{ course_run.start.date }} - {{ course_run.get_pacing_type_display }}
+                        </a>
+                    </div>
+                    <div class="studio-url">
+                        <span class="studio-url-heading">{% trans "STUDIO URL" %} - </span>
+                        {% if course_run.lms_course_id %}
+                            <a class="studio-link" href="">{{ course_run.lms_course_id }}</a>
+                        {% else %}
+                            {% trans "Not yet created" %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
