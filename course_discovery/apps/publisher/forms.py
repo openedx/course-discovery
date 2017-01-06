@@ -2,7 +2,12 @@
 Course publisher forms.
 """
 from django import forms
+from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _
+from guardian.shortcuts import get_perms
 
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import Person, Organization
@@ -240,3 +245,30 @@ class CustomSeatForm(SeatForm):
 
     class Meta(SeatForm.Meta):
         fields = ('price', 'type')
+
+
+class OrganizationExtensionAdminForm(forms.ModelForm):
+    content_type = ContentType.objects.get_for_model(OrganizationExtension)
+    permissions = forms.ModelMultipleChoiceField(
+        queryset=Permission.objects.filter(content_type=content_type),
+        widget=FilteredSelectMultiple("verbose name", is_stacked=False),
+        required=False
+    )
+
+    class Meta:
+        model = OrganizationExtension
+        fields = '__all__'
+
+    def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None, initial=None, error_class=ErrorList,
+                 label_suffix=':', empty_permitted=False, instance=None):
+        super(OrganizationExtensionAdminForm, self).__init__(data, files, auto_id, prefix, initial,
+                                                             error_class, label_suffix, empty_permitted, instance)
+        if instance:
+            self.fields['permissions'].initial = get_permissions_ids(instance)
+
+
+def get_permissions_ids(instance):
+    content_type = ContentType.objects.get_for_model(OrganizationExtension)
+    return Permission.objects.filter(
+        content_type=content_type, codename__in=get_perms(instance.group, instance)
+    ).values_list('id', flat=True)
