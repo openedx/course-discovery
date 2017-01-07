@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-06 09:45-0500\n"
+"POT-Creation-Date: 2017-01-07 15:37+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -72,7 +72,7 @@ msgstr ""
 msgid "Personal info"
 msgstr ""
 
-#: apps/core/admin.py
+#: apps/core/admin.py apps/publisher/forms.py
 msgid "Permissions"
 msgstr ""
 
@@ -409,6 +409,10 @@ msgstr ""
 
 #: apps/edx_haystack_extensions/models.py
 msgid "JSON string containing an elasticsearch function score config."
+msgstr ""
+
+#: apps/publisher/admin.py
+msgid "Assigned Permissions"
 msgstr ""
 
 #: apps/publisher/choices.py templates/publisher/courses.html
