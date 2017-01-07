@@ -251,7 +251,7 @@ class OrganizationExtensionAdminForm(forms.ModelForm):
     content_type = ContentType.objects.get_for_model(OrganizationExtension)
     permissions = forms.ModelMultipleChoiceField(
         queryset=Permission.objects.filter(content_type=content_type),
-        widget=FilteredSelectMultiple("verbose name", is_stacked=False),
+        widget=FilteredSelectMultiple(_('Permissions'), is_stacked=False),
         required=False
     )
 

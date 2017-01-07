@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.models import Permission
+from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import assign_perm, get_perms, remove_perm
 
 from course_discovery.apps.publisher.forms import OrganizationExtensionAdminForm
@@ -31,7 +32,7 @@ class OrganizationExtensionAdmin(admin.ModelAdmin):
     def permissions(self, obj):
         return ", ".join([str(run) for run in get_perms(obj.group, obj)])
 
-    permissions.short_description = 'permissions'
+    permissions.short_description = _('Assigned Permissions')
 
     def save_model(self, request, obj, form, change):
         super(OrganizationExtensionAdmin, self).save_model(request, obj, form, change)
