@@ -10,15 +10,15 @@
 # e2f_ar r3 <e2f_ar_r3@outlook.com>, 2016
 # e2f_ar t3 <e2f_ar_t3@outlook.com>, 2016
 # Natalia Berdnikov <nberdnikov@edx.org>, 2016
-# omarithawi <oithawi@qrf.org>, 2016
+# Omar Al-Ithawi <oithawi@qrf.org>, 2016
 # qualityalltext <quality@alltext.co.il>, 2016
 # shefaa abu jabel <shefaa.aj@gmail.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-30 14:38+0500\n"
-"PO-Revision-Date: 2016-12-31 09:18+0000\n"
+"POT-Creation-Date: 2017-01-06 09:45-0500\n"
+"PO-Revision-Date: 2017-01-06 09:37+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Arabic (http://www.transifex.com/open-edx/edx-platform/language/ar/)\n"
 "MIME-Version: 1.0\n"
@@ -251,10 +251,8 @@ msgid "Deleted"
 msgstr "محذوف"
 
 #: apps/course_metadata/forms.py
-msgid ""
-"Programs can only be activated if they have a marketing slug and a banner "
-"image."
-msgstr "لا يمكن تفعيل البرامج إلا إذا كان بها عنوان مختصر للتسويق وصورة شعار."
+msgid "Programs can only be activated if they have a banner image."
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Facebook"
@@ -461,6 +459,20 @@ msgstr "عنوان المقرر"
 msgid "Course Number"
 msgstr "رقم المقرر"
 
+#: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/add_course_form.html
+msgid "Brief Description"
+msgstr "وصف مختصر"
+
+#: apps/publisher/forms.py apps/publisher/models.py
+msgid "Full Description"
+msgstr "وصف مفصّل"
+
+#: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/course_run_detail/_all.html
+msgid "Prerequisites"
+msgstr "المتطلبات الأساسية"
+
 #: apps/publisher/forms.py
 msgid "Organization Course Admin"
 msgstr ""
@@ -490,8 +502,29 @@ msgid "Pace"
 msgstr ""
 
 #: apps/publisher/forms.py
-msgid "Only honor/audit seats can be without price."
-msgstr "يمكن فقط لمقاعد الشرف/الاستماع أن تكون دون سعر."
+msgid "Only audit seat can be without price."
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Choose course type"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Audit Only"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Verified Certificate"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Professional Education"
+msgstr ""
+
+#: apps/publisher/forms.py templates/publisher/add_course_form.html
+#: templates/publisher/course_run_detail/_seats.html
+msgid "Seat Type"
+msgstr "نوع المقعد"
 
 #: apps/publisher/models.py
 msgid "Draft"
@@ -517,14 +550,6 @@ msgstr "عنوان الدورة"
 msgid "Course number"
 msgstr "رقم الدورة"
 
-#: apps/publisher/models.py templates/publisher/add_course_form.html
-msgid "Brief Description"
-msgstr "وصف مختصر"
-
-#: apps/publisher/models.py
-msgid "Full Description"
-msgstr "وصف مفصّل"
-
 #: apps/publisher/models.py templates/publisher/course_run_detail/_all.html
 msgid "Partner Name"
 msgstr "اسم الشريك"
@@ -536,10 +561,6 @@ msgstr "نوع المستوى"
 #: apps/publisher/models.py
 msgid "Expected Learnings"
 msgstr "توقعات التعلم"
-
-#: apps/publisher/models.py templates/publisher/course_run_detail/_all.html
-msgid "Prerequisites"
-msgstr "المتطلبات الأساسية"
 
 #: apps/publisher/models.py
 msgid "Verification deadline"
@@ -949,11 +970,6 @@ msgid "About page information"
 msgstr "معلومات صفحة اللمحة"
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_seats.html
-msgid "Seat Type"
-msgstr "نوع المقعد"
-
-#: templates/publisher/add_course_form.html
 msgid ""
 "Reads as a tag line - a short, engaging description for students browsing "
 "course listings"
@@ -1248,6 +1264,7 @@ msgid "Dashboard"
 msgstr "صفحة المعلومات الرئيسية"
 
 #: templates/publisher/base.html templates/publisher/courses.html
+#: templates/publisher/view_course_form.html
 msgid "Courses"
 msgstr "الدورات"
 
@@ -1429,6 +1446,7 @@ msgid "Additional Notes"
 msgstr "ملاحظات إضافية"
 
 #: templates/publisher/course_run_detail/_approval_widget.html
+#: templates/publisher/view_course_form.html
 msgid "EDIT"
 msgstr "تحرير"
 
@@ -1880,6 +1898,21 @@ msgid ""
 "Studio instance created for the following course run: "
 "%(course_run_page_url)s"
 msgstr "تم إنشاء مثيل استديو لمجرى المقرر التالي: %(course_run_page_url)s"
+
+#: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
+msgid "Dear"
+msgstr ""
+
+#: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
+msgid "Please create a Studio instance for the following course."
+msgstr ""
+
+#: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
+msgid "Thanks,"
+msgstr ""
 
 #: templates/publisher/seat_form.html
 msgid "Seat Form"

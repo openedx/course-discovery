@@ -18,8 +18,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-30 14:38+0500\n"
-"PO-Revision-Date: 2016-12-31 09:18+0000\n"
+"POT-Creation-Date: 2017-01-06 09:45-0500\n"
+"PO-Revision-Date: 2017-01-06 09:37+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
 "MIME-Version: 1.0\n"
@@ -252,10 +252,8 @@ msgid "Deleted"
 msgstr "Eliminado"
 
 #: apps/course_metadata/forms.py
-msgid ""
-"Programs can only be activated if they have a marketing slug and a banner "
-"image."
-msgstr "Los programas se pueden activar solamente si cuentan con URL y pieza publicitaria de mercadotecnia."
+msgid "Programs can only be activated if they have a banner image."
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Facebook"
@@ -462,6 +460,20 @@ msgstr "Título del curso"
 msgid "Course Number"
 msgstr "Código del curso"
 
+#: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/add_course_form.html
+msgid "Brief Description"
+msgstr "Breve descripción"
+
+#: apps/publisher/forms.py apps/publisher/models.py
+msgid "Full Description"
+msgstr "Descripción completa"
+
+#: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/course_run_detail/_all.html
+msgid "Prerequisites"
+msgstr "Prerequisitos"
+
 #: apps/publisher/forms.py
 msgid "Organization Course Admin"
 msgstr ""
@@ -491,8 +503,29 @@ msgid "Pace"
 msgstr ""
 
 #: apps/publisher/forms.py
-msgid "Only honor/audit seats can be without price."
-msgstr "Solamente las plazas no verificadas pueden ser gratuitas."
+msgid "Only audit seat can be without price."
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Choose course type"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Audit Only"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Verified Certificate"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Professional Education"
+msgstr ""
+
+#: apps/publisher/forms.py templates/publisher/add_course_form.html
+#: templates/publisher/course_run_detail/_seats.html
+msgid "Seat Type"
+msgstr "Tipo de asiento"
 
 #: apps/publisher/models.py
 msgid "Draft"
@@ -518,14 +551,6 @@ msgstr "Título del curso"
 msgid "Course number"
 msgstr "Número del curso"
 
-#: apps/publisher/models.py templates/publisher/add_course_form.html
-msgid "Brief Description"
-msgstr "Breve descripción"
-
-#: apps/publisher/models.py
-msgid "Full Description"
-msgstr "Descripción completa"
-
 #: apps/publisher/models.py templates/publisher/course_run_detail/_all.html
 msgid "Partner Name"
 msgstr "Nombre del aliado"
@@ -537,10 +562,6 @@ msgstr "Tipo de Nivel"
 #: apps/publisher/models.py
 msgid "Expected Learnings"
 msgstr "Aprendizaje anticipado"
-
-#: apps/publisher/models.py templates/publisher/course_run_detail/_all.html
-msgid "Prerequisites"
-msgstr "Prerequisitos"
 
 #: apps/publisher/models.py
 msgid "Verification deadline"
@@ -950,11 +971,6 @@ msgid "About page information"
 msgstr "Información de la pagina Acerca de"
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_seats.html
-msgid "Seat Type"
-msgstr "Tipo de asiento"
-
-#: templates/publisher/add_course_form.html
 msgid ""
 "Reads as a tag line - a short, engaging description for students browsing "
 "course listings"
@@ -1249,6 +1265,7 @@ msgid "Dashboard"
 msgstr "Panel de control"
 
 #: templates/publisher/base.html templates/publisher/courses.html
+#: templates/publisher/view_course_form.html
 msgid "Courses"
 msgstr "Cursos"
 
@@ -1430,6 +1447,7 @@ msgid "Additional Notes"
 msgstr "Notas Adicionales"
 
 #: templates/publisher/course_run_detail/_approval_widget.html
+#: templates/publisher/view_course_form.html
 msgid "EDIT"
 msgstr "EDITAR"
 
@@ -1880,6 +1898,21 @@ msgstr ""
 msgid ""
 "Studio instance created for the following course run: "
 "%(course_run_page_url)s"
+msgstr ""
+
+#: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
+msgid "Dear"
+msgstr ""
+
+#: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
+msgid "Please create a Studio instance for the following course."
+msgstr ""
+
+#: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
+msgid "Thanks,"
 msgstr ""
 
 #: templates/publisher/seat_form.html
