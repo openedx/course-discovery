@@ -4,6 +4,7 @@ Course publisher forms.
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import get_perms
@@ -265,11 +266,13 @@ class OrganizationExtensionAdminForm(forms.ModelForm):
                  label_suffix=':', empty_permitted=False, instance=None):
         super(OrganizationExtensionAdminForm, self).__init__(data, files, auto_id, prefix, initial,
                                                              error_class, label_suffix, empty_permitted, instance)
+
+        # Content type check is critical to make sure only valid permissions appear.
+        content_type = ContentType.objects.get_for_model(OrganizationExtension)
+        self.fields['permissions'].queryset = Permission.objects.filter(
+            content_type=content_type, codename__in=self.permissions_list
+        )
         if instance:
-            self.fields['permissions'].initial = get_permissions_ids(instance)
-
-
-def get_permissions_ids(instance):
-    return Permission.objects.filter(
-        codename__in=get_perms(instance.group, instance)
-    ).values_list('id', flat=True)
+            self.fields['permissions'].initial = Permission.objects.filter(
+                content_type=content_type, codename__in=get_perms(instance.group, instance)
+            ).values_list('id', flat=True)
