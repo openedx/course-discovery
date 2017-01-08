@@ -267,7 +267,7 @@ class OrganizationExtensionAdminForm(forms.ModelForm):
         super(OrganizationExtensionAdminForm, self).__init__(data, files, auto_id, prefix, initial,
                                                              error_class, label_suffix, empty_permitted, instance)
 
-        # Content type check is critical to make sure only valid permissions appear.
+        # Content type to make sure only valid permissions appear.
         content_type = ContentType.objects.get_for_model(OrganizationExtension)
         self.fields['permissions'].queryset = Permission.objects.filter(
             content_type=content_type, codename__in=self.permissions_list
