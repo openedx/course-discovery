@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-09 18:20+0500\n"
+"POT-Creation-Date: 2017-01-10 13:00+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2162,8 +2162,6 @@ msgstr "Vïéw Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 #: templates/publisher/email/change_state.txt
 #: templates/publisher/email/comment.html
 #: templates/publisher/email/comment.txt
-#: templates/publisher/email/studio_instance_created.html
-#: templates/publisher/email/studio_instance_created.txt
 msgid "The edX team"
 msgstr "Thé édX téäm Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
@@ -2190,24 +2188,57 @@ msgid "View comment: "
 msgstr "Vïéw çömmént:  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
+#, python-format
+msgid "Dear %(course_team_name)s,"
+msgstr "Déär %(course_team_name)s, Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: templates/publisher/email/studio_instance_created.html
 #, python-format
 msgid ""
-"Studio instance created for the following course run: "
-"%(link_start)s%(course_run_page_url)s%(link_middle)scourse run "
-"link%(link_end)s."
+"EdX has created a Studio instance for "
+"%(link_start)s%(course_run_page_url)s%(link_middle)s %(course_name)s "
+"%(link_end)s. You can now edit this course in Studio."
 msgstr ""
-"Stüdïö ïnstänçé çréätéd för thé föllöwïng çöürsé rün: "
-"%(link_start)s%(course_run_page_url)s%(link_middle)sçöürsé rün "
-"lïnk%(link_end)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+"ÉdX häs çréätéd ä Stüdïö ïnstänçé för "
+"%(link_start)s%(course_run_page_url)s%(link_middle)s %(course_name)s "
+"%(link_end)s. Ýöü çän nöw édït thïs çöürsé ïn Stüdïö. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
+" αмєт, #"
+
+#: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
+#: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
+msgid "Thanks,"
+msgstr "Thänks, Ⱡ'σяєм ιρѕυм #"
+
+#: templates/publisher/email/studio_instance_created.html
+#, python-format
+msgid ""
+"<p>Note: This email address is unable to receive replies. For questions or "
+"comments, contact %(contact_us_email)s.</p>"
+msgstr ""
+"<p>Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
+"çömménts, çöntäçt %(contact_us_email)s.</p> Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
 msgid ""
-"Studio instance created for the following course run: "
-"%(course_run_page_url)s"
+"EdX has created a Studio instance for %(course_name)s: "
+"%(course_run_page_url)s. You can now edit this course in Studio."
 msgstr ""
-"Stüdïö ïnstänçé çréätéd för thé föllöwïng çöürsé rün: "
-"%(course_run_page_url)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+"ÉdX häs çréätéd ä Stüdïö ïnstänçé för %(course_name)s: "
+"%(course_run_page_url)s. Ýöü çän nöw édït thïs çöürsé ïn Stüdïö. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+
+#: templates/publisher/email/studio_instance_created.txt
+#, python-format
+msgid ""
+"Note: This email address is unable to receive replies. For questions or "
+"comments, contact %(contact_us_email)s."
+msgstr ""
+"Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
+"çömménts, çöntäçt %(contact_us_email)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
 #: templates/publisher/email/studio_instance_needed.html
 #: templates/publisher/email/studio_instance_needed.txt
@@ -2220,11 +2251,6 @@ msgid "Please create a Studio instance for the following course."
 msgstr ""
 "Pléäsé çréäté ä Stüdïö ïnstänçé för thé föllöwïng çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя"
 " ѕιт αмєт, ¢σηѕє¢тєтυя α#"
-
-#: templates/publisher/email/studio_instance_needed.html
-#: templates/publisher/email/studio_instance_needed.txt
-msgid "Thanks,"
-msgstr "Thänks, Ⱡ'σяєм ιρѕυм #"
 
 #: templates/publisher/seat_form.html
 msgid "Seat Form"

@@ -6,6 +6,7 @@ from django.core.mail.message import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
+from course_discovery.apps.publisher.choices import PublisherUserRole
 
 
 logger = logging.getLogger(__name__)
@@ -64,11 +65,20 @@ def send_email_for_studio_instance_created(course_run):
         to_addresses = course_run.course.get_course_users_emails()
         from_address = settings.PUBLISHER_FROM_EMAIL
 
+        course_user_roles = course_run.course.course_user_roles.all()
+        course_team = course_user_roles.filter(role=PublisherUserRole.CourseTeam).first()
+        partner_coordinator = course_user_roles.filter(role=PublisherUserRole.PartnerCoordinator).first()
+
         context = {
             'course_run': course_run,
             'course_run_page_url': 'https://{host}{path}'.format(
                 host=Site.objects.get_current().domain.strip('/'), path=object_path
-            )
+            ),
+            'course_name': course_run.course.title,
+            'from_address': from_address,
+            'course_team_name': course_team.user.full_name if course_team else '',
+            'partner_coordinator_name': partner_coordinator.user.full_name if partner_coordinator else '',
+            'contact_us_email': partner_coordinator.user.email if partner_coordinator else ''
         }
 
         txt_template_path = 'publisher/email/studio_instance_created.txt'

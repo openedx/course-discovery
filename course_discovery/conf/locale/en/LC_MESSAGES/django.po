@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-09 18:20+0500\n"
+"POT-Creation-Date: 2017-01-10 13:00+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1853,8 +1853,6 @@ msgstr ""
 #: templates/publisher/email/change_state.txt
 #: templates/publisher/email/comment.html
 #: templates/publisher/email/comment.txt
-#: templates/publisher/email/studio_instance_created.html
-#: templates/publisher/email/studio_instance_created.txt
 msgid "The edX team"
 msgstr ""
 
@@ -1879,18 +1877,45 @@ msgid "View comment: "
 msgstr ""
 
 #: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
+#, python-format
+msgid "Dear %(course_team_name)s,"
+msgstr ""
+
+#: templates/publisher/email/studio_instance_created.html
 #, python-format
 msgid ""
-"Studio instance created for the following course run: "
-"%(link_start)s%(course_run_page_url)s%(link_middle)scourse run "
-"link%(link_end)s."
+"EdX has created a Studio instance for "
+"%(link_start)s%(course_run_page_url)s%(link_middle)s %(course_name)s "
+"%(link_end)s. You can now edit this course in Studio."
+msgstr ""
+
+#: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
+#: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
+msgid "Thanks,"
+msgstr ""
+
+#: templates/publisher/email/studio_instance_created.html
+#, python-format
+msgid ""
+"<p>Note: This email address is unable to receive replies. For questions or "
+"comments, contact %(contact_us_email)s.</p>"
 msgstr ""
 
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
 msgid ""
-"Studio instance created for the following course run: "
-"%(course_run_page_url)s"
+"EdX has created a Studio instance for %(course_name)s: "
+"%(course_run_page_url)s. You can now edit this course in Studio."
+msgstr ""
+
+#: templates/publisher/email/studio_instance_created.txt
+#, python-format
+msgid ""
+"Note: This email address is unable to receive replies. For questions or "
+"comments, contact %(contact_us_email)s."
 msgstr ""
 
 #: templates/publisher/email/studio_instance_needed.html
@@ -1901,11 +1926,6 @@ msgstr ""
 #: templates/publisher/email/studio_instance_needed.html
 #: templates/publisher/email/studio_instance_needed.txt
 msgid "Please create a Studio instance for the following course."
-msgstr ""
-
-#: templates/publisher/email/studio_instance_needed.html
-#: templates/publisher/email/studio_instance_needed.txt
-msgid "Thanks,"
 msgstr ""
 
 #: templates/publisher/seat_form.html

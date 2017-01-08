@@ -150,6 +150,11 @@ class StudioInstanceCreatedEmailTests(TestCase):
             course=self.course_run.course, role=PublisherUserRole.PartnerCoordinator, user=self.user
         )
 
+        self.course_team = UserFactory()
+        factories.CourseUserRoleFactory(
+            course=self.course_run.course, role=PublisherUserRole.CourseTeam, user=self.course_team
+        )
+
         UserAttributeFactory(user=self.user, enable_email_notification=True)
 
         toggle_switch('enable_publisher_email_notifications', True)
@@ -172,22 +177,30 @@ class StudioInstanceCreatedEmailTests(TestCase):
         """ Verify that emails sent successfully for studio instance created."""
 
         emails.send_email_for_studio_instance_created(self.course_run)
-
         # assert email sent
         self.assert_email_sent(
             reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id}),
             'Studio instance created',
-            'Studio instance created for the following course run'
+            'EdX has created a Studio instance for'
         )
 
     def assert_email_sent(self, object_path, subject, expected_body):
         """ DRY method to assert sent email data"""
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual([settings.PUBLISHER_FROM_EMAIL], mail.outbox[0].to)
-        self.assertEqual([self.user.email], mail.outbox[0].bcc)
+        self.assertEqual([self.user.email, self.course_team.email], mail.outbox[0].bcc)
         self.assertEqual(str(mail.outbox[0].subject), subject)
 
         body = mail.outbox[0].body.strip()
         self.assertIn(expected_body, body)
         page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=object_path)
         self.assertIn(page_url, body)
+        self.assertIn('You can now edit this course in Studio.', body)
+        self.assertIn('Thanks', body)
+        self.assertIn('This email address is unable to receive replies. For questions or comments', body)
+        self.assertIn(self.course_team.full_name, body)
+        self.assertIn(self.user.full_name, body)
+        self.assertIn('Note: This email address is unable to receive replies.', body)
+        self.assertIn(
+            'For questions or comments, contact {}.'.format(self.user.email), body
+        )

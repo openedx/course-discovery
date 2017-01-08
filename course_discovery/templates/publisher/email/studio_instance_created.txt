@@ -1,7 +1,16 @@
 {% load i18n %}
 
 {% blocktrans trimmed %}
-    Studio instance created for the following course run: {{ course_run_page_url }}
+    Dear {{ course_team_name }},
+{% endblocktrans %}
+{% blocktrans trimmed %}
+     EdX has created a Studio instance for {{ course_name }}: {{ course_run_page_url }}.
+     You can now edit this course in Studio.
 {% endblocktrans %}
 
-{% trans "The edX team" %}
+{% trans "Thanks," %}
+{{ partner_coordinator_name }}
+
+{% blocktrans trimmed %}
+    Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.
+{% endblocktrans %}
