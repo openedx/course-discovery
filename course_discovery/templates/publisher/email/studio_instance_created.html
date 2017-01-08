@@ -3,10 +3,25 @@
 {% block body %}
 <!-- Message Body -->
         <p>
+             <!--Translators: course_team_name is course team member name. .-->
+            {% blocktrans trimmed %}
+                Dear {{ course_team_name }},
+            {% endblocktrans %}
+        <p>
             {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' trimmed %}
-                Studio instance created for the following course run: {{ link_start }}{{ course_run_page_url }}{{ link_middle }}course run link{{ link_end }}.
+                EdX has created a Studio instance for {{ link_start }}{{ course_run_page_url }}{{ link_middle }} {{ course_name }} {{ link_end }}.
+                You can now edit this course in Studio.
             {% endblocktrans %}
         </p>
-        <p>{% trans "The edX team" %}</p>
+
+         <!--Translators: It's closing of mail.-->
+        <p>{% trans "Thanks," %}</p>
+        <p>{{ partner_coordinator_name }}</p>
+
+
+{% blocktrans trimmed %}
+    <p>Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.</p>
+{% endblocktrans %}
+
 <!-- End Message Body -->
 {% endblock body %}

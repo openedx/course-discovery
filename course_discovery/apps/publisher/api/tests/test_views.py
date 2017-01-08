@@ -267,7 +267,7 @@ class UpdateCourseKeyViewTests(TestCase):
         self.assert_email_sent(
             reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id}),
             'Studio instance created',
-            'Studio instance created for the following course run'
+            'EdX has created a Studio instance for '
         )
 
     def assert_course_key_and_changed_by(self, lms_course_id=None, changed_by=None):
