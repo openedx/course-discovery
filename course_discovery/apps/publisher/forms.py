@@ -4,7 +4,6 @@ Course publisher forms.
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
 from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import get_perms
@@ -248,9 +247,12 @@ class CustomSeatForm(SeatForm):
 
 
 class OrganizationExtensionAdminForm(forms.ModelForm):
-    content_type = ContentType.objects.get_for_model(OrganizationExtension)
+    permissions_list = [
+        'publisher_view_course', 'publisher_edit_course',
+        'publisher_edit_course_run', 'publisher_view_course_run'
+    ]
     permissions = forms.ModelMultipleChoiceField(
-        queryset=Permission.objects.filter(content_type=content_type),
+        queryset=Permission.objects.filter(codename__in=permissions_list),
         widget=FilteredSelectMultiple(_('Permissions'), is_stacked=False),
         required=False
     )
@@ -268,7 +270,6 @@ class OrganizationExtensionAdminForm(forms.ModelForm):
 
 
 def get_permissions_ids(instance):
-    content_type = ContentType.objects.get_for_model(OrganizationExtension)
     return Permission.objects.filter(
-        content_type=content_type, codename__in=get_perms(instance.group, instance)
+        codename__in=get_perms(instance.group, instance)
     ).values_list('id', flat=True)
