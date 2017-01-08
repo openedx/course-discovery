@@ -66,8 +66,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-30 14:38+0500\n"
-"PO-Revision-Date: 2016-12-31 09:18+0000\n"
+"POT-Creation-Date: 2017-01-06 09:45-0500\n"
+"PO-Revision-Date: 2017-01-06 09:37+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: French (Canada) (http://www.transifex.com/open-edx/edx-platform/language/fr_CA/)\n"
 "MIME-Version: 1.0\n"
@@ -300,9 +300,7 @@ msgid "Deleted"
 msgstr "Supprimé"
 
 #: apps/course_metadata/forms.py
-msgid ""
-"Programs can only be activated if they have a marketing slug and a banner "
-"image."
+msgid "Programs can only be activated if they have a banner image."
 msgstr ""
 
 #: apps/course_metadata/models.py
@@ -510,6 +508,20 @@ msgstr "Titre du cours"
 msgid "Course Number"
 msgstr "Numéro du cours"
 
+#: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/add_course_form.html
+msgid "Brief Description"
+msgstr "Brève description"
+
+#: apps/publisher/forms.py apps/publisher/models.py
+msgid "Full Description"
+msgstr "Description complète"
+
+#: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/course_run_detail/_all.html
+msgid "Prerequisites"
+msgstr "Pré-requis"
+
 #: apps/publisher/forms.py
 msgid "Organization Course Admin"
 msgstr ""
@@ -539,7 +551,28 @@ msgid "Pace"
 msgstr ""
 
 #: apps/publisher/forms.py
-msgid "Only honor/audit seats can be without price."
+msgid "Only audit seat can be without price."
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Choose course type"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Audit Only"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Verified Certificate"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Professional Education"
+msgstr ""
+
+#: apps/publisher/forms.py templates/publisher/add_course_form.html
+#: templates/publisher/course_run_detail/_seats.html
+msgid "Seat Type"
 msgstr ""
 
 #: apps/publisher/models.py
@@ -566,14 +599,6 @@ msgstr "Titre du cours"
 msgid "Course number"
 msgstr "Numéro du cours"
 
-#: apps/publisher/models.py templates/publisher/add_course_form.html
-msgid "Brief Description"
-msgstr "Brève description"
-
-#: apps/publisher/models.py
-msgid "Full Description"
-msgstr "Description complète"
-
 #: apps/publisher/models.py templates/publisher/course_run_detail/_all.html
 msgid "Partner Name"
 msgstr "Nom du partenaire"
@@ -585,10 +610,6 @@ msgstr "Type de niveau"
 #: apps/publisher/models.py
 msgid "Expected Learnings"
 msgstr ""
-
-#: apps/publisher/models.py templates/publisher/course_run_detail/_all.html
-msgid "Prerequisites"
-msgstr "Pré-requis"
 
 #: apps/publisher/models.py
 msgid "Verification deadline"
@@ -998,11 +1019,6 @@ msgid "About page information"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/course_run_detail/_seats.html
-msgid "Seat Type"
-msgstr ""
-
-#: templates/publisher/add_course_form.html
 msgid ""
 "Reads as a tag line - a short, engaging description for students browsing "
 "course listings"
@@ -1297,6 +1313,7 @@ msgid "Dashboard"
 msgstr ""
 
 #: templates/publisher/base.html templates/publisher/courses.html
+#: templates/publisher/view_course_form.html
 msgid "Courses"
 msgstr ""
 
@@ -1478,6 +1495,7 @@ msgid "Additional Notes"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_approval_widget.html
+#: templates/publisher/view_course_form.html
 msgid "EDIT"
 msgstr ""
 
@@ -1928,6 +1946,21 @@ msgstr ""
 msgid ""
 "Studio instance created for the following course run: "
 "%(course_run_page_url)s"
+msgstr ""
+
+#: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
+msgid "Dear"
+msgstr ""
+
+#: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
+msgid "Please create a Studio instance for the following course."
+msgstr ""
+
+#: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
+msgid "Thanks,"
 msgstr ""
 
 #: templates/publisher/seat_form.html
