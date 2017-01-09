@@ -1494,3 +1494,50 @@ class CourseDetailViewTests(TestCase):
         response = self.client.get(self.detail_page_url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['can_edit'], can_edit)
+
+
+class CourseEditViewTests(TestCase):
+    """ Tests for the course edit view. """
+
+    def setUp(self):
+        super(CourseEditViewTests, self).setUp()
+        self.course = factories.CourseFactory()
+        self.user = UserFactory()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+        self.organization_extension = factories.OrganizationExtensionFactory()
+        self.course.organizations.add(self.organization_extension.organization)
+
+        self.edit_page_url = reverse('publisher:publisher_courses_edit', args=[self.course.id])
+
+    def test_edit_page_without_permission(self):
+        """
+        Verify that user cannot access course edit page without edit permission.
+        """
+        response = self.client.get(self.edit_page_url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_edit_page_with_edit_permission(self):
+        """
+        Verify that user can access course edit page with edit permission.
+        """
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.EDIT_COURSE, self.organization_extension.group, self.organization_extension)
+        response = self.client.get(self.edit_page_url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_edit_page_with_internal_user(self):
+        """
+        Verify that internal user can access course edit page.
+        """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        response = self.client.get(self.edit_page_url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_edit_page_with_admin(self):
+        """
+        Verify that publisher admin can access course edit page.
+        """
+        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+        response = self.client.get(self.edit_page_url)
+        self.assertEqual(response.status_code, 200)

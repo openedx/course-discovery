@@ -239,11 +239,11 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
         return render(request, self.template_name, ctx, status=400)
 
 
-class UpdateCourseView(mixins.PublisherPermissionMixin, mixins.FormValidMixin, UpdateView):
-    """ Update Course View."""
+class CourseEditView(mixins.PublisherPermissionMixin, mixins.FormValidMixin, UpdateView):
+    """ Course Edit View."""
     model = Course
     form_class = CourseForm
-    permission = OrganizationExtension.VIEW_COURSE
+    permission = OrganizationExtension.EDIT_COURSE
     template_name = 'publisher/course_form.html'
     success_url = 'publisher:publisher_course_detail'
 
@@ -251,7 +251,7 @@ class UpdateCourseView(mixins.PublisherPermissionMixin, mixins.FormValidMixin, U
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
     def get_context_data(self, **kwargs):
-        context = super(UpdateCourseView, self).get_context_data(**kwargs)
+        context = super(CourseEditView, self).get_context_data(**kwargs)
         context['comment_object'] = self.object
         return context
 
