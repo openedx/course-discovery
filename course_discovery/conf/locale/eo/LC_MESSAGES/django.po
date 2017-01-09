@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-06 09:45-0500\n"
+"POT-Creation-Date: 2017-01-09 18:20+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -860,12 +860,13 @@ msgstr "Çöürsé Rün Förm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 msgid "Edit Comment"
 msgstr "Édït Çömmént Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: templates/comments/edit_comment.html templates/publisher/course_form.html
+#: templates/comments/edit_comment.html
 #: templates/publisher/course_run_form.html templates/publisher/seat_form.html
 msgid "Save"
 msgstr "Sävé Ⱡ'σяєм ι#"
 
 #: templates/metadata/admin/course_run.html
+#: templates/publisher/course_form.html
 msgid "Cancel"
 msgstr "Çänçél Ⱡ'σяєм ιρѕυ#"
 
@@ -1527,6 +1528,10 @@ msgstr "Däshßöärd Ⱡ'σяєм ιρѕυм ∂σł#"
 #: templates/publisher/view_course_form.html
 msgid "Courses"
 msgstr "Çöürsés Ⱡ'σяєм ιρѕυм #"
+
+#: templates/publisher/course_form.html
+msgid "UPDATE COURSE"
+msgstr "ÛPDÀTÉ ÇÖÛRSÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: templates/publisher/course_form.html
 msgid "Add Course Run"

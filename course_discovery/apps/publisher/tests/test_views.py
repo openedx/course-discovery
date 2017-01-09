@@ -178,7 +178,7 @@ class CreateUpdateCourseViewTests(TestCase):
 
         self.assertRedirects(
             response,
-            expected_url=reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id}),
+            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
             status_code=302,
             target_status_code=200
         )
@@ -223,7 +223,7 @@ class CreateUpdateCourseViewTests(TestCase):
         )
         self.assertRedirects(
             response,
-            expected_url=reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id}),
+            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
             status_code=302,
             target_status_code=200
         )

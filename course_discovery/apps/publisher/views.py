@@ -245,7 +245,7 @@ class UpdateCourseView(mixins.PublisherPermissionMixin, mixins.FormValidMixin, U
     form_class = CourseForm
     permission = OrganizationExtension.VIEW_COURSE
     template_name = 'publisher/course_form.html'
-    success_url = 'publisher:publisher_courses_edit'
+    success_url = 'publisher:publisher_course_detail'
 
     def get_success_url(self):
         return reverse(self.success_url, kwargs={'pk': self.object.id})

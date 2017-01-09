@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-06 09:45-0500\n"
+"POT-Creation-Date: 2017-01-09 18:20+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -725,12 +725,13 @@ msgstr ""
 msgid "Edit Comment"
 msgstr ""
 
-#: templates/comments/edit_comment.html templates/publisher/course_form.html
+#: templates/comments/edit_comment.html
 #: templates/publisher/course_run_form.html templates/publisher/seat_form.html
 msgid "Save"
 msgstr ""
 
 #: templates/metadata/admin/course_run.html
+#: templates/publisher/course_form.html
 msgid "Cancel"
 msgstr ""
 
@@ -1255,6 +1256,10 @@ msgstr ""
 #: templates/publisher/base.html templates/publisher/courses.html
 #: templates/publisher/view_course_form.html
 msgid "Courses"
+msgstr ""
+
+#: templates/publisher/course_form.html
+msgid "UPDATE COURSE"
 msgstr ""
 
 #: templates/publisher/course_form.html
