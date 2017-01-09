@@ -7,7 +7,7 @@ from django.test import TestCase
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory, SeatFactory
 
 
 class CourseQuerySetTests(TestCase):
@@ -71,24 +71,39 @@ class CourseRunQuerySetTests(TestCase):
     def test_marketable(self):
         """ Verify the method filters CourseRuns to those with slugs. """
         course_run = CourseRunFactory()
+        SeatFactory(course_run=course_run)
+
         self.assertEqual(list(CourseRun.objects.marketable()), [course_run])
 
     @ddt.data(None, '')
     def test_marketable_exclusions(self, slug):
         """ Verify the method excludes CourseRuns without a slug. """
-        CourseRunFactory(slug=slug)
-        self.assertEqual(CourseRun.objects.marketable().count(), 0)
+        course_run = CourseRunFactory(slug=slug)
+        SeatFactory(course_run=course_run)
 
-    @ddt.data(
-        (CourseRunStatus.Unpublished, 0),
-        (CourseRunStatus.Published, 1)
-    )
-    @ddt.unpack
-    def test_marketable_unpublished_exclusions(self, status, count):
+        self.assertEqual(CourseRun.objects.marketable().exists(), False)
+
+    @ddt.data(True, False)
+    def test_marketable_seats_exclusions(self, has_seats):
+        """ Verify that the method excludes CourseRuns without seats. """
+        course_run = CourseRunFactory()
+
+        if has_seats:
+            SeatFactory(course_run=course_run)
+
+        self.assertEqual(CourseRun.objects.marketable().exists(), has_seats)
+
+    @ddt.data(True, False)
+    def test_marketable_unpublished_exclusions(self, is_published):
         """ Verify the method excludes CourseRuns with Unpublished status. """
-        CourseRunFactory(status=status)
+        course_run = CourseRunFactory(status=CourseRunStatus.Unpublished)
+        SeatFactory(course_run=course_run)
 
-        self.assertEqual(CourseRun.objects.marketable().count(), count)
+        if is_published:
+            course_run.status = CourseRunStatus.Published
+            course_run.save()
+
+        self.assertEqual(CourseRun.objects.marketable().exists(), is_published)
 
 
 @ddt.ddt

@@ -13,7 +13,9 @@ from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRun
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, PartnerFactory, ProgramFactory
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseRunFactory, PartnerFactory, ProgramFactory, SeatFactory
+)
 
 
 @ddt.ddt
@@ -168,8 +170,12 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         """ Verify the endpoint filters course runs to those that are marketable. """
         CourseRun.objects.all().delete()
         expected = CourseRunFactory.create_batch(3, course__partner=self.partner)
+        for course_run in expected:
+            SeatFactory(course_run=course_run)
+
         CourseRunFactory.create_batch(3, slug=None, course__partner=self.partner)
         CourseRunFactory.create_batch(3, slug='', course__partner=self.partner)
+
         url = reverse('api:v1:course_run-list') + '?marketable=1'
         self.assert_list_results(url, expected)
 

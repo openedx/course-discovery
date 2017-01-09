@@ -46,13 +46,22 @@ class CourseRunQuerySet(models.QuerySet):
     def marketable(self):
         """ Returns CourseRuns that can be marketed to learners.
 
-         A CourseRun is considered marketable if it has a defined slug and has been published.
+         A CourseRun is considered marketable if it has a defined slug, has seats, and has been published.
 
          Returns:
             QuerySet
          """
 
-        return self.exclude(slug__isnull=True).exclude(slug='').filter(status=CourseRunStatus.Published)
+        return self.exclude(
+            slug__isnull=True
+        ).exclude(
+            slug=''
+        ).exclude(
+            # This will exclude any course run without seats (e.g., CCX runs).
+            seats__isnull=True
+        ).filter(
+            status=CourseRunStatus.Published
+        )
 
 
 class ProgramQuerySet(models.QuerySet):
