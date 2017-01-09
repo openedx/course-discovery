@@ -16,7 +16,8 @@
                             {% include "publisher/form_field.html" %}
                         {% endfor %}
                     </fieldset>
-                    <button class="btn-brand btn-base" type="submit">{% trans "Save" %}</button>
+                    <a class="btn-cancel" href="{% url 'publisher:publisher_course_detail' course.id %}">{% trans "Cancel" %}</a>
+                    <button class="btn-brand btn-base btn-save" type="submit">{% trans "UPDATE COURSE" %}</button>
                 </form>
             </div>
             <div class="comment-container">
