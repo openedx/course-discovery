@@ -956,7 +956,7 @@ class CourseRunDetailTests(TestCase):
         self.assertContains(response, comment.comment)
 
     def test_get_course_return_none(self):
-        """ Verify that `ViewPermissionMixin.get_course` return none
+        """ Verify that `PublisherPermissionMixin.get_course` return none
         if `publisher_object` doesn't have `course` attr.
         """
         non_staff_user, group = create_non_staff_user_and_login(self)   # pylint: disable=unused-variable

@@ -9,7 +9,7 @@ from course_discovery.apps.publisher.utils import (
 )
 
 
-class ViewPermissionMixin(object):
+class PublisherPermissionMixin(object):
 
     permission = None
 
@@ -38,7 +38,7 @@ class ViewPermissionMixin(object):
         if not self.has_user_access(request.user):
             return self.permission_failed()
 
-        return super(ViewPermissionMixin, self).dispatch(request, *args, **kwargs)
+        return super(PublisherPermissionMixin, self).dispatch(request, *args, **kwargs)
 
 
 class LoginRequiredMixin(object):
