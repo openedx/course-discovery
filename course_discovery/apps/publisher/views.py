@@ -109,7 +109,7 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
         return context
 
 
-class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, DetailView):
+class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, DetailView):
     """ Course Run Detail View."""
     model = CourseRun
     template_name = 'publisher/course_run_detail.html'
@@ -239,7 +239,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
         return render(request, self.template_name, ctx, status=400)
 
 
-class UpdateCourseView(mixins.ViewPermissionMixin, mixins.FormValidMixin, UpdateView):
+class UpdateCourseView(mixins.PublisherPermissionMixin, mixins.FormValidMixin, UpdateView):
     """ Update Course View."""
     model = Course
     form_class = CourseForm
@@ -256,7 +256,7 @@ class UpdateCourseView(mixins.ViewPermissionMixin, mixins.FormValidMixin, Update
         return context
 
 
-class CourseDetailView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, DetailView):
+class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, DetailView):
     """ Course Detail View."""
     model = Course
     template_name = 'publisher/view_course_form.html'
@@ -345,7 +345,7 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
         return render(request, self.template_name, context, status=400)
 
 
-class UpdateCourseRunView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, mixins.FormValidMixin, UpdateView):
+class UpdateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, mixins.FormValidMixin, UpdateView):  # pylint: disable=line-too-long
     """ Update Course Run View."""
     model = CourseRun
     form_class = CourseRunForm
@@ -382,7 +382,7 @@ class CreateSeatView(mixins.LoginRequiredMixin, mixins.FormValidMixin, CreateVie
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
 
-class UpdateSeatView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, mixins.FormValidMixin, UpdateView):
+class UpdateSeatView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, mixins.FormValidMixin, UpdateView):
     """ Update Seat View."""
     model = Seat
     form_class = SeatForm
@@ -400,7 +400,7 @@ class UpdateSeatView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, mixi
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
 
-class ChangeStateView(mixins.LoginRequiredMixin, mixins.ViewPermissionMixin, UpdateView):
+class ChangeStateView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, UpdateView):
     """ Change Workflow State View"""
 
     model = CourseRun
