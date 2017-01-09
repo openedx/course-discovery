@@ -134,14 +134,20 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
     def test_courses(self):
         """ Verify the endpoint returns the list of courses contained in the catalog. """
         url = reverse('api:v1:catalog-courses', kwargs={'id': self.catalog.id})
+
+        SeatFactory(course_run=self.course_run)
         courses = [self.course]
 
         # These courses/course runs should not be returned because they are no longer open for enrollment.
         enrollment_end = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=30)
-        CourseRunFactory(enrollment_end=enrollment_end, course__title='ABC Test Course 2')
-        CourseRunFactory(enrollment_end=enrollment_end, course=self.course)
+        excluded_runs = [
+            CourseRunFactory(enrollment_end=enrollment_end, course__title='ABC Test Course 2'),
+            CourseRunFactory(enrollment_end=enrollment_end, course=self.course),
+        ]
+        for course_run in excluded_runs:
+            SeatFactory(course_run=course_run)
 
-        with self.assertNumQueries(42):
+        with self.assertNumQueries(45):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertListEqual(response.data['results'], self.serialize_catalog_course(courses, many=True))
