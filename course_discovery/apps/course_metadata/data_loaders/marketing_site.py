@@ -10,6 +10,7 @@ import pytz
 import requests
 from django.db.models import Q
 from django.utils.functional import cached_property
+from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing
@@ -389,8 +390,13 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             except AttributeError:
                 pass
         else:
-            course, created = self.get_or_create_course(data)
-            course_run = self.create_course_run(course, data)
+            created = False
+            try:
+                course, created = self.get_or_create_course(data)
+                course_run = self.create_course_run(course, data)
+            except InvalidKeyError:
+                logger.error('Invalid course key [%s].', data['field_course_id'])
+
             if created:
                 course.canonical_course_run = course_run
                 course.save()
