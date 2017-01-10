@@ -1205,6 +1205,7 @@ class ChangeStateViewTests(TestCase):
 
 
 # pylint: disable=attribute-defined-outside-init
+@ddt.ddt
 class DashboardTests(TestCase):
     """ Tests for the `Dashboard`. """
 
@@ -1275,13 +1276,16 @@ class DashboardTests(TestCase):
         """ Verify that user from un-authorize group can access only that group courses. """
         self.client.logout()
         self.client.login(username=UserFactory(), password=USER_PASSWORD)
-        self.assert_dashboard_response(studio_count=0, published_count=0, progress_count=0, preview_count=0)
+        response = self.assert_dashboard_response(studio_count=0, published_count=0, progress_count=0, preview_count=0)
+        self._assert_tabs_without_roles(response)
 
-    def test_with_internal_group(self):
+    @ddt.data('progress', 'preview', 'studio', 'published')
+    def test_with_internal_group(self, tab):
         """ Verify that internal user can see courses assigned to the groups. """
         self.client.logout()
         self.client.login(username=self.user1.username, password=USER_PASSWORD)
-        self.assert_dashboard_response(studio_count=2, published_count=1, progress_count=1, preview_count=1)
+        response = self.assert_dashboard_response(studio_count=2, published_count=1, progress_count=1, preview_count=1)
+        self.assertContains(response, '<li role="tab" id="tab-{tab}" class="tab"'.format(tab=tab))
 
     def test_with_permissions(self):
         """ Verify that user can view only those courses on which user group have permissions assigned. """
@@ -1293,7 +1297,8 @@ class DashboardTests(TestCase):
         assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
         self.course_run_1.course.organizations.add(self.organization_extension.organization)
 
-        self.assert_dashboard_response(studio_count=0, published_count=0, progress_count=0, preview_count=0)
+        response = self.assert_dashboard_response(studio_count=0, published_count=0, progress_count=0, preview_count=0)
+        self._assert_tabs_without_roles(response)
 
     def test_with_permissions_with_data(self):
         """ Verify that user with assigned permission on course can see all tabs
@@ -1314,18 +1319,21 @@ class DashboardTests(TestCase):
             OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension
         )
 
-        self.assert_dashboard_response(studio_count=0, published_count=0, progress_count=1, preview_count=1)
+        response = self.assert_dashboard_response(studio_count=0, published_count=0, progress_count=1, preview_count=1)
+        self._assert_tabs_without_roles(response)
 
     def test_studio_request_course_runs_as_pc(self):
         """ Verify that PC user can see only those courses on which he is assigned as PC role. """
-        self.assert_dashboard_response(studio_count=2, published_count=1, progress_count=1, preview_count=1)
+        response = self.assert_dashboard_response(studio_count=2, published_count=1, progress_count=1, preview_count=1)
+        self._assert_tabs_with_roles(response)
 
     def test_studio_request_course_runs_without_pc_group(self):
         """ Verify that PC user can see only those courses on which he is assigned as PC role. """
         self.client.logout()
         self.user1.groups.remove(self.group_partner_coordinator)
         self.client.login(username=self.user1.username, password=USER_PASSWORD)
-        self.assert_dashboard_response(studio_count=0, published_count=1, progress_count=1, preview_count=1)
+        response = self.assert_dashboard_response(studio_count=0, published_count=1, progress_count=1, preview_count=1)
+        self._assert_tabs_with_roles(response)
 
     def test_without_studio_request_course_runs(self):
         """ Verify that studio tab indicates a message if no course-run available. """
@@ -1342,12 +1350,14 @@ class DashboardTests(TestCase):
         self.course_run_3.save()
         response = self.assert_dashboard_response(studio_count=3, published_count=0, progress_count=1, preview_count=1)
         self.assertContains(response, "Looks like you haven't published any course yet")
+        self._assert_tabs_with_roles(response)
 
     def test_published_course_runs(self):
         """ Verify that published tab loads course runs list. """
         response = self.assert_dashboard_response(studio_count=2, published_count=1, progress_count=1, preview_count=1)
         self.assertContains(response, self.table_class.format(id='published'))
         self.assertContains(response, 'The list below contains all course runs published in the past 30 days')
+        self._assert_tabs_with_roles(response)
 
     def test_published_course_runs_as_user_role(self):
         """
@@ -1368,7 +1378,8 @@ class DashboardTests(TestCase):
         )
 
         # Verify that user can see 1 published course run
-        self.assert_dashboard_response(studio_count=0, published_count=1, progress_count=0, preview_count=0)
+        response = self.assert_dashboard_response(studio_count=0, published_count=1, progress_count=0, preview_count=0)
+        self._assert_tabs_with_roles(response)
 
     def test_published_course_runs_as_admin(self):
         """
@@ -1379,13 +1390,15 @@ class DashboardTests(TestCase):
         publisher_admin = UserFactory()
         publisher_admin.groups.add(self.publisher_admin_group)
         self.client.login(username=publisher_admin.username, password=USER_PASSWORD)
-        self.assert_dashboard_response(studio_count=4, published_count=1, progress_count=1, preview_count=1)
+        response = self.assert_dashboard_response(studio_count=4, published_count=1, progress_count=1, preview_count=1)
+        self._assert_tabs_with_roles(response)
 
     def test_with_preview_ready_course_runs(self):
         """ Verify that preview ready tabs loads the course runs list. """
         response = self.assert_dashboard_response(studio_count=2, preview_count=1, progress_count=1, published_count=1)
         self.assertContains(response, self.table_class.format(id='preview'))
         self.assertContains(response, 'The list below contains all course runs awaiting course team approval')
+        self._assert_tabs_with_roles(response)
 
     def test_without_preview_ready_course_runs(self):
         """ Verify preview ready tabs shows a message if no course run available. """
@@ -1393,6 +1406,7 @@ class DashboardTests(TestCase):
         self.course_run_2.save()
         response = self.assert_dashboard_response(studio_count=2, preview_count=0, progress_count=1, published_count=1)
         self.assertContains(response, 'There are no course runs marked for preview.')
+        self._assert_tabs_with_roles(response)
 
     def test_without_preview_url(self):
         """ Verify preview ready tabs shows a message if no course run available. """
@@ -1400,21 +1414,38 @@ class DashboardTests(TestCase):
         self.course_run_2.save()
         response = self.assert_dashboard_response(studio_count=2, preview_count=0, progress_count=1, published_count=1)
         self.assertContains(response, 'There are no course runs marked for preview.')
+        self._assert_tabs_with_roles(response)
 
     def test_with_in_progress_course_runs(self):
         """ Verify that in progress tabs loads the course runs list. """
         response = self.assert_dashboard_response(studio_count=2, preview_count=1, progress_count=1, published_count=1)
         self.assertContains(response, self.table_class.format(id='in-progress'))
+        self._assert_tabs_with_roles(response)
 
     def assert_dashboard_response(self, studio_count=0, published_count=0, progress_count=0, preview_count=0):
         """ Dry method to assert the response."""
         response = self.client.get(self.page_url)
         self.assertEqual(response.status_code, 200)
+
         self.assertEqual(len(response.context['studio_request_courses']), studio_count)
         self.assertEqual(len(response.context['published_course_runs']), published_count)
         self.assertEqual(len(response.context['in_progress_course_runs']), progress_count)
         self.assertEqual(len(response.context['preview_course_runs']), preview_count)
+
         return response
+
+    def _assert_tabs_without_roles(self, response):
+        """ Dry method to assert the tabs data."""
+        self.assertContains(response, '<li role="tab" id="tab-progress" class="tab"')
+        for tab in ['preview', 'studio', 'published']:
+            self.assertNotIn(
+                '<li role="tab" id="tab-{tab}" class="tab"'.format(tab=tab), response.content.decode('UTF-8')
+            )
+
+    def _assert_tabs_with_roles(self, response):
+        """ Dry method to assert the tabs data."""
+        for tab in ['progress', 'preview', 'studio', 'published']:
+            self.assertContains(response, '<li role="tab" id="tab-{tab}" class="tab"'.format(tab=tab))
 
 
 class ToggleEmailNotificationTests(TestCase):
