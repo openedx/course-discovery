@@ -811,6 +811,7 @@ class CourseRunDetailTests(TestCase):
         page_url = reverse('publisher:publisher_course_run_detail', args=[course_run.id])
         response = self.client.get(page_url)
         self.assertEqual(response.status_code, 200)
+        self._assert_breadcrumbs(response, course_run)
 
     def test_page_with_invalid_id(self):
         """ Verify that invalid course run id return 404. """
@@ -839,6 +840,7 @@ class CourseRunDetailTests(TestCase):
         self._assert_cat(response)
         self._assert_drupal(response)
         self._assert_subjects(response)
+        self._assert_breadcrumbs(response, self.course_run)
 
     def _assert_credits_seats(self, response, seat):
         """ Helper method to test to all credit seats. """
@@ -954,6 +956,7 @@ class CourseRunDetailTests(TestCase):
         self._assert_subjects(response)
         self.assertContains(response, 'Total Comments 1')
         self.assertContains(response, comment.comment)
+        self._assert_breadcrumbs(response, self.course_run)
 
     def test_get_course_return_none(self):
         """ Verify that `PublisherPermissionMixin.get_course` return none
@@ -1042,6 +1045,20 @@ class CourseRunDetailTests(TestCase):
         response = self.client.get(self.page_url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['can_edit'], can_edit)
+
+    def _assert_breadcrumbs(self, response, course_run):
+        """ Assert breadcrumbs are present in the response. """
+        self.assertContains(response, '<li class="breadcrumb-item ">')
+        self.assertContains(response, '<a href="/publisher/courses/">Courses</a>')
+        page_url = reverse('publisher:publisher_course_detail', kwargs={'pk': course_run.course.id})
+        self.assertContains(response, '<a href="{url}">{slug}</a>'.format(url=page_url, slug=course_run.course.title))
+        self.assertContains(response, '<li class="breadcrumb-item active">')
+        self.assertContains(
+            response, '{type}: {start}'.format(
+                type=course_run.get_pacing_type_display(),
+                start=course_run.start.strftime("%B %d, %Y")
+            )
+        )
 
     def _create_user_and_login(self, permission):
         """ Create user and login, also assign view permission for course
