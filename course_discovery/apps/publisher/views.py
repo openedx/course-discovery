@@ -18,8 +18,7 @@ from course_discovery.apps.core.models import User
 
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.forms import (
-    CourseForm, CourseRunForm, SeatForm, CustomCourseForm, CustomCourseRunForm,
-    CustomSeatForm, UpdateCourseForm
+    CourseRunForm, SeatForm, CustomCourseForm, CustomCourseRunForm, CustomSeatForm, UpdateCourseForm
 )
 from course_discovery.apps.publisher import mixins
 from course_discovery.apps.publisher.models import (
@@ -242,7 +241,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
 class CourseEditView(mixins.PublisherPermissionMixin, mixins.FormValidMixin, UpdateView):
     """ Course Edit View."""
     model = Course
-    form_class = CourseForm
+    form_class = CustomCourseForm
     permission = OrganizationExtension.EDIT_COURSE
     template_name = 'publisher/course_form.html'
     success_url = 'publisher:publisher_course_detail'
@@ -253,6 +252,19 @@ class CourseEditView(mixins.PublisherPermissionMixin, mixins.FormValidMixin, Upd
     def get_context_data(self, **kwargs):
         context = super(CourseEditView, self).get_context_data(**kwargs)
         context['comment_object'] = self.object
+        organization = self.object.organizations.first()
+        org_extension = OrganizationExtension.objects.get(organization=organization)
+
+        # populate team admin field with organization related users
+        context['form'].declared_fields['team_admin'].queryset = User.objects.filter(groups__name=org_extension.group)
+
+        user_role = CourseUserRole.objects.get(course=self.object, role=PublisherUserRole.CourseTeam)
+        context['comment_object'] = self.object
+
+        context['form'].initial.update({
+            'organization': organization,
+            'team_admin': user_role.user
+        })
         return context
 
 
