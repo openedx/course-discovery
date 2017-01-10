@@ -6,11 +6,12 @@ from uuid import UUID
 
 from dateutil import rrule
 import ddt
+from django.test import TestCase
 import mock
+from opaque_keys.edx.keys import CourseKey
 import pytz
 import responses
-from django.test import TestCase
-from opaque_keys.edx.keys import CourseKey
+from testfixtures import LogCapture
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
@@ -426,6 +427,23 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
     def test_get_pacing_type(self, data_value, expected_pacing_type):
         data = {'field_course_self_paced': data_value}
         self.assertEqual(self.loader.get_pacing_type(data), expected_pacing_type)
+
+    @ddt.data(
+        {'field_course_id': ''},
+        {'field_course_id': 'EPtestx'},
+        {'field_course_id': 'Paradigms-comput'},
+        {'field_course_id': 'Bio Course ID'}
+    )
+    def test_process_node(self, data):
+        with LogCapture() as l:
+            self.loader.process_node(data)
+            l.check(
+                (
+                    'course_discovery.apps.course_metadata.data_loaders.marketing_site',
+                    'ERROR',
+                    'Invalid course key [{}].'.format(data['field_course_id'])
+                )
+            )
 
     def assert_course_loaded(self, data):
         course = self._get_course(data)
