@@ -1,10 +1,19 @@
 Getting Started
 ===============
 
-If you have not already done so, create/activate a `virtualenv`_ running Python 3.5. Unless otherwise stated, assume all terminal code
-below is executed within the virtualenv.
+This guide will walk you through the steps necessary to run the course-discovery service locally, on your host. In the future, we intend to switch to Docker to avoid the need for many of these manual steps.
 
-.. _virtualenv: https://virtualenvwrapper.readthedocs.org/en/latest/
+
+Install dependencies
+--------------------
+
+If you have not already done so, create and activate a `virtualenv`_ running Python 3.5. We suggest using `virtualenvwrapper`_.
+
+.. code-block:: bash
+
+    $ mkvirtualenv --python=$(which python3)
+
+.. _virtualenvwrapper: https://virtualenvwrapper.readthedocs.org/en/latest/
 
 .. note:: Installing virtualenvwrapper with pip on OS X El Capitan may result
    in a strange OSError due to `a compatibility issue with the six package
@@ -15,77 +24,95 @@ below is executed within the virtualenv.
 
        $ pip install virtualenvwrapper --upgrade --ignore-installed six
 
-Install dependencies
---------------------
-Dependencies can be installed via the command below.
+Unless otherwise stated, assume all commands below are executed within the virtualenv. Dependencies can be installed using the command below.
 
 .. code-block:: bash
 
     $ make requirements
 
 
-Local/Private Settings
-----------------------
-When developing locally, it may be useful to have settings overrides that you do not wish to commit to the repository.
-If you need such overrides, create a file :file:`course_discovery/settings/private.py`. This file's values are
-read by :file:`course_discovery/settings/local.py`, but ignored by Git.
+Install Elasticsearch
+---------------------
 
-If you are an edX employee/developer, see :ref:`edx-extensions`.
+The course-discovery service uses Elasticsearch (ES) to allow searching for course and program data. Elasticsearch is built using Java, and requires at least Java 8 in order to run. You will need to install the `JDK`_ if you haven't already. To install ES, download and unzip a file of your choice from https://www.elastic.co/downloads/past-releases/elasticsearch-1-5-2. It doesn't matter where you leave it. Locate the ES binary and start the server with:
 
+.. code-block:: bash
 
-Configure edX OpenID Connect (OIDC)
------------------------------------
-This service relies on the edX OIDC (`OpenID Connect`_) authentication provider for login. Note that OIDC is built atop
-OAuth 2.0, and this document may use the terms interchangeably. Under our current architecture the LMS serves as our
-authentication provider.
+    $ bin/elasticsearch
 
-Configuring Course Discovery Service to work with OIDC requires registering a new client with the authentication
-provider and updating the Django settings for this project with the client credentials.
+.. _JDK: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
 
-.. _OpenID Connect: http://openid.net/specs/openid-connect-core-1_0.html
+Navigating ES can be challenging if you don't have much experience with it. The `elasticsearch-head`_ plugin
+offers a web-based front end to help with this. To install elasticsearch-head run the following from the root of the elasticsearch-1.5.2 directory:
 
+.. code-block:: bash
 
-A new OAuth 2.0 client can be created at ``http://127.0.0.1:8000/admin/oauth2/client/``.
+    $ bin/plugin -install mobz/elasticsearch-head/1.x
 
-    1. Click the :guilabel:`Add client` button.
-    2. Leave the user field blank.
-    3. Specify the name of this service, ``Course Discovery Service``, as the client name.
-    4. Set the :guilabel:`URL` to the root path of this service: ``http://localhost:18381/``.
-    5. Set the :guilabel:`Redirect URL` to the OIDC client endpoint: ``http://localhost:18381/complete/edx-oidc/``.
-    6. Copy the :guilabel:`Client ID` and :guilabel:`Client Secret` values. They will be used later.
-    7. Select :guilabel:`Confidential (Web applications)` as the client type.
-    8. Click :guilabel:`Save`.
+.. _elasticsearch-head: https://mobz.github.io/elasticsearch-head/
 
-Now that you have the client credentials, you can update your settings (ideally in
-:file:`course_discovery/settings/private.py`). The table below describes the relevant settings.
-
-+-----------------------------------------------------+----------------------------------------------------------------------------+--------------------------------------------------------------------------+
-| Setting                                             | Description                                                                | Value                                                                    |
-+=====================================================+============================================================================+==========================================================================+
-| SOCIAL_AUTH_EDX_OIDC_KEY                            | OAuth 2.0 client key                                                       | (This should be set to the value generated when the client was created.) |
-+-----------------------------------------------------+----------------------------------------------------------------------------+--------------------------------------------------------------------------+
-| SOCIAL_AUTH_EDX_OIDC_SECRET                         | OAuth 2.0 client secret                                                    | (This should be set to the value generated when the client was created.) |
-+-----------------------------------------------------+----------------------------------------------------------------------------+--------------------------------------------------------------------------+
-| SOCIAL_AUTH_EDX_OIDC_URL_ROOT                       | OAuth 2.0 authentication URL                                               | http://127.0.0.1:8000/oauth2                                             |
-+-----------------------------------------------------+----------------------------------------------------------------------------+--------------------------------------------------------------------------+
-| SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY        | OIDC ID token decryption key. This value is used to validate the ID token. | (This should be the same value as SOCIAL_AUTH_EDX_OIDC_SECRET.)          |
-+-----------------------------------------------------+----------------------------------------------------------------------------+--------------------------------------------------------------------------+
+You should now be able to access the front end at http://localhost:9200/_plugin/head/.
 
 
 Run migrations
 --------------
-Local installations use SQLite by default. If you choose to use another database backend, make sure you have updated
-your settings and created the database (if necessary). Migrations can be run with `Django's migrate command`_.
+
+By default, local installations use SQLite to create a database named ``default.db``. To apply migrations, run:
 
 .. code-block:: bash
 
     $ make migrate
 
-.. _Django's migrate command: https://docs.djangoproject.com/en/1.8/ref/django-admin/#django-admin-migrate
+If you don't have ES running when you run this, you will see an error after migrations are applied. The error comes from a post-migration hook we use for creating an index and a corresponding alias in ES after migrations are run.
 
 
-Configure Partners
+Start the server
+----------------
+
+You can now start the server with:
+
+.. code-block:: bash
+
+    $ ./manage.py runserver 8008
+
+Access http://localhost:8008 in your browser and you should see the query preview page. You can run the service at any port of your choosing; these docs will use 8008.
+
+Having a superuser will make it easy for you to sign into the Django admin. Do so as follows:
+
+.. code-block:: bash
+
+    $ ./manage.py createsuperuser
+
+Use the username and password you provided to sign into the Django admin at http://localhost:8008/admin. You should be able to see tables representing all of the application's models.
+
+
+LMS integration
+---------------
+
+To integrate with the LMS, bring up the LMS and navigate to http://localhost:8000/admin/catalog/catalogintegration/. Click "Add catalog integration," and add the URL to the course-discovery service running on your host: ``http://192.168.33.1:8008/api/v1/``.
+
+.. note:: When inside the Vagrant VM, you need to use a special IP to refer to your host. You can find it by running ``ifconfig`` and looking at the IPV4 address for vboxnet0. It's usually 192.168.33.1.
+
+In order for the LMS running in the Vagrant VM to access course-discovery, you will need to run it at 0.0.0.0:8008.
+
+.. code-block:: bash
+
+    $ ./manage.py runserver 0.0.0.0:8008
+
+
+Private settings
+----------------
+
+When developing locally, it may be useful to have settings overrides that you do not wish to commit to the repository.
+If you need such overrides, create a file :file:`course_discovery/settings/private.py`. This file's values are
+read by :file:`course_discovery/settings/local.py`, but ignored by Git.
+
+If you are an edX employee, see :ref:`edx-extensions`.
+
+
+Configure partners
 ------------------
+
 The Catalog Service is designed to support multiple collections of API endpoints to construct its search
 indexes. These collections are represented in the system's domain model as "Partner" entities.  In addition to indexing,
 Partners link related top-level system entities -- Courses, Organizations, and Programs -- in order to create logical
@@ -131,27 +158,3 @@ Additional optional attributes can be specified:
 +-------------------------------+-----------------------------------------+----------------------------------------------------+
 | oidc-secret                   | Open edX OpenID Connect Client Secret   | (This value comes from the LMS Client record)      |
 +-------------------------------+-----------------------------------------+----------------------------------------------------+
-
-
-Run the server
---------------
-The server can be run with `Docker Compose`_. This will start the Course Discovery service, and all of the
-services that it depends on.
-
-.. code-block:: bash
-
-    $ make start-devstack
-
-.. _Docker Compose: https://docs.docker.com/compose/
-
-
-Install elasticsearch-head
---------------------------
-Navigating Elasticsearch can be challenging if you don't have much experience with it. The `elasticsearch-head`_ plugin
-offers a web-based front end to help with this. The plugin can be installed in the `es` container with the command below.
-
-.. code-block:: bash
-
-    $ docker exec es /usr/share/elasticsearch/bin/plugin -install mobz/elasticsearch-head
-
-.. _elasticsearch-head: https://mobz.github.io/elasticsearch-head/

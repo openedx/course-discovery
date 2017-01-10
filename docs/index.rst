@@ -18,4 +18,5 @@ A service for serving course discovery and marketing information to partners, mo
    testing
    features
    internationalization
+   oidc
    edx_extensions
