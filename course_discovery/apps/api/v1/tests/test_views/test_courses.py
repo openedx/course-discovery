@@ -1,5 +1,8 @@
+import datetime
+
 import ddt
 from django.db.models.functions import Lower
+import pytz
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
@@ -7,7 +10,9 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMi
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
 from course_discovery.apps.course_metadata.choices import ProgramStatus, CourseRunStatus
 from course_discovery.apps.course_metadata.models import Course
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory, ProgramFactory
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseFactory, CourseRunFactory, ProgramFactory, SeatFactory
+)
 
 
 @ddt.ddt
@@ -53,6 +58,55 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
                 response.data,
                 self.serialize_course(self.course, extra_context={'include_deleted_programs': True})
             )
+
+    @ddt.data(1, 0)
+    def test_marketable_course_runs_only(self, marketable_course_runs_only):
+        """
+        Verify that a client requesting marketable_course_runs_only only receives
+        course runs that are published, have seats, and can still be enrolled in.
+        """
+        # Published course run with a seat, no enrollment start or end, and an end date in the future.
+        enrollable_course_run = CourseRunFactory(
+            status=CourseRunStatus.Published,
+            end=datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10),
+            enrollment_start=None,
+            enrollment_end=None,
+        )
+        SeatFactory(course_run=enrollable_course_run)
+
+        # Unpublished course run with a seat.
+        unpublished_course_run = CourseRunFactory(status=CourseRunStatus.Unpublished)
+        SeatFactory(course_run=unpublished_course_run)
+
+        # Published course run with no seats.
+        no_seats_course_run = CourseRunFactory(status=CourseRunStatus.Published)
+
+        # Published course run with a seat and an end date in the past.
+        closed_course_run = CourseRunFactory(
+            status=CourseRunStatus.Published,
+            end=datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=10),
+        )
+        SeatFactory(course_run=closed_course_run)
+
+        self.course.course_runs.add(
+            enrollable_course_run,
+            unpublished_course_run,
+            no_seats_course_run,
+            closed_course_run,
+        )
+
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
+        url += '?marketable_course_runs_only={}'.format(marketable_course_runs_only)
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.data,
+            self.serialize_course(
+                self.course,
+                extra_context={'marketable_course_runs_only': marketable_course_runs_only}
+            )
+        )
 
     @ddt.data(1, 0)
     def test_get_include_published_course_run(self, published_course_runs_only):

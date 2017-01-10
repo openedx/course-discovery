@@ -60,7 +60,7 @@ class CourseRunViewSet(PartnerMixin, viewsets.ReadOnlyModelViewSet):
         return context
 
     def list(self, request, *args, **kwargs):
-        """ List all courses runs.
+        """ List all course runs.
         ---
         parameters:
             - name: q
