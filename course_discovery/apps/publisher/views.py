@@ -145,6 +145,21 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
             context['role_widgets'] = self.get_role_widgets_data(course_roles)
             context['user_list'] = get_internal_users()
 
+        context['breadcrumbs'] = [
+            {
+                'url': reverse('publisher:publisher_courses'), 'slug': 'Courses'
+            },
+            {
+                'url': reverse('publisher:publisher_course_detail', kwargs={'pk': course_run.course.id}),
+                'slug': course_run.course.title
+            },
+            {
+                'url': None,
+                'slug': '{type}: {start}'.format(
+                    type=course_run.get_pacing_type_display(), start=course_run.start.strftime("%B %d, %Y")
+                )
+            }
+        ]
         return context
 
 
@@ -269,6 +284,16 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
         context['can_edit'] = mixins.check_course_organization_permission(
             self.request.user, self.object, OrganizationExtension.EDIT_COURSE
         )
+
+        context['breadcrumbs'] = [
+            {
+                'url': reverse('publisher:publisher_courses'), 'slug': 'Courses'
+            },
+            {
+                'url': None,
+                'slug': self.object.title
+            }
+        ]
 
         return context
 

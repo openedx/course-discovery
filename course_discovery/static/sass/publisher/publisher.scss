@@ -541,7 +541,7 @@ select {
 .breadcrumb {
   @include padding-left(0);
   @include padding(8px, 15px, 8px, 15px);
-  @include margin(0, 0, 1.25rem, 0);
+  @include margin(0, 0, 0, 0);
   list-style: none;
   background: white;
   border-radius: 3px;
@@ -561,12 +561,9 @@ select {
 
     + li:before {
       @include padding(0px, 5px, 0px, 5px);
-      content: " / ";
-      color: #ccc;
-    }
-
-    &.active {
-      color: #777777;
+      content: "\f054";
+      color: #666;
+      font-family: fontawesome;
     }
   }
 }

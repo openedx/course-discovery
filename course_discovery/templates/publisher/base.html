@@ -35,6 +35,9 @@
             </main>
 
             <aside class="layout-col layout-col-b border-left layout-col-container">
+                {% block breadcrumbs %}
+                    {% include 'publisher/_breadcrumbs.html' %}
+                {% endblock %}
                 {% block page_content %}{% endblock %}
             </aside>
 
