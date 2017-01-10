@@ -48,7 +48,7 @@ provider and updating the Django settings for this project with the client crede
 A new OAuth 2.0 client can be created at ``http://127.0.0.1:8000/admin/oauth2/client/``.
 
     1. Click the :guilabel:`Add client` button.
-    2. Leave the user field blank.
+    2. Select a user.
     3. Specify the name of this service, ``Course Discovery Service``, as the client name.
     4. Set the :guilabel:`URL` to the root path of this service: ``http://localhost:18381/``.
     5. Set the :guilabel:`Redirect URL` to the OIDC client endpoint: ``http://localhost:18381/complete/edx-oidc/``.
