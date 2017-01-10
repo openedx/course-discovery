@@ -7,11 +7,7 @@ This guide will walk you through the steps necessary to run the course-discovery
 Install dependencies
 --------------------
 
-If you have not already done so, create and activate a `virtualenv`_ running Python 3.5. We suggest using `virtualenvwrapper`_.
-
-.. code-block:: bash
-
-    $ mkvirtualenv --python=$(which python3)
+If you have not already done so, create and activate a virtualenv running Python 3.5. We suggest using `virtualenvwrapper`_.
 
 .. _virtualenvwrapper: https://virtualenvwrapper.readthedocs.org/en/latest/
 
@@ -24,11 +20,15 @@ If you have not already done so, create and activate a `virtualenv`_ running Pyt
 
        $ pip install virtualenvwrapper --upgrade --ignore-installed six
 
-Unless otherwise stated, assume all commands below are executed within the virtualenv. Dependencies can be installed using the command below.
+Install dependencies as follows:
 
 .. code-block:: bash
 
+    $ mkvirtualenv --python=$(which python3) discovery
+    $ workon discovery
     $ make requirements
+
+Unless otherwise stated, assume all commands below are executed within the virtualenv. 
 
 
 Install Elasticsearch
