@@ -72,7 +72,6 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(Dashboard, self).get_context_data(**kwargs)
         course_runs = context.get('object_list')
-
         published_course_runs = course_runs.filter(
             state__name=State.PUBLISHED,
             state__modified__gt=datetime.today() - timedelta(days=self.default_published_days)
@@ -106,6 +105,10 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
 
         context['in_progress_course_runs'] = [CourseRunWrapper(course_run) for course_run in in_progress_course_runs]
         context['preview_course_runs'] = [CourseRunWrapper(course_run) for course_run in preview_course_runs]
+
+        # If user is course team member only show in-progress tab.
+        if mixins.check_roles_access(self.request.user):
+            context['can_view_all_tabs'] = True
 
         return context
 
