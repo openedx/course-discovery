@@ -147,7 +147,8 @@ class MarketingSitePublisher(object):
         node_url = '{root}/node.json'.format(root=api_client.api_url)
         response = api_client.api_session.post(node_url, data=json.dumps(node_data))
         if response.status_code == 201:
-            return response.json()
+            response_json = response.json()
+            return response_json['id']
         else:
             raise ProgramPublisherException("Marketing site page creation failed!")
 
@@ -228,7 +229,7 @@ class MarketingSitePublisher(object):
                 self._edit_node(api_client, node_id, node_data)
             else:
                 # We should create a new node
-                self._create_node(api_client, node_data)
+                node_id = self._create_node(api_client, node_data)
             before_alias = self._make_alias(self.program_before) if self.program_before else None
             new_alias = self._make_alias(program)
             before_slug = self.program_before.marketing_slug if self.program_before else None
