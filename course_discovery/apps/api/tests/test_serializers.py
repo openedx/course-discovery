@@ -1,11 +1,12 @@
 # pylint: disable=no-member, test-inherits-tests
-from datetime import datetime
+import datetime
 from urllib.parse import urlencode
 
 import ddt
 from django.test import TestCase
 from haystack.query import SearchQuerySet
 from opaque_keys.edx.keys import CourseKey
+import pytz
 from rest_framework.test import APIRequestFactory
 
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
@@ -34,7 +35,7 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
 def json_date_format(datetime_obj):
-    return datetime.strftime(datetime_obj, "%Y-%m-%dT%H:%M:%S.%fZ")
+    return datetime.datetime.strftime(datetime_obj, "%Y-%m-%dT%H:%M:%S.%fZ")
 
 
 def make_request():
@@ -200,6 +201,52 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
         self.assertEqual(serializer.data, self.get_expected_data(self.course, self.request))
 
     @ddt.data(0, 1)
+    def test_marketable_course_runs_only(self, marketable_course_runs_only):
+        """
+        Verify that the marketable_course_runs_only option is respected, restricting returned
+        course runs to those that are published, have seats, and can still be enrolled in.
+        """
+        # Published course run with a seat, no enrollment start or end, and an end date in the future.
+        enrollable_course_run = CourseRunFactory(
+            status=CourseRunStatus.Published,
+            end=datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10),
+            enrollment_start=None,
+            enrollment_end=None,
+        )
+        SeatFactory(course_run=enrollable_course_run)
+
+        # Unpublished course run with a seat.
+        unpublished_course_run = CourseRunFactory(status=CourseRunStatus.Unpublished)
+        SeatFactory(course_run=unpublished_course_run)
+
+        # Published course run with no seats.
+        no_seats_course_run = CourseRunFactory(status=CourseRunStatus.Published)
+
+        # Published course run with a seat and an end date in the past.
+        closed_course_run = CourseRunFactory(
+            status=CourseRunStatus.Published,
+            end=datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=10),
+        )
+        SeatFactory(course_run=closed_course_run)
+
+        self.course.course_runs.add(
+            enrollable_course_run,
+            unpublished_course_run,
+            no_seats_course_run,
+            closed_course_run,
+        )
+
+        serializer = self.serializer_class(
+            self.course,
+            context={'request': self.request, 'marketable_course_runs_only': marketable_course_runs_only}
+        )
+
+        self.assertEqual(
+            len(serializer.data['course_runs']),
+            1 if marketable_course_runs_only else 4
+        )
+
+    @ddt.data(0, 1)
     def test_published_course_runs_only(self, published_course_runs_only):
         """
         Test that the published_course_runs_only flag hides unpublished course runs
@@ -207,11 +254,12 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
         unpublished_course_run = CourseRunFactory(status=CourseRunStatus.Unpublished)
         published_course_run = CourseRunFactory(status=CourseRunStatus.Published)
         self.course.course_runs.add(unpublished_course_run, published_course_run)
-        self.request = make_request()
+
         serializer = self.serializer_class(
             self.course,
             context={'request': self.request, 'published_course_runs_only': published_course_runs_only}
         )
+
         self.assertEqual(len(serializer.data['course_runs']), 2 - published_course_runs_only)
 
 
@@ -542,7 +590,7 @@ class MinimalProgramSerializerTests(TestCase):
 
         courses = CourseFactory.create_batch(3)
         for course in courses:
-            CourseRunFactory.create_batch(2, course=course, staff=[person], start=datetime.now())
+            CourseRunFactory.create_batch(2, course=course, staff=[person], start=datetime.datetime.now())
 
         return ProgramFactory(
             courses=courses,
@@ -650,21 +698,21 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         CourseRunFactory(
             course=course_list[2],
             enrollment_start=None,
-            start=datetime(2014, 2, 1),
+            start=datetime.datetime(2014, 2, 1),
         )
 
         # Create a second run with matching start, but later enrollment_start.
         CourseRunFactory(
             course=course_list[1],
-            enrollment_start=datetime(2014, 1, 2),
-            start=datetime(2014, 2, 1),
+            enrollment_start=datetime.datetime(2014, 1, 2),
+            start=datetime.datetime(2014, 2, 1),
         )
 
         # Create a third run with later start and enrollment_start.
         CourseRunFactory(
             course=course_list[0],
-            enrollment_start=datetime(2014, 2, 1),
-            start=datetime(2014, 3, 1),
+            enrollment_start=datetime.datetime(2014, 2, 1),
+            start=datetime.datetime(2014, 3, 1),
         )
 
         program = ProgramFactory(courses=course_list)
@@ -692,28 +740,28 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         excluded_run = CourseRunFactory(
             course=course_list[0],
             enrollment_start=None,
-            start=datetime(2014, 1, 1),
+            start=datetime.datetime(2014, 1, 1),
         )
 
         # Create a run with later start and empty enrollment_start.
         CourseRunFactory(
             course=course_list[2],
             enrollment_start=None,
-            start=datetime(2014, 2, 1),
+            start=datetime.datetime(2014, 2, 1),
         )
 
         # Create a run with matching start, but later enrollment_start.
         CourseRunFactory(
             course=course_list[1],
-            enrollment_start=datetime(2014, 1, 2),
-            start=datetime(2014, 2, 1),
+            enrollment_start=datetime.datetime(2014, 1, 2),
+            start=datetime.datetime(2014, 2, 1),
         )
 
         # Create a run with later start and enrollment_start.
         CourseRunFactory(
             course=course_list[0],
-            enrollment_start=datetime(2014, 2, 1),
-            start=datetime(2014, 3, 1),
+            enrollment_start=datetime.datetime(2014, 2, 1),
+            start=datetime.datetime(2014, 3, 1),
         )
 
         program = ProgramFactory(courses=course_list, excluded_course_runs=[excluded_run])
@@ -739,14 +787,14 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         CourseRunFactory(
             course=course_list[2],
             enrollment_start=None,
-            start=datetime(2014, 2, 1),
+            start=datetime.datetime(2014, 2, 1),
         )
 
         # Create a second run with matching start, but later enrollment_start.
         CourseRunFactory(
             course=course_list[1],
-            enrollment_start=datetime(2014, 1, 2),
-            start=datetime(2014, 2, 1),
+            enrollment_start=datetime.datetime(2014, 1, 2),
+            start=datetime.datetime(2014, 2, 1),
         )
 
         # Create a third run with empty start and enrollment_start.

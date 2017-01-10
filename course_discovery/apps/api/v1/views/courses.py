@@ -21,16 +21,6 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.CourseWithProgramsSerializer
 
     def get_queryset(self):
-        """ List one course
-        ---
-        parameters:
-            - name: include_deleted_programs
-              description: Will include deleted programs in the associated programs array
-              required: false
-              type: integer
-              paramType: query
-              multiple: false
-        """
         q = self.request.query_params.get('q', None)
 
         if q:
@@ -46,6 +36,7 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
         context.update({
             'exclude_utm': get_query_param(self.request, 'exclude_utm'),
             'include_deleted_programs': get_query_param(self.request, 'include_deleted_programs'),
+            'marketable_course_runs_only': get_query_param(self.request, 'marketable_course_runs_only'),
             'published_course_runs_only': get_query_param(self.request, 'published_course_runs_only'),
         })
 
@@ -55,24 +46,6 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
         """ List all courses.
          ---
         parameters:
-            - name: q
-              description: Elasticsearch querystring query. This filter takes precedence over other filters.
-              required: false
-              type: string
-              paramType: query
-              multiple: false
-            - name: keys
-              description: Filter by keys (comma-separated list)
-              required: false
-              type: string
-              paramType: query
-              multiple: false
-            - name: published_course_runs_only
-              description: Filter course runs by published ones only
-              required: false
-              type: integer
-              paramType: query
-              mulitple: false
             - name: exclude_utm
               description: Exclude UTM parameters from marketing URLs.
               required: false
@@ -83,6 +56,31 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
               description: Will include deleted programs in the associated programs array
               required: false
               type: integer
+              paramType: query
+              multiple: false
+            - name: keys
+              description: Filter by keys (comma-separated list)
+              required: false
+              type: string
+              paramType: query
+              multiple: false
+            - name: marketable_course_runs_only
+              description: Restrict returned course runs to those that are published, have seats,
+                and can still be enrolled in.
+              required: false
+              type: integer
+              paramType: query
+              mulitple: false
+            - name: published_course_runs_only
+              description: Filter course runs by published ones only
+              required: false
+              type: integer
+              paramType: query
+              mulitple: false
+            - name: q
+              description: Elasticsearch querystring query. This filter takes precedence over other filters.
+              required: false
+              type: string
               paramType: query
               multiple: false
         """

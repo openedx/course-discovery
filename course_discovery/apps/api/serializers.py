@@ -478,6 +478,14 @@ class CourseWithProgramsSerializer(CourseSerializer):
     def get_course_runs(self, course):
         course_runs = course.course_runs.exclude(hidden=True)
 
+        if self.context.get('marketable_course_runs_only'):
+            # A client requesting marketable_course_runs_only should only receive course runs
+            # that are published, have seats, and can still be enrolled in. All other course runs
+            # should be excluded. As an unfortunate side-effect of the way we've marketed course
+            # runs in the past - a course run could be marketed despite enrollment in that run being
+            # closed - achieving this requires applying both the marketable and active filters.
+            course_runs = course_runs.marketable().active()
+
         if self.context.get('published_course_runs_only'):
             course_runs = course_runs.filter(status=CourseRunStatus.Published)
 
