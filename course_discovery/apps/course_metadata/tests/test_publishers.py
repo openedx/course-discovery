@@ -115,6 +115,12 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
                     self.password,
                     self.api_root
                 )
+        self.expected_node = {
+            'uuid': '945bb2c7-0a57-4a3f-972a-8c7f94aa0661',
+            'resource': 'node',
+            'uri': 'https://stage.edx.org/node/28426',
+            'id': '28426'
+        }
 
     def test_get_node_data(self):
         publisher = MarketingSitePublisher()
@@ -169,16 +175,11 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
     @responses.activate
     def test_create_node(self):
         self.mock_api_client(200)
-        expected = {
-            'list': [{
-                'nid': self.node_id
-            }]
-        }
-        self.mock_node_create(expected, 201)
+        self.mock_node_create(self.expected_node, 201)
         publisher = MarketingSitePublisher()
         publish_data = publisher._get_node_data(self.program, self.user_id)  # pylint: disable=protected-access
         data = publisher._create_node(self.api_client, publish_data)  # pylint: disable=protected-access
-        self.assertEqual(data, expected)
+        self.assertEqual(data, self.expected_node['id'])
 
     @responses.activate
     def test_create_node_failed(self):
@@ -192,13 +193,8 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
     @responses.activate
     def test_publish_program_create(self):
         self.mock_api_client(200)
-        expected = {
-            'list': [{
-                'node_id': self.node_id
-            }]
-        }
         self.mock_node_retrieval(self.program.uuid, exists=False)
-        self.mock_node_create(expected, 201)
+        self.mock_node_create(self.expected_node, 201)
         publisher = MarketingSitePublisher()
         self.mock_add_alias()
         with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
