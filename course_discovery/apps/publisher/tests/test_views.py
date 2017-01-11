@@ -19,6 +19,7 @@ from testfixtures import LogCapture
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
 from course_discovery.apps.core.tests.helpers import make_image_file
+from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.constants import (
@@ -1072,6 +1073,33 @@ class CourseRunDetailTests(TestCase):
         self.client.login(username=user.username, password=USER_PASSWORD)
 
         return user
+
+    def test_tabs_for_course_team_user(self):
+        """Verify that internal/admin user will see only one tab. """
+        response = self.client.get(self.page_url)
+        self.assertContains(response, '<button class="selected" data-tab="#tab-1">All</button>')
+        response_string = response.content.decode('UTF-8')
+        self.assertNotIn(response_string, '<button data-tab="#tab-2">STUDIO</button>')
+        self.assertNotIn(response_string, '<button data-tab="#tab-3">CAT</button>')
+        self.assertNotIn(response_string, '<button data-tab="#tab-4">DRUPAL</button>')
+        self.assertNotIn(response_string, '<button data-tab="#tab-5">Salesforce</button>')
+
+    def test_page_enable_waffle_switch(self):
+        """ Verify that user will see only studio fields when 'publisher_hide_features_for_pilot' is activated. """
+        toggle_switch('publisher_hide_features_for_pilot', True)
+        response = self.client.get(self.page_url)
+
+        self.assertContains(response, '<aside class="layout-col layout-col-a hidden">')
+        self.assertContains(response, '<div class="non-studio-fields hidden">')
+
+    def test_page_disable_waffle_switch(self):
+        """ Verify that user will see whole page when 'publisher_hide_features_for_pilot' is deactivated. """
+        toggle_switch('publisher_hide_features_for_pilot', False)
+        response = self.client.get(self.page_url)
+
+        response_string = response.content.decode('UTF-8')
+        self.assertNotIn(response_string, '<aside class="layout-col layout-col-a hidden">')
+        self.assertNotIn(response_string, '<div class="non-studio-fields hidden">')
 
 
 class ChangeStateViewTests(TestCase):

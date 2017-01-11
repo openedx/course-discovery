@@ -14,8 +14,9 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View, CreateView, UpdateView, DetailView, ListView
 from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import get_objects_for_user
-from course_discovery.apps.core.models import User
+import waffle
 
+from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.forms import (
     CourseForm, CourseRunForm, SeatForm, CustomCourseForm, CustomCourseRunForm,
@@ -160,6 +161,10 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
                 )
             }
         ]
+
+        context['can_view_all_tabs'] = mixins.check_roles_access(self.request.user)
+        context['publisher_hide_features_for_pilot'] = waffle.switch_is_active('publisher_hide_features_for_pilot')
+
         return context
 
 
@@ -229,9 +234,11 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
                     CourseUserRole.add_course_roles(course=course, role=PublisherUserRole.CourseTeam,
                                                     user=User.objects.get(id=course_form.data['team_admin']))
 
-                    messages.success(
-                        request, _('Course created successfully.')
-                    )
+                    # pylint: disable=no-member
+                    messages.success(request, _(
+                        'EdX will create a Studio instance for this course. You will receive a notification message at '
+                        '{email} when the Studio instance has been created.').format(email=request.user.email))
+
                     return HttpResponseRedirect(self.get_success_url(run_course.id))
             except Exception as e:  # pylint: disable=broad-except
                 # pylint: disable=no-member

@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-11 19:39+0500\n"
+"POT-Creation-Date: 2017-01-12 12:07+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -631,7 +631,10 @@ msgid "PUBLISHER"
 msgstr ""
 
 #: apps/publisher/views.py
-msgid "Course created successfully."
+#, python-brace-format
+msgid ""
+"EdX will create a Studio instance for this course. You will receive a "
+"notification message at {email} when the Studio instance has been created."
 msgstr ""
 
 #: apps/publisher/views.py
@@ -1337,6 +1340,31 @@ msgid "Number"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard/_preview_ready.html
+#: templates/publisher/dashboard/_published.html
+#: templates/publisher/dashboard/_studio_requests.html
+msgid "Organization"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Course Start Date"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Course End Date"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Pacing Type"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Contracted Partner"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_cat.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Course ID"
@@ -1382,24 +1410,11 @@ msgid "Price"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "Course Start Date"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Course End Date"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
 msgid "Certificate Generation Date Exception Request"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
 msgid "Course Length (weeks)"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_studio.html
-msgid "Pacing Type"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
@@ -1677,13 +1692,6 @@ msgstr ""
 #: templates/publisher/dashboard/_published.html
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Course Name"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_studio.html
-#: templates/publisher/dashboard/_preview_ready.html
-#: templates/publisher/dashboard/_published.html
-#: templates/publisher/dashboard/_studio_requests.html
-msgid "Organization"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_studio.html

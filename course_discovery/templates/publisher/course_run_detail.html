@@ -13,6 +13,7 @@
     <main class="layout-col layout-col-b">
         <nav class="administration-nav">
             <div class="tab-container">
+              {% if can_view_all_tabs %}
                 <button class="selected" data-tab="#tab-1">{% trans "All" %}</button>
                 {% comment %}Translators: Studio is an edX tool for course creation.{% endcomment %}
                 <button data-tab="#tab-2">{% trans "STUDIO" %}</button>
@@ -21,6 +22,9 @@
                 {% comment %}Translators: DRUPAL is an edX marketing site.{% endcomment %}
                 <button data-tab="#tab-4">{% trans "DRUPAL" %}</button>
                 <button data-tab="#tab-5">Salesforce</button>
+              {% else %}
+                <button class="selected" disabled="disabled" data-tab="#tab-1">{% trans "All" %}</button>
+              {% endif %}
             </div>
         </nav>
 
@@ -46,6 +50,7 @@
                 <div id="tab-1" class="tab-content active">
                     {% include 'publisher/course_run_detail/_all.html' %}
                 </div>
+              {% if can_view_all_tabs %}
                 <div id="tab-2" class="tab-content">
                     {% include 'publisher/course_run_detail/_studio.html' %}
                 </div>
@@ -58,11 +63,13 @@
                 <div id="tab-5" class="tab-content">
                     {% include 'publisher/course_run_detail/_salesforce.html' %}
                 </div>
+              {% endif %}
             </div>
         </div>
     </main>
-    <aside class="layout-col layout-col-a">
-        {% include 'publisher/course_run_detail/_approval_widget.html' %}
+
+    <aside class="layout-col layout-col-a {% if publisher_hide_features_for_pilot %}hidden{% endif %}">
+          {% include 'publisher/course_run_detail/_approval_widget.html' %}
     </aside>
 </div>
 {% endblock %}

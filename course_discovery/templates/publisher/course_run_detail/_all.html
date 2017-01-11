@@ -15,6 +15,47 @@
         </div>
         <div class="copy">{{ object.number }}</div>
     </div>
+
+    <div class="info-item">
+        <div class="heading">
+            {% trans "Organization" %}
+            {% include "publisher/course_run_detail/_clipboard.html" %}
+        </div>
+        <div class="copy">{{ object.organization_name }}</div>
+    </div>
+
+    <div class="info-item">
+        <div class="heading">
+            {% trans "Course Start Date" %}
+            {% include "publisher/course_run_detail/_clipboard.html" %}
+        </div>
+        <div class="copy">{{ object.start }}</div>
+    </div>
+
+    <div class="info-item">
+        <div class="heading">
+            {% trans "Course End Date" %}
+            {% include "publisher/course_run_detail/_clipboard.html" %}
+        </div>
+        <div class="copy">{{ object.end }}</div>
+    </div>
+
+    <div class="info-item">
+        <div class="heading">
+            {% trans "Pacing Type" %}
+            {% include "publisher/course_run_detail/_clipboard.html" %}
+        </div>
+        <div class="copy">{{ object.pacing_type }}</div>
+    </div>
+
+    <div class="info-item">
+        <div class="heading">
+            {% trans "Contracted Partner" %}
+            {% include "publisher/course_run_detail/_clipboard.html" %}
+        </div>
+        <div class="copy">{{ object.contacted_partner_manager }}</div>
+    </div>
+  <div class="non-studio-fields {% if publisher_hide_features_for_pilot %}hidden{% endif %}">
     <div class="info-item">
         <div class="heading">
             {% trans "Course ID" %}
@@ -103,22 +144,6 @@
 
     <div class="info-item">
         <div class="heading">
-            {% trans "Course Start Date" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
-        </div>
-        <div class="copy">{{ object.start }}</div>
-    </div>
-
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Course End Date" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
-        </div>
-        <div class="copy">{{ object.end }}</div>
-    </div>
-
-    <div class="info-item">
-        <div class="heading">
             {% trans "Certificate Generation Date Exception Request" %}
             {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
@@ -131,14 +156,6 @@
             {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
         <div class="copy">{{ object.length }}</div>
-    </div>
-
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Pacing Type" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
-        </div>
-        <div class="copy">{{ object.pacing_type }}</div>
     </div>
 
     <div class="info-item">
@@ -255,5 +272,6 @@
         </div>
         <div class="copy">{{ object.notes }}</div>
     </div>
+  </div>
 </div>
 <div class="clearfix"></div>
