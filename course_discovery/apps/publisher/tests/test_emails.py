@@ -139,10 +139,6 @@ class StudioInstanceCreatedEmailTests(TestCase):
     def setUp(self):
         super(StudioInstanceCreatedEmailTests, self).setUp()
         self.user = UserFactory()
-
-        self.group = factories.GroupFactory()
-        self.user.groups.add(self.group)
-
         self.course_run = factories.CourseRunFactory()
 
         # add user in course-user-role table
@@ -177,7 +173,6 @@ class StudioInstanceCreatedEmailTests(TestCase):
         """ Verify that emails sent successfully for studio instance created."""
 
         emails.send_email_for_studio_instance_created(self.course_run)
-        # assert email sent
         self.assert_email_sent(
             reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id}),
             'Studio instance created',
@@ -204,3 +199,62 @@ class StudioInstanceCreatedEmailTests(TestCase):
         self.assertIn(
             'For questions or comments, contact {}.'.format(self.user.email), body
         )
+
+
+class CourseCreatedEmailTests(TestCase):
+    """ Tests for the email functionality for new course created. """
+
+    def setUp(self):
+        super(CourseCreatedEmailTests, self).setUp()
+        self.user = UserFactory()
+        self.course_run = factories.CourseRunFactory()
+
+        # add user in course-user-role table
+        factories.CourseUserRoleFactory(
+            course=self.course_run.course, role=PublisherUserRole.PartnerCoordinator, user=self.user
+        )
+
+        self.course_team = UserFactory()
+        factories.CourseUserRoleFactory(
+            course=self.course_run.course, role=PublisherUserRole.CourseTeam, user=self.course_team
+        )
+
+        UserAttributeFactory(user=self.user, enable_email_notification=True)
+
+        toggle_switch('enable_publisher_email_notifications', True)
+
+    @mock.patch('django.core.mail.message.EmailMessage.send', mock.Mock(side_effect=TypeError))
+    def test_email_with_error(self):
+        """ Verify that emails failure log message."""
+
+        with LogCapture(emails.logger.name) as l:
+            emails.send_email_for_course_creation(self.course_run.course, self.course_run)
+            l.check(
+                (
+                    emails.logger.name,
+                    'ERROR',
+                    'Failed to send email notifications for course creation course run id [{}]'.format(
+                        self.course_run.id
+                    )
+                )
+            )
+
+    def test_email_sent_successfully(self):
+        """ Verify that emails send as course creation notifications."""
+
+        emails.send_email_for_course_creation(self.course_run.course, self.course_run)
+        subject = 'New Studio instance request for {title}'.format(title=self.course_run.course.title)
+        self.assert_email_sent(subject)
+
+    def assert_email_sent(self, subject):
+        """ Verify the email data for tests cases."""
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual([settings.PUBLISHER_FROM_EMAIL], mail.outbox[0].to)
+        self.assertEqual([self.user.email, self.course_team.email], mail.outbox[0].bcc)
+        self.assertEqual(str(mail.outbox[0].subject), subject)
+
+        body = mail.outbox[0].body.strip()
+        self.assertIn('{name} created the'.format(name=self.course_team.full_name), body)
+        self.assertIn('{dashboard_url}'.format(dashboard_url=reverse('publisher:publisher_dashboard')), body)
+        self.assertIn('Please create a Studio instance for this course', body)
+        self.assertIn('Thanks', body)

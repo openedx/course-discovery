@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-13 15:33-0500\n"
+"POT-Creation-Date: 2017-01-16 14:06+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -434,6 +434,11 @@ msgstr ""
 
 #: apps/publisher/emails.py
 msgid "Studio instance created"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "New Studio instance request for {title}"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -2005,6 +2010,8 @@ msgstr ""
 #: templates/publisher/email/change_state.txt
 #: templates/publisher/email/comment.html
 #: templates/publisher/email/comment.txt
+#: templates/publisher/email/course_created.html
+#: templates/publisher/email/course_created.txt
 msgid "The edX team"
 msgstr ""
 
@@ -2026,6 +2033,48 @@ msgstr ""
 
 #: templates/publisher/email/comment.txt
 msgid "View comment: "
+msgstr ""
+
+#. Translators: partner_coordinator_name is a member name.
+#: templates/publisher/email/course_created.html
+#, python-format
+msgid "Dear %(partner_coordinator_name)s,"
+msgstr ""
+
+#: templates/publisher/email/course_created.html
+#, python-format
+msgid ""
+"%(course_team_name)s created the "
+"%(link_start)s%(dashboard_url)s%(link_middle)s %(course_title)s %(link_end)s"
+" course in Publisher on %(date)s at %(time)s."
+msgstr ""
+
+#: templates/publisher/email/course_created.html
+#: templates/publisher/email/course_created.txt
+msgid "Please create a Studio instance for this course."
+msgstr ""
+
+#. Translators: It's closing of mail.
+#: templates/publisher/email/course_created.html
+#: templates/publisher/email/course_created.txt
+#: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
+#: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
+msgid "Thanks,"
+msgstr ""
+
+#: templates/publisher/email/course_created.txt
+#: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
+msgid "Dear"
+msgstr ""
+
+#: templates/publisher/email/course_created.txt
+#, python-format
+msgid ""
+"%(course_team_name)s created the %(course_title)s : %(dashboard_url)s course"
+" in Publisher on %(date)s at %(time)s."
 msgstr ""
 
 #. Translators: course_team_name is course team member name.
@@ -2091,14 +2140,6 @@ msgid ""
 "build your course. We recommend that you use the list early!"
 msgstr ""
 
-#. Translators: It's closing of mail.
-#: templates/publisher/email/studio_instance_created.html
-#: templates/publisher/email/studio_instance_created.txt
-#: templates/publisher/email/studio_instance_needed.html
-#: templates/publisher/email/studio_instance_needed.txt
-msgid "Thanks,"
-msgstr ""
-
 #: templates/publisher/email/studio_instance_created.html
 #, python-format
 msgid ""
@@ -2118,11 +2159,6 @@ msgstr ""
 msgid ""
 "Note: This email address is unable to receive replies. For questions or "
 "comments, contact %(contact_us_email)s."
-msgstr ""
-
-#: templates/publisher/email/studio_instance_needed.html
-#: templates/publisher/email/studio_instance_needed.txt
-msgid "Dear"
 msgstr ""
 
 #: templates/publisher/email/studio_instance_needed.html

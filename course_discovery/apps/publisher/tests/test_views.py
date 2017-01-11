@@ -11,6 +11,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
+from django.core import mail
 from django.forms import model_to_dict
 from django.test import TestCase
 from guardian.shortcuts import assign_perm
@@ -388,6 +389,10 @@ class CreateUpdateCourseViewTests(TestCase):
         self.assertEqual(course.organizations.first(), self.organization_extension.organization)
 
         self.assertTrue(len(course.course_user_roles.all()), 2)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(
+            str(mail.outbox[0].subject), 'New Studio instance request for {title}'.format(title=course.title)
+        )
 
 
 class CreateUpdateCourseRunViewTests(TestCase):

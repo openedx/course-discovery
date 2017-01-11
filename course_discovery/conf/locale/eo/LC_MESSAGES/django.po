@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-13 15:33-0500\n"
+"POT-Creation-Date: 2017-01-16 14:06+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -543,6 +543,13 @@ msgstr ""
 #: apps/publisher/emails.py
 msgid "Studio instance created"
 msgstr "Stüdïö ïnstänçé çréätéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "New Studio instance request for {title}"
+msgstr ""
+"Néw Stüdïö ïnstänçé réqüést för {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєт#"
 
 #: apps/publisher/forms.py
 msgid "Organization Name"
@@ -2370,6 +2377,8 @@ msgstr "Vïéw Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 #: templates/publisher/email/change_state.txt
 #: templates/publisher/email/comment.html
 #: templates/publisher/email/comment.txt
+#: templates/publisher/email/course_created.html
+#: templates/publisher/email/course_created.txt
 msgid "The edX team"
 msgstr "Thé édX téäm Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
@@ -2394,6 +2403,57 @@ msgstr "Vïéw çömmént Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 #: templates/publisher/email/comment.txt
 msgid "View comment: "
 msgstr "Vïéw çömmént:  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#. Translators: partner_coordinator_name is a member name.
+#: templates/publisher/email/course_created.html
+#, python-format
+msgid "Dear %(partner_coordinator_name)s,"
+msgstr "Déär %(partner_coordinator_name)s, Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: templates/publisher/email/course_created.html
+#, python-format
+msgid ""
+"%(course_team_name)s created the "
+"%(link_start)s%(dashboard_url)s%(link_middle)s %(course_title)s %(link_end)s"
+" course in Publisher on %(date)s at %(time)s."
+msgstr ""
+"%(course_team_name)s çréätéd thé "
+"%(link_start)s%(dashboard_url)s%(link_middle)s %(course_title)s %(link_end)s"
+" çöürsé ïn Püßlïshér ön %(date)s ät %(time)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: templates/publisher/email/course_created.html
+#: templates/publisher/email/course_created.txt
+msgid "Please create a Studio instance for this course."
+msgstr ""
+"Pléäsé çréäté ä Stüdïö ïnstänçé för thïs çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#. Translators: It's closing of mail.
+#: templates/publisher/email/course_created.html
+#: templates/publisher/email/course_created.txt
+#: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
+#: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
+msgid "Thanks,"
+msgstr "Thänks, Ⱡ'σяєм ιρѕυм #"
+
+#: templates/publisher/email/course_created.txt
+#: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
+msgid "Dear"
+msgstr "Déär Ⱡ'σяєм ι#"
+
+#: templates/publisher/email/course_created.txt
+#, python-format
+msgid ""
+"%(course_team_name)s created the %(course_title)s : %(dashboard_url)s course"
+" in Publisher on %(date)s at %(time)s."
+msgstr ""
+"%(course_team_name)s çréätéd thé %(course_title)s : %(dashboard_url)s çöürsé"
+" ïn Püßlïshér ön %(date)s ät %(time)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя α#"
 
 #. Translators: course_team_name is course team member name.
 #: templates/publisher/email/studio_instance_created.html
@@ -2486,14 +2546,6 @@ msgstr ""
 "ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
 "¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєł#"
 
-#. Translators: It's closing of mail.
-#: templates/publisher/email/studio_instance_created.html
-#: templates/publisher/email/studio_instance_created.txt
-#: templates/publisher/email/studio_instance_needed.html
-#: templates/publisher/email/studio_instance_needed.txt
-msgid "Thanks,"
-msgstr "Thänks, Ⱡ'σяєм ιρѕυм #"
-
 #: templates/publisher/email/studio_instance_created.html
 #, python-format
 msgid ""
@@ -2521,11 +2573,6 @@ msgid ""
 msgstr ""
 "Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
 "çömménts, çöntäçt %(contact_us_email)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
-
-#: templates/publisher/email/studio_instance_needed.html
-#: templates/publisher/email/studio_instance_needed.txt
-msgid "Dear"
-msgstr "Déär Ⱡ'σяєм ι#"
 
 #: templates/publisher/email/studio_instance_needed.html
 #: templates/publisher/email/studio_instance_needed.txt

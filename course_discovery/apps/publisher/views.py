@@ -18,6 +18,7 @@ from guardian.shortcuts import get_objects_for_user
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.emails import send_email_for_course_creation
 from course_discovery.apps.publisher.forms import (
     CourseForm, CourseRunForm, SeatForm, CustomCourseForm, CustomCourseRunForm,
     CustomSeatForm, UpdateCourseForm
@@ -246,6 +247,9 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
                     messages.success(request, _(
                         'EdX will create a Studio instance for this course. You will receive a notification message at '
                         '{email} when the Studio instance has been created.').format(email=request.user.email))
+
+                    # sending email for notifying new course is created.
+                    send_email_for_course_creation(course, run_course)
 
                     return HttpResponseRedirect(self.get_success_url(run_course.id))
             except Exception as e:  # pylint: disable=broad-except
