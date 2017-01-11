@@ -1,0 +1,12 @@
+{% load i18n %}
+
+{% trans "Dear" %} {{ partner_coordinator_name }},
+
+{% blocktrans trimmed %}
+    {{ course_team_name }} created the {{ course_title }} : {{ dashboard_url }} course in Publisher on {{ date }} at {{ time }}.
+{% endblocktrans %}
+
+{% trans "Please create a Studio instance for this course." %}
+
+{% trans "Thanks," %}
+{% trans "The edX team" %}

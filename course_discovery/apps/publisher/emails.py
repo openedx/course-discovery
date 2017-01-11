@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def send_email_for_change_state(course_run):
-    """ Send the emails for a comment.
+    """ Send the emails for a course run change state event.
 
         Arguments:
             course_run (Object): CourseRun object
@@ -95,3 +95,52 @@ def send_email_for_studio_instance_created(course_run):
         email_msg.send()
     except Exception:  # pylint: disable=broad-except
         logger.exception('Failed to send email notifications for course_run [%s]', course_run.id)
+
+
+def send_email_for_course_creation(course, course_run):
+    """ Send the emails for a course creation.
+
+        Arguments:
+            course (Course): Course object
+            course_run (CourseRun): CourseRun object
+    """
+    try:
+        txt_template = 'publisher/email/course_created.txt'
+        html_template = 'publisher/email/course_created.html'
+
+        to_addresses = course.get_course_users_emails()
+        from_address = settings.PUBLISHER_FROM_EMAIL
+
+        course_user_roles = course_run.course.course_user_roles.all()
+        course_team = course_user_roles.filter(role=PublisherUserRole.CourseTeam).first()
+        partner_coordinator = course_user_roles.filter(role=PublisherUserRole.PartnerCoordinator).first()
+
+        context = {
+            'course_title': course_run.course.title,
+            'date': course_run.created.strftime("%B %d, %Y"),
+            'time': course_run.created.strftime("%H:%M:%S"),
+            'course_team_name': course_team.user.full_name if course_team else '',
+            'partner_coordinator_name': partner_coordinator.user.full_name if partner_coordinator else '',
+            'dashboard_url': 'https://{host}{path}'.format(
+                host=Site.objects.get_current().domain.strip('/'), path=reverse('publisher:publisher_dashboard')
+            ),
+            'from_address': from_address,
+            'contact_us_email': partner_coordinator.user.email if partner_coordinator else ''
+        }
+
+        template = get_template(txt_template)
+        plain_content = template.render(context)
+        template = get_template(html_template)
+        html_content = template.render(context)
+
+        subject = _('New Studio instance request for {title}').format(title=course.title)  # pylint: disable=no-member
+
+        email_msg = EmailMultiAlternatives(
+            subject, plain_content, from_address, to=[settings.PUBLISHER_FROM_EMAIL], bcc=to_addresses
+        )
+        email_msg.attach_alternative(html_content, 'text/html')
+        email_msg.send()
+    except Exception:  # pylint: disable=broad-except
+        logger.exception(
+            'Failed to send email notifications for course creation course run id [%s]', course_run.course.id
+        )
