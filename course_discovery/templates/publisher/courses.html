@@ -33,7 +33,13 @@
                 {% for course in object_list %}
                     <tr>
                         <td>
-                            <a href="{% url 'publisher:publisher_course_detail' course.id %}">{{ course.title }}</a>
+                          {% if publisher_hide_features_for_pilot %}
+                            {{ course.title }}
+                          {% else %}
+                            <a href="{% url 'publisher:publisher_course_detail' course.id %}">
+                                {{ course.title }}
+                            </a>
+                          {% endif %}
                         </td>
                         <td>
                             {% if course.organizations.first %}{{ course.organizations.first.name }}{% endif %}
@@ -44,11 +50,13 @@
                         <td>
                              {{ course.publisher_course_runs.count }}
                         </td>
-                        <td>
+                        {% if not publisher_hide_features_for_pilot %}
+                          <td>
                             <a href="{% url 'publisher:publisher_courses_edit' course.id %}" class="btn btn-brand btn-small btn-course-edit">
-                                {% trans "Edit" %}
+                              {% trans "Edit" %}
                             </a>
-                        </td>
+                          </td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>
