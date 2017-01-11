@@ -1527,7 +1527,26 @@ class CourseListViewTests(TestCase):
         self.assertContains(response, 'Add Course')
         if course_count > 0:
             self.assertContains(response, self.course.title)
-            self.assertContains(response, 'Edit')
+
+    def test_page_with_enable_waffle_switch(self):
+        """
+        Verify that edit button will not be shown if 'publisher_hide_features_for_pilot' activated.
+        """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        factories.CourseUserRoleFactory(course=self.course, user=self.user)
+        toggle_switch('publisher_hide_features_for_pilot', True)
+        response = self.client.get(self.courses_url)
+        self.assertNotIn(response.content.decode('UTF-8'), 'Edit')
+
+    def test_page_with_disable_waffle_switch(self):
+        """
+        Verify that edit button will be shown if 'publisher_hide_features_for_pilot' dectivated.
+        """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        factories.CourseUserRoleFactory(course=self.course, user=self.user)
+        toggle_switch('publisher_hide_features_for_pilot', False)
+        response = self.client.get(self.courses_url)
+        self.assertContains(response, 'Edit')
 
 
 class CourseDetailViewTests(TestCase):
