@@ -250,7 +250,8 @@ class CustomSeatForm(SeatForm):
         (Seat.PROFESSIONAL, _('Professional Education')),
     ]
 
-    type = forms.ChoiceField(choices=TYPE_CHOICES, required=True, label=_('Seat Type'))
+    type = forms.ChoiceField(choices=TYPE_CHOICES, required=False, label=_('Seat Type'))
+    price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
 
     class Meta(SeatForm.Meta):
         fields = ('price', 'type')

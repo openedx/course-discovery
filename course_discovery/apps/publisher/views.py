@@ -4,6 +4,7 @@ Course publisher views.
 import json
 import logging
 from datetime import datetime, timedelta
+import waffle
 
 from django.contrib import messages
 from django.core.urlresolvers import reverse
@@ -14,7 +15,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View, CreateView, UpdateView, DetailView, ListView
 from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import get_objects_for_user
-import waffle
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.choices import PublisherUserRole
@@ -185,7 +185,8 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
         return {
             'course_form': self.course_form,
             'run_form': self.run_form,
-            'seat_form': self.seat_form
+            'seat_form': self.seat_form,
+            'publisher_hide_features_for_pilot': waffle.switch_is_active('publisher_hide_features_for_pilot')
         }
 
     def get(self, request, *args, **kwargs):
@@ -200,11 +201,13 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
         course_form = self.course_form(request.POST, request.FILES, organization=organization)
         run_form = self.run_form(request.POST)
         seat_form = self.seat_form(request.POST)
-
         if course_form.is_valid() and run_form.is_valid() and seat_form.is_valid():
             try:
                 with transaction.atomic():
-                    seat = seat_form.save(commit=False)
+                    seat = None
+                    if request.POST.get('type'):
+                        seat = seat_form.save(commit=False)
+
                     run_course = run_form.save(commit=False)
                     course = course_form.save(commit=False)
                     course.changed_by = self.request.user
@@ -218,9 +221,11 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
 
                     # commit false does not save m2m object.
                     run_form.save_m2m()
-                    seat.course_run = run_course
-                    seat.changed_by = self.request.user
-                    seat.save()
+
+                    if seat:
+                        seat.course_run = run_course
+                        seat.changed_by = self.request.user
+                        seat.save()
 
                     organization_extension = get_object_or_404(
                         OrganizationExtension, organization=course_form.data['organization']
@@ -340,7 +345,6 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
         course_form = self.course_form(request.POST, instance=self.get_parent_course())
         run_form = self.run_form(request.POST)
         seat_form = self.seat_form(request.POST)
-
         if course_form.is_valid() and run_form.is_valid() and seat_form.is_valid():
             try:
                 with transaction.atomic():

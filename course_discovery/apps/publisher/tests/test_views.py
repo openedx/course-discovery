@@ -109,6 +109,20 @@ class CreateUpdateCourseViewTests(TestCase):
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
         self.assertEqual(response.status_code, 400)
 
+    def test_create_course_and_course_run_without_seat(self):
+        """ Verify that course and course run objects create successfully if seat type
+        is not provided.
+        """
+        data = {'number': 'course_without_seat', 'image': ''}
+        course_dict = self._post_data(data, self.course, self.course_run, None)
+        course_dict['image'] = ''
+        self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
+
+        course = Course.objects.get(number=course_dict['number'])
+        course_run = course.publisher_course_runs.first()
+        # verify no seat object created with course run.
+        self.assertFalse(course_run.seats.all())
+
     @ddt.data(
         {'number': 'course_1', 'image': ''},
         {'number': 'course_2', 'image': make_image_file('test_banner.jpg')},
@@ -295,6 +309,22 @@ class CreateUpdateCourseViewTests(TestCase):
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
         self.assertEqual(response.status_code, 400)
 
+    def test_page_with_pilot_switch_enable(self):
+        """ Verify that if pilot switch is enable then about page information
+        panel is not visible.
+        """
+        toggle_switch('publisher_hide_features_for_pilot', True)
+        response = self.client.get(reverse('publisher:publisher_courses_new'))
+        self.assertContains(response, '<div class="layout-full publisher-layout layout hidden"')
+
+    def test_page_with_pilot_switch_disable(self):
+        """ Verify that if pilot switch is disable then about page information
+        panel is visible.
+        """
+        toggle_switch('publisher_hide_features_for_pilot', False)
+        response = self.client.get(reverse('publisher:publisher_courses_new'))
+        self.assertContains(response, '<div class="layout-full publisher-layout layout"')
+
     def _post_data(self, data, course, course_run, seat):
         course_dict = model_to_dict(course)
         course_dict.update(**data)
@@ -419,19 +449,13 @@ class CreateUpdateCourseRunViewTests(TestCase):
         )
 
     def test_create_course_run_and_seat_with_errors(self):
-        """ Verify that without providing required data course run and seat
-        cannot be created.
+        """ Verify that without providing required data course run cannot be
+        created.
         """
-        response = self.client.post(
-            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
-            self.course_run_dict
-        )
-        self.assertEqual(response.status_code, 400)
-
         post_data = model_to_dict(self.course)
         post_data.update(self.course_run_dict)
         post_data.update(factory.build(dict, FACTORY_CLASS=factories.SeatFactory))
-        self._pop_valuse_from_dict(post_data, ['id', 'upgrade_deadline', 'image', 'team_admin'])
+        self._pop_valuse_from_dict(post_data, ['id', 'upgrade_deadline', 'image', 'team_admin', 'start'])
 
         response = self.client.post(
             reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
