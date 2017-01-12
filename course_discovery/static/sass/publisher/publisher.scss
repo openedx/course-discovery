@@ -450,6 +450,12 @@ select {
   input, select {
     margin-bottom: 15px;
   }
+
+  .read-only-field {
+    margin-bottom: 15px;
+    display: block;
+  }
+
   .hd-4 {
     margin-bottom: 25px;
     padding-bottom: 10px;
@@ -477,6 +483,7 @@ select {
     list-style: none;
     border-bottom: 3px solid #ccc;
     color: #ccc;
+    cursor: pointer;
     text-align: center;
 
     &:hover{

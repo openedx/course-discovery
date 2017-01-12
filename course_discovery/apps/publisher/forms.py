@@ -20,6 +20,7 @@ class BaseCourseForm(forms.ModelForm):
     """ Base Course Form. """
 
     def __init__(self, *args, **kwargs):
+        kwargs.setdefault('label_suffix', '')
         super(BaseCourseForm, self).__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field_classes = 'field-input input-text'
@@ -153,8 +154,8 @@ class CustomCourseRunForm(CourseRunForm):
         required=True
     )
 
-    start = forms.DateTimeField(label=_('Course start date'), required=True)
-    end = forms.DateTimeField(label=_('Course end date'), required=True)
+    start = forms.DateTimeField(label=_('Course Start Date'), required=True)
+    end = forms.DateTimeField(label=_('Course End Date'), required=True)
     staff = forms.ModelMultipleChoiceField(
         queryset=Person.objects.all(), widget=forms.SelectMultiple, required=False
     )
@@ -163,7 +164,7 @@ class CustomCourseRunForm(CourseRunForm):
             choices=((1, _("Yes")), (0, _("No")))), initial=0, required=False
     )
     pacing_type = forms.ChoiceField(
-        label=_('Pace'),
+        label=_('Pacing'),
         widget=forms.RadioSelect,
         choices=CourseRunPacing.choices,
         required=True
