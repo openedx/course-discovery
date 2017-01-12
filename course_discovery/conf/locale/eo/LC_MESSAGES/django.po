@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-12 12:07+0500\n"
+"POT-Creation-Date: 2017-01-13 12:29+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -587,10 +587,12 @@ msgid "No"
 msgstr "Nö Ⱡ'σя#"
 
 #: apps/publisher/forms.py
+#: templates/publisher/email/studio_instance_created.html
 msgid "Course start date"
 msgstr "Çöürsé stärt däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: apps/publisher/forms.py
+#: templates/publisher/email/studio_instance_created.html
 msgid "Course end date"
 msgstr "Çöürsé énd däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
@@ -2229,6 +2231,7 @@ msgstr "Vïéw çömmént Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 msgid "View comment: "
 msgstr "Vïéw çömmént:  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
+#. Translators: course_team_name is course team member name.
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
@@ -2240,13 +2243,78 @@ msgstr "Déär %(course_team_name)s, Ⱡ'σяєм ιρѕυм ∂σł#"
 msgid ""
 "EdX has created a Studio instance for "
 "%(link_start)s%(course_run_page_url)s%(link_middle)s %(course_name)s "
-"%(link_end)s. You can now edit this course in Studio."
+"%(link_end)s. You can now edit this course and configure your course team in"
+" Studio."
 msgstr ""
 "ÉdX häs çréätéd ä Stüdïö ïnstänçé för "
 "%(link_start)s%(course_run_page_url)s%(link_middle)s %(course_name)s "
-"%(link_end)s. Ýöü çän nöw édït thïs çöürsé ïn Stüdïö. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
-" αмєт, #"
+"%(link_end)s. Ýöü çän nöw édït thïs çöürsé änd çönfïgüré ýöür çöürsé téäm ïn"
+" Stüdïö. Ⱡ'σяє#"
 
+#: templates/publisher/email/studio_instance_created.html
+#, python-format
+msgid ""
+"Before edX can announce your course on %(link_start)sedx.org%(link_end)s, "
+"you need to add the following items %(start_tag)sboth in Publisher and in "
+"Studio%(end_tag)s."
+msgstr ""
+"Béföré édX çän ännöünçé ýöür çöürsé ön %(link_start)sédx.örg%(link_end)s, "
+"ýöü nééd tö ädd thé föllöwïng ïtéms %(start_tag)sßöth ïn Püßlïshér änd ïn "
+"Stüdïö%(end_tag)s. Ⱡ'σя#"
+
+#: templates/publisher/email/studio_instance_created.html
+msgid "Course image"
+msgstr "Çöürsé ïmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: templates/publisher/email/studio_instance_created.html
+msgid ""
+"Certificate assets (including signatory names, titles, and signature images)"
+msgstr ""
+"Çértïfïçäté ässéts (ïnçlüdïng sïgnätörý nämés, tïtlés, änd sïgnätüré ïmägés)"
+" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: templates/publisher/email/studio_instance_created.html
+msgid ""
+"In addition, keep the following items in mind as you build your course."
+msgstr ""
+"Ìn äddïtïön, kéép thé föllöwïng ïtéms ïn mïnd äs ýöü ßüïld ýöür çöürsé. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
+
+#: templates/publisher/email/studio_instance_created.html
+#, python-format
+msgid ""
+"If this course is not a re-run, your video administrator must work with edX "
+"partner support to enable the %(link_start)svideo upload tool%(link_end)s "
+"before you can add videos to your course."
+msgstr ""
+"Ìf thïs çöürsé ïs nöt ä ré-rün, ýöür vïdéö ädmïnïsträtör müst wörk wïth édX "
+"pärtnér süppört tö énäßlé thé %(link_start)svïdéö üplöäd tööl%(link_end)s "
+"ßéföré ýöü çän ädd vïdéös tö ýöür çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт "
+"∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση "
+"υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє "
+"∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα"
+" ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα "
+"qυι#"
+
+#: templates/publisher/email/studio_instance_created.html
+#, python-format
+msgid ""
+"We expect your completed %(link_start)sMOOC Development "
+"Checklist%(link_end)s before your course starts. This checklist includes "
+"valuable best practices that help you to stay on track as you design and "
+"build your course. We recommend that you use the list early!"
+msgstr ""
+"Wé éxpéçt ýöür çömplétéd %(link_start)sMÖÖÇ Dévélöpmént "
+"Çhéçklïst%(link_end)s ßéföré ýöür çöürsé stärts. Thïs çhéçklïst ïnçlüdés "
+"välüäßlé ßést präçtïçés thät hélp ýöü tö stäý ön träçk äs ýöü désïgn änd "
+"ßüïld ýöür çöürsé. Wé réçömménd thät ýöü üsé thé lïst éärlý! Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
+"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
+"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєł#"
+
+#. Translators: It's closing of mail.
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
 #: templates/publisher/email/studio_instance_needed.html
