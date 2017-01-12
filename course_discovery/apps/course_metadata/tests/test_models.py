@@ -322,8 +322,12 @@ class ProgramTests(MarketingSitePublisherTestMixin):
 
     def test_marketing_url(self):
         """ Verify the property creates a complete marketing URL. """
+        # In test, the factory will likely have the ProgramType's slug and ProgramType's name be the same, we need
+        # to verify that the ProgramType's slug is used and not the ProgramType's name; therefore, set the name to
+        # something obviously different from the name in order to verify that the correct object is being used.
+        self.program.type.slug = '8675309'
         expected = '{root}/{type}/{slug}'.format(root=self.program.partner.marketing_site_url_root.strip('/'),
-                                                 type=self.program.type.name.lower(), slug=self.program.marketing_slug)
+                                                 type=self.program.type.slug, slug=self.program.marketing_slug)
         self.assertEqual(self.program.marketing_url, expected)
 
     def test_marketing_url_without_slug(self):
