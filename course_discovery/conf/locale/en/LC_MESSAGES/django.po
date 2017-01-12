@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-12 12:07+0500\n"
+"POT-Creation-Date: 2017-01-13 12:29+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -479,10 +479,12 @@ msgid "No"
 msgstr ""
 
 #: apps/publisher/forms.py
+#: templates/publisher/email/studio_instance_created.html
 msgid "Course start date"
 msgstr ""
 
 #: apps/publisher/forms.py
+#: templates/publisher/email/studio_instance_created.html
 msgid "Course end date"
 msgstr ""
 
@@ -1907,6 +1909,7 @@ msgstr ""
 msgid "View comment: "
 msgstr ""
 
+#. Translators: course_team_name is course team member name.
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
@@ -1918,9 +1921,50 @@ msgstr ""
 msgid ""
 "EdX has created a Studio instance for "
 "%(link_start)s%(course_run_page_url)s%(link_middle)s %(course_name)s "
-"%(link_end)s. You can now edit this course in Studio."
+"%(link_end)s. You can now edit this course and configure your course team in"
+" Studio."
 msgstr ""
 
+#: templates/publisher/email/studio_instance_created.html
+#, python-format
+msgid ""
+"Before edX can announce your course on %(link_start)sedx.org%(link_end)s, "
+"you need to add the following items %(start_tag)sboth in Publisher and in "
+"Studio%(end_tag)s."
+msgstr ""
+
+#: templates/publisher/email/studio_instance_created.html
+msgid "Course image"
+msgstr ""
+
+#: templates/publisher/email/studio_instance_created.html
+msgid ""
+"Certificate assets (including signatory names, titles, and signature images)"
+msgstr ""
+
+#: templates/publisher/email/studio_instance_created.html
+msgid ""
+"In addition, keep the following items in mind as you build your course."
+msgstr ""
+
+#: templates/publisher/email/studio_instance_created.html
+#, python-format
+msgid ""
+"If this course is not a re-run, your video administrator must work with edX "
+"partner support to enable the %(link_start)svideo upload tool%(link_end)s "
+"before you can add videos to your course."
+msgstr ""
+
+#: templates/publisher/email/studio_instance_created.html
+#, python-format
+msgid ""
+"We expect your completed %(link_start)sMOOC Development "
+"Checklist%(link_end)s before your course starts. This checklist includes "
+"valuable best practices that help you to stay on track as you design and "
+"build your course. We recommend that you use the list early!"
+msgstr ""
+
+#. Translators: It's closing of mail.
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
 #: templates/publisher/email/studio_instance_needed.html
