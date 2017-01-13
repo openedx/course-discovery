@@ -6,6 +6,7 @@ import mock
 from dateutil.parser import parse
 from django.conf import settings
 from django.db import IntegrityError
+from django.db.models.functions import Lower
 from django.test import TestCase
 from factory.fuzzy import FuzzyText
 from freezegun import freeze_time
@@ -13,6 +14,7 @@ import responses
 
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.helpers import make_image_file
+from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import (
@@ -29,7 +31,7 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 # pylint: disable=no-member
 
 
-class CourseTests(TestCase):
+class CourseTests(ElasticsearchTestMixin, TestCase):
     """ Tests for the `Course` model. """
 
     def setUp(self):
@@ -44,9 +46,16 @@ class CourseTests(TestCase):
         """ Verify the method returns a filtered queryset of courses. """
         title = 'Some random title'
         courses = factories.CourseFactory.create_batch(3, title=title)
-        courses = sorted(courses, key=lambda course: course.key)
+        # Sort lowercase keys to prevent different sort orders due to casing.
+        # For example, sorted(['a', 'Z']) gives ['Z', 'a'], but an ordered
+        # queryset containing the same values may give ['a', 'Z'] depending
+        # on the database backend in use.
+        courses = sorted(courses, key=lambda course: course.key.lower())
+
         query = 'title:' + title
-        actual = list(Course.search(query).order_by('key'))
+        # Use Lower() to force a case-insensitive sort.
+        actual = list(Course.search(query).order_by(Lower('key')))
+
         self.assertEqual(actual, courses)
 
     def test_course_run_update_caught_exception(self):

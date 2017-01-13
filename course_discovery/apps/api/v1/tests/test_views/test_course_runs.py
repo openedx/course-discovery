@@ -4,6 +4,7 @@ import urllib
 
 import ddt
 import pytz
+from django.conf import settings
 from django.db.models.functions import Lower
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase, APIRequestFactory
@@ -24,7 +25,10 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         super(CourseRunViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.force_authenticate(self.user)
-        self.partner = PartnerFactory()
+        # DEFAULT_PARTNER_ID is used explicitly here to avoid issues with differences in
+        # auto-incrementing behavior across databases. Otherwise, it's not safe to assume
+        # that the partner created here will always have id=DEFAULT_PARTNER_ID.
+        self.partner = PartnerFactory(id=settings.DEFAULT_PARTNER_ID)
         self.course_run = CourseRunFactory(course__partner=self.partner)
         self.course_run_2 = CourseRunFactory(course__partner=self.partner)
         self.refresh_index()

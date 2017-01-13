@@ -1,7 +1,5 @@
 """Tests API Serializers."""
-from unittest import TestCase
-
-from django.test import RequestFactory
+from django.test import RequestFactory, TestCase
 from rest_framework.exceptions import ValidationError
 
 from course_discovery.apps.core.tests.factories import UserFactory

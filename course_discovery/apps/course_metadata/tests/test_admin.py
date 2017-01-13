@@ -1,6 +1,7 @@
 import itertools
 
 import ddt
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.test import TestCase, LiveServerTestCase
 from selenium import webdriver
@@ -188,6 +189,9 @@ class AdminTests(TestCase):
 
 class ProgramAdminFunctionalTests(LiveServerTestCase):
     """ Functional Tests for Admin page."""
+    # Required for access to initial data loaded in migrations (e.g., LanguageTags).
+    serialized_rollback = True
+
     create_view_name = 'admin:course_metadata_program_add'
     edit_view_name = 'admin:course_metadata_program_change'
 
@@ -217,6 +221,19 @@ class ProgramAdminFunctionalTests(LiveServerTestCase):
 
     def setUp(self):
         super().setUp()
+
+        # ContentTypeManager uses a cache to speed up ContentType retrieval. This
+        # cache persists across tests. This is fine in the context of a regular
+        # TestCase which uses a transaction to reset the database between tests.
+        # However, it becomes a problem in subclasses of TransactionTestCase which
+        # truncate all tables to reset the database between tests. When tables are
+        # truncated, ContentType objects in the ContentTypeManager's cache become
+        # stale. Attempting to use these stale objects in tests such as the ones
+        # below, which create LogEntry objects as a side-effect of interacting with
+        # the admin, will result in IntegrityErrors on databases that check foreign
+        # key constraints (e.g., MySQL). Preemptively clearing the cache prevents
+        # stale ContentType objects from being used.
+        ContentType.objects.clear_cache()
 
         self.course_runs = factories.CourseRunFactory.create_batch(2)
         self.courses = [course_run.course for course_run in self.course_runs]

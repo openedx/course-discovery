@@ -1,8 +1,7 @@
 """
 Tests for affiliate tracking cookies.
 """
-from unittest import TestCase
-
+from django.test import TestCase
 from selenium import webdriver
 
 from acceptance_tests.config import (

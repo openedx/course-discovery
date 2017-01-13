@@ -1,7 +1,6 @@
 """ Tests to validate configuration of the API gateway. """
-from unittest import TestCase
-
 import ddt
+from django.test import TestCase
 import requests
 
 from acceptance_tests.config import API_GATEWAY_CATALOG_ROOT, API_ACCESS_TOKEN, CATALOG_ID

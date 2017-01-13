@@ -142,5 +142,5 @@ def send_email_for_course_creation(course, course_run):
         email_msg.send()
     except Exception:  # pylint: disable=broad-except
         logger.exception(
-            'Failed to send email notifications for course creation course run id [%s]', course_run.course.id
+            'Failed to send email notifications for creation of course [%s]', course_run.course.id
         )
