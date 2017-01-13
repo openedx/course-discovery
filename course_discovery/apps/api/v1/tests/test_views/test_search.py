@@ -153,9 +153,12 @@ class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, Login
 
         # Verify all course runs are returned
         self.assertEqual(response_data['objects']['count'], 4)
-        expected = [self.serialize_course_run(course_run) for course_run in
-                    [archived, current, starting_soon, upcoming]]
-        self.assertEqual(response_data['objects']['results'], expected)
+
+        for run in [archived, current, starting_soon, upcoming]:
+            serialized = self.serialize_course_run(run)
+            # Force execution of lazy function.
+            serialized['availability'] = serialized['availability'].strip()
+            self.assertIn(serialized, response_data['objects']['results'])
 
         self.assert_response_includes_availability_facets(response_data)
 
@@ -244,8 +247,10 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
         response = self.get_search_response()
         self.assertEqual(response.status_code, 200)
         response_data = json.loads(response.content.decode('utf-8'))
-        self.assertListEqual(response_data['objects']['results'],
-                             [self.serialize_course_run(course_run), self.serialize_program(program)])
+        self.assertListEqual(
+            response_data['objects']['results'],
+            [self.serialize_program(program), self.serialize_course_run(course_run)]
+        )
 
     def test_hidden_runs_excluded(self):
         """Search results should not include hidden runs."""
@@ -277,8 +282,10 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
         response = self.get_search_response()
         self.assertEqual(response.status_code, 200)
         response_data = json.loads(response.content.decode('utf-8'))
-        self.assertListEqual(response_data['objects']['results'],
-                             [self.serialize_program(program), self.serialize_course_run(course_run)])
+        self.assertListEqual(
+            response_data['objects']['results'],
+            [self.serialize_course_run(course_run), self.serialize_program(program)]
+        )
 
         # Filter results by partner
         response = self.get_search_response({'partner': other_partner.short_code})
@@ -324,7 +331,7 @@ class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin,
     function_score = {
         'functions': [
             {'filter': {'term': {'pacing_type_exact': 'self_paced'}}, 'weight': 1.0},
-            {'filter': {'term': {'type_exact': 'micromasters'}}, 'weight': 1.0},
+            {'filter': {'term': {'type_exact': 'MicroMasters'}}, 'weight': 1.0},
             {'linear': {'start': {'origin': 'now', 'scale': '1d', 'decay': 0.95}}, 'weight': 5.0}
         ],
         'boost': 1.0, 'score_mode': 'sum', 'boost_mode': 'sum',

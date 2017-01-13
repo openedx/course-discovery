@@ -233,8 +233,8 @@ class CourseCreatedEmailTests(TestCase):
                 (
                     emails.logger.name,
                     'ERROR',
-                    'Failed to send email notifications for course creation course run id [{}]'.format(
-                        self.course_run.id
+                    'Failed to send email notifications for creation of course [{}]'.format(
+                        self.course_run.course.id
                     )
                 )
             )

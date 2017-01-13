@@ -35,5 +35,12 @@ services:
       - "es"
       - "memcache"
     environment:
-      TEST_ELASTICSEARCH_URL: "http://es:9200"
+      CONN_MAX_AGE: 60
+      DB_ENGINE: "django.db.backends.mysql"
+      DB_HOST: "db"
+      DB_NAME: "discovery"
+      DB_PASSWORD: "password"
+      DB_PORT: "3306"
+      DB_USER: "discov001"
       ENABLE_DJANGO_TOOLBAR: 1
+      TEST_ELASTICSEARCH_URL: "http://es:9200"

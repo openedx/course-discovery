@@ -361,8 +361,8 @@ class CreateUpdateCourseViewTests(TestCase):
         self.assertEqual(Seat.objects.all().count(), count)
 
     def _assert_test_data(self, response, course, expected_type, expected_price):
-        # DRY method to assert response and data.
-        run_detail_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course.id})
+        course_run = course.publisher_course_runs.get()
+        run_detail_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
 
         self.assertRedirects(
             response,
@@ -370,25 +370,22 @@ class CreateUpdateCourseViewTests(TestCase):
             status_code=302,
             target_status_code=200
         )
+
         self.assertEqual(course.organizations.first(), self.organization_extension.organization)
+        self.assertEqual(len(course.course_user_roles.all()), 3)
         self.assertEqual(course.course_user_roles.filter(role=PublisherUserRole.CourseTeam).count(), 1)
-        course_run = course.publisher_course_runs.all()[0]
+
         self.assertEqual(self.course_run.language, course_run.language)
         self.assertEqual(self.course_run.contacted_partner_manager, course_run.contacted_partner_manager)
         self.assertEqual(self.course_run.pacing_type, course_run.pacing_type)
         self.assertEqual(course_run.start.strftime("%Y-%m-%d %H:%M:%S"), self.start_date_time)
         self.assertEqual(course_run.end.strftime("%Y-%m-%d %H:%M:%S"), self.end_date_time)
-        seat = course_run.seats.all()[0]
+
+        seat = course_run.seats.first()
         self.assertEqual(seat.type, expected_type)
         self.assertEqual(seat.price, expected_price)
         self._assert_records(2)
-        response = self.client.get(run_detail_path)
-        self.assertEqual(response.status_code, 200)
 
-        # django-taggit stores data without any order. For test .
-        self.assertEqual(course.organizations.first(), self.organization_extension.organization)
-
-        self.assertTrue(len(course.course_user_roles.all()), 2)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(
             str(mail.outbox[0].subject), 'New Studio instance request for {title}'.format(title=course.title)
@@ -1011,8 +1008,8 @@ class CourseRunDetailTests(TestCase):
         self.course.organizations.add(organization)
         factories.OrganizationExtensionFactory(organization=organization)
 
-        # create three course user roles for internal users
-        for user, role in zip([pc_user, marketing_user, publisher_user], PublisherUserRole.choices):
+        roles = [role for role, __ in PublisherUserRole.choices]
+        for user, role in zip([pc_user, marketing_user, publisher_user], roles):
             factories.CourseUserRoleFactory(course=self.course, user=user, role=role)
 
         response = self.client.get(self.page_url)

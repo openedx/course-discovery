@@ -43,7 +43,8 @@ class CourseRoleAssignmentViewTests(TestCase):
 
         # Create three internal user course roles for internal users against a course
         # so we can test change role assignment on these roles.
-        for user, role in zip(self.other_internal_users, PublisherUserRole.choices):
+        roles = [role for role, __ in PublisherUserRole.choices]
+        for user, role in zip(self.other_internal_users, roles):
             factories.CourseUserRoleFactory(course=self.course, user=user, role=role)
 
         self.client.login(username=self.internal_user.username, password=USER_PASSWORD)

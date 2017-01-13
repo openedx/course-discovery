@@ -24,6 +24,7 @@ from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
+from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import (
@@ -64,7 +65,7 @@ def get_uuids(items):
     return [str(item.uuid) for item in items]
 
 
-class CatalogSerializerTests(TestCase):
+class CatalogSerializerTests(ElasticsearchTestMixin, TestCase):
     def test_data(self):
         user = UserFactory()
         catalog = CatalogFactory(query='*:*', viewers=[user])  # We intentionally use a query for all Courses.
