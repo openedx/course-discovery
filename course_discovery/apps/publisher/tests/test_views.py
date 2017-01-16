@@ -1287,7 +1287,7 @@ class DashboardTests(TestCase):
         """ Verify that internal user can see courses assigned to the groups. """
         self.client.logout()
         self.client.login(username=self.user1.username, password=USER_PASSWORD)
-        response = self.assert_dashboard_response(studio_count=2, published_count=1, progress_count=1, preview_count=1)
+        response = self.assert_dashboard_response(studio_count=2, published_count=1, progress_count=3, preview_count=1)
         self.assertContains(response, '<li role="tab" id="tab-{tab}" class="tab"'.format(tab=tab))
 
     def test_with_permissions(self):
@@ -1322,12 +1322,12 @@ class DashboardTests(TestCase):
             OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension
         )
 
-        response = self.assert_dashboard_response(studio_count=0, published_count=0, progress_count=1, preview_count=1)
+        response = self.assert_dashboard_response(studio_count=0, published_count=0, progress_count=2, preview_count=1)
         self._assert_tabs_without_roles(response)
 
     def test_studio_request_course_runs_as_pc(self):
         """ Verify that PC user can see only those courses on which he is assigned as PC role. """
-        response = self.assert_dashboard_response(studio_count=2, published_count=1, progress_count=1, preview_count=1)
+        response = self.assert_dashboard_response(studio_count=2, published_count=1, progress_count=3, preview_count=1)
         self._assert_tabs_with_roles(response)
 
     def test_studio_request_course_runs_without_pc_group(self):
@@ -1335,7 +1335,7 @@ class DashboardTests(TestCase):
         self.client.logout()
         self.user1.groups.remove(self.group_partner_coordinator)
         self.client.login(username=self.user1.username, password=USER_PASSWORD)
-        response = self.assert_dashboard_response(studio_count=0, published_count=1, progress_count=1, preview_count=1)
+        response = self.assert_dashboard_response(studio_count=0, published_count=1, progress_count=3, preview_count=1)
         self._assert_tabs_with_roles(response)
 
     def test_without_studio_request_course_runs(self):
@@ -1344,20 +1344,20 @@ class DashboardTests(TestCase):
         self.course_run_1.save()
         self.course_run_2.lms_course_id = 'test-2'
         self.course_run_2.save()
-        response = self.assert_dashboard_response(studio_count=0, published_count=1, progress_count=1, preview_count=1)
+        response = self.assert_dashboard_response(studio_count=0, published_count=1, progress_count=3, preview_count=1)
         self.assertContains(response, 'There are no course-runs require studio instance.')
 
     def test_without_published_course_runs(self):
         """ Verify that published tab indicates a message if no course-run available. """
         self.course_run_3.change_state(target=State.DRAFT)
         self.course_run_3.save()
-        response = self.assert_dashboard_response(studio_count=3, published_count=0, progress_count=1, preview_count=1)
+        response = self.assert_dashboard_response(studio_count=3, published_count=0, progress_count=4, preview_count=1)
         self.assertContains(response, "Looks like you haven't published any course yet")
         self._assert_tabs_with_roles(response)
 
     def test_published_course_runs(self):
         """ Verify that published tab loads course runs list. """
-        response = self.assert_dashboard_response(studio_count=2, published_count=1, progress_count=1, preview_count=1)
+        response = self.assert_dashboard_response(studio_count=2, published_count=1, progress_count=3, preview_count=1)
         self.assertContains(response, self.table_class.format(id='published'))
         self.assertContains(response, 'The list below contains all course runs published in the past 30 days')
         self._assert_tabs_with_roles(response)
@@ -1393,12 +1393,12 @@ class DashboardTests(TestCase):
         publisher_admin = UserFactory()
         publisher_admin.groups.add(self.publisher_admin_group)
         self.client.login(username=publisher_admin.username, password=USER_PASSWORD)
-        response = self.assert_dashboard_response(studio_count=4, published_count=1, progress_count=1, preview_count=1)
+        response = self.assert_dashboard_response(studio_count=4, published_count=1, progress_count=4, preview_count=1)
         self._assert_tabs_with_roles(response)
 
     def test_with_preview_ready_course_runs(self):
         """ Verify that preview ready tabs loads the course runs list. """
-        response = self.assert_dashboard_response(studio_count=2, preview_count=1, progress_count=1, published_count=1)
+        response = self.assert_dashboard_response(studio_count=2, preview_count=1, progress_count=3, published_count=1)
         self.assertContains(response, self.table_class.format(id='preview'))
         self.assertContains(response, 'The list below contains all course runs awaiting course team approval')
         self._assert_tabs_with_roles(response)
@@ -1407,7 +1407,7 @@ class DashboardTests(TestCase):
         """ Verify preview ready tabs shows a message if no course run available. """
         self.course_run_2.preview_url = None
         self.course_run_2.save()
-        response = self.assert_dashboard_response(studio_count=2, preview_count=0, progress_count=1, published_count=1)
+        response = self.assert_dashboard_response(studio_count=2, preview_count=0, progress_count=3, published_count=1)
         self.assertContains(response, 'There are no course runs marked for preview.')
         self._assert_tabs_with_roles(response)
 
@@ -1415,13 +1415,13 @@ class DashboardTests(TestCase):
         """ Verify preview ready tabs shows a message if no course run available. """
         self.course_run_2.preview_url = None
         self.course_run_2.save()
-        response = self.assert_dashboard_response(studio_count=2, preview_count=0, progress_count=1, published_count=1)
+        response = self.assert_dashboard_response(studio_count=2, preview_count=0, progress_count=3, published_count=1)
         self.assertContains(response, 'There are no course runs marked for preview.')
         self._assert_tabs_with_roles(response)
 
     def test_with_in_progress_course_runs(self):
         """ Verify that in progress tabs loads the course runs list. """
-        response = self.assert_dashboard_response(studio_count=2, preview_count=1, progress_count=1, published_count=1)
+        response = self.assert_dashboard_response(studio_count=2, preview_count=1, progress_count=3, published_count=1)
         self.assertContains(response, self.table_class.format(id='in-progress'))
         self._assert_tabs_with_roles(response)
 
