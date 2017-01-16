@@ -558,7 +558,7 @@ class Endorsement(TimeStampedModel):
 
 class CorporateEndorsement(TimeStampedModel):
     corporation_name = models.CharField(max_length=128, blank=False, null=False)
-    statement = models.TextField(blank=False, null=False)
+    statement = models.TextField(null=True, blank=True)
     image = models.ForeignKey(Image, blank=True, null=True)
     individual_endorsements = SortedManyToManyField(Endorsement)
 
