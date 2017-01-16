@@ -13,18 +13,16 @@
     <main class="layout-col layout-col-b">
         <nav class="administration-nav">
             <div class="tab-container">
-              {% if can_view_all_tabs %}
-                <button class="selected" data-tab="#tab-1">{% trans "All" %}</button>
-                {% comment %}Translators: Studio is an edX tool for course creation.{% endcomment %}
-                <button data-tab="#tab-2">{% trans "STUDIO" %}</button>
-                {% comment %}Translators: CAT is an acronym for Course Administration Tool.{% endcomment %}
-                <button data-tab="#tab-3">{% trans "CAT" %}</button>
-                {% comment %}Translators: DRUPAL is an edX marketing site.{% endcomment %}
-                <button data-tab="#tab-4">{% trans "DRUPAL" %}</button>
-                <button data-tab="#tab-5">Salesforce</button>
-              {% else %}
-                <button class="selected" disabled="disabled" data-tab="#tab-1">{% trans "All" %}</button>
-              {% endif %}
+                {% if can_view_all_tabs %}
+                    <button class="selected" data-tab="#tab-1">{% trans "All" %}</button>
+                    {% comment %}Translators: Studio is an edX tool for course creation.{% endcomment %}
+                    <button data-tab="#tab-2">{% trans "STUDIO" %}</button>
+                    {% comment %}Translators: CAT is an acronym for Course Administration Tool.{% endcomment %}
+                    <button data-tab="#tab-3">{% trans "CAT" %}</button>
+                    {% comment %}Translators: DRUPAL is an edX marketing site.{% endcomment %}
+                    <button data-tab="#tab-4">{% trans "DRUPAL" %}</button>
+                    <button data-tab="#tab-5">Salesforce</button>
+                {% endif %}
             </div>
         </nav>
 
