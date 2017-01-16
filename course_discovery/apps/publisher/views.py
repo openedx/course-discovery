@@ -97,10 +97,11 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
         context['default_published_days'] = self.default_published_days
 
         in_progress_course_runs = course_runs.filter(
-            state__name=State.NEEDS_FINAL_APPROVAL
+            state__name__in=[State.NEEDS_FINAL_APPROVAL, State.DRAFT]
         ).select_related('state').order_by('-state__modified')
 
         preview_course_runs = in_progress_course_runs.filter(
+            state__name=State.NEEDS_FINAL_APPROVAL,
             preview_url__isnull=False
         ).order_by('-state__modified')
 
