@@ -1,5 +1,7 @@
 """Publisher API Serializers"""
 import waffle
+
+from django.utils.translation import ugettext_lazy as _
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 from rest_framework import serializers
@@ -51,7 +53,10 @@ class UpdateCourseKeySerializer(serializers.ModelSerializer):
         try:
             CourseKey.from_string(lms_course_id)
         except InvalidKeyError:
-            raise serializers.ValidationError('Invalid course key [{}]'.format(lms_course_id))
+            # pylint: disable=no-member
+            raise serializers.ValidationError(
+                {'lms_course_id': _('Invalid course key "{lms_course_id}"').format(lms_course_id=lms_course_id)}
+            )
 
         request = self.context.get('request')
         if request:

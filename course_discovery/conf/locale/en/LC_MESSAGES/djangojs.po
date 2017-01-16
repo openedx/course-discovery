@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-16 14:06+0500\n"
+"POT-Creation-Date: 2017-01-18 12:59+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: static/js/catalogs-change-form.js
 msgid "Preview"
@@ -24,6 +24,10 @@ msgstr ""
 msgid ""
 "You have successfully created a studio instance ({studioLinkTag}) for "
 "{courseRunDetail} with a start date of {startDate}"
+msgstr ""
+
+#: static/js/publisher/views/dashboard.js
+msgid "There was an error in saving your data."
 msgstr ""
 
 #: static/js/publisher/views/navbar.js

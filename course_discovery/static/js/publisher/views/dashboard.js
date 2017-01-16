@@ -18,6 +18,7 @@ $(document).ready(function() {
             courseTitleTag = $courseRunParentTag.find("#course-title").html().trim(),
             startDateTag = $courseRunParentTag.find("#course-start").html().trim(),
             $studioInstanceSuccess = $(".studio-instance-success"),
+            $studioInstanceError = $(".studio-instance-error"),
             successMessage = interpolateString(
                 gettext("You have successfully created a studio instance ({studioLinkTag}) for {courseRunDetail} with a start date of {startDate}"),
                 {
@@ -38,6 +39,16 @@ $(document).ready(function() {
                 $("#studio-count").html(data_table_studio.rows().count());
                 $studioInstanceSuccess.find(".copy-meta").html(successMessage);
                 $studioInstanceSuccess.css("display", "block");
+            },
+            error: function (response) {
+                if(response.responseJSON.lms_course_id) {
+                    $studioInstanceError.find(".copy").html(response.responseJSON.lms_course_id[0]);
+                } else if(response.responseJSON.detail) {
+                    $studioInstanceError.find(".copy").html(response.responseJSON.detail);
+                } else {
+                    $studioInstanceError.find(".copy").html(gettext("There was an error in saving your data."));
+                }
+                $studioInstanceError.removeClass("hidden");
             }
         });
     });
