@@ -28,5 +28,6 @@ urlpatterns = [
     url(
         r'^user/toggle/email_settings/$',
         views.ToggleEmailNotification.as_view(),
-        name='publisher_toggle_email_settings'),
+        name='publisher_toggle_email_settings'
+    ),
 ]
