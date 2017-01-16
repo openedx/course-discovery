@@ -23,10 +23,3 @@ function interpolateString(formatString, parameters) {
             return String(parameters[parameterName]);
         });
 }
-
-function alertTimeout(wait, elementName) {
-    var element = elementName || ".alert-messages";
-    setTimeout(function(){
-        $(element).hide();
-    }, wait);
-}
