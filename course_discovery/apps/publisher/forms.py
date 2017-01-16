@@ -8,7 +8,9 @@ from django.utils.translation import ugettext_lazy as _
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import Person, Organization, Subject
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.models import Course, CourseRun, Seat, User, OrganizationExtension
+from course_discovery.apps.publisher.models import (
+    Course, CourseRun, Seat, User, OrganizationExtension, OrganizationUserRole, CourseUserRole
+)
 
 
 class UserModelChoiceField(forms.ModelChoiceField):
@@ -287,3 +289,31 @@ class CustomSeatForm(SeatForm):
 
     class Meta(SeatForm.Meta):
         fields = ('price', 'type')
+
+
+class BaseUserAdminForm(forms.ModelForm):
+    class Meta:
+        fields = '__all__'
+        widgets = {
+            'user': autocomplete.ModelSelect2(
+                url='admin_core:user-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 3,
+                }
+            ),
+        }
+
+
+class UserAttributesAdminForm(BaseUserAdminForm):
+    class Meta(BaseUserAdminForm.Meta):
+        model = User
+
+
+class OrganizationUserRoleForm(BaseUserAdminForm):
+    class Meta(BaseUserAdminForm.Meta):
+        model = OrganizationUserRole
+
+
+class CourseUserRoleForm(BaseUserAdminForm):
+    class Meta(BaseUserAdminForm.Meta):
+        model = CourseUserRole
