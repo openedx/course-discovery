@@ -243,7 +243,42 @@ class UpdateCourseKeyViewTests(TestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(
-            response.data.get('non_field_errors'), ['Invalid course key [{}]'.format(invalid_course_id)]
+            response.data.get('lms_course_id'),
+            ['Invalid course key "{lms_course_id}"'.format(lms_course_id=invalid_course_id)]
+        )
+
+    def test_update_course_key_without_permission(self):
+        """
+        Test that api returns error without permission.
+        """
+        self.user.groups.remove(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        response = self.client.patch(
+            self.update_course_key_url,
+            data=json.dumps({'lms_course_id': 'course-v1:edxTest+TC12+2050Q1'}),
+            content_type=JSON_CONTENT_TYPE
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(
+            response.data.get('detail'), 'You do not have permission to perform this action.'
+        )
+
+    def test_update_course_key_with_duplicate(self):
+        """
+        Test that api returns error if course key already exist.
+        """
+        lms_course_id = 'course-v1:edxTest+TC12+2050Q1'
+        factories.CourseRunFactory(lms_course_id=lms_course_id)
+
+        response = self.client.patch(
+            self.update_course_key_url,
+            data=json.dumps({'lms_course_id': lms_course_id}),
+            content_type=JSON_CONTENT_TYPE
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.data.get('lms_course_id'), ['CourseRun with this lms course id already exists.']
         )
 
     def test_update_course_key(self):

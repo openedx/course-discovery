@@ -10,6 +10,10 @@
        }
    }
 
+  .studio-instance-error {
+      margin-bottom: 20px;
+  }
+
   .tabs {
     @include padding(0, 0, 0, 0);
     @include margin(0, 0, 0, 0);
