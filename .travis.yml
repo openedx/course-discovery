@@ -14,10 +14,10 @@ cache:
     - course_discovery/static/bower_components
 
 before_install:
-    - docker-compose -f .travis/docker-compose-travis.yml up -d
+    - make travis_up
 
 script:
-    - docker exec course-discovery /edx/app/discovery/discovery/.travis/run_tests.sh
+    - make travis_test
 
 after_success:
     - pip install -U codecov
