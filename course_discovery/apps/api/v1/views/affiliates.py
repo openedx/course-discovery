@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api import serializers
+from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.renderers import AffiliateWindowXMLRenderer
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.models import CourseRun, Seat
@@ -15,6 +16,10 @@ class AffiliateWindowViewSet(viewsets.ViewSet):
     permission_classes = (IsAuthenticated,)
     renderer_classes = (AffiliateWindowXMLRenderer,)
     serializer_class = serializers.AffiliateWindowSerializer
+
+    # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
+    # versions of this API should only support the system default, PageNumberPagination.
+    pagination_class = ProxiedPagination
 
     def retrieve(self, request, pk=None):  # pylint: disable=redefined-builtin,unused-argument
         """

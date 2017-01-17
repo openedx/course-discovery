@@ -8,6 +8,7 @@ from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
+from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.renderers import CourseRunCSVRenderer
 from course_discovery.apps.api.v1.views import User, prefetch_related_objects_for_courses
 from course_discovery.apps.catalogs.models import Catalog
@@ -23,6 +24,10 @@ class CatalogViewSet(viewsets.ModelViewSet):
     permission_classes = (DRYPermissions,)
     queryset = Catalog.objects.all()
     serializer_class = serializers.CatalogSerializer
+
+    # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
+    # versions of this API should only support the system default, PageNumberPagination.
+    pagination_class = ProxiedPagination
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):

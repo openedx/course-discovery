@@ -4,6 +4,7 @@ from rest_framework.filters import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 
 from course_discovery.apps.api import filters, serializers
+from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.v1.views import prefetch_related_objects_for_courses, get_query_param
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX
 from course_discovery.apps.course_metadata.models import Course
@@ -19,6 +20,10 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Course.objects.all()
     permission_classes = (IsAuthenticated,)
     serializer_class = serializers.CourseWithProgramsSerializer
+
+    # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
+    # versions of this API should only support the system default, PageNumberPagination.
+    pagination_class = ProxiedPagination
 
     def get_queryset(self):
         q = self.request.query_params.get('q', None)

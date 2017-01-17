@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
+from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.v1.views import get_query_param, PartnerMixin
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
@@ -23,6 +24,10 @@ class CourseRunViewSet(PartnerMixin, viewsets.ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = CourseRun.objects.all().order_by(Lower('key'))
     serializer_class = serializers.CourseRunWithProgramsSerializer
+
+    # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
+    # versions of this API should only support the system default, PageNumberPagination.
+    pagination_class = ProxiedPagination
 
     def get_queryset(self):
         """ List one course run
