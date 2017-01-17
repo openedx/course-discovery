@@ -12,7 +12,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from course_discovery.apps.api import filters, serializers
-from course_discovery.apps.api.pagination import PageNumberPagination
 from course_discovery.apps.api.v1.views import PartnerMixin
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
@@ -26,10 +25,6 @@ class BaseHaystackViewSet(FacetMixin, HaystackViewSet):
     load_all = True
     lookup_field = 'key'
     permission_classes = (IsAuthenticated,)
-
-    # NOTE: We use PageNumberPagination because drf-haystack's facet serializer relies on the page_query_param
-    # attribute, and it is more appropriate for search results than our default limit-offset pagination.
-    pagination_class = PageNumberPagination
 
     def list(self, request, *args, **kwargs):
         """

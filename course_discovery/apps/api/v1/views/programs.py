@@ -3,6 +3,7 @@ from rest_framework.filters import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 
 from course_discovery.apps.api import filters, serializers
+from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.v1.views import get_query_param
 from course_discovery.apps.course_metadata.models import ProgramType
 
@@ -15,6 +16,10 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
     filter_backends = (DjangoFilterBackend,)
     filter_class = filters.ProgramFilter
+
+    # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
+    # versions of this API should only support the system default, PageNumberPagination.
+    pagination_class = ProxiedPagination
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -75,3 +80,7 @@ class ProgramTypeListViewSet(mixins.ListModelMixin,
     serializer_class = serializers.ProgramTypeSerializer
     permission_classes = (IsAuthenticated,)
     queryset = ProgramType.objects.all()
+
+    # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
+    # versions of this API should only support the system default, PageNumberPagination.
+    pagination_class = ProxiedPagination

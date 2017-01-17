@@ -3,6 +3,7 @@ from rest_framework.filters import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 
 from course_discovery.apps.api import filters, serializers
+from course_discovery.apps.api.pagination import ProxiedPagination
 
 
 # pylint: disable=no-member
@@ -16,6 +17,10 @@ class OrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = serializers.OrganizationSerializer.prefetch_queryset()
     serializer_class = serializers.OrganizationSerializer
+
+    # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
+    # versions of this API should only support the system default, PageNumberPagination.
+    pagination_class = ProxiedPagination
 
     def list(self, request, *args, **kwargs):
         """ Retrieve a list of all organizations. """
