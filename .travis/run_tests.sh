@@ -5,6 +5,10 @@
 apt update
 apt install -y xvfb firefox gettext wget
 
+# TODO: Fix this in the discovery image
+# http://askubuntu.com/questions/393638/unicodedecodeerror-ascii-codec-cant-decode-byte-0x-in-position-ordinal-n
+export LANG=C.UTF-8
+
 cd /edx/app/discovery/discovery
 export PATH=$PATH:$PWD/node_modules/.bin
 
