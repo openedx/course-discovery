@@ -9,6 +9,11 @@ class ElasticsearchBoostConfig(SingletonModel):
     This includes a default JSON config for the function_score.
     """
 
+    # The primary key used to save the solo record to the DB.
+    # This is hardcoded to 1 in https://github.com/lazybird/django-solo/blob/1.1.2/solo/models.py
+    # but may be configurable in later releases.
+    SINGLETON_INSTANCE_PRIMARY_KEY = 1
+
     function_score = JSONField(
         verbose_name=_('Function Score'),
         help_text=_('JSON string containing an elasticsearch function score config.'),
