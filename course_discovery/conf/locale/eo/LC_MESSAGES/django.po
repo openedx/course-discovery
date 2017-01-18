@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-24 10:18-0500\n"
+"POT-Creation-Date: 2017-01-25 12:05+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -638,6 +638,10 @@ msgstr "Çöürsé Stärt Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм
 #: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
 msgid "Course End Date"
 msgstr "Çöürsé Énd Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/publisher/forms.py
+msgid "instructor"
+msgstr "ïnstrüçtör Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: apps/publisher/forms.py
 msgid "Pacing"
@@ -1443,10 +1447,10 @@ msgstr ""
 " ïnstrüçtörs shöüld ßé lïstéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт #"
 
 #: templates/publisher/add_course_form.html
-msgid "Limited to the primary instructors a learner will encounter in videos"
+msgid "Limited to the primary instructors a learner will encounter in videos "
 msgstr ""
-"Lïmïtéd tö thé prïmärý ïnstrüçtörs ä léärnér wïll énçöüntér ïn vïdéös Ⱡ'σяєм"
-" ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+"Lïmïtéd tö thé prïmärý ïnstrüçtörs ä léärnér wïll énçöüntér ïn vïdéös  "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: templates/publisher/add_course_form.html
 msgid "Add New"

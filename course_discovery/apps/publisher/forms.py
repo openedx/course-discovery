@@ -3,6 +3,7 @@ Course publisher forms.
 """
 from dal import autocomplete
 from django import forms
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
@@ -17,6 +18,15 @@ from course_discovery.apps.publisher.models import (
 class UserModelChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.get_full_name()
+
+
+class PersonModelMultipleChoice(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        context = {
+            'profile_image': obj.profile_image_url,
+            'full_name': obj.full_name
+        }
+        return str(render_to_string('publisher/_personFieldLabel.html', context=context))
 
 
 class BaseCourseForm(forms.ModelForm):
@@ -159,8 +169,17 @@ class CustomCourseRunForm(CourseRunForm):
 
     start = forms.DateTimeField(label=_('Course Start Date'), required=True)
     end = forms.DateTimeField(label=_('Course End Date'), required=True)
-    staff = forms.ModelMultipleChoiceField(
-        queryset=Person.objects.all(), widget=forms.SelectMultiple, required=False
+    staff = PersonModelMultipleChoice(
+        label=_('instructor'),
+        queryset=Person.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='admin_metadata:person-autocomplete',
+            attrs={
+                'data-minimum-input-length': 2,
+                'data-html': 'true',
+            }
+        ),
+        required=False,
     )
     target_content = forms.BooleanField(
         widget=forms.RadioSelect(

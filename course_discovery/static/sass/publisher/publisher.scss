@@ -822,3 +822,46 @@ select {
     width: 480px;
     height: 200px;
 }
+
+.selected-instructor {
+  display: inline-block;
+  padding-top: 10px;
+}
+
+#id_staff {
+  width: 500px;
+}
+
+.instructor-option {
+  img {
+    width: 80px;
+    height: 80px;
+  }
+  td:nth-child(2) {
+    @include padding-left(5px);
+    @include padding-right(5px);
+  }
+}
+
+.instructor {
+  @include float(left);
+  font-size: smaller;
+  width: 125px;
+  padding-bottom: 15px;
+  img {
+    width: 80px;
+    height: 80px;
+  }
+  div {
+    text-align: center;
+  }
+  a {
+    color: red;
+  }
+}
+
+.instructor-select {
+  .select2-selection__choice, .select2-selection__clear{
+    display: none;
+  }
+}

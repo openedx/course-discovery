@@ -48,6 +48,15 @@ $(document).ready(function(){
     $('.closeModal').click(function (e) {
         closeModal(e, $('#addInstructorModal'));
     });
+
+    $("#id_staff").find('option:selected').each(function(){
+        var id = this.value,
+            label = $.parseHTML(this.label),
+            image_source = $(label[0]).attr('src'),
+            name = $(label[1]).text();
+        renderSelectedInstructor(id, name, image_source);
+    });
+
 });
 
 $(document).on('change', '#id_organization', function (e) {
@@ -93,4 +102,35 @@ function closeModal(event, modal) {
     event.preventDefault();
     modal.hide();
     $('body').removeClass('stopScroll');
+}
+
+$(document).on('change', '#id_staff', function (e) {
+
+    var id = this.value,
+        $instructorSelector = $('.instructor-select'),
+        $instructor = $instructorSelector.find('.select2-selection__choice'),
+        image_source,
+        name;
+    $instructorSelector.find('.select2-selection__clear').remove();
+    image_source = $instructor.find('img').last().attr('src');
+    name = $instructor.find('b').last().text();
+    renderSelectedInstructor(id, name, image_source);
+    $instructor.remove();
+});
+
+
+$(document).on('click', '.selected-instructor a', function (e) {
+    e.preventDefault();
+    var id = this.id,
+        option = $('#id_staff').find('option[value="' + id + '"]');
+
+    option.prop("selected", false);
+    this.closest('.selected-instructor, .instructor').remove();
+});
+
+function renderSelectedInstructor(id, name, image) {
+    var instructorHtml = '<div class="instructor"><div><img src="' + image + '"></div><div><a id="' + id + '" ' +
+        'href="#"><i class="fa fa-trash-o fa-fw"></i></a><b>' + name + '</b></div></div>';
+
+    $('.selected-instructor').append(instructorHtml);
 }
