@@ -1,0 +1,12 @@
+<table class="instructor-option" id="{{ id }}">
+  <tr>
+    <td><img src="{{ profile_image }}" alt="profile image"/></td>
+    <td>
+      <b>{{ full_name }}</b>
+      {% if position %}
+        <p>{{ position }}</p>
+      {% endif %}
+    </td>
+  </tr>
+</table>
+<hr>

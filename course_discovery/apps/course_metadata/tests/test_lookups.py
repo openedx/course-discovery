@@ -9,6 +9,9 @@ from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWOR
 
 
 # pylint: disable=no-member
+from course_discovery.apps.course_metadata.tests.factories import PositionFactory
+
+
 @ddt.ddt
 class AutocompleteTests(TestCase):
     """ Tests for autocomplete lookups."""
@@ -20,6 +23,9 @@ class AutocompleteTests(TestCase):
         for course in self.courses:
             factories.CourseRunFactory(course=course)
         self.organizations = factories.OrganizationFactory.create_batch(3)
+        first_instructor = factories.PersonFactory(given_name="First Instructor")
+        second_instructor = factories.PersonFactory(given_name="Second Instructor")
+        self.instructors = [first_instructor, second_instructor]
 
     @ddt.data('dum', 'ing')
     def test_course_autocomplete(self, search_key):
@@ -134,3 +140,42 @@ class AutocompleteTests(TestCase):
         self.user = UserFactory(is_staff=False)
         self.user.save()
         self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+    def test_instructor_autocomplete(self):
+        """ Verify instructor autocomplete returns the data. """
+        response = self.client.get(
+            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q='ins')
+        )
+        self._assert_response(response, 2)
+
+        # update first instructor's name
+        self.instructors[0].given_name = 'dummy_name'
+        self.instructors[0].save()
+
+        response = self.client.get(
+            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q='dummy')
+        )
+        self._assert_response(response, 1)
+
+    def test_instructor_autocomplete_un_authorize_user(self):
+        """ Verify instructor autocomplete returns empty list for un-authorized users. """
+        self._make_user_non_staff()
+        response = self.client.get(reverse('admin_metadata:person-autocomplete'))
+        self._assert_response(response, 0)
+
+    def test_instructor_label(self):
+        """ Verify that instructor label contains position of instructor if it exists."""
+        position_title = 'professor'
+        PositionFactory.create(person=self.instructors[0], title=position_title, organization=self.organizations[0])
+
+        response = self.client.get(reverse('admin_metadata:person-autocomplete'))
+
+        self.assertContains(response, '<p>{position} at {organization}</p>'.format(
+            position=position_title,
+            organization=self.organizations[0].name))
+
+    def _assert_response(self, response, expected_length):
+        """ Assert autocomplete response. """
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(len(data['results']), expected_length)
