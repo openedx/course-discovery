@@ -35,17 +35,11 @@ class SimpleQuerySearchBackendMixinTestMixin(SearchBackendTestMixin):
         'analyze_wildcard': True,
         'auto_generate_phrase_queries': True,
     }
-    default_function_score = {
-        'function_score': {
-            'query': {
-                'query_string': simple_query
-            },
-            'functions': [],
-            'boost': 1.0,
-            'score_mode': 'multiply',
-            'boost_mode': 'multiply'
-        }
-    }
+
+    def _default_function_score(self):
+        function_score = {'function_score': ElasticsearchBoostConfig.get_solo().function_score}
+        function_score['function_score']['query'] = {'query_string': self.simple_query}
+        return function_score
 
     def test_build_search_kwargs_all_qs_with_filter(self):
         with patch.object(BaseSearchBackend, 'build_models_list', return_value=['course_metadata.course']):
@@ -59,7 +53,7 @@ class SimpleQuerySearchBackendMixinTestMixin(SearchBackendTestMixin):
             kwargs = self.backend.build_search_kwargs(self.specific_query_string)
 
         self.assertIsNone(kwargs['query'].get('query_string'))
-        self.assertDictEqual(kwargs['query']['filtered'].get('query'), self.default_function_score)
+        self.assertDictEqual(kwargs['query']['filtered'].get('query'), self._default_function_score())
 
     def test_build_search_kwargs_all_qs_no_filter(self):
         with patch.object(BaseSearchBackend, 'build_models_list', return_value=[]):
@@ -73,7 +67,7 @@ class SimpleQuerySearchBackendMixinTestMixin(SearchBackendTestMixin):
             kwargs = self.backend.build_search_kwargs(self.specific_query_string)
 
         self.assertIsNone(kwargs['query'].get('filtered'))
-        self.assertDictEqual(kwargs['query'], self.default_function_score)
+        self.assertDictEqual(kwargs['query'], self._default_function_score())
 
     def test_build_search_kwargs_function_score(self):
         function_score = {

@@ -20,7 +20,6 @@ from course_discovery.apps.course_metadata.models import CourseRun, Program, Pro
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, ProgramFactory, OrganizationFactory
 )
-from course_discovery.apps.edx_haystack_extensions.models import ElasticsearchBoostConfig
 
 
 class SerializationMixin:
@@ -208,7 +207,7 @@ class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, Login
         active_program = ProgramFactory(courses=[course_run.course], status=ProgramStatus.Active)
         ProgramFactory(courses=[course_run.course], status=program_status)
 
-        with self.assertNumQueries(11):
+        with self.assertNumQueries(8):
             response = self.get_search_response('software', faceted=False)
 
             self.assertEqual(response.status_code, 200)
@@ -284,7 +283,7 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
         response_data = json.loads(response.content.decode('utf-8'))
         self.assertListEqual(
             response_data['objects']['results'],
-            [self.serialize_course_run(course_run), self.serialize_program(program)]
+            [self.serialize_program(program), self.serialize_course_run(course_run)]
         )
 
         # Filter results by partner
@@ -292,7 +291,7 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
         self.assertEqual(response.status_code, 200)
         response_data = json.loads(response.content.decode('utf-8'))
         self.assertListEqual(response_data['objects']['results'],
-                             [self.serialize_course_run(other_course_run), self.serialize_program(other_program)])
+                             [self.serialize_program(other_program), self.serialize_course_run(other_course_run)])
 
     def test_empty_query(self):
         """ Verify, when the query (q) parameter is empty, the endpoint behaves as if the parameter
@@ -304,7 +303,7 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
         self.assertEqual(response.status_code, 200)
         response_data = json.loads(response.content.decode('utf-8'))
         self.assertListEqual(response_data['objects']['results'],
-                             [self.serialize_course_run(course_run), self.serialize_program(program)])
+                             [self.serialize_program(program), self.serialize_course_run(course_run)])
 
     @ddt.data('start', '-start')
     def test_results_ordered_by_start_date(self, ordering):
@@ -328,14 +327,6 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
 class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin, LoginMixin, ElasticsearchTestMixin,
                                APITestCase):
     path = reverse('api:v1:search-typeahead')
-    function_score = {
-        'functions': [
-            {'filter': {'term': {'pacing_type_exact': 'self_paced'}}, 'weight': 1.0},
-            {'filter': {'term': {'type_exact': 'MicroMasters'}}, 'weight': 1.0},
-            {'linear': {'start': {'origin': 'now', 'scale': '1d', 'decay': 0.95}}, 'weight': 5.0}
-        ],
-        'boost': 1.0, 'score_mode': 'sum', 'boost_mode': 'sum',
-    }
 
     def get_typeahead_response(self, query=None, partner=None):
         qs = ''
@@ -344,9 +335,6 @@ class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin,
             qs = urllib.parse.urlencode(query_dict)
 
         url = '{path}?{qs}'.format(path=self.path, qs=qs)
-        config = ElasticsearchBoostConfig.get_solo()
-        config.function_score.update(self.function_score)
-        config.save()
         return self.client.get(url)
 
     def test_typeahead(self):
@@ -434,20 +422,20 @@ class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin,
         """ Verify micromasters are boosted over xseries."""
         title = "micromasters"
         ProgramFactory(
-            title=title + "1",
+            title=title + "1", status=ProgramStatus.Active,
+            type=ProgramType.objects.get(name='XSeries'), partner=self.partner
+        )
+        ProgramFactory(
+            title=title + "2",
             status=ProgramStatus.Active,
             type=ProgramType.objects.get(name='MicroMasters'),
             partner=self.partner
-        )
-        ProgramFactory(
-            title=title + "2", status=ProgramStatus.Active,
-            type=ProgramType.objects.get(name='XSeries'), partner=self.partner
         )
         response = self.get_typeahead_response(title)
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
         self.assertEqual(response_data['programs'][0]['type'], 'MicroMasters')
-        self.assertEqual(response_data['programs'][0]['title'], title + "1")
+        self.assertEqual(response_data['programs'][0]['title'], title + "2")
 
     def test_start_date_boosting(self):
         """ Verify upcoming courses are boosted over past courses."""
