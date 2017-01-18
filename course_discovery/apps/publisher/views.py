@@ -20,7 +20,8 @@ from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.emails import send_email_for_course_creation
 from course_discovery.apps.publisher.forms import (
-    SeatForm, CustomCourseForm, CustomCourseRunForm, CustomSeatForm, UpdateCourseForm
+    SeatForm, CustomCourseForm, CustomCourseRunForm,
+    CustomSeatForm, UpdateCourseForm
 )
 from course_discovery.apps.publisher import mixins
 from course_discovery.apps.publisher.models import (
@@ -28,7 +29,8 @@ from course_discovery.apps.publisher.models import (
     OrganizationExtension, CourseUserRole)
 from course_discovery.apps.publisher.utils import (
     is_internal_user, get_internal_users, is_publisher_admin,
-    is_partner_coordinator_user
+    is_partner_coordinator_user,
+    make_bread_crumbs
 )
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
@@ -151,21 +153,18 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
             context['role_widgets'] = self.get_role_widgets_data(course_roles)
             context['user_list'] = get_internal_users()
 
-        context['breadcrumbs'] = [
-            {
-                'url': reverse('publisher:publisher_courses'), 'slug': 'Courses'
-            },
-            {
-                'url': reverse('publisher:publisher_course_detail', kwargs={'pk': course_run.course.id}),
-                'slug': course_run.course.title
-            },
-            {
-                'url': None,
-                'slug': '{type}: {start}'.format(
+        context['breadcrumbs'] = make_bread_crumbs(
+            [
+                (reverse('publisher:publisher_courses'), 'Courses'),
+                (
+                    reverse('publisher:publisher_course_detail', kwargs={'pk': course_run.course.id}),
+                    course_run.course.title
+                ),
+                (None, '{type}: {start}'.format(
                     type=course_run.get_pacing_type_display(), start=course_run.start.strftime("%B %d, %Y")
-                )
-            }
-        ]
+                ))
+            ]
+        )
 
         context['can_view_all_tabs'] = mixins.check_roles_access(self.request.user)
         context['publisher_hide_features_for_pilot'] = waffle.switch_is_active('publisher_hide_features_for_pilot')
@@ -180,7 +179,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
     course_form = CustomCourseForm
     run_form = CustomCourseRunForm
     seat_form = CustomSeatForm
-    template_name = 'publisher/add_course_form.html'
+    template_name = 'publisher/add_update_course_form.html'
     success_url = 'publisher:publisher_course_run_detail'
 
     def get_success_url(self, course_id):  # pylint: disable=arguments-differ
@@ -348,15 +347,12 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
             self.request.user, self.object, OrganizationExtension.EDIT_COURSE
         )
 
-        context['breadcrumbs'] = [
-            {
-                'url': reverse('publisher:publisher_courses'), 'slug': 'Courses'
-            },
-            {
-                'url': None,
-                'slug': self.object.title
-            }
-        ]
+        context['breadcrumbs'] = make_bread_crumbs(
+            [
+                (reverse('publisher:publisher_courses'), 'Courses'),
+                (None, self.object.title),
+            ]
+        )
 
         return context
 
@@ -432,25 +428,121 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
         return render(request, self.template_name, context, status=400)
 
 
-class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, mixins.FormValidMixin, UpdateView):
+class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, UpdateView):
     """ Course Run Edit View."""
     model = CourseRun
+    course_form = CustomCourseForm
+    run_form = CustomCourseRunForm
+    seat_form = CustomSeatForm
+    template_name = 'publisher/add_update_course_form.html'
+    success_url = 'publisher:publisher_course_run_detail'
     form_class = CustomCourseRunForm
     permission = OrganizationExtension.EDIT_COURSE_RUN
-    template_name = 'publisher/course_run_form.html'
-    success_url = 'publisher:publisher_course_runs_edit'
-    change_state = True
 
-    def get_context_data(self, **kwargs):
-        context = super(CourseRunEditView, self).get_context_data(**kwargs)
-        if not self.object:
-            self.object = self.get_object()
-        context['workflow_state'] = self.object.current_state
-        context['comment_object'] = self.object
-        return context
-
-    def get_success_url(self):
+    def get_success_url(self):  # pylint: disable=arguments-differ
         return reverse(self.success_url, kwargs={'pk': self.object.id})
+
+    def get_context_data(self):
+        course_run = self.get_object()
+        team_admin_name = course_run.course.course_team_admin
+        organization = course_run.course.organizations.first()
+        initial = {
+            'organization': organization,
+            'team_admin': team_admin_name,
+        }
+
+        return {
+            'initial': initial,
+            'course_run': self.get_object(),
+            'team_admin_name': team_admin_name.get_full_name(),
+            'organization_name': organization.name,
+            'organization': organization,
+            'publisher_hide_features_for_pilot': waffle.switch_is_active('publisher_hide_features_for_pilot'),
+            'edit_mode': True,
+        }
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data()
+        course_run = context.get('course_run')
+        course = course_run.course
+        context['course_form'] = self.course_form(
+            instance=course,
+            initial=context.get('initial'),
+            organization=context.get('organization'),
+            edit_mode=True
+        )
+        context['run_form'] = self.run_form(instance=course_run)
+        context['seat_form'] = self.seat_form(instance=course_run.seats.first())
+
+        context['breadcrumbs'] = make_bread_crumbs(
+            [
+                (reverse('publisher:publisher_courses'), 'Courses'),
+                (reverse('publisher:publisher_course_detail', kwargs={'pk': course.id}), course.title),
+                (None, '{type}: {start}'.format(
+                    type=course_run.get_pacing_type_display(), start=course_run.start.strftime("%B %d, %Y")
+                ))
+            ]
+        )
+
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+
+        context = self.get_context_data()
+        course_run = context.get('course_run')
+
+        course_form = self.course_form(
+            request.POST, request.FILES,
+            instance=course_run.course,
+            initial=context.get('initial'),
+            organization=context.get('organization'),
+            edit_mode=True
+        )
+        run_form = self.run_form(request.POST, instance=course_run)
+        seat_form = self.seat_form(request.POST, instance=course_run.seats.first())
+        if course_form.is_valid() and run_form.is_valid() and seat_form.is_valid():
+            try:
+                with transaction.atomic():
+
+                    course = course_form.save()
+                    course.changed_by = self.request.user
+                    course.save()
+
+                    course_run = run_form.save()
+                    course_run.changed_by = self.request.user
+                    course_run.save()
+
+                    run_form.save_m2m()
+
+                    # If price-type comes with request then save the seat object.
+                    if request.POST.get('type'):
+                        seat_form.save(changed_by=user, course_run=course_run)
+
+                    # in case of any updating move the course-run state to draft.
+                    if course_run.state.name != State.DRAFT:
+                        course_run.change_state(user=user)
+
+                    # pylint: disable=no-member
+                    messages.success(request, _('Course run updated successfully.'))
+                    return HttpResponseRedirect(reverse(self.success_url, kwargs={'pk': course_run.id}))
+            except Exception as e:  # pylint: disable=broad-except
+                # pylint: disable=no-member
+                error_message = _('An error occurred while saving your changes. {error}').format(error=str(e))
+                messages.error(request, error_message)
+                logger.exception('Unable to update course run and seat for course [%s].', course_run.id)
+
+        if not messages.get_messages(request):
+            messages.error(request, _('Please fill all required fields.'))
+
+        context.update(
+            {
+                'course_form': course_form,
+                'run_form': run_form,
+                'seat_form': seat_form
+            }
+        )
+        return render(request, self.template_name, context, status=400)
 
 
 class CreateSeatView(mixins.LoginRequiredMixin, mixins.FormValidMixin, CreateView):

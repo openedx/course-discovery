@@ -9,7 +9,13 @@
 
 {% block page_content %}
 <div>
-<h1 class="hd-1 emphasized">{% trans "Add Course" %}</h1>
+<h1 class="hd-1 emphasized">
+    {% if edit_mode %}
+        {% trans "Edit Course" %}
+    {% else %}
+        {% trans "Add Course" %}
+    {% endif %}
+</h1>
 
 <div class="alert-messages">
 {% if messages %}
@@ -88,26 +94,35 @@
                         </div>
                     </div>
                     <div class="col col-6">
-                        {% if course_form.organization.field.queryset.all.count > 1 %}
-                          <label class="field-label">{{ course_form.organization.label_tag }} </label>
-                          {{ course_form.organization }}
+                        {% if edit_mode %}
+                             <label class="field-label">{{ course_form.organization.label_tag }} </label>
+                             <div class="field-value">
+                                 {{ organization_name }}{{ course_form.organization }}</div>
                         {% else %}
-                          {% with course_form.organization.field.queryset|first as organization %}
-                            <label id="organization-name" class="field-label"
-                                   data-org_id="{{ organization.id }}">{{ course_form.organization.label_tag }}
-                            </label>
-                            <span class="read-only-field">{{ organization.name }}</span>
-                            <input id="id_organization" name="organization" type="hidden" value="{{ organization.id }}">
-                          {% endwith %}
+                            {% if course_form.organization.field.queryset.all.count > 1 %}
+                              <label class="field-label">{{ course_form.organization.label_tag }} </label>
+                              {{ course_form.organization }}
+                            {% else %}
+                              {% with course_form.organization.field.queryset|first as organization %}
+                                <label id="organization-name" class="field-label"
+                                       data-org_id="{{ organization.id }}">{{ course_form.organization.label_tag }}
+                                </label>
+                                <span class="read-only-field">{{ organization.name }}</span>
+                                <input id="id_organization" name="organization" type="hidden" value="{{ organization.id }}">
+                              {% endwith %}
+                            {% endif %}
                         {% endif %}
-
                         <label class="field-label">
                           {{ course_form.team_admin.label_tag }}
-                        </label> {{ course_form.team_admin }}
+                        </label>
 
+                            <div class="field-value">
+                                {% if edit_mode %}{{ team_admin_name }}{% endif %}</div>
+                            {{ course_form.team_admin }}
 
                         <label class="field-label ">{{ course_form.title.label }}</label>
-                        {{ course_form.title }}
+                            {% if edit_mode %}<div class="field-value">{{ course_form.title.value }}</div>{% endif %}
+                            {{ course_form.title }}
                     </div>
                 </div>
 
@@ -165,7 +180,8 @@
                     </div>
                     <div class="col col-6">
                         <label class="field-label ">{{ course_form.number.label_tag }}</label>
-                        {{ course_form.number }}
+                        {% if edit_mode %}{{ course_form.number.value }}{% endif %}
+                         {{ course_form.number }}
                     </div>
                 </div>
 
@@ -237,7 +253,6 @@
                         <div class="row">
                             <div class="col col-6">
                                 <label class="field-label ">{{ seat_form.type.label_tag }}
-                                    <span class="required">* {% trans "required" %}</span>
                                 </label>
                                 {{ seat_form.type}}
                             </div>

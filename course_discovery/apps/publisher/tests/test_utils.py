@@ -1,5 +1,8 @@
 """ Tests publisher.utils"""
+import ddt
+
 from django.contrib.auth.models import Group
+from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
 from mock import Mock
 
@@ -17,10 +20,12 @@ from course_discovery.apps.publisher.models import OrganizationExtension
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.utils import (
     is_email_notification_enabled, is_publisher_admin, is_internal_user,
-    get_internal_users, is_partner_coordinator_user, is_publisher_user
+    get_internal_users, is_partner_coordinator_user, is_publisher_user,
+    make_bread_crumbs
 )
 
 
+@ddt.ddt
 class PublisherUtilsTests(TestCase):
     """ Tests for the publisher utils. """
 
@@ -193,3 +198,11 @@ class PublisherUtilsTests(TestCase):
 
         decorated_func(request, self.user)
         self.assertTrue(func.called)
+
+    def test_make_bread_crumbs(self):
+        """ Verify the function parse the list of tuple and returns list of dicts."""
+        links = [(reverse('publisher:publisher_courses_new'), 'Courses'), (None, 'Testing')]
+        self.assertEqual(
+            [{'url': '/publisher/courses/new/', 'slug': 'Courses'}, {'url': None, 'slug': 'Testing'}],
+            make_bread_crumbs(links)
+        )
