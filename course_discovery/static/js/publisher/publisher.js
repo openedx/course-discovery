@@ -29,11 +29,20 @@ $(document).ready(function(){
         loadAdminUsers(org_id);
     }
 
-    $('#id_is_micromasters').click( function(){
-        $('#micromasters_name_group').toggle(this.checked);
+    var microMaster = $('#id_is_micromasters'),
+        xseries = $('#id_is_xseries');
+
+    if (microMaster.is(':checked')) {
+        toggleMicroMaster(true);
+    }
+    if (xseries.is(':checked')) {
+        toggleXseries(true);
+    }
+    microMaster.click( function(){
+        toggleMicroMaster(this.checked);
     });
-    $('#id_is_xseries').click( function(e){
-        $('#xseries_name_group').toggle(this.checked);
+    xseries.click( function(e){
+        toggleXseries(this.checked)
     });
     $('#add-new-instructor').click(function(e){
         $('#addInstructorModal').show();
@@ -152,4 +161,14 @@ function renderSelectedInstructor(id, name, image) {
         'href="#"><i class="fa fa-trash-o fa-fw"></i></a><b>' + name + '</b></div></div>';
 
     $('.selected-instructor').append(instructorHtml);
+}
+
+function toggleMicroMaster (checked) {
+    // If is-micromaster checkbox value true from db then show the x-micromaster block.
+    $('#micromasters_name_group').toggle(checked);
+}
+
+function toggleXseries(checked) {
+    // If is-xseries checkbox value true from db then show the x-series block.
+    $('#xseries_name_group').toggle(checked);
 }

@@ -40,18 +40,6 @@ class CommentsTests(TestCase):
 
         toggle_switch('enable_publisher_email_notifications', True)
 
-    def test_course_run_edit_page_with_multiple_comments(self):
-        """ Verify course-run edit page can load multiple comments"""
-        self._add_assert_multiple_comments(self.course_run, self.course_run_edit_page)
-
-    def test_comment_edit_with_courserun(self):
-        """ Verify that only comments attached with specific course run appears on edited page. """
-        comments = self._generate_comments_for_all_content_types()
-        response = self.client.get(reverse(self.course_run_edit_page, kwargs={'pk': self.course_run.id}))
-        self.assertContains(response, comments.get(self.course_run).comment)
-        self.assertNotContains(response, comments.get(self.course).comment)
-        self.assertNotContains(response, comments.get(self.seat).comment)
-
     def test_comment_edit_with_seat(self):
         """ Verify that only comments attached with specific seat appears on edited page. """
         comments = self._generate_comments_for_all_content_types()
@@ -64,12 +52,6 @@ class CommentsTests(TestCase):
         """ Verify that course comment can be edited. """
         self._edit_comment_page(
             self.course, reverse(self.course_edit_page, kwargs={'pk': self.course.id})
-        )
-
-    def test_edit_course_run_comment(self):
-        """ Verify that course run comment can be edited. """
-        self._edit_comment_page(
-            self.course_run, reverse(self.course_run_edit_page, kwargs={'pk': self.course_run.id})
         )
 
     def test_edit_seat_comment(self):

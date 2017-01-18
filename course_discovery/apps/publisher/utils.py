@@ -76,3 +76,21 @@ def is_publisher_user(user):
         bool: True, if user is an publisher user; otherwise, False.
     """
     return user.groups.exists()
+
+
+def make_bread_crumbs(links):
+    """ Returns lists of dicts containing bread-crumbs url and slug.
+
+    Arguments:
+        links (list): List of tuple contains links and slug.
+
+    Returns:
+        list: list containing dicts [{'url':'/courses/', 'slug':'test'}].
+    """
+    return [
+        {
+            "url": url,
+            "slug": slug,
+        }
+        for url, slug in links
+    ]

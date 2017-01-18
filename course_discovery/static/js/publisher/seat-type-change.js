@@ -47,8 +47,6 @@ $(function () {
 
     };
 
-    change_fields();
-
     $('#id_type').change(function () {
        change_fields(this);
     });

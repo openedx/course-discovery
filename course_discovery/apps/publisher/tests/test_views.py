@@ -266,6 +266,7 @@ class CreateCourseViewTests(TestCase):
             course_dict.update(**model_to_dict(seat))
             course_dict.pop('verification_deadline')
 
+        course_dict.pop('id')
         return course_dict
 
     def _assert_image(self, course):
@@ -316,14 +317,15 @@ class CreateCourseViewTests(TestCase):
         )
 
 
-class CreateUpdateCourseRunViewTests(TestCase):
-    """ Tests for the publisher `CreateCourseRunView` and `UpdateCourseRunView`. """
+class CreateCourseRunViewTests(TestCase):
+    """ Tests for the publisher `UpdateCourseRunView`. """
 
     def setUp(self):
-        super(CreateUpdateCourseRunViewTests, self).setUp()
+        super(CreateCourseRunViewTests, self).setUp()
         self.user = UserFactory()
         self.course = factories.CourseFactory()
         factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.CourseTeam, user=self.user)
+
         self.course_run = factories.CourseRunFactory()
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.course.organizations.add(self.organization_extension.organization)
@@ -335,7 +337,7 @@ class CreateUpdateCourseRunViewTests(TestCase):
             self.course_run_dict,
             [
                 'end', 'enrollment_start', 'enrollment_end',
-                'priority', 'certificate_generation', 'video_language'
+                'priority', 'certificate_generation', 'video_language', 'id'
             ]
         )
         self.course_run_dict['start'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -446,86 +448,6 @@ class CreateUpdateCourseRunViewTests(TestCase):
         self.course = new_seat.course_run.course
         # Verify that number is updated for parent course
         self.assertEqual(self.course.number, updated_course_number)
-
-    def test_update_course_run_with_internal_user(self):
-        """ Verify that internal user can update an existing course run. """
-        self.assertNotEqual(self.course_run.changed_by, self.user)
-        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-        response = self.client.post(
-            reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id}),
-            self.course_run_dict
-        )
-
-        self.assertRedirects(
-            response,
-            expected_url=reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id}),
-            status_code=302,
-            target_status_code=200
-        )
-
-        course_run = CourseRun.objects.get(id=self.course_run.id)
-        self.assertEqual(course_run.changed_by, self.user)
-
-        # add new and check the comment on edit page.
-        comment = CommentFactory(content_object=self.course_run, user=self.user, site=self.site)
-        response = self.client.get(reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id}))
-        self.assertContains(response, 'Total Comments 1')
-        self.assertContains(response, 'Add new comment')
-        self.assertContains(response, comment.comment)
-
-    def test_edit_course_run_page_with_non_internal(self):
-        """ Verify that non internal user can't access course run edit page without permission. """
-        non_internal_user, __ = create_non_staff_user_and_login(self)
-
-        response = self.client.get(
-            reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id})
-        )
-
-        self.assertEqual(response.status_code, 403)
-
-        non_internal_user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-
-        response = self.client.get(
-            reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id})
-        )
-
-        self.assertEqual(response.status_code, 200)
-
-    def test_update_course_run_with_non_internal_user(self):
-        """ Test for course run with non internal user. """
-        non_internal_user, __ = create_non_staff_user_and_login(self)
-
-        response = self.client.post(
-            reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id}),
-            self.course_run_dict
-        )
-
-        # verify that non internal user can't update course run without permission
-        self.assertEqual(response.status_code, 403)
-
-        non_internal_user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-
-        response = self.client.post(
-            reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id}),
-            self.course_run_dict
-        )
-
-        self.assertRedirects(
-            response,
-            expected_url=reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id}),
-            status_code=302,
-            target_status_code=200
-        )
-
-        course_run = CourseRun.objects.get(id=self.course_run.id)
-        self.assertEqual(course_run.changed_by, non_internal_user)
-
-        # add new and check the comment on edit page.
-        comment = CommentFactory(content_object=self.course_run, user=self.user, site=self.site)
-        response = self.client.get(reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id}))
-        self.assertContains(response, 'Total Comments 1')
-        self.assertContains(response, 'Add new comment')
-        self.assertContains(response, comment.comment)
 
 
 class SeatsCreateUpdateViewTests(TestCase):
@@ -1709,41 +1631,110 @@ class CourseEditViewTests(TestCase):
         return post_data
 
 
+@ddt.ddt
 class CourseRunEditViewTests(TestCase):
     """ Tests for the course run edit view. """
 
     def setUp(self):
         super(CourseRunEditViewTests, self).setUp()
-        self.course_run = factories.CourseRunFactory()
+
         self.user = UserFactory()
-        self.client.login(username=self.user.username, password=USER_PASSWORD)
-
         self.organization_extension = factories.OrganizationExtensionFactory()
-        self.course_run.course.organizations.add(self.organization_extension.organization)
+        self.group = self.organization_extension.group
+        self.user.groups.add(self.group)
 
-        self.edit_page_url = reverse('publisher:publisher_course_runs_edit', args=[self.course_run.id])
+        self.course = factories.CourseFactory()
+        self.course_run = factories.CourseRunFactory(course=self.course)
+        self.seat = factories.SeatFactory(course_run=self.course_run, type=Seat.VERIFIED, price=2)
+
+        self.course.organizations.add(self.organization_extension.organization)
+        self.site = Site.objects.get(pk=settings.SITE_ID)
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.start_date_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self.end_date_time = (datetime.now() + timedelta(days=60)).strftime('%Y-%m-%d %H:%M:%S')
+
+        # creating default organizations roles
+        factories.OrganizationUserRoleFactory(
+            role=PublisherUserRole.PartnerCoordinator, organization=self.organization_extension.organization
+        )
+        factories.OrganizationUserRoleFactory(
+            role=PublisherUserRole.MarketingReviewer, organization=self.organization_extension.organization
+        )
+
+        # create a course instance using the new page so that all related objects created
+        # in other tables also
+        data = {'number': 'course_update_1', 'image': '', 'title': 'test course'}
+        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+        course_dict = self._post_data(data, self.course, self.course_run, None)
+        self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=data['image'])
+
+        # newly created course from the page.
+        self.new_course = Course.objects.get(number=data['number'])
+        self.new_course_run = self.new_course.course_runs.first()
+
+        # assert edit page is loading sucesfully.
+        self.edit_page_url = reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.new_course_run.id})
+        response = self.client.get(self.edit_page_url)
+        self.assertEqual(response.status_code, 200)
+
+        # Update the data for course
+        data = {'full_description': 'This is testing description.', 'image': ''}
+        self.updated_dict = self._post_data(data, self.new_course, self.new_course_run, None)
+
+        # Update the data for course-run
+        self.updated_dict['is_xseries'] = True
+        self.updated_dict['xseries_name'] = 'Test XSeries'
+
+        toggle_switch('enable_publisher_email_notifications', True)
+
+        # 1st email is due to course-creation.
+        self.assertEqual(len(mail.outbox), 1)
+
+    def _pop_valuse_from_dict(self, data_dict, key_list):
+        for key in key_list:
+            data_dict.pop(key)
+
+    def _post_data(self, data, course, course_run, seat):
+        course_dict = model_to_dict(course)
+        course_dict.update(**data)
+        course_dict['team_admin'] = self.user.id
+        if course_run:
+            course_dict.update(**model_to_dict(course_run))
+            course_dict.pop('video_language')
+            course_dict.pop('end')
+            course_dict.pop('priority')
+            course_dict['start'] = self.start_date_time
+            course_dict['end'] = self.end_date_time
+            course_dict['organization'] = self.organization_extension.organization.id
+        if seat:
+            course_dict.update(**model_to_dict(seat))
+            course_dict.pop('verification_deadline')
+
+        course_dict.pop('id')
+        return course_dict
 
     def test_edit_page_without_permission(self):
         """
-        Verify that user cannot access course run edit page without edit permission.
+        Verify that user cannot access course edit page without edit permission.
         """
+        self.client.logout()
+        create_non_staff_user_and_login(self)
+
         response = self.client.get(self.edit_page_url)
         self.assertEqual(response.status_code, 403)
 
     def test_edit_page_with_edit_permission(self):
         """
-        Verify that user can access course run edit page with edit permission.
+        Verify that user can access course edit page with edit permission.
         """
         self.user.groups.add(self.organization_extension.group)
-        assign_perm(
-            OrganizationExtension.EDIT_COURSE_RUN, self.organization_extension.group, self.organization_extension
-        )
+        assign_perm(OrganizationExtension.EDIT_COURSE, self.organization_extension.group, self.organization_extension)
         response = self.client.get(self.edit_page_url)
         self.assertEqual(response.status_code, 200)
 
     def test_edit_page_with_internal_user(self):
         """
-        Verify that internal user can access course run edit page.
+        Verify that internal user can access course edit page.
         """
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         response = self.client.get(self.edit_page_url)
@@ -1751,11 +1742,137 @@ class CourseRunEditViewTests(TestCase):
 
     def test_edit_page_with_admin(self):
         """
-        Verify that publisher admin can access course run edit page.
+        Verify that publisher admin can access course edit page.
         """
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         response = self.client.get(self.edit_page_url)
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Edit Course')
+
+    @ddt.data(INTERNAL_USER_GROUP_NAME, ADMIN_GROUP_NAME)
+    def test_update_course_run_without_seat(self, publisher_group):
+        """ Verify that internal users can update the data from course run edit page."""
+        self.client.logout()
+        user, __ = create_non_staff_user_and_login(self)
+
+        self.assertNotEqual(self.course_run.changed_by, user)
+        user.groups.add(Group.objects.get(name=publisher_group))
+
+        response = self.client.post(self.edit_page_url, self.updated_dict)
+
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.new_course_run.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        updated_course = Course.objects.get(id=self.new_course.id)
+        self.assertEqual(updated_course.full_description, 'This is testing description.')
+
+        course_run = CourseRun.objects.get(id=self.new_course_run.id)
+        self.assertEqual(course_run.changed_by, user)
+        self.assertEqual(course_run.xseries_name, 'Test XSeries')
+
+        self.assertFalse(course_run.seats.all().exists())
+        # no mail will be send because course-run state is already draft.
+        # 1st email is of course-creation
+        self.assertEqual(len(mail.outbox), 1)
+
+    @ddt.data('start', 'end', 'pacing_type')
+    def test_update_with_errors(self, field):
+        """ Verify that course run edit page throws error in case of missing required field."""
+        self.client.logout()
+        user, __ = create_non_staff_user_and_login(self)
+
+        self.assertNotEqual(self.course_run.changed_by, user)
+        user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+
+        self.updated_dict.pop(field)
+
+        response = self.client.post(self.edit_page_url, self.updated_dict)
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_update_with_fail_transaction(self):
+        """ Verify that in case of any error transactions roll back and no object
+        updated in db.
+        """
+        with patch.object(Course, "save") as mock_method:
+            mock_method.side_effect = IntegrityError
+            response = self.client.post(self.edit_page_url, self.updated_dict)
+
+            self.assertEqual(response.status_code, 400)
+            updated_course = Course.objects.get(id=self.new_course.id)
+            self.assertNotEqual(updated_course.full_description, 'This is testing description.')
+
+            course_run = CourseRun.objects.get(id=self.new_course_run.id)
+            self.assertNotEqual(course_run.xseries_name, 'Test XSeries')
+
+    def test_update_course_run_with_seat(self):
+        """ Verify that course run edit page create seat object also if not exists previously."""
+        self.client.logout()
+        user, __ = create_non_staff_user_and_login(self)
+
+        self.assertNotEqual(self.course_run.changed_by, user)
+        user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+
+        # post data without seat
+        data = {'full_description': 'This is testing description.', 'image': ''}
+        updated_dict = self._post_data(data, self.new_course, self.new_course_run, None)
+
+        updated_dict['type'] = Seat.PROFESSIONAL
+        updated_dict['price'] = 10.00
+
+        response = self.client.post(self.edit_page_url, updated_dict)
+
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.new_course_run.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        updated_course = Course.objects.get(id=self.new_course.id)
+        self.assertEqual(updated_course.full_description, 'This is testing description.')
+
+        course_run = CourseRun.objects.get(id=self.new_course_run.id)
+
+        self.assertEqual(course_run.seats.first().type, Seat.PROFESSIONAL)
+        self.assertEqual(course_run.seats.first().price, 10)
+
+    def test_logging(self):
+        """ Verify view logs the errors in case of errors. """
+        with patch('django.forms.models.BaseModelForm.is_valid') as mocked_is_valid:
+            mocked_is_valid.return_value = True
+            with LogCapture(publisher_views_logger.name) as log_capture:
+                # pop the
+                self.updated_dict.pop('start')
+                response = self.client.post(self.edit_page_url, self.updated_dict)
+                self.assertEqual(response.status_code, 400)
+                log_capture.check(
+                    (
+                        publisher_views_logger.name,
+                        'ERROR',
+                        'Unable to update course run and seat for course [{}].'.format(self.new_course_run.id)
+                    )
+                )
+
+    def test_update_course_run_with_edit_permission(self):
+        """ Verify that internal users can update the data from course run edit page."""
+        self.client.logout()
+        user = UserFactory()
+        user.groups.add(self.organization_extension.group)
+
+        # assign the edit course run and view course run permission.
+        assign_perm(
+            OrganizationExtension.EDIT_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+
+        self.client.login(username=user.username, password=USER_PASSWORD)
 
     def test_edit_page_with_language_tags(self):
         """
@@ -1769,3 +1886,27 @@ class CourseRunEditViewTests(TestCase):
         self.course_run.save()
         response = self.client.get(self.edit_page_url)
         self.assertEqual(response.status_code, 200)
+
+    def test_update_moves_state_to_draft(self):
+        """ Verify that in case of editing course-run state will change to draft."""
+        # state will be change if the course-run state is other than draft.
+        self.new_course_run.change_state(target=State.NEEDS_REVIEW)
+        self.new_course_run.save()
+        self.assertEqual(self.new_course_run.state.name, State.NEEDS_REVIEW)
+        response = self.client.post(self.edit_page_url, self.updated_dict)
+
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.new_course_run.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        course_run = CourseRun.objects.get(id=self.new_course_run.id)
+        # state change to draft again.
+        self.assertEqual(course_run.state.name, State.DRAFT)
+        body = mail.outbox[2].body.strip()
+        self.assertIn('The edX team', body)
+        'The following course run has been submitted for {{ state }}'.format(
+            state=course_run.state.name
+        )
