@@ -48,15 +48,19 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
 
     def update_organization(self, body):
         key = body['short_name']
+        logo = body['logo']
+
         defaults = {
             'key': key,
-            'partner': self.partner
+            'partner': self.partner,
+            'certificate_logo_image_url': logo,
         }
+
         if not self.partner.has_marketing_site:
             defaults.update({
                 'name': body['name'],
                 'description': body['description'],
-                'logo_image_url': body['logo']
+                'logo_image_url': logo,
             })
 
         Organization.objects.update_or_create(key__iexact=key, defaults=defaults)
