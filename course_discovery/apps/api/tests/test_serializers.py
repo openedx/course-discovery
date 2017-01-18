@@ -1003,6 +1003,7 @@ class OrganizationSerializerTests(MinimalOrganizationSerializerTests):
     def get_expected_data(self, organization):
         expected = super().get_expected_data(organization)
         expected.update({
+            'certificate_logo_image_url': organization.certificate_logo_image_url,
             'description': organization.description,
             'homepage_url': organization.homepage_url,
             'logo_image_url': organization.logo_image_url,
