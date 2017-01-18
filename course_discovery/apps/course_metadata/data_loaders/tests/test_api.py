@@ -97,6 +97,7 @@ class OrganizationsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, T
             self.assertEqual(organization.name, AbstractDataLoader.clean_string(body['name']))
             self.assertEqual(organization.description, AbstractDataLoader.clean_string(body['description']))
             self.assertEqual(organization.logo_image_url, AbstractDataLoader.clean_string(body['logo']))
+            self.assertEqual(organization.certificate_logo_image_url, AbstractDataLoader.clean_string(body['logo']))
 
     @responses.activate
     @ddt.data(True, False)
