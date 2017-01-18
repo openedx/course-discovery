@@ -388,17 +388,17 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
         return render(request, self.template_name, context, status=400)
 
 
-class UpdateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, mixins.FormValidMixin, UpdateView):  # pylint: disable=line-too-long
-    """ Update Course Run View."""
+class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, mixins.FormValidMixin, UpdateView):
+    """ Course Run Edit View."""
     model = CourseRun
     form_class = CourseRunForm
-    permission = OrganizationExtension.VIEW_COURSE
+    permission = OrganizationExtension.EDIT_COURSE_RUN
     template_name = 'publisher/course_run_form.html'
     success_url = 'publisher:publisher_course_runs_edit'
     change_state = True
 
     def get_context_data(self, **kwargs):
-        context = super(UpdateCourseRunView, self).get_context_data(**kwargs)
+        context = super(CourseRunEditView, self).get_context_data(**kwargs)
         if not self.object:
             self.object = self.get_object()
         context['workflow_state'] = self.object.current_state

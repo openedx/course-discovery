@@ -1674,3 +1674,52 @@ class CourseEditViewTests(TestCase):
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         response = self.client.get(self.edit_page_url)
         self.assertEqual(response.status_code, 200)
+
+
+class CourseRunEditViewTests(TestCase):
+    """ Tests for the course run edit view. """
+
+    def setUp(self):
+        super(CourseRunEditViewTests, self).setUp()
+        self.course_run = factories.CourseRunFactory()
+        self.user = UserFactory()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+        self.organization_extension = factories.OrganizationExtensionFactory()
+        self.course_run.course.organizations.add(self.organization_extension.organization)
+
+        self.edit_page_url = reverse('publisher:publisher_course_runs_edit', args=[self.course_run.id])
+
+    def test_edit_page_without_permission(self):
+        """
+        Verify that user cannot access course run edit page without edit permission.
+        """
+        response = self.client.get(self.edit_page_url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_edit_page_with_edit_permission(self):
+        """
+        Verify that user can access course run edit page with edit permission.
+        """
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(
+            OrganizationExtension.EDIT_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+        response = self.client.get(self.edit_page_url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_edit_page_with_internal_user(self):
+        """
+        Verify that internal user can access course run edit page.
+        """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        response = self.client.get(self.edit_page_url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_edit_page_with_admin(self):
+        """
+        Verify that publisher admin can access course run edit page.
+        """
+        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+        response = self.client.get(self.edit_page_url)
+        self.assertEqual(response.status_code, 200)
