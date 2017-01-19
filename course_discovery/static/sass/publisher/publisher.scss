@@ -427,6 +427,10 @@ select {
   font-size: 12px;
 }
 
+.optional {
+  font-weight: normal;
+}
+
 .checkbox-inline {
   ul {
     @include margin-left(0);
@@ -778,6 +782,7 @@ select {
 
 .btn-save {
     background-color: #169BD5;
+    border-color: #169BD5;
     border-radius: 5px;
     padding: 10px;
 }

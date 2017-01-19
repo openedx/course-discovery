@@ -323,6 +323,9 @@
                     </div>
                     <div class="col col-6">
                         {{ run_form.staff }}
+                        {% if publisher_add_instructor_feature %}
+                            <button type="button" id="add-new-instructor">{% trans "Add New" %}<br>{% trans "Instructor" %}</button>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -513,6 +516,9 @@
 </form>
 </div>
 </div>
+{% if publisher_add_instructor_feature %}
+    {% include "publisher/_add_instructor_popup.html" %}
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}

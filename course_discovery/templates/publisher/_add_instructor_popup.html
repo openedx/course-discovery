@@ -1,0 +1,60 @@
+{% load i18n %}
+
+<div id="addInstructorModal" class="modal">
+    <div class="modal-content">
+        <h2 class="hd-2 emphasized new-instructor-heading">{% trans "New Instructor" %}</h2>
+        <form class="form">
+            <fieldset class="form-group">
+                <div class="staff-image-icon">
+                    <img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" class="select-image" />
+                    <input name="staff-image" id="staffImageSelect" type="file" accept="image/*" onchange="loadSelectedImage(this);">
+                </div>
+                <label class="field-label" for="given-name">{% trans "Name" %}:
+                    <span class="required">* {% trans "required" %}</span>
+                </label>
+                <input class="field-input input-text" type="text" id="given-name" name="given-name" />
+
+                <label class="field-label" for="family-name">{% trans "Family Name" %}:
+                    <span class="required">* {% trans "required" %}</span>
+                </label>
+                <input class="field-input input-text" type="text" id="family-name" name="family-name" />
+
+                <label class="field-label" for="title">{% trans "Title" %}:
+                    <span class="required">* {% trans "required" %}</span>
+                </label>
+                <input class="field-input input-text" type="text" id="title" name="title" />
+
+                <label class="field-label">{% trans "Organization" %}:
+                    <span class="required">* {% trans "required" %}</span>
+                </label>
+                {% if course_form.organization.field.queryset.all.count > 1 %}
+                    {{ course_form.organization }}
+                {% else %}
+                    {% with course_form.organization.field.queryset|first as organization %}
+                        <span class="read-only-field">{{ organization.name }}</span>
+                        <input id="id_organization" name="organization" type="hidden" value="{{ organization.id }}">
+                    {% endwith %}
+                {% endif %}
+
+                <label class="field-label" for="bio">{% trans "Bio" %}:
+                    <span class="required">* {% trans "required" %}</span>
+                </label>
+                <textarea class="field-textarea input-textarea textarea-medium textarea-block" id="bio" name="bio"></textarea>
+
+                <label class="field-label" for="socialLinks">{% trans "Social Links" %}:
+                    <span class="optional">({% trans "optional - one per line" %} )</span>
+                </label>
+                <textarea class="field-textarea input-textarea textarea-medium textarea-block" id="socialLinks" name="social-links"></textarea>
+
+                <label class="field-label" for="majorWorks">{% trans "Major Works" %}:
+                    <span class="optional">({% trans "optional - one per line" %} )</span>
+                </label>
+                <textarea class="field-textarea input-textarea textarea-medium textarea-block" id="majorWorks" name="major-works"></textarea>
+            </fieldset>
+            <div class="actions">
+                <a class="btn-cancel closeModal" href="#">{% trans "Cancel" %}</a>
+                <button class="btn-brand btn-base btn-save" type="button">{% trans "Add Staff Member" %}</button>
+            </div>
+        </form>
+    </div>
+</div>

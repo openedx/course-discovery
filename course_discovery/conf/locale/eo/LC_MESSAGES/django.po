@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-20 11:48+0500\n"
+"POT-Creation-Date: 2017-01-20 12:41+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -931,6 +931,7 @@ msgid "Save"
 msgstr "Sävé Ⱡ'σяєм ι#"
 
 #: templates/metadata/admin/course_run.html
+#: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/course_form.html
 msgid "Cancel"
 msgstr "Çänçél Ⱡ'σяєм ιρѕυ#"
@@ -942,6 +943,60 @@ msgstr "Bäçk tö Prögräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 #: templates/metadata/admin/course_run.html
 msgid "Save Course Run"
 msgstr "Sävé Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "New Instructor"
+msgstr "Néw Ìnstrüçtör Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "Name"
+msgstr "Nämé Ⱡ'σяєм ι#"
+
+#: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "required"
+msgstr "réqüïréd Ⱡ'σяєм ιρѕυм ∂#"
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "Family Name"
+msgstr "Fämïlý Nämé Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Title"
+msgstr "Tïtlé Ⱡ'σяєм ιρѕ#"
+
+#: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard/_preview_ready.html
+#: templates/publisher/dashboard/_published.html
+#: templates/publisher/dashboard/_studio_requests.html
+msgid "Organization"
+msgstr "Örgänïzätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "Bio"
+msgstr "Bïö Ⱡ'σяєм#"
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "Social Links"
+msgstr "Söçïäl Lïnks Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "optional - one per line"
+msgstr "öptïönäl - öné pér lïné Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "Major Works"
+msgstr "Mäjör Wörks Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "Add Staff Member"
+msgstr "Àdd Stäff Mémßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: templates/publisher/_footer.html
 msgid "Terms of Service"
@@ -1275,11 +1330,6 @@ msgstr ""
 "döllärs (mïnïmüm öf $49) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-msgid "required"
-msgstr "réqüïréd Ⱡ'σяєм ιρѕυм ∂#"
-
-#: templates/publisher/add_course_form.html
 msgid "BRIEF DESCRIPTION"
 msgstr "BRÌÉF DÉSÇRÌPTÌÖN Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
@@ -1388,6 +1438,14 @@ msgid "Limited to the primary instructors a learner will encounter in videos"
 msgstr ""
 "Lïmïtéd tö thé prïmärý ïnstrüçtörs ä léärnér wïll énçöüntér ïn vïdéös Ⱡ'σяєм"
 " ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: templates/publisher/add_course_form.html
+msgid "Add New"
+msgstr "Àdd Néw Ⱡ'σяєм ιρѕυм #"
+
+#: templates/publisher/add_course_form.html
+msgid "Instructor"
+msgstr "Ìnstrüçtör Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: templates/publisher/add_course_form.html
 msgid "SUBJECT FIELD"
@@ -1813,23 +1871,9 @@ msgstr "Stätüs Ⱡ'σяєм ιρѕυ#"
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_salesforce.html
-msgid "Title"
-msgstr "Tïtlé Ⱡ'σяєм ιρѕ#"
-
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_salesforce.html
 #: templates/publisher/course_run_detail/_studio.html
 msgid "Number"
 msgstr "Nümßér Ⱡ'σяєм ιρѕυ#"
-
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_studio.html
-#: templates/publisher/dashboard/_preview_ready.html
-#: templates/publisher/dashboard/_published.html
-#: templates/publisher/dashboard/_studio_requests.html
-msgid "Organization"
-msgstr "Örgänïzätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_studio.html
