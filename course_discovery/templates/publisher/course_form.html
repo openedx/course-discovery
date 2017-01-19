@@ -1,5 +1,6 @@
 {% extends 'publisher/base.html' %}
 {% load i18n %}
+{% load staticfiles %}
 {% block title %}
     {% trans "Course Form" %}
 {% endblock title %}
@@ -32,4 +33,7 @@
         </div>
     </div>
 
+{% endblock %}
+{% block extra_js %}
+    <script src="{% static 'js/publisher/publisher.js' %}"></script>
 {% endblock %}

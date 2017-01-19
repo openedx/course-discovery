@@ -73,6 +73,9 @@ class CreateUpdateCourseViewTests(TestCase):
             role=PublisherUserRole.MarketingReviewer, organization=self.organization_extension.organization
         )
 
+        # assign CourseTeam role against a course
+        factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.CourseTeam, user=self.user)
+
     def test_course_form_without_login(self):
         """ Verify that user can't access new course form page when not logged in. """
         self.client.logout()
@@ -1640,6 +1643,9 @@ class CourseEditViewTests(TestCase):
 
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.course.organizations.add(self.organization_extension.organization)
+
+        # assign CourseTeam role against a course
+        factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.CourseTeam, user=self.user)
 
         self.edit_page_url = reverse('publisher:publisher_courses_edit', args=[self.course.id])
 

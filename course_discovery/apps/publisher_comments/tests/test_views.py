@@ -38,6 +38,8 @@ class CommentsTests(TestCase):
             course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
         )
 
+        # assign CourseTeam role against a course
+        factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.CourseTeam, user=self.user)
         toggle_switch('enable_publisher_email_notifications', True)
 
     def test_course_edit_page_with_multiple_comments(self):
