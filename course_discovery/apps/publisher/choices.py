@@ -3,6 +3,7 @@ from djchoices import DjangoChoices, ChoiceItem
 
 
 class PublisherUserRole(DjangoChoices):
+    PartnerManager = ChoiceItem('partner_manager', _('Partner Manager'))
     PartnerCoordinator = ChoiceItem('partner_coordinator', _('Partner Coordinator'))
     MarketingReviewer = ChoiceItem('marketing_reviewer', _('Marketing Reviewer'))
     Publisher = ChoiceItem('publisher', _('Publisher'))

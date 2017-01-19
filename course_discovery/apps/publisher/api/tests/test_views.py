@@ -32,11 +32,8 @@ class CourseRoleAssignmentViewTests(TestCase):
         self.internal_user_group = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
 
         self.internal_user_group.user_set.add(self.internal_user)
-        self.other_internal_users = []
-        for __ in range(3):
-            user = UserFactory()
-            self.other_internal_users.append(user)
-            self.internal_user_group.user_set.add(user)
+        self.other_internal_users = UserFactory.create_batch(4)
+        self.internal_user_group.user_set.add(*self.other_internal_users)
 
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.course.organizations.add(self.organization_extension.organization)
@@ -130,6 +127,7 @@ class CourseRoleAssignmentViewTests(TestCase):
         return self.course.course_user_roles.all()
 
     @ddt.data(
+        PublisherUserRole.PartnerManager,
         PublisherUserRole.PartnerCoordinator,
         PublisherUserRole.MarketingReviewer,
         PublisherUserRole.Publisher
