@@ -192,7 +192,8 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
             'course_form': self.course_form,
             'run_form': self.run_form,
             'seat_form': self.seat_form,
-            'publisher_hide_features_for_pilot': waffle.switch_is_active('publisher_hide_features_for_pilot')
+            'publisher_hide_features_for_pilot': waffle.switch_is_active('publisher_hide_features_for_pilot'),
+            'publisher_add_instructor_feature': waffle.switch_is_active('publisher_add_instructor_feature'),
         }
 
     def get(self, request, *args, **kwargs):

@@ -35,6 +35,19 @@ $(document).ready(function(){
     $('#id_is_xseries').click( function(e){
         $('#xseries_name_group').toggle(this.checked);
     });
+    $('#add-new-instructor').click(function(e){
+        $('#addInstructorModal').show();
+        $('body').addClass('stopScroll');
+    });
+    $(document).click(function(e){
+        var modal = $('#addInstructorModal');
+        if (event.target == modal[0]) {
+            closeModal(e, modal);
+        }
+    });
+    $('.closeModal').click(function (e) {
+        closeModal(e, $('#addInstructorModal'));
+    });
 });
 
 $(document).on('change', '#id_organization', function (e) {
@@ -62,4 +75,22 @@ function loadAdminUsers(org_id) {
             });
         }
     });
+}
+
+function loadSelectedImage(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            $('.select-image').attr('src', e.target.result);
+        };
+
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function closeModal(event, modal) {
+    event.preventDefault();
+    modal.hide();
+    $('body').removeClass('stopScroll');
 }
