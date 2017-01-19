@@ -39,6 +39,7 @@ logger = logging.getLogger(__name__)
 SEATS_HIDDEN_FIELDS = ['price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours']
 
 ROLE_WIDGET_HEADINGS = {
+    PublisherUserRole.PartnerManager: _('PARTNER MANAGER'),
     PublisherUserRole.PartnerCoordinator: _('PARTNER COORDINATOR'),
     PublisherUserRole.MarketingReviewer: _('MARKETING'),
     PublisherUserRole.Publisher: _('PUBLISHER'),
