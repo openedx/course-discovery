@@ -1614,6 +1614,24 @@ class CourseDetailViewTests(TestCase):
         self.assertContains(response, 'Not yet created')
         self.assertContains(response, reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id}))
 
+    def test_detail_page_data(self):
+        """
+        Verify that user can see course details on detail page.
+        """
+        factories.CourseUserRoleFactory(
+            course=self.course, user=self.user, role=PublisherUserRole.CourseTeam
+        )
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
+        response = self.client.get(self.detail_page_url)
+
+        self.assertContains(response, self.course.title)
+        self.assertContains(response, self.course.course_team_admin.full_name)
+        self.assertContains(response, self.organization_extension.organization.name)
+        self.assertContains(response, self.course.short_description)
+        self.assertContains(response, self.course.full_description)
+        self.assertContains(response, self.course.expected_learnings)
+
 
 class CourseEditViewTests(TestCase):
     """ Tests for the course edit view. """

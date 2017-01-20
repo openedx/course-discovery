@@ -30,7 +30,7 @@
                     <div class="studio-url">
                         <span class="studio-url-heading">{% trans "STUDIO URL" %} - </span>
                         {% if course_run.lms_course_id %}
-                            <a class="studio-link" href="">{{ course_run.lms_course_id }}</a>
+                            <a class="studio-link" href="#" target="_blank">{{ course_run.lms_course_id }}</a>
                         {% else %}
                             {% trans "Not yet created" %}
                         {% endif %}

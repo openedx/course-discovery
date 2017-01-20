@@ -210,6 +210,16 @@ class CourseTests(TestCase):
 
         self.assertEqual(self.course.course_runs.count(), 1)
 
+    def test_course_team_admin(self):
+        """ Verify that the course_team_admin property returns user if exist. """
+        self.assertIsNone(self.course2.course_team_admin)
+
+        factories.CourseUserRoleFactory(
+            course=self.course2, user=self.user1, role=PublisherUserRole.CourseTeam
+        )
+
+        self.assertEqual(self.user1, self.course2.course_team_admin)
+
 
 class SeatTests(TestCase):
     """ Tests for the publisher `Seat` model. """
