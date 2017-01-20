@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-20 12:41+0500\n"
+"POT-Creation-Date: 2017-01-20 16:08+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -573,6 +573,7 @@ msgid "Organization Name"
 msgstr "Örgänïzätïön Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: apps/publisher/forms.py templates/publisher/add_courserun_form.html
+#: templates/publisher/course_detail.html
 msgid "Course Title"
 msgstr "Çöürsé Tïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
@@ -581,14 +582,17 @@ msgid "Course Number"
 msgstr "Çöürsé Nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/course_detail.html
 msgid "Brief Description"
 msgstr "Brïéf Désçrïptïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/course_detail.html
 msgid "Full Description"
 msgstr "Füll Désçrïptïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/course_detail.html
 #: templates/publisher/course_run_detail/_all.html
 msgid "Prerequisites"
 msgstr "Préréqüïsïtés Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
@@ -707,7 +711,7 @@ msgstr "Pärtnér Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 msgid "Level Type"
 msgstr "Lévél Týpé Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: apps/publisher/models.py
+#: apps/publisher/models.py templates/publisher/course_detail.html
 msgid "Expected Learnings"
 msgstr "Éxpéçtéd Léärnïngs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
@@ -1058,8 +1062,7 @@ msgid "Sign Out"
 msgstr "Sïgn Öüt Ⱡ'σяєм ιρѕυм ∂#"
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/course_form.html
-#: templates/publisher/view_course_form.html
+#: templates/publisher/course_detail.html templates/publisher/course_form.html
 msgid "Course Form"
 msgstr "Çöürsé Förm Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
@@ -1799,6 +1802,37 @@ msgstr "Däshßöärd Ⱡ'σяєм ιρѕυм ∂σł#"
 msgid "Courses"
 msgstr "Çöürsés Ⱡ'σяєм ιρѕυм #"
 
+#: templates/publisher/course_detail.html templates/publisher/courses.html
+#: templates/publisher/dashboard/_in_progress.html
+msgid "Institution"
+msgstr "Ìnstïtütïön Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: templates/publisher/course_detail.html
+msgid "Course Team Admin"
+msgstr "Çöürsé Téäm Àdmïn Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: templates/publisher/course_detail.html
+msgid "Primary Subject"
+msgstr "Prïmärý Süßjéçt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: templates/publisher/course_detail.html
+msgid "Secondary Subject"
+msgstr "Séçöndärý Süßjéçt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: templates/publisher/course_detail.html
+msgid "Tertiary Subject"
+msgstr "Tértïärý Süßjéçt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: templates/publisher/course_detail.html
+msgid "Course Image"
+msgstr "Çöürsé Ìmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: templates/publisher/course_detail.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Course Level"
+msgstr "Çöürsé Lévél Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
 #: templates/publisher/course_detail/_widgets.html
 #: templates/publisher/course_run_detail/_approval_widget.html
 msgid "EDIT"
@@ -1961,11 +1995,6 @@ msgstr "Çöürsé Längüägés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм
 #: templates/publisher/course_run_detail/_all.html
 msgid "Video Translation Languages"
 msgstr "Vïdéö Tränslätïön Längüägés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
-
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_salesforce.html
-msgid "Course Level"
-msgstr "Çöürsé Lévél Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: templates/publisher/course_run_detail/_all.html
 msgid "About This Course"
@@ -2288,11 +2317,6 @@ msgid "Looks like you haven't publish a course yet"
 msgstr ""
 "Lööks lïké ýöü hävén't püßlïsh ä çöürsé ýét Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
-
-#: templates/publisher/courses.html
-#: templates/publisher/dashboard/_in_progress.html
-msgid "Institution"
-msgstr "Ìnstïtütïön Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: templates/publisher/courses.html
 msgid "Runs"
@@ -2645,15 +2669,3 @@ msgstr ""
 #: templates/publisher/seat_form.html
 msgid "Seat Form"
 msgstr "Séät Förm Ⱡ'σяєм ιρѕυм ∂σł#"
-
-#: templates/publisher/view_course_form.html
-msgid "Base information"
-msgstr "Bäsé ïnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
-
-#: templates/publisher/view_course_form.html
-msgid "INSTITUTION INFORMATION"
-msgstr "ÌNSTÌTÛTÌÖN ÌNFÖRMÀTÌÖN Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
-
-#: templates/publisher/view_course_form.html
-msgid "Course information"
-msgstr "Çöürsé ïnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"

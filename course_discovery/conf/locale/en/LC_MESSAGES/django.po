@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-20 12:41+0500\n"
+"POT-Creation-Date: 2017-01-20 16:08+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -461,6 +461,7 @@ msgid "Organization Name"
 msgstr ""
 
 #: apps/publisher/forms.py templates/publisher/add_courserun_form.html
+#: templates/publisher/course_detail.html
 msgid "Course Title"
 msgstr ""
 
@@ -469,14 +470,17 @@ msgid "Course Number"
 msgstr ""
 
 #: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/course_detail.html
 msgid "Brief Description"
 msgstr ""
 
 #: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/course_detail.html
 msgid "Full Description"
 msgstr ""
 
 #: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/course_detail.html
 #: templates/publisher/course_run_detail/_all.html
 msgid "Prerequisites"
 msgstr ""
@@ -593,7 +597,7 @@ msgstr ""
 msgid "Level Type"
 msgstr ""
 
-#: apps/publisher/models.py
+#: apps/publisher/models.py templates/publisher/course_detail.html
 msgid "Expected Learnings"
 msgstr ""
 
@@ -908,8 +912,7 @@ msgid "Sign Out"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/course_form.html
-#: templates/publisher/view_course_form.html
+#: templates/publisher/course_detail.html templates/publisher/course_form.html
 msgid "Course Form"
 msgstr ""
 
@@ -1471,6 +1474,37 @@ msgstr ""
 msgid "Courses"
 msgstr ""
 
+#: templates/publisher/course_detail.html templates/publisher/courses.html
+#: templates/publisher/dashboard/_in_progress.html
+msgid "Institution"
+msgstr ""
+
+#: templates/publisher/course_detail.html
+msgid "Course Team Admin"
+msgstr ""
+
+#: templates/publisher/course_detail.html
+msgid "Primary Subject"
+msgstr ""
+
+#: templates/publisher/course_detail.html
+msgid "Secondary Subject"
+msgstr ""
+
+#: templates/publisher/course_detail.html
+msgid "Tertiary Subject"
+msgstr ""
+
+#: templates/publisher/course_detail.html
+msgid "Course Image"
+msgstr ""
+
+#: templates/publisher/course_detail.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Course Level"
+msgstr ""
+
 #: templates/publisher/course_detail/_widgets.html
 #: templates/publisher/course_run_detail/_approval_widget.html
 msgid "EDIT"
@@ -1627,11 +1661,6 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
 msgid "Video Translation Languages"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_salesforce.html
-msgid "Course Level"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
@@ -1943,11 +1972,6 @@ msgid "Looks like you haven't publish a course yet"
 msgstr ""
 
 #: templates/publisher/courses.html
-#: templates/publisher/dashboard/_in_progress.html
-msgid "Institution"
-msgstr ""
-
-#: templates/publisher/courses.html
 msgid "Runs"
 msgstr ""
 
@@ -2227,16 +2251,4 @@ msgstr ""
 
 #: templates/publisher/seat_form.html
 msgid "Seat Form"
-msgstr ""
-
-#: templates/publisher/view_course_form.html
-msgid "Base information"
-msgstr ""
-
-#: templates/publisher/view_course_form.html
-msgid "INSTITUTION INFORMATION"
-msgstr ""
-
-#: templates/publisher/view_course_form.html
-msgid "Course information"
 msgstr ""

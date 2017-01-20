@@ -519,7 +519,7 @@ select {
   }
 
   .info-item {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 
     .heading {
       font-weight: bold;
@@ -561,8 +561,7 @@ select {
 }
 
 .breadcrumb {
-  @include padding-left(0);
-  @include padding(8px, 15px, 8px, 15px);
+  @include padding(8px, 5px, 8px, 5px);
   @include margin(0, 0, 0, 0);
   list-style: none;
   background: white;
@@ -813,4 +812,13 @@ select {
 
 .studio-link, .courserun-detail-link {
     text-decoration: underline;
+}
+
+.course-image-heading {
+    margin-bottom: 10px;
+}
+
+.course-image {
+    width: 480px;
+    height: 200px;
 }

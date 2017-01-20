@@ -186,6 +186,13 @@ class Course(TimeStampedModel, ChangedByMixin):
     def course_runs(self):
         return self.publisher_course_runs.order_by('-created')
 
+    @property
+    def course_team_admin(self):
+        try:
+            return self.course_user_roles.get(role=PublisherUserRole.CourseTeam).user
+        except CourseUserRole.DoesNotExist:
+            return None
+
 
 class CourseRun(TimeStampedModel, ChangedByMixin):
     """ Publisher CourseRun model. It contains fields related to the course run intake form."""

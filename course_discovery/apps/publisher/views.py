@@ -295,7 +295,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, mixins.FormValidMixin, Upd
 class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, DetailView):
     """ Course Detail View."""
     model = Course
-    template_name = 'publisher/view_course_form.html'
+    template_name = 'publisher/course_detail.html'
     permission = OrganizationExtension.VIEW_COURSE
 
     def get_context_data(self, **kwargs):

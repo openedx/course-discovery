@@ -1,0 +1,112 @@
+{% extends 'publisher/base.html' %}
+{% load i18n %}
+{% block title %}
+    {% trans "Course Form" %}
+{% endblock title %}
+
+{% block page_content %}
+{% include 'alert_messages.html' %}
+
+<div class="layout-1t2t layout-flush publisher-container course-detail">
+    <main class="layout-col layout-col-b layout-col-b-custom">
+        <div class="course-information">
+            <div class="info-item">
+                <div class="heading">
+                    {% trans "Institution" %}
+                    {% include "publisher/course_run_detail/_clipboard.html" %}
+                </div>
+                <div class="copy">{{ object.organizations.first.name }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="heading">
+                    {% trans "Course Team Admin" %}
+                    {% include "publisher/course_run_detail/_clipboard.html" %}
+                </div>
+                <div class="copy">{{ object.course_team_admin.full_name }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="heading">
+                    {% trans "Course Title" %}
+                    {% include "publisher/course_run_detail/_clipboard.html" %}
+                </div>
+                <div class="copy">{{ object.title }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="heading">
+                    {% trans "Brief Description" %}
+                    {% include "publisher/course_run_detail/_clipboard.html" %}
+                </div>
+                <div class="copy">{{ object.short_description }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="heading">
+                    {% trans "Full Description" %}
+                    {% include "publisher/course_run_detail/_clipboard.html" %}
+                </div>
+                <div class="copy">{{ object.full_description }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="heading">
+                    {% trans "Expected Learnings" %}
+                    {% include "publisher/course_run_detail/_clipboard.html" %}
+                </div>
+                <div class="copy">{{ object.expected_learnings }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="heading">
+                    {% trans "Primary Subject" %}
+                    {% include "publisher/course_run_detail/_clipboard.html" %}
+                </div>
+                <div class="copy">{{ object.primary_subject }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="heading">
+                    {% trans "Secondary Subject" %}
+                    {% include "publisher/course_run_detail/_clipboard.html" %}
+                </div>
+                <div class="copy">{{ object.secondary_subject }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="heading">
+                    {% trans "Tertiary Subject" %}
+                    {% include "publisher/course_run_detail/_clipboard.html" %}
+                </div>
+                <div class="copy">{{ object.tertiary_subject }}</div>
+            </div>
+            <div class="info-item">
+                <div class="heading course-image-heading">
+                    {% trans "Course Image" %}
+                </div>
+                {% if object.image %}
+                    <img class="course-image" src="{{ object.image.url }}" alt="{% trans 'Course Image' %}">
+                {% endif %}
+            </div>
+            <div class="info-item">
+                <div class="heading">
+                    {% trans "Prerequisites" %}
+                    {% include "publisher/course_run_detail/_clipboard.html" %}
+                </div>
+                <div class="copy">{{ object.prerequisites }}</div>
+            </div>
+            <div class="info-item">
+                <div class="heading">{% trans "Course Level" %}
+                    {% include "publisher/course_run_detail/_clipboard.html" %}
+                </div>
+                <div class="copy">{{ object.level_type }}</div>
+            </div>
+        </div>
+    </main>
+
+    <aside class="layout-col layout-col-a layout-col-a-custom">
+        {% include 'publisher/course_detail/_widgets.html' %}
+    </aside>
+</div>
+{% endblock %}
