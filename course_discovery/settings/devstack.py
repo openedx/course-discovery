@@ -20,6 +20,8 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
+
 #####################################################################
 # Lastly, see if the developer has any local overrides.
 if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):
