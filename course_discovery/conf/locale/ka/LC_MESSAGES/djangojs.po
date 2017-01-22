@@ -3,14 +3,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-# George Goderdzishvili <biggeorgian@gmail.com>, 2016
+# Giorgi Goderdzishvili <biggeorgian@gmail.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-13 15:33-0500\n"
-"PO-Revision-Date: 2016-12-13 17:23+0000\n"
-"Last-Translator: George Goderdzishvili <biggeorgian@gmail.com>\n"
+"POT-Creation-Date: 2017-01-20 12:41+0500\n"
+"PO-Revision-Date: 2017-01-19 09:31+0000\n"
+"Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Georgian (http://www.transifex.com/open-edx/edx-platform/language/ka/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -27,6 +27,10 @@ msgid ""
 "You have successfully created a studio instance ({studioLinkTag}) for "
 "{courseRunDetail} with a start date of {startDate}"
 msgstr "თქვენ წარმატებით შექმენით სტუდიის ასლი ({studioLinkTag}), {courseRunDetail} კურსისთვის, საწყისი თარიღით: {startDate}"
+
+#: static/js/publisher/views/dashboard.js
+msgid "There was an error in saving your data."
+msgstr ""
 
 #: static/js/publisher/views/navbar.js
 msgid "OFF"

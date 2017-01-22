@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-13 15:33-0500\n"
-"PO-Revision-Date: 2016-11-15 09:59+0000\n"
+"POT-Creation-Date: 2017-01-20 12:41+0500\n"
+"PO-Revision-Date: 2017-01-19 09:31+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Danish (http://www.transifex.com/open-edx/edx-platform/language/da/)\n"
 "MIME-Version: 1.0\n"
@@ -25,6 +25,10 @@ msgstr "Forhåndsvisning"
 msgid ""
 "You have successfully created a studio instance ({studioLinkTag}) for "
 "{courseRunDetail} with a start date of {startDate}"
+msgstr ""
+
+#: static/js/publisher/views/dashboard.js
+msgid "There was an error in saving your data."
 msgstr ""
 
 #: static/js/publisher/views/navbar.js

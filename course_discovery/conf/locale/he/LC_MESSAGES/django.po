@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-13 15:33-0500\n"
-"PO-Revision-Date: 2017-01-14 09:08+0000\n"
+"POT-Creation-Date: 2017-01-20 12:41+0500\n"
+"PO-Revision-Date: 2017-01-21 09:03+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Hebrew (http://www.transifex.com/open-edx/edx-platform/language/he/)\n"
 "MIME-Version: 1.0\n"
@@ -274,6 +274,12 @@ msgid "Leave this field blank to have the value generated automatically."
 msgstr "השאר שדה זה ריק כדי שהערך יווצר באופן אוטומטי."
 
 #: apps/course_metadata/models.py
+msgid ""
+"Logo to be displayed on certificates. If this logo is the same as "
+"logo_image_url, copy and paste the same value to both fields."
+msgstr ""
+
+#: apps/course_metadata/models.py
 msgid "People"
 msgstr "אנשים"
 
@@ -417,6 +423,15 @@ msgstr "ציון פונקציונלי"
 msgid "JSON string containing an elasticsearch function score config."
 msgstr "מחרוזת JSON כוללת הגדרות ציון פונקציונלי של חיפוש אלסטי."
 
+#: apps/publisher/api/serializers.py
+#, python-brace-format
+msgid "Invalid course key \"{lms_course_id}\""
+msgstr ""
+
+#: apps/publisher/choices.py
+msgid "Partner Manager"
+msgstr ""
+
 #: apps/publisher/choices.py templates/publisher/courses.html
 msgid "Partner Coordinator"
 msgstr "מתאם שותף"
@@ -441,6 +456,11 @@ msgstr "מצב הרצת קורס {title}-{pacing_type}-{start} השתנה."
 #: apps/publisher/emails.py
 msgid "Studio instance created"
 msgstr "דוגמא לסטודיו נוצרה"
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "New Studio instance request for {title}"
+msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Organization Name"
@@ -650,6 +670,10 @@ msgstr "תפקיד הארגון"
 msgid "Course Role"
 msgstr "תפקיד הקורס"
 
+#: apps/publisher/views.py templates/publisher/add_course_form.html
+msgid "PARTNER MANAGER"
+msgstr ""
+
 #: apps/publisher/views.py
 msgid "PARTNER COORDINATOR"
 msgstr "מתאם שותף"
@@ -766,6 +790,7 @@ msgid "Save"
 msgstr "שמור"
 
 #: templates/metadata/admin/course_run.html
+#: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/course_form.html
 msgid "Cancel"
 msgstr "בטל"
@@ -777,6 +802,60 @@ msgstr "חזרה לתכנית"
 #: templates/metadata/admin/course_run.html
 msgid "Save Course Run"
 msgstr "שמור הרצת קורס"
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "New Instructor"
+msgstr ""
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "Name"
+msgstr ""
+
+#: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/add_course_form.html
+#: templates/publisher/add_courserun_form.html
+msgid "required"
+msgstr "נדרש"
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "Family Name"
+msgstr ""
+
+#: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Title"
+msgstr "כותרת"
+
+#: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard/_preview_ready.html
+#: templates/publisher/dashboard/_published.html
+#: templates/publisher/dashboard/_studio_requests.html
+msgid "Organization"
+msgstr "ארגון"
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "Bio"
+msgstr ""
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "Social Links"
+msgstr ""
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "optional - one per line"
+msgstr ""
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "Major Works"
+msgstr ""
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "Add Staff Member"
+msgstr ""
 
 #: templates/publisher/_footer.html
 msgid "Terms of Service"
@@ -866,10 +945,6 @@ msgstr ""
 msgid ""
 "This information is required before edX can create a Studio instance for a "
 "course run."
-msgstr ""
-
-#: templates/publisher/add_course_form.html
-msgid "PARTNER MANAGER"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
@@ -1048,11 +1123,6 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-msgid "required"
-msgstr "נדרש"
-
-#: templates/publisher/add_course_form.html
 msgid "BRIEF DESCRIPTION"
 msgstr ""
 
@@ -1133,6 +1203,14 @@ msgstr "אם יש יותר ממדריך אחד, ציין את הסדר שבו י
 #: templates/publisher/add_course_form.html
 msgid "Limited to the primary instructors a learner will encounter in videos"
 msgstr "מוגבל למדריכים ראשיים שיפגוש הלומד בסרטונים"
+
+#: templates/publisher/add_course_form.html
+msgid "Add New"
+msgstr ""
+
+#: templates/publisher/add_course_form.html
+msgid "Instructor"
+msgstr ""
 
 #: templates/publisher/add_course_form.html
 msgid "SUBJECT FIELD"
@@ -1468,23 +1546,9 @@ msgstr "סטטוס"
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_salesforce.html
-msgid "Title"
-msgstr "כותרת"
-
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_salesforce.html
 #: templates/publisher/course_run_detail/_studio.html
 msgid "Number"
 msgstr "מספר"
-
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_studio.html
-#: templates/publisher/dashboard/_preview_ready.html
-#: templates/publisher/dashboard/_published.html
-#: templates/publisher/dashboard/_studio_requests.html
-msgid "Organization"
-msgstr "ארגון"
 
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_studio.html
@@ -2011,6 +2075,8 @@ msgstr "צפה בקורס"
 #: templates/publisher/email/change_state.txt
 #: templates/publisher/email/comment.html
 #: templates/publisher/email/comment.txt
+#: templates/publisher/email/course_created.html
+#: templates/publisher/email/course_created.txt
 msgid "The edX team"
 msgstr "צוות edX"
 
@@ -2033,6 +2099,48 @@ msgstr "הצג הערה"
 #: templates/publisher/email/comment.txt
 msgid "View comment: "
 msgstr "הצג הערה:"
+
+#. Translators: partner_coordinator_name is a member name.
+#: templates/publisher/email/course_created.html
+#, python-format
+msgid "Dear %(partner_coordinator_name)s,"
+msgstr ""
+
+#: templates/publisher/email/course_created.html
+#, python-format
+msgid ""
+"%(course_team_name)s created the "
+"%(link_start)s%(dashboard_url)s%(link_middle)s %(course_title)s %(link_end)s"
+" course in Publisher on %(date)s at %(time)s."
+msgstr ""
+
+#: templates/publisher/email/course_created.html
+#: templates/publisher/email/course_created.txt
+msgid "Please create a Studio instance for this course."
+msgstr ""
+
+#. Translators: It's closing of mail.
+#: templates/publisher/email/course_created.html
+#: templates/publisher/email/course_created.txt
+#: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
+#: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
+msgid "Thanks,"
+msgstr ""
+
+#: templates/publisher/email/course_created.txt
+#: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
+msgid "Dear"
+msgstr ""
+
+#: templates/publisher/email/course_created.txt
+#, python-format
+msgid ""
+"%(course_team_name)s created the %(course_title)s : %(dashboard_url)s course"
+" in Publisher on %(date)s at %(time)s."
+msgstr ""
 
 #. Translators: course_team_name is course team member name.
 #: templates/publisher/email/studio_instance_created.html
@@ -2097,14 +2205,6 @@ msgid ""
 "build your course. We recommend that you use the list early!"
 msgstr ""
 
-#. Translators: It's closing of mail.
-#: templates/publisher/email/studio_instance_created.html
-#: templates/publisher/email/studio_instance_created.txt
-#: templates/publisher/email/studio_instance_needed.html
-#: templates/publisher/email/studio_instance_needed.txt
-msgid "Thanks,"
-msgstr ""
-
 #: templates/publisher/email/studio_instance_created.html
 #, python-format
 msgid ""
@@ -2124,11 +2224,6 @@ msgstr ""
 msgid ""
 "Note: This email address is unable to receive replies. For questions or "
 "comments, contact %(contact_us_email)s."
-msgstr ""
-
-#: templates/publisher/email/studio_instance_needed.html
-#: templates/publisher/email/studio_instance_needed.txt
-msgid "Dear"
 msgstr ""
 
 #: templates/publisher/email/studio_instance_needed.html
