@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-27 12:46+0500\n"
+"POT-Creation-Date: 2017-01-27 13:02+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -452,7 +452,12 @@ msgid "Course Run {title}-{pacing_type}-{start} state has been changed."
 msgstr ""
 
 #: apps/publisher/emails.py
-msgid "Studio instance created"
+msgid "created"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Studio instance {updated_text}"
 msgstr ""
 
 #: apps/publisher/emails.py
@@ -551,6 +556,10 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "MicroMasters Name"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Course Run Key"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -720,6 +729,10 @@ msgstr ""
 #: apps/publisher/views.py
 #, python-brace-format
 msgid "There was an error saving course run, {error}"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "updated"
 msgstr ""
 
 #: apps/publisher/views.py
@@ -1254,6 +1267,24 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+msgid "STUDIO INSTANCE"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+msgid "This is the course studio URL."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_detail/_widgets.html
+msgid "STUDIO URL"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_detail/_widgets.html
+msgid "Not yet created"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
 msgid "PROGRAM ASSOCIATION"
 msgstr ""
 
@@ -1602,14 +1633,6 @@ msgid ""
 "\n"
 "                        Created %(created_date)s at %(created_time)s by %(created_by)s\n"
 "                    "
-msgstr ""
-
-#: templates/publisher/course_detail/_widgets.html
-msgid "STUDIO URL"
-msgstr ""
-
-#: templates/publisher/course_detail/_widgets.html
-msgid "Not yet created"
 msgstr ""
 
 #: templates/publisher/course_edit_form.html
@@ -2239,7 +2262,7 @@ msgstr ""
 #: templates/publisher/email/studio_instance_created.html
 #, python-format
 msgid ""
-"EdX has created a Studio instance for "
+"EdX has %(updated_text)s a Studio instance for "
 "%(link_start)s%(course_run_page_url)s%(link_middle)s %(course_name)s "
 "%(link_end)s. You can now edit this course and configure your course team in"
 " Studio."
@@ -2302,7 +2325,7 @@ msgstr ""
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
 msgid ""
-"EdX has created a Studio instance for %(course_name)s: "
+"EdX has %(updated_text)s a Studio instance for %(course_name)s: "
 "%(course_run_page_url)s. You can now edit this course in Studio."
 msgstr ""
 

@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-27 12:46+0500\n"
+"POT-Creation-Date: 2017-01-27 13:02+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -564,8 +564,13 @@ msgstr ""
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/emails.py
-msgid "Studio instance created"
-msgstr "Stüdïö ïnstänçé çréätéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+msgid "created"
+msgstr "çréätéd Ⱡ'σяєм ιρѕυм #"
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Studio instance {updated_text}"
+msgstr "Stüdïö ïnstänçé {updated_text} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
 #: apps/publisher/emails.py
 #, python-brace-format
@@ -666,6 +671,10 @@ msgstr "XSérïés Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 #: apps/publisher/forms.py
 msgid "MicroMasters Name"
 msgstr "MïçröMästérs Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: apps/publisher/forms.py
+msgid "Course Run Key"
+msgstr "Çöürsé Rün Kéý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: apps/publisher/forms.py
 msgid "Only audit seat can be without price."
@@ -864,6 +873,10 @@ msgid "There was an error saving course run, {error}"
 msgstr ""
 "Théré wäs än érrör sävïng çöürsé rün, {error} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
+
+#: apps/publisher/views.py
+msgid "updated"
+msgstr "üpdätéd Ⱡ'σяєм ιρѕυм #"
 
 #: apps/publisher/views.py
 msgid "Course run updated successfully."
@@ -1496,6 +1509,24 @@ msgstr ""
 "éndïng süçh äs .1x ör .2x. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: templates/publisher/add_update_course_form.html
+msgid "STUDIO INSTANCE"
+msgstr "STÛDÌÖ ÌNSTÀNÇÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: templates/publisher/add_update_course_form.html
+msgid "This is the course studio URL."
+msgstr "Thïs ïs thé çöürsé stüdïö ÛRL. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_detail/_widgets.html
+msgid "STUDIO URL"
+msgstr "STÛDÌÖ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσ#"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_detail/_widgets.html
+msgid "Not yet created"
+msgstr "Nöt ýét çréätéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: templates/publisher/add_update_course_form.html
 msgid "PROGRAM ASSOCIATION"
 msgstr "PRÖGRÀM ÀSSÖÇÌÀTÌÖN Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
@@ -1937,14 +1968,6 @@ msgstr ""
 "\n"
 "                        Çréätéd %(created_date)s ät %(created_time)s ßý %(created_by)s\n"
 "                     Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
-
-#: templates/publisher/course_detail/_widgets.html
-msgid "STUDIO URL"
-msgstr "STÛDÌÖ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσ#"
-
-#: templates/publisher/course_detail/_widgets.html
-msgid "Not yet created"
-msgstr "Nöt ýét çréätéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: templates/publisher/course_edit_form.html
 msgid "UPDATE COURSE"
@@ -2622,15 +2645,15 @@ msgstr "Déär %(course_team_name)s, Ⱡ'σяєм ιρѕυм ∂σł#"
 #: templates/publisher/email/studio_instance_created.html
 #, python-format
 msgid ""
-"EdX has created a Studio instance for "
+"EdX has %(updated_text)s a Studio instance for "
 "%(link_start)s%(course_run_page_url)s%(link_middle)s %(course_name)s "
 "%(link_end)s. You can now edit this course and configure your course team in"
 " Studio."
 msgstr ""
-"ÉdX häs çréätéd ä Stüdïö ïnstänçé för "
+"ÉdX häs %(updated_text)s ä Stüdïö ïnstänçé för "
 "%(link_start)s%(course_run_page_url)s%(link_middle)s %(course_name)s "
 "%(link_end)s. Ýöü çän nöw édït thïs çöürsé änd çönfïgüré ýöür çöürsé téäm ïn"
-" Stüdïö. Ⱡ'σяє#"
+" Stüdïö. Ⱡ'σяєм ιρ#"
 
 #: templates/publisher/email/studio_instance_created.html
 #, python-format
@@ -2715,12 +2738,12 @@ msgstr ""
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
 msgid ""
-"EdX has created a Studio instance for %(course_name)s: "
+"EdX has %(updated_text)s a Studio instance for %(course_name)s: "
 "%(course_run_page_url)s. You can now edit this course in Studio."
 msgstr ""
-"ÉdX häs çréätéd ä Stüdïö ïnstänçé för %(course_name)s: "
+"ÉdX häs %(updated_text)s ä Stüdïö ïnstänçé för %(course_name)s: "
 "%(course_run_page_url)s. Ýöü çän nöw édït thïs çöürsé ïn Stüdïö. Ⱡ'σяєм "
-"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format

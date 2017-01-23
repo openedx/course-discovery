@@ -108,6 +108,7 @@ class CreateCourseViewTests(TestCase):
         course_dict = model_to_dict(self.course)
         course_dict['number'] = 'test course'
         course_dict['image'] = ''
+        course_dict['lms_course_id'] = ''
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
         self.assertEqual(response.status_code, 400)
 
@@ -381,7 +382,9 @@ class CreateCourseRunViewTests(TestCase):
         post_data = model_to_dict(self.course)
         post_data.update(self.course_run_dict)
         post_data.update(factory.build(dict, FACTORY_CLASS=factories.SeatFactory))
-        self._pop_valuse_from_dict(post_data, ['id', 'upgrade_deadline', 'image', 'team_admin', 'start'])
+        self._pop_valuse_from_dict(
+            post_data, ['id', 'upgrade_deadline', 'image', 'team_admin', 'start', 'lms_course_id']
+        )
 
         response = self.client.post(
             reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
@@ -421,7 +424,7 @@ class CreateCourseRunViewTests(TestCase):
                 'price': new_price
             }
         )
-        self._pop_valuse_from_dict(post_data, ['id', 'course', 'course_run'])
+        self._pop_valuse_from_dict(post_data, ['id', 'course', 'course_run', 'lms_course_id'])
         assign_perm(
             OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
         )
@@ -1703,6 +1706,7 @@ class CourseRunEditViewTests(TestCase):
             course_dict.pop('video_language')
             course_dict.pop('end')
             course_dict.pop('priority')
+            course_dict['lms_course_id'] = ''
             course_dict['start'] = self.start_date_time
             course_dict['end'] = self.end_date_time
             course_dict['organization'] = self.organization_extension.organization.id
@@ -1910,3 +1914,67 @@ class CourseRunEditViewTests(TestCase):
         'The following course run has been submitted for {{ state }}'.format(
             state=course_run.state.name
         )
+
+    def test_studio_instance_on_edit_page(self):
+        """
+        Verify that internal users can update course key from edit page.
+        """
+        response = self.client.get(self.edit_page_url)
+
+        self.assertContains(response, 'Course Run Key')
+        self.assertContains(response, 'name="lms_course_id"')
+
+        self.updated_dict['lms_course_id'] = 'course-v1:edxTest+Test342+2016Q1'
+
+        response = self.client.post(self.edit_page_url, self.updated_dict)
+
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.new_course_run.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        self.new_course_run = CourseRun.objects.get(id=self.new_course_run.id)
+        self.assertEqual(self.new_course_run.lms_course_id, self.updated_dict['lms_course_id'])
+
+        self.assert_email_sent(
+            reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.new_course_run.id}),
+            'Studio instance updated',
+            'EdX has updated a Studio instance for '
+        )
+
+    def assert_email_sent(self, object_path, subject, expected_body):
+        """
+        DRY method to assert sent email data.
+        """
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual(str(mail.outbox[1].subject), subject)
+
+        body = mail.outbox[1].body.strip()
+        self.assertIn(expected_body, body)
+        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=object_path)
+        self.assertIn(page_url, body)
+
+    def test_studio_instance_with_course_team(self):
+        """
+        Verify that non internal users cannot see course key field.
+        """
+        non_internal_user, __ = create_non_staff_user_and_login(self)
+        non_internal_user.groups.add(self.organization_extension.group)
+        assign_perm(
+            OrganizationExtension.EDIT_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+        response = self.client.get(self.edit_page_url)
+
+        self.assertNotContains(response, 'name="lms_course_id"')
+
+        self.assertContains(response, 'Course Run Key')
+        self.assertContains(response, 'STUDIO URL')
+        self.assertContains(response, 'Not yet created')
+
+        self.new_course_run.lms_course_id = 'course-v1:edxTest+Test342+2016Q1'
+        self.new_course_run.save()
+        response = self.client.get(self.edit_page_url)
+
+        self.assertContains(response, self.new_course_run.lms_course_id)

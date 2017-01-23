@@ -70,10 +70,7 @@ class FormValidMixin(object):
 
 def check_roles_access(user):
     """ Return True if user is part of a role that gives implicit access. """
-    if is_publisher_admin(user) or is_internal_user(user):
-        return True
-
-    return False
+    return is_publisher_admin(user) or is_internal_user(user)
 
 
 def check_course_organization_permission(user, course, permission):
