@@ -51,7 +51,9 @@ class AbstractMarketingSiteDataLoader(AbstractDataLoader):
         login_url = '{root}/user'.format(root=self.api_url)
         response = session.post(login_url, data=login_data)
         expected_url = '{root}/users/{username}'.format(root=self.api_url, username=username)
-        if not (response.status_code == 200 and response.url == expected_url):
+        admin_url = '{root}/admin'.format(root=self.api_url)
+        can_access_admin = session.get(admin_url)
+        if not (can_access_admin.status_code == 200 and response.url == expected_url):
             raise Exception('Login failed!')
 
         return session
