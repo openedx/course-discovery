@@ -87,6 +87,20 @@ class AbstractMarketingSiteDataLoaderTestMixin(DataLoaderTestMixin):
         responses.add(responses.POST, url, status=status, adding_headers=adding_headers)
         responses.add(responses.GET, landing_url)
 
+        responses.add(
+            responses.GET,
+            '{root}admin'.format(root=self.api_url),
+            status=(500 if failure else 200)
+        )
+
+        responses.add(
+            responses.GET,
+            '{root}restws/session/token'.format(root=self.api_url),
+            body='test token',
+            content_type='text/html',
+            status=200
+        )
+
     def mock_api_failure(self):
         url = self.api_url + 'node.json'
         responses.add(responses.GET, url, status=500)

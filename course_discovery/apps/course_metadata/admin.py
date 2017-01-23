@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from course_discovery.apps.course_metadata.forms import ProgramAdminForm, CourseAdminForm
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 from course_discovery.apps.course_metadata.publishers import ProgramPublisherException
+from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClientException
 
 
 class SeatInline(admin.TabularInline):
@@ -123,7 +124,7 @@ class ProgramAdmin(admin.ModelAdmin):
         try:
             super().save_model(request, obj, form, change)
             self.save_error = False
-        except ProgramPublisherException:
+        except (ProgramPublisherException, MarketingSiteAPIClientException):
             # TODO Redirect the user back to the form so that he/she can try again.
             logger.exception('An error occurred while publishing the program [%s] to the marketing site.', obj.uuid)
             msg = _('An error occurred while publishing the program to the marketing site. Please try again. '
