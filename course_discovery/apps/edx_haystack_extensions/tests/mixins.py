@@ -35,17 +35,9 @@ class SimpleQuerySearchBackendMixinTestMixin(SearchBackendTestMixin):
         'analyze_wildcard': True,
         'auto_generate_phrase_queries': True,
     }
-    default_function_score = {
-        'function_score': {
-            'query': {
-                'query_string': simple_query
-            },
-            'functions': [],
-            'boost': 1.0,
-            'score_mode': 'multiply',
-            'boost_mode': 'multiply'
-        }
-    }
+    default_function_score = { 'function_score': ElasticsearchBoostConfig.get_solo().function_score }
+    default_function_score['function_score']['query'] = { 'query_string': simple_query }
+
 
     def test_build_search_kwargs_all_qs_with_filter(self):
         with patch.object(BaseSearchBackend, 'build_models_list', return_value=['course_metadata.course']):
