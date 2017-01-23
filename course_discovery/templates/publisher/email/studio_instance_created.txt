@@ -4,7 +4,7 @@
     Dear {{ course_team_name }},
 {% endblocktrans %}
 {% blocktrans trimmed %}
-     EdX has created a Studio instance for {{ course_name }}: {{ course_run_page_url }}.
+     EdX has {{ updated_text }} a Studio instance for {{ course_name }}: {{ course_run_page_url }}.
      You can now edit this course in Studio.
 {% endblocktrans %}
 

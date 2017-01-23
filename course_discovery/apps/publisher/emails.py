@@ -52,15 +52,16 @@ def send_email_for_change_state(course_run):
         logger.exception('Failed to send email notifications for change state of course-run %s', course_run.id)
 
 
-def send_email_for_studio_instance_created(course_run):
+def send_email_for_studio_instance_created(course_run, updated_text=_('created')):
     """ Send an email to course team on studio instance creation.
 
         Arguments:
             course_run (CourseRun): CourseRun object
+            updated_text (String): String object
     """
     try:
         object_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
-        subject = _('Studio instance created')
+        subject = _('Studio instance {updated_text}').format(updated_text=updated_text)     # pylint: disable=no-member
 
         to_addresses = course_run.course.get_course_users_emails()
         from_address = settings.PUBLISHER_FROM_EMAIL
@@ -70,6 +71,7 @@ def send_email_for_studio_instance_created(course_run):
         partner_coordinator = course_user_roles.filter(role=PublisherUserRole.PartnerCoordinator).first()
 
         context = {
+            'updated_text': updated_text,
             'course_run': course_run,
             'course_run_page_url': 'https://{host}{path}'.format(
                 host=Site.objects.get_current().domain.strip('/'), path=object_path
