@@ -22,6 +22,7 @@ from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWOR
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.constants import (
     INTERNAL_USER_GROUP_NAME, ADMIN_GROUP_NAME, PARTNER_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME
@@ -1721,5 +1722,18 @@ class CourseRunEditViewTests(TestCase):
         Verify that publisher admin can access course run edit page.
         """
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+        response = self.client.get(self.edit_page_url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_edit_page_with_language_tags(self):
+        """
+        Verify that publisher user can access course run edit page.
+        """
+        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+
+        language_tag = LanguageTag(code='te-st', name='Test Language')
+        language_tag.save()
+        self.course_run.transcript_languages.add(language_tag)
+        self.course_run.save()
         response = self.client.get(self.edit_page_url)
         self.assertEqual(response.status_code, 200)
