@@ -7,7 +7,6 @@ from uuid import UUID
 
 from dateutil import rrule
 import pytz
-import requests
 from django.db.models import Q
 from django.utils.functional import cached_property
 from opaque_keys import InvalidKeyError
@@ -18,6 +17,7 @@ from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoade
 from course_discovery.apps.course_metadata.models import (
     Course, Organization, Person, Subject, Program, Position, LevelType, CourseRun
 )
+from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 logger = logging.getLogger(__name__)
@@ -37,24 +37,14 @@ class AbstractMarketingSiteDataLoader(AbstractDataLoader):
 
     @cached_property
     def api_client(self):
-        username = self.partner.marketing_site_api_username
 
-        # Login by posting to the login form
-        login_data = {
-            'name': username,
-            'pass': self.partner.marketing_site_api_password,
-            'form_id': 'user_login',
-            'op': 'Log in',
-        }
+        marketing_site_api_client = MarketingSiteAPIClient(
+            self.partner.marketing_site_api_username,
+            self.partner.marketing_site_api_password,
+            self.api_url
+        )
 
-        session = requests.Session()
-        login_url = '{root}/user'.format(root=self.api_url)
-        response = session.post(login_url, data=login_data)
-        expected_url = '{root}/users/{username}'.format(root=self.api_url, username=username)
-        if not (response.status_code == 200 and response.url == expected_url):
-            raise Exception('Login failed!')
-
-        return session
+        return marketing_site_api_client.api_session
 
     def get_query_kwargs(self):
         return {
