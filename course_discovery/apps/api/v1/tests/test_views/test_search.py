@@ -430,23 +430,24 @@ class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin,
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data, ["The 'q' querystring parameter is required for searching."])
 
-    def test_micromasters_boosting(self):
-        """ Verify micromasters are boosted over xseries."""
-        title = "micromasters"
-        ProgramFactory(
-            title=title + "1",
-            status=ProgramStatus.Active,
-            type=ProgramType.objects.get(name='MicroMasters'),
-            partner=self.partner
-        )
+    @ddt.data('MicroMasters', 'Professional Certificate')
+    def test_micromasters_and_professional_certificate_boosting(self, program_type):
+        """ Verify micromasters and professional certificates are boosted over xseries."""
+        title = program_type
         ProgramFactory(
             title=title + "2", status=ProgramStatus.Active,
             type=ProgramType.objects.get(name='XSeries'), partner=self.partner
         )
+        ProgramFactory(
+            title=title + "1",
+            status=ProgramStatus.Active,
+            type=ProgramType.objects.get(name=program_type),
+            partner=self.partner
+        )
         response = self.get_typeahead_response(title)
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
-        self.assertEqual(response_data['programs'][0]['type'], 'MicroMasters')
+        self.assertEqual(response_data['programs'][0]['type'], program_type)
         self.assertEqual(response_data['programs'][0]['title'], title + "1")
 
     def test_start_date_boosting(self):
