@@ -208,7 +208,7 @@ class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, Login
         active_program = ProgramFactory(courses=[course_run.course], status=ProgramStatus.Active)
         ProgramFactory(courses=[course_run.course], status=program_status)
 
-        with self.assertNumQueries(11):
+        with self.assertNumQueries(8):
             response = self.get_search_response('software', faceted=False)
 
             self.assertEqual(response.status_code, 200)
