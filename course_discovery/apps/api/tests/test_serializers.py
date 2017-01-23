@@ -644,6 +644,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
 
     def get_expected_data(self, program, request):
         expected = super().get_expected_data(program, request)
+
         expected.update({
             'authoring_organizations': OrganizationSerializer(program.authoring_organizations, many=True).data,
             'video': VideoSerializer(program.video).data,
@@ -655,8 +656,10 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             ).data,
             'expected_learning_items': [item.value for item in program.expected_learning_items.all()],
             'faq': FAQSerializer(program.faq, many=True).data,
-            'individual_endorsements': EndorsementSerializer(program.individual_endorsements, many=True).data,
-            'staff': PersonSerializer(program.staff, many=True).data,
+            'individual_endorsements': EndorsementSerializer(
+                program.individual_endorsements, many=True, context={'request': request}
+            ).data,
+            'staff': PersonSerializer(program.staff, many=True, context={'request': request}).data,
             'job_outlook_items': [item.value for item in program.job_outlook_items.all()],
             'languages': [serialize_language_to_code(l) for l in program.languages],
             'weeks_to_complete': program.weeks_to_complete,
@@ -1035,9 +1038,14 @@ class SeatSerializerTests(TestCase):
 
 class PersonSerializerTests(TestCase):
     def test_data(self):
+        request = make_request()
+        context = {'request': request}
+        image_field = StdImageSerializerField()
+        image_field._context = context  # pylint: disable=protected-access
+
         position = PositionFactory()
         person = position.person
-        serializer = PersonSerializer(person)
+        serializer = PersonSerializer(person, context=context)
 
         expected = {
             'uuid': str(person.uuid),
@@ -1045,6 +1053,7 @@ class PersonSerializerTests(TestCase):
             'family_name': person.family_name,
             'bio': person.bio,
             'profile_image_url': person.profile_image_url,
+            'profile_image': image_field.to_representation(person.profile_image),
             'position': PositionSerializer(position).data,
             'slug': person.slug,
         }
