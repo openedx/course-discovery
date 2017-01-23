@@ -1,7 +1,10 @@
+import base64
+
 from rest_framework import serializers
+from django.core.files.base import ContentFile
 
 
-class StdImageSerializerField(serializers.Field):
+class StdImageSerializerField(serializers.ImageField):
     """
     Custom serializer field to render out proper JSON representation of the StdImage field on model
     """
@@ -21,9 +24,19 @@ class StdImageSerializerField(serializers.Field):
 
         return serialized
 
-    def to_internal_value(self, obj):
-        """ We do not need to save/edit this banner image through serializer yet """
-        pass
+    def to_internal_value(self, data):
+        """ Save base 64 encoded images """
+        # SOURCE: http://matthewdaly.co.uk/blog/2015/07/04/handling-images-as-base64-strings-with-django-rest-framework/
+        if not data:
+            return None
+
+        if isinstance(data, str) and data.startswith('data:image'):
+            # base64 encoded image - decode
+            file_format, imgstr = data.split(';base64,')  # format ~= data:image/X;base64,/xxxyyyzzz/
+            ext = file_format.split('/')[-1]  # guess file extension
+            data = ContentFile(base64.b64decode(imgstr), name='tmp.' + ext)
+
+        return super(StdImageSerializerField, self).to_internal_value(data)
 
 
 class ImageField(serializers.Field):  # pylint:disable=abstract-method

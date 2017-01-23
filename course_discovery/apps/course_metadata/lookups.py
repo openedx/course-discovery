@@ -66,9 +66,13 @@ class PersonAutocomplete(autocomplete.Select2QuerySetView):
         return []
 
     def get_result_label(self, result):
+        profile_image = result.profile_image_url
+        if hasattr(result.profile_image, 'url'):
+            profile_image = result.profile_image.url
+
         context = {
-            'id': result.id,
-            'profile_image': result.profile_image_url,
+            'uuid': result.uuid,
+            'profile_image': profile_image,
             'full_name': result.full_name,
             'position': result.position if hasattr(result, 'position') else None
         }

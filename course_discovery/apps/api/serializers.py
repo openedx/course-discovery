@@ -201,12 +201,16 @@ class PositionSerializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = Position
-        fields = ('title', 'organization_name',)
+        fields = ('title', 'organization_name', 'organization')
+        extra_kwargs = {
+            'organization': {'write_only': True}
+        }
 
 
 class PersonSerializer(serializers.ModelSerializer):
     """Serializer for the ``Person`` model."""
-    position = PositionSerializer()
+    position = PositionSerializer(required=False)
+    profile_image = StdImageSerializerField(required=False)
 
     @classmethod
     def prefetch_queryset(cls):
@@ -214,7 +218,19 @@ class PersonSerializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = Person
-        fields = ('uuid', 'given_name', 'family_name', 'bio', 'profile_image_url', 'slug', 'position')
+        fields = (
+            'uuid', 'given_name', 'family_name', 'bio', 'profile_image_url', 'slug', 'position', 'profile_image',
+            'partner',
+        )
+        extra_kwargs = {
+            'partner': {'write_only': True}
+        }
+
+    def create(self, validated_data):
+        position_data = validated_data.pop('position')
+        person = Person.objects.create(**validated_data)
+        Position.objects.create(person=person, **position_data)
+        return person
 
 
 class EndorsementSerializer(serializers.ModelSerializer):

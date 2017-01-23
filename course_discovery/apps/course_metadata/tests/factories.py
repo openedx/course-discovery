@@ -172,6 +172,7 @@ class PersonFactory(factory.DjangoModelFactory):
     family_name = factory.Faker('last_name')
     bio = FuzzyText()
     profile_image_url = FuzzyURL()
+    profile_image = FuzzyText(prefix='https://example.com/person/profile_image')
 
     class Meta:
         model = Person

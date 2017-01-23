@@ -58,6 +58,41 @@ $(document).ready(function(){
         closeModal(e, $('#addInstructorModal'));
     });
 
+    $('.btn-save').click(function (e) {
+        $.ajax({
+            type: "POST",
+            url: "/api/v1/people/",
+            data: {
+                'data': JSON.stringify(
+                    {
+                        'given_name': $('#given-name').val(),
+                        'family_name': $('#family-name').val(),
+                        'bio': $('#bio').val(),
+                        'profile_image': $('.select-image').attr('src'),
+                        'position':{
+                            'title': $('#title').val(),
+                            'organization': parseInt($('#id_organization').val())
+                        }
+                    }
+                )
+            },
+            success: function (response) {
+                $('#given-name').val('');
+                $('#family-name').val('');
+                $('#title').val('');
+                $('#bio').val('');
+                $('.select-image').attr('src', '')
+                clearModalError();
+                closeModal(e, $('#addInstructorModal'));
+            },
+            error: function (response) {
+                addModalError(gettext("Something went wrong!"));
+                console.log(response);
+            }
+        });
+    });
+
+
     $("#id_staff").find('option:selected').each(function(){
         var id = this.value,
             label = $.parseHTML(this.label),
@@ -127,14 +162,22 @@ function loadAdminUsers(org_id) {
 }
 
 function loadSelectedImage(input) {
+    // 1mb in bytes
+    var maxFileSize = 1000000;
+
     if (input.files && input.files[0]) {
-        var reader = new FileReader();
+        if (input.files[0].size > maxFileSize) {
+            addModalError(gettext("File must be smaller than 1 megabyte in size."));
+        } else {
+            var reader = new FileReader();
 
-        reader.onload = function (e) {
-            $('.select-image').attr('src', e.target.result);
-        };
+            clearModalError();
+            reader.onload = function (e) {
+                $('.select-image').attr('src', e.target.result);
+            };
 
-        reader.readAsDataURL(input.files[0]);
+            reader.readAsDataURL(input.files[0]);
+        }
     }
 }
 
@@ -199,3 +242,16 @@ $(document).on('change', '#id_select_revisions', function (e) {
     // on changing the revision from dropdown set the href of button.
     $('#id_open_revision').prop("href", this.value);
 });
+
+function addModalError(errorMessage) {
+    var errorHtml = '<div class="alert alert-error" role="alert" aria-labelledby="alert-title-error" tabindex="-1">' +
+        '<div><p class="alert-copy">' + errorMessage + '</p></div></div>';
+
+    $('#modal-errors').html(errorHtml);
+    $('#modal-errors').show();
+}
+
+function clearModalError($modal) {
+    $('#modal-errors').html('');
+    $('#modal-errors').hide();
+}
