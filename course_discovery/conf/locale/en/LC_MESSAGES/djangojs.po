@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-03 15:35+0500\n"
+"POT-Creation-Date: 2017-02-03 14:30-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,6 +26,14 @@ msgstr ""
 
 #: static/js/publisher/comparing-objects.js
 msgid "Show changes"
+msgstr ""
+
+#: static/js/publisher/publisher.js
+msgid "Something went wrong!"
+msgstr ""
+
+#: static/js/publisher/publisher.js
+msgid "File must be smaller than 1 megabyte in size."
 msgstr ""
 
 #: static/js/publisher/views/dashboard.js
