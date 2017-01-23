@@ -185,6 +185,29 @@
                     </div>
                 </div>
 
+                {% if edit_mode %}
+                    <div class="field-title">{% trans "STUDIO INSTANCE" %}</div>
+                    <div class="row">
+                        <div class="col col-6 help-text">
+                            <p>{% trans "This is the course studio URL." %}</p>
+                        </div>
+                        <div class="col col-6">
+                            <label class="field-label ">{{ run_form.lms_course_id.label_tag }}</label>
+                            {% if is_internal_user %}
+                                {{ run_form.lms_course_id }}
+                            {% else %}
+                                <div class="studio-url">
+                                    <span class="studio-url-heading">{% trans "STUDIO URL" %} - </span>
+                                    {% if run_form.lms_course_id.value %}
+                                        <a class="studio-link" href="#" target="_blank">{{ course_run.lms_course_id }}</a>
+                                    {% else %}
+                                        {% trans "Not yet created" %}
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
             </fieldset>
         </div>
     </div>

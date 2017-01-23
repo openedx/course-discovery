@@ -18,7 +18,7 @@ from guardian.shortcuts import get_objects_for_user
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.choices import PublisherUserRole
-from course_discovery.apps.publisher.emails import send_email_for_course_creation
+from course_discovery.apps.publisher import emails
 from course_discovery.apps.publisher.forms import (
     SeatForm, CustomCourseForm, CustomCourseRunForm,
     CustomSeatForm, UpdateCourseForm
@@ -252,7 +252,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
                         '{email} when the Studio instance has been created.').format(email=request.user.email))
 
                     # sending email for notifying new course is created.
-                    send_email_for_course_creation(course, run_course)
+                    emails.send_email_for_course_creation(course, run_course)
 
                     return HttpResponseRedirect(self.get_success_url(run_course.id))
             except Exception as e:  # pylint: disable=broad-except
@@ -458,6 +458,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
             'organization_name': organization.name,
             'organization': organization,
             'publisher_hide_features_for_pilot': waffle.switch_is_active('publisher_hide_features_for_pilot'),
+            'is_internal_user': mixins.check_roles_access(self.request.user),
             'edit_mode': True,
         }
 
@@ -491,6 +492,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
 
         context = self.get_context_data()
         course_run = context.get('course_run')
+        lms_course_id = course_run.lms_course_id
 
         course_form = self.course_form(
             request.POST, request.FILES,
@@ -522,6 +524,9 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
                     # in case of any updating move the course-run state to draft.
                     if course_run.state.name != State.DRAFT:
                         course_run.change_state(user=user)
+
+                    if lms_course_id != course_run.lms_course_id:
+                        emails.send_email_for_studio_instance_created(course_run, updated_text=_('updated'))
 
                     # pylint: disable=no-member
                     messages.success(request, _('Course run updated successfully.'))

@@ -4,7 +4,10 @@ Course publisher forms.
 from dal import autocomplete
 from django import forms
 from django.template.loader import render_to_string
+from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
+from opaque_keys import InvalidKeyError
+from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import Person, Organization, Subject
@@ -245,13 +248,14 @@ class CustomCourseRunForm(CourseRunForm):
 
     xseries_name = forms.CharField(label=_('XSeries Name'), required=False)
     micromasters_name = forms.CharField(label=_('MicroMasters Name'), required=False)
+    lms_course_id = forms.CharField(label=_('Course Run Key'), required=False)
 
     class Meta(CourseRunForm.Meta):
         fields = (
             'length', 'transcript_languages', 'language', 'min_effort', 'max_effort',
             'contacted_partner_manager', 'target_content', 'pacing_type', 'video_language',
             'staff', 'start', 'end', 'is_xseries', 'xseries_name', 'is_micromasters',
-            'micromasters_name',
+            'micromasters_name', 'lms_course_id',
         )
 
     def save(self, commit=True, course=None, changed_by=None):  # pylint: disable=arguments-differ
@@ -267,6 +271,19 @@ class CustomCourseRunForm(CourseRunForm):
             course_run.save()
 
         return course_run
+
+    def clean_lms_course_id(self):
+        lms_course_id = self.cleaned_data['lms_course_id']
+
+        if lms_course_id:
+            try:
+                CourseKey.from_string(lms_course_id)
+            except InvalidKeyError:
+                raise ValidationError("Invalid course key.")
+
+            return lms_course_id
+
+        return None
 
 
 class SeatForm(BaseCourseForm):
