@@ -147,7 +147,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         for course_run in excluded_runs:
             SeatFactory(course_run=course_run)
 
-        with self.assertNumQueries(45):
+        with self.assertNumQueries(42):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertListEqual(response.data['results'], self.serialize_catalog_course(courses, many=True))
@@ -173,7 +173,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
         url = reverse('api:v1:catalog-csv', kwargs={'id': self.catalog.id})
 
-        with self.assertNumQueries(21):
+        with self.assertNumQueries(18):
             response = self.client.get(url)
 
         course_run = self.serialize_catalog_flat_course_run(self.course_run)
