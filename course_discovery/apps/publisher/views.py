@@ -20,8 +20,7 @@ from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.emails import send_email_for_course_creation
 from course_discovery.apps.publisher.forms import (
-    CourseForm, CourseRunForm, SeatForm, CustomCourseForm, CustomCourseRunForm,
-    CustomSeatForm, UpdateCourseForm
+    CourseForm, SeatForm, CustomCourseForm, CustomCourseRunForm, CustomSeatForm, UpdateCourseForm
 )
 from course_discovery.apps.publisher import mixins
 from course_discovery.apps.publisher.models import (
@@ -393,7 +392,7 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
 class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, mixins.FormValidMixin, UpdateView):
     """ Course Run Edit View."""
     model = CourseRun
-    form_class = CourseRunForm
+    form_class = CustomCourseRunForm
     permission = OrganizationExtension.EDIT_COURSE_RUN
     template_name = 'publisher/course_run_form.html'
     success_url = 'publisher:publisher_course_runs_edit'

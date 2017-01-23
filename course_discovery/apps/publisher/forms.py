@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import Person, Organization, Subject
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from course_discovery.apps.publisher.mixins import LanguageModelSelect2Multiple
 from course_discovery.apps.publisher.models import (
     Course, CourseRun, Seat, User, OrganizationExtension, OrganizationUserRole, CourseUserRole
 )
@@ -174,7 +175,7 @@ class CustomCourseRunForm(CourseRunForm):
 
     transcript_languages = forms.ModelMultipleChoiceField(
         queryset=LanguageTag.objects.all(),
-        widget=autocomplete.ModelSelect2Multiple(
+        widget=LanguageModelSelect2Multiple(
             url='language_tags:language-tag-autocomplete',
             attrs={
                 'data-minimum-input-length': 2
@@ -202,7 +203,8 @@ class CustomCourseRunForm(CourseRunForm):
         fields = (
             'length', 'transcript_languages', 'language', 'min_effort', 'max_effort',
             'contacted_partner_manager', 'target_content', 'pacing_type', 'video_language',
-            'staff', 'start', 'end', 'is_xseries', 'xseries_name', 'is_micromasters', 'micromasters_name',
+            'staff', 'start', 'end', 'is_xseries', 'xseries_name', 'is_micromasters',
+            'micromasters_name', 'lms_course_id',
         )
 
     def save(self, commit=True, course=None, changed_by=None):  # pylint: disable=arguments-differ

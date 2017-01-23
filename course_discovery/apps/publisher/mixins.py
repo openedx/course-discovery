@@ -1,4 +1,6 @@
 from functools import wraps
+
+from dal import autocomplete
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.utils.decorators import method_decorator
@@ -56,6 +58,7 @@ class FormValidMixin(object):
         publisher_object = form.save(commit=False)
         publisher_object.changed_by = user
         publisher_object.save()
+        form.save_m2m()
 
         if self.change_state:
             publisher_object.change_state(user=user)
@@ -108,3 +111,18 @@ class PublisherUserRequiredMixin(object):
     @method_decorator(publisher_user_required)
     def dispatch(self, request, *args, **kwargs):
         return super(PublisherUserRequiredMixin, self).dispatch(request, *args, **kwargs)
+
+
+class LanguageModelSelect2Multiple(autocomplete.ModelSelect2Multiple):
+    """
+    QuerySet support for LanguageTag choices.
+
+    django.autocomplete queryset expects id field to filter choices but LanguageTag
+    does not have id field in it. It has code as primary key instead of id.
+    """
+
+    def filter_choices_to_render(self, selected_choices):
+        # pylint: disable=no-member
+        self.choices.queryset = self.choices.queryset.filter(
+            code__in=[c for c in selected_choices if c]
+        )
