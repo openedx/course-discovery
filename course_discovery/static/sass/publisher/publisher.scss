@@ -535,6 +535,10 @@ select {
       }
     }
   }
+
+    textarea {
+        width: 100%;
+    }
 }
 
 .comments-container {
@@ -820,7 +824,20 @@ select {
 
 .course-image {
     width: 480px;
-    height: 200px;
+    height: 250px;
+}
+
+.course-image-field {
+    .clear-image {
+        text-align: center;
+        margin-top: 10px;
+        width: 100%;
+    }
+
+    .course-image-thumbnail {
+        width: 100%;
+        height: 200px;
+    }
 }
 
 .selected-instructor {

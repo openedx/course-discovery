@@ -20,7 +20,7 @@ from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.emails import send_email_for_course_creation
 from course_discovery.apps.publisher.forms import (
-    CourseForm, SeatForm, CustomCourseForm, CustomCourseRunForm, CustomSeatForm, UpdateCourseForm
+    SeatForm, CustomCourseForm, CustomCourseRunForm, CustomSeatForm, UpdateCourseForm
 )
 from course_discovery.apps.publisher import mixins
 from course_discovery.apps.publisher.models import (
@@ -188,7 +188,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
 
     def get_context_data(self):
         return {
-            'course_form': self.course_form,
+            'course_form': self.course_form(user=self.request.user),
             'run_form': self.run_form,
             'seat_form': self.seat_form,
             'publisher_hide_features_for_pilot': waffle.switch_is_active('publisher_hide_features_for_pilot'),
@@ -204,7 +204,9 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
         # pass selected organization to CustomCourseForm to populate related
         # choices into institution admin field
         organization = self.request.POST.get('organization')
-        course_form = self.course_form(request.POST, request.FILES, organization=organization)
+        course_form = self.course_form(
+            request.POST, request.FILES, user=self.request.user, organization=organization
+        )
         run_form = self.run_form(request.POST)
         seat_form = self.seat_form(request.POST)
         if course_form.is_valid() and run_form.is_valid() and seat_form.is_valid():
@@ -275,21 +277,62 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
         return render(request, self.template_name, ctx, status=400)
 
 
-class CourseEditView(mixins.PublisherPermissionMixin, mixins.FormValidMixin, UpdateView):
+class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
     """ Course Edit View."""
     model = Course
-    form_class = CourseForm
+    form_class = CustomCourseForm
     permission = OrganizationExtension.EDIT_COURSE
-    template_name = 'publisher/course_form.html'
+    template_name = 'publisher/course_edit_form.html'
     success_url = 'publisher:publisher_course_detail'
 
     def get_success_url(self):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
-    def get_context_data(self, **kwargs):
-        context = super(CourseEditView, self).get_context_data(**kwargs)
-        context['comment_object'] = self.object
-        return context
+    def get_form_kwargs(self):
+        """
+        Pass extra kwargs to form, required for team_admin and organization querysets.
+        """
+        kwargs = super(CourseEditView, self).get_form_kwargs()
+        request = self.request
+
+        if request.POST:
+            kwargs.update(
+                {'user': request.user, 'organization': request.POST.get('organization')}
+            )
+        else:
+            organization = self.object.organizations.first()
+            kwargs.update(
+                user=request.user,
+                organization=organization,
+                initial={
+                    'organization': organization,
+                    'team_admin': self.object.course_team_admin
+                }
+            )
+
+        return kwargs
+
+    def form_valid(self, form):
+        """
+        If the form is valid, update organization and team_admin.
+        """
+        self.object = form.save()
+        self.object.changed_by = self.request.user
+        self.object.save()
+
+        organization_extension = get_object_or_404(
+            OrganizationExtension, organization=form.data['organization']
+        )
+        self.object.organizations.remove(self.object.organizations.first())
+        self.object.organizations.add(organization_extension.organization)
+
+        course_admin_role = get_object_or_404(
+            CourseUserRole, course=self.object, role=PublisherUserRole.CourseTeam
+        )
+        course_admin_role.user_id = form.data['team_admin']
+        course_admin_role.save()
+
+        return super(CourseEditView, self).form_valid(form)
 
 
 class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, DetailView):
