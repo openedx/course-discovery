@@ -324,6 +324,7 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
         self.assertEqual(response.data['objects']['results'], expected)
 
 
+@ddt.ddt
 class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin, LoginMixin, ElasticsearchTestMixin,
                                APITestCase):
     path = reverse('api:v1:search-typeahead')
@@ -418,9 +419,10 @@ class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin,
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data, ["The 'q' querystring parameter is required for searching."])
 
-    def test_micromasters_boosting(self):
+    @ddt.data('MicroMasters', 'Professional Certificate')
+    def test_micromasters_boosting(self, program_type):
         """ Verify micromasters are boosted over xseries."""
-        title = "micromasters"
+        title = program_type
         ProgramFactory(
             title=title + "1", status=ProgramStatus.Active,
             type=ProgramType.objects.get(name='XSeries'), partner=self.partner
@@ -428,13 +430,13 @@ class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin,
         ProgramFactory(
             title=title + "2",
             status=ProgramStatus.Active,
-            type=ProgramType.objects.get(name='MicroMasters'),
+            type=ProgramType.objects.get(name=program_type),
             partner=self.partner
         )
         response = self.get_typeahead_response(title)
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
-        self.assertEqual(response_data['programs'][0]['type'], 'MicroMasters')
+        self.assertEqual(response_data['programs'][0]['type'], program_type)
         self.assertEqual(response_data['programs'][0]['title'], title + "2")
 
     def test_start_date_boosting(self):
