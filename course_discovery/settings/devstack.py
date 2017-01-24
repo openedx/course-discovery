@@ -24,6 +24,10 @@ SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
 
 DEFAULT_PARTNER_ID = 1
 
+# Allow live changes to JS and CSS
+COMPRESS_OFFLINE = False
+COMPRESS_ENABLED = False
+
 #####################################################################
 # Lastly, see if the developer has any local overrides.
 if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):
