@@ -19,7 +19,7 @@ from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     AbstractMediaModel, AbstractNamedModel, AbstractValueModel,
-    CorporateEndorsement, Course, CourseRun, Endorsement, FAQ, SeatType, ProgramType,
+    CorporateEndorsement, Course, CourseRun, Endorsement, FAQ, Seat, SeatType, ProgramType,
 )
 from course_discovery.apps.course_metadata.publishers import MarketingSitePublisher
 from course_discovery.apps.course_metadata.tests import factories, toggle_switch
@@ -185,6 +185,83 @@ class CourseRunTests(TestCase):
         active_program = factories.ProgramFactory(courses=[self.course_run.course])
         factories.ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Deleted)
         self.assertEqual(self.course_run.program_types, [active_program.type.name])
+
+    @ddt.data(
+        # Case 1: Return False when there are no paid Seats.
+        ([('audit', 0)], False),
+        ([('audit', 0), ('verified', 0)], False),
+
+        # Case 2: Return False when there are no paid Seats without prerequisites.
+        ([(seat_type, 1) for seat_type in Seat.SEATS_WITH_PREREQUISITES], False),
+
+        # Case 3: Return True when there is at least one paid Seat without prerequisites.
+        ([('audit', 0), ('verified', 1)], True),
+        ([('audit', 0), ('verified', 1), ('professional', 1)], True),
+        ([('audit', 0), ('verified', 1)] + [(seat_type, 1) for seat_type in Seat.SEATS_WITH_PREREQUISITES], True),
+    )
+    @ddt.unpack
+    def test_has_enrollable_paid_seats(self, seat_config, expected_result):
+        """
+        Verify that has_enrollable_paid_seats is True when CourseRun has Seats with price > 0 and no prerequisites.
+        """
+        course_run = factories.CourseRunFactory.create()
+        for seat_type, price in seat_config:
+            factories.SeatFactory.create(course_run=course_run, type=seat_type, price=price)
+        self.assertEqual(course_run.has_enrollable_paid_seats(), expected_result)
+
+    @ddt.data(
+        # Case 1: Return None when there are no enrollable paid Seats.
+        ([('audit', 0, None)], '2016-12-31 00:00:00Z', '2016-08-31 00:00:00Z', None),
+        ([(seat_type, 1, None) for seat_type in Seat.SEATS_WITH_PREREQUISITES],
+         '2016-12-31 00:00:00Z', '2016-08-31 00:00:00Z', None),
+
+        # Case 2: Return the latest upgrade_deadline of the enrollable paid Seats when it's earlier than
+        # enrollment_end and course end.
+        ([('audit', 0, None), ('verified', 1, '2016-07-30 00:00:00Z')],
+         '2016-12-31 00:00:00Z', '2016-08-31 00:00:00Z', '2016-07-30 00:00:00Z'),
+        ([('audit', 0, None), ('verified', 1, '2016-07-30 00:00:00Z'), ('professional', 1, '2016-08-15 00:00:00Z')],
+         '2016-12-31 00:00:00Z', '2016-08-31 00:00:00Z', '2016-08-15 00:00:00Z'),
+        ([('audit', 0, None), ('verified', 1, '2016-07-30 00:00:00Z')] +
+         [(seat_type, 1, '2016-08-15 00:00:00Z') for seat_type in Seat.SEATS_WITH_PREREQUISITES],
+         '2016-12-31 00:00:00Z', '2016-08-31 00:00:00Z', '2016-07-30 00:00:00Z'),
+
+        # Case 3: Return enrollment_end when it's earlier than course end and the latest upgrade_deadline of the
+        # enrollable paid Seats, or when one of those Seats does not have an upgrade_deadline.
+        ([('audit', 0, None), ('verified', 1, '2016-07-30 00:00:00Z'), ('professional', 1, '2016-09-15 00:00:00Z')],
+         '2016-12-31 00:00:00Z', '2016-08-31 00:00:00Z', '2016-08-31 00:00:00Z'),
+        ([('audit', 0, None), ('verified', 1, '2016-07-30 00:00:00Z'), ('professional', 1, None)],
+         '2016-12-31 00:00:00Z', '2016-08-31 00:00:00Z', '2016-08-31 00:00:00Z'),
+
+        # Case 4: Return course end when it's earlier than enrollment_end or enrollment_end is None, and it's earlier
+        # than the latest upgrade_deadline of the enrollable paid Seats or when one of those Seats does not have an
+        # upgrade_deadline.
+        ([('audit', 0, None), ('verified', 1, '2016-07-30 00:00:00Z'), ('professional', 1, '2017-09-15 00:00:00Z')],
+         '2016-12-31 00:00:00Z', '2017-08-31 00:00:00Z', '2016-12-31 00:00:00Z'),
+        ([('audit', 0, None), ('verified', 1, '2016-07-30 00:00:00Z'), ('professional', 1, None)],
+         '2016-12-31 00:00:00Z', '2017-12-31 00:00:00Z', '2016-12-31 00:00:00Z'),
+        ([('audit', 0, None), ('verified', 1, '2016-07-30 00:00:00Z'), ('professional', 1, None)],
+         '2016-12-31 00:00:00Z', None, '2016-12-31 00:00:00Z'),
+
+        # Case 5: Return None when course end and enrollment_end are None and there's an enrollable paid Seat without
+        # an upgrade_deadline, even when there's another enrollable paid Seat with an upgrade_deadline.
+        ([('audit', 0, None), ('verified', 1, '2016-07-30 00:00:00Z'), ('professional', 1, None)],
+         None, None, None)
+    )
+    @ddt.unpack
+    def test_get_paid_seat_enrollment_end(self, seat_config, course_end, course_enrollment_end, expected_result):
+        """
+        Verify that paid_seat_enrollment_end returns the latest possible date for which an unerolled user may
+        enroll and purchase an upgrade for the CourseRun or None if date unknown or paid Seats are not available.
+        """
+        end = parse(course_end) if course_end else None
+        enrollment_end = parse(course_enrollment_end) if course_enrollment_end else None
+        course_run = factories.CourseRunFactory.create(end=end, enrollment_end=enrollment_end)
+        for seat_type, price, deadline in seat_config:
+            deadline = parse(deadline) if deadline else None
+            factories.SeatFactory.create(course_run=course_run, type=seat_type, price=price, upgrade_deadline=deadline)
+
+        expected_result = parse(expected_result) if expected_result else None
+        self.assertEqual(course_run.get_paid_seat_enrollment_end(), expected_result)
 
 
 class OrganizationTests(TestCase):
