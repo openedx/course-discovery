@@ -150,6 +150,14 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     authoring_organization_uuids = indexes.MultiValueField()
     staff_uuids = indexes.MultiValueField()
     subject_uuids = indexes.MultiValueField()
+    has_enrollable_paid_seats = indexes.BooleanField(null=False)
+    paid_seat_enrollment_end = indexes.DateTimeField(null=True)
+
+    def prepare_has_enrollable_paid_seats(self, obj):
+        return obj.has_enrollable_paid_seats()
+
+    def prepare_paid_seat_enrollment_end(self, obj):
+        return obj.get_paid_seat_enrollment_end()
 
     def prepare_partner(self, obj):
         return obj.course.partner.short_code

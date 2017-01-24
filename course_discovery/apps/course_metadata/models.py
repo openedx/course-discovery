@@ -381,6 +381,47 @@ class CourseRun(TimeStampedModel):
 
     objects = CourseRunQuerySet.as_manager()
 
+    def _enrollable_paid_seats(self):
+        """
+        Return a QuerySet that may be used to fetch the enrollable paid Seats (Seats with price > 0 and no
+        prerequisites) associated with this CourseRun.
+        """
+        return self.seats.exclude(type__in=Seat.SEATS_WITH_PREREQUISITES).filter(price__gt=0.0)
+
+    def has_enrollable_paid_seats(self):
+        """
+        Return a boolean indicating whether or not enrollable paid Seats (Seats with price > 0 and no prerequisites)
+        are available for this CourseRun.
+        """
+        return len(self._enrollable_paid_seats()[:1]) > 0
+
+    def get_paid_seat_enrollment_end(self):
+        """
+        Return the final date for which an unenrolled user may enroll and purchase a paid Seat for this CourseRun, or
+        None if the date is unknown or enrollable paid Seats are not available.
+        """
+        seats = list(self._enrollable_paid_seats().order_by('-upgrade_deadline'))
+        if len(seats) == 0:
+            # Enrollable paid seats are not available for this CourseRun.
+            return None
+
+        # An unenrolled user may not enroll and purchase paid seats after the course has ended.
+        deadline = self.end
+
+        # An unenrolled user may not enroll and purchase paid seats after enrollment has ended.
+        if self.enrollment_end and (deadline is None or self.enrollment_end < deadline):
+            deadline = self.enrollment_end
+
+        # Note that even though we're sorting in descending order by upgrade_deadline, we will need to look at
+        # both the first and last record in the result set to determine which Seat has the latest upgrade_deadline.
+        # We consider Null values to be > than non-Null values, and Null values may sort to the top or bottom of
+        # the result set, depending on the DB backend.
+        latest_seat = seats[-1] if seats[-1].upgrade_deadline is None else seats[0]
+        if latest_seat.upgrade_deadline and (deadline is None or latest_seat.upgrade_deadline < deadline):
+            deadline = latest_seat.upgrade_deadline
+
+        return deadline
+
     @property
     def program_types(self):
         """
@@ -524,6 +565,10 @@ class Seat(TimeStampedModel):
     VERIFIED = 'verified'
     PROFESSIONAL = 'professional'
     CREDIT = 'credit'
+
+    # Seat types that may not be purchased without first purchasing another Seat type.
+    # EX: 'credit' seats may not be purchased without first purchasing a 'verified' Seat.
+    SEATS_WITH_PREREQUISITES = [CREDIT]
 
     SEAT_TYPE_CHOICES = (
         (HONOR, _('Honor')),

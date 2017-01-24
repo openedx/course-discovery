@@ -1,11 +1,14 @@
 import datetime
 import json
 import urllib.parse
+from mock import patch
 
 import ddt
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.test import TestCase
 from haystack.query import SearchQuerySet
+import pytz
 from rest_framework.test import APITestCase
 
 from course_discovery.apps.api.serializers import (
@@ -364,7 +367,6 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
         self.assertEqual(response.data['objects']['results'], expected)
 
 
-@ddt.ddt
 class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin, LoginMixin, ElasticsearchTestMixin,
                                APITestCase):
     path = reverse('api:v1:search-typeahead')
@@ -459,47 +461,6 @@ class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin,
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data, ["The 'q' querystring parameter is required for searching."])
 
-    @ddt.data('MicroMasters', 'Professional Certificate')
-    def test_program_type_boosting(self, program_type):
-        """ Verify MicroMasters and Professional Certificate are boosted over XSeries."""
-        title = program_type
-        ProgramFactory(
-            title=title + "1", status=ProgramStatus.Active,
-            type=ProgramType.objects.get(name='XSeries'), partner=self.partner
-        )
-        ProgramFactory(
-            title=title + "2",
-            status=ProgramStatus.Active,
-            type=ProgramType.objects.get(name=program_type),
-            partner=self.partner
-        )
-        response = self.get_typeahead_response(title)
-        self.assertEqual(response.status_code, 200)
-        response_data = response.json()
-        self.assertEqual(response_data['programs'][0]['type'], program_type)
-        self.assertEqual(response_data['programs'][0]['title'], title + "2")
-
-    def test_start_date_boosting(self):
-        """ Verify upcoming courses are boosted over past courses."""
-        title = "start"
-        now = datetime.datetime.utcnow()
-        CourseRunFactory(title=title + "1", start=now - datetime.timedelta(weeks=10), course__partner=self.partner)
-        CourseRunFactory(title=title + "2", start=now + datetime.timedelta(weeks=1), course__partner=self.partner)
-        response = self.get_typeahead_response(title)
-        self.assertEqual(response.status_code, 200)
-        response_data = response.json()
-        self.assertEqual(response_data['course_runs'][0]['title'], title + "2")
-
-    def test_self_paced_boosting(self):
-        """ Verify that self paced courses are boosted over instructor led courses."""
-        title = "paced"
-        CourseRunFactory(title=title + "1", pacing_type='instructor_paced', course__partner=self.partner)
-        CourseRunFactory(title=title + "2", pacing_type='self_paced', course__partner=self.partner)
-        response = self.get_typeahead_response(title)
-        self.assertEqual(response.status_code, 200)
-        response_data = response.json()
-        self.assertEqual(response_data['course_runs'][0]['title'], title + "2")
-
     def test_typeahead_authoring_organizations_partial_search(self):
         """ Test typeahead response with partial organization matching. """
         authoring_organizations = OrganizationFactory.create_batch(3)
@@ -568,3 +529,81 @@ class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin,
         edx_program = programs[0]
         self.assertDictEqual(response.data, {'course_runs': [self.serialize_course_run(edx_course_run)],
                                              'programs': [self.serialize_program(edx_program)]})
+
+
+@ddt.ddt
+class SearchBoostingTests(ElasticsearchTestMixin, TestCase):
+    def build_normalized_course_run(self, **kwargs):
+        """ Builds a CourseRun with fields set to normalize boosting behavior."""
+        defaults = {
+            'pacing_type': 'instructor_paced',
+            'start': datetime.datetime.now(pytz.timezone('utc')) + datetime.timedelta(weeks=52),
+        }
+        defaults.update(kwargs)
+        return CourseRunFactory(**defaults)
+
+    def test_start_date_boosting(self):
+        """ Verify upcoming courses are boosted over past courses."""
+        now = datetime.datetime.now(pytz.timezone('utc'))
+        self.build_normalized_course_run(start=now + datetime.timedelta(weeks=10))
+        test_record = self.build_normalized_course_run(start=now + datetime.timedelta(weeks=1))
+
+        search_results = SearchQuerySet().models(CourseRun).all()
+        self.assertEqual(2, len(search_results))
+        self.assertGreater(search_results[0].score, search_results[1].score)
+        self.assertEqual(int(test_record.start.timestamp()), int(search_results[0].start.timestamp()))  # pylint: disable=no-member
+
+    def test_self_paced_boosting(self):
+        """ Verify that self paced courses are boosted over instructor led courses."""
+        self.build_normalized_course_run(pacing_type='instructor_paced')
+        test_record = self.build_normalized_course_run(pacing_type='self_paced')
+
+        search_results = SearchQuerySet().models(CourseRun).all()
+        self.assertEqual(2, len(search_results))
+        self.assertGreater(search_results[0].score, search_results[1].score)
+        self.assertEqual(test_record.pacing_type, search_results[0].pacing_type)
+
+    @ddt.data(
+        # Case 1: Should not get boost if has_enrollable_paid_seats is False, has_enrollable_paid_seats is None or
+        #   paid_seat_enrollment_end is in the past.
+        (False, None, False),
+        (None, None, False),
+        (True, datetime.datetime.now(pytz.timezone('utc')) - datetime.timedelta(days=15), False),
+
+        # Case 2: Should get boost if has_enrollable_paid_seats is True and paid_seat_enrollment_end is None or
+        #   in the future.
+        (True, None, True),
+        (True, datetime.datetime.now(pytz.timezone('utc')) + datetime.timedelta(days=15), True)
+    )
+    @ddt.unpack
+    def test_enrollable_paid_seat_boosting(self, has_enrollable_paid_seats, paid_seat_enrollment_end, expects_boost):
+        """ Verify that CourseRuns for which an unenrolled user may enroll and purchase a paid Seat are boosted."""
+
+        # Create a control record (one that should never be boosted).
+        with patch.object(CourseRun, 'has_enrollable_paid_seats', return_value=False):
+            with patch.object(CourseRun, 'get_paid_seat_enrollment_end', return_value=None):
+                self.build_normalized_course_run(title='test1')
+
+        # Create the test record (may be boosted).
+        with patch.object(CourseRun, 'has_enrollable_paid_seats', return_value=has_enrollable_paid_seats):
+            with patch.object(CourseRun, 'get_paid_seat_enrollment_end', return_value=paid_seat_enrollment_end):
+                test_record = self.build_normalized_course_run(title='test2')
+
+        search_results = SearchQuerySet().models(CourseRun).all()
+        self.assertEqual(2, len(search_results))
+        if expects_boost:
+            self.assertGreater(search_results[0].score, search_results[1].score)
+            self.assertEqual(test_record.title, search_results[0].title)
+        else:
+            self.assertEqual(search_results[0].score, search_results[1].score)
+
+    @ddt.data('MicroMasters', 'Professional Certificate')
+    def test_program_type_boosting(self, program_type):
+        """ Verify MicroMasters and Professional Certificate are boosted over XSeries."""
+        ProgramFactory(type=ProgramType.objects.get(name='XSeries'))
+        test_record = ProgramFactory(type=ProgramType.objects.get(name=program_type))
+
+        search_results = SearchQuerySet().models(Program).all()
+        self.assertEqual(2, len(search_results))
+        self.assertGreater(search_results[0].score, search_results[1].score)
+        self.assertEqual(str(test_record.type), str(search_results[0].type))
