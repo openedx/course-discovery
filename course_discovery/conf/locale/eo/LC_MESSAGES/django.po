@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-20 16:08+0500\n"
+"POT-Creation-Date: 2017-01-24 10:18-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -393,6 +393,12 @@ msgid "Estimated number of weeks needed to complete this course run."
 msgstr ""
 "Éstïmätéd nümßér öf wééks néédéd tö çömplété thïs çöürsé rün. Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Indicates whether the course relation has been manually overridden."
+msgstr ""
+"Ìndïçätés whéthér thé çöürsé rélätïön häs ßéén mänüällý övérrïddén. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: apps/course_metadata/models.py
 msgid "Archived"
