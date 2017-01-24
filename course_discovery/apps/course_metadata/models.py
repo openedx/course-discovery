@@ -374,6 +374,10 @@ class CourseRun(TimeStampedModel):
     slug = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     hidden = models.BooleanField(default=False)
     mobile_available = models.BooleanField(default=False)
+    course_overridden = models.BooleanField(
+        default=False,
+        help_text=_('Indicates whether the course relation has been manually overridden.')
+    )
 
     objects = CourseRunQuerySet.as_manager()
 
