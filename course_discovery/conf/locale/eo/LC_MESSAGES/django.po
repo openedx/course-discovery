@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-25 12:05+0500\n"
+"POT-Creation-Date: 2017-01-26 15:26+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -575,6 +575,10 @@ msgstr ""
 "¢σηѕє¢тєт#"
 
 #: apps/publisher/forms.py
+msgid "Remove Image"
+msgstr "Rémövé Ìmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/publisher/forms.py
 msgid "Organization Name"
 msgstr "Örgänïzätïön Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
@@ -946,7 +950,7 @@ msgstr "Sävé Ⱡ'σяєм ι#"
 
 #: templates/metadata/admin/course_run.html
 #: templates/publisher/_add_instructor_popup.html
-#: templates/publisher/course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Cancel"
 msgstr "Çänçél Ⱡ'σяєм ιρѕυ#"
 
@@ -1072,7 +1076,7 @@ msgid "Sign Out"
 msgstr "Sïgn Öüt Ⱡ'σяєм ιρѕυм ∂#"
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/course_detail.html templates/publisher/course_form.html
+#: templates/publisher/course_detail.html
 msgid "Course Form"
 msgstr "Çöürsé Förm Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
@@ -1081,6 +1085,7 @@ msgid "Add Course"
 msgstr "Àdd Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "The information in the Studio Instance section is required before edX can "
 "create a Studio instance for the course run."
@@ -1089,6 +1094,7 @@ msgstr ""
 "çréäté ä Stüdïö ïnstänçé för thé çöürsé rün. Ⱡ'σяєм ιρѕυм #"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "The information in the About Page section is not required before edX creates"
 " a Studio instance for the course run. You can return to this page and enter"
@@ -1105,10 +1111,12 @@ msgstr ""
 "νєłιт єѕѕє#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Studio Instance"
 msgstr "Stüdïö Ìnstänçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "This information is required before edX can create a Studio instance for a "
 "course run."
@@ -1126,45 +1134,54 @@ msgstr ""
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
+#: templates/publisher/course_edit_form.html
 msgid "COURSE TITLE"
 msgstr "ÇÖÛRSÉ TÌTLÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Best Practices"
 msgstr "Bést Präçtïçés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Examples"
 msgstr "Éxämplés Ⱡ'σяєм ιρѕυм ∂#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Maximum 70 characters. Recommended 50 or fewer characters."
 msgstr ""
 "Mäxïmüm 70 çhäräçtérs. Réçömméndéd 50 ör féwér çhäräçtérs. Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "An effective course title:"
 msgstr "Àn éfféçtïvé çöürsé tïtlé: Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Clearly indicates the course subject matter."
 msgstr ""
 "Çléärlý ïndïçätés thé çöürsé süßjéçt mättér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Follows search engine optimization (SEO) guidelines."
 msgstr ""
 "Föllöws séärçh éngïné öptïmïzätïön (SÉÖ) güïdélïnés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Targets a global audience."
 msgstr "Tärgéts ä glößäl äüdïénçé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "If the course is part of a sequence, include both sequence and course "
 "information as \\"
@@ -1173,36 +1190,43 @@ msgstr ""
 "ïnförmätïön äs \\ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Single Courses"
 msgstr "Sïnglé Çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
+#: templates/publisher/course_edit_form.html
 msgid "English Grammar and Essay Writing"
 msgstr ""
 "Énglïsh Grämmär änd Éssäý Wrïtïng Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Project Management Life Cycle"
 msgstr "Pröjéçt Mänägémént Lïfé Çýçlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Sequence Courses:"
 msgstr "Séqüénçé Çöürsés: Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Introduction to Statistics"
 msgstr "Ìntrödüçtïön tö Stätïstïçs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Statistics: Inference"
 msgstr "Stätïstïçs: Ìnférénçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Statistics: Probability"
 msgstr "Stätïstïçs: Prößäßïlïtý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
@@ -1285,16 +1309,19 @@ msgstr ""
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
+#: templates/publisher/course_edit_form.html
 msgid "COURSE NUMBER"
 msgstr "ÇÖÛRSÉ NÛMBÉR Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Maximum 10 characters. Characters can be letters, numbers, or periods."
 msgstr ""
 "Mäxïmüm 10 çhäräçtérs. Çhäräçtérs çän ßé léttérs, nümßérs, ör pérïöds. "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "If a course consists of several modules, the course number can have an "
 "ending such as .1x or .2x."
@@ -1304,6 +1331,7 @@ msgstr ""
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
+#: templates/publisher/course_edit_form.html
 msgid "About page information"
 msgstr "Àßöüt pägé ïnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
@@ -1343,10 +1371,12 @@ msgstr ""
 "döllärs (mïnïmüm öf $49) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "BRIEF DESCRIPTION"
 msgstr "BRÌÉF DÉSÇRÌPTÌÖN Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "Reads as a tag line - a short, engaging description for students browsing "
 "course listings"
@@ -1355,40 +1385,47 @@ msgstr ""
 "çöürsé lïstïngs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Conveys why someone should take the course"
 msgstr ""
 "Çönvéýs whý söméöné shöüld täké thé çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "SEO optimized and targeted to a global audience"
 msgstr ""
 "SÉÖ öptïmïzéd änd tärgétéd tö ä glößäl äüdïénçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
 " ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "140 character limit, including spaces."
 msgstr ""
 "140 çhäräçtér lïmït, ïnçlüdïng späçés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "FULL DESCRIPTION"
 msgstr "FÛLL DÉSÇRÌPTÌÖN Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Summarized description of course content"
 msgstr ""
 "Sümmärïzéd désçrïptïön öf çöürsé çöntént Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Describe why a learner should take this course"
 msgstr ""
 "Désçrïßé whý ä léärnér shöüld täké thïs çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "Text should be easily scannable, using bullet points to highlight instead of"
 " long, dense text paragraphs"
@@ -1397,6 +1434,7 @@ msgstr ""
 " löng, dénsé téxt pärägräphs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "Note: the first 4-5 lines will be visible to the learner immediately upon "
 "clicking the page;"
@@ -1405,6 +1443,7 @@ msgstr ""
 "çlïçkïng thé pägé; Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "additional text will be hidden yet available via \"See More\" clickable text"
 " under the first 4-5 lines"
@@ -1413,22 +1452,26 @@ msgstr ""
 " ündér thé fïrst 4-5 lïnés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "2500 character limit, including spaces."
 msgstr ""
 "2500 çhäräçtér lïmït, ïnçlüdïng späçés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "EXPECTED LEARNINGS"
 msgstr "ÉXPÉÇTÉD LÉÀRNÌNGS Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Answer to the question: \"What will you learn from this course?\""
 msgstr ""
 "Ànswér tö thé qüéstïön: \"Whät wïll ýöü léärn fröm thïs çöürsé?\" Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "bulleted items, approximately 4-10 words per bullet"
 msgstr ""
 "ßüllétéd ïtéms, äppröxïmätélý 4-10 wörds pér ßüllét Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
@@ -1461,10 +1504,12 @@ msgid "Instructor"
 msgstr "Ìnstrüçtör Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "SUBJECT FIELD"
 msgstr "SÛBJÉÇT FÌÉLD Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "Only one primary subject will appear on the About Page; please select one "
 "primary subject and a maximum of two additional subject areas for search."
@@ -1479,10 +1524,12 @@ msgstr ""
 "ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм #"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "COURSE IMAGE"
 msgstr "ÇÖÛRSÉ ÌMÀGÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "Select an eye-catching, colorful image that captures the content and essence"
 " of your course"
@@ -1491,23 +1538,27 @@ msgstr ""
 " öf ýöür çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Do not include text or headlines"
 msgstr ""
 "Dö nöt ïnçlüdé téxt ör héädlïnés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Choose an image that you have permission to use."
 msgstr ""
 "Çhöösé än ïmägé thät ýöü hävé pérmïssïön tö üsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "This can be a stock photo (try Flickr creative commons, "
 msgstr ""
 "Thïs çän ßé ä stöçk phötö (trý Flïçkr çréätïvé çömmöns,  Ⱡ'σяєм ιρѕυм ∂σłσя "
 "ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "Stock Vault, Stock XCHNG, iStock Photo) or an image custom designed for your"
 " course"
@@ -1516,20 +1567,24 @@ msgstr ""
 " çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Sequenced courses should each have a unique image"
 msgstr ""
 "Séqüénçéd çöürsés shöüld éäçh hävé ä ünïqüé ïmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Size: 2120 x 1192 pixels"
 msgstr "Sïzé: 2120 x 1192 pïxéls Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "PREREQUISITES"
 msgstr "PRÉRÉQÛÌSÌTÉS Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "List concepts and level (basic, advanced, undergraduate, graduate) students "
 "should be familiar with"
@@ -1538,24 +1593,28 @@ msgstr ""
 "shöüld ßé fämïlïär wïth Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "If there are no prerequisites, please list \"None.\""
 msgstr ""
 "Ìf théré äré nö préréqüïsïtés, pléäsé lïst \"Nöné.\" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "200 character limit, including spaces"
 msgstr ""
 "200 çhäräçtér lïmït, ïnçlüdïng späçés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "200 character limit, including spaces."
 msgstr ""
 "200 çhäräçtér lïmït, ïnçlüdïng späçés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "SYLLABUS"
 msgstr "SÝLLÀBÛS Ⱡ'σяєм ιρѕυм ∂#"
 
@@ -1624,10 +1683,12 @@ msgstr ""
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "LEVEL TYPE"
 msgstr "LÉVÉL TÝPÉ Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "Introductory - No prerequisites; an individual with some to all of a "
 "secondary school degree could complete"
@@ -1636,6 +1697,7 @@ msgstr ""
 "séçöndärý sçhööl dégréé çöüld çömplété Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "Intermediate - Basic prerequisites; a secondary school degree likely "
 "required to be successful as well as some university"
@@ -1644,6 +1706,7 @@ msgstr ""
 "réqüïréd tö ßé süççéssfül äs wéll äs sömé ünïvérsïtý Ⱡ'σяєм ιρѕυ#"
 
 #: templates/publisher/add_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "Advanced - Significant number of prerequisites required; course geared to "
 "3rd or 4th year university student or a masters degree student"
@@ -1875,13 +1938,13 @@ msgstr "STÛDÌÖ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσ#"
 msgid "Not yet created"
 msgstr "Nöt ýét çréätéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
-#: templates/publisher/course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Edit Course"
+msgstr "Édït Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: templates/publisher/course_edit_form.html
 msgid "UPDATE COURSE"
 msgstr "ÛPDÀTÉ ÇÖÛRSÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
-
-#: templates/publisher/course_form.html
-msgid "Add Course Run"
-msgstr "Àdd Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: templates/publisher/course_run_detail.html
 msgid "Course Run Detail"

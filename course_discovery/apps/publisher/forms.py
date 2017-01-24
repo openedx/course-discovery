@@ -29,6 +29,18 @@ class PersonModelMultipleChoice(forms.ModelMultipleChoiceField):
         return str(render_to_string('publisher/_personFieldLabel.html', context=context))
 
 
+class ClearableImageInput(forms.ClearableFileInput):
+    """
+    ClearableFileInput render the saved image as link.
+
+    Render img tag instead of link and add some classes for JS and CSS, also
+    remove image link and clear checkbox.
+    """
+    clear_checkbox_label = _('Remove Image')
+    template_with_initial = render_to_string('publisher/_clearableImageInput.html')
+    template_with_clear = render_to_string('publisher/_clearImageLink.html')
+
+
 class BaseCourseForm(forms.ModelForm):
     """ Base Course Form. """
 
@@ -110,6 +122,9 @@ class CustomCourseForm(CourseForm):
 
     class Meta(CourseForm.Meta):
         model = Course
+        widgets = {
+            'image': ClearableImageInput()
+        }
         fields = (
             'title', 'number', 'short_description', 'full_description',
             'expected_learnings', 'level_type', 'primary_subject', 'secondary_subject',
@@ -118,10 +133,17 @@ class CustomCourseForm(CourseForm):
         )
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
         organization = kwargs.pop('organization', None)
         if organization:
             org_extension = OrganizationExtension.objects.get(organization=organization)
             self.declared_fields['team_admin'].queryset = User.objects.filter(groups__name=org_extension.group)
+
+        if user:
+            self.declared_fields['organization'].queryset = Organization.objects.filter(
+                organization_extension__organization_id__isnull=False,
+                organization_extension__group__in=user.groups.all()
+            )
 
         super(CustomCourseForm, self).__init__(*args, **kwargs)
 

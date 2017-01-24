@@ -57,6 +57,25 @@ $(document).ready(function(){
         renderSelectedInstructor(id, name, image_source);
     });
 
+    $('.remove-image').click(function (e) {
+        e.preventDefault();
+        $('.course-image-input').removeClass('hidden');
+        $('.course-image-thumbnail').hide();
+        $('.course-image-field a').hide();
+        $('input#image-clear_id').prop('checked', true);
+    });
+
+    // If file selected mark checkbox unchecked otherwise checked.
+    $('input#id_image').change(function (e) {
+        var clearImageInput = $('input#image-clear_id');
+        e.preventDefault();
+        if (this.files && this.files[0]) {
+            clearImageInput.prop('checked', false);
+        } else {
+            clearImageInput.prop('checked', true);
+        }
+
+    });
 });
 
 $(document).on('change', '#id_organization', function (e) {
@@ -80,7 +99,7 @@ function loadAdminUsers(org_id) {
             teamAdminDropDown.append('<option selected="selected">---------</option>');
 
             $.each(data.results, function (i, user) {
-                 teamAdminDropDown.append($('<option> </option>').val(user.id).html(user.full_name));
+                teamAdminDropDown.append($('<option> </option>').val(user.id).html(user.full_name));
             });
         }
     });
