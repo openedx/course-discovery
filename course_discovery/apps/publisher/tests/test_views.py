@@ -526,10 +526,6 @@ class CreateUpdateCourseRunViewTests(TestCase):
 
     def test_update_course_run_with_internal_user(self):
         """ Verify that internal user can update an existing course run. """
-        updated_lms_course_id = 'course-v1:testX+AS121+2018_q1'
-        self.course_run_dict['lms_course_id'] = updated_lms_course_id
-
-        self.assertNotEqual(self.course_run.lms_course_id, updated_lms_course_id)
         self.assertNotEqual(self.course_run.changed_by, self.user)
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         response = self.client.post(
@@ -545,8 +541,6 @@ class CreateUpdateCourseRunViewTests(TestCase):
         )
 
         course_run = CourseRun.objects.get(id=self.course_run.id)
-        # Assert that course run is updated.
-        self.assertEqual(course_run.lms_course_id, updated_lms_course_id)
         self.assertEqual(course_run.changed_by, self.user)
 
         # add new and check the comment on edit page.
@@ -559,10 +553,6 @@ class CreateUpdateCourseRunViewTests(TestCase):
     def test_edit_course_run_page_with_non_internal(self):
         """ Verify that non internal user can't access course run edit page without permission. """
         non_internal_user, __ = create_non_staff_user_and_login(self)
-
-        updated_lms_course_id = 'course-v1:testX+AS121+2018_q1'
-        self.course_run_dict['lms_course_id'] = updated_lms_course_id
-        self.assertNotEqual(self.course_run.lms_course_id, updated_lms_course_id)
 
         response = self.client.get(
             reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id})
@@ -581,10 +571,6 @@ class CreateUpdateCourseRunViewTests(TestCase):
     def test_update_course_run_with_non_internal_user(self):
         """ Test for course run with non internal user. """
         non_internal_user, __ = create_non_staff_user_and_login(self)
-
-        updated_lms_course_id = 'course-v1:testX+AS121+2018_q1'
-        self.course_run_dict['lms_course_id'] = updated_lms_course_id
-        self.assertNotEqual(self.course_run.lms_course_id, updated_lms_course_id)
 
         response = self.client.post(
             reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id}),
@@ -609,8 +595,7 @@ class CreateUpdateCourseRunViewTests(TestCase):
         )
 
         course_run = CourseRun.objects.get(id=self.course_run.id)
-        # Assert that course run is updated.
-        self.assertEqual(course_run.lms_course_id, updated_lms_course_id)
+        self.assertEqual(course_run.changed_by, non_internal_user)
 
         # add new and check the comment on edit page.
         comment = CommentFactory(content_object=self.course_run, user=self.user, site=self.site)
