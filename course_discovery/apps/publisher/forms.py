@@ -204,7 +204,7 @@ class CustomCourseRunForm(CourseRunForm):
             'length', 'transcript_languages', 'language', 'min_effort', 'max_effort',
             'contacted_partner_manager', 'target_content', 'pacing_type', 'video_language',
             'staff', 'start', 'end', 'is_xseries', 'xseries_name', 'is_micromasters',
-            'micromasters_name', 'lms_course_id',
+            'micromasters_name',
         )
 
     def save(self, commit=True, course=None, changed_by=None):  # pylint: disable=arguments-differ
