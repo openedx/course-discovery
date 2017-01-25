@@ -377,41 +377,47 @@ ELASTICSEARCH_INDEX_SETTINGS = {
                     'type': 'custom',
                     'tokenizer': 'keyword',
                     'filter': [
-                        'lowercase'
+                        'lowercase',
+                        'synonym',
                     ]
+                },
+                'snowball_with_synonyms': {
+                    'type': 'custom',
+                    'filter': [
+                        'standard',
+                        'lowercase',
+                        'snowball',
+                        'synonym'
+                    ],
+                    'tokenizer': 'standard'
                 },
                 'ngram_analyzer': {
                     'type':'custom',
                     'filter': [
+                        'lowercase',
                         'haystack_ngram',
-                        'lowercase'
+                        'synonym',
                     ],
-                    'tokenizer': 'standard'
-                },
-                'edgengram_analyzer': {
-                    'type': 'custom',
-                    'filter': [
-                        'haystack_edgengram',
-                        'lowercase'
-                    ],
-                    'tokenizer': 'standard'
+                    'tokenizer': 'keyword'
                 }
             },
             'filter': {
-                'haystack_edgengram': {
-                    'type': 'edgeNGram',
-                    'min_gram': 2,
-                    'max_gram': 15
-                },
                 'haystack_ngram': {
                     'type': 'nGram',
                     'min_gram': 2,
-                    'max_gram': 15
+                    'max_gram': 22
+                },
+                'synonym' : {
+                  'type': 'synonym',
+                  'ignore_case': 'true',
+                  'synonyms': []
                 }
             }
         }
     }
 }
+
+SYNONYMS_MODULE = 'course_discovery.settings.synonyms'
 
 # Haystack configuration (http://django-haystack.readthedocs.io/en/v2.5.0/settings.html)
 HAYSTACK_ITERATOR_LOAD_PER_QUERY = 200

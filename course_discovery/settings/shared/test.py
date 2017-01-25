@@ -9,6 +9,8 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
+SYNONYMS_MODULE = 'course_discovery.settings.test_synonyms'
+
 EDX_DRF_EXTENSIONS = {
     'OAUTH2_USER_INFO_URL': 'http://example.com/oauth2/user_info',
 }

@@ -54,6 +54,46 @@ class LoginMixin:
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
 
+class SynonymTestMixin:
+
+    def test_org_synonyms(self):
+        """ Test that synonyms work for organization names """
+        title = 'UniversityX'
+        authoring_organizations = [OrganizationFactory(name='University')]
+        CourseRunFactory(
+            title=title,
+            course__partner=self.partner,
+            authoring_organizations=authoring_organizations
+        )
+        ProgramFactory(title=title, partner=self.partner, authoring_organizations=authoring_organizations)
+        response1 = self.process_response({'q': title})
+        response2 = self.process_response({'q': 'University'})
+        self.assertDictEqual(response1, response2)
+
+    def test_title_synonyms(self):
+        """ Test that synonyms work for terms in the title """
+        CourseRunFactory(title='HTML', course__partner=self.partner)
+        ProgramFactory(title='HTML', partner=self.partner)
+        response1 = self.process_response({'q': 'HTML5'})
+        response2 = self.process_response({'q': 'HTML'})
+        self.assertDictEqual(response1, response2)
+
+    def test_special_character_synonyms(self):
+        """ Test that synonyms work with special characters (non ascii) """
+        ProgramFactory(title='spanish', partner=self.partner)
+        response1 = self.process_response({'q': 'spanish'})
+        response2 = self.process_response({'q': 'español'})
+        self.assertDictEqual(response1, response2)
+
+    def test_stemmed_synonyms(self):
+        """ Test that synonyms work with stemming from the snowball analyzer """
+        title = 'Running'
+        ProgramFactory(title=title, partner=self.partner)
+        response1 = self.process_response({'q': 'running'})
+        response2 = self.process_response({'q': 'jogging'})
+        self.assertDictEqual(response1, response2)
+
+
 class DefaultPartnerMixin:
     def setUp(self):
         super(DefaultPartnerMixin, self).setUp()
@@ -67,7 +107,7 @@ class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, Login
     faceted_path = reverse('api:v1:search-course_runs-facets')
     list_path = reverse('api:v1:search-course_runs-list')
 
-    def get_search_response(self, query=None, faceted=False):
+    def get_response(self, query=None, faceted=False):
         qs = ''
 
         if query:
@@ -77,11 +117,16 @@ class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, Login
         url = '{path}?{qs}'.format(path=path, qs=qs)
         return self.client.get(url)
 
+    def process_response(self, response):
+        response = self.get_response(response).json()
+        self.assertTrue(response['objects']['count'])
+        return response['objects']
+
     @ddt.data(True, False)
     def test_authentication(self, faceted):
         """ Verify the endpoint requires authentication. """
         self.client.logout()
-        response = self.get_search_response(faceted=faceted)
+        response = self.get_response(faceted=faceted)
         self.assertEqual(response.status_code, 403)
 
     def test_search(self):
@@ -105,7 +150,7 @@ class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, Login
         # Generate data that should be indexed and returned by the query
         course_run = CourseRunFactory(course__partner=self.partner, course__title='Software Testing',
                                       status=CourseRunStatus.Published)
-        response = self.get_search_response('software', faceted=faceted)
+        response = self.get_response('software', faceted=faceted)
 
         self.assertEqual(response.status_code, 200)
         response_data = json.loads(response.content.decode('utf-8'))
@@ -149,7 +194,7 @@ class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, Login
         upcoming = CourseRunFactory(course__partner=self.partner, start=now + datetime.timedelta(days=61),
                                     end=now + datetime.timedelta(days=90), status=CourseRunStatus.Published)
 
-        response = self.get_search_response(faceted=True)
+        response = self.get_response(faceted=True)
         self.assertEqual(response.status_code, 200)
         response_data = json.loads(response.content.decode('utf-8'))
 
@@ -228,7 +273,7 @@ class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, Login
         ProgramFactory(courses=course_list, status=ProgramStatus.Active, excluded_course_runs=excluded_course_run_list)
 
         with self.assertNumQueries(6):
-            response = self.get_search_response('software', faceted=False)
+            response = self.get_response('software', faceted=False)
 
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
@@ -251,7 +296,7 @@ class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, Login
         ProgramFactory(courses=[course_run.course], status=program_status)
 
         with self.assertNumQueries(8):
-            response = self.get_search_response('software', faceted=False)
+            response = self.get_response('software', faceted=False)
 
             self.assertEqual(response.status_code, 200)
             response_data = json.loads(response.content.decode('utf-8'))
@@ -268,14 +313,23 @@ class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, Login
 
 
 @ddt.ddt
-class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin, ElasticsearchTestMixin, APITestCase):
+class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin, ElasticsearchTestMixin,
+                             SynonymTestMixin, APITestCase):
     path = reverse('api:v1:search-all-facets')
 
-    def get_search_response(self, querystring=None):
-        querystring = querystring or {}
-        qs = urllib.parse.urlencode(querystring)
+    def get_response(self, query=None):
+        qs = ''
+
+        if query:
+            qs = urllib.parse.urlencode(query)
+
         url = '{path}?{qs}'.format(path=self.path, qs=qs)
         return self.client.get(url)
+
+    def process_response(self, response):
+        response = self.get_response(response).json()
+        self.assertTrue(response['objects']['count'])
+        return response['objects']
 
     def test_results_only_include_published_objects(self):
         """ Verify the search results only include items with status set to 'Published'. """
@@ -286,7 +340,7 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
         course_run = CourseRunFactory(course__partner=self.partner, status=CourseRunStatus.Published)
         program = ProgramFactory(partner=self.partner, status=ProgramStatus.Active)
 
-        response = self.get_search_response()
+        response = self.get_response()
         self.assertEqual(response.status_code, 200)
         response_data = json.loads(response.content.decode('utf-8'))
         self.assertListEqual(
@@ -301,7 +355,7 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
 
         self.assertEqual(CourseRun.objects.get(hidden=True), hidden_run)
 
-        response = self.get_search_response()
+        response = self.get_response()
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(
             data['objects']['results'],
@@ -321,7 +375,7 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
         self.assertNotEqual(other_program.partner.short_code, self.partner.short_code)
         self.assertNotEqual(other_course_run.course.partner.short_code, self.partner.short_code)
 
-        response = self.get_search_response()
+        response = self.get_response()
         self.assertEqual(response.status_code, 200)
         response_data = json.loads(response.content.decode('utf-8'))
         self.assertListEqual(
@@ -330,7 +384,7 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
         )
 
         # Filter results by partner
-        response = self.get_search_response({'partner': other_partner.short_code})
+        response = self.get_response({'partner': other_partner.short_code})
         self.assertEqual(response.status_code, 200)
         response_data = json.loads(response.content.decode('utf-8'))
         self.assertListEqual(response_data['objects']['results'],
@@ -342,7 +396,7 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
         course_run = CourseRunFactory(course__partner=self.partner, status=CourseRunStatus.Published)
         program = ProgramFactory(partner=self.partner, status=ProgramStatus.Active)
 
-        response = self.get_search_response({'q': '', 'content_type': ['courserun', 'program']})
+        response = self.get_response({'q': '', 'content_type': ['courserun', 'program']})
         self.assertEqual(response.status_code, 200)
         response_data = json.loads(response.content.decode('utf-8'))
         self.assertListEqual(response_data['objects']['results'],
@@ -358,7 +412,7 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
         upcoming = CourseRunFactory(course__partner=self.partner, start=now + datetime.timedelta(weeks=4))
         course_run_keys = [course_run.key for course_run in [archived, current, starting_soon, upcoming]]
 
-        response = self.get_search_response({"ordering": ordering})
+        response = self.get_response({"ordering": ordering})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['objects']['count'], 4)
 
@@ -368,24 +422,28 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
 
 
 class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin, LoginMixin, ElasticsearchTestMixin,
-                               APITestCase):
+                               SynonymTestMixin, APITestCase):
     path = reverse('api:v1:search-typeahead')
 
-    def get_typeahead_response(self, query=None, partner=None):
-        qs = ''
-        query_dict = {'q': query, 'partner': partner or self.partner.short_code}
-        if query:
-            qs = urllib.parse.urlencode(query_dict)
+    def get_response(self, query=None, partner=None):
+        query_dict = query or {}
+        query_dict.update({'partner': partner or self.partner.short_code})
+        qs = urllib.parse.urlencode(query_dict)
 
         url = '{path}?{qs}'.format(path=self.path, qs=qs)
         return self.client.get(url)
+
+    def process_response(self, response):
+        response = self.get_response(response).json()
+        self.assertTrue(response['course_runs'] or response['programs'])
+        return response
 
     def test_typeahead(self):
         """ Test typeahead response. """
         title = "Python"
         course_run = CourseRunFactory(title=title, course__partner=self.partner)
         program = ProgramFactory(title=title, status=ProgramStatus.Active, partner=self.partner)
-        response = self.get_typeahead_response(title)
+        response = self.get_response({'q': title})
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
         self.assertDictEqual(response_data, {'course_runs': [self.serialize_course_run(course_run)],
@@ -398,7 +456,7 @@ class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin,
         for i in range(RESULT_COUNT + 1):
             CourseRunFactory(title="{}{}".format(title, i), course__partner=self.partner)
             ProgramFactory(title="{}{}".format(title, i), status=ProgramStatus.Active, partner=self.partner)
-        response = self.get_typeahead_response(title)
+        response = self.get_response({'q': title})
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
         self.assertEqual(len(response_data['course_runs']), RESULT_COUNT)
@@ -417,7 +475,7 @@ class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin,
             title=title, authoring_organizations=authoring_organizations,
             status=ProgramStatus.Active, partner=self.partner
         )
-        response = self.get_typeahead_response(title)
+        response = self.get_response({'q': title})
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
         self.assertDictEqual(response_data, {'course_runs': [self.serialize_course_run(course_run)],
@@ -429,7 +487,7 @@ class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin,
         course_run = CourseRunFactory(title=title, course__partner=self.partner)
         program = ProgramFactory(title=title, status=ProgramStatus.Active, partner=self.partner)
         query = "Data Sci"
-        response = self.get_typeahead_response(query)
+        response = self.get_response({'q': query})
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
         expected_response_data = {
@@ -441,23 +499,25 @@ class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin,
     def test_unpublished_and_hidden_courses(self):
         """ Verify that typeahead does not return unpublished or hidden courses
         or programs that are not active. """
-        title = "Supply Chain"
+        title = "supply"
         course_run = CourseRunFactory(title=title, course__partner=self.partner)
-        CourseRunFactory(title=title + "_unpublished", status=CourseRunStatus.Unpublished, course__partner=self.partner)
-        CourseRunFactory(title=title + "_hidden", hidden=True, course__partner=self.partner)
+        CourseRunFactory(title=title + "unpublished", status=CourseRunStatus.Unpublished, course__partner=self.partner)
+        CourseRunFactory(title=title + "hidden", hidden=True, course__partner=self.partner)
         program = ProgramFactory(title=title, status=ProgramStatus.Active, partner=self.partner)
-        ProgramFactory(title=title + "_unpublished", status=ProgramStatus.Unpublished, partner=self.partner)
-        query = "Supply"
-        response = self.get_typeahead_response(query)
+        ProgramFactory(title=title + "unpublished", status=ProgramStatus.Unpublished, partner=self.partner)
+        query = "suppl"
+        response = self.get_response({'q': query})
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
-        expected_response_data = {'course_runs': [self.serialize_course_run(course_run)],
-                                  'programs': [self.serialize_program(program)]}
+        expected_response_data = {
+            'course_runs': [self.serialize_course_run(course_run)],
+            'programs': [self.serialize_program(program)]
+        }
         self.assertDictEqual(response_data, expected_response_data)
 
     def test_exception(self):
         """ Verify the view raises an error if the 'q' query string parameter is not provided. """
-        response = self.get_typeahead_response()
+        response = self.get_response()
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data, ["The 'q' querystring parameter is required for searching."])
 
@@ -468,7 +528,7 @@ class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin,
         program = ProgramFactory(authoring_organizations=authoring_organizations, partner=self.partner)
         partial_key = authoring_organizations[0].key[0:5]
 
-        response = self.get_typeahead_response(partial_key)
+        response = self.get_response({'q': partial_key})
         self.assertEqual(response.status_code, 200)
         expected = {
             'course_runs': [self.serialize_course_run(course_run)],
@@ -500,7 +560,7 @@ class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin,
             title='MIT Testing2',
             partner=self.partner
         )
-        response = self.get_typeahead_response('mit')
+        response = self.get_response({'q': 'mit'})
         self.assertEqual(response.status_code, 200)
         expected = {
             'course_runs': [self.serialize_course_run(mit_run),
@@ -523,7 +583,7 @@ class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin,
                 title=title, partner=partner,
                 status=ProgramStatus.Active
             ))
-        response = self.get_typeahead_response('partner', 'edx')
+        response = self.get_response({'q': 'partner'}, 'edx')
         self.assertEqual(response.status_code, 200)
         edx_course_run = course_runs[0]
         edx_program = programs[0]
