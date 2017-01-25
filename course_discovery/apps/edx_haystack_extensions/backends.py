@@ -93,14 +93,21 @@ class ConfigurableElasticBackend(ElasticsearchSearchBackend):
 
     def build_schema(self, fields):
         content_field_name, mapping = super().build_schema(fields)
+        # Fields default to snowball analyzer, this keeps snowball functionality, but adds synonym functionality
+        snowball_with_synonyms = 'snowball_with_synonyms'
+        for field, value in mapping.items():
+            if value.get('analyzer') == 'snowball':
+                self.specify_analyzers(mapping=mapping, field=field,
+                                       index_analyzer=snowball_with_synonyms,
+                                       search_analyzer=snowball_with_synonyms)
         # Use the ngram analyzer as the index_analyzer and the lowercase analyzer as the search_analyzer
         # This is necessary to support partial searches/typeahead
         # If we used ngram analyzer for both, then 'running' would get split into ngrams like "ing"
         # and all words containing ing would come back in typeahead.
         self.specify_analyzers(mapping=mapping, field='title_autocomplete',
-                               index_analyzer='ngram_analyzer', search_analyzer='lowercase')
+                               index_analyzer='ngram_analyzer', search_analyzer=snowball_with_synonyms)
         self.specify_analyzers(mapping=mapping, field='authoring_organizations_autocomplete',
-                               index_analyzer='ngram_analyzer', search_analyzer='lowercase')
+                               index_analyzer='ngram_analyzer', search_analyzer=snowball_with_synonyms)
         return (content_field_name, mapping)
 
 

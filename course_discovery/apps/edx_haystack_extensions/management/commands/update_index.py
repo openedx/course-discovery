@@ -5,6 +5,9 @@ from django.conf import settings
 from haystack import connections as haystack_connections
 from haystack.management.commands.update_index import Command as HaystackCommand
 
+from course_discovery.settings.process_synonyms import get_synonyms
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -86,5 +89,6 @@ class Command(HaystackCommand):
         timestamp = datetime.datetime.utcnow().strftime('%Y%m%d_%H%M%S')
         index_name = '{alias}_{timestamp}'.format(alias=prefix, timestamp=timestamp)
         index_settings = settings.ELASTICSEARCH_INDEX_SETTINGS
+        index_settings['settings']['analysis']['filter']['synonym']['synonyms'] = get_synonyms(backend.conn)
         backend.conn.indices.create(index=index_name, body=index_settings)
         return index_name

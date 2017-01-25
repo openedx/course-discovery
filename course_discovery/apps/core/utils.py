@@ -3,6 +3,8 @@ import logging
 
 from django.conf import settings
 
+from course_discovery.settings.process_synonyms import get_synonyms
+
 logger = logging.getLogger(__name__)
 
 
@@ -19,6 +21,7 @@ class ElasticsearchUtils(object):
             timestamp = datetime.datetime.utcnow().strftime("%Y%m%d%H%M%S")
             index = '{alias}_{timestamp}'.format(alias=alias, timestamp=timestamp)
             index_settings = settings.ELASTICSEARCH_INDEX_SETTINGS
+            index_settings['settings']['analysis']['filter']['synonym']['synonyms'] = get_synonyms(es)
             es.indices.create(index=index, body=index_settings)
             logger.info('...index [%s] created.', index)
 
