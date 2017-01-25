@@ -177,9 +177,9 @@ class Course(TimeStampedModel, ChangedByMixin):
 
     def assign_organization_role(self, organization):
         """
-        Create course-user-roles for the given organization against a course.
+        Create course-user-roles except CourseTeam for the given organization against a course.
         """
-        for user_role in organization.organization_user_roles.all():
+        for user_role in organization.organization_user_roles.exclude(role=PublisherUserRole.CourseTeam):
             CourseUserRole.add_course_roles(self, user_role.role, user_role.user)
 
     @property

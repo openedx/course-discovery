@@ -178,8 +178,8 @@ class CourseTests(TestCase):
 
     def test_assign_roles(self):
         """
-        Verify that method `assign_organization_role' assign course-user-roles
-        for the organization against a course.
+        Verify that method `assign_organization_role' assign course-user-roles except
+        CourseTeam role for the organization against a course.
         """
         self.assertFalse(self.course2.course_user_roles.all())
 
@@ -188,11 +188,17 @@ class CourseTests(TestCase):
             role=PublisherUserRole.PartnerCoordinator, organization=self.org_extension_2.organization
         )
         factories.OrganizationUserRoleFactory(
-            role=PublisherUserRole.PartnerCoordinator, organization=self.org_extension_2.organization
+            role=PublisherUserRole.MarketingReviewer, organization=self.org_extension_2.organization
+        )
+
+        factories.OrganizationUserRoleFactory(
+            role=PublisherUserRole.CourseTeam, organization=self.org_extension_2.organization
         )
 
         self.course2.assign_organization_role(self.org_extension_2.organization)
         self.assertEqual(len(self.course2.course_user_roles.all()), 2)
+
+        self.assertNotIn(PublisherUserRole.CourseTeam, self.course2.course_user_roles.all())
 
     def test_assign_roles_without_default_roles(self):
         """
