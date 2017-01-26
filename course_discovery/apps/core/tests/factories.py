@@ -36,6 +36,7 @@ class PartnerFactory(factory.DjangoModelFactory):
     oidc_url_root = '{root}'.format(root=FuzzyUrlRoot().fuzz())
     oidc_key = FuzzyText().fuzz()
     oidc_secret = FuzzyText().fuzz()
+    studio_url = FuzzyUrlRoot().fuzz()
 
     class Meta(object):
         model = Partner

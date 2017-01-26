@@ -198,8 +198,8 @@
                             {% else %}
                                 <div class="studio-url">
                                     <span class="studio-url-heading">{% trans "STUDIO URL" %} - </span>
-                                    {% if run_form.lms_course_id.value %}
-                                        <a class="studio-link" href="#" target="_blank">{{ course_run.lms_course_id }}</a>
+                                    {% if course_run.studio_url %}
+                                        <a class="studio-link" href="{{ course_run.studio_url }}" target="_blank">{{ course_run.lms_course_id }}</a>
                                     {% else %}
                                         {% trans "Not yet created" %}
                                     {% endif %}

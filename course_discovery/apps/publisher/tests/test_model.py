@@ -7,6 +7,7 @@ from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import assign_perm
 
 from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.mixins import check_course_organization_permission
 from course_discovery.apps.publisher.models import (
@@ -69,6 +70,22 @@ class CourseRunTests(TestCase):
         history_object.save()
 
         self.assertEqual(self.course_run.created_by, user)
+
+    def test_studio_url(self):
+        """ Verify that property returns studio url. """
+        self.assertFalse(self.course_run.studio_url)
+
+        # save the lms course id and save the organization.
+        self.course_run.lms_course_id = 'test'
+        self.course_run.save()
+        organization = OrganizationFactory()
+        self.course_run.course.organizations.add(organization)
+        self.assertEqual(self.course_run.course.partner, organization.partner)
+
+        self.assertEqual(
+            '{url}/course/{id}'.format(url=self.course_run.course.partner.studio_url, id='test'),
+            self.course_run.studio_url
+        )
 
 
 class CourseTests(TestCase):
@@ -225,6 +242,10 @@ class CourseTests(TestCase):
         )
 
         self.assertEqual(self.user1, self.course2.course_team_admin)
+
+    def test_partner(self):
+        """ Verify that the partner property returns organization partner if exist. """
+        self.assertEqual(self.course.partner, self.org_extension_1.organization.partner)
 
 
 class SeatTests(TestCase):
