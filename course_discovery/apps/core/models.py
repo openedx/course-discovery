@@ -77,6 +77,7 @@ class Partner(TimeStampedModel):
     oidc_url_root = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect URL'))
     oidc_key = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect Key'))
     oidc_secret = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect Secret'))
+    studio_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('Studio URL'))
 
     def __str__(self):
         return self.name

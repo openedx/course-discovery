@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-31 13:03-0500\n"
+"POT-Creation-Date: 2017-02-01 11:44+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -228,6 +228,10 @@ msgstr "ÖpénÌD Çönnéçt Kéý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт �
 #: apps/core/models.py
 msgid "OpenID Connect Secret"
 msgstr "ÖpénÌD Çönnéçt Séçrét Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/core/models.py
+msgid "Studio URL"
+msgstr "Stüdïö ÛRL Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: apps/core/models.py templates/publisher/course_runs_list.html
 msgid "Partner"

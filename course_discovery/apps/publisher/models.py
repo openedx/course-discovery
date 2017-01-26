@@ -1,4 +1,5 @@
 import logging
+from urllib.parse import urljoin
 
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
@@ -193,6 +194,11 @@ class Course(TimeStampedModel, ChangedByMixin):
         except CourseUserRole.DoesNotExist:
             return None
 
+    @property
+    def partner(self):
+        organization = self.organizations.all().first()
+        return organization.partner if organization else None
+
 
 class CourseRun(TimeStampedModel, ChangedByMixin):
     """ Publisher CourseRun model. It contains fields related to the course run intake form."""
@@ -306,6 +312,14 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     @property
     def created_by(self):
         return self.history.order_by('history_date').first().history_user     # pylint: disable=no-member
+
+    @property
+    def studio_url(self):
+        if self.lms_course_id and self.course.partner.studio_url:
+            path = 'course/{lms_course_id}'.format(lms_course_id=self.lms_course_id)
+            return urljoin(self.course.partner.studio_url, path)
+
+        return None
 
 
 class Seat(TimeStampedModel, ChangedByMixin):

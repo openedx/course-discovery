@@ -1508,6 +1508,16 @@ class CourseDetailViewTests(TestCase):
         self.assertContains(response, self.course.full_description)
         self.assertContains(response, self.course.expected_learnings)
 
+    def test_details_page_with_course_runs_lms_id(self):
+        """ Test that user can see course runs with lms-id on course detail page. """
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
+
+        lms_course_id = 'test/id'
+        factories.CourseRunFactory(course=self.course, lms_course_id=lms_course_id)
+        response = self.client.get(self.detail_page_url)
+        self.assertContains(response, 'course/{}'.format(lms_course_id))
+
 
 class CourseEditViewTests(TestCase):
     """ Tests for the course edit view. """
