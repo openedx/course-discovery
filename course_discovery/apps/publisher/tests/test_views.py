@@ -1976,3 +1976,27 @@ class CourseRunEditViewTests(TestCase):
         response = self.client.get(self.edit_page_url)
 
         self.assertContains(response, self.new_course_run.lms_course_id)
+
+    def test_price_hidden_without_seat(self):
+        """
+        Verify that price widget appears if the seat type not audit.
+        """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        response = self.client.get(self.edit_page_url)
+        self.assertNotContains(response, '<div id="SeatPriceBlock" class="col col-6 hidden" style="display: block;">')
+
+    @ddt.data(Seat.PROFESSIONAL, Seat.VERIFIED)
+    def test_price_visible(self, seat_type):
+        """
+        Verify that price widget appear if the seat type other than audit.
+        """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        data = {'full_description': 'This is testing description.', 'image': ''}
+        updated_dict = self._post_data(data, self.new_course, self.new_course_run, None)
+        updated_dict['type'] = seat_type
+        updated_dict['price'] = 10.00
+
+        self.client.post(self.edit_page_url, updated_dict)
+
+        response = self.client.get(self.edit_page_url)
+        self.assertContains(response, '<div id="SeatPriceBlock" class="col col-6')

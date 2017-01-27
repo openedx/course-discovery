@@ -172,3 +172,13 @@ function toggleXseries(checked) {
     // If is-xseries checkbox value true from db then show the x-series block.
     $('#xseries_name_group').toggle(checked);
 }
+
+$(document).on('change', '#id_type', function (e) {
+    var $seatBlock = $("#SeatPriceBlock"),
+        selectedSeatType = this.value;
+    if (selectedSeatType === 'audit' || selectedSeatType === '') {
+        $seatBlock.hide();
+    } else{
+        $seatBlock.show();
+    }
+});
