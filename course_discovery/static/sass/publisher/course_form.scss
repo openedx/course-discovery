@@ -45,6 +45,7 @@
 
 #add-new-instructor {
     @include padding(20px, 10px, 20px, 10px);
+    @include float(left);
     background: white;
     border: 2px dashed gray;
 }
