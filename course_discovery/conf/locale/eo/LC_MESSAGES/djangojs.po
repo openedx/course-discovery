@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-27 13:02+0500\n"
+"POT-Creation-Date: 2017-01-27 16:30+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -35,6 +35,12 @@ msgid "There was an error in saving your data."
 msgstr ""
 "Théré wäs än érrör ïn sävïng ýöür dätä. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя#"
+
+#: static/js/publisher/views/dashboard.js
+msgid "No course run previews are currently available."
+msgstr ""
+"Nö çöürsé rün prévïéws äré çürréntlý äväïläßlé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
+" ¢σηѕє¢тєтυя α#"
 
 #: static/js/publisher/views/navbar.js
 msgid "OFF"

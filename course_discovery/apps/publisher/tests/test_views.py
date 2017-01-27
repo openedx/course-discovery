@@ -1231,7 +1231,7 @@ class DashboardTests(TestCase):
         """ Verify that preview ready tabs loads the course runs list. """
         response = self.assert_dashboard_response(studio_count=2, preview_count=1, progress_count=3, published_count=1)
         self.assertContains(response, self.table_class.format(id='preview'))
-        self.assertContains(response, 'The list below contains all course runs awaiting course team approval')
+        self.assertContains(response, 'The following course run previews are available for course team approval.')
         self._assert_tabs_with_roles(response)
 
     def test_without_preview_ready_course_runs(self):
@@ -1239,7 +1239,6 @@ class DashboardTests(TestCase):
         self.course_run_2.preview_url = None
         self.course_run_2.save()
         response = self.assert_dashboard_response(studio_count=2, preview_count=0, progress_count=3, published_count=1)
-        self.assertContains(response, 'There are no course runs marked for preview.')
         self._assert_tabs_with_roles(response)
 
     def test_without_preview_url(self):
@@ -1247,7 +1246,6 @@ class DashboardTests(TestCase):
         self.course_run_2.preview_url = None
         self.course_run_2.save()
         response = self.assert_dashboard_response(studio_count=2, preview_count=0, progress_count=3, published_count=1)
-        self.assertContains(response, 'There are no course runs marked for preview.')
         self._assert_tabs_with_roles(response)
 
     def test_with_in_progress_course_runs(self):

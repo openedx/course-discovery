@@ -1,48 +1,43 @@
 {% load i18n %}
 
-{% if preview_count == 0 %}
-    <div class="depth depth-0">
-        <p class="empty-courserun-text">{% trans "There are no course runs marked for preview." %}</p>
-    </div>
-
-{% else %}
-    <p>{% trans "The list below contains all course runs awaiting course team approval. Once approved, the marketing team will push the course run. you will be notified via email when the course runs are live on the production site." %}</p>
-    <div class="table-view">
-        <table class="data-table-preview display" cellspacing="0" width="100%">
-            <thead>
+<p>
+    {% trans "The following course run previews are available for course team approval. After the course team approves the preview, the edX marketing team will publish the course run on edx.org. The course team will receive an email message when the course run has been published." %}
+</p>
+<div class="table-view">
+    <table class="data-table-preview display" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th role="button">
+                    {% trans "Course Name" %}
+                </th>
+                <th role="button">
+                    {% trans "Organization" %}
+                </th>
+                <th role="button">
+                    {% trans "Approved" %}
+                </th>
+                <th role="button">
+                    {% trans "Preview URL" %}
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for course_run in preview_course_runs %}
                 <tr>
-                    <th role="button">
-                        {% trans "Course Name" %}
-                    </th>
-                    <th role="button">
-                        {% trans "Organization" %}
-                    </th>
-                    <th role="button">
-                        {% trans "Approved" %}
-                    </th>
-                    <th role="button">
-                        {% trans "Preview URL" %}
-                    </th>
+                    <td id="course-title-{{ course_run.title }}">
+                        <a href="{% url 'publisher:publisher_course_run_detail' course_run.id %}">{{ course_run.title }}</a>
+                    </td>
+                    <td>
+                    {% if course_run.course.organizations.first %}{{ course_run.course.organizations.first.name }}{% endif %}
+                    </td>
+                    <td>
+                         {{ course_run.state }}
+                    </td>
+                    <td>
+                        <a target="_blank" href="{{ course_run.preview_url }}">{{ course_run.preview_url }}</a>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                {% for course_run in preview_course_runs %}
-                    <tr>
-                        <td id="course-title-{{ course_run.title }}">
-                            <a href="{% url 'publisher:publisher_course_run_detail' course_run.id %}">{{ course_run.title }}</a>
-                        </td>
-                        <td>
-                        {% if course_run.course.organizations.first %}{{ course_run.course.organizations.first.name }}{% endif %}
-                        </td>
-                        <td>
-                             {{ course_run.state }}
-                        </td>
-                        <td>
-                            <a target="_blank" href="{{ course_run.preview_url }}">{{ course_run.preview_url }}</a>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-{% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

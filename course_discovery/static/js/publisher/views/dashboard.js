@@ -58,7 +58,8 @@ $(document).ready(function() {
     });
 
      $('.data-table-preview').DataTable({
-          "autoWidth": false
+         "autoWidth": false,
+         "oLanguage": { "sEmptyTable": gettext("No course run previews are currently available.") }
      });
 
     $('.data-table-in-progress').DataTable({
