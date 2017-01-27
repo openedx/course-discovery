@@ -87,10 +87,10 @@
                                             {{ course_form.team_admin }}
                                         </div>
                                     </div>
-                                    {% if parent_course.team_admin %}
+                                    {% if parent_course.course_team_admin %}
                                         <div class="field-admin-name margin-top20 {% if course_form.team_admin.errors %}hidden{% endif %}">
-                                            <span class="field-readonly">{{ parent_course.team_admin.username }}</span>
-                                            <input id="team-admin-id" type="hidden" value="{{ parent_course.team_admin.id }}">
+                                            <span class="field-readonly">{{ parent_course.course_team_admin.full_name }}</span>
+                                            <input id="team-admin-id" type="hidden" value="{{ parent_course.course_team_admin.id }}">
                                             <div>
                                                 <a id="change-admin" href="#">{% trans "Change" %}</a>
                                             </div>

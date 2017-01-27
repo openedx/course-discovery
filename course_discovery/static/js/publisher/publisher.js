@@ -101,14 +101,26 @@ function loadAdminUsers(org_id) {
     $.getJSON({
         url: '/publisher/api/admins/organizations/'+ org_id +'/users/',
         success: function (data) {
-            var teamAdminDropDown = $('#id_team_admin');
+            var teamAdminDropDown = $('#id_team_admin'),
+                selectedTeamAdmin = $('#id_team_admin option:selected').val(),
+                organizationInputType = $('#id_organization').attr('type');
             teamAdminDropDown.empty();
 
-            // it will looks same like other django model choice fields
-            teamAdminDropDown.append('<option selected="selected">---------</option>');
+            if (organizationInputType == 'hidden' ) {
+                teamAdminDropDown.append('<option>---------</option>');
+            } else {
+                // it will looks same like other django model choice fields
+                teamAdminDropDown.append('<option selected="selected">---------</option>');
+            }
 
             $.each(data.results, function (i, user) {
-                teamAdminDropDown.append($('<option> </option>').val(user.id).html(user.full_name));
+                if (selectedTeamAdmin == user.id && organizationInputType === 'hidden' ) {
+                    teamAdminDropDown.append(
+                        $('<option selected="selected"> </option>').val(user.id).html(user.full_name)
+                    );
+                } else {
+                    teamAdminDropDown.append($('<option> </option>').val(user.id).html(user.full_name));
+                }
             });
         }
     });
