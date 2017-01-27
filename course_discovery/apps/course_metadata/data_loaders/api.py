@@ -12,7 +12,7 @@ from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    Video, Organization, Seat, CourseRun, Program, Course, ProgramType,
+    Video, Organization, Seat, CourseRun, Program, Course, ProgramType, Person, Position,
 )
 
 logger = logging.getLogger(__name__)
@@ -125,6 +125,8 @@ class CoursesApiDataLoader(AbstractDataLoader):
                     if created:
                         course.canonical_course_run = course_run
                         course.save()
+                if not self.partner.has_marketing_site:
+                    self._populate_course_run_staff(course_run, body.get('instructor_info'))
             except:  # pylint: disable=bare-except
                 msg = 'An error occurred while updating {course_run} from {api_url}'.format(
                     course_run=course_run_id,
@@ -212,6 +214,55 @@ class CoursesApiDataLoader(AbstractDataLoader):
             defaults['course'] = course
 
         return defaults
+
+    def _populate_course_run_staff(self, course_run, staff_members):
+        staff_list = []
+        for member in staff_members:
+            defaults = {}
+            name = member.get('name')
+            image = member.get('image')
+            bio = member.get('bio')
+
+            if name:
+                defaults['given_name'] = name
+            if image:
+                defaults['profile_image_url'] = image
+            if bio:
+                defaults['bio'] = self.clean_html(bio)
+
+            try:
+                person, _ = Person.objects.update_or_create(
+                    partner=self.partner,
+                    uuid=member.get('uuid'),
+                    defaults=defaults
+                )
+            except ValueError:
+                logger.error("Unable to populate instructor in %s due to insufficient information.", course_run.key)
+            else:
+                self._set_position_in_org(
+                    person,
+                    organization_key=member.get('organization'),
+                    title=member.get('title')
+                )
+                staff_list.append(person)
+        if staff_list:
+            course_run.staff = staff_list
+            course_run.save()
+
+    def _set_position_in_org(self, person, organization_key=None, title=None):
+        if not organization_key and not title:
+            logger.error('Unable to set position for instructor with uuid %s (title does not exist).', person.uuid)
+        else:
+            defaults = {}
+            if organization_key:
+                defaults['organization'], _ = Organization.objects.get_or_create(
+                    key__iexact=organization_key,
+                    partner=self.partner,
+                    defaults={'key': organization_key}
+                )
+            if title:
+                defaults['title'] = title
+            Position.objects.update_or_create(person=person, defaults=defaults)
 
     def format_course_data(self, body):
         defaults = {
