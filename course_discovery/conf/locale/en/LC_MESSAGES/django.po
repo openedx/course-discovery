@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-27 13:02+0500\n"
+"POT-Creation-Date: 2017-01-27 16:30+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2115,14 +2115,11 @@ msgid "SEO Review"
 msgstr ""
 
 #: templates/publisher/dashboard/_preview_ready.html
-msgid "There are no course runs marked for preview."
-msgstr ""
-
-#: templates/publisher/dashboard/_preview_ready.html
 msgid ""
-"The list below contains all course runs awaiting course team approval. Once "
-"approved, the marketing team will push the course run. you will be notified "
-"via email when the course runs are live on the production site."
+"The following course run previews are available for course team approval. "
+"After the course team approves the preview, the edX marketing team will "
+"publish the course run on edx.org. The course team will receive an email "
+"message when the course run has been published."
 msgstr ""
 
 #: templates/publisher/dashboard/_preview_ready.html
