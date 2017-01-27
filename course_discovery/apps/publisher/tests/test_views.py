@@ -216,11 +216,41 @@ class CreateCourseViewTests(TestCase):
         """Verify that if there are more than one organization then there will be
         a drop down of organization choices.
         """
+        self.user.groups.remove(self.internal_user_group)
         organization_extension = factories.OrganizationExtensionFactory()
         self.user.groups.add(organization_extension.group)
         response = self.client.get(reverse('publisher:publisher_courses_new'))
-        self.assertContains(response,
-                            '<select class="field-input input-select" id="id_organization" name="organization">')
+
+        self.assertContains(
+            response,
+            '<select class="field-input input-select" id="id_organization" name="organization">'
+        )
+
+        new_organization_extension = factories.OrganizationExtensionFactory()
+
+        response = self.client.get(reverse('publisher:publisher_courses_new'))
+        # Verify that course team user cannot see newly created organization in options.
+        self.assertNotContains(
+            response,
+            '<option value="{value}">{key}: {name}</option>'.format(
+                value=new_organization_extension.organization.id,
+                key=new_organization_extension.organization.key,
+                name=new_organization_extension.organization.name
+            )
+        )
+
+        self.user.groups.add(self.internal_user_group)
+
+        response = self.client.get(reverse('publisher:publisher_courses_new'))
+        # Verify that internal user can see newly created organization in options.
+        self.assertContains(
+            response,
+            '<option value="{value}">{key}: {name}</option>'.format(
+                value=new_organization_extension.organization.id,
+                key=new_organization_extension.organization.key,
+                name=new_organization_extension.organization.name
+            )
+        )
 
     @ddt.data('contacted_partner_manager', 'pacing_type')
     def test_create_without_selecting_radio_buttons(self, button_field):
