@@ -10,7 +10,7 @@ from django.test import TransactionTestCase
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import mock_api_callback
 from course_discovery.apps.course_metadata.data_loaders.api import (
-    OrganizationsApiDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader,
+    OrganizationsApiDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader,
 )
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
     XSeriesMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
@@ -39,7 +39,6 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
                          (OrganizationsApiDataLoader, partner.organizations_api_url, None),
                          (CoursesApiDataLoader, partner.courses_api_url, None),
                          (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),
-                         (ProgramsApiDataLoader, partner.programs_api_url, None),
                          (XSeriesMarketingSiteDataLoader, partner.marketing_site_url_root, None)]
         self.kwargs = {'username': 'bob'}
         self.mock_access_token_api()
@@ -49,7 +48,6 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
         self.mock_lms_courses_api()
         self.mock_ecommerce_courses_api()
         self.mock_marketing_courses_api()
-        self.mock_programs_api()
 
     def mock_access_token_api(self, requests_mock=None):
         body = {
@@ -112,17 +110,6 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
             content_type=JSON
         )
         return body['items']
-
-    def mock_programs_api(self):
-        bodies = mock_data.PROGRAMS_API_BODIES
-        url = self.partner.programs_api_url + 'programs/'
-        responses.add_callback(
-            responses.GET,
-            url,
-            callback=mock_api_callback(url, bodies),
-            content_type=JSON
-        )
-        return bodies
 
     def test_refresh_course_metadata_serial(self):
         with responses.RequestsMock() as rsps:
@@ -195,7 +182,6 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
                     OrganizationsApiDataLoader,
                     CoursesApiDataLoader,
                     EcommerceApiDataLoader,
-                    ProgramsApiDataLoader,
                     XSeriesMarketingSiteDataLoader,
                 )
                 expected_calls = [mock.call('%s failed!', loader_class.__name__) for loader_class in loader_classes]

@@ -10,7 +10,7 @@ import waffle
 
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.data_loaders.api import (
-    OrganizationsApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader, CoursesApiDataLoader,
+    OrganizationsApiDataLoader, EcommerceApiDataLoader, CoursesApiDataLoader,
 )
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
     XSeriesMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
@@ -151,7 +151,6 @@ class Command(BaseCommand):
                 ),
                 (
                     (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),
-                    (ProgramsApiDataLoader, partner.programs_api_url, None),
                 ),
                 (
                     (XSeriesMarketingSiteDataLoader, partner.marketing_site_url_root, None),
