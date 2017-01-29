@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-20 12:41+0500\n"
-"PO-Revision-Date: 2017-01-21 09:03+0000\n"
+"POT-Creation-Date: 2017-01-27 16:30+0500\n"
+"PO-Revision-Date: 2017-01-28 08:21+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: English (United States) (http://www.transifex.com/open-edx/edx-platform/language/en_US/)\n"
 "MIME-Version: 1.0\n"
@@ -315,6 +315,10 @@ msgid "Estimated number of weeks needed to complete this course run."
 msgstr "Estimated number of weeks needed to complete this course run."
 
 #: apps/course_metadata/models.py
+msgid "Indicates whether the course relation has been manually overridden."
+msgstr "Indicates whether the course relation has been manually overridden."
+
+#: apps/course_metadata/models.py
 msgid "Archived"
 msgstr "Archived"
 
@@ -449,8 +453,13 @@ msgid "Course Run {title}-{pacing_type}-{start} state has been changed."
 msgstr "Course Run {title}-{pacing_type}-{start} state has been changed."
 
 #: apps/publisher/emails.py
-msgid "Studio instance created"
-msgstr "Studio instance created"
+msgid "created"
+msgstr "created"
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Studio instance {updated_text}"
+msgstr "Studio instance {updated_text}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
@@ -458,10 +467,15 @@ msgid "New Studio instance request for {title}"
 msgstr "New Studio instance request for {title}"
 
 #: apps/publisher/forms.py
+msgid "Remove Image"
+msgstr "Remove Image"
+
+#: apps/publisher/forms.py
 msgid "Organization Name"
 msgstr "Organization Name"
 
 #: apps/publisher/forms.py templates/publisher/add_courserun_form.html
+#: templates/publisher/course_detail.html
 msgid "Course Title"
 msgstr "Course Title"
 
@@ -470,14 +484,17 @@ msgid "Course Number"
 msgstr "Course Number"
 
 #: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/course_detail.html
 msgid "Brief Description"
 msgstr "Brief Description"
 
 #: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/course_detail.html
 msgid "Full Description"
 msgstr "Full Description"
 
 #: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/course_detail.html
 #: templates/publisher/course_run_detail/_all.html
 msgid "Prerequisites"
 msgstr "Prerequisites"
@@ -519,6 +536,10 @@ msgid "Course End Date"
 msgstr "Course End Date"
 
 #: apps/publisher/forms.py
+msgid "instructor"
+msgstr "instructor"
+
+#: apps/publisher/forms.py
 msgid "Pacing"
 msgstr "Pacing"
 
@@ -537,6 +558,10 @@ msgstr "XSeries Name"
 #: apps/publisher/forms.py
 msgid "MicroMasters Name"
 msgstr "MicroMasters Name"
+
+#: apps/publisher/forms.py
+msgid "Course Run Key"
+msgstr "Course Run Key"
 
 #: apps/publisher/forms.py
 msgid "Only audit seat can be without price."
@@ -594,7 +619,7 @@ msgstr "Partner Name"
 msgid "Level Type"
 msgstr "Level Type"
 
-#: apps/publisher/models.py
+#: apps/publisher/models.py templates/publisher/course_detail.html
 msgid "Expected Learnings"
 msgstr "Expected Learnings"
 
@@ -631,7 +656,7 @@ msgstr "Level 5"
 msgid "Content Language"
 msgstr "Content Language"
 
-#: apps/publisher/models.py templates/publisher/add_course_form.html
+#: apps/publisher/models.py templates/publisher/add_update_course_form.html
 msgid "Length of course, in number of weeks"
 msgstr "Length of course, in number of weeks"
 
@@ -665,7 +690,7 @@ msgstr "Organization Role"
 msgid "Course Role"
 msgstr "Course Role"
 
-#: apps/publisher/views.py templates/publisher/add_course_form.html
+#: apps/publisher/views.py templates/publisher/add_update_course_form.html
 msgid "PARTNER MANAGER"
 msgstr "PARTNER MANAGER"
 
@@ -706,6 +731,14 @@ msgstr "Course run created successfully for course \"{course_title}\"."
 #, python-brace-format
 msgid "There was an error saving course run, {error}"
 msgstr "There was an error saving course run, {error}"
+
+#: apps/publisher/views.py
+msgid "updated"
+msgstr "updated"
+
+#: apps/publisher/views.py
+msgid "Course run updated successfully."
+msgstr "Course run updated successfully."
 
 #: apps/publisher/views.py
 #, python-brace-format
@@ -771,7 +804,6 @@ msgid "Total Comments %(comment_count)s"
 msgstr "Total Comments %(comment_count)s"
 
 #: templates/comments/edit_comment.html
-#: templates/publisher/course_run_form.html
 msgid "Course Run Form"
 msgstr "Course Run Form"
 
@@ -779,14 +811,13 @@ msgstr "Course Run Form"
 msgid "Edit Comment"
 msgstr "Edit Comment"
 
-#: templates/comments/edit_comment.html
-#: templates/publisher/course_run_form.html templates/publisher/seat_form.html
+#: templates/comments/edit_comment.html templates/publisher/seat_form.html
 msgid "Save"
 msgstr "Save"
 
 #: templates/metadata/admin/course_run.html
 #: templates/publisher/_add_instructor_popup.html
-#: templates/publisher/course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -807,7 +838,6 @@ msgid "Name"
 msgstr "Name"
 
 #: templates/publisher/_add_instructor_popup.html
-#: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
 msgid "required"
 msgstr "required"
@@ -908,454 +938,6 @@ msgstr "OFF"
 msgid "Sign Out"
 msgstr "Sign Out"
 
-#: templates/publisher/add_course_form.html
-#: templates/publisher/course_form.html
-#: templates/publisher/view_course_form.html
-msgid "Course Form"
-msgstr "Course Form"
-
-#: templates/publisher/add_course_form.html templates/publisher/courses.html
-msgid "Add Course"
-msgstr "Add Course"
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"The information in the Studio Instance section is required before edX can "
-"create a Studio instance for the course run."
-msgstr "The information in the Studio Instance section is required before edX can create a Studio instance for the course run."
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"The information in the About Page section is not required before edX creates"
-" a Studio instance for the course run. You can return to this page and enter"
-" this information later. This information is required before edX announces "
-"the course."
-msgstr "The information in the About Page section is not required before edX creates a Studio instance for the course run. You can return to this page and enter this information later. This information is required before edX announces the course."
-
-#: templates/publisher/add_course_form.html
-msgid "Studio Instance"
-msgstr "Studio Instance"
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"This information is required before edX can create a Studio instance for a "
-"course run."
-msgstr "This information is required before edX can create a Studio instance for a course run."
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"EdX recommends that you contact a partner manager before you begin to plan a"
-" new course. "
-msgstr "EdX recommends that you contact a partner manager before you begin to plan a new course. "
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-msgid "COURSE TITLE"
-msgstr "COURSE TITLE"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-msgid "Best Practices"
-msgstr "Best Practices"
-
-#: templates/publisher/add_course_form.html
-msgid "Examples"
-msgstr "Examples"
-
-#: templates/publisher/add_course_form.html
-msgid "Maximum 70 characters. Recommended 50 or fewer characters."
-msgstr "Maximum 70 characters. Recommended 50 or fewer characters."
-
-#: templates/publisher/add_course_form.html
-msgid "An effective course title:"
-msgstr "An effective course title:"
-
-#: templates/publisher/add_course_form.html
-msgid "Clearly indicates the course subject matter."
-msgstr "Clearly indicates the course subject matter."
-
-#: templates/publisher/add_course_form.html
-msgid "Follows search engine optimization (SEO) guidelines."
-msgstr "Follows search engine optimization (SEO) guidelines."
-
-#: templates/publisher/add_course_form.html
-msgid "Targets a global audience."
-msgstr "Targets a global audience."
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"If the course is part of a sequence, include both sequence and course "
-"information as \\"
-msgstr "If the course is part of a sequence, include both sequence and course information as \\"
-
-#: templates/publisher/add_course_form.html
-msgid "Single Courses"
-msgstr "Single Courses"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-msgid "English Grammar and Essay Writing"
-msgstr "English Grammar and Essay Writing"
-
-#: templates/publisher/add_course_form.html
-msgid "Project Management Life Cycle"
-msgstr "Project Management Life Cycle"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-msgid "Sequence Courses:"
-msgstr "Sequence Courses:"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-msgid "Introduction to Statistics"
-msgstr "Introduction to Statistics"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-msgid "Statistics: Inference"
-msgstr "Statistics: Inference"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-msgid "Statistics: Probability"
-msgstr "Statistics: Probability"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-msgid "COURSE START DATE"
-msgstr "COURSE START DATE"
-
-#: templates/publisher/add_course_form.html
-msgid "Start on a Tuesday, Wednesday, or Thursday."
-msgstr "Start on a Tuesday, Wednesday, or Thursday."
-
-#: templates/publisher/add_course_form.html
-msgid "Avoid major U.S. holidays."
-msgstr "Avoid major U.S. holidays."
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"Specify a month, day, and year. If you are unsure of the exact date, specify"
-" a day that is close to the estimated start date. For example, if your "
-"course will start near the end of March, specify March 31."
-msgstr "Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated start date. For example, if your course will start near the end of March, specify March 31."
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-msgid "COURSE END DATE"
-msgstr "COURSE END DATE"
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"Specify a month, day, and year. If you are unsure of the exact date, specify"
-" a day that is close to the estimated end date. For example, if your course "
-"will end near the end of March, specify March 31."
-msgstr "Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated end date. For example, if your course will end near the end of March, specify March 31."
-
-#: templates/publisher/add_course_form.html
-msgid "COURSE PACING"
-msgstr "COURSE PACING"
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"Instructor-paced courses include individual assignments that have specific "
-"due dates before the course end date."
-msgstr "Instructor-paced courses include individual assignments that have specific due dates before the course end date."
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"Self-paced courses do not have individual assignments that have specific due"
-" dates before the course end date. All assignments are due on the course end"
-" date."
-msgstr "Self-paced courses do not have individual assignments that have specific due dates before the course end date. All assignments are due on the course end date."
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-msgid "COURSE NUMBER"
-msgstr "COURSE NUMBER"
-
-#: templates/publisher/add_course_form.html
-msgid "Maximum 10 characters. Characters can be letters, numbers, or periods."
-msgstr "Maximum 10 characters. Characters can be letters, numbers, or periods."
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"If a course consists of several modules, the course number can have an "
-"ending such as .1x or .2x."
-msgstr "If a course consists of several modules, the course number can have an ending such as .1x or .2x."
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-msgid "About page information"
-msgstr "About page information"
-
-#: templates/publisher/add_course_form.html
-msgid "PROGRAM ASSOCIATION"
-msgstr "PROGRAM ASSOCIATION"
-
-#: templates/publisher/add_course_form.html
-msgid "Is this course a part of any programs?"
-msgstr "Is this course a part of any programs?"
-
-#: templates/publisher/add_course_form.html
-msgid "Select the type or types of programs."
-msgstr "Select the type or types of programs."
-
-#: templates/publisher/add_course_form.html
-msgid "Add the name of the program this course will be a part of."
-msgstr "Add the name of the program this course will be a part of."
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-msgid "CERTIFICATE TYPE AND PRICE"
-msgstr "CERTIFICATE TYPE AND PRICE"
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"If Verified or Professional Education, indicate certificate price in US "
-"dollars (minimum of $49)"
-msgstr "If Verified or Professional Education, indicate certificate price in US dollars (minimum of $49)"
-
-#: templates/publisher/add_course_form.html
-msgid "BRIEF DESCRIPTION"
-msgstr "BRIEF DESCRIPTION"
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"Reads as a tag line - a short, engaging description for students browsing "
-"course listings"
-msgstr "Reads as a tag line - a short, engaging description for students browsing course listings"
-
-#: templates/publisher/add_course_form.html
-msgid "Conveys why someone should take the course"
-msgstr "Conveys why someone should take the course"
-
-#: templates/publisher/add_course_form.html
-msgid "SEO optimized and targeted to a global audience"
-msgstr "SEO optimized and targeted to a global audience"
-
-#: templates/publisher/add_course_form.html
-msgid "140 character limit, including spaces."
-msgstr "140 character limit, including spaces."
-
-#: templates/publisher/add_course_form.html
-msgid "FULL DESCRIPTION"
-msgstr "FULL DESCRIPTION"
-
-#: templates/publisher/add_course_form.html
-msgid "Summarized description of course content"
-msgstr "Summarized description of course content"
-
-#: templates/publisher/add_course_form.html
-msgid "Describe why a learner should take this course"
-msgstr "Describe why a learner should take this course"
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"Text should be easily scannable, using bullet points to highlight instead of"
-" long, dense text paragraphs"
-msgstr "Text should be easily scannable, using bullet points to highlight instead of long, dense text paragraphs"
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"Note: the first 4-5 lines will be visible to the learner immediately upon "
-"clicking the page;"
-msgstr "Note: the first 4-5 lines will be visible to the learner immediately upon clicking the page;"
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"additional text will be hidden yet available via \"See More\" clickable text"
-" under the first 4-5 lines"
-msgstr "additional text will be hidden yet available via \"See More\" clickable text under the first 4-5 lines"
-
-#: templates/publisher/add_course_form.html
-msgid "2500 character limit, including spaces."
-msgstr "2500 character limit, including spaces."
-
-#: templates/publisher/add_course_form.html
-msgid "EXPECTED LEARNINGS"
-msgstr "EXPECTED LEARNINGS"
-
-#: templates/publisher/add_course_form.html
-msgid "Answer to the question: \"What will you learn from this course?\""
-msgstr "Answer to the question: \"What will you learn from this course?\""
-
-#: templates/publisher/add_course_form.html
-msgid "bulleted items, approximately 4-10 words per bullet"
-msgstr "bulleted items, approximately 4-10 words per bullet"
-
-#: templates/publisher/add_course_form.html
-msgid "COURSE STAFF"
-msgstr "COURSE STAFF"
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"If there is more than one instructor, please indicate the order in which the"
-" instructors should be listed"
-msgstr "If there is more than one instructor, please indicate the order in which the instructors should be listed"
-
-#: templates/publisher/add_course_form.html
-msgid "Limited to the primary instructors a learner will encounter in videos"
-msgstr "Limited to the primary instructors a learner will encounter in videos"
-
-#: templates/publisher/add_course_form.html
-msgid "Add New"
-msgstr "Add New"
-
-#: templates/publisher/add_course_form.html
-msgid "Instructor"
-msgstr "Instructor"
-
-#: templates/publisher/add_course_form.html
-msgid "SUBJECT FIELD"
-msgstr "SUBJECT FIELD"
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"Only one primary subject will appear on the About Page; please select one "
-"primary subject and a maximum of two additional subject areas for search."
-msgstr "Only one primary subject will appear on the About Page; please select one primary subject and a maximum of two additional subject areas for search."
-
-#: templates/publisher/add_course_form.html
-msgid "COURSE IMAGE"
-msgstr "COURSE IMAGE"
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"Select an eye-catching, colorful image that captures the content and essence"
-" of your course"
-msgstr "Select an eye-catching, colorful image that captures the content and essence of your course"
-
-#: templates/publisher/add_course_form.html
-msgid "Do not include text or headlines"
-msgstr "Do not include text or headlines"
-
-#: templates/publisher/add_course_form.html
-msgid "Choose an image that you have permission to use."
-msgstr "Choose an image that you have permission to use."
-
-#: templates/publisher/add_course_form.html
-msgid "This can be a stock photo (try Flickr creative commons, "
-msgstr "This can be a stock photo (try Flickr creative commons, "
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"Stock Vault, Stock XCHNG, iStock Photo) or an image custom designed for your"
-" course"
-msgstr "Stock Vault, Stock XCHNG, iStock Photo) or an image custom designed for your course"
-
-#: templates/publisher/add_course_form.html
-msgid "Sequenced courses should each have a unique image"
-msgstr "Sequenced courses should each have a unique image"
-
-#: templates/publisher/add_course_form.html
-msgid "Size: 2120 x 1192 pixels"
-msgstr "Size: 2120 x 1192 pixels"
-
-#: templates/publisher/add_course_form.html
-msgid "PREREQUISITES"
-msgstr "PREREQUISITES"
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"List concepts and level (basic, advanced, undergraduate, graduate) students "
-"should be familiar with"
-msgstr "List concepts and level (basic, advanced, undergraduate, graduate) students should be familiar with"
-
-#: templates/publisher/add_course_form.html
-msgid "If there are no prerequisites, please list \"None.\""
-msgstr "If there are no prerequisites, please list \"None.\""
-
-#: templates/publisher/add_course_form.html
-msgid "200 character limit, including spaces"
-msgstr "200 character limit, including spaces"
-
-#: templates/publisher/add_course_form.html
-msgid "200 character limit, including spaces."
-msgstr "200 character limit, including spaces."
-
-#: templates/publisher/add_course_form.html
-msgid "SYLLABUS"
-msgstr "SYLLABUS"
-
-#: templates/publisher/add_course_form.html
-msgid "ESTIMATED EFFORT"
-msgstr "ESTIMATED EFFORT"
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"Number of hours per week the learner should expect to spend on the course to"
-" be successful"
-msgstr "Number of hours per week the learner should expect to spend on the course to be successful"
-
-#: templates/publisher/add_course_form.html
-msgid "Should be realistic, and can be a range"
-msgstr "Should be realistic, and can be a range"
-
-#: templates/publisher/add_course_form.html
-msgid "Min Effort"
-msgstr "Min Effort"
-
-#: templates/publisher/add_course_form.html
-msgid "Max Effort"
-msgstr "Max Effort"
-
-#: templates/publisher/add_course_form.html
-msgid "LANGUAGE(S)"
-msgstr "LANGUAGE(S)"
-
-#: templates/publisher/add_course_form.html
-msgid "Course content (navigation and course content excluding videos)"
-msgstr "Course content (navigation and course content excluding videos)"
-
-#: templates/publisher/add_course_form.html
-msgid "Videos (language spoken in course videos)"
-msgstr "Videos (language spoken in course videos)"
-
-#: templates/publisher/add_course_form.html
-msgid "Video transcript (video caption language)"
-msgstr "Video transcript (video caption language)"
-
-#: templates/publisher/add_course_form.html
-msgid "LENGTH"
-msgstr "LENGTH"
-
-#: templates/publisher/add_course_form.html
-msgid "If the time between start/end dates is not exact, ex: 8.5 weeks, "
-msgstr "If the time between start/end dates is not exact, ex: 8.5 weeks, "
-
-#: templates/publisher/add_course_form.html
-msgid "indicate whether the course should be listed as 8 weeks or 9 weeks."
-msgstr "indicate whether the course should be listed as 8 weeks or 9 weeks."
-
-#: templates/publisher/add_course_form.html
-msgid "LEVEL TYPE"
-msgstr "LEVEL TYPE"
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"Introductory - No prerequisites; an individual with some to all of a "
-"secondary school degree could complete"
-msgstr "Introductory - No prerequisites; an individual with some to all of a secondary school degree could complete"
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"Intermediate - Basic prerequisites; a secondary school degree likely "
-"required to be successful as well as some university"
-msgstr "Intermediate - Basic prerequisites; a secondary school degree likely required to be successful as well as some university"
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"Advanced - Significant number of prerequisites required; course geared to "
-"3rd or 4th year university student or a masters degree student"
-msgstr "Advanced - Significant number of prerequisites required; course geared to 3rd or 4th year university student or a masters degree student"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-msgid "Save Draft"
-msgstr "Save Draft"
-
 #: templates/publisher/add_courserun_form.html
 msgid "New Course Run"
 msgstr "New Course Run"
@@ -1380,6 +962,18 @@ msgid ""
 msgstr "\n                                    The information in this section is required to create a course studio instance. You must fill all required information but are welcome to come back and enter the rest of the information when you are ready to announce the course, or you can do it all at once if you are ready to do so.\n                                "
 
 #: templates/publisher/add_courserun_form.html
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "COURSE TITLE"
+msgstr "COURSE TITLE"
+
+#: templates/publisher/add_courserun_form.html
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Best Practices"
+msgstr "Best Practices"
+
+#: templates/publisher/add_courserun_form.html
 msgid "Example"
 msgstr "Example"
 
@@ -1402,12 +996,47 @@ msgid ""
 msgstr "If the course falls in a sequence, our titling convention is: \"Course Title: Subtitle\""
 
 #: templates/publisher/add_courserun_form.html
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "English Grammar and Essay Writing"
+msgstr "English Grammar and Essay Writing"
+
+#: templates/publisher/add_courserun_form.html
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Sequence Courses:"
+msgstr "Sequence Courses:"
+
+#: templates/publisher/add_courserun_form.html
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Introduction to Statistics"
+msgstr "Introduction to Statistics"
+
+#: templates/publisher/add_courserun_form.html
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Statistics: Inference"
+msgstr "Statistics: Inference"
+
+#: templates/publisher/add_courserun_form.html
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Statistics: Probability"
+msgstr "Statistics: Probability"
+
+#: templates/publisher/add_courserun_form.html
 msgid "Institution Course Admin"
 msgstr "Institution Course Admin"
 
 #: templates/publisher/add_courserun_form.html
 msgid "Change"
 msgstr "Change"
+
+#: templates/publisher/add_courserun_form.html
+#: templates/publisher/add_update_course_form.html
+msgid "COURSE START DATE"
+msgstr "COURSE START DATE"
 
 #: templates/publisher/add_courserun_form.html
 msgid ""
@@ -1435,6 +1064,12 @@ msgid ""
 msgstr "Will your course be open to students at the same time as it is announced?"
 
 #: templates/publisher/add_courserun_form.html
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "COURSE NUMBER"
+msgstr "COURSE NUMBER"
+
+#: templates/publisher/add_courserun_form.html
 msgid ""
 "\n"
 "                                            Courses split into several modules can be denoted by adding .1, .2, etc. at the end of the\n"
@@ -1453,16 +1088,493 @@ msgid "etc."
 msgstr "etc."
 
 #: templates/publisher/add_courserun_form.html
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "About page information"
+msgstr "About page information"
+
+#: templates/publisher/add_courserun_form.html
+#: templates/publisher/add_update_course_form.html
+msgid "COURSE END DATE"
+msgstr "COURSE END DATE"
+
+#: templates/publisher/add_courserun_form.html
 msgid ""
 "The date when this self-paced course run will end, replaced by an updated "
 "version of the course"
 msgstr "The date when this self-paced course run will end, replaced by an updated version of the course"
 
 #: templates/publisher/add_courserun_form.html
+#: templates/publisher/add_update_course_form.html
+msgid "CERTIFICATE TYPE AND PRICE"
+msgstr "CERTIFICATE TYPE AND PRICE"
+
+#: templates/publisher/add_courserun_form.html
 msgid ""
 "If Verified or Professional Ed, indicate certificate price in US dollars "
 "(minimum of $49)"
 msgstr "If Verified or Professional Ed, indicate certificate price in US dollars (minimum of $49)"
+
+#: templates/publisher/add_courserun_form.html
+#: templates/publisher/add_update_course_form.html
+msgid "Save Draft"
+msgstr "Save Draft"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_detail.html
+msgid "Course Form"
+msgstr "Course Form"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Edit Course"
+msgstr "Edit Course"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/courses.html
+msgid "Add Course"
+msgstr "Add Course"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"The information in the Studio Instance section is required before edX can "
+"create a Studio instance for the course run."
+msgstr "The information in the Studio Instance section is required before edX can create a Studio instance for the course run."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"The information in the About Page section is not required before edX creates"
+" a Studio instance for the course run. You can return to this page and enter"
+" this information later. This information is required before edX announces "
+"the course."
+msgstr "The information in the About Page section is not required before edX creates a Studio instance for the course run. You can return to this page and enter this information later. This information is required before edX announces the course."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Studio Instance"
+msgstr "Studio Instance"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"This information is required before edX can create a Studio instance for a "
+"course run."
+msgstr "This information is required before edX can create a Studio instance for a course run."
+
+#: templates/publisher/add_update_course_form.html
+msgid ""
+"EdX recommends that you contact a partner manager before you begin to plan a"
+" new course. "
+msgstr "EdX recommends that you contact a partner manager before you begin to plan a new course. "
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Examples"
+msgstr "Examples"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Maximum 70 characters. Recommended 50 or fewer characters."
+msgstr "Maximum 70 characters. Recommended 50 or fewer characters."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "An effective course title:"
+msgstr "An effective course title:"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Clearly indicates the course subject matter."
+msgstr "Clearly indicates the course subject matter."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Follows search engine optimization (SEO) guidelines."
+msgstr "Follows search engine optimization (SEO) guidelines."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Targets a global audience."
+msgstr "Targets a global audience."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"If the course is part of a sequence, include both sequence and course "
+"information as \\"
+msgstr "If the course is part of a sequence, include both sequence and course information as \\"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Single Courses"
+msgstr "Single Courses"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Project Management Life Cycle"
+msgstr "Project Management Life Cycle"
+
+#: templates/publisher/add_update_course_form.html
+msgid "Start on a Tuesday, Wednesday, or Thursday."
+msgstr "Start on a Tuesday, Wednesday, or Thursday."
+
+#: templates/publisher/add_update_course_form.html
+msgid "Avoid major U.S. holidays."
+msgstr "Avoid major U.S. holidays."
+
+#: templates/publisher/add_update_course_form.html
+msgid ""
+"Specify a month, day, and year. If you are unsure of the exact date, specify"
+" a day that is close to the estimated start date. For example, if your "
+"course will start near the end of March, specify March 31."
+msgstr "Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated start date. For example, if your course will start near the end of March, specify March 31."
+
+#: templates/publisher/add_update_course_form.html
+msgid ""
+"Specify a month, day, and year. If you are unsure of the exact date, specify"
+" a day that is close to the estimated end date. For example, if your course "
+"will end near the end of March, specify March 31."
+msgstr "Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated end date. For example, if your course will end near the end of March, specify March 31."
+
+#: templates/publisher/add_update_course_form.html
+msgid "COURSE PACING"
+msgstr "COURSE PACING"
+
+#: templates/publisher/add_update_course_form.html
+msgid ""
+"Instructor-paced courses include individual assignments that have specific "
+"due dates before the course end date."
+msgstr "Instructor-paced courses include individual assignments that have specific due dates before the course end date."
+
+#: templates/publisher/add_update_course_form.html
+msgid ""
+"Self-paced courses do not have individual assignments that have specific due"
+" dates before the course end date. All assignments are due on the course end"
+" date."
+msgstr "Self-paced courses do not have individual assignments that have specific due dates before the course end date. All assignments are due on the course end date."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Maximum 10 characters. Characters can be letters, numbers, or periods."
+msgstr "Maximum 10 characters. Characters can be letters, numbers, or periods."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"If a course consists of several modules, the course number can have an "
+"ending such as .1x or .2x."
+msgstr "If a course consists of several modules, the course number can have an ending such as .1x or .2x."
+
+#: templates/publisher/add_update_course_form.html
+msgid "STUDIO INSTANCE"
+msgstr "STUDIO INSTANCE"
+
+#: templates/publisher/add_update_course_form.html
+msgid "This is the course studio URL."
+msgstr "This is the course studio URL."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_detail/_widgets.html
+msgid "STUDIO URL"
+msgstr "STUDIO URL"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_detail/_widgets.html
+msgid "Not yet created"
+msgstr "Not yet created"
+
+#: templates/publisher/add_update_course_form.html
+msgid "PROGRAM ASSOCIATION"
+msgstr "PROGRAM ASSOCIATION"
+
+#: templates/publisher/add_update_course_form.html
+msgid "Is this course a part of any programs?"
+msgstr "Is this course a part of any programs?"
+
+#: templates/publisher/add_update_course_form.html
+msgid "Select the type or types of programs."
+msgstr "Select the type or types of programs."
+
+#: templates/publisher/add_update_course_form.html
+msgid "Add the name of the program this course will be a part of."
+msgstr "Add the name of the program this course will be a part of."
+
+#: templates/publisher/add_update_course_form.html
+msgid ""
+"If Verified or Professional Education, indicate certificate price in US "
+"dollars (minimum of $49)"
+msgstr "If Verified or Professional Education, indicate certificate price in US dollars (minimum of $49)"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "BRIEF DESCRIPTION"
+msgstr "BRIEF DESCRIPTION"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Reads as a tag line - a short, engaging description for students browsing "
+"course listings"
+msgstr "Reads as a tag line - a short, engaging description for students browsing course listings"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Conveys why someone should take the course"
+msgstr "Conveys why someone should take the course"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "SEO optimized and targeted to a global audience"
+msgstr "SEO optimized and targeted to a global audience"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "140 character limit, including spaces."
+msgstr "140 character limit, including spaces."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "FULL DESCRIPTION"
+msgstr "FULL DESCRIPTION"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Summarized description of course content"
+msgstr "Summarized description of course content"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Describe why a learner should take this course"
+msgstr "Describe why a learner should take this course"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Text should be easily scannable, using bullet points to highlight instead of"
+" long, dense text paragraphs"
+msgstr "Text should be easily scannable, using bullet points to highlight instead of long, dense text paragraphs"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Note: the first 4-5 lines will be visible to the learner immediately upon "
+"clicking the page;"
+msgstr "Note: the first 4-5 lines will be visible to the learner immediately upon clicking the page;"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"additional text will be hidden yet available via \"See More\" clickable text"
+" under the first 4-5 lines"
+msgstr "additional text will be hidden yet available via \"See More\" clickable text under the first 4-5 lines"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "2500 character limit, including spaces."
+msgstr "2500 character limit, including spaces."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "EXPECTED LEARNINGS"
+msgstr "EXPECTED LEARNINGS"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Answer to the question: \"What will you learn from this course?\""
+msgstr "Answer to the question: \"What will you learn from this course?\""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "bulleted items, approximately 4-10 words per bullet"
+msgstr "bulleted items, approximately 4-10 words per bullet"
+
+#: templates/publisher/add_update_course_form.html
+msgid "COURSE STAFF"
+msgstr "COURSE STAFF"
+
+#: templates/publisher/add_update_course_form.html
+msgid ""
+"If there is more than one instructor, please indicate the order in which the"
+" instructors should be listed"
+msgstr "If there is more than one instructor, please indicate the order in which the instructors should be listed"
+
+#: templates/publisher/add_update_course_form.html
+msgid "Limited to the primary instructors a learner will encounter in videos "
+msgstr "Limited to the primary instructors a learner will encounter in videos "
+
+#: templates/publisher/add_update_course_form.html
+msgid "Add New"
+msgstr "Add New"
+
+#: templates/publisher/add_update_course_form.html
+msgid "Instructor"
+msgstr "Instructor"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "SUBJECT FIELD"
+msgstr "SUBJECT FIELD"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Only one primary subject will appear on the About Page; please select one "
+"primary subject and a maximum of two additional subject areas for search."
+msgstr "Only one primary subject will appear on the About Page; please select one primary subject and a maximum of two additional subject areas for search."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "COURSE IMAGE"
+msgstr "COURSE IMAGE"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Select an eye-catching, colorful image that captures the content and essence"
+" of your course"
+msgstr "Select an eye-catching, colorful image that captures the content and essence of your course"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Do not include text or headlines"
+msgstr "Do not include text or headlines"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Choose an image that you have permission to use."
+msgstr "Choose an image that you have permission to use."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "This can be a stock photo (try Flickr creative commons, "
+msgstr "This can be a stock photo (try Flickr creative commons, "
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Stock Vault, Stock XCHNG, iStock Photo) or an image custom designed for your"
+" course"
+msgstr "Stock Vault, Stock XCHNG, iStock Photo) or an image custom designed for your course"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Sequenced courses should each have a unique image"
+msgstr "Sequenced courses should each have a unique image"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Size: 2120 x 1192 pixels"
+msgstr "Size: 2120 x 1192 pixels"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "PREREQUISITES"
+msgstr "PREREQUISITES"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"List concepts and level (basic, advanced, undergraduate, graduate) students "
+"should be familiar with"
+msgstr "List concepts and level (basic, advanced, undergraduate, graduate) students should be familiar with"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "If there are no prerequisites, please list \"None.\""
+msgstr "If there are no prerequisites, please list \"None.\""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "200 character limit, including spaces"
+msgstr "200 character limit, including spaces"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "200 character limit, including spaces."
+msgstr "200 character limit, including spaces."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "SYLLABUS"
+msgstr "SYLLABUS"
+
+#: templates/publisher/add_update_course_form.html
+msgid "ESTIMATED EFFORT"
+msgstr "ESTIMATED EFFORT"
+
+#: templates/publisher/add_update_course_form.html
+msgid ""
+"Number of hours per week the learner should expect to spend on the course to"
+" be successful"
+msgstr "Number of hours per week the learner should expect to spend on the course to be successful"
+
+#: templates/publisher/add_update_course_form.html
+msgid "Should be realistic, and can be a range"
+msgstr "Should be realistic, and can be a range"
+
+#: templates/publisher/add_update_course_form.html
+msgid "Min Effort"
+msgstr "Min Effort"
+
+#: templates/publisher/add_update_course_form.html
+msgid "Max Effort"
+msgstr "Max Effort"
+
+#: templates/publisher/add_update_course_form.html
+msgid "LANGUAGE(S)"
+msgstr "LANGUAGE(S)"
+
+#: templates/publisher/add_update_course_form.html
+msgid "Course content (navigation and course content excluding videos)"
+msgstr "Course content (navigation and course content excluding videos)"
+
+#: templates/publisher/add_update_course_form.html
+msgid "Videos (language spoken in course videos)"
+msgstr "Videos (language spoken in course videos)"
+
+#: templates/publisher/add_update_course_form.html
+msgid "Video transcript (video caption language)"
+msgstr "Video transcript (video caption language)"
+
+#: templates/publisher/add_update_course_form.html
+msgid "LENGTH"
+msgstr "LENGTH"
+
+#: templates/publisher/add_update_course_form.html
+msgid "If the time between start/end dates is not exact, ex: 8.5 weeks, "
+msgstr "If the time between start/end dates is not exact, ex: 8.5 weeks, "
+
+#: templates/publisher/add_update_course_form.html
+msgid "indicate whether the course should be listed as 8 weeks or 9 weeks."
+msgstr "indicate whether the course should be listed as 8 weeks or 9 weeks."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "LEVEL TYPE"
+msgstr "LEVEL TYPE"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Introductory - No prerequisites; an individual with some to all of a "
+"secondary school degree could complete"
+msgstr "Introductory - No prerequisites; an individual with some to all of a secondary school degree could complete"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Intermediate - Basic prerequisites; a secondary school degree likely "
+"required to be successful as well as some university"
+msgstr "Intermediate - Basic prerequisites; a secondary school degree likely required to be successful as well as some university"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Advanced - Significant number of prerequisites required; course geared to "
+"3rd or 4th year university student or a masters degree student"
+msgstr "Advanced - Significant number of prerequisites required; course geared to 3rd or 4th year university student or a masters degree student"
 
 #: templates/publisher/base.html templates/publisher/dashboard.html
 msgid "Dashboard"
@@ -1471,6 +1583,37 @@ msgstr "Dashboard"
 #: templates/publisher/base.html templates/publisher/courses.html
 msgid "Courses"
 msgstr "Courses"
+
+#: templates/publisher/course_detail.html templates/publisher/courses.html
+#: templates/publisher/dashboard/_in_progress.html
+msgid "Institution"
+msgstr "Institution"
+
+#: templates/publisher/course_detail.html
+msgid "Course Team Admin"
+msgstr "Course Team Admin"
+
+#: templates/publisher/course_detail.html
+msgid "Primary Subject"
+msgstr "Primary Subject"
+
+#: templates/publisher/course_detail.html
+msgid "Secondary Subject"
+msgstr "Secondary Subject"
+
+#: templates/publisher/course_detail.html
+msgid "Tertiary Subject"
+msgstr "Tertiary Subject"
+
+#: templates/publisher/course_detail.html
+msgid "Course Image"
+msgstr "Course Image"
+
+#: templates/publisher/course_detail.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Course Level"
+msgstr "Course Level"
 
 #: templates/publisher/course_detail/_widgets.html
 #: templates/publisher/course_run_detail/_approval_widget.html
@@ -1493,21 +1636,9 @@ msgid ""
 "                    "
 msgstr "\n                        Created %(created_date)s at %(created_time)s by %(created_by)s\n                    "
 
-#: templates/publisher/course_detail/_widgets.html
-msgid "STUDIO URL"
-msgstr "STUDIO URL"
-
-#: templates/publisher/course_detail/_widgets.html
-msgid "Not yet created"
-msgstr "Not yet created"
-
-#: templates/publisher/course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "UPDATE COURSE"
 msgstr "UPDATE COURSE"
-
-#: templates/publisher/course_form.html
-msgid "Add Course Run"
-msgstr "Add Course Run"
 
 #: templates/publisher/course_run_detail.html
 msgid "Course Run Detail"
@@ -1533,7 +1664,6 @@ msgid "DRUPAL"
 msgstr "DRUPAL"
 
 #: templates/publisher/course_run_detail.html
-#: templates/publisher/course_run_form.html
 #: templates/publisher/course_runs_list.html
 msgid "Status"
 msgstr "Status"
@@ -1629,11 +1759,6 @@ msgstr "Course Languages"
 #: templates/publisher/course_run_detail/_all.html
 msgid "Video Translation Languages"
 msgstr "Video Translation Languages"
-
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_salesforce.html
-msgid "Course Level"
-msgstr "Course Level"
 
 #: templates/publisher/course_run_detail/_all.html
 msgid "About This Course"
@@ -1892,10 +2017,6 @@ msgstr "Enrollment Start Date"
 msgid "Enrollment End Date"
 msgstr "Enrollment End Date"
 
-#: templates/publisher/course_run_form.html
-msgid "Add Seat"
-msgstr "Add Seat"
-
 #: templates/publisher/course_runs_list.html
 msgid "Course Run List"
 msgstr "Course Run List"
@@ -1942,11 +2063,6 @@ msgstr "Recently published courses"
 #: templates/publisher/course_runs_list.html
 msgid "Looks like you haven't publish a course yet"
 msgstr "Looks like you haven't publish a course yet"
-
-#: templates/publisher/courses.html
-#: templates/publisher/dashboard/_in_progress.html
-msgid "Institution"
-msgstr "Institution"
 
 #: templates/publisher/courses.html
 msgid "Runs"
@@ -2000,15 +2116,12 @@ msgid "SEO Review"
 msgstr "SEO Review"
 
 #: templates/publisher/dashboard/_preview_ready.html
-msgid "There are no course runs marked for preview."
-msgstr "There are no course runs marked for preview."
-
-#: templates/publisher/dashboard/_preview_ready.html
 msgid ""
-"The list below contains all course runs awaiting course team approval. Once "
-"approved, the marketing team will push the course run. you will be notified "
-"via email when the course runs are live on the production site."
-msgstr "The list below contains all course runs awaiting course team approval. Once approved, the marketing team will push the course run. you will be notified via email when the course runs are live on the production site."
+"The following course run previews are available for course team approval. "
+"After the course team approves the preview, the edX marketing team will "
+"publish the course run on edx.org. The course team will receive an email "
+"message when the course run has been published."
+msgstr "The following course run previews are available for course team approval. After the course team approves the preview, the edX marketing team will publish the course run on edx.org. The course team will receive an email message when the course run has been published."
 
 #: templates/publisher/dashboard/_preview_ready.html
 msgid "Approved"
@@ -2147,11 +2260,11 @@ msgstr "Dear %(course_team_name)s,"
 #: templates/publisher/email/studio_instance_created.html
 #, python-format
 msgid ""
-"EdX has created a Studio instance for "
+"EdX has %(updated_text)s a Studio instance for "
 "%(link_start)s%(course_run_page_url)s%(link_middle)s %(course_name)s "
 "%(link_end)s. You can now edit this course and configure your course team in"
 " Studio."
-msgstr "EdX has created a Studio instance for %(link_start)s%(course_run_page_url)s%(link_middle)s %(course_name)s %(link_end)s. You can now edit this course and configure your course team in Studio."
+msgstr "EdX has %(updated_text)s a Studio instance for %(link_start)s%(course_run_page_url)s%(link_middle)s %(course_name)s %(link_end)s. You can now edit this course and configure your course team in Studio."
 
 #: templates/publisher/email/studio_instance_created.html
 #, python-format
@@ -2210,9 +2323,9 @@ msgstr "<p>Note: This email address is unable to receive replies. For questions 
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
 msgid ""
-"EdX has created a Studio instance for %(course_name)s: "
+"EdX has %(updated_text)s a Studio instance for %(course_name)s: "
 "%(course_run_page_url)s. You can now edit this course in Studio."
-msgstr "EdX has created a Studio instance for %(course_name)s: %(course_run_page_url)s. You can now edit this course in Studio."
+msgstr "EdX has %(updated_text)s a Studio instance for %(course_name)s: %(course_run_page_url)s. You can now edit this course in Studio."
 
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
@@ -2229,15 +2342,3 @@ msgstr "Please create a Studio instance for the following course."
 #: templates/publisher/seat_form.html
 msgid "Seat Form"
 msgstr "Seat Form"
-
-#: templates/publisher/view_course_form.html
-msgid "Base information"
-msgstr "Base information"
-
-#: templates/publisher/view_course_form.html
-msgid "INSTITUTION INFORMATION"
-msgstr "INSTITUTION INFORMATION"
-
-#: templates/publisher/view_course_form.html
-msgid "Course information"
-msgstr "Course information"
