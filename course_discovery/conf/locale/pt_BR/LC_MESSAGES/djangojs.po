@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-20 12:41+0500\n"
-"PO-Revision-Date: 2017-01-19 09:31+0000\n"
+"POT-Creation-Date: 2017-01-27 16:30+0500\n"
+"PO-Revision-Date: 2017-01-28 09:15+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/open-edx/edx-platform/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
@@ -31,6 +31,10 @@ msgstr ""
 
 #: static/js/publisher/views/dashboard.js
 msgid "There was an error in saving your data."
+msgstr ""
+
+#: static/js/publisher/views/dashboard.js
+msgid "No course run previews are currently available."
 msgstr ""
 
 #: static/js/publisher/views/navbar.js
