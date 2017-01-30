@@ -63,7 +63,7 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
 
         OrganizationFactory.create_batch(3)
 
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(5):
             response = self.client.get(self.list_path)
 
         self.assertEqual(response.status_code, 200)

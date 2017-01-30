@@ -37,7 +37,7 @@ production-requirements: ## Install Python and JS requirements for production
 	$(NODE_BIN)/bower install --production
 
 test: clean ## Run tests and generate coverage report
-	coverage run ./manage.py test course_discovery --settings=course_discovery.settings.test
+	coverage run -m pytest
 	coverage combine
 	coverage report
 

@@ -6,7 +6,6 @@ from course_discovery.settings.shared.test import *
 
 
 INSTALLED_APPS += [
-    'django_nose',
     'course_discovery.apps.edx_catalog_extensions',
 ]
 

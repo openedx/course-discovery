@@ -80,8 +80,9 @@ private.py
 
 *.trace
 
-docs/_build/
-course_discovery/static/bower_components/
-node_modules/
-course_discovery/media/
+.cache/
 .dev/
+course_discovery/media/
+course_discovery/static/bower_components/
+docs/_build/
+node_modules/
