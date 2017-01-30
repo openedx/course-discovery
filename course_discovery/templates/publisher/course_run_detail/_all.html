@@ -4,166 +4,145 @@
     <div class="info-item">
         <div class="heading">
             {% trans "Title" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.title }}</div>
+        <div>{{ object.title }}</div>
     </div>
     <div class="info-item">
         <div class="heading">
             {% trans "Number" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.number }}</div>
+        <div>{{ object.number }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Organization" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.organization_name }}</div>
+        <div>{{ object.organization_name }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Course Start Date" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.start }}</div>
+        <div>{{ object.start }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Course End Date" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.end }}</div>
+        <div>{{ object.end }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Pacing Type" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.pacing_type }}</div>
+        <div>{{ object.pacing_type }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Contracted Partner" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.contacted_partner_manager }}</div>
+        <div>{{ object.contacted_partner_manager }}</div>
     </div>
   <div class="non-studio-fields {% if publisher_hide_features_for_pilot %}hidden{% endif %}">
     <div class="info-item">
         <div class="heading">
             {% trans "Course ID" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.lms_course_id }}</div>
+        <div>{{ object.lms_course_id }}</div>
     </div>
     <div class="info-item">
         <div class="heading">
             {% trans "Is Re-run?" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.is_re_run }}</div>
+        <div>{{ object.is_re_run }}</div>
     </div>
     <div class="info-item">
         <div class="heading">{% trans "Course Subtitle" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.short_description }}</div>
+        <div>{{ object.short_description }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Partner Name" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.partner }}</div>
+        <div>{{ object.partner }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Subjects" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.subject_names }}</div>
+        <div>{{ object.subject_names }}</div>
     </div>
 
 
     <div class="info-item">
         <div class="heading">
             {% trans "Part of an Xseries?" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.is_xseries }}</div>
+        <div>{{ object.is_xseries }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Xseries Name" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.xseries_name }}</div>
+        <div>{{ object.xseries_name }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Part of a Micromasters?" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.is_micromasters }}</div>
+        <div>{{ object.is_micromasters }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Micromasters Name" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.micromasters_name }}</div>
+        <div>{{ object.micromasters_name }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Enrollment Type" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.course_type }}</div>
+        <div>{{ object.course_type }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Price" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.verified_seat_price }}</div>
+        <div>{{ object.verified_seat_price }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Certificate Generation Date Exception Request" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.certificate_generation }}</div>
+        <div>{{ object.certificate_generation }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Course Length (weeks)" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.length }}</div>
+        <div>{{ object.length }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Estimated Effort" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">
+        <div>
             {% if object.min_effort and object.max_effort %}
                 {{ object.min_effort }} {% trans "to" %} {{ object.max_effort }} {% trans "hours per week" %}
             {% endif %}
@@ -173,104 +152,91 @@
     <div class="info-item">
         <div class="heading">
             {% trans "Course Languages" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.language.name }}</div>
+        <div>{{ object.language.name }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Video Translation Languages" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.video_languages }}</div>
+        <div>{{ object.video_languages }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Course Level" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.level_type }}</div>
+        <div>{{ object.level_type }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">{% trans "About This Course" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.full_description }}</div>
+        <div>{{ object.full_description }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "What You'll Learn" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.expected_learnings }}</div>
+        <div>{{ object.expected_learnings }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Learner Testimonial" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.learner_testimonial }}</div>
+        <div>{{ object.learner_testimonial }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Syllabus" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.syllabus }}</div>
+        <div>{{ object.syllabus }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Prerequisites" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.prerequisites }}</div>
+        <div>{{ object.prerequisites }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Search Engine Optimization Review" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.seo_review }}</div>
+        <div>{{ object.seo_review }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Top 10 Keywords" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.keywords }}</div>
+        <div>{{ object.keywords }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "edX Username or email address of Course Team Admin(s)" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.course_team_admins }}</div>
+        <div>{{ object.course_team_admins }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "edX Username or email address of additional course team members (Staff)" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.course_team_additional_staff }}</div>
+        <div>{{ object.course_team_additional_staff }}</div>
     </div>
 
     <div class="info-item">
         <div class="heading">
             {% trans "Additional Notes" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ object.notes }}</div>
+        <div>{{ object.notes }}</div>
     </div>
   </div>
 </div>
