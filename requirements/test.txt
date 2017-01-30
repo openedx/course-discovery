@@ -11,6 +11,7 @@ mock==2.0.0
 pep8==1.7.0
 pytest==3.0.6
 pytest-django==3.1.2
+pytest-django-ordering==1.0.1
 responses==0.5.1
 selenium==3.0.2
 testfixtures==4.13.1
