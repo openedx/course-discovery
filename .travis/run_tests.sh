@@ -22,8 +22,6 @@ make requirements.js
 cd docs && make html
 cd ..
 
-export DJANGO_SETTINGS_MODULE=course_discovery.settings.test
-
 # Check if translation files are up-to-date
 make validate_translations
 
