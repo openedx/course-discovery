@@ -1,13 +1,5 @@
 import os
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-
-NOSE_ARGS = [
-    '--with-ignore-docstrings',
-    '--logging-level=DEBUG',
-    '--logging-clear-handlers',
-    '--exclude-dir=course_discovery/settings',
-]
 
 HAYSTACK_CONNECTIONS = {
     'default': {
