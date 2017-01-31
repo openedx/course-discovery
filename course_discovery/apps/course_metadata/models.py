@@ -18,7 +18,7 @@ from haystack.query import SearchQuerySet
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
 from stdimage.utils import UploadToAutoSlug
-from taggit.managers import TaggableManager
+from taggit_autosuggest.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing, ProgramStatus
@@ -167,7 +167,10 @@ class Organization(TimeStampedModel):
                                            'logo_image_url, copy and paste the same value to both fields.')
     )
 
-    tags = TaggableManager(blank=True)
+    tags = TaggableManager(
+        blank=True,
+        help_text=_('Pick a tag from the suggestions. To make a new tag, add a comma after the tag name.'),
+    )
 
     class Meta:
         unique_together = (
@@ -377,6 +380,11 @@ class CourseRun(TimeStampedModel):
     course_overridden = models.BooleanField(
         default=False,
         help_text=_('Indicates whether the course relation has been manually overridden.')
+    )
+
+    tags = TaggableManager(
+        blank=True,
+        help_text=_('Pick a tag from the suggestions. To make a new tag, add a comma after the tag name.'),
     )
 
     objects = CourseRunQuerySet.as_manager()

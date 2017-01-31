@@ -49,6 +49,7 @@ THIRD_PARTY_APPS = [
     'storages',
     'django_comments',
     'taggit',
+    'taggit_autosuggest',
     'taggit_serializer',
     'solo',
 ]
