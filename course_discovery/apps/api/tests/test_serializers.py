@@ -1085,6 +1085,7 @@ class PersonSerializerTests(TestCase):
             'profile_image_url': person.profile_image_url,
             'profile_image': image_field.to_representation(person.profile_image),
             'position': PositionSerializer(position).data,
+            'works': [work.value for work in person.person_works.all()],
             'slug': person.slug,
         }
 
