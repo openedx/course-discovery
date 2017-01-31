@@ -509,6 +509,16 @@ class CourseState(TimeStampedModel, ChangedByMixin):
         # TODO: send email etc.
         pass
 
+    def change_state(self, state):
+        if state == CourseStateChoices.Draft:
+            self.draft()
+        elif state == CourseStateChoices.Review:
+            self.review()
+        elif state == CourseStateChoices.Approved:
+            self.approved()
+
+        self.save()
+
 
 class CourseRunState(TimeStampedModel, ChangedByMixin):
     """ Publisher Workflow Course Run State Model. """

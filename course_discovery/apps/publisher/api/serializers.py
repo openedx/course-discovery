@@ -3,13 +3,14 @@ import waffle
 
 from django.apps import apps
 from django.utils.translation import ugettext_lazy as _
+from django_fsm import TransitionNotAllowed
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 from rest_framework import serializers
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.emails import send_email_for_studio_instance_created
-from course_discovery.apps.publisher.models import CourseUserRole, CourseRun
+from course_discovery.apps.publisher.models import CourseUserRole, CourseRun, CourseState
 
 
 class CourseUserRoleSerializer(serializers.ModelSerializer):
@@ -98,3 +99,32 @@ class CourseRevisionSerializer(serializers.ModelSerializer):
     def get_tertiary_subject(self, obj):
         if obj.tertiary_subject:
             return obj.tertiary_subject.name
+
+
+class CourseStateSerializer(serializers.ModelSerializer):
+    """Serializer for `CourseState` model to change course workflow state. """
+
+    class Meta:
+        model = CourseState
+        fields = ('name', 'approved_by_role', 'owner_role', 'course',)
+        extra_kwargs = {
+            'course': {'read_only': True},
+            'approved_by_role': {'read_only': True},
+            'owner_role': {'read_only': True}
+        }
+
+    def update(self, instance, validated_data):
+        state = validated_data.get('name')
+        try:
+            instance.change_state(state=state)
+        except TransitionNotAllowed:
+            # pylint: disable=no-member
+            raise serializers.ValidationError(
+                {
+                    'name': _('Cannot switch from state `{state}` to `{target_state}`').format(
+                        state=instance.name, target_state=state
+                    )
+                }
+            )
+
+        return instance
