@@ -1,0 +1,30 @@
+input,
+select {
+  max-width: 100%;
+}
+
+.required {
+  color: red;
+  font-size: 12px;
+}
+
+.optional {
+  font-weight: normal;
+}
+
+.checkbox-inline {
+  ul {
+    @include margin-left(0);
+    list-style: none;
+    margin-bottom: 15px;
+
+    li {
+      display: inline-block;
+      @include margin-right(10px);
+
+      &:last-child {
+        @include margin-right(0);
+      }
+    }
+  }
+}

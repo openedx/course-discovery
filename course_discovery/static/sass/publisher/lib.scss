@@ -1,0 +1,30 @@
+.clearfix {
+
+  &:after {
+     content: " "; /* Older browser do not support empty content */
+     visibility: hidden;
+     display: block;
+     height: 0;
+     clear: both;
+  }
+}
+
+.margin-top20 {
+    margin-top: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+.border-left {
+    @include border-left(1px solid);
+}
+
+.border-top {
+    border-top: 1px solid;
+}
+
+.actions {
+  margin-top: 30px;
+}
