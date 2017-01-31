@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-02 23:31+0500\n"
+"POT-Creation-Date: 2017-02-03 12:49+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -259,7 +259,8 @@ msgstr ""
 "¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
 "ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм #"
 
-#: apps/course_metadata/choices.py apps/publisher/models.py
+#: apps/course_metadata/choices.py apps/publisher/choices.py
+#: apps/publisher/models.py
 msgid "Published"
 msgstr "Püßlïshéd Ⱡ'σяєм ιρѕυм ∂σł#"
 
@@ -568,6 +569,18 @@ msgstr "Püßlïshér Ⱡ'σяєм ιρѕυм ∂σł#"
 msgid "Course Team"
 msgstr "Çöürsé Téäm Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
+#: apps/publisher/choices.py apps/publisher/models.py
+msgid "Draft"
+msgstr "Dräft Ⱡ'σяєм ιρѕ#"
+
+#: apps/publisher/choices.py
+msgid "Review"
+msgstr "Révïéw Ⱡ'σяєм ιρѕυ#"
+
+#: apps/publisher/choices.py templates/publisher/dashboard/_preview_ready.html
+msgid "Approved"
+msgstr "Àpprövéd Ⱡ'σяєм ιρѕυм ∂#"
+
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Course Run {title}-{pacing_type}-{start} state has been changed."
@@ -718,10 +731,6 @@ msgstr "Pröféssïönäl Édüçätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕ
 #: apps/publisher/forms.py templates/publisher/course_run_detail/_seats.html
 msgid "Seat Type"
 msgstr "Séät Týpé Ⱡ'σяєм ιρѕυм ∂σł#"
-
-#: apps/publisher/models.py
-msgid "Draft"
-msgstr "Dräft Ⱡ'σяєм ιρѕ#"
 
 #: apps/publisher/models.py
 msgid "Needs Review"
@@ -2523,10 +2532,6 @@ msgstr ""
 " ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт"
 " ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση "
 "υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє#"
-
-#: templates/publisher/dashboard/_preview_ready.html
-msgid "Approved"
-msgstr "Àpprövéd Ⱡ'σяєм ιρѕυм ∂#"
 
 #: templates/publisher/dashboard/_preview_ready.html
 msgid "Preview URL"

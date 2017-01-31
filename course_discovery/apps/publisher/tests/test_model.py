@@ -8,7 +8,7 @@ from guardian.shortcuts import assign_perm
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
-from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.choices import PublisherUserRole, CourseStateChoices, CourseRunStateChoices
 from course_discovery.apps.publisher.mixins import check_course_organization_permission
 from course_discovery.apps.publisher.models import (
     State, CourseUserRole, OrganizationExtension, OrganizationUserRole
@@ -406,3 +406,91 @@ class GroupOrganizationTests(TestCase):
                 group=self.group_2,
                 organization=self.organization_extension.organization
             )
+
+
+class CourseStateTests(TestCase):
+    """ Tests for the publisher `CourseState` model. """
+
+    def setUp(self):
+        super(CourseStateTests, self).setUp()
+        self.course_state = factories.CourseStateFactory(name=CourseStateChoices.Draft)
+
+    def test_str(self):
+        """
+        Verify casting an instance to a string returns a string containing the current state display name.
+        """
+        self.assertEqual(str(self.course_state), self.course_state.get_name_display())
+
+    def test_draft(self):
+        self.course_state.review()
+
+        self.assertNotEqual(self.course_state.name, CourseStateChoices.Draft)
+
+        self.course_state.draft()
+
+        self.assertEqual(self.course_state.name, CourseStateChoices.Draft)
+
+    def test_review(self):
+        self.assertNotEqual(self.course_state.name, CourseStateChoices.Review)
+
+        self.course_state.review()
+
+        self.assertEqual(self.course_state.name, CourseStateChoices.Review)
+
+    def test_approved(self):
+        self.course_state.review()
+
+        self.assertNotEqual(self.course_state.name, CourseStateChoices.Approved)
+
+        self.course_state.approved()
+
+        self.assertEqual(self.course_state.name, CourseStateChoices.Approved)
+
+
+class CourseRunStateTests(TestCase):
+    """ Tests for the publisher `CourseRunState` model. """
+
+    def setUp(self):
+        super(CourseRunStateTests, self).setUp()
+        self.run_state = factories.CourseRunStateFactory(name=CourseRunStateChoices.Draft)
+
+    def test_str(self):
+        """
+        Verify casting an instance to a string returns a string containing the current state display name.
+        """
+        self.assertEqual(str(self.run_state), self.run_state.get_name_display())
+
+    def test_draft(self):
+        self.run_state.review()
+
+        self.assertNotEqual(self.run_state.name, CourseRunStateChoices.Draft)
+
+        self.run_state.draft()
+
+        self.assertEqual(self.run_state.name, CourseRunStateChoices.Draft)
+
+    def test_review(self):
+        self.assertNotEqual(self.run_state.name, CourseRunStateChoices.Review)
+
+        self.run_state.review()
+
+        self.assertEqual(self.run_state.name, CourseRunStateChoices.Review)
+
+    def test_approved(self):
+        self.run_state.review()
+
+        self.assertNotEqual(self.run_state.name, CourseRunStateChoices.Approved)
+
+        self.run_state.approved()
+
+        self.assertEqual(self.run_state.name, CourseRunStateChoices.Approved)
+
+    def test_published(self):
+        self.run_state.name = CourseRunStateChoices.Approved
+        self.run_state.save()
+
+        self.assertNotEqual(self.run_state.name, CourseRunStateChoices.Published)
+
+        self.run_state.published()
+
+        self.assertEqual(self.run_state.name, CourseRunStateChoices.Published)

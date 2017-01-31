@@ -13,7 +13,8 @@ from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.models import (
-    Course, CourseRun, CourseUserRole, OrganizationExtension, OrganizationUserRole, Seat, State, UserAttributes
+    Course, CourseRun, CourseUserRole, OrganizationExtension, OrganizationUserRole, Seat, State,
+    UserAttributes, CourseState, CourseRunState
 )
 
 
@@ -112,3 +113,19 @@ class OrganizationExtensionFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = OrganizationExtension
+
+
+class CourseStateFactory(factory.DjangoModelFactory):
+    course = factory.SubFactory(CourseFactory)
+    owner_role = FuzzyChoice(PublisherUserRole.values.keys())
+
+    class Meta:
+        model = CourseState
+
+
+class CourseRunStateFactory(factory.DjangoModelFactory):
+    course_run = factory.SubFactory(CourseRunFactory)
+    owner_role = FuzzyChoice(PublisherUserRole.values.keys())
+
+    class Meta:
+        model = CourseRunState

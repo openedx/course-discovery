@@ -21,7 +21,7 @@ from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import LevelType, Subject, Person, Organization
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.choices import PublisherUserRole, CourseStateChoices, CourseRunStateChoices
 from course_discovery.apps.publisher.emails import send_email_for_change_state
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
 
@@ -479,3 +479,66 @@ class OrganizationExtension(TimeStampedModel):
         return '{organization}: {group}'.format(
             organization=self.organization, group=self.group
         )
+
+
+class CourseState(TimeStampedModel, ChangedByMixin):
+    """ Publisher Workflow Course State Model. """
+
+    name = FSMField(default=CourseStateChoices.Draft, choices=CourseStateChoices.choices)
+    approved_by_role = models.CharField(blank=True, null=True, max_length=63, choices=PublisherUserRole.choices)
+    owner_role = models.CharField(max_length=63, choices=PublisherUserRole.choices)
+    course = models.OneToOneField(Course, related_name='course_state')
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return self.get_name_display()
+
+    @transition(field=name, source='*', target=CourseStateChoices.Draft)
+    def draft(self):
+        # TODO: send email etc.
+        pass
+
+    @transition(field=name, source=CourseStateChoices.Draft, target=CourseStateChoices.Review)
+    def review(self):
+        # TODO: send email etc.
+        pass
+
+    @transition(field=name, source=CourseStateChoices.Review, target=CourseStateChoices.Approved)
+    def approved(self):
+        # TODO: send email etc.
+        pass
+
+
+class CourseRunState(TimeStampedModel, ChangedByMixin):
+    """ Publisher Workflow Course Run State Model. """
+
+    name = FSMField(default=CourseRunStateChoices.Draft, choices=CourseRunStateChoices.choices)
+    approved_by_role = models.CharField(blank=True, null=True, max_length=63, choices=PublisherUserRole.choices)
+    owner_role = models.CharField(max_length=63, choices=PublisherUserRole.choices)
+    course_run = models.OneToOneField(CourseRun, related_name='course_run_state')
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return self.get_name_display()
+
+    @transition(field=name, source='*', target=CourseRunStateChoices.Draft)
+    def draft(self):
+        # TODO: send email etc.
+        pass
+
+    @transition(field=name, source=CourseRunStateChoices.Draft, target=CourseRunStateChoices.Review)
+    def review(self):
+        # TODO: send email etc.
+        pass
+
+    @transition(field=name, source=CourseRunStateChoices.Review, target=CourseRunStateChoices.Approved)
+    def approved(self):
+        # TODO: send email etc.
+        pass
+
+    @transition(field=name, source=CourseRunStateChoices.Approved, target=CourseRunStateChoices.Published)
+    def published(self):
+        # TODO: send email etc.
+        pass
