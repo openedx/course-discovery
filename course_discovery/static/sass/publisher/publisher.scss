@@ -1,16 +1,4 @@
-// ------------------------------
-// // edX Course Discovery: Course Detail
-// ------------------------------
-$light-gray: rgba(204, 204, 204, 1);
-// ------------------------------
-// #TYPOGRAPHY
-// ------------------------------
-.hd-3 {
-  color: #646262;
-  font-size: 24px;
-  font-weight: 400;
-  margin-bottom: 10px;
-}
+
 
 .course-detail {
     @include margin(0px, 0px, 0px, 0px);
@@ -25,208 +13,10 @@ $light-gray: rgba(204, 204, 204, 1);
 
         .layout-col {
 
-            .nav-account {
-                @include padding(35px, 0px, 35px, 0px);
-                @include margin-right(20px);
-                @include float(right);
-                width: auto;
-                display: inline-block;
-                position: relative;
-                vertical-align: middle;
-
-                ol {
-                    margin-bottom: 0;
-                }
-
-                .wrapper-nav-sub {
-                    @include right(0);
-                    display: none;
-                    opacity: 1.0;
-                    pointer-events: auto;
-                    overflow: visible;
-                    height: auto;
-                    position: absolute;
-                    width: 340px;
-                    z-index: 10000;
-
-                    &.is-shown {
-                        display: block;
-                    }
-
-                    .nav-sub {
-                        border-radius: 4px;
-                        box-sizing: border-box;
-                        box-shadow: 0 1px 1px rgba(0,0,0,0.1);
-                        position: relative;
-                        width: 100%;
-                        border: 1px solid #ccc;
-                        background: #fff;
-
-                        &:before {
-                            @include right(20px);
-                            @include margin-right(-11px);
-                            border-color: rgba(178,178,178,0);
-                            border-bottom-color: #ccc;
-                            border-width: 11px;
-                            bottom: 100%;
-                            content: " ";
-                            height: 0;
-                            width: 0;
-                            position: absolute;
-                            pointer-events: none;
-                        }
-
-                        &:after {
-                            @include right(20px);
-                            border-color: rgba(255,255,255,0);
-                            border-bottom-color: #fff;
-                            border-width: 10px;
-                            bottom: 100%;
-                            content: " ";
-                            height: 0;
-                            width: 0;
-                            position: absolute;
-                            pointer-events: none;
-                            @include margin-right(-10px);
-                        }
-
-                        .nav-menu-item {
-                            @include padding(20px, 20px, 20px, 20px);
-                        }
-
-                        .nav-account-signout {
-                            border-top: 1px solid #ccc;
-
-                            a {
-                                @include text-align(center);
-                                text-decoration: none;
-                                width: 100%;
-                            }
-                        }
-
-                        .on-off-text {
-                            @include text-align(left);
-                        }
-
-                        .nav-email-notification {
-                            .email-switch-label {
-                                @include margin-right(60px);
-                            }
-
-                            .switch {
-                                @include margin-right(10px);
-                                position: relative;
-                                display: inline-block;
-                                width: 36px;
-                                height: 20px;
-                                vertical-align: middle;
-                            }
-
-                            .switch input {
-                                display:none;
-                            }
-
-                            .slider {
-                                @include left(0);
-                                @include right(0);
-                                position: absolute;
-                                cursor: pointer;
-                                top: 0;
-                                bottom: 0;
-                                background-color: #ccc;
-                                -webkit-transition: .4s;
-                                transition: .4s;
-                                border-radius: 20px;
-                            }
-
-                            .slider:before {
-                                @include left(2px);
-                                position: absolute;
-                                content: "";
-                                height: 16px;
-                                width: 16px;
-                                bottom: 2px;
-                                background-color: white;
-                                -webkit-transition: .4s;
-                                transition: .4s;
-                                border-radius: 50%;
-                            }
-
-                            input:checked + .slider {
-                                background-color: #333;
-                            }
-
-                            input:focus + .slider {
-                                box-shadow: 0 0 1px #333;
-                            }
-
-                            input:checked + .slider:before {
-                                -webkit-transform: translateX(16px);
-                                -ms-transform: translateX(16px);
-                                transform: translateX(16px);
-                            }
-                        }
-                    }
-                }
-
-                .nav-account-user {
-
-                    .title.is-selected {
-                        box-shadow: inset 0 1px 2px 1px rgba(0,0,0,0.1);
-                        border-color: #ccc;
-                    }
-                }
-
-                .nav-item {
-                    display: inline-block;
-                    vertical-align: middle;
-                    margin-bottom: 0;
-
-                    .title {
-                        @include padding(5px, 10px, 5px, 10px);
-                        color: #666;
-                        margin-bottom: 0;
-                        border: 1px solid transparent;
-                        border-radius: 4px;
-                        max-width: 150px;
-
-                        .fa-caret-down {
-                            opacity: 0.25;
-                        }
-
-                        &:hover {
-                            cursor: pointer;
-                            color: #065683;
-                            border-color: #ccc;
-
-                            .label {
-
-                                a {
-                                    color: #065683;
-                                }
-                            }
-
-                            .fa-caret-down {
-                                opacity: 1.0;
-                                color: #065683;
-                            }
-                        }
-
-                        .label {
-
-                            a {
-                                color: #666;
-                                font-weight: 800;
-                                font-size: 18px;
-                                vertical-align: baseline;
-                                text-decoration: none;
-                            }
-                        }
-                    }
-                }
-            }
+            
         }
     }
+
     .layout, .layout-flush {
         @include margin-left(0);
         @include margin-right(0);
@@ -245,28 +35,7 @@ $light-gray: rgba(204, 204, 204, 1);
             width: 80%;
         }
 
-        .menu-list {
-
-            .item {
-                border-bottom: 2px solid $white;
-                margin-bottom: 0;
-                padding-bottom: 0;
-
-                a {
-                    width: 100%;
-                    height: 100%;
-                    background: $light-gray;
-                    border: 0;
-                    border-radius: 0;
-                    text-decoration: none;
-
-                    &.active {
-                        background: palette(primary, accent);
-                        color: $white;
-                    }
-                }
-            }
-        }
+        
 
         .layout-col-a-custom {
             @include margin-left(0);
@@ -279,15 +48,6 @@ $light-gray: rgba(204, 204, 204, 1);
         }
     }
 
-  .tabs {
-      @include margin-left(0);
-      width: 100%;
-      display: inline-block;
-  }
-
-  .actions {
-      margin-top: 30px;
-  }
 
     .wrapper-footer {
         @include margin(0px, 0px, 20px, 0px);
@@ -362,31 +122,6 @@ $light-gray: rgba(204, 204, 204, 1);
     }
 }
 
-.administration-nav {
-  font-size: 18px;
-  font-weight: 600;
-  display: inline-block;
-  @include margin(5px, 0px, 5px, 0px);
-
-  .tab-container {
-
-    button {
-      @include padding(5px, 5px, 5px, 5px);
-      @include margin(5px, 5px, 5px, 5px);
-      @include float(left);
-      display: block;
-      color: #0ea6ec;
-      border: none;
-      background-color: transparent;
-
-      &.selected {
-        border-bottom: 4px solid #0ea6ec;
-        color: black;
-      }
-    }
-  }
-}
-
 #app {
   background: #fff;
 }
@@ -417,36 +152,7 @@ $light-gray: rgba(204, 204, 204, 1);
   }
 }
 
-input,
-select {
-  max-width: 100%;
-}
 
-.required {
-  color: red;
-  font-size: 12px;
-}
-
-.optional {
-  font-weight: normal;
-}
-
-.checkbox-inline {
-  ul {
-    @include margin-left(0);
-    list-style: none;
-    margin-bottom: 15px;
-
-    li {
-      display: inline-block;
-      @include margin-right(10px);
-
-      &:last-child {
-        @include margin-right(0);
-      }
-    }
-  }
-}
 
 .course-information {
   margin-bottom: 30px;
@@ -549,16 +255,7 @@ select {
   @include float(left);
 }
 
-.clearfix {
 
-  &:after {
-     content: " "; /* Older browser do not support empty content */
-     visibility: hidden;
-     display: block;
-     height: 0;
-     clear: both;
-  }
-}
 
 .btn-edit {
   @include float(right);
@@ -567,34 +264,7 @@ select {
   @include padding-right(20px);
 }
 
-.breadcrumb {
-  @include padding(8px, 5px, 8px, 5px);
-  @include margin(0, 0, 0, 0);
-  list-style: none;
-  background: white;
-  border-radius: 3px;
 
-  > li {
-    display: inline-block;
-
-    a {
-      display: inline-block;
-      border-bottom: 1px solid transparent;
-      color: #337ab7;
-      text-decoration: none;
-      -webkit-transition: color 0.125s ease-in-out 0s, border-color 0.125s ease-in-out 0s;
-      -moz-transition: color 0.125s ease-in-out 0s, border-color 0.125s ease-in-out 0s;
-      transition: color 0.125s ease-in-out 0s, border-color 0.125s ease-in-out 0s;
-    }
-
-    + li:before {
-      @include padding(0px, 5px, 0px, 5px);
-      content: "\f054";
-      color: #666;
-      font-family: fontawesome;
-    }
-  }
-}
 
 
 .copy-text {
@@ -649,13 +319,7 @@ select {
   }
 }
 
-.border-left {
-    @include border-left(1px solid);
-}
 
-.border-top {
-    border-top: 1px solid;
-}
 
 .empty-courserun-text {
     @include padding(100px, 160px, 100px, 160px);
@@ -666,13 +330,7 @@ select {
     }
 }
 
-.margin-top20 {
-    margin-top: 20px;
-}
 
-.hidden {
-    display: none;
-}
 
 .approval-widget, .course-widgets {
 
@@ -725,33 +383,9 @@ select {
 
         }
     }
-}
+}//approval-widget (END)
 
-.btn-course-edit, .btn-courserun-edit {
-    @include padding(2px, 20px, 3px, 20px);
-    @include float(right);
-    background-color: #169bd5;
-    border-color: #169bd5;
-    font-weight: 400;
-    font-size: 14px;
-    border-radius: 5px;
-}
 
-.btn-course-add {
-    @include padding(4px, 20px, 4px, 20px);
-    @include margin-left(12px);
-    background-color: #169bd5;
-    border-color: #169bd5;
-    border-radius: 5px;
-}
-
-.btn-courserun-add {
-    @include padding(3px, 16px, 3px, 16px);
-    @include margin-left(10px);
-    background-color: #169bd5;
-    border-color: #169bd5;
-    border-radius: 5px;
-}
 
 .course-count-heading {
     display: inline-block;
@@ -763,35 +397,12 @@ select {
     display: inline-block;
 }
 
-.coursesTable {
-    @include padding(20px, 20px, 20px, 20px);
-    border: 2px solid #169bd5;
-}
 
 #id_organization {
   width: auto;
 }
 
-.course-breadcrumb {
-  padding-bottom: 20px;
 
-  a {
-    text-decoration: underline;
-  }
-}
-
-.btn-cancel {
-  padding-right: 10px;
-  padding-left: 10px;
-  color: #25A1D8;
-}
-
-.btn-save {
-    background-color: #169BD5;
-    border-color: #169BD5;
-    border-radius: 5px;
-    padding: 10px;
-}
 
 .course-run-list {
 
