@@ -14,9 +14,9 @@ from guardian.shortcuts import assign_perm
 
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
 from course_discovery.apps.course_metadata.tests import toggle_switch
-from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.choices import PublisherUserRole, CourseStateChoices
 from course_discovery.apps.publisher.constants import INTERNAL_USER_GROUP_NAME
-from course_discovery.apps.publisher.models import CourseRun, OrganizationExtension
+from course_discovery.apps.publisher.models import CourseRun, OrganizationExtension, CourseState
 from course_discovery.apps.publisher.tests import factories, JSON_CONTENT_TYPE
 
 
@@ -373,3 +373,54 @@ class CourseRevisionDetailViewTests(TestCase):
             'publisher:api:course_revisions', kwargs={'history_id': revision_id}
         )
         return self.client.get(path=course_revision_path)
+
+
+class ChangeCourseStateViewTests(TestCase):
+
+    def setUp(self):
+        super(ChangeCourseStateViewTests, self).setUp()
+        self.course_state = factories.CourseStateFactory(name=CourseStateChoices.Draft)
+        self.user = UserFactory()
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+
+        self.change_state_url = reverse('publisher:api:change_course_state', kwargs={'pk': self.course_state.id})
+
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+    def test_change_course_state(self):
+        """
+        Verify that publisher user can change course workflow state.
+        """
+        self.assertNotEqual(self.course_state.name, CourseStateChoices.Review)
+
+        response = self.client.patch(
+            self.change_state_url,
+            data=json.dumps({'name': CourseStateChoices.Review}),
+            content_type=JSON_CONTENT_TYPE
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.course_state = CourseState.objects.get(course=self.course_state.course)
+
+        self.assertEqual(self.course_state.name, CourseStateChoices.Review)
+
+    def test_change_course_state_with_error(self):
+        """
+        Verify that user cannot change course workflow state directly from `Draft` to `Approved`.
+        """
+        response = self.client.patch(
+            self.change_state_url,
+            data=json.dumps({'name': CourseStateChoices.Approved}),
+            content_type=JSON_CONTENT_TYPE
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+        expected = {
+            'name': 'Cannot switch from state `{state}` to `{target_state}`'.format(
+                state=self.course_state.name, target_state=CourseStateChoices.Approved
+            )
+        }
+
+        self.assertEqual(response.data, expected)
