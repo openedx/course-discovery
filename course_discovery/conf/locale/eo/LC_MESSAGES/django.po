@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-03 12:49+0500\n"
+"POT-Creation-Date: 2017-02-03 13:07+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -548,6 +548,13 @@ msgstr ""
 #, python-brace-format
 msgid "Invalid course key \"{lms_course_id}\""
 msgstr "Ìnvälïd çöürsé kéý \"{lms_course_id}\" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/publisher/api/serializers.py
+#, python-brace-format
+msgid "Cannot switch from state `{state}` to `{target_state}`"
+msgstr ""
+"Çännöt swïtçh fröm stäté `{state}` tö `{target_state}` Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
 #: apps/publisher/choices.py
 msgid "Partner Manager"

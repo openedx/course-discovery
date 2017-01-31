@@ -408,12 +408,14 @@ class GroupOrganizationTests(TestCase):
             )
 
 
+@ddt.ddt
 class CourseStateTests(TestCase):
     """ Tests for the publisher `CourseState` model. """
 
-    def setUp(self):
-        super(CourseStateTests, self).setUp()
-        self.course_state = factories.CourseStateFactory(name=CourseStateChoices.Draft)
+    @classmethod
+    def setUpClass(cls):
+        super(CourseStateTests, cls).setUpClass()
+        cls.course_state = factories.CourseStateFactory(name=CourseStateChoices.Draft)
 
     def test_str(self):
         """
@@ -421,30 +423,20 @@ class CourseStateTests(TestCase):
         """
         self.assertEqual(str(self.course_state), self.course_state.get_name_display())
 
-    def test_draft(self):
-        self.course_state.review()
+    @ddt.data(
+        CourseStateChoices.Review,
+        CourseStateChoices.Approved,
+        CourseStateChoices.Draft
+    )
+    def test_change_state(self, state):
+        """
+        Verify that we can change course state according to workflow.
+        """
+        self.assertNotEqual(self.course_state.name, state)
 
-        self.assertNotEqual(self.course_state.name, CourseStateChoices.Draft)
+        self.course_state.change_state(state=state)
 
-        self.course_state.draft()
-
-        self.assertEqual(self.course_state.name, CourseStateChoices.Draft)
-
-    def test_review(self):
-        self.assertNotEqual(self.course_state.name, CourseStateChoices.Review)
-
-        self.course_state.review()
-
-        self.assertEqual(self.course_state.name, CourseStateChoices.Review)
-
-    def test_approved(self):
-        self.course_state.review()
-
-        self.assertNotEqual(self.course_state.name, CourseStateChoices.Approved)
-
-        self.course_state.approved()
-
-        self.assertEqual(self.course_state.name, CourseStateChoices.Approved)
+        self.assertEqual(self.course_state.name, state)
 
 
 class CourseRunStateTests(TestCase):
