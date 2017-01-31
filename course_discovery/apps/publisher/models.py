@@ -552,3 +552,15 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
     def published(self):
         # TODO: send email etc.
         pass
+
+    def change_state(self, state):
+        if state == CourseRunStateChoices.Draft:
+            self.draft()
+        elif state == CourseRunStateChoices.Review:
+            self.review()
+        elif state == CourseRunStateChoices.Approved:
+            self.approved()
+        elif state == CourseRunStateChoices.Published:
+            self.published()
+
+        self.save()

@@ -439,12 +439,14 @@ class CourseStateTests(TestCase):
         self.assertEqual(self.course_state.name, state)
 
 
+@ddt.ddt
 class CourseRunStateTests(TestCase):
     """ Tests for the publisher `CourseRunState` model. """
 
-    def setUp(self):
-        super(CourseRunStateTests, self).setUp()
-        self.run_state = factories.CourseRunStateFactory(name=CourseRunStateChoices.Draft)
+    @classmethod
+    def setUpClass(cls):
+        super(CourseRunStateTests, cls).setUpClass()
+        cls.run_state = factories.CourseRunStateFactory(name=CourseRunStateChoices.Draft)
 
     def test_str(self):
         """
@@ -452,37 +454,18 @@ class CourseRunStateTests(TestCase):
         """
         self.assertEqual(str(self.run_state), self.run_state.get_name_display())
 
-    def test_draft(self):
-        self.run_state.review()
+    @ddt.data(
+        CourseRunStateChoices.Review,
+        CourseRunStateChoices.Approved,
+        CourseRunStateChoices.Published,
+        CourseRunStateChoices.Draft
+    )
+    def test_change_state(self, state):
+        """
+        Verify that we can change course-run state according to workflow.
+        """
+        self.assertNotEqual(self.run_state.name, state)
 
-        self.assertNotEqual(self.run_state.name, CourseRunStateChoices.Draft)
+        self.run_state.change_state(state=state)
 
-        self.run_state.draft()
-
-        self.assertEqual(self.run_state.name, CourseRunStateChoices.Draft)
-
-    def test_review(self):
-        self.assertNotEqual(self.run_state.name, CourseRunStateChoices.Review)
-
-        self.run_state.review()
-
-        self.assertEqual(self.run_state.name, CourseRunStateChoices.Review)
-
-    def test_approved(self):
-        self.run_state.review()
-
-        self.assertNotEqual(self.run_state.name, CourseRunStateChoices.Approved)
-
-        self.run_state.approved()
-
-        self.assertEqual(self.run_state.name, CourseRunStateChoices.Approved)
-
-    def test_published(self):
-        self.run_state.name = CourseRunStateChoices.Approved
-        self.run_state.save()
-
-        self.assertNotEqual(self.run_state.name, CourseRunStateChoices.Published)
-
-        self.run_state.published()
-
-        self.assertEqual(self.run_state.name, CourseRunStateChoices.Published)
+        self.assertEqual(self.run_state.name, state)
