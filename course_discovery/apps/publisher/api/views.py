@@ -2,11 +2,14 @@ from rest_framework.generics import UpdateAPIView, ListAPIView, get_object_or_40
 from rest_framework.permissions import IsAuthenticated
 
 from course_discovery.apps.core.models import User
-from course_discovery.apps.publisher.models import CourseUserRole, OrganizationExtension, CourseRun, Course
-from course_discovery.apps.publisher.api.permissions import CanViewAssociatedCourse, InternalUserPermission
-from course_discovery.apps.publisher.api.serializers import (
-    CourseUserRoleSerializer, GroupUserSerializer, UpdateCourseKeySerializer, CourseRevisionSerializer
+from course_discovery.apps.publisher.api.permissions import (
+    CanViewAssociatedCourse, InternalUserPermission, PublisherUserPermission
 )
+from course_discovery.apps.publisher.api.serializers import (
+    CourseUserRoleSerializer, GroupUserSerializer, UpdateCourseKeySerializer, CourseRevisionSerializer,
+    CourseStateSerializer
+)
+from course_discovery.apps.publisher.models import CourseUserRole, OrganizationExtension, CourseRun, CourseState, Course
 
 
 class CourseRoleAssignmentView(UpdateAPIView):
@@ -36,3 +39,9 @@ class CourseRevisionDetailView(RetrieveAPIView):
     serializer_class = CourseRevisionSerializer
     queryset = Course.history.all()  # pylint: disable=no-member
     lookup_field = 'history_id'
+
+
+class ChangeCourseStateView(UpdateAPIView):
+    permission_classes = (IsAuthenticated, PublisherUserPermission,)
+    queryset = CourseState.objects.all()
+    serializer_class = CourseStateSerializer

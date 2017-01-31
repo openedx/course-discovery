@@ -4,9 +4,13 @@ from rest_framework.exceptions import ValidationError
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.publisher.api.serializers import (
-    CourseUserRoleSerializer, GroupUserSerializer, UpdateCourseKeySerializer, CourseRevisionSerializer
+    CourseUserRoleSerializer, GroupUserSerializer, UpdateCourseKeySerializer, CourseRevisionSerializer,
+    CourseStateSerializer
 )
-from course_discovery.apps.publisher.tests.factories import CourseUserRoleFactory, CourseRunFactory, CourseFactory
+from course_discovery.apps.publisher.tests.factories import CourseFactory
+from course_discovery.apps.publisher.choices import CourseStateChoices
+from course_discovery.apps.publisher.models import CourseState
+from course_discovery.apps.publisher.tests.factories import CourseUserRoleFactory, CourseRunFactory, CourseStateFactory
 
 
 class CourseUserRoleSerializerTests(TestCase):
@@ -123,3 +127,33 @@ class CourseRevisionSerializerTests(TestCase):
         }
 
         self.assertDictEqual(serializer.data, expected)
+
+
+class CourseStateSerializerTests(TestCase):
+    serializer_class = CourseStateSerializer
+
+    def setUp(self):
+        super(CourseStateSerializerTests, self).setUp()
+        self.course_state = CourseStateFactory(name=CourseStateChoices.Draft)
+
+    def test_update(self):
+        """
+        Verify that we can update course workflow state with serializer.
+        """
+        self.assertNotEqual(self.course_state, CourseStateChoices.Review)
+        serializer = self.serializer_class(self.course_state)
+        data = {'name': CourseStateChoices.Review}
+        serializer.update(self.course_state, data)
+
+        self.course_state = CourseState.objects.get(course=self.course_state.course)
+        self.assertEqual(self.course_state.name, CourseStateChoices.Review)
+
+    def test_update_with_error(self):
+        """
+        Verify that serializer raises `ValidationError` with wrong transition.
+        """
+        serializer = self.serializer_class(self.course_state)
+        data = {'name': CourseStateChoices.Approved}
+
+        with self.assertRaises(ValidationError):
+            serializer.update(self.course_state, data)
