@@ -7,9 +7,11 @@ from course_discovery.apps.publisher.api.permissions import (
 )
 from course_discovery.apps.publisher.api.serializers import (
     CourseUserRoleSerializer, GroupUserSerializer, UpdateCourseKeySerializer, CourseRevisionSerializer,
-    CourseStateSerializer
+    CourseStateSerializer, CourseRunStateSerializer
 )
-from course_discovery.apps.publisher.models import CourseUserRole, OrganizationExtension, CourseRun, CourseState, Course
+from course_discovery.apps.publisher.models import (
+    Course, CourseState, CourseRun, CourseRunState, CourseUserRole, OrganizationExtension
+)
 
 
 class CourseRoleAssignmentView(UpdateAPIView):
@@ -45,3 +47,9 @@ class ChangeCourseStateView(UpdateAPIView):
     permission_classes = (IsAuthenticated, PublisherUserPermission,)
     queryset = CourseState.objects.all()
     serializer_class = CourseStateSerializer
+
+
+class ChangeCourseRunStateView(UpdateAPIView):
+    permission_classes = (IsAuthenticated, PublisherUserPermission,)
+    queryset = CourseRunState.objects.all()
+    serializer_class = CourseRunStateSerializer

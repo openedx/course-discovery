@@ -10,7 +10,7 @@ from rest_framework import serializers
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.emails import send_email_for_studio_instance_created
-from course_discovery.apps.publisher.models import CourseUserRole, CourseRun, CourseState
+from course_discovery.apps.publisher.models import CourseUserRole, CourseRun, CourseState, CourseRunState
 
 
 class CourseUserRoleSerializer(serializers.ModelSerializer):
@@ -109,6 +109,35 @@ class CourseStateSerializer(serializers.ModelSerializer):
         fields = ('name', 'approved_by_role', 'owner_role', 'course',)
         extra_kwargs = {
             'course': {'read_only': True},
+            'approved_by_role': {'read_only': True},
+            'owner_role': {'read_only': True}
+        }
+
+    def update(self, instance, validated_data):
+        state = validated_data.get('name')
+        try:
+            instance.change_state(state=state)
+        except TransitionNotAllowed:
+            # pylint: disable=no-member
+            raise serializers.ValidationError(
+                {
+                    'name': _('Cannot switch from state `{state}` to `{target_state}`').format(
+                        state=instance.name, target_state=state
+                    )
+                }
+            )
+
+        return instance
+
+
+class CourseRunStateSerializer(serializers.ModelSerializer):
+    """Serializer for `CourseRunState` model to change course-run workflow state. """
+
+    class Meta:
+        model = CourseRunState
+        fields = ('name', 'approved_by_role', 'owner_role', 'course_run',)
+        extra_kwargs = {
+            'course_run': {'read_only': True},
             'approved_by_role': {'read_only': True},
             'owner_role': {'read_only': True}
         }

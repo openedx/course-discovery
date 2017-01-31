@@ -14,9 +14,9 @@ from guardian.shortcuts import assign_perm
 
 from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
 from course_discovery.apps.course_metadata.tests import toggle_switch
-from course_discovery.apps.publisher.choices import PublisherUserRole, CourseStateChoices
+from course_discovery.apps.publisher.choices import PublisherUserRole, CourseStateChoices, CourseRunStateChoices
 from course_discovery.apps.publisher.constants import INTERNAL_USER_GROUP_NAME
-from course_discovery.apps.publisher.models import CourseRun, OrganizationExtension, CourseState
+from course_discovery.apps.publisher.models import CourseRun, CourseState, CourseRunState, OrganizationExtension
 from course_discovery.apps.publisher.tests import factories, JSON_CONTENT_TYPE
 
 
@@ -420,6 +420,57 @@ class ChangeCourseStateViewTests(TestCase):
         expected = {
             'name': 'Cannot switch from state `{state}` to `{target_state}`'.format(
                 state=self.course_state.name, target_state=CourseStateChoices.Approved
+            )
+        }
+
+        self.assertEqual(response.data, expected)
+
+
+class ChangeCourseRunStateViewTests(TestCase):
+
+    def setUp(self):
+        super(ChangeCourseRunStateViewTests, self).setUp()
+        self.run_state = factories.CourseRunStateFactory(name=CourseRunStateChoices.Draft)
+        self.user = UserFactory()
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+
+        self.change_state_url = reverse('publisher:api:change_course_run_state', kwargs={'pk': self.run_state.id})
+
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+    def test_change_course_run_state(self):
+        """
+        Verify that publisher user can change course-run workflow state.
+        """
+        self.assertNotEqual(self.run_state.name, CourseRunStateChoices.Review)
+
+        response = self.client.patch(
+            self.change_state_url,
+            data=json.dumps({'name': CourseRunStateChoices.Review}),
+            content_type=JSON_CONTENT_TYPE
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.run_state = CourseRunState.objects.get(course_run=self.run_state.course_run)
+
+        self.assertEqual(self.run_state.name, CourseRunStateChoices.Review)
+
+    def test_change_course_run_state_with_error(self):
+        """
+        Verify that user cannot change course-run workflow state directly from `Draft` to `Published`.
+        """
+        response = self.client.patch(
+            self.change_state_url,
+            data=json.dumps({'name': CourseRunStateChoices.Published}),
+            content_type=JSON_CONTENT_TYPE
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+        expected = {
+            'name': 'Cannot switch from state `{state}` to `{target_state}`'.format(
+                state=self.run_state.name, target_state=CourseRunStateChoices.Published
             )
         }
 
