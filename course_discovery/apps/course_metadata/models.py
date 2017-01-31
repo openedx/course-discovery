@@ -888,3 +888,8 @@ class CourseRunSocialNetwork(AbstractSocialNetworkModel):
         unique_together = (
             ('course_run', 'type'),
         )
+
+
+class PersonWork(AbstractValueModel):
+    """ Person Works model. """
+    person = models.ForeignKey(Person, related_name='person_works')

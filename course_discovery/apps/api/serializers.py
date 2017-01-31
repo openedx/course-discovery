@@ -13,12 +13,12 @@ from rest_framework import serializers
 from rest_framework.fields import DictField
 from taggit_serializer.serializers import TagListSerializerField, TaggitSerializer
 
-from course_discovery.apps.api.fields import StdImageSerializerField, ImageField
+from course_discovery.apps.api.fields import StdImageSerializerField, ImageField, WritableSerializerMethodField
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Image, Organization, Person, Prerequisite, Seat, Subject, Video, Program, ProgramType, FAQ,
-    CorporateEndorsement, Endorsement, Position
+    CorporateEndorsement, Endorsement, Position, PersonWork
 )
 from course_discovery.apps.course_metadata.search_indexes import CourseIndex, CourseRunIndex, ProgramIndex
 
@@ -211,25 +211,36 @@ class PersonSerializer(serializers.ModelSerializer):
     """Serializer for the ``Person`` model."""
     position = PositionSerializer(required=False)
     profile_image = StdImageSerializerField(required=False)
+    works = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value', source='person_works')
 
     @classmethod
     def prefetch_queryset(cls):
-        return Person.objects.all().select_related('position__organization')
+        return Person.objects.all().select_related('position__organization').prefetch_related('person_works')
 
     class Meta(object):
         model = Person
         fields = (
             'uuid', 'given_name', 'family_name', 'bio', 'profile_image_url', 'slug', 'position', 'profile_image',
-            'partner',
+            'partner', 'works'
         )
         extra_kwargs = {
             'partner': {'write_only': True}
         }
 
+    def validate(self, data):
+        validated_data = super(PersonSerializer, self).validate(data)
+        validated_data['works'] = self.initial_data.get('works', [])
+        return validated_data
+
     def create(self, validated_data):
         position_data = validated_data.pop('position')
+        works_data = validated_data.pop('works')
+
         person = Person.objects.create(**validated_data)
         Position.objects.create(person=person, **position_data)
+        for work_data in works_data:
+            PersonWork.objects.create(person=person, value=work_data)
+
         return person
 
 

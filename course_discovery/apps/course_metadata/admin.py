@@ -20,6 +20,11 @@ class PositionInline(admin.TabularInline):
     extra = 0
 
 
+class PersonWorkInline(admin.TabularInline):
+    model = PersonWork
+    extra = 0
+
+
 class FaqsInline(admin.TabularInline):
     model = Program.faq.through
     exclude = ('sort_value',)
@@ -192,7 +197,7 @@ class SubjectAdmin(admin.ModelAdmin):
 
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
-    inlines = (PositionInline,)
+    inlines = (PositionInline, PersonWorkInline,)
     list_display = ('uuid', 'family_name', 'given_name', 'slug',)
     list_filter = ('partner',)
     ordering = ('family_name', 'given_name', 'uuid',)
