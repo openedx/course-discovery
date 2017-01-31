@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-02 23:31+0500\n"
+"POT-Creation-Date: 2017-02-03 12:49+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -210,7 +210,8 @@ msgid ""
 " try again. If the error persists, please contact the Engineering Team."
 msgstr ""
 
-#: apps/course_metadata/choices.py apps/publisher/models.py
+#: apps/course_metadata/choices.py apps/publisher/choices.py
+#: apps/publisher/models.py
 msgid "Published"
 msgstr ""
 
@@ -456,6 +457,18 @@ msgstr ""
 msgid "Course Team"
 msgstr ""
 
+#: apps/publisher/choices.py apps/publisher/models.py
+msgid "Draft"
+msgstr ""
+
+#: apps/publisher/choices.py
+msgid "Review"
+msgstr ""
+
+#: apps/publisher/choices.py templates/publisher/dashboard/_preview_ready.html
+msgid "Approved"
+msgstr ""
+
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Course Run {title}-{pacing_type}-{start} state has been changed."
@@ -599,10 +612,6 @@ msgstr ""
 
 #: apps/publisher/forms.py templates/publisher/course_run_detail/_seats.html
 msgid "Seat Type"
-msgstr ""
-
-#: apps/publisher/models.py
-msgid "Draft"
 msgstr ""
 
 #: apps/publisher/models.py
@@ -2161,10 +2170,6 @@ msgid ""
 "After the course team approves the preview, the edX marketing team will "
 "publish the course run on edx.org. The course team will receive an email "
 "message when the course run has been published."
-msgstr ""
-
-#: templates/publisher/dashboard/_preview_ready.html
-msgid "Approved"
 msgstr ""
 
 #: templates/publisher/dashboard/_preview_ready.html
