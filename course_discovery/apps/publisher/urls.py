@@ -30,4 +30,6 @@ urlpatterns = [
         views.ToggleEmailNotification.as_view(),
         name='publisher_toggle_email_settings'
     ),
+    url(r'^courses/(?P<pk>\d+)/revisions/(?P<revision_id>\d+)/$', views.CourseRevisionView.as_view(),
+        name='publisher_course_revision'),
 ]

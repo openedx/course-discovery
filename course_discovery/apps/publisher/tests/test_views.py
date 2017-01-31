@@ -2030,3 +2030,55 @@ class CourseRunEditViewTests(TestCase):
 
         response = self.client.get(self.edit_page_url)
         self.assertContains(response, '<div id="SeatPriceBlock" class="col col-6')
+
+
+class CourseRevisionViewTests(TestCase):
+    """ Tests for CourseReview"""
+
+    def setUp(self):
+        super(CourseRevisionViewTests, self).setUp()
+        self.course = factories.CourseFactory()
+
+        self.user = UserFactory()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+    def test_get_revision(self):
+        """
+        Verify that view return history_object against given revision_id.
+        """
+        self.course.title = 'Updated title'
+        self.course.save()
+
+        # index 0 will return the latest object
+        revision_id = self.course.history.all()[1].history_id
+        response = self._get_response(course_id=self.course.id, revision_id=revision_id)
+        history_object = response.context['history_object']
+
+        self.assertIn('history_object', response.context)
+        self.assertNotEqual(self.course.title, history_object.title)
+
+    def test_get_with_invalid_revision_id(self):
+        """
+        Verify that view returns 404 response if revision id does not found.
+        """
+        response = self._get_response(course_id=self.course.id, revision_id='0000')
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_with_invalid_course_id(self):
+        """
+        Verify that view returns 404 response if course id does not found.
+        """
+        self.course.title = 'Updated title'
+        self.course.save()
+
+        # index 0 will return the latest object
+        revision_id = self.course.history.all()[1].history_id
+        response = self._get_response(course_id='0000', revision_id=revision_id)
+        self.assertEqual(response.status_code, 404)
+
+    def _get_response(self, course_id, revision_id):
+        """ Return the response object with given revision_id. """
+        revision_path = reverse('publisher:publisher_course_revision',
+                                kwargs={'pk': course_id, 'revision_id': revision_id})
+
+        return self.client.get(path=revision_path)

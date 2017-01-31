@@ -8,8 +8,9 @@ import waffle
 
 from django.contrib import messages
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View, CreateView, UpdateView, DetailView, ListView
@@ -643,4 +644,19 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(CourseListView, self).get_context_data(**kwargs)
         context['publisher_hide_features_for_pilot'] = waffle.switch_is_active('publisher_hide_features_for_pilot')
+        return context
+
+
+class CourseRevisionView(mixins.LoginRequiredMixin, DetailView):
+    """Course revisions view """
+    model = Course
+    template_name = 'publisher/course_revision_history.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CourseRevisionView, self).get_context_data(**kwargs)
+        try:
+            context['history_object'] = self.object.history.get(history_id=self.kwargs.get('revision_id'))
+        except ObjectDoesNotExist:
+            raise Http404
+
         return context
