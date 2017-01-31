@@ -72,7 +72,8 @@ $(document).ready(function(){
                         'position':{
                             'title': $('#title').val(),
                             'organization': parseInt($('#id_organization').val())
-                        }
+                        },
+                        'works': $('#majorWorks').val().split('\n')
                     }
                 )
             },
@@ -81,7 +82,8 @@ $(document).ready(function(){
                 $('#family-name').val('');
                 $('#title').val('');
                 $('#bio').val('');
-                $('.select-image').attr('src', '')
+                $('.select-image').attr('src', '');
+                $('#majorWorks').val('');
                 clearModalError();
                 closeModal(e, $('#addInstructorModal'));
             },
