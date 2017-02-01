@@ -39,7 +39,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         """ Verify the endpoint returns the details for a single course. """
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
 
-        with self.assertNumQueries(9):
+        with self.assertNumQueries(10):
             response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
@@ -51,7 +51,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
 
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
 
-        with self.assertNumQueries(12):
+        with self.assertNumQueries(13):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data.get('programs'), [])
@@ -66,13 +66,13 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
         url += '?include_deleted_programs=1'
 
-        with self.assertNumQueries(20):
+        with self.assertNumQueries(13):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(
-                response.data,
-                self.serialize_course_run(self.course_run, extra_context={'include_deleted_programs': True})
-            )
+        self.assertEqual(
+            response.data,
+            self.serialize_course_run(self.course_run, extra_context={'include_deleted_programs': True})
+        )
 
     def test_get_exclude_unpublished_programs(self):
         """ Verify the endpoint returns no associated unpublished programs """
@@ -80,7 +80,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
 
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
 
-        with self.assertNumQueries(12):
+        with self.assertNumQueries(13):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data.get('programs'), [])
@@ -95,19 +95,19 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
         url += '?include_unpublished_programs=1'
 
-        with self.assertNumQueries(20):
+        with self.assertNumQueries(13):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(
-                response.data,
-                self.serialize_course_run(self.course_run, extra_context={'include_unpublished_programs': True})
-            )
+        self.assertEqual(
+            response.data,
+            self.serialize_course_run(self.course_run, extra_context={'include_unpublished_programs': True})
+        )
 
     def test_list(self):
         """ Verify the endpoint returns a list of all catalogs. """
         url = reverse('api:v1:course_run-list')
 
-        with self.assertNumQueries(11):
+        with self.assertNumQueries(12):
             response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
@@ -120,7 +120,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         """ Verify the endpoint returns a list of all catalogs sorted by course start date. """
         url = '{root}?ordering=start'.format(root=reverse('api:v1:course_run-list'))
 
-        with self.assertNumQueries(11):
+        with self.assertNumQueries(12):
             response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
@@ -136,7 +136,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         query = 'title:Some random title'
         url = '{root}?q={query}'.format(root=reverse('api:v1:course_run-list'), query=query)
 
-        with self.assertNumQueries(37):
+        with self.assertNumQueries(40):
             response = self.client.get(url)
 
         actual_sorted = sorted(response.data['results'], key=lambda course_run: course_run['key'])
