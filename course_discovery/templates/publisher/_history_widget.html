@@ -1,0 +1,22 @@
+{% load i18n %}
+<div class="margin-top20">
+<h5 class="hd-5 emphasized course-runs-heading">{% trans "REVISION HISTORY" %}</h5>
+<br>
+{% with object.history.all as history_list %}
+    <select id="id_select_revisions">
+        {% for history in history_list %}
+            {% if forloop.first %}
+                <option value="{% url 'publisher:publisher_course_revision' course.id history.history_id %}">{% trans "Latest version" %}</option>
+            {% else %}
+                <option value="{% url 'publisher:publisher_course_revision' course.id history.history_id %}">
+                    {% blocktrans with history.history_date|date:'d-m-Y' as history_date and history.changed_by as changed_by trimmed %}
+                        {{ history_date }}&nbsp;by&nbsp;{{ changed_by}}
+                    {% endblocktrans %}
+                </option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <a id="id_open_revision" class="btn btn-brand btn-small btn-courserun-add" href="{% url 'publisher:publisher_course_revision' course.id history_list.first.history_id %}" target="_blank">{% trans "Open Selected Version" %}</a>
+{% endwith %}
+</div>
+
