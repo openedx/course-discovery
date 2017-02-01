@@ -103,6 +103,7 @@
 {% endblock %}
 
 {% block js %}
+  {{ block.super }}
     {% compress js %}
         <script src="{% static 'bower_components/jquery/dist/jquery.js' %}"></script>
         <script src="{% static 'bower_components/google-diff-match-patch/diff_match_patch.js' %}"></script>
