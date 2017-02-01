@@ -7,7 +7,7 @@ $(document).on('click', '.btn-show-changes', function (e) {
         $(this).text(gettext('Hide changes'));
         $(this).removeClass('show');
     } else {
-        $('.object').show();
+        $('.history-object').show();
         $('.show-diff').hide();
         $(this).text(gettext('Show changes'));
         $(this).addClass('show');
@@ -17,9 +17,9 @@ $(document).on('click', '.btn-show-changes', function (e) {
 
 var dmp = new diff_match_patch();
 function showDiff($object, $historyObject, $outputDiv) {
-    var d = dmp.diff_main($.trim($object.text()), $.trim($historyObject.text()));
+    var d = dmp.diff_main($historyObject.text(), $object.text());
     $outputDiv.html(dmp.diff_prettyHtml(d));
-    $object.hide();
+    $historyObject.hide();
     $outputDiv.show();
 }
 
