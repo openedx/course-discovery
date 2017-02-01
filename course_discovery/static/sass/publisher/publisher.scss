@@ -885,3 +885,54 @@ select {
     display: none;
   }
 }
+
+.parent-course-history {
+  @include margin-left(15px);
+  margin-top: 10px;
+  font-family: 'Open Sans', sans-serif;
+  display: inline-block;
+
+  .title {
+    font-weight: 700;
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+
+  .btn-show-changes {
+    @include margin-left(60px);
+    cursor: pointer;
+    color: #ffffff;
+    background-color: #169BD5;
+    border-color: #169BD5;
+    width: 120px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 5px;
+  }
+
+  .hr-line {
+    float: left;
+    width: 882px;
+  }
+
+  .changed-by {
+    font-weight: 400;
+    font-size: 20px;
+  }
+
+  .field-container {
+    margin-bottom: 20px;
+
+    .field-title {
+      margin-bottom: 10px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    span {
+      font-size: 14px;
+      font-weight: 400;
+    }
+  }
+}

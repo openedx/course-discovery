@@ -1,12 +1,79 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-  <meta charset="UTF-8">
-  <title></title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}
+  {% trans "Revision History" %}
+{% endblock title %}
 
-{#TODO revision template will be added in other subtask#}
+{% block content %}
+  <div class="parent-course-history">
+    <div class="title">{% trans "Revision History" %}</div>
 
-</body>
-</html>
+    <div>
+      <p class="changed-by">
+        {% with date=history_object.history_date|date:"d-m-Y" name=history_object.history_user.full_name %}
+          {% blocktrans trimmed %}
+            {{ date }} by {{ name }}
+          {% endblocktrans %}
+        {% endwith %}
+        <button class="btn-show-changes">Show changes</button>
+      </p>
+    </div>
+
+    <div>
+      <hr class="hr-line"/>
+    </div>
+
+    <div class="field-container">
+      <div class="field-title">{% trans "Course Title" %}</div>
+      <span>{{ history_object.title }}</span>
+    </div>
+
+    <div class="field-container">
+      <div class="field-title">{% trans "Course Number" %}</div>
+      <span>{{ history_object.number }}</span>
+    </div>
+
+
+    <div class="field-container">
+      <div class="field-title">{% trans "Brief Description" %}</div>
+      <span>{{ history_object.short_description }}</span>
+    </div>
+
+
+    <div class="field-container">
+      <div class="field-title">{% trans "Full Description" %}</div>
+      <span>{{ history_object.full_description }}</span>
+    </div>
+
+    <div class="field-container">
+      <div class="field-title">{% trans "Expected Learnings" %}</div>
+      <span>{{ history_object.expected_learnings }}</span>
+    </div>
+
+    <div class="field-container">
+      <div class="field-title">{% trans "Primary Subject" %}</div>
+      <span>{{ history_object.primary_subject }}</span>
+    </div>
+
+    <div class="field-container">
+      <div class="field-title">{% trans "Secondary Subject" %}</div>
+      <span>{{ history_object.secondary_subject }}</span>
+    </div>
+
+    <div class="field-container">
+      <div class="field-title">{% trans "Tertiary Subject" %}</div>
+      <span>{{ history_object.tertiary_subject }}</span>
+    </div>
+
+    <div class="field-container">
+      <div class="field-title">{% trans "Prerequisites" %}</div>
+      <span>{{ history_object.prerequisites }}</span>
+    </div>
+
+    <div class="field-container">
+      <div class="field-title">{% trans "Course Level" %}</div>
+      <span>{{ history_object.level_type }}</span>
+    </div>
+  </div>
+
+{% endblock %}
