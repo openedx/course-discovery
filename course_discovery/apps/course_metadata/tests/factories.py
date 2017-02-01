@@ -6,7 +6,9 @@ from pytz import UTC
 
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import FuzzyURL
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing, ProgramStatus
+from course_discovery.apps.course_metadata.choices import (
+    CourseRunStatus, CourseRunPacing, ProgramStatus, ReportingType
+)
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -126,6 +128,7 @@ class CourseRunFactory(factory.DjangoModelFactory):
     min_effort = FuzzyInteger(1, 10)
     max_effort = FuzzyInteger(10, 20)
     pacing_type = FuzzyChoice([name for name, __ in CourseRunPacing.choices])
+    reporting_type = FuzzyChoice([name for name, __ in ReportingType.choices])
     slug = FuzzyText()
     hidden = False
     weeks_to_complete = FuzzyInteger(1)

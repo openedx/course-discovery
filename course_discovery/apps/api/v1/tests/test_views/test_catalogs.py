@@ -147,10 +147,10 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         for course_run in excluded_runs:
             SeatFactory(course_run=course_run)
 
-        with self.assertNumQueries(42):
+        with self.assertNumQueries(28):
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
-            self.assertListEqual(response.data['results'], self.serialize_catalog_course(courses, many=True))
+        assert response.status_code == 200
+        assert response.data['results'] == self.serialize_catalog_course(courses, many=True)
 
     def test_contains(self):
         """ Verify the endpoint returns a filtered list of courses contained in the catalog. """

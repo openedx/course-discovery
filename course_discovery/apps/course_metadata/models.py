@@ -21,7 +21,9 @@ from stdimage.utils import UploadToAutoSlug
 from taggit_autosuggest.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, Partner
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing, ProgramStatus
+from course_discovery.apps.course_metadata.choices import (
+    CourseRunStatus, CourseRunPacing, ProgramStatus, ReportingType
+)
 from course_discovery.apps.course_metadata.publishers import MarketingSitePublisher
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
@@ -389,6 +391,7 @@ class CourseRun(TimeStampedModel):
         default=False,
         help_text=_('Indicates whether the course relation has been manually overridden.')
     )
+    reporting_type = models.CharField(max_length=255, choices=ReportingType.choices, default=ReportingType.mooc)
 
     tags = TaggableManager(
         blank=True,

@@ -20,3 +20,11 @@ class ProgramStatus(DjangoChoices):
     Active = ChoiceItem('active', _('Active'))
     Retired = ChoiceItem('retired', _('Retired'))
     Deleted = ChoiceItem('deleted', _('Deleted'))
+
+
+class ReportingType(DjangoChoices):
+    mooc = ChoiceItem('mooc', 'mooc')
+    spoc = ChoiceItem('spoc', 'spoc')
+    test = ChoiceItem('test', 'test')
+    demo = ChoiceItem('demo', 'demo')
+    other = ChoiceItem('other', 'other')
