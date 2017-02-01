@@ -84,6 +84,14 @@ COURSES_API_BODIES = [
         'hidden': False,
         'instructor_info': [
             {
+                'name': 'TestInstructor5',
+                'organization': 'KyotoUx',
+                'title': 'Test Title',
+                'uuid': '431d42a0-7c1f-40a1-b785-0dd11ba8cb33',
+                'image': '/TestUser/image.jpg',
+                'bio': 'TestInstructor1 BIO'
+            },
+            {
                 'name': 'TestInstructor3',
                 'organization': 'KyotoUx',
                 'title': '',
