@@ -598,6 +598,8 @@ class SearchBoostingTests(ElasticsearchTestMixin, TestCase):
         defaults = {
             'pacing_type': 'instructor_paced',
             'start': datetime.datetime.now(pytz.timezone('utc')) + datetime.timedelta(weeks=52),
+            'enrollment_start': datetime.datetime.now(pytz.timezone('utc')) + datetime.timedelta(weeks=50),
+            'enrollment_end': None
         }
         defaults.update(kwargs)
         return CourseRunFactory(**defaults)
@@ -667,3 +669,45 @@ class SearchBoostingTests(ElasticsearchTestMixin, TestCase):
         self.assertEqual(2, len(search_results))
         self.assertGreater(search_results[0].score, search_results[1].score)
         self.assertEqual(str(test_record.type), str(search_results[0].type))
+
+    @ddt.data(
+        # Case 1: Should get boost if enrollment_start and enrollment_end unspecified.
+        (None, None, True),
+
+        # Case 2: Should get boost if enrollment_start unspecified and enrollment_end in future.
+        (None, datetime.datetime.now(pytz.timezone('utc')) + datetime.timedelta(days=15), True),
+
+        # Case 3: Should get boost if enrollment_start in past and enrollment_end unspecified.
+        (datetime.datetime.now(pytz.timezone('utc')) - datetime.timedelta(days=15), None, True),
+
+        # Case 4: Should get boost if enrollment_start in past and enrollment_end in future.
+        (datetime.datetime.now(pytz.timezone('utc')) - datetime.timedelta(days=15),
+         datetime.datetime.now(pytz.timezone('utc')) + datetime.timedelta(days=15),
+         True),
+
+        # Case 5: Should not get boost if enrollment_start in future.
+        (datetime.datetime.now(pytz.timezone('utc')) + datetime.timedelta(days=15), None, False),
+
+        # Case 5: Should not get boost if enrollment_end in past.
+        (None, datetime.datetime.now(pytz.timezone('utc')) - datetime.timedelta(days=15), False),
+    )
+    @ddt.unpack
+    def test_enrollable_course_run_boosting(self, enrollment_start, enrollment_end, expects_boost):
+        """ Verify that enrollable CourseRuns are boosted."""
+        # Create a control record that should never be boosted
+        self.build_normalized_course_run(title='test1')
+
+        # Create the test record
+        test_record = self.build_normalized_course_run(
+            title='test2',
+            enrollment_start=enrollment_start,
+            enrollment_end=enrollment_end
+        )
+
+        search_results = SearchQuerySet().models(CourseRun).all()
+        self.assertEqual(2, len(search_results))
+        if expects_boost:
+            self.assertGreater(search_results[0].score, search_results[1].score)
+            self.assertEqual(test_record.title, search_results[0].title)
+        else:
+            self.assertEqual(search_results[0].score, search_results[1].score)
