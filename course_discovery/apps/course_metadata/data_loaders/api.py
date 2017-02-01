@@ -126,7 +126,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                         course.canonical_course_run = course_run
                         course.save()
                 if not self.partner.has_marketing_site:
-                    self._populate_course_run_staff(course_run, body.get('instructor_info'))
+                    self._create_or_update_course_run_staff(course_run, body.get('instructor_info'))
             except:  # pylint: disable=bare-except
                 msg = 'An error occurred while updating {course_run} from {api_url}'.format(
                     course_run=course_run_id,
@@ -215,7 +215,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
         return defaults
 
-    def _populate_course_run_staff(self, course_run, staff_members):
+    def _create_or_update_course_run_staff(self, course_run, staff_members):
         staff_list = []
         for member in staff_members:
             defaults = {}
