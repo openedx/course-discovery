@@ -315,23 +315,27 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
         """
         If the form is valid, update organization and team_admin.
         """
-        self.object = form.save()
+        self.object = form.save(commit=False)
         self.object.changed_by = self.request.user
         self.object.save()
 
-        organization_extension = get_object_or_404(
-            OrganizationExtension, organization=form.data['organization']
-        )
-        self.object.organizations.remove(self.object.organizations.first())
-        self.object.organizations.add(organization_extension.organization)
+        organization = form.cleaned_data['organization']
+        if self.object.organizations.first() != organization:
+            organization_extension = get_object_or_404(OrganizationExtension, organization=organization)
+            self.object.organizations.remove(self.object.organizations.first())
+            self.object.organizations.add(organization_extension.organization)
 
-        course_admin_role = get_object_or_404(
-            CourseUserRole, course=self.object, role=PublisherUserRole.CourseTeam
-        )
-        course_admin_role.user_id = form.data['team_admin']
-        course_admin_role.save()
+        team_admin = form.cleaned_data['team_admin']
+        if self.object.course_team_admin != team_admin:
+            course_admin_role = get_object_or_404(
+                CourseUserRole, course=self.object, role=PublisherUserRole.CourseTeam
+            )
 
-        return super(CourseEditView, self).form_valid(form)
+            course_admin_role.user = team_admin
+            course_admin_role.save()
+
+        messages.success(self.request, _('Course  updated successfully.'))
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, DetailView):
@@ -541,11 +545,11 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
             try:
                 with transaction.atomic():
 
-                    course = course_form.save()
+                    course = course_form.save(commit=False)
                     course.changed_by = self.request.user
                     course.save()
 
-                    course_run = run_form.save()
+                    course_run = run_form.save(commit=False)
                     course_run.changed_by = self.request.user
                     course_run.save()
 
