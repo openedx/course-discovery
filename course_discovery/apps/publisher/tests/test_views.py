@@ -1598,6 +1598,10 @@ class CourseEditViewTests(TestCase):
         """
         Verify that publisher admin can update an existing course.
         """
+
+        # only 1 history object exists for a course.
+        self.assertEqual(self.course.history.all().count(), 1)
+
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         post_data = self._post_data(self.organization_extension)
 
@@ -1620,6 +1624,9 @@ class CourseEditViewTests(TestCase):
         # Assert that course is updated.
         self.assertEqual(course.title, updated_course_title)
         self.assertEqual(course.changed_by, self.user)
+
+        # After updating 2 history object exists for a course.
+        self.assertEqual(self.course.history.all().count(), 2)
 
     def test_update_course_with_non_internal_user(self):
         """
@@ -1654,6 +1661,7 @@ class CourseEditViewTests(TestCase):
         )
 
         self.assertEqual(self.course.course_team_admin, self.user)
+        self.assertEqual(self.course.history.all().count(), 2)
 
     def test_update_course_organization(self):
         """
@@ -1678,6 +1686,7 @@ class CourseEditViewTests(TestCase):
         )
 
         self.assertEqual(self.course.organizations.first(), organization_extension.organization)
+        self.assertEqual(self.course.history.all().count(), 2)
 
     def _assign_permissions(self, organization_extension):
         """
@@ -1820,6 +1829,10 @@ class CourseRunEditViewTests(TestCase):
     @ddt.data(INTERNAL_USER_GROUP_NAME, ADMIN_GROUP_NAME)
     def test_update_course_run_without_seat(self, publisher_group):
         """ Verify that internal users can update the data from course run edit page."""
+
+        self.assertEqual(self.new_course_run.history.all().count(), 1)
+        self.assertEqual(self.new_course_run.course.history.all().count(), 1)
+
         self.client.logout()
         user, __ = create_non_staff_user_and_login(self)
 
@@ -1846,6 +1859,9 @@ class CourseRunEditViewTests(TestCase):
         # no mail will be send because course-run state is already draft.
         # 1st email is of course-creation
         self.assertEqual(len(mail.outbox), 1)
+
+        self.assertEqual(course_run.history.all().count(), 2)
+        self.assertEqual(course_run.course.history.all().count(), 2)
 
     @ddt.data('start', 'end', 'pacing_type')
     def test_update_with_errors(self, field):
@@ -1879,6 +1895,7 @@ class CourseRunEditViewTests(TestCase):
 
     def test_update_course_run_with_seat(self):
         """ Verify that course run edit page create seat object also if not exists previously."""
+
         self.client.logout()
         user, __ = create_non_staff_user_and_login(self)
 
@@ -1908,6 +1925,8 @@ class CourseRunEditViewTests(TestCase):
 
         self.assertEqual(course_run.seats.first().type, Seat.PROFESSIONAL)
         self.assertEqual(course_run.seats.first().price, 10)
+
+        self.assertEqual(course_run.seats.first().history.all().count(), 1)
 
     def test_logging(self):
         """ Verify view logs the errors in case of errors. """
