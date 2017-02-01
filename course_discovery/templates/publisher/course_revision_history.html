@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load staticfiles %}
 {% load compress %}
+
 {% block title %}
   {% trans "Revision History" %}
 {% endblock title %}
@@ -17,7 +18,7 @@
             {{ date }} by {{ name }}
           {% endblocktrans %}
         {% endwith %}
-        <button class="btn-show-changes">Show changes</button>
+        <button class="btn-show-changes show">{% trans "Show changes" %}</button>
       </p>
     </div>
 
