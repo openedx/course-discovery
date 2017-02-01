@@ -1,14 +1,14 @@
 $(document).on('click', '.btn-show-changes', function (e) {
 
-    if ($(this).text() === 'Show changes') {
+    if ($(this).hasClass('show')){
         $('.field-container').each(function () {
             showDiff($(this).find('span.object'), $(this).find('span.history-object'), $(this).find('span.show-diff'));
         });
-        $(this).text('Hide changes');
+        $(this).removeClass('show');
     } else {
         $('.object').show();
         $('.show-diff').hide();
-        $(this).text('Show changes');
+        $(this).addClass('show');
     }
 });
 

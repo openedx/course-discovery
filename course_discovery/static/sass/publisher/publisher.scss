@@ -912,7 +912,7 @@ select {
   }
 
   .hr-line {
-    float: left;
+    @include float(left);
     width: 882px;
   }
 
