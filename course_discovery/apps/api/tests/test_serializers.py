@@ -321,6 +321,7 @@ class CourseRunSerializerTests(MinimalCourseRunSerializerTests):
             'modified': json_date_format(course_run.modified),  # pylint: disable=no-member
             'level_type': course_run.level_type.name,
             'availability': course_run.availability,
+            'reporting_type': course_run.reporting_type,
         })
 
         return expected

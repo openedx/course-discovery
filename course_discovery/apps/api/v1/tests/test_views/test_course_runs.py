@@ -42,7 +42,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         with self.assertNumQueries(9):
             response = self.client.get(url)
 
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assertEqual(response.data, self.serialize_course_run(self.course_run))
 
     def test_get_exclude_deleted_programs(self):
@@ -53,8 +53,8 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
 
         with self.assertNumQueries(12):
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data.get('programs'), [])
+        assert response.status_code == 200
+        assert response.data.get('programs') == []
 
     def test_get_include_deleted_programs(self):
         """
@@ -66,13 +66,11 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
         url += '?include_deleted_programs=1'
 
-        with self.assertNumQueries(20):
+        with self.assertNumQueries(12):
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(
-                response.data,
-                self.serialize_course_run(self.course_run, extra_context={'include_deleted_programs': True})
-            )
+        assert response.status_code == 200
+        assert response.data == \
+            self.serialize_course_run(self.course_run, extra_context={'include_deleted_programs': True})
 
     def test_get_exclude_unpublished_programs(self):
         """ Verify the endpoint returns no associated unpublished programs """
@@ -82,7 +80,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
 
         with self.assertNumQueries(12):
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
+            assert response.status_code == 200
             self.assertEqual(response.data.get('programs'), [])
 
     def test_get_include_unpublished_programs(self):
@@ -95,13 +93,11 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
         url += '?include_unpublished_programs=1'
 
-        with self.assertNumQueries(20):
+        with self.assertNumQueries(12):
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(
-                response.data,
-                self.serialize_course_run(self.course_run, extra_context={'include_unpublished_programs': True})
-            )
+        assert response.status_code == 200
+        assert response.data == \
+            self.serialize_course_run(self.course_run, extra_context={'include_unpublished_programs': True})
 
     def test_list(self):
         """ Verify the endpoint returns a list of all catalogs. """
@@ -110,7 +106,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         with self.assertNumQueries(11):
             response = self.client.get(url)
 
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assertListEqual(
             response.data['results'],
             self.serialize_course_run(CourseRun.objects.all().order_by(Lower('key')), many=True)
@@ -123,7 +119,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         with self.assertNumQueries(11):
             response = self.client.get(url)
 
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assertListEqual(
             response.data['results'],
             self.serialize_course_run(CourseRun.objects.all().order_by('start'), many=True)
@@ -156,7 +152,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
     def assert_list_results(self, url, expected, extra_context=None):
         expected = sorted(expected, key=lambda course_run: course_run.key.lower())
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assertListEqual(
             response.data['results'],
             self.serialize_course_run(expected, many=True, extra_context=extra_context)
@@ -232,7 +228,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         url = '{}?{}'.format(reverse('api:v1:course_run-contains'), qs)
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assertEqual(
             response.data,
             {
@@ -262,7 +258,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         url = '{}?{}'.format(reverse('api:v1:course_run-contains'), qs)
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assertDictEqual(
             response.data,
             {
