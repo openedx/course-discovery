@@ -194,3 +194,8 @@ $(document).on('change', '#id_type', function (e) {
         $seatBlock.show();
     }
 });
+
+$(document).on('change', '#id_select_revisions', function (e) {
+    // on changing the revision from dropdown set the href of button.
+    $('#id_open_revision').prop("href", this.value);
+});

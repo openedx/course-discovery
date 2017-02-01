@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-01 18:58+0500\n"
+"POT-Creation-Date: 2017-02-02 15:13+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1107,6 +1107,23 @@ msgstr "ÖFF Ⱡ'σяєм#"
 #: templates/publisher/_header.html
 msgid "Sign Out"
 msgstr "Sïgn Öüt Ⱡ'σяєм ιρѕυм ∂#"
+
+#: templates/publisher/_history_widget.html
+msgid "REVISION HISTORY"
+msgstr "RÉVÌSÌÖN HÌSTÖRÝ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: templates/publisher/_history_widget.html
+msgid "Latest version"
+msgstr "Lätést vérsïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#: templates/publisher/_history_widget.html
+#, python-format
+msgid "%(history_date)s&nbsp;by&nbsp;%(changed_by)s"
+msgstr "%(history_date)s&nbsp;ßý&nbsp;%(changed_by)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#: templates/publisher/_history_widget.html
+msgid "Open Selected Version"
+msgstr "Öpén Séléçtéd Vérsïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: templates/publisher/add_courserun_form.html
 msgid "New Course Run"
