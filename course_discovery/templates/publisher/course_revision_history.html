@@ -8,15 +8,22 @@
 {% endblock title %}
 
 {% block content %}
-    <div id="title">{{ object.title }}</div>
-    <div id="history-title">{{ history_object.title }}</div>
-    <div id="difference-title"></div>
+    <div class="parent-course-history" style="padding-left: 50px">
+    <div class="title">{% trans "Revision History" %}</div>
+
+        <div class="field-container">
+          <div class="field-title">{% trans "Course Title" %}</div>
+          <span id="current-title" class="hidden">{{ object.title }}</span>
+          <span id="history-title" class="hidden">{{ history_object.title }}</span>
+          <span id="difference-title"></span>
+        </div>
+    </div>
 {% endblock %}
 
 {% block js %}
-{#    {% compress js %}#}
+    {% compress js %}
         <script src="{% static 'bower_components/jquery/dist/jquery.js' %}"></script>
         <script src="{% static 'bower_components/google-diff-match-patch/diff_match_patch.js' %}"></script>
         <script src="{% static 'js/publisher/comparing-objects.js' %}"></script>
-{#    {% endcompress %}#}
+    {% endcompress %}
 {% endblock %}
