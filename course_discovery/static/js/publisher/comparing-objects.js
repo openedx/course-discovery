@@ -12,11 +12,12 @@ $(document).on('click', '.btn-show-changes', function (e) {
     }
 });
 
-var dmp =new diff_match_patch();
-    function showDiff($object, $historyObject, $outputDiv) {
-      var d = dmp.diff_main($object.text(), $historyObject.text());
-      $outputDiv.html(dmp.diff_prettyHtml(d));
-        $object.hide();
-    }
+var dmp = new diff_match_patch();
+function showDiff($object, $historyObject, $outputDiv) {
+    var d = dmp.diff_main($.trim($object.text()), $.trim($historyObject.text()));
+    $outputDiv.html(dmp.diff_prettyHtml(d));
+    $object.hide();
+    $outputDiv.show();
+}
 
 
