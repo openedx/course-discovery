@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-01 11:44+0500\n"
+"POT-Creation-Date: 2017-02-01 14:55+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -601,25 +601,30 @@ msgstr "Örgänïzätïön Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α�
 
 #: apps/publisher/forms.py templates/publisher/add_courserun_form.html
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Course Title"
 msgstr "Çöürsé Tïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: apps/publisher/forms.py templates/publisher/dashboard/_studio_requests.html
+#: apps/publisher/forms.py templates/publisher/course_revision_history.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid "Course Number"
 msgstr "Çöürsé Nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Brief Description"
 msgstr "Brïéf Désçrïptïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Full Description"
 msgstr "Füll Désçrïptïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_all.html
 msgid "Prerequisites"
 msgstr "Préréqüïsïtés Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
@@ -747,6 +752,7 @@ msgid "Level Type"
 msgstr "Lévél Týpé Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: apps/publisher/models.py templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Expected Learnings"
 msgstr "Éxpéçtéd Léärnïngs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
@@ -1936,14 +1942,17 @@ msgid "Course Team Admin"
 msgstr "Çöürsé Téäm Àdmïn Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Primary Subject"
 msgstr "Prïmärý Süßjéçt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Secondary Subject"
 msgstr "Séçöndärý Süßjéçt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Tertiary Subject"
 msgstr "Tértïärý Süßjéçt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
@@ -1952,6 +1961,7 @@ msgid "Course Image"
 msgstr "Çöürsé Ìmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Level"
@@ -1984,6 +1994,15 @@ msgstr ""
 #: templates/publisher/course_edit_form.html
 msgid "UPDATE COURSE"
 msgstr "ÛPDÀTÉ ÇÖÛRSÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: templates/publisher/course_revision_history.html
+msgid "Revision History"
+msgstr "Révïsïön Hïstörý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: templates/publisher/course_revision_history.html
+#, python-format
+msgid "%(date)s by %(name)s"
+msgstr "%(date)s ßý %(name)s Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: templates/publisher/course_run_detail.html
 msgid "Course Run Detail"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-01 11:44+0500\n"
+"POT-Creation-Date: 2017-02-01 14:55+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -485,25 +485,30 @@ msgstr ""
 
 #: apps/publisher/forms.py templates/publisher/add_courserun_form.html
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Course Title"
 msgstr ""
 
-#: apps/publisher/forms.py templates/publisher/dashboard/_studio_requests.html
+#: apps/publisher/forms.py templates/publisher/course_revision_history.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid "Course Number"
 msgstr ""
 
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Brief Description"
 msgstr ""
 
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Full Description"
 msgstr ""
 
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_all.html
 msgid "Prerequisites"
 msgstr ""
@@ -629,6 +634,7 @@ msgid "Level Type"
 msgstr ""
 
 #: apps/publisher/models.py templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Expected Learnings"
 msgstr ""
 
@@ -1603,14 +1609,17 @@ msgid "Course Team Admin"
 msgstr ""
 
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Primary Subject"
 msgstr ""
 
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Secondary Subject"
 msgstr ""
 
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Tertiary Subject"
 msgstr ""
 
@@ -1619,6 +1628,7 @@ msgid "Course Image"
 msgstr ""
 
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Level"
@@ -1647,6 +1657,15 @@ msgstr ""
 
 #: templates/publisher/course_edit_form.html
 msgid "UPDATE COURSE"
+msgstr ""
+
+#: templates/publisher/course_revision_history.html
+msgid "Revision History"
+msgstr ""
+
+#: templates/publisher/course_revision_history.html
+#, python-format
+msgid "%(date)s by %(name)s"
 msgstr ""
 
 #: templates/publisher/course_run_detail.html
