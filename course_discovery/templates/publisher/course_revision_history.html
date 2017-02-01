@@ -1,12 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-  <meta charset="UTF-8">
-  <title></title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load compress %}
+{% load i18n %}
+{% load staticfiles %}
 
-{#TODO revision template will be added in other subtask#}
+{% block title %}
+    {% trans "Revision History" %}
+{% endblock title %}
 
-</body>
-</html>
+{% block content %}
+    <div class="parent-course-history" style="padding-left: 50px">
+    <div class="title">{% trans "Revision History" %}</div>
+
+        <div class="field-container">
+          <div class="field-title">{% trans "Course Title" %}</div>
+          <span id="current-title" class="hidden">{{ object.title }}</span>
+          <span id="history-title" class="hidden">{{ history_object.title }}</span>
+          <span id="difference-title"></span>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    {% compress js %}
+        <script src="{% static 'bower_components/jquery/dist/jquery.js' %}"></script>
+        <script src="{% static 'bower_components/google-diff-match-patch/diff_match_patch.js' %}"></script>
+        <script src="{% static 'js/publisher/comparing-objects.js' %}"></script>
+    {% endcompress %}
+{% endblock %}
