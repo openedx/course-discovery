@@ -287,6 +287,7 @@ class MinimalCourseRunSerializerTests(TestCase):
             'enrollment_end': json_date_format(course_run.enrollment_end),
             'pacing_type': course_run.pacing_type,
             'type': course_run.type,
+            'seats': [],
         }
 
     def test_data(self):
@@ -317,7 +318,6 @@ class CourseRunSerializerTests(MinimalCourseRunSerializerTests):
             'max_effort': course_run.max_effort,
             'instructors': [],
             'staff': [],
-            'seats': [],
             'modified': json_date_format(course_run.modified),  # pylint: disable=no-member
             'level_type': course_run.level_type.name,
             'availability': course_run.availability,

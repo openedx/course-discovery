@@ -329,6 +329,7 @@ class NestedProgramSerializer(serializers.ModelSerializer):
 class MinimalCourseRunSerializer(TimestampModelSerializer):
     image = ImageField(read_only=True, source='card_image_url')
     marketing_url = serializers.SerializerMethodField()
+    seats = SeatSerializer(many=True)
 
     @classmethod
     def prefetch_queryset(cls):
@@ -339,7 +340,7 @@ class MinimalCourseRunSerializer(TimestampModelSerializer):
 
     class Meta:
         model = CourseRun
-        fields = ('key', 'uuid', 'title', 'image', 'short_description', 'marketing_url',
+        fields = ('key', 'uuid', 'title', 'image', 'short_description', 'marketing_url', 'seats',
                   'start', 'end', 'enrollment_start', 'enrollment_end', 'pacing_type', 'type',)
 
     def get_marketing_url(self, obj):
@@ -359,7 +360,6 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     )
     transcript_languages = serializers.SlugRelatedField(many=True, read_only=True, slug_field='code')
     video = VideoSerializer()
-    seats = SeatSerializer(many=True)
     instructors = serializers.SerializerMethodField(help_text='This field is deprecated. Use staff.')
     staff = PersonSerializer(many=True)
     level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
@@ -374,7 +374,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
 
     class Meta(MinimalCourseRunSerializer.Meta):
         fields = MinimalCourseRunSerializer.Meta.fields + (
-            'course', 'full_description', 'announcement', 'video', 'seats', 'content_language',
+            'course', 'full_description', 'announcement', 'video', 'content_language',
             'transcript_languages', 'instructors', 'staff', 'min_effort', 'max_effort', 'modified',
             'level_type', 'availability', 'mobile_available', 'hidden',
         )
