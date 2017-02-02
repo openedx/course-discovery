@@ -2,7 +2,7 @@
 from django.conf.urls import url
 
 from course_discovery.apps.publisher.api.views import (
-    CourseRoleAssignmentView, OrganizationGroupUserView, UpdateCourseKeyView
+    CourseRoleAssignmentView, OrganizationGroupUserView, UpdateCourseKeyView, CourseRevisionDetailView
 )
 
 urlpatterns = [
@@ -10,4 +10,5 @@ urlpatterns = [
     url(r'^admins/organizations/(?P<pk>\d+)/users/$', OrganizationGroupUserView.as_view(),
         name='organization_group_users'),
     url(r'^course_runs/(?P<pk>\d+)/$', UpdateCourseKeyView.as_view(), name='update_course_key'),
+    url(r'^course_revisions/(?P<history_id>\d+)/$', CourseRevisionDetailView.as_view(), name='course_revisions'),
 ]

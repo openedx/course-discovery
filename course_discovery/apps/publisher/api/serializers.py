@@ -1,6 +1,7 @@
 """Publisher API Serializers"""
 import waffle
 
+from django.apps import apps
 from django.utils.translation import ugettext_lazy as _
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
@@ -71,3 +72,29 @@ class UpdateCourseKeySerializer(serializers.ModelSerializer):
             send_email_for_studio_instance_created(instance)
 
         return instance
+
+
+class CourseRevisionSerializer(serializers.ModelSerializer):
+    """Serializer for the course history model. """
+    primary_subject = serializers.SerializerMethodField()
+    secondary_subject = serializers.SerializerMethodField()
+    tertiary_subject = serializers.SerializerMethodField()
+
+    class Meta:
+        model = apps.get_model('publisher', 'historicalcourse')
+        fields = (
+            'history_id', 'title', 'number', 'short_description', 'full_description', 'expected_learnings',
+            'prerequisites', 'primary_subject', 'secondary_subject', 'tertiary_subject',
+        )
+
+    def get_primary_subject(self, obj):
+        if obj.primary_subject:
+            return obj.primary_subject.name
+
+    def get_secondary_subject(self, obj):
+        if obj.secondary_subject:
+            return obj.secondary_subject.name
+
+    def get_tertiary_subject(self, obj):
+        if obj.tertiary_subject:
+            return obj.tertiary_subject.name
