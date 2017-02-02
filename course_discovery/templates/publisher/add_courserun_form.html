@@ -37,6 +37,8 @@
                         </div>
                         <fieldset class="form-group grid-container grid-manual">
 
+                            <div class="hidden">{{ run_form.contacted_partner_manager }}</div>
+
                             <div class="field-title">{% trans "COURSE TITLE" %}</div>
                             <div class="row">
                                 <div class="col col-6 help-text">
@@ -75,6 +77,8 @@
                                         </label>
                                     </label>
                                     <span class="field-readonly">{{ parent_course.title }}</span>
+                                    <div class="hidden">{{ course_form.title }}</div>
+                                    <div class="hidden">{{ course_form.organization }}</div>
 
                                     <div class="field-admin margin-top20">
                                         <label class="field-label">

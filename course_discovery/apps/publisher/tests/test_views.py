@@ -354,12 +354,13 @@ class CreateCourseRunViewTests(TestCase):
     def setUp(self):
         super(CreateCourseRunViewTests, self).setUp()
         self.user = UserFactory()
-        self.course = factories.CourseFactory()
-        factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.CourseTeam, user=self.user)
-
         self.course_run = factories.CourseRunFactory()
+        self.course = self.course_run.course
+        factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.CourseTeam, user=self.user)
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.course.organizations.add(self.organization_extension.organization)
+        self.user.groups.add(self.organization_extension.group)
+
         self.course_run_dict = model_to_dict(self.course_run)
         self.course_run_dict.update(
             {'number': self.course.number, 'team_admin': self.user.id, 'is_self_paced': True}
@@ -405,6 +406,14 @@ class CreateCourseRunViewTests(TestCase):
             target_status_code=302
         )
 
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+        response = self.client.get(
+            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id})
+        )
+
+        self.assertEqual(response.status_code, 200)
+
     def test_create_course_run_and_seat_with_errors(self):
         """ Verify that without providing required data course run cannot be
         created.
@@ -413,7 +422,7 @@ class CreateCourseRunViewTests(TestCase):
         post_data.update(self.course_run_dict)
         post_data.update(factory.build(dict, FACTORY_CLASS=factories.SeatFactory))
         self._pop_valuse_from_dict(
-            post_data, ['id', 'upgrade_deadline', 'image', 'team_admin', 'start', 'lms_course_id']
+            post_data, ['id', 'upgrade_deadline', 'image', 'team_admin', 'start']
         )
 
         response = self.client.post(
@@ -441,7 +450,11 @@ class CreateCourseRunViewTests(TestCase):
 
     def test_create_course_run_and_seat(self):
         """ Verify that we can create a new course run with seat. """
-        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+        new_user = factories.UserFactory()
+        new_user.groups.add(self.organization_extension.group)
+
+        self.assertEqual(self.course.course_team_admin, self.user)
+
         updated_course_number = '{number}.2'.format(number=self.course.number)
         new_price = 450
         post_data = self.course_run_dict
@@ -449,9 +462,13 @@ class CreateCourseRunViewTests(TestCase):
         post_data.update(**model_to_dict(seat))
         post_data.update(
             {
+                'title': self.course.title,
                 'number': updated_course_number,
                 'type': Seat.VERIFIED,
-                'price': new_price
+                'price': new_price,
+                'team_admin': new_user.id,
+                'organization': self.organization_extension.organization.id,
+                'contacted_partner_manager': False
             }
         )
         self._pop_valuse_from_dict(post_data, ['id', 'course', 'course_run', 'lms_course_id'])
@@ -479,8 +496,9 @@ class CreateCourseRunViewTests(TestCase):
         self.assertNotEqual(new_seat.course_run, self.course_run)
 
         self.course = new_seat.course_run.course
-        # Verify that number is updated for parent course
+        # Verify that number and team admin is updated for parent course
         self.assertEqual(self.course.number, updated_course_number)
+        self.assertEqual(new_seat.course_run.course.course_team_admin, new_user)
 
 
 class SeatsCreateUpdateViewTests(TestCase):

@@ -21,8 +21,7 @@ from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher import emails
 from course_discovery.apps.publisher.forms import (
-    SeatForm, CustomCourseForm, CustomCourseRunForm,
-    CustomSeatForm, UpdateCourseForm
+    SeatForm, CustomCourseForm, CustomCourseRunForm, CustomSeatForm
 )
 from course_discovery.apps.publisher import mixins
 from course_discovery.apps.publisher.models import (
@@ -361,7 +360,7 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
 class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
     """ Create Course Run View."""
     model = CourseRun
-    course_form = UpdateCourseForm
+    course_form = CustomCourseForm
     run_form = CustomCourseRunForm
     seat_form = CustomSeatForm
     template_name = 'publisher/add_courserun_form.html'
@@ -377,12 +376,22 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         parent_course = self.get_parent_course()
-        course_form = self.course_form(instance=parent_course)
+        organization = parent_course.organizations.first()
+        course_form = self.course_form(
+            instance=parent_course,
+            user=self.request.user,
+            organization=organization,
+            initial={
+                'organization': organization,
+                'team_admin': parent_course.course_team_admin,
+                'contacted_partner_manager': False
+            }
+        )
         user_role = CourseUserRole.objects.get(course=parent_course, role=PublisherUserRole.CourseTeam)
         context = {
             'parent_course': parent_course,
             'course_form': course_form,
-            'run_form': self.run_form,
+            'run_form': self.run_form(initial={'contacted_partner_manager': False}),
             'seat_form': self.seat_form,
             'is_team_admin_hidden': user_role.user and 'team_admin' not in course_form.errors
         }
@@ -391,13 +400,36 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
     def post(self, request, *args, **kwargs):
         user = request.user
         parent_course = self.get_parent_course()
-        course_form = self.course_form(request.POST, instance=self.get_parent_course())
-        run_form = self.run_form(request.POST)
+        organization = parent_course.organizations.first()
+        course_form = self.course_form(
+            request.POST,
+            user=user,
+            instance=self.get_parent_course(),
+            organization=organization,
+            initial={
+                'organization': organization,
+                'team_admin': parent_course.course_team_admin,
+                'contacted_partner_manager': False
+            }
+
+        )
+        run_form = self.run_form(request.POST, initial={'contacted_partner_manager': False})
         seat_form = self.seat_form(request.POST)
+
         if course_form.is_valid() and run_form.is_valid() and seat_form.is_valid():
             try:
                 with transaction.atomic():
-                    course = course_form.save(changed_by=user)
+                    course = course_form.save()
+
+                    team_admin = course_form.cleaned_data['team_admin']
+                    if parent_course.course_team_admin != team_admin:
+                        course_admin_role = get_object_or_404(
+                            CourseUserRole, course=parent_course, role=PublisherUserRole.CourseTeam
+                        )
+
+                        course_admin_role.user = team_admin
+                        course_admin_role.save()
+
                     course_run = run_form.save(course=course, changed_by=user)
                     seat_form.save(course_run=course_run, changed_by=user)
 
