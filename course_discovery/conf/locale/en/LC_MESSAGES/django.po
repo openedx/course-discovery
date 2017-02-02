@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-02 15:13+0500\n"
+"POT-Creation-Date: 2017-02-02 23:31+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2155,15 +2155,6 @@ msgstr ""
 msgid "End"
 msgstr ""
 
-#: templates/publisher/dashboard/_in_progress.html
-#: templates/publisher/dashboard/_published.html
-msgid "Target Content"
-msgstr ""
-
-#: templates/publisher/dashboard/_in_progress.html
-msgid "SEO Review"
-msgstr ""
-
 #: templates/publisher/dashboard/_preview_ready.html
 msgid ""
 "The following course run previews are available for course team approval. "
@@ -2193,6 +2184,10 @@ msgstr ""
 
 #: templates/publisher/dashboard/_published.html
 msgid "Published Date"
+msgstr ""
+
+#: templates/publisher/dashboard/_published.html
+msgid "Target Content"
 msgstr ""
 
 #: templates/publisher/dashboard/_studio_requests.html
