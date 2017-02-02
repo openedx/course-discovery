@@ -17,12 +17,6 @@
                 <th role="button">
                     {% trans "End" %}
                 </th>
-                <th role="button">
-                    {% trans "Target Content" %}
-                </th>
-                <th role="button">
-                    {% trans "SEO Review" %}
-                </th>
             </tr>
         </thead>
         <tbody>
@@ -39,12 +33,6 @@
                     </td>
                     <td>
                         {{ course_run.end|date:"Y-m-d" }}
-                    </td>
-                    <td>
-                        {% if course_run.target_content %}Y{% else %}N{% endif %}
-                    </td>
-                    <td>
-                        {% if course_run.is_seo_review %}Y{% else %}N{% endif %}
                     </td>
                 </tr>
             {% endfor %}
