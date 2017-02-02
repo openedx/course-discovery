@@ -323,3 +323,53 @@ class UpdateCourseKeyViewTests(TestCase):
         self.assertIn(expected_body, body)
         page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=object_path)
         self.assertIn(page_url, body)
+
+
+class CourseRevisionDetailViewTests(TestCase):
+
+    def setUp(self):
+        super(CourseRevisionDetailViewTests, self).setUp()
+        self.course = factories.CourseFactory()
+        self.course.title = "updated title"
+        self.course.save()
+
+        self.user = UserFactory()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+    def test_get_course_revision(self):
+        """Verify that api returns revision object against given revision_id. """
+        revision = self.course.history.first()
+        expected = {
+            'history_id': revision.history_id,
+            'title': revision.title,
+            'number': revision.number,
+            'short_description': revision.short_description,
+            'full_description': revision.full_description,
+            'expected_learnings': revision.expected_learnings,
+            'prerequisites': revision.prerequisites,
+            'primary_subject': revision.primary_subject.name,
+            'secondary_subject': revision.secondary_subject.name,
+            'tertiary_subject': revision.tertiary_subject.name
+        }
+
+        response = self._get_response(revision.history_id)
+        self.assertEqual(response.data, expected)
+
+    def test_get_course_revision_with_invalid_id(self):
+        """Verify that api return 404 error if revision_id does not exists. """
+        response = self._get_response(0000)
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_course_revision_authentication(self):
+        """Verify that api return authentication error if user is not logged in. """
+        self.client.logout()
+        revision = self.course.history.first()
+        response = self._get_response(revision.history_id)
+        self.assertEqual(response.status_code, 403)
+
+    def _get_response(self, revision_id):
+        """Returns response of api against given revision_id."""
+        course_revision_path = reverse(
+            'publisher:api:course_revisions', kwargs={'history_id': revision_id}
+        )
+        return self.client.get(path=course_revision_path)

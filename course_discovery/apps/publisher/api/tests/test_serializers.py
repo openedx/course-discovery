@@ -4,9 +4,9 @@ from rest_framework.exceptions import ValidationError
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.publisher.api.serializers import (
-    CourseUserRoleSerializer, GroupUserSerializer, UpdateCourseKeySerializer
+    CourseUserRoleSerializer, GroupUserSerializer, UpdateCourseKeySerializer, CourseRevisionSerializer
 )
-from course_discovery.apps.publisher.tests.factories import CourseUserRoleFactory, CourseRunFactory
+from course_discovery.apps.publisher.tests.factories import CourseUserRoleFactory, CourseRunFactory, CourseFactory
 
 
 class CourseUserRoleSerializerTests(TestCase):
@@ -71,3 +71,55 @@ class UpdateCourseKeySerializerTests(TestCase):
         serializer = self.serializer_class(self.course_run)
         with self.assertRaises(ValidationError):
             serializer.validate(serializer.data)
+
+
+class CourseRevisionSerializerTests(TestCase):
+    def test_course_revision_serializer(self):
+        """ Verify that CourseRevisionSerializer serialize the course revision object. """
+
+        course = CourseFactory()
+        course.title = 'updated title'
+        course.save()
+        revision = course.history.first()
+        serializer = CourseRevisionSerializer(revision)
+
+        expected = {
+            'history_id': revision.history_id,
+            'title': revision.title,
+            'number': revision.number,
+            'short_description': revision.short_description,
+            'full_description': revision.full_description,
+            'expected_learnings': revision.expected_learnings,
+            'prerequisites': revision.prerequisites,
+            'primary_subject': revision.primary_subject.name,
+            'secondary_subject': revision.secondary_subject.name,
+            'tertiary_subject': revision.tertiary_subject.name
+        }
+
+        self.assertDictEqual(serializer.data, expected)
+
+    def test_course_revision_serializer_without_subjects(self):
+        """ Verify that CourseRevisionSerializer serialize the course revision object
+        even if subject fields are not available.
+        """
+
+        course = CourseFactory(primary_subject=None, secondary_subject=None, tertiary_subject=None)
+        course.title = 'updated title'
+        course.save()
+        revision = course.history.first()
+        serializer = CourseRevisionSerializer(revision)
+
+        expected = {
+            'history_id': revision.history_id,
+            'title': revision.title,
+            'number': revision.number,
+            'short_description': revision.short_description,
+            'full_description': revision.full_description,
+            'expected_learnings': revision.expected_learnings,
+            'prerequisites': revision.prerequisites,
+            'primary_subject': revision.primary_subject,
+            'secondary_subject': None,
+            'tertiary_subject': None
+        }
+
+        self.assertDictEqual(serializer.data, expected)
