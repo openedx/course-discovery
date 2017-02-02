@@ -164,28 +164,6 @@ class CustomCourseForm(CourseForm):
             self.fields['organization'].widget = forms.HiddenInput()
 
 
-class UpdateCourseForm(BaseCourseForm):
-    """ Course form to update specific fields for already created course. """
-
-    number = forms.CharField(label=_('Course Number'), required=True)
-    team_admin = forms.ModelChoiceField(queryset=User.objects.all(), required=True)
-
-    class Meta:
-        model = Course
-        fields = ('number', 'team_admin',)
-
-    def save(self, commit=True, changed_by=None):   # pylint: disable=arguments-differ
-        course = super(UpdateCourseForm, self).save(commit=False)
-
-        if changed_by:
-            course.changed_by = changed_by
-
-        if commit:
-            course.save()
-
-        return course
-
-
 class CourseRunForm(BaseCourseForm):
     """ Course Run Form. """
 
