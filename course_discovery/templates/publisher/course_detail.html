@@ -25,53 +25,60 @@
                 <div>{{ object.course_team_admin.full_name }}</div>
             </div>
 
-            <div class="info-item">
+            <div class="info-item history-field-container">
                 <div class="heading">
                     {% trans "Course Title" %}
                 </div>
-                <div>{{ object.title }}</div>
+                <div class="current title">{{ object.title }}</div>
+                <div class="show-diff"></div>
             </div>
 
-            <div class="info-item">
+            <div class="info-item history-field-container">
                 <div class="heading">
                     {% trans "Brief Description" %}
                 </div>
-                <div>{{ object.short_description }}</div>
+                <div class="current short_description">{{ object.short_description }}</div>
+                <div class="show-diff"></div>
             </div>
 
-            <div class="info-item">
+            <div class="info-item history-field-container">
                 <div class="heading">
                     {% trans "Full Description" %}
                 </div>
-                <div>{{ object.full_description }}</div>
+                <div class="current full_description">{{ object.full_description }}</div>
+                <div class="show-diff"></div>
             </div>
 
-            <div class="info-item">
+            <div class="info-item history-field-container">
                 <div class="heading">
                     {% trans "Expected Learnings" %}
                 </div>
-                <div>{{ object.expected_learnings }}</div>
+                <div class="current expected_learnings">{{ object.expected_learnings }}</div>
+                <div class="show-diff"></div>
             </div>
 
-            <div class="info-item">
+            <div class="info-item history-field-container">
                 <div class="heading">
                     {% trans "Primary Subject" %}
                 </div>
-                <div>{{ object.primary_subject }}</div>
+                <div class="current primary_subject">{{ object.primary_subject }}</div>
+                <div class="show-diff"></div>
             </div>
 
-            <div class="info-item">
+            <div class="info-item history-field-container">
                 <div class="heading">
                     {% trans "Secondary Subject" %}
                 </div>
-                <div>{{ object.secondary_subject }}</div>
+                <div class="current secondary_subject">{{ object.secondary_subject }}</div>
+                <div class="show-diff"></div>
             </div>
 
-            <div class="info-item">
+            <div class="info-item history-field-container">
                 <div class="heading">
                     {% trans "Tertiary Subject" %}
                 </div>
-                <div>{{ object.tertiary_subject }}</div>
+                <div class="current tertiary_subject">{{ object.tertiary_subject }}</div>
+                <div class="show-diff"></div>
             </div>
             <div class="info-item">
                 <div class="heading course-image-heading">
@@ -81,16 +88,18 @@
                     <img class="course-image" src="{{ object.image.url }}" alt="{% trans 'Course Image' %}">
                 {% endif %}
             </div>
-            <div class="info-item">
+            <div class="info-item history-field-container">
                 <div class="heading">
                     {% trans "Prerequisites" %}
                 </div>
-                <div>{{ object.prerequisites }}</div>
+                <div class="current prerequisites">{{ object.prerequisites }}</div>
+                <div class="show-diff"></div>
             </div>
-            <div class="info-item">
+            <div class="info-item history-field-container">
                 <div class="heading">{% trans "Course Level" %}
                 </div>
-                <div>{{ object.level_type }}</div>
+                <div class="current level_type">{{ object.level_type }}</div>
+                <div class="show-diff"></div>
             </div>
         </div>
     </main>
@@ -101,5 +110,6 @@
 </div>
 {% endblock %}
 {% block extra_js %}
+    <script src="{% static 'bower_components/google-diff-match-patch/diff_match_patch.js' %}"></script>
     <script src="{% static 'js/publisher/publisher.js' %}"></script>
 {% endblock %}

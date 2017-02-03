@@ -80,12 +80,13 @@ class CourseRevisionSerializer(serializers.ModelSerializer):
     primary_subject = serializers.SerializerMethodField()
     secondary_subject = serializers.SerializerMethodField()
     tertiary_subject = serializers.SerializerMethodField()
+    level_type = serializers.SerializerMethodField()
 
     class Meta:
         model = apps.get_model('publisher', 'historicalcourse')
         fields = (
             'history_id', 'title', 'number', 'short_description', 'full_description', 'expected_learnings',
-            'prerequisites', 'primary_subject', 'secondary_subject', 'tertiary_subject',
+            'prerequisites', 'primary_subject', 'secondary_subject', 'tertiary_subject', 'level_type',
         )
 
     def get_primary_subject(self, obj):
@@ -99,6 +100,10 @@ class CourseRevisionSerializer(serializers.ModelSerializer):
     def get_tertiary_subject(self, obj):
         if obj.tertiary_subject:
             return obj.tertiary_subject.name
+
+    def get_level_type(self, obj):
+        if obj.level_type:
+            return obj.level_type.name
 
 
 class CourseStateSerializer(serializers.ModelSerializer):

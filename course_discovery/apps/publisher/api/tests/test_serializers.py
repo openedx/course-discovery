@@ -98,7 +98,8 @@ class CourseRevisionSerializerTests(TestCase):
             'prerequisites': revision.prerequisites,
             'primary_subject': revision.primary_subject.name,
             'secondary_subject': revision.secondary_subject.name,
-            'tertiary_subject': revision.tertiary_subject.name
+            'tertiary_subject': revision.tertiary_subject.name,
+            'level_type': revision.level_type.name
         }
 
         self.assertDictEqual(serializer.data, expected)
@@ -108,7 +109,7 @@ class CourseRevisionSerializerTests(TestCase):
         even if subject fields are not available.
         """
 
-        course = CourseFactory(primary_subject=None, secondary_subject=None, tertiary_subject=None)
+        course = CourseFactory(primary_subject=None, secondary_subject=None, tertiary_subject=None, level_type=None)
         course.title = 'updated title'
         course.save()
         revision = course.history.first()
@@ -122,9 +123,10 @@ class CourseRevisionSerializerTests(TestCase):
             'full_description': revision.full_description,
             'expected_learnings': revision.expected_learnings,
             'prerequisites': revision.prerequisites,
-            'primary_subject': revision.primary_subject,
+            'primary_subject': None,
             'secondary_subject': None,
-            'tertiary_subject': None
+            'tertiary_subject': None,
+            'level_type': None
         }
 
         self.assertDictEqual(serializer.data, expected)
