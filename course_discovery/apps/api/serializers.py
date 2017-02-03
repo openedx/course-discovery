@@ -18,7 +18,7 @@ from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Image, Organization, Person, Prerequisite, Seat, Subject, Video, Program, ProgramType, FAQ,
-    CorporateEndorsement, Endorsement, Position, PersonWork
+    CorporateEndorsement, Endorsement, Position, PersonWork, PersonSocialNetwork
 )
 from course_discovery.apps.course_metadata.search_indexes import CourseIndex, CourseRunIndex, ProgramIndex
 
@@ -212,6 +212,10 @@ class PersonSerializer(serializers.ModelSerializer):
     position = PositionSerializer(required=False)
     profile_image = StdImageSerializerField(required=False)
     works = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value', source='person_works')
+    facebook_url = serializers.SerializerMethodField()
+    twitter_url = serializers.SerializerMethodField()
+    blog_url = serializers.SerializerMethodField()
+    other_url = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls):
@@ -221,7 +225,7 @@ class PersonSerializer(serializers.ModelSerializer):
         model = Person
         fields = (
             'uuid', 'given_name', 'family_name', 'bio', 'profile_image_url', 'slug', 'position', 'profile_image',
-            'partner', 'works'
+            'partner', 'works', 'facebook_url', 'twitter_url', 'blog_url', 'other_url'
         )
         extra_kwargs = {
             'partner': {'write_only': True}
@@ -230,18 +234,52 @@ class PersonSerializer(serializers.ModelSerializer):
     def validate(self, data):
         validated_data = super(PersonSerializer, self).validate(data)
         validated_data['works'] = self.initial_data.get('works', [])
+        validated_data['facebook_url'] = self.initial_data.get('facebook_url')
+        validated_data['twitter_url'] = self.initial_data.get('twitter_url')
+        validated_data['blog_url'] = self.initial_data.get('blog_url')
+        validated_data['other_url'] = self.initial_data.get('other_url')
         return validated_data
 
     def create(self, validated_data):
         position_data = validated_data.pop('position')
         works_data = validated_data.pop('works')
+        facebook_url = validated_data.pop('facebook_url')
+        twitter_url = validated_data.pop('twitter_url')
+        blog_url = validated_data.pop('blog_url')
+        other_url = validated_data.pop('other_url')
 
         person = Person.objects.create(**validated_data)
         Position.objects.create(person=person, **position_data)
+        if facebook_url:
+            PersonSocialNetwork.objects.create(person=person, type=PersonSocialNetwork.FACEBOOK, value=facebook_url)
+        if twitter_url:
+            PersonSocialNetwork.objects.create(person=person, type=PersonSocialNetwork.TWITTER, value=twitter_url)
+        if blog_url:
+            PersonSocialNetwork.objects.create(person=person, type=PersonSocialNetwork.BLOG, value=blog_url)
+        if other_url:
+            PersonSocialNetwork.objects.create(person=person, type=PersonSocialNetwork.OTHERS, value=other_url)
         for work_data in works_data:
             PersonWork.objects.create(person=person, value=work_data)
 
         return person
+
+    def get_social_network_url(self, type, obj):
+        social_network = obj.person_networks.filter(type=type).first()
+
+        if social_network:
+            return social_network.value
+
+    def get_facebook_url(self, obj):
+        return self.get_social_network_url(PersonSocialNetwork.FACEBOOK, obj)
+
+    def get_twitter_url(self, obj):
+        return self.get_social_network_url(PersonSocialNetwork.TWITTER, obj)
+
+    def get_blog_url(self, obj):
+        return self.get_social_network_url(PersonSocialNetwork.BLOG, obj)
+
+    def get_other_url(self, obj):
+        return self.get_social_network_url(PersonSocialNetwork.OTHERS, obj)
 
 
 class EndorsementSerializer(serializers.ModelSerializer):
