@@ -72,7 +72,8 @@ $(document).ready(function(){
                         'position':{
                             'title': $('#title').val(),
                             'organization': parseInt($('#id_organization').val())
-                        }
+                        },
+                        'works': $('#majorWorks').val().split('\n')
                     }
                 )
             },
