@@ -37,6 +37,7 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
         context.update({
             'published_course_runs_only': get_query_param(self.request, 'published_course_runs_only'),
             'exclude_utm': get_query_param(self.request, 'exclude_utm'),
+            'use_full_course_serializer': get_query_param(self.request, 'use_full_course_serializer'),
         })
 
         return context
@@ -66,6 +67,12 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
               mulitple: false
             - name: exclude_utm
               description: Exclude UTM parameters from marketing URLs.
+              required: false
+              type: integer
+              paramType: query
+              multiple: false
+            - name: use_full_course_serializer
+              description: Return all serialized course information instead of a minimal amount of information.
               required: false
               type: integer
               paramType: query
