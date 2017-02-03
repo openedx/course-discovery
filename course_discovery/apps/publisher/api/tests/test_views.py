@@ -349,7 +349,8 @@ class CourseRevisionDetailViewTests(TestCase):
             'prerequisites': revision.prerequisites,
             'primary_subject': revision.primary_subject.name,
             'secondary_subject': revision.secondary_subject.name,
-            'tertiary_subject': revision.tertiary_subject.name
+            'tertiary_subject': revision.tertiary_subject.name,
+            'level_type': revision.level_type.name
         }
 
         response = self._get_response(revision.history_id)

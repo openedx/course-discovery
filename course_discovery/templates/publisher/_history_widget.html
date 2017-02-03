@@ -8,7 +8,7 @@
             {% if forloop.first %}
                 <option value="{% url 'publisher:publisher_course_revision' course.id history.history_id %}">{% trans "Latest version" %}</option>
             {% else %}
-                <option value="{% url 'publisher:publisher_course_revision' course.id history.history_id %}">
+                <option data-revision-url="{% url 'publisher:api:course_revisions' history.history_id  %}" value="{% url 'publisher:publisher_course_revision' course.id history.history_id %}">
                     {% blocktrans with history.history_date|date:'d-m-Y' as history_date and history.changed_by as changed_by trimmed %}
                         {{ history_date }}&nbsp;by&nbsp;{{ changed_by}}
                     {% endblocktrans %}
