@@ -559,7 +559,11 @@ class MinimalProgramCourseSerializer(MinimalCourseSerializer):
         if self.context.get('published_course_runs_only'):
             course_runs = [course_run for course_run in course_runs if course_run.status == CourseRunStatus.Published]
 
-        return MinimalCourseRunSerializer(
+        serializer_class = MinimalCourseRunSerializer
+        if self.context.get('use_full_course_serializer', False):
+            serializer_class = CourseRunSerializer
+
+        return serializer_class(
             course_runs,
             many=True,
             context={
@@ -610,6 +614,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
                 'exclude_utm': self.context.get('exclude_utm'),
                 'program': program,
                 'course_runs': course_runs,
+                'use_full_course_serializer': self.context.get('use_full_course_serializer', False),
             }
         )
 

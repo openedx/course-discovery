@@ -832,6 +832,35 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         expected = self.get_expected_data(program, request)
         self.assertDictEqual(serializer.data, expected)
 
+    def test_use_full_course_serializer(self):
+        """
+        Verify that we can use the `use_full_course_serializer` parameter to toggle the CourseRun
+        serializer used when returning program data.
+        """
+        request = make_request()
+        program = self.create_program()
+
+        # Assert that the seats are not available when fetched without any flag
+        program_without_seats = self.serializer_class(program, context={'request': request}).data
+        course_run_without_seats = program_without_seats['courses'][0]['course_runs'][0]
+        assert 'seats' not in course_run_without_seats
+
+        # Assert that the seats are not available when fetched with the use_full_course_serializer param set to 0
+        program_without_seats = self.serializer_class(program, context={
+            'request': request,
+            'use_full_course_serializer': 0
+        }).data
+        course_run_without_seats = program_without_seats['courses'][0]['course_runs'][0]
+        assert 'seats' not in course_run_without_seats
+
+        # Assert that the seats are available when fetched with the use_full_course_serializer param set to 1
+        program_with_seats = self.serializer_class(
+            program,
+            context={'request': request, 'use_full_course_serializer': 1}
+        ).data
+        course_run_with_seats = program_with_seats['courses'][0]['course_runs'][0]
+        assert 'seats' in course_run_with_seats
+
 
 class ProgramTypeSerializerTests(TestCase):
     serializer_class = ProgramTypeSerializer
