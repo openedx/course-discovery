@@ -73,7 +73,12 @@ $(document).ready(function(){
                             'title': $('#title').val(),
                             'organization': parseInt($('#id_organization').val())
                         },
-                        'works': $('#majorWorks').val().split('\n')
+                        'works': $('#majorWorks').val().split('\n'),
+                        'urls': {
+                            'facebook': $('#facebook').val(),
+                            'twitter': $('#twitter').val(),
+                            'blog': $('#blog').val()
+                        }
                     }
                 )
             },
@@ -84,6 +89,9 @@ $(document).ready(function(){
                 $('#bio').val('');
                 $('.select-image').attr('src', '');
                 $('#majorWorks').val('');
+                $('#facebook').val('');
+                $('#twitter').val('');
+                $('#blog').val('');
                 clearModalError();
                 closeModal(e, $('#addInstructorModal'));
             },

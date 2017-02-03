@@ -43,10 +43,20 @@
                 </label>
                 <textarea class="field-textarea input-textarea textarea-medium textarea-block" id="bio" name="bio"></textarea>
 
-                <label class="field-label" for="socialLinks">{% trans "Social Links" %}:
-                    <span class="optional">({% trans "optional - one per line" %} )</span>
+                <label class="field-label" for="facebook">{% trans "Facebook URL" %}:
+                    <span class="optional">* {% trans "optional" %}</span>
                 </label>
-                <textarea class="field-textarea input-textarea textarea-medium textarea-block" id="socialLinks" name="social-links"></textarea>
+                <input class="field-input input-text" type="text" id="facebook" name="facebook" />
+
+                <label class="field-label" for="twitter">{% trans "Twitter URL" %}:
+                    <span class="optional">* {% trans "optional" %}</span>
+                </label>
+                <input class="field-input input-text" type="text" id="twitter" name="twitter" />
+
+                <label class="field-label" for="blog">{% trans "Blog URL" %}:
+                    <span class="optional">* {% trans "optional" %}</span>
+                </label>
+                <input class="field-input input-text" type="text" id="blog" name="blog" />
 
                 <label class="field-label" for="majorWorks">{% trans "Major Works" %}:
                     <span class="optional">({% trans "optional - one per line" %} )</span>

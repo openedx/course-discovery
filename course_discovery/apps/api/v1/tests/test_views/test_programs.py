@@ -64,7 +64,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
     def test_retrieve(self):
         """ Verify the endpoint returns the details for a single program. """
         program = self.create_program()
-        with self.assertNumQueries(34):
+        with self.assertNumQueries(42):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
 

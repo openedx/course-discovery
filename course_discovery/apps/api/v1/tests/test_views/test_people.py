@@ -39,6 +39,9 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         title = "Park Director"
         organization_id = self.organization.id
         works = ["Delores", "Teddy", "Maive"]
+        facebook_url = 'http://www.facebook.com/hopkins'
+        twitter_url = 'http://www.twitter.com/hopkins'
+        blog_url = 'http://www.blog.com/hopkins'
 
         data = {
             'data': json.dumps(
@@ -50,7 +53,12 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
                         'title': title,
                         'organization': organization_id
                     },
-                    'works': works
+                    'works': works,
+                    'urls': {
+                        'facebook': facebook_url,
+                        'twitter': twitter_url,
+                        'blog': blog_url
+                    }
                 }
             )
         }
@@ -66,6 +74,10 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(person.position.title, title)
         self.assertEqual(person.position.organization, self.organization)
         self.assertEqual(sorted([work.value for work in person.person_works.all()]), sorted(works))
+        self.assertEqual(
+            sorted([social.value for social in person.person_networks.all()]),
+            sorted([facebook_url, twitter_url, blog_url])
+        )
 
     def test_create_without_authentication(self):
         """ Verify authentication is required when creating a person. """

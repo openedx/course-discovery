@@ -17,8 +17,9 @@ from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (FAQ, CorporateEndorsement, Course, CourseRun, Endorsement,
-                                                          Image, Organization, Person, PersonWork, Position,
-                                                          Prerequisite, Program, ProgramType, Seat, Subject, Video)
+                                                          Image, Organization, Person, PersonSocialNetwork, PersonWork,
+                                                          Position, Prerequisite, Program, ProgramType, Seat, Subject,
+                                                          Video)
 from course_discovery.apps.course_metadata.search_indexes import CourseIndex, CourseRunIndex, ProgramIndex
 
 User = get_user_model()
@@ -211,16 +212,19 @@ class PersonSerializer(serializers.ModelSerializer):
     position = PositionSerializer(required=False)
     profile_image = StdImageSerializerField(required=False)
     works = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value', source='person_works')
+    urls = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls):
-        return Person.objects.all().select_related('position__organization').prefetch_related('person_works')
+        return Person.objects.all().select_related(
+            'position__organization'
+        ).prefetch_related('person_works', 'person_networks')
 
     class Meta(object):
         model = Person
         fields = (
             'uuid', 'given_name', 'family_name', 'bio', 'profile_image_url', 'slug', 'position', 'profile_image',
-            'partner', 'works'
+            'partner', 'works', 'urls'
         )
         extra_kwargs = {
             'partner': {'write_only': True}
@@ -229,19 +233,41 @@ class PersonSerializer(serializers.ModelSerializer):
     def validate(self, data):
         validated_data = super(PersonSerializer, self).validate(data)
         validated_data['works'] = self.initial_data.get('works', [])
+        validated_data['urls'] = self.initial_data.get('urls')
         return validated_data
 
     def create(self, validated_data):
         position_data = validated_data.pop('position')
-        works_data = validated_data.pop('works')
+        works_data = validated_data.pop('works', [])
+        urls_data = validated_data.pop('urls', {})
 
         person = Person.objects.create(**validated_data)
         Position.objects.create(person=person, **position_data)
+
+        person_social_networks = []
+        for url_type in [PersonSocialNetwork.FACEBOOK, PersonSocialNetwork.TWITTER, PersonSocialNetwork.BLOG]:
+            value = urls_data.get(url_type)
+            if value:
+                person_social_networks.append(PersonSocialNetwork(person=person, type=url_type, value=value))
+        PersonSocialNetwork.objects.bulk_create(person_social_networks)
 
         person_works = [PersonWork(person=person, value=work_data) for work_data in works_data]
         PersonWork.objects.bulk_create(person_works)
 
         return person
+
+    def get_social_network_url(self, url_type, obj):
+        social_network = obj.person_networks.filter(type=url_type).first()
+
+        if social_network:
+            return social_network.value
+
+    def get_urls(self, obj):
+        return {
+            PersonSocialNetwork.FACEBOOK: self.get_social_network_url(PersonSocialNetwork.FACEBOOK, obj),
+            PersonSocialNetwork.TWITTER: self.get_social_network_url(PersonSocialNetwork.TWITTER, obj),
+            PersonSocialNetwork.BLOG: self.get_social_network_url(PersonSocialNetwork.BLOG, obj),
+        }
 
 
 class EndorsementSerializer(serializers.ModelSerializer):
