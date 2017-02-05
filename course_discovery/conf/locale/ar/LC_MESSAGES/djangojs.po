@@ -7,13 +7,13 @@
 # AR C2 <e2f458fd4s512@outlook.com>, 2016
 # e2f_ar t3 <e2f_ar_t3@outlook.com>, 2016
 # Omar Al-Ithawi <oithawi@qrf.org>, 2016
-# shefaa abu jabel <shefaa.aj@gmail.com>, 2016
+# shefaa abu jabel <shefaa.aj@gmail.com>, 2016-2017
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-27 16:30+0500\n"
-"PO-Revision-Date: 2017-01-28 09:15+0000\n"
+"POT-Creation-Date: 2017-02-06 20:07-0500\n"
+"PO-Revision-Date: 2017-02-06 09:36+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Arabic (http://www.transifex.com/open-edx/edx-platform/language/ar/)\n"
 "MIME-Version: 1.0\n"
@@ -26,19 +26,35 @@ msgstr ""
 msgid "Preview"
 msgstr "معاينة"
 
+#: static/js/publisher/comparing-objects.js
+msgid "Hide changes"
+msgstr "إخفاء التغييرات"
+
+#: static/js/publisher/comparing-objects.js
+msgid "Show changes"
+msgstr "عرض التغييرات"
+
+#: static/js/publisher/publisher.js
+msgid "Something went wrong!"
+msgstr ""
+
+#: static/js/publisher/publisher.js
+msgid "File must be smaller than 1 megabyte in size."
+msgstr ""
+
 #: static/js/publisher/views/dashboard.js
 msgid ""
 "You have successfully created a studio instance ({studioLinkTag}) for "
 "{courseRunDetail} with a start date of {startDate}"
-msgstr "قمت بنجاح بإنشاء مثيل استديو ({studioLinkTag}) لتفاصيل مجرى المقرر {courseRunDetail} بتاريخ بدء {startDate}"
+msgstr "لقد قمت بنجاح بإنشاء مثال على استديو ({studioLinkTag}) لتفاصيل مجرى المقرر {courseRunDetail} مع تاريخ بدء {startDate}"
 
 #: static/js/publisher/views/dashboard.js
 msgid "There was an error in saving your data."
-msgstr ""
+msgstr "لقد حدث خطأ خلال محاولة حفظ بياناتك."
 
 #: static/js/publisher/views/dashboard.js
 msgid "No course run previews are currently available."
-msgstr ""
+msgstr "لا تتوفر حالياً أي معاينات لمجرى الدورة التعليمية."
 
 #: static/js/publisher/views/navbar.js
 msgid "OFF"
