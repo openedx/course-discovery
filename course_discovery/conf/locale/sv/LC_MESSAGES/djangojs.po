@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-27 16:30+0500\n"
-"PO-Revision-Date: 2017-01-28 09:15+0000\n"
+"POT-Creation-Date: 2017-02-06 20:07-0500\n"
+"PO-Revision-Date: 2017-02-06 09:36+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Swedish (http://www.transifex.com/open-edx/edx-platform/language/sv/)\n"
 "MIME-Version: 1.0\n"
@@ -20,6 +20,22 @@ msgstr ""
 #: static/js/catalogs-change-form.js
 msgid "Preview"
 msgstr "Förhandsgranska"
+
+#: static/js/publisher/comparing-objects.js
+msgid "Hide changes"
+msgstr ""
+
+#: static/js/publisher/comparing-objects.js
+msgid "Show changes"
+msgstr ""
+
+#: static/js/publisher/publisher.js
+msgid "Something went wrong!"
+msgstr ""
+
+#: static/js/publisher/publisher.js
+msgid "File must be smaller than 1 megabyte in size."
+msgstr ""
 
 #: static/js/publisher/views/dashboard.js
 msgid ""

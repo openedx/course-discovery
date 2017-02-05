@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-27 16:30+0500\n"
-"PO-Revision-Date: 2017-01-28 08:21+0000\n"
+"POT-Creation-Date: 2017-02-06 20:07-0500\n"
+"PO-Revision-Date: 2017-02-04 09:34+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Icelandic (http://www.transifex.com/open-edx/edx-platform/language/is/)\n"
 "MIME-Version: 1.0\n"
@@ -190,6 +190,10 @@ msgstr ""
 msgid "OpenID Connect Secret"
 msgstr ""
 
+#: apps/core/models.py
+msgid "Studio URL"
+msgstr ""
+
 #: apps/core/models.py templates/publisher/course_runs_list.html
 msgid "Partner"
 msgstr ""
@@ -208,7 +212,8 @@ msgid ""
 " try again. If the error persists, please contact the Engineering Team."
 msgstr ""
 
-#: apps/course_metadata/choices.py apps/publisher/models.py
+#: apps/course_metadata/choices.py apps/publisher/choices.py
+#: apps/publisher/models.py
 msgid "Published"
 msgstr ""
 
@@ -273,6 +278,12 @@ msgstr ""
 msgid ""
 "Logo to be displayed on certificates. If this logo is the same as "
 "logo_image_url, copy and paste the same value to both fields."
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid ""
+"Pick a tag from the suggestions. To make a new tag, add a comma after the "
+"tag name."
 msgstr ""
 
 #: apps/course_metadata/models.py
@@ -428,6 +439,11 @@ msgstr ""
 msgid "Invalid course key \"{lms_course_id}\""
 msgstr ""
 
+#: apps/publisher/api/serializers.py
+#, python-brace-format
+msgid "Cannot switch from state `{state}` to `{target_state}`"
+msgstr ""
+
 #: apps/publisher/choices.py
 msgid "Partner Manager"
 msgstr ""
@@ -446,6 +462,18 @@ msgstr ""
 
 #: apps/publisher/choices.py apps/publisher/views.py
 msgid "Course Team"
+msgstr ""
+
+#: apps/publisher/choices.py apps/publisher/models.py
+msgid "Draft"
+msgstr ""
+
+#: apps/publisher/choices.py
+msgid "Review"
+msgstr ""
+
+#: apps/publisher/choices.py templates/publisher/dashboard/_preview_ready.html
+msgid "Approved"
 msgstr ""
 
 #: apps/publisher/emails.py
@@ -477,25 +505,30 @@ msgstr ""
 
 #: apps/publisher/forms.py templates/publisher/add_courserun_form.html
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Course Title"
 msgstr ""
 
-#: apps/publisher/forms.py templates/publisher/dashboard/_studio_requests.html
+#: apps/publisher/forms.py templates/publisher/course_revision_history.html
+#: templates/publisher/dashboard/_studio_requests.html
 msgid "Course Number"
 msgstr "Námskeið númer "
 
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Brief Description"
 msgstr ""
 
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Full Description"
 msgstr ""
 
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_all.html
 msgid "Prerequisites"
 msgstr "Forsendur"
@@ -589,10 +622,6 @@ msgid "Seat Type"
 msgstr ""
 
 #: apps/publisher/models.py
-msgid "Draft"
-msgstr ""
-
-#: apps/publisher/models.py
 msgid "Needs Review"
 msgstr ""
 
@@ -621,6 +650,7 @@ msgid "Level Type"
 msgstr ""
 
 #: apps/publisher/models.py templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Expected Learnings"
 msgstr ""
 
@@ -721,6 +751,10 @@ msgstr ""
 
 #: apps/publisher/views.py
 msgid "Please fill all required fields."
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "Course  updated successfully."
 msgstr ""
 
 #: apps/publisher/views.py
@@ -937,6 +971,23 @@ msgstr ""
 
 #: templates/publisher/_header.html
 msgid "Sign Out"
+msgstr ""
+
+#: templates/publisher/_history_widget.html
+msgid "REVISION HISTORY"
+msgstr ""
+
+#: templates/publisher/_history_widget.html
+msgid "Latest version"
+msgstr ""
+
+#: templates/publisher/_history_widget.html
+#, python-format
+msgid "%(history_date)s&nbsp;by&nbsp;%(changed_by)s"
+msgstr ""
+
+#: templates/publisher/_history_widget.html
+msgid "Open Selected Version"
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
@@ -1595,14 +1646,17 @@ msgid "Course Team Admin"
 msgstr ""
 
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Primary Subject"
 msgstr ""
 
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Secondary Subject"
 msgstr ""
 
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 msgid "Tertiary Subject"
 msgstr ""
 
@@ -1611,6 +1665,7 @@ msgid "Course Image"
 msgstr ""
 
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Level"
@@ -1639,6 +1694,19 @@ msgstr ""
 
 #: templates/publisher/course_edit_form.html
 msgid "UPDATE COURSE"
+msgstr ""
+
+#: templates/publisher/course_revision_history.html
+msgid "Revision History"
+msgstr ""
+
+#: templates/publisher/course_revision_history.html
+#, python-format
+msgid "%(date)s by %(name)s"
+msgstr ""
+
+#: templates/publisher/course_revision_history.html
+msgid "Show changes"
 msgstr ""
 
 #: templates/publisher/course_run_detail.html
@@ -2107,25 +2175,12 @@ msgstr ""
 msgid "End"
 msgstr ""
 
-#: templates/publisher/dashboard/_in_progress.html
-#: templates/publisher/dashboard/_published.html
-msgid "Target Content"
-msgstr ""
-
-#: templates/publisher/dashboard/_in_progress.html
-msgid "SEO Review"
-msgstr ""
-
 #: templates/publisher/dashboard/_preview_ready.html
 msgid ""
 "The following course run previews are available for course team approval. "
 "After the course team approves the preview, the edX marketing team will "
 "publish the course run on edx.org. The course team will receive an email "
 "message when the course run has been published."
-msgstr ""
-
-#: templates/publisher/dashboard/_preview_ready.html
-msgid "Approved"
 msgstr ""
 
 #: templates/publisher/dashboard/_preview_ready.html
@@ -2145,6 +2200,10 @@ msgstr ""
 
 #: templates/publisher/dashboard/_published.html
 msgid "Published Date"
+msgstr ""
+
+#: templates/publisher/dashboard/_published.html
+msgid "Target Content"
 msgstr ""
 
 #: templates/publisher/dashboard/_studio_requests.html
