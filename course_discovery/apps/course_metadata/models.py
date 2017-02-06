@@ -222,6 +222,15 @@ class Person(TimeStampedModel):
     def full_name(self):
         return ' '.join((self.given_name, self.family_name,))
 
+    @property
+    def get_profile_image_url(self):
+        url = self.profile_image_url
+        if not url:
+            if self.profile_image and hasattr(self.profile_image, 'url'):
+                url = self.profile_image.url
+
+        return url
+
 
 class Position(TimeStampedModel):
     """ Position model.

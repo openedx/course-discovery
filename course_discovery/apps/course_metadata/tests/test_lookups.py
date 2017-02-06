@@ -163,7 +163,7 @@ class AutocompleteTests(TestCase):
         response = self.client.get(reverse('admin_metadata:person-autocomplete'))
         self._assert_response(response, 0)
 
-    def test_instructor_label(self):
+    def test_instructor_position_in_label(self):
         """ Verify that instructor label contains position of instructor if it exists."""
         position_title = 'professor'
         PositionFactory.create(person=self.instructors[0], title=position_title, organization=self.organizations[0])
@@ -173,6 +173,13 @@ class AutocompleteTests(TestCase):
         self.assertContains(response, '<p>{position} at {organization}</p>'.format(
             position=position_title,
             organization=self.organizations[0].name))
+
+    def test_instructor_image_in_label(self):
+        """ Verify that instructor label contains profile image url.
+        """
+        response = self.client.get(reverse('admin_metadata:person-autocomplete'))
+        self.assertContains(response, self.instructors[0].get_profile_image_url)
+        self.assertContains(response, self.instructors[1].get_profile_image_url)
 
     def _assert_response(self, response, expected_length):
         """ Assert autocomplete response. """

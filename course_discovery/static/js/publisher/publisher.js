@@ -191,9 +191,9 @@ function closeModal(event, modal) {
 
 $(document).on('change', '#id_staff', function (e) {
 
-    var id = this.value,
-        $instructorSelector = $('.instructor-select'),
+    var $instructorSelector = $('.instructor-select'),
         $instructor = $instructorSelector.find('.select2-selection__choice'),
+        id = $instructor.find('.instructor-option').last().prop("id"),
         image_source,
         name;
     $instructorSelector.find('.select2-selection__clear').remove();
