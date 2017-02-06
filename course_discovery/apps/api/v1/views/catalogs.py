@@ -140,8 +140,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
 
         # We use select_related and prefetch_related to decrease our database query count
         course_runs = course_runs.select_related(*serializers.SELECT_RELATED_FIELDS['course_run'])
-        prefetch_fields = ['course__' + field for field in serializers.PREFETCH_FIELDS['course']]
-        prefetch_fields += serializers.PREFETCH_FIELDS['course_run']
+        prefetch_fields = serializers.PREFETCH_FIELDS['course_run']
         course_runs = course_runs.prefetch_related(*prefetch_fields)
 
         serializer = serializers.FlattenedCourseRunWithCourseSerializer(

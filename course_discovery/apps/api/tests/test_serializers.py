@@ -289,9 +289,12 @@ class MinimalCourseRunSerializerTests(TestCase):
             'type': course_run.type,
         }
 
+    def create_course_run(self):
+        return CourseRunFactory()
+
     def test_data(self):
         request = make_request()
-        course_run = CourseRunFactory()
+        course_run = self.create_course_run()
         serializer = self.serializer_class(course_run, context={'request': request})
         expected = self.get_expected_data(course_run, request)
         self.assertDictEqual(serializer.data, expected)
@@ -299,6 +302,7 @@ class MinimalCourseRunSerializerTests(TestCase):
 
 class CourseRunSerializerTests(MinimalCourseRunSerializerTests):
     serializer_class = CourseRunSerializer
+    TAG = 'test-tag'
 
     def get_expected_data(self, course_run, request):
         expected = super().get_expected_data(course_run, request)
@@ -321,13 +325,19 @@ class CourseRunSerializerTests(MinimalCourseRunSerializerTests):
             'modified': json_date_format(course_run.modified),  # pylint: disable=no-member
             'level_type': course_run.level_type.name,
             'availability': course_run.availability,
+            'tags': [self.TAG],
         })
 
         return expected
 
+    def create_course_run(self):
+        course_run = super(CourseRunSerializerTests, self).create_course_run()
+        course_run.tags.add(self.TAG)
+        return course_run
+
     def test_exclude_utm(self):
         request = make_request()
-        course_run = CourseRunFactory()
+        course_run = self.create_course_run()
         serializer = self.serializer_class(course_run, context={'request': request, 'exclude_utm': 1})
 
         self.assertEqual(serializer.data['marketing_url'], course_run.marketing_url)

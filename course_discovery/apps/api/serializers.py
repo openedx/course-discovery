@@ -84,6 +84,7 @@ PREFETCH_FIELDS = {
         'staff',
         'staff__position',
         'staff__position__organization',
+        'tags',
         'transcript_languages',
     ],
     'course': [
@@ -91,6 +92,7 @@ PREFETCH_FIELDS = {
         'authoring_organizations__partner',
         'authoring_organizations__tags',
         'course_runs',
+        'course_runs__tags',
         'expected_learning_items',
         'level_type',
         'prerequisites',
@@ -379,11 +381,13 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     instructors = serializers.SerializerMethodField(help_text='This field is deprecated. Use staff.')
     staff = PersonSerializer(many=True)
     level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
+    tags = TagListSerializerField()
 
     @classmethod
     def prefetch_queryset(cls):
         queryset = super().prefetch_queryset()
         return queryset.select_related('language', 'video').prefetch_related(
+            'tags',
             'transcript_languages',
             Prefetch('staff', queryset=PersonSerializer.prefetch_queryset()),
         )
@@ -392,7 +396,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         fields = MinimalCourseRunSerializer.Meta.fields + (
             'course', 'full_description', 'announcement', 'video', 'seats', 'content_language',
             'transcript_languages', 'instructors', 'staff', 'min_effort', 'max_effort', 'modified',
-            'level_type', 'availability', 'mobile_available', 'hidden',
+            'level_type', 'availability', 'mobile_available', 'hidden', 'tags',
         )
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
