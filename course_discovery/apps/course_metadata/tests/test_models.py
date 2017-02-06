@@ -300,6 +300,21 @@ class PersonTests(TestCase):
         expected = self.person.given_name + ' ' + self.person.family_name
         self.assertEqual(self.person.full_name, expected)
 
+    def test_get_profile_image_url(self):
+        """
+        Verify that property returns profile_image_url if profile_image_url
+        exists other wise it returns uploaded image url.
+        """
+        self.assertEqual(self.person.get_profile_image_url, self.person.profile_image_url)
+
+        # create another person with out profile_image_url
+        person = factories.PersonFactory(profile_image_url=None)
+        self.assertEqual(person.get_profile_image_url, person.profile_image.url)
+
+        # create another person with out profile_image_url and profile_image
+        person = factories.PersonFactory(profile_image_url=None, profile_image=None)
+        self.assertFalse(person.get_profile_image_url)
+
     def test_str(self):
         """ Verify casting an instance to a string returns the person's full name. """
         self.assertEqual(str(self.person), self.person.full_name)

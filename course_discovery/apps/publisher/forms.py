@@ -26,7 +26,7 @@ class UserModelChoiceField(forms.ModelChoiceField):
 class PersonModelMultipleChoice(forms.ModelMultipleChoiceField):
     def label_from_instance(self, obj):
         context = {
-            'profile_image': obj.profile_image_url,
+            'profile_image': obj.get_profile_image_url,
             'full_name': obj.full_name
         }
         return str(render_to_string('publisher/_personFieldLabel.html', context=context))
