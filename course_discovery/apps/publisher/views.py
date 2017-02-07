@@ -168,6 +168,7 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
 
         context['can_view_all_tabs'] = mixins.check_roles_access(self.request.user)
         context['publisher_hide_features_for_pilot'] = waffle.switch_is_active('publisher_hide_features_for_pilot')
+        context['publisher_comment_widget_feature'] = waffle.switch_is_active('publisher_comment_widget_feature')
 
         return context
 

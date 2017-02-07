@@ -9,8 +9,8 @@
 {% endblock title %}
 
 {% block page_content %}
-<div class="layout-1t2t layout-flush publisher-container course-detail">
-    <main class="layout-col layout-col-b">
+<div class="grid-manual">
+    <main class="col col-7">
         <nav class="administration-nav">
             <div class="tab-container">
                 {% if can_view_all_tabs %}
@@ -66,8 +66,14 @@
         </div>
     </main>
 
-    <aside class="layout-col layout-col-a {% if publisher_hide_features_for_pilot %}hidden{% endif %}">
+    <aside id="right-panel" class="col col-5">
+        <div id="approval-widget" class="{% if publisher_hide_features_for_pilot %}hidden{% endif %}">
           {% include 'publisher/course_run_detail/_approval_widget.html' %}
+        </div>
+        <div id="comments-widget" class="comment-container {% if not publisher_comment_widget_feature %}hidden{% endif %}">
+            {% include 'comments/add_auth_comments.html' %}
+            {% include 'comments/comments_list.html' %}
+        </div>
     </aside>
 </div>
 {% endblock %}
