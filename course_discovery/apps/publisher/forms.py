@@ -175,14 +175,6 @@ class CourseRunForm(BaseCourseForm):
 
 class CustomCourseRunForm(CourseRunForm):
     """ Course Run Form. """
-
-    contacted_partner_manager = forms.ChoiceField(
-        label=_('Contacted PM'),
-        widget=forms.RadioSelect,
-        choices=((True, _("Yes")), (False, _("No"))),
-        required=True
-    )
-
     start = forms.DateTimeField(label=_('Course Start Date'), required=True)
     end = forms.DateTimeField(label=_('Course End Date'), required=True)
     staff = PersonModelMultipleChoice(
@@ -238,7 +230,7 @@ class CustomCourseRunForm(CourseRunForm):
     class Meta(CourseRunForm.Meta):
         fields = (
             'length', 'transcript_languages', 'language', 'min_effort', 'max_effort',
-            'contacted_partner_manager', 'target_content', 'pacing_type', 'video_language',
+            'target_content', 'pacing_type', 'video_language',
             'staff', 'start', 'end', 'is_xseries', 'xseries_name', 'is_micromasters',
             'micromasters_name', 'lms_course_id',
         )

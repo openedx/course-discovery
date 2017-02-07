@@ -152,7 +152,13 @@
   }
 }
 
+.action-buttons{
+  @include float(right);
 
+  button {
+    @include margin-left(20px);
+  }
+}
 
 .course-information {
   margin-bottom: 30px;

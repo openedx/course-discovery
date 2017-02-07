@@ -13,7 +13,7 @@
     {% if edit_mode %}
         {% trans "Edit Course" %}
     {% else %}
-        {% trans "Add Course" %}
+        {% trans "Create New Course" %}
     {% endif %}
 </h1>
 
@@ -26,10 +26,10 @@
     {% endfor %}
 {% endif %}
 <p>
-    {% trans "The information in the Studio Instance section is required before edX can create a Studio instance for the course run." %}
-</p>
-<p class="{% if publisher_hide_features_for_pilot %}hidden{% endif %}">
-    {% trans "The information in the About Page section is not required before edX creates a Studio instance for the course run. You can return to this page and enter this information later. This information is required before edX announces the course." %}
+    {% blocktrans with strong_start='<strong>' strong_end='</strong>' trimmed %}
+        To create a parent course, enter the following information about the course and select {{ strong_start }}Create New Course{{  strong_end }}.
+    {% endblocktrans %}
+    <strong class="required">{% trans "All of the following information is required." %}</strong>
 </p>
 <form class="form" method="post" action="" enctype="multipart/form-data">
 {% csrf_token %}
@@ -38,26 +38,8 @@
     <h2 class="layout-title">{% trans "Studio Instance" %}</h2>
 
     <div class="card course-form">
-        <p class="required">
-            {% trans "This information is required before edX can create a Studio instance for a course run." %}
-        </p>
         <div class="course-information">
             <fieldset class="form-group grid-container grid-manual">
-
-                <div class="field-title">{% trans "PARTNER MANAGER" %}</div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        {% trans "EdX recommends that you contact a partner manager before you begin to plan a new course. " %}
-                    </div>
-                    <div class="col col-6">
-                        <label class="field-label">
-                            {{ run_form.contacted_partner_manager.label_tag }}
-                        </label>
-
-                        <div class="checkbox-inline">{{ run_form.contacted_partner_manager}}</div>
-                    </div>
-                </div>
-
                 <div class="field-title">{% trans "COURSE TITLE" %}</div>
                 <div class="row">
                     <div class="col col-6 help-text">
@@ -105,7 +87,7 @@
                             {% else %}
                               {% with course_form.organization.field.queryset|first as organization %}
                                 <label id="organization-name" class="field-label"
-                                       data-org_id="{{ organization.id }}">{{ course_form.organization.label_tag }}
+                                       data-org_id="{{ organization.id }}">{{ course_form.organization.label_tag }} 
                                 </label>
                                 <span class="read-only-field">{{ organization.name }}</span>
                                 <input id="id_organization" name="organization" type="hidden" value="{{ organization.id }}">
@@ -113,14 +95,16 @@
                             {% endif %}
                         {% endif %}
                         <label class="field-label">
-                          {{ course_form.team_admin.label_tag }}
+                          {{ course_form.team_admin.label_tag }} <span class="required">*</span>
                         </label>
 
                             <div class="field-value">
                                 {% if edit_mode %}{{ team_admin_name }}{% endif %}</div>
                             {{ course_form.team_admin }}
 
-                        <label class="field-label ">{{ course_form.title.label }}</label>
+                        <label class="field-label ">
+                            {{ course_form.title.label }}  <span class="required">*</span>
+                        </label> 
                             {% if edit_mode %}<div class="field-value">{{ course_form.title.value }}</div>{% endif %}
                             {{ course_form.title }}
                     </div>
@@ -143,7 +127,7 @@
                         </ul>
                     </div>
                     <div class="col col-6">
-                        <label class="field-label ">{{ run_form.start.label_tag }}</label>
+                        <label class="field-label ">{{ run_form.start.label_tag }}  <span class="required">*</span></label>
                         {{ run_form.start }}
                     </div>
                 </div>
@@ -155,7 +139,7 @@
                         {% trans "Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated end date. For example, if your course will end near the end of March, specify March 31." %}
                     </div>
                     <div class="col col-6">
-                        <label class="field-label ">{{ run_form.end.label_tag }}</label>
+                        <label class="field-label ">{{ run_form.end.label_tag }}  <span class="required">*</span></label>
                         {{ run_form.end }}
                     </div>
                 </div>
@@ -167,7 +151,7 @@
                         <p>{% trans "Self-paced courses do not have individual assignments that have specific due dates before the course end date. All assignments are due on the course end date." %}</p>
                     </div>
                     <div class="col col-6">
-                        <label class="field-label">{{ run_form.pacing_type.label_tag }}</label>
+                        <label class="field-label">{{ run_form.pacing_type.label_tag }}  <span class="required">*</span></label>
                         <div class="checkbox-inline">{{ run_form.pacing_type }}</div>
                     </div>
                 </div>
@@ -179,7 +163,7 @@
                         <p>{% trans "If a course consists of several modules, the course number can have an ending such as .1x or .2x." %}</p>
                     </div>
                     <div class="col col-6">
-                        <label class="field-label ">{{ course_form.number.label_tag }}</label>
+                        <label class="field-label ">{{ course_form.number.label_tag }}  <span class="required">*</span></label>
                         {% if edit_mode %}{{ course_form.number.value }}{% endif %}
                          {{ course_form.number }}
                     </div>
@@ -192,7 +176,7 @@
                             <p>{% trans "This is the course studio URL." %}</p>
                         </div>
                         <div class="col col-6">
-                            <label class="field-label ">{{ run_form.lms_course_id.label_tag }}</label>
+                            <label class="field-label ">{{ run_form.lms_course_id.label_tag }}  <span class="required">*</span></label>
                             {% if is_internal_user %}
                                 {{ run_form.lms_course_id }}
                             {% else %}
@@ -213,343 +197,350 @@
     </div>
 </div>
 
-
-<div class="layout-full publisher-layout layout {% if publisher_hide_features_for_pilot %}hidden{% endif %}">
-    <h2 class="layout-title">{% trans "About page information" %}</h2>
-    <div class="card course-form">
-        <div class="course-information">
-            <fieldset class="form-group grid-container grid-manual">
-                <div class="field-title">{% trans "PROGRAM ASSOCIATION" %}</div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        <ul>
-                            <li>{% trans "Is this course a part of any programs?" %}</li>
-                            <li>{% trans "Select the type or types of programs." %}</li>
-                            <li>{% trans "Add the name of the program this course will be a part of." %}</li>
-                        </ul>
-                    </div>
-                    <div class="col col-6">
-                        <div class="row">
-                            <div class="col col-5">
-                                <label class="field-label ">{{ run_form.is_micromasters.label_tag }}</label>
-                                {{ run_form.is_micromasters}}
-                            </div>
-                            <div class="col col-7 {% if run_form.micromasters_name %} hidden {% endif %}" id="micromasters_name_group">
-                                <label class="field-label ">{{ run_form.micromasters_name.label_tag }}</label>
-                                {{ run_form.micromasters_name }}
-                            </div>
-                            {% if run_form.micromasters_name.errors %}
-                            <div class="field-message has-error">
-                                <span class="field-message-content">
-                                    {{ run_form.micromasters_name.errors|escape }}
-                                </span>
-                            </div>
-                            {% endif %}
+{% if edit_mode %}
+    <div id="about-page" class="layout-full publisher-layout layout {% if publisher_hide_features_for_pilot %}hidden{% endif %}">
+        <h2 class="layout-title">{% trans "About page information" %}</h2>
+        <div class="card course-form">
+            <div class="course-information">
+                <fieldset class="form-group grid-container grid-manual">
+                    <div class="field-title">{% trans "PROGRAM ASSOCIATION" %}</div>
+                    <div class="row">
+                        <div class="col col-6 help-text">
+                            <ul>
+                                <li>{% trans "Is this course a part of any programs?" %}</li>
+                                <li>{% trans "Select the type or types of programs." %}</li>
+                                <li>{% trans "Add the name of the program this course will be a part of." %}</li>
+                            </ul>
                         </div>
-                        <div class="row">
-                            <div class="col col-5">
-                                <label class="field-label ">{{ run_form.is_xseries.label_tag }}</label>
-                                {{ run_form.is_xseries}}
-                            </div>
-                            <div class="col col-7 {% if run_form.xseries_name %} hidden {% endif %}" id="xseries_name_group">
-                                <label class="field-label ">{{ run_form.xseries_name.label_tag }}</label>
-                                {{ run_form.xseries_name}}
-                            </div>
-                            {% if run_form.xseries_name.errors %}
-                            <div class="field-message has-error">
-                                <span class="field-message-content">
-                                    {{ run_form.xseries_name.errors|escape }}
-                                </span>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="field-title">{% trans "CERTIFICATE TYPE AND PRICE" %}</div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        {% trans "If Verified or Professional Education, indicate certificate price in US dollars (minimum of $49)" %}
-                    </div>
-                    <div class="col col-6">
-                        <div class="row">
-                            <div class="col col-6">
-                                <label class="field-label ">{{ seat_form.type.label_tag }}
-                                </label>
-                                {{ seat_form.type}}
-                            </div>
-                                <div id="SeatPriceBlock" class="col col-6 {% if not seat_form.price.value %}hidden{% endif %}">
-                                    <label class="field-label ">{{ seat_form.price.label_tag }}</label>
-                                    {{ seat_form.price}}
+                        <div class="col col-6">
+                            <div class="row">
+                                <div class="col col-5">
+                                    <label class="field-label ">{{ run_form.is_micromasters.label_tag }}</label>
+                                    {{ run_form.is_micromasters}}
                                 </div>
-                        </div>
-                        {% if seat_form.price.errors %}
-                        <div class="field-message has-error">
-                                        <span class="field-message-content">
-                                            {{ seat_form.price.errors|escape }}
-                                        </span>
-                        </div>
-                        {% endif %}
-                    </div>
-
-                </div>
-
-
-                <div class="field-title">{% trans "BRIEF DESCRIPTION" %}</div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        <ul>
-                            <li>{% trans "Reads as a tag line - a short, engaging description for students browsing course listings" %}
-                            </li>
-                            <li>{% trans "Conveys why someone should take the course" %}</li>
-                            <li>{% trans "SEO optimized and targeted to a global audience" %}</li>
-                        </ul>
-                    </div>
-                    <div class="col col-6">
-                        <label class="field-label ">{{ course_form.short_description.label_tag }}</label>
-                        {{ course_form.short_description }}
-                        <p>{% trans "140 character limit, including spaces." %}</p>
-                    </div>
-                </div>
-
-                <div class="field-title">{% trans "FULL DESCRIPTION" %}</div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        {% trans "Summarized description of course content" %}
-                        <ul>
-                            <li>{% trans "Describe why a learner should take this course" %}</li>
-                            <li>{% trans "SEO optimized and targeted to a global audience" %}</li>
-                            <li>{% trans "Text should be easily scannable, using bullet points to highlight instead of long, dense text paragraphs" %}
-                            </li>
-                            <li>
-                                {% trans "Note: the first 4-5 lines will be visible to the learner immediately upon clicking the page;" %}
-                                {% trans 'additional text will be hidden yet available via "See More" clickable text under the first 4-5 lines' %}
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="col col-6">
-                        <label class="field-label ">{{ course_form.full_description.label_tag }}</label>
-                        {{ course_form.full_description }}
-                        <p>{% trans "2500 character limit, including spaces." %}</p>
-                    </div>
-                </div>
-
-
-                <div class="field-title">{% trans "EXPECTED LEARNINGS" %}</div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        <ul>
-                            <li>{% trans 'Answer to the question: "What will you learn from this course?"' %}</li>
-                            <li>{% trans "bulleted items, approximately 4-10 words per bullet" %}</li>
-                        </ul>
-                    </div>
-                    <div class="col col-6">
-                        <label class="field-label ">{{ course_form.expected_learnings.label_tag }}</label>
-                        {{ course_form.expected_learnings }}
-                    </div>
-                </div>
-
-                <div class="field-title">{% trans "COURSE STAFF" %}</div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        <ul>
-                          <li>{% trans "If there is more than one instructor, please indicate the order in which the instructors should be listed" %}</li>
-                          <li>{% trans "Limited to the primary instructors a learner will encounter in videos " %}</li>
-                        </ul>
-                    </div>
-                    <div class="col col-6 instructor-select">
-                        <label class="field-label ">{{ run_form.staff.label_tag }}</label>
-                        {{ run_form.staff }}
-                        <div class="selected-instructor">
-                          {% if publisher_add_instructor_feature %}
-                            <button type="button" id="add-new-instructor">{% trans "Add New" %}<br>{% trans "Instructor" %}</button>
-                          {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="field-title">{% trans "SUBJECT FIELD" %}</div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        {% trans "Only one primary subject will appear on the About Page; please select one primary subject and a maximum of two additional subject areas for search." %}
-                    </div>
-                    <div class="col col-6">
-                        <label class="field-label ">{{ course_form.primary_subject.label_tag }}</label>
-                        {{ course_form.primary_subject }}
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col col-6 help-text">&nbsp;
-                    </div>
-                    <div class="col col-6">
-                        <label class="field-label ">{{ course_form.secondary_subject.label_tag }}</label>
-                        {{ course_form.secondary_subject }}
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col col-6 help-text">&nbsp;
-                    </div>
-                    <div class="col col-6">
-                        <label class="field-label ">{{ course_form.tertiary_subject.label_tag }}</label>
-                        {{ course_form.tertiary_subject }}
-                    </div>
-                </div>
-
-                <div class="field-title">{% trans "COURSE IMAGE" %}</div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        {% trans "Select an eye-catching, colorful image that captures the content and essence of your course" %}
-                        <ul>
-                            <li>{% trans "Do not include text or headlines" %}</li>
-                            <li>{% trans "Choose an image that you have permission to use." %}
-                                {% trans "This can be a stock photo (try Flickr creative commons, " %}
-                                {% trans "Stock Vault, Stock XCHNG, iStock Photo) or an image custom designed for your course" %}
-                            </li>
-                            <li>{% trans "Sequenced courses should each have a unique image" %}</li>
-                            <li>{% trans "Size: 2120 x 1192 pixels" %}</li>
-                        </ul>
-                    </div>
-                    <div class="col col-6">
-                        <label class="field-label ">{{ course_form.image.label_tag }}</label>
-                        <div class="course-image-field">{{ course_form.image }}</div>
-                    </div>
-                </div>
-
-                <div class="field-title">{% trans "PREREQUISITES" %}</div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        <ul>
-                            <li>{% trans "List concepts and level (basic, advanced, undergraduate, graduate) students should be familiar with" %}
-                            </li>
-                            <li>{% trans 'If there are no prerequisites, please list "None."' %}</li>
-                            <li>{% trans "200 character limit, including spaces" %}</li>
-                        </ul>
-                    </div>
-                    <div class="col col-6">
-                        <label class="field-label ">{{ course_form.prerequisites.label_tag }}</label>
-                        {{ course_form.prerequisites }}
-                        <p>{% trans "200 character limit, including spaces." %}</p>
-                    </div>
-                </div>
-
-                <div class="field-title">{% trans "SYLLABUS" %}</div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        <ul>
-                            <!-- Help text will go here when we have it.-->
-                        </ul>
-                    </div>
-                    <div class="col col-6">
-                        <label class="field-label ">{{ course_form.syllabus.label_tag }}</label>
-                        {{ course_form.syllabus }}
-                    </div>
-                </div>
-
-                <div class="field-title">{% trans "ESTIMATED EFFORT" %}</div>
-                <div class="row">
-                    <div class="col col-6">
-                        <ul>
-                            <li>{% trans "Number of hours per week the learner should expect to spend on the course to be successful" %}
-                            </li>
-                            <li>{% trans "Should be realistic, and can be a range" %}</li>
-                        </ul>
-                    </div>
-                    <div class="col col-6">
-                        <div class="row">
-                            <div class="col col-6">
-                                <label class="field-label ">{% trans "Min Effort" %}</label>
-                                {{ run_form.min_effort }}
+                                <div class="col col-7 {% if run_form.micromasters_name %} hidden {% endif %}" id="micromasters_name_group">
+                                    <label class="field-label ">{{ run_form.micromasters_name.label_tag }}</label>
+                                    {{ run_form.micromasters_name }}
+                                </div>
+                                {% if run_form.micromasters_name.errors %}
+                                <div class="field-message has-error">
+                                    <span class="field-message-content">
+                                        {{ run_form.micromasters_name.errors|escape }}
+                                    </span>
+                                </div>
+                                {% endif %}
                             </div>
-                            <div class="col col-6">
-                                <label class="field-label ">{% trans "Max Effort" %}</label>
-                                {{ run_form.min_effort }}
+                            <div class="row">
+                                <div class="col col-5">
+                                    <label class="field-label ">{{ run_form.is_xseries.label_tag }}</label>
+                                    {{ run_form.is_xseries}}
+                                </div>
+                                <div class="col col-7 {% if run_form.xseries_name %} hidden {% endif %}" id="xseries_name_group">
+                                    <label class="field-label ">{{ run_form.xseries_name.label_tag }}</label>
+                                    {{ run_form.xseries_name}}
+                                </div>
+                                {% if run_form.xseries_name.errors %}
+                                <div class="field-message has-error">
+                                    <span class="field-message-content">
+                                        {{ run_form.xseries_name.errors|escape }}
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="field-title">{% trans "CERTIFICATE TYPE AND PRICE" %}</div>
+                    <div class="row">
+                        <div class="col col-6 help-text">
+                            {% trans "If Verified or Professional Education, indicate certificate price in US dollars (minimum of $49)" %}
+                        </div>
+                        <div class="col col-6">
+                            <div class="row">
+                                <div class="col col-6">
+                                    <label class="field-label ">{{ seat_form.type.label_tag }}
+                                    </label>
+                                    {{ seat_form.type}}
+                                </div>
+                                    <div id="SeatPriceBlock" class="col col-6 {% if not seat_form.price.value %}hidden{% endif %}">
+                                        <label class="field-label ">{{ seat_form.price.label_tag }}</label>
+                                        {{ seat_form.price}}
+                                    </div>
+                            </div>
+                            {% if seat_form.price.errors %}
+                            <div class="field-message has-error">
+                                            <span class="field-message-content">
+                                                {{ seat_form.price.errors|escape }}
+                                            </span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+
+                    <div class="field-title">{% trans "BRIEF DESCRIPTION" %}</div>
+                    <div class="row">
+                        <div class="col col-6 help-text">
+                            <ul>
+                                <li>{% trans "Reads as a tag line - a short, engaging description for students browsing course listings" %}
+                                </li>
+                                <li>{% trans "Conveys why someone should take the course" %}</li>
+                                <li>{% trans "SEO optimized and targeted to a global audience" %}</li>
+                            </ul>
+                        </div>
+                        <div class="col col-6">
+                            <label class="field-label ">{{ course_form.short_description.label_tag }}</label>
+                            {{ course_form.short_description }}
+                            <p>{% trans "140 character limit, including spaces." %}</p>
+                        </div>
+                    </div>
+
+                    <div class="field-title">{% trans "FULL DESCRIPTION" %}</div>
+                    <div class="row">
+                        <div class="col col-6 help-text">
+                            {% trans "Summarized description of course content" %}
+                            <ul>
+                                <li>{% trans "Describe why a learner should take this course" %}</li>
+                                <li>{% trans "SEO optimized and targeted to a global audience" %}</li>
+                                <li>{% trans "Text should be easily scannable, using bullet points to highlight instead of long, dense text paragraphs" %}
+                                </li>
+                                <li>
+                                    {% trans "Note: the first 4-5 lines will be visible to the learner immediately upon clicking the page;" %}
+                                    {% trans 'additional text will be hidden yet available via "See More" clickable text under the first 4-5 lines' %}
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col col-6">
+                            <label class="field-label ">{{ course_form.full_description.label_tag }}</label>
+                            {{ course_form.full_description }}
+                            <p>{% trans "2500 character limit, including spaces." %}</p>
+                        </div>
+                    </div>
+
+
+                    <div class="field-title">{% trans "EXPECTED LEARNINGS" %}</div>
+                    <div class="row">
+                        <div class="col col-6 help-text">
+                            <ul>
+                                <li>{% trans 'Answer to the question: "What will you learn from this course?"' %}</li>
+                                <li>{% trans "bulleted items, approximately 4-10 words per bullet" %}</li>
+                            </ul>
+                        </div>
+                        <div class="col col-6">
+                            <label class="field-label ">{{ course_form.expected_learnings.label_tag }}</label>
+                            {{ course_form.expected_learnings }}
+                        </div>
+                    </div>
+
+                    <div class="field-title">{% trans "COURSE STAFF" %}</div>
+                    <div class="row">
+                        <div class="col col-6 help-text">
+                            <ul>
+                              <li>{% trans "If there is more than one instructor, please indicate the order in which the instructors should be listed" %}</li>
+                              <li>{% trans "Limited to the primary instructors a learner will encounter in videos " %}</li>
+                            </ul>
+                        </div>
+                        <div class="col col-6 instructor-select">
+                            <label class="field-label ">{{ run_form.staff.label_tag }}</label>
+                            {{ run_form.staff }}
+                            <div class="selected-instructor">
+                              {% if publisher_add_instructor_feature %}
+                                <button type="button" id="add-new-instructor">{% trans "Add New" %}<br>{% trans "Instructor" %}</button>
+                              {% endif %}
                             </div>
                         </div>
                     </div>
 
-
-                </div>
-
-                <div class="field-title">{% trans "LANGUAGE(S)" %}</div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        <ul>
-                            <li>
-                                {% trans "Course content (navigation and course content excluding videos)" %}
-                            </li>
-                            <li>
-                                {% trans "Videos (language spoken in course videos)" %}
-                            </li>
-                            <li>
-                                {% trans "Video transcript (video caption language)" %}
-                            </li>
-                        </ul>
+                    <div class="field-title">{% trans "SUBJECT FIELD" %}</div>
+                    <div class="row">
+                        <div class="col col-6 help-text">
+                            {% trans "Only one primary subject will appear on the About Page; please select one primary subject and a maximum of two additional subject areas for search." %}
+                        </div>
+                        <div class="col col-6">
+                            <label class="field-label ">{{ course_form.primary_subject.label_tag }}</label>
+                            {{ course_form.primary_subject }}
+                        </div>
                     </div>
-                    <div class="col col-6">
-                        <label class="field-label ">{{ run_form.language.label_tag }}</label>
-                        {{ run_form.language}}
 
-                        <label class="field-label ">{{ run_form.transcript_languages.label_tag }}</label>
-                        {{ run_form.transcript_languages}}
+                    <div class="row">
+                        <div class="col col-6 help-text">&nbsp;
+                        </div>
+                        <div class="col col-6">
+                            <label class="field-label ">{{ course_form.secondary_subject.label_tag }}</label>
+                            {{ course_form.secondary_subject }}
+                        </div>
+                    </div>
 
-                        <label class="field-label ">{{ run_form.video_language.label_tag }}</label>
-                        {{ run_form.video_language}}
+                    <div class="row">
+                        <div class="col col-6 help-text">&nbsp;
+                        </div>
+                        <div class="col col-6">
+                            <label class="field-label ">{{ course_form.tertiary_subject.label_tag }}</label>
+                            {{ course_form.tertiary_subject }}
+                        </div>
+                    </div>
+
+                    <div class="field-title">{% trans "COURSE IMAGE" %}</div>
+                    <div class="row">
+                        <div class="col col-6 help-text">
+                            {% trans "Select an eye-catching, colorful image that captures the content and essence of your course" %}
+                            <ul>
+                                <li>{% trans "Do not include text or headlines" %}</li>
+                                <li>{% trans "Choose an image that you have permission to use." %}
+                                    {% trans "This can be a stock photo (try Flickr creative commons, " %}
+                                    {% trans "Stock Vault, Stock XCHNG, iStock Photo) or an image custom designed for your course" %}
+                                </li>
+                                <li>{% trans "Sequenced courses should each have a unique image" %}</li>
+                                <li>{% trans "Size: 2120 x 1192 pixels" %}</li>
+                            </ul>
+                        </div>
+                        <div class="col col-6">
+                            <label class="field-label ">{{ course_form.image.label_tag }}</label>
+                            <div class="course-image-field">{{ course_form.image }}</div>
+                        </div>
+                    </div>
+
+                    <div class="field-title">{% trans "PREREQUISITES" %}</div>
+                    <div class="row">
+                        <div class="col col-6 help-text">
+                            <ul>
+                                <li>{% trans "List concepts and level (basic, advanced, undergraduate, graduate) students should be familiar with" %}
+                                </li>
+                                <li>{% trans 'If there are no prerequisites, please list "None."' %}</li>
+                                <li>{% trans "200 character limit, including spaces" %}</li>
+                            </ul>
+                        </div>
+                        <div class="col col-6">
+                            <label class="field-label ">{{ course_form.prerequisites.label_tag }}</label>
+                            {{ course_form.prerequisites }}
+                            <p>{% trans "200 character limit, including spaces." %}</p>
+                        </div>
+                    </div>
+
+                    <div class="field-title">{% trans "SYLLABUS" %}</div>
+                    <div class="row">
+                        <div class="col col-6 help-text">
+                            <ul>
+                                <!-- Help text will go here when we have it.-->
+                            </ul>
+                        </div>
+                        <div class="col col-6">
+                            <label class="field-label ">{{ course_form.syllabus.label_tag }}</label>
+                            {{ course_form.syllabus }}
+                        </div>
+                    </div>
+
+                    <div class="field-title">{% trans "ESTIMATED EFFORT" %}</div>
+                    <div class="row">
+                        <div class="col col-6">
+                            <ul>
+                                <li>{% trans "Number of hours per week the learner should expect to spend on the course to be successful" %}
+                                </li>
+                                <li>{% trans "Should be realistic, and can be a range" %}</li>
+                            </ul>
+                        </div>
+                        <div class="col col-6">
+                            <div class="row">
+                                <div class="col col-6">
+                                    <label class="field-label ">{% trans "Min Effort" %}</label>
+                                    {{ run_form.min_effort }}
+                                </div>
+                                <div class="col col-6">
+                                    <label class="field-label ">{% trans "Max Effort" %}</label>
+                                    {{ run_form.min_effort }}
+                                </div>
+                            </div>
+                        </div>
+
 
                     </div>
-                </div>
+
+                    <div class="field-title">{% trans "LANGUAGE(S)" %}</div>
+                    <div class="row">
+                        <div class="col col-6 help-text">
+                            <ul>
+                                <li>
+                                    {% trans "Course content (navigation and course content excluding videos)" %}
+                                </li>
+                                <li>
+                                    {% trans "Videos (language spoken in course videos)" %}
+                                </li>
+                                <li>
+                                    {% trans "Video transcript (video caption language)" %}
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col col-6">
+                            <label class="field-label ">{{ run_form.language.label_tag }}</label>
+                            {{ run_form.language}}
+
+                            <label class="field-label ">{{ run_form.transcript_languages.label_tag }}</label>
+                            {{ run_form.transcript_languages}}
+
+                            <label class="field-label ">{{ run_form.video_language.label_tag }}</label>
+                            {{ run_form.video_language}}
+
+                        </div>
+                    </div>
 
 
-                <div class="field-title">{% trans "LENGTH" %}</div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        <ul>
-                            <li>{% trans "Length of course, in number of weeks" %}</li>
-                            <li>{% trans "If the time between start/end dates is not exact, ex: 8.5 weeks, " %}
-                                {% trans "indicate whether the course should be listed as 8 weeks or 9 weeks." %}
-                            </li>
-                        </ul>
+                    <div class="field-title">{% trans "LENGTH" %}</div>
+                    <div class="row">
+                        <div class="col col-6 help-text">
+                            <ul>
+                                <li>{% trans "Length of course, in number of weeks" %}</li>
+                                <li>{% trans "If the time between start/end dates is not exact, ex: 8.5 weeks, " %}
+                                    {% trans "indicate whether the course should be listed as 8 weeks or 9 weeks." %}
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col col-6">
+                            <label class="field-label ">{{ run_form.length.label_tag }}</label>
+                            {{ run_form.length}}
+                        </div>
                     </div>
-                    <div class="col col-6">
-                        <label class="field-label ">{{ run_form.length.label_tag }}</label>
-                        {{ run_form.length}}
-                    </div>
-                </div>
 
-                <div class="field-title">{% trans "LEVEL TYPE" %}</div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        <ul>
-                            <li>{% trans "Introductory - No prerequisites; an individual with some to all of a secondary school degree could complete" %}
-                            </li>
-                            <li>
-                                {% trans "Intermediate - Basic prerequisites; a secondary school degree likely required to be successful as well as some university" %}
-                            </li>
-                            <li>
-                                {% trans "Advanced - Significant number of prerequisites required; course geared to 3rd or 4th year university student or a masters degree student" %}
-                            </li>
-                        </ul>
+                    <div class="field-title">{% trans "LEVEL TYPE" %}</div>
+                    <div class="row">
+                        <div class="col col-6 help-text">
+                            <ul>
+                                <li>{% trans "Introductory - No prerequisites; an individual with some to all of a secondary school degree could complete" %}
+                                </li>
+                                <li>
+                                    {% trans "Intermediate - Basic prerequisites; a secondary school degree likely required to be successful as well as some university" %}
+                                </li>
+                                <li>
+                                    {% trans "Advanced - Significant number of prerequisites required; course geared to 3rd or 4th year university student or a masters degree student" %}
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col col-6 help-text">
+                            <label class="field-label ">{{ course_form.level_type.label_tag }}</label>
+                            {{ course_form.level_type }}
+                        </div>
                     </div>
-                    <div class="col col-6 help-text">
-                        <label class="field-label ">{{ course_form.level_type.label_tag }}</label>
-                        {{ course_form.level_type }}
-                    </div>
-                </div>
-            </fieldset>
+                </fieldset>
+            </div>
         </div>
     </div>
-</div>
-
+{% endif %}
 <div class="layout-full layout">
-    <div class="course-form">
-        <div class="course-information">
-            <fieldset class="form-group grid-container grid-manual">
-                <button class="btn-brand btn-base" type="submit">{% trans "Save Draft" %}</button>
 
-            </fieldset>
-        </div>
+    <p>{% trans "After you submit this information, an edX project coordinator creates an instance for the course as well as a course run in Studio. When the Studio instance is ready, you will receive an email notification. You can then enter course content in Studio." %}</p>
+    <p>{% trans "If you have additional information for your course About page, you can enter it on the next page. You can edit this information at any time before edX publishes the course About page." %}</p>
+</div>
+<div class="course-form">
+    <div class="course-information action-buttons">
+        <a href="{% url 'publisher:publisher_courses' %}">{% trans "Cancel" %}</a>
+        <button class="btn-brand btn-base" type="submit">
+            {% if edit_mode %}
+                {% trans "Edit Course" %}
+            {% else %}
+                {% trans "Create New Course" %}
+            {% endif %}
+        </button>
     </div>
 </div>
 
