@@ -22,11 +22,10 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.choices import PublisherUserRole
-from course_discovery.apps.publisher.constants import (
-    ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PARTNER_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME
-)
-from course_discovery.apps.publisher.models import Course, CourseRun, OrganizationExtension, Seat, State
+from course_discovery.apps.publisher.choices import CourseStateChoices, PublisherUserRole
+from course_discovery.apps.publisher.constants import (ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME,
+                                                       PARTNER_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME)
+from course_discovery.apps.publisher.models import Course, CourseRun, CourseState, OrganizationExtension, Seat, State
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
 from course_discovery.apps.publisher.utils import get_internal_users, is_email_notification_enabled
@@ -1442,6 +1441,9 @@ class CourseDetailViewTests(TestCase):
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.course.organizations.add(self.organization_extension.organization)
 
+        # Initialize workflow for Course.
+        self.course_state = factories.CourseStateFactory(course=self.course, owner_role=PublisherUserRole.CourseTeam)
+
         self.detail_page_url = reverse('publisher:publisher_course_detail', args=[self.course.id])
 
     def test_detail_page_without_permission(self):
@@ -1580,6 +1582,70 @@ class CourseDetailViewTests(TestCase):
         response = self.client.get(self.detail_page_url)
         self.assertContains(response, '<div id="comments-widget" class="comment-container hidden">')
 
+    def test_course_approval_widget(self):
+        """
+        Verify that user can see approval widget on course detail page.
+        """
+        factories.CourseUserRoleFactory(
+            course=self.course, user=self.user, role=PublisherUserRole.CourseTeam
+        )
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
+        response = self.client.get(self.detail_page_url)
+
+        self.assertContains(response, 'APPROVALS')
+        self.assertContains(response, '0 day in ownership')
+        self.assertContains(response, 'Send for Review')
+        self.assertContains(response, self.user.full_name)
+        # Verify that `Send for Review` button is disabled
+        self.assertContains(response, self.get_expected_data(CourseStateChoices.Review, disabled=True))
+
+        # Enable `Send for Review` button by filling all required fields
+        self.course.image = make_image_file('test_banner1.jpg')
+        self.course.save()
+
+        response = self.client.get(self.detail_page_url)
+        # Verify that `Send for Review` button is enabled
+        self.assertContains(response, self.get_expected_data(CourseStateChoices.Review))
+
+    def test_course_approval_widget_with_reviewed(self):
+        """
+        Verify that user can see approval widget on course detail page with `Reviewed`.
+        """
+        factories.CourseUserRoleFactory(
+            course=self.course, user=self.user, role=PublisherUserRole.MarketingReviewer
+        )
+        self.course_state.owner_role = PublisherUserRole.MarketingReviewer
+        self.course_state.save()
+
+        new_user = UserFactory()
+        factories.CourseUserRoleFactory(
+            course=self.course, user=new_user, role=PublisherUserRole.CourseTeam
+        )
+
+        self.course.course_state.name = CourseStateChoices.Review
+        self.course.course_state.save()
+
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
+        response = self.client.get(self.detail_page_url)
+
+        # Verify that content is sent for review and user can see Reviewed button.
+        self.assertContains(response, 'Reviewed')
+        self.assertContains(response, '<span class="icon fa fa-check" aria-hidden="true">')
+        self.assertContains(response, 'Send for Review')
+        self.assertContains(response, self.get_expected_data(CourseStateChoices.Approved))
+
+    def get_expected_data(self, state_name, disabled=False):
+        expected = '<button class="{}" data-change-state-url="{}" data-state-name="{}"{} type="button">'.format(
+            'btn btn-neutral btn-change-state',
+            reverse('publisher:api:change_course_state', kwargs={'pk': self.course.course_state.id}),
+            state_name,
+            ' disabled' if disabled else ''
+        )
+
+        return expected
+
 
 class CourseEditViewTests(TestCase):
     """ Tests for the course edit view. """
@@ -1592,6 +1658,9 @@ class CourseEditViewTests(TestCase):
 
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.course.organizations.add(self.organization_extension.organization)
+
+        # Initialize workflow for Course.
+        CourseState.objects.create(course=self.course, owner_role=PublisherUserRole.CourseTeam)
 
         self.course_team_role = factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.CourseTeam)
         self.organization_extension.group.user_set.add(*(self.user, self.course_team_role.user))
@@ -1741,6 +1810,32 @@ class CourseEditViewTests(TestCase):
         post_data['organization'] = organization_extension.organization.id
 
         return post_data
+
+    def test_update_course_with_state(self):
+        """
+        Verify that course state changed to `Draft` on updating.
+        """
+        self.client.logout()
+        self.client.login(username=self.course_team_role.user.username, password=USER_PASSWORD)
+        self._assign_permissions(self.organization_extension)
+
+        self.course.course_state.name = CourseStateChoices.Review
+        self.course.course_state.save()
+
+        post_data = self._post_data(self.organization_extension)
+        post_data['team_admin'] = self.course_team_role.user.id
+
+        response = self.client.post(self.edit_page_url, data=post_data)
+
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        course_state = CourseState.objects.get(id=self.course.course_state.id)
+        self.assertEqual(course_state.name, CourseStateChoices.Draft)
 
 
 @ddt.ddt

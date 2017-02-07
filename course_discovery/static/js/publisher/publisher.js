@@ -122,6 +122,23 @@ $(document).ready(function(){
         }
 
     });
+
+    $('.btn-change-state').click(function (e) {
+        $.ajax({
+            type: "PATCH",
+            url: $(this).data('change-state-url'),
+            data: JSON.stringify({name: $(this).data('state-name')}),
+            contentType: "application/json",
+            success: function (response) {
+                location.reload();
+            },
+            error: function (response) {
+                $('#stateChangeError').html(response.responseJSON.name);
+                $('#stateChangeAlert').show();
+                console.log(response);
+            }
+        });
+    });
 });
 
 $(document).on('change', '#id_organization', function (e) {

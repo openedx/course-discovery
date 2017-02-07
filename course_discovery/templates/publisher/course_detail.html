@@ -8,6 +8,13 @@
 {% block page_content %}
 {% include 'alert_messages.html' %}
 
+<div id="stateChangeAlert" class="alert-messages hidden">
+    <div class="alert alert-error" role="alert" tabindex="-1">
+        <div>
+            <p id="stateChangeError" class="alert-copy"></p>
+        </div>
+    </div>
+</div>
 <div class="layout-1t2t layout-flush publisher-container course-detail">
     <main class="layout-col layout-col-b layout-col-b-custom">
         <div class="course-information">

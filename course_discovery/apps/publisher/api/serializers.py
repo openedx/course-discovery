@@ -119,8 +119,9 @@ class CourseStateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         state = validated_data.get('name')
+        request = self.context.get('request')
         try:
-            instance.change_state(state=state)
+            instance.change_state(state=state, user=request.user)
         except TransitionNotAllowed:
             # pylint: disable=no-member
             raise serializers.ValidationError(

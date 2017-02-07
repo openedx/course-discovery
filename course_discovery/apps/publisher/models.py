@@ -494,12 +494,28 @@ class CourseState(TimeStampedModel, ChangedByMixin):
     def __str__(self):
         return self.get_name_display()
 
+    def can_send_for_review(self):
+        """
+        Validate minimum required fields before sending for review.
+        """
+        course = self.course
+        return all([
+            course.title, course.number, course.short_description, course.full_description,
+            course.organizations.first(), course.level_type, course.expected_learnings,
+            course.prerequisites, course.primary_subject, course.image, course.course_team_admin
+        ])
+
     @transition(field=name, source='*', target=CourseStateChoices.Draft)
     def draft(self):
         # TODO: send email etc.
         pass
 
-    @transition(field=name, source=CourseStateChoices.Draft, target=CourseStateChoices.Review)
+    @transition(
+        field=name,
+        source=CourseStateChoices.Draft,
+        target=CourseStateChoices.Review,
+        conditions=[can_send_for_review]
+    )
     def review(self):
         # TODO: send email etc.
         pass
@@ -509,10 +525,15 @@ class CourseState(TimeStampedModel, ChangedByMixin):
         # TODO: send email etc.
         pass
 
-    def change_state(self, state):
+    def change_state(self, state, user):
         if state == CourseStateChoices.Draft:
             self.draft()
         elif state == CourseStateChoices.Review:
+            user_role = self.course.course_user_roles.get(user=user)
+            if user_role.role == PublisherUserRole.MarketingReviewer:
+                self.owner_role = PublisherUserRole.CourseTeam
+            elif user_role.role == PublisherUserRole.CourseTeam:
+                self.owner_role = PublisherUserRole.MarketingReviewer
             self.review()
         elif state == CourseStateChoices.Approved:
             self.approved()

@@ -12,6 +12,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, View
 from django_fsm import TransitionNotAllowed
@@ -19,14 +20,12 @@ from guardian.shortcuts import get_objects_for_user
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher import emails, mixins
-from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.choices import CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.forms import CustomCourseForm, CustomCourseRunForm, CustomSeatForm, SeatForm
-from course_discovery.apps.publisher.models import (
-    Course, CourseRun, CourseUserRole, OrganizationExtension, Seat, State, UserAttributes
-)
-from course_discovery.apps.publisher.utils import (
-    get_internal_users, is_internal_user, is_partner_coordinator_user, is_publisher_admin, make_bread_crumbs
-)
+from course_discovery.apps.publisher.models import (Course, CourseRun, CourseState, CourseUserRole,
+                                                    OrganizationExtension, Seat, State, UserAttributes)
+from course_discovery.apps.publisher.utils import (get_internal_users, is_internal_user, is_partner_coordinator_user,
+                                                   is_publisher_admin, make_bread_crumbs)
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
 logger = logging.getLogger(__name__)
@@ -40,6 +39,11 @@ ROLE_WIDGET_HEADINGS = {
     PublisherUserRole.MarketingReviewer: _('MARKETING'),
     PublisherUserRole.Publisher: _('PUBLISHER'),
     PublisherUserRole.CourseTeam: _('Course Team')
+}
+
+STATE_BUTTONS = {
+    CourseStateChoices.Draft: {'text': _('Send for Review'), 'value': CourseStateChoices.Review},
+    CourseStateChoices.Review: {'text': _('Reviewed'), 'value': CourseStateChoices.Approved}
 }
 
 
@@ -200,9 +204,10 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
 
         # pass selected organization to CustomCourseForm to populate related
         # choices into institution admin field
+        user = self.request.user
         organization = self.request.POST.get('organization')
         course_form = self.course_form(
-            request.POST, request.FILES, user=self.request.user, organization=organization
+            request.POST, request.FILES, user=user, organization=organization
         )
         run_form = self.run_form(request.POST)
         seat_form = self.seat_form(request.POST)
@@ -215,13 +220,13 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
 
                     run_course = run_form.save(commit=False)
                     course = course_form.save(commit=False)
-                    course.changed_by = self.request.user
+                    course.changed_by = user
                     course.save()
                     # commit false does not save m2m object. Keyword field is m2m.
                     course_form.save_m2m()
 
                     run_course.course = course
-                    run_course.changed_by = self.request.user
+                    run_course.changed_by = user
                     run_course.save()
 
                     # commit false does not save m2m object.
@@ -229,7 +234,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
 
                     if seat:
                         seat.course_run = run_course
-                        seat.changed_by = self.request.user
+                        seat.changed_by = user
                         seat.save()
 
                     organization_extension = get_object_or_404(
@@ -243,6 +248,9 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
                     # add team admin as CourseTeam role again course
                     CourseUserRole.add_course_roles(course=course, role=PublisherUserRole.CourseTeam,
                                                     user=User.objects.get(id=course_form.data['team_admin']))
+
+                    # Initialize workflow for Course.
+                    CourseState.objects.create(course=course, owner_role=PublisherUserRole.CourseTeam)
 
                     # pylint: disable=no-member
                     messages.success(
@@ -319,8 +327,9 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
         """
         If the form is valid, update organization and team_admin.
         """
+        user = self.request.user
         self.object = form.save(commit=False)
-        self.object.changed_by = self.request.user
+        self.object.changed_by = user
         self.object.save()
 
         organization = form.cleaned_data['organization']
@@ -338,6 +347,10 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
             course_admin_role.user = team_admin
             course_admin_role.save()
 
+        user_role = self.object.course_user_roles.get(user=user)
+        self.object.course_state.owner_role = user_role.role
+        self.object.course_state.change_state(state=CourseStateChoices.Draft, user=user)
+
         messages.success(self.request, _('Course  updated successfully.'))
         return HttpResponseRedirect(self.get_success_url())
 
@@ -351,8 +364,9 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
     def get_context_data(self, **kwargs):
         context = super(CourseDetailView, self).get_context_data(**kwargs)
 
+        user = self.request.user
         context['can_edit'] = mixins.check_course_organization_permission(
-            self.request.user, self.object, OrganizationExtension.EDIT_COURSE
+            user, self.object, OrganizationExtension.EDIT_COURSE
         )
 
         context['breadcrumbs'] = make_bread_crumbs(
@@ -366,7 +380,37 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
         context['publisher_hide_features_for_pilot'] = waffle.switch_is_active('publisher_hide_features_for_pilot')
         context['publisher_comment_widget_feature'] = waffle.switch_is_active('publisher_comment_widget_feature')
 
+        context['role_widgets'] = self.get_role_widgets_data()
+
         return context
+
+    def get_role_widgets_data(self):
+        """ Create role widgets list for course user roles. """
+        user = self.request.user
+        course_state = self.object.course_state
+
+        role_widgets = []
+        for course_role in self.object.course_user_roles.order_by('role'):
+            role_widget = {
+                'course_role': course_role,
+                'heading': ROLE_WIDGET_HEADINGS.get(course_role.role)
+            }
+
+            if course_state.owner_role == course_role.role:
+                role_widget['ownership'] = timezone.now() - course_state.modified
+                if user == course_role.user:
+                    role_widget['state_button'] = STATE_BUTTONS.get(course_state.name)
+
+                    if course_state.name == CourseStateChoices.Draft and not course_state.can_send_for_review():
+                        role_widget['button_disabled'] = True
+
+            if course_role.role in [PublisherUserRole.CourseTeam, PublisherUserRole.MarketingReviewer]:
+                if course_state.owner_role != course_role.role and course_state.name == CourseStateChoices.Review:
+                    role_widget['sent_for_review'] = course_state.modified
+
+            role_widgets.append(role_widget)
+
+        return role_widgets
 
 
 class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
