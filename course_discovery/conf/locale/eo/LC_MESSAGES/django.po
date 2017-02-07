@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-06 20:07-0500\n"
+"POT-Creation-Date: 2017-02-08 15:24+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2817,6 +2817,39 @@ msgid "Please create a Studio instance for the following course."
 msgstr ""
 "Pléäsé çréäté ä Stüdïö ïnstänçé för thé föllöwïng çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя"
 " ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: templates/publisher/email/user_role_changed.html
+#, python-format
+msgid ""
+"The %(role_name)s for the "
+"%(link_start)s%(course_url)s%(link_middle)s%(course_title)s%(link_end)s "
+"course has changed."
+msgstr ""
+"Thé %(role_name)s för thé "
+"%(link_start)s%(course_url)s%(link_middle)s%(course_title)s%(link_end)s "
+"çöürsé häs çhängéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: templates/publisher/email/user_role_changed.html
+#: templates/publisher/email/user_role_changed.txt
+#, python-format
+msgid "Former %(role_name)s: %(former_user_name)s"
+msgstr "Förmér %(role_name)s: %(former_user_name)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: templates/publisher/email/user_role_changed.html
+#: templates/publisher/email/user_role_changed.txt
+#, python-format
+msgid "Current %(role_name)s: %(current_user_name)s"
+msgstr ""
+"Çürrént %(role_name)s: %(current_user_name)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: templates/publisher/email/user_role_changed.txt
+#, python-format
+msgid ""
+"The %(role_name)s for the %(course_title)s: %(course_url)s course has "
+"changed."
+msgstr ""
+"Thé %(role_name)s för thé %(course_title)s: %(course_url)s çöürsé häs "
+"çhängéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: templates/publisher/seat_form.html
 msgid "Seat Form"
