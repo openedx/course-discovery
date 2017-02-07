@@ -340,7 +340,7 @@
 
 .approval-widget, .course-widgets {
 
-    .btn-course-edit, .btn-courserun-edit {
+    .btn-course-edit, .btn-courserun-edit, .btn-change-state {
         @include padding(2px, 20px, 3px, 20px);
         @include float(right);
         font-weight: 400;
@@ -354,6 +354,10 @@
             background: #065683;
             color: #f2f8fb;
         }
+
+        &:disabled {
+            background: rgba(242, 242, 242, 1);
+        }
     }
 
     .role-heading {
@@ -361,6 +365,12 @@
     }
 
     .role-assignment-container {
+
+        .state-status {
+            @include float(right);
+            margin-top: 10px;
+            font-size: 12px;
+        }
 
         .field-readonly {
             @include margin-right(10px);
@@ -389,6 +399,11 @@
 
         }
     }
+
+    .btn-change-state {
+        margin-top: 15px;
+    }
+
 }//approval-widget (END)
 
 
@@ -399,7 +414,7 @@
     font-size: 24px;
 }
 
-.course-runs-heading {
+.course-runs-heading, .approvals-heading {
     display: inline-block;
 }
 

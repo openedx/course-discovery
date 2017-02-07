@@ -3,15 +3,15 @@ from django.test import RequestFactory, TestCase
 from rest_framework.exceptions import ValidationError
 
 from course_discovery.apps.core.tests.factories import UserFactory
-from course_discovery.apps.publisher.api.serializers import (
-    CourseRevisionSerializer, CourseRunStateSerializer, CourseStateSerializer, CourseUserRoleSerializer,
-    GroupUserSerializer, UpdateCourseKeySerializer
-)
-from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices
+from course_discovery.apps.core.tests.helpers import make_image_file
+from course_discovery.apps.publisher.api.serializers import (CourseRevisionSerializer, CourseRunStateSerializer,
+                                                             CourseStateSerializer, CourseUserRoleSerializer,
+                                                             GroupUserSerializer, UpdateCourseKeySerializer)
+from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.models import CourseRunState, CourseState
-from course_discovery.apps.publisher.tests.factories import (
-    CourseFactory, CourseRunFactory, CourseRunStateFactory, CourseStateFactory, CourseUserRoleFactory
-)
+from course_discovery.apps.publisher.tests.factories import (CourseFactory, CourseRunFactory, CourseRunStateFactory,
+                                                             CourseStateFactory, CourseUserRoleFactory,
+                                                             OrganizationExtensionFactory)
 
 
 class CourseUserRoleSerializerTests(TestCase):
@@ -138,24 +138,36 @@ class CourseStateSerializerTests(TestCase):
     def setUp(self):
         super(CourseStateSerializerTests, self).setUp()
         self.course_state = CourseStateFactory(name=CourseStateChoices.Draft)
+        self.request = RequestFactory()
+        self.user = UserFactory()
+        self.request.user = self.user
 
     def test_update(self):
         """
         Verify that we can update course workflow state with serializer.
         """
+        CourseUserRoleFactory(
+            course=self.course_state.course, role=PublisherUserRole.CourseTeam, user=self.user
+        )
+        course = self.course_state.course
+        course.image = make_image_file('test_banner.jpg')
+        course.save()
+        course.organizations.add(OrganizationExtensionFactory().organization)
+
         self.assertNotEqual(self.course_state, CourseStateChoices.Review)
-        serializer = self.serializer_class(self.course_state)
+        serializer = self.serializer_class(self.course_state, context={'request': self.request})
         data = {'name': CourseStateChoices.Review}
         serializer.update(self.course_state, data)
 
         self.course_state = CourseState.objects.get(course=self.course_state.course)
         self.assertEqual(self.course_state.name, CourseStateChoices.Review)
+        self.assertEqual(self.course_state.owner_role, PublisherUserRole.MarketingReviewer)
 
     def test_update_with_error(self):
         """
         Verify that serializer raises `ValidationError` with wrong transition.
         """
-        serializer = self.serializer_class(self.course_state)
+        serializer = self.serializer_class(self.course_state, context={'request': self.request})
         data = {'name': CourseStateChoices.Approved}
 
         with self.assertRaises(ValidationError):

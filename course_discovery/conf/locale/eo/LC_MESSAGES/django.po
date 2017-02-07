@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-10 14:57+0500\n"
+"POT-Creation-Date: 2017-02-13 14:02+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -866,6 +866,15 @@ msgstr "MÀRKÉTÌNG Ⱡ'σяєм ιρѕυм ∂σł#"
 #: apps/publisher/views.py
 msgid "PUBLISHER"
 msgstr "PÛBLÌSHÉR Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/publisher/views.py
+#: templates/publisher/course_detail/_approval_widget.html
+msgid "Send for Review"
+msgstr "Sénd för Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/publisher/views.py
+msgid "Reviewed"
+msgstr "Révïéwéd Ⱡ'σяєм ιρѕυм ∂#"
 
 #: apps/publisher/views.py
 msgid ""
@@ -2007,6 +2016,14 @@ msgstr "Çöürsé Ìmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Level"
 msgstr "Çöürsé Lévél Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: templates/publisher/course_detail/_approval_widget.html
+msgid "APPROVALS"
+msgstr "ÀPPRÖVÀLS Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: templates/publisher/course_detail/_approval_widget.html
+msgid "day in ownership"
+msgstr "däý ïn öwnérshïp Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: templates/publisher/course_detail/_widgets.html
 #: templates/publisher/course_run_detail/_approval_widget.html

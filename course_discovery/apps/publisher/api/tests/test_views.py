@@ -12,6 +12,7 @@ from guardian.shortcuts import assign_perm
 from mock import patch
 
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
+from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.constants import INTERNAL_USER_GROUP_NAME
@@ -383,15 +384,30 @@ class ChangeCourseStateViewTests(TestCase):
         self.user = UserFactory()
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
 
+        course = self.course_state.course
+        course.image = make_image_file('test_banner.jpg')
+        course.save()
+
+        self.organization_extension = factories.OrganizationExtensionFactory()
+        course.organizations.add(self.organization_extension.organization)
+
         self.change_state_url = reverse('publisher:api:change_course_state', kwargs={'pk': self.course_state.id})
 
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
     def test_change_course_state(self):
         """
-        Verify that publisher user can change course workflow state.
+        Verify that marketing user can change course workflow state
+        and owner role changed to `CourseTeam`.
         """
         self.assertNotEqual(self.course_state.name, CourseStateChoices.Review)
+        factories.CourseUserRoleFactory(
+            course=self.course_state.course, role=PublisherUserRole.MarketingReviewer, user=self.user
+        )
+
+        factories.CourseUserRoleFactory(
+            course=self.course_state.course, role=PublisherUserRole.CourseTeam, user=UserFactory()
+        )
 
         response = self.client.patch(
             self.change_state_url,
@@ -404,6 +420,33 @@ class ChangeCourseStateViewTests(TestCase):
         self.course_state = CourseState.objects.get(course=self.course_state.course)
 
         self.assertEqual(self.course_state.name, CourseStateChoices.Review)
+        self.assertEqual(self.course_state.owner_role, PublisherUserRole.CourseTeam)
+
+    def test_change_course_state_with_course_team(self):
+        """
+        Verify that course team admin can change course workflow state
+        and owner role changed to `MarketingReviewer`.
+        """
+        self.user.groups.remove(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        self.user.groups.add(self.organization_extension.group)
+
+        self.assertNotEqual(self.course_state.name, CourseStateChoices.Review)
+        factories.CourseUserRoleFactory(
+            course=self.course_state.course, role=PublisherUserRole.CourseTeam, user=self.user
+        )
+
+        response = self.client.patch(
+            self.change_state_url,
+            data=json.dumps({'name': CourseStateChoices.Review}),
+            content_type=JSON_CONTENT_TYPE
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.course_state = CourseState.objects.get(course=self.course_state.course)
+
+        self.assertEqual(self.course_state.name, CourseStateChoices.Review)
+        self.assertEqual(self.course_state.owner_role, PublisherUserRole.MarketingReviewer)
 
     def test_change_course_state_with_error(self):
         """

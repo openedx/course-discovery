@@ -7,6 +7,7 @@ from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import assign_perm
 
 from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.mixins import check_course_organization_permission
@@ -414,6 +415,19 @@ class CourseStateTests(TestCase):
     def setUpClass(cls):
         super(CourseStateTests, cls).setUpClass()
         cls.course_state = factories.CourseStateFactory(name=CourseStateChoices.Draft)
+        cls.user = UserFactory()
+        factories.CourseUserRoleFactory(
+            course=cls.course_state.course, role=PublisherUserRole.CourseTeam, user=cls.user
+        )
+
+    def setUp(self):
+        super(CourseStateTests, self).setUp()
+
+        self.course = self.course_state.course
+        self.course.image = make_image_file('test_banner.jpg')
+        self.course.save()
+
+        self.course.organizations.add(factories.OrganizationExtensionFactory().organization)
 
     def test_str(self):
         """
@@ -432,9 +446,30 @@ class CourseStateTests(TestCase):
         """
         self.assertNotEqual(self.course_state.name, state)
 
-        self.course_state.change_state(state=state)
+        self.course_state.change_state(state=state, user=self.user)
 
         self.assertEqual(self.course_state.name, state)
+
+    def test_review_with_condition_failed(self):
+        """
+        Verify that user cannot change state to `Review` if `can_send_for_review` failed.
+        """
+        self.course.image = None
+
+        self.assertEqual(self.course_state.name, CourseStateChoices.Draft)
+
+        with self.assertRaises(TransitionNotAllowed):
+            self.course_state.change_state(state=CourseStateChoices.Review, user=self.user)
+
+    def test_can_send_for_review(self):
+        """
+        Verify `can_send_for_review` return False if minimum required fields are empty or None.
+        """
+        self.assertTrue(self.course_state.can_send_for_review())
+
+        self.course.image = None
+
+        self.assertFalse(self.course_state.can_send_for_review())
 
 
 @ddt.ddt

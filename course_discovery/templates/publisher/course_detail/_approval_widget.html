@@ -1,0 +1,40 @@
+{% load i18n %}
+
+<div class="approval-widget">
+    <div class="margin-top20">
+        <h5 class="hd-5 emphasized approvals-heading">{% trans "APPROVALS" %}</h5>
+    </div>
+    {% for role_widget in  role_widgets %}
+        <div class="role-widget">
+            <div class="role-assignment-container">
+                <div class="layout-1q3q layout-reversed">
+                    <div class="layout-col layout-col-a">
+                        {% if role_widget.state_button %}
+                            <button class="btn btn-neutral btn-change-state" data-change-state-url="{% url 'publisher:api:change_course_state' object.course_state.id  %}" data-state-name="{{ role_widget.state_button.value }}"{% if role_widget.button_disabled %} disabled{% endif %} type="button">
+                                {{ role_widget.state_button.text }}
+                            </button>
+                        {% elif role_widget.sent_for_review %}
+                            <span class="state-status">
+                                <span class="icon fa fa-check" aria-hidden="true"></span>
+                                {% trans "Send for Review" %}<br>
+                                {{ role_widget.sent_for_review|date:'m/d/y H:i a' }}
+                            </span>
+                        {% endif %}
+                    </div>
+                    <div class="layout-col layout-col-b">
+                        <span class="role-heading">
+                            <strong>{{ role_widget.heading }}</strong>
+                        </span>
+                        {% if role_widget.ownership %}
+                            <span>{{ role_widget.ownership.days }} {% trans "day in ownership" %}</span>
+                        {% endif %}
+                        <div class="field-readonly user-full-name">
+                            {{ role_widget.course_role.user.full_name }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+    {% endfor %}
+</div>
