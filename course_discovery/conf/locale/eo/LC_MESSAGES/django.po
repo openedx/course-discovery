@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-09 15:57+0500\n"
+"POT-Creation-Date: 2017-02-10 14:57+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -625,7 +625,11 @@ msgstr "Örgänïzätïön Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α�
 msgid "Course Title"
 msgstr "Çöürsé Tïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: apps/publisher/forms.py templates/publisher/course_revision_history.html
+#: apps/publisher/forms.py templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
+#: templates/publisher/dashboard/_in_progress.html
+#: templates/publisher/dashboard/_preview_ready.html
+#: templates/publisher/dashboard/_published.html
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Course Number"
 msgstr "Çöürsé Nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
@@ -665,18 +669,6 @@ msgstr "Séçöndärý (öptïönäl) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт
 msgid "Tertiary (optional)"
 msgstr "Tértïärý (öptïönäl) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
-#: apps/publisher/forms.py
-msgid "Contacted PM"
-msgstr "Çöntäçtéd PM Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
-
-#: apps/publisher/forms.py
-msgid "Yes"
-msgstr "Ýés Ⱡ'σяєм#"
-
-#: apps/publisher/forms.py
-msgid "No"
-msgstr "Nö Ⱡ'σя#"
-
 #: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
 msgid "Course Start Date"
 msgstr "Çöürsé Stärt Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
@@ -688,6 +680,14 @@ msgstr "Çöürsé Énd Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 #: apps/publisher/forms.py
 msgid "instructor"
 msgstr "ïnstrüçtör Ⱡ'σяєм ιρѕυм ∂σłσ#"
+
+#: apps/publisher/forms.py
+msgid "Yes"
+msgstr "Ýés Ⱡ'σяєм#"
+
+#: apps/publisher/forms.py
+msgid "No"
+msgstr "Nö Ⱡ'σя#"
 
 #: apps/publisher/forms.py
 msgid "Pacing"
@@ -851,7 +851,7 @@ msgstr "Örgänïzätïön Rölé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α�
 msgid "Course Role"
 msgstr "Çöürsé Rölé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
-#: apps/publisher/views.py templates/publisher/add_update_course_form.html
+#: apps/publisher/views.py
 msgid "PARTNER MANAGER"
 msgstr "PÀRTNÉR MÀNÀGÉR Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
@@ -868,19 +868,20 @@ msgid "PUBLISHER"
 msgstr "PÛBLÌSHÉR Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: apps/publisher/views.py
-#, python-brace-format
 msgid ""
-"EdX will create a Studio instance for this course. You will receive a "
-"notification message at {email} when the Studio instance has been created."
+"You have successfully created a course. You can edit the course information "
+"or enter information for the course About page at any time. An edX project "
+"coordinator will create a Studio instance for this course. When you receive "
+"an email notification that the Studio instance is ready, you can enter "
+"course content in Studio."
 msgstr ""
-"ÉdX wïll çréäté ä Stüdïö ïnstänçé för thïs çöürsé. Ýöü wïll réçéïvé ä "
-"nötïfïçätïön méssägé ät {email} whén thé Stüdïö ïnstänçé häs ßéén çréätéd. "
-"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ "
-"тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм,"
-" qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
-"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
-"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
-"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт ł#"
+"Ýöü hävé süççéssfüllý çréätéd ä çöürsé. Ýöü çän édït thé çöürsé ïnförmätïön "
+"ör éntér ïnförmätïön för thé çöürsé Àßöüt pägé ät äný tïmé. Àn édX pröjéçt "
+"çöördïnätör wïll çréäté ä Stüdïö ïnstänçé för thïs çöürsé. Whén ýöü réçéïvé "
+"än émäïl nötïfïçätïön thät thé Stüdïö ïnstänçé ïs réädý, ýöü çän éntér "
+"çöürsé çöntént ïn Stüdïö. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя "
+"α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα"
+" αłιq#"
 
 #: apps/publisher/views.py
 #, python-brace-format
@@ -1003,6 +1004,7 @@ msgstr "Sävé Ⱡ'σяєм ι#"
 
 #: templates/metadata/admin/course_run.html
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid "Cancel"
 msgstr "Çänçél Ⱡ'σяєм ιρѕυ#"
@@ -1357,7 +1359,6 @@ msgstr ""
 "(mïnïmüm öf $49) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
 msgid "Save Draft"
 msgstr "Sävé Dräft Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
@@ -1373,56 +1374,29 @@ msgstr "Édït Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/courses.html
-msgid "Add Course"
-msgstr "Àdd Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσ#"
+msgid "Create New Course"
+msgstr "Çréäté Néw Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
+#, python-format
 msgid ""
-"The information in the Studio Instance section is required before edX can "
-"create a Studio instance for the course run."
+"To create a parent course, enter the following information about the course "
+"and select %(strong_start)sCreate New Course%(strong_end)s."
 msgstr ""
-"Thé ïnförmätïön ïn thé Stüdïö Ìnstänçé séçtïön ïs réqüïréd ßéföré édX çän "
-"çréäté ä Stüdïö ïnstänçé för thé çöürsé rün. Ⱡ'σяєм ιρѕυм #"
+"Tö çréäté ä pärént çöürsé, éntér thé föllöwïng ïnförmätïön äßöüt thé çöürsé "
+"änd séléçt %(strong_start)sÇréäté Néw Çöürsé%(strong_end)s. Ⱡ'σяєм ιρѕυм "
+"∂σłσя #"
 
 #: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid ""
-"The information in the About Page section is not required before edX creates"
-" a Studio instance for the course run. You can return to this page and enter"
-" this information later. This information is required before edX announces "
-"the course."
+msgid "All of the following information is required."
 msgstr ""
-"Thé ïnförmätïön ïn thé Àßöüt Pägé séçtïön ïs nöt réqüïréd ßéföré édX çréätés"
-" ä Stüdïö ïnstänçé för thé çöürsé rün. Ýöü çän rétürn tö thïs pägé änd éntér"
-" thïs ïnförmätïön lätér. Thïs ïnförmätïön ïs réqüïréd ßéföré édX ännöünçés "
-"thé çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ "
-"∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ "
-"мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ "
-"єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє "
-"νєłιт єѕѕє#"
+"Àll öf thé föllöwïng ïnförmätïön ïs réqüïréd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid "Studio Instance"
 msgstr "Stüdïö Ìnstänçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
-
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid ""
-"This information is required before edX can create a Studio instance for a "
-"course run."
-msgstr ""
-"Thïs ïnförmätïön ïs réqüïréd ßéföré édX çän çréäté ä Stüdïö ïnstänçé för ä "
-"çöürsé rün. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
-
-#: templates/publisher/add_update_course_form.html
-msgid ""
-"EdX recommends that you contact a partner manager before you begin to plan a"
-" new course. "
-msgstr ""
-"ÉdX réçömménds thät ýöü çöntäçt ä pärtnér mänägér ßéföré ýöü ßégïn tö plän ä"
-" néw çöürsé.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
@@ -1960,6 +1934,37 @@ msgstr ""
 "¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
 "ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαвσя#"
 
+#: templates/publisher/add_update_course_form.html
+msgid ""
+"After you submit this information, an edX project coordinator creates an "
+"instance for the course as well as a course run in Studio. When the Studio "
+"instance is ready, you will receive an email notification. You can then "
+"enter course content in Studio."
+msgstr ""
+"Àftér ýöü süßmït thïs ïnförmätïön, än édX pröjéçt çöördïnätör çréätés än "
+"ïnstänçé för thé çöürsé äs wéll äs ä çöürsé rün ïn Stüdïö. Whén thé Stüdïö "
+"ïnstänçé ïs réädý, ýöü wïll réçéïvé än émäïl nötïfïçätïön. Ýöü çän thén "
+"éntér çöürsé çöntént ïn Stüdïö. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя "
+"α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα"
+" αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ "
+"ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη "
+"яєρяєнєη∂єяιт#"
+
+#: templates/publisher/add_update_course_form.html
+msgid ""
+"If you have additional information for your course About page, you can enter"
+" it on the next page. You can edit this information at any time before edX "
+"publishes the course About page."
+msgstr ""
+"Ìf ýöü hävé äddïtïönäl ïnförmätïön för ýöür çöürsé Àßöüt pägé, ýöü çän éntér"
+" ït ön thé néxt pägé. Ýöü çän édït thïs ïnförmätïön ät äný tïmé ßéföré édX "
+"püßlïshés thé çöürsé Àßöüt pägé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя "
+"α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα"
+" αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ "
+"ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη "
+"яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα "
+"ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕ#"
+
 #: templates/publisher/base.html templates/publisher/dashboard.html
 msgid "Dashboard"
 msgstr "Däshßöärd Ⱡ'σяєм ιρѕυм ∂σł#"
@@ -2026,6 +2031,52 @@ msgstr ""
 "\n"
 "                        Çréätéd %(created_date)s ät %(created_time)s ßý %(created_by)s\n"
 "                     Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"The information in the Studio Instance section is required before edX can "
+"create a Studio instance for the course run."
+msgstr ""
+"Thé ïnförmätïön ïn thé Stüdïö Ìnstänçé séçtïön ïs réqüïréd ßéföré édX çän "
+"çréäté ä Stüdïö ïnstänçé för thé çöürsé rün. Ⱡ'σяєм ιρѕυм #"
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"The information in the About Page section is not required before edX creates"
+" a Studio instance for the course run. You can return to this page and enter"
+" this information later. This information is required before edX announces "
+"the course."
+msgstr ""
+"Thé ïnförmätïön ïn thé Àßöüt Pägé séçtïön ïs nöt réqüïréd ßéföré édX çréätés"
+" ä Stüdïö ïnstänçé för thé çöürsé rün. Ýöü çän rétürn tö thïs pägé änd éntér"
+" thïs ïnförmätïön lätér. Thïs ïnförmätïön ïs réqüïréd ßéföré édX ännöünçés "
+"thé çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ "
+"∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ "
+"мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ "
+"єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє "
+"νєłιт єѕѕє#"
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"This information is required before edX can create a Studio instance for a "
+"course run."
+msgstr ""
+"Thïs ïnförmätïön ïs réqüïréd ßéföré édX çän çréäté ä Stüdïö ïnstänçé för ä "
+"çöürsé rün. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"You can enter this information at any time before edX publishes the About "
+"page."
+msgstr ""
+"Ýöü çän éntér thïs ïnförmätïön ät äný tïmé ßéföré édX püßlïshés thé Àßöüt "
+"pägé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: templates/publisher/course_edit_form.html
+msgid "You must enter this information both in this section and in Studio."
+msgstr ""
+"Ýöü müst éntér thïs ïnförmätïön ßöth ïn thïs séçtïön änd ïn Stüdïö. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: templates/publisher/course_edit_form.html
 msgid "UPDATE COURSE"

@@ -248,9 +248,15 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
                                                     user=User.objects.get(id=course_form.data['team_admin']))
 
                     # pylint: disable=no-member
-                    messages.success(request, _(
-                        'EdX will create a Studio instance for this course. You will receive a notification message at '
-                        '{email} when the Studio instance has been created.').format(email=request.user.email))
+                    messages.success(
+                        request, _(
+                            "You have successfully created a course. You can edit the course information or enter "
+                            "information for the course About page at any time. "
+                            "An edX project coordinator will create a Studio instance for this course. When you "
+                            "receive an email notification that the Studio instance is ready, you can enter course "
+                            "content in Studio."
+                        )
+                    )
 
                     # sending email for notifying new course is created.
                     emails.send_email_for_course_creation(course, run_course)
