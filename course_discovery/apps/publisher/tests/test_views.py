@@ -601,8 +601,7 @@ class SeatsCreateUpdateViewTests(TestCase):
         # add new and check the comment on edit page.
         comment = CommentFactory(content_object=self.seat, user=self.user, site=self.site)
         response = self.client.get(self.seat_edit_url)
-        self.assertContains(response, 'Total Comments 1')
-        self.assertContains(response, 'Add new comment')
+        self.assertContains(response, 'Comment:')
         self.assertContains(response, comment.comment)
 
     def test_edit_seat_page_with_non_staff(self):
@@ -861,7 +860,6 @@ class CourseRunDetailTests(TestCase):
         self._assert_cat(response)
         self._assert_drupal(response)
         self._assert_subjects(response)
-        self.assertContains(response, 'Total Comments 1')
         self.assertContains(response, comment.comment)
         self._assert_breadcrumbs(response, self.course_run)
 
@@ -990,22 +988,38 @@ class CourseRunDetailTests(TestCase):
         self.assertNotIn(response_string, '<button data-tab="#tab-4">DRUPAL</button>')
         self.assertNotIn(response_string, '<button data-tab="#tab-5">Salesforce</button>')
 
-    def test_page_enable_waffle_switch(self):
+    def test_page_enable_waffle_switch_pilot(self):
         """ Verify that user will see only studio fields when 'publisher_hide_features_for_pilot' is activated. """
         toggle_switch('publisher_hide_features_for_pilot', True)
         response = self.client.get(self.page_url)
 
-        self.assertContains(response, '<aside class="layout-col layout-col-a hidden">')
+        self.assertContains(response, '<div id="approval-widget" class="hidden">')
         self.assertContains(response, '<div class="non-studio-fields hidden">')
 
-    def test_page_disable_waffle_switch(self):
+    def test_page_disable_waffle_switch_pilot(self):
         """ Verify that user will see whole page when 'publisher_hide_features_for_pilot' is deactivated. """
         toggle_switch('publisher_hide_features_for_pilot', False)
         response = self.client.get(self.page_url)
 
-        response_string = response.content.decode('UTF-8')
-        self.assertNotIn(response_string, '<aside class="layout-col layout-col-a hidden">')
-        self.assertNotIn(response_string, '<div class="non-studio-fields hidden">')
+        self.assertContains(response, '<div id="approval-widget" class="">')
+        self.assertContains(response, '<div class="non-studio-fields ">')
+
+    def test_comments_with_enable_switch(self):
+        """ Verify that user will see the comments widget when
+        'publisher_comment_widget_feature' is enabled.
+        """
+        toggle_switch('publisher_comment_widget_feature', True)
+        response = self.client.get(self.page_url)
+
+        self.assertContains(response, '<div id="comments-widget" class="comment-container ">')
+
+    def test_comments_with_disable_switch(self):
+        """ Verify that user will not see the comments widget when
+        'publisher_comment_widget_feature' is disable.
+        """
+        toggle_switch('publisher_comment_widget_feature', False)
+        response = self.client.get(self.page_url)
+        self.assertContains(response, '<div id="comments-widget" class="comment-container hidden">')
 
 
 class ChangeStateViewTests(TestCase):

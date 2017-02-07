@@ -2,25 +2,21 @@
 {% load comments %}
 {% if comment_object %}
 <div>
-    {% get_comment_count for comment_object as comment_count %}
-    <h4 class="hd-4">
-        {% blocktrans with comment_count=comment_count trimmed %}
-            Total Comments {{ comment_count }}
-        {% endblocktrans %}
-    </h4>
-
     {% get_comment_list for comment_object as comment_list %}
     <dl class="comments">
       {% for comment in comment_list reversed %}
-        <dt>
-          <span class="datetime">{{ comment.modified }}</span> - <span>{{ comment.name }}</span>
-          {% ifequal user comment.user %}
-            - <button class="btn-brand btn-small btn-comment comment-edit" data-url="{% url 'publisher_comments:api:comments' comment.id %}">Edit</button>
-          {% endifequal %}
-        </dt>
-        <dd>
+        <dt class="align-right"><span class="datetime">{{ comment.modified|date:"F d, Y, H:i:s a" }}&nbsp;</span></dt>
+        <dd class="edit-comment">
           {{ comment.comment }}
         </dd>
+        <dt class="submitted-by">
+            <span>
+                <em>{% trans 'Submitted by' %}&nbsp;{{ comment.name }}</em>
+            </span>
+            {% ifequal user comment.user %}
+                <button class="align-right btn-neutral btn-small btn-comment comment-edit" data-url="{% url 'publisher_comments:api:comments' comment.id %}">Edit</button>
+            {% endifequal %}
+        </dt>
       {% endfor %}
     </dl>
 </div>

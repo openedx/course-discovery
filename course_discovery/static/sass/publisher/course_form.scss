@@ -18,9 +18,35 @@
   margin-bottom: 20px;
 }
 
-#comments dt {
-  font-weight: bold;
-  color: #757575;
+.comments{
+  @include margin(0px, 0px, 0px, 0px);
+  margin: 5% auto;
+
+  .align-right {
+    @include text-align(right);
+    margin: 10px auto;
+  }
+  .submitted-by {
+    overflow: auto;
+    @include text-align(right);
+    margin-bottom: 40px;
+
+    span {
+      @include float(left);
+      margin: 10px auto;
+    }
+  }
+}
+
+.add-comment {
+  @include text-align(right);
+  margin-top: 5px;
+}
+
+#id_comment {
+  width:  100%;
+  max-width:  100%;
+  rows: 6;
 }
 
 .editable-comment {
