@@ -18,6 +18,10 @@ class CommentsForm(CommentForm):
         data['modified'] = self.cleaned_data['modified']
         return data
 
+    def __init__(self, *args, **kwargs):
+        super(CommentsForm, self).__init__(*args, **kwargs)
+        self.fields['comment'].widget.attrs['rows'] = 4
+
 
 class CommentEditForm(forms.ModelForm):
     """ Comment edit form. """

@@ -21,8 +21,9 @@ $(document).on('click', '.comment-edit', function (e) {
     $(parentDt).prev('dd').attr('contenteditable', 'True').addClass('editable-comment');
     $(parentDt).prev('dd').after(editableControlsHtml);
     $('.editable-comment').data('oldComment', $('.edit-controls').prev().text());
-
+    $('.editable-comment').focus();
     $(parentDt).hide();
+
 });
 
 $(document).on('click', '.comment-cancel', function (e) {

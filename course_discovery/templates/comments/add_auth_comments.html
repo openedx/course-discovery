@@ -3,7 +3,7 @@
 
 {% if user.is_authenticated and comment_object %}
     <div>
-        <p><div class="heading">{% trans 'Comment:' %}</div></p>
+        <h5 class="hd-5 emphasized">{% trans 'Comment:' %}</h5>
         <div>
             {% get_comment_form for comment_object as form %}
             <form id="frm_comment" action="{% comment_form_target %}" method="POST">
@@ -13,7 +13,7 @@
                 {{ form.object_pk }}
                 {{ form.timestamp }}
                 {{ form.security_hash }}
-                <input type="hidden" name="next" value="{% url 'publisher:publisher_course_run_detail' object.id %}"/>
+                <input type="hidden" name="next" value="{{ post_back_url }}"/>
                 <div class="add-comment">
                     <input type="button" value="Add comment" id="id_submit" class="btn btn-brand btn-small btn-course-add" />
                 </div>

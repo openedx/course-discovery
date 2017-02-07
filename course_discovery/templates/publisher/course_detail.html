@@ -112,8 +112,14 @@
         </div>
     </main>
 
-    <aside class="layout-col layout-col-a layout-col-a-custom">
-        {% include 'publisher/course_detail/_widgets.html' %}
+    <aside id="right-panel" class="layout-col layout-col-a layout-col-a-custom">
+        <div id="approval-widget" class="{% if publisher_hide_features_for_pilot %}hidden{% endif %}">
+            {% include 'publisher/course_detail/_widgets.html' %}
+        </div>
+        <div id="comments-widget" class="comment-container {% if not publisher_comment_widget_feature %}hidden{% endif %}">
+            {% include 'comments/add_auth_comments.html' %}
+            {% include 'comments/comments_list.html' %}
+        </div>
     </aside>
 </div>
 {% endblock %}
@@ -121,4 +127,6 @@
     <script src="{% static 'bower_components/google-diff-match-patch/diff_match_patch.js' %}"></script>
     <script src="{% static 'js/publisher/publisher.js' %}"></script>
     <script src="{% static 'js/publisher/comparing-objects.js' %}"></script>
+    <script src="{% static 'js/publisher/jquery-dateFormat.min.js' %}"></script>
+    <script src="{% static 'js/publisher/comments.js' %}"></script>
 {% endblock %}
