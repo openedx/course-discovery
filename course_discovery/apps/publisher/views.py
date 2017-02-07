@@ -138,6 +138,8 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
         course_run = CourseRunWrapper(self.get_object())
         context['object'] = course_run
         context['comment_object'] = course_run.course
+        context['post_back_url'] = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
+
         context['can_edit'] = mixins.check_course_organization_permission(
             self.request.user, course_run.course, OrganizationExtension.EDIT_COURSE_RUN
         )
@@ -359,6 +361,10 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
                 (None, self.object.title),
             ]
         )
+        context['comment_object'] = self.object
+        context['post_back_url'] = reverse('publisher:publisher_course_detail', kwargs={'pk': self.object.id})
+        context['publisher_hide_features_for_pilot'] = waffle.switch_is_active('publisher_hide_features_for_pilot')
+        context['publisher_comment_widget_feature'] = waffle.switch_is_active('publisher_comment_widget_feature')
 
         return context
 

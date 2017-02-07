@@ -1545,6 +1545,41 @@ class CourseDetailViewTests(TestCase):
         response = self.client.get(self.detail_page_url)
         self.assertContains(response, 'course/{}'.format(lms_course_id))
 
+    def test_page_enable_waffle_switch_pilot(self):
+        """ Verify that user will not see approval widget when 'publisher_hide_features_for_pilot' is activated. """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        toggle_switch('publisher_hide_features_for_pilot', True)
+        response = self.client.get(self.detail_page_url)
+
+        self.assertContains(response, '<div id="approval-widget" class="hidden">')
+
+    def test_page_disable_waffle_switch_pilot(self):
+        """ Verify that user will see approval widget when 'publisher_hide_features_for_pilot' is deactivated. """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        toggle_switch('publisher_hide_features_for_pilot', False)
+        response = self.client.get(self.detail_page_url)
+
+        self.assertContains(response, '<div id="approval-widget" class="">')
+
+    def test_comments_with_enable_switch(self):
+        """ Verify that user will see the comments widget when
+        'publisher_comment_widget_feature' is enabled.
+        """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        toggle_switch('publisher_comment_widget_feature', True)
+        response = self.client.get(self.detail_page_url)
+
+        self.assertContains(response, '<div id="comments-widget" class="comment-container ">')
+
+    def test_comments_with_disable_switch(self):
+        """ Verify that user will not see the comments widget when
+        'publisher_comment_widget_feature' is disabled.
+        """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        toggle_switch('publisher_comment_widget_feature', False)
+        response = self.client.get(self.detail_page_url)
+        self.assertContains(response, '<div id="comments-widget" class="comment-container hidden">')
+
 
 class CourseEditViewTests(TestCase):
     """ Tests for the course edit view. """

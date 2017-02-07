@@ -19,17 +19,17 @@
 }
 
 .comments{
-  @include margin(0px, 0px, 0px, 0px);
-  margin: 5% auto;
+  margin: 3% auto;
+  font-size: 14px;
 
   .align-right {
     @include text-align(right);
-    margin: 10px auto;
+    margin: 3px auto;
   }
   .submitted-by {
     overflow: auto;
     @include text-align(right);
-    margin-bottom: 40px;
+    margin-bottom: 25px;
 
     span {
       @include float(left);
@@ -38,6 +38,9 @@
   }
 }
 
+.comment-container{
+  margin-top: 20px;
+}
 .add-comment {
   @include text-align(right);
   margin-top: 5px;
@@ -50,6 +53,7 @@
 }
 
 .editable-comment {
+  @include padding-left(3px);
   border: 2px solid #d3d3d3;
   padding-top: 2px;
   padding-bottom: 2px;
