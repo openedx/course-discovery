@@ -40,6 +40,25 @@ COURSES_API_BODIES = [
         'pacing': 'self',
         'mobile_available': True,
         'hidden': False,
+        'instructor_info': [
+            {
+                'name': 'TestInstructor1',
+                'organization': 'MITx',
+                'title': 'SE',
+                'uuid': '',
+                'image': '/TestUser/image.jpg',
+                'bio': 'TestInstructor1 BIO'
+            },
+            {
+                'name': '',
+                'organization': 'MITx',
+                'title': 'Tester',
+                'uuid': '28508d33-4638-475e-9ec9-87c543db97d2',
+                'image': '/TestInstructor/image.jpg',
+                'bio': 'TestInstructor2 BIO'
+            },
+
+        ],
     },
     {
         'effort': None,
@@ -63,6 +82,34 @@ COURSES_API_BODIES = [
         'pacing': 'instructor,',
         'mobile_available': False,
         'hidden': False,
+        'instructor_info': [
+            {
+                'name': 'TestInstructor5',
+                'organization': 'KyotoUx',
+                'title': 'Test Title',
+                'uuid': '431d42a0-7c1f-40a1-b785-0dd11ba8cb33',
+                'image': '/TestUser/image.jpg',
+                'bio': 'TestInstructor1 BIO'
+            },
+            {
+                'name': 'TestInstructor3',
+                'organization': 'KyotoUx',
+                'title': '',
+                'uuid': 'ba52060a-8fb9-4278-8f7d-49357fac78a4',
+                'image': '/TestName1/image.jpg',
+                'bio': 'TestInstructor3 Bio'
+
+            },
+            {
+                'name': 'TestInstructor4',
+                'organization': '',
+                'title': '',
+                'uuid': '66910bb5-4b9b-4927-b8e2-75e0b8bfa4cd',
+                'image': '/TestName2/image.jpg',
+                'bio': ''
+
+            },
+        ],
     },
     {
         # Add a second run of KyotoUx+000x (3T2016) to test merging data across
@@ -87,6 +134,7 @@ COURSES_API_BODIES = [
         'start': None,
         'mobile_available': None,
         'hidden': True,
+        'instructor_info': [],
     },
 ]
 

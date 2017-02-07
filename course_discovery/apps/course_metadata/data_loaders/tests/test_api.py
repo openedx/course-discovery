@@ -15,7 +15,7 @@ from course_discovery.apps.course_metadata.data_loaders.api import (
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON, JPEG, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import ApiClientTestMixin, DataLoaderTestMixin
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Organization, Seat, Program, ProgramType,
+    Course, CourseRun, Organization, Seat, Program, ProgramType, Person, Position,
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseRunFactory, SeatFactory, ImageFactory, VideoFactory, OrganizationFactory, CourseFactory,
@@ -189,6 +189,25 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
 
         return course_run
 
+    def assert_staff_loaded(self, body):
+        for instructor in body.get('instructor_info'):
+            instructor_uuid = instructor.get('uuid')
+            if instructor_uuid:
+                person = Person.objects.get(uuid=instructor_uuid)
+                self.assertEqual(person.given_name, instructor.get('name'))
+
+                if not instructor.get('title') and not instructor.get('organization'):
+                    with self.assertRaises(Position.DoesNotExist):
+                        Position.objects.get(person=person)
+                else:
+                    self.assertEqual(person.position.title, instructor.get('title'))
+                    if instructor.get('organization'):
+                        self.assertEqual(person.position.organization.key, instructor.get('organization'))
+
+            else:
+                with self.assertRaises(Person.DoesNotExist):
+                    Person.objects.get(given_name=instructor.get("name"))
+
     @responses.activate
     @ddt.data(True, False)
     def test_ingest(self, partner_has_marketing_site):
@@ -212,6 +231,8 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
 
         for datum in api_data:
             self.assert_course_run_loaded(datum, partner_has_marketing_site)
+            if not partner_has_marketing_site:
+                self.assert_staff_loaded(datum)
 
         # Verify multiple calls to ingest data do NOT result in data integrity errors.
         self.loader.ingest()
