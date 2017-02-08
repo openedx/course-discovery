@@ -11,6 +11,9 @@
                     {% trans "Course Name" %}
                 </th>
                 <th role="button">
+                    {% trans "Course Number" %}
+                </th>
+                <th role="button">
                     {% trans "Organization" %}
                 </th>
                 <th role="button">
@@ -26,6 +29,9 @@
                 <tr>
                     <td id="course-title-{{ course_run.title }}">
                         <a href="{% url 'publisher:publisher_course_run_detail' course_run.id %}">{{ course_run.title }}</a>
+                    </td>
+                    <td>
+                        {{ course_run.number }}
                     </td>
                     <td>
                     {% if course_run.course.organizations.first %}{{ course_run.course.organizations.first.name }}{% endif %}
