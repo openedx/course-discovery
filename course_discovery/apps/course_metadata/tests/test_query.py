@@ -68,6 +68,22 @@ class CourseRunQuerySetTests(TestCase):
 
         self.assertEqual(set(CourseRun.objects.active()), {active_enrollment_end, active_no_enrollment_end})
 
+    def test_enrollable(self):
+        """ Verify the method returns only course runs currently open for enrollment. """
+        past = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=2)
+        future = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=2)
+
+        enrollable = CourseRunFactory(enrollment_start=past, enrollment_end=future)
+        enrollable_no_enrollment_end = CourseRunFactory(enrollment_start=past, enrollment_end=None)
+        enrollable_no_enrollment_start = CourseRunFactory(enrollment_start=None, enrollment_end=future)
+        CourseRunFactory(enrollment_start=future)
+        CourseRunFactory(enrollment_end=past)
+
+        # order doesn't matter
+        assert list(CourseRun.objects.enrollable().order_by('id')) == sorted([
+            enrollable, enrollable_no_enrollment_end, enrollable_no_enrollment_start
+        ], key=lambda x: x.id)
+
     def test_marketable(self):
         """ Verify the method filters CourseRuns to those with slugs. """
         course_run = CourseRunFactory()

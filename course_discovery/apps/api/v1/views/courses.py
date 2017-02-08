@@ -38,12 +38,10 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_serializer_context(self, *args, **kwargs):
         context = super().get_serializer_context(*args, **kwargs)
-        context.update({
-            'exclude_utm': get_query_param(self.request, 'exclude_utm'),
-            'include_deleted_programs': get_query_param(self.request, 'include_deleted_programs'),
-            'marketable_course_runs_only': get_query_param(self.request, 'marketable_course_runs_only'),
-            'published_course_runs_only': get_query_param(self.request, 'published_course_runs_only'),
-        })
+        query_params = ['exclude_utm', 'include_deleted_programs', 'marketable_course_runs_only',
+                        'marketable_enrollable_course_runs_with_archived', 'published_course_runs_only']
+        for query_param in query_params:
+            context[query_param] = get_query_param(self.request, query_param)
 
         return context
 
@@ -71,7 +69,14 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
               multiple: false
             - name: marketable_course_runs_only
               description: Restrict returned course runs to those that are published, have seats,
-                and can still be enrolled in.
+                and are enrollable or will be enrollable in the future
+              required: false
+              type: integer
+              paramType: query
+              mulitple: false
+            - name: marketable_enrollable_course_runs_with_archived
+              description: Restrict returned course runs to those that are published, have seats,
+                and can be enrolled in now. Includes archived courses.
               required: false
               type: integer
               paramType: query
