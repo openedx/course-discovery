@@ -2,7 +2,7 @@ from django.db.models.functions import Lower
 from rest_framework import viewsets, status
 from rest_framework.decorators import list_route
 from rest_framework.filters import DjangoFilterBackend, OrderingFilter
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
 from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
@@ -14,14 +14,14 @@ from course_discovery.apps.course_metadata.models import CourseRun
 
 
 # pylint: disable=no-member
-class CourseRunViewSet(PartnerMixin, viewsets.ReadOnlyModelViewSet):
+class CourseRunViewSet(PartnerMixin, viewsets.ModelViewSet):
     """ CourseRun resource. """
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     filter_class = filters.CourseRunFilter
     lookup_field = 'key'
     lookup_value_regex = COURSE_RUN_ID_REGEX
     ordering_fields = ('start',)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, DjangoModelPermissions)
     queryset = CourseRun.objects.all().order_by(Lower('key'))
     serializer_class = serializers.CourseRunWithProgramsSerializer
 
@@ -126,6 +126,10 @@ class CourseRunViewSet(PartnerMixin, viewsets.ReadOnlyModelViewSet):
               multiple: false
         """
         return super(CourseRunViewSet, self).list(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        """ Update one, or more, fields for a course run. """
+        return super(CourseRunViewSet, self).partial_update(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a course run. """

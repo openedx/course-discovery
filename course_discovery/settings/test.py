@@ -9,6 +9,8 @@ INSTALLED_APPS += [
     'course_discovery.apps.edx_catalog_extensions',
 ]
 
+DEFAULT_PARTNER_ID = 1
+
 TEST_NON_SERIALIZED_APPS = [
     # Prevents the issue described at https://code.djangoproject.com/ticket/23727.
     'django.contrib.contenttypes',
