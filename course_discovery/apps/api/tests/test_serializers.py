@@ -207,35 +207,26 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
         Verify that the marketable_course_runs_only option is respected, restricting returned
         course runs to those that are published, have seats, and can still be enrolled in.
         """
-        # Published course run with a seat, no enrollment start or end, and an end date in the future.
         enrollable_course_run = CourseRunFactory(
             status=CourseRunStatus.Published,
             end=datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10),
             enrollment_start=None,
             enrollment_end=None,
+            course=self.course
         )
         SeatFactory(course_run=enrollable_course_run)
 
-        # Unpublished course run with a seat.
-        unpublished_course_run = CourseRunFactory(status=CourseRunStatus.Unpublished)
+        unpublished_course_run = CourseRunFactory(status=CourseRunStatus.Unpublished, course=self.course)
         SeatFactory(course_run=unpublished_course_run)
 
-        # Published course run with no seats.
-        no_seats_course_run = CourseRunFactory(status=CourseRunStatus.Published)
+        CourseRunFactory(status=CourseRunStatus.Published, course=self.course)
 
-        # Published course run with a seat and an end date in the past.
         closed_course_run = CourseRunFactory(
             status=CourseRunStatus.Published,
             end=datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=10),
+            course=self.course
         )
         SeatFactory(course_run=closed_course_run)
-
-        self.course.course_runs.add(
-            enrollable_course_run,
-            unpublished_course_run,
-            no_seats_course_run,
-            closed_course_run,
-        )
 
         serializer = self.serializer_class(
             self.course,
@@ -246,6 +237,46 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
             len(serializer.data['course_runs']),
             1 if marketable_course_runs_only else 4
         )
+
+    def test_marketable_enrollable_course_runs_with_archived(self):
+        """
+        Verify that the marketable_enrollable_course_runs_with_archived option is respected, restricting returned
+        course runs to those that are published, have seats, and can still be enrolled in
+        (including courses with an end date in the past.)
+        """
+        enrollable_course_run = CourseRunFactory(
+            status=CourseRunStatus.Published,
+            end=datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10),
+            enrollment_start=None,
+            enrollment_end=None,
+            course=self.course
+        )
+        unpublished_course_run = CourseRunFactory(status=CourseRunStatus.Unpublished, course=self.course)
+        CourseRunFactory(status=CourseRunStatus.Published, course=self.course)
+        archived_course_run = CourseRunFactory(
+            status=CourseRunStatus.Published,
+            end=datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=10),
+            enrollment_start=None,
+            enrollment_end=None,
+            course=self.course
+        )
+        SeatFactory(course_run=unpublished_course_run)
+        SeatFactory(course_run=enrollable_course_run)
+        SeatFactory(course_run=archived_course_run)
+
+        context = {
+            'request': self.request,
+            'marketable_enrollable_course_runs_with_archived': 1
+        }
+
+        course_serializer = self.serializer_class(
+            self.course,
+            context=context
+        )
+
+        course_run_keys = [course_run['key'] for course_run in course_serializer.data['course_runs']]
+        # order doesn't matter
+        assert sorted(course_run_keys) == sorted([enrollable_course_run.key, archived_course_run.key])
 
     @ddt.data(0, 1)
     def test_published_course_runs_only(self, published_course_runs_only):

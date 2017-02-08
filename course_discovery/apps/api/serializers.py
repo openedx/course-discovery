@@ -514,6 +514,10 @@ class CourseWithProgramsSerializer(CourseSerializer):
             # closed - achieving this requires applying both the marketable and active filters.
             course_runs = course_runs.marketable().active()
 
+        if self.context.get('marketable_enrollable_course_runs_with_archived'):
+            # Same as "marketable_course_runs_only", but includes courses with an end date in the past
+            course_runs = course_runs.marketable().enrollable()
+
         if self.context.get('published_course_runs_only'):
             course_runs = course_runs.filter(status=CourseRunStatus.Published)
 

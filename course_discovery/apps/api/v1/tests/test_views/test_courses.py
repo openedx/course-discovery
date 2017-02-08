@@ -71,32 +71,27 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
             end=datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10),
             enrollment_start=None,
             enrollment_end=None,
+            course=self.course
         )
         SeatFactory(course_run=enrollable_course_run)
 
         # Unpublished course run with a seat.
-        unpublished_course_run = CourseRunFactory(status=CourseRunStatus.Unpublished)
+        unpublished_course_run = CourseRunFactory(status=CourseRunStatus.Unpublished, course=self.course)
         SeatFactory(course_run=unpublished_course_run)
 
         # Published course run with no seats.
-        no_seats_course_run = CourseRunFactory(status=CourseRunStatus.Published)
+        CourseRunFactory(status=CourseRunStatus.Published, course=self.course)
 
         # Published course run with a seat and an end date in the past.
         closed_course_run = CourseRunFactory(
             status=CourseRunStatus.Published,
             end=datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=10),
+            course=self.course
         )
         SeatFactory(course_run=closed_course_run)
 
-        self.course.course_runs.add(
-            enrollable_course_run,
-            unpublished_course_run,
-            no_seats_course_run,
-            closed_course_run,
-        )
-
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
-        url += '?marketable_course_runs_only={}'.format(marketable_course_runs_only)
+        url = '{}?marketable_course_runs_only={}'.format(url, marketable_course_runs_only)
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
@@ -109,16 +104,45 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         )
 
     @ddt.data(1, 0)
+    def test_marketable_enrollable_course_runs_with_archived(self, marketable_enrollable_course_runs_with_archived):
+        """ Verify the endpoint filters course runs to those that are marketable and
+        enrollable, including archived course runs (with an end date in the past). """
+
+        past = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=2)
+        future = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=2)
+
+        CourseRunFactory(enrollment_start=None, enrollment_end=future, course=self.course)
+        CourseRunFactory(enrollment_start=None, enrollment_end=None, course=self.course)
+        CourseRunFactory(
+            enrollment_start=past, enrollment_end=future, course=self.course
+        )
+        CourseRunFactory(enrollment_start=future, course=self.course)
+        CourseRunFactory(enrollment_end=past, course=self.course)
+
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
+        url = '{}?marketable_enrollable_course_runs_with_archived={}'.format(
+            url, marketable_enrollable_course_runs_with_archived
+        )
+        response = self.client.get(url)
+
+        assert response.status_code == 200
+        assert response.data == self.serialize_course(
+            self.course,
+            extra_context={
+                'marketable_enrollable_course_runs_with_archived': marketable_enrollable_course_runs_with_archived
+            }
+        )
+
+    @ddt.data(1, 0)
     def test_get_include_published_course_run(self, published_course_runs_only):
         """
         Verify the endpoint returns hides unpublished programs if
         the 'published_course_runs_only' flag is set to True
         """
-        published_course_run = CourseRunFactory(status=CourseRunStatus.Published)
-        unpublished_course_run = CourseRunFactory(status=CourseRunStatus.Unpublished)
-        self.course.course_runs.add(published_course_run, unpublished_course_run)
+        CourseRunFactory(status=CourseRunStatus.Published, course=self.course)
+        CourseRunFactory(status=CourseRunStatus.Unpublished, course=self.course)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
-        url += '?published_course_runs_only={}'.format(published_course_runs_only)
+        url = '{}?published_course_runs_only={}'.format(url, published_course_runs_only)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(

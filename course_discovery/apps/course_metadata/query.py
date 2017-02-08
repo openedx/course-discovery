@@ -43,6 +43,27 @@ class CourseRunQuerySet(models.QuerySet):
             )
         )
 
+    def enrollable(self):
+        """ Returns course runs that are currently open for enrollment.
+
+        A course run is considered open for enrollment if its enrollment start date
+        has passed, is now or is None, AND its enrollment end date is in the future or is None.
+
+        Returns:
+            QuerySet
+        """
+        now = datetime.datetime.now(pytz.UTC)
+        return self.filter(
+            (
+                Q(enrollment_end__gt=now) |
+                Q(enrollment_end__isnull=True)
+            ) & (
+                Q(enrollment_start__lte=now) |
+                Q(enrollment_start__isnull=True)
+            )
+
+        )
+
     def marketable(self):
         """ Returns CourseRuns that can be marketed to learners.
 
