@@ -39,7 +39,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         """ Verify the endpoint returns the details for a single course. """
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
 
-        with self.assertNumQueries(9):
+        with self.assertNumQueries(10):
             response = self.client.get(url)
 
         assert response.status_code == 200
@@ -51,7 +51,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
 
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
 
-        with self.assertNumQueries(12):
+        with self.assertNumQueries(13):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data.get('programs') == []
@@ -66,7 +66,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
         url += '?include_deleted_programs=1'
 
-        with self.assertNumQueries(12):
+        with self.assertNumQueries(13):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data == \
@@ -78,10 +78,10 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
 
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
 
-        with self.assertNumQueries(12):
+        with self.assertNumQueries(13):
             response = self.client.get(url)
             assert response.status_code == 200
-            self.assertEqual(response.data.get('programs'), [])
+            assert response.data.get('programs') == []
 
     def test_get_include_unpublished_programs(self):
         """
@@ -93,17 +93,47 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
         url += '?include_unpublished_programs=1'
 
-        with self.assertNumQueries(12):
+        with self.assertNumQueries(13):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data == \
             self.serialize_course_run(self.course_run, extra_context={'include_unpublished_programs': True})
 
+    def test_partial_update(self):
+        """ Verify the endpoint supports partially updating a course_run's fields, provided user has permission. """
+        url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
+
+        expected_min_effort = 867
+        expected_max_effort = 5309
+        data = {
+            'max_effort': expected_max_effort,
+            'min_effort': expected_min_effort,
+        }
+
+        # Update this course_run with the new info
+        response = self.client.patch(url, data, format='json')
+        assert response.status_code == 200
+
+        # refresh and make sure we have the new effort levels
+        self.course_run.refresh_from_db()
+
+        assert self.course_run.max_effort == expected_max_effort
+        assert self.course_run.min_effort == expected_min_effort
+
+    def test_partial_update_bad_permission(self):
+        """ Verify partially updating will fail if user doesn't have permission. """
+        user = UserFactory(is_staff=False, is_superuser=False)
+        self.client.force_authenticate(user)
+        url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
+
+        response = self.client.patch(url, {}, format='json')
+        assert response.status_code == 403
+
     def test_list(self):
         """ Verify the endpoint returns a list of all catalogs. """
         url = reverse('api:v1:course_run-list')
 
-        with self.assertNumQueries(11):
+        with self.assertNumQueries(12):
             response = self.client.get(url)
 
         assert response.status_code == 200
@@ -116,7 +146,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         """ Verify the endpoint returns a list of all catalogs sorted by course start date. """
         url = '{root}?ordering=start'.format(root=reverse('api:v1:course_run-list'))
 
-        with self.assertNumQueries(11):
+        with self.assertNumQueries(12):
             response = self.client.get(url)
 
         assert response.status_code == 200
@@ -132,7 +162,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         query = 'title:Some random title'
         url = '{root}?q={query}'.format(root=reverse('api:v1:course_run-list'), query=query)
 
-        with self.assertNumQueries(37):
+        with self.assertNumQueries(38):
             response = self.client.get(url)
 
         actual_sorted = sorted(response.data['results'], key=lambda course_run: course_run['key'])
@@ -248,7 +278,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         url = '{}?{}'.format(reverse('api:v1:course_run-contains'), qs)
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 400)
+        assert response.status_code == 400
 
     def test_contains_multiple_course_runs(self):
         qs = urllib.parse.urlencode({
@@ -281,4 +311,4 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         url = '{}?{}'.format(reverse('api:v1:course_run-contains'), qs)
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 400)
+        assert response.status_code == 400
