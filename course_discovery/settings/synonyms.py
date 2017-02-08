@@ -58,6 +58,5 @@ SYNONYMS = [
     ['photo', 'photography'],
     ['vb', 'visual basic'],
     ['vba', 'excel'],
-    ['usa', 'united states of america', 'murika'],
-
+    ['usa', 'united states of america', 'america', 'murika'],
 ]
