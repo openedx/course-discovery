@@ -35,6 +35,14 @@
 
             <div class="info-item history-field-container">
                 <div class="heading">
+                    {% trans "Course Number" %}
+                </div>
+                <div class="current number">{{ object.number }}</div>
+                <div class="show-diff"></div>
+            </div>
+
+            <div class="info-item history-field-container">
+                <div class="heading">
                     {% trans "Brief Description" %}
                 </div>
                 <div class="current short_description">{{ object.short_description }}</div>
