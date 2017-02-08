@@ -4,7 +4,7 @@ from haystack.backends import BaseSearchBackend
 from mock import patch
 
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
-from course_discovery.apps.edx_haystack_extensions.models import ElasticsearchBoostConfig
+from course_discovery.apps.edx_haystack_extensions.elasticsearch_boost_config import get_elasticsearch_boost_config
 
 
 class SearchBackendTestMixin(ElasticsearchTestMixin):
@@ -37,9 +37,9 @@ class SimpleQuerySearchBackendMixinTestMixin(SearchBackendTestMixin):
     }
 
     def _default_function_score(self):
-        function_score = {'function_score': ElasticsearchBoostConfig.get_solo().function_score}
-        function_score['function_score']['query'] = {'query_string': self.simple_query}
-        return function_score
+        boost_config = get_elasticsearch_boost_config()
+        boost_config['function_score']['query'] = {'query_string': self.simple_query}
+        return boost_config
 
     def test_build_search_kwargs_all_qs_with_filter(self):
         with patch.object(BaseSearchBackend, 'build_models_list', return_value=['course_metadata.course']):
@@ -70,27 +70,29 @@ class SimpleQuerySearchBackendMixinTestMixin(SearchBackendTestMixin):
         self.assertDictEqual(kwargs['query'], self._default_function_score())
 
     def test_build_search_kwargs_function_score(self):
-        function_score = {
-            'functions': [
-                {
-                    'filter': {
-                        'term': {
-                            'type': 'micromasters'
-                        }
-                    },
-                    'weight': 10.0
-                }
-            ],
-            'boost': 5.0,
-            'score_mode': 'multiply',
-            'boost_mode': 'sum'
+        test_elasticsearch_boost_config = {
+            'function_score': {
+                'functions': [
+                    {
+                        'filter': {
+                            'term': {
+                                'type': 'micromasters'
+                            }
+                        },
+                        'weight': 10.0
+                    }
+                ],
+                'boost': 5.0,
+                'score_mode': 'multiply',
+                'boost_mode': 'sum'
+            }
         }
-        boost_config = ElasticsearchBoostConfig.get_solo()
-        boost_config.function_score = function_score
-        boost_config.save()
+        with patch('course_discovery.apps.edx_haystack_extensions.backends.get_elasticsearch_boost_config',
+                   return_value=test_elasticsearch_boost_config):
+            with patch.object(BaseSearchBackend, 'build_models_list', return_value=[]):
+                kwargs = self.backend.build_search_kwargs(self.specific_query_string)
 
-        with patch.object(BaseSearchBackend, 'build_models_list', return_value=[]):
-            kwargs = self.backend.build_search_kwargs(self.specific_query_string)
+        function_score = test_elasticsearch_boost_config['function_score']
 
         expected_function_score = {
             'function_score': function_score

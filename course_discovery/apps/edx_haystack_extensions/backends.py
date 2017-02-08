@@ -1,6 +1,6 @@
 from haystack.backends.elasticsearch_backend import ElasticsearchSearchBackend, ElasticsearchSearchEngine
 
-from course_discovery.apps.edx_haystack_extensions.models import ElasticsearchBoostConfig
+from course_discovery.apps.edx_haystack_extensions.elasticsearch_boost_config import get_elasticsearch_boost_config
 
 
 class SimpleQuerySearchBackendMixin(object):
@@ -37,8 +37,7 @@ class SimpleQuerySearchBackendMixin(object):
         }
 
         # https://www.elastic.co/guide/en/elasticsearch/reference/1.7/query-dsl-function-score-query.html
-        function_score_config = ElasticsearchBoostConfig.get_solo().function_score
-
+        function_score_config = get_elasticsearch_boost_config()['function_score']
         function_score_config['query'] = {
             'query_string': simple_query
         }
