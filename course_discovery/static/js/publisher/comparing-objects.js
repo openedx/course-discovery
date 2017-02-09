@@ -23,4 +23,9 @@ function showDiff($object, $historyObject, $outputDiv) {
     $outputDiv.show();
 }
 
+function showDiffCourseDetails(currentObject, historyObject, $outputDiv) {
+    var d = dmp.diff_main(currentObject, historyObject);
+    $outputDiv.html(dmp.diff_prettyHtml(d));
+    $outputDiv.show();
+}
 

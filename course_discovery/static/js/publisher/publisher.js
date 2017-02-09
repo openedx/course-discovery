@@ -261,19 +261,12 @@ function loadRevisionHistory(revisionUrl) {
             $.each(data, function(key, value) {
               var currentObject = $('.history-field-container').find('.' + key);
                 if (currentObject.length) {
-                    showDiff(value, currentObject.text(), currentObject.siblings('.show-diff'));
+                    showDiffCourseDetails(value, currentObject.text(), currentObject.siblings('.show-diff'));
                     currentObject.hide();
                 }
             });
         }
     });
-}
-
-var dmp = new diff_match_patch();
-function showDiff(currentObject, historyObject, $outputDiv) {
-    var d = dmp.diff_main(historyObject, currentObject);
-    $outputDiv.html(dmp.diff_prettyHtml(d));
-    $outputDiv.show();
 }
 
 function addModalError(errorMessage) {
