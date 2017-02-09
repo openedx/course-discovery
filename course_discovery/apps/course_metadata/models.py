@@ -448,6 +448,61 @@ class CourseRun(TimeStampedModel):
         return deadline
 
     @property
+    def is_publicly_visible(self):
+        """
+        Return True if the CourseRun should be visible to the general public, othwerise return False.
+
+        A CourseRun should be visible to the general public if it is published, has seats, and has not been hidden.
+        """
+        return self.status == CourseRunStatus.Published and not self.hidden and len(self.seats.all()) > 0
+
+    @property
+    def is_enrollable(self):
+        """
+        Return True if the CourseRun is currently enrollable, otherwise return False.
+
+        A CourseRun is enrollable if an unenrolled user may enroll in the course (enrollment has begun and
+        has not ended).
+        """
+        now = datetime.datetime.now(pytz.UTC)
+        enrollment_has_begun = self.enrollment_start is None or self.enrollment_start <= now
+        enrollment_has_not_ended = self.enrollment_end is None or self.enrollment_end > now
+        return enrollment_has_begun and enrollment_has_not_ended
+
+    @property
+    def will_be_enrollable(self):
+        """
+        Return True if the CourseRun is not currently enrollable but will be in the future, otherwise return False.
+        """
+        now = datetime.datetime.now(pytz.UTC)
+        return self.enrollment_start is not None and self.enrollment_start > now
+
+    @property
+    def is_consumable(self):
+        """
+        Return True if the CourseRun is currently consumable, otherwise return False.
+
+        A CourseRun is consumable if a user can consume course content (the course has started).
+        """
+        now = datetime.datetime.now(pytz.UTC)
+        return self.start is None or self.start <= now
+
+    @property
+    def is_or_will_be_purchasable(self):
+        """
+        Return True if the CourseRun is currently purchasable or will be in the future, otherwise return False.
+
+        A CourseRun is purchasable if an unenrolled user may enroll and purchase a paid seat for the CourseRun.
+        """
+        has_enrollable_paid_seats = self.has_enrollable_paid_seats()
+        if not has_enrollable_paid_seats:
+            return False
+
+        now = datetime.datetime.now(pytz.UTC)
+        paid_seat_enrollment_end = self.get_paid_seat_enrollment_end()
+        return paid_seat_enrollment_end is None or paid_seat_enrollment_end > now
+
+    @property
     def program_types(self):
         """
         Exclude unpublished and deleted programs from list
