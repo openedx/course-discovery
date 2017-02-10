@@ -11,3 +11,14 @@ until we can determine what other edX-specific components need to be extracted f
 
 edX developers should add ``'course_discovery.apps.edx_catalog_extensions'`` to the ``INSTALLED_APPS`` setting in a
 ``private.py`` settings file.
+
+Settings
+========
+
+``HAYSTACK_INDEX_RETENTION_LIMIT``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Default: ``3``
+
+This field sets an upper bound for the number of indexes that will be retained after
+a purge triggered by the 'remove_unused_indexes' command.  This command will never delete the currently used index.

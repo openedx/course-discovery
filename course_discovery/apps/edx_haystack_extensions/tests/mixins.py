@@ -1,5 +1,6 @@
 from django.conf import settings
 from elasticsearch.helpers import bulk
+from haystack import connections as haystack_connections
 from haystack.backends import BaseSearchBackend
 from mock import patch
 
@@ -23,6 +24,21 @@ class SearchBackendTestMixin(ElasticsearchTestMixin):
     def record_count(self):
         """ Returns a count of all records in the index. """
         return self.backend.conn.count(index=self.backend.index_name)['count']
+
+
+class SearchIndexTestMixin(object):
+    backend = None
+    index_prefix = None  # The backend.index_name is manipulated during operation, so we snapshot prefix during setUp
+
+    def setUp(self):
+        super(SearchIndexTestMixin, self).setUp()
+        self.backend = haystack_connections['default'].get_backend()
+        self.index_prefix = self.backend.index_name
+
+    def tearDown(self):
+        """ Remove the indexes we created """
+        self.backend.conn.indices.delete(index=self.index_prefix + '_*')
+        super(SearchIndexTestMixin, self).tearDown()
 
 
 class SimpleQuerySearchBackendMixinTestMixin(SearchBackendTestMixin):

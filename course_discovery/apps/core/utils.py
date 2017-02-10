@@ -10,21 +10,14 @@ logger = logging.getLogger(__name__)
 
 class ElasticsearchUtils(object):
     @classmethod
-    def create_alias_and_index(cls, es, alias):
+    def create_alias_and_index(cls, es_connection, alias):
         logger.info('Making sure alias [%s] exists...', alias)
 
-        if es.indices.exists_alias(name=alias):
+        if es_connection.indices.exists_alias(name=alias):
             # If the alias exists, and points to an open index, we are all set.
             logger.info('...alias exists.')
         else:
-            # Create an index with a unique (timestamped) name
-            timestamp = datetime.datetime.utcnow().strftime("%Y%m%d%H%M%S")
-            index = '{alias}_{timestamp}'.format(alias=alias, timestamp=timestamp)
-            index_settings = settings.ELASTICSEARCH_INDEX_SETTINGS
-            index_settings['settings']['analysis']['filter']['synonym']['synonyms'] = get_synonyms(es)
-            es.indices.create(index=index, body=index_settings)
-            logger.info('...index [%s] created.', index)
-
+            index = cls.create_index(es_connection=es_connection, prefix=alias)
             # Point the alias to the new index
             body = {
                 'actions': [
@@ -32,8 +25,29 @@ class ElasticsearchUtils(object):
                     {'add': {'alias': alias, 'index': index}},
                 ]
             }
-            es.indices.update_aliases(body)
+            es_connection.indices.update_aliases(body)
             logger.info('...alias updated.')
+
+    @classmethod
+    def create_index(cls, es_connection, prefix):
+        """
+        Creates a new index whose name is prefixed with the specified value.
+
+        Args:
+            es_connection (Elasticsearch): Elasticsearch connection - the connection object as created in the
+             ElasticsearchSearchBackend class - the 'conn' attribute
+            prefix (str): Alias for the connection, used as prefix for the index name
+
+        Returns:
+            index_name (str): Name of the new index.
+        """
+        timestamp = datetime.datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+        index_name = '{alias}_{timestamp}'.format(alias=prefix, timestamp=timestamp)
+        index_settings = settings.ELASTICSEARCH_INDEX_SETTINGS
+        index_settings['settings']['analysis']['filter']['synonym']['synonyms'] = get_synonyms(es_connection)
+        es_connection.indices.create(index=index_name, body=index_settings)
+        logger.info('...index [%s] created.', index_name)
+        return index_name
 
 
 def get_all_related_field_names(model):

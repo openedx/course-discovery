@@ -1,11 +1,9 @@
-import datetime
 import logging
 
-from django.conf import settings
 from haystack import connections as haystack_connections
 from haystack.management.commands.update_index import Command as HaystackCommand
 
-from course_discovery.settings.process_synonyms import get_synonyms
+from course_discovery.apps.core.utils import ElasticsearchUtils
 
 logger = logging.getLogger(__name__)
 
@@ -70,24 +68,6 @@ class Command(HaystackCommand):
                 index_name(str): Name of the newly-created index.
         """
         alias = backend.index_name
-        index_name = self.create_timestamped_index(backend, alias)
+        index_name = ElasticsearchUtils.create_index(backend.conn, alias)
         backend.index_name = index_name
         return alias, index_name
-
-    def create_timestamped_index(self, backend, prefix):
-        """
-        Creates a new index whose name is prefixed with the specified value.
-
-        Args:
-            backend (ElasticsearchSearchBackend): Backend through which to connect to Elasticsearch.
-            prefix (str): Prefix for the index name
-
-        Returns:
-            index_name (str): Name of the new index.
-        """
-        timestamp = datetime.datetime.utcnow().strftime('%Y%m%d_%H%M%S')
-        index_name = '{alias}_{timestamp}'.format(alias=prefix, timestamp=timestamp)
-        index_settings = settings.ELASTICSEARCH_INDEX_SETTINGS
-        index_settings['settings']['analysis']['filter']['synonym']['synonyms'] = get_synonyms(backend.conn)
-        backend.conn.indices.create(index=index_name, body=index_settings)
-        return index_name
