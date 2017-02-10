@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-13 14:02+0500\n"
+"POT-Creation-Date: 2017-02-13 14:47+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -609,6 +609,13 @@ msgstr "Stüdïö ïnstänçé {updated_text} Ⱡ'σяєм ιρѕυм ∂σłσ�
 msgid "New Studio instance request for {title}"
 msgstr ""
 "Néw Stüdïö ïnstänçé réqüést för {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєт#"
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Changes to {title} are ready for review"
+msgstr ""
+"Çhängés tö {title} äré réädý för révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєт#"
 
 #: apps/publisher/forms.py
@@ -1372,7 +1379,6 @@ msgid "Save Draft"
 msgstr "Sävé Dräft Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_detail.html
 msgid "Course Form"
 msgstr "Çöürsé Förm Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
@@ -1981,6 +1987,10 @@ msgstr "Däshßöärd Ⱡ'σяєм ιρѕυм ∂σł#"
 #: templates/publisher/base.html templates/publisher/courses.html
 msgid "Courses"
 msgstr "Çöürsés Ⱡ'σяєм ιρѕυм #"
+
+#: templates/publisher/course_detail.html
+msgid "Course Detail"
+msgstr "Çöürsé Détäïl Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: templates/publisher/course_detail.html templates/publisher/courses.html
 #: templates/publisher/dashboard/_in_progress.html
@@ -2736,6 +2746,8 @@ msgstr ""
 #. Translators: It's closing of mail.
 #: templates/publisher/email/course_created.html
 #: templates/publisher/email/course_created.txt
+#: templates/publisher/email/send_for_review.html
+#: templates/publisher/email/send_for_review.txt
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
 #: templates/publisher/email/studio_instance_needed.html
@@ -2758,6 +2770,62 @@ msgstr ""
 "%(course_team_name)s çréätéd thé %(course_title)s : %(dashboard_url)s çöürsé"
 " ïn Püßlïshér ön %(date)s ät %(time)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя α#"
+
+#: templates/publisher/email/send_for_review.html
+#: templates/publisher/email/send_for_review.txt
+#, python-format
+msgid "Dear %(recipient_name)s,"
+msgstr "Déär %(recipient_name)s, Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: templates/publisher/email/send_for_review.html
+#, python-format
+msgid ""
+"New changes to %(link_start)s%(course_page_url)s%(link_middle)s "
+"%(course_name)s %(link_end)s are ready for your review. "
+"%(link_start)s%(course_page_url)s%(link_middle)s View this course in "
+"Publisher %(link_end)s to approve or decline the changes."
+msgstr ""
+"Néw çhängés tö %(link_start)s%(course_page_url)s%(link_middle)s "
+"%(course_name)s %(link_end)s äré réädý för ýöür révïéw. "
+"%(link_start)s%(course_page_url)s%(link_middle)s Vïéw thïs çöürsé ïn "
+"Püßlïshér %(link_end)s tö äpprövé ör déçlïné thé çhängés. Ⱡ'σяєм ιρѕυм ∂σłσя"
+" ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт"
+" łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ "
+"єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ "
+"αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ "
+"ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт "
+"ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαв#"
+
+#: templates/publisher/email/send_for_review.html
+#: templates/publisher/email/studio_instance_created.html
+#, python-format
+msgid ""
+"<p>Note: This email address is unable to receive replies. For questions or "
+"comments, contact %(contact_us_email)s.</p>"
+msgstr ""
+"<p>Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
+"çömménts, çöntäçt %(contact_us_email)s.</p> Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: templates/publisher/email/send_for_review.txt
+#, python-format
+msgid ""
+"New changes to %(course_name)s are ready for your review. "
+"%(course_page_url)s View this course in Publisher to approve or decline the "
+"changes."
+msgstr ""
+"Néw çhängés tö %(course_name)s äré réädý för ýöür révïéw. "
+"%(course_page_url)s Vïéw thïs çöürsé ïn Püßlïshér tö äpprövé ör déçlïné thé "
+"çhängés. Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: templates/publisher/email/send_for_review.txt
+#: templates/publisher/email/studio_instance_created.txt
+#, python-format
+msgid ""
+"Note: This email address is unable to receive replies. For questions or "
+"comments, contact %(contact_us_email)s."
+msgstr ""
+"Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
+"çömménts, çöntäçt %(contact_us_email)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
 #. Translators: course_team_name is course team member name.
 #: templates/publisher/email/studio_instance_created.html
@@ -2850,15 +2918,6 @@ msgstr ""
 "ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
 "¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєł#"
 
-#: templates/publisher/email/studio_instance_created.html
-#, python-format
-msgid ""
-"<p>Note: This email address is unable to receive replies. For questions or "
-"comments, contact %(contact_us_email)s.</p>"
-msgstr ""
-"<p>Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
-"çömménts, çöntäçt %(contact_us_email)s.</p> Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
-
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
 msgid ""
@@ -2868,15 +2927,6 @@ msgstr ""
 "ÉdX häs %(updated_text)s ä Stüdïö ïnstänçé för %(course_name)s: "
 "%(course_run_page_url)s. Ýöü çän nöw édït thïs çöürsé ïn Stüdïö. Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
-
-#: templates/publisher/email/studio_instance_created.txt
-#, python-format
-msgid ""
-"Note: This email address is unable to receive replies. For questions or "
-"comments, contact %(contact_us_email)s."
-msgstr ""
-"Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
-"çömménts, çöntäçt %(contact_us_email)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
 #: templates/publisher/email/studio_instance_needed.html
 #: templates/publisher/email/studio_instance_needed.txt

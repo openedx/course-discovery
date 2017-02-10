@@ -29,7 +29,11 @@
                             <span>{{ role_widget.ownership.days }} {% trans "day in ownership" %}</span>
                         {% endif %}
                         <div class="field-readonly user-full-name">
-                            {{ role_widget.course_role.user.full_name }}
+                            {% if role_widget.course_role.user.full_name %}
+                                {{ role_widget.course_role.user.full_name }}
+                            {% else %}
+                                {{ role_widget.course_role.user.username }}
+                            {% endif %}
                         </div>
                     </div>
                 </div>

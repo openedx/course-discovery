@@ -246,6 +246,16 @@ class CourseTests(TestCase):
         """ Verify that the partner property returns organization partner if exist. """
         self.assertEqual(self.course.partner, self.org_extension_1.organization.partner)
 
+    def test_marketing_reviewer(self):
+        """ Verify that the marketing_reviewer property returns user if exist. """
+        self.assertIsNone(self.course2.marketing_reviewer)
+
+        factories.CourseUserRoleFactory(
+            course=self.course2, user=self.user1, role=PublisherUserRole.MarketingReviewer
+        )
+
+        self.assertEqual(self.user1, self.course2.marketing_reviewer)
+
 
 class SeatTests(TestCase):
     """ Tests for the publisher `Seat` model. """
