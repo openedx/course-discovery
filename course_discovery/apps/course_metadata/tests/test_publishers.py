@@ -2,15 +2,12 @@ import mock
 import responses
 
 from course_discovery.apps.course_metadata.choices import ProgramStatus
+from course_discovery.apps.course_metadata.models import ProgramType
 from course_discovery.apps.course_metadata.publishers import (
-    MarketingSiteAPIClient,
-    MarketingSitePublisher,
-    ProgramPublisherException,
+    MarketingSiteAPIClient, MarketingSitePublisher, ProgramPublisherException
 )
 from course_discovery.apps.course_metadata.tests.factories import ProgramFactory
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
-
-from course_discovery.apps.course_metadata.models import ProgramType
 
 
 class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):

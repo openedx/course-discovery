@@ -1,6 +1,5 @@
 """Publisher API Serializers"""
 import waffle
-
 from django.apps import apps
 from django.utils.translation import ugettext_lazy as _
 from django_fsm import TransitionNotAllowed
@@ -10,7 +9,7 @@ from rest_framework import serializers
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.emails import send_email_for_studio_instance_created
-from course_discovery.apps.publisher.models import CourseUserRole, CourseRun, CourseState, CourseRunState
+from course_discovery.apps.publisher.models import CourseRun, CourseRunState, CourseState, CourseUserRole
 
 
 class CourseUserRoleSerializer(serializers.ModelSerializer):

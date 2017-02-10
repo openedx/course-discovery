@@ -4,11 +4,11 @@ from rest_framework.exceptions import ValidationError
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.publisher.api.serializers import (
-    CourseUserRoleSerializer, GroupUserSerializer, UpdateCourseKeySerializer, CourseRevisionSerializer,
-    CourseStateSerializer, CourseRunStateSerializer
+    CourseRevisionSerializer, CourseRunStateSerializer, CourseStateSerializer, CourseUserRoleSerializer,
+    GroupUserSerializer, UpdateCourseKeySerializer
 )
-from course_discovery.apps.publisher.choices import CourseStateChoices, CourseRunStateChoices
-from course_discovery.apps.publisher.models import CourseState, CourseRunState
+from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices
+from course_discovery.apps.publisher.models import CourseRunState, CourseState
 from course_discovery.apps.publisher.tests.factories import (
     CourseFactory, CourseRunFactory, CourseRunStateFactory, CourseStateFactory, CourseUserRoleFactory
 )

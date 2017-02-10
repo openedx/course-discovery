@@ -1,5 +1,5 @@
-from django.utils.functional import cached_property
 import requests
+from django.utils.functional import cached_property
 from stdimage.models import StdImageFieldFile
 from stdimage.utils import UploadTo
 

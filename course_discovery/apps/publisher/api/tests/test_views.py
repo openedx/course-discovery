@@ -2,8 +2,6 @@
 import json
 
 import ddt
-from mock import patch
-
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
@@ -11,13 +9,14 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from guardian.shortcuts import assign_perm
+from mock import patch
 
-from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
+from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.tests import toggle_switch
-from course_discovery.apps.publisher.choices import PublisherUserRole, CourseStateChoices, CourseRunStateChoices
+from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.constants import INTERNAL_USER_GROUP_NAME
-from course_discovery.apps.publisher.models import CourseRun, CourseState, CourseRunState, OrganizationExtension
-from course_discovery.apps.publisher.tests import factories, JSON_CONTENT_TYPE
+from course_discovery.apps.publisher.models import CourseRun, CourseRunState, CourseState, OrganizationExtension
+from course_discovery.apps.publisher.tests import JSON_CONTENT_TYPE, factories
 
 
 @ddt.ddt

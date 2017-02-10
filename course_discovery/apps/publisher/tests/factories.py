@@ -1,9 +1,9 @@
 from datetime import datetime
 
-from django.contrib.auth.models import Group
-
 import factory
-from factory.fuzzy import FuzzyText, FuzzyChoice, FuzzyDecimal, FuzzyDateTime, FuzzyInteger
+from django.contrib.auth.models import Group
+# pylint:disable=ungrouped-imports
+from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
 from pytz import UTC
 
 from course_discovery.apps.core.models import Currency
@@ -13,8 +13,8 @@ from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.models import (
-    Course, CourseRun, CourseUserRole, OrganizationExtension, OrganizationUserRole, Seat, State,
-    UserAttributes, CourseState, CourseRunState
+    Course, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension, OrganizationUserRole, Seat,
+    State, UserAttributes
 )
 
 

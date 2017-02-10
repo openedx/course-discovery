@@ -5,8 +5,8 @@ from django.core.management import BaseCommand
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.models import Program
 from course_discovery.apps.course_metadata.tests.factories import (
-    OrganizationFactory, CorporateEndorsementFactory, EndorsementFactory, ExpectedLearningItemFactory,
-    FAQFactory, JobOutlookItemFactory, ProgramFactory, CourseFactory, CourseRunFactory
+    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, EndorsementFactory, ExpectedLearningItemFactory,
+    FAQFactory, JobOutlookItemFactory, OrganizationFactory, ProgramFactory
 )
 
 logger = logging.getLogger(__name__)

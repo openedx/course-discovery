@@ -6,7 +6,6 @@ from django.test import TestCase
 from course_discovery.apps.course_metadata.models import ProgramType
 from course_discovery.apps.course_metadata.tests import factories, toggle_switch
 
-
 MARKETING_SITE_PUBLISHERS_MODULE = 'course_discovery.apps.course_metadata.publishers.MarketingSitePublisher'
 
 

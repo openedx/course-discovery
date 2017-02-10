@@ -4,7 +4,7 @@ import ddt
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
+from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 

@@ -1,5 +1,5 @@
 from django.utils.translation import ugettext_lazy as _
-from djchoices import DjangoChoices, ChoiceItem
+from djchoices import ChoiceItem, DjangoChoices
 
 
 class CourseRunStatus(DjangoChoices):

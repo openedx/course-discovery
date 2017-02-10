@@ -1,7 +1,8 @@
-from functools import lru_cache
 import importlib
+from functools import lru_cache
 
 from django.conf import settings
+
 
 def process_synonyms(es, synonyms):
     """Convert synonyms to analyzed form with snowball analyzer.
@@ -25,9 +26,11 @@ def process_synonyms(es, synonyms):
         processed_synonyms.append(processed_line)
     return processed_synonyms
 
+
 def get_synonym_lines_from_file():
     synonyms_module = importlib.import_module(settings.SYNONYMS_MODULE)
     return synonyms_module.SYNONYMS
+
 
 @lru_cache()
 def get_synonyms(es):

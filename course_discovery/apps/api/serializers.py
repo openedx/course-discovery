@@ -8,18 +8,17 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models.query import Prefetch
 from django.utils.translation import ugettext_lazy as _
-from drf_haystack.serializers import HaystackSerializer, HaystackFacetSerializer
+from drf_haystack.serializers import HaystackFacetSerializer, HaystackSerializer
 from rest_framework import serializers
 from rest_framework.fields import DictField
-from taggit_serializer.serializers import TagListSerializerField, TaggitSerializer
+from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
-from course_discovery.apps.api.fields import StdImageSerializerField, ImageField
+from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Image, Organization, Person, Prerequisite, Seat, Subject, Video, Program, ProgramType, FAQ,
-    CorporateEndorsement, Endorsement, Position, PersonWork
-)
+from course_discovery.apps.course_metadata.models import (FAQ, CorporateEndorsement, Course, CourseRun, Endorsement,
+                                                          Image, Organization, Person, PersonWork, Position,
+                                                          Prerequisite, Program, ProgramType, Seat, Subject, Video)
 from course_discovery.apps.course_metadata.search_indexes import CourseIndex, CourseRunIndex, ProgramIndex
 
 User = get_user_model()

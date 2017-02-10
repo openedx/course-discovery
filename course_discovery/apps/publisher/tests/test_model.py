@@ -1,18 +1,16 @@
 # pylint: disable=no-member
 import ddt
-from django.db import IntegrityError
 from django.core.urlresolvers import reverse
+from django.db import IntegrityError
 from django.test import TestCase
 from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import assign_perm
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
-from course_discovery.apps.publisher.choices import PublisherUserRole, CourseStateChoices, CourseRunStateChoices
+from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.mixins import check_course_organization_permission
-from course_discovery.apps.publisher.models import (
-    State, CourseUserRole, OrganizationExtension, OrganizationUserRole
-)
+from course_discovery.apps.publisher.models import CourseUserRole, OrganizationExtension, OrganizationUserRole, State
 from course_discovery.apps.publisher.tests import factories
 
 

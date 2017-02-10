@@ -4,39 +4,36 @@ from datetime import datetime, timedelta
 
 import ddt
 import factory
-from mock import patch
-
-from django.db import IntegrityError
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse
 from django.core import mail
+from django.core.urlresolvers import reverse
+from django.db import IntegrityError
 from django.forms import model_to_dict
 from django.test import TestCase
 from guardian.shortcuts import assign_perm
+from mock import patch
 from testfixtures import LogCapture
 
 from course_discovery.apps.core.models import User
-from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
+from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.constants import (
-    INTERNAL_USER_GROUP_NAME, ADMIN_GROUP_NAME, PARTNER_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME
+    ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PARTNER_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME
 )
-from course_discovery.apps.publisher.models import Course, CourseRun, Seat, State, OrganizationExtension
+from course_discovery.apps.publisher.models import Course, CourseRun, OrganizationExtension, Seat, State
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
-from course_discovery.apps.publisher.utils import is_email_notification_enabled, get_internal_users
-from course_discovery.apps.publisher.views import (
-    CourseRunDetailView, logger as publisher_views_logger, ROLE_WIDGET_HEADINGS
-)
+from course_discovery.apps.publisher.utils import get_internal_users, is_email_notification_enabled
+from course_discovery.apps.publisher.views import logger as publisher_views_logger
+from course_discovery.apps.publisher.views import ROLE_WIDGET_HEADINGS, CourseRunDetailView
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
-
 
 IMAGE_TOO_SMALL = 'The image you uploaded is too small. The required minimum resolution is: 2120x1192 px.'
 IMAGE_TOO_LARGE = 'The image you uploaded is too large. The required maximum resolution is: 2120x1192 px.'

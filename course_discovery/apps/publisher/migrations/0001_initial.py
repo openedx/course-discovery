@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import migrations, models
+import django.db.models.deletion
+import django_extensions.db.fields
 import sortedm2m.fields
 from django.conf import settings
-import django.db.models.deletion
-import course_discovery.apps.publisher.models
-import django_extensions.db.fields
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):

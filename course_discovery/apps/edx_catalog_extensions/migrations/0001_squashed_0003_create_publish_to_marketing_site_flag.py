@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-
 PAID_SEAT_TYPES = ('credit', 'professional', 'verified',)
 PROGRAM_TYPES = ('XSeries', 'MicroMasters',)
 

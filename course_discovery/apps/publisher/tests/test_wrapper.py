@@ -2,8 +2,8 @@
 from datetime import datetime, timedelta
 from unittest import mock
 
-from django.test import TestCase
 import ddt
+from django.test import TestCase
 
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory

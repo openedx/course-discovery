@@ -1,14 +1,11 @@
 from datetime import datetime
 
 import factory
-from factory.fuzzy import FuzzyText, FuzzyChoice, FuzzyDateTime, FuzzyInteger, FuzzyDecimal
+from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
 from pytz import UTC
 
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import FuzzyURL
-from course_discovery.apps.course_metadata.choices import (
-    CourseRunStatus, CourseRunPacing, ProgramStatus, ReportingType
-)
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 

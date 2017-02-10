@@ -1,9 +1,8 @@
 import ddt
-from django.test import TestCase
 import mock
+from django.test import TestCase
 
 from course_discovery.apps.api.utils import cast2int
-
 
 LOGGER_PATH = 'course_discovery.apps.api.utils.logger.exception'
 

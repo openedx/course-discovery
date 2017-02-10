@@ -3,18 +3,18 @@ Course publisher forms.
 """
 from dal import autocomplete
 from django import forms
-from django.template.loader import render_to_string
 from django.core.exceptions import ValidationError
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
-from course_discovery.apps.course_metadata.models import Person, Organization, Subject
+from course_discovery.apps.course_metadata.models import Organization, Person, Subject
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.mixins import LanguageModelSelect2Multiple, check_roles_access
 from course_discovery.apps.publisher.models import (
-    Course, CourseRun, Seat, User, OrganizationExtension, OrganizationUserRole, CourseUserRole
+    Course, CourseRun, CourseUserRole, OrganizationExtension, OrganizationUserRole, Seat, User
 )
 
 

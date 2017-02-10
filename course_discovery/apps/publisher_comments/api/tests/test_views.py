@@ -3,7 +3,7 @@ import json
 from django.test import TestCase
 from rest_framework.reverse import reverse
 
-from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
+from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.publisher.tests import JSON_CONTENT_TYPE
 from course_discovery.apps.publisher_comments.models import Comments
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory

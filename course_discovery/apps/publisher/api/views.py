@@ -1,4 +1,4 @@
-from rest_framework.generics import UpdateAPIView, ListAPIView, get_object_or_404, RetrieveAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 
 from course_discovery.apps.core.models import User
@@ -6,11 +6,11 @@ from course_discovery.apps.publisher.api.permissions import (
     CanViewAssociatedCourse, InternalUserPermission, PublisherUserPermission
 )
 from course_discovery.apps.publisher.api.serializers import (
-    CourseUserRoleSerializer, GroupUserSerializer, UpdateCourseKeySerializer, CourseRevisionSerializer,
-    CourseStateSerializer, CourseRunStateSerializer
+    CourseRevisionSerializer, CourseRunStateSerializer, CourseStateSerializer, CourseUserRoleSerializer,
+    GroupUserSerializer, UpdateCourseKeySerializer
 )
 from course_discovery.apps.publisher.models import (
-    Course, CourseState, CourseRun, CourseRunState, CourseUserRole, OrganizationExtension
+    Course, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension
 )
 
 

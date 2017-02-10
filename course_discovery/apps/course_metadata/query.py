@@ -4,8 +4,7 @@ import pytz
 from django.db import models
 from django.db.models.query_utils import Q
 
-from course_discovery.apps.course_metadata.choices import CourseRunStatus
-from course_discovery.apps.course_metadata.choices import ProgramStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 
 
 class CourseQuerySet(models.QuerySet):

@@ -4,33 +4,28 @@ Course publisher views.
 import json
 import logging
 from datetime import datetime, timedelta
-import waffle
 
+import waffle
 from django.contrib import messages
-from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import HttpResponseRedirect, JsonResponse, Http404
-from django.shortcuts import render, get_object_or_404
+from django.http import Http404, HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import View, CreateView, UpdateView, DetailView, ListView
+from django.views.generic import CreateView, DetailView, ListView, UpdateView, View
 from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import get_objects_for_user
 
 from course_discovery.apps.core.models import User
+from course_discovery.apps.publisher import emails, mixins
 from course_discovery.apps.publisher.choices import PublisherUserRole
-from course_discovery.apps.publisher import emails
-from course_discovery.apps.publisher.forms import (
-    SeatForm, CustomCourseForm, CustomCourseRunForm, CustomSeatForm
-)
-from course_discovery.apps.publisher import mixins
+from course_discovery.apps.publisher.forms import CustomCourseForm, CustomCourseRunForm, CustomSeatForm, SeatForm
 from course_discovery.apps.publisher.models import (
-    Course, CourseRun, Seat, State, UserAttributes,
-    OrganizationExtension, CourseUserRole)
+    Course, CourseRun, CourseUserRole, OrganizationExtension, Seat, State, UserAttributes
+)
 from course_discovery.apps.publisher.utils import (
-    is_internal_user, get_internal_users, is_publisher_admin,
-    is_partner_coordinator_user,
-    make_bread_crumbs
+    get_internal_users, is_internal_user, is_partner_coordinator_user, is_publisher_admin, make_bread_crumbs
 )
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 

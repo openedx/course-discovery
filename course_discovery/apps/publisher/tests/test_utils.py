@@ -1,27 +1,23 @@
 """ Tests publisher.utils"""
 import ddt
-
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory, TestCase
+from guardian.shortcuts import assign_perm
 from mock import Mock
 
-from guardian.shortcuts import assign_perm
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.publisher.constants import (
-    REVIEWER_GROUP_NAME, ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME,
-    PARTNER_COORDINATOR_GROUP_NAME
+    ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PARTNER_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME
 )
 from course_discovery.apps.publisher.mixins import (
-    check_course_organization_permission, check_roles_access,
-    publisher_user_required
+    check_course_organization_permission, check_roles_access, publisher_user_required
 )
 from course_discovery.apps.publisher.models import OrganizationExtension
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.utils import (
-    is_email_notification_enabled, is_publisher_admin, is_internal_user,
-    get_internal_users, is_partner_coordinator_user, is_publisher_user,
-    make_bread_crumbs
+    get_internal_users, is_email_notification_enabled, is_internal_user, is_partner_coordinator_user,
+    is_publisher_admin, is_publisher_user, make_bread_crumbs
 )
 
 

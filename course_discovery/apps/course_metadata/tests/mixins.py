@@ -1,9 +1,9 @@
 import json
 import urllib
 
-from django.test import TestCase
-from factory.fuzzy import FuzzyText, FuzzyInteger
 import responses
+from django.test import TestCase
+from factory.fuzzy import FuzzyInteger, FuzzyText
 
 from course_discovery.apps.core.tests.utils import FuzzyUrlRoot
 

@@ -3,14 +3,14 @@ import datetime
 import urllib
 
 import ddt
-from django.contrib.auth import get_user_model
 import pytz
 import responses
+from django.contrib.auth import get_user_model
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
 from course_discovery.apps.api.tests.jwt_utils import generate_jwt_header_for_user
-from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin, OAuth2Mixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin, SerializationMixin
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory

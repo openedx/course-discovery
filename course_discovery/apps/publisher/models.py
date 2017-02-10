@@ -1,6 +1,7 @@
 import logging
 from urllib.parse import urljoin
 
+import waffle
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -14,14 +15,13 @@ from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
 from stdimage.validators import MaxSizeValidator, MinSizeValidator
 from taggit.managers import TaggableManager
-import waffle
 
-from course_discovery.apps.core.models import User, Currency
+from course_discovery.apps.core.models import Currency, User
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
-from course_discovery.apps.course_metadata.models import LevelType, Subject, Person, Organization
+from course_discovery.apps.course_metadata.models import LevelType, Organization, Person, Subject
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.choices import PublisherUserRole, CourseStateChoices, CourseRunStateChoices
+from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.emails import send_email_for_change_state
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
 

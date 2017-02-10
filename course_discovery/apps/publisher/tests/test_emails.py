@@ -1,20 +1,21 @@
 # pylint: disable=no-member
 import datetime
+
 import ddt
+import mock
+import pytz
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.core import mail
-import pytz
-import mock
 from testfixtures import LogCapture
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.publisher import emails
 from course_discovery.apps.publisher.choices import PublisherUserRole
-from course_discovery.apps.publisher.models import State, CourseUserRole
+from course_discovery.apps.publisher.models import CourseUserRole, State
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.factories import UserAttributeFactory
 

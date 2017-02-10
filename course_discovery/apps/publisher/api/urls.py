@@ -2,8 +2,8 @@
 from django.conf.urls import url
 
 from course_discovery.apps.publisher.api.views import (
-    CourseRoleAssignmentView, OrganizationGroupUserView, UpdateCourseKeyView, CourseRevisionDetailView,
-    ChangeCourseStateView, ChangeCourseRunStateView
+    ChangeCourseRunStateView, ChangeCourseStateView, CourseRevisionDetailView, CourseRoleAssignmentView,
+    OrganizationGroupUserView, UpdateCourseKeyView
 )
 
 urlpatterns = [

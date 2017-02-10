@@ -1,6 +1,5 @@
 import os
 
-
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'course_discovery.apps.edx_haystack_extensions.backends.EdxElasticsearchSearchEngine',

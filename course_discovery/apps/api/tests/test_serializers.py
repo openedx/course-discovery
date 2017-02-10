@@ -3,22 +3,22 @@ import datetime
 from urllib.parse import urlencode
 
 import ddt
+import pytz
 from django.test import TestCase
 from haystack.query import SearchQuerySet
 from opaque_keys.edx.keys import CourseKey
-import pytz
 from rest_framework.test import APIRequestFactory
 
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.api.serializers import (
-    CatalogSerializer, CourseRunSerializer, ContainedCoursesSerializer, ImageSerializer,
-    SubjectSerializer, PrerequisiteSerializer, VideoSerializer, OrganizationSerializer, SeatSerializer,
-    PersonSerializer, AffiliateWindowSerializer, ContainedCourseRunsSerializer, CourseRunSearchSerializer,
-    ProgramSerializer, ProgramSearchSerializer, MinimalProgramCourseSerializer, NestedProgramSerializer,
-    CourseRunWithProgramsSerializer, CourseWithProgramsSerializer, CorporateEndorsementSerializer,
-    FAQSerializer, EndorsementSerializer, PositionSerializer, FlattenedCourseRunWithCourseSerializer,
-    MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalCourseRunSerializer, MinimalProgramSerializer,
-    CourseSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, ProgramTypeSerializer
+    AffiliateWindowSerializer, CatalogSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer,
+    CorporateEndorsementSerializer, CourseRunSearchSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer,
+    CourseSerializer, CourseWithProgramsSerializer, EndorsementSerializer, FAQSerializer,
+    FlattenedCourseRunWithCourseSerializer, ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer,
+    MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
+    OrganizationSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer, ProgramSearchSerializer,
+    ProgramSerializer, ProgramTypeSerializer, SeatSerializer, SubjectSerializer, TypeaheadCourseRunSearchSerializer,
+    TypeaheadProgramSearchSerializer, VideoSerializer
 )
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import User
@@ -28,9 +28,9 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, SubjectFactory, PrerequisiteFactory, ImageFactory, VideoFactory,
-    OrganizationFactory, PersonFactory, SeatFactory, ProgramFactory, CorporateEndorsementFactory, EndorsementFactory,
-    JobOutlookItemFactory, ExpectedLearningItemFactory, PositionFactory, ProgramTypeFactory
+    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, EndorsementFactory, ExpectedLearningItemFactory,
+    ImageFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, PositionFactory, PrerequisiteFactory,
+    ProgramFactory, ProgramTypeFactory, SeatFactory, SubjectFactory, VideoFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 

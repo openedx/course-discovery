@@ -1,4 +1,4 @@
-from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
+from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.publisher.tests import factories
 
 

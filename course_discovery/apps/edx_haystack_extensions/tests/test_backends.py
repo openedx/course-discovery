@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from course_discovery.apps.edx_haystack_extensions.backends import EdxElasticsearchSearchBackend
 from course_discovery.apps.edx_haystack_extensions.tests.mixins import (
-    SimpleQuerySearchBackendMixinTestMixin, NonClearingSearchBackendMixinTestMixin
+    NonClearingSearchBackendMixinTestMixin, SimpleQuerySearchBackendMixinTestMixin
 )
 
 

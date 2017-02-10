@@ -8,7 +8,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.publisher.models import CourseRun
 
-
 log = logging.getLogger(__name__)
 
 

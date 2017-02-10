@@ -1,6 +1,6 @@
 """ Publisher context processor tests. """
 
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory, TestCase
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.publisher.context_processors import publisher

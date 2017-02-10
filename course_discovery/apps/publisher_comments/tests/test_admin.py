@@ -3,10 +3,10 @@ from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
+from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.publisher.tests import factories
-from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
 from course_discovery.apps.publisher_comments.forms import CommentsAdminForm
+from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
 
 
 class AdminTests(TestCase):

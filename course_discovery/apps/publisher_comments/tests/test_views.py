@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.forms import model_to_dict
 from django.test import TestCase
 
-from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
+from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.models import Seat

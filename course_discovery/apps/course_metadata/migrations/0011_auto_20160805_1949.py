@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import migrations, models
 import django.db.models.deletion
 import django_extensions.db.fields
-import sortedm2m.fields
 import djchoices.choices
+import sortedm2m.fields
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):

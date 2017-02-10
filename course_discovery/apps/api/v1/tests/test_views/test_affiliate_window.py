@@ -1,7 +1,7 @@
 # pylint: disable=redefined-builtin,no-member
 import datetime
-from os.path import abspath, join, dirname
 import xml.etree.ElementTree as ET
+from os.path import abspath, dirname, join
 
 import ddt
 import pytz

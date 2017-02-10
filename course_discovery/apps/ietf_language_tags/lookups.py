@@ -1,6 +1,6 @@
+from dal import autocomplete
 from django.db.models import Q
 
-from dal import autocomplete
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 

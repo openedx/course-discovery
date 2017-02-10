@@ -7,7 +7,7 @@ import pytz
 from django.conf import settings
 from django.db.models.functions import Lower
 from rest_framework.reverse import reverse
-from rest_framework.test import APITestCase, APIRequestFactory
+from rest_framework.test import APIRequestFactory, APITestCase
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
 from course_discovery.apps.core.tests.factories import UserFactory

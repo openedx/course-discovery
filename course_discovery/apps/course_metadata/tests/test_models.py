@@ -3,6 +3,7 @@ from decimal import Decimal
 
 import ddt
 import mock
+import responses
 from dateutil.parser import parse
 from django.conf import settings
 from django.db import IntegrityError
@@ -10,7 +11,6 @@ from django.db.models.functions import Lower
 from django.test import TestCase
 from factory.fuzzy import FuzzyText
 from freezegun import freeze_time
-import responses
 
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.helpers import make_image_file
@@ -18,8 +18,8 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    AbstractMediaModel, AbstractNamedModel, AbstractValueModel,
-    CorporateEndorsement, Course, CourseRun, Endorsement, FAQ, Seat, SeatType, ProgramType,
+    FAQ, AbstractMediaModel, AbstractNamedModel, AbstractValueModel, CorporateEndorsement, Course, CourseRun,
+    Endorsement, ProgramType, Seat, SeatType
 )
 from course_discovery.apps.course_metadata.publishers import MarketingSitePublisher
 from course_discovery.apps.course_metadata.tests import factories, toggle_switch

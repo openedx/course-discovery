@@ -1,4 +1,5 @@
 from dal import autocomplete
+
 from course_discovery.apps.core.models import User
 
 

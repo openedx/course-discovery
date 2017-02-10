@@ -1,6 +1,6 @@
 """ Context processor tests. """
 
-from django.test import TestCase, override_settings, RequestFactory
+from django.test import RequestFactory, TestCase, override_settings
 
 from course_discovery.apps.core.context_processors import core
 

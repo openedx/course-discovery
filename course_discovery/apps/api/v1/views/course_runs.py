@@ -1,13 +1,13 @@
 from django.db.models.functions import Lower
-from rest_framework import viewsets, status
+from rest_framework import status, viewsets
 from rest_framework.decorators import list_route
 from rest_framework.filters import DjangoFilterBackend, OrderingFilter
-from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
+from rest_framework.permissions import DjangoModelPermissions, IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
-from course_discovery.apps.api.v1.views import get_query_param, PartnerMixin
+from course_discovery.apps.api.v1.views import PartnerMixin, get_query_param
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.models import CourseRun

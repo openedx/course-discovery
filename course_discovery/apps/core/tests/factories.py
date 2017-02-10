@@ -1,7 +1,7 @@
 import factory
 from factory.fuzzy import FuzzyText
 
-from course_discovery.apps.core.models import User, Partner
+from course_discovery.apps.core.models import Partner, User
 from course_discovery.apps.core.tests.utils import FuzzyUrlRoot
 
 USER_PASSWORD = 'password'

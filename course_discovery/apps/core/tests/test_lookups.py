@@ -3,7 +3,7 @@ import json
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
+from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 
 
 class UserAutocompleteTests(TestCase):

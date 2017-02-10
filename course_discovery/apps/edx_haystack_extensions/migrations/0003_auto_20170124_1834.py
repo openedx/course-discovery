@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
+
 def add_professional_certificate_boosting(apps, schema_editor):
     """ Update ElasticsearchBoostConfig to include professional certificate boosting."""
 
