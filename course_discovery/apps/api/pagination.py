@@ -11,6 +11,7 @@ class ProxiedCall:
     Utility class used in conjunction with ProxiedPagination to route method
     calls between pagination classes.
     """
+
     def __init__(self, proxy, method_name):
         self.proxy = proxy
         self.method_name = method_name
@@ -66,6 +67,7 @@ class ProxiedPagination:
 
     If no query parameters are passed, proxies to LimitOffsetPagination by default.
     """
+
     def __init__(self):
         page_number_paginator = PageNumberPagination()
         limit_offset_paginator = LimitOffsetPagination()

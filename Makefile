@@ -42,6 +42,7 @@ test: clean ## Run tests and generate coverage report
 	coverage report
 
 quality: ## Run pep8 and Pylint
+	isort --check-only --recursive acceptance_tests/ course_discovery/
 	pep8 --config=.pep8 acceptance_tests course_discovery *.py
 	pylint --rcfile=pylintrc acceptance_tests course_discovery *.py
 
