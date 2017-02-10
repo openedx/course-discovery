@@ -1,0 +1,15 @@
+{% load i18n %}
+
+{% blocktrans trimmed %}
+    Dear {{ recipient_name }},
+{% endblocktrans %}
+{% blocktrans trimmed %}
+     New changes to {{ course_name }} are ready for your review. {{ course_page_url }} View this course in Publisher to approve or decline the changes.
+{% endblocktrans %}
+
+{% trans "Thanks," %}
+{{ sender_name }}
+
+{% blocktrans trimmed %}
+    Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.
+{% endblocktrans %}

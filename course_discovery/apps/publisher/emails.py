@@ -146,3 +146,47 @@ def send_email_for_course_creation(course, course_run):
         logger.exception(
             'Failed to send email notifications for creation of course [%s]', course_run.course.id
         )
+
+
+def send_email_for_send_for_review(course, user):
+    """ Send email when course is submitted for review.
+
+        Arguments:
+            course (Object): Course object
+            user (Object): User object
+    """
+
+    try:
+        txt_template = 'publisher/email/send_for_review.txt'
+        html_template = 'publisher/email/send_for_review.html'
+
+        recipient_user = course.marketing_reviewer
+        user_role = course.course_user_roles.get(user=user)
+        if user_role.role == PublisherUserRole.MarketingReviewer:
+            recipient_user = course.course_team_admin
+
+        to_addresses = [recipient_user.email]
+        from_address = settings.PUBLISHER_FROM_EMAIL
+        page_path = reverse('publisher:publisher_course_detail', kwargs={'pk': course.id})
+        context = {
+            'recipient_name': recipient_user.full_name or recipient_user.username if recipient_user else '',
+            'sender_name': user.full_name or user.username,
+            'course_name': course.title,
+            'course_page_url': 'https://{host}{path}'.format(
+                host=Site.objects.get_current().domain.strip('/'), path=page_path
+            )
+        }
+        template = get_template(txt_template)
+        plain_content = template.render(context)
+        template = get_template(html_template)
+        html_content = template.render(context)
+
+        subject = _('Changes to {title} are ready for review').format(title=course.title)  # pylint: disable=no-member
+
+        email_msg = EmailMultiAlternatives(
+            subject, plain_content, from_address, to_addresses
+        )
+        email_msg.attach_alternative(html_content, 'text/html')
+        email_msg.send()
+    except Exception:  # pylint: disable=broad-except
+        logger.exception('Failed to send email notifications send for review of course %s', course.id)

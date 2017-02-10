@@ -15,7 +15,11 @@
             <div class="role-assignment-container">
                 <div id="userRoleContainer-{{ role_widget.user_course_role.role }}">
                     <span id="userFullName-{{ role_widget.user_course_role.role }}" class="field-readonly user-full-name">
-                        {{ role_widget.user_course_role.user.full_name }}
+                        {% if role_widget.user_course_role.user.full_name %}
+                            {{ role_widget.user_course_role.user.full_name }}
+                        {% else %}
+                            {{ role_widget.user_course_role.user.username }}
+                        {% endif %}
                     </span>
                     <a class="change-role-assignment" data-role="{{ role_widget.user_course_role.role }}" href="#">
                         {% trans "change owner" %}

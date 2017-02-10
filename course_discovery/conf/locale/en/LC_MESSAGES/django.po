@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-13 14:02+0500\n"
+"POT-Creation-Date: 2017-02-13 14:47+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -491,6 +491,11 @@ msgstr ""
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "New Studio instance request for {title}"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Changes to {title} are ready for review"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -1181,7 +1186,6 @@ msgid "Save Draft"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_detail.html
 msgid "Course Form"
 msgstr ""
 
@@ -1639,6 +1643,10 @@ msgstr ""
 
 #: templates/publisher/base.html templates/publisher/courses.html
 msgid "Courses"
+msgstr ""
+
+#: templates/publisher/course_detail.html
+msgid "Course Detail"
 msgstr ""
 
 #: templates/publisher/course_detail.html templates/publisher/courses.html
@@ -2333,6 +2341,8 @@ msgstr ""
 #. Translators: It's closing of mail.
 #: templates/publisher/email/course_created.html
 #: templates/publisher/email/course_created.txt
+#: templates/publisher/email/send_for_review.html
+#: templates/publisher/email/send_for_review.txt
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
 #: templates/publisher/email/studio_instance_needed.html
@@ -2351,6 +2361,45 @@ msgstr ""
 msgid ""
 "%(course_team_name)s created the %(course_title)s : %(dashboard_url)s course"
 " in Publisher on %(date)s at %(time)s."
+msgstr ""
+
+#: templates/publisher/email/send_for_review.html
+#: templates/publisher/email/send_for_review.txt
+#, python-format
+msgid "Dear %(recipient_name)s,"
+msgstr ""
+
+#: templates/publisher/email/send_for_review.html
+#, python-format
+msgid ""
+"New changes to %(link_start)s%(course_page_url)s%(link_middle)s "
+"%(course_name)s %(link_end)s are ready for your review. "
+"%(link_start)s%(course_page_url)s%(link_middle)s View this course in "
+"Publisher %(link_end)s to approve or decline the changes."
+msgstr ""
+
+#: templates/publisher/email/send_for_review.html
+#: templates/publisher/email/studio_instance_created.html
+#, python-format
+msgid ""
+"<p>Note: This email address is unable to receive replies. For questions or "
+"comments, contact %(contact_us_email)s.</p>"
+msgstr ""
+
+#: templates/publisher/email/send_for_review.txt
+#, python-format
+msgid ""
+"New changes to %(course_name)s are ready for your review. "
+"%(course_page_url)s View this course in Publisher to approve or decline the "
+"changes."
+msgstr ""
+
+#: templates/publisher/email/send_for_review.txt
+#: templates/publisher/email/studio_instance_created.txt
+#, python-format
+msgid ""
+"Note: This email address is unable to receive replies. For questions or "
+"comments, contact %(contact_us_email)s."
 msgstr ""
 
 #. Translators: course_team_name is course team member name.
@@ -2416,25 +2465,11 @@ msgid ""
 "build your course. We recommend that you use the list early!"
 msgstr ""
 
-#: templates/publisher/email/studio_instance_created.html
-#, python-format
-msgid ""
-"<p>Note: This email address is unable to receive replies. For questions or "
-"comments, contact %(contact_us_email)s.</p>"
-msgstr ""
-
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
 msgid ""
 "EdX has %(updated_text)s a Studio instance for %(course_name)s: "
 "%(course_run_page_url)s. You can now edit this course in Studio."
-msgstr ""
-
-#: templates/publisher/email/studio_instance_created.txt
-#, python-format
-msgid ""
-"Note: This email address is unable to receive replies. For questions or "
-"comments, contact %(contact_us_email)s."
 msgstr ""
 
 #: templates/publisher/email/studio_instance_needed.html
