@@ -1,6 +1,7 @@
 import itertools
 import datetime
 from decimal import Decimal
+import random
 
 import ddt
 import mock
@@ -64,6 +65,94 @@ class CourseTests(ElasticsearchTestMixin, TestCase):
         """ Test that the index update process failing will not cause the course save to error """
         with mock.patch.object(Course, 'reindex_course_runs', side_effect=Exception):
             self.course.save()
+
+    def test_select_course_run_for_indexing(self):
+        """
+        Verify that the CourseRun returned is the one that best satisfies the following criteria:
+        - Public Visibility: The general public can view the CourseRun.
+        - Enrollability: A user can enroll in the CourseRun.
+        - Consumability: A user can consume Course content.
+        - Purchasability: A user can purchase a paid Seat.
+        """
+
+        # List of config options to use when building CourseRuns and the priority with which they should be
+        # returned by select_course_run_for_indexing (lower numbers indicate higher priority).
+        course_run_priorities_and_configs = [
+            (0, ('is_publicly_visible', 'is_enrollable', 'is_consumable', 'is_or_will_be_purchasable')),
+            (1, ('is_publicly_visible', 'is_enrollable', 'is_consumable')),
+            (2, ('is_publicly_visible', 'is_enrollable', 'is_or_will_be_purchasable')),
+            (3, ('is_publicly_visible', 'is_enrollable')),
+            (4, ('is_publicly_visible', 'will_be_enrollable', 'is_or_will_be_purchasable')),
+            (5, ('is_publicly_visible', 'will_be_enrollable')),
+            (6, ('is_publicly_visible')),
+            (7, ())
+        ]
+
+        # Create the Course
+        course = factories.CourseFactory.create()
+
+        # Create the CourseRuns in random order, but assign them to course_runs in priority order.
+        course_runs = [None] * len(course_run_priorities_and_configs)
+        random.shuffle(course_run_priorities_and_configs)
+        for priority_and_config in course_run_priorities_and_configs:
+            priority, config = priority_and_config
+            course_run = factories.CourseRunFactory.create(course=course)
+
+            # Set enrollability
+            if 'is_enrollable' in config:
+                course_run.enrollment_start = None
+                course_run.enrollment_end = None
+                assert course_run.is_enrollable
+            elif 'will_be_enrollable' in config:
+                course_run.enrollment_start = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
+                course_run.enrollment_end = None
+                assert course_run.will_be_enrollable
+            else:
+                course_run.enrollment_start = None
+                course_run.enrollment_end = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1)
+                assert not (course_run.is_enrollable or course_run.will_be_enrollable)
+
+            # Set consumability
+            if 'is_consumable' in config:
+                course_run.start = None
+                assert course_run.is_consumable
+            else:
+                course_run.start = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
+                assert not course_run.is_consumable
+
+            # Set public visibility
+            if 'is_publicly_visible' in config:
+                course_run.status = CourseRunStatus.Published
+                course_run.hidden = False
+                factories.SeatFactory.create(course_run=course_run, price=0)
+                assert course_run.is_publicly_visible
+            else:
+                course_run.status = CourseRunStatus.Unpublished
+                course_run.hidden = True
+                course_run.seats.all().delete()
+                assert not course_run.is_publicly_visible
+
+            # Set purchasability
+            if 'is_or_will_be_purchasable' in config:
+                # Cannot purchase upgrades for CourseRun that has ended
+                course_run.end = None
+                factories.SeatFactory.create(course_run=course_run, price=1, type=Seat.VERIFIED, upgrade_deadline=None)
+                assert course_run.is_or_will_be_purchasable
+            else:
+                course_run.seats.filter(price__gt=0).delete()
+                assert not course_run.is_or_will_be_purchasable
+
+            course_run.save()
+            course_runs[priority] = course_run
+
+        # Verify that the selected course run is the one with the highest priority, then delete that one and verify
+        # that the CourseRun selected next is the one with the next highest priority, and so on.
+        for course_run in course_runs:
+            assert course_run.uuid == course.select_course_run_for_indexing().uuid
+            course_run.delete()
+
+        # All of the CourseRuns have been deleted, so now calling select_course_run_for_indexing should return None
+        assert course.select_course_run_for_indexing() is None
 
 
 @ddt.ddt

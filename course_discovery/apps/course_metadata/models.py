@@ -345,6 +345,46 @@ class Course(TimeStampedModel):
         for course_run in self.course_runs.all():
             index.update_object(course_run)
 
+    def select_course_run_for_indexing(self):
+        """
+        Return the CourseRun from which data should be extracted when indexing this Course for search.
+        The CourseRun that best satisfies the following criteria should be returned:
+        - Public Visibility: The general public can view the CourseRun.
+        - Enrollability: A user can enroll in the CourseRun.
+        - Consumability: A user can consume Course content.
+        - Purchasability: A user can purchase a paid Seat.
+        """
+        def sort_key(course_run):
+            """ 
+            Return a numeric score indicating the priority of this CourseRun relative to others. Lower numbers
+            indicate higher priority.
+            """
+            is_publicly_visible = course_run.is_publicly_visible
+            is_enrollable = course_run.is_enrollable
+            will_be_enrollable = course_run.will_be_enrollable
+            is_consumable = course_run.is_consumable
+            is_or_will_be_purchasable = course_run.is_or_will_be_purchasable
+
+            if is_publicly_visible and is_enrollable and is_consumable and is_or_will_be_purchasable:
+                return 0
+            elif is_publicly_visible and is_enrollable and is_consumable:
+                return 1
+            elif is_publicly_visible and is_enrollable and is_or_will_be_purchasable:
+                return 2
+            elif is_publicly_visible and is_enrollable:
+                return 3
+            elif is_publicly_visible and will_be_enrollable and is_or_will_be_purchasable:
+                return 4
+            elif is_publicly_visible and will_be_enrollable:
+                return 5
+            elif is_publicly_visible:
+                return 6
+            else:
+                return 7
+
+        course_runs = sorted(list(self.course_runs.all()), key=sort_key)
+        return course_runs[0] if len(course_runs) > 0 else None
+
 
 class CourseRun(TimeStampedModel):
     """ CourseRun model. """
