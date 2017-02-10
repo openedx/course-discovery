@@ -3,8 +3,6 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import django.db.migrations.operations.special
-
 
 # Set of language names, language tags.   Source: http://ss64.com/locale.html
 LANGTAGS = (

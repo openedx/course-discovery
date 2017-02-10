@@ -5,8 +5,8 @@ from django.core.urlresolvers import reverse
 from rest_framework.test import APITestCase
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
-from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
-from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, Organization
+from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
+from course_discovery.apps.course_metadata.tests.factories import Organization, OrganizationFactory
 
 
 @ddt.ddt

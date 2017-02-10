@@ -1,8 +1,8 @@
+from dal import autocomplete
 from django.db.models import Q
 from django.template.loader import render_to_string
 
-from dal import autocomplete
-from .models import Course, CourseRun, Organization, Video, Person
+from .models import Course, CourseRun, Organization, Person, Video
 
 
 class CourseAutocomplete(autocomplete.Select2QuerySetView):

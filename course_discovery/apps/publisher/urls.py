@@ -1,7 +1,7 @@
 """
 URLs for the course publisher views.
 """
-from django.conf.urls import url, include
+from django.conf.urls import include, url
 
 from course_discovery.apps.publisher import views
 

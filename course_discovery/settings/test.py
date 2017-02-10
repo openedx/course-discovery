@@ -1,9 +1,5 @@
-import os
-
 from course_discovery.settings.base import *
-# noinspection PyUnresolvedReferences
 from course_discovery.settings.shared.test import *
-
 
 INSTALLED_APPS += [
     'course_discovery.apps.edx_catalog_extensions',

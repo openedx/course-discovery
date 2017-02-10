@@ -6,9 +6,7 @@ from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.utils.decorators import method_decorator
 
 from course_discovery.apps.publisher.models import Course, Seat
-from course_discovery.apps.publisher.utils import (
-    is_publisher_admin, is_internal_user, is_publisher_user
-)
+from course_discovery.apps.publisher.utils import is_internal_user, is_publisher_admin, is_publisher_user
 
 
 class PublisherPermissionMixin(object):

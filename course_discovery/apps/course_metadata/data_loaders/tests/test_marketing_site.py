@@ -4,23 +4,23 @@ import math
 from urllib.parse import parse_qs, urlparse
 from uuid import UUID
 
-from dateutil import rrule
 import ddt
-from django.test import TestCase
 import mock
-from opaque_keys.edx.keys import CourseKey
 import pytz
 import responses
+from dateutil import rrule
+from django.test import TestCase
+from opaque_keys.edx.keys import CourseKey
 from testfixtures import LogCapture
 
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing
+from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
-    XSeriesMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
-    SponsorMarketingSiteDataLoader, PersonMarketingSiteDataLoader, CourseMarketingSiteDataLoader
+    CourseMarketingSiteDataLoader, PersonMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
+    SponsorMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, XSeriesMarketingSiteDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
-from course_discovery.apps.course_metadata.models import Organization, Subject, Program, Video, Person, Course
+from course_discovery.apps.course_metadata.models import Course, Organization, Person, Program, Subject, Video
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 

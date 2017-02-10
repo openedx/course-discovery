@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
-from ddt import ddt, data
-from django.core.management import call_command, CommandError
+from ddt import data, ddt
+from django.core.management import CommandError, call_command
 from django.test import TestCase
 
 from course_discovery.apps.core.models import Partner

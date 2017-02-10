@@ -4,7 +4,7 @@ from django.test import TestCase
 from social.apps.django_app.default.models import UserSocialAuth
 
 from course_discovery.apps.core.models import Currency
-from course_discovery.apps.core.tests.factories import UserFactory, PartnerFactory
+from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
 
 
 class UserTests(TestCase):

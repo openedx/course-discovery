@@ -4,17 +4,17 @@ import ddt
 import jwt
 import mock
 import responses
-from django.core.management import call_command, CommandError
+from django.core.management import CommandError, call_command
 from django.test import TransactionTestCase
 
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import mock_api_callback
 from course_discovery.apps.course_metadata.data_loaders.api import (
-    OrganizationsApiDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader,
+    CoursesApiDataLoader, EcommerceApiDataLoader, OrganizationsApiDataLoader, ProgramsApiDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
-    XSeriesMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
-    SponsorMarketingSiteDataLoader, PersonMarketingSiteDataLoader, CourseMarketingSiteDataLoader
+    CourseMarketingSiteDataLoader, PersonMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
+    SponsorMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, XSeriesMarketingSiteDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.management.commands.refresh_course_metadata import execute_parallel_loader

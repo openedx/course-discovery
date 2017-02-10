@@ -9,7 +9,7 @@ from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.api.v1.views.courses import CourseViewSet
 from course_discovery.apps.api.v1.views.organizations import OrganizationViewSet
 from course_discovery.apps.api.v1.views.people import PersonViewSet
-from course_discovery.apps.api.v1.views.programs import ProgramViewSet, ProgramTypeListViewSet
+from course_discovery.apps.api.v1.views.programs import ProgramTypeListViewSet, ProgramViewSet
 
 partners_router = routers.SimpleRouter()
 partners_router.register(r'affiliate_window/catalogs', AffiliateWindowViewSet, base_name='affiliate_window')

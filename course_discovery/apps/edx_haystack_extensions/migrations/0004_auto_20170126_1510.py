@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
+
 def add_enrollable_paid_seat_boosting(apps, schema_editor):
     """Add enrollable paid Seat boosting function to ElasticsearchBoostConfig instance."""
 

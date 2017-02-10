@@ -1,28 +1,25 @@
 import datetime
 import json
 import urllib.parse
-from mock import patch
 
 import ddt
+import pytz
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from haystack.query import SearchQuerySet
-import pytz
+from mock import patch
 from rest_framework.test import APITestCase
 
-from course_discovery.apps.api.serializers import (
-    CourseRunSearchSerializer, ProgramSearchSerializer, TypeaheadCourseRunSearchSerializer,
-    TypeaheadProgramSearchSerializer
-)
+from course_discovery.apps.api.serializers import (CourseRunSearchSerializer, ProgramSearchSerializer,
+                                                   TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer)
 from course_discovery.apps.api.v1.views.search import TypeaheadSearchView
-from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD, PartnerFactory
+from course_discovery.apps.core.tests.factories import USER_PASSWORD, PartnerFactory, UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRun, Program, ProgramType
-from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, ProgramFactory, OrganizationFactory
-)
+from course_discovery.apps.course_metadata.tests.factories import (CourseFactory, CourseRunFactory, OrganizationFactory,
+                                                                   ProgramFactory)
 
 
 class SerializationMixin:

@@ -3,7 +3,7 @@ import itertools
 import ddt
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
-from django.test import TestCase, LiveServerTestCase
+from django.test import LiveServerTestCase, TestCase
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -11,7 +11,7 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.wait import WebDriverWait
 
 from course_discovery.apps.core.models import Partner
-from course_discovery.apps.core.tests.factories import UserFactory, USER_PASSWORD
+from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.forms import ProgramAdminForm

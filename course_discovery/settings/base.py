@@ -1,9 +1,8 @@
 import os
 import platform
 from logging.handlers import SysLogHandler
-from os.path import join, abspath, dirname
+from os.path import abspath, dirname, join
 from sys import path
-
 
 here = lambda *x: join(abspath(dirname(__file__)), *x)
 PROJECT_ROOT = here("..")
@@ -480,4 +479,3 @@ if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
         'debug_toolbar.panels.redirects.RedirectsPanel',
         'elastic_panel.panel.ElasticDebugPanel'
     ]
-

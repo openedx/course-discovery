@@ -5,17 +5,17 @@ import logging
 from urllib.parse import parse_qs, urlencode, urlparse
 from uuid import UUID
 
-from dateutil import rrule
 import pytz
+from dateutil import rrule
 from django.db.models import Q
 from django.utils.functional import cached_property
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing
+from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    Course, Organization, Person, Subject, Program, Position, LevelType, CourseRun
+    Course, CourseRun, LevelType, Organization, Person, Position, Program, Subject
 )
 from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
 from course_discovery.apps.ietf_language_tags.models import LanguageTag

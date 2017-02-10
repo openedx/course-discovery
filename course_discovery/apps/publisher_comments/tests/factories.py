@@ -1,7 +1,5 @@
-from django.contrib.sites.models import Site
-
 import factory
-from factory.fuzzy import FuzzyText
+from django.contrib.sites.models import Site
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.publisher.tests.factories import CourseRunFactory
@@ -15,7 +13,7 @@ class SiteFactory(factory.DjangoModelFactory):  # pylint: disable=missing-docstr
 
 class CommentFactory(factory.DjangoModelFactory):
 
-    comment = FuzzyText(prefix="Test Comment for çօմɾʂҽ")
+    comment = factory.fuzzy.FuzzyText(prefix="Test Comment for çօմɾʂҽ")
     content_object = factory.SubFactory(CourseRunFactory)
     user = factory.SubFactory(UserFactory)
     site = factory.SubFactory(SiteFactory)

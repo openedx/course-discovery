@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import migrations, models
-import django_extensions.db.fields
 import uuid
+
 import django.db.models.deletion
+import django_extensions.db.fields
+from django.db import migrations, models
 
 
 def delete_people(apps, schema_editor):

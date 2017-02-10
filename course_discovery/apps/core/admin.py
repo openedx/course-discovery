@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.core.forms import UserThrottleRateForm
-from course_discovery.apps.core.models import User, UserThrottleRate, Currency, Partner
+from course_discovery.apps.core.models import Currency, Partner, User, UserThrottleRate
 
 
 @admin.register(User)

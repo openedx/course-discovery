@@ -6,6 +6,7 @@ ddt==1.1.0
 edx-lint==0.5.2
 factory-boy==2.8.1
 freezegun==0.3.7
+isort==4.2.5
 lxml==3.6.1
 mock==2.0.0
 pep8==1.7.0

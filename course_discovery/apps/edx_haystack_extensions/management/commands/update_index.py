@@ -7,7 +7,6 @@ from haystack.management.commands.update_index import Command as HaystackCommand
 
 from course_discovery.settings.process_synonyms import get_synonyms
 
-
 logger = logging.getLogger(__name__)
 
 

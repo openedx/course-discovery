@@ -8,17 +8,15 @@ from django.test import TestCase
 from pytz import UTC
 
 from course_discovery.apps.core.tests.utils import mock_api_callback, mock_jpeg_callback
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing
+from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders.api import (
-    OrganizationsApiDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader, AbstractDataLoader, ProgramsApiDataLoader
+    AbstractDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader, OrganizationsApiDataLoader, ProgramsApiDataLoader
 )
-from course_discovery.apps.course_metadata.data_loaders.tests import JSON, JPEG, mock_data
+from course_discovery.apps.course_metadata.data_loaders.tests import JPEG, JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import ApiClientTestMixin, DataLoaderTestMixin
-from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Organization, Seat, Program, ProgramType,
-)
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Organization, Program, ProgramType, Seat
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseRunFactory, SeatFactory, ImageFactory, VideoFactory, OrganizationFactory, CourseFactory,
+    CourseFactory, CourseRunFactory, ImageFactory, OrganizationFactory, SeatFactory, VideoFactory
 )
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.api.logger'

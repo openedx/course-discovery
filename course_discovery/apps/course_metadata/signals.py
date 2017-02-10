@@ -1,6 +1,6 @@
+import waffle
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
-import waffle
 
 from course_discovery.apps.course_metadata.models import Program
 from course_discovery.apps.course_metadata.publishers import MarketingSitePublisher

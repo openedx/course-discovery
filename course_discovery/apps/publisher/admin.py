@@ -1,11 +1,10 @@
 from django.contrib import admin
 from guardian.admin import GuardedModelAdmin
 
-from course_discovery.apps.publisher.forms import UserAttributesAdminForm, OrganizationUserRoleForm, CourseUserRoleForm
+from course_discovery.apps.publisher.forms import CourseUserRoleForm, OrganizationUserRoleForm, UserAttributesAdminForm
 from course_discovery.apps.publisher.models import (
     Course, CourseRun, CourseUserRole, OrganizationExtension, OrganizationUserRole, Seat, State, UserAttributes
 )
-
 
 admin.site.register(Course)
 admin.site.register(CourseRun)

@@ -2,9 +2,9 @@
 Helper methods for testing the processing of image files.
 """
 from io import BytesIO
-from PIL import Image
 
 from django.core.files.uploadedfile import SimpleUploadedFile
+from PIL import Image
 
 
 def make_image_stream(width, height):

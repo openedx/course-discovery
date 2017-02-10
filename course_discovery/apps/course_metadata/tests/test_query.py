@@ -4,8 +4,7 @@ import ddt
 import pytz
 from django.test import TestCase
 
-from course_discovery.apps.course_metadata.choices import CourseRunStatus
-from course_discovery.apps.course_metadata.choices import ProgramStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory, SeatFactory
 

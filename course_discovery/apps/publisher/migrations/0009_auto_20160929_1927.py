@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import migrations, models
-import stdimage.models
 import django.db.models.deletion
+import stdimage.models
 from django.conf import settings
+from django.db import migrations, models
+
 import course_discovery.apps.course_metadata.utils
 
 

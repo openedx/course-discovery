@@ -7,9 +7,9 @@ from django.conf import settings
 from rest_framework.test import APIRequestFactory
 
 from course_discovery.apps.api.serializers import (
-    CatalogSerializer, CourseWithProgramsSerializer, CourseSerializerExcludingClosedRuns,
-    CourseRunWithProgramsSerializer, MinimalProgramSerializer, PersonSerializer, ProgramSerializer,
-    FlattenedCourseRunWithCourseSerializer, OrganizationSerializer, ProgramTypeSerializer
+    CatalogSerializer, CourseRunWithProgramsSerializer, CourseSerializerExcludingClosedRuns,
+    CourseWithProgramsSerializer, FlattenedCourseRunWithCourseSerializer, MinimalProgramSerializer,
+    OrganizationSerializer, PersonSerializer, ProgramSerializer, ProgramTypeSerializer
 )
 
 

@@ -15,6 +15,6 @@ path.append(SITE_ROOT)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "course_discovery.settings.local")
 
-from django.core.wsgi import get_wsgi_application
+from django.core.wsgi import get_wsgi_application   # isort:skip
 
 application = get_wsgi_application()  # pylint: disable=invalid-name

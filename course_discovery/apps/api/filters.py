@@ -5,15 +5,16 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
 from django.utils.translation import ugettext as _
-from drf_haystack.filters import HaystackFacetFilter, HaystackFilter as DefaultHaystackFilter
+from drf_haystack.filters import HaystackFilter as DefaultHaystackFilter
+from drf_haystack.filters import HaystackFacetFilter
 from drf_haystack.query import FacetQueryBuilder
 from dry_rest_permissions.generics import DRYPermissionFiltersBase
 from guardian.shortcuts import get_objects_for_user
-from rest_framework.exceptions import PermissionDenied, NotFound
+from rest_framework.exceptions import NotFound, PermissionDenied
 
 from course_discovery.apps.api.utils import cast2int
 from course_discovery.apps.core.models import Partner
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Program, Organization
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Organization, Program
 
 logger = logging.getLogger(__name__)
 User = get_user_model()

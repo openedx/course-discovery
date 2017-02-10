@@ -1,13 +1,13 @@
 import os
 
 import ddt
-from django.test import TestCase
 import responses
+from django.test import TestCase
 
+from course_discovery.apps.course_metadata import utils
 from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException
 from course_discovery.apps.course_metadata.tests.factories import ProgramFactory
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
-from course_discovery.apps.course_metadata import utils
 
 
 @ddt.ddt

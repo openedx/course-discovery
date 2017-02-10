@@ -1,18 +1,18 @@
 import concurrent.futures
-from decimal import Decimal
-from io import BytesIO
 import logging
 import math
+from decimal import Decimal
+from io import BytesIO
 
+import requests
 from django.core.files import File
 from opaque_keys.edx.keys import CourseKey
-import requests
 
 from course_discovery.apps.core.models import Currency
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing
+from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    Video, Organization, Seat, CourseRun, Program, Course, ProgramType,
+    Course, CourseRun, Organization, Program, ProgramType, Seat, Video
 )
 
 logger = logging.getLogger(__name__)

@@ -2,22 +2,21 @@ import concurrent.futures
 import itertools
 import logging
 
+import jwt
+import waffle
 from django.core.management import BaseCommand, CommandError
 from django.db import connection
 from edx_rest_api_client.client import EdxRestApiClient
-import jwt
-import waffle
 
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.data_loaders.api import (
-    OrganizationsApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader, CoursesApiDataLoader,
+    CoursesApiDataLoader, EcommerceApiDataLoader, OrganizationsApiDataLoader, ProgramsApiDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
-    XSeriesMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
-    SponsorMarketingSiteDataLoader, PersonMarketingSiteDataLoader, CourseMarketingSiteDataLoader,
+    CourseMarketingSiteDataLoader, PersonMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
+    SponsorMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, XSeriesMarketingSiteDataLoader
 )
 from course_discovery.apps.course_metadata.models import Course
-
 
 logger = logging.getLogger(__name__)
 

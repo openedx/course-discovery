@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-
 from django_comments.forms import CommentForm
+
 from course_discovery.apps.publisher_comments.models import Comments
 
 

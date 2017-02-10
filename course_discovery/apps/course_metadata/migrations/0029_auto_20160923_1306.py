@@ -5,7 +5,6 @@ from django.db import migrations, models
 from sortedm2m import fields, operations
 
 
-
 class Migration(migrations.Migration):
 
     dependencies = [

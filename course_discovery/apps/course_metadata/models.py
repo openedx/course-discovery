@@ -21,13 +21,10 @@ from stdimage.utils import UploadToAutoSlug
 from taggit_autosuggest.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, Partner
-from course_discovery.apps.course_metadata.choices import (
-    CourseRunStatus, CourseRunPacing, ProgramStatus, ReportingType
-)
+from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus, ProgramStatus, ReportingType
 from course_discovery.apps.course_metadata.publishers import MarketingSitePublisher
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
-from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
-from course_discovery.apps.course_metadata.utils import clean_query, custom_render_variations
+from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath, clean_query, custom_render_variations
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 logger = logging.getLogger(__name__)

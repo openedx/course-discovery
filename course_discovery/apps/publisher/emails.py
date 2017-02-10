@@ -6,8 +6,8 @@ from django.core.mail.message import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
-from course_discovery.apps.publisher.choices import PublisherUserRole
 
+from course_discovery.apps.publisher.choices import PublisherUserRole
 
 logger = logging.getLogger(__name__)
 
