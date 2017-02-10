@@ -4,8 +4,10 @@ from django.test import TestCase
 from elasticsearch import Elasticsearch
 from freezegun import freeze_time
 
+from course_discovery.apps.edx_haystack_extensions.tests.mixins import SearchIndexTestMixin
 
-class UpdateIndexTests(TestCase):
+
+class UpdateIndexTests(SearchIndexTestMixin, TestCase):
     @freeze_time('2016-06-21')
     def test_handle(self):
         """ Verify the command creates a timestamped index and repoints the alias. """
