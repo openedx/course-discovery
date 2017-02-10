@@ -77,6 +77,12 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
               type: integer
               paramType: query
               multiple: false
+            - name: types
+              description: Filter by comma-separated list of program type slugs
+              required: false
+              type: string
+              paramType: query
+              multiple: false
         """
         return super(ProgramViewSet, self).list(request, *args, **kwargs)
 
