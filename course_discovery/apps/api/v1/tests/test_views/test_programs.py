@@ -127,6 +127,18 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         url = self.list_path + '?type=bar'
         self.assert_list_results(url, [], 4)
 
+    def test_filter_by_types(self):
+        """ Verify that the endpoint filters programs to those matching the provided ProgramType slugs. """
+        expected = ProgramFactory.create_batch(2)
+        expected.reverse()
+        type_slugs = [p.type.slug for p in expected]
+        url = self.list_path + '?types=' + ','.join(type_slugs)
+
+        # Create a third program, which should be filtered out.
+        ProgramFactory()
+
+        self.assert_list_results(url, expected, 8)
+
     def test_filter_by_uuids(self):
         """ Verify that the endpoint filters programs to those matching the provided UUIDs. """
         expected = ProgramFactory.create_batch(2)
