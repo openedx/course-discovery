@@ -384,12 +384,14 @@ class ChangeCourseStateViewTests(TestCase):
         self.user = UserFactory()
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
 
-        course = self.course_state.course
-        course.image = make_image_file('test_banner.jpg')
-        course.save()
+        self.course = self.course_state.course
+        self.course.image = make_image_file('test_banner.jpg')
+        self.course.save()
 
         self.organization_extension = factories.OrganizationExtensionFactory()
-        course.organizations.add(self.organization_extension.organization)
+        self.course.organizations.add(self.organization_extension.organization)
+        factories.UserAttributeFactory(user=self.user, enable_email_notification=True)
+        toggle_switch('enable_publisher_email_notifications', True)
 
         self.change_state_url = reverse('publisher:api:change_course_state', kwargs={'pk': self.course_state.id})
 
@@ -402,11 +404,12 @@ class ChangeCourseStateViewTests(TestCase):
         """
         self.assertNotEqual(self.course_state.name, CourseStateChoices.Review)
         factories.CourseUserRoleFactory(
-            course=self.course_state.course, role=PublisherUserRole.MarketingReviewer, user=self.user
+            course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
         )
 
+        course_team_user = UserFactory()
         factories.CourseUserRoleFactory(
-            course=self.course_state.course, role=PublisherUserRole.CourseTeam, user=UserFactory()
+            course=self.course, role=PublisherUserRole.CourseTeam, user=course_team_user
         )
 
         response = self.client.patch(
@@ -417,10 +420,12 @@ class ChangeCourseStateViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        self.course_state = CourseState.objects.get(course=self.course_state.course)
+        self.course_state = CourseState.objects.get(course=self.course)
 
         self.assertEqual(self.course_state.name, CourseStateChoices.Review)
         self.assertEqual(self.course_state.owner_role, PublisherUserRole.CourseTeam)
+
+        self._assert_email_sent(course_team_user)
 
     def test_change_course_state_with_course_team(self):
         """
@@ -432,7 +437,12 @@ class ChangeCourseStateViewTests(TestCase):
 
         self.assertNotEqual(self.course_state.name, CourseStateChoices.Review)
         factories.CourseUserRoleFactory(
-            course=self.course_state.course, role=PublisherUserRole.CourseTeam, user=self.user
+            course=self.course, role=PublisherUserRole.CourseTeam, user=self.user
+        )
+
+        marketing_user = UserFactory()
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.MarketingReviewer, user=marketing_user
         )
 
         response = self.client.patch(
@@ -443,10 +453,23 @@ class ChangeCourseStateViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        self.course_state = CourseState.objects.get(course=self.course_state.course)
+        self.course_state = CourseState.objects.get(course=self.course)
 
         self.assertEqual(self.course_state.name, CourseStateChoices.Review)
         self.assertEqual(self.course_state.owner_role, PublisherUserRole.MarketingReviewer)
+
+        self._assert_email_sent(marketing_user)
+
+    def _assert_email_sent(self, user):
+        subject = 'Changes to {title} are ready for review'.format(title=self.course.title)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual([user.email], mail.outbox[0].to)
+        self.assertEqual(str(mail.outbox[0].subject), subject)
+
+        body = mail.outbox[0].body.strip()
+        object_path = reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id})
+        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=object_path)
+        self.assertIn(page_url, body)
 
     def test_change_course_state_with_error(self):
         """
