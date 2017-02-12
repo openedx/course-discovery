@@ -4,14 +4,14 @@
 # 
 # Translators:
 # Keivan Farzaneh <keivan.farzaneh@edulib.org>, 2017
-# Pierre Mailhot <pierre.mailhot@gmail.com>, 2016
+# Pierre Mailhot <pierre.mailhot@gmail.com>, 2016-2017
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-06 20:07-0500\n"
-"PO-Revision-Date: 2017-02-06 09:36+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2017-02-10 14:57+0500\n"
+"PO-Revision-Date: 2017-02-10 14:15+0000\n"
+"Last-Translator: Pierre Mailhot <pierre.mailhot@gmail.com>\n"
 "Language-Team: French (Canada) (http://www.transifex.com/open-edx/edx-platform/language/fr_CA/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -25,19 +25,19 @@ msgstr "Aperçu"
 
 #: static/js/publisher/comparing-objects.js
 msgid "Hide changes"
-msgstr ""
+msgstr "Cacher les changements"
 
 #: static/js/publisher/comparing-objects.js
 msgid "Show changes"
-msgstr ""
+msgstr "Afficher les changements"
 
 #: static/js/publisher/publisher.js
 msgid "Something went wrong!"
-msgstr ""
+msgstr "Quelque chose s'est mal passé!"
 
 #: static/js/publisher/publisher.js
 msgid "File must be smaller than 1 megabyte in size."
-msgstr ""
+msgstr "Le fichier doit avoir une taille inférieure à 1 mégaoctet."
 
 #: static/js/publisher/views/dashboard.js
 msgid ""
@@ -51,7 +51,7 @@ msgstr "Il y a eu une erreur lors de la sauvegarde de vos données."
 
 #: static/js/publisher/views/dashboard.js
 msgid "No course run previews are currently available."
-msgstr ""
+msgstr "Aucun aperçu des cours n'est actuellement disponible."
 
 #: static/js/publisher/views/navbar.js
 msgid "OFF"
