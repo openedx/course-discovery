@@ -355,7 +355,7 @@ class Course(TimeStampedModel):
         - Purchasability: A user can purchase a paid Seat.
         """
         def sort_key(course_run):
-            """ 
+            """
             Return a numeric score indicating the priority of this CourseRun relative to others. Lower numbers
             indicate higher priority.
             """

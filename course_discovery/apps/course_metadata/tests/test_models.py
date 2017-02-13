@@ -277,7 +277,6 @@ class CourseRunTests(TestCase):
         factories.ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Deleted)
         self.assertEqual(self.course_run.program_types, [active_program.type.name])
 
-
     @ddt.data(
         # Case 1: Should be True when CourseRun is published, not hidden, and has Seats.
         (True, False, True, True),
@@ -303,7 +302,6 @@ class CourseRunTests(TestCase):
             factories.SeatFactory.create(course_run=course_run)
 
         assert expected_result == course_run.is_publicly_visible
-
 
     @ddt.data(
         # Case 1: Should be True when enrollment_start is unspecified or in the past and
