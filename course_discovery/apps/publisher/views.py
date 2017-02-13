@@ -141,7 +141,7 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
         user = self.request.user
         course_run = CourseRunWrapper(self.get_object())
         context['object'] = course_run
-        context['comment_object'] = course_run.course
+        context['comment_object'] = course_run
         context['post_back_url'] = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
 
         context['can_edit'] = mixins.check_course_organization_permission(
