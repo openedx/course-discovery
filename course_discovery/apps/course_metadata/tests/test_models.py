@@ -310,7 +310,7 @@ class CourseRunTests(TestCase):
         (None, datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1), True),
         (datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1), None, True),
         (datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1),
-            datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1), True),
+         datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1), True),
 
         # Case 2: Should be False when enrollment_start is in the future or enrollment_end is in the past.
         (datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1), None, False),
