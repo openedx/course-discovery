@@ -12,18 +12,31 @@ class UserModelChoiceFieldTests(TestCase):
     Tests for the publisher model "UserModelChoiceField".
     """
 
+    def setUp(self):
+        super(UserModelChoiceFieldTests, self).setUp()
+        self.course_form = CustomCourseForm()
+
     def test_course_form(self):
         """
         Verify that UserModelChoiceField returns `full_name` as choice label.
         """
-        course_form = CustomCourseForm()
         user = UserFactory(username='test_user', full_name='Test Full Name')
-        course_form.fields['team_admin'].queryset = User.objects.all()
-        course_form.fields['team_admin'].empty_label = None
+        self._assert_choice_label(user.full_name)
+
+    def test_team_admin_without_full_name(self):
+        """
+        Verify that UserModelChoiceField returns `username` if `full_name` empty.
+        """
+        user = UserFactory(username='test_user', full_name='', first_name='', last_name='')
+        self._assert_choice_label(user.username)
+
+    def _assert_choice_label(self, expected_name):
+        self.course_form.fields['team_admin'].queryset = User.objects.all()
+        self.course_form.fields['team_admin'].empty_label = None
 
         # we need to loop through choices because it is a ModelChoiceIterator
-        for __, choice_label in course_form.fields['team_admin'].choices:
-            self.assertEqual(choice_label, user.full_name)
+        for __, choice_label in self.course_form.fields['team_admin'].choices:
+            self.assertEqual(choice_label, expected_name)
 
 
 class PersonModelMultipleChoiceTests(TestCase):
