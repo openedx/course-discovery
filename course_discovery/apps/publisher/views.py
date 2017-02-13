@@ -182,7 +182,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
     run_form = CustomCourseRunForm
     seat_form = CustomSeatForm
     template_name = 'publisher/add_update_course_form.html'
-    success_url = 'publisher:publisher_course_run_detail'
+    success_url = 'publisher:publisher_course_detail'
 
     def get_success_url(self, course_id):  # pylint: disable=arguments-differ
         return reverse(self.success_url, kwargs={'pk': course_id})
@@ -266,7 +266,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
                     # sending email for notifying new course is created.
                     emails.send_email_for_course_creation(course, run_course)
 
-                    return HttpResponseRedirect(self.get_success_url(run_course.id))
+                    return HttpResponseRedirect(self.get_success_url(course.id))
             except Exception as e:  # pylint: disable=broad-except
                 # pylint: disable=no-member
                 error_message = _('An error occurred while saving your changes. {error}').format(error=str(e))

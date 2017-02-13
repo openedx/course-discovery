@@ -199,9 +199,15 @@ class CreateCourseViewTests(TestCase):
         course_dict = self._post_data(data, self.course, self.course_run, self.seat)
         course_dict['price'] = 0
         course_dict['type'] = Seat.AUDIT
-        response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=data['image'])
+        response = self.client.post(
+            reverse('publisher:publisher_courses_new'), course_dict, files=data['image'], follow=True
+        )
         course = Course.objects.get(number=data['number'])
         self._assert_test_data(response, course, Seat.AUDIT, 0)
+        self.assertIn(
+            'You have successfully created a course. You can edit the course information',
+            response.content.decode('UTF-8')
+        )
 
     def test_create_form_with_single_organization(self):
         """Verify that if there is only one organization then that organization will be shown as text. """
@@ -304,15 +310,14 @@ class CreateCourseViewTests(TestCase):
 
     def _assert_test_data(self, response, course, expected_type, expected_price):
         course_run = course.publisher_course_runs.get()
-        run_detail_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
+        course_detail_path = reverse('publisher:publisher_course_detail', kwargs={'pk': course.id})
 
         self.assertRedirects(
             response,
-            expected_url=run_detail_path,
+            expected_url=course_detail_path,
             status_code=302,
             target_status_code=200
         )
-
         self.assertEqual(course.organizations.first(), self.organization_extension.organization)
         self.assertEqual(len(course.course_user_roles.all()), 3)
         self.assertEqual(course.course_user_roles.filter(role=PublisherUserRole.CourseTeam).count(), 1)
