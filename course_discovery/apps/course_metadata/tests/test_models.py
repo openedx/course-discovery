@@ -1,13 +1,13 @@
-import itertools
 import datetime
-from decimal import Decimal
+import itertools
 import random
+from decimal import Decimal
 
 import ddt
 import mock
+import pytz
 import responses
 from dateutil.parser import parse
-import pytz
 from django.conf import settings
 from django.db import IntegrityError
 from django.db.models.functions import Lower
