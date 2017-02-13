@@ -382,8 +382,11 @@ class Course(TimeStampedModel):
             else:
                 return 7
 
-        course_runs = sorted(list(self.course_runs.all()), key=sort_key)
-        return course_runs[0] if len(course_runs) > 0 else None
+        course_runs = list(self.course_runs.all())
+        if course_runs:
+            return sorted(course_runs, key=sort_key)[0]
+        else:
+            return None
 
 
 class CourseRun(TimeStampedModel):
