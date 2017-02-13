@@ -32,10 +32,14 @@ class CourseUserRoleSerializer(serializers.ModelSerializer):
 
 class GroupUserSerializer(serializers.ModelSerializer):
     """Serializer for the `User` model used in OrganizationGroupUserView. """
+    full_name = serializers.SerializerMethodField('get_user_full_name')
 
     class Meta:
         model = User
-        fields = ('id', 'full_name', )
+        fields = ('id', 'full_name',)
+
+    def get_user_full_name(self, obj):
+        return obj.get_full_name() or obj.username
 
 
 class UpdateCourseKeySerializer(serializers.ModelSerializer):

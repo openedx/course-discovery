@@ -20,7 +20,7 @@ from course_discovery.apps.publisher.models import (
 
 class UserModelChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
-        return obj.get_full_name()
+        return obj.get_full_name() or obj.username
 
 
 class PersonModelMultipleChoice(forms.ModelMultipleChoiceField):

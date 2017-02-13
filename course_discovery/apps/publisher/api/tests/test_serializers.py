@@ -38,13 +38,24 @@ class CourseUserRoleSerializerTests(TestCase):
 
 
 class GroupUserSerializerTests(TestCase):
-    def test_date(self):
+
+    def test_data_with_full_name(self):
         """ Verify that UserSerializer serialize the user object. """
 
-        user = UserFactory(full_name="test user")
+        user = UserFactory(full_name='Test User')
         serializer = GroupUserSerializer(user)
 
-        self.assertDictEqual(serializer.data, {'id': user.id, 'full_name': user.full_name})
+        expected = {'id': user.id, 'full_name': user.full_name}
+        self.assertDictEqual(serializer.data, expected)
+
+    def test_data_without_full_name(self):
+        """ Verify that UserSerializer serialize the user object. """
+
+        user = UserFactory(full_name='', first_name='', last_name='')
+        serializer = GroupUserSerializer(user)
+
+        expected = {'id': user.id, 'full_name': user.username}
+        self.assertDictEqual(serializer.data, expected)
 
 
 class UpdateCourseKeySerializerTests(TestCase):
