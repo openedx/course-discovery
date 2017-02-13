@@ -842,7 +842,7 @@ class CourseRunDetailTests(TestCase):
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         site = Site.objects.get(pk=settings.SITE_ID)
 
-        comment = CommentFactory(content_object=self.course, user=self.user, site=site)
+        comment = CommentFactory(content_object=self.course_run, user=self.user, site=site)
         response = self.client.get(self.page_url)
         self.assertEqual(response.status_code, 200)
         self._assert_credits_seats(response, self.wrapped_course_run.credit_seat)
