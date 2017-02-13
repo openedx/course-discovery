@@ -39,7 +39,10 @@
             </div>
         {% endfor %}
     </div>
-
-    {% include 'publisher/_history_widget.html' %}
-    {% include 'publisher/course_detail/_approval_widget.html' %}
+    <div class="history-widget {% if not publisher_history_widget_feature %}hidden{% endif %}">
+      {% include 'publisher/_history_widget.html' %}
+    </div>
+    <div class="approval-widget {% if not publisher_approval_widget_feature %}hidden{% endif %}">
+      {% include 'publisher/course_detail/_approval_widget.html' %}
+    </div>
 </div>

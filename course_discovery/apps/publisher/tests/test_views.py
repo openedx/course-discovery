@@ -984,7 +984,6 @@ class CourseRunDetailTests(TestCase):
         toggle_switch('publisher_hide_features_for_pilot', True)
         response = self.client.get(self.page_url)
 
-        self.assertContains(response, '<div id="approval-widget" class="hidden">')
         self.assertContains(response, '<div class="non-studio-fields hidden">')
 
     def test_page_disable_waffle_switch_pilot(self):
@@ -992,7 +991,6 @@ class CourseRunDetailTests(TestCase):
         toggle_switch('publisher_hide_features_for_pilot', False)
         response = self.client.get(self.page_url)
 
-        self.assertContains(response, '<div id="approval-widget" class="">')
         self.assertContains(response, '<div class="non-studio-fields ">')
 
     def test_comments_with_enable_switch(self):
@@ -1011,6 +1009,24 @@ class CourseRunDetailTests(TestCase):
         toggle_switch('publisher_comment_widget_feature', False)
         response = self.client.get(self.page_url)
         self.assertContains(response, '<div id="comments-widget" class="comment-container hidden">')
+
+    def test_approval_widget_with_enable_switch(self):
+        """ Verify that user will see the history widget when
+        'publisher_approval_widget_feature' is enabled.
+        """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        toggle_switch('publisher_approval_widget_feature', True)
+        response = self.client.get(self.page_url)
+        self.assertContains(response, '<div id="approval-widget" class="approval-widget ">')
+
+    def test_approval_widget_with_disable_switch(self):
+        """ Verify that user will not see the history widget when
+        'publisher_approval_widget_feature' is disabled.
+        """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        toggle_switch('publisher_approval_widget_feature', False)
+        response = self.client.get(self.page_url)
+        self.assertContains(response, '<div id="approval-widget" class="approval-widget hidden">')
 
 
 class ChangeStateViewTests(TestCase):
@@ -1586,6 +1602,42 @@ class CourseDetailViewTests(TestCase):
         toggle_switch('publisher_comment_widget_feature', False)
         response = self.client.get(self.detail_page_url)
         self.assertContains(response, '<div id="comments-widget" class="comment-container hidden">')
+
+    def test_history_with_enable_switch(self):
+        """ Verify that user will see the history widget when
+        'publisher_history_widget_feature' is enabled.
+        """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        toggle_switch('publisher_history_widget_feature', True)
+        response = self.client.get(self.detail_page_url)
+        self.assertContains(response, '<div class="history-widget ">')
+
+    def test_history_with_disable_switch(self):
+        """ Verify that user will not see the history widget when
+        'publisher_history_widget_feature' is disabled.
+        """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        toggle_switch('publisher_history_widget_feature', False)
+        response = self.client.get(self.detail_page_url)
+        self.assertContains(response, '<div class="history-widget hidden">')
+
+    def test_approval_widget_with_enable_switch(self):
+        """ Verify that user will see the history widget when
+        'publisher_approval_widget_feature' is enabled.
+        """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        toggle_switch('publisher_approval_widget_feature', True)
+        response = self.client.get(self.detail_page_url)
+        self.assertContains(response, '<div class="approval-widget ">')
+
+    def test_approval_widget_with_disable_switch(self):
+        """ Verify that user will not see the history widget when
+        'publisher_approval_widget_feature' is disabled.
+        """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        toggle_switch('publisher_approval_widget_feature', False)
+        response = self.client.get(self.detail_page_url)
+        self.assertContains(response, '<div class="approval-widget hidden">')
 
     def test_course_approval_widget(self):
         """
