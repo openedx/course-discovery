@@ -5,8 +5,9 @@ from unittest import mock
 import ddt
 from django.test import TestCase
 
+from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
-from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
+from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory, PositionFactory
 from course_discovery.apps.publisher.models import Seat, State
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
@@ -164,3 +165,42 @@ class CourseRunWrapperTests(TestCase):
             self.wrapped_course_run.is_seo_review,
             self.course.is_seo_review
         )
+
+    def test_course_team_admin(self):
+        """ Verify that the wrapper return the course team admin. """
+        self.assertEqual(self.wrapped_course_run.course_team_admin, self.course.course_team_admin)
+
+    def test_course_image(self):
+        """ Verify that the wrapper return the url fo thumbnail course image if exists. """
+        self.assertIsNone(self.wrapped_course_run.course_image)
+
+        self.course.image = make_image_file('test_banner1.jpg')
+        self.course.save()
+
+        self.assertEqual(self.wrapped_course_run.course_image, self.course.image.thumbnail.url)
+
+    def test_course_staff(self):
+        """Verify that the wrapper return staff list."""
+        staff = PersonFactory()
+
+        # another staff with position
+        staff_2 = PersonFactory()
+        position = PositionFactory(person=staff_2)
+
+        self.course_run.staff = [staff, staff_2]
+        self.course_run.save()
+
+        expected = [
+            {
+                'full_name': staff.full_name,
+                'image_url': staff.get_profile_image_url,
+            },
+            {
+                'full_name': staff_2.full_name,
+                'image_url': staff_2.get_profile_image_url,
+                'position': position.title,
+                'organization': position.organization_name
+            }
+        ]
+
+        self.assertEqual(self.wrapped_course_run.course_staff, expected)

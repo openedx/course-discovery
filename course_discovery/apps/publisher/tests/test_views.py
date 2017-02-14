@@ -799,7 +799,7 @@ class CourseRunDetailTests(TestCase):
             self.wrapped_course_run.xseries_name, self.wrapped_course_run.min_effort,
             self.wrapped_course_run.pacing_type, self.wrapped_course_run.persons,
             self.wrapped_course_run.max_effort, self.wrapped_course_run.language.name,
-            self.wrapped_course_run.video_languages, self.wrapped_course_run.level_type,
+            self.wrapped_course_run.transcript_languages, self.wrapped_course_run.level_type,
             self.wrapped_course_run.full_description, self.wrapped_course_run.expected_learnings,
             self.wrapped_course_run.prerequisites, self.wrapped_course_run.keywords
         ]
@@ -978,20 +978,6 @@ class CourseRunDetailTests(TestCase):
         self.assertNotIn(response_string, '<button data-tab="#tab-3">CAT</button>')
         self.assertNotIn(response_string, '<button data-tab="#tab-4">DRUPAL</button>')
         self.assertNotIn(response_string, '<button data-tab="#tab-5">Salesforce</button>')
-
-    def test_page_enable_waffle_switch_pilot(self):
-        """ Verify that user will see only studio fields when 'publisher_hide_features_for_pilot' is activated. """
-        toggle_switch('publisher_hide_features_for_pilot', True)
-        response = self.client.get(self.page_url)
-
-        self.assertContains(response, '<div class="non-studio-fields hidden">')
-
-    def test_page_disable_waffle_switch_pilot(self):
-        """ Verify that user will see whole page when 'publisher_hide_features_for_pilot' is deactivated. """
-        toggle_switch('publisher_hide_features_for_pilot', False)
-        response = self.client.get(self.page_url)
-
-        self.assertContains(response, '<div class="non-studio-fields ">')
 
     def test_comments_with_enable_switch(self):
         """ Verify that user will see the comments widget when

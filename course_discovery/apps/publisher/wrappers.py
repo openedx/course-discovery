@@ -50,7 +50,7 @@ class CourseRunWrapper(BaseWrapper):
         return [seat for seat in self.wrapped_obj.seats.all() if seat.type != Seat.CREDIT]
 
     @property
-    def video_languages(self):
+    def transcript_languages(self):
         return ', '.join([lang.name for lang in self.wrapped_obj.transcript_languages.all()])
 
     @property
@@ -190,3 +190,31 @@ class CourseRunWrapper(BaseWrapper):
     @property
     def is_seo_review(self):
         return self.wrapped_obj.course.is_seo_review
+
+    @property
+    def course_team_admin(self):
+        return self.wrapped_obj.course.course_team_admin
+
+    @property
+    def course_image(self):
+        if self.wrapped_obj.course.image:
+            return self.wrapped_obj.course.image.thumbnail.url
+
+    @property
+    def course_staff(self):
+        staff_list = []
+        for staff in self.wrapped_obj.staff.all():
+            staff_dict = {
+                'full_name': staff.full_name,
+                'image_url': staff.get_profile_image_url,
+            }
+
+            if hasattr(staff, 'position'):
+                staff_dict.update({
+                    'position': staff.position.title,
+                    'organization': staff.position.organization_name,
+                })
+
+            staff_list.append(staff_dict)
+
+        return staff_list

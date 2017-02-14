@@ -572,3 +572,24 @@
     }
   }
 }
+
+.course-staff {
+  display: inline-block;
+  margin-top: 10px;
+
+  img {
+    @include float(left);
+    @include margin-right(10px);
+    width: 70px;
+    height: 70px;
+  }
+  .staff-detail {
+    @include float(left);
+  }
+  .name {
+    color: #169BD5;
+  }
+  .organization{
+    font-weight: 600;
+  }
+}
