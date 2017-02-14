@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-15 15:52+0500\n"
+"POT-Creation-Date: 2017-02-16 14:33+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -524,12 +524,14 @@ msgstr ""
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Brief Description"
 msgstr ""
 
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Full Description"
 msgstr ""
 
@@ -556,11 +558,11 @@ msgstr ""
 msgid "Tertiary (optional)"
 msgstr ""
 
-#: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
+#: apps/publisher/forms.py
 msgid "Course Start Date"
 msgstr ""
 
-#: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
+#: apps/publisher/forms.py
 msgid "Course End Date"
 msgstr ""
 
@@ -648,7 +650,7 @@ msgstr ""
 msgid "Course number"
 msgstr ""
 
-#: apps/publisher/models.py templates/publisher/course_run_detail/_all.html
+#: apps/publisher/models.py
 msgid "Partner Name"
 msgstr ""
 
@@ -658,6 +660,7 @@ msgstr ""
 
 #: apps/publisher/models.py templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Expected Learnings"
 msgstr ""
 
@@ -907,7 +910,6 @@ msgid "Title"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
-#: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_studio.html
 #: templates/publisher/dashboard/_preview_ready.html
 #: templates/publisher/dashboard/_published.html
@@ -1671,31 +1673,38 @@ msgstr ""
 msgid "Course Detail"
 msgstr ""
 
-#: templates/publisher/course_detail.html templates/publisher/courses.html
+#: templates/publisher/course_detail.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/courses.html
 #: templates/publisher/dashboard/_in_progress.html
 msgid "Institution"
 msgstr ""
 
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Course Team Admin"
 msgstr ""
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Primary Subject"
 msgstr ""
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Secondary Subject"
 msgstr ""
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Tertiary Subject"
 msgstr ""
 
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Course Image"
 msgstr ""
 
@@ -1818,65 +1827,39 @@ msgid "Number"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
+msgid "Studio instance"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_render_field.html
+msgid "empty"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
 #: templates/publisher/course_run_detail/_studio.html
-msgid "Pacing Type"
+#: templates/publisher/dashboard/_studio_requests.html
+msgid "Start Date"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "Contracted Partner"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_cat.html
 #: templates/publisher/course_run_detail/_drupal.html
-msgid "Course ID"
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "End Date"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "Is Re-run?"
+msgid "Certificate type"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "Course Subtitle"
+msgid "Certificate Price"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "Subjects"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Part of an Xseries?"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Xseries Name"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Part of a Micromasters?"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Micromasters Name"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Enrollment Type"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_credit_seat.html
-#: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_seats.html
-msgid "Price"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Certificate Generation Date Exception Request"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Course Length (weeks)"
+msgid "Course Staff"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
@@ -1886,57 +1869,23 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
-msgid "to"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_drupal.html
 msgid "hours per week"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "Course Languages"
+msgid "Course content language"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "Video Translation Languages"
+msgid "Video Language Transcript"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "About This Course"
+msgid "Language spoken in course videos"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "What You'll Learn"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Learner Testimonial"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Syllabus"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Search Engine Optimization Review"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Top 10 Keywords"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "edX Username or email address of Course Team Admin(s)"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-msgid ""
-"edX Username or email address of additional course team members (Staff)"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Additional Notes"
+msgid "Course Length (Weeks)"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_approval_widget.html
@@ -1945,6 +1894,11 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_approval_widget.html
 msgid "CHANGE"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_cat.html
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Course ID"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_cat.html
@@ -1957,6 +1911,12 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_credit_seat.html
 msgid "Credit Provider"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_credit_seat.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_seats.html
+msgid "Price"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_credit_seat.html
@@ -1994,24 +1954,15 @@ msgid "XSeries"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_salesforce.html
-#: templates/publisher/course_run_detail/_studio.html
-#: templates/publisher/dashboard/_studio_requests.html
-msgid "Start Date"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_salesforce.html
-#: templates/publisher/course_run_detail/_studio.html
-msgid "End Date"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_drupal.html
 msgid "Self Paced"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Staff"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "to"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_drupal.html
@@ -2157,6 +2108,10 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_studio.html
 msgid "Enrollment End Date"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Pacing Type"
 msgstr ""
 
 #: templates/publisher/course_runs_list.html

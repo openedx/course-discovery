@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-15 15:52+0500\n"
+"POT-Creation-Date: 2017-02-16 14:33+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -644,12 +644,14 @@ msgstr "Çöürsé Nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Brief Description"
 msgstr "Brïéf Désçrïptïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Full Description"
 msgstr "Füll Désçrïptïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
@@ -676,11 +678,11 @@ msgstr "Séçöndärý (öptïönäl) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт
 msgid "Tertiary (optional)"
 msgstr "Tértïärý (öptïönäl) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
-#: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
+#: apps/publisher/forms.py
 msgid "Course Start Date"
 msgstr "Çöürsé Stärt Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
-#: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
+#: apps/publisher/forms.py
 msgid "Course End Date"
 msgstr "Çöürsé Énd Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
@@ -770,7 +772,7 @@ msgstr "Çöürsé tïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 msgid "Course number"
 msgstr "Çöürsé nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
-#: apps/publisher/models.py templates/publisher/course_run_detail/_all.html
+#: apps/publisher/models.py
 msgid "Partner Name"
 msgstr "Pärtnér Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
@@ -780,6 +782,7 @@ msgstr "Lévél Týpé Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: apps/publisher/models.py templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Expected Learnings"
 msgstr "Éxpéçtéd Léärnïngs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
@@ -1062,7 +1065,6 @@ msgid "Title"
 msgstr "Tïtlé Ⱡ'σяєм ιρѕ#"
 
 #: templates/publisher/_add_instructor_popup.html
-#: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_studio.html
 #: templates/publisher/dashboard/_preview_ready.html
 #: templates/publisher/dashboard/_published.html
@@ -2016,31 +2018,38 @@ msgstr "Çöürsés Ⱡ'σяєм ιρѕυм #"
 msgid "Course Detail"
 msgstr "Çöürsé Détäïl Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
-#: templates/publisher/course_detail.html templates/publisher/courses.html
+#: templates/publisher/course_detail.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/courses.html
 #: templates/publisher/dashboard/_in_progress.html
 msgid "Institution"
 msgstr "Ìnstïtütïön Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Course Team Admin"
 msgstr "Çöürsé Téäm Àdmïn Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Primary Subject"
 msgstr "Prïmärý Süßjéçt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Secondary Subject"
 msgstr "Séçöndärý Süßjéçt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Tertiary Subject"
 msgstr "Tértïärý Süßjéçt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Course Image"
 msgstr "Çöürsé Ìmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
@@ -2182,68 +2191,40 @@ msgid "Number"
 msgstr "Nümßér Ⱡ'σяєм ιρѕυ#"
 
 #: templates/publisher/course_run_detail/_all.html
+msgid "Studio instance"
+msgstr "Stüdïö ïnstänçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_render_field.html
+msgid "empty"
+msgstr "émptý Ⱡ'σяєм ιρѕ#"
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
 #: templates/publisher/course_run_detail/_studio.html
-msgid "Pacing Type"
-msgstr "Päçïng Týpé Ⱡ'σяєм ιρѕυм ∂σłσя #"
+#: templates/publisher/dashboard/_studio_requests.html
+msgid "Start Date"
+msgstr "Stärt Däté Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "Contracted Partner"
-msgstr "Çönträçtéd Pärtnér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
-
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_cat.html
 #: templates/publisher/course_run_detail/_drupal.html
-msgid "Course ID"
-msgstr "Çöürsé ÌD Ⱡ'σяєм ιρѕυм ∂σł#"
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "End Date"
+msgstr "Énd Däté Ⱡ'σяєм ιρѕυм ∂#"
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "Is Re-run?"
-msgstr "Ìs Ré-rün? Ⱡ'σяєм ιρѕυм ∂σłσ#"
+msgid "Certificate type"
+msgstr "Çértïfïçäté týpé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "Course Subtitle"
-msgstr "Çöürsé Süßtïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+msgid "Certificate Price"
+msgstr "Çértïfïçäté Prïçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "Subjects"
-msgstr "Süßjéçts Ⱡ'σяєм ιρѕυм ∂#"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Part of an Xseries?"
-msgstr "Pärt öf än Xsérïés? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Xseries Name"
-msgstr "Xsérïés Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Part of a Micromasters?"
-msgstr "Pärt öf ä Mïçrömästérs? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Micromasters Name"
-msgstr "Mïçrömästérs Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Enrollment Type"
-msgstr "Énröllmént Týpé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
-
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_credit_seat.html
-#: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_seats.html
-msgid "Price"
-msgstr "Prïçé Ⱡ'σяєм ιρѕ#"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Certificate Generation Date Exception Request"
-msgstr ""
-"Çértïfïçäté Générätïön Däté Éxçéptïön Réqüést Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя #"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Course Length (weeks)"
-msgstr "Çöürsé Léngth (wééks) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+msgid "Course Staff"
+msgstr "Çöürsé Stäff Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
@@ -2252,63 +2233,25 @@ msgstr "Éstïmätéd Éffört Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
-msgid "to"
-msgstr "tö Ⱡ'σя#"
-
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_drupal.html
 msgid "hours per week"
 msgstr "höürs pér wéék Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "Course Languages"
-msgstr "Çöürsé Längüägés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+msgid "Course content language"
+msgstr "Çöürsé çöntént längüägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "Video Translation Languages"
-msgstr "Vïdéö Tränslätïön Längüägés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+msgid "Video Language Transcript"
+msgstr "Vïdéö Längüägé Tränsçrïpt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "About This Course"
-msgstr "Àßöüt Thïs Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "What You'll Learn"
-msgstr "Whät Ýöü'll Léärn Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Learner Testimonial"
-msgstr "Léärnér Téstïmönïäl Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Syllabus"
-msgstr "Sýlläßüs Ⱡ'σяєм ιρѕυм ∂#"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Search Engine Optimization Review"
+msgid "Language spoken in course videos"
 msgstr ""
-"Séärçh Éngïné Öptïmïzätïön Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+"Längüägé spökén ïn çöürsé vïdéös Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "Top 10 Keywords"
-msgstr "Töp 10 Kéýwörds Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "edX Username or email address of Course Team Admin(s)"
-msgstr ""
-"édX Ûsérnämé ör émäïl äddréss öf Çöürsé Téäm Àdmïn(s) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
-" αмєт, ¢σηѕє¢тєтυя α#"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid ""
-"edX Username or email address of additional course team members (Staff)"
-msgstr ""
-"édX Ûsérnämé ör émäïl äddréss öf äddïtïönäl çöürsé téäm mémßérs (Stäff) "
-"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Additional Notes"
-msgstr "Àddïtïönäl Nötés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+msgid "Course Length (Weeks)"
+msgstr "Çöürsé Léngth (Wééks) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: templates/publisher/course_run_detail/_approval_widget.html
 msgid "change owner"
@@ -2317,6 +2260,11 @@ msgstr "çhängé öwnér Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 #: templates/publisher/course_run_detail/_approval_widget.html
 msgid "CHANGE"
 msgstr "ÇHÀNGÉ Ⱡ'σяєм ιρѕυ#"
+
+#: templates/publisher/course_run_detail/_cat.html
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Course ID"
+msgstr "Çöürsé ÌD Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: templates/publisher/course_run_detail/_cat.html
 msgid "Course Type"
@@ -2329,6 +2277,12 @@ msgstr "Çrédït Séäts Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 #: templates/publisher/course_run_detail/_credit_seat.html
 msgid "Credit Provider"
 msgstr "Çrédït Prövïdér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: templates/publisher/course_run_detail/_credit_seat.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_seats.html
+msgid "Price"
+msgstr "Prïçé Ⱡ'σяєм ιρѕ#"
 
 #: templates/publisher/course_run_detail/_credit_seat.html
 #: templates/publisher/course_run_detail/_seats.html
@@ -2365,25 +2319,16 @@ msgid "XSeries"
 msgstr "XSérïés Ⱡ'σяєм ιρѕυм #"
 
 #: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_salesforce.html
-#: templates/publisher/course_run_detail/_studio.html
-#: templates/publisher/dashboard/_studio_requests.html
-msgid "Start Date"
-msgstr "Stärt Däté Ⱡ'σяєм ιρѕυм ∂σłσ#"
-
-#: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_salesforce.html
-#: templates/publisher/course_run_detail/_studio.html
-msgid "End Date"
-msgstr "Énd Däté Ⱡ'σяєм ιρѕυм ∂#"
-
-#: templates/publisher/course_run_detail/_drupal.html
 msgid "Self Paced"
 msgstr "Sélf Päçéd Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Staff"
 msgstr "Stäff Ⱡ'σяєм ιρѕ#"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "to"
+msgstr "tö Ⱡ'σя#"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Languages"
@@ -2531,6 +2476,10 @@ msgstr "Énröllmént Stärt Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт �
 #: templates/publisher/course_run_detail/_studio.html
 msgid "Enrollment End Date"
 msgstr "Énröllmént Énd Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Pacing Type"
+msgstr "Päçïng Týpé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: templates/publisher/course_runs_list.html
 msgid "Course Run List"

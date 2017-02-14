@@ -1,242 +1,257 @@
 {% load i18n %}
 
-<div class="course-information">
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Title" %}
-        </div>
-        <div>{{ object.title }}</div>
+<div class="course-information" xmlns="http://www.w3.org/1999/html">
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Institution" %}
     </div>
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Number" %}
-        </div>
-        <div>{{ object.number }}</div>
-    </div>
+    <div>{{ object.organization_name }}</div>
+  </div>
 
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Organization" %}
-        </div>
-        <div>{{ object.organization_name }}</div>
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Course Team Admin" %}
     </div>
+    <div>{{ object.course_team_admin }}</div>
+  </div>
 
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Course Start Date" %}
-        </div>
-        <div>{{ object.start }}</div>
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Title" %}
     </div>
+    <div>{{ object.title }}</div>
+  </div>
 
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Course End Date" %}
-        </div>
-        <div>{{ object.end }}</div>
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Number" %}
     </div>
+    <div>{{ object.number }}</div>
+  </div>
 
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Pacing Type" %}
-        </div>
-        <div>{{ object.pacing_type }}</div>
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Studio instance" %}
     </div>
+    <div>
+      {% if object.studio_url %}
+        <a target="_blank" href="{{ object.studio_url }}">{{ object.lms_course_id }}</a>
+      {% else %}
+        {% trans "empty" %}
+      {% endif %}
+    </div>
+  </div>
 
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Contracted Partner" %}
-        </div>
-        <div>{{ object.contacted_partner_manager }}</div>
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Start Date" %}
     </div>
-  <div class="non-studio-fields {% if publisher_hide_features_for_pilot %}hidden{% endif %}">
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Course ID" %}
-        </div>
-        <div>{{ object.lms_course_id }}</div>
-    </div>
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Is Re-run?" %}
-        </div>
-        <div>{{ object.is_re_run }}</div>
-    </div>
-    <div class="info-item">
-        <div class="heading">{% trans "Course Subtitle" %}
-        </div>
-        <div>{{ object.short_description }}</div>
-    </div>
+    <div>{{ object.start }}</div>
+  </div>
 
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Partner Name" %}
-        </div>
-        <div>{{ object.partner }}</div>
+  <div class="info-item">
+    <div class="heading">
+      {% trans "End Date" %}
     </div>
+    <div>{{ object.end }}</div>
+  </div>
 
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Subjects" %}
-        </div>
-        <div>{{ object.subject_names }}</div>
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Certificate type" %}
     </div>
+    <div>{{ object.course_type }}</div>
+  </div>
 
-
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Part of an Xseries?" %}
-        </div>
-        <div>{{ object.is_xseries }}</div>
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Certificate Price" %}
     </div>
-
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Xseries Name" %}
-        </div>
-        <div>{{ object.xseries_name }}</div>
+    <div>
+      {% with  object.verified_seat_price as field %}
+        ${% include "publisher/course_run_detail/_render_field.html" %}
+      {% endwith %}
     </div>
+  </div>
 
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Part of a Micromasters?" %}
-        </div>
-        <div>{{ object.is_micromasters }}</div>
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Brief Description" %}
     </div>
-
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Micromasters Name" %}
-        </div>
-        <div>{{ object.micromasters_name }}</div>
+    <div>
+      {% with  object.short_description as field %}
+        {% include "publisher/course_run_detail/_render_field.html" %}
+      {% endwith %}
     </div>
+  </div>
 
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Enrollment Type" %}
-        </div>
-        <div>{{ object.course_type }}</div>
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Full Description" %}
     </div>
-
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Price" %}
-        </div>
-        <div>{{ object.verified_seat_price }}</div>
+    <div>
+      {% with  object.full_description as field %}
+        {% include "publisher/course_run_detail/_render_field.html" %}
+      {% endwith %}
     </div>
+  </div>
 
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Certificate Generation Date Exception Request" %}
-        </div>
-        <div>{{ object.certificate_generation }}</div>
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Expected Learnings" %}
     </div>
-
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Course Length (weeks)" %}
-        </div>
-        <div>{{ object.length }}</div>
+    <div>
+      {% with  object.expected_learnings as field %}
+        {% include "publisher/course_run_detail/_render_field.html" %}
+      {% endwith %}
     </div>
+  </div>
 
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Estimated Effort" %}
-        </div>
-        <div>
-            {% if object.min_effort and object.max_effort %}
-                {{ object.min_effort }} {% trans "to" %} {{ object.max_effort }} {% trans "hours per week" %}
-            {% endif %}
-        </div>
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Course Staff" %}
     </div>
+    <div>
+      {% if not object.staff %}
+        {% trans "empty" %}
+      {% else %}
+        {% for obj in object.course_staff %}
+          <div class="course-staff">
+            <img src="{{ obj.image_url }}" alt=""/>
 
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Course Languages" %}
-        </div>
-        <div>{{ object.language.name }}</div>
+            <div class="staff-detail">
+              <div class="name">{{ obj.full_name }}</div>
+              <div>{{ obj.position }}</div>
+              <div class="organization">{{ obj.organization }}</div>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
     </div>
-
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Video Translation Languages" %}
-        </div>
-        <div>{{ object.video_languages }}</div>
+  </div>
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Primary Subject" %}
     </div>
+    <div>
 
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Course Level" %}
-        </div>
-        <div>{{ object.level_type }}</div>
+      {% with  object.subjects.0 as field %}
+        {% include "publisher/course_run_detail/_render_field.html" %}
+      {% endwith %}
     </div>
+  </div>
 
-    <div class="info-item">
-        <div class="heading">{% trans "About This Course" %}
-        </div>
-        <div>{{ object.full_description }}</div>
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Secondary Subject" %}
     </div>
-
-    <div class="info-item">
-        <div class="heading">
-            {% trans "What You'll Learn" %}
-        </div>
-        <div>{{ object.expected_learnings }}</div>
+    <div>
+      {% with  object.subjects.1 as field %}
+        {% include "publisher/course_run_detail/_render_field.html" %}
+      {% endwith %}
     </div>
+  </div>
 
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Learner Testimonial" %}
-        </div>
-        <div>{{ object.learner_testimonial }}</div>
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Tertiary Subject" %}
     </div>
-
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Syllabus" %}
-        </div>
-        <div>{{ object.syllabus }}</div>
+    <div>
+      {% with  object.subjects.2 as field %}
+        {% include "publisher/course_run_detail/_render_field.html" %}
+      {% endwith %}
     </div>
+  </div>
 
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Prerequisites" %}
-        </div>
-        <div>{{ object.prerequisites }}</div>
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Course Image" %}
     </div>
-
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Search Engine Optimization Review" %}
-        </div>
-        <div>{{ object.seo_review }}</div>
+    <div>
+      {% if not object.course_image %}
+        {% trans "empty" %}
+      {% else %}
+        <img src="{{ object.course_image }}" alt=""/>
+      {% endif %}
     </div>
+  </div>
 
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Top 10 Keywords" %}
-        </div>
-        <div>{{ object.keywords }}</div>
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Prerequisites" %}
     </div>
-
-    <div class="info-item">
-        <div class="heading">
-            {% trans "edX Username or email address of Course Team Admin(s)" %}
-        </div>
-        <div>{{ object.course_team_admins }}</div>
+    <div>
+      {% with  object.prerequisites as field %}
+        {% include "publisher/course_run_detail/_render_field.html" %}
+      {% endwith %}
     </div>
+  </div>
 
-    <div class="info-item">
-        <div class="heading">
-            {% trans "edX Username or email address of additional course team members (Staff)" %}
-        </div>
-        <div>{{ object.course_team_additional_staff }}</div>
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Estimated Effort" %}
     </div>
+    <div>
+      {% if object.min_effort and object.max_effort %}
+        {{ object.min_effort }}-{{ object.max_effort }} {% trans "hours per week" %}
+      {% else %}
+        {% trans "empty" %}
+      {% endif %}
+    </div>
+  </div>
 
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Additional Notes" %}
-        </div>
-        <div>{{ object.notes }}</div>
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Course content language" %}
+    </div>
+    <div>
+      {% with  object.language.name as field %}
+        {% include "publisher/course_run_detail/_render_field.html" %}
+      {% endwith %}
+    </div>
+  </div>
+
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Video Language Transcript" %}
+    </div>
+    <div>
+      {% with  object.transcript_language as field %}
+        {% include "publisher/course_run_detail/_render_field.html" %}
+      {% endwith %}
+    </div>
+  </div>
+
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Language spoken in course videos" %}
+    </div>
+    <div>
+      {% with  object.video_language as field %}
+        {% include "publisher/course_run_detail/_render_field.html" %}
+      {% endwith %}
+    </div>
+  </div>
+
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Course Length (Weeks)" %}
+    </div>
+    <div>
+      {% with  object.length as field %}
+        {% include "publisher/course_run_detail/_render_field.html" %}
+      {% endwith %}
+    </div>
+  </div>
+
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Course Level" %}
+    </div>
+    <div>
+      {% with  object.level_type as field %}
+        {% include "publisher/course_run_detail/_render_field.html" %}
+      {% endwith %}
     </div>
   </div>
 </div>
