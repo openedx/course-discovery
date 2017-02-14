@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from django_fsm import FSMField, transition
@@ -495,6 +496,7 @@ class CourseState(TimeStampedModel, ChangedByMixin):
     approved_by_role = models.CharField(blank=True, null=True, max_length=63, choices=PublisherUserRole.choices)
     owner_role = models.CharField(max_length=63, choices=PublisherUserRole.choices)
     course = models.OneToOneField(Course, related_name='course_state')
+    owner_role_modified = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     history = HistoricalRecords()
 
@@ -539,8 +541,11 @@ class CourseState(TimeStampedModel, ChangedByMixin):
             user_role = self.course.course_user_roles.get(user=user)
             if user_role.role == PublisherUserRole.MarketingReviewer:
                 self.owner_role = PublisherUserRole.CourseTeam
+                self.owner_role_modified = timezone.now()
             elif user_role.role == PublisherUserRole.CourseTeam:
                 self.owner_role = PublisherUserRole.MarketingReviewer
+                self.owner_role_modified = timezone.now()
+
             self.review()
 
             if waffle.switch_is_active('enable_publisher_email_notifications'):
@@ -559,6 +564,7 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
     approved_by_role = models.CharField(blank=True, null=True, max_length=63, choices=PublisherUserRole.choices)
     owner_role = models.CharField(max_length=63, choices=PublisherUserRole.choices)
     course_run = models.OneToOneField(CourseRun, related_name='course_run_state')
+    owner_role_modified = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     history = HistoricalRecords()
 
