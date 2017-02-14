@@ -4,7 +4,7 @@
     Dear {{ recipient_name }},
 {% endblocktrans %}
 {% blocktrans trimmed %}
-     Changes to {{ course_name }} has been approved. {{ course_page_url }}
+     Changes to {{ course_name }} has been approved. {{ page_url }}
 {% endblocktrans %}
 
 {% trans "Thanks," %}

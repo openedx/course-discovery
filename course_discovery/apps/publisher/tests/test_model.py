@@ -8,10 +8,12 @@ from guardian.shortcuts import assign_perm
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
-from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
+from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.mixins import check_course_organization_permission
-from course_discovery.apps.publisher.models import CourseUserRole, OrganizationExtension, OrganizationUserRole, State
+from course_discovery.apps.publisher.models import (CourseUserRole, OrganizationExtension, OrganizationUserRole, Seat,
+                                                    State)
 from course_discovery.apps.publisher.tests import factories
 
 
@@ -85,6 +87,62 @@ class CourseRunTests(TestCase):
             '{url}/course/{id}'.format(url=self.course_run.course.partner.studio_url, id='test'),
             self.course_run.studio_url
         )
+
+    def test_has_valid_staff(self):
+        """ Verify that property returns True if course-run must have a staff member
+        with bio and image.
+        """
+        self.assertFalse(self.course_run.has_valid_staff)
+        staff = PersonFactory()
+        self.course_run.staff.add(staff)
+        self.assertTrue(self.course_run.has_valid_staff)
+
+    @ddt.data('bio', 'profile_image')
+    def test_with_in_valid_staff(self, field):
+        """ Verify that property returns False staff has bio or image is missing."""
+        staff = PersonFactory(profile_image_url=None)
+        self.course_run.staff.add(staff)
+
+        setattr(staff, field, None)
+        staff.save()
+        self.assertFalse(self.course_run.has_valid_staff)
+
+    def test_is_valid_micromasters(self):
+        """ Verify that property returns bool if both fields have value. """
+        self.assertTrue(self.course_run.is_valid_micromasters)
+
+        self.course_run.is_micromasters = True
+        self.course_run.micromasters_name = 'test'
+        self.course_run.save()
+        self.assertTrue(self.course_run.is_valid_micromasters)
+
+        self.course_run.micromasters_name = None
+        self.course_run.save()
+        self.assertFalse(self.course_run.is_valid_micromasters)
+
+    def test_is_valid_xseries(self):
+        """ Verify that property returns bool if both fields have value. """
+        self.assertTrue(self.course_run.is_valid_xseries)
+
+        self.course_run.is_xseries = True
+        self.course_run.xseries_name = 'test'
+        self.course_run.save()
+        self.assertTrue(self.course_run.is_valid_xseries)
+
+        self.course_run.xseries_name = None
+        self.course_run.save()
+        self.assertFalse(self.course_run.is_valid_xseries)
+
+    def test_has_valid_seats(self):
+        """ Verify that property returns True if seats are valid. """
+        factories.SeatFactory(course_run=self.course_run, type=Seat.AUDIT, price=0)
+        invalid_seat = factories.SeatFactory(course_run=self.course_run, type=Seat.VERIFIED, price=0)
+        self.assertFalse(self.course_run.has_valid_seats)
+
+        invalid_seat.price = 200
+        invalid_seat.save()
+
+        self.assertTrue(self.course_run.has_valid_seats)
 
 
 class CourseTests(TestCase):
@@ -489,13 +547,44 @@ class CourseRunStateTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super(CourseRunStateTests, cls).setUpClass()
-        cls.run_state = factories.CourseRunStateFactory(name=CourseRunStateChoices.Draft)
+        cls.seat = factories.SeatFactory(type=Seat.VERIFIED, price=100)
+        cls.course_run_state = factories.CourseRunStateFactory(
+            course_run=cls.seat.course_run, name=CourseRunStateChoices.Draft
+        )
+        cls.course_run = cls.course_run_state.course_run
+        cls.course = cls.course_run.course
+        cls.user = UserFactory()
+
+        factories.CourseStateFactory(
+            name=CourseStateChoices.Approved, course=cls.course
+        )
+        factories.CourseUserRoleFactory(
+            course=cls.course_run.course, role=PublisherUserRole.CourseTeam, user=cls.user
+        )
+        factories.CourseUserRoleFactory(
+            course=cls.course_run.course, role=PublisherUserRole.MarketingReviewer, user=UserFactory()
+        )
+
+    def setUp(self):
+        super(CourseRunStateTests, self).setUp()
+
+        language_tag = LanguageTag(code='te-st', name='Test Language')
+        language_tag.save()
+        self.course_run.transcript_languages.add(language_tag)
+        self.course_run.language = language_tag
+        self.course_run.is_micromasters = True
+        self.course_run.micromasters_name = 'test'
+        self.course_run.save()
+        self.course.course_state.name = CourseStateChoices.Approved
+        self.course.save()
+        self.course_run.staff.add(PersonFactory())
+        self.assertTrue(self.course_run_state.can_send_for_review())
 
     def test_str(self):
         """
         Verify casting an instance to a string returns a string containing the current state display name.
         """
-        self.assertEqual(str(self.run_state), self.run_state.get_name_display())
+        self.assertEqual(str(self.course_run_state), self.course_run_state.get_name_display())
 
     @ddt.data(
         CourseRunStateChoices.Review,
@@ -507,8 +596,54 @@ class CourseRunStateTests(TestCase):
         """
         Verify that we can change course-run state according to workflow.
         """
-        self.assertNotEqual(self.run_state.name, state)
+        self.assertNotEqual(self.course_run_state.name, state)
+        self.course_run_state.change_state(state=state, user=self.user)
+        self.assertEqual(self.course_run_state.name, state)
 
-        self.run_state.change_state(state=state)
+    def test_with_invalid_parent_course_state(self):
+        """
+        Verify that method return False if parent course is not approved.
+        """
+        self.course.course_state.name = CourseStateChoices.Review
+        self.course.save()
+        self.assertFalse(self.course_run_state.can_send_for_review())
 
-        self.assertEqual(self.run_state.name, state)
+    def test_can_send_for_review_with_invalid_program_type(self):
+        """
+        Verify that method return False if program type is invalid.
+        """
+        self.course_run.micromasters_name = None
+        self.course_run.save()
+        self.assertFalse(self.course_run_state.can_send_for_review())
+
+    def test_can_send_for_review_with_invalid_seat(self):
+        """
+        Verify that method return False if data is missing.
+        """
+        # seat type is verified but its price is 0
+        self.seat.price = 0
+        self.seat.save()
+        self.assertFalse(self.course_run_state.can_send_for_review())
+
+    def test_can_send_for_review_with_no_seat(self):
+        """
+        Verify that method return False if data is missing.
+        """
+        self.course_run.seats.all().first().delete()
+        self.assertFalse(self.course_run_state.can_send_for_review())
+
+    def test_can_send_for_review_without_language(self):
+        """
+        Verify that method return False if data is missing.
+        """
+        self.course_run.language = None
+        self.course_run.save()
+        self.assertFalse(self.course_run_state.can_send_for_review())
+
+    def test_can_send_for_review_without_transcript_language(self):
+        """
+        Verify that method return False if data is missing.
+        """
+        self.course_run.transcript_languages = []
+        self.course_run.save()
+        self.assertFalse(self.course_run_state.can_send_for_review())

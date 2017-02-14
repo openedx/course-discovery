@@ -14,9 +14,11 @@ from mock import patch
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
+from course_discovery.apps.course_metadata.tests.factories import PersonFactory
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.constants import INTERNAL_USER_GROUP_NAME
-from course_discovery.apps.publisher.models import CourseRun, CourseRunState, CourseState, OrganizationExtension
+from course_discovery.apps.publisher.models import CourseRun, CourseRunState, CourseState, OrganizationExtension, Seat
 from course_discovery.apps.publisher.tests import JSON_CONTENT_TYPE, factories
 
 
@@ -505,7 +507,6 @@ class ChangeCourseStateViewTests(TestCase):
         factories.CourseUserRoleFactory(
             course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
         )
-
         course_team_user = UserFactory()
         factories.CourseUserRoleFactory(
             course=self.course, role=PublisherUserRole.CourseTeam, user=course_team_user
@@ -531,7 +532,13 @@ class ChangeCourseRunStateViewTests(TestCase):
 
     def setUp(self):
         super(ChangeCourseRunStateViewTests, self).setUp()
-        self.run_state = factories.CourseRunStateFactory(name=CourseRunStateChoices.Draft)
+        self.seat = factories.SeatFactory(type=Seat.VERIFIED, price=2)
+        self.course_run = self.seat.course_run
+
+        self.run_state = factories.CourseRunStateFactory(name=CourseRunStateChoices.Draft, course_run=self.course_run)
+        self.course_state = factories.CourseStateFactory(
+            name=CourseStateChoices.Approved, course=self.course_run.course
+        )
         self.user = UserFactory()
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
 
@@ -539,23 +546,15 @@ class ChangeCourseRunStateViewTests(TestCase):
 
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
-    def test_change_course_run_state(self):
-        """
-        Verify that publisher user can change course-run workflow state.
-        """
-        self.assertNotEqual(self.run_state.name, CourseRunStateChoices.Review)
+        language_tag = LanguageTag(code='te-st', name='Test Language')
+        language_tag.save()
+        self.course_run.transcript_languages.add(language_tag)
+        self.course_run.language = language_tag
+        self.course_run.save()
 
-        response = self.client.patch(
-            self.change_state_url,
-            data=json.dumps({'name': CourseRunStateChoices.Review}),
-            content_type=JSON_CONTENT_TYPE
-        )
+        self.course_run.staff.add(PersonFactory())
 
-        self.assertEqual(response.status_code, 200)
-
-        self.run_state = CourseRunState.objects.get(course_run=self.run_state.course_run)
-
-        self.assertEqual(self.run_state.name, CourseRunStateChoices.Review)
+        toggle_switch('enable_publisher_email_notifications', True)
 
     def test_change_course_run_state_with_error(self):
         """
@@ -576,3 +575,35 @@ class ChangeCourseRunStateViewTests(TestCase):
         }
 
         self.assertEqual(response.data, expected)
+
+    def test_mark_as_reviewed(self):
+        """
+        Verify that user can mark course-run as reviewed.
+        """
+        self.run_state.name = CourseRunStateChoices.Draft
+        self.run_state.save()
+
+        self._assign_role(self.course_run.course, PublisherUserRole.MarketingReviewer, self.user)
+
+        course_team_user = UserFactory()
+        self._assign_role(self.course_run.course, PublisherUserRole.CourseTeam, course_team_user)
+
+        response = self.client.patch(
+            self.change_state_url,
+            data=json.dumps({'name': CourseStateChoices.Review}),
+            content_type=JSON_CONTENT_TYPE
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        course_run_state = CourseRunState.objects.get(course_run=self.course_run)
+
+        self.assertEqual(course_run_state.name, CourseRunStateChoices.Review)
+
+        self.assertEqual(len(mail.outbox), 1)
+
+    def _assign_role(self, course, role, user):
+        """ Method to assign course-user-role."""
+        factories.CourseUserRoleFactory(
+            course=course, role=role, user=user
+        )

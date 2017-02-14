@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-16 10:21-0500\n"
+"POT-Creation-Date: 2017-02-17 15:19+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2300,6 +2300,8 @@ msgstr ""
 #: templates/publisher/email/course/mark_as_reviewed.txt
 #: templates/publisher/email/course/send_for_review.html
 #: templates/publisher/email/course/send_for_review.txt
+#: templates/publisher/email/course_run/send_for_review.html
+#: templates/publisher/email/course_run/send_for_review.txt
 #, python-format
 msgid "Dear %(recipient_name)s,"
 msgstr ""
@@ -2307,7 +2309,7 @@ msgstr ""
 #: templates/publisher/email/course/mark_as_reviewed.html
 #, python-format
 msgid ""
-"Changes to %(link_start)s%(course_page_url)s%(link_middle)s %(course_name)s "
+"Changes to %(link_start)s%(page_url)s%(link_middle)s %(course_name)s "
 "%(link_end)s has been approved."
 msgstr ""
 
@@ -2318,6 +2320,8 @@ msgstr ""
 #: templates/publisher/email/course/send_for_review.txt
 #: templates/publisher/email/course_created.html
 #: templates/publisher/email/course_created.txt
+#: templates/publisher/email/course_run/send_for_review.html
+#: templates/publisher/email/course_run/send_for_review.txt
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
 #: templates/publisher/email/studio_instance_needed.html
@@ -2327,6 +2331,7 @@ msgstr ""
 
 #: templates/publisher/email/course/mark_as_reviewed.html
 #: templates/publisher/email/course/send_for_review.html
+#: templates/publisher/email/course_run/send_for_review.html
 #: templates/publisher/email/studio_instance_created.html
 #, python-format
 msgid ""
@@ -2336,11 +2341,12 @@ msgstr ""
 
 #: templates/publisher/email/course/mark_as_reviewed.txt
 #, python-format
-msgid "Changes to %(course_name)s has been approved. %(course_page_url)s"
+msgid "Changes to %(course_name)s has been approved. %(page_url)s"
 msgstr ""
 
 #: templates/publisher/email/course/mark_as_reviewed.txt
 #: templates/publisher/email/course/send_for_review.txt
+#: templates/publisher/email/course_run/send_for_review.txt
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
 msgid ""
@@ -2351,18 +2357,18 @@ msgstr ""
 #: templates/publisher/email/course/send_for_review.html
 #, python-format
 msgid ""
-"New changes to %(link_start)s%(course_page_url)s%(link_middle)s "
-"%(course_name)s %(link_end)s are ready for your review. "
-"%(link_start)s%(course_page_url)s%(link_middle)s View this course in "
-"Publisher %(link_end)s to approve or decline the changes."
+"New changes to %(link_start)s%(page_url)s%(link_middle)s %(course_name)s "
+"%(link_end)s are ready for your review. "
+"%(link_start)s%(page_url)s%(link_middle)s View this course in Publisher "
+"%(link_end)s to approve or decline the changes."
 msgstr ""
 
 #: templates/publisher/email/course/send_for_review.txt
+#: templates/publisher/email/course_run/send_for_review.txt
 #, python-format
 msgid ""
-"New changes to %(course_name)s are ready for your review. "
-"%(course_page_url)s View this course in Publisher to approve or decline the "
-"changes."
+"New changes to %(course_name)s are ready for your review. %(page_url)s View "
+"this course in Publisher to approve or decline the changes."
 msgstr ""
 
 #. Translators: partner_coordinator_name is a member name.
@@ -2395,6 +2401,15 @@ msgstr ""
 msgid ""
 "%(course_team_name)s created the %(course_title)s : %(dashboard_url)s course"
 " in Publisher on %(date)s at %(time)s."
+msgstr ""
+
+#: templates/publisher/email/course_run/send_for_review.html
+#, python-format
+msgid ""
+"New changes to %(link_start)s%(page_url)s%(link_middle)s %(course_name)s "
+"%(link_end)s are ready for your review. "
+"%(link_start)s%(page_url)s%(link_middle)s View this course-run in Publisher "
+"%(link_end)s to approve or decline the changes."
 msgstr ""
 
 #. Translators: course_team_name is course team member name.

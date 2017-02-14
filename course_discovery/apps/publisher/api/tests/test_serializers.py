@@ -4,14 +4,16 @@ from rest_framework.exceptions import ValidationError
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
+from course_discovery.apps.course_metadata.tests.factories import PersonFactory
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api.serializers import (CourseRevisionSerializer, CourseRunStateSerializer,
                                                              CourseStateSerializer, CourseUserRoleSerializer,
                                                              GroupUserSerializer, UpdateCourseKeySerializer)
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
-from course_discovery.apps.publisher.models import CourseRunState, CourseState
+from course_discovery.apps.publisher.models import CourseRunState, CourseState, Seat
 from course_discovery.apps.publisher.tests.factories import (CourseFactory, CourseRunFactory, CourseRunStateFactory,
                                                              CourseStateFactory, CourseUserRoleFactory,
-                                                             OrganizationExtensionFactory)
+                                                             OrganizationExtensionFactory, SeatFactory)
 
 
 class CourseUserRoleSerializerTests(TestCase):
@@ -191,24 +193,41 @@ class CourseRunStateSerializerTests(TestCase):
     def setUp(self):
         super(CourseRunStateSerializerTests, self).setUp()
         self.run_state = CourseRunStateFactory(name=CourseRunStateChoices.Draft)
+        self.course_run = self.run_state.course_run
+        self.request = RequestFactory()
+        self.user = UserFactory()
+        self.request.user = self.user
+        CourseStateFactory(name=CourseStateChoices.Approved, course=self.course_run.course)
+
+        SeatFactory(course_run=self.course_run, type=Seat.AUDIT)
+        language_tag = LanguageTag(code='te-st', name='Test Language')
+        language_tag.save()
+        self.course_run.transcript_languages.add(language_tag)
+        self.course_run.language = language_tag
+        self.course_run.save()
+        self.course_run.staff.add(PersonFactory())
 
     def test_update(self):
         """
         Verify that we can update course-run workflow state with serializer.
         """
+        CourseUserRoleFactory(
+            course=self.course_run.course, role=PublisherUserRole.CourseTeam, user=self.user
+        )
+
         self.assertNotEqual(self.run_state, CourseRunStateChoices.Review)
-        serializer = self.serializer_class(self.run_state)
+        serializer = self.serializer_class(self.run_state, context={'request': self.request})
         data = {'name': CourseRunStateChoices.Review}
         serializer.update(self.run_state, data)
 
-        self.run_state = CourseRunState.objects.get(course_run=self.run_state.course_run)
+        self.run_state = CourseRunState.objects.get(course_run=self.course_run)
         self.assertEqual(self.run_state.name, CourseRunStateChoices.Review)
 
     def test_update_with_error(self):
         """
         Verify that serializer raises `ValidationError` with wrong transition.
         """
-        serializer = self.serializer_class(self.run_state)
+        serializer = self.serializer_class(self.run_state, context={'request': self.request})
         data = {'name': CourseRunStateChoices.Published}
 
         with self.assertRaises(ValidationError):

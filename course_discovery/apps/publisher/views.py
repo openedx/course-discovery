@@ -22,7 +22,7 @@ from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher import emails, mixins
 from course_discovery.apps.publisher.choices import CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.forms import CustomCourseForm, CustomCourseRunForm, CustomSeatForm, SeatForm
-from course_discovery.apps.publisher.models import (Course, CourseRun, CourseState, CourseUserRole,
+from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
                                                     OrganizationExtension, Seat, State, UserAttributes)
 from course_discovery.apps.publisher.utils import (get_internal_users, is_internal_user, is_partner_coordinator_user,
                                                    is_publisher_admin, make_bread_crumbs)
@@ -122,23 +122,6 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
     template_name = 'publisher/course_run_detail.html'
     permission = OrganizationExtension.VIEW_COURSE_RUN
 
-    def get_role_widgets_data(self, course_roles):
-        """ Create role widgets list for course user roles. """
-        role_widgets = []
-        for course_role in course_roles:
-            role_widgets.append(
-                {
-                    'course_role': course_role,
-                    'heading': ROLE_WIDGET_HEADINGS.get(course_role.role),
-                    'change_state_url': reverse(
-                        'publisher:api:change_course_run_state', kwargs={'pk': self.object.course_run_state.id}
-                    ),
-                    'user_list': get_internal_users()
-                }
-            )
-
-        return role_widgets
-
     def get_context_data(self, **kwargs):
         context = super(CourseRunDetailView, self).get_context_data(**kwargs)
 
@@ -151,9 +134,9 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
         context['can_edit'] = mixins.check_course_organization_permission(
             user, course_run.course, OrganizationExtension.EDIT_COURSE_RUN
         )
-
-        course_roles = course_run.course.course_user_roles.exclude(role=PublisherUserRole.CourseTeam)
-        context['role_widgets'] = self.get_role_widgets_data(course_roles)
+        context['role_widgets'] = get_course_role_widgets_data(
+            user, course_run.course, course_run.course_run_state, 'publisher:api:change_course_run_state'
+        )
 
         context['breadcrumbs'] = make_bread_crumbs(
             [
@@ -253,6 +236,9 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
 
                     # Initialize workflow for Course.
                     CourseState.objects.create(course=course, owner_role=PublisherUserRole.CourseTeam)
+
+                    # Initialize workflow for Course-run.
+                    CourseRunState.objects.create(course_run=run_course, owner_role=PublisherUserRole.CourseTeam)
 
                     # pylint: disable=no-member
                     messages.success(
@@ -367,72 +353,28 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
         context = super(CourseDetailView, self).get_context_data(**kwargs)
 
         user = self.request.user
+        course = self.object
         context['can_edit'] = mixins.check_course_organization_permission(
-            user, self.object, OrganizationExtension.EDIT_COURSE
+            user, course, OrganizationExtension.EDIT_COURSE
         )
 
         context['breadcrumbs'] = make_bread_crumbs(
             [
                 (reverse('publisher:publisher_courses'), 'Courses'),
-                (None, self.object.title),
+                (None, course.title),
             ]
         )
-        context['comment_object'] = self.object
+        context['comment_object'] = course
         context['post_back_url'] = reverse('publisher:publisher_course_detail', kwargs={'pk': self.object.id})
         context['publisher_hide_features_for_pilot'] = waffle.switch_is_active('publisher_hide_features_for_pilot')
         context['publisher_comment_widget_feature'] = waffle.switch_is_active('publisher_comment_widget_feature')
         context['publisher_history_widget_feature'] = waffle.switch_is_active('publisher_history_widget_feature')
         context['publisher_approval_widget_feature'] = waffle.switch_is_active('publisher_approval_widget_feature')
-        context['role_widgets'] = self.get_role_widgets_data()
+        context['role_widgets'] = get_course_role_widgets_data(
+            user, course, course.course_state, 'publisher:api:change_course_state'
+        )
 
         return context
-
-    def get_role_widgets_data(self):
-        """ Create role widgets list for course user roles. """
-        user = self.request.user
-        course_state = self.object.course_state
-
-        role_widgets = []
-        for course_role in self.object.course_user_roles.order_by('role'):
-            role_widget = {
-                'course_role': course_role,
-                'heading': ROLE_WIDGET_HEADINGS.get(course_role.role),
-                'change_state_url': reverse(
-                    'publisher:api:change_course_state', kwargs={'pk': course_state.id}
-                )
-            }
-
-            if is_internal_user(user):
-                role_widget['user_list'] = get_internal_users()
-
-            if course_role.role == PublisherUserRole.CourseTeam:
-                role_widget['user_list'] = self.object.organization_extension.group.user_set.all()
-
-            if course_state.owner_role == course_role.role:
-                role_widget['ownership'] = timezone.now() - course_state.owner_role_modified
-                if user == course_role.user:
-                    role_widget['state_button'] = STATE_BUTTONS.get(course_state.name)
-
-                    if course_state.name == CourseStateChoices.Draft and not course_state.can_send_for_review():
-                        role_widget['button_disabled'] = True
-
-            if course_role.role in [PublisherUserRole.CourseTeam, PublisherUserRole.MarketingReviewer]:
-                if course_state.owner_role != course_role.role:
-                    if course_state.name != CourseStateChoices.Draft:
-                        history_records = course_state.history.filter(
-                            name=CourseStateChoices.Review
-                        ).order_by('-modified')
-                        role_widget['sent_for_review'] = history_records.first().modified
-
-                if course_state.name == CourseStateChoices.Approved:
-                    history_records = course_state.history.filter(
-                        name=CourseStateChoices.Approved
-                    ).order_by('-modified')
-                    role_widget['reviewed'] = history_records.first().modified
-
-            role_widgets.append(role_widget)
-
-        return role_widgets
 
 
 class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
@@ -510,6 +452,9 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
 
                     course_run = run_form.save(course=course, changed_by=user)
                     seat_form.save(course_run=course_run, changed_by=user)
+
+                    # Initialize workflow for Course-run.
+                    CourseRunState.objects.create(course_run=course_run, owner_role=PublisherUserRole.CourseTeam)
 
                     # pylint: disable=no-member
                     success_msg = _('Course run created successfully for course "{course_title}".').format(
@@ -770,3 +715,53 @@ class CourseRevisionView(mixins.LoginRequiredMixin, DetailView):
             raise Http404
 
         return context
+
+
+def get_course_role_widgets_data(user, course, state_object, change_state_url):
+    """ Create role widgets list for course user roles. """
+    role_widgets = []
+
+    for course_role in course.course_user_roles.order_by('role'):
+        role_widget = {
+            'course_role': course_role,
+            'heading': ROLE_WIDGET_HEADINGS.get(course_role.role),
+            'change_state_url': reverse(change_state_url, kwargs={'pk': state_object.id})
+        }
+
+        if is_internal_user(user):
+            role_widget['user_list'] = get_internal_users()
+            if course_role.role != PublisherUserRole.CourseTeam:
+                role_widget['can_change_role_assignment'] = True
+
+        if course_role.role == PublisherUserRole.CourseTeam:
+            role_widget['user_list'] = course.organization_extension.group.user_set.all()
+            if user.groups.filter(name=course.organization_extension.group).exists():
+                role_widget['can_change_role_assignment'] = True
+
+        if state_object.owner_role == course_role.role:
+            if state_object.owner_role_modified:
+                role_widget['ownership'] = timezone.now() - state_object.owner_role_modified
+
+            if user == course_role.user:
+                role_widget['state_button'] = STATE_BUTTONS.get(state_object.name)
+
+                if state_object.name == CourseStateChoices.Draft and not state_object.can_send_for_review():
+                    role_widget['button_disabled'] = True
+
+        if course_role.role in [PublisherUserRole.CourseTeam, PublisherUserRole.MarketingReviewer]:
+            if state_object.owner_role != course_role.role:
+                if state_object.name != CourseStateChoices.Draft:
+                    history_records = state_object.history.filter(
+                        name=CourseStateChoices.Review
+                    ).order_by('-modified')
+                    role_widget['sent_for_review'] = history_records.first() and history_records.first().modified
+
+            if state_object.name == CourseStateChoices.Approved:
+                history_records = state_object.history.filter(
+                    name=CourseStateChoices.Approved
+                ).order_by('-modified')
+                role_widget['reviewed'] = history_records.first().modified
+
+        role_widgets.append(role_widget)
+
+    return role_widgets
