@@ -399,7 +399,7 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
             }
 
             if course_state.owner_role == course_role.role:
-                role_widget['ownership'] = timezone.now() - course_state.modified
+                role_widget['ownership'] = timezone.now() - course_state.owner_role_modified
                 if user == course_role.user:
                     role_widget['state_button'] = STATE_BUTTONS.get(course_state.name)
 
