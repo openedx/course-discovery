@@ -23,8 +23,10 @@ from course_discovery.apps.course_metadata.models import LevelType, Organization
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
-from course_discovery.apps.publisher.emails import (send_email_for_change_state, send_email_for_mark_as_reviewed,
-                                                    send_email_for_send_for_review)
+from course_discovery.apps.publisher.emails import (
+    send_email_for_change_state, send_email_for_mark_as_reviewed,
+    send_email_for_send_for_review, send_email_for_send_for_review_course_run
+)
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
 
 logger = logging.getLogger(__name__)
@@ -332,11 +334,50 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
 
     @property
     def studio_url(self):
-        if self.lms_course_id and self.course.partner.studio_url:
+        if self.lms_course_id and self.course.partner and self.course.partner.studio_url:
             path = 'course/{lms_course_id}'.format(lms_course_id=self.lms_course_id)
             return urljoin(self.course.partner.studio_url, path)
 
         return None
+
+    @property
+    def has_valid_staff(self):
+        """ Check that each staff member has his bio data and image."""
+        staff_members = self.staff.all()
+        if not staff_members:
+            return False
+
+        return all([staff.bio and staff.get_profile_image_url for staff in staff_members])
+
+    @property
+    def is_valid_micromasters(self):
+        """ Check that `micromasters_name` is provided if is_micromaster is True."""
+        if not self.is_micromasters:
+            return True
+
+        if self.is_micromasters and self.micromasters_name:
+            return True
+
+        return False
+
+    @property
+    def is_valid_xseries(self):
+        """ Check that `xseries_name` is provided if is_xseries is True."""
+        if not self.is_xseries:
+            return True
+
+        if self.is_xseries and self.xseries_name:
+            return True
+
+        return False
+
+    @property
+    def has_valid_seats(self):
+        """
+        Validate course-run has a  valid seats.
+        """
+        seats = self.seats.filter(type__in=[Seat.AUDIT, Seat.VERIFIED, Seat.PROFESSIONAL])
+        return all([seat.is_valid_seat for seat in seats]) if seats else False
 
 
 class Seat(TimeStampedModel, ChangedByMixin):
@@ -379,6 +420,10 @@ class Seat(TimeStampedModel, ChangedByMixin):
     @property
     def post_back_url(self):
         return reverse('publisher:publisher_seats_edit', kwargs={'pk': self.id})
+
+    @property
+    def is_valid_seat(self):
+        return self.type == self.AUDIT or self.type in [self.VERIFIED, self.PROFESSIONAL] and self.price > 0
 
 
 @receiver(pre_save, sender=CourseRun)
@@ -568,6 +613,10 @@ class CourseState(TimeStampedModel, ChangedByMixin):
 
         self.save()
 
+    @property
+    def is_approved(self):
+        return self.name == CourseStateChoices.Approved
+
 
 class CourseRunState(TimeStampedModel, ChangedByMixin):
     """ Publisher Workflow Course Run State Model. """
@@ -580,6 +629,17 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
 
     history = HistoricalRecords()
 
+    def can_send_for_review(self):
+        """
+        Validate minimum required fields before sending for review.
+        """
+        course_run = self.course_run
+        return all([
+            course_run.course.course_state.is_approved, course_run.has_valid_seats, course_run.start, course_run.end,
+            course_run.pacing_type, course_run.has_valid_staff, course_run.is_valid_micromasters,
+            course_run.is_valid_xseries, course_run.language, course_run.transcript_languages.all()
+        ])
+
     def __str__(self):
         return self.get_name_display()
 
@@ -588,7 +648,12 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
         # TODO: send email etc.
         pass
 
-    @transition(field=name, source=CourseRunStateChoices.Draft, target=CourseRunStateChoices.Review)
+    @transition(
+        field=name,
+        source=CourseRunStateChoices.Draft,
+        target=CourseRunStateChoices.Review,
+        conditions=[can_send_for_review]
+    )
     def review(self):
         # TODO: send email etc.
         pass
@@ -603,11 +668,23 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
         # TODO: send email etc.
         pass
 
-    def change_state(self, state):
+    def change_state(self, state, user):
         if state == CourseRunStateChoices.Draft:
             self.draft()
         elif state == CourseRunStateChoices.Review:
+            user_role = self.course_run.course.course_user_roles.get(user=user)
+            if user_role.role == PublisherUserRole.MarketingReviewer:
+                self.owner_role = PublisherUserRole.CourseTeam
+                self.owner_role_modified = timezone.now()
+            elif user_role.role == PublisherUserRole.CourseTeam:
+                self.owner_role = PublisherUserRole.MarketingReviewer
+                self.owner_role_modified = timezone.now()
+
             self.review()
+
+            if waffle.switch_is_active('enable_publisher_email_notifications'):
+                send_email_for_send_for_review_course_run(self.course_run, user)
+
         elif state == CourseRunStateChoices.Approved:
             self.approved()
         elif state == CourseRunStateChoices.Published:

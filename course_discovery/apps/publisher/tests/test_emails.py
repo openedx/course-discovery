@@ -285,11 +285,11 @@ class SendForReviewEmailTests(TestCase):
             )
 
 
-class MarkAsReviewedEmailTests(TestCase):
+class CourseMarkAsReviewedEmailTests(TestCase):
     """ Tests for the email functionality for mark as reviewed. """
 
     def setUp(self):
-        super(MarkAsReviewedEmailTests, self).setUp()
+        super(CourseMarkAsReviewedEmailTests, self).setUp()
         self.user = UserFactory()
         self.course_state = factories.CourseStateFactory()
 
@@ -307,3 +307,72 @@ class MarkAsReviewedEmailTests(TestCase):
                     )
                 )
             )
+
+
+class CourseRunMarkAsReviewedEmailTests(TestCase):
+    """ Tests for the email functionality for mark as reviewed. """
+
+    def setUp(self):
+        super(CourseRunMarkAsReviewedEmailTests, self).setUp()
+        self.user = UserFactory()
+        self.user_2 = UserFactory()
+        self.user_3 = UserFactory()
+
+        self.seat = factories.SeatFactory()
+        self.course_run = self.seat.course_run
+        self.course = self.course_run.course
+
+        # add user in course-user-role table
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.CourseTeam, user=self.user_2
+        )
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.Publisher, user=self.user_3
+        )
+        self.course_run_state = factories.CourseRunStateFactory(course_run=self.course_run)
+
+        toggle_switch('enable_publisher_email_notifications', True)
+
+    def test_email_sent_by_marketing_reviewer(self):
+        """ Verify that email works successfully."""
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
+        )
+        emails.send_email_for_send_for_review_course_run(self.course_run_state.course_run, self.user)
+        subject = 'Changes to {title} are ready for review'.format(title=self.course_run.course.title)
+        self.assert_email_sent(subject, self.user_2)
+
+    def test_email_sent_by_course_team(self):
+        """ Verify that email works successfully."""
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
+        )
+        emails.send_email_for_send_for_review_course_run(self.course_run_state.course_run, self.user_2)
+        subject = 'Changes to {title} are ready for review'.format(title=self.course_run.course.title)
+        self.assert_email_sent(subject, self.user)
+
+    def test_email_with_error(self):
+        """ Verify that email failure log error message."""
+
+        with LogCapture(emails.logger.name) as l:
+            emails.send_email_for_send_for_review_course_run(self.course_run, self.user)
+            l.check(
+                (
+                    emails.logger.name,
+                    'ERROR',
+                    'Failed to send email notifications send for review of course-run {}'.format(
+                        self.course_run.id
+                    )
+                )
+            )
+
+    def assert_email_sent(self, subject, to_email):
+        """ Verify the email data for tests cases."""
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(to_email.email, mail.outbox[0].to[0])
+        self.assertEqual(str(mail.outbox[0].subject), subject)
+        body = mail.outbox[0].body.strip()
+        page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id})
+        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
+        self.assertIn(page_url, body)
+        self.assertIn('are ready for your review.', body)

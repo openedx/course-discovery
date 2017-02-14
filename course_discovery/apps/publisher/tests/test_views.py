@@ -20,17 +20,17 @@ from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
-from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
+from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.choices import CourseStateChoices, PublisherUserRole
+from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.constants import (ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME,
                                                        PARTNER_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME)
 from course_discovery.apps.publisher.models import Course, CourseRun, CourseState, OrganizationExtension, Seat, State
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
-from course_discovery.apps.publisher.utils import get_internal_users, is_email_notification_enabled
+from course_discovery.apps.publisher.utils import is_email_notification_enabled
 from course_discovery.apps.publisher.views import logger as publisher_views_logger
-from course_discovery.apps.publisher.views import ROLE_WIDGET_HEADINGS, CourseRunDetailView
+from course_discovery.apps.publisher.views import CourseRunDetailView, get_course_role_widgets_data
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
 
@@ -672,7 +672,6 @@ class CourseRunDetailTests(TestCase):
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.course_run = factories.CourseRunFactory(course=self.course)
-        self.course_run_state = factories.CourseRunStateFactory(course_run=self.course_run)
 
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.course.organizations.add(self.organization_extension.organization)
@@ -682,6 +681,15 @@ class CourseRunDetailTests(TestCase):
         self.page_url = reverse('publisher:publisher_course_run_detail', args=[self.course_run.id])
         self.wrapped_course_run = CourseRunWrapper(self.course_run)
         self.date_format = '%b %d, %Y, %H:%M:%S %p'
+        # initialize the state
+        self.course_run_state = factories.CourseRunStateFactory(
+            course_run=self.course_run, owner_role=PublisherUserRole.CourseTeam
+        )
+        self.course_state = factories.CourseStateFactory(
+            course=self.course, owner_role=PublisherUserRole.CourseTeam
+        )
+        self.course_state.name = CourseStateChoices.Approved
+        self.course_state.save()
 
     def test_page_without_login(self):
         """ Verify that user can't access detail page when not logged in. """
@@ -887,18 +895,9 @@ class CourseRunDetailTests(TestCase):
 
         response = self.client.get(self.page_url)
 
-        expected_roles = []
-        for user_course_role in self.course.course_user_roles.all():
-            expected_roles.append(
-                {
-                    'course_role': user_course_role,
-                    'heading': ROLE_WIDGET_HEADINGS.get(user_course_role.role),
-                    'change_state_url': reverse(
-                        'publisher:api:change_course_run_state', kwargs={'pk': self.course_run_state.id}
-                    ),
-                    'user_list': get_internal_users()
-                }
-            )
+        expected_roles = get_course_role_widgets_data(
+            self.user, self.course, self.course_run_state, 'publisher:api:change_course_run_state'
+        )
 
         self.assertEqual(response.context['role_widgets'], expected_roles)
 
@@ -1022,83 +1021,87 @@ class CourseRunDetailTests(TestCase):
         response = self.client.get(self.page_url)
         self.assertContains(response, '<div id="approval-widget" class="approval-widget hidden">')
 
+    def test_course_run_approval_widget_for_course_team(self):
+        """
+        Verify that user can see approval widget on course detail page with `Send for Review` button.
+        """
+        toggle_switch('publisher_approval_widget_feature', True)
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
 
-class ChangeStateViewTests(TestCase):
-    """ Tests for the `ChangeStateView`. """
+        factories.CourseUserRoleFactory(
+            course=self.course, user=self.user, role=PublisherUserRole.CourseTeam
+        )
+        self.course_state.owner_role = PublisherUserRole.MarketingReviewer
+        self.course_state.name = CourseStateChoices.Approved
+        self.course_state.save()
 
-    def setUp(self):
-        super(ChangeStateViewTests, self).setUp()
-        self.course = factories.CourseFactory()
-        self.organization_extension = factories.OrganizationExtensionFactory()
-        self.course.organizations.add(self.organization_extension.organization)
-        self.user = UserFactory()
-
-        self.publisher_admin_group = Group.objects.get(name=ADMIN_GROUP_NAME)
-
-        self.user.groups.add(self.publisher_admin_group)
-
-        self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.course_run = factories.CourseRunFactory(course=self.course)
-        self.page_url = reverse('publisher:publisher_course_run_detail', args=[self.course_run.id])
-        self.change_state_url = reverse('publisher:publisher_change_state', args=[self.course_run.id])
-
-    def test_page_without_login(self):
-        """ Verify that user can't access change state endpoint when not logged in. """
-        self.client.logout()
-        response = self.client.post(self.change_state_url, data={'state': State.NEEDS_REVIEW})
-
-        self.assertRedirects(
-            response,
-            expected_url='{url}?next={next}'.format(
-                url=reverse('login'),
-                next=self.change_state_url
-            ),
-            status_code=302,
-            target_status_code=302
+        new_user = UserFactory()
+        factories.CourseUserRoleFactory(
+            course=self.course, user=new_user, role=PublisherUserRole.MarketingReviewer
         )
 
-    def test_change_state(self):
-        """ Verify that user can change workflow state from detail page. """
-
-        response = self.client.get(self.page_url)
-        self.assertContains(response, 'Status:')
-        self.assertContains(response, State.DRAFT.title())
-        # change workflow state from `DRAFT` to `NEEDS_REVIEW`
-        response = self.client.post(self.change_state_url, data={'state': State.NEEDS_REVIEW}, follow=True)
-
-        # assert that state is changed to `NEEDS_REVIEW`
-        self.assertContains(response, State.NEEDS_REVIEW.title().replace('_', ' '))
-
-    def test_change_state_not_allowed(self):
-        """ Verify that user can't change workflow state from `DRAFT` to `PUBLISHED`. """
-        response = self.client.get(self.page_url)
-        self.assertContains(response, 'Status:')
-        self.assertContains(response, State.DRAFT.title())
-        # change workflow state from `DRAFT` to `PUBLISHED`
-        response = self.client.post(self.change_state_url, data={'state': State.PUBLISHED}, follow=True)
-        # assert that state is not changed to `PUBLISHED`
-        self.assertNotContains(response, State.PUBLISHED.title())
-        self.assertContains(response, 'There was an error in changing state.')
-
-    def test_change_state_with_no_roles(self):
-        """ Tests change state for non staff user. """
-        non_staff_user, __ = create_non_staff_user_and_login(self)
-        response = self.client.post(self.change_state_url, data={'state': State.NEEDS_REVIEW}, follow=True)
-
-        # verify that non staff user can't change workflow state without permission
-        self.assertEqual(response.status_code, 403)
-
-        # assign user a group
-        non_staff_user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         response = self.client.get(self.page_url)
 
-        self.assertContains(response, 'Status:')
-        self.assertContains(response, State.DRAFT.title())
-        # change workflow state from `DRAFT` to `NEEDS_REVIEW`
-        response = self.client.post(self.change_state_url, data={'state': State.NEEDS_REVIEW}, follow=True)
+        # Verify that content is sent for review and user can see Reviewed button as disabled.
+        self.assertContains(response, 'Send for Review')
+        self.assertContains(response, '0 day in ownership')
+        self.assertContains(response, self.get_expected_data(CourseRunStateChoices.Review, disabled=True))
 
-        # assert that state is changed to `NEEDS_REVIEW`
-        self.assertContains(response, State.NEEDS_REVIEW.title().replace('_', ' '))
+        self._data_for_review_button()
+
+        response = self.client.get(self.page_url)
+
+        # Verify that Reviewed button is enabled
+        self.assertContains(response, self.get_expected_data(CourseRunStateChoices.Review))
+
+    def test_course_approval_widget_for_marketing_team(self):
+        """
+        Verify that marketing User can't see the `Send for Review` button.
+        """
+        toggle_switch('publisher_approval_widget_feature', True)
+
+        factories.CourseUserRoleFactory(
+            course=self.course, user=self.user, role=PublisherUserRole.MarketingReviewer
+        )
+        self.course_state.owner_role = PublisherUserRole.MarketingReviewer
+        self.course_state.save()
+
+        new_user = UserFactory()
+        factories.CourseUserRoleFactory(
+            course=self.course, user=new_user, role=PublisherUserRole.CourseTeam
+        )
+
+        self._data_for_review_button()
+
+        response = self.client.get(self.page_url)
+
+        # Verify that review button is not visible
+        self.assertNotIn('Send for Review', response.content.decode('UTF-8'))
+
+    def get_expected_data(self, state_name, disabled=False):
+        expected = '<button class="{}" data-change-state-url="{}" data-state-name="{}"{} type="button">'.format(
+            'btn btn-neutral btn-change-state',
+            reverse('publisher:api:change_course_run_state', kwargs={'pk': self.course_run.course_run_state.id}),
+            state_name,
+            ' disabled' if disabled else ''
+        )
+
+        return expected
+
+    def _data_for_review_button(self):
+        """ Method to enable the review button."""
+        self.course_run.course_run_state.name = CourseRunStateChoices.Draft
+        self.course_run.course_run_state.save()
+
+        factories.SeatFactory(course_run=self.course_run, type=Seat.VERIFIED, price=2)
+        language_tag = LanguageTag(code='te-st', name='Test Language')
+        language_tag.save()
+        self.course_run.transcript_languages.add(language_tag)
+        self.course_run.language = language_tag
+        self.course_run.is_micromasters = True
+        self.course_run.micromasters_name = 'test'
+        self.course_run.save()
+        self.course_run.staff.add(PersonFactory())
 
 
 # pylint: disable=attribute-defined-outside-init
@@ -1960,8 +1963,6 @@ class CourseRunEditViewTests(TestCase):
         # newly created course from the page.
         self.new_course = Course.objects.get(number=data['number'])
         self.new_course_run = self.new_course.course_runs.first()
-
-        factories.CourseRunStateFactory(course_run=self.new_course_run)
 
         # assert edit page is loading sucesfully.
         self.edit_page_url = reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.new_course_run.id})

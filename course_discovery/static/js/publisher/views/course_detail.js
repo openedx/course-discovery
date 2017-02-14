@@ -14,10 +14,7 @@ $(document).ready(function() {
             data: JSON.stringify({'user': userId}),
             contentType: 'application/json',
             success: function (response) {
-                $('#userFullName-' + roleName).text(userName);
-                $selectedOption.val(userId);
-                $('#userRoleContainer-' + roleName).show();
-                $('#changeRoleContainer-' + roleName).hide();
+                location.reload();
             }
         });
     });

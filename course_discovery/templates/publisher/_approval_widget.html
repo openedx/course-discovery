@@ -45,28 +45,32 @@
                                         {{ role_widget.course_role.user.username }}
                                     {% endif %}
                                 </span>
-                                <a class="change-role-assignment" data-role="{{ role_widget.course_role.role }}" href="#">
-                                    {% trans "change owner" %}
-                                </a>
+                                {% if role_widget.can_change_role_assignment %}
+                                    <a class="change-role-assignment" data-role="{{ role_widget.course_role.role }}" href="#">
+                                        {% trans "change owner" %}
+                                    </a>
+                                {% endif %}
                             </div>
-                            <div class="change-role-container" id="changeRoleContainer-{{ role_widget.course_role.role }}">
-                                <select class="select-users-by-role" id="selectUsers-{{ role_widget.course_role.role }}">
-                                    <option value="-----------">-----------</option>
-                                    {% for user in role_widget.user_list %}
-                                        <option value="{{ user.id }}">
-                                            {% if user.full_name %}
-                                                {{ user.full_name }}
-                                            {% else %}
-                                                {{ user.username }}
-                                            {% endif %}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                                <input type="hidden" id="roleName" value="{{ role_widget.course_role.role }}">
-                                <button type="button" class="btn-neutral btn-change-assignment" data-role="{{ role_widget.course_role.role }}" data-api-endpoint="{% url 'publisher:api:course_role_assignments' role_widget.course_role.id %}">
-                                    {% trans "CHANGE" %}
-                                </button>
-                            </div>
+                            {% if role_widget.can_change_role_assignment %}
+                                <div class="change-role-container" id="changeRoleContainer-{{ role_widget.course_role.role }}">
+                                    <select class="select-users-by-role" id="selectUsers-{{ role_widget.course_role.role }}">
+                                        <option value="-----------">-----------</option>
+                                        {% for user in role_widget.user_list %}
+                                            <option value="{{ user.id }}">
+                                                {% if user.full_name %}
+                                                    {{ user.full_name }}
+                                                {% else %}
+                                                    {{ user.username }}
+                                                {% endif %}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <input type="hidden" id="roleName" value="{{ role_widget.course_role.role }}">
+                                    <button type="button" class="btn-neutral btn-change-assignment" data-role="{{ role_widget.course_role.role }}" data-api-endpoint="{% url 'publisher:api:course_role_assignments' role_widget.course_role.id %}">
+                                        {% trans "CHANGE" %}
+                                    </button>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
