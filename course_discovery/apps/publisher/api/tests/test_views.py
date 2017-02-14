@@ -425,7 +425,8 @@ class ChangeCourseStateViewTests(TestCase):
         self.assertEqual(self.course_state.name, CourseStateChoices.Review)
         self.assertEqual(self.course_state.owner_role, PublisherUserRole.CourseTeam)
 
-        self._assert_email_sent(course_team_user)
+        subject = 'Changes to {title} are ready for review'.format(title=self.course.title)
+        self._assert_email_sent(course_team_user, subject)
 
     def test_change_course_state_with_course_team(self):
         """
@@ -461,10 +462,10 @@ class ChangeCourseStateViewTests(TestCase):
         self.assertEqual(self.course_state.owner_role, PublisherUserRole.MarketingReviewer)
         self.assertGreater(self.course_state.owner_role_modified, old_owner_role_modified)
 
-        self._assert_email_sent(marketing_user)
-
-    def _assert_email_sent(self, user):
         subject = 'Changes to {title} are ready for review'.format(title=self.course.title)
+        self._assert_email_sent(marketing_user, subject)
+
+    def _assert_email_sent(self, user, subject):
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual([user.email], mail.outbox[0].to)
         self.assertEqual(str(mail.outbox[0].subject), subject)
@@ -493,6 +494,37 @@ class ChangeCourseStateViewTests(TestCase):
         }
 
         self.assertEqual(response.data, expected)
+
+    def test_mark_as_reviewed(self):
+        """
+        Verify that user can mark course as reviewed.
+        """
+        self.course_state.name = CourseStateChoices.Review
+        self.course_state.save()
+
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
+        )
+
+        course_team_user = UserFactory()
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.CourseTeam, user=course_team_user
+        )
+
+        response = self.client.patch(
+            self.change_state_url,
+            data=json.dumps({'name': CourseStateChoices.Approved}),
+            content_type=JSON_CONTENT_TYPE
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.course_state = CourseState.objects.get(course=self.course)
+
+        self.assertEqual(self.course_state.name, CourseStateChoices.Approved)
+
+        subject = 'Changes to {title} has been approved'.format(title=self.course.title)
+        self._assert_email_sent(course_team_user, subject)
 
 
 class ChangeCourseRunStateViewTests(TestCase):

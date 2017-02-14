@@ -23,7 +23,8 @@ from course_discovery.apps.course_metadata.models import LevelType, Organization
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
-from course_discovery.apps.publisher.emails import send_email_for_change_state, send_email_for_send_for_review
+from course_discovery.apps.publisher.emails import (send_email_for_change_state, send_email_for_mark_as_reviewed,
+                                                    send_email_for_send_for_review)
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
 
 logger = logging.getLogger(__name__)
@@ -206,6 +207,14 @@ class Course(TimeStampedModel, ChangedByMixin):
             return self.course_user_roles.get(role=PublisherUserRole.MarketingReviewer).user
         except CourseUserRole.DoesNotExist:
             return None
+
+    @property
+    def organization_extension(self):
+        organization = self.organizations.all().first()
+        if organization:
+            return organization.organization_extension
+
+        return None
 
 
 class CourseRun(TimeStampedModel, ChangedByMixin):
@@ -553,6 +562,9 @@ class CourseState(TimeStampedModel, ChangedByMixin):
 
         elif state == CourseStateChoices.Approved:
             self.approved()
+
+            if waffle.switch_is_active('enable_publisher_email_notifications'):
+                send_email_for_mark_as_reviewed(self.course, user)
 
         self.save()
 
