@@ -1,0 +1,77 @@
+{% load i18n %}
+
+<div class="approval-widget">
+    <div class="margin-top20">
+        <h5 class="hd-5 emphasized approvals-heading">{% trans "APPROVALS" %}</h5>
+    </div>
+    {% for role_widget in  role_widgets %}
+        <div class="role-widget">
+            <div class="role-assignment-container">
+                <div class="layout-1q3q layout-reversed">
+                    <div class="layout-col layout-col-a">
+                        {% if role_widget.state_button %}
+                            <button class="btn btn-neutral btn-change-state" data-change-state-url="{{ role_widget.change_state_url }}" data-state-name="{{ role_widget.state_button.value }}"{% if role_widget.button_disabled %} disabled{% endif %} type="button">
+                                {{ role_widget.state_button.text }}
+                            </button>
+                        {% else %}
+                            {% if role_widget.sent_for_review %}
+                                <span class="state-status">
+                                    <span class="icon fa fa-check" aria-hidden="true"></span>
+                                    {% trans "Send for Review" %}<br>
+                                    {{ role_widget.sent_for_review|date:'m/d/y H:i a' }}
+                                </span>
+                            {% elif role_widget.reviewed %}
+                                <span class="state-status">
+                                    <span class="icon fa fa-check" aria-hidden="true"></span>
+                                    {% trans "Reviewed" %}<br>
+                                    {{ role_widget.reviewed|date:'m/d/y H:i a' }}
+                                </span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="layout-col layout-col-b">
+                        <span class="role-heading">
+                            <strong>{{ role_widget.heading }}</strong>
+                        </span>
+                        {% if role_widget.ownership %}
+                            <span>{{ role_widget.ownership.days }} {% trans "day in ownership" %}</span>
+                        {% endif %}
+                        <div class="role-assignment-container">
+                            <div id="userRoleContainer-{{ role_widget.course_role.role }}">
+                                <span id="userFullName-{{ role_widget.course_role.role }}" class="field-readonly user-full-name">
+                                    {% if role_widget.course_role.user.full_name %}
+                                        {{ role_widget.course_role.user.full_name }}
+                                    {% else %}
+                                        {{ role_widget.course_role.user.username }}
+                                    {% endif %}
+                                </span>
+                                <a class="change-role-assignment" data-role="{{ role_widget.course_role.role }}" href="#">
+                                    {% trans "change owner" %}
+                                </a>
+                            </div>
+                            <div class="change-role-container" id="changeRoleContainer-{{ role_widget.course_role.role }}">
+                                <select class="select-users-by-role" id="selectUsers-{{ role_widget.course_role.role }}">
+                                    <option value="-----------">-----------</option>
+                                    {% for user in role_widget.user_list %}
+                                        <option value="{{ user.id }}">
+                                            {% if user.full_name %}
+                                                {{ user.full_name }}
+                                            {% else %}
+                                                {{ user.username }}
+                                            {% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <input type="hidden" id="roleName" value="{{ role_widget.course_role.role }}">
+                                <button type="button" class="btn-neutral btn-change-assignment" data-role="{{ role_widget.course_role.role }}" data-api-endpoint="{% url 'publisher:api:course_role_assignments' role_widget.course_role.id %}">
+                                    {% trans "CHANGE" %}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+    {% endfor %}
+</div>

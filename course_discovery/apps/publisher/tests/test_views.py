@@ -672,6 +672,7 @@ class CourseRunDetailTests(TestCase):
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.course_run = factories.CourseRunFactory(course=self.course)
+        self.course_run_state = factories.CourseRunStateFactory(course_run=self.course_run)
 
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.course.organizations.add(self.organization_extension.organization)
@@ -702,6 +703,7 @@ class CourseRunDetailTests(TestCase):
         available for that course-run.
         """
         course_run = factories.CourseRunFactory(course=self.course)
+        factories.CourseRunStateFactory(course_run=course_run)
         assign_perm(
             OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
         )
@@ -888,14 +890,20 @@ class CourseRunDetailTests(TestCase):
         expected_roles = []
         for user_course_role in self.course.course_user_roles.all():
             expected_roles.append(
-                {'user_course_role': user_course_role, 'heading': ROLE_WIDGET_HEADINGS.get(user_course_role.role)}
+                {
+                    'course_role': user_course_role,
+                    'heading': ROLE_WIDGET_HEADINGS.get(user_course_role.role),
+                    'change_state_url': reverse(
+                        'publisher:api:change_course_run_state', kwargs={'pk': self.course_run_state.id}
+                    ),
+                    'user_list': get_internal_users()
+                }
             )
+
         self.assertEqual(response.context['role_widgets'], expected_roles)
 
-        self.assertEqual(list(response.context['user_list']), list(get_internal_users()))
-
-    def test_detail_page_role_assignment_with_non_internal_user(self):
-        """ Verify that user can't see change role assignment widget without permissions. """
+    def test_detail_page_approval_widget_with_non_internal_user(self):
+        """ Verify that user can see change approval widget. """
 
         # Create a user and assign course view permission.
         user = UserFactory()
@@ -909,8 +917,8 @@ class CourseRunDetailTests(TestCase):
 
         response = self.client.get(self.page_url)
 
-        self.assertNotIn('role_widgets', response.context)
-        self.assertNotIn('user_list', response.context)
+        self.assertIn('role_widgets', response.context)
+        self.assertContains(response, 'APPROVALS')
 
     def test_details_page_with_edit_permission(self):
         """ Test that user can see edit button on course run detail page. """
@@ -1651,9 +1659,9 @@ class CourseDetailViewTests(TestCase):
         # Verify that `Send for Review` button is enabled
         self.assertContains(response, self.get_expected_data(CourseStateChoices.Review))
 
-    def test_course_approval_widget_with_reviewed(self):
+    def test_course_with_mark_as_reviewed(self):
         """
-        Verify that user can see approval widget on course detail page with `Reviewed`.
+        Verify that user can see approval widget on course detail page with `Mark as Reviewed`.
         """
         factories.CourseUserRoleFactory(
             course=self.course, user=self.user, role=PublisherUserRole.MarketingReviewer
@@ -1674,7 +1682,7 @@ class CourseDetailViewTests(TestCase):
         response = self.client.get(self.detail_page_url)
 
         # Verify that content is sent for review and user can see Reviewed button.
-        self.assertContains(response, 'Reviewed')
+        self.assertContains(response, 'Mark as Reviewed')
         self.assertContains(response, '<span class="icon fa fa-check" aria-hidden="true">')
         self.assertContains(response, 'Send for Review')
         self.assertContains(response, self.get_expected_data(CourseStateChoices.Approved))
@@ -1688,6 +1696,37 @@ class CourseDetailViewTests(TestCase):
         )
 
         return expected
+
+    def test_course_with_reviewed(self):
+        """
+        Verify that user can see approval widget on course detail page with `Reviewed`.
+        """
+        factories.CourseUserRoleFactory(
+            course=self.course, user=self.user, role=PublisherUserRole.MarketingReviewer
+        )
+        self.course_state.owner_role = PublisherUserRole.MarketingReviewer
+        self.course_state.save()
+
+        new_user = UserFactory()
+        factories.CourseUserRoleFactory(
+            course=self.course, user=new_user, role=PublisherUserRole.CourseTeam
+        )
+
+        # To create history objects for both `Review` and `Approved` states
+        self.course.course_state.name = CourseStateChoices.Review
+        self.course.course_state.save()
+        self.course.course_state.name = CourseStateChoices.Approved
+        self.course.course_state.save()
+
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
+        response = self.client.get(self.detail_page_url)
+
+        # Verify that content is sent for review and user can see Reviewed button.
+        self.assertNotContains(response, 'Mark as Reviewed')
+        self.assertContains(response, 'Reviewed', count=1)
+        self.assertContains(response, '<span class="icon fa fa-check" aria-hidden="true">', count=2)
+        self.assertContains(response, 'Send for Review', count=1)
 
 
 class CourseEditViewTests(TestCase):
@@ -1921,6 +1960,8 @@ class CourseRunEditViewTests(TestCase):
         # newly created course from the page.
         self.new_course = Course.objects.get(number=data['number'])
         self.new_course_run = self.new_course.course_runs.first()
+
+        factories.CourseRunStateFactory(course_run=self.new_course_run)
 
         # assert edit page is loading sucesfully.
         self.edit_page_url = reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.new_course_run.id})

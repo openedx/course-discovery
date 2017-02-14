@@ -259,3 +259,51 @@ class CourseCreatedEmailTests(TestCase):
         self.assertIn('{dashboard_url}'.format(dashboard_url=reverse('publisher:publisher_dashboard')), body)
         self.assertIn('Please create a Studio instance for this course', body)
         self.assertIn('Thanks', body)
+
+
+class SendForReviewEmailTests(TestCase):
+    """ Tests for the email functionality for send for review. """
+
+    def setUp(self):
+        super(SendForReviewEmailTests, self).setUp()
+        self.user = UserFactory()
+        self.course_state = factories.CourseStateFactory()
+
+    def test_email_with_error(self):
+        """ Verify that email failure log error message."""
+
+        with LogCapture(emails.logger.name) as l:
+            emails.send_email_for_send_for_review(self.course_state.course, self.user)
+            l.check(
+                (
+                    emails.logger.name,
+                    'ERROR',
+                    'Failed to send email notifications send for review of course {}'.format(
+                        self.course_state.course.id
+                    )
+                )
+            )
+
+
+class MarkAsReviewedEmailTests(TestCase):
+    """ Tests for the email functionality for mark as reviewed. """
+
+    def setUp(self):
+        super(MarkAsReviewedEmailTests, self).setUp()
+        self.user = UserFactory()
+        self.course_state = factories.CourseStateFactory()
+
+    def test_email_with_error(self):
+        """ Verify that email failure log error message."""
+
+        with LogCapture(emails.logger.name) as l:
+            emails.send_email_for_mark_as_reviewed(self.course_state.course, self.user)
+            l.check(
+                (
+                    emails.logger.name,
+                    'ERROR',
+                    'Failed to send email notifications mark as reviewed of course {}'.format(
+                        self.course_state.course.id
+                    )
+                )
+            )

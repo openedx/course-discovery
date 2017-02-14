@@ -618,6 +618,12 @@ msgstr ""
 "Çhängés tö {title} äré réädý för révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєт#"
 
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Changes to {title} has been approved"
+msgstr ""
+"Çhängés tö {title} häs ßéén äpprövéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
 #: apps/publisher/forms.py
 msgid "Remove Image"
 msgstr "Rémövé Ìmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
@@ -881,14 +887,13 @@ msgstr "MÀRKÉTÌNG Ⱡ'σяєм ιρѕυм ∂σł#"
 msgid "PUBLISHER"
 msgstr "PÛBLÌSHÉR Ⱡ'σяєм ιρѕυм ∂σł#"
 
-#: apps/publisher/views.py
-#: templates/publisher/course_detail/_approval_widget.html
+#: apps/publisher/views.py templates/publisher/_approval_widget.html
 msgid "Send for Review"
 msgstr "Sénd för Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: apps/publisher/views.py
-msgid "Reviewed"
-msgstr "Révïéwéd Ⱡ'σяєм ιρѕυм ∂#"
+msgid "Mark as Reviewed"
+msgstr "Märk äs Révïéwéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: apps/publisher/views.py
 msgid ""
@@ -1103,6 +1108,26 @@ msgstr "öptïönäl - öné pér lïné Ⱡ'σяєм ιρѕυм ∂σłσя ѕ�
 #: templates/publisher/_add_instructor_popup.html
 msgid "Add Staff Member"
 msgstr "Àdd Stäff Mémßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: templates/publisher/_approval_widget.html
+msgid "APPROVALS"
+msgstr "ÀPPRÖVÀLS Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: templates/publisher/_approval_widget.html
+msgid "Reviewed"
+msgstr "Révïéwéd Ⱡ'σяєм ιρѕυм ∂#"
+
+#: templates/publisher/_approval_widget.html
+msgid "day in ownership"
+msgstr "däý ïn öwnérshïp Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: templates/publisher/_approval_widget.html
+msgid "change owner"
+msgstr "çhängé öwnér Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: templates/publisher/_approval_widget.html
+msgid "CHANGE"
+msgstr "ÇHÀNGÉ Ⱡ'σяєм ιρѕυ#"
 
 #: templates/publisher/_footer.html
 msgid "Terms of Service"
@@ -2060,16 +2085,8 @@ msgstr "Çöürsé Ìmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 msgid "Course Level"
 msgstr "Çöürsé Lévél Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: templates/publisher/course_detail/_approval_widget.html
-msgid "APPROVALS"
-msgstr "ÀPPRÖVÀLS Ⱡ'σяєм ιρѕυм ∂σł#"
-
-#: templates/publisher/course_detail/_approval_widget.html
-msgid "day in ownership"
-msgstr "däý ïn öwnérshïp Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
-
 #: templates/publisher/course_detail/_widgets.html
-#: templates/publisher/course_run_detail/_approval_widget.html
+#: templates/publisher/course_run_detail/_widgets.html
 msgid "EDIT"
 msgstr "ÉDÌT Ⱡ'σяєм ι#"
 
@@ -2252,14 +2269,6 @@ msgstr ""
 #: templates/publisher/course_run_detail/_all.html
 msgid "Course Length (Weeks)"
 msgstr "Çöürsé Léngth (Wééks) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
-
-#: templates/publisher/course_run_detail/_approval_widget.html
-msgid "change owner"
-msgstr "çhängé öwnér Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
-
-#: templates/publisher/course_run_detail/_approval_widget.html
-msgid "CHANGE"
-msgstr "ÇHÀNGÉ Ⱡ'σяєм ιρѕυ#"
 
 #: templates/publisher/course_run_detail/_cat.html
 #: templates/publisher/course_run_detail/_drupal.html
@@ -2691,6 +2700,96 @@ msgstr "Vïéw çömmént Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 msgid "View comment: "
 msgstr "Vïéw çömmént:  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
+#: templates/publisher/email/course/mark_as_reviewed.html
+#: templates/publisher/email/course/mark_as_reviewed.txt
+#: templates/publisher/email/course/send_for_review.html
+#: templates/publisher/email/course/send_for_review.txt
+#, python-format
+msgid "Dear %(recipient_name)s,"
+msgstr "Déär %(recipient_name)s, Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: templates/publisher/email/course/mark_as_reviewed.html
+#, python-format
+msgid ""
+"Changes to %(link_start)s%(course_page_url)s%(link_middle)s %(course_name)s "
+"%(link_end)s has been approved."
+msgstr ""
+"Çhängés tö %(link_start)s%(course_page_url)s%(link_middle)s %(course_name)s "
+"%(link_end)s häs ßéén äpprövéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#. Translators: It's closing of mail.
+#: templates/publisher/email/course/mark_as_reviewed.html
+#: templates/publisher/email/course/mark_as_reviewed.txt
+#: templates/publisher/email/course/send_for_review.html
+#: templates/publisher/email/course/send_for_review.txt
+#: templates/publisher/email/course_created.html
+#: templates/publisher/email/course_created.txt
+#: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
+#: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
+msgid "Thanks,"
+msgstr "Thänks, Ⱡ'σяєм ιρѕυм #"
+
+#: templates/publisher/email/course/mark_as_reviewed.html
+#: templates/publisher/email/course/send_for_review.html
+#: templates/publisher/email/studio_instance_created.html
+#, python-format
+msgid ""
+"<p>Note: This email address is unable to receive replies. For questions or "
+"comments, contact %(contact_us_email)s.</p>"
+msgstr ""
+"<p>Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
+"çömménts, çöntäçt %(contact_us_email)s.</p> Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: templates/publisher/email/course/mark_as_reviewed.txt
+#, python-format
+msgid "Changes to %(course_name)s has been approved. %(course_page_url)s"
+msgstr ""
+"Çhängés tö %(course_name)s häs ßéén äpprövéd. %(course_page_url)s Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: templates/publisher/email/course/mark_as_reviewed.txt
+#: templates/publisher/email/course/send_for_review.txt
+#: templates/publisher/email/studio_instance_created.txt
+#, python-format
+msgid ""
+"Note: This email address is unable to receive replies. For questions or "
+"comments, contact %(contact_us_email)s."
+msgstr ""
+"Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
+"çömménts, çöntäçt %(contact_us_email)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: templates/publisher/email/course/send_for_review.html
+#, python-format
+msgid ""
+"New changes to %(link_start)s%(course_page_url)s%(link_middle)s "
+"%(course_name)s %(link_end)s are ready for your review. "
+"%(link_start)s%(course_page_url)s%(link_middle)s View this course in "
+"Publisher %(link_end)s to approve or decline the changes."
+msgstr ""
+"Néw çhängés tö %(link_start)s%(course_page_url)s%(link_middle)s "
+"%(course_name)s %(link_end)s äré réädý för ýöür révïéw. "
+"%(link_start)s%(course_page_url)s%(link_middle)s Vïéw thïs çöürsé ïn "
+"Püßlïshér %(link_end)s tö äpprövé ör déçlïné thé çhängés. Ⱡ'σяєм ιρѕυм ∂σłσя"
+" ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт"
+" łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ "
+"єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ "
+"αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ "
+"ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт "
+"ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαв#"
+
+#: templates/publisher/email/course/send_for_review.txt
+#, python-format
+msgid ""
+"New changes to %(course_name)s are ready for your review. "
+"%(course_page_url)s View this course in Publisher to approve or decline the "
+"changes."
+msgstr ""
+"Néw çhängés tö %(course_name)s äré réädý för ýöür révïéw. "
+"%(course_page_url)s Vïéw thïs çöürsé ïn Püßlïshér tö äpprövé ör déçlïné thé "
+"çhängés. Ⱡ'σяєм ιρѕυм ∂σł#"
+
 #. Translators: partner_coordinator_name is a member name.
 #: templates/publisher/email/course_created.html
 #, python-format
@@ -2716,18 +2815,6 @@ msgstr ""
 "Pléäsé çréäté ä Stüdïö ïnstänçé för thïs çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
-#. Translators: It's closing of mail.
-#: templates/publisher/email/course_created.html
-#: templates/publisher/email/course_created.txt
-#: templates/publisher/email/send_for_review.html
-#: templates/publisher/email/send_for_review.txt
-#: templates/publisher/email/studio_instance_created.html
-#: templates/publisher/email/studio_instance_created.txt
-#: templates/publisher/email/studio_instance_needed.html
-#: templates/publisher/email/studio_instance_needed.txt
-msgid "Thanks,"
-msgstr "Thänks, Ⱡ'σяєм ιρѕυм #"
-
 #: templates/publisher/email/course_created.txt
 #: templates/publisher/email/studio_instance_needed.html
 #: templates/publisher/email/studio_instance_needed.txt
@@ -2743,62 +2830,6 @@ msgstr ""
 "%(course_team_name)s çréätéd thé %(course_title)s : %(dashboard_url)s çöürsé"
 " ïn Püßlïshér ön %(date)s ät %(time)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя α#"
-
-#: templates/publisher/email/send_for_review.html
-#: templates/publisher/email/send_for_review.txt
-#, python-format
-msgid "Dear %(recipient_name)s,"
-msgstr "Déär %(recipient_name)s, Ⱡ'σяєм ιρѕυм ∂σł#"
-
-#: templates/publisher/email/send_for_review.html
-#, python-format
-msgid ""
-"New changes to %(link_start)s%(course_page_url)s%(link_middle)s "
-"%(course_name)s %(link_end)s are ready for your review. "
-"%(link_start)s%(course_page_url)s%(link_middle)s View this course in "
-"Publisher %(link_end)s to approve or decline the changes."
-msgstr ""
-"Néw çhängés tö %(link_start)s%(course_page_url)s%(link_middle)s "
-"%(course_name)s %(link_end)s äré réädý för ýöür révïéw. "
-"%(link_start)s%(course_page_url)s%(link_middle)s Vïéw thïs çöürsé ïn "
-"Püßlïshér %(link_end)s tö äpprövé ör déçlïné thé çhängés. Ⱡ'σяєм ιρѕυм ∂σłσя"
-" ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт"
-" łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ "
-"єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ "
-"αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ "
-"ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт "
-"ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαв#"
-
-#: templates/publisher/email/send_for_review.html
-#: templates/publisher/email/studio_instance_created.html
-#, python-format
-msgid ""
-"<p>Note: This email address is unable to receive replies. For questions or "
-"comments, contact %(contact_us_email)s.</p>"
-msgstr ""
-"<p>Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
-"çömménts, çöntäçt %(contact_us_email)s.</p> Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
-
-#: templates/publisher/email/send_for_review.txt
-#, python-format
-msgid ""
-"New changes to %(course_name)s are ready for your review. "
-"%(course_page_url)s View this course in Publisher to approve or decline the "
-"changes."
-msgstr ""
-"Néw çhängés tö %(course_name)s äré réädý för ýöür révïéw. "
-"%(course_page_url)s Vïéw thïs çöürsé ïn Püßlïshér tö äpprövé ör déçlïné thé "
-"çhängés. Ⱡ'σяєм ιρѕυм ∂σł#"
-
-#: templates/publisher/email/send_for_review.txt
-#: templates/publisher/email/studio_instance_created.txt
-#, python-format
-msgid ""
-"Note: This email address is unable to receive replies. For questions or "
-"comments, contact %(contact_us_email)s."
-msgstr ""
-"Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
-"çömménts, çöntäçt %(contact_us_email)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
 #. Translators: course_team_name is course team member name.
 #: templates/publisher/email/studio_instance_created.html

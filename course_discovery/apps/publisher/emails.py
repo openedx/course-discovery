@@ -8,6 +8,7 @@ from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.utils import is_email_notification_enabled
 
 logger = logging.getLogger(__name__)
 
@@ -155,16 +156,50 @@ def send_email_for_send_for_review(course, user):
             course (Object): Course object
             user (Object): User object
     """
+    txt_template = 'publisher/email/course/send_for_review.txt'
+    html_template = 'publisher/email/course/send_for_review.html'
+    subject = _('Changes to {title} are ready for review').format(title=course.title)  # pylint: disable=no-member
 
     try:
-        txt_template = 'publisher/email/send_for_review.txt'
-        html_template = 'publisher/email/send_for_review.html'
+        send_course_workflow_email(course, user, subject, txt_template, html_template)
+    except Exception:  # pylint: disable=broad-except
+        logger.exception('Failed to send email notifications send for review of course %s', course.id)
 
-        recipient_user = course.marketing_reviewer
-        user_role = course.course_user_roles.get(user=user)
-        if user_role.role == PublisherUserRole.MarketingReviewer:
-            recipient_user = course.course_team_admin
 
+def send_email_for_mark_as_reviewed(course, user):
+    """ Send email when course is marked as reviewed.
+
+        Arguments:
+            course (Object): Course object
+            user (Object): User object
+    """
+    txt_template = 'publisher/email/course/mark_as_reviewed.txt'
+    html_template = 'publisher/email/course/mark_as_reviewed.html'
+    subject = _('Changes to {title} has been approved').format(title=course.title)  # pylint: disable=no-member
+
+    try:
+        send_course_workflow_email(course, user, subject, txt_template, html_template)
+    except Exception:  # pylint: disable=broad-except
+        logger.exception('Failed to send email notifications mark as reviewed of course %s', course.id)
+
+
+def send_course_workflow_email(course, user, subject, txt_template, html_template):
+    """ Send email for course workflow state change.
+
+        Arguments:
+            course (Object): Course object
+            user (Object): User object
+            subject (String): Email subject
+            txt_template: (String): Email text template path
+            html_template: (String): Email html template path
+    """
+    recipient_user = course.marketing_reviewer
+    user_role = course.course_user_roles.get(user=user)
+    if user_role.role == PublisherUserRole.MarketingReviewer:
+        recipient_user = course.course_team_admin
+
+    if is_email_notification_enabled(recipient_user):
+        partner_coordinator = course.partner_coordinator
         to_addresses = [recipient_user.email]
         from_address = settings.PUBLISHER_FROM_EMAIL
         page_path = reverse('publisher:publisher_course_detail', kwargs={'pk': course.id})
@@ -172,6 +207,7 @@ def send_email_for_send_for_review(course, user):
             'recipient_name': recipient_user.full_name or recipient_user.username if recipient_user else '',
             'sender_name': user.full_name or user.username,
             'course_name': course.title,
+            'contact_us_email': partner_coordinator.email if partner_coordinator else '',
             'course_page_url': 'https://{host}{path}'.format(
                 host=Site.objects.get_current().domain.strip('/'), path=page_path
             )
@@ -181,12 +217,8 @@ def send_email_for_send_for_review(course, user):
         template = get_template(html_template)
         html_content = template.render(context)
 
-        subject = _('Changes to {title} are ready for review').format(title=course.title)  # pylint: disable=no-member
-
         email_msg = EmailMultiAlternatives(
             subject, plain_content, from_address, to_addresses
         )
         email_msg.attach_alternative(html_content, 'text/html')
         email_msg.send()
-    except Exception:  # pylint: disable=broad-except
-        logger.exception('Failed to send email notifications send for review of course %s', course.id)
