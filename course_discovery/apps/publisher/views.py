@@ -43,7 +43,7 @@ ROLE_WIDGET_HEADINGS = {
 
 STATE_BUTTONS = {
     CourseStateChoices.Draft: {'text': _('Send for Review'), 'value': CourseStateChoices.Review},
-    CourseStateChoices.Review: {'text': _('Reviewed'), 'value': CourseStateChoices.Approved}
+    CourseStateChoices.Review: {'text': _('Mark as Reviewed'), 'value': CourseStateChoices.Approved}
 }
 
 
@@ -407,8 +407,18 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
                         role_widget['button_disabled'] = True
 
             if course_role.role in [PublisherUserRole.CourseTeam, PublisherUserRole.MarketingReviewer]:
-                if course_state.owner_role != course_role.role and course_state.name == CourseStateChoices.Review:
-                    role_widget['sent_for_review'] = course_state.modified
+                if course_state.owner_role != course_role.role:
+                    if course_state.name != CourseStateChoices.Draft:
+                        history_records = course_state.history.filter(
+                            name=CourseStateChoices.Review
+                        ).order_by('-modified')
+                        role_widget['sent_for_review'] = history_records.first().modified
+
+                if course_state.name == CourseStateChoices.Approved:
+                    history_records = course_state.history.filter(
+                        name=CourseStateChoices.Approved
+                    ).order_by('-modified')
+                    role_widget['reviewed'] = history_records.first().modified
 
             role_widgets.append(role_widget)
 

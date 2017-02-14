@@ -1665,9 +1665,9 @@ class CourseDetailViewTests(TestCase):
         # Verify that `Send for Review` button is enabled
         self.assertContains(response, self.get_expected_data(CourseStateChoices.Review))
 
-    def test_course_approval_widget_with_reviewed(self):
+    def test_course_with_mark_as_reviewed(self):
         """
-        Verify that user can see approval widget on course detail page with `Reviewed`.
+        Verify that user can see approval widget on course detail page with `Mark as Reviewed`.
         """
         factories.CourseUserRoleFactory(
             course=self.course, user=self.user, role=PublisherUserRole.MarketingReviewer
@@ -1688,7 +1688,7 @@ class CourseDetailViewTests(TestCase):
         response = self.client.get(self.detail_page_url)
 
         # Verify that content is sent for review and user can see Reviewed button.
-        self.assertContains(response, 'Reviewed')
+        self.assertContains(response, 'Mark as Reviewed')
         self.assertContains(response, '<span class="icon fa fa-check" aria-hidden="true">')
         self.assertContains(response, 'Send for Review')
         self.assertContains(response, self.get_expected_data(CourseStateChoices.Approved))
@@ -1702,6 +1702,37 @@ class CourseDetailViewTests(TestCase):
         )
 
         return expected
+
+    def test_course_with_reviewed(self):
+        """
+        Verify that user can see approval widget on course detail page with `Reviewed`.
+        """
+        factories.CourseUserRoleFactory(
+            course=self.course, user=self.user, role=PublisherUserRole.MarketingReviewer
+        )
+        self.course_state.owner_role = PublisherUserRole.MarketingReviewer
+        self.course_state.save()
+
+        new_user = UserFactory()
+        factories.CourseUserRoleFactory(
+            course=self.course, user=new_user, role=PublisherUserRole.CourseTeam
+        )
+
+        # To create history objects for both `Review` and `Approved` states
+        self.course.course_state.name = CourseStateChoices.Review
+        self.course.course_state.save()
+        self.course.course_state.name = CourseStateChoices.Approved
+        self.course.course_state.save()
+
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
+        response = self.client.get(self.detail_page_url)
+
+        # Verify that content is sent for review and user can see Reviewed button.
+        self.assertNotContains(response, 'Mark as Reviewed')
+        self.assertContains(response, 'Reviewed', count=1)
+        self.assertContains(response, '<span class="icon fa fa-check" aria-hidden="true">', count=2)
+        self.assertContains(response, 'Send for Review', count=1)
 
 
 class CourseEditViewTests(TestCase):
