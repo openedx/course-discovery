@@ -445,6 +445,8 @@ class ChangeCourseStateViewTests(TestCase):
             course=self.course, role=PublisherUserRole.MarketingReviewer, user=marketing_user
         )
 
+        old_owner_role_modified = self.course_state.owner_role_modified
+
         response = self.client.patch(
             self.change_state_url,
             data=json.dumps({'name': CourseStateChoices.Review}),
@@ -457,6 +459,7 @@ class ChangeCourseStateViewTests(TestCase):
 
         self.assertEqual(self.course_state.name, CourseStateChoices.Review)
         self.assertEqual(self.course_state.owner_role, PublisherUserRole.MarketingReviewer)
+        self.assertGreater(self.course_state.owner_role_modified, old_owner_role_modified)
 
         self._assert_email_sent(marketing_user)
 
