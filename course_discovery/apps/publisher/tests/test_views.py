@@ -2215,6 +2215,27 @@ class CourseRunEditViewTests(TestCase):
             'EdX has updated a Studio instance for '
         )
 
+    def test_effort_on_edit_page(self):
+        """
+        Verify that users can update course min_effort and max_effort from edit page.
+        """
+
+        self.updated_dict['min_effort'] = 2
+        self.updated_dict['max_effort'] = 5
+
+        response = self.client.post(self.edit_page_url, self.updated_dict)
+
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.new_course_run.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        self.new_course_run = CourseRun.objects.get(id=self.new_course_run.id)
+        self.assertEqual(self.new_course_run.min_effort, self.updated_dict['min_effort'])
+        self.assertEqual(self.new_course_run.max_effort, self.updated_dict['max_effort'])
+
     def assert_email_sent(self, object_path, subject, expected_body):
         """
         DRY method to assert sent email data.
