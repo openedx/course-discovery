@@ -596,3 +596,10 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
             self.published()
 
         self.save()
+
+
+class PublisherUser(User):
+    """ Publisher User Proxy Model. """
+
+    class Meta:
+        proxy = True

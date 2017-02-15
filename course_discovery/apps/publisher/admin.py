@@ -1,12 +1,13 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import Group
 from guardian.admin import GuardedModelAdmin
 
-from course_discovery.apps.publisher.forms import CourseUserRoleForm, OrganizationUserRoleForm, UserAttributesAdminForm
-from course_discovery.apps.publisher.models import (
-    Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
-    OrganizationExtension, OrganizationUserRole, Seat, State,
-    UserAttributes
-)
+from course_discovery.apps.publisher.forms import (CourseUserRoleForm, OrganizationUserRoleForm,
+                                                   PublisherUserCreationForm, UserAttributesAdminForm)
+from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
+                                                    OrganizationExtension, OrganizationUserRole, PublisherUser, Seat,
+                                                    State, UserAttributes)
 
 
 @admin.register(CourseUserRole)
@@ -58,3 +59,15 @@ class SeatAdmin(admin.ModelAdmin):
 @admin.register(State)
 class StateAdmin(admin.ModelAdmin):
     raw_id_fields = ('changed_by',)
+
+
+@admin.register(PublisherUser)
+class PublisherUserAdmin(UserAdmin):
+    add_form_template = 'publisher/admin/add_user_form.html'
+    add_fieldsets = (
+        (None, {'fields': ('username', 'groups',)}),
+    )
+    add_form = PublisherUserCreationForm
+
+    def get_queryset(self, request):
+        return self.model.objects.filter(groups__in=Group.objects.all()).distinct()

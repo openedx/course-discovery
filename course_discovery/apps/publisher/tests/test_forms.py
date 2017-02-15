@@ -1,10 +1,11 @@
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.course_metadata.tests.factories import PersonFactory
-from course_discovery.apps.publisher.forms import CustomCourseForm, CustomCourseRunForm
+from course_discovery.apps.publisher.forms import CustomCourseForm, CustomCourseRunForm, PublisherUserCreationForm
 
 
 class UserModelChoiceFieldTests(TestCase):
@@ -58,3 +59,21 @@ class PersonModelMultipleChoiceTests(TestCase):
                 url=person.get_profile_image_url
             )
             self.assertEqual(choice_label.strip(), expected)
+
+
+class PublisherUserCreationFormTests(TestCase):
+    """
+    Tests for the publisher `PublisherUserCreationForm`.
+    """
+
+    def test_clean_groups(self):
+        """
+        Verify that `clean` raises `ValidationError` error if no group is selected.
+        """
+        user_form = PublisherUserCreationForm()
+        user_form.cleaned_data = {'username': 'test_user', 'groups': []}
+        with self.assertRaises(ValidationError):
+            user_form.clean()
+
+        user_form.cleaned_data['groups'] = ['test_group']
+        self.assertEqual(user_form.clean(), user_form.cleaned_data)
