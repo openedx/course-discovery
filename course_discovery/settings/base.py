@@ -334,7 +334,7 @@ REST_FRAMEWORK = {
         'user': '100/hour',
     },
     # NOTE: This is the same format as DRF's iso-8601, however the milliseconds are always rendered.
-    'DATETIME_FORMAT': '%Y-%m-%dT%H:%M:%S.%fZ',
+    'DATETIME_FORMAT': '%Y-%m-%dT%H:%M:%S.%f%zZ',
 }
 
 # NOTE (CCB): JWT_SECRET_KEY is intentionally not set here to avoid production releases with a public value.
