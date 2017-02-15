@@ -13,9 +13,8 @@ from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import Organization, Person, Subject
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.mixins import LanguageModelSelect2Multiple, check_roles_access
-from course_discovery.apps.publisher.models import (
-    Course, CourseRun, CourseUserRole, OrganizationExtension, OrganizationUserRole, Seat, User
-)
+from course_discovery.apps.publisher.models import (Course, CourseRun, CourseUserRole, OrganizationExtension,
+                                                    OrganizationUserRole, PublisherUser, Seat, User)
 
 
 class UserModelChoiceField(forms.ModelChoiceField):
@@ -360,3 +359,18 @@ class OrganizationUserRoleForm(BaseUserAdminForm):
 class CourseUserRoleForm(BaseUserAdminForm):
     class Meta(BaseUserAdminForm.Meta):
         model = CourseUserRole
+
+
+class PublisherUserCreationForm(forms.ModelForm):
+    class Meta:
+        model = PublisherUser
+        fields = ('username', 'groups',)
+
+    def clean(self):
+        groups = self.cleaned_data.get('groups')
+        if not groups:
+            raise forms.ValidationError(
+                {'groups': _('This field is required.')}
+            )
+
+        return self.cleaned_data
