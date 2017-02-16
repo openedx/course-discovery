@@ -1,0 +1,13 @@
+{% load i18n %}
+
+<div class="course-widgets">
+    {% if can_edit %}
+        <a href="{% url 'publisher:publisher_course_runs_edit' pk=object.id %}" class="btn btn-neutral btn-courserun-edit">
+            {% trans "EDIT" %}
+        </a>
+        <div class="clearfix"></div>
+    {% endif %}
+    <div class="approval-widget {% if not publisher_approval_widget_feature %}hidden{% endif %}">
+      {% include 'publisher/_approval_widget.html' %}
+    </div>
+</div>

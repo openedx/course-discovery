@@ -208,6 +208,14 @@ class Course(TimeStampedModel, ChangedByMixin):
         except CourseUserRole.DoesNotExist:
             return None
 
+    @property
+    def organization_extension(self):
+        organization = self.organizations.all().first()
+        if organization:
+            return organization.organization_extension
+
+        return None
+
 
 class CourseRun(TimeStampedModel, ChangedByMixin):
     """ Publisher CourseRun model. It contains fields related to the course run intake form."""
