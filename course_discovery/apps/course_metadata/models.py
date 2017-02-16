@@ -810,11 +810,67 @@ class Program(TimeStampedModel):
     def seat_types(self):
         return set(seat.type for seat in self.seats)
 
+    def _get_total_price_by_currency(self):
+        """
+        This helper function returns the total program price indexed by the currency
+        """
+        currencies_with_total = defaultdict()
+        course_map = defaultdict(list)
+        for seat in self.seats:
+            course_uuid = seat.course_run.course.uuid
+            # Identify the most relevant course_run seat for a course.
+            # And use the price of the seat to represent the price of the course
+            selected_seats = course_map.get(course_uuid)
+            if not selected_seats:
+                # if we do not have this course yet, create the seats array
+                course_map[course_uuid] = [seat]
+            else:
+                add_seat = False
+                seats_to_remove = []
+                for selected_seat in selected_seats:
+                    if seat.currency != selected_seat.currency:
+                        # If the candidate seat has a different currency than the one in the array,
+                        # always add to the array
+                        add_seat = True
+                    elif ((seat.course_run.end is None or
+                           seat.course_run.end >= datetime.datetime.now(pytz.UTC)) and
+                          (seat.course_run.enrollment_start is None or
+                           seat.course_run.enrollment_start > selected_seat.course_run.enrollment_start and
+                           seat.course_run.enrollment_start < datetime.datetime.now(pytz.UTC))):
+                        # If the seat has same currency, the course has not ended,
+                        # and the course is enrollable, then choose the new seat associated with the course instead,
+                        # and mark the original seat in the array to be removed
+                        logger.info(
+                            "Use course_run {} instead of course_run {} for total program price calculation".format(
+                                seat.course_run.key,
+                                selected_seat.course_run.key
+                            )
+                        )
+                        add_seat = True
+                        seats_to_remove.append(selected_seat)
+
+                if add_seat:
+                    course_map[course_uuid].append(seat)
+                for seat in seats_to_remove:
+                    # Now remove the seats that should not be counted for calculation for program total
+                    course_map[course_uuid].remove(seat)
+
+        # Now calculate the total price of the program indexed by currency
+        for course_seats in course_map.values():
+            for seat in course_seats:
+                current_total = currencies_with_total.get(seat.currency, 0)
+                current_total += seat.price
+                currencies_with_total[seat.currency] = current_total
+
+        return currencies_with_total
+
     @property
     def price_ranges(self):
         currencies = defaultdict(list)
         for seat in self.seats:
             currencies[seat.currency].append(seat.price)
+
+        total_by_currency = self._get_total_price_by_currency()
 
         price_ranges = []
         for currency, prices in currencies.items():
@@ -822,6 +878,7 @@ class Program(TimeStampedModel):
                 'currency': currency.code,
                 'min': min(prices),
                 'max': max(prices),
+                'total': total_by_currency.get(currency, 0)
             })
 
         return price_ranges
