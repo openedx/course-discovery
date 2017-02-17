@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-17 15:19+0500\n"
+"POT-Creation-Date: 2017-02-20 17:52+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -1102,6 +1102,23 @@ msgstr "Àdd Stäff Mémßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 #: templates/publisher/_approval_widget.html
 msgid "APPROVALS"
 msgstr "ÀPPRÖVÀLS Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: templates/publisher/_approval_widget.html
+#, python-format
+msgid ""
+"The %(link_start)s%(course_url)s%(link_middle)s parent course %(link_end)s "
+"for this course run has changes that must be approved before you can submit "
+"this course run for approval. You can save changes to this course run."
+msgstr ""
+"Thé %(link_start)s%(course_url)s%(link_middle)s pärént çöürsé %(link_end)s "
+"för thïs çöürsé rün häs çhängés thät müst ßé äpprövéd ßéföré ýöü çän süßmït "
+"thïs çöürsé rün för äppröväl. Ýöü çän sävé çhängés tö thïs çöürsé rün. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ "
+"тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм,"
+" qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
+"ηση ρяσι∂єηт, ѕυηт ιη #"
 
 #: templates/publisher/_approval_widget.html
 msgid "Reviewed"

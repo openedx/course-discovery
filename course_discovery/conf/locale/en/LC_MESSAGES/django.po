@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-17 15:19+0500\n"
+"POT-Creation-Date: 2017-02-20 17:52+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -947,6 +947,14 @@ msgstr ""
 
 #: templates/publisher/_approval_widget.html
 msgid "APPROVALS"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+#, python-format
+msgid ""
+"The %(link_start)s%(course_url)s%(link_middle)s parent course %(link_end)s "
+"for this course run has changes that must be approved before you can submit "
+"this course run for approval. You can save changes to this course run."
 msgstr ""
 
 #: templates/publisher/_approval_widget.html
