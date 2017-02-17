@@ -68,7 +68,9 @@
 
     <aside id="right-panel" class="layout-col layout-col-a layout-col-a-custom">
         <div id="approval-widget" class="approval-widget {% if not publisher_approval_widget_feature %}hidden{% endif %}">
+        {% with is_course_run=True %}
           {% include 'publisher/course_run_detail/_widgets.html' %}
+        {% endwith %}
         </div>
         <div id="comments-widget" class="comment-container {% if not publisher_comment_widget_feature %}hidden{% endif %}">
             {% include 'comments/add_auth_comments.html' %}

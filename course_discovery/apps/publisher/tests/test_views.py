@@ -1103,6 +1103,22 @@ class CourseRunDetailTests(TestCase):
         self.course_run.save()
         self.course_run.staff.add(PersonFactory())
 
+    def test_parent_course_not_approved(self):
+        """ Verify that if parent course is not approved than their will be a message
+        shown on course run detail page that user can't submit for approval.
+        """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+
+        response = self.client.get(self.page_url)
+        self.assertNotContains(response, '<div class="parent-course-approval">')
+
+        # change course state to review.
+        self.course.course_state.name = CourseStateChoices.Review
+        self.course.course_state.save()
+
+        response = self.client.get(self.page_url)
+        self.assertContains(response, '<div class="parent-course-approval">')
+
 
 # pylint: disable=attribute-defined-outside-init
 @ddt.ddt
