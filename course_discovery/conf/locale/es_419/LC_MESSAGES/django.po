@@ -18,8 +18,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-10 14:57+0500\n"
-"PO-Revision-Date: 2017-02-11 08:36+0000\n"
+"POT-Creation-Date: 2017-02-16 10:21-0500\n"
+"PO-Revision-Date: 2017-02-17 09:28+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
 "MIME-Version: 1.0\n"
@@ -436,14 +436,6 @@ msgstr "Descripción de la redención de créditos para los cursos en el program
 msgid "Change program excluded course runs"
 msgstr ""
 
-#: apps/edx_haystack_extensions/models.py
-msgid "Function Score"
-msgstr "Puntaje de función"
-
-#: apps/edx_haystack_extensions/models.py
-msgid "JSON string containing an elasticsearch function score config."
-msgstr "Cadena JSON que contiene la configuración del puntaje de función de elasticsearch"
-
 #: apps/publisher/api/serializers.py
 #, python-brace-format
 msgid "Invalid course key \"{lms_course_id}\""
@@ -505,6 +497,16 @@ msgstr ""
 msgid "New Studio instance request for {title}"
 msgstr ""
 
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Changes to {title} are ready for review"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Changes to {title} has been approved"
+msgstr ""
+
 #: apps/publisher/forms.py
 msgid "Remove Image"
 msgstr ""
@@ -531,12 +533,14 @@ msgstr "Código del curso"
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Brief Description"
 msgstr "Breve descripción"
 
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Full Description"
 msgstr "Descripción completa"
 
@@ -563,11 +567,11 @@ msgstr ""
 msgid "Tertiary (optional)"
 msgstr ""
 
-#: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
+#: apps/publisher/forms.py
 msgid "Course Start Date"
 msgstr "Fecha de inicio del curso"
 
-#: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
+#: apps/publisher/forms.py
 msgid "Course End Date"
 msgstr "Fecha de finalización del curso"
 
@@ -631,6 +635,10 @@ msgstr "Educación profesional"
 msgid "Seat Type"
 msgstr "Tipo de asiento"
 
+#: apps/publisher/forms.py
+msgid "This field is required."
+msgstr ""
+
 #: apps/publisher/models.py
 msgid "Needs Review"
 msgstr "Requiere Revisión"
@@ -651,7 +659,7 @@ msgstr "Título del curso"
 msgid "Course number"
 msgstr "Número del curso"
 
-#: apps/publisher/models.py templates/publisher/course_run_detail/_all.html
+#: apps/publisher/models.py
 msgid "Partner Name"
 msgstr "Nombre del aliado"
 
@@ -661,6 +669,7 @@ msgstr "Tipo de Nivel"
 
 #: apps/publisher/models.py templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Expected Learnings"
 msgstr "Aprendizaje anticipado"
 
@@ -746,6 +755,14 @@ msgstr "MERCADOTECNIA"
 #: apps/publisher/views.py
 msgid "PUBLISHER"
 msgstr "PUBLICADOR"
+
+#: apps/publisher/views.py templates/publisher/_approval_widget.html
+msgid "Send for Review"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "Mark as Reviewed"
+msgstr ""
 
 #: apps/publisher/views.py
 msgid ""
@@ -901,7 +918,6 @@ msgid "Title"
 msgstr "Título"
 
 #: templates/publisher/_add_instructor_popup.html
-#: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_studio.html
 #: templates/publisher/dashboard/_preview_ready.html
 #: templates/publisher/dashboard/_published.html
@@ -914,11 +930,19 @@ msgid "Bio"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
-msgid "Social Links"
+msgid "Facebook URL"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
-msgid "optional - one per line"
+msgid "optional"
+msgstr ""
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "Twitter URL"
+msgstr ""
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "Blog URL"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
@@ -926,8 +950,32 @@ msgid "Major Works"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+msgid "optional - one per line"
+msgstr ""
+
+#: templates/publisher/_add_instructor_popup.html
 msgid "Add Staff Member"
 msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "APPROVALS"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "Reviewed"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "day in ownership"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "change owner"
+msgstr "cambiar dueño"
+
+#: templates/publisher/_approval_widget.html
+msgid "CHANGE"
+msgstr "CAMBIAR"
 
 #: templates/publisher/_footer.html
 msgid "Terms of Service"
@@ -1184,7 +1232,6 @@ msgid "Save Draft"
 msgstr "Guardar borrador"
 
 #: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_detail.html
 msgid "Course Form"
 msgstr "Formulario de curso"
 
@@ -1636,6 +1683,12 @@ msgid ""
 "publishes the course About page."
 msgstr ""
 
+#: templates/publisher/admin/add_user_form.html
+msgid ""
+"First, enter a username and select a group. Then, you'll be able to edit "
+"more user options."
+msgstr ""
+
 #: templates/publisher/base.html templates/publisher/dashboard.html
 msgid "Dashboard"
 msgstr "Panel de control"
@@ -1644,31 +1697,42 @@ msgstr "Panel de control"
 msgid "Courses"
 msgstr "Cursos"
 
-#: templates/publisher/course_detail.html templates/publisher/courses.html
+#: templates/publisher/course_detail.html
+msgid "Course Detail"
+msgstr ""
+
+#: templates/publisher/course_detail.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/courses.html
 #: templates/publisher/dashboard/_in_progress.html
 msgid "Institution"
 msgstr "Institución"
 
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Course Team Admin"
 msgstr ""
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Primary Subject"
 msgstr ""
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Secondary Subject"
 msgstr ""
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Tertiary Subject"
 msgstr ""
 
 #: templates/publisher/course_detail.html
+#: templates/publisher/course_run_detail/_all.html
 msgid "Course Image"
 msgstr ""
 
@@ -1680,7 +1744,7 @@ msgid "Course Level"
 msgstr "Nivel del Curso"
 
 #: templates/publisher/course_detail/_widgets.html
-#: templates/publisher/course_run_detail/_approval_widget.html
+#: templates/publisher/course_run_detail/_widgets.html
 msgid "EDIT"
 msgstr "EDITAR"
 
@@ -1783,66 +1847,40 @@ msgid "Number"
 msgstr "Número"
 
 #: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_studio.html
-msgid "Pacing Type"
-msgstr "Tipo de Ritmo del curso"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Contracted Partner"
+msgid "Studio instance"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_cat.html
+#: templates/publisher/course_run_detail/_render_field.html
+msgid "empty"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
-msgid "Course ID"
-msgstr "Id de Curso"
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/dashboard/_studio_requests.html
+msgid "Start Date"
+msgstr "Fecha de Inicio"
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "Is Re-run?"
-msgstr "¿Es una reapertura?"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Course Subtitle"
-msgstr "Subtítulo del curso"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Subjects"
-msgstr "Temas"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Part of an Xseries?"
-msgstr "¿Es parte de una XSeries?"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Xseries Name"
-msgstr "Nombre de la Xseries"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Part of a Micromasters?"
-msgstr "¿Es parte de un Micromasters?"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Micromasters Name"
-msgstr "Nombre del Micromasters"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Enrollment Type"
-msgstr "Tipo de incripción"
-
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_credit_seat.html
 #: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_seats.html
-msgid "Price"
-msgstr "Precio"
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "End Date"
+msgstr "Fecha de Finalización"
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "Certificate Generation Date Exception Request"
-msgstr "Solicitud de excepción en la fecha de generación de certificado"
+msgid "Certificate type"
+msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "Course Length (weeks)"
-msgstr "Duración del curso (semanas)"
+msgid "Certificate Price"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Course Staff"
+msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
@@ -1851,66 +1889,29 @@ msgstr "Esfuerzo estimado"
 
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
-msgid "to"
-msgstr "a"
-
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_drupal.html
 msgid "hours per week"
 msgstr "horas por semana"
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "Course Languages"
-msgstr "Idiomas del Curso"
+msgid "Course content language"
+msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "Video Translation Languages"
-msgstr "Idiomas de traducción del video"
+msgid "Video Language Transcript"
+msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "About This Course"
-msgstr "Acerca de este Curso"
+msgid "Language spoken in course videos"
+msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
-msgid "What You'll Learn"
-msgstr "Que aprenderá"
+msgid "Course Length (Weeks)"
+msgstr ""
 
-#: templates/publisher/course_run_detail/_all.html
-msgid "Learner Testimonial"
-msgstr "Testimonios de estudiantes"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Syllabus"
-msgstr "Silabo"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Search Engine Optimization Review"
-msgstr "Revisión de SEO"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Top 10 Keywords"
-msgstr "10 palabras claves principales"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "edX Username or email address of Course Team Admin(s)"
-msgstr "Nombre de usuario o dirección de correo electrónico de miembro(s) del Equipo Administrativo"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid ""
-"edX Username or email address of additional course team members (Staff)"
-msgstr "Nombre de usuario o dirección de correo electrónico de miembros adicionales del Equipo del curso (Staff)"
-
-#: templates/publisher/course_run_detail/_all.html
-msgid "Additional Notes"
-msgstr "Notas Adicionales"
-
-#: templates/publisher/course_run_detail/_approval_widget.html
-msgid "change owner"
-msgstr "cambiar dueño"
-
-#: templates/publisher/course_run_detail/_approval_widget.html
-msgid "CHANGE"
-msgstr "CAMBIAR"
+#: templates/publisher/course_run_detail/_cat.html
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Course ID"
+msgstr "Id de Curso"
 
 #: templates/publisher/course_run_detail/_cat.html
 msgid "Course Type"
@@ -1923,6 +1924,12 @@ msgstr "Asientos de crédito"
 #: templates/publisher/course_run_detail/_credit_seat.html
 msgid "Credit Provider"
 msgstr "Proveedor de crédito"
+
+#: templates/publisher/course_run_detail/_credit_seat.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_seats.html
+msgid "Price"
+msgstr "Precio"
 
 #: templates/publisher/course_run_detail/_credit_seat.html
 #: templates/publisher/course_run_detail/_seats.html
@@ -1959,25 +1966,16 @@ msgid "XSeries"
 msgstr "XSeries"
 
 #: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_salesforce.html
-#: templates/publisher/course_run_detail/_studio.html
-#: templates/publisher/dashboard/_studio_requests.html
-msgid "Start Date"
-msgstr "Fecha de Inicio"
-
-#: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_salesforce.html
-#: templates/publisher/course_run_detail/_studio.html
-msgid "End Date"
-msgstr "Fecha de Finalización"
-
-#: templates/publisher/course_run_detail/_drupal.html
 msgid "Self Paced"
 msgstr "Ritmo propio"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Staff"
 msgstr "Equipo del Curso"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "to"
+msgstr "a"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Languages"
@@ -2123,6 +2121,10 @@ msgstr "Fecha de inicio de inscripciones"
 #: templates/publisher/course_run_detail/_studio.html
 msgid "Enrollment End Date"
 msgstr "Fecha de finalización de inscripciones"
+
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Pacing Type"
+msgstr "Tipo de Ritmo del curso"
 
 #: templates/publisher/course_runs_list.html
 msgid "Course Run List"
@@ -2306,6 +2308,75 @@ msgstr "Ver comentario"
 msgid "View comment: "
 msgstr "Ver comentario:"
 
+#: templates/publisher/email/course/mark_as_reviewed.html
+#: templates/publisher/email/course/mark_as_reviewed.txt
+#: templates/publisher/email/course/send_for_review.html
+#: templates/publisher/email/course/send_for_review.txt
+#, python-format
+msgid "Dear %(recipient_name)s,"
+msgstr ""
+
+#: templates/publisher/email/course/mark_as_reviewed.html
+#, python-format
+msgid ""
+"Changes to %(link_start)s%(course_page_url)s%(link_middle)s %(course_name)s "
+"%(link_end)s has been approved."
+msgstr ""
+
+#. Translators: It's closing of mail.
+#: templates/publisher/email/course/mark_as_reviewed.html
+#: templates/publisher/email/course/mark_as_reviewed.txt
+#: templates/publisher/email/course/send_for_review.html
+#: templates/publisher/email/course/send_for_review.txt
+#: templates/publisher/email/course_created.html
+#: templates/publisher/email/course_created.txt
+#: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
+#: templates/publisher/email/studio_instance_needed.html
+#: templates/publisher/email/studio_instance_needed.txt
+msgid "Thanks,"
+msgstr ""
+
+#: templates/publisher/email/course/mark_as_reviewed.html
+#: templates/publisher/email/course/send_for_review.html
+#: templates/publisher/email/studio_instance_created.html
+#, python-format
+msgid ""
+"<p>Note: This email address is unable to receive replies. For questions or "
+"comments, contact %(contact_us_email)s.</p>"
+msgstr ""
+
+#: templates/publisher/email/course/mark_as_reviewed.txt
+#, python-format
+msgid "Changes to %(course_name)s has been approved. %(course_page_url)s"
+msgstr ""
+
+#: templates/publisher/email/course/mark_as_reviewed.txt
+#: templates/publisher/email/course/send_for_review.txt
+#: templates/publisher/email/studio_instance_created.txt
+#, python-format
+msgid ""
+"Note: This email address is unable to receive replies. For questions or "
+"comments, contact %(contact_us_email)s."
+msgstr ""
+
+#: templates/publisher/email/course/send_for_review.html
+#, python-format
+msgid ""
+"New changes to %(link_start)s%(course_page_url)s%(link_middle)s "
+"%(course_name)s %(link_end)s are ready for your review. "
+"%(link_start)s%(course_page_url)s%(link_middle)s View this course in "
+"Publisher %(link_end)s to approve or decline the changes."
+msgstr ""
+
+#: templates/publisher/email/course/send_for_review.txt
+#, python-format
+msgid ""
+"New changes to %(course_name)s are ready for your review. "
+"%(course_page_url)s View this course in Publisher to approve or decline the "
+"changes."
+msgstr ""
+
 #. Translators: partner_coordinator_name is a member name.
 #: templates/publisher/email/course_created.html
 #, python-format
@@ -2323,16 +2394,6 @@ msgstr ""
 #: templates/publisher/email/course_created.html
 #: templates/publisher/email/course_created.txt
 msgid "Please create a Studio instance for this course."
-msgstr ""
-
-#. Translators: It's closing of mail.
-#: templates/publisher/email/course_created.html
-#: templates/publisher/email/course_created.txt
-#: templates/publisher/email/studio_instance_created.html
-#: templates/publisher/email/studio_instance_created.txt
-#: templates/publisher/email/studio_instance_needed.html
-#: templates/publisher/email/studio_instance_needed.txt
-msgid "Thanks,"
 msgstr ""
 
 #: templates/publisher/email/course_created.txt
@@ -2411,25 +2472,11 @@ msgid ""
 "build your course. We recommend that you use the list early!"
 msgstr ""
 
-#: templates/publisher/email/studio_instance_created.html
-#, python-format
-msgid ""
-"<p>Note: This email address is unable to receive replies. For questions or "
-"comments, contact %(contact_us_email)s.</p>"
-msgstr ""
-
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
 msgid ""
 "EdX has %(updated_text)s a Studio instance for %(course_name)s: "
 "%(course_run_page_url)s. You can now edit this course in Studio."
-msgstr ""
-
-#: templates/publisher/email/studio_instance_created.txt
-#, python-format
-msgid ""
-"Note: This email address is unable to receive replies. For questions or "
-"comments, contact %(contact_us_email)s."
 msgstr ""
 
 #: templates/publisher/email/studio_instance_needed.html
