@@ -314,6 +314,16 @@ class CourseTests(TestCase):
 
         self.assertEqual(self.user1, self.course2.marketing_reviewer)
 
+    def test_publisher(self):
+        """ Verify that the publisher property returns user if exist. """
+        self.assertIsNone(self.course2.publisher)
+
+        factories.CourseUserRoleFactory(
+            course=self.course2, user=self.user1, role=PublisherUserRole.Publisher
+        )
+
+        self.assertEqual(self.user1, self.course2.publisher)
+
 
 class SeatTests(TestCase):
     """ Tests for the publisher `Seat` model. """

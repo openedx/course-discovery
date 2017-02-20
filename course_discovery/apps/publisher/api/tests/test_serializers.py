@@ -155,13 +155,14 @@ class CourseStateSerializerTests(TestCase):
         self.user = UserFactory()
         self.request.user = self.user
 
+        CourseUserRoleFactory(
+            course=self.course_state.course, role=PublisherUserRole.CourseTeam, user=self.user
+        )
+
     def test_update(self):
         """
         Verify that we can update course workflow state with serializer.
         """
-        CourseUserRoleFactory(
-            course=self.course_state.course, role=PublisherUserRole.CourseTeam, user=self.user
-        )
         course = self.course_state.course
         course.image = make_image_file('test_banner.jpg')
         course.save()
