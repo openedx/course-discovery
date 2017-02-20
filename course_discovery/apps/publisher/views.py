@@ -749,18 +749,19 @@ def get_course_role_widgets_data(user, course, state_object, change_state_url):
                     role_widget['button_disabled'] = True
 
         if course_role.role in [PublisherUserRole.CourseTeam, PublisherUserRole.MarketingReviewer]:
-            if state_object.owner_role != course_role.role:
-                if state_object.name != CourseStateChoices.Draft:
-                    history_records = state_object.history.filter(
-                        name=CourseStateChoices.Review
-                    ).order_by('-modified')
-                    role_widget['sent_for_review'] = history_records.first() and history_records.first().modified
-
-            if state_object.name == CourseStateChoices.Approved:
-                history_records = state_object.history.filter(
+            if state_object.name == CourseStateChoices.Approved and course_role.role == state_object.approved_by_role:
+                history_record = state_object.history.filter(
                     name=CourseStateChoices.Approved
-                ).order_by('-modified')
-                role_widget['reviewed'] = history_records.first().modified
+                ).order_by('-modified').first()
+                if history_record:
+                    role_widget['reviewed'] = history_record.modified
+
+            elif state_object.name != CourseStateChoices.Draft and course_role.role != state_object.owner_role:
+                history_record = state_object.history.filter(
+                    name=CourseStateChoices.Review
+                ).order_by('-modified').first()
+                if history_record:
+                    role_widget['sent_for_review'] = history_record.modified
 
         role_widgets.append(role_widget)
 

@@ -1,0 +1,15 @@
+{% load i18n %}
+
+{% blocktrans trimmed %}
+    Dear {{ recipient_name }},
+{% endblocktrans %}
+{% blocktrans trimmed %}
+     Changes to {{ course_name }} has been marked as reviewed. {{ page_url }}
+{% endblocktrans %}
+
+{% trans "Thanks," %}
+{{ sender_name }}
+
+{% blocktrans trimmed %}
+    Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.
+{% endblocktrans %}

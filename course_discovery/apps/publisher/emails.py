@@ -185,7 +185,7 @@ def send_email_for_mark_as_reviewed(course, user):
         logger.exception('Failed to send email notifications mark as reviewed of course %s', course.id)
 
 
-def send_course_workflow_email(course, user, subject, txt_template, html_template, page_path):
+def send_course_workflow_email(course, user, subject, txt_template, html_template, page_path, course_name=None):
     """ Send email for course workflow state change.
 
         Arguments:
@@ -194,6 +194,8 @@ def send_course_workflow_email(course, user, subject, txt_template, html_templat
             subject (String): Email subject
             txt_template: (String): Email text template path
             html_template: (String): Email html template path
+            page_path: (URL): Detail page url
+            course_name: (String): Custom course name, by default None
     """
     recipient_user = course.marketing_reviewer
     user_role = course.course_user_roles.get(user=user)
@@ -207,7 +209,7 @@ def send_course_workflow_email(course, user, subject, txt_template, html_templat
         context = {
             'recipient_name': recipient_user.full_name or recipient_user.username if recipient_user else '',
             'sender_name': user.full_name or user.username,
-            'course_name': course.title,
+            'course_name': course_name if course_name else course.title,
             'contact_us_email': partner_coordinator.email if partner_coordinator else '',
             'page_url': 'https://{host}{path}'.format(
                 host=Site.objects.get_current().domain.strip('/'), path=page_path
@@ -241,3 +243,80 @@ def send_email_for_send_for_review_course_run(course_run, user):
         send_course_workflow_email(course_run.course, user, subject, txt_template, html_template, page_path)
     except Exception:  # pylint: disable=broad-except
         logger.exception('Failed to send email notifications send for review of course-run %s', course_run.id)
+
+
+def send_email_for_mark_as_reviewed_course_run(course_run, user):
+    """ Send email when course-run is marked as reviewed.
+
+        Arguments:
+            course-run (Object): CourseRun object
+            user (Object): User object
+    """
+    txt_template = 'publisher/email/course_run/mark_as_reviewed.txt'
+    html_template = 'publisher/email/course_run/mark_as_reviewed.html'
+
+    run_name = '{pacing_type}: {start_date}'.format(
+        pacing_type=course_run.get_pacing_type_display(),
+        start_date=course_run.start.strftime("%B %d, %Y")
+    )
+    subject = _('Changes to {run_name} has been marked as reviewed').format(run_name=run_name)  # pylint: disable=no-member
+
+    try:
+        page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
+        send_course_workflow_email(
+            course_run.course,
+            user,
+            subject,
+            txt_template,
+            html_template,
+            page_path,
+            course_name=run_name
+        )
+    except Exception:  # pylint: disable=broad-except
+        logger.exception('Failed to send email notifications for mark as reviewed of course-run %s', course_run.id)
+
+
+def send_email_to_publisher(course_run, user):
+    """ Send email to publisher when course-run is marked as reviewed.
+
+        Arguments:
+            course_run (Object): CourseRun object
+            user (Object): User object
+    """
+    txt_template = 'publisher/email/course_run/mark_as_reviewed.txt'
+    html_template = 'publisher/email/course_run/mark_as_reviewed.html'
+
+    run_name = '{pacing_type}: {start_date}'.format(
+        pacing_type=course_run.get_pacing_type_display(),
+        start_date=course_run.start.strftime("%B %d, %Y")
+    )
+    subject = _('Changes to {run_name} has been marked as reviewed').format(run_name=run_name)  # pylint: disable=no-member
+    recipient_user = course_run.course.publisher
+
+    try:
+        if is_email_notification_enabled(recipient_user):
+            partner_coordinator = course_run.course.partner_coordinator
+            to_addresses = [recipient_user.email]
+            from_address = settings.PUBLISHER_FROM_EMAIL
+            page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
+            context = {
+                'recipient_name': recipient_user.full_name or recipient_user.username if recipient_user else '',
+                'sender_name': user.full_name or user.username,
+                'course_name': run_name,
+                'contact_us_email': partner_coordinator.email if partner_coordinator else '',
+                'page_url': 'https://{host}{path}'.format(
+                    host=Site.objects.get_current().domain.strip('/'), path=page_path
+                )
+            }
+            template = get_template(txt_template)
+            plain_content = template.render(context)
+            template = get_template(html_template)
+            html_content = template.render(context)
+
+            email_msg = EmailMultiAlternatives(
+                subject, plain_content, from_address, to_addresses
+            )
+            email_msg.attach_alternative(html_content, 'text/html')
+            email_msg.send()
+    except Exception:  # pylint: disable=broad-except
+        logger.exception('Failed to send email notifications for mark as reviewed of course-run %s', course_run.id)

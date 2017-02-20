@@ -481,6 +481,9 @@ class ChangeCourseStateViewTests(TestCase):
         """
         Verify that user cannot change course workflow state directly from `Draft` to `Approved`.
         """
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.CourseTeam, user=self.user
+        )
         response = self.client.patch(
             self.change_state_url,
             data=json.dumps({'name': CourseStateChoices.Approved}),
@@ -576,11 +579,12 @@ class ChangeCourseRunStateViewTests(TestCase):
 
         self.assertEqual(response.data, expected)
 
-    def test_mark_as_reviewed(self):
+    def test_send_for_review(self):
         """
-        Verify that user can mark course-run as reviewed.
+        Verify that user can change course-run workflow state and owner role will be changed to `CourseTeam`.
         """
         self.run_state.name = CourseRunStateChoices.Draft
+        self.run_state.owner_role = PublisherUserRole.MarketingReviewer
         self.run_state.save()
 
         self._assign_role(self.course_run.course, PublisherUserRole.MarketingReviewer, self.user)
@@ -599,6 +603,7 @@ class ChangeCourseRunStateViewTests(TestCase):
         course_run_state = CourseRunState.objects.get(course_run=self.course_run)
 
         self.assertEqual(course_run_state.name, CourseRunStateChoices.Review)
+        self.assertEqual(course_run_state.owner_role, PublisherUserRole.CourseTeam)
 
         self.assertEqual(len(mail.outbox), 1)
 
@@ -607,3 +612,31 @@ class ChangeCourseRunStateViewTests(TestCase):
         factories.CourseUserRoleFactory(
             course=course, role=role, user=user
         )
+
+    def test_mark_as_reviewed(self):
+        """
+        Verify that user can change course-run workflow state and owner role will be changed to `Publisher`.
+        """
+        self.run_state.name = CourseRunStateChoices.Review
+        self.run_state.owner_role = PublisherUserRole.CourseTeam
+        self.run_state.save()
+
+        self._assign_role(self.course_run.course, PublisherUserRole.CourseTeam, self.user)
+        self._assign_role(self.course_run.course, PublisherUserRole.MarketingReviewer, UserFactory())
+
+        self._assign_role(self.course_run.course, PublisherUserRole.Publisher, UserFactory())
+
+        response = self.client.patch(
+            self.change_state_url,
+            data=json.dumps({'name': CourseStateChoices.Approved}),
+            content_type=JSON_CONTENT_TYPE
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.run_state = CourseRunState.objects.get(course_run=self.course_run)
+
+        self.assertEqual(self.run_state.name, CourseRunStateChoices.Approved)
+        self.assertEqual(self.run_state.owner_role, PublisherUserRole.Publisher)
+
+        self.assertEqual(len(mail.outbox), 2)

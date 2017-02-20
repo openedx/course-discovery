@@ -22,11 +22,8 @@ from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import LevelType, Organization, Person, Subject
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from course_discovery.apps.publisher import emails
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
-from course_discovery.apps.publisher.emails import (
-    send_email_for_change_state, send_email_for_mark_as_reviewed,
-    send_email_for_send_for_review, send_email_for_send_for_review_course_run
-)
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
 
 logger = logging.getLogger(__name__)
@@ -161,9 +158,9 @@ class Course(TimeStampedModel, ChangedByMixin):
         """
         users_list_roles = [obj.user for obj in self.course_user_roles.all()]
 
-        emails = [user.email for user in users_list_roles if is_email_notification_enabled(user)]
+        user_emails = [user.email for user in users_list_roles if is_email_notification_enabled(user)]
 
-        return emails
+        return user_emails
 
     @property
     def keywords_data(self):
@@ -217,6 +214,13 @@ class Course(TimeStampedModel, ChangedByMixin):
             return organization.organization_extension
 
         return None
+
+    @property
+    def publisher(self):
+        try:
+            return self.course_user_roles.get(role=PublisherUserRole.Publisher).user
+        except CourseUserRole.DoesNotExist:
+            return None
 
 
 class CourseRun(TimeStampedModel, ChangedByMixin):
@@ -318,7 +322,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         self.state.save()
 
         if waffle.switch_is_active('enable_publisher_email_notifications'):
-            send_email_for_change_state(self)
+            emails.send_email_for_change_state(self)
 
     @property
     def current_state(self):
@@ -603,13 +607,16 @@ class CourseState(TimeStampedModel, ChangedByMixin):
             self.review()
 
             if waffle.switch_is_active('enable_publisher_email_notifications'):
-                send_email_for_send_for_review(self.course, user)
+                emails.send_email_for_send_for_review(self.course, user)
 
         elif state == CourseStateChoices.Approved:
+            user_role = self.course.course_user_roles.get(user=user)
+            self.approved_by_role = user_role.role
+            self.owner_role_modified = timezone.now()
             self.approved()
 
             if waffle.switch_is_active('enable_publisher_email_notifications'):
-                send_email_for_mark_as_reviewed(self.course, user)
+                emails.send_email_for_mark_as_reviewed(self.course, user)
 
         self.save()
 
@@ -683,10 +690,19 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
             self.review()
 
             if waffle.switch_is_active('enable_publisher_email_notifications'):
-                send_email_for_send_for_review_course_run(self.course_run, user)
+                emails.send_email_for_send_for_review_course_run(self.course_run, user)
 
         elif state == CourseRunStateChoices.Approved:
+            user_role = self.course_run.course.course_user_roles.get(user=user)
+            self.approved_by_role = user_role.role
+            self.owner_role = PublisherUserRole.Publisher
+            self.owner_role_modified = timezone.now()
             self.approved()
+
+            if waffle.switch_is_active('enable_publisher_email_notifications'):
+                emails.send_email_for_mark_as_reviewed_course_run(self.course_run, user)
+                emails.send_email_to_publisher(self.course_run, user)
+
         elif state == CourseRunStateChoices.Published:
             self.published()
 

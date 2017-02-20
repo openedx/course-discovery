@@ -62,13 +62,13 @@ class StateChangeEmailTests(TestCase):
 
         toggle_switch('enable_publisher_email_notifications', True)
 
-    @mock.patch('course_discovery.apps.publisher.models.send_email_for_change_state')
+    @mock.patch('course_discovery.apps.publisher.emails.send_email_for_change_state')
     def test_email_with_enable_waffle_switch(self, send_email_for_change_state):
         """ Verify that send_email_for_state called with enable waffle switch.. """
         self.course_run.change_state(target=State.DRAFT)
         send_email_for_change_state.assert_called_once_with(self.course_run)
 
-    @mock.patch('course_discovery.apps.publisher.models.send_email_for_change_state')
+    @mock.patch('course_discovery.apps.publisher.emails.send_email_for_change_state')
     def test_email_with_waffle_switch_disabled(self, send_email_for_change_state):
         """ Verify that send_email_for_state not called with disable waffle switch.. """
         toggle_switch('enable_publisher_email_notifications', False)
@@ -309,11 +309,11 @@ class CourseMarkAsReviewedEmailTests(TestCase):
             )
 
 
-class CourseRunMarkAsReviewedEmailTests(TestCase):
-    """ Tests for the email functionality for mark as reviewed. """
+class CourseRunSendForReviewEmailTests(TestCase):
+    """ Tests for the email functionality for send for review. """
 
     def setUp(self):
-        super(CourseRunMarkAsReviewedEmailTests, self).setUp()
+        super(CourseRunSendForReviewEmailTests, self).setUp()
         self.user = UserFactory()
         self.user_2 = UserFactory()
         self.user_3 = UserFactory()
@@ -376,3 +376,98 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
         page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
         self.assertIn(page_url, body)
         self.assertIn('are ready for your review.', body)
+
+
+class CourseRunMarkAsReviewedEmailTests(TestCase):
+    """ Tests email functionality of mark as reviewed. """
+
+    def setUp(self):
+        super(CourseRunMarkAsReviewedEmailTests, self).setUp()
+        self.user = UserFactory()
+        self.user_2 = UserFactory()
+        self.user_3 = UserFactory()
+
+        self.seat = factories.SeatFactory()
+        self.course_run = self.seat.course_run
+        self.course = self.course_run.course
+
+        # add user in course-user-role table
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.CourseTeam, user=self.user_2
+        )
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.Publisher, user=self.user_3
+        )
+        self.course_run_state = factories.CourseRunStateFactory(course_run=self.course_run)
+
+        toggle_switch('enable_publisher_email_notifications', True)
+
+    def test_email_sent_by_marketing_reviewer(self):
+        """ Verify that email works successfully."""
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
+        )
+        emails.send_email_for_mark_as_reviewed_course_run(self.course_run_state.course_run, self.user)
+        self.assert_email_sent(self.user_2)
+
+    def test_email_sent_by_course_team(self):
+        """ Verify that email works successfully."""
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
+        )
+        emails.send_email_for_mark_as_reviewed_course_run(self.course_run_state.course_run, self.user_2)
+        self.assert_email_sent(self.user)
+
+    def test_email_mark_as_reviewed_with_error(self):
+        """ Verify that email failure log error message."""
+
+        with LogCapture(emails.logger.name) as l:
+            emails.send_email_for_mark_as_reviewed_course_run(self.course_run, self.user)
+            l.check(
+                (
+                    emails.logger.name,
+                    'ERROR',
+                    'Failed to send email notifications for mark as reviewed of course-run {}'.format(
+                        self.course_run.id
+                    )
+                )
+            )
+
+    def test_email_sent_to_publisher(self):
+        """ Verify that email works successfully."""
+        emails.send_email_to_publisher(self.course_run_state.course_run, self.user)
+        self.assert_email_sent(self.user_3)
+
+    def test_email_to_publisher_with_error(self):
+        """ Verify that email failure log error message."""
+
+        with mock.patch('django.core.mail.message.EmailMessage.send', side_effect=TypeError):
+            with LogCapture(emails.logger.name) as l:
+                emails.send_email_to_publisher(self.course_run, self.user_3)
+                l.check(
+                    (
+                        emails.logger.name,
+                        'ERROR',
+                        'Failed to send email notifications for mark as reviewed of course-run {}'.format(
+                            self.course_run.id
+                        )
+                    )
+                )
+
+    def assert_email_sent(self, to_email):
+        """ Verify the email data for tests cases."""
+        run_name = '{pacing_type}: {start_date}'.format(
+            pacing_type=self.course_run.get_pacing_type_display(),
+            start_date=self.course_run.start.strftime("%B %d, %Y")
+        )
+        subject = 'Changes to {run_name} has been marked as reviewed'.format(
+            run_name=run_name
+        )
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(to_email.email, mail.outbox[0].to[0])
+        self.assertEqual(str(mail.outbox[0].subject), subject)
+        body = mail.outbox[0].body.strip()
+        page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id})
+        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
+        self.assertIn(page_url, body)
+        self.assertIn('has been marked as reviewed.', body)
