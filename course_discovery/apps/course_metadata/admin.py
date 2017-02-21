@@ -222,5 +222,5 @@ for model in (LevelType, Prerequisite,):
 
 # Register remaining models using basic ModelAdmin classes
 for model in (Image, Video, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, CourseRunSocialNetwork,
-              JobOutlookItem,):
+              JobOutlookItem, DataLoaderConfig):
     admin.site.register(model)

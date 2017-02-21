@@ -15,6 +15,7 @@ from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
 from haystack import connections
 from haystack.query import SearchQuerySet
+from solo.models import SingletonModel
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
 from stdimage.utils import UploadToAutoSlug
@@ -902,3 +903,10 @@ class CourseRunSocialNetwork(AbstractSocialNetworkModel):
 class PersonWork(AbstractValueModel):
     """ Person Works model. """
     person = models.ForeignKey(Person, related_name='person_works')
+
+
+class DataLoaderConfig(SingletonModel):
+    """
+    Configuration for data loaders used in the refresh_course_metadata command.
+    """
+    max_workers = models.PositiveSmallIntegerField(default=7)
