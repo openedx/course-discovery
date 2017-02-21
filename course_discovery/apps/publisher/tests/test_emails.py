@@ -534,3 +534,40 @@ class CourseRunPreviewEmailTests(TestCase):
                         )
                     )
                 )
+
+    def test_preview_available_email(self):
+        """
+        Verify that preview available email functionality works fine.
+        """
+        emails.send_email_preview_page_is_available(self.run_state.course_run)
+        run_name = '{pacing_type}: {start_date}'.format(
+            pacing_type=self.run_state.course_run.get_pacing_type_display(),
+            start_date=self.run_state.course_run.start.strftime("%B %d, %Y")
+        )
+        subject = 'Preview for {run_name} is available'.format(
+            run_name=run_name
+        )
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual([self.course.course_team_admin.email], mail.outbox[0].bcc)
+        self.assertEqual(str(mail.outbox[0].subject), subject)
+        body = mail.outbox[0].body.strip()
+        page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.run_state.course_run.id})
+        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
+        self.assertIn(page_url, body)
+        self.assertIn('is available for review.', body)
+
+    def test_preview_available_email_with_error(self):
+        """ Verify that email failure log error message."""
+
+        with mock.patch('django.core.mail.message.EmailMessage.send', side_effect=TypeError):
+            with LogCapture(emails.logger.name) as l:
+                emails.send_email_preview_page_is_available(self.run_state.course_run)
+                l.check(
+                    (
+                        emails.logger.name,
+                        'ERROR',
+                        'Failed to send email notifications for preview available of course-run {}'.format(
+                            self.run_state.course_run.id
+                        )
+                    )
+                )

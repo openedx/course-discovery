@@ -339,8 +339,8 @@
 
 
 .approval-widget, .course-widgets {
-
-    .btn-course-edit, .btn-courserun-edit, .btn-change-state, .btn-preview {
+  
+    .btn-course-edit, .btn-courserun-edit, .btn-change-state, .btn-preview, .btn-save-preview-url, .btn-edit-preview-url {
         @include padding(2px, 20px, 3px, 20px);
         @include float(right);
         font-weight: 400;
@@ -604,4 +604,23 @@
   margin-bottom: 15px;
   background-color: #F2F2F2;
   padding: 20px;
+}
+
+.preview-container {
+  #id-review-url {
+    width: 360px;
+  }
+  .btn-save-preview-url {
+    margin-top: 25px;
+  }
+  .preview-status {
+    @include float(right);
+    font-size: 12px;
+  }
+  .has-error{
+      border-color: red;
+    }
+  .error-message {
+    color: red;
+  }
 }

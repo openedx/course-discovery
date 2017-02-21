@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-23 12:44+0500\n"
+"POT-Creation-Date: 2017-02-23 17:25+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -431,6 +431,11 @@ msgstr ""
 
 #: apps/publisher/api/serializers.py
 #, python-brace-format
+msgid "Invalid URL format \"{preview_url}\""
+msgstr ""
+
+#: apps/publisher/api/serializers.py
+#, python-brace-format
 msgid "Cannot switch from state `{state}` to `{target_state}`"
 msgstr ""
 
@@ -505,6 +510,11 @@ msgstr ""
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Preview for {run_name} has been approved"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Preview for {run_name} is available"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -879,7 +889,9 @@ msgstr ""
 msgid "Edit Comment"
 msgstr ""
 
-#: templates/comments/edit_comment.html templates/publisher/seat_form.html
+#: templates/comments/edit_comment.html
+#: templates/publisher/course_run_detail/_widgets.html
+#: templates/publisher/seat_form.html
 msgid "Save"
 msgstr ""
 
@@ -2171,6 +2183,15 @@ msgid "Accept"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_widgets.html
+msgid "Submitted for review"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_widgets.html
+#: templates/publisher/courses.html
+msgid "Edit"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_widgets.html
 msgid "COURSE PREVIEW"
 msgstr ""
 
@@ -2236,10 +2257,6 @@ msgstr ""
 
 #: templates/publisher/courses.html
 msgid "Runs"
-msgstr ""
-
-#: templates/publisher/courses.html
-msgid "Edit"
 msgstr ""
 
 #: templates/publisher/dashboard.html
@@ -2344,6 +2361,8 @@ msgstr ""
 #: templates/publisher/email/course_created.txt
 #: templates/publisher/email/course_run/preview_accepted.html
 #: templates/publisher/email/course_run/preview_accepted.txt
+#: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/preview_available.txt
 msgid "The edX team"
 msgstr ""
 
@@ -2397,6 +2416,8 @@ msgstr ""
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
 #: templates/publisher/email/course_run/preview_accepted.html
 #: templates/publisher/email/course_run/preview_accepted.txt
+#: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/preview_available.txt
 #: templates/publisher/email/course_run/send_for_review.html
 #: templates/publisher/email/course_run/send_for_review.txt
 #: templates/publisher/email/studio_instance_created.html
@@ -2410,6 +2431,7 @@ msgstr ""
 #: templates/publisher/email/course/send_for_review.html
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #: templates/publisher/email/course_run/preview_accepted.html
+#: templates/publisher/email/course_run/preview_available.html
 #: templates/publisher/email/course_run/send_for_review.html
 #: templates/publisher/email/studio_instance_created.html
 #, python-format
@@ -2427,6 +2449,7 @@ msgstr ""
 #: templates/publisher/email/course/send_for_review.txt
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
 #: templates/publisher/email/course_run/preview_accepted.txt
+#: templates/publisher/email/course_run/preview_available.txt
 #: templates/publisher/email/course_run/send_for_review.txt
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
@@ -2498,6 +2521,8 @@ msgstr ""
 
 #: templates/publisher/email/course_run/preview_accepted.html
 #: templates/publisher/email/course_run/preview_accepted.txt
+#: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/preview_available.txt
 msgid "Dear member,"
 msgstr ""
 
@@ -2512,6 +2537,18 @@ msgstr ""
 #, python-format
 msgid ""
 "Preview for %(course_name)s has beed approved by course team. %(page_url)s"
+msgstr ""
+
+#: templates/publisher/email/course_run/preview_available.html
+#, python-format
+msgid ""
+"Preview for %(link_start)s%(page_url)s%(link_middle)s %(course_name)s "
+"%(link_end)s is available for review."
+msgstr ""
+
+#: templates/publisher/email/course_run/preview_available.txt
+#, python-format
+msgid "Preview for %(course_name)s is available for review. %(page_url)s"
 msgstr ""
 
 #: templates/publisher/email/course_run/send_for_review.html

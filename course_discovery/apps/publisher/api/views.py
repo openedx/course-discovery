@@ -2,16 +2,13 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView,
 from rest_framework.permissions import IsAuthenticated
 
 from course_discovery.apps.core.models import User
-from course_discovery.apps.publisher.api.permissions import (
-    CanViewAssociatedCourse, InternalUserPermission, PublisherUserPermission
-)
-from course_discovery.apps.publisher.api.serializers import (
-    CourseRevisionSerializer, CourseRunStateSerializer, CourseStateSerializer, CourseUserRoleSerializer,
-    GroupUserSerializer, UpdateCourseKeySerializer
-)
-from course_discovery.apps.publisher.models import (
-    Course, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension
-)
+from course_discovery.apps.publisher.api.permissions import (CanViewAssociatedCourse, InternalUserPermission,
+                                                             PublisherUserPermission)
+from course_discovery.apps.publisher.api.serializers import (CourseRevisionSerializer, CourseRunSerializer,
+                                                             CourseRunStateSerializer, CourseStateSerializer,
+                                                             CourseUserRoleSerializer, GroupUserSerializer)
+from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
+                                                    OrganizationExtension)
 
 
 class CourseRoleAssignmentView(UpdateAPIView):
@@ -30,10 +27,10 @@ class OrganizationGroupUserView(ListAPIView):
         return queryset
 
 
-class UpdateCourseKeyView(UpdateAPIView):
+class UpdateCourseRunView(UpdateAPIView):
     permission_classes = (IsAuthenticated, InternalUserPermission,)
     queryset = CourseRun.objects.all()
-    serializer_class = UpdateCourseKeySerializer
+    serializer_class = CourseRunSerializer
 
 
 class CourseRevisionDetailView(RetrieveAPIView):

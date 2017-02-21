@@ -764,7 +764,9 @@ def get_course_role_widgets_data(user, course, state_object, change_state_url):
                 if history_record:
                     role_widget['reviewed'] = history_record.modified
 
-            elif state_object.name != CourseStateChoices.Draft:
+            elif ((state_object.name != CourseStateChoices.Draft and course_role.role != state_object.owner_role) or
+                  state_object.name == CourseRunStateChoices.Approved):
+
                 history_record = state_object.history.filter(
                     name=CourseStateChoices.Review
                 ).order_by('-modified').first()
