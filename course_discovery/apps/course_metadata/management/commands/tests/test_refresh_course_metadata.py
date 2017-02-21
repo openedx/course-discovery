@@ -135,8 +135,8 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
 
                 # Set up expected calls
                 expected_calls = [mock.call(loader_class, self.partner, api_url,
-                                            ACCESS_TOKEN, 'JWT', max_workers_override or 7, False, **self.kwargs)
-                                  for loader_class, api_url, max_workers_override in self.pipeline]
+                                            ACCESS_TOKEN, 'JWT', max_workers or 7, False, **self.kwargs)
+                                  for loader_class, api_url, max_workers in self.pipeline]
                 mock_executor.assert_has_calls(expected_calls)
 
     def test_refresh_course_metadata_parallel(self):
@@ -157,8 +157,8 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
                 # Set up expected calls
                 expected_calls = [mock.call(execute_parallel_loader, loader_class,
                                             self.partner, api_url, ACCESS_TOKEN,
-                                            'JWT', max_workers_override or 7, True, **self.kwargs)
-                                  for loader_class, api_url, max_workers_override in self.pipeline]
+                                            'JWT', max_workers or 7, True, **self.kwargs)
+                                  for loader_class, api_url, max_workers in self.pipeline]
                 mock_executor.assert_has_calls(expected_calls, any_order=True)
 
     def test_refresh_course_metadata_with_invalid_partner_code(self):

@@ -16,7 +16,7 @@ from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
     CourseMarketingSiteDataLoader, PersonMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
     SponsorMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, XSeriesMarketingSiteDataLoader
 )
-from course_discovery.apps.course_metadata.models import Course
+from course_discovery.apps.course_metadata.models import Course, DataLoaderConfig
 
 logger = logging.getLogger(__name__)
 
@@ -59,18 +59,7 @@ class Command(BaseCommand):
             help='The short code for a specific partner to refresh.'
         )
 
-        parser.add_argument(
-            '-w', '--max_workers',
-            type=int,
-            action='store',
-            dest='max_workers',
-            default=7,
-            help='Number of worker threads to use when traversing paginated responses.'
-        )
-
     def handle(self, *args, **options):
-        max_workers = options.get('max_workers')
-
         # For each partner defined...
         partners = Partner.objects.all()
 
@@ -129,6 +118,7 @@ class Command(BaseCommand):
             # as an update, significantly lowering the probability of race conditions.
             courses_exist = Course.objects.filter(partner=partner).exists()
             is_threadsafe = courses_exist and waffle.switch_is_active('threaded_metadata_write')
+            max_workers = DataLoaderConfig.get_solo().max_workers
 
             logger.info(
                 'Command is{negation} using threads to write data.'.format(negation='' if is_threadsafe else ' not')
@@ -136,31 +126,31 @@ class Command(BaseCommand):
 
             pipeline = (
                 (
-                    (SubjectMarketingSiteDataLoader, partner.marketing_site_url_root, None),
-                    (SchoolMarketingSiteDataLoader, partner.marketing_site_url_root, None),
-                    (SponsorMarketingSiteDataLoader, partner.marketing_site_url_root, None),
-                    (PersonMarketingSiteDataLoader, partner.marketing_site_url_root, None),
+                    (SubjectMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
+                    (SchoolMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
+                    (SponsorMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
+                    (PersonMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
                 ),
                 (
-                    (CourseMarketingSiteDataLoader, partner.marketing_site_url_root, None),
-                    (OrganizationsApiDataLoader, partner.organizations_api_url, None),
+                    (CourseMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
+                    (OrganizationsApiDataLoader, partner.organizations_api_url, max_workers),
                 ),
                 (
-                    (CoursesApiDataLoader, partner.courses_api_url, None),
+                    (CoursesApiDataLoader, partner.courses_api_url, max_workers),
                 ),
                 (
                     (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),
-                    (ProgramsApiDataLoader, partner.programs_api_url, None),
+                    (ProgramsApiDataLoader, partner.programs_api_url, max_workers),
                 ),
                 (
-                    (XSeriesMarketingSiteDataLoader, partner.marketing_site_url_root, None),
+                    (XSeriesMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
                 ),
             )
 
             if waffle.switch_is_active('parallel_refresh_pipeline'):
                 for stage in pipeline:
                     with concurrent.futures.ProcessPoolExecutor() as executor:
-                        for loader_class, api_url, max_workers_override in stage:
+                        for loader_class, api_url, max_workers in stage:
                             if api_url:
                                 executor.submit(
                                     execute_parallel_loader,
@@ -169,13 +159,13 @@ class Command(BaseCommand):
                                     api_url,
                                     access_token,
                                     token_type,
-                                    (max_workers_override or max_workers),
+                                    max_workers,
                                     is_threadsafe,
                                     **kwargs,
                                 )
             else:
                 # Flatten pipeline and run serially.
-                for loader_class, api_url, max_workers_override in itertools.chain(*(stage for stage in pipeline)):
+                for loader_class, api_url, max_workers in itertools.chain(*(stage for stage in pipeline)):
                     if api_url:
                         execute_loader(
                             loader_class,
@@ -183,7 +173,7 @@ class Command(BaseCommand):
                             api_url,
                             access_token,
                             token_type,
-                            (max_workers_override or max_workers),
+                            max_workers,
                             is_threadsafe,
                             **kwargs,
                         )
