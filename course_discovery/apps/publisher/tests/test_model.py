@@ -657,3 +657,12 @@ class CourseRunStateTests(TestCase):
         self.course_run.transcript_languages = []
         self.course_run.save()
         self.assertFalse(self.course_run_state.can_send_for_review())
+
+    def test_preview_accepted(self):
+        """
+        Verify that property is_preview_accepted return Boolean.
+        """
+        self.assertFalse(self.course_run_state.is_preview_accepted)
+        self.course_run_state.preview_accepted = True
+        self.course_run_state.save()
+        self.assertTrue(self.course_run_state.is_preview_accepted)

@@ -1,6 +1,8 @@
 """Publisher API Serializers"""
 import waffle
 from django.apps import apps
+from django.db import transaction
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_fsm import TransitionNotAllowed
 from opaque_keys import InvalidKeyError
@@ -8,7 +10,8 @@ from opaque_keys.edx.keys import CourseKey
 from rest_framework import serializers
 
 from course_discovery.apps.core.models import User
-from course_discovery.apps.publisher.emails import send_email_for_studio_instance_created
+from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.emails import send_email_for_studio_instance_created, send_email_preview_accepted
 from course_discovery.apps.publisher.models import CourseRun, CourseRunState, CourseState, CourseUserRole
 
 
@@ -144,26 +147,39 @@ class CourseRunStateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CourseRunState
-        fields = ('name', 'approved_by_role', 'owner_role', 'course_run',)
+        fields = ('name', 'approved_by_role', 'owner_role', 'course_run', 'preview_accepted',)
         extra_kwargs = {
             'course_run': {'read_only': True},
             'approved_by_role': {'read_only': True},
             'owner_role': {'read_only': True}
         }
 
+    @transaction.atomic
     def update(self, instance, validated_data):
-        state = validated_data.get('name')
         request = self.context.get('request')
-        try:
-            instance.change_state(state=state, user=request.user)
-        except TransitionNotAllowed:
-            # pylint: disable=no-member
-            raise serializers.ValidationError(
-                {
-                    'name': _('Cannot switch from state `{state}` to `{target_state}`').format(
-                        state=instance.name, target_state=state
-                    )
-                }
-            )
+        state = validated_data.get('name')
+        preview_accepted = validated_data.get('preview_accepted')
+
+        if state:
+            try:
+                instance.change_state(state=state, user=request.user)
+            except TransitionNotAllowed:
+                # pylint: disable=no-member
+                raise serializers.ValidationError(
+                    {
+                        'name': _('Cannot switch from state `{state}` to `{target_state}`').format(
+                            state=instance.name, target_state=state
+                        )
+                    }
+                )
+
+        elif preview_accepted:
+            instance.preview_accepted = True
+            instance.owner_role = PublisherUserRole.Publisher
+            instance.owner_role_modified = timezone.now()
+            instance.save()
+
+            if waffle.switch_is_active('enable_publisher_email_notifications'):
+                send_email_preview_accepted(instance.course_run)
 
         return instance

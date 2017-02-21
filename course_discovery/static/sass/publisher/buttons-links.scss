@@ -43,3 +43,11 @@
     border-color: #169bd5;
     border-radius: 5px;
 }
+
+.btn-accept {
+    @include padding-right(30px);
+    @include padding-left(30px);
+    background-color: #169BD5;
+    border-color: #169BD5;
+    border-radius: 5px;
+}

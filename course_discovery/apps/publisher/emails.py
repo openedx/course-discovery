@@ -320,3 +320,48 @@ def send_email_to_publisher(course_run, user):
             email_msg.send()
     except Exception:  # pylint: disable=broad-except
         logger.exception('Failed to send email notifications for mark as reviewed of course-run %s', course_run.id)
+
+
+def send_email_preview_accepted(course_run):
+    """ Send email for preview approved to publisher and partner coordinator.
+
+        Arguments:
+            course_run (Object): CourseRun object
+    """
+    txt_template = 'publisher/email/course_run/preview_accepted.txt'
+    html_template = 'publisher/email/course_run/preview_accepted.html'
+
+    run_name = '{pacing_type}: {start_date}'.format(
+        pacing_type=course_run.get_pacing_type_display(),
+        start_date=course_run.start.strftime("%B %d, %Y")
+    )
+    subject = _('Preview for {run_name} has been approved').format(run_name=run_name)  # pylint: disable=no-member
+    publisher_user = course_run.course.publisher
+
+    try:
+        if is_email_notification_enabled(publisher_user):
+            partner_coordinator = course_run.course.partner_coordinator
+            to_addresses = [publisher_user.email]
+            if is_email_notification_enabled(partner_coordinator):
+                to_addresses.append(partner_coordinator.email)
+            from_address = settings.PUBLISHER_FROM_EMAIL
+            page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
+            context = {
+                'course_name': run_name,
+                'contact_us_email': partner_coordinator.email if partner_coordinator else '',
+                'page_url': 'https://{host}{path}'.format(
+                    host=Site.objects.get_current().domain.strip('/'), path=page_path
+                )
+            }
+            template = get_template(txt_template)
+            plain_content = template.render(context)
+            template = get_template(html_template)
+            html_content = template.render(context)
+
+            email_msg = EmailMultiAlternatives(
+                subject, plain_content, from_address, to=[from_address], bcc=to_addresses
+            )
+            email_msg.attach_alternative(html_content, 'text/html')
+            email_msg.send()
+    except Exception:  # pylint: disable=broad-except
+        logger.exception('Failed to send email notifications for preview approved of course-run %s', course_run.id)

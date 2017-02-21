@@ -340,7 +340,7 @@
 
 .approval-widget, .course-widgets {
 
-    .btn-course-edit, .btn-courserun-edit, .btn-change-state {
+    .btn-course-edit, .btn-courserun-edit, .btn-change-state, .btn-preview {
         @include padding(2px, 20px, 3px, 20px);
         @include float(right);
         font-weight: 400;
@@ -360,11 +360,12 @@
         }
     }
 
-    .role-heading {
+    .role-heading, .preview-heading {
         color: #999999;
     }
 
-    .role-assignment-container {
+    .role-assignment-container, .preview-container {
+        @include margin-right(5px);
 
         .state-status {
             @include float(right);
@@ -400,9 +401,13 @@
         }
     }
 
-    .btn-change-state {
+    .btn-change-state, .btn-preview {
         @include padding(2px, 10px, 3px, 10px);
         margin-top: 15px;
+    }
+
+    .btn-preview-accept {
+        @include margin-right(10px);
     }
 
 }//approval-widget (END)

@@ -10,7 +10,7 @@ from course_discovery.apps.publisher.api.serializers import (CourseRevisionSeria
                                                              CourseStateSerializer, CourseUserRoleSerializer,
                                                              GroupUserSerializer, UpdateCourseKeySerializer)
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
-from course_discovery.apps.publisher.models import CourseRunState, CourseState, Seat
+from course_discovery.apps.publisher.models import CourseState, Seat
 from course_discovery.apps.publisher.tests.factories import (CourseFactory, CourseRunFactory, CourseRunStateFactory,
                                                              CourseStateFactory, CourseUserRoleFactory,
                                                              OrganizationExtensionFactory, SeatFactory)
@@ -210,7 +210,7 @@ class CourseRunStateSerializerTests(TestCase):
 
     def test_update(self):
         """
-        Verify that we can update course-run workflow state with serializer.
+        Verify that we can update course-run workflow state name and preview_accepted with serializer.
         """
         CourseUserRoleFactory(
             course=self.course_run.course, role=PublisherUserRole.CourseTeam, user=self.user
@@ -221,8 +221,12 @@ class CourseRunStateSerializerTests(TestCase):
         data = {'name': CourseRunStateChoices.Review}
         serializer.update(self.run_state, data)
 
-        self.run_state = CourseRunState.objects.get(course_run=self.course_run)
         self.assertEqual(self.run_state.name, CourseRunStateChoices.Review)
+
+        self.assertFalse(self.run_state.preview_accepted)
+        serializer.update(self.run_state, {'preview_accepted': True})
+
+        self.assertTrue(self.run_state.preview_accepted)
 
     def test_update_with_error(self):
         """

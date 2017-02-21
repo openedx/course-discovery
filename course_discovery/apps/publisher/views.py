@@ -38,7 +38,7 @@ ROLE_WIDGET_HEADINGS = {
     PublisherUserRole.PartnerCoordinator: _('PARTNER COORDINATOR'),
     PublisherUserRole.MarketingReviewer: _('MARKETING'),
     PublisherUserRole.Publisher: _('PUBLISHER'),
-    PublisherUserRole.CourseTeam: _('Course Team')
+    PublisherUserRole.CourseTeam: _('COURSE TEAM')
 }
 
 STATE_BUTTONS = {
@@ -137,6 +137,11 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
         context['role_widgets'] = get_course_role_widgets_data(
             user, course_run.course, course_run.course_run_state, 'publisher:api:change_course_run_state'
         )
+        course_run_state = course_run.course_run_state
+        if course_run_state.preview_accepted:
+            history_object = course_run_state.history.filter(preview_accepted=True).order_by('-modified').first()
+            if history_object:
+                context['preview_accepted_date'] = history_object.modified
 
         context['breadcrumbs'] = make_bread_crumbs(
             [
@@ -756,7 +761,7 @@ def get_course_role_widgets_data(user, course, state_object, change_state_url):
                 if history_record:
                     role_widget['reviewed'] = history_record.modified
 
-            elif state_object.name != CourseStateChoices.Draft and course_role.role != state_object.owner_role:
+            elif state_object.name != CourseStateChoices.Draft:
                 history_record = state_object.history.filter(
                     name=CourseStateChoices.Review
                 ).order_by('-modified').first()

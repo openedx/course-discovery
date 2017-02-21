@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-21 13:08+0500\n"
+"POT-Creation-Date: 2017-02-22 12:44+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -562,7 +562,7 @@ msgstr "Märkétïng Révïéwér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α�
 msgid "Publisher"
 msgstr "Püßlïshér Ⱡ'σяєм ιρѕυм ∂σł#"
 
-#: apps/publisher/choices.py apps/publisher/views.py
+#: apps/publisher/choices.py
 msgid "Course Team"
 msgstr "Çöürsé Téäm Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
@@ -574,7 +574,9 @@ msgstr "Dräft Ⱡ'σяєм ιρѕ#"
 msgid "Review"
 msgstr "Révïéw Ⱡ'σяєм ιρѕυ#"
 
-#: apps/publisher/choices.py templates/publisher/dashboard/_preview_ready.html
+#: apps/publisher/choices.py
+#: templates/publisher/course_run_detail/_widgets.html
+#: templates/publisher/dashboard/_preview_ready.html
 msgid "Approved"
 msgstr "Àpprövéd Ⱡ'σяєм ιρѕυм ∂#"
 
@@ -620,6 +622,13 @@ msgid "Changes to {run_name} has been marked as reviewed"
 msgstr ""
 "Çhängés tö {run_name} häs ßéén märkéd äs révïéwéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Preview for {run_name} has been approved"
+msgstr ""
+"Prévïéw för {run_name} häs ßéén äpprövéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тє#"
 
 #: apps/publisher/forms.py
 msgid "Remove Image"
@@ -694,6 +703,7 @@ msgid "instructor"
 msgstr "ïnstrüçtör Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: apps/publisher/forms.py
+#: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Yes"
 msgstr "Ýés Ⱡ'σяєм#"
 
@@ -884,6 +894,10 @@ msgstr "MÀRKÉTÌNG Ⱡ'σяєм ιρѕυм ∂σł#"
 msgid "PUBLISHER"
 msgstr "PÛBLÌSHÉR Ⱡ'σяєм ιρѕυм ∂σł#"
 
+#: apps/publisher/views.py
+msgid "COURSE TEAM"
+msgstr "ÇÖÛRSÉ TÉÀM Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
 #: apps/publisher/views.py templates/publisher/_approval_widget.html
 msgid "Send for Review"
 msgstr "Sénd för Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
@@ -1031,6 +1045,7 @@ msgstr "Sävé Ⱡ'σяєм ι#"
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
+#: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Cancel"
 msgstr "Çänçél Ⱡ'σяєм ιρѕυ#"
 
@@ -2393,6 +2408,33 @@ msgstr "Énröllménts Ⱡ'σяєм ιρѕυм ∂σłσя #"
 msgid "Seats"
 msgstr "Séäts Ⱡ'σяєм ιρѕ#"
 
+#: templates/publisher/course_run_detail/_preview_accept_popup.html
+msgid "Publish Course Run"
+msgstr "Püßlïsh Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: templates/publisher/course_run_detail/_preview_accept_popup.html
+msgid ""
+"Before this course run can be published, the Studio instance for the course "
+"run must have the following information."
+msgstr ""
+"Béföré thïs çöürsé rün çän ßé püßlïshéd, thé Stüdïö ïnstänçé för thé çöürsé "
+"rün müst hävé thé föllöwïng ïnförmätïön. Ⱡ'σяєм ιρѕυм ∂σ#"
+
+#: templates/publisher/course_run_detail/_preview_accept_popup.html
+msgid "The course run start and end date."
+msgstr ""
+"Thé çöürsé rün stärt änd énd däté. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: templates/publisher/course_run_detail/_preview_accept_popup.html
+msgid "The course card image."
+msgstr "Thé çöürsé çärd ïmägé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: templates/publisher/course_run_detail/_preview_accept_popup.html
+msgid "Names, titles, and signature images for all certificate signatories."
+msgstr ""
+"Nämés, tïtlés, änd sïgnätüré ïmägés för äll çértïfïçäté sïgnätörïés. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Course"
 msgstr "Çöürsé Ⱡ'σяєм ιρѕυ#"
@@ -2503,6 +2545,31 @@ msgstr "Énröllmént Énd Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α�
 #: templates/publisher/course_run_detail/_studio.html
 msgid "Pacing Type"
 msgstr "Päçïng Týpé Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: templates/publisher/course_run_detail/_widgets.html
+msgid "Decline"
+msgstr "Déçlïné Ⱡ'σяєм ιρѕυм #"
+
+#: templates/publisher/course_run_detail/_widgets.html
+msgid "Accept"
+msgstr "Àççépt Ⱡ'σяєм ιρѕυ#"
+
+#: templates/publisher/course_run_detail/_widgets.html
+msgid "COURSE PREVIEW"
+msgstr "ÇÖÛRSÉ PRÉVÌÉW Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#: templates/publisher/course_run_detail/_widgets.html
+#: templates/publisher/dashboard/_preview_ready.html
+msgid "Preview URL"
+msgstr "Prévïéw ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: templates/publisher/course_run_detail/_widgets.html
+msgid "View course preview live"
+msgstr "Vïéw çöürsé prévïéw lïvé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: templates/publisher/course_run_detail/_widgets.html
+msgid "Not available"
+msgstr "Nöt äväïläßlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: templates/publisher/course_runs_list.html
 msgid "Course Run List"
@@ -2617,10 +2684,6 @@ msgstr ""
 " ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση "
 "υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє#"
 
-#: templates/publisher/dashboard/_preview_ready.html
-msgid "Preview URL"
-msgstr "Prévïéw ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя #"
-
 #: templates/publisher/dashboard/_published.html
 msgid "Looks like you haven't published any course yet"
 msgstr ""
@@ -2689,6 +2752,8 @@ msgstr "Vïéw Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 #: templates/publisher/email/comment.txt
 #: templates/publisher/email/course_created.html
 #: templates/publisher/email/course_created.txt
+#: templates/publisher/email/course_run/preview_accepted.html
+#: templates/publisher/email/course_run/preview_accepted.txt
 msgid "The edX team"
 msgstr "Thé édX téäm Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
@@ -2744,6 +2809,8 @@ msgstr ""
 #: templates/publisher/email/course_created.txt
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
+#: templates/publisher/email/course_run/preview_accepted.html
+#: templates/publisher/email/course_run/preview_accepted.txt
 #: templates/publisher/email/course_run/send_for_review.html
 #: templates/publisher/email/course_run/send_for_review.txt
 #: templates/publisher/email/studio_instance_created.html
@@ -2756,6 +2823,7 @@ msgstr "Thänks, Ⱡ'σяєм ιρѕυм #"
 #: templates/publisher/email/course/mark_as_reviewed.html
 #: templates/publisher/email/course/send_for_review.html
 #: templates/publisher/email/course_run/mark_as_reviewed.html
+#: templates/publisher/email/course_run/preview_accepted.html
 #: templates/publisher/email/course_run/send_for_review.html
 #: templates/publisher/email/studio_instance_created.html
 #, python-format
@@ -2776,6 +2844,7 @@ msgstr ""
 #: templates/publisher/email/course/mark_as_reviewed.txt
 #: templates/publisher/email/course/send_for_review.txt
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
+#: templates/publisher/email/course_run/preview_accepted.txt
 #: templates/publisher/email/course_run/send_for_review.txt
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
@@ -2873,6 +2942,29 @@ msgid "Changes to %(course_name)s has been marked as reviewed. %(page_url)s"
 msgstr ""
 "Çhängés tö %(course_name)s häs ßéén märkéd äs révïéwéd. %(page_url)s Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: templates/publisher/email/course_run/preview_accepted.html
+#: templates/publisher/email/course_run/preview_accepted.txt
+msgid "Dear member,"
+msgstr "Déär mémßér, Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: templates/publisher/email/course_run/preview_accepted.html
+#, python-format
+msgid ""
+"Preview for %(link_start)s%(page_url)s%(link_middle)s %(course_name)s "
+"%(link_end)s has beed approved by course team."
+msgstr ""
+"Prévïéw för %(link_start)s%(page_url)s%(link_middle)s %(course_name)s "
+"%(link_end)s häs ßééd äpprövéd ßý çöürsé téäm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя α#"
+
+#: templates/publisher/email/course_run/preview_accepted.txt
+#, python-format
+msgid ""
+"Preview for %(course_name)s has beed approved by course team. %(page_url)s"
+msgstr ""
+"Prévïéw för %(course_name)s häs ßééd äpprövéd ßý çöürsé téäm. %(page_url)s "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/email/course_run/send_for_review.html
 #, python-format
