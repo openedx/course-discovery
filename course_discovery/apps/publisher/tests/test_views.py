@@ -1166,6 +1166,38 @@ class CourseRunDetailTests(TestCase):
         self.assertContains(response, '<span class="icon fa fa-check" aria-hidden="true">', count=2)
         self.assertContains(response, 'Send for Review', count=1)
 
+    def test_preview_widget(self):
+        """
+        Verify that user can see preview widget on course detail page.
+        """
+        factories.CourseUserRoleFactory(
+            course=self.course, user=self.user, role=PublisherUserRole.CourseTeam
+        )
+        self.course_run_state.name = CourseStateChoices.Approved
+        self.course_run_state.save()
+
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
+        response = self.client.get(self.page_url)
+
+        self.assertContains(response, 'COURSE PREVIEW')
+        self.assertContains(response, '<button class="btn btn-neutral btn-preview btn-preview-accept" type="button">')
+        self.assertContains(response, '<button class="btn btn-neutral btn-preview btn-preview-decline" type="button">')
+
+        self.course_run_state.preview_accepted = True
+        self.course_run_state.owner_role = PublisherUserRole.Publisher
+        self.course_run_state.save()
+
+        response = self.client.get(self.page_url)
+
+        self.assertNotContains(
+            response, '<button class="btn btn-neutral btn-preview btn-preview-accept" type="button">'
+        )
+        self.assertNotContains(
+            response, '<button class="btn btn-neutral btn-preview btn-preview-decline" type="button">'
+        )
+        self.assertContains(response, 'Approved')
+
 
 # pylint: disable=attribute-defined-outside-init
 @ddt.ddt

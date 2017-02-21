@@ -8,6 +8,45 @@
         <div class="clearfix"></div>
     {% endif %}
     <div class="approval-widget {% if not publisher_approval_widget_feature %}hidden{% endif %}">
-      {% include 'publisher/_approval_widget.html' %}
+        {% include 'publisher/_approval_widget.html' %}
+
+        <div class="preview-widget">
+            <div class="preview-container">
+                <div class="layout-1q3q layout-reversed">
+                    <div class="layout-col layout-col-a">
+                        {% if object.preview_url and object.course.course_team_admin == request.user and not object.course_run_state.is_preview_accepted %}
+                            <button class="btn btn-neutral btn-preview btn-preview-decline" type="button">
+                                {% trans "Decline" %}
+                            </button>
+                            <button class="btn btn-neutral btn-preview btn-preview-accept" type="button">
+                                {% trans "Accept" %}
+                            </button>
+                        {% elif preview_accepted_date %}
+                            <span class="state-status">
+                                <span class="icon fa fa-check" aria-hidden="true"></span>
+                                {% trans "Approved" %}<br>
+                                {{ preview_accepted_date|date:'m/d/y H:i a' }}
+                            </span>
+                        {% endif %}
+                    </div>
+                    <div class="layout-col layout-col-b">
+                        <span class="preview-heading">
+                            <strong>{% trans "COURSE PREVIEW" %}</strong>
+                        </span>
+                        <div>
+                            <span class="preview-url-heading">{% trans "Preview URL" %} - </span>
+                            {% if object.preview_url %}
+                                <a href="{{ object.preview_url }}" target="_blank">{% trans "View course preview live" %}</a>
+                            {% else %}
+                                {% trans "Not available" %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+
+        {% include 'publisher/course_run_detail/_preview_accept_popup.html' %}
     </div>
 </div>

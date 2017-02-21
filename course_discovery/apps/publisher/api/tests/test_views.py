@@ -640,3 +640,35 @@ class ChangeCourseRunStateViewTests(TestCase):
         self.assertEqual(self.run_state.owner_role, PublisherUserRole.Publisher)
 
         self.assertEqual(len(mail.outbox), 2)
+
+    def test_preview_accepted(self):
+        """
+        Verify that user can accept preview for course run and owner role will be changed to `Publisher`.
+        """
+        course = self.course_run.course
+        self.run_state.name = CourseRunStateChoices.Approved
+        self.run_state.owner_role = PublisherUserRole.CourseTeam
+        self.run_state.save()
+
+        self._assign_role(course, PublisherUserRole.CourseTeam, self.user)
+        self._assign_role(course, PublisherUserRole.PartnerCoordinator, UserFactory())
+
+        self._assign_role(course, PublisherUserRole.Publisher, UserFactory())
+
+        self.assertFalse(self.run_state.preview_accepted)
+
+        response = self.client.patch(
+            self.change_state_url,
+            data=json.dumps({'preview_accepted': True}),
+            content_type=JSON_CONTENT_TYPE
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.run_state = CourseRunState.objects.get(course_run=self.course_run)
+
+        self.assertTrue(self.run_state.preview_accepted)
+        self.assertEqual(self.run_state.owner_role, PublisherUserRole.Publisher)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual([course.publisher.email, course.partner_coordinator.email], mail.outbox[0].bcc)

@@ -1,0 +1,25 @@
+{% extends "publisher/email/email_base.html" %}
+{% load i18n %}
+{% block body %}
+<!-- Message Body -->
+    <p>
+        {% blocktrans trimmed %}
+            Dear member,
+        {% endblocktrans %}
+    <p>
+        {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' trimmed %}
+            Preview for {{ link_start }}{{ page_url }}{{ link_middle }} {{ course_name }} {{ link_end }} has beed approved by course team.
+        {% endblocktrans %}
+    </p>
+
+    {% comment %}Translators: It's closing of mail.{% endcomment %}
+    {% trans "Thanks," %}<br>
+    {% trans "The edX team" %}
+
+
+{% blocktrans trimmed %}
+    <p>Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.</p>
+{% endblocktrans %}
+
+<!-- End Message Body -->
+{% endblock body %}

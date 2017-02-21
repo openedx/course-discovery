@@ -633,6 +633,7 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
     owner_role = models.CharField(max_length=63, choices=PublisherUserRole.choices)
     course_run = models.OneToOneField(CourseRun, related_name='course_run_state')
     owner_role_modified = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    preview_accepted = models.BooleanField(default=False)
 
     history = HistoricalRecords()
 
@@ -707,6 +708,10 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
             self.published()
 
         self.save()
+
+    @property
+    def is_preview_accepted(self):
+        return self.preview_accepted
 
 
 class PublisherUser(User):

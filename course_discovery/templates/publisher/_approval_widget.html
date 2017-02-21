@@ -7,7 +7,7 @@
 
     {% if is_course_run and not object.course.course_state.is_approved %}
         <div class="parent-course-approval">
-            {% url 'publisher:publisher_course_detail' object.id as course_url %}
+            {% url 'publisher:publisher_course_detail' object.course.id as course_url %}
             {% with link_start='<a href="' link_middle='">' link_end='</a>' %}
             {% blocktrans trimmed %}
               The {{ link_start }}{{ course_url }}{{ link_middle }} parent course {{ link_end }} for this course run has changes that must be approved before you can submit this course run for approval. You can save changes to this course run.

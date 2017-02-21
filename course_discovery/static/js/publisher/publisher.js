@@ -49,13 +49,13 @@ $(document).ready(function(){
         $('body').addClass('stopScroll');
     });
     $(document).click(function(e){
-        var modal = $('#addInstructorModal');
+        var modal = $('.modal');
         if (event.target == modal[0]) {
             closeModal(e, modal);
         }
     });
     $('.closeModal').click(function (e) {
-        closeModal(e, $('#addInstructorModal'));
+        closeModal(e, $('.modal'));
     });
 
     $('#add-instructor-btn').click(function (e) {
@@ -143,6 +143,28 @@ $(document).ready(function(){
             error: function (response) {
                 $('#stateChangeError').html(response.responseJSON.name);
                 $('#stateChangeAlert').show();
+                console.log(response);
+            }
+        });
+    });
+
+
+    $('.btn-preview-accept').click(function(e){
+        $('#acceptPreviewModal').show();
+        $('body').addClass('stopScroll');
+    });
+
+    $('.btn-accept').click(function (e) {
+        $.ajax({
+            type: "PATCH",
+            url: $(this).data('url'),
+            data: JSON.stringify({preview_accepted: true}),
+            contentType: "application/json",
+            success: function (response) {
+                location.reload();
+            },
+            error: function (response) {
+                addModalError(gettext("Something went wrong!"));
                 console.log(response);
             }
         });

@@ -471,3 +471,66 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
         page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
         self.assertIn(page_url, body)
         self.assertIn('has been marked as reviewed.', body)
+
+
+class CourseRunPreviewEmailTests(TestCase):
+    """
+    Tests email functionality of course preview.
+    """
+
+    def setUp(self):
+        super(CourseRunPreviewEmailTests, self).setUp()
+        self.user = UserFactory()
+
+        self.run_state = factories.CourseRunStateFactory()
+        self.course = self.run_state.course_run.course
+
+        # add users in CourseUserRole table
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.CourseTeam, user=self.user
+        )
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.Publisher, user=UserFactory()
+        )
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.PartnerCoordinator, user=UserFactory()
+        )
+
+        toggle_switch('enable_publisher_email_notifications', True)
+
+    def test_preview_accepted_email(self):
+        """
+        Verify that preview accepted email functionality works fine.
+        """
+        emails.send_email_preview_accepted(self.run_state.course_run)
+        run_name = '{pacing_type}: {start_date}'.format(
+            pacing_type=self.run_state.course_run.get_pacing_type_display(),
+            start_date=self.run_state.course_run.start.strftime("%B %d, %Y")
+        )
+        subject = 'Preview for {run_name} has been approved'.format(
+            run_name=run_name
+        )
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual([self.course.publisher.email, self.course.partner_coordinator.email], mail.outbox[0].bcc)
+        self.assertEqual(str(mail.outbox[0].subject), subject)
+        body = mail.outbox[0].body.strip()
+        page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.run_state.course_run.id})
+        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
+        self.assertIn(page_url, body)
+        self.assertIn('has beed approved by course team.', body)
+
+    def test_preview_accepted_email_with_error(self):
+        """ Verify that email failure log error message."""
+
+        with mock.patch('django.core.mail.message.EmailMessage.send', side_effect=TypeError):
+            with LogCapture(emails.logger.name) as l:
+                emails.send_email_preview_accepted(self.run_state.course_run)
+                l.check(
+                    (
+                        emails.logger.name,
+                        'ERROR',
+                        'Failed to send email notifications for preview approved of course-run {}'.format(
+                            self.run_state.course_run.id
+                        )
+                    )
+                )

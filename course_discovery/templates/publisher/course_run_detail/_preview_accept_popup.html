@@ -1,0 +1,20 @@
+{% load i18n %}
+
+<div id="acceptPreviewModal" class="modal">
+    <div class="modal-content">
+        <h2 class="hd-2 emphasized accept-preview-heading">{% trans "Publish Course Run" %}</h2>
+        <div id="modal-errors" class="alert-messages"></div>
+        <p>
+            {% trans "Before this course run can be published, the Studio instance for the course run must have the following information." %}
+        </p>
+        <ul>
+            <li>{% trans "The course run start and end date." %}</li>
+            <li>{% trans "The course card image." %}</li>
+            <li>{% trans "Names, titles, and signature images for all certificate signatories." %}</li>
+        </ul>
+        <div class="actions">
+            <a class="btn-cancel closeModal" href="#">{% trans "Cancel" %}</a>
+            <button class="btn-brand btn-base btn-accept" type="button" data-url="{% url 'publisher:api:change_course_run_state' object.course_run_state.id %}">{% trans "Yes" %}</button>
+        </div>
+    </div>
+</div>

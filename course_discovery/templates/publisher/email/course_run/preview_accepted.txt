@@ -1,0 +1,15 @@
+{% load i18n %}
+
+{% blocktrans trimmed %}
+    Dear member,
+{% endblocktrans %}
+{% blocktrans trimmed %}
+    Preview for {{ course_name }} has beed approved by course team. {{ page_url }}
+{% endblocktrans %}
+
+{% trans "Thanks," %}
+{% trans "The edX team" %}
+
+{% blocktrans trimmed %}
+    Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.
+{% endblocktrans %}
