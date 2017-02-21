@@ -180,16 +180,16 @@ class OrganizationGroupUserViewTests(TestCase):
 
         expected_results = [
             {
-                "id": self.org_user1.id,
-                "full_name": self.org_user1.full_name
-            },
-            {
                 "id": self.org_user2.id,
                 "full_name": self.org_user2.username
+            },
+            {
+                "id": self.org_user1.id,
+                "full_name": self.org_user1.full_name
             }
         ]
 
-        self.assertEqual(json.loads(response.content.decode("utf-8"))["results"], expected_results)
+        self.assertListEqual(json.loads(response.content.decode("utf-8"))["results"], expected_results)
 
     def test_get_organization_not_found(self):
         """ Verify that view returns status=404 if organization is not found
@@ -205,10 +205,10 @@ class OrganizationGroupUserViewTests(TestCase):
         )
 
 
-class UpdateCourseKeyViewTests(TestCase):
+class UpdateCourseRunViewTests(TestCase):
 
     def setUp(self):
-        super(UpdateCourseKeyViewTests, self).setUp()
+        super(UpdateCourseRunViewTests, self).setUp()
         self.course_run = factories.CourseRunFactory()
         self.user = UserFactory()
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
@@ -216,8 +216,8 @@ class UpdateCourseKeyViewTests(TestCase):
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.course_run.course.organizations.add(self.organization_extension.organization)
 
-        self.update_course_key_url = reverse(
-            'publisher:api:update_course_key', kwargs={'pk': self.course_run.id}
+        self.update_course_run_url = reverse(
+            'publisher:api:update_course_run', kwargs={'pk': self.course_run.id}
         )
 
         factories.CourseUserRoleFactory(
@@ -236,7 +236,7 @@ class UpdateCourseKeyViewTests(TestCase):
         """
         invalid_course_id = 'invalid-course-key'
         response = self.client.patch(
-            self.update_course_key_url,
+            self.update_course_run_url,
             data=json.dumps({'lms_course_id': invalid_course_id}),
             content_type=JSON_CONTENT_TYPE
         )
@@ -244,7 +244,7 @@ class UpdateCourseKeyViewTests(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(
             response.data.get('lms_course_id'),
-            ['Invalid course key "{lms_course_id}"'.format(lms_course_id=invalid_course_id)]
+            ({'lms_course_id': 'Invalid course key "{lms_course_id}"'.format(lms_course_id=invalid_course_id)})
         )
 
     def test_update_course_key_without_permission(self):
@@ -253,7 +253,7 @@ class UpdateCourseKeyViewTests(TestCase):
         """
         self.user.groups.remove(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         response = self.client.patch(
-            self.update_course_key_url,
+            self.update_course_run_url,
             data=json.dumps({'lms_course_id': 'course-v1:edxTest+TC12+2050Q1'}),
             content_type=JSON_CONTENT_TYPE
         )
@@ -271,7 +271,7 @@ class UpdateCourseKeyViewTests(TestCase):
         factories.CourseRunFactory(lms_course_id=lms_course_id)
 
         response = self.client.patch(
-            self.update_course_key_url,
+            self.update_course_run_url,
             data=json.dumps({'lms_course_id': lms_course_id}),
             content_type=JSON_CONTENT_TYPE
         )
@@ -290,7 +290,7 @@ class UpdateCourseKeyViewTests(TestCase):
 
         lms_course_id = 'course-v1:edxTest+TC12+2050Q1'
         response = self.client.patch(
-            self.update_course_key_url,
+            self.update_course_run_url,
             data=json.dumps({'lms_course_id': lms_course_id}),
             content_type=JSON_CONTENT_TYPE
         )
@@ -325,6 +325,30 @@ class UpdateCourseKeyViewTests(TestCase):
         self.assertIn(expected_body, body)
         page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=object_path)
         self.assertIn(page_url, body)
+
+    def test_update_preview_url(self):
+        """Verify the user can update course preview url."""
+        preview_url = 'https://example.com/abc/course'
+        factories.CourseRunStateFactory.create(course_run=self.course_run, owner_role=PublisherUserRole.Publisher)
+        response = self._make_request(preview_url)
+
+        self.assertEqual(response.status_code, 200)
+        course_run = CourseRun.objects.get(id=self.course_run.id)
+        self.assertEqual(course_run.preview_url, preview_url)
+
+    def test_update_with_invalid_preview_url(self):
+        """Verify the user can't update course preview url if url has invalid format."""
+        preview_url = 'invalid_url_format'
+        response = self._make_request(preview_url)
+        self.assertEqual(response.status_code, 400)
+
+    def _make_request(self, preview_url):
+        """ Helper method to make request. """
+        return self.client.patch(
+            self.update_course_run_url,
+            data=json.dumps({'preview_url': preview_url}),
+            content_type=JSON_CONTENT_TYPE
+        )
 
 
 class CourseRevisionDetailViewTests(TestCase):

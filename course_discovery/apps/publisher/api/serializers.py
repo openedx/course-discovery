@@ -1,4 +1,5 @@
 """Publisher API Serializers"""
+import re
 import waffle
 from django.apps import apps
 from django.db import transaction
@@ -11,7 +12,9 @@ from rest_framework import serializers
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.choices import PublisherUserRole
-from course_discovery.apps.publisher.emails import send_email_for_studio_instance_created, send_email_preview_accepted
+from course_discovery.apps.publisher.emails import (
+    send_email_for_studio_instance_created, send_email_preview_accepted, send_email_preview_page_is_available
+)
 from course_discovery.apps.publisher.models import CourseRun, CourseRunState, CourseState, CourseUserRole
 
 
@@ -45,38 +48,59 @@ class GroupUserSerializer(serializers.ModelSerializer):
         return obj.get_full_name() or obj.username
 
 
-class UpdateCourseKeySerializer(serializers.ModelSerializer):
+class CourseRunSerializer(serializers.ModelSerializer):
     """
-    Serializer for the `CourseRun` model to update 'lms_course_id'.
+    Serializer for the `CourseRun` model.
     """
 
     class Meta:
         model = CourseRun
-        fields = ('lms_course_id', 'changed_by',)
+        fields = ('lms_course_id', 'changed_by', 'preview_url',)
 
-    def validate(self, data):
-        validated_values = super(UpdateCourseKeySerializer, self).validate(data)
-        lms_course_id = validated_values.get('lms_course_id')
-
+    def validate_lms_course_id(self, value):
         try:
-            CourseKey.from_string(lms_course_id)
+            CourseKey.from_string(value)
         except InvalidKeyError:
             # pylint: disable=no-member
             raise serializers.ValidationError(
-                {'lms_course_id': _('Invalid course key "{lms_course_id}"').format(lms_course_id=lms_course_id)}
+                {'lms_course_id': _('Invalid course key "{lms_course_id}"').format(lms_course_id=value)}
             )
 
-        request = self.context.get('request')
-        if request:
-            validated_values.update({'changed_by': request.user})
+        return value
+
+    def validate_preview_url(self, value):
+        if not re.match(r'https?://(?:www)?(?:[\w-]{2,255}(?:\.\w{2,6}){1,2})(?:/[\w&%?#-]{1,300})?', value):
+            # pylint: disable=no-member
+            raise serializers.ValidationError(
+                {'preview_url': _('Invalid URL format "{preview_url}"').format(preview_url=value)}
+            )
+
+        return value
+
+    def validate(self, data):
+        validated_values = super(CourseRunSerializer, self).validate(data)
+
+        if validated_values.get('lms_course_id'):
+            request = self.context.get('request')
+            if request:
+                validated_values.update({'changed_by': request.user})
 
         return validated_values
 
     def update(self, instance, validated_data):
-        instance = super(UpdateCourseKeySerializer, self).update(instance, validated_data)
+        instance = super(CourseRunSerializer, self).update(instance, validated_data)
+        preview_url = validated_data.get('preview_url')
+        lms_course_id = validated_data.get('lms_course_id')
+
+        if preview_url:
+            instance.course_run_state.change_role(PublisherUserRole.CourseTeam)
 
         if waffle.switch_is_active('enable_publisher_email_notifications'):
-            send_email_for_studio_instance_created(instance)
+            if preview_url:
+                send_email_preview_page_is_available(instance)
+
+            elif lms_course_id:
+                send_email_for_studio_instance_created(instance)
 
         return instance
 

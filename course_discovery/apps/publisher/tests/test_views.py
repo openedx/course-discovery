@@ -1198,6 +1198,36 @@ class CourseRunDetailTests(TestCase):
         )
         self.assertContains(response, 'Approved')
 
+    def test_course_preview(self):
+        """Verify that publisher user can see preview widget."""
+        factories.CourseUserRoleFactory(course=self.course, user=self.user, role=PublisherUserRole.Publisher)
+        self.course_run_state.name = CourseStateChoices.Approved
+        self.course_run_state.save()
+
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
+
+        preview_api_url = reverse('publisher:api:update_course_run', args=[self.course_run.id])
+
+        response = self.client.get(self.page_url)
+        self.assertContains(response, 'COURSE PREVIEW')
+        self.assertContains(
+            response,
+            '<button data-url="{url}" class="btn btn-neutral btn-edit-preview-url">'.format(url=preview_api_url)
+        )
+
+        # verify with out preview_url
+        self.course_run.preview_url = None
+        self.course_run.save()
+
+        response = self.client.get(self.page_url)
+        self.assertContains(response, 'COURSE PREVIEW')
+        self.assertContains(
+            response,
+            '<button data-url="{url}" class="btn btn-neutral btn-save-preview-url">'.format(url=preview_api_url)
+        )
+        self.assertContains(response, '<input id="id-review-url" type="text">')
+
 
 # pylint: disable=attribute-defined-outside-init
 @ddt.ddt

@@ -709,6 +709,11 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
 
         self.save()
 
+    def change_role(self, role):
+        self.owner_role = role
+        self.owner_role_modified = timezone.now()
+        self.save()
+
     @property
     def is_preview_accepted(self):
         return self.preview_accepted

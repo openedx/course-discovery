@@ -6,9 +6,9 @@ from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests.factories import PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.api.serializers import (CourseRevisionSerializer, CourseRunStateSerializer,
-                                                             CourseStateSerializer, CourseUserRoleSerializer,
-                                                             GroupUserSerializer, UpdateCourseKeySerializer)
+from course_discovery.apps.publisher.api.serializers import (CourseRevisionSerializer, CourseRunSerializer,
+                                                             CourseRunStateSerializer, CourseStateSerializer,
+                                                             CourseUserRoleSerializer, GroupUserSerializer)
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.models import CourseState, Seat
 from course_discovery.apps.publisher.tests.factories import (CourseFactory, CourseRunFactory, CourseRunStateFactory,
@@ -60,35 +60,64 @@ class GroupUserSerializerTests(TestCase):
         self.assertDictEqual(serializer.data, expected)
 
 
-class UpdateCourseKeySerializerTests(TestCase):
-    serializer_class = UpdateCourseKeySerializer
+class CourseRunSerializerTests(TestCase):
+    serializer_class = CourseRunSerializer
 
     def setUp(self):
-        super(UpdateCourseKeySerializerTests, self).setUp()
+        super(CourseRunSerializerTests, self).setUp()
         self.course_run = CourseRunFactory()
+        self.course_run.lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
         self.request = RequestFactory()
         self.user = UserFactory()
         self.request.user = self.user
+        self.course_state = CourseRunStateFactory(course_run=self.course_run, owner_role=PublisherUserRole.Publisher)
 
     def get_expected_data(self):
         return {
             'lms_course_id': self.course_run.lms_course_id,
-            'changed_by': self.user
+            'changed_by': self.user,
+            'preview_url': self.course_run.preview_url
         }
 
-    def test_validation(self):
-        self.course_run.lms_course_id = 'course-v1:edxTest+TC101+2016_Q1'
-        self.course_run.save()  # pylint: disable=no-member
-        serializer = self.serializer_class(self.course_run, context={'request': self.request})
-        expected = serializer.validate(serializer.data)
-        self.assertEqual(self.get_expected_data(), expected)
-
-    def test_validation_error(self):
+    def test_validate_lms_course_id(self):
+        """ Verify that serializer raises error if 'lms_course_id' has invalid format. """
         self.course_run.lms_course_id = 'invalid-course-id'
         self.course_run.save()  # pylint: disable=no-member
         serializer = self.serializer_class(self.course_run)
         with self.assertRaises(ValidationError):
-            serializer.validate(serializer.data)
+            serializer.validate_lms_course_id(self.course_run.lms_course_id)
+
+    def test_validate_preview_url(self):
+        """ Verify that serializer raises error if 'preview_url' has invalid format. """
+        self.course_run.preview_url = 'invalid-preview-url'
+        self.course_run.save()  # pylint: disable=no-member
+        serializer = self.serializer_class(self.course_run)
+        with self.assertRaises(ValidationError):
+            serializer.validate_preview_url(self.course_run.preview_url)
+
+    def test_serializer_with_valid_data(self):
+        """ Verify that serializer validate course_run object. """
+        serializer = self.serializer_class(self.course_run, context={'request': self.request})
+        self.assertEqual(self.get_expected_data(), serializer.validate(serializer.data))
+
+    def test_update_preview_url(self):
+        """ Verify that course 'owner_role' will be changed to course_team after updating
+        course run with preview url.
+        """
+        serializer = self.serializer_class(self.course_run)
+        serializer.update(self.course_run, serializer.data)
+        self.assertEqual(self.course_state.owner_role, PublisherUserRole.CourseTeam)
+
+    def test_update_lms_course_id(self):
+        """ Verify that 'changed_by' also updated after updating course_run's lms_course_id."""
+        self.course_run.preview_url = None
+        self.course_run.save()
+
+        serializer = self.serializer_class(self.course_run, context={'request': self.request})
+        serializer.update(self.course_run, serializer.validate(serializer.data))
+
+        self.assertEqual(self.course_run.lms_course_id, serializer.data['lms_course_id'])
+        self.assertEqual(self.course_run.changed_by, self.user)
 
 
 class CourseRevisionSerializerTests(TestCase):
