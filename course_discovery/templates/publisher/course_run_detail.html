@@ -35,15 +35,6 @@
 
             {% include 'alert_messages.html' %}
 
-            <div class="status-information">
-                <div class="info-item">
-                    <span class="item">
-                        <span class="heading">{% trans "Status" %}:</span>
-                        <span>{{ object.workflow_state }}</span>
-                    </span>
-                </div>
-            </div>
-
             <div class="tabs">
                 <div id="tab-1" class="tab-content active">
                     {% include 'publisher/course_run_detail/_all.html' %}

@@ -7,7 +7,7 @@ from course_discovery.apps.publisher.forms import (CourseUserRoleForm, Organizat
                                                    PublisherUserCreationForm, UserAttributesAdminForm)
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
                                                     OrganizationExtension, OrganizationUserRole, PublisherUser, Seat,
-                                                    State, UserAttributes)
+                                                    UserAttributes)
 
 
 @admin.register(CourseUserRole)
@@ -53,11 +53,6 @@ class CourseRunAdmin(admin.ModelAdmin):
 
 @admin.register(Seat)
 class SeatAdmin(admin.ModelAdmin):
-    raw_id_fields = ('changed_by',)
-
-
-@admin.register(State)
-class StateAdmin(admin.ModelAdmin):
     raw_id_fields = ('changed_by',)
 
 

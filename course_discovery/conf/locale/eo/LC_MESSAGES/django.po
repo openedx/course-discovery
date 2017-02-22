@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-23 17:25+0500\n"
+"POT-Creation-Date: 2017-02-24 13:09+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -233,7 +233,7 @@ msgstr "ÖpénÌD Çönnéçt Séçrét Ⱡ'σяєм ιρѕυм ∂σłσя ѕι
 msgid "Studio URL"
 msgstr "Stüdïö ÛRL Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: apps/core/models.py templates/publisher/course_runs_list.html
+#: apps/core/models.py
 msgid "Partner"
 msgstr "Pärtnér Ⱡ'σяєм ιρѕυм #"
 
@@ -260,7 +260,6 @@ msgstr ""
 "ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм #"
 
 #: apps/course_metadata/choices.py apps/publisher/choices.py
-#: apps/publisher/models.py
 msgid "Published"
 msgstr "Püßlïshéd Ⱡ'σяєм ιρѕυм ∂σł#"
 
@@ -571,7 +570,7 @@ msgstr "Püßlïshér Ⱡ'σяєм ιρѕυм ∂σł#"
 msgid "Course Team"
 msgstr "Çöürsé Téäm Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
-#: apps/publisher/choices.py apps/publisher/models.py
+#: apps/publisher/choices.py
 msgid "Draft"
 msgstr "Dräft Ⱡ'σяєм ιρѕ#"
 
@@ -584,13 +583,6 @@ msgstr "Révïéw Ⱡ'σяєм ιρѕυ#"
 #: templates/publisher/dashboard/_preview_ready.html
 msgid "Approved"
 msgstr "Àpprövéd Ⱡ'σяєм ιρѕυм ∂#"
-
-#: apps/publisher/emails.py
-#, python-brace-format
-msgid "Course Run {title}-{pacing_type}-{start} state has been changed."
-msgstr ""
-"Çöürsé Rün {title}-{pacing_type}-{start} stäté häs ßéén çhängéd. Ⱡ'σяєм "
-"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/emails.py
 msgid "created"
@@ -777,18 +769,6 @@ msgid "This field is required."
 msgstr "Thïs fïéld ïs réqüïréd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
 #: apps/publisher/models.py
-msgid "Needs Review"
-msgstr "Nééds Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
-
-#: apps/publisher/models.py
-msgid "Needs Final Approval"
-msgstr "Nééds Fïnäl Àppröväl Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
-
-#: apps/publisher/models.py
-msgid "Finalized"
-msgstr "Fïnälïzéd Ⱡ'σяєм ιρѕυм ∂σł#"
-
-#: apps/publisher/models.py
 msgid "Course title"
 msgstr "Çöürsé tïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
@@ -971,35 +951,6 @@ msgstr "üpdätéd Ⱡ'σяєм ιρѕυм #"
 msgid "Course run updated successfully."
 msgstr ""
 "Çöürsé rün üpdätéd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
-
-#: apps/publisher/views.py
-#, python-brace-format
-msgid "Content moved to `{state}` successfully."
-msgstr ""
-"Çöntént mövéd tö `{state}` süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυ#"
-
-#: apps/publisher/views.py
-msgid "There was an error in changing state."
-msgstr ""
-"Théré wäs än érrör ïn çhängïng stäté. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυ#"
-
-#: apps/publisher/wrappers.py
-msgid "Send For Review"
-msgstr "Sénd För Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
-
-#: apps/publisher/wrappers.py
-msgid "Send For Final Approval"
-msgstr "Sénd För Fïnäl Àppröväl Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
-
-#: apps/publisher/wrappers.py
-msgid "Finalize"
-msgstr "Fïnälïzé Ⱡ'σяєм ιρѕυм ∂#"
-
-#: apps/publisher/wrappers.py
-msgid "Publish"
-msgstr "Püßlïsh Ⱡ'σяєм ιρѕυм #"
 
 #: apps/publisher_comments/emails.py
 msgid "New comment added"
@@ -2237,11 +2188,6 @@ msgstr "ÇÀT Ⱡ'σяєм#"
 msgid "DRUPAL"
 msgstr "DRÛPÀL Ⱡ'σяєм ιρѕυ#"
 
-#: templates/publisher/course_run_detail.html
-#: templates/publisher/course_runs_list.html
-msgid "Status"
-msgstr "Stätüs Ⱡ'σяєм ιρѕυ#"
-
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_salesforce.html
@@ -2592,60 +2538,6 @@ msgstr "Vïéw çöürsé prévïéw lïvé Ⱡ'σяєм ιρѕυм ∂σłσя 
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "Not available"
 msgstr "Nöt äväïläßlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
-
-#: templates/publisher/course_runs_list.html
-msgid "Course Run List"
-msgstr "Çöürsé Rün Lïst Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
-
-#: templates/publisher/course_runs_list.html
-msgid "Course runs in progress"
-msgstr "Çöürsé rüns ïn prögréss Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
-
-#: templates/publisher/course_runs_list.html
-msgid "Welcome to edX Publisher. It looks like you don't have any courses."
-msgstr ""
-"Wélçömé tö édX Püßlïshér. Ìt lööks lïké ýöü dön't hävé äný çöürsés. Ⱡ'σяєм "
-"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
-
-#: templates/publisher/course_runs_list.html
-#, python-format
-msgid ""
-"Please %(link_start)s%(new_course_url)s%(link_middle)sadd a new "
-"course%(link_end)s to create your first run"
-msgstr ""
-"Pléäsé %(link_start)s%(new_course_url)s%(link_middle)sädd ä néw "
-"çöürsé%(link_end)s tö çréäté ýöür fïrst rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя α#"
-
-#: templates/publisher/course_runs_list.html
-msgid "Course Run Title"
-msgstr "Çöürsé Rün Tïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
-
-#: templates/publisher/course_runs_list.html
-msgid "Course Run Start Date"
-msgstr "Çöürsé Rün Stärt Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
-
-#: templates/publisher/course_runs_list.html
-msgid "Target Content?"
-msgstr "Tärgét Çöntént? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
-
-#: templates/publisher/course_runs_list.html
-msgid "Priority"
-msgstr "Prïörïtý Ⱡ'σяєм ιρѕυм ∂#"
-
-#: templates/publisher/course_runs_list.html
-msgid "Last Updated"
-msgstr "Läst Ûpdätéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
-
-#: templates/publisher/course_runs_list.html
-msgid "Recently published courses"
-msgstr "Réçéntlý püßlïshéd çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
-
-#: templates/publisher/course_runs_list.html
-msgid "Looks like you haven't publish a course yet"
-msgstr ""
-"Lööks lïké ýöü hävén't püßlïsh ä çöürsé ýét Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя #"
 
 #: templates/publisher/courses.html
 msgid "Runs"
