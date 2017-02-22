@@ -2,12 +2,15 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django_comments.forms import CommentForm
 
-from course_discovery.apps.publisher_comments.models import Comments
+from course_discovery.apps.publisher_comments.models import Comments, CommentTypeChoices
 
 
 # pylint: disable=no-member
 class CommentsForm(CommentForm):
     modified = forms.DateTimeField(required=False, widget=forms.HiddenInput)
+    comment_type = forms.ChoiceField(
+        required=False, choices=CommentTypeChoices.choices, initial=CommentTypeChoices.Default
+    )
 
     def get_comment_model(self):
         return Comments
@@ -16,6 +19,7 @@ class CommentsForm(CommentForm):
         # Use the data of the superclass, and add in the title field
         data = super(CommentsForm, self).get_comment_create_data()
         data['modified'] = self.cleaned_data['modified']
+        data['comment_type'] = self.cleaned_data['comment_type']
         return data
 
     def __init__(self, *args, **kwargs):

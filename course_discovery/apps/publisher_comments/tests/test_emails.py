@@ -5,13 +5,16 @@ from django.contrib.sites.models import Site
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from testfixtures import LogCapture
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.publisher.choices import PublisherUserRole
-from course_discovery.apps.publisher.models import CourseUserRole
+from course_discovery.apps.publisher.models import CourseRun, CourseUserRole
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.factories import UserAttributeFactory
+from course_discovery.apps.publisher_comments.emails import log as comments_email_logger
+from course_discovery.apps.publisher_comments.models import CommentTypeChoices
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
 
 
@@ -55,6 +58,7 @@ class CommentsEmailTests(TestCase):
         UserAttributeFactory(user=self.user, enable_email_notification=True)
         UserAttributeFactory(user=self.user_3, enable_email_notification=False)
         toggle_switch('enable_publisher_email_notifications', True)
+        self.url = 'http://www.test.com'
 
     def test_course_comment_email(self):
         """ Verify that after adding a comment against a course emails send
@@ -137,6 +141,7 @@ class CommentsEmailTests(TestCase):
         self.assertIn(comment.comment, body)
         self.assertIn(page_url, body)
         self.assertIn('The edX team', body)
+        self.assertEqual(comment.comment_type, CommentTypeChoices.Default)
 
     def test_email_with_roles(self):
         """ Verify that emails send to the users against course-user-roles also."""
@@ -184,6 +189,9 @@ class CommentsEmailTests(TestCase):
         """ Verify that after editing a comment against a course emails send
         to multiple users.
         """
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.Publisher, user=self.user
+        )
         comment = self.create_comment(content_object=self.course_run)
         comment.comment = 'Update the comment'
         comment.save()  # pylint: disable=no-member
@@ -196,8 +204,56 @@ class CommentsEmailTests(TestCase):
         self.assertEqual(str(mail.outbox[1].subject), subject)
         self.assertIn(comment.comment, str(mail.outbox[1].body.strip()), 'Update the comment')
 
-    def create_comment(self, content_object):
+    def test_decline_preview_email(self):
+        """ Verify that adding a comment in decline preview url send an email."""
+        user = UserFactory()
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.Publisher, user=user
+        )
+        comment = self._create_decline_comment()
+        subject = 'Preview Decline for course run: {title}'.format(title=self.course.title)
+        self.assertEqual([user.email], mail.outbox[0].to)
+        self.assertEqual(str(mail.outbox[0].subject), subject)
+        body = 'Preview link {url} for the {title}:  has been declined'.format(
+            url=self.url,
+            title=self.course.title
+        )
+        self.assertIn(body, str(mail.outbox[0].body.strip()))
+        self.assertEqual(comment.comment_type, CommentTypeChoices.Decline_Preview)
+        self.assertFalse(CourseRun.objects.get(id=self.course_run.id).preview_url)
+
+    def test_decline_preview_comment_with_role_back(self):
+        """ Verify that in case of any error transaction will roll back all changes."""
+        with LogCapture(comments_email_logger.name) as log_capture:
+            self._create_decline_comment()
+
+        message = 'Failed to send email notifications for preview decline for course run [{}].'.format(
+            self.course_run.id
+        )
+        log_capture.check((comments_email_logger.name, 'ERROR', message))
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertTrue(CourseRun.objects.get(id=self.course_run.id).preview_url)
+
+    def test_decline_preview_comment_with_disable_email(self):
+        """ Verify that no email will be sent if publisher user has disabled the email."""
+        user = UserFactory()
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.Publisher, user=user
+        )
+        factories.UserAttributeFactory(user=user, enable_email_notification=False)
+
+        self._create_decline_comment()
+        self.assertEqual(len(mail.outbox), 0)
+
+    def create_comment(self, content_object, comment_type=CommentTypeChoices.Default):
         """ DRY method to create the comment for a given content type."""
         return CommentFactory(
-            content_object=content_object, user=self.user, site=self.site
+            content_object=content_object, user=self.user, site=self.site,
+            comment_type=comment_type
         )
+
+    def _create_decline_comment(self):
+        self.course_run.preview_url = self.url
+        self.course_run.save()
+        factories.CourseRunStateFactory(course_run=self.course_run, owner_role=PublisherUserRole.CourseTeam)
+        return self.create_comment(content_object=self.course_run, comment_type=CommentTypeChoices.Decline_Preview)

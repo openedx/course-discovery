@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-24 13:09+0500\n"
+"POT-Creation-Date: 2017-02-24 18:16+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -979,6 +979,23 @@ msgstr ""
 msgid "{subject_desc} in Course: {title}"
 msgstr "{subject_desc} ïn Çöürsé: {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
+#. Translators: subject_desc will be Preview Decline for course run,
+#. 'title' will be the value of course title.
+#: apps/publisher_comments/emails.py
+#, python-brace-format
+msgid "Preview Decline for course run: {title}"
+msgstr ""
+"Prévïéw Déçlïné för çöürsé rün: {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєт#"
+
+#: apps/publisher_comments/models.py
+msgid "Default"
+msgstr "Défäült Ⱡ'σяєм ιρѕυм #"
+
+#: apps/publisher_comments/models.py
+msgid "Decline Preview"
+msgstr "Déçlïné Prévïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
 #: apps/publisher_comments/models.py
 msgid "modified"
 msgstr "mödïfïéd Ⱡ'σяєм ιρѕυм ∂#"
@@ -986,6 +1003,15 @@ msgstr "mödïfïéd Ⱡ'σяєм ιρѕυм ∂#"
 #: templates/comments/add_auth_comments.html
 msgid "Comment:"
 msgstr "Çömmént: Ⱡ'σяєм ιρѕυм ∂#"
+
+#: templates/comments/add_auth_comments.html
+#: templates/publisher/course_run_detail/_widgets.html
+msgid "Submit"
+msgstr "Süßmït Ⱡ'σяєм ιρѕυ#"
+
+#: templates/comments/add_auth_comments.html
+msgid "Add comment"
+msgstr "Àdd çömmént Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: templates/comments/comments_list.html
 msgid "Submitted by"
@@ -2539,6 +2565,10 @@ msgstr "Vïéw çöürsé prévïéw lïvé Ⱡ'σяєм ιρѕυм ∂σłσя 
 msgid "Not available"
 msgstr "Nöt äväïläßlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
+#: templates/publisher/course_run_detail/_widgets.html
+msgid "Reason for declining preview"
+msgstr "Réäsön för déçlïnïng prévïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
 #: templates/publisher/courses.html
 msgid "Runs"
 msgstr "Rüns Ⱡ'σяєм ι#"
@@ -2666,6 +2696,8 @@ msgstr "Vïéw Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 #: templates/publisher/email/course_run/preview_accepted.txt
 #: templates/publisher/email/course_run/preview_available.html
 #: templates/publisher/email/course_run/preview_available.txt
+#: templates/publisher/email/decline_preview.html
+#: templates/publisher/email/decline_preview.txt
 msgid "The edX team"
 msgstr "Thé édX téäm Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
@@ -2684,10 +2716,12 @@ msgstr ""
 "%(title)s (%(number)s). Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/email/comment.html
+#: templates/publisher/email/decline_preview.html
 msgid "View comment"
 msgstr "Vïéw çömmént Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: templates/publisher/email/comment.txt
+#: templates/publisher/email/decline_preview.txt
 msgid "View comment: "
 msgstr "Vïéw çömmént:  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
@@ -2919,6 +2953,26 @@ msgstr ""
 "∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα"
 " ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι"
 " σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт#"
+
+#: templates/publisher/email/decline_preview.html
+#, python-format
+msgid ""
+"Preview link %(preview_url)s for the "
+"%(link_start)s%(page_url)s%(link_middle)s%(course_title)s%(link_end)s has "
+"been declined."
+msgstr ""
+"Prévïéw lïnk %(preview_url)s för thé "
+"%(link_start)s%(page_url)s%(link_middle)s%(course_title)s%(link_end)s häs "
+"ßéén déçlïnéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: templates/publisher/email/decline_preview.txt
+#, python-format
+msgid ""
+"Preview link %(preview_url)s for the %(course_title)s: %(course_url)s has "
+"been declined."
+msgstr ""
+"Prévïéw lïnk %(preview_url)s för thé %(course_title)s: %(course_url)s häs "
+"ßéén déçlïnéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #. Translators: course_team_name is course team member name.
 #: templates/publisher/email/studio_instance_created.html

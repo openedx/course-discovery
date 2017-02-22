@@ -404,18 +404,21 @@ class CourseRunPreviewEmailTests(TestCase):
     def test_preview_accepted_email_with_error(self):
         """ Verify that email failure log error message."""
 
+        message = 'Failed to send email notifications for preview approved of course-run [{}]'.format(
+            self.run_state.course_run.id
+        )
         with mock.patch('django.core.mail.message.EmailMessage.send', side_effect=TypeError):
-            with LogCapture(emails.logger.name) as l:
-                emails.send_email_preview_accepted(self.run_state.course_run)
-                l.check(
-                    (
-                        emails.logger.name,
-                        'ERROR',
-                        'Failed to send email notifications for preview approved of course-run {}'.format(
-                            self.run_state.course_run.id
+            with self.assertRaises(Exception) as ex:
+                self.assertEqual(str(ex.exception), message)
+                with LogCapture(emails.logger.name) as l:
+                    emails.send_email_preview_accepted(self.run_state.course_run)
+                    l.check(
+                        (
+                            emails.logger.name,
+                            'ERROR',
+                            message
                         )
                     )
-                )
 
     def test_preview_available_email(self):
         """

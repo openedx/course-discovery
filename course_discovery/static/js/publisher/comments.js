@@ -1,15 +1,16 @@
-$(document).ready(function() {
-    var box = $('#id_comment');
-   $("#id_submit").click(function(event){
-       if( !box.val() ) {
-            box.addClass('has-error');
-            box.focus();
-        }
-       else{
-           $("#frm_comment").submit();
-       }
+$(document).on('click', '.btn-add-comment', function (e) {
+    e.preventDefault();
 
-   });
+    var frm_comment = $(this).closest("#frm_comment"),
+    comment_box = frm_comment.find("#id_comment");
+
+    if (!comment_box.val()) {
+        comment_box.addClass('has-error');
+        comment_box.focus();
+    }
+    else {
+        $(frm_comment).submit();
+    }
 });
 
 $(document).on('click', '.comment-edit', function (e) {
