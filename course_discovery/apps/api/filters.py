@@ -24,7 +24,10 @@ class PermissionsFilter(DRYPermissionFiltersBase):
     def filter_list_queryset(self, request, queryset, view):
         """ Filters the list queryset, returning only the objects accessible by the user.
 
-        If a username parameter is passed on the querystring, the filter will will return objects accessible by
+        Staff user has permission to view all objects, the filter will return queryset unchanged if current user
+        has staff access.
+
+        If a username parameter is passed on the querystring, the filter will return objects accessible by
         the user corresponding to the given username. NOTE: This functionality is only accessible to staff users.
 
         Raises:
@@ -49,6 +52,10 @@ class PermissionsFilter(DRYPermissionFiltersBase):
                 raise PermissionDenied(
                     _('Only staff users are permitted to filter by username. Remove the username parameter.')
                 )
+
+        # No filtering required for staff users.
+        if request.user.is_staff and not username:
+            return queryset
 
         return get_objects_for_user(user, perm)
 
