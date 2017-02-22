@@ -20,10 +20,10 @@ from guardian.shortcuts import get_objects_for_user
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher import emails, mixins
-from course_discovery.apps.publisher.choices import CourseStateChoices, PublisherUserRole
+from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.forms import CustomCourseForm, CustomCourseRunForm, CustomSeatForm, SeatForm
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
-                                                    OrganizationExtension, Seat, State, UserAttributes)
+                                                    OrganizationExtension, Seat, UserAttributes)
 from course_discovery.apps.publisher.utils import (get_internal_users, is_internal_user, is_partner_coordinator_user,
                                                    is_publisher_admin, make_bread_crumbs)
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
@@ -75,11 +75,11 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
         context = super(Dashboard, self).get_context_data(**kwargs)
         course_runs = context.get('object_list')
         published_course_runs = course_runs.filter(
-            state__name=State.PUBLISHED,
-            state__modified__gt=datetime.today() - timedelta(days=self.default_published_days)
-        ).select_related('state').order_by('-state__modified')
+            course_run_state__name=CourseRunStateChoices.Published,
+            course_run_state__modified__gt=datetime.today() - timedelta(days=self.default_published_days)
+        ).select_related('course_run_state').order_by('-course_run_state__modified')
 
-        unpublished_course_runs = course_runs.exclude(state__name=State.PUBLISHED)
+        unpublished_course_runs = course_runs.exclude(course_run_state__name=CourseRunStateChoices.Published)
 
         # Studio requests needs to check depending upon the user role with course
         # Also user should be part of partner coordinator group.
@@ -98,13 +98,13 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
         context['default_published_days'] = self.default_published_days
 
         in_progress_course_runs = course_runs.filter(
-            state__name__in=[State.NEEDS_FINAL_APPROVAL, State.DRAFT]
-        ).select_related('state').order_by('-state__modified')
+            course_run_state__name__in=[CourseRunStateChoices.Review, CourseRunStateChoices.Draft]
+        ).select_related('course_run_state').order_by('-course_run_state__modified')
 
-        preview_course_runs = in_progress_course_runs.filter(
-            state__name=State.NEEDS_FINAL_APPROVAL,
+        preview_course_runs = unpublished_course_runs.filter(
+            course_run_state__name=CourseRunStateChoices.Approved,
             preview_url__isnull=False
-        ).order_by('-state__modified')
+        ).order_by('-course_run_state__modified')
 
         context['in_progress_course_runs'] = [CourseRunWrapper(course_run) for course_run in in_progress_course_runs]
         context['preview_course_runs'] = [CourseRunWrapper(course_run) for course_run in preview_course_runs]
@@ -342,7 +342,10 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
 
         user_role = self.object.course_user_roles.get(user=user)
         self.object.course_state.owner_role = user_role.role
-        self.object.course_state.change_state(state=CourseStateChoices.Draft, user=user)
+        if self.object.course_state.name != CourseStateChoices.Draft:
+            self.object.course_state.change_state(state=CourseStateChoices.Draft, user=user)
+
+        self.object.course_state.save()
 
         messages.success(self.request, _('Course  updated successfully.'))
         return HttpResponseRedirect(self.get_success_url())
@@ -584,10 +587,10 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
                         seat_form.save(changed_by=user, course_run=course_run)
 
                     # in case of any updating move the course-run state to draft.
-                    if course_run.state.name != State.DRAFT:
-                        course_run.change_state(user=user)
+                    if course_run.course_run_state.name != CourseStateChoices.Draft:
+                        course_run.course_run_state.change_state(state=CourseStateChoices.Draft, user=user)
 
-                    if lms_course_id != course_run.lms_course_id:
+                    if course_run.lms_course_id and lms_course_id != course_run.lms_course_id:
                         emails.send_email_for_studio_instance_created(course_run, updated_text=_('updated'))
 
                     # pylint: disable=no-member
