@@ -3,7 +3,7 @@
 
 {% if user.is_authenticated and comment_object %}
     <div>
-        <h5 class="hd-5 emphasized">{% trans 'Comment:' %}</h5>
+        <h5 class="hd-5 emphasized">{% if box_label %}{{ box_label }}:{% else %}{% trans 'Comment:' %}{% endif %}</h5>
         <div>
             {% get_comment_form for comment_object as form %}
             <form id="frm_comment" action="{% comment_form_target %}" method="POST">
@@ -13,9 +13,14 @@
                 {{ form.object_pk }}
                 {{ form.timestamp }}
                 {{ form.security_hash }}
+                <input type="hidden" name="comment_type" value="{{ comment_type }}"/>
                 <input type="hidden" name="next" value="{{ post_back_url }}"/>
                 <div class="add-comment">
-                    <input type="button" value="Add comment" id="id_submit" class="btn btn-brand btn-small btn-course-add" />
+                    {% if btn_label %}
+                        <input type="button" value="{% trans 'Submit' %}" class="btn btn-neutral btn-add-comment" />
+                    {% else %}
+                        <input type="button" value="{% trans 'Add comment' %}" class="btn btn-brand btn-small btn-course-add btn-add-comment" />
+                    {% endif %}
                 </div>
             </form>
         </div>

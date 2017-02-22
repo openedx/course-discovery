@@ -365,3 +365,7 @@ $(document).on('click', '.btn-edit-preview-url', function (e) {
     $previewUrl.html(html);
     $('#id-review-url').focus();
 });
+
+$('.btn-preview-decline').click(function(e){
+    $('#decline-comment').toggle();
+});

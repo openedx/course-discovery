@@ -1,0 +1,20 @@
+{% extends "publisher/email/email_base.html" %}
+{% load i18n %}
+{% block body %}
+<!-- Message Body -->
+        <p>
+            {% blocktrans trimmed with link_start='<a href="' link_middle='">' link_end='</a>' %}
+              Preview link {{ preview_url }} for the {{ link_start }}{{ page_url }}{{ link_middle }}{{ course_title }}{{ link_end }}
+              has been declined.
+            {% endblocktrans %}
+        </p>
+        <p>
+            {{ comment.comment }}
+        </p>
+
+        <p>
+            <a href="{{ page_url }}">{% trans "View comment" %}</a>
+        </p>
+        <p>{% trans "The edX team" %}</p>
+<!-- End Message Body -->
+{% endblock body %}

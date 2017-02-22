@@ -177,7 +177,6 @@ class OrganizationGroupUserViewTests(TestCase):
             path=self._get_organization_group_user_url(self.organization.id), content_type=JSON_CONTENT_TYPE
         )
         self.assertEqual(response.status_code, 200)
-
         expected_results = [
             {
                 "id": self.org_user1.id,
@@ -189,7 +188,8 @@ class OrganizationGroupUserViewTests(TestCase):
             }
         ]
 
-        self.assertListEqual(json.loads(response.content.decode("utf-8"))["results"], expected_results)
+        self.assertIn(expected_results[0], json.loads(response.content.decode("utf-8"))["results"])
+        self.assertIn(expected_results[1], json.loads(response.content.decode("utf-8"))["results"])
 
     def test_get_organization_not_found(self):
         """ Verify that view returns status=404 if organization is not found

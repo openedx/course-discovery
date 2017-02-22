@@ -93,7 +93,7 @@ class CourseRunSerializer(serializers.ModelSerializer):
         lms_course_id = validated_data.get('lms_course_id')
 
         if preview_url:
-            instance.course_run_state.change_role(PublisherUserRole.CourseTeam)
+            instance.course_run_state.change_owner_role(PublisherUserRole.CourseTeam)
 
         if waffle.switch_is_active('enable_publisher_email_notifications'):
             if preview_url:
