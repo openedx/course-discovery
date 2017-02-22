@@ -58,9 +58,6 @@ class FormValidMixin(object):
         publisher_object.save()
         form.save_m2m()
 
-        if self.change_state:
-            publisher_object.change_state(user=user)
-
         self.object = publisher_object
 
         return HttpResponseRedirect(self.get_success_url())

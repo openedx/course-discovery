@@ -8,7 +8,7 @@ from django.test import TestCase
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory, PositionFactory
-from course_discovery.apps.publisher.models import Seat, State
+from course_discovery.apps.publisher.models import Seat
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
@@ -99,10 +99,6 @@ class CourseRunWrapperTests(TestCase):
 
         wrapped_course_run = CourseRunWrapper(self.course_run)
         self.assertEqual(wrapped_course_run.credit_seat, seat)
-
-    def test_workflow_state(self):
-        """ Verify that the wrapper can return workflow state. """
-        self.assertEqual(self.wrapped_course_run.workflow_state, State.DRAFT.title())
 
     def test_organization_name(self):
         """ Verify that the wrapper return the organization name. """

@@ -15,7 +15,6 @@ from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, View
-from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import get_objects_for_user
 
 from course_discovery.apps.core.models import User
@@ -647,27 +646,6 @@ class UpdateSeatView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin,
 
     def get_success_url(self):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
-
-
-class ChangeStateView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, UpdateView):
-    """ Change Workflow State View"""
-
-    model = CourseRun
-    permission = OrganizationExtension.EDIT_COURSE_RUN
-
-    def post(self, request, **kwargs):
-        state = request.POST.get('state')
-        course_run = self.get_object()
-        try:
-            course_run.change_state(target=state, user=self.request.user)
-            # pylint: disable=no-member
-            messages.success(
-                request, _('Content moved to `{state}` successfully.').format(state=course_run.current_state)
-            )
-            return HttpResponseRedirect(reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id}))
-        except (CourseRun.DoesNotExist, TransitionNotAllowed):
-            messages.error(request, _('There was an error in changing state.'))
-            return HttpResponseRedirect(reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id}))
 
 
 class ToggleEmailNotification(mixins.LoginRequiredMixin, View):

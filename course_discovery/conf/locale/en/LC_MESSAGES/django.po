@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-23 17:25+0500\n"
+"POT-Creation-Date: 2017-02-24 13:09+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -192,7 +192,7 @@ msgstr ""
 msgid "Studio URL"
 msgstr ""
 
-#: apps/core/models.py templates/publisher/course_runs_list.html
+#: apps/core/models.py
 msgid "Partner"
 msgstr ""
 
@@ -211,7 +211,6 @@ msgid ""
 msgstr ""
 
 #: apps/course_metadata/choices.py apps/publisher/choices.py
-#: apps/publisher/models.py
 msgid "Published"
 msgstr ""
 
@@ -459,7 +458,7 @@ msgstr ""
 msgid "Course Team"
 msgstr ""
 
-#: apps/publisher/choices.py apps/publisher/models.py
+#: apps/publisher/choices.py
 msgid "Draft"
 msgstr ""
 
@@ -471,11 +470,6 @@ msgstr ""
 #: templates/publisher/course_run_detail/_widgets.html
 #: templates/publisher/dashboard/_preview_ready.html
 msgid "Approved"
-msgstr ""
-
-#: apps/publisher/emails.py
-#, python-brace-format
-msgid "Course Run {title}-{pacing_type}-{start} state has been changed."
 msgstr ""
 
 #: apps/publisher/emails.py
@@ -651,18 +645,6 @@ msgid "This field is required."
 msgstr ""
 
 #: apps/publisher/models.py
-msgid "Needs Review"
-msgstr ""
-
-#: apps/publisher/models.py
-msgid "Needs Final Approval"
-msgstr ""
-
-#: apps/publisher/models.py
-msgid "Finalized"
-msgstr ""
-
-#: apps/publisher/models.py
 msgid "Course title"
 msgstr ""
 
@@ -817,31 +799,6 @@ msgstr ""
 
 #: apps/publisher/views.py
 msgid "Course run updated successfully."
-msgstr ""
-
-#: apps/publisher/views.py
-#, python-brace-format
-msgid "Content moved to `{state}` successfully."
-msgstr ""
-
-#: apps/publisher/views.py
-msgid "There was an error in changing state."
-msgstr ""
-
-#: apps/publisher/wrappers.py
-msgid "Send For Review"
-msgstr ""
-
-#: apps/publisher/wrappers.py
-msgid "Send For Final Approval"
-msgstr ""
-
-#: apps/publisher/wrappers.py
-msgid "Finalize"
-msgstr ""
-
-#: apps/publisher/wrappers.py
-msgid "Publish"
 msgstr ""
 
 #: apps/publisher_comments/emails.py
@@ -1860,11 +1817,6 @@ msgstr ""
 msgid "DRUPAL"
 msgstr ""
 
-#: templates/publisher/course_run_detail.html
-#: templates/publisher/course_runs_list.html
-msgid "Status"
-msgstr ""
-
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_salesforce.html
@@ -2206,53 +2158,6 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "Not available"
-msgstr ""
-
-#: templates/publisher/course_runs_list.html
-msgid "Course Run List"
-msgstr ""
-
-#: templates/publisher/course_runs_list.html
-msgid "Course runs in progress"
-msgstr ""
-
-#: templates/publisher/course_runs_list.html
-msgid "Welcome to edX Publisher. It looks like you don't have any courses."
-msgstr ""
-
-#: templates/publisher/course_runs_list.html
-#, python-format
-msgid ""
-"Please %(link_start)s%(new_course_url)s%(link_middle)sadd a new "
-"course%(link_end)s to create your first run"
-msgstr ""
-
-#: templates/publisher/course_runs_list.html
-msgid "Course Run Title"
-msgstr ""
-
-#: templates/publisher/course_runs_list.html
-msgid "Course Run Start Date"
-msgstr ""
-
-#: templates/publisher/course_runs_list.html
-msgid "Target Content?"
-msgstr ""
-
-#: templates/publisher/course_runs_list.html
-msgid "Priority"
-msgstr ""
-
-#: templates/publisher/course_runs_list.html
-msgid "Last Updated"
-msgstr ""
-
-#: templates/publisher/course_runs_list.html
-msgid "Recently published courses"
-msgstr ""
-
-#: templates/publisher/course_runs_list.html
-msgid "Looks like you haven't publish a course yet"
 msgstr ""
 
 #: templates/publisher/courses.html

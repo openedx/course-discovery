@@ -5,8 +5,6 @@ import waffle
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models.signals import pre_save
-from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
@@ -34,55 +32,6 @@ class ChangedByMixin(models.Model):
 
     class Meta:
         abstract = True
-
-
-class State(TimeStampedModel, ChangedByMixin):
-    """ Publisher Workflow State Model. """
-
-    DRAFT = 'draft'
-    NEEDS_REVIEW = 'needs_review'
-    NEEDS_FINAL_APPROVAL = 'needs_final_approval'
-    FINALIZED = 'finalized'
-    PUBLISHED = 'published'
-    CHOICES = (
-        (DRAFT, _('Draft')),
-        (NEEDS_REVIEW, _('Needs Review')),
-        (NEEDS_FINAL_APPROVAL, _('Needs Final Approval')),
-        (FINALIZED, _('Finalized')),
-        (PUBLISHED, _('Published'))
-    )
-
-    name = FSMField(default=DRAFT, choices=CHOICES)
-
-    history = HistoricalRecords()
-
-    def __str__(self):
-        return self.get_name_display()
-
-    @transition(field=name, source='*', target=DRAFT)
-    def draft(self):
-        # TODO: send email etc.
-        pass
-
-    @transition(field=name, source=DRAFT, target=NEEDS_REVIEW)
-    def needs_review(self):
-        # TODO: send email etc.
-        pass
-
-    @transition(field=name, source=NEEDS_REVIEW, target=NEEDS_FINAL_APPROVAL)
-    def needs_final_approval(self):
-        # TODO: send email etc.
-        pass
-
-    @transition(field=name, source=NEEDS_FINAL_APPROVAL, target=FINALIZED)
-    def finalized(self):
-        # TODO: send email etc.
-        pass
-
-    @transition(field=name, source=FINALIZED, target=PUBLISHED)
-    def publish(self):
-        # TODO: send email etc.
-        pass
 
 
 class Course(TimeStampedModel, ChangedByMixin):
@@ -239,8 +188,6 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         (PRIORITY_LEVEL_5, _('Level 5')),
     )
 
-    state = models.ForeignKey(State, null=True, blank=True)
-
     course = models.ForeignKey(Course, related_name='publisher_course_runs')
     lms_course_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
 
@@ -303,30 +250,6 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
 
     def __str__(self):
         return '{course}: {start_date}'.format(course=self.course.title, start_date=self.start)
-
-    def change_state(self, target=State.DRAFT, user=None):
-        if target == State.NEEDS_REVIEW:
-            self.state.needs_review()
-        elif target == State.NEEDS_FINAL_APPROVAL:
-            self.state.needs_final_approval()
-        elif target == State.FINALIZED:
-            self.state.finalized()
-        elif target == State.PUBLISHED:
-            self.state.publish()
-        else:
-            self.state.draft()
-
-        if user:
-            self.state.changed_by = user
-
-        self.state.save()
-
-        if waffle.switch_is_active('enable_publisher_email_notifications'):
-            emails.send_email_for_change_state(self)
-
-    @property
-    def current_state(self):
-        return self.state.get_name_display()
 
     @property
     def post_back_url(self):
@@ -428,20 +351,6 @@ class Seat(TimeStampedModel, ChangedByMixin):
     @property
     def is_valid_seat(self):
         return self.type == self.AUDIT or self.type in [self.VERIFIED, self.PROFESSIONAL] and self.price > 0
-
-
-@receiver(pre_save, sender=CourseRun)
-def initialize_workflow(sender, instance, **kwargs):    # pylint: disable=unused-argument
-    """ Create Workflow State For CourseRun Before Saving. """
-    create_workflow_state(instance)
-
-
-def create_workflow_state(course_run):
-    """ Create Workflow State If Not Present."""
-    if not course_run.state:
-        state = State()
-        state.save()
-        course_run.state = state
 
 
 class UserAttributes(TimeStampedModel):

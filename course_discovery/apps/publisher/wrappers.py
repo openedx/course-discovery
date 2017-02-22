@@ -1,17 +1,8 @@
 """Publisher Wrapper Classes"""
 from datetime import timedelta
 
-from django.utils.translation import ugettext_lazy as _
-
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
-from course_discovery.apps.publisher.models import Seat, State
-
-CHANGE_STATE_BUTTON_VALUES = {
-    State.DRAFT: {'value': State.NEEDS_REVIEW, 'text': _('Send For Review')},
-    State.NEEDS_REVIEW: {'value': State.NEEDS_FINAL_APPROVAL, 'text': _('Send For Final Approval')},
-    State.NEEDS_FINAL_APPROVAL: {'value': State.FINALIZED, 'text': _('Finalize')},
-    State.FINALIZED: {'value': State.PUBLISHED, 'text': _('Publish')}
-}
+from course_discovery.apps.publisher.models import Seat
 
 
 class BaseWrapper(object):
@@ -134,14 +125,6 @@ class CourseRunWrapper(BaseWrapper):
         if not organization:
             return None
         return organization.key
-
-    @property
-    def workflow_state(self):
-        return self.wrapped_obj.current_state
-
-    @property
-    def change_state_button(self):
-        return CHANGE_STATE_BUTTON_VALUES.get(self.wrapped_obj.state.name)
 
     @property
     def organization_name(self):

@@ -12,8 +12,7 @@ from course_discovery.apps.course_metadata.tests.factories import OrganizationFa
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.mixins import check_course_organization_permission
-from course_discovery.apps.publisher.models import (CourseUserRole, OrganizationExtension, OrganizationUserRole, Seat,
-                                                    State)
+from course_discovery.apps.publisher.models import CourseUserRole, OrganizationExtension, OrganizationUserRole, Seat
 from course_discovery.apps.publisher.tests import factories
 
 
@@ -40,26 +39,6 @@ class CourseRunTests(TestCase):
             self.course_run.post_back_url,
             reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id})
         )
-
-    @ddt.unpack
-    @ddt.data(
-        (State.DRAFT, State.NEEDS_REVIEW),
-        (State.NEEDS_REVIEW, State.NEEDS_FINAL_APPROVAL),
-        (State.NEEDS_FINAL_APPROVAL, State.FINALIZED),
-        (State.FINALIZED, State.PUBLISHED),
-        (State.PUBLISHED, State.DRAFT),
-    )
-    def test_workflow_change_state(self, source_state, target_state):
-        """ Verify that we can change the workflow states according to allowed transition. """
-        self.assertEqual(self.course_run.state.name, source_state)
-        self.course_run.change_state(target=target_state)
-        self.assertEqual(self.course_run.state.name, target_state)
-
-    def test_workflow_change_state_not_allowed(self):
-        """ Verify that we can't change the workflow state from `DRAFT` to `PUBLISHED` directly. """
-        self.assertEqual(self.course_run.state.name, State.DRAFT)
-        with self.assertRaises(TransitionNotAllowed):
-            self.course_run.change_state(target=State.PUBLISHED)
 
     def test_created_by(self):
         """ Verify that property returns created_by. """
@@ -345,21 +324,6 @@ class SeatTests(TestCase):
         self.assertEqual(
             self.seat.post_back_url,
             reverse('publisher:publisher_seats_edit', kwargs={'pk': self.seat.id})
-        )
-
-
-class StateTests(TestCase):
-    """ Tests for the publisher `State` model. """
-
-    def setUp(self):
-        super(StateTests, self).setUp()
-        self.state = factories.StateFactory()
-
-    def test_str(self):
-        """ Verify casting an instance to a string returns a string containing the current state display name. """
-        self.assertEqual(
-            str(self.state),
-            self.state.get_name_display()
         )
 
 
