@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-22 12:44+0500\n"
+"POT-Creation-Date: 2017-02-23 12:44+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -551,8 +551,8 @@ msgid "Partner Manager"
 msgstr "Pärtnér Mänägér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: apps/publisher/choices.py templates/publisher/courses.html
-msgid "Partner Coordinator"
-msgstr "Pärtnér Çöördïnätör Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+msgid "Project Coordinator"
+msgstr "Pröjéçt Çöördïnätör Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
 #: apps/publisher/choices.py
 msgid "Marketing Reviewer"
@@ -883,8 +883,8 @@ msgid "PARTNER MANAGER"
 msgstr "PÀRTNÉR MÀNÀGÉR Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: apps/publisher/views.py
-msgid "PARTNER COORDINATOR"
-msgstr "PÀRTNÉR ÇÖÖRDÌNÀTÖR Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+msgid "PROJECT COORDINATOR"
+msgstr "PRÖJÉÇT ÇÖÖRDÌNÀTÖR Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
 #: apps/publisher/views.py
 msgid "MARKETING"
@@ -2885,11 +2885,11 @@ msgstr ""
 "thïs çöürsé ïn Püßlïshér tö äpprövé ör déçlïné thé çhängés. Ⱡ'σяєм ιρѕυм "
 "∂σł#"
 
-#. Translators: partner_coordinator_name is a member name.
+#. Translators: project_coordinator_name is a member name.
 #: templates/publisher/email/course_created.html
 #, python-format
-msgid "Dear %(partner_coordinator_name)s,"
-msgstr "Déär %(partner_coordinator_name)s, Ⱡ'σяєм ιρѕυм ∂σł#"
+msgid "Dear %(project_coordinator_name)s,"
+msgstr "Déär %(project_coordinator_name)s, Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: templates/publisher/email/course_created.html
 #, python-format

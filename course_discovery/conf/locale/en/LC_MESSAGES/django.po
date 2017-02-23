@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-22 12:44+0500\n"
+"POT-Creation-Date: 2017-02-23 12:44+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -439,7 +439,7 @@ msgid "Partner Manager"
 msgstr ""
 
 #: apps/publisher/choices.py templates/publisher/courses.html
-msgid "Partner Coordinator"
+msgid "Project Coordinator"
 msgstr ""
 
 #: apps/publisher/choices.py
@@ -746,7 +746,7 @@ msgid "PARTNER MANAGER"
 msgstr ""
 
 #: apps/publisher/views.py
-msgid "PARTNER COORDINATOR"
+msgid "PROJECT COORDINATOR"
 msgstr ""
 
 #: apps/publisher/views.py
@@ -2452,10 +2452,10 @@ msgid ""
 "this course in Publisher to approve or decline the changes."
 msgstr ""
 
-#. Translators: partner_coordinator_name is a member name.
+#. Translators: project_coordinator_name is a member name.
 #: templates/publisher/email/course_created.html
 #, python-format
-msgid "Dear %(partner_coordinator_name)s,"
+msgid "Dear %(project_coordinator_name)s,"
 msgstr ""
 
 #: templates/publisher/email/course_created.html
