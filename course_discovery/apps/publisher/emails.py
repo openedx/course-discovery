@@ -69,7 +69,7 @@ def send_email_for_studio_instance_created(course_run, updated_text=_('created')
 
         course_user_roles = course_run.course.course_user_roles.all()
         course_team = course_user_roles.filter(role=PublisherUserRole.CourseTeam).first()
-        partner_coordinator = course_user_roles.filter(role=PublisherUserRole.PartnerCoordinator).first()
+        project_coordinator = course_user_roles.filter(role=PublisherUserRole.ProjectCoordinator).first()
 
         context = {
             'updated_text': updated_text,
@@ -80,8 +80,8 @@ def send_email_for_studio_instance_created(course_run, updated_text=_('created')
             'course_name': course_run.course.title,
             'from_address': from_address,
             'course_team_name': course_team.user.full_name if course_team else '',
-            'partner_coordinator_name': partner_coordinator.user.full_name if partner_coordinator else '',
-            'contact_us_email': partner_coordinator.user.email if partner_coordinator else ''
+            'project_coordinator_name': project_coordinator.user.full_name if project_coordinator else '',
+            'contact_us_email': project_coordinator.user.email if project_coordinator else ''
         }
 
         txt_template_path = 'publisher/email/studio_instance_created.txt'
@@ -116,19 +116,19 @@ def send_email_for_course_creation(course, course_run):
 
         course_user_roles = course_run.course.course_user_roles.all()
         course_team = course_user_roles.filter(role=PublisherUserRole.CourseTeam).first()
-        partner_coordinator = course_user_roles.filter(role=PublisherUserRole.PartnerCoordinator).first()
+        project_coordinator = course_user_roles.filter(role=PublisherUserRole.ProjectCoordinator).first()
 
         context = {
             'course_title': course_run.course.title,
             'date': course_run.created.strftime("%B %d, %Y"),
             'time': course_run.created.strftime("%H:%M:%S"),
             'course_team_name': course_team.user.full_name if course_team else '',
-            'partner_coordinator_name': partner_coordinator.user.full_name if partner_coordinator else '',
+            'project_coordinator_name': project_coordinator.user.full_name if project_coordinator else '',
             'dashboard_url': 'https://{host}{path}'.format(
                 host=Site.objects.get_current().domain.strip('/'), path=reverse('publisher:publisher_dashboard')
             ),
             'from_address': from_address,
-            'contact_us_email': partner_coordinator.user.email if partner_coordinator else ''
+            'contact_us_email': project_coordinator.user.email if project_coordinator else ''
         }
 
         template = get_template(txt_template)
@@ -203,14 +203,14 @@ def send_course_workflow_email(course, user, subject, txt_template, html_templat
         recipient_user = course.course_team_admin
 
     if is_email_notification_enabled(recipient_user):
-        partner_coordinator = course.partner_coordinator
+        project_coordinator = course.project_coordinator
         to_addresses = [recipient_user.email]
         from_address = settings.PUBLISHER_FROM_EMAIL
         context = {
             'recipient_name': recipient_user.full_name or recipient_user.username if recipient_user else '',
             'sender_name': user.full_name or user.username,
             'course_name': course_name if course_name else course.title,
-            'contact_us_email': partner_coordinator.email if partner_coordinator else '',
+            'contact_us_email': project_coordinator.email if project_coordinator else '',
             'page_url': 'https://{host}{path}'.format(
                 host=Site.objects.get_current().domain.strip('/'), path=page_path
             )
@@ -295,7 +295,7 @@ def send_email_to_publisher(course_run, user):
 
     try:
         if is_email_notification_enabled(recipient_user):
-            partner_coordinator = course_run.course.partner_coordinator
+            project_coordinator = course_run.course.project_coordinator
             to_addresses = [recipient_user.email]
             from_address = settings.PUBLISHER_FROM_EMAIL
             page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
@@ -303,7 +303,7 @@ def send_email_to_publisher(course_run, user):
                 'recipient_name': recipient_user.full_name or recipient_user.username if recipient_user else '',
                 'sender_name': user.full_name or user.username,
                 'course_name': run_name,
-                'contact_us_email': partner_coordinator.email if partner_coordinator else '',
+                'contact_us_email': project_coordinator.email if project_coordinator else '',
                 'page_url': 'https://{host}{path}'.format(
                     host=Site.objects.get_current().domain.strip('/'), path=page_path
                 )
@@ -323,7 +323,7 @@ def send_email_to_publisher(course_run, user):
 
 
 def send_email_preview_accepted(course_run):
-    """ Send email for preview approved to publisher and partner coordinator.
+    """ Send email for preview approved to publisher and project coordinator.
 
         Arguments:
             course_run (Object): CourseRun object
@@ -340,15 +340,15 @@ def send_email_preview_accepted(course_run):
 
     try:
         if is_email_notification_enabled(publisher_user):
-            partner_coordinator = course_run.course.partner_coordinator
+            project_coordinator = course_run.course.project_coordinator
             to_addresses = [publisher_user.email]
-            if is_email_notification_enabled(partner_coordinator):
-                to_addresses.append(partner_coordinator.email)
+            if is_email_notification_enabled(project_coordinator):
+                to_addresses.append(project_coordinator.email)
             from_address = settings.PUBLISHER_FROM_EMAIL
             page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
             context = {
                 'course_name': run_name,
-                'contact_us_email': partner_coordinator.email if partner_coordinator else '',
+                'contact_us_email': project_coordinator.email if project_coordinator else '',
                 'page_url': 'https://{host}{path}'.format(
                     host=Site.objects.get_current().domain.strip('/'), path=page_path
                 )

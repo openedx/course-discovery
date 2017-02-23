@@ -24,7 +24,7 @@ from course_discovery.apps.publisher.choices import CourseRunStateChoices, Cours
 from course_discovery.apps.publisher.forms import CustomCourseForm, CustomCourseRunForm, CustomSeatForm, SeatForm
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
                                                     OrganizationExtension, Seat, UserAttributes)
-from course_discovery.apps.publisher.utils import (get_internal_users, is_internal_user, is_partner_coordinator_user,
+from course_discovery.apps.publisher.utils import (get_internal_users, is_internal_user, is_project_coordinator_user,
                                                    is_publisher_admin, make_bread_crumbs)
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
@@ -35,7 +35,7 @@ SEATS_HIDDEN_FIELDS = ['price', 'currency', 'upgrade_deadline', 'credit_provider
 
 ROLE_WIDGET_HEADINGS = {
     PublisherUserRole.PartnerManager: _('PARTNER MANAGER'),
-    PublisherUserRole.PartnerCoordinator: _('PARTNER COORDINATOR'),
+    PublisherUserRole.ProjectCoordinator: _('PROJECT COORDINATOR'),
     PublisherUserRole.MarketingReviewer: _('MARKETING'),
     PublisherUserRole.Publisher: _('PUBLISHER'),
     PublisherUserRole.CourseTeam: _('COURSE TEAM')
@@ -82,12 +82,12 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
         unpublished_course_runs = course_runs.exclude(course_run_state__name=CourseRunStateChoices.Published)
 
         # Studio requests needs to check depending upon the user role with course
-        # Also user should be part of partner coordinator group.
+        # Also user should be part of project coordinator group.
         if is_publisher_admin(self.request.user):
             studio_request_courses = unpublished_course_runs.filter(lms_course_id__isnull=True)
-        elif is_partner_coordinator_user(self.request.user):
+        elif is_project_coordinator_user(self.request.user):
             studio_request_courses = unpublished_course_runs.filter(lms_course_id__isnull=True).filter(
-                course__course_user_roles__role=PublisherUserRole.PartnerCoordinator
+                course__course_user_roles__role=PublisherUserRole.ProjectCoordinator
             )
         else:
             studio_request_courses = []

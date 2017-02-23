@@ -168,7 +168,7 @@ class CourseTests(TestCase):
 
         # add user in course-user-role table
         factories.CourseUserRoleFactory(
-            course=self.course, role=PublisherUserRole.PartnerCoordinator, user=self.user1
+            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=self.user1
         )
 
         factories.CourseUserRoleFactory(
@@ -240,15 +240,15 @@ class CourseTests(TestCase):
         self.assertIn('abc', self.course.keywords_data)
         self.assertIn('def', self.course.keywords_data)
 
-    def test_partner_coordinator(self):
-        """ Verify that the partner_coordinator property returns user if exist. """
-        self.assertIsNone(self.course2.partner_coordinator)
+    def test_project_coordinator(self):
+        """ Verify that the project_coordinator property returns user if exist. """
+        self.assertIsNone(self.course2.project_coordinator)
 
         factories.CourseUserRoleFactory(
-            course=self.course2, user=self.user1, role=PublisherUserRole.PartnerCoordinator
+            course=self.course2, user=self.user1, role=PublisherUserRole.ProjectCoordinator
         )
 
-        self.assertEqual(self.user1, self.course2.partner_coordinator)
+        self.assertEqual(self.user1, self.course2.project_coordinator)
 
     def test_assign_roles(self):
         """
@@ -259,7 +259,7 @@ class CourseTests(TestCase):
 
         # create default roles for organization
         factories.OrganizationUserRoleFactory(
-            role=PublisherUserRole.PartnerCoordinator, organization=self.org_extension_2.organization
+            role=PublisherUserRole.ProjectCoordinator, organization=self.org_extension_2.organization
         )
         factories.OrganizationUserRoleFactory(
             role=PublisherUserRole.MarketingReviewer, organization=self.org_extension_2.organization
@@ -387,7 +387,7 @@ class OrganizationUserRoleTests(TestCase):
 
     def setUp(self):
         super(OrganizationUserRoleTests, self).setUp()
-        self.org_user_role = factories.OrganizationUserRoleFactory(role=PublisherUserRole.PartnerCoordinator)
+        self.org_user_role = factories.OrganizationUserRoleFactory(role=PublisherUserRole.ProjectCoordinator)
 
     def test_str(self):
         """Verify that a OrganizationUserRole is properly converted to a str."""
@@ -414,7 +414,7 @@ class CourseUserRoleTests(TestCase):
 
     def setUp(self):
         super(CourseUserRoleTests, self).setUp()
-        self.course_user_role = factories.CourseUserRoleFactory(role=PublisherUserRole.PartnerCoordinator)
+        self.course_user_role = factories.CourseUserRoleFactory(role=PublisherUserRole.ProjectCoordinator)
         self.course = factories.CourseFactory()
         self.user = UserFactory()
         self.marketing_reviewer_role = PublisherUserRole.MarketingReviewer

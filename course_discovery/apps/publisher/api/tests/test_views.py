@@ -130,7 +130,7 @@ class CourseRoleAssignmentViewTests(TestCase):
 
     @ddt.data(
         PublisherUserRole.PartnerManager,
-        PublisherUserRole.PartnerCoordinator,
+        PublisherUserRole.ProjectCoordinator,
         PublisherUserRole.MarketingReviewer,
         PublisherUserRole.Publisher
     )
@@ -221,7 +221,7 @@ class UpdateCourseKeyViewTests(TestCase):
         )
 
         factories.CourseUserRoleFactory(
-            role=PublisherUserRole.PartnerCoordinator,
+            role=PublisherUserRole.ProjectCoordinator,
             course=self.course_run.course,
             user=self.user
         )
@@ -651,7 +651,7 @@ class ChangeCourseRunStateViewTests(TestCase):
         self.run_state.save()
 
         self._assign_role(course, PublisherUserRole.CourseTeam, self.user)
-        self._assign_role(course, PublisherUserRole.PartnerCoordinator, UserFactory())
+        self._assign_role(course, PublisherUserRole.ProjectCoordinator, UserFactory())
 
         self._assign_role(course, PublisherUserRole.Publisher, UserFactory())
 
@@ -671,4 +671,4 @@ class ChangeCourseRunStateViewTests(TestCase):
         self.assertEqual(self.run_state.owner_role, PublisherUserRole.Publisher)
 
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual([course.publisher.email, course.partner_coordinator.email], mail.outbox[0].bcc)
+        self.assertEqual([course.publisher.email, course.project_coordinator.email], mail.outbox[0].bcc)

@@ -45,7 +45,7 @@ class StateChangeEmailTests(TestCase):
 
         # add user in course-user-role table
         factories.CourseUserRoleFactory(
-            course=cls.course, role=PublisherUserRole.PartnerCoordinator, user=cls.user
+            course=cls.course, role=PublisherUserRole.ProjectCoordinator, user=cls.user
         )
         factories.CourseUserRoleFactory(
             course=cls.course, role=PublisherUserRole.MarketingReviewer, user=cls.user_2
@@ -144,7 +144,7 @@ class StudioInstanceCreatedEmailTests(TestCase):
 
         # add user in course-user-role table
         factories.CourseUserRoleFactory(
-            course=self.course_run.course, role=PublisherUserRole.PartnerCoordinator, user=self.user
+            course=self.course_run.course, role=PublisherUserRole.ProjectCoordinator, user=self.user
         )
 
         self.course_team = UserFactory()
@@ -212,7 +212,7 @@ class CourseCreatedEmailTests(TestCase):
 
         # add user in course-user-role table
         factories.CourseUserRoleFactory(
-            course=self.course_run.course, role=PublisherUserRole.PartnerCoordinator, user=self.user
+            course=self.course_run.course, role=PublisherUserRole.ProjectCoordinator, user=self.user
         )
 
         self.course_team = UserFactory()
@@ -493,7 +493,7 @@ class CourseRunPreviewEmailTests(TestCase):
             course=self.course, role=PublisherUserRole.Publisher, user=UserFactory()
         )
         factories.CourseUserRoleFactory(
-            course=self.course, role=PublisherUserRole.PartnerCoordinator, user=UserFactory()
+            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=UserFactory()
         )
 
         toggle_switch('enable_publisher_email_notifications', True)
@@ -511,7 +511,7 @@ class CourseRunPreviewEmailTests(TestCase):
             run_name=run_name
         )
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual([self.course.publisher.email, self.course.partner_coordinator.email], mail.outbox[0].bcc)
+        self.assertEqual([self.course.publisher.email, self.course.project_coordinator.email], mail.outbox[0].bcc)
         self.assertEqual(str(mail.outbox[0].subject), subject)
         body = mail.outbox[0].body.strip()
         page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.run_state.course_run.id})
