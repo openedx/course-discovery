@@ -171,9 +171,9 @@ class Course(TimeStampedModel, ChangedByMixin):
         return None
 
     @property
-    def partner_coordinator(self):
+    def project_coordinator(self):
         try:
-            return self.course_user_roles.get(role=PublisherUserRole.PartnerCoordinator).user
+            return self.course_user_roles.get(role=PublisherUserRole.ProjectCoordinator).user
         except CourseUserRole.DoesNotExist:
             return None
 

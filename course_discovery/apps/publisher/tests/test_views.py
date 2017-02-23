@@ -24,7 +24,7 @@ from course_discovery.apps.course_metadata.tests.factories import OrganizationFa
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.constants import (ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME,
-                                                       PARTNER_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME)
+                                                       PROJECT_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME)
 from course_discovery.apps.publisher.models import Course, CourseRun, CourseState, OrganizationExtension, Seat
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
@@ -64,7 +64,7 @@ class CreateCourseViewTests(TestCase):
 
         # creating default organizations roles
         factories.OrganizationUserRoleFactory(
-            role=PublisherUserRole.PartnerCoordinator, organization=self.organization_extension.organization
+            role=PublisherUserRole.ProjectCoordinator, organization=self.organization_extension.organization
         )
         factories.OrganizationUserRoleFactory(
             role=PublisherUserRole.MarketingReviewer, organization=self.organization_extension.organization
@@ -1208,21 +1208,21 @@ class DashboardTests(TestCase):
         super(DashboardTests, self).setUp()
 
         self.group_internal = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
-        self.group_partner_coordinator = Group.objects.get(name=PARTNER_COORDINATOR_GROUP_NAME)
+        self.group_project_coordinator = Group.objects.get(name=PROJECT_COORDINATOR_GROUP_NAME)
         self.group_reviewer = Group.objects.get(name=REVIEWER_GROUP_NAME)
 
         self.user1 = UserFactory()
         self.user2 = UserFactory()
 
         self.user1.groups.add(self.group_internal)
-        self.user1.groups.add(self.group_partner_coordinator)
+        self.user1.groups.add(self.group_project_coordinator)
         self.user1.groups.add(self.group_reviewer)
         self.user2.groups.add(self.group_internal)
 
         self.client.login(username=self.user1.username, password=USER_PASSWORD)
         self.page_url = reverse('publisher:publisher_dashboard')
 
-        pc = PublisherUserRole.PartnerCoordinator
+        pc = PublisherUserRole.ProjectCoordinator
 
         # user1 courses data set ( 2 studio-request, 1 published, 1 in preview ready, 1 in progress )
         self.course_run_1 = self._create_course_assign_role(CourseRunStateChoices.Draft, self.user1, pc)
@@ -1320,7 +1320,7 @@ class DashboardTests(TestCase):
 
     def test_studio_request_course_runs_without_pc_group(self):
         """ Verify that PC user can see only those courses on which he is assigned as PC role. """
-        self.user1.groups.remove(self.group_partner_coordinator)
+        self.user1.groups.remove(self.group_project_coordinator)
         response = self.assert_dashboard_response(studio_count=0, published_count=1, progress_count=2, preview_count=1)
         self._assert_tabs_with_roles(response)
 
@@ -1363,7 +1363,7 @@ class DashboardTests(TestCase):
 
         # assign user course role
         factories.CourseUserRoleFactory(
-            course=self.course_run_3.course, user=internal_user, role=PublisherUserRole.PartnerCoordinator
+            course=self.course_run_3.course, user=internal_user, role=PublisherUserRole.ProjectCoordinator
         )
 
         # Verify that user can see 1 published course run
@@ -2032,7 +2032,7 @@ class CourseRunEditViewTests(TestCase):
 
         # creating default organizations roles
         factories.OrganizationUserRoleFactory(
-            role=PublisherUserRole.PartnerCoordinator, organization=self.organization_extension.organization
+            role=PublisherUserRole.ProjectCoordinator, organization=self.organization_extension.organization
         )
         factories.OrganizationUserRoleFactory(
             role=PublisherUserRole.MarketingReviewer, organization=self.organization_extension.organization

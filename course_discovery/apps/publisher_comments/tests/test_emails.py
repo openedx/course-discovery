@@ -41,15 +41,15 @@ class CommentsEmailTests(TestCase):
 
         # add user in course-user-role table
         factories.CourseUserRoleFactory(
-            course=self.course, role=PublisherUserRole.PartnerCoordinator, user=self.user
+            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=self.user
         )
 
         factories.CourseUserRoleFactory(
-            course=self.course, role=PublisherUserRole.PartnerCoordinator, user=self.user_2
+            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=self.user_2
         )
 
         factories.CourseUserRoleFactory(
-            course=self.course, role=PublisherUserRole.PartnerCoordinator, user=self.user_3
+            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=self.user_3
         )
 
         UserAttributeFactory(user=self.user, enable_email_notification=True)
@@ -148,7 +148,7 @@ class CommentsEmailTests(TestCase):
             course=self.course, role=PublisherUserRole.MarketingReviewer, user=user_4
         )
         factories.CourseUserRoleFactory(
-            course=self.course, role=PublisherUserRole.PartnerCoordinator, user=user_5
+            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=user_5
         )
         self.create_comment(content_object=self.course_run)
         self.assertEqual(len(mail.outbox), 1)

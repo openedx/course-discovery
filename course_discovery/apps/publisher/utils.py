@@ -1,7 +1,7 @@
 """ Publisher Utils."""
 from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.constants import (
-    ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PARTNER_COORDINATOR_GROUP_NAME
+    ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME
 )
 
 
@@ -54,8 +54,8 @@ def get_internal_users():
     return list(User.objects.filter(groups__name=INTERNAL_USER_GROUP_NAME))
 
 
-def is_partner_coordinator_user(user):
-    """ Returns True if the user is an partner coordinator user.
+def is_project_coordinator_user(user):
+    """ Returns True if the user is an project coordinator user.
 
     Arguments:
         user (:obj:`User`): User whose permissions should be checked.
@@ -63,7 +63,7 @@ def is_partner_coordinator_user(user):
     Returns:
         bool: True, if user is an PC user; otherwise, False.
     """
-    return user.groups.filter(name=PARTNER_COORDINATOR_GROUP_NAME).exists()
+    return user.groups.filter(name=PROJECT_COORDINATOR_GROUP_NAME).exists()
 
 
 def is_publisher_user(user):

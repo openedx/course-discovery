@@ -8,7 +8,7 @@ from mock import Mock
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.publisher.constants import (
-    ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PARTNER_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME
+    ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME
 )
 from course_discovery.apps.publisher.mixins import (
     check_course_organization_permission, check_roles_access, publisher_user_required
@@ -16,7 +16,7 @@ from course_discovery.apps.publisher.mixins import (
 from course_discovery.apps.publisher.models import OrganizationExtension
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.utils import (
-    get_internal_users, is_email_notification_enabled, is_internal_user, is_partner_coordinator_user,
+    get_internal_users, is_email_notification_enabled, is_internal_user, is_project_coordinator_user,
     is_publisher_admin, is_publisher_user, make_bread_crumbs
 )
 
@@ -87,15 +87,15 @@ class PublisherUtilsTests(TestCase):
         self.user.groups.add(internal_user_group)
         self.assertEqual(get_internal_users(), [self.user])
 
-    def test_is_partner_coordinator_user(self):
+    def test_is_project_coordinator_user(self):
         """ Verify the function returns a boolean indicating if the user
-        is a member of the partner coordinator group.
+        is a member of the project coordinator group.
         """
-        self.assertFalse(is_partner_coordinator_user(self.user))
+        self.assertFalse(is_project_coordinator_user(self.user))
 
-        partner_coordinator_group = Group.objects.get(name=PARTNER_COORDINATOR_GROUP_NAME)
-        self.user.groups.add(partner_coordinator_group)
-        self.assertTrue(is_partner_coordinator_user(self.user))
+        project_coordinator_group = Group.objects.get(name=PROJECT_COORDINATOR_GROUP_NAME)
+        self.user.groups.add(project_coordinator_group)
+        self.assertTrue(is_project_coordinator_user(self.user))
 
     def test_check_roles_access_with_admin(self):
         """ Verify the function returns a boolean indicating if the user

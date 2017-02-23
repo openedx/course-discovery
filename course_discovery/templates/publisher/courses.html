@@ -21,7 +21,7 @@
                         {% trans "Institution" %}
                     </th>
                     <th role="button">
-                        {% trans "Partner Coordinator" %}
+                        {% trans "Project Coordinator" %}
                     </th>
                     <th role="button">
                         {% trans "Runs" %}
@@ -45,7 +45,7 @@
                             {% if course.organizations.first %}{{ course.organizations.first.name }}{% endif %}
                         </td>
                         <td>
-                            {{ course.partner_coordinator.full_name }}
+                            {{ course.project_coordinator.full_name }}
                         </td>
                         <td>
                              {{ course.publisher_course_runs.count }}

@@ -9,7 +9,7 @@
 {% endblocktrans %}
 
 {% trans "Thanks," %}
-{{ partner_coordinator_name }}
+{{ project_coordinator_name }}
 
 {% blocktrans trimmed %}
     Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.
