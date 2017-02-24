@@ -180,12 +180,12 @@ class OrganizationGroupUserViewTests(TestCase):
 
         expected_results = [
             {
-                "id": self.org_user2.id,
-                "full_name": self.org_user2.username
-            },
-            {
                 "id": self.org_user1.id,
                 "full_name": self.org_user1.full_name
+            },
+            {
+                "id": self.org_user2.id,
+                "full_name": self.org_user2.username
             }
         ]
 
