@@ -513,20 +513,27 @@ class ProgramTests(MarketingSitePublisherTestMixin):
         currency = Currency.objects.get(code='USD')
         single_course_course_runs = factories.CourseRunFactory.create_batch(3)
         course = factories.CourseFactory()
-        course_runs_same_course = factories.CourseRunFactory.create_batch(2, course=course)
+        course_runs_same_course = factories.CourseRunFactory.create_batch(3, course=course)
         for course_run in single_course_course_runs:
             factories.SeatFactory(type='audit', currency=currency, course_run=course_run, price=0)
             factories.SeatFactory(type='verified', currency=currency, course_run=course_run, price=10)
 
-        day_diff = 1
+        day_separation = 1
         for course_run in course_runs_same_course:
-            if set_all_dates or day_diff > 1:
-                course_run.enrollment_start = datetime.datetime.now() - datetime.timedelta(days=day_diff)
-                course_run.end = datetime.datetime.now() + datetime.timedelta(weeks=day_diff)
-                course_run.save()
+            if set_all_dates or day_separation < 2:
+                course_run.enrollment_start = datetime.datetime.now() - datetime.timedelta(days=day_separation)
+                course_run.end = datetime.datetime.now() + datetime.timedelta(weeks=day_separation)
+            else:
+                course_run.enrollment_start = None
+                course_run.end = None
+            course_run.save()
             factories.SeatFactory(type='audit', currency=currency, course_run=course_run, price=0)
-            factories.SeatFactory(type='verified', currency=currency, course_run=course_run, price=(day_diff * 100))
-            day_diff += 1
+            factories.SeatFactory(
+                type='verified',
+                currency=currency,
+                course_run=course_run,
+                price=(day_separation * 100))
+            day_separation += 1
 
         applicable_seat_types = SeatType.objects.filter(slug__in=['verified'])
         program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
@@ -543,7 +550,7 @@ class ProgramTests(MarketingSitePublisherTestMixin):
         """
         program = self.create_program_with_multiple_course_runs()
 
-        expected_price_ranges = [{'currency': 'USD', 'min': Decimal(10), 'max': Decimal(200), 'total': Decimal(130)}]
+        expected_price_ranges = [{'currency': 'USD', 'min': Decimal(10), 'max': Decimal(300), 'total': Decimal(130)}]
         self.assertEqual(program.price_ranges, expected_price_ranges)
 
     def test_price_ranges_with_multiple_course_runs_and_none_dates(self):
@@ -553,7 +560,7 @@ class ProgramTests(MarketingSitePublisherTestMixin):
         """
         program = self.create_program_with_multiple_course_runs(set_all_dates=False)
 
-        expected_price_ranges = [{'currency': 'USD', 'min': Decimal(10), 'max': Decimal(200), 'total': Decimal(230)}]
+        expected_price_ranges = [{'currency': 'USD', 'min': Decimal(10), 'max': Decimal(300), 'total': Decimal(130)}]
         self.assertEqual(program.price_ranges, expected_price_ranges)
 
     def test_staff(self):
