@@ -118,6 +118,28 @@ class AggregateSearchViewSet(BaseHaystackViewSet):
     facet_serializer_class = serializers.AggregateFacetSearchSerializer
     serializer_class = serializers.AggregateSearchSerializer
 
+    # FIXME Should this be separated and included from an edx-specific app?
+    @list_route(methods=['get'], url_path='distinct_facets')
+    def distinct_facets(self, request):
+        from course_discovery.apps.edx_haystack_extensions.distinct_counts import (DistinctCountsSearchQuerySet,
+                DistinctCountsAggregateFacetSearchSerializer)
+
+        queryset = self.filter_facet_queryset(self.get_queryset())
+        for facet in request.query_params.getlist("selected_facets"):
+            if ":" not in facet:
+                continue
+
+            field, value = facet.split(":", 1)
+            if value:
+                queryset = queryset.narrow('%s:"%s"' % (field, queryset.query.clean(value)))
+
+        queryset = DistinctCountsSearchQuerySet.from_queryset(queryset).set_aggregation_key('aggregation_key_exact')
+
+        serializer_kwargs = {'context': self.get_serializer_context()}
+        serializer_kwargs['context'].update({'objects': queryset, 'many': False})
+        serializer = DistinctCountsAggregateFacetSearchSerializer(queryset.facet_counts(), **serializer_kwargs)
+        return Response(serializer.data)
+
 
 class TypeaheadSearchView(PartnerMixin, APIView):
     """ Typeahead for courses and programs. """
