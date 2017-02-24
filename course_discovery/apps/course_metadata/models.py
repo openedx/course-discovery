@@ -835,7 +835,8 @@ class Program(TimeStampedModel):
                     elif ((seat.course_run.end is None or
                            seat.course_run.end >= datetime.datetime.now(pytz.UTC)) and
                           (seat.course_run.enrollment_start is None or
-                           seat.course_run.enrollment_start > selected_seat.course_run.enrollment_start and
+                           seat.course_run.enrollment_start > (
+                               selected_seat.course_run.enrollment_start or datetime.datetime.min) and
                            seat.course_run.enrollment_start < datetime.datetime.now(pytz.UTC))):
                         # If the seat has same currency, the course has not ended,
                         # and the course is enrollable, then choose the new seat associated with the course instead,

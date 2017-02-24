@@ -509,7 +509,7 @@ class ProgramTests(MarketingSitePublisherTestMixin):
         expected_price_ranges = [{'currency': 'USD', 'min': Decimal(100), 'max': Decimal(300), 'total': Decimal(600)}]
         self.assertEqual(self.program.price_ranges, expected_price_ranges)
 
-    def create_program_with_multiple_course_runs(self):
+    def create_program_with_multiple_course_runs(self, set_all_dates=True):
         currency = Currency.objects.get(code='USD')
         single_course_course_runs = factories.CourseRunFactory.create_batch(3)
         course = factories.CourseFactory()
@@ -520,9 +520,10 @@ class ProgramTests(MarketingSitePublisherTestMixin):
 
         day_diff = 1
         for course_run in course_runs_same_course:
-            course_run.enrollment_start = datetime.datetime.now() - datetime.timedelta(days=day_diff)
-            course_run.end = datetime.datetime.now() + datetime.timedelta(weeks=day_diff)
-            course_run.save()
+            if set_all_dates or day_diff > 1:
+                course_run.enrollment_start = datetime.datetime.now() - datetime.timedelta(days=day_diff)
+                course_run.end = datetime.datetime.now() + datetime.timedelta(weeks=day_diff)
+                course_run.save()
             factories.SeatFactory(type='audit', currency=currency, course_run=course_run, price=0)
             factories.SeatFactory(type='verified', currency=currency, course_run=course_run, price=(day_diff * 100))
             day_diff += 1
@@ -543,6 +544,16 @@ class ProgramTests(MarketingSitePublisherTestMixin):
         program = self.create_program_with_multiple_course_runs()
 
         expected_price_ranges = [{'currency': 'USD', 'min': Decimal(10), 'max': Decimal(200), 'total': Decimal(130)}]
+        self.assertEqual(program.price_ranges, expected_price_ranges)
+
+    def test_price_ranges_with_multiple_course_runs_and_none_dates(self):
+        """
+        Verifies the price_range property of a program with multiple courses,
+        and a course with multiple runs, and some of the dates in the course runs are None
+        """
+        program = self.create_program_with_multiple_course_runs(set_all_dates=False)
+
+        expected_price_ranges = [{'currency': 'USD', 'min': Decimal(10), 'max': Decimal(200), 'total': Decimal(230)}]
         self.assertEqual(program.price_ranges, expected_price_ranges)
 
     def test_staff(self):
