@@ -810,6 +810,28 @@ class Program(TimeStampedModel):
     def seat_types(self):
         return set(seat.type for seat in self.seats)
 
+    def _select_for_total_price(self, selected_seat, candidate_seat):
+        """
+        A helper function to determine which course_run seat is best suitable to be used to calculate
+        the program total price. A seat is most suitable if the related course_run is now enrollable,
+        has not ended, and the enrollment_start date is most recent
+        """
+        end_valid = candidate_seat.course_run.end is None or \
+            candidate_seat.course_run.end >= datetime.datetime.now(pytz.UTC)
+
+        selected_enrollment_start = selected_seat.course_run.enrollment_start or \
+            pytz.utc.localize(datetime.datetime.min)
+
+        # Only select the candidate seat if the candidate seat has no enrollment start,
+        # or make sure the candidate course_run is enrollable and
+        # the candidate seat enrollment start is most recent
+        enrollment_start_valid = candidate_seat.course_run.enrollment_start is None or (
+            candidate_seat.course_run.enrollment_start > selected_enrollment_start and
+            candidate_seat.course_run.enrollment_start < datetime.datetime.now(pytz.UTC)
+        )
+
+        return end_valid and enrollment_start_valid
+
     def _get_total_price_by_currency(self):
         """
         This helper function returns the total program price indexed by the currency
@@ -832,12 +854,7 @@ class Program(TimeStampedModel):
                         # If the candidate seat has a different currency than the one in the array,
                         # always add to the array
                         add_seat = True
-                    elif ((seat.course_run.end is None or
-                           seat.course_run.end >= datetime.datetime.now(pytz.UTC)) and
-                          (seat.course_run.enrollment_start is None or
-                           seat.course_run.enrollment_start > (
-                               selected_seat.course_run.enrollment_start or datetime.datetime.min) and
-                           seat.course_run.enrollment_start < datetime.datetime.now(pytz.UTC))):
+                    elif self._select_for_total_price(selected_seat, seat):
                         # If the seat has same currency, the course has not ended,
                         # and the course is enrollable, then choose the new seat associated with the course instead,
                         # and mark the original seat in the array to be removed
