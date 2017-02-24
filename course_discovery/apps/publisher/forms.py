@@ -4,13 +4,14 @@ Course publisher forms.
 from dal import autocomplete
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db.models.functions import Lower
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
-from course_discovery.apps.course_metadata.models import Organization, Person, Subject
+from course_discovery.apps.course_metadata.models import LevelType, Organization, Person, Subject
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.mixins import LanguageModelSelect2Multiple, check_roles_access
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseUserRole, OrganizationExtension,
@@ -83,7 +84,9 @@ class CourseForm(BaseCourseForm):
 class CustomCourseForm(CourseForm):
     """ Course Form. """
     organization = forms.ModelChoiceField(
-        queryset=Organization.objects.filter(organization_extension__organization_id__isnull=False),
+        queryset=Organization.objects.filter(
+            organization_extension__organization_id__isnull=False
+        ).order_by(Lower('key')),
         label=_('Organization Name'),
         required=True
     )
@@ -105,7 +108,7 @@ class CustomCourseForm(CourseForm):
         label=_('Organization Course Admin'),
     )
 
-    subjects = Subject.objects.all()
+    subjects = Subject.objects.all().order_by('name')
     primary_subject = forms.ModelChoiceField(
         queryset=subjects,
         label=_('Primary'),
@@ -122,6 +125,11 @@ class CustomCourseForm(CourseForm):
         required=False
     )
 
+    level_type = forms.ModelChoiceField(
+        queryset=LevelType.objects.all().order_by('-name'),
+        required=False
+    )
+
     class Meta(CourseForm.Meta):
         model = Course
         widgets = {
@@ -129,8 +137,8 @@ class CustomCourseForm(CourseForm):
         }
         fields = (
             'title', 'number', 'short_description', 'full_description',
-            'expected_learnings', 'level_type', 'primary_subject', 'secondary_subject',
-            'tertiary_subject', 'prerequisites', 'level_type', 'image', 'team_admin',
+            'expected_learnings', 'primary_subject', 'secondary_subject',
+            'tertiary_subject', 'prerequisites', 'image', 'team_admin',
             'level_type', 'organization', 'is_seo_review', 'syllabus',
         )
 
@@ -140,18 +148,20 @@ class CustomCourseForm(CourseForm):
         organization = kwargs.pop('organization', None)
         if organization:
             org_extension = OrganizationExtension.objects.get(organization=organization)
-            self.declared_fields['team_admin'].queryset = User.objects.filter(groups__name=org_extension.group)
+            self.declared_fields['team_admin'].queryset = User.objects.filter(
+                groups__name=org_extension.group
+            ).order_by('full_name', 'username')
 
         if user:
             organizations = Organization.objects.filter(
                 organization_extension__organization_id__isnull=False
-            )
+            ).order_by(Lower('key'))
 
             if not check_roles_access(user):
                 # If not internal user return only those organizations which belongs to user.
                 organizations = organizations.filter(
                     organization_extension__group__in=user.groups.all()
-                )
+                ).order_by(Lower('key'))
 
             self.declared_fields['organization'].queryset = organizations
 
