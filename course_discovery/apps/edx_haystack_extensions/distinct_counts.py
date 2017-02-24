@@ -192,18 +192,36 @@ class DistinctCountsElasticsearchBackend(object):
     def build_search_kwargs(self, *args, **kwargs):
         search_kwargs = self.backend.build_search_kwargs(*args, **kwargs)
 
-        aggregations = {self.aggregation_name: {'cardinality': {'field': self.aggregation_key}}}
+        aggregations = self._cardinality_aggregation()
 
         if search_kwargs.get('facets'):
             for facet_name, facet_config in search_kwargs['facets'].items():
                 new_facet = self._convert_facet_to_aggregation(facet_config)
-                new_facet['aggs'] = {self.aggregation_name: {'cardinality': {'field': self.aggregation_key}}}
+                new_facet['aggs'] = self._cardinality_aggregation()
                 aggregations[facet_name] = new_facet
             del search_kwargs['facets']
 
         search_kwargs['aggs'] = aggregations
 
         return search_kwargs
+
+    def _cardinality_aggregation(self):
+        return {
+            self.aggregation_name: {
+                'cardinality': {
+                    'field': self.aggregation_key,
+                    # The cardinality aggregation does not guarentee accurate results.
+                    # The precision_threshold option allows us to define a value below which
+                    # counts can be expected to be close to accurate. This requires additional memory
+                    # usage of about (n * 8) bytes, where n is the value for precision_threshold. Since
+                    # we only currently have around 5000 or so documents in our index, this shouldn't be
+                    # a problem.
+                    # Note: Setting to 40000, which is the maximum supported value. See
+                    # https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-aggregations-metrics-cardinality-aggregation.html
+                    'precision_threshold': 40000
+                }
+            }
+        }
 
     def _convert_facet_to_aggregation(self, facet_config):
         # Only allow the simplest of facet types to be converted for now.
