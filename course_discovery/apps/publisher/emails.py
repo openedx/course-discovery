@@ -67,46 +67,45 @@ def send_email_for_course_creation(course, course_run):
             course (Course): Course object
             course_run (CourseRun): CourseRun object
     """
-    try:
-        txt_template = 'publisher/email/course_created.txt'
-        html_template = 'publisher/email/course_created.html'
+    txt_template = 'publisher/email/course_created.txt'
+    html_template = 'publisher/email/course_created.html'
 
-        to_addresses = course.get_course_users_emails()
-        from_address = settings.PUBLISHER_FROM_EMAIL
+    subject = _('New Studio instance request for {title}').format(title=course.title)  # pylint: disable=no-member
+    project_coordinator = course.project_coordinator
+    course_team = course.course_team_admin
 
-        course_user_roles = course_run.course.course_user_roles.all()
-        course_team = course_user_roles.filter(role=PublisherUserRole.CourseTeam).first()
-        project_coordinator = course_user_roles.filter(role=PublisherUserRole.ProjectCoordinator).first()
+    if is_email_notification_enabled(project_coordinator):
+        try:
+            to_addresses = [project_coordinator.email]
+            from_address = settings.PUBLISHER_FROM_EMAIL
 
-        context = {
-            'course_title': course_run.course.title,
-            'date': course_run.created.strftime("%B %d, %Y"),
-            'time': course_run.created.strftime("%H:%M:%S"),
-            'course_team_name': course_team.user.full_name if course_team else '',
-            'project_coordinator_name': project_coordinator.user.full_name if project_coordinator else '',
-            'dashboard_url': 'https://{host}{path}'.format(
-                host=Site.objects.get_current().domain.strip('/'), path=reverse('publisher:publisher_dashboard')
-            ),
-            'from_address': from_address,
-            'contact_us_email': project_coordinator.user.email if project_coordinator else ''
-        }
+            context = {
+                'course_title': course_run.course.title,
+                'date': course_run.created.strftime("%B %d, %Y"),
+                'time': course_run.created.strftime("%H:%M:%S"),
+                'course_team_name': course_team.get_full_name(),
+                'project_coordinator_name': project_coordinator.get_full_name(),
+                'dashboard_url': 'https://{host}{path}'.format(
+                    host=Site.objects.get_current().domain.strip('/'), path=reverse('publisher:publisher_dashboard')
+                ),
+                'from_address': from_address,
+                'contact_us_email': project_coordinator.email
+            }
 
-        template = get_template(txt_template)
-        plain_content = template.render(context)
-        template = get_template(html_template)
-        html_content = template.render(context)
+            template = get_template(txt_template)
+            plain_content = template.render(context)
+            template = get_template(html_template)
+            html_content = template.render(context)
 
-        subject = _('New Studio instance request for {title}').format(title=course.title)  # pylint: disable=no-member
-
-        email_msg = EmailMultiAlternatives(
-            subject, plain_content, from_address, to=[settings.PUBLISHER_FROM_EMAIL], bcc=to_addresses
-        )
-        email_msg.attach_alternative(html_content, 'text/html')
-        email_msg.send()
-    except Exception:  # pylint: disable=broad-except
-        logger.exception(
-            'Failed to send email notifications for creation of course [%s]', course_run.course.id
-        )
+            email_msg = EmailMultiAlternatives(
+                subject, plain_content, from_address, to=to_addresses
+            )
+            email_msg.attach_alternative(html_content, 'text/html')
+            email_msg.send()
+        except Exception:  # pylint: disable=broad-except
+            logger.exception(
+                'Failed to send email notifications for creation of course [%s]', course_run.course.id
+            )
 
 
 def send_email_for_send_for_review(course, user):
