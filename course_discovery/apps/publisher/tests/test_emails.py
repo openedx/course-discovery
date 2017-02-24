@@ -132,8 +132,7 @@ class CourseCreatedEmailTests(TestCase):
     def assert_email_sent(self, subject):
         """ Verify the email data for tests cases."""
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual([settings.PUBLISHER_FROM_EMAIL], mail.outbox[0].to)
-        self.assertEqual([self.user.email, self.course_team.email], mail.outbox[0].bcc)
+        self.assertEqual([self.user.email], mail.outbox[0].to)
         self.assertEqual(str(mail.outbox[0].subject), subject)
 
         body = mail.outbox[0].body.strip()

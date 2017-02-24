@@ -334,9 +334,9 @@ class CreateCourseViewTests(TestCase):
         self._assert_records(2)
 
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(
-            str(mail.outbox[0].subject), 'New Studio instance request for {title}'.format(title=course.title)
-        )
+        self.assertEqual([course.project_coordinator.email], mail.outbox[0].to)
+        expected_subject = 'New Studio instance request for {title}'.format(title=course.title)
+        self.assertEqual(str(mail.outbox[0].subject), expected_subject)
 
 
 class CreateCourseRunViewTests(TestCase):
