@@ -139,12 +139,34 @@ class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
 
 
 class DistinctCountsElasticsearchBackend(object):
+    """
+    Custom backend designed specifically to allow for the computation of distinct hit and facet counts
+    during search queries.
+
+    This is not a true ElasticsearchSearchBackend as it does not inherit from that class. It wraps an
+    ElasticsearchSearchBackend instance and exposes a very limited subset of the normal backend functionality.
+    """
     def __init__(self, backend, aggregation_key):
+        """
+        backend - an ElasticsearchSearchBackend instance
+        aggregation_key - a string specifying the field that should be used in the cardinality aggregation functions
+            to compute distinct counts. For example, if you want to search across course_runs and get the count of
+            distinct courses represented in the result set, you could set aggregation_key to 'course_key_exact'. Note
+            that the aggregation_key should be a field that is not tokenized by the search engine (like the _exact
+            versions of faceted fields).
+        """
         self.backend = backend
         self.aggregation_key = aggregation_key
         self.aggregation_name = 'distinct_{}'.format(aggregation_key)
 
+    # Override of haystack's ElasticsearchSearchBackend.search method.
+    #
+    # Most of the code here is the same as in the original, except that some method calls need to be delegated to the
+    # wrapped backend instance.
     def search(self, query_string, **kwargs):
+        if not (self.aggregation_key and self.aggregation_name):
+            raise RuntimeError('DistinctCounts search cannot be executed without aggregation_key and aggregation_name.')
+
         if len(query_string) == 0:
             return {
                 'results': [],
@@ -154,7 +176,7 @@ class DistinctCountsElasticsearchBackend(object):
         if not self.backend.setup_complete:
             self.backend.setup()
 
-        # Override
+        # Call the overridden version of build_search_kwargs instead of the wrapped backend version.
         search_kwargs = self.build_search_kwargs(query_string, **kwargs)
         search_kwargs['from'] = kwargs.get('start_offset', 0)
 
@@ -182,13 +204,19 @@ class DistinctCountsElasticsearchBackend(object):
             self.backend.log.error("Failed to query Elasticsearch using '%s': %s", query_string, e, exc_info=True)
             raw_results = {}
 
-        # Override
+        # Call the overridden version of _process_results instead of the wrapped backend version.
         return self._process_results(raw_results,
                                      highlight=kwargs.get('highlight'),
                                      result_class=kwargs.get('result_class', SearchResult),
                                      distance_point=kwargs.get('distance_point'),
                                      geo_sort=geo_sort)
 
+    # Override of haystack's ElasticsearchSearchBackend.build_search_kwargs method.
+    #
+    # Here we call the original version of that method on the wrapped backend instance, then extend the returned
+    # result to include a cardinality aggregation to compute the distinct hit count. If the returned result contains
+    # facets, we convert them to aggregations and add an additional cardinality aggregation to each one to compute
+    # distinct counts.
     def build_search_kwargs(self, *args, **kwargs):
         search_kwargs = self.backend.build_search_kwargs(*args, **kwargs)
 
@@ -210,21 +238,28 @@ class DistinctCountsElasticsearchBackend(object):
             self.aggregation_name: {
                 'cardinality': {
                     'field': self.aggregation_key,
+
                     # The cardinality aggregation does not guarentee accurate results.
                     # The precision_threshold option allows us to define a value below which
                     # counts can be expected to be close to accurate. This requires additional memory
                     # usage of about (n * 8) bytes, where n is the value for precision_threshold. Since
                     # we only currently have around 5000 or so documents in our index, this shouldn't be
                     # a problem.
-                    # Note: Setting to 40000, which is the maximum supported value. See
+                    #
+                    # Setting to 40000, which is the maximum supported value. See
                     # https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-aggregations-metrics-cardinality-aggregation.html
                     'precision_threshold': 40000
                 }
             }
         }
 
+    # Convert the facet to an aggregation.
+    #
+    # For now, we only support the conversion of the simplest of facets to aggregations. If we run a query
+    # with other types of facets, this method will raise an exception. See the elasticsearch docs for info on migrating
+    # from facets to aggregations.
+    # https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-facets-migrating-to-aggs.html
     def _convert_facet_to_aggregation(self, facet_config):
-        # Only allow the simplest of facet types to be converted for now.
         if len(facet_config.keys()) != 1:
             raise RuntimeError('Cannot convert facet to aggregation: Expected exactly 1 key in config.')
 
@@ -242,8 +277,7 @@ class DistinctCountsElasticsearchBackend(object):
                 msg = 'Cannot convert terms facet to aggregation: Unsupported option ({})'.format(option)
                 raise RuntimeError(message)
 
-        # If 'field' and 'size' are the only options present in the config, we shouldn't need to do anything
-        # to convert to a terms facet to an aggregation See:
+        # In the simplest case, nothing needs to be done to convert a terms facet to an aggregation. See:
         # https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-facets-migrating-to-aggs.html#_simple_cases
         # https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-aggregations-bucket-terms-aggregation.html#_size
         return facet_config
@@ -261,27 +295,40 @@ class DistinctCountsElasticsearchBackend(object):
                 msg = 'Cannot convert query facet to aggregation: Unsupported query_string option ({})'.format(option)
                 raise RuntimeError(msg)
 
-        # To convert a simple query facet to an aggregation, all we should need to do is wrap it in a filter. See:
+        # In the simplest case, a query facet can be converted to an aggregation by wrapping it in a filter. See:
         # https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-facets-migrating-to-aggs.html#_query_facets
         return {'filter': facet_config}
 
+    # Override of haystack's ElasticsearchSearchBackend._process_results method.
+    #
+    # Here we call the original version of that method on the wrapped backend instance, then extend the returned
+    # result to include the distinct hit count and facet information.
     def _process_results(self, raw_results, **kwargs):
         results = self.backend._process_results(raw_results, **kwargs)
 
+        # This backend is designed to only support queries with distinct count aggregations. Therefore, we can
+        # expect the result set to always include at least one aggregation containing the distinct hit count.
         aggs = raw_results['aggregations']
         results['distinct_hits'] = aggs[self.aggregation_name]['value']
 
-        # All of the remaining aggregations should be for facets
+        # Process the remaining aggregations, which should all be for facets
         facets = {'fields': {}, 'dates': {}, 'queries': {}}
         for name, data in aggs.items():
+            # The distinct hit count for the overall query
             if name == self.aggregation_name:
                 continue
+
+            # Field facets:
             elif 'buckets' in data:
                 buckets = data['buckets']
                 facets['fields'][name] = [
+                    # Extract the facet name, count, and distinct_count
                     (bucket['key'], bucket['doc_count'], bucket[self.aggregation_name]['value']) for bucket in buckets
                 ]
+
+            # Query facets:
             else:
+                # Extract the facet name, count, and distinct_count
                 facets['queries'][name] = (data['doc_count'], data[self.aggregation_name]['value'])
 
             results['facets'] = facets
