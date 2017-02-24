@@ -23,7 +23,7 @@ class OrganizationGroupUserView(ListAPIView):
 
     def get_queryset(self):
         org_extension = get_object_or_404(OrganizationExtension, organization=self.kwargs.get('pk'))
-        queryset = User.objects.filter(groups__name=org_extension.group)
+        queryset = User.objects.filter(groups__name=org_extension.group).order_by('full_name', 'username')
         return queryset
 
 
