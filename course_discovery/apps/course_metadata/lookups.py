@@ -1,3 +1,4 @@
+import uuid
 from dal import autocomplete
 from django.db.models import Q
 from django.template.loader import render_to_string
@@ -57,11 +58,17 @@ class VideoAutocomplete(autocomplete.Select2QuerySetView):
 class PersonAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         if self.request.user.is_authenticated() and self.request.user.is_staff:
-            qs = Person.objects.all()
+            queryset = Person.objects.all()
             if self.q:
-                qs = qs.filter(Q(given_name__icontains=self.q) | Q(family_name__icontains=self.q))
+                qs = queryset.filter(Q(given_name__icontains=self.q) | Q(family_name__icontains=self.q))
+                if not qs:
+                    try:
+                        q_uuid = uuid.UUID(self.q).hex
+                        qs = queryset.filter(uuid=q_uuid)
+                    except ValueError:
+                        pass
 
-            return qs
+                return qs
 
         return []
 

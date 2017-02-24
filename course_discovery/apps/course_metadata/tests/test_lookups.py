@@ -167,16 +167,19 @@ class AutocompleteTests(TestCase):
         position_title = 'professor'
         PositionFactory.create(person=self.instructors[0], title=position_title, organization=self.organizations[0])
 
-        response = self.client.get(reverse('admin_metadata:person-autocomplete'))
+        response = self.client.get(
+            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q='ins')
+        )
 
         self.assertContains(response, '<p>{position} at {organization}</p>'.format(
             position=position_title,
             organization=self.organizations[0].name))
 
     def test_instructor_image_in_label(self):
-        """ Verify that instructor label contains profile image url.
-        """
-        response = self.client.get(reverse('admin_metadata:person-autocomplete'))
+        """ Verify that instructor label contains profile image url."""
+        response = self.client.get(
+            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q='ins')
+        )
         self.assertContains(response, self.instructors[0].get_profile_image_url)
         self.assertContains(response, self.instructors[1].get_profile_image_url)
 
@@ -185,3 +188,19 @@ class AutocompleteTests(TestCase):
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(len(data['results']), expected_length)
+
+    def test_instructor_autocomplete_with_uuid(self):
+        """ Verify instructor autocomplete returns the data with valid uuid. """
+        uuid = self.instructors[0].uuid
+        response = self.client.get(
+            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q=uuid)
+        )
+        self._assert_response(response, 1)
+
+    def test_instructor_autocomplete_with_invalid_uuid(self):
+        """ Verify instructor autocomplete returns empty list without giving error. """
+        uuid = 'invalid-uuid'
+        response = self.client.get(
+            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q=uuid)
+        )
+        self._assert_response(response, 0)
