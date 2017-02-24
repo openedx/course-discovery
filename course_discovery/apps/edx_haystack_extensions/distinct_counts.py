@@ -91,18 +91,33 @@ class DistinctCountsSearchQuerySet(SearchQuerySet):
 
 
 class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
+    """
+    Custom Haystack Query class designed to allow for the computation and exposure of distinct hit and facet counts.
+    """
+
     def __init__(self, **kwargs):
         super(DistinctCountsSearchQuery, self).__init__(**kwargs)
         self._aggregation_key = None
         self._distinct_hit_count = None
 
+    # Override of ElasticsearchSearchQuery._clone
+    #
+    # Here, we need to make sure the aggregation_key and distinct_hit_count fields, which do not exist on
+    # the superclass, are set correctly on the cloned object.
     def _clone(self, **kwargs):
         clone = super(DistinctCountsSearchQuery, self)._clone(**kwargs)
         clone._aggregation_key = self._aggregation_key
         clone._distinct_hit_count = self._distinct_hit_count
         return clone
 
+    # Override of ElasticesearchSearchQuery.run
+    #
+    # Most of the code here is the same as the superclass version, except we do not allow queries that have
+    # not set an aggregation_key, and we need to make sure to execute the query using our 
+    # custom DistinctCountsElasticsearchBackend and save the distinct_hit_count.
     def run(self, spelling_query=None, **kwargs):
+        # This query class should only be used when we want to retrieve distinct counts. We cannot compute distinct
+        # counts without an aggregation_key.
         if not self._aggregation_key:
             raise RuntimeError('DistinctCountsSearchQuery cannot run without aggregation_key.')
 
@@ -112,6 +127,7 @@ class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
         if kwargs:
             search_kwargs.update(kwargs)
 
+        # In order to compute distinct counts, we need to use our custom backend wrapper.
         backend = DistinctCountsElasticsearchBackend(self.backend, self._aggregation_key)
         results = backend.search(final_query, **search_kwargs)
 
@@ -121,9 +137,13 @@ class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
         self._facet_counts = self.post_process_facets(results)
         self._spelling_suggestion = results.get('spelling_suggestion', None)
 
+    # We have not implemented support for distinct counts with more-like-this queries. Therefore we should
+    # fail loudly if this is called.
     def run_mlt(self, **kwargs):
         raise NotImplemented('DistinctCountsSearchQuery.run_mlt is not supported.')
 
+    # We have not implemented support for distinct counts with raw queries. Therefore we should
+    # fail loudly if this is called.
     def run_raw(self, **kwargs):
         raise NotImplemented('DistinctCountsSearchQuery.run_raw is not supported.')
 
