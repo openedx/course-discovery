@@ -1,5 +1,6 @@
 import logging
 
+import coreapi
 import django_filters
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -21,6 +22,12 @@ User = get_user_model()
 
 
 class PermissionsFilter(DRYPermissionFiltersBase):
+    def get_schema_fields(self, view):
+        return [
+            coreapi.Field(name='username', description=_('Username of the user whose data should be returned'),
+                          required=False, location='query'),
+        ]
+
     def filter_list_queryset(self, request, queryset, view):
         """ Filters the list queryset, returning only the objects accessible by the user.
 
@@ -110,21 +117,14 @@ class CharListFilter(django_filters.CharFilter):
 class UUIDListFilter(CharListFilter):
     """ Filters a field via a comma-delimited list of UUIDs. """
 
-    def __init__(self, name='uuid', label=None, widget=None, action=None,
-                 lookup_expr='in', required=False, distinct=False, exclude=False, **kwargs):
-        super().__init__(name=name, label=label, widget=widget, action=action, lookup_expr=lookup_expr,
-                         required=required, distinct=distinct, exclude=exclude, **kwargs)
+    def __init__(self, name='uuid', label=None, widget=None, method=None, lookup_expr='in', required=False,
+                 distinct=False, exclude=False, **kwargs):
+        super().__init__(name, label, widget, method, lookup_expr, required, distinct, exclude, **kwargs)
 
 
 class FilterSetMixin:
-    def _apply_filter(self, name, queryset, value):
+    def apply_filter(self, queryset, name, value):
         return getattr(queryset, name)() if cast2int(value, name) else queryset
-
-    def filter_active(self, queryset, value):
-        return self._apply_filter('active', queryset, value)
-
-    def filter_marketable(self, queryset, value):
-        return self._apply_filter('marketable', queryset, value)
 
 
 class CourseFilter(django_filters.FilterSet):
@@ -136,8 +136,8 @@ class CourseFilter(django_filters.FilterSet):
 
 
 class CourseRunFilter(FilterSetMixin, django_filters.FilterSet):
-    active = django_filters.MethodFilter()
-    marketable = django_filters.MethodFilter()
+    active = django_filters.BooleanFilter(method='apply_filter')
+    marketable = django_filters.BooleanFilter(method='apply_filter')
     keys = CharListFilter(name='key', lookup_expr='in')
 
     @property
@@ -151,17 +151,18 @@ class CourseRunFilter(FilterSetMixin, django_filters.FilterSet):
 
     class Meta:
         model = CourseRun
-        fields = ['keys', 'hidden']
+        fields = ['active', 'marketable', 'keys', 'hidden']
 
 
 class ProgramFilter(FilterSetMixin, django_filters.FilterSet):
-    marketable = django_filters.MethodFilter()
+    marketable = django_filters.BooleanFilter(method='apply_filter')
     type = django_filters.CharFilter(name='type__name', lookup_expr='iexact')
     types = CharListFilter(name='type__slug', lookup_expr='in')
     uuids = UUIDListFilter()
 
     class Meta:
         model = Program
+        fields = ['marketable', 'type', 'types', 'uuids']
 
 
 class OrganizationFilter(django_filters.FilterSet):
@@ -170,3 +171,4 @@ class OrganizationFilter(django_filters.FilterSet):
 
     class Meta:
         model = Organization
+        fields = ['tags', 'uuids']

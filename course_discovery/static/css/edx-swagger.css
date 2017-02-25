@@ -1,18 +1,19 @@
-body {
-    margin: 0;
-}
-
-#header {
+.swagger-section #header {
     background-color: #fcfcfc;
     border-bottom: 4px solid #0079bc;
     color: #999999;
 }
 
-#django-rest-swagger {
-    background-color: white;
-    color: #999999;
+.swagger-section #auth_container {
+    display: none;
 }
 
-#django-rest-swagger a {
-    color: inherit;
+.swagger-section a.header__btn,
+.swagger-section #auth_container .authorize__btn {
+    background-color: #0075b4;
+}
+
+.swagger-section .header__btn:hover,
+.swagger-section #auth_container .authorize__btn:hover {
+    background-color: #065683;
 }

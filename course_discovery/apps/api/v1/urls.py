@@ -11,7 +11,7 @@ from course_discovery.apps.api.v1.views.organizations import OrganizationViewSet
 from course_discovery.apps.api.v1.views.people import PersonViewSet
 from course_discovery.apps.api.v1.views.programs import ProgramTypeListViewSet, ProgramViewSet
 
-partners_router = routers.SimpleRouter()
+partners_router = routers.DefaultRouter()
 partners_router.register(r'affiliate_window/catalogs', AffiliateWindowViewSet, base_name='affiliate_window')
 
 urlpatterns = [
@@ -19,7 +19,7 @@ urlpatterns = [
     url(r'search/typeahead', search_views.TypeaheadSearchView.as_view(), name='search-typeahead')
 ]
 
-router = routers.SimpleRouter()
+router = routers.DefaultRouter()
 router.register(r'catalogs', CatalogViewSet)
 router.register(r'courses', CourseViewSet, base_name='course')
 router.register(r'course_runs', CourseRunViewSet, base_name='course_run')

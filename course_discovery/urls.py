@@ -20,11 +20,13 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
+from rest_framework_swagger.views import get_swagger_view
 
 from course_discovery.apps.core import views as core_views
 from course_discovery.apps.course_metadata.views import QueryPreviewView
 
 admin.autodiscover()
+schema_view = get_swagger_view(title='Catalog API')
 
 urlpatterns = auth_urlpatterns + [
     url(r'^admin/course_metadata/', include('course_discovery.apps.course_metadata.urls', namespace='admin_metadata')),
@@ -33,7 +35,7 @@ urlpatterns = auth_urlpatterns + [
     url(r'^api/', include('course_discovery.apps.api.urls', namespace='api')),
     # Use the same auth views for all logins, including those originating from the browseable API.
     url(r'^api-auth/', include(auth_urlpatterns, namespace='rest_framework')),
-    url(r'^api-docs/', include('rest_framework_swagger.urls')),
+    url(r'^api-docs/', schema_view),
     url(r'^auto_auth/$', core_views.AutoAuth.as_view(), name='auto_auth'),
     url(r'^health/$', core_views.health, name='health'),
     url('^$', QueryPreviewView.as_view()),
