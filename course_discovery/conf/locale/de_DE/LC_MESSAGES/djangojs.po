@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# Alexander L. <alexander.lohberg@ufo-style.de>, 2017
 # Chamaeleon <Chamaeleon-@users.noreply.github.com>, 2016
 # Ettore Atalan <atalanttore@googlemail.com>, 2016
 # Litera TUGO <literatugo@ibr.cs.tu-bs.de>, 2016
@@ -10,9 +11,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-16 10:21-0500\n"
-"PO-Revision-Date: 2017-02-06 09:36+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2017-02-24 13:09+0500\n"
+"PO-Revision-Date: 2017-02-26 15:49+0000\n"
+"Last-Translator: Alexander L. <alexander.lohberg@ufo-style.de>\n"
 "Language-Team: German (Germany) (http://www.transifex.com/open-edx/edx-platform/language/de_DE/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -26,11 +27,11 @@ msgstr "Vorschau"
 
 #: static/js/publisher/comparing-objects.js
 msgid "Hide changes"
-msgstr ""
+msgstr "Änderungen verstecken"
 
 #: static/js/publisher/comparing-objects.js
 msgid "Show changes"
-msgstr ""
+msgstr "Änderungen anzeigen"
 
 #: static/js/publisher/publisher.js
 msgid "Something went wrong!"
@@ -40,6 +41,14 @@ msgstr ""
 msgid "File must be smaller than 1 megabyte in size."
 msgstr ""
 
+#: static/js/publisher/publisher.js
+msgid "Please enter a valid URL."
+msgstr "Bitte geben Sie eine gültige URL ein"
+
+#: static/js/publisher/publisher.js
+msgid "Save"
+msgstr "Speichern"
+
 #: static/js/publisher/views/dashboard.js
 msgid ""
 "You have successfully created a studio instance ({studioLinkTag}) for "
@@ -48,7 +57,7 @@ msgstr ""
 
 #: static/js/publisher/views/dashboard.js
 msgid "There was an error in saving your data."
-msgstr ""
+msgstr "Beim Speichern Ihrer Daten ist ein Fehler aufgetreten."
 
 #: static/js/publisher/views/dashboard.js
 msgid "No course run previews are currently available."
@@ -56,8 +65,8 @@ msgstr ""
 
 #: static/js/publisher/views/navbar.js
 msgid "OFF"
-msgstr ""
+msgstr "AUS"
 
 #: static/js/publisher/views/navbar.js
 msgid "ON"
-msgstr ""
+msgstr "EIN"

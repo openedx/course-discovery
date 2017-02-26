@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-16 10:21-0500\n"
-"PO-Revision-Date: 2017-02-06 09:36+0000\n"
+"POT-Creation-Date: 2017-02-24 13:09+0500\n"
+"PO-Revision-Date: 2017-02-24 08:25+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: English (United States) (http://www.transifex.com/open-edx/edx-platform/language/en_US/)\n"
 "MIME-Version: 1.0\n"
@@ -36,6 +36,14 @@ msgstr "Something went wrong!"
 #: static/js/publisher/publisher.js
 msgid "File must be smaller than 1 megabyte in size."
 msgstr "File must be smaller than 1 megabyte in size."
+
+#: static/js/publisher/publisher.js
+msgid "Please enter a valid URL."
+msgstr "Please enter a valid URL."
+
+#: static/js/publisher/publisher.js
+msgid "Save"
+msgstr "Save"
 
 #: static/js/publisher/views/dashboard.js
 msgid ""
