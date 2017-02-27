@@ -94,6 +94,7 @@ $(document).ready(function(){
                 $('#blog').val('');
                 clearModalError();
                 closeModal(e, $('#addInstructorModal'));
+                loadInstructor(response['uuid'])
             },
             error: function (response) {
                 addModalError(gettext("Something went wrong!"));
@@ -369,3 +370,32 @@ $(document).on('click', '.btn-edit-preview-url', function (e) {
 $('.btn-preview-decline').click(function(e){
     $('#decline-comment').toggle();
 });
+
+function loadInstructor(uuid) {
+    var url = $('#id_staff').attr('data-autocomplete-light-url') + '?q=' + uuid,
+        instructor,
+        id,
+        label,
+        image_source,
+        name;
+
+    $.getJSON({
+        url: url,
+        success: function (data) {
+            if (data['results'].length) {
+                // with uuid there will be only one instructor
+                instructor = data['results'][0];
+                id = instructor.id;
+                label = $.parseHTML(instructor.text);
+                image_source = $(label).find('img').attr('src');
+                name = $(label).find('b').text();
+                $('#id_staff').append($("<option/>", {
+                    value: id,
+                    text: name
+                }).attr('selected', 'selected'));
+                renderSelectedInstructor(id, name, image_source);
+            }
+
+        }
+    });
+}
