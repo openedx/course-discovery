@@ -83,6 +83,22 @@ class CourseRunQuerySet(models.QuerySet):
             status=CourseRunStatus.Published
         )
 
+    def upgradeable(self):
+        """ Returns course runs which have a verified or professional seat and do not have
+        an expired upgrade deadline.
+
+        Returns:
+            QuerySet
+        """
+        now = datetime.datetime.now(pytz.UTC)
+        # Nested to avoid circular import.
+        from course_discovery.apps.course_metadata.models import Seat
+        return self.filter(
+            Q(seats__type__contains=Seat.VERIFIED) | Q(seats__type__contains=Seat.PROFESSIONAL)
+        ).exclude(
+            Q(seats__upgrade_deadline__lt=now)
+        )
+
 
 class ProgramQuerySet(models.QuerySet):
     def marketable(self):

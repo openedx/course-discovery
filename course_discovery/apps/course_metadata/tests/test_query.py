@@ -5,7 +5,7 @@ import pytz
 from django.test import TestCase
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Program, Seat
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory, SeatFactory
 
 
@@ -119,6 +119,33 @@ class CourseRunQuerySetTests(TestCase):
             course_run.save()
 
         self.assertEqual(CourseRun.objects.marketable().exists(), is_published)
+
+    def test_upgradeable(self):
+        """ Verify the method returns only course runs whose upgrade deadline has not passed
+        or is not defined for verified/professional modes. """
+        past = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=2)
+        future = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=2)
+
+        audit_mode = CourseRunFactory()
+        SeatFactory(upgrade_deadline=future, course_run=audit_mode, type=Seat.AUDIT)
+
+        upgrade_deadline_passed = CourseRunFactory()
+        SeatFactory(upgrade_deadline=past, course_run=upgrade_deadline_passed, type=Seat.VERIFIED)
+
+        upgrade_deadline_not_passed = CourseRunFactory()
+        SeatFactory(upgrade_deadline=future, course_run=upgrade_deadline_not_passed, type=Seat.VERIFIED)
+
+        upgrade_deadline_not_defined = CourseRunFactory()
+        SeatFactory(upgrade_deadline=None, course_run=upgrade_deadline_not_defined, type=Seat.VERIFIED)
+        SeatFactory(upgrade_deadline=future, course_run=upgrade_deadline_not_defined, type=Seat.AUDIT)
+
+        upgrade_deadline_not_defined_professional = CourseRunFactory()
+        SeatFactory(upgrade_deadline=None, course_run=upgrade_deadline_not_defined_professional, type=Seat.PROFESSIONAL)
+
+        # order doesn't matter
+        assert sorted(CourseRun.objects.upgradeable(), key=lambda x: x.id) == \
+            sorted([upgrade_deadline_not_passed, upgrade_deadline_not_defined,
+                    upgrade_deadline_not_defined_professional], key=lambda x: x.id)
 
 
 @ddt.ddt
