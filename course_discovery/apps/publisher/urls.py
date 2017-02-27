@@ -19,8 +19,6 @@ urlpatterns = [
     ),
     url(r'^course_runs/(?P<pk>\d+)/$', views.CourseRunDetailView.as_view(), name='publisher_course_run_detail'),
     url(r'^course_runs/(?P<pk>\d+)/edit/$', views.CourseRunEditView.as_view(), name='publisher_course_runs_edit'),
-    url(r'^seats/new/$', views.CreateSeatView.as_view(), name='publisher_seats_new'),
-    url(r'^seats/(?P<pk>\d+)/edit/$', views.UpdateSeatView.as_view(), name='publisher_seats_edit'),
     url(
         r'^user/toggle/email_settings/$',
         views.ToggleEmailNotification.as_view(),

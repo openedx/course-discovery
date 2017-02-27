@@ -320,12 +320,6 @@ class SeatTests(TestCase):
             )
         )
 
-    def test_post_back_url(self):
-        self.assertEqual(
-            self.seat.post_back_url,
-            reverse('publisher:publisher_seats_edit', kwargs={'pk': self.seat.id})
-        )
-
 
 class UserAttributeTests(TestCase):
     """ Tests for the publisher `UserAttribute` model. """
