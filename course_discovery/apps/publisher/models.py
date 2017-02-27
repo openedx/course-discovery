@@ -345,10 +345,6 @@ class Seat(TimeStampedModel, ChangedByMixin):
         return '{course}: {type}'.format(course=self.course_run.course.title, type=self.type)
 
     @property
-    def post_back_url(self):
-        return reverse('publisher:publisher_seats_edit', kwargs={'pk': self.id})
-
-    @property
     def is_valid_seat(self):
         return self.type == self.AUDIT or self.type in [self.VERIFIED, self.PROFESSIONAL] and self.price > 0
 

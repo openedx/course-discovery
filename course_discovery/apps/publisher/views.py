@@ -20,17 +20,15 @@ from guardian.shortcuts import get_objects_for_user
 from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher import emails, mixins
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
-from course_discovery.apps.publisher.forms import CustomCourseForm, CustomCourseRunForm, CustomSeatForm, SeatForm
+from course_discovery.apps.publisher.forms import CustomCourseForm, CustomCourseRunForm, CustomSeatForm
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
-                                                    OrganizationExtension, Seat, UserAttributes)
+                                                    OrganizationExtension, UserAttributes)
 from course_discovery.apps.publisher.utils import (get_internal_users, is_internal_user, is_project_coordinator_user,
                                                    is_publisher_admin, make_bread_crumbs)
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
 logger = logging.getLogger(__name__)
 
-
-SEATS_HIDDEN_FIELDS = ['price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours']
 
 ROLE_WIDGET_HEADINGS = {
     PublisherUserRole.PartnerManager: _('PARTNER MANAGER'),
@@ -612,40 +610,6 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
             }
         )
         return render(request, self.template_name, context, status=400)
-
-
-class CreateSeatView(mixins.LoginRequiredMixin, mixins.FormValidMixin, CreateView):
-    """ Create Seat View."""
-    model = Seat
-    form_class = SeatForm
-    template_name = 'publisher/seat_form.html'
-    success_url = 'publisher:publisher_seats_edit'
-
-    def get_context_data(self, **kwargs):
-        context = super(CreateSeatView, self).get_context_data(**kwargs)
-        context['hidden_fields'] = SEATS_HIDDEN_FIELDS
-        return context
-
-    def get_success_url(self):
-        return reverse(self.success_url, kwargs={'pk': self.object.id})
-
-
-class UpdateSeatView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, mixins.FormValidMixin, UpdateView):
-    """ Update Seat View."""
-    model = Seat
-    form_class = SeatForm
-    permission = OrganizationExtension.EDIT_COURSE_RUN
-    template_name = 'publisher/seat_form.html'
-    success_url = 'publisher:publisher_seats_edit'
-
-    def get_context_data(self, **kwargs):
-        context = super(UpdateSeatView, self).get_context_data(**kwargs)
-        context['hidden_fields'] = SEATS_HIDDEN_FIELDS
-        context['comment_object'] = self.object
-        return context
-
-    def get_success_url(self):
-        return reverse(self.success_url, kwargs={'pk': self.object.id})
 
 
 class ToggleEmailNotification(mixins.LoginRequiredMixin, View):
