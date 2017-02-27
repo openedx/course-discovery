@@ -1,0 +1,11 @@
+{% load i18n %}
+
+{% blocktrans trimmed %}
+    Preview link {{ preview_url }} for the {{ course_title }}: {{ course_url }} has been declined.
+{% endblocktrans %}
+
+{{ comment.comment }}
+
+{% trans "View comment: " %}{{ page_url }}
+
+{% trans "The edX team" %}

@@ -1,16 +1,18 @@
 """Tests API Serializers."""
+from django.core import mail
 from django.test import RequestFactory, TestCase
 from rest_framework.exceptions import ValidationError
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
+from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api.serializers import (CourseRevisionSerializer, CourseRunSerializer,
                                                              CourseRunStateSerializer, CourseStateSerializer,
                                                              CourseUserRoleSerializer, GroupUserSerializer)
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
-from course_discovery.apps.publisher.models import CourseState, Seat
+from course_discovery.apps.publisher.models import CourseRun, CourseState, Seat
 from course_discovery.apps.publisher.tests.factories import (CourseFactory, CourseRunFactory, CourseRunStateFactory,
                                                              CourseStateFactory, CourseUserRoleFactory,
                                                              OrganizationExtensionFactory, SeatFactory)
@@ -237,12 +239,20 @@ class CourseRunStateSerializerTests(TestCase):
         self.course_run.save()
         self.course_run.staff.add(PersonFactory())
 
+        toggle_switch('enable_publisher_email_notifications', True)
+        CourseUserRoleFactory(
+            course=self.course_run.course, role=PublisherUserRole.CourseTeam, user=self.user
+        )
+        CourseUserRoleFactory(
+            course=self.course_run.course, role=PublisherUserRole.ProjectCoordinator, user=UserFactory()
+        )
+
     def test_update(self):
         """
         Verify that we can update course-run workflow state name and preview_accepted with serializer.
         """
         CourseUserRoleFactory(
-            course=self.course_run.course, role=PublisherUserRole.CourseTeam, user=self.user
+            course=self.course_run.course, role=PublisherUserRole.Publisher, user=UserFactory()
         )
 
         self.assertNotEqual(self.run_state, CourseRunStateChoices.Review)
@@ -255,7 +265,12 @@ class CourseRunStateSerializerTests(TestCase):
         self.assertFalse(self.run_state.preview_accepted)
         serializer.update(self.run_state, {'preview_accepted': True})
 
-        self.assertTrue(self.run_state.preview_accepted)
+        self.assertTrue(CourseRun.objects.get(id=self.course_run.id).preview_url)
+        self.assertEqual(len(mail.outbox), 1)
+        subject = 'Preview for {run_name}'.format(
+            run_name=self.course_run.get_pacing_type_display()
+        )
+        self.assertIn(subject, str(mail.outbox[0].subject))
 
     def test_update_with_error(self):
         """
@@ -266,3 +281,21 @@ class CourseRunStateSerializerTests(TestCase):
 
         with self.assertRaises(ValidationError):
             serializer.update(self.run_state, data)
+            self.assertEqual(len(mail.outbox), 1)
+
+    def test_update_with_transaction_roll_back(self):
+        """
+        Verify that transaction roll back all db changes.
+        """
+        self.assertNotEqual(self.run_state, CourseRunStateChoices.Review)
+        serializer = self.serializer_class(self.run_state, context={'request': self.request})
+        data = {'name': CourseRunStateChoices.Review}
+        with self.assertRaises(Exception):
+            serializer.update(self.run_state, data)
+            self.assertEqual(self.run_state.name, CourseRunStateChoices.Review)
+
+            self.assertFalse(self.run_state.preview_accepted)
+            serializer.update(self.run_state, {'preview_accepted': True})
+
+            self.assertFalse(CourseRun.objects.get(id=self.course_run.id).preview_url)
+            self.assertEqual(len(mail.outbox), 0)

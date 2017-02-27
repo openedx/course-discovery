@@ -618,7 +618,7 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
 
         self.save()
 
-    def change_role(self, role):
+    def change_owner_role(self, role):
         self.owner_role = role
         self.owner_role_modified = timezone.now()
         self.save()
@@ -626,6 +626,10 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
     @property
     def is_preview_accepted(self):
         return self.preview_accepted
+
+    @property
+    def is_approved(self):
+        return self.name == CourseRunStateChoices.Approved
 
 
 class PublisherUser(User):

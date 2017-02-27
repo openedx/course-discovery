@@ -7,6 +7,7 @@ from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.publisher.models import CourseRun
+from course_discovery.apps.publisher.utils import is_email_notification_enabled
 
 log = logging.getLogger(__name__)
 
@@ -76,3 +77,52 @@ def send_email_for_comment(comment, created=False):
         email_msg.send()
     except Exception:  # pylint: disable=broad-except
         log.exception('Failed to send email notifications for comment %s', comment.id)
+
+
+def send_email_decline_preview(comment, course_run, preview_url):
+    """ Send the emails for a comment for decline preview.
+
+        Arguments:
+            comment (Comment): Comment object
+            course_run (CourseRun): course-run object
+            preview_url (url): preview_url
+    """
+    try:
+        object_path = reverse('publisher:publisher_course_run_detail', args=[course_run.id])
+
+        # Translators: subject_desc will be Preview Decline for course run,
+        # 'title' will be the value of course title.
+        subject = _('Preview Decline for course run: {title}').format(  # pylint: disable=no-member
+            title=course_run.course.title
+        )
+
+        recipient_user = course_run.course.publisher
+        if is_email_notification_enabled(recipient_user):
+            to_addresses = [recipient_user.email]
+
+            from_address = settings.PUBLISHER_FROM_EMAIL
+            context = {
+                'comment': comment,
+                'page_url': 'https://{host}{path}'.format(host=comment.site.domain.strip('/'), path=object_path),
+                'preview_url': preview_url,
+                'course_title': course_run.course.title,
+            }
+
+            txt_template = 'publisher/email/decline_preview.txt'
+            html_template = 'publisher/email/decline_preview.html'
+
+            template = get_template(txt_template)
+            plain_content = template.render(context)
+            template = get_template(html_template)
+            html_content = template.render(context)
+            email_msg = EmailMultiAlternatives(
+                subject, plain_content, from_address, to_addresses
+            )
+            email_msg.attach_alternative(html_content, 'text/html')
+            email_msg.send()
+    except Exception:  # pylint: disable=broad-except
+        message = 'Failed to send email notifications for preview decline for course run [{id}].'.format(
+            id=course_run.id
+        )
+        log.exception(message)
+        raise Exception(message)

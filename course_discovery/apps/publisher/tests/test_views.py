@@ -32,6 +32,7 @@ from course_discovery.apps.publisher.utils import is_email_notification_enabled
 from course_discovery.apps.publisher.views import logger as publisher_views_logger
 from course_discovery.apps.publisher.views import CourseRunDetailView, get_course_role_widgets_data
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
+from course_discovery.apps.publisher_comments.models import CommentTypeChoices
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
 
 IMAGE_TOO_SMALL = 'The image you uploaded is too small. The required minimum resolution is: 2120x1192 px.'
@@ -864,6 +865,15 @@ class CourseRunDetailTests(TestCase):
         self.assertContains(response, comment.comment)
         self._assert_breadcrumbs(response, self.course_run)
 
+        # test decline comment appearing on detail page also.
+        decline_comment = CommentFactory(
+            content_object=self.course_run,
+            user=self.user, site=site, comment_type=CommentTypeChoices.Decline_Preview
+        )
+        response = self.client.get(self.page_url)
+        self.assertContains(response, decline_comment.comment)
+        self.assertContains(response, '<b>Preview Decline:</b>')
+
     def test_get_course_return_none(self):
         """ Verify that `PublisherPermissionMixin.get_course` return none
         if `publisher_object` doesn't have `course` attr.
@@ -1183,6 +1193,8 @@ class CourseRunDetailTests(TestCase):
         self.assertContains(response, 'COURSE PREVIEW')
         self.assertContains(response, '<button class="btn btn-neutral btn-preview btn-preview-accept" type="button">')
         self.assertContains(response, '<button class="btn btn-neutral btn-preview btn-preview-decline" type="button">')
+        self.assertContains(response, 'Reason for declining preview:')
+        self.assertContains(response, '<input type="button" value="Submit" class="btn btn-neutral btn-add-comment" />')
 
         self.course_run_state.preview_accepted = True
         self.course_run_state.owner_role = PublisherUserRole.Publisher

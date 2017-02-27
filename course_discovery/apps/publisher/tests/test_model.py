@@ -630,3 +630,23 @@ class CourseRunStateTests(TestCase):
         self.course_run_state.preview_accepted = True
         self.course_run_state.save()
         self.assertTrue(self.course_run_state.is_preview_accepted)
+
+    @ddt.data(
+        PublisherUserRole.Publisher,
+        PublisherUserRole.CourseTeam,
+    )
+    def test_change_owner_role(self, role):
+        """
+        Verify that method change_owner_role updates the role.
+        """
+        self.course_run_state.change_owner_role(role)
+        self.assertEqual(self.course_run_state.owner_role, role)
+
+    def test_is_approved(self):
+        """
+        Verify that method return is_approved status.
+        """
+        self.assertFalse(self.course_run_state.is_approved)
+        self.course_run_state.name = CourseRunStateChoices.Approved
+        self.course_run_state.save()
+        self.assertTrue(self.course_run_state.is_approved)

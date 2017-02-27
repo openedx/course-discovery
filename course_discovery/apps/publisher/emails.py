@@ -323,7 +323,11 @@ def send_email_preview_accepted(course_run):
             email_msg.attach_alternative(html_content, 'text/html')
             email_msg.send()
     except Exception:  # pylint: disable=broad-except
-        logger.exception('Failed to send email notifications for preview approved of course-run %s', course_run.id)
+        message = 'Failed to send email notifications for preview approved of course-run [{id}].'.format(
+            id=course_run.id
+        )
+        logger.exception(message)
+        raise Exception(message)
 
 
 def send_email_preview_page_is_available(course_run):

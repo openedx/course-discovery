@@ -64,7 +64,7 @@
         {% endwith %}
         </div>
         <div id="comments-widget" class="comment-container {% if not publisher_comment_widget_feature %}hidden{% endif %}">
-            {% include 'comments/add_auth_comments.html' %}
+            {% include 'comments/add_auth_comments.html' with comment_type='default' %}
             {% include 'comments/comments_list.html' %}
         </div>
     </aside>

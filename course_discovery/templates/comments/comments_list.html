@@ -6,9 +6,11 @@
     <dl class="comments">
       {% for comment in comment_list reversed %}
         <dt class="align-right"><span class="datetime">{{ comment.modified|date:"F d, Y, H:i:s a" }}&nbsp;</span></dt>
-        <dd class="edit-comment">
-          {{ comment.comment }}
-        </dd>
+        {% ifequal comment.comment_type 'decline_preview' %}<b>Preview Decline:</b>
+            <dd class="edit-comment">{{ comment.comment }}</dd>
+        {% else %}
+            <dd class="edit-comment">{{ comment.comment }}</dd>
+        {% endifequal %}
         <dt class="submitted-by">
             <span>
                 <em>{% trans 'Submitted by' %}&nbsp;{{ comment.name }}</em>

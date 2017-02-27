@@ -15,7 +15,7 @@
                 <div class="layout-1q3q layout-reversed">
                     <div class="layout-col layout-col-a">
                     {% if object.preview_url %}
-                        {% if object.course.course_team_admin == request.user and not object.course_run_state.is_preview_accepted %}
+                        {% if object.preview_url and object.course.course_team_admin == request.user and object.course_run_state.is_approved and not object.course_run_state.is_preview_accepted %}
                             <button class="btn btn-neutral btn-preview btn-preview-decline" type="button">
                                 {% trans "Decline" %}
                             </button>
@@ -58,7 +58,11 @@
             </div>
         </div>
         <hr>
-
+        <div id="decline-comment" class="hidden clearfix">
+            {% trans 'Reason for declining preview' as decline_reason %}
+            {% trans 'Submit' as submit %}
+            {% include 'comments/add_auth_comments.html' with comment_type='decline_preview' box_label=decline_reason btn_label=submit %}
+        </div>
         {% include 'publisher/course_run_detail/_preview_accept_popup.html' %}
     </div>
 </div>
