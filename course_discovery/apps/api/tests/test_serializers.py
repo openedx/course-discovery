@@ -26,7 +26,7 @@ from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Program, Seat
 from course_discovery.apps.course_metadata.tests.factories import (
     CorporateEndorsementFactory, CourseFactory, CourseRunFactory, EndorsementFactory, ExpectedLearningItemFactory,
     ImageFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, PositionFactory, PrerequisiteFactory,
@@ -260,9 +260,9 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
             enrollment_end=None,
             course=self.course
         )
-        SeatFactory(course_run=unpublished_course_run)
-        SeatFactory(course_run=enrollable_course_run)
-        SeatFactory(course_run=archived_course_run)
+        SeatFactory(course_run=unpublished_course_run, upgrade_deadline=None, type=Seat.VERIFIED)
+        SeatFactory(course_run=enrollable_course_run, upgrade_deadline=None, type=Seat.VERIFIED)
+        SeatFactory(course_run=archived_course_run, upgrade_deadline=None, type=Seat.VERIFIED)
 
         context = {
             'request': self.request,

@@ -76,7 +76,7 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
               mulitple: false
             - name: marketable_enrollable_course_runs_with_archived
               description: Restrict returned course runs to those that are published, have seats,
-                and can be enrolled in now. Includes archived courses.
+              can be enrolled in now and can be upgraded. Includes archived courses.
               required: false
               type: integer
               paramType: query
