@@ -55,16 +55,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
         return super(CatalogViewSet, self).destroy(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
-        """ Retrieve a list of all catalogs.
-        ---
-        parameters:
-            - name: username
-              description: User whose catalogs should be retrieved.
-              required: false
-              type: string
-              paramType: query
-              multiple: false
-        """
+        """ Retrieve a list of all catalogs. """
         return super(CatalogViewSet, self).list(request, *args, **kwargs)
 
     def partial_update(self, request, *args, **kwargs):

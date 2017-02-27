@@ -321,7 +321,6 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.DjangoModelPermissions',
     ),
     'PAGE_SIZE': 20,
-    'VIEW_DESCRIPTION_FUNCTION': 'rest_framework_swagger.views.get_restructuredtext',
     'TEST_REQUEST_RENDERER_CLASSES': (
         'rest_framework.renderers.MultiPartRenderer',
         'rest_framework.renderers.JSONRenderer',
@@ -346,10 +345,13 @@ JWT_AUTH = {
 }
 
 SWAGGER_SETTINGS = {
-    'api_version': 'v1',
-    'doc_expansion': 'list',
-    'is_authenticated': True,
-    'permission_denied_handler': 'course_discovery.apps.api.views.api_docs_permission_denied_handler'
+    'DOC_EXPANSION': 'list',
+    'SECURITY_DEFINITIONS': {
+        'oauth2': {
+            'type': 'oauth2',
+        },
+    },
+    'SHOW_REQUEST_HEADERS': True,
 }
 
 # Elasticsearch uses index settings to specify available analyzers.
@@ -437,7 +439,7 @@ HAYSTACK_INDEX_RETENTION_LIMIT = 3
 # See  https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-facets-terms-facet.html#_accuracy_control
 SEARCH_FACET_LIMIT = 10000
 
-DEFAULT_PARTNER_ID = None
+DEFAULT_PARTNER_ID = 1
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#site-id
 SITE_ID = 1
