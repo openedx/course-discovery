@@ -13,7 +13,7 @@ from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.api.serializers import (
     AffiliateWindowSerializer, CatalogSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer,
     CorporateEndorsementSerializer, CourseRunSearchSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer,
-    CourseSerializer, CourseWithProgramsSerializer, EndorsementSerializer, FAQSerializer,
+    CourseSearchSerializer, CourseSerializer, CourseWithProgramsSerializer, EndorsementSerializer, FAQSerializer,
     FlattenedCourseRunWithCourseSerializer, ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer,
     MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
     OrganizationSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer, ProgramSearchSerializer,
@@ -26,7 +26,7 @@ from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import CourseRun, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import (
     CorporateEndorsementFactory, CourseFactory, CourseRunFactory, EndorsementFactory, ExpectedLearningItemFactory,
     ImageFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, PositionFactory, PrerequisiteFactory,
@@ -1168,6 +1168,28 @@ class AffiliateWindowSerializerTests(TestCase):
         self.assertDictEqual(serializer.data, expected)
 
 
+class CourseSearchSerializerTests(TestCase):
+    def test_data(self):
+        course = CourseFactory()
+        serializer = self.serialize_course(course)
+
+        expected = {
+            'key': course.key,
+            'title': course.title,
+            'short_description': course.short_description,
+            'full_description': course.full_description,
+            'content_type': 'course',
+            'aggregation_key': 'course:{}'.format(course.key)
+        }
+        assert serializer.data == expected
+
+    def serialize_course(self, course):
+        """ Serializes the given `Course` as a search result. """
+        result = SearchQuerySet().models(Course).filter(key=course.key)[0]
+        serializer = CourseSearchSerializer(result)
+        return serializer
+
+
 class CourseRunSearchSerializerTests(TestCase):
     def test_data(self):
         course_run = CourseRunFactory(transcript_languages=LanguageTag.objects.filter(code__in=['en-us', 'zh-cn']),
@@ -1204,9 +1226,10 @@ class CourseRunSearchSerializerTests(TestCase):
             'logo_image_urls': [org.logo_image_url for org in orgs],
             'authoring_organization_uuids': get_uuids(course_run.authoring_organizations.all()),
             'subject_uuids': get_uuids(course_run.subjects.all()),
-            'staff_uuids': get_uuids(course_run.staff.all())
+            'staff_uuids': get_uuids(course_run.staff.all()),
+            'aggregation_key': 'courserun:{}'.format(course_run.course.key)
         }
-        self.assertDictEqual(serializer.data, expected)
+        assert serializer.data == expected
 
     def serialize_course_run(self, course_run):
         """ Serializes the given `CourseRun` as a search result. """
@@ -1218,7 +1241,7 @@ class CourseRunSearchSerializerTests(TestCase):
         """ Verify a null `LevelType` is properly serialized as None. """
         course_run = CourseRunFactory(course__level_type=None)
         serializer = self.serialize_course_run(course_run)
-        self.assertEqual(serializer.data['level_type'], None)
+        assert serializer.data['level_type'] == None
 
 
 class ProgramSearchSerializerTests(TestCase):
@@ -1237,7 +1260,8 @@ class ProgramSearchSerializerTests(TestCase):
             'partner': program.partner.short_code,
             'authoring_organization_uuids': get_uuids(program.authoring_organizations.all()),
             'subject_uuids': get_uuids([course.subjects for course in program.courses.all()]),
-            'staff_uuids': get_uuids([course.staff for course in list(program.course_runs)])
+            'staff_uuids': get_uuids([course.staff for course in list(program.course_runs)]),
+            'aggregation_key': 'program:{}'.format(program.uuid)
         }
 
     def test_data(self):
@@ -1251,7 +1275,7 @@ class ProgramSearchSerializerTests(TestCase):
         serializer = ProgramSearchSerializer(result)
 
         expected = self._create_expected_data(program)
-        self.assertDictEqual(serializer.data, expected)
+        assert serializer.data == expected
 
     def test_data_without_organizations(self):
         """ Verify the serializer serialized programs with no associated organizations.
@@ -1262,7 +1286,7 @@ class ProgramSearchSerializerTests(TestCase):
         serializer = ProgramSearchSerializer(result)
 
         expected = self._create_expected_data(program)
-        self.assertDictEqual(serializer.data, expected)
+        assert serializer.data == expected
 
 
 class TypeaheadCourseRunSearchSerializerTests(TestCase):
@@ -1276,8 +1300,9 @@ class TypeaheadCourseRunSearchSerializerTests(TestCase):
             'title': course_run.title,
             'orgs': [org.key for org in course_run.authoring_organizations.all()],
             'marketing_url': course_run.marketing_url,
+            'aggregation_key': 'courserun:{}'.format(course_run.course.key)
         }
-        self.assertDictEqual(serialized_course.data, expected)
+        assert serialized_course.data == expected
 
     def serialize_course_run(self, course_run):
         """ Serializes the given `CourseRun` as a typeahead result. """
@@ -1294,6 +1319,7 @@ class TypeaheadProgramSearchSerializerTests(TestCase):
             'type': program.type.name,
             'orgs': [org.key for org in program.authoring_organizations.all()],
             'marketing_url': program.marketing_url,
+            'aggregation_key': 'program:{}'.format(program.uuid)
         }
 
     def test_data(self):
@@ -1301,14 +1327,14 @@ class TypeaheadProgramSearchSerializerTests(TestCase):
         program = ProgramFactory(authoring_organizations=[authoring_organization])
         serialized_program = self.serialize_program(program)
         expected = self._create_expected_data(program)
-        self.assertDictEqual(serialized_program.data, expected)
+        assert serialized_program.data == expected
 
     def test_data_multiple_authoring_organizations(self):
         authoring_organizations = OrganizationFactory.create_batch(3)
         program = ProgramFactory(authoring_organizations=authoring_organizations)
         serialized_program = self.serialize_program(program)
         expected = [org.key for org in authoring_organizations]
-        self.assertEqual(serialized_program.data['orgs'], expected)
+        assert serialized_program.data['orgs'] == expected
 
     def serialize_program(self, program):
         """ Serializes the given `Program` as a typeahead result. """
