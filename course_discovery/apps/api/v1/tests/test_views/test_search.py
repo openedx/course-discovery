@@ -414,6 +414,23 @@ class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin
         expected = [self.serialize_course_run(course_run) for course_run in course_runs]
         self.assertEqual(response.data['objects']['results'], expected)
 
+    def test_results_include_aggregation_key(self):
+        """ Verify the search results only include the aggregation_key for each document. """
+        course_run = CourseRunFactory(course__partner=self.partner, status=CourseRunStatus.Published)
+        program = ProgramFactory(partner=self.partner, status=ProgramStatus.Active)
+
+        response = self.get_response()
+        assert response.status_code == 200
+        response_data = json.loads(response.content.decode('utf-8'))
+
+        expected = sorted(
+            ['courserun:{}'.format(course_run.course.key), 'program:{}'.format(program.uuid)]
+        )
+        actual = sorted(
+            [obj.get('aggregation_key') for obj in response_data['objects']['results']]
+        )
+        assert expected == actual
+
 
 class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin, LoginMixin, ElasticsearchTestMixin,
                                SynonymTestMixin, APITestCase):
