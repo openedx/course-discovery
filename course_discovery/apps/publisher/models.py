@@ -578,8 +578,7 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
 
     @transition(field=name, source=CourseRunStateChoices.Approved, target=CourseRunStateChoices.Published)
     def published(self):
-        # TODO: send email etc.
-        pass
+        emails.send_course_run_published_email(self.course_run)
 
     def change_state(self, state, user):
         if state == CourseRunStateChoices.Draft:
