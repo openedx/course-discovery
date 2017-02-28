@@ -1071,6 +1071,48 @@ class CourseRunDetailTests(TestCase):
         )
         self.assertContains(response, '<input id="id-review-url" type="text">')
 
+    def test_course_publish_button(self):
+        """Verify that publisher user can see Publish button."""
+        user_role = factories.CourseUserRoleFactory(
+            course=self.course, user=self.user, role=PublisherUserRole.Publisher
+        )
+        self.course_run_state.owner_role = PublisherUserRole.Publisher
+        self.course_run_state.name = CourseRunStateChoices.Approved
+        self.course_run_state.preview_accepted = True
+        self.course_run_state.save()
+
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
+
+        response = self.client.get(self.page_url)
+        self.assertContains(response, '<button class="btn-brand btn-base btn-publish"')
+
+        user_role.role = PublisherUserRole.CourseTeam
+        user_role.save()
+
+        response = self.client.get(self.page_url)
+        # Verify that course team user cannot se publish button.
+        self.assertNotContains(response, '<button class="btn-brand btn-base btn-publish"')
+
+    def test_course_published(self):
+        """Verify that user can see Published status if course is published."""
+        self.course_run_state.name = CourseRunStateChoices.Published
+        self.course_run_state.preview_accepted = True
+        self.course_run_state.save()
+
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
+
+        response = self.client.get(self.page_url)
+        history_object = self.course_run_state.history.filter(
+            name=CourseRunStateChoices.Published
+        ).order_by('-modified').first()
+        expected = 'Course run announced on {publish_date} - view it on edx.org at:'.format(
+            publish_date=history_object.modified.strftime('%m/%d/%y')
+        )
+        self.assertContains(response, expected)
+        self.assertNotContains(response, '<button class="btn-brand btn-base btn-publish"')
+
 
 # pylint: disable=attribute-defined-outside-init
 @ddt.ddt

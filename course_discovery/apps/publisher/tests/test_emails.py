@@ -455,3 +455,58 @@ class CourseRunPreviewEmailTests(TestCase):
                         )
                     )
                 )
+
+
+class CourseRunPublishedEmailTests(TestCase):
+    """
+    Tests email functionality for course run published.
+    """
+
+    def setUp(self):
+        super(CourseRunPublishedEmailTests, self).setUp()
+        self.user = UserFactory()
+
+        self.run_state = factories.CourseRunStateFactory()
+        self.course_run = self.run_state.course_run
+        self.course = self.course_run.course
+
+        # add users in CourseUserRole table
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.CourseTeam, user=self.user
+        )
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.Publisher, user=UserFactory()
+        )
+
+        toggle_switch('enable_publisher_email_notifications', True)
+
+    def test_course_published_email(self):
+        """
+        Verify that course published email functionality works fine.
+        """
+        emails.send_course_run_published_email(self.course_run)
+        course_name = '{title}: {pacing_type} - {start_date}'.format(
+            title=self.course.title,
+            pacing_type=self.course_run.get_pacing_type_display(),
+            start_date=self.course_run.start.strftime("%B %d, %Y")
+        )
+        subject = 'Course {course_name} is now live'.format(course_name=course_name)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual([self.course.course_team_admin.email], mail.outbox[0].to)
+        self.assertEqual(str(mail.outbox[0].subject), subject)
+        body = mail.outbox[0].body.strip()
+        page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id})
+        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
+        self.assertIn(page_url, body)
+        self.assertIn('is now live.', body)
+
+    def test_course_published_email_with_error(self):
+        """ Verify that email failure log error message."""
+
+        message = 'Failed to send email notifications for course published of course-run [{}]'.format(
+            self.course_run.id
+        )
+        with mock.patch('django.core.mail.message.EmailMessage.send', side_effect=TypeError):
+            with self.assertRaises(Exception) as ex:
+                emails.send_course_run_published_email(self.course_run)
+                self.assertEqual(str(ex.exception), message)

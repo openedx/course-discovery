@@ -546,6 +546,8 @@ class CourseRunStateTests(TestCase):
         self.course.course_state.name = CourseStateChoices.Approved
         self.course.save()
         self.course_run.staff.add(PersonFactory())
+        self.course_run_state.preview_accepted = False
+        self.course_run_state.save()
         self.assertTrue(self.course_run_state.can_send_for_review())
 
     def test_str(self):
@@ -644,3 +646,22 @@ class CourseRunStateTests(TestCase):
         self.course_run_state.name = CourseRunStateChoices.Approved
         self.course_run_state.save()
         self.assertTrue(self.course_run_state.is_approved)
+
+    def test_is_ready_to_publish(self):
+        """
+        Verify that method return is_ready_to_publish status.
+        """
+        self.assertFalse(self.course_run_state.is_ready_to_publish)
+        self.course_run_state.name = CourseRunStateChoices.Approved
+        self.course_run_state.preview_accepted = True
+        self.course_run_state.save()
+        self.assertTrue(self.course_run_state.is_ready_to_publish)
+
+    def test_is_published(self):
+        """
+        Verify that method return is_published status.
+        """
+        self.assertFalse(self.course_run_state.is_published)
+        self.course_run_state.name = CourseRunStateChoices.Published
+        self.course_run_state.save()
+        self.assertTrue(self.course_run_state.is_published)

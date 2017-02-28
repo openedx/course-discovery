@@ -28,6 +28,11 @@
                                 {% trans "Approved" %}<br>
                                 {{ preview_accepted_date|date:'m/d/y H:i a' }}
                             </span>
+                            {% if object.course_run_state.is_ready_to_publish and object.course.publisher == request.user %}
+                                <button class="btn-brand btn-base btn-publish" data-change-state-url="{% url 'publisher:api:change_course_run_state' object.course_run_state.id %}" data-state-name="{{ publish_state_name }}" type="button">
+                                    {% trans "Publish" %}
+                                </button>
+                            {% endif %}
                         {% elif object.course.publisher == request.user %}
                             <span class="preview-status">{% trans "Submitted for review" %}</span>
                                 <button data-url="{% url 'publisher:api:update_course_run' object.id %}" class="btn btn-neutral btn-edit-preview-url">{% trans "Edit" %}</button>
