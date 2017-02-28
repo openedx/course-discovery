@@ -430,7 +430,7 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
-# We do not use the RealtimeSignalProcessor here to avoid overloading our 
+# We do not use the RealtimeSignalProcessor here to avoid overloading our
 # Elasticsearch instance when running the refresh_course_metadata command
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.BaseSignalProcessor'
 HAYSTACK_INDEX_RETENTION_LIMIT = 3
@@ -438,6 +438,21 @@ HAYSTACK_INDEX_RETENTION_LIMIT = 3
 # Elasticsearch search query facet "size" option to increase from the default value of "100"
 # See  https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-facets-terms-facet.html#_accuracy_control
 SEARCH_FACET_LIMIT = 10000
+
+# Precision settings for the elasticsearch cardinality aggregations used to compute distinct hit and facet counts.
+# The elasticsearch cardinality aggregation is not guarenteed to produce accurate results. Accuracy is configurable via
+# an optional precision_threshold setting. Cardinality aggregations for queries that produce fewer results than the
+# precision threshold can be expected to be pretty accurate. Cardinality aggregations for queries that produce more
+# results than the precision_threshold will be less accurate. Setting a higher value for precision_threshold requires
+# a memory tradeoff of rougly precision_threshold * 8 bytes. See the elasticsearch docs for more details:
+# https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-aggregations-metrics-cardinality-aggregation.html
+#
+# We use a higher value for hit precision than for facet precision for two reasons:
+#   1.) The hit count is more visible to users than the facet counts.
+#   2.) The performance penalty for having a higher hit precision is less than the penalty for a higher facet
+#       precision, since the hit count only requires a single aggregation.
+DISTINCT_COUNTS_HIT_PRECISION = 1500
+DISTINCT_COUNTS_FACET_PRECISION = 250
 
 DEFAULT_PARTNER_ID = None
 
