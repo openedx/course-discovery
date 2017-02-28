@@ -977,6 +977,7 @@ class BaseHaystackFacetSerializer(HaystackFacetSerializer):
 
 class CourseSearchSerializer(HaystackSerializer):
     content_type = serializers.CharField(source='model_name')
+    aggregation_key = serializers.CharField()
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
@@ -1001,6 +1002,7 @@ class CourseFacetSerializer(BaseHaystackFacetSerializer):
 
 class CourseRunSearchSerializer(HaystackSerializer):
     availability = serializers.SerializerMethodField()
+    aggregation_key = serializers.CharField()
 
     def get_availability(self, result):
         return result.object.availability
@@ -1024,6 +1026,7 @@ class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
 
 class ProgramSearchSerializer(HaystackSerializer):
     authoring_organizations = serializers.SerializerMethodField()
+    aggregation_key = serializers.CharField()
 
     def get_authoring_organizations(self, program):
         organizations = program.authoring_organization_bodies
@@ -1064,6 +1067,7 @@ class TypeaheadBaseSearchSerializer(serializers.Serializer):
     orgs = serializers.SerializerMethodField()
     title = serializers.CharField()
     marketing_url = serializers.CharField()
+    aggregation_key = serializers.CharField()
 
     def get_orgs(self, result):
         authoring_organizations = [json.loads(org) for org in result.authoring_organization_bodies]
