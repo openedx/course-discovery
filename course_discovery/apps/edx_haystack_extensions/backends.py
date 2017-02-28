@@ -92,6 +92,14 @@ class ConfigurableElasticBackend(ElasticsearchSearchBackend):
 
     def build_schema(self, fields):
         content_field_name, mapping = super().build_schema(fields)
+
+        # The aggregation_key is intended to be used for computing distinct record counts. We do not want it to be
+        # analyzed because doing so would result in more values being counted, as each key would be broken down
+        # into substrings by the analyzer.
+        if mapping.get('aggregation_key'):
+            mapping['aggregation_key']['index'] = 'not_analyzed'
+            del mapping['aggregation_key']['analyzer']
+
         # Fields default to snowball analyzer, this keeps snowball functionality, but adds synonym functionality
         snowball_with_synonyms = 'snowball_with_synonyms'
         for field, value in mapping.items():
@@ -107,6 +115,7 @@ class ConfigurableElasticBackend(ElasticsearchSearchBackend):
                                index_analyzer='ngram_analyzer', search_analyzer=snowball_with_synonyms)
         self.specify_analyzers(mapping=mapping, field='authoring_organizations_autocomplete',
                                index_analyzer='ngram_analyzer', search_analyzer=snowball_with_synonyms)
+
         return (content_field_name, mapping)
 
 

@@ -47,8 +47,11 @@ class OrganizationsMixin:
 class BaseIndex(indexes.SearchIndex):
     model = None
 
-    text = indexes.CharField(document=True, use_template=True)
+    # A key that can be used to group related documents together to enable the computation of distinct facet and hit
+    # counts.
+    aggregation_key = indexes.CharField()
     content_type = indexes.CharField(faceted=True)
+    text = indexes.CharField(document=True, use_template=True)
 
     def prepare_content_type(self, obj):  # pylint: disable=unused-argument
         return self.model.__name__.lower()
@@ -110,6 +113,9 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
 
     prerequisites = indexes.MultiValueField(faceted=True)
 
+    def prepare_aggregation_key(self, obj):
+        return 'course:{}'.format(obj.key)
+
     def prepare_course_runs(self, obj):
         return [course_run.key for course_run in obj.course_runs.all()]
 
@@ -152,6 +158,10 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     subject_uuids = indexes.MultiValueField()
     has_enrollable_paid_seats = indexes.BooleanField(null=False)
     paid_seat_enrollment_end = indexes.DateTimeField(null=True)
+
+    def prepare_aggregation_key(self, obj):
+        # Aggregate CourseRuns by Course key since that is how we plan to dedup CourseRuns on the marketing site.
+        return 'courserun:{}'.format(obj.course.key)
 
     def prepare_has_enrollable_paid_seats(self, obj):
         return obj.has_enrollable_paid_seats()
@@ -225,6 +235,9 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     start = indexes.DateTimeField(model_attr='start', null=True, faceted=True)
     seat_types = indexes.MultiValueField(model_attr='seat_types', null=True, faceted=True)
     published = indexes.BooleanField(null=False, faceted=True)
+
+    def prepare_aggregation_key(self, obj):
+        return 'program:{}'.format(obj.uuid)
 
     def prepare_published(self, obj):
         return obj.status == ProgramStatus.Active
