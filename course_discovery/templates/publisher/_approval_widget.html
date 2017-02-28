@@ -1,10 +1,7 @@
 {% load i18n %}
 
 <div class="approval-widget">
-    <div class="margin-top20">
-        <h5 class="hd-5 emphasized approvals-heading">{% trans "APPROVALS" %}</h5>
-    </div>
-
+    <h5 class="hd-5 emphasized approvals-heading">{% trans "APPROVALS" %}</h5>
     {% if is_course_run and not object.course.course_state.is_approved %}
         <div class="parent-course-approval">
             {% url 'publisher:publisher_course_detail' object.course.id as course_url %}

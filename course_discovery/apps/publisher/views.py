@@ -139,6 +139,12 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
             history_object = course_run_state.history.filter(preview_accepted=True).order_by('-modified').first()
             if history_object:
                 context['preview_accepted_date'] = history_object.modified
+        if course_run_state.is_published:
+            history_object = course_run_state.history.filter(
+                name=CourseRunStateChoices.Published
+            ).order_by('-modified').first()
+            if history_object:
+                context['publish_date'] = history_object.modified
 
         context['breadcrumbs'] = make_bread_crumbs(
             [
@@ -157,6 +163,7 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
         context['publisher_hide_features_for_pilot'] = waffle.switch_is_active('publisher_hide_features_for_pilot')
         context['publisher_comment_widget_feature'] = waffle.switch_is_active('publisher_comment_widget_feature')
         context['publisher_approval_widget_feature'] = waffle.switch_is_active('publisher_approval_widget_feature')
+        context['publish_state_name'] = CourseRunStateChoices.Published
 
         return context
 

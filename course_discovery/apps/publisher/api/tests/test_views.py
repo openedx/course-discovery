@@ -672,3 +672,37 @@ class ChangeCourseRunStateViewTests(TestCase):
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual([course.publisher.email, course.project_coordinator.email], mail.outbox[0].bcc)
+
+    def test_course_published(self):
+        """
+        Verify that publisher user can publish course run.
+        """
+        course = self.course_run.course
+        self.run_state.name = CourseRunStateChoices.Approved
+        self.run_state.preview_accepted = True
+        self.run_state.save()
+
+        self._assign_role(course, PublisherUserRole.Publisher, self.user)
+        self._assign_role(course, PublisherUserRole.CourseTeam, UserFactory())
+
+        response = self.client.patch(
+            self.change_state_url,
+            data=json.dumps({'name': CourseRunStateChoices.Published}),
+            content_type=JSON_CONTENT_TYPE
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.run_state = CourseRunState.objects.get(course_run=self.course_run)
+
+        self.assertTrue(self.run_state.is_published)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual([course.course_team_admin.email], mail.outbox[0].to)
+        course_name = '{title}: {pacing_type} - {start_date}'.format(
+            title=course.title,
+            pacing_type=self.course_run.get_pacing_type_display(),
+            start_date=self.course_run.start.strftime("%B %d, %Y")
+        )
+        expected_subject = 'Course {course_name} is now live'.format(course_name=course_name)
+        self.assertEqual(str(mail.outbox[0].subject), expected_subject)
