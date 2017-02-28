@@ -10,9 +10,9 @@ $(document).ready(function(){
 
     $('ul.tabs .course-tabs').click(function(){
         var tab_id = $(this).attr('data-tab'),
-            $tabContent = $("#"+tab_id);
+            $tabContent = $(this).closest('.row').siblings("#"+tab_id);
         $(this).parent().find('.course-tabs').removeClass('active');
-        $tabContent.parent().find('.content').removeClass('active');
+        $tabContent.siblings('.content').removeClass('active');
 
         $(this).addClass('active');
         $tabContent.addClass('active');

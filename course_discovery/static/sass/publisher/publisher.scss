@@ -217,10 +217,7 @@
   .content{
     display: none;
     p{
-        @include margin(0px, 0px, 0px, 0px);
-    }
-    p:first-of-type{
-      margin-bottom: 20px;
+        @include margin(0px, 0px, 20px, 0px);
     }
   }
   .content.active{
