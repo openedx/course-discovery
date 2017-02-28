@@ -360,11 +360,11 @@
         }
     }
 
-    .role-heading, .preview-heading {
+    .role-heading, .preview-heading, .publish-heading {
         color: #999999;
     }
 
-    .role-assignment-container, .preview-container {
+    .role-assignment-container, .preview-container, .publish-container {
         @include margin-right(5px);
 
         .state-status {

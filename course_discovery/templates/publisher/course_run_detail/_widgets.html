@@ -58,6 +58,36 @@
             </div>
         </div>
         <hr>
+        {% if object.course_run_state.is_published or object.course.publisher == request.user %}
+            <div class="publish-widget">
+                <div class="publish-container">
+                    <div class="layout-1q3q layout-reversed">
+                        <div class="layout-col layout-col-a">
+                            {% if object.course_run_state.is_ready_to_publish %}
+                                <button class="btn-brand btn-base btn-publish" data-change-state-url="{% url 'publisher:api:change_course_run_state' object.course_run_state.id %}" data-state-name="{{ publish_state_name }}" type="button">
+                                    {% trans "Publish" %}
+                                </button>
+                            {% elif object.course_run_state.is_published %}
+                                <span class="state-status">
+                                <span class="icon fa fa-check" aria-hidden="true"></span>
+                                {% trans "Published" %}<br>
+                                {{ publish_date|date:'m/d/y H:i a' }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="layout-col layout-col-b">
+                            <span class="publish-heading">
+                                <strong>{% trans "COURSE PUBLISHED" %}</strong>
+                            </span>
+                            <div class="preview-url">
+                                <a href="{{ object.preview_url }}" target="_blank">{% trans "View course live" %}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+        {% endif %}
         <div id="decline-comment" class="hidden clearfix">
             {% trans 'Reason for declining preview' as decline_reason %}
             {% trans 'Submit' as submit %}

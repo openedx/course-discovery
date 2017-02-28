@@ -51,3 +51,12 @@
     border-color: #169BD5;
     border-radius: 5px;
 }
+
+.btn-publish {
+    @include padding(5px, 20px, 5px, 20px);
+    @include float(right);
+    background-color: #169BD5;
+    border-color: #169BD5;
+    border-radius: 5px;
+    margin-top: 10px;
+}

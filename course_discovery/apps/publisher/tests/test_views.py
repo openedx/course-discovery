@@ -1071,6 +1071,48 @@ class CourseRunDetailTests(TestCase):
         )
         self.assertContains(response, '<input id="id-review-url" type="text">')
 
+    def test_course_publish(self):
+        """Verify that publisher user can see Publish button."""
+        user_role = factories.CourseUserRoleFactory(
+            course=self.course, user=self.user, role=PublisherUserRole.Publisher
+        )
+        self.course_run_state.owner_role = PublisherUserRole.Publisher
+        self.course_run_state.name = CourseRunStateChoices.Approved
+        self.course_run_state.preview_accepted = True
+        self.course_run_state.save()
+
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
+
+        response = self.client.get(self.page_url)
+        self.assertContains(response, 'COURSE PUBLISHED')
+        self.assertContains(response, '<button class="btn-brand btn-base btn-publish"')
+        self.assertContains(response, 'View course live')
+
+        user_role.role = PublisherUserRole.CourseTeam
+        user_role.save()
+
+        response = self.client.get(self.page_url)
+        # Verify that course team user cannot se publish button.
+        self.assertNotContains(response, 'COURSE PUBLISHED')
+        self.assertNotContains(response, '<button class="btn-brand btn-base btn-publish"')
+        self.assertNotContains(response, 'View course live')
+
+    def test_course_published(self):
+        """Verify that user can see Published status if course is published."""
+        self.course_run_state.name = CourseRunStateChoices.Published
+        self.course_run_state.preview_accepted = True
+        self.course_run_state.save()
+
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
+
+        response = self.client.get(self.page_url)
+        self.assertContains(response, 'COURSE PUBLISHED')
+        self.assertContains(response, 'Published')
+        self.assertContains(response, 'View course live')
+        self.assertNotContains(response, '<button class="btn-brand btn-base btn-publish"')
+
 
 # pylint: disable=attribute-defined-outside-init
 @ddt.ddt

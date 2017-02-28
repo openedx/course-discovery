@@ -132,7 +132,7 @@ $(document).ready(function(){
 
     });
 
-    $('.btn-change-state').click(function (e) {
+    $('.btn-change-state, .btn-publish').click(function (e) {
         $.ajax({
             type: "PATCH",
             url: $(this).data('change-state-url'),
@@ -142,7 +142,11 @@ $(document).ready(function(){
                 location.reload();
             },
             error: function (response) {
-                $('#stateChangeError').html(response.responseJSON.name);
+                if (response.responseJSON) {
+                    $('#stateChangeError').html(response.responseJSON.name);
+                } else {
+                    $('#stateChangeError').html(gettext('Something went wrong! please try again later.'));
+                }
                 $('#stateChangeAlert').show();
                 console.log(response);
             }

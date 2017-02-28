@@ -627,6 +627,14 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
     def is_approved(self):
         return self.name == CourseRunStateChoices.Approved
 
+    @property
+    def is_ready_to_publish(self):
+        return self.is_approved and self.is_preview_accepted
+
+    @property
+    def is_published(self):
+        return self.name == CourseRunStateChoices.Published
+
 
 class PublisherUser(User):
     """ Publisher User Proxy Model. """

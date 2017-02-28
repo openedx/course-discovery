@@ -35,6 +35,14 @@
 
             {% include 'alert_messages.html' %}
 
+            <div id="stateChangeAlert" class="alert-messages hidden">
+                <div class="alert alert-error" role="alert" tabindex="-1">
+                    <div>
+                        <p id="stateChangeError" class="alert-copy"></p>
+                    </div>
+                </div>
+            </div>
+
             <div class="tabs">
                 <div id="tab-1" class="tab-content active">
                     {% include 'publisher/course_run_detail/_all.html' %}
