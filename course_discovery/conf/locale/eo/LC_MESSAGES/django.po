@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-24 18:16+0500\n"
+"POT-Creation-Date: 2017-02-28 17:49+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -260,6 +260,7 @@ msgstr ""
 "ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм #"
 
 #: apps/course_metadata/choices.py apps/publisher/choices.py
+#: templates/publisher/course_run_detail/_widgets.html
 msgid "Published"
 msgstr "Püßlïshéd Ⱡ'σяєм ιρѕυм ∂σł#"
 
@@ -2564,6 +2565,18 @@ msgstr "Vïéw çöürsé prévïéw lïvé Ⱡ'σяєм ιρѕυм ∂σłσя 
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "Not available"
 msgstr "Nöt äväïläßlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: templates/publisher/course_run_detail/_widgets.html
+msgid "Publish"
+msgstr "Püßlïsh Ⱡ'σяєм ιρѕυм #"
+
+#: templates/publisher/course_run_detail/_widgets.html
+msgid "COURSE PUBLISHED"
+msgstr "ÇÖÛRSÉ PÛBLÌSHÉD Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: templates/publisher/course_run_detail/_widgets.html
+msgid "View course live"
+msgstr "Vïéw çöürsé lïvé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "Reason for declining preview"
