@@ -3,6 +3,7 @@ import elasticsearch
 from haystack.backends.elasticsearch_backend import ElasticsearchSearchQuery
 from haystack.models import SearchResult
 
+
 class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
     """Custom Haystack Query class that computes and caches distinct hit and facet counts for a query."""
 
