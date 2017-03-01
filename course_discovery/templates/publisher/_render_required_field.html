@@ -1,0 +1,7 @@
+{% load i18n %}
+
+{% if field %}
+  {{ field }}
+{% else %}
+  {% trans "(Required) Not yet added" %}
+{% endif %}

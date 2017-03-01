@@ -43,14 +43,26 @@
                 {% trans "Enrollment Start Date" %}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
-            <div class="copy">{{ object.enrollment_start|date:"M d, Y, H:i:s A" }}</div>
+            <div class="copy">
+                {% if object.enrollment_start %}
+                    {{ object.enrollment_start|date:"M d, Y, H:i:s A" }}
+                {% else %}
+                    {% trans "(Optional) Not yet added" %}
+                {% endif %}
+            </div>
         </div>
         <div class="info-item">
             <div class="heading">
                 {% trans "Enrollment End Date" %}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
-            <div class="copy">{{ object.enrollment_end|date:"M d, Y, H:i:s A" }}</div>
+            <div class="copy">
+                {% if object.enrollment_end %}
+                    {{ object.enrollment_end|date:"M d, Y, H:i:s A" }}
+                {% else %}
+                    {% trans "(Optional) Not yet added" %}
+                {% endif %}
+            </div>
         </div>
         <div class="info-item">
             <div class="heading">
