@@ -134,7 +134,17 @@ class TypeaheadSearchView(PartnerMixin, APIView):
             SQ(authoring_organizations_autocomplete=clean_query)
         )
         course_runs = course_runs.filter(published=True).exclude(hidden=True).filter(partner=partner.short_code)
-        course_runs = course_runs[:self.RESULT_COUNT]
+
+        # Get first three results after deduplicating by course run
+        course_runs_list, course_keys_set = [], set()
+        for course_run in course_runs:
+            course_key = course_run.course_key
+            if course_key in course_keys_set:
+                continue
+            course_keys_set.add(course_key)
+            course_runs_list.append(course_run)
+            if len(course_runs_list) == 3:
+                break
 
         programs = sqs.models(Program).filter(
             SQ(title_autocomplete=clean_query) |
@@ -143,7 +153,7 @@ class TypeaheadSearchView(PartnerMixin, APIView):
         programs = programs.filter(status=ProgramStatus.Active).filter(partner=partner.short_code)
         programs = programs[:self.RESULT_COUNT]
 
-        return course_runs, programs
+        return course_runs_list, programs
 
     def get(self, request, *args, **kwargs):
         """

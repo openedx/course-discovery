@@ -473,6 +473,26 @@ class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin,
         self.assertEqual(len(response_data['course_runs']), RESULT_COUNT)
         self.assertEqual(len(response_data['programs']), RESULT_COUNT)
 
+    def test_typeahead_deduplicate_course_runs(self):
+        """ Verify the typeahead response will only include the first course run per course. """
+        RESULT_COUNT = TypeaheadSearchView.RESULT_COUNT
+        title = "Test"
+        course1 = CourseFactory(partner=self.partner)
+        course2 = CourseFactory(partner=self.partner)
+        for i in range(RESULT_COUNT):
+            CourseRunFactory(title="{}{}{}".format(title, course1.title, i), course=course1)
+        for i in range(RESULT_COUNT):
+            CourseRunFactory(title="{}{}{}".format(title, course2.title, i), course=course2)
+        response = self.get_response({'q': title})
+        assert response.status_code == 200
+        response_data = response.json()
+
+        # There are many runs for both courses, but only one from each will be included
+        course_runs = response_data['course_runs']
+        assert len(course_runs) == 2
+        # compare course titles embedded in course run title to ensure that course runs belong to different courses
+        assert course_runs[0]['title'][4:-1] != course_runs[1]['title'][4:-1]
+
     def test_typeahead_multiple_authoring_organizations(self):
         """ Test typeahead response with multiple authoring organizations. """
         title = "Design"
