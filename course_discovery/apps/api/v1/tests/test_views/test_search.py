@@ -313,8 +313,8 @@ class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, Login
 
 
 @ddt.ddt
-class AggregateSearchViewSet(DefaultPartnerMixin, SerializationMixin, LoginMixin, ElasticsearchTestMixin,
-                             SynonymTestMixin, APITestCase):
+class AggregateSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, LoginMixin, ElasticsearchTestMixin,
+                                  SynonymTestMixin, APITestCase):
     path = reverse('api:v1:search-all-facets')
 
     def get_response(self, query=None):
