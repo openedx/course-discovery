@@ -9,7 +9,6 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from guardian.shortcuts import assign_perm
-from mock import patch
 
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
@@ -69,61 +68,38 @@ class CourseRoleAssignmentViewTests(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_role_assignment_with_view_permissions(self):
-        """ Verify user having permissions can change role assignments. """
-
-        # mocked the check_roles_access because it checks whether user is part of internal group
-        # or has org permissions. So if this method returns True then permission check by passes.
-
+        """ Verify course team user can change role assignments. """
         user = UserFactory()
-        user.groups.add(self.internal_user_group)
-
-        # assigning permission to the organization group
         user.groups.add(self.organization_extension.group)
-
         assign_perm(
             OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension
         )
-
-        self.client.logout()
-        self.client.login(username=user.username, password=USER_PASSWORD)
-
-        with patch('course_discovery.apps.publisher.api.permissions.check_roles_access') as mock_method:
-            mock_method.return_value = False
-
-            response = self.client.patch(
-                self.get_role_assignment_url(self.course.course_user_roles.first()),
-                data=json.dumps({'user': user.id}),
-                content_type=JSON_CONTENT_TYPE
-            )
-            self.assertEqual(response.status_code, 200)
-
-    def test_role_assignment_without_view_permissions(self):
-        """ Verify user having wrong permissions cannot change role assignments. """
-
-        # mocked the check_roles_access because it checks whether user is part of internal group
-        # or has org permissions. So if this method returns True then permission check by passes.
-
-        user = UserFactory()
-        user.groups.add(self.internal_user_group)
-
-        # assigning permission to the organization group
-        user.groups.add(self.organization_extension.group)
-
-        assign_perm(
-            OrganizationExtension.EDIT_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        course_team_role = factories.CourseUserRoleFactory(
+            course=self.course, user=user, role=PublisherUserRole.CourseTeam
         )
 
         self.client.logout()
         self.client.login(username=user.username, password=USER_PASSWORD)
 
-        with patch('course_discovery.apps.publisher.api.permissions.check_roles_access') as mock_method:
-            mock_method.return_value = False
-            response = self.client.patch(
-                self.get_role_assignment_url(self.course.course_user_roles.first()),
-                data=json.dumps({'user': user.id}),
-                content_type=JSON_CONTENT_TYPE
-            )
-            self.assertEqual(response.status_code, 403)
+        response = self.client.patch(
+            self.get_role_assignment_url(course_team_role),
+            data=json.dumps({'user': user.id}),
+            content_type=JSON_CONTENT_TYPE
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_role_assignment_without_view_permissions(self):
+        """ Verify cannot change role assignments without permission. """
+        user = UserFactory()
+        self.client.logout()
+        self.client.login(username=user.username, password=USER_PASSWORD)
+
+        response = self.client.patch(
+            self.get_role_assignment_url(self.course.course_user_roles.first()),
+            data=json.dumps({'user': user.id}),
+            content_type=JSON_CONTENT_TYPE
+        )
+        self.assertEqual(response.status_code, 403)
 
     def get_user_course_roles(self):
         return self.course.course_user_roles.all()
