@@ -384,3 +384,23 @@ class PublisherUserCreationForm(forms.ModelForm):
             )
 
         return self.cleaned_data
+
+
+class CourseRunAdminForm(forms.ModelForm):
+
+    class Meta:
+        model = CourseRun
+        fields = '__all__'
+
+    def clean_lms_course_id(self):
+        lms_course_id = self.cleaned_data['lms_course_id']
+
+        if lms_course_id:
+            try:
+                CourseKey.from_string(lms_course_id)
+            except InvalidKeyError:
+                raise ValidationError(_("Invalid course key."))
+
+            return lms_course_id
+
+        return None
