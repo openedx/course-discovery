@@ -1,5 +1,7 @@
 from haystack.query import SearchQuerySet
 
+from course_discovery.apps.edx_haystack_extensions.distinct_counts.backends import DistinctCountsSearchQuery
+
 
 class DistinctCountsSearchQuerySet(SearchQuerySet):
     """Custom SearchQuerySet class that computes and caches distinct hit and facet counts for a query."""

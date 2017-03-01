@@ -78,7 +78,7 @@ class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
 
     def set_aggregation_key(self, aggregation_key):
         """
-        Set the aggregation_key for this Query. The aggregation_key is the field that should 
+        Set the aggregation_key for this Query. The aggregation_key is the field that should
         be used to group records when computing distinct counts.
 
         The aggregation_key should be a field that is NOT analyzed by the index (like one of the
@@ -86,7 +86,7 @@ class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
         as analyzed fields are broken down by the search backend and will result in records being
         grouped by substrings of the aggregation_key field.
 
-        The aggregation_key must be set prior to calling DistinctCountsSearchQuery.run, or 
+        The aggregation_key must be set prior to calling DistinctCountsSearchQuery.run, or
         an error will be raised.
         """
         self._aggregation_key = aggregation_key
@@ -94,7 +94,7 @@ class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
     def get_distinct_count(self):
         """
         Return the distinct hit count for this query.
-        
+
         Note: Calling this method will cause the query to execute if it hasn't already been run.
         """
         if self._distinct_hit_count is None:
@@ -105,8 +105,8 @@ class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
 
 class DistinctCountsElasticsearchBackendWrapper(object):
     """
-    Custom backend-like class that enables the computation of distinct hit and facet counts during search queries. 
-    
+    Custom backend-like class that enables the computation of distinct hit and facet counts during search queries.
+
     This class is not meant to be a true ElasticsearchSearchBackend. It is meant to wrap an existing
     ElasticsearchSearchBackend instance and expose a very limited subset of backend functionality.
     """
@@ -119,11 +119,11 @@ class DistinctCountsElasticsearchBackendWrapper(object):
         """
         Initialize a new instance of the DistinctCountsElasticsearchBackendWrapper.
 
-        -- Parameters -- 
+        -- Parameters --
         backend - An ElasticsearchSearchBackend instance.
-        aggregation_key - The field that should be used to group records when computing distinct counts. 
+        aggregation_key - The field that should be used to group records when computing distinct counts.
             It should be a field that is NOT analyzed by the index (like one of the faceted _exact fields).
-            Using a field that is analyzed will result in inaccurate counts, as analyzed fields are broken down by the 
+            Using a field that is analyzed will result in inaccurate counts, as analyzed fields are broken down by the
             search backend and will result in records being grouped by substrings of the aggregation_key field.
         """
         self.backend = backend
@@ -187,7 +187,7 @@ class DistinctCountsElasticsearchBackendWrapper(object):
         """
         Build and return the arguments for the elasticsearch query.
 
-        Overrides and re-implements the ElasticsearchSearchBackend.build_search_kwargs method so that 
+        Overrides and re-implements the ElasticsearchSearchBackend.build_search_kwargs method so that
         aggregations may be added to compute distinct counts.
 
         Note: If this query includes facets, each facet will be converted to an aggregation
@@ -195,12 +195,19 @@ class DistinctCountsElasticsearchBackendWrapper(object):
         """
         search_kwargs = self.backend.build_search_kwargs(*args, **kwargs)
 
-        aggregations = self._build_cardinality_aggregation(precision=MAX_CARDINALITY_PRECISION)
+        # Setting precision to 1500 should result in a distinct hit count that is close to accurate
+        # when the query returns fewer than 1500 search results. This may be increased (with a performance
+        # penalty) when larger result sets become more common.
+        aggregations = self._build_cardinality_aggregation(precision=1500)
 
         if search_kwargs.get('facets'):
             for facet_name, facet_config in search_kwargs['facets'].items():
                 new_facet = self._convert_facet_to_aggregation(facet_config)
-                new_facet['aggs'] = self._build_cardinality_aggregation(precision=MAX_CARDINALITY_PRECISION)
+
+                # Setting precision to 1000 should result in a distinct hit count that is close to accurate
+                # when the query returns fewer than 1000 search results. This may be increased (with a performance
+                # penalty) when larger result sets become more common.
+                new_facet['aggs'] = self._build_cardinality_aggregation(precision=1000)
                 aggregations[facet_name] = new_facet
             del search_kwargs['facets']
 
@@ -215,7 +222,7 @@ class DistinctCountsElasticsearchBackendWrapper(object):
         is configurable via an optional precision_threshold argument. See
         https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-aggregations-metrics-cardinality-aggregation.html
 
-        -- Parameters -- 
+        -- Parameters --
         precision - a numeric value below which counts computed by the cardinality aggregation can
             be expected to be close to accurate. Setting this value requires a memory tradeoff of
             about (precision * 8) bytes.
@@ -243,7 +250,7 @@ class DistinctCountsElasticsearchBackendWrapper(object):
         elif 'query' in facet_config:
             return self._convert_query_facet_to_aggregation(facet_config)
         else:
-            raise RuntimeError('Cannot convert facet to aggregation: Unsupported facet type.'
+            raise RuntimeError('Cannot convert facet to aggregation: Unsupported facet type.')
 
     def _convert_terms_facet_to_aggregation(self, facet_config):
         """
@@ -288,9 +295,9 @@ class DistinctCountsElasticsearchBackendWrapper(object):
 
     def _process_results(self, raw_results, **kwargs):
         """
-        Construct and return a dictionary of query result information from the raw query results. 
+        Construct and return a dictionary of query result information from the raw query results.
 
-        Overrides and re-implements the ElasticsearchSearchBackend._process_results method so that 
+        Overrides and re-implements the ElasticsearchSearchBackend._process_results method so that
         the distinct count information may be extracted and included in the processed results dictionary.
         """
         results = self.backend._process_results(raw_results, **kwargs)
