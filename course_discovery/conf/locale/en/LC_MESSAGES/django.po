@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-02 12:51+0500\n"
+"POT-Creation-Date: 2017-03-02 19:53+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -1149,7 +1149,6 @@ msgid "Sequence Courses:"
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
-#: templates/publisher/course_edit_form.html
 msgid "Introduction to Statistics"
 msgstr ""
 
@@ -1383,10 +1382,12 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "CS002x"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "BIO1.1x; BIO1.2x etc."
 msgstr ""
 
@@ -1430,26 +1431,32 @@ msgid "BRIEF DESCRIPTION"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "An effective short description:"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Contains 25–50 words."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Functions as a tagline."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Conveys compelling reasons to take the course."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Follows SEO guidelines."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "The first MOOC to teach positive psychology. Learn science-based principles "
 "and practices for a happy, meaningful life."
@@ -1466,28 +1473,34 @@ msgid "FULL DESCRIPTION"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "An effective long description:"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Contains 150–300 words."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Is easy to skim."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Uses bullet points instead of dense text paragraphs."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "The first four lines are visible when the About page opens. Learners can "
 "select \\"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "Want to learn computer programming, but unsure where to begin? This is the "
 "course for you! Scratch is the computer programming language that makes it "
@@ -1496,6 +1509,7 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "This course is an introduction to computer science using the programming "
 "language Scratch, developed by MIT. Starting with the basics of using "
@@ -1505,16 +1519,19 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "No previous programming knowledge needed. Join us as you start your computer"
 " science journey."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Skills-based example:"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "Taught by instructors with decades of experience on Wall Street, this M&A "
 "course will equip analysts and associates with the skills they need to rise "
@@ -1534,26 +1551,32 @@ msgid "EXPECTED LEARNINGS"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "The skills and knowledge learners will acquire in this course."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Format each item as a bullet with four to ten words."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Basic R Programming"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "An applied understanding of linear and logistic regression"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Application of text analytics"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Linear and integer optimization"
 msgstr ""
 
@@ -1579,10 +1602,12 @@ msgid "SUBJECT FIELD"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "The subject of the course."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "You can select up to two subjects in addition to the primary subject. Only "
 "the primary subject appears on the About page."
@@ -1594,27 +1619,33 @@ msgid "COURSE IMAGE"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "An eye-catching, colorful image that captures the essence of your course."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Course Image Guidelines:"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "The image size must be 2120 x 1192 pixels."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Each course in a sequence must have a unique image."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "The image cannot include text or headlines."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "You must have permission to use the image. Possible image sources include "
 "Flickr creative commons, Stock Vault, Stock XCHNG, and iStock Photo."
@@ -1626,24 +1657,29 @@ msgid "PREREQUISITES"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Maximum 200 characters."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "Specific knowledge learners must have to be successful in the course. If the"
 " course has no prerequisites, enter \\"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Secondary school (high school) algebra; basic mathematics concepts"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Graduate-level understanding of Keynesian economics"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Basic algebra"
 msgstr ""
 
@@ -1658,29 +1694,35 @@ msgid "SYLLABUS"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "A review of content covered in your course, organized by week or module."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Focus on topics and content."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "Do not include detailed information about course logistics, such as grading,"
 " communication policies, and reading lists."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Format items as either paragraphs or a bulleted list."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Week 1: From Calculator to Computer"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "Introduction to basic programming concepts, such as values and expressions, "
 "as well as making decisions when implementing algorithms and developing "
@@ -1688,10 +1730,12 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid "Week 2: State Transformation"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "Introduction to state transformation, including representation of data and "
 "programs as well as conditional repetition."
@@ -1740,18 +1784,21 @@ msgid "LEVEL TYPE"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "Introductory - No prerequisites; a learner with some to all of a secondary "
 "school degree could complete the course."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "Intermediate - Basic prerequisites; learners need a secondary school degree "
 "or some university courses."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
 "Advanced - Significant prerequisites; the course is geared to third or "
 "fourth year university students or master's degree students."
@@ -1874,10 +1921,6 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/course_edit_form.html
-msgid "Project Management Life Cycle"
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
 msgid ""
 "You can enter this information at any time before edX publishes the About "
 "page."
@@ -1885,124 +1928,6 @@ msgstr ""
 
 #: templates/publisher/course_edit_form.html
 msgid "You must enter this information both in this section and in Studio."
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid ""
-"Reads as a tag line - a short, engaging description for students browsing "
-"course listings"
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid "Conveys why someone should take the course"
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid "SEO optimized and targeted to a global audience"
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid "Summarized description of course content"
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid "Describe why a learner should take this course"
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid ""
-"Text should be easily scannable, using bullet points to highlight instead of"
-" long, dense text paragraphs"
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid ""
-"Note: the first 4-5 lines will be visible to the learner immediately upon "
-"clicking the page;"
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid ""
-"additional text will be hidden yet available via \"See More\" clickable text"
-" under the first 4-5 lines"
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid "Answer to the question: \"What will you learn from this course?\""
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid "bulleted items, approximately 4-10 words per bullet"
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid ""
-"Only one primary subject will appear on the About Page; please select one "
-"primary subject and a maximum of two additional subject areas for search."
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid ""
-"Select an eye-catching, colorful image that captures the content and essence"
-" of your course"
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid "Do not include text or headlines"
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid "Choose an image that you have permission to use."
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid "This can be a stock photo (try Flickr creative commons, "
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid ""
-"Stock Vault, Stock XCHNG, iStock Photo) or an image custom designed for your"
-" course"
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid "Sequenced courses should each have a unique image"
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid "Size: 2120 x 1192 pixels"
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid ""
-"List concepts and level (basic, advanced, undergraduate, graduate) students "
-"should be familiar with"
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid "If there are no prerequisites, please list \"None.\""
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid "200 character limit, including spaces"
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid ""
-"Introductory - No prerequisites; an individual with some to all of a "
-"secondary school degree could complete"
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid ""
-"Intermediate - Basic prerequisites; a secondary school degree likely "
-"required to be successful as well as some university"
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid ""
-"Advanced - Significant number of prerequisites required; course geared to "
-"3rd or 4th year university student or a masters degree student"
 msgstr ""
 
 #: templates/publisher/course_edit_form.html
