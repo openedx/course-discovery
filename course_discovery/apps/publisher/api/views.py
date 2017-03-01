@@ -12,7 +12,7 @@ from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRun
 
 
 class CourseRoleAssignmentView(UpdateAPIView):
-    permission_classes = (IsAuthenticated, CanViewAssociatedCourse, InternalUserPermission,)
+    permission_classes = (IsAuthenticated, CanViewAssociatedCourse,)
     queryset = CourseUserRole.objects.all()
     serializer_class = CourseUserRoleSerializer
 
