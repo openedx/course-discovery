@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
 from guardian.admin import GuardedModelAdmin
 
-from course_discovery.apps.publisher.forms import (CourseUserRoleForm, OrganizationUserRoleForm,
+from course_discovery.apps.publisher.forms import (CourseRunAdminForm, CourseUserRoleForm, OrganizationUserRoleForm,
                                                    PublisherUserCreationForm, UserAttributesAdminForm)
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
                                                     OrganizationExtension, OrganizationUserRole, PublisherUser, Seat,
@@ -48,6 +48,7 @@ class CourseAdmin(admin.ModelAdmin):
 
 @admin.register(CourseRun)
 class CourseRunAdmin(admin.ModelAdmin):
+    form = CourseRunAdminForm
     raw_id_fields = ('changed_by',)
 
 
