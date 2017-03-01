@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-28 15:51+0500\n"
+"POT-Creation-Date: 2017-03-01 16:02+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1223,6 +1223,23 @@ msgstr "%(history_date)s&nbsp;ßý&nbsp;%(changed_by)s Ⱡ'σяєм ιρѕυм �
 #: templates/publisher/_history_widget.html
 msgid "Open Selected Version"
 msgstr "Öpén Séléçtéd Vérsïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: templates/publisher/_render_optional_field.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_credit_seat.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "(Optional) Not yet added"
+msgstr "(Öptïönäl) Nöt ýét äddéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: templates/publisher/_render_required_field.html
+#: templates/publisher/course_detail.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_seats.html
+msgid "(Required) Not yet added"
+msgstr "(Réqüïréd) Nöt ýét äddéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: templates/publisher/add_courserun_form.html
 msgid "New Course Run"
@@ -2483,11 +2500,6 @@ msgid "Studio instance"
 msgstr "Stüdïö ïnstänçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_render_field.html
-msgid "empty"
-msgstr "émptý Ⱡ'σяєм ιρѕ#"
-
-#: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_salesforce.html
 #: templates/publisher/course_run_detail/_studio.html
@@ -2577,10 +2589,6 @@ msgstr "Çrédït Höürs Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 #: templates/publisher/course_run_detail/_seats.html
 msgid "Upgrade Deadline"
 msgstr "Ûpgrädé Déädlïné Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
-
-#: templates/publisher/course_run_detail/_credit_seat.html
-msgid "No Credit Seats Available."
-msgstr "Nö Çrédït Séäts Àväïläßlé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Sub Title"
@@ -2762,10 +2770,6 @@ msgstr ""
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Certificate Issued Date"
 msgstr "Çértïfïçäté Ìssüéd Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
-
-#: templates/publisher/course_run_detail/_seats.html
-msgid "No Seats Available."
-msgstr "Nö Séäts Àväïläßlé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
 #: templates/publisher/course_run_detail/_studio.html
 #: templates/publisher/courses.html

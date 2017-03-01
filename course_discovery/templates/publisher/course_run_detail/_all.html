@@ -37,7 +37,7 @@
       {% if object.studio_url %}
         <a target="_blank" href="{{ object.studio_url }}">{{ object.lms_course_id }}</a>
       {% else %}
-        {% trans "empty" %}
+        {% trans "(Required) Not yet added" %}
       {% endif %}
     </div>
   </div>
@@ -63,16 +63,16 @@
     <div>{{ object.course_type }}</div>
   </div>
 
-  <div class="info-item">
-    <div class="heading">
-      {% trans "Certificate Price" %}
-    </div>
-    <div>
-      {% with  object.verified_seat_price as field %}
-        ${% include "publisher/course_run_detail/_render_field.html" %}
-      {% endwith %}
-    </div>
-  </div>
+    {% if object.verified_seat_price %}
+      <div class="info-item">
+        <div class="heading">
+          {% trans "Certificate Price" %}
+        </div>
+        <div>
+            ${{ object.verified_seat_price }}
+        </div>
+      </div>
+    {% endif %}
 
   <div class="info-item">
     <div class="heading">
@@ -80,7 +80,7 @@
     </div>
     <div>
       {% with  object.short_description as field %}
-        {% include "publisher/course_run_detail/_render_field.html" %}
+        {% include "publisher/_render_required_field.html" %}
       {% endwith %}
     </div>
   </div>
@@ -91,7 +91,7 @@
     </div>
     <div>
       {% with  object.full_description as field %}
-        {% include "publisher/course_run_detail/_render_field.html" %}
+        {% include "publisher/_render_required_field.html" %}
       {% endwith %}
     </div>
   </div>
@@ -102,7 +102,7 @@
     </div>
     <div>
       {% with  object.expected_learnings as field %}
-        {% include "publisher/course_run_detail/_render_field.html" %}
+        {% include "publisher/_render_required_field.html" %}
       {% endwith %}
     </div>
   </div>
@@ -112,8 +112,8 @@
       {% trans "Course Staff" %}
     </div>
     <div>
-      {% if not object.staff %}
-        {% trans "empty" %}
+      {% if not object.course_staff %}
+        {% trans "(Required) Not yet added" %}
       {% else %}
         {% for obj in object.course_staff %}
           <div class="course-staff">
@@ -134,9 +134,8 @@
       {% trans "Primary Subject" %}
     </div>
     <div>
-
       {% with  object.subjects.0 as field %}
-        {% include "publisher/course_run_detail/_render_field.html" %}
+        {% include "publisher/_render_required_field.html" %}
       {% endwith %}
     </div>
   </div>
@@ -147,7 +146,7 @@
     </div>
     <div>
       {% with  object.subjects.1 as field %}
-        {% include "publisher/course_run_detail/_render_field.html" %}
+        {% include "publisher/_render_optional_field.html" %}
       {% endwith %}
     </div>
   </div>
@@ -158,7 +157,7 @@
     </div>
     <div>
       {% with  object.subjects.2 as field %}
-        {% include "publisher/course_run_detail/_render_field.html" %}
+        {% include "publisher/_render_optional_field.html" %}
       {% endwith %}
     </div>
   </div>
@@ -169,7 +168,7 @@
     </div>
     <div>
       {% if not object.course_image %}
-        {% trans "empty" %}
+        {% trans "(Required) Not yet added" %}
       {% else %}
         <img src="{{ object.course_image }}" alt=""/>
       {% endif %}
@@ -182,7 +181,7 @@
     </div>
     <div>
       {% with  object.prerequisites as field %}
-        {% include "publisher/course_run_detail/_render_field.html" %}
+        {% include "publisher/_render_required_field.html" %}
       {% endwith %}
     </div>
   </div>
@@ -195,7 +194,7 @@
       {% if object.min_effort and object.max_effort %}
         {{ object.min_effort }}-{{ object.max_effort }} {% trans "hours per week" %}
       {% else %}
-        {% trans "empty" %}
+        {% trans "(Optional) Not yet added" %}
       {% endif %}
     </div>
   </div>
@@ -206,7 +205,7 @@
     </div>
     <div>
       {% with  object.language.name as field %}
-        {% include "publisher/course_run_detail/_render_field.html" %}
+        {% include "publisher/_render_required_field.html" %}
       {% endwith %}
     </div>
   </div>
@@ -217,7 +216,7 @@
     </div>
     <div>
       {% with  object.transcript_language as field %}
-        {% include "publisher/course_run_detail/_render_field.html" %}
+        {% include "publisher/_render_required_field.html" %}
       {% endwith %}
     </div>
   </div>
@@ -228,7 +227,7 @@
     </div>
     <div>
       {% with  object.video_language as field %}
-        {% include "publisher/course_run_detail/_render_field.html" %}
+        {% include "publisher/_render_optional_field.html" %}
       {% endwith %}
     </div>
   </div>
@@ -239,7 +238,7 @@
     </div>
     <div>
       {% with  object.length as field %}
-        {% include "publisher/course_run_detail/_render_field.html" %}
+        {% include "publisher/_render_optional_field.html" %}
       {% endwith %}
     </div>
   </div>
@@ -250,7 +249,7 @@
     </div>
     <div>
       {% with  object.level_type as field %}
-        {% include "publisher/course_run_detail/_render_field.html" %}
+        {% include "publisher/_render_required_field.html" %}
       {% endwith %}
     </div>
   </div>
