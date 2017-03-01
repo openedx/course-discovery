@@ -50,6 +50,12 @@ urlpatterns = auth_urlpatterns + [
     url(r'^taggit_autosuggest/', include('taggit_autosuggest.urls')),
 ]
 
+# Add the catalog extension urls if edx_catalog_extensions is installed.
+if 'course_discovery.apps.edx_catalog_extensions' in settings.INSTALLED_APPS:
+    urlpatterns.append(
+        url(r'^extensions/', include('course_discovery.apps.edx_catalog_extensions.urls', namespace='extensions'))
+    )
+
 if settings.DEBUG:  # pragma: no cover
     # We need this url pattern to serve user uploaded assets according to
     # https://docs.djangoproject.com/en/1.10/howto/static-files/#serving-files-uploaded-by-a-user-during-development
