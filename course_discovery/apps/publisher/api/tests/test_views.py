@@ -553,6 +553,7 @@ class ChangeCourseRunStateViewTests(TestCase):
         language_tag.save()
         self.course_run.transcript_languages.add(language_tag)
         self.course_run.language = language_tag
+        self.course_run.lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
         self.course_run.save()
 
         self.course_run.staff.add(PersonFactory())
