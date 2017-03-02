@@ -58,7 +58,9 @@ def send_email_for_studio_instance_created(course_run, updated_text=_('created')
         email_msg.attach_alternative(html_content, 'text/html')
         email_msg.send()
     except Exception:  # pylint: disable=broad-except
-        logger.exception('Failed to send email notifications for course_run [%s]', course_run.id)
+        error_message = 'Failed to send email notifications for course_run [{run_id}]'.format(run_id=course_run.id)
+        logger.exception(error_message)
+        raise Exception(error_message)
 
 
 def send_email_for_course_creation(course, course_run):
@@ -292,16 +294,15 @@ def send_email_preview_accepted(course_run):
     html_template = 'publisher/email/course_run/preview_accepted.html'
 
     course = course_run.course
-    course_key = CourseKey.from_string(course_run.lms_course_id)
-    subject = _('Publication requested: {course_name} {run_number}').format(  # pylint: disable=no-member
-        course_name=course.title,
-        run_number=course_key.run)
-
-    publisher_user = course_run.course.publisher
+    publisher_user = course.publisher
 
     try:
         if is_email_notification_enabled(publisher_user):
-            project_coordinator = course_run.course.project_coordinator
+            course_key = CourseKey.from_string(course_run.lms_course_id)
+            subject = _('Publication requested: {course_name} {run_number}').format(  # pylint: disable=no-member
+                course_name=course.title,
+                run_number=course_key.run)
+            project_coordinator = course.project_coordinator
             to_addresses = [publisher_user.email]
             if is_email_notification_enabled(project_coordinator):
                 to_addresses.append(project_coordinator.email)
@@ -344,26 +345,30 @@ def send_email_preview_page_is_available(course_run):
     """
     txt_template = 'publisher/email/course_run/preview_available.txt'
     html_template = 'publisher/email/course_run/preview_available.html'
-
-    run_name = '{pacing_type}: {start_date}'.format(
-        pacing_type=course_run.get_pacing_type_display(),
-        start_date=course_run.start.strftime("%B %d, %Y")
-    )
-    subject = _('Preview for {run_name} is available').format(run_name=run_name)  # pylint: disable=no-member
     course_team_user = course_run.course.course_team_admin
 
     try:
         if is_email_notification_enabled(course_team_user):
+            course_key = CourseKey.from_string(course_run.lms_course_id)
+            subject = _('Review requested: Preview for {course_name} {run_number}').format(     # pylint: disable=no-member
+                course_name=course_run.course.title,
+                run_number=course_key.run
+            )
             to_addresses = [course_team_user.email]
             from_address = settings.PUBLISHER_FROM_EMAIL
             project_coordinator = course_run.course.project_coordinator
             page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
             context = {
-                'course_name': run_name,
+                'sender_role': PublisherUserRole.Publisher,
+                'recipient_name': course_team_user.get_full_name() or course_team_user.username,
+                'course_name': course_run.course.title,
+                'course_run_number': course_key.run,
+                'preview_link': course_run.preview_url,
                 'contact_us_email': project_coordinator.email if project_coordinator else '',
                 'page_url': 'https://{host}{path}'.format(
                     host=Site.objects.get_current().domain.strip('/'), path=page_path
-                )
+                ),
+                'platform_name': settings.PLATFORM_NAME
             }
             template = get_template(txt_template)
             plain_content = template.render(context)
@@ -371,13 +376,17 @@ def send_email_preview_page_is_available(course_run):
             html_content = template.render(context)
 
             email_msg = EmailMultiAlternatives(
-                subject, plain_content, from_address, to=[from_address], bcc=to_addresses
+                subject, plain_content, from_address, to=to_addresses
             )
             email_msg.attach_alternative(html_content, 'text/html')
             email_msg.send()
 
     except Exception:  # pylint: disable=broad-except
-        logger.exception('Failed to send email notifications for preview available of course-run %s', course_run.id)
+        error_message = 'Failed to send email notifications for preview available of course-run {run_id}'.format(
+            run_id=course_run.id
+        )
+        logger.exception(error_message)
+        raise Exception(error_message)
 
 
 def send_course_run_published_email(course_run):

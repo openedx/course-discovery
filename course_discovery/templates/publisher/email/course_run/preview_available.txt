@@ -1,14 +1,14 @@
 {% load i18n %}
 
 {% blocktrans trimmed %}
-    Dear member,
+    Dear {{ recipient_name }},
 {% endblocktrans %}
 {% blocktrans trimmed %}
-    Preview for {{ course_name }} is available for review. {{ page_url }}
+    A preview is now available for the {{ course_run_number }} course run of {{ course_name }}. Visit {{ page_url }} to approve or decline the preview for this course run.
 {% endblocktrans %}
 
 {% trans "Thanks," %}
-{% trans "The edX team" %}
+{{ platform_name }} {{ sender_role }}
 
 {% blocktrans trimmed %}
     Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.

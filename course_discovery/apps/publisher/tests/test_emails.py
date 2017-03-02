@@ -14,6 +14,7 @@ from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher import emails
 from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.models import UserAttributes
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.factories import UserAttributeFactory
 
@@ -42,17 +43,12 @@ class StudioInstanceCreatedEmailTests(TestCase):
 
     @mock.patch('django.core.mail.message.EmailMessage.send', mock.Mock(side_effect=TypeError))
     def test_email_with_error(self):
-        """ Verify that emails for studio instance created."""
+        """ Verify that emails failure raise exception."""
 
-        with LogCapture(emails.logger.name) as l:
+        with self.assertRaises(Exception) as ex:
             emails.send_email_for_studio_instance_created(self.course_run)
-            l.check(
-                (
-                    emails.logger.name,
-                    'ERROR',
-                    'Failed to send email notifications for course_run [{}]'.format(self.course_run.id)
-                )
-            )
+            error_message = 'Failed to send email notifications for course_run [{}]'.format(self.course_run.id)
+            self.assertEqual(ex.message, error_message)
 
     def test_email_sent_successfully(self):
         """ Verify that emails sent successfully for studio instance created."""
@@ -142,6 +138,15 @@ class CourseCreatedEmailTests(TestCase):
         self.assertIn('{dashboard_url}'.format(dashboard_url=reverse('publisher:publisher_dashboard')), body)
         self.assertIn('Please create a Studio instance for this course', body)
         self.assertIn('Thanks', body)
+
+    def test_email_not_sent_with_notification_disabled(self):
+        """ Verify that emails not sent if notification disabled by user."""
+        user_attribute = UserAttributes.objects.get(user=self.user)
+        user_attribute.enable_email_notification = False
+        user_attribute.save()
+        emails.send_email_for_course_creation(self.course_run.course, self.course_run)
+
+        self.assertEqual(len(mail.outbox), 0)
 
 
 class SendForReviewEmailTests(TestCase):
@@ -429,38 +434,49 @@ class CourseRunPreviewEmailTests(TestCase):
         """
         Verify that preview available email functionality works fine.
         """
-        emails.send_email_preview_page_is_available(self.run_state.course_run)
-        run_name = '{pacing_type}: {start_date}'.format(
-            pacing_type=self.run_state.course_run.get_pacing_type_display(),
-            start_date=self.run_state.course_run.start.strftime("%B %d, %Y")
-        )
-        subject = 'Preview for {run_name} is available'.format(
-            run_name=run_name
+        course_run = self.run_state.course_run
+        course_run.lms_course_id = 'course-v1:testX+testX1.0+2017T1'
+        course_run.save()
+
+        emails.send_email_preview_page_is_available(course_run)
+
+        course_key = CourseKey.from_string(course_run.lms_course_id)
+        subject = 'Review requested: Preview for {course_name} {run_number}'.format(
+            course_name=self.course.title,
+            run_number=course_key.run
         )
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual([self.course.course_team_admin.email], mail.outbox[0].bcc)
+        self.assertEqual([self.course.course_team_admin.email], mail.outbox[0].to)
         self.assertEqual(str(mail.outbox[0].subject), subject)
         body = mail.outbox[0].body.strip()
-        page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.run_state.course_run.id})
+        page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
         page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
         self.assertIn(page_url, body)
-        self.assertIn('is available for review.', body)
+        self.assertIn('A preview is now available for the', body)
 
     def test_preview_available_email_with_error(self):
-        """ Verify that email failure log error message."""
+        """ Verify that exception raised on email failure."""
 
-        with mock.patch('django.core.mail.message.EmailMessage.send', side_effect=TypeError):
-            with LogCapture(emails.logger.name) as l:
-                emails.send_email_preview_page_is_available(self.run_state.course_run)
-                l.check(
-                    (
-                        emails.logger.name,
-                        'ERROR',
-                        'Failed to send email notifications for preview available of course-run {}'.format(
-                            self.run_state.course_run.id
-                        )
-                    )
-                )
+        with self.assertRaises(Exception) as ex:
+            emails.send_email_preview_page_is_available(self.run_state.course_run)
+            error_message = 'Failed to send email notifications for preview available of course-run {}'.format(
+                self.run_state.course_run.id
+            )
+            self.assertEqual(ex.message, error_message)
+
+    def test_preview_available_email_with_notification_disabled(self):
+        """ Verify that email not sent if notification disabled by user."""
+        factories.UserAttributeFactory(user=self.course.course_team_admin, enable_email_notification=False)
+        emails.send_email_preview_page_is_available(self.run_state.course_run)
+
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_preview_accepted_email_with_notification_disabled(self):
+        """ Verify that preview accepted email not sent if notification disabled by user."""
+        factories.UserAttributeFactory(user=self.course.publisher, enable_email_notification=False)
+        emails.send_email_preview_accepted(self.run_state.course_run)
+
+        self.assertEqual(len(mail.outbox), 0)
 
 
 class CourseRunPublishedEmailTests(TestCase):
