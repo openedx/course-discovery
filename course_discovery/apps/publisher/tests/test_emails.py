@@ -6,6 +6,7 @@ from django.contrib.sites.models import Site
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from opaque_keys.edx.keys import CourseKey
 from testfixtures import LogCapture
 
 from course_discovery.apps.core.tests.factories import UserFactory
@@ -484,13 +485,15 @@ class CourseRunPublishedEmailTests(TestCase):
         """
         Verify that course published email functionality works fine.
         """
+        self.course_run.lms_course_id = 'course-v1:testX+test45+2017T2'
+        self.course_run.save()
         emails.send_course_run_published_email(self.course_run)
-        course_name = '{title}: {pacing_type} - {start_date}'.format(
-            title=self.course.title,
-            pacing_type=self.course_run.get_pacing_type_display(),
-            start_date=self.course_run.start.strftime("%B %d, %Y")
+
+        course_key = CourseKey.from_string(self.course_run.lms_course_id)
+        subject = 'Publication complete: {course_name} {run_number}'.format(
+            course_name=self.course_run.course.title,
+            run_number=course_key.run
         )
-        subject = 'Course {course_name} is now live'.format(course_name=course_name)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual([self.course.course_team_admin.email], mail.outbox[0].to)
         self.assertEqual(str(mail.outbox[0].subject), subject)
@@ -498,7 +501,8 @@ class CourseRunPublishedEmailTests(TestCase):
         page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id})
         page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
         self.assertIn(page_url, body)
-        self.assertIn('is now live.', body)
+        self.assertIn(self.course_run.preview_url, body)
+        self.assertIn('has been published', body)
 
     def test_course_published_email_with_error(self):
         """ Verify that email failure log error message."""

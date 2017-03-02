@@ -8,13 +8,13 @@
         {% endblocktrans %}
     <p>
         {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' trimmed %}
-            Your course {{ link_start }}{{ page_url }}{{ link_middle }} {{ course_name }} {{ link_end }} is now live.
+            The {{ link_start }}{{ page_url }}{{ link_middle }} {{ course_run_number }} course run {{ link_end }} of {{ course_name }} has been published. Visit {{ link_start }}{{ preview_url }}{{ link_middle }}link to live course run page{{ link_end }} to view the course run.
         {% endblocktrans %}
     </p>
 
     {% comment %}Translators: It's closing of mail.{% endcomment %}
     {% trans "Thanks," %}<br>
-    {% trans "The edX team" %}
+    {{ platform_name}} {{ sender_role }}
 
 
 {% blocktrans trimmed %}

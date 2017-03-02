@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-03 18:10+0500\n"
+"POT-Creation-Date: 2017-03-07 15:12+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -635,8 +635,10 @@ msgstr ""
 
 #: apps/publisher/emails.py
 #, python-brace-format
-msgid "Course {course_name} is now live"
-msgstr "Çöürsé {course_name} ïs nöw lïvé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+msgid "Publication complete: {course_name} {run_number}"
+msgstr ""
+"Püßlïçätïön çömplété: {course_name} {run_number} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢#"
 
 #: apps/publisher/forms.py
 msgid "Remove Image"
@@ -2846,8 +2848,6 @@ msgstr "Vïéw Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 #: templates/publisher/email/course_run/preview_accepted.txt
 #: templates/publisher/email/course_run/preview_available.html
 #: templates/publisher/email/course_run/preview_available.txt
-#: templates/publisher/email/course_run/published.html
-#: templates/publisher/email/course_run/published.txt
 #: templates/publisher/email/decline_preview.html
 #: templates/publisher/email/decline_preview.txt
 msgid "The edX team"
@@ -3096,18 +3096,25 @@ msgstr ""
 #: templates/publisher/email/course_run/published.html
 #, python-format
 msgid ""
-"Your course %(link_start)s%(page_url)s%(link_middle)s %(course_name)s "
-"%(link_end)s is now live."
+"The %(link_start)s%(page_url)s%(link_middle)s %(course_run_number)s course "
+"run %(link_end)s of %(course_name)s has been published. Visit "
+"%(link_start)s%(preview_url)s%(link_middle)slink to live course run "
+"page%(link_end)s to view the course run."
 msgstr ""
-"Ýöür çöürsé %(link_start)s%(page_url)s%(link_middle)s %(course_name)s "
-"%(link_end)s ïs nöw lïvé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+"Thé %(link_start)s%(page_url)s%(link_middle)s %(course_run_number)s çöürsé "
+"rün %(link_end)s öf %(course_name)s häs ßéén püßlïshéd. Vïsït "
+"%(link_start)s%(preview_url)s%(link_middle)slïnk tö lïvé çöürsé rün "
+"pägé%(link_end)s tö vïéw thé çöürsé rün. Ⱡ'#"
 
 #: templates/publisher/email/course_run/published.txt
 #, python-format
-msgid "Your course %(course_name)s is now live. %(page_url)s"
+msgid ""
+"The %(course_run_number)s %(page_url)s course run of %(course_name)s has "
+"been published. Visit %(preview_url)s to view the live course run."
 msgstr ""
-"Ýöür çöürsé %(course_name)s ïs nöw lïvé. %(page_url)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
-" αмєт, ¢σηѕє¢тє#"
+"Thé %(course_run_number)s %(page_url)s çöürsé rün öf %(course_name)s häs "
+"ßéén püßlïshéd. Vïsït %(preview_url)s tö vïéw thé lïvé çöürsé rün. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
 
 #: templates/publisher/email/course_run/send_for_review.html
 #, python-format
