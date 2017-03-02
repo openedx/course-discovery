@@ -78,6 +78,9 @@ private.py
 # Editor Temp Files
 *.swp
 
+# pyenv
+.python-version
+
 *.trace
 
 .cache/
