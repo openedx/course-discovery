@@ -305,13 +305,30 @@ class UpdateCourseRunViewTests(TestCase):
 
     def test_update_preview_url(self):
         """Verify the user can update course preview url."""
+        self.course_run.lms_course_id = 'course-v1:testX+TC167+2018T1'
+        self.course_run.save()
         preview_url = 'https://example.com/abc/course'
         factories.CourseRunStateFactory.create(course_run=self.course_run, owner_role=PublisherUserRole.Publisher)
+        factories.CourseUserRoleFactory(
+            course=self.course_run.course, role=PublisherUserRole.Publisher
+        )
+        course_team_role = factories.CourseUserRoleFactory(
+            course=self.course_run.course, role=PublisherUserRole.CourseTeam
+        )
         response = self._make_request(preview_url)
 
         self.assertEqual(response.status_code, 200)
         course_run = CourseRun.objects.get(id=self.course_run.id)
         self.assertEqual(course_run.preview_url, preview_url)
+
+        course_key = CourseKey.from_string(course_run.lms_course_id)
+        subject = 'Review requested: Preview for {course_name} {run_number}'.format(
+            course_name=self.course_run.course.title,
+            run_number=course_key.run
+        )
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual([course_team_role.user.email], mail.outbox[0].to)
+        self.assertEqual(str(mail.outbox[0].subject), subject)
 
     def test_update_with_invalid_preview_url(self):
         """Verify the user can't update course preview url if url has invalid format."""
@@ -326,6 +343,25 @@ class UpdateCourseRunViewTests(TestCase):
             data=json.dumps({'preview_url': preview_url}),
             content_type=JSON_CONTENT_TYPE
         )
+
+    def test_update_preview_url_with_notification_disabled(self):
+        """
+        Verify that no email sent on update course preview url if
+        notification disabled by user.
+        """
+        preview_url = 'https://example.com/abc/course'
+        factories.CourseRunStateFactory.create(course_run=self.course_run, owner_role=PublisherUserRole.Publisher)
+        course_team_role = factories.CourseUserRoleFactory(
+            course=self.course_run.course, role=PublisherUserRole.CourseTeam
+        )
+        factories.UserAttributeFactory(user=course_team_role.user, enable_email_notification=False)
+
+        response = self._make_request(preview_url)
+
+        self.assertEqual(response.status_code, 200)
+        course_run = CourseRun.objects.get(id=self.course_run.id)
+        self.assertEqual(course_run.preview_url, preview_url)
+        self.assertEqual(len(mail.outbox), 0)
 
 
 class CourseRevisionDetailViewTests(TestCase):

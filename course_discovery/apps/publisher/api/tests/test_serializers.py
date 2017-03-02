@@ -107,9 +107,13 @@ class CourseRunSerializerTests(TestCase):
         """ Verify that course 'owner_role' will be changed to course_team after updating
         course run with preview url.
         """
+        self.course_run.preview_url = ''
+        self.course_run.save()
         serializer = self.serializer_class(self.course_run)
-        serializer.update(self.course_run, serializer.data)
+        serializer.update(self.course_run, {'preview_url': 'https://example.com/abc/course'})
+
         self.assertEqual(self.course_state.owner_role, PublisherUserRole.CourseTeam)
+        self.assertEqual(self.course_run.preview_url, serializer.data['preview_url'])
 
     def test_update_lms_course_id(self):
         """ Verify that 'changed_by' also updated after updating course_run's lms_course_id."""
@@ -121,6 +125,36 @@ class CourseRunSerializerTests(TestCase):
 
         self.assertEqual(self.course_run.lms_course_id, serializer.data['lms_course_id'])
         self.assertEqual(self.course_run.changed_by, self.user)
+
+    def test_update_with_transaction_rollback(self):
+        """
+        Verify that transaction roll backed if an error occurred.
+        """
+        self.course_run.preview_url = ''
+        self.course_run.save()
+        serializer = self.serializer_class(self.course_run)
+
+        with self.assertRaises(Exception):
+            serializer.update(self.course_run, {'preview_url': 'invalid_url'})
+            self.assertFalse(self.course_run.preview_url)
+
+    def test_transaction_roll_back_with_error_on_email(self):
+        """
+        Verify that transaction is roll backed if error occurred during email sending.
+        """
+        toggle_switch('enable_publisher_email_notifications', True)
+        self.course_run.preview_url = ''
+        self.course_run.save()
+        serializer = self.serializer_class(self.course_run)
+        self.assertEqual(self.course_run.course_run_state.owner_role, PublisherUserRole.Publisher)
+
+        with self.assertRaises(Exception):
+            serializer.update(self.course_run, {'preview_url': 'https://example.com/abc/course'})
+
+        self.course_run = CourseRun.objects.get(id=self.course_run.id)
+        self.assertFalse(self.course_run.preview_url)
+        # Verify that owner role not changed.
+        self.assertEqual(self.course_run.course_run_state.owner_role, PublisherUserRole.Publisher)
 
 
 class CourseRevisionSerializerTests(TestCase):

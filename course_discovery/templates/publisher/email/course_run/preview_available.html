@@ -4,17 +4,17 @@
 <!-- Message Body -->
     <p>
         {% blocktrans trimmed %}
-            Dear member,
+            Dear {{ recipient_name }},
         {% endblocktrans %}
     <p>
         {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' trimmed %}
-            Preview for {{ link_start }}{{ page_url }}{{ link_middle }} {{ course_name }} {{ link_end }} is available for review.
+            A preview is now available for the {{ link_start }}{{ page_url }}{{ link_middle }} {{ course_run_number }} course run {{ link_end }} of {{ course_name }}. Visit {{ link_start }}{{ preview_link }}{{ link_middle }} link to preview {{ link_end }} to approve or decline the preview for this course run.
         {% endblocktrans %}
     </p>
 
     {% comment %}Translators: It's closing of mail.{% endcomment %}
     {% trans "Thanks," %}<br>
-    {% trans "The edX team" %}
+    {{ platform_name }} {{ sender_role }}
 
 
 {% blocktrans trimmed %}

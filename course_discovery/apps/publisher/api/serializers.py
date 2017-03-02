@@ -87,6 +87,7 @@ class CourseRunSerializer(serializers.ModelSerializer):
 
         return validated_values
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         instance = super(CourseRunSerializer, self).update(instance, validated_data)
         preview_url = validated_data.get('preview_url')
