@@ -4,11 +4,11 @@
     Dear {{ recipient_name }},
 {% endblocktrans %}
 {% blocktrans trimmed %}
-    Your course {{ course_name }} is now live. {{ page_url }}
+    The {{ course_run_number }} {{ page_url }} course run of {{ course_name }} has been published. Visit {{ preview_url }} to view the live course run.
 {% endblocktrans %}
 
 {% trans "Thanks," %}
-{% trans "The edX team" %}
+{{ platform_name}} {{ sender_role }}
 
 {% blocktrans trimmed %}
     Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.

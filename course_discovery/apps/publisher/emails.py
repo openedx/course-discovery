@@ -6,6 +6,7 @@ from django.core.mail.message import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
+from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
@@ -382,28 +383,30 @@ def send_course_run_published_email(course_run):
     """
     txt_template = 'publisher/email/course_run/published.txt'
     html_template = 'publisher/email/course_run/published.html'
-
-    course_name = '{title}: {pacing_type} - {start_date}'.format(
-        title=course_run.course.title,
-        pacing_type=course_run.get_pacing_type_display(),
-        start_date=course_run.start.strftime("%B %d, %Y")
-    )
-    subject = _('Course {course_name} is now live').format(course_name=course_name)  # pylint: disable=no-member
     course_team_user = course_run.course.course_team_admin
 
     try:
         if is_email_notification_enabled(course_team_user):
+            course_key = CourseKey.from_string(course_run.lms_course_id)
+            subject = _('Publication complete: {course_name} {run_number}').format(     # pylint: disable=no-member
+                course_name=course_run.course.title,
+                run_number=course_key.run
+            )
             to_addresses = [course_team_user.email]
             from_address = settings.PUBLISHER_FROM_EMAIL
             project_coordinator = course_run.course.project_coordinator
             page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
             context = {
-                'course_name': course_name,
+                'sender_role': PublisherUserRole.Publisher,
+                'course_name': course_run.course.title,
+                'preview_url': course_run.preview_url,
+                'course_run_number': course_key.run,
                 'recipient_name': course_team_user.get_full_name() or course_team_user.username,
                 'contact_us_email': project_coordinator.email if project_coordinator else '',
                 'page_url': 'https://{host}{path}'.format(
                     host=Site.objects.get_current().domain.strip('/'), path=page_path
-                )
+                ),
+                'platform_name': settings.PLATFORM_NAME,
             }
             template = get_template(txt_template)
             plain_content = template.render(context)

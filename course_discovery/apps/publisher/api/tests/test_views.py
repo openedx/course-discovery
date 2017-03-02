@@ -9,6 +9,7 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from guardian.shortcuts import assign_perm
+from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
@@ -700,10 +701,11 @@ class ChangeCourseRunStateViewTests(TestCase):
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual([course.course_team_admin.email], mail.outbox[0].to)
-        course_name = '{title}: {pacing_type} - {start_date}'.format(
-            title=course.title,
-            pacing_type=self.course_run.get_pacing_type_display(),
-            start_date=self.course_run.start.strftime("%B %d, %Y")
+
+        course_key = CourseKey.from_string(self.course_run.lms_course_id)
+        expected_subject = 'Publication complete: {course_name} {run_number}'.format(
+            course_name=course.title,
+            run_number=course_key.run
         )
-        expected_subject = 'Course {course_name} is now live'.format(course_name=course_name)
         self.assertEqual(str(mail.outbox[0].subject), expected_subject)
+        self.assertIn('has been published', mail.outbox[0].body.strip())
