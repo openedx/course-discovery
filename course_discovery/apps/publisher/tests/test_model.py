@@ -542,6 +542,7 @@ class CourseRunStateTests(TestCase):
         self.course_run.language = language_tag
         self.course_run.is_micromasters = True
         self.course_run.micromasters_name = 'test'
+        self.course_run.lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
         self.course_run.save()
         self.course.course_state.name = CourseStateChoices.Approved
         self.course.save()

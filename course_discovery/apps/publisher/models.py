@@ -550,7 +550,8 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
         return all([
             course_run.course.course_state.is_approved, course_run.has_valid_seats, course_run.start, course_run.end,
             course_run.pacing_type, course_run.has_valid_staff, course_run.is_valid_micromasters,
-            course_run.is_valid_xseries, course_run.language, course_run.transcript_languages.all()
+            course_run.is_valid_xseries, course_run.language, course_run.transcript_languages.all(),
+            course_run.lms_course_id
         ])
 
     def __str__(self):

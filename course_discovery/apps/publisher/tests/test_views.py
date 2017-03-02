@@ -504,6 +504,8 @@ class CourseRunDetailTests(TestCase):
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.course_run = factories.CourseRunFactory(course=self.course)
+        self.course_run.lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
+        self.course_run.save()
 
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.course.organizations.add(self.organization_extension.organization)

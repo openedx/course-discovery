@@ -256,6 +256,8 @@ class CourseRunStateSerializerTests(TestCase):
         )
 
         self.assertNotEqual(self.run_state, CourseRunStateChoices.Review)
+
+        self.course_run.lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
         serializer = self.serializer_class(self.run_state, context={'request': self.request})
         data = {'name': CourseRunStateChoices.Review}
         serializer.update(self.run_state, data)
