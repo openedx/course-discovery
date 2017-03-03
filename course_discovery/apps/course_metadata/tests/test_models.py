@@ -1,9 +1,11 @@
 import datetime
 import itertools
+import random
 from decimal import Decimal
 
 import ddt
 import mock
+import pytz
 import responses
 from dateutil.parser import parse
 from django.conf import settings
@@ -20,7 +22,7 @@ from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractMediaModel, AbstractNamedModel, AbstractValueModel, CorporateEndorsement, Course, CourseRun,
-    Endorsement, ProgramType, Seat, SeatType
+    CourseRunStatus, Endorsement, ProgramType, Seat, SeatType
 )
 from course_discovery.apps.course_metadata.publishers import MarketingSitePublisher
 from course_discovery.apps.course_metadata.tests import factories, toggle_switch
@@ -63,6 +65,94 @@ class CourseTests(ElasticsearchTestMixin, TestCase):
         """ Test that the index update process failing will not cause the course save to error """
         with mock.patch.object(Course, 'reindex_course_runs', side_effect=Exception):
             self.course.save()
+
+    def test_select_course_run_for_indexing(self):
+        """
+        Verify that the CourseRun returned is the one that best satisfies the following criteria:
+        - Public Visibility: The general public can view the CourseRun.
+        - Enrollability: A user can enroll in the CourseRun.
+        - Consumability: A user can consume Course content.
+        - Purchasability: A user can purchase a paid Seat.
+        """
+
+        # List of config options to use when building CourseRuns and the priority with which they should be
+        # returned by select_course_run_for_indexing (lower numbers indicate higher priority).
+        course_run_priorities_and_configs = [
+            (0, ('is_publicly_visible', 'is_enrollable', 'is_consumable', 'is_or_will_be_purchasable')),
+            (1, ('is_publicly_visible', 'is_enrollable', 'is_consumable')),
+            (2, ('is_publicly_visible', 'is_enrollable', 'is_or_will_be_purchasable')),
+            (3, ('is_publicly_visible', 'is_enrollable')),
+            (4, ('is_publicly_visible', 'will_be_enrollable', 'is_or_will_be_purchasable')),
+            (5, ('is_publicly_visible', 'will_be_enrollable')),
+            (6, ('is_publicly_visible')),
+            (7, ())
+        ]
+
+        # Create the Course
+        course = factories.CourseFactory.create()
+
+        # Create the CourseRuns in random order, but assign them to course_runs in priority order.
+        course_runs = [None] * len(course_run_priorities_and_configs)
+        random.shuffle(course_run_priorities_and_configs)
+        for priority_and_config in course_run_priorities_and_configs:
+            priority, config = priority_and_config
+            course_run = factories.CourseRunFactory.create(course=course)
+
+            # Set enrollability
+            if 'is_enrollable' in config:
+                course_run.enrollment_start = None
+                course_run.enrollment_end = None
+                assert course_run.is_enrollable
+            elif 'will_be_enrollable' in config:
+                course_run.enrollment_start = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
+                course_run.enrollment_end = None
+                assert course_run.will_be_enrollable
+            else:
+                course_run.enrollment_start = None
+                course_run.enrollment_end = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1)
+                assert not (course_run.is_enrollable or course_run.will_be_enrollable)
+
+            # Set consumability
+            if 'is_consumable' in config:
+                course_run.start = None
+                assert course_run.is_consumable
+            else:
+                course_run.start = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
+                assert not course_run.is_consumable
+
+            # Set public visibility
+            if 'is_publicly_visible' in config:
+                course_run.status = CourseRunStatus.Published
+                course_run.hidden = False
+                factories.SeatFactory.create(course_run=course_run, price=0)
+                assert course_run.is_publicly_visible
+            else:
+                course_run.status = CourseRunStatus.Unpublished
+                course_run.hidden = True
+                course_run.seats.all().delete()
+                assert not course_run.is_publicly_visible
+
+            # Set purchasability
+            if 'is_or_will_be_purchasable' in config:
+                # Cannot purchase upgrades for CourseRun that has ended
+                course_run.end = None
+                factories.SeatFactory.create(course_run=course_run, price=1, type=Seat.VERIFIED, upgrade_deadline=None)
+                assert course_run.is_or_will_be_purchasable
+            else:
+                course_run.seats.filter(price__gt=0).delete()
+                assert not course_run.is_or_will_be_purchasable
+
+            course_run.save()
+            course_runs[priority] = course_run
+
+        # Verify that the selected course run is the one with the highest priority, then delete that one and verify
+        # that the CourseRun selected next is the one with the next highest priority, and so on.
+        for course_run in course_runs:
+            assert course_run.uuid == course.select_course_run_for_indexing().uuid
+            course_run.delete()
+
+        # All of the CourseRuns have been deleted, so now calling select_course_run_for_indexing should return None
+        assert course.select_course_run_for_indexing() is None
 
 
 @ddt.ddt
@@ -186,6 +276,107 @@ class CourseRunTests(TestCase):
         active_program = factories.ProgramFactory(courses=[self.course_run.course])
         factories.ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Deleted)
         self.assertEqual(self.course_run.program_types, [active_program.type.name])
+
+    @ddt.data(
+        # Case 1: Should be True when CourseRun is published, not hidden, and has Seats.
+        (True, False, True, True),
+
+        # Case 2: Should be False when CourseRun is hidden.
+        (True, True, True, False),
+
+        # Case 3: Should be False when CourseRun doesn't have any Seats.
+        (True, False, False, False),
+
+        # Case 4: Should be False when CourseRun is not published.
+        (False, False, True, False),
+    )
+    @ddt.unpack
+    def test_is_publicly_visible(self, is_published, is_hidden, has_seats, expected_result):
+        """
+        Verify that is_publicly_visible returns True for CourseRuns that have Seats, are published, and are not
+        hidden.
+        """
+        status = CourseRunStatus.Published if is_published else CourseRunStatus.Unpublished
+        course_run = factories.CourseRunFactory.create(status=status, hidden=is_hidden)
+        if has_seats:
+            factories.SeatFactory.create(course_run=course_run)
+
+        assert expected_result == course_run.is_publicly_visible
+
+    @ddt.data(
+        # Case 1: Should be True when enrollment_start is unspecified or in the past and
+        # enrollment_end is unspecified or in the future.
+        (None, None, True),
+        (None, datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1), True),
+        (datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1), None, True),
+        (datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1),
+         datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1), True),
+
+        # Case 2: Should be False when enrollment_start is in the future or enrollment_end is in the past.
+        (datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1), None, False),
+        (None, datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1), False),
+    )
+    @ddt.unpack
+    def test_is_enrollable(self, enrollment_start, enrollment_end, expected_result):
+        """ Verify that is_enrollable is True when enrollment has begun and has not ended."""
+        course_run = factories.CourseRunFactory.create(
+            enrollment_start=enrollment_start,
+            enrollment_end=enrollment_end
+        )
+        assert expected_result == course_run.is_enrollable
+
+    @ddt.data(
+        # Case 1: Should be True if enrollment_start is in future.
+        (datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1), True),
+
+        # Case 2: Should be False if enrollment_start is unspecified or in the past.
+        (datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1), False),
+        (None, False)
+    )
+    @ddt.unpack
+    def test_will_be_enrollable(self, enrollment_start, expected_result):
+        """ Verify that will_be_enrollable is True when enrollment will begin in the future."""
+        course_run = factories.CourseRunFactory.create(enrollment_start=enrollment_start, enrollment_end=None)
+        assert expected_result == course_run.will_be_enrollable
+
+    @ddt.data(
+        # Case 1: Should be True if start is unspecified or in the past.
+        (datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1), True),
+        (None, True),
+
+        # Case 2: Should be False if start is in the future.
+        (datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1), False),
+    )
+    @ddt.unpack
+    def test_is_consumable(self, start, expected_result):
+        """
+        Verify that is_consumable is True when start is unspecifed or in the future.
+        """
+        course_run = factories.CourseRunFactory.create(start=start, end=None)
+        assert expected_result == course_run.is_consumable
+
+    @ddt.data(
+        # Case 1: Should be True if course has_enrollable_paid_seats and paid_seat_enrollment_end is unspecified
+        # or in the future.
+        (True, None, True),
+        (True, datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1), True),
+
+        # Case 2: Should be False if course does not have paid seats.
+        (False, datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1), False),
+
+        # Case 3: Should be False if paid_seat_enrollment_end is in the past.
+        (True, datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1), False),
+    )
+    @ddt.unpack
+    def test_is_or_will_be_purchasable(self, has_enrollable_paid_seats, paid_seat_enrollment_end, expected_result):
+        """
+        Verify that is_or_will_be_purchasable is True when the CourseRun has enrollable paid seats and the paid
+        seat enrollment end is unspecified or in the past.
+        """
+        with mock.patch.object(CourseRun, 'has_enrollable_paid_seats', return_value=has_enrollable_paid_seats):
+            with mock.patch.object(CourseRun, 'get_paid_seat_enrollment_end', return_value=paid_seat_enrollment_end):
+                course_run = factories.CourseRunFactory.create()
+                assert expected_result == course_run.is_or_will_be_purchasable
 
     @ddt.data(
         # Case 1: Return False when there are no paid Seats.

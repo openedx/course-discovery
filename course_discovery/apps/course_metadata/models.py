@@ -346,6 +346,49 @@ class Course(TimeStampedModel):
         for course_run in self.course_runs.all():
             index.update_object(course_run)
 
+    def select_course_run_for_indexing(self):
+        """
+        Return the CourseRun from which data should be extracted when indexing this Course for search.
+        The CourseRun that best satisfies the following criteria should be returned:
+        - Public Visibility: The general public can view the CourseRun.
+        - Enrollability: A user can enroll in the CourseRun.
+        - Consumability: A user can consume Course content.
+        - Purchasability: A user can purchase a paid Seat.
+        """
+        def sort_key(course_run):
+            """
+            Return a numeric score indicating the priority of this CourseRun relative to others. Lower numbers
+            indicate higher priority.
+            """
+            is_publicly_visible = course_run.is_publicly_visible
+            is_enrollable = course_run.is_enrollable
+            will_be_enrollable = course_run.will_be_enrollable
+            is_consumable = course_run.is_consumable
+            is_or_will_be_purchasable = course_run.is_or_will_be_purchasable
+
+            if is_publicly_visible and is_enrollable and is_consumable and is_or_will_be_purchasable:
+                return 0
+            elif is_publicly_visible and is_enrollable and is_consumable:
+                return 1
+            elif is_publicly_visible and is_enrollable and is_or_will_be_purchasable:
+                return 2
+            elif is_publicly_visible and is_enrollable:
+                return 3
+            elif is_publicly_visible and will_be_enrollable and is_or_will_be_purchasable:
+                return 4
+            elif is_publicly_visible and will_be_enrollable:
+                return 5
+            elif is_publicly_visible:
+                return 6
+            else:
+                return 7
+
+        course_runs = list(self.course_runs.all())
+        if course_runs:
+            return sorted(course_runs, key=sort_key)[0]
+        else:
+            return None
+
 
 class CourseRun(TimeStampedModel):
     """ CourseRun model. """
@@ -447,6 +490,61 @@ class CourseRun(TimeStampedModel):
             deadline = latest_seat.upgrade_deadline
 
         return deadline
+
+    @property
+    def is_publicly_visible(self):
+        """
+        Return True if the CourseRun should be visible to the general public, othwerise return False.
+
+        A CourseRun should be visible to the general public if it is published, has seats, and has not been hidden.
+        """
+        return self.status == CourseRunStatus.Published and not self.hidden and len(self.seats.all()) > 0
+
+    @property
+    def is_enrollable(self):
+        """
+        Return True if the CourseRun is currently enrollable, otherwise return False.
+
+        A CourseRun is enrollable if an unenrolled user may enroll in the course (enrollment has begun and
+        has not ended).
+        """
+        now = datetime.datetime.now(pytz.UTC)
+        enrollment_has_begun = self.enrollment_start is None or self.enrollment_start <= now
+        enrollment_has_not_ended = self.enrollment_end is None or self.enrollment_end > now
+        return enrollment_has_begun and enrollment_has_not_ended
+
+    @property
+    def will_be_enrollable(self):
+        """
+        Return True if the CourseRun is not currently enrollable but will be in the future, otherwise return False.
+        """
+        now = datetime.datetime.now(pytz.UTC)
+        return self.enrollment_start is not None and self.enrollment_start > now
+
+    @property
+    def is_consumable(self):
+        """
+        Return True if the CourseRun is currently consumable, otherwise return False.
+
+        A CourseRun is consumable if a user can consume course content (the course has started).
+        """
+        now = datetime.datetime.now(pytz.UTC)
+        return self.start is None or self.start <= now
+
+    @property
+    def is_or_will_be_purchasable(self):
+        """
+        Return True if the CourseRun is currently purchasable or will be in the future, otherwise return False.
+
+        A CourseRun is purchasable if an unenrolled user may enroll and purchase a paid seat for the CourseRun.
+        """
+        has_enrollable_paid_seats = self.has_enrollable_paid_seats()
+        if not has_enrollable_paid_seats:
+            return False
+
+        now = datetime.datetime.now(pytz.UTC)
+        paid_seat_enrollment_end = self.get_paid_seat_enrollment_end()
+        return paid_seat_enrollment_end is None or paid_seat_enrollment_end > now
 
     @property
     def program_types(self):
