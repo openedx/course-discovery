@@ -4,7 +4,8 @@ Course publisher forms.
 from dal import autocomplete
 from django import forms
 from django.core.exceptions import ValidationError
-from django.db.models.functions import Lower
+from django.db.models import CharField
+from django.db.models.functions import Concat, Lower, Value
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from opaque_keys import InvalidKeyError
@@ -150,7 +151,11 @@ class CustomCourseForm(CourseForm):
             org_extension = OrganizationExtension.objects.get(organization=organization)
             self.declared_fields['team_admin'].queryset = User.objects.filter(
                 groups__name=org_extension.group
-            ).order_by('full_name', 'username')
+            ).annotate(
+                display_name=Concat(
+                    Lower('full_name'), Value(' '), Lower('username'), output_field=CharField()
+                )
+            ).order_by('display_name')
 
         if user:
             organizations = Organization.objects.filter(

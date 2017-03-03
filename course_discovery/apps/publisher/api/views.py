@@ -1,3 +1,5 @@
+from django.db.models import CharField
+from django.db.models.functions import Concat, Lower, Value
 from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 
@@ -23,7 +25,12 @@ class OrganizationGroupUserView(ListAPIView):
 
     def get_queryset(self):
         org_extension = get_object_or_404(OrganizationExtension, organization=self.kwargs.get('pk'))
-        queryset = User.objects.filter(groups__name=org_extension.group).order_by('full_name', 'username')
+        queryset = User.objects.filter(groups__name=org_extension.group).annotate(
+            display_name=Concat(
+                Lower('full_name'), Value(' '), Lower('username'), output_field=CharField()
+            )
+        ).order_by('display_name')
+
         return queryset
 
 
