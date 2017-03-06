@@ -49,7 +49,7 @@ def get_internal_users():
     Returns a list of all internal users
 
     Returns:
-        list
+        list: internal users list
     """
     return list(User.objects.filter(groups__name=INTERNAL_USER_GROUP_NAME))
 
