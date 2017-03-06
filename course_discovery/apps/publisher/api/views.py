@@ -12,12 +12,14 @@ from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRun
 
 
 class CourseRoleAssignmentView(UpdateAPIView):
+    """ Update view for CourseUserRole """
     permission_classes = (IsAuthenticated, CanViewAssociatedCourse,)
     queryset = CourseUserRole.objects.all()
     serializer_class = CourseUserRoleSerializer
 
 
 class OrganizationGroupUserView(ListAPIView):
+    """ List view for Users filtered by group """
     serializer_class = GroupUserSerializer
     permission_classes = (IsAuthenticated,)
 
@@ -28,12 +30,14 @@ class OrganizationGroupUserView(ListAPIView):
 
 
 class UpdateCourseRunView(UpdateAPIView):
+    """ Update view for CourseRuns """
     permission_classes = (IsAuthenticated, InternalUserPermission,)
     queryset = CourseRun.objects.all()
     serializer_class = CourseRunSerializer
 
 
 class CourseRevisionDetailView(RetrieveAPIView):
+    """ Retrieve view for Course revision history """
     permission_classes = (IsAuthenticated, )
     serializer_class = CourseRevisionSerializer
     queryset = Course.history.all()  # pylint: disable=no-member
@@ -41,12 +45,14 @@ class CourseRevisionDetailView(RetrieveAPIView):
 
 
 class ChangeCourseStateView(UpdateAPIView):
+    """ Update view for CourseStates """
     permission_classes = (IsAuthenticated, PublisherUserPermission,)
     queryset = CourseState.objects.all()
     serializer_class = CourseStateSerializer
 
 
 class ChangeCourseRunStateView(UpdateAPIView):
+    """ Update view for CourseRunStates """
     permission_classes = (IsAuthenticated, PublisherUserPermission,)
     queryset = CourseRunState.objects.all()
     serializer_class = CourseRunStateSerializer
