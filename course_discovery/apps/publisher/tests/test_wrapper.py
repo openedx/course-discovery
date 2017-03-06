@@ -63,9 +63,7 @@ class CourseRunWrapperTests(TestCase):
         ([Seat.PROFESSIONAL], Seat.PROFESSIONAL),
     )
     def test_course_type_(self, seats_list, course_type):
-        """ Verify that the wrapper return the course type according to the
-        available seats.
-        """
+        """ Verify that the wrapper return the course type according to the available seats."""
         self._generate_seats(seats_list)
         wrapper_object = CourseRunWrapper(self.course_run)
         self.assertEqual(wrapper_object.course_type, course_type)
@@ -179,7 +177,7 @@ class CourseRunWrapperTests(TestCase):
         """Verify that the wrapper return staff list."""
         staff = PersonFactory()
 
-        # another staff with position
+        # another staff with position by default staff has no position associated.
         staff_2 = PersonFactory()
         position = PositionFactory(person=staff_2)
 
