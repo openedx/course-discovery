@@ -10,6 +10,9 @@ from course_discovery.apps.publisher.utils import is_internal_user, is_publisher
 
 
 class PublisherPermissionMixin(object):
+    """
+    This class will check the logged in user permission for a given course object.
+    """
 
     permission = None
 
@@ -25,6 +28,16 @@ class PublisherPermissionMixin(object):
         return None
 
     def has_user_access(self, user):
+        """ check has the access on course.
+        If user is publisher admin or internal user return True otherwise
+        check user has the organization permission on the given course.
+
+        Arguments:
+            user (User): User object
+
+        Returns:
+            Boolean
+        """
         course = self.get_course()
         return (
             check_roles_access(user) or
