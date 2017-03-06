@@ -14,7 +14,7 @@ from opaque_keys.edx.keys import CourseKey
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
-from course_discovery.apps.course_metadata.tests.factories import PersonFactory
+from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.constants import INTERNAL_USER_GROUP_NAME
@@ -555,6 +555,7 @@ class ChangeCourseRunStateViewTests(TestCase):
         self.course_run.transcript_languages.add(language_tag)
         self.course_run.language = language_tag
         self.course_run.lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
+        self.course_run.course.organizations.add(OrganizationFactory())
         self.course_run.save()
 
         self.course_run.staff.add(PersonFactory())

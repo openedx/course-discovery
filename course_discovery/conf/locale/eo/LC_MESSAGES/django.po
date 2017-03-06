@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-07 15:12+0500\n"
+"POT-Creation-Date: 2017-03-07 15:35+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -622,10 +622,10 @@ msgstr ""
 
 #: apps/publisher/emails.py
 #, python-brace-format
-msgid "Preview for {run_name} has been approved"
+msgid "Publication requested: {course_name} {run_number}"
 msgstr ""
-"Prévïéw för {run_name} häs ßéén äpprövéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тє#"
+"Püßlïçätïön réqüéstéd: {course_name} {run_number} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢т#"
 
 #: apps/publisher/emails.py
 #, python-brace-format
@@ -2844,8 +2844,6 @@ msgstr "Vïéw Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 #: templates/publisher/email/comment.txt
 #: templates/publisher/email/course_created.html
 #: templates/publisher/email/course_created.txt
-#: templates/publisher/email/course_run/preview_accepted.html
-#: templates/publisher/email/course_run/preview_accepted.txt
 #: templates/publisher/email/course_run/preview_available.html
 #: templates/publisher/email/course_run/preview_available.txt
 #: templates/publisher/email/decline_preview.html
@@ -2909,7 +2907,6 @@ msgstr ""
 #: templates/publisher/email/course_created.txt
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
-#: templates/publisher/email/course_run/preview_accepted.html
 #: templates/publisher/email/course_run/preview_accepted.txt
 #: templates/publisher/email/course_run/preview_available.html
 #: templates/publisher/email/course_run/preview_available.txt
@@ -3053,28 +3050,43 @@ msgstr ""
 
 #: templates/publisher/email/course_run/preview_accepted.html
 #: templates/publisher/email/course_run/preview_accepted.txt
-#: templates/publisher/email/course_run/preview_available.html
-#: templates/publisher/email/course_run/preview_available.txt
-msgid "Dear member,"
-msgstr "Déär mémßér, Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+#, python-format
+msgid "Dear %(publisher_role_name)s,"
+msgstr "Déär %(publisher_role_name)s, Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: templates/publisher/email/course_run/preview_accepted.html
 #, python-format
 msgid ""
-"Preview for %(link_start)s%(page_url)s%(link_middle)s %(course_name)s "
-"%(link_end)s has beed approved by course team."
+"%(course_team)s has approved the preview of the "
+"%(link_start)s%(page_url)s%(link_middle)s%(run_number)s%(link_end)s course "
+"run of %(course_name)s from %(org_name)s. The course run is now ready for "
+"publication."
 msgstr ""
-"Prévïéw för %(link_start)s%(page_url)s%(link_middle)s %(course_name)s "
-"%(link_end)s häs ßééd äpprövéd ßý çöürsé téäm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя α#"
+"%(course_team)s häs äpprövéd thé prévïéw öf thé "
+"%(link_start)s%(page_url)s%(link_middle)s%(run_number)s%(link_end)s çöürsé "
+"rün öf %(course_name)s fröm %(org_name)s. Thé çöürsé rün ïs nöw réädý för "
+"püßlïçätïön. Ⱡ'σяєм ι#"
+
+#. Translators: It's closing of mail.
+#: templates/publisher/email/course_run/preview_accepted.html
+msgid "Thank you,"
+msgstr "Thänk ýöü, Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: templates/publisher/email/course_run/preview_accepted.txt
 #, python-format
 msgid ""
-"Preview for %(course_name)s has beed approved by course team. %(page_url)s"
+"%(course_team)s has approved the preview of the %(run_number)s %(page_url)s "
+"course run of %(course_name)s from %(org_name)s. The course run is now ready"
+" for publication."
 msgstr ""
-"Prévïéw för %(course_name)s häs ßééd äpprövéd ßý çöürsé téäm. %(page_url)s "
-"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+"%(course_team)s häs äpprövéd thé prévïéw öf thé %(run_number)s %(page_url)s "
+"çöürsé rün öf %(course_name)s fröm %(org_name)s. Thé çöürsé rün ïs nöw réädý"
+" för püßlïçätïön. Ⱡ'σяєм ιρѕυм ∂σ#"
+
+#: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/preview_available.txt
+msgid "Dear member,"
+msgstr "Déär mémßér, Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: templates/publisher/email/course_run/preview_available.html
 #, python-format

@@ -11,6 +11,7 @@ from testfixtures import LogCapture
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests import toggle_switch
+from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher import emails
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.tests import factories
@@ -367,6 +368,8 @@ class CourseRunPreviewEmailTests(TestCase):
         self.run_state = factories.CourseRunStateFactory()
         self.course = self.run_state.course_run.course
 
+        self.course.organizations.add(OrganizationFactory())
+
         # add users in CourseUserRole table
         factories.CourseUserRoleFactory(
             course=self.course, role=PublisherUserRole.CourseTeam, user=self.user
@@ -384,13 +387,15 @@ class CourseRunPreviewEmailTests(TestCase):
         """
         Verify that preview accepted email functionality works fine.
         """
+        lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
+        self.run_state.course_run.lms_course_id = lms_course_id
+
         emails.send_email_preview_accepted(self.run_state.course_run)
-        run_name = '{pacing_type}: {start_date}'.format(
-            pacing_type=self.run_state.course_run.get_pacing_type_display(),
-            start_date=self.run_state.course_run.start.strftime("%B %d, %Y")
-        )
-        subject = 'Preview for {run_name} has been approved'.format(
-            run_name=run_name
+
+        course_key = CourseKey.from_string(lms_course_id)
+        subject = 'Publication requested: {course_name} {run_number}'.format(
+            course_name=self.course.title,
+            run_number=course_key.run
         )
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual([self.course.publisher.email, self.course.project_coordinator.email], mail.outbox[0].bcc)
@@ -399,7 +404,7 @@ class CourseRunPreviewEmailTests(TestCase):
         page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.run_state.course_run.id})
         page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
         self.assertIn(page_url, body)
-        self.assertIn('has beed approved by course team.', body)
+        self.assertIn('The course run is now ready for publication.', body)
 
     def test_preview_accepted_email_with_error(self):
         """ Verify that email failure log error message."""

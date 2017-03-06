@@ -1,12 +1,13 @@
 """Tests API Serializers."""
 from django.core import mail
 from django.test import RequestFactory, TestCase
+from opaque_keys.edx.keys import CourseKey
 from rest_framework.exceptions import ValidationError
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
-from course_discovery.apps.course_metadata.tests.factories import PersonFactory
+from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api.serializers import (CourseRevisionSerializer, CourseRunSerializer,
                                                              CourseRunStateSerializer, CourseStateSerializer,
@@ -236,6 +237,8 @@ class CourseRunStateSerializerTests(TestCase):
         language_tag.save()
         self.course_run.transcript_languages.add(language_tag)
         self.course_run.language = language_tag
+        organization = OrganizationFactory()
+        self.course_run.course.organizations.add(organization)
         self.course_run.save()
         self.course_run.staff.add(PersonFactory())
 
@@ -269,8 +272,10 @@ class CourseRunStateSerializerTests(TestCase):
 
         self.assertTrue(CourseRun.objects.get(id=self.course_run.id).preview_url)
         self.assertEqual(len(mail.outbox), 1)
-        subject = 'Preview for {run_name}'.format(
-            run_name=self.course_run.get_pacing_type_display()
+        course_key = CourseKey.from_string(self.course_run.lms_course_id)
+        subject = 'Publication requested: {course_name} {run_name}'.format(
+            course_name=self.course_run.course.title,
+            run_name=course_key.run
         )
         self.assertIn(subject, str(mail.outbox[0].subject))
 
