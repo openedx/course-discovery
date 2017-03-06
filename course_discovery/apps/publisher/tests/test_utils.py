@@ -59,8 +59,8 @@ class PublisherUtilsTests(TestCase):
         self.assertEqual(is_email_notification_enabled(self.user), False)
 
     def test_is_publisher_admin(self):
-        """ Verify the function returns a boolean indicating if the user
-        is a member of the administrative group.
+        """
+        Verify the function returns a boolean indicating if the user is a member of the administrative group.
         """
         self.assertFalse(self.user.groups.filter(name=ADMIN_GROUP_NAME).exists())
         self.assertFalse(is_publisher_admin(self.user))
@@ -70,8 +70,8 @@ class PublisherUtilsTests(TestCase):
         self.assertTrue(is_publisher_admin(self.user))
 
     def test_is_internal_user(self):
-        """ Verify the function returns a boolean indicating if the user
-        is a member of the internal user group.
+        """
+        Verify the function returns a boolean indicating if the user is a member of the internal user group.
         """
         self.assertFalse(is_internal_user(self.user))
 
@@ -88,8 +88,8 @@ class PublisherUtilsTests(TestCase):
         self.assertEqual(get_internal_users(), [self.user])
 
     def test_is_project_coordinator_user(self):
-        """ Verify the function returns a boolean indicating if the user
-        is a member of the project coordinator group.
+        """
+        Verify the function returns a boolean indicating if the user is a member of the project coordinator group.
         """
         self.assertFalse(is_project_coordinator_user(self.user))
 
@@ -98,24 +98,20 @@ class PublisherUtilsTests(TestCase):
         self.assertTrue(is_project_coordinator_user(self.user))
 
     def test_check_roles_access_with_admin(self):
-        """ Verify the function returns a boolean indicating if the user
-        access role wise.
-        """
+        """ Verify the function returns True if user is in an admin group, otherwise False. """
         self.assertFalse(check_roles_access(self.user))
         self.user.groups.add(self.admin_group)
         self.assertTrue(check_roles_access(self.user))
 
     def test_check_roles_access_with_internal_user(self):
-        """ Verify the function returns a boolean indicating if the user
-        access role wise.
-        """
+        """ Verify the function returns True if user is in an internal group, otherwise False. """
         self.assertFalse(check_roles_access(self.user))
         self.user.groups.add(self.internal_user_group)
         self.assertTrue(check_roles_access(self.user))
 
     def test_check_organization_permission_without_org(self):
-        """ Verify the function returns a boolean indicating if the user has
-        organization permission on given course.
+        """
+        Verify the function returns True if the user has organization permission on given course, otherwise False.
         """
         self.assertFalse(
             check_course_organization_permission(self.user, self.course, OrganizationExtension.VIEW_COURSE)
@@ -131,7 +127,8 @@ class PublisherUtilsTests(TestCase):
         )
 
     def test_check_user_access_with_roles(self):
-        """ Verify the function returns a boolean indicating if the user
+        """
+        Verify the function returns a boolean indicating if the user
         organization permission on given course or user is internal or admin user.
         """
         self.assertFalse(check_roles_access(self.user))
@@ -143,8 +140,8 @@ class PublisherUtilsTests(TestCase):
         self.assertTrue(check_roles_access(self.user))
 
     def test_check_user_access_with_permission(self):
-        """ Verify the function returns a boolean indicating if the user
-        has view permission on organization
+        """
+        Verify the function returns True if the user has organization permission on given course, otherwise False.
         """
         self.assertFalse(
             check_course_organization_permission(self.user, self.course, OrganizationExtension.VIEW_COURSE)
@@ -160,8 +157,8 @@ class PublisherUtilsTests(TestCase):
         )
 
     def test_is_publisher_user(self):
-        """ Verify the function returns a boolean indicating if the user
-        is part of any publisher app group.
+        """
+        Verify the function returns a boolean indicating if the user is part of any publisher app group.
         """
         self.assertFalse(is_publisher_user(self.user))
         self.user.groups.add(Group.objects.get(name=REVIEWER_GROUP_NAME))
@@ -169,8 +166,7 @@ class PublisherUtilsTests(TestCase):
 
     def test_require_is_publisher_user_without_group(self):
         """
-        Verify that decorator returns the error message if user is not part
-        of any publisher group.
+        Verify that decorator returns the error message if user is not part of any publisher group.
         """
         func = Mock()
         decorated_func = publisher_user_required(func)
@@ -183,8 +179,7 @@ class PublisherUtilsTests(TestCase):
 
     def test_is_publisher_user_with_publisher_group(self):
         """
-        Verify that decorator works fine with user is part of publisher
-        app group.
+        Verify that decorator works fine with user is part of publisher app group.
         """
         func = Mock()
         decorated_func = publisher_user_required(func)
@@ -196,7 +191,7 @@ class PublisherUtilsTests(TestCase):
         self.assertTrue(func.called)
 
     def test_make_bread_crumbs(self):
-        """ Verify the function parse the list of tuple and returns list of dicts."""
+        """ Verify the function parses the list of tuples and returns a list of corresponding dicts."""
         links = [(reverse('publisher:publisher_courses_new'), 'Courses'), (None, 'Testing')]
         self.assertEqual(
             [{'url': '/publisher/courses/new/', 'slug': 'Courses'}, {'url': None, 'slug': 'Testing'}],
