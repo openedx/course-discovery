@@ -121,6 +121,9 @@ class Course(TimeStampedModel, ChangedByMixin):
 
     @property
     def project_coordinator(self):
+        """
+        Return course project coordinator user.
+        """
         try:
             return self.course_user_roles.get(role=PublisherUserRole.ProjectCoordinator).user
         except CourseUserRole.DoesNotExist:
@@ -139,6 +142,9 @@ class Course(TimeStampedModel, ChangedByMixin):
 
     @property
     def course_team_admin(self):
+        """
+        Return course team user.
+        """
         try:
             return self.course_user_roles.get(role=PublisherUserRole.CourseTeam).user
         except CourseUserRole.DoesNotExist:
@@ -151,6 +157,9 @@ class Course(TimeStampedModel, ChangedByMixin):
 
     @property
     def marketing_reviewer(self):
+        """
+        Return course marketing reviewer user.
+        """
         try:
             return self.course_user_roles.get(role=PublisherUserRole.MarketingReviewer).user
         except CourseUserRole.DoesNotExist:
@@ -166,6 +175,9 @@ class Course(TimeStampedModel, ChangedByMixin):
 
     @property
     def publisher(self):
+        """
+        Return course publisher user.
+        """
         try:
             return self.course_user_roles.get(role=PublisherUserRole.Publisher).user
         except CourseUserRole.DoesNotExist:
@@ -346,6 +358,9 @@ class Seat(TimeStampedModel, ChangedByMixin):
 
     @property
     def is_valid_seat(self):
+        """
+        Check that seat is valid or not.
+        """
         return self.type == self.AUDIT or self.type in [self.VERIFIED, self.PROFESSIONAL] and self.price > 0
 
 
@@ -498,6 +513,9 @@ class CourseState(TimeStampedModel, ChangedByMixin):
         pass
 
     def change_state(self, state, user):
+        """
+        Change course workflow state and ownership also send emails if required.
+        """
         if state == CourseStateChoices.Draft:
             self.draft()
         elif state == CourseStateChoices.Review:
@@ -527,6 +545,7 @@ class CourseState(TimeStampedModel, ChangedByMixin):
 
     @property
     def is_approved(self):
+        """ Check that course is approved or not."""
         return self.name == CourseStateChoices.Approved
 
 
@@ -582,6 +601,9 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
         emails.send_course_run_published_email(self.course_run)
 
     def change_state(self, state, user):
+        """
+        Change course run workflow state and ownership also send emails if required.
+        """
         if state == CourseRunStateChoices.Draft:
             self.draft()
         elif state == CourseRunStateChoices.Review:
@@ -615,24 +637,31 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
         self.save()
 
     def change_owner_role(self, role):
+        """
+        Change ownership role.
+        """
         self.owner_role = role
         self.owner_role_modified = timezone.now()
         self.save()
 
     @property
     def is_preview_accepted(self):
+        """ Check that preview is accepted or not."""
         return self.preview_accepted
 
     @property
     def is_approved(self):
+        """ Check that course run is approved or not."""
         return self.name == CourseRunStateChoices.Approved
 
     @property
     def is_ready_to_publish(self):
+        """ Check that course run is ready to publish or not."""
         return self.is_approved and self.is_preview_accepted
 
     @property
     def is_published(self):
+        """ Check that course run is published or not."""
         return self.name == CourseRunStateChoices.Published
 
 
