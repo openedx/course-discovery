@@ -1,4 +1,6 @@
-# Name of the administrative group for the Publisher app
+"""
+Group names to create publisher user groups.
+"""
 ADMIN_GROUP_NAME = 'Publisher Admins'
 INTERNAL_USER_GROUP_NAME = 'Internal Users'
 PARTNER_MANAGER_GROUP_NAME = 'Partner Managers'
