@@ -410,7 +410,7 @@ def send_email_preview_page_is_available(course_run):
 
 
 def send_course_run_published_email(course_run):
-    """ Send course run published email.
+    """ Send email when course run is published by publisher.
 
         Arguments:
             course_run (Object): CourseRun object
