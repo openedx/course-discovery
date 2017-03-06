@@ -21,7 +21,7 @@ class IsOwnerTests(TestCase):
         request = self._make_request(user=self.user, data={'comment': 'update_comment'})
         self.assertTrue(self.permissions_class.has_object_permission(request, None, self.comment))
 
-        # users CANNOT have access to object of other users
+        # users CANNOT access object of other users
         user = UserFactory.create()
         request = self._make_request(user=user, data={'username': 'other_guy'})
         self.assertFalse(self.permissions_class.has_object_permission(request, None, self.comment))
