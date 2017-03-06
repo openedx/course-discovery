@@ -1,14 +1,14 @@
 {% load i18n %}
 
 {% blocktrans trimmed %}
-    Dear member,
+    Dear {{ publisher_role_name }},
 {% endblocktrans %}
 {% blocktrans trimmed %}
-    Preview for {{ course_name }} has beed approved by course team. {{ page_url }}
+    {{ course_team }} has approved the preview of the {{ run_number }} {{ page_url }} course run of {{ course_name }} from {{ org_name }}. The course run is now ready for publication.
 {% endblocktrans %}
 
 {% trans "Thanks," %}
-{% trans "The edX team" %}
+{{ course_team }}
 
 {% blocktrans trimmed %}
     Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.

@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-07 15:12+0500\n"
+"POT-Creation-Date: 2017-03-07 15:35+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -503,7 +503,7 @@ msgstr ""
 
 #: apps/publisher/emails.py
 #, python-brace-format
-msgid "Preview for {run_name} has been approved"
+msgid "Publication requested: {course_name} {run_number}"
 msgstr ""
 
 #: apps/publisher/emails.py
@@ -2422,8 +2422,6 @@ msgstr ""
 #: templates/publisher/email/comment.txt
 #: templates/publisher/email/course_created.html
 #: templates/publisher/email/course_created.txt
-#: templates/publisher/email/course_run/preview_accepted.html
-#: templates/publisher/email/course_run/preview_accepted.txt
 #: templates/publisher/email/course_run/preview_available.html
 #: templates/publisher/email/course_run/preview_available.txt
 #: templates/publisher/email/decline_preview.html
@@ -2483,7 +2481,6 @@ msgstr ""
 #: templates/publisher/email/course_created.txt
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
-#: templates/publisher/email/course_run/preview_accepted.html
 #: templates/publisher/email/course_run/preview_accepted.txt
 #: templates/publisher/email/course_run/preview_available.html
 #: templates/publisher/email/course_run/preview_available.txt
@@ -2594,22 +2591,35 @@ msgstr ""
 
 #: templates/publisher/email/course_run/preview_accepted.html
 #: templates/publisher/email/course_run/preview_accepted.txt
-#: templates/publisher/email/course_run/preview_available.html
-#: templates/publisher/email/course_run/preview_available.txt
-msgid "Dear member,"
+#, python-format
+msgid "Dear %(publisher_role_name)s,"
 msgstr ""
 
 #: templates/publisher/email/course_run/preview_accepted.html
 #, python-format
 msgid ""
-"Preview for %(link_start)s%(page_url)s%(link_middle)s %(course_name)s "
-"%(link_end)s has beed approved by course team."
+"%(course_team)s has approved the preview of the "
+"%(link_start)s%(page_url)s%(link_middle)s%(run_number)s%(link_end)s course "
+"run of %(course_name)s from %(org_name)s. The course run is now ready for "
+"publication."
+msgstr ""
+
+#. Translators: It's closing of mail.
+#: templates/publisher/email/course_run/preview_accepted.html
+msgid "Thank you,"
 msgstr ""
 
 #: templates/publisher/email/course_run/preview_accepted.txt
 #, python-format
 msgid ""
-"Preview for %(course_name)s has beed approved by course team. %(page_url)s"
+"%(course_team)s has approved the preview of the %(run_number)s %(page_url)s "
+"course run of %(course_name)s from %(org_name)s. The course run is now ready"
+" for publication."
+msgstr ""
+
+#: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/preview_available.txt
+msgid "Dear member,"
 msgstr ""
 
 #: templates/publisher/email/course_run/preview_available.html

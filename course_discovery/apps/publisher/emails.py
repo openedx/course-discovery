@@ -291,11 +291,12 @@ def send_email_preview_accepted(course_run):
     txt_template = 'publisher/email/course_run/preview_accepted.txt'
     html_template = 'publisher/email/course_run/preview_accepted.html'
 
-    run_name = '{pacing_type}: {start_date}'.format(
-        pacing_type=course_run.get_pacing_type_display(),
-        start_date=course_run.start.strftime("%B %d, %Y")
-    )
-    subject = _('Preview for {run_name} has been approved').format(run_name=run_name)  # pylint: disable=no-member
+    course = course_run.course
+    course_key = CourseKey.from_string(course_run.lms_course_id)
+    subject = _('Publication requested: {course_name} {run_number}').format(  # pylint: disable=no-member
+        course_name=course.title,
+        run_number=course_key.run)
+
     publisher_user = course_run.course.publisher
 
     try:
@@ -307,7 +308,11 @@ def send_email_preview_accepted(course_run):
             from_address = settings.PUBLISHER_FROM_EMAIL
             page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
             context = {
-                'course_name': run_name,
+                'course_name': course.title,
+                'run_number': course_key.run,
+                'publisher_role_name': PublisherUserRole.Publisher,
+                'course_team': course.course_team_admin,
+                'org_name': course.organizations.all().first().name,
                 'contact_us_email': project_coordinator.email if project_coordinator else '',
                 'page_url': 'https://{host}{path}'.format(
                     host=Site.objects.get_current().domain.strip('/'), path=page_path
