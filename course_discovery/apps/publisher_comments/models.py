@@ -22,6 +22,9 @@ class Comments(CommentAbstractModel):
     DECLINE_PREVIEW = 'decline_preview'
 
     modified = ModificationDateTimeField(_('modified'))
+
+    # comment type added to differentiate weather comment is for preview decline or a
+    # normal comment on content of course/course run.
     comment_type = models.CharField(
         max_length=255, null=True, blank=True, choices=CommentTypeChoices.choices, default=CommentTypeChoices.Default
     )
@@ -50,9 +53,9 @@ def mark_preview_url_as_decline(instance):
     course_run.preview_url = None
     course_run.save()
 
-    # change the owner role
+    # assign course back to publisher
     course_run.course_run_state.change_owner_role(PublisherUserRole.Publisher)
 
-    # send email for decline preview
+    # send email for decline preview to publisher
     if waffle.switch_is_active('enable_publisher_email_notifications'):
         send_email_decline_preview(instance, course_run, preview_url)
