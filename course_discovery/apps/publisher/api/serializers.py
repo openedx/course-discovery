@@ -54,6 +54,9 @@ class GroupUserSerializer(serializers.ModelSerializer):
         fields = ('id', 'full_name',)
 
     def get_user_full_name(self, obj):
+        """
+        Return full_name if exist otherwise username, to fix empty values in dropdown.
+        """
         return obj.get_full_name() or obj.username
 
 
@@ -103,6 +106,7 @@ class CourseRunSerializer(serializers.ModelSerializer):
         lms_course_id = validated_data.get('lms_course_id')
 
         if preview_url:
+            # Change ownership to CourseTeam.
             instance.course_run_state.change_owner_role(PublisherUserRole.CourseTeam)
 
         if waffle.switch_is_active('enable_publisher_email_notifications'):
@@ -177,7 +181,10 @@ class CourseStateSerializer(serializers.ModelSerializer):
 
 
 class CourseRunStateSerializer(serializers.ModelSerializer):
-    """Serializer for `CourseRunState` model to change course-run workflow state. """
+    """
+    Serializer for `CourseRunState` model to change course-run workflow state
+    or to mark preview as accepted.
+    """
 
     class Meta:
         model = CourseRunState
@@ -208,6 +215,7 @@ class CourseRunStateSerializer(serializers.ModelSerializer):
                 )
 
         elif preview_accepted:
+            # Mark preview accepted and change ownership to Publisher.
             instance.preview_accepted = True
             instance.owner_role = PublisherUserRole.Publisher
             instance.owner_role_modified = timezone.now()
