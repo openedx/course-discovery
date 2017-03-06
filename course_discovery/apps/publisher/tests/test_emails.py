@@ -20,7 +20,9 @@ from course_discovery.apps.publisher.tests.factories import UserAttributeFactory
 
 
 class StudioInstanceCreatedEmailTests(TestCase):
-    """ Tests for the email functionality for studio instance created. """
+    """
+    Tests for the studio instance created email functionality.
+    """
 
     def setUp(self):
         super(StudioInstanceCreatedEmailTests, self).setUp()
@@ -61,7 +63,7 @@ class StudioInstanceCreatedEmailTests(TestCase):
         )
 
     def assert_email_sent(self, object_path, subject, expected_body):
-        """ DRY method to assert sent email data"""
+        """ Assert email data"""
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual([settings.PUBLISHER_FROM_EMAIL], mail.outbox[0].to)
         self.assertEqual([self.user.email, self.course_team.email], mail.outbox[0].bcc)
@@ -83,7 +85,7 @@ class StudioInstanceCreatedEmailTests(TestCase):
 
 
 class CourseCreatedEmailTests(TestCase):
-    """ Tests for the email functionality for new course created. """
+    """ Tests for the new course created email functionality. """
 
     def setUp(self):
         super(CourseCreatedEmailTests, self).setUp()
@@ -106,7 +108,7 @@ class CourseCreatedEmailTests(TestCase):
 
     @mock.patch('django.core.mail.message.EmailMessage.send', mock.Mock(side_effect=TypeError))
     def test_email_with_error(self):
-        """ Verify that emails failure log message."""
+        """ Verify that emails failure logs error message."""
 
         with LogCapture(emails.logger.name) as l:
             emails.send_email_for_course_creation(self.course_run.course, self.course_run)
@@ -121,14 +123,14 @@ class CourseCreatedEmailTests(TestCase):
             )
 
     def test_email_sent_successfully(self):
-        """ Verify that emails send as course creation notifications."""
+        """ Verify that studio instance request email sent successfully."""
 
         emails.send_email_for_course_creation(self.course_run.course, self.course_run)
         subject = 'New Studio instance request for {title}'.format(title=self.course_run.course.title)
         self.assert_email_sent(subject)
 
     def assert_email_sent(self, subject):
-        """ Verify the email data for tests cases."""
+        """ Assert email data."""
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual([self.user.email], mail.outbox[0].to)
         self.assertEqual(str(mail.outbox[0].subject), subject)
@@ -150,7 +152,7 @@ class CourseCreatedEmailTests(TestCase):
 
 
 class SendForReviewEmailTests(TestCase):
-    """ Tests for the email functionality for send for review. """
+    """ Tests for the send for review email functionality. """
 
     def setUp(self):
         super(SendForReviewEmailTests, self).setUp()
@@ -158,7 +160,7 @@ class SendForReviewEmailTests(TestCase):
         self.course_state = factories.CourseStateFactory()
 
     def test_email_with_error(self):
-        """ Verify that email failure log error message."""
+        """ Verify that email failure logs error message."""
 
         with LogCapture(emails.logger.name) as l:
             emails.send_email_for_send_for_review(self.course_state.course, self.user)
@@ -174,7 +176,7 @@ class SendForReviewEmailTests(TestCase):
 
 
 class CourseMarkAsReviewedEmailTests(TestCase):
-    """ Tests for the email functionality for mark as reviewed. """
+    """ Tests for the mark as reviewed email functionality. """
 
     def setUp(self):
         super(CourseMarkAsReviewedEmailTests, self).setUp()
@@ -182,7 +184,7 @@ class CourseMarkAsReviewedEmailTests(TestCase):
         self.course_state = factories.CourseStateFactory()
 
     def test_email_with_error(self):
-        """ Verify that email failure log error message."""
+        """ Verify that email failure logs error message."""
 
         with LogCapture(emails.logger.name) as l:
             emails.send_email_for_mark_as_reviewed(self.course_state.course, self.user)
@@ -198,7 +200,7 @@ class CourseMarkAsReviewedEmailTests(TestCase):
 
 
 class CourseRunSendForReviewEmailTests(TestCase):
-    """ Tests for the email functionality for send for review. """
+    """ Tests for the CourseRun send for review email functionality. """
 
     def setUp(self):
         super(CourseRunSendForReviewEmailTests, self).setUp()
@@ -227,7 +229,7 @@ class CourseRunSendForReviewEmailTests(TestCase):
         toggle_switch('enable_publisher_email_notifications', True)
 
     def test_email_sent_by_marketing_reviewer(self):
-        """ Verify that email works successfully."""
+        """ Verify that email works successfully for marketing user."""
         factories.CourseUserRoleFactory(
             course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
         )
@@ -236,7 +238,7 @@ class CourseRunSendForReviewEmailTests(TestCase):
         self.assert_email_sent(subject, self.user_2)
 
     def test_email_sent_by_course_team(self):
-        """ Verify that email works successfully."""
+        """ Verify that email works successfully for course team user."""
         factories.CourseUserRoleFactory(
             course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
         )
@@ -245,7 +247,7 @@ class CourseRunSendForReviewEmailTests(TestCase):
         self.assert_email_sent(subject, self.user)
 
     def test_email_with_error(self):
-        """ Verify that email failure log error message."""
+        """ Verify that email failure logs error message."""
 
         with LogCapture(emails.logger.name) as l:
             emails.send_email_for_send_for_review_course_run(self.course_run, self.user)
@@ -260,7 +262,7 @@ class CourseRunSendForReviewEmailTests(TestCase):
             )
 
     def assert_email_sent(self, subject, to_email):
-        """ Verify the email data for tests cases."""
+        """ Assert email data."""
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(to_email.email, mail.outbox[0].to[0])
         self.assertEqual(str(mail.outbox[0].subject), subject)
@@ -272,7 +274,7 @@ class CourseRunSendForReviewEmailTests(TestCase):
 
 
 class CourseRunMarkAsReviewedEmailTests(TestCase):
-    """ Tests email functionality of mark as reviewed. """
+    """ Tests for the CourseRun mark as reviewed email functionality. """
 
     def setUp(self):
         super(CourseRunMarkAsReviewedEmailTests, self).setUp()
@@ -300,7 +302,7 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
         toggle_switch('enable_publisher_email_notifications', True)
 
     def test_email_sent_by_marketing_reviewer(self):
-        """ Verify that email works successfully."""
+        """ Verify that email works successfully for marketing user."""
         factories.CourseUserRoleFactory(
             course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
         )
@@ -308,7 +310,7 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
         self.assert_email_sent(self.user_2)
 
     def test_email_sent_by_course_team(self):
-        """ Verify that email works successfully."""
+        """ Verify that email works successfully for course team user."""
         factories.CourseUserRoleFactory(
             course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
         )
@@ -356,11 +358,9 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
 
     def assert_email_sent(self, to_email):
         """ Verify the email data for tests cases."""
-
-        course_key = CourseKey.from_string(self.course_run.lms_course_id)
-        subject = 'Review complete: {course_name} {run_number}'.format(
-            course_name=self.course.title,
-            run_number=course_key.run
+        run_name = '{pacing_type}: {start_date}'.format(
+            pacing_type=self.course_run.get_pacing_type_display(),
+            start_date=self.course_run.start.strftime("%B %d, %Y")
         )
 
         self.assertEqual(len(mail.outbox), 1)
@@ -375,7 +375,7 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
 
 class CourseRunPreviewEmailTests(TestCase):
     """
-    Tests email functionality of course preview.
+    Tests for the course preview email functionality.
     """
 
     def setUp(self):
@@ -493,7 +493,7 @@ class CourseRunPreviewEmailTests(TestCase):
 
 class CourseRunPublishedEmailTests(TestCase):
     """
-    Tests email functionality for course run published.
+    Tests for course run published email functionality.
     """
 
     def setUp(self):
