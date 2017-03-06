@@ -29,7 +29,8 @@ class CourseRoleAssignmentViewTests(TestCase):
         super(CourseRoleAssignmentViewTests, self).setUp()
         self.course = factories.CourseFactory()
 
-        # Create an internal user group and assign four users.
+        # Create an internal user group and assign four users because we have
+        # four different roles for every course.
         self.internal_user = UserFactory()
         self.internal_user_group = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
 
@@ -69,7 +70,7 @@ class CourseRoleAssignmentViewTests(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_role_assignment_with_view_permissions(self):
-        """ Verify course team user can change role assignments. """
+        """ Verify that only authorized users can change role assignments. """
         user = UserFactory()
         user.groups.add(self.organization_extension.group)
         assign_perm(
@@ -148,8 +149,8 @@ class OrganizationGroupUserViewTests(TestCase):
         self.organization = organization_extension.organization
 
     def test_get_organization_user_group(self):
-        """ Verify that view returns list of users associated with the group
-        related to given organization id.
+        """
+        Verify that view returns list of users associated with the group related to given organization id.
         """
         response = self.client.get(
             path=self._get_organization_group_user_url(self.organization.id), content_type=JSON_CONTENT_TYPE
@@ -170,8 +171,8 @@ class OrganizationGroupUserViewTests(TestCase):
         self.assertIn(expected_results[1], json.loads(response.content.decode("utf-8"))["results"])
 
     def test_get_organization_not_found(self):
-        """ Verify that view returns status=404 if organization is not found
-        in OrganizationExtension.
+        """
+        Verify that view returns status=404 if organization is not found in OrganizationExtension.
         """
         response = self.client.get(path=self._get_organization_group_user_url(org_id=0000),
                                    content_type=JSON_CONTENT_TYPE)
@@ -227,7 +228,7 @@ class UpdateCourseRunViewTests(TestCase):
 
     def test_update_course_key_without_permission(self):
         """
-        Test that api returns error without permission.
+        Test that api returns status=403 is user dost not have permissions.
         """
         self.user.groups.remove(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         response = self.client.patch(
@@ -263,7 +264,7 @@ class UpdateCourseRunViewTests(TestCase):
         """
         Test that internal user can update `lms_course_id` for a course run.
         """
-        # Verify that `lms_course_id` and `changed_by` are None
+        # By default `lms_course_id` and `changed_by` are None
         self.assert_course_key_and_changed_by()
 
         lms_course_id = 'course-v1:edxTest+TC12+2050Q1'
@@ -285,6 +286,7 @@ class UpdateCourseRunViewTests(TestCase):
         )
 
     def assert_course_key_and_changed_by(self, lms_course_id=None, changed_by=None):
+        """ Helper method to assert course key and changed_by. """
         self.course_run = CourseRun.objects.get(id=self.course_run.id)
 
         self.assertEqual(self.course_run.lms_course_id, lms_course_id)
@@ -292,7 +294,7 @@ class UpdateCourseRunViewTests(TestCase):
 
     def assert_email_sent(self, object_path, subject, expected_body):
         """
-        DRY method to assert sent email data.
+        Helper method to assert sent email data.
         """
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual([settings.PUBLISHER_FROM_EMAIL], mail.outbox[0].to)
@@ -332,7 +334,7 @@ class UpdateCourseRunViewTests(TestCase):
         self.assertEqual(str(mail.outbox[0].subject), subject)
 
     def test_update_with_invalid_preview_url(self):
-        """Verify the user can't update course preview url if url has invalid format."""
+        """Verify that user can't update course preview url if url has invalid format."""
         preview_url = 'invalid_url_format'
         response = self._make_request(preview_url)
         self.assertEqual(response.status_code, 400)
@@ -439,8 +441,7 @@ class ChangeCourseStateViewTests(TestCase):
 
     def test_change_course_state(self):
         """
-        Verify that marketing user can change course workflow state
-        and owner role changed to `CourseTeam`.
+        Verify that if marketing user change course workflow state, owner role will be changed to `CourseTeam`.
         """
         self.assertNotEqual(self.course_state.name, CourseStateChoices.Review)
         factories.CourseUserRoleFactory(
@@ -469,9 +470,8 @@ class ChangeCourseStateViewTests(TestCase):
         self._assert_email_sent(course_team_user, subject)
 
     def test_change_course_state_with_course_team(self):
-        """
-        Verify that course team admin can change course workflow state
-        and owner role changed to `MarketingReviewer`.
+        """ Verify that if course team admin can change course workflow state,
+        owner role will be changed to `MarketingReviewer`.
         """
         self.user.groups.remove(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         self.user.groups.add(self.organization_extension.group)
@@ -506,6 +506,7 @@ class ChangeCourseStateViewTests(TestCase):
         self._assert_email_sent(marketing_user, subject)
 
     def _assert_email_sent(self, user, subject):
+        """Helper method to assert sent email data."""
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual([user.email], mail.outbox[0].to)
         self.assertEqual(str(mail.outbox[0].subject), subject)
