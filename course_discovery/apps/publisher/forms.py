@@ -143,6 +143,7 @@ class CustomCourseForm(CourseForm):
         )
 
     def __init__(self, *args, **kwargs):
+        # In case of edit mode pre-populate the drop-downs
         user = kwargs.pop('user', None)
         edit_mode = kwargs.pop('edit_mode', None)
         organization = kwargs.pop('organization', None)
@@ -287,6 +288,7 @@ class SeatForm(BaseCourseForm):
         exclude = ('currency', 'changed_by',)
 
     def save(self, commit=True, course_run=None, changed_by=None):  # pylint: disable=arguments-differ
+        # When seat is save make sure its prices and others fields updated accordingly.
         seat = super(SeatForm, self).save(commit=False)
         if seat.type in [Seat.HONOR, Seat.AUDIT]:
             seat.price = 0.00
@@ -350,6 +352,7 @@ class CustomSeatForm(SeatForm):
 
 
 class BaseUserAdminForm(forms.ModelForm):
+    """This form will be use for type ahead search in django-admin."""
     class Meta:
         fields = '__all__'
         widgets = {
