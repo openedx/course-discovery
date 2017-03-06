@@ -30,6 +30,7 @@ class CourseUserRoleSerializerTests(TestCase):
         self.request.user = self.course_user_role.user
 
     def get_expected_data(self):
+        """ Helper method which will return expected serialize data. """
         return {
             'course': self.course_user_role.course.id,
             'user': self.course_user_role.user.id,
@@ -38,6 +39,9 @@ class CourseUserRoleSerializerTests(TestCase):
         }
 
     def test_validation(self):
+        """ Verify that serializer validate data. """
+
+        # we are passing request to context because we need 'changed_by' user in validated values.
         serializer = self.serializer_class(self.course_user_role, context={'request': self.request})
         validated_data = serializer.validate(serializer.data)
         self.assertEqual(validated_data, self.get_expected_data())
@@ -76,7 +80,9 @@ class GroupUserSerializerTests(TestCase):
         self.assertDictEqual(serializer.data, expected)
 
     def test_data_without_full_name(self):
-        """ Verify that UserSerializer serialize the user object. """
+        """ Verify that UserSerializer serialize the user object using username
+        if full_name is not available.
+        """
 
         user = UserFactory(full_name='', first_name='', last_name='')
         serializer = GroupUserSerializer(user)
@@ -98,6 +104,7 @@ class CourseRunSerializerTests(TestCase):
         self.course_state = CourseRunStateFactory(course_run=self.course_run, owner_role=PublisherUserRole.Publisher)
 
     def get_expected_data(self):
+        """ Helper method which will return expected serialize data. """
         return {
             'lms_course_id': self.course_run.lms_course_id,
             'changed_by': self.user,
