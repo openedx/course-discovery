@@ -1,19 +1,3 @@
-$(document).on('click', '.btn-show-changes', function (e) {
-
-    if ($(this).hasClass('show')){
-        $('.field-container').each(function () {
-            showDiff($(this).find('span.object'), $(this).find('span.history-object'), $(this).find('span.show-diff'));
-        });
-        $(this).text(gettext('Hide changes'));
-        $(this).removeClass('show');
-    } else {
-        $('.history-object').show();
-        $('.show-diff').hide();
-        $(this).text(gettext('Show changes'));
-        $(this).addClass('show');
-
-    }
-});
 
 var dmp = new diff_match_patch();
 dmp.Diff_EditCost = 8;
@@ -31,4 +15,3 @@ function showDiffCourseDetails(currentObject, historyObject, $outputDiv) {
     $outputDiv.html(dmp.diff_prettyHtml(d));
     $outputDiv.show();
 }
-
