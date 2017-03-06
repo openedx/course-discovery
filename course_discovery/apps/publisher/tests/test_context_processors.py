@@ -11,6 +11,7 @@ class PublisherContextProcessorTests(TestCase):
     """ Tests for publisher.context_processors.publisher """
 
     def test_publisher(self):
+        """ Validate that publisher context processor returns expected result. """
         request = RequestFactory().get('/')
         request.user = UserFactory()
         self.assertDictEqual(
