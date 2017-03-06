@@ -46,13 +46,16 @@ class CreateCourseViewTests(TestCase):
     def setUp(self):
         super(CreateCourseViewTests, self).setUp()
         self.user = UserFactory()
+        # add user to internal group
         self.internal_user_group = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
         self.user.groups.add(self.internal_user_group)
 
+        # add user to external group e.g. a course team group
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.group = self.organization_extension.group
         self.user.groups.add(self.group)
 
+        # create base course objects
         self.course = factories.CourseFactory()
         self.course_run = factories.CourseRunFactory(course=self.course)
         self.seat = factories.SeatFactory(course_run=self.course_run, type=Seat.VERIFIED, price=2)
@@ -88,8 +91,7 @@ class CreateCourseViewTests(TestCase):
 
     def test_page_without_publisher_group_access(self):
         """
-        Verify that user can't access new course form page if user is not the
-        part of any group.
+        Verify that user can't access new course form page if user is not the part of any group.
         """
         self.client.logout()
         self.client.login(username=UserFactory().username, password=USER_PASSWORD)
@@ -99,8 +101,8 @@ class CreateCourseViewTests(TestCase):
         )
 
     def test_create_course_and_course_run_and_seat_with_errors(self):
-        """ Verify that without providing required data course and other
-        objects cannot be created.
+        """
+        Verify that without providing required data course and other objects cannot be created.
         """
         course_dict = model_to_dict(self.course)
         course_dict['number'] = 'test course'
@@ -110,8 +112,8 @@ class CreateCourseViewTests(TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_create_course_and_course_run_without_seat(self):
-        """ Verify that course and course run objects create successfully if seat type
-        is not provided.
+        """
+        Verify that course and course run objects create successfully if seat type is not provided.
         """
         data = {'number': 'course_without_seat', 'image': ''}
         course_dict = self._post_data(data, self.course, self.course_run, None)
@@ -129,8 +131,8 @@ class CreateCourseViewTests(TestCase):
         {'number': 'course_3', 'image': make_image_file('test_banner1.jpg')}
     )
     def test_create_course_and_course_run_and_seat(self, data):
-        """ Verify that new course, course run and seat can be created
-        with different data sets.
+        """
+        Verify that new course, course run and seat can be created with different data sets.
         """
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         self._assert_records(1)
@@ -152,7 +154,8 @@ class CreateCourseViewTests(TestCase):
     )
     @ddt.unpack
     def test_create_course_invalid_image(self, image, errors):
-        """ Verify that a new course with an invalid image shows the proper error.
+        """
+        Verify that a new course with an invalid image shows the proper error.
         """
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         self._assert_records(1)
@@ -162,8 +165,8 @@ class CreateCourseViewTests(TestCase):
         self._assert_records(1)
 
     def test_create_with_fail_transaction(self):
-        """ Verify that in case of any error transactions roll back and no object
-        created in db.
+        """
+        Verify that in case of any error transactions rollback and no object is created in db.
         """
         self._assert_records(1)
         data = {'number': 'course_2', 'image': make_image_file('test_banner.jpg')}
@@ -177,8 +180,7 @@ class CreateCourseViewTests(TestCase):
 
     @ddt.data(Seat.VERIFIED, Seat.PROFESSIONAL)
     def test_create_course_without_price_with_error(self, seat_type):
-        """ Verify that if seat type is not honor/audit then price should be given.
-        Otherwise it will throw error.
+        """ Verify that error is thrown if seat type is not honor/audit and no price is input.
         """
         self._assert_records(1)
         data = {'number': 'course_1', 'image': ''}
@@ -216,8 +218,8 @@ class CreateCourseViewTests(TestCase):
         self.assertContains(response, '<input id="id_organization" name="organization" type="hidden"')
 
     def test_create_form_with_multiple_organization(self):
-        """Verify that if there are more than one organization then there will be
-        a drop down of organization choices.
+        """
+        Verify that a drop down of organization choices exisits if there are multiple organizations.
         """
         self.user.groups.remove(self.internal_user_group)
         organization_extension = factories.OrganizationExtensionFactory()
@@ -230,8 +232,8 @@ class CreateCourseViewTests(TestCase):
         )
 
         new_organization_extension = factories.OrganizationExtensionFactory()
-
         response = self.client.get(reverse('publisher:publisher_courses_new'))
+
         # Verify that course team user cannot see newly created organization in options.
         self.assertNotContains(
             response,
@@ -243,8 +245,8 @@ class CreateCourseViewTests(TestCase):
         )
 
         self.user.groups.add(self.internal_user_group)
-
         response = self.client.get(reverse('publisher:publisher_courses_new'))
+
         # Verify that internal user can see newly created organization in options.
         self.assertContains(
             response,
@@ -273,6 +275,7 @@ class CreateCourseViewTests(TestCase):
         )
 
     def _post_data(self, data, course, course_run, seat):
+        """ Returns dict of data to posts to a course endpoint. """
         course_dict = model_to_dict(course)
         course_dict.update(**data)
         course_dict['team_admin'] = self.user.id
@@ -294,6 +297,7 @@ class CreateCourseViewTests(TestCase):
         return course_dict
 
     def _assert_image(self, course):
+        """ Asserts image with proper prefixes and file sizes present on course images"""
         image_url_prefix = '{}media/publisher/courses/images'.format(settings.MEDIA_URL)
         self.assertIn(image_url_prefix, course.image.url)
         for size_key in course.image.field.variations:
@@ -304,12 +308,13 @@ class CreateCourseViewTests(TestCase):
             self.assertIn(image_url_prefix, sized_file.url)
 
     def _assert_records(self, count):
-        # DRY method to count records in db.
+        """ Asserts expected counts for Course, CourseRun, and Seat objects """
         self.assertEqual(Course.objects.all().count(), count)
         self.assertEqual(CourseRun.objects.all().count(), count)
         self.assertEqual(Seat.objects.all().count(), count)
 
     def _assert_test_data(self, response, course, expected_type, expected_price):
+        """ Asserts expected data present on create. """
         course_run = course.publisher_course_runs.get()
         course_detail_path = reverse('publisher:publisher_course_detail', kwargs={'pk': course.id})
 
