@@ -115,4 +115,7 @@ class PublisherUserAdmin(UserAdmin):
     add_form = PublisherUserCreationForm
 
     def get_queryset(self, request):
+        """
+        Return only those users which belongs to any group.
+        """
         return self.model.objects.filter(groups__in=Group.objects.all()).distinct()
