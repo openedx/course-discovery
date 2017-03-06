@@ -264,7 +264,7 @@ class DistinctCountsElasticsearchBackendWrapper(object):
         for option, value in facet_config['terms'].items():
             if option not in supported_options:
                 msg = 'Cannot convert terms facet to aggregation: Unsupported option ({})'.format(option)
-                raise RuntimeError(message)
+                raise RuntimeError(msg)
 
         # In the simplest case, nothing needs to be done to convert a terms facet to an aggregation.
         return facet_config

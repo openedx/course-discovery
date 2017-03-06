@@ -71,15 +71,15 @@ class DistinctCountsAggregateFacetSearchSerializer(AggregateFacetSearchSerialize
         query_data = {}
         for field, options in getattr(self.Meta, 'field_queries', {}).items():  # pylint: disable=no-member
             # This serializer is only expected to be used when we need to compute distinct counts.
-            # The custom DistinctCountstSearchQuery backend formats query facet counts as a dictionary
+            # The custom DistinctCountsSearchQuery backend formats query facet counts as a dictionary
             # with field_name mapping to a two tuple containing normal count and distinct count.
-            counts = query_facet_counts.get(field, (0, 0))
-            if counts[0]:
+            count, distinct_count = query_facet_counts.get(field, (0, 0))
+            if count:
                 query_data[field] = {
                     'field': field,
                     'options': options,
-                    'count': counts[0],
-                    'distinct_count': counts[1],
+                    'count': count,
+                    'distinct_count': distinct_count,
                 }
         return query_data
 
