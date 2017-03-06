@@ -26,7 +26,7 @@ class UserModelChoiceFieldTests(TestCase):
 
     def test_team_admin_without_full_name(self):
         """
-        Verify that UserModelChoiceField returns `username` if `full_name` empty.
+        Verify that UserModelChoiceField returns `username` if `full_name` is empty.
         """
         user = UserFactory(username='test_user', full_name='', first_name='', last_name='')
         self._assert_choice_label(user.username)
