@@ -50,6 +50,13 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
     default_published_days = 30
 
     def get_queryset(self):
+        """ On dashboard courses are divided in multiple categories.
+        Publisher admin can view all these courses.
+        Internal users can see the assigned courses with roles only.
+        Users can see the courses if they are part of any group and that group has associated
+        with any organization and organization is part of a course and permissions are assigned
+        to the organization
+        """
         user = self.request.user
         if is_publisher_admin(user):
             course_runs = CourseRun.objects.select_related('course').all()
@@ -69,6 +76,7 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
         return course_runs
 
     def get_context_data(self, **kwargs):
+        """ Courses lists are further divided into different categories."""
         context = super(Dashboard, self).get_context_data(**kwargs)
         course_runs = context.get('object_list')
         published_course_runs = course_runs.filter(
@@ -125,6 +133,8 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
         course_run = CourseRunWrapper(self.get_object())
         context['object'] = course_run
         context['comment_object'] = course_run
+
+        # this ulr is used for the comments post back redirection.
         context['post_back_url'] = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
 
         context['can_edit'] = mixins.check_course_organization_permission(
