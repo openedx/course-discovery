@@ -5,7 +5,7 @@ from haystack.models import SearchResult
 
 
 class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
-    """Custom Haystack Query class that computes and caches distinct hit and facet counts for a query."""
+    """ Custom Haystack Query class that computes and caches distinct hit and facet counts for a query."""
 
     def __init__(self, **kwargs):
         """ Create and return a new instance of DistinctCountsSearchQuery."""
@@ -14,30 +14,38 @@ class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
         self._distinct_hit_count = None
 
     def _clone(self, **kwargs):
-        """
-        Create and return a new DistinctCountsSearchQuery with fields set to match those on the original
-        object.
-
-        Overrides ElasticsearchSearchQuery._clone to ensure that _aggregation_key and _distinct_hit_count
-        are copied to the new object.
-        """
+        """ Create and return a new DistinctCountsSearchQuery with fields set to match those on the original object."""
         clone = super(DistinctCountsSearchQuery, self)._clone(**kwargs)
         clone._aggregation_key = self._aggregation_key
         clone._distinct_hit_count = self._distinct_hit_count
         return clone
 
+    def set_aggregation_key(self, aggregation_key):
+        """
+        Set the aggregation_key for this Query. The aggregation_key is the field that should
+        be used to group records when computing distinct counts.
+        """
+        self._aggregation_key = aggregation_key
+
+    def get_distinct_count(self):
+        """
+        Return the distinct hit count for this query. Calling this method will cause the query to execute if
+        it hasn't already been run.
+        """
+        if self._distinct_hit_count is None:
+            # Calling get_count will cause the query to run and both count and distinct_count to be populated.
+            self.get_count()
+        return self._distinct_hit_count
+
     def run(self, spelling_query=None, **kwargs):
         """
         Run the query and cache the results.
 
-        Overrides and re-implements ElasticsearchSearchQuery.run so that the custom
-        DistinctCountsSearchBackend may be used to execute the query and so that the distinct hit
-        counts may be cached.
+        Overrides and re-implements ElasticsearchSearchQuery.run so that the custom DistinctCountsSearchBackend
+        may be used to execute the query and so that the distinct hit counts may be cached.
         """
-        # This query class is only meant to be used when we need to compute distinct hit and facet counts.
-        # Therefore, it should always be configured with an aggregation_key.
-        if not self._aggregation_key:
-            raise RuntimeError('DistinctCountsSearchQuery cannot run without aggregation_key.')
+        # Make sure that the Query is valid before running it.
+        self.validate()
 
         final_query = self.build_query()
         search_kwargs = self.build_params(spelling_query=spelling_query)
@@ -56,51 +64,58 @@ class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
         self._facet_counts = self.post_process_facets(results)
         self._spelling_suggestion = results.get('spelling_suggestion', None)
 
-    def run_mlt(self, **kwargs):
-        """
-        Run a more-like-this query.
+    def validate(self):
+        """ Verify that all Query options are valid and supported by this custom Query class."""
+        if self._more_like_this:
+            raise RuntimeError('DistinctCountsSearchQuery does not support more_like_this queries.')
 
-        The DistinctCountsSearchQuery class is only meant to be used when distinct hit and facet counts are needed. The
-        logic necessary for computing distinct counts has not been implemented for more-like-this queries. Therefore,
-        this method will raise an error if called.
-        """
-        raise NotImplemented('DistinctCountsSearchQuery.run_mlt is not supported.')
+        if self._raw_query:
+            raise RuntimeError('DistinctCountsSearchQuery does not support raw queries.')
 
-    def run_raw(self, **kwargs):
-        """
-        Run a raw search query.
+        if self.date_facets:
+            raise RuntimeError('DistinctCountsSearchQuery does not support date facets.')
 
-        The DistinctCountsSearchQuery class is only meant to be used when distinct hit and facet counts are needed. The
-        logic necessary for computing distinct counts has not been implemented for raw search queries. Therefore, this
-        method will raise an error if called.
-        """
-        raise NotImplemented('DistinctCountsSearchQuery.run_raw is not supported.')
+        if self.facets:
+            for field, options in self.facets.items():
+                self._validate_field_facet_options(field, options)
 
-    def set_aggregation_key(self, aggregation_key):
-        """
-        Set the aggregation_key for this Query. The aggregation_key is the field that should
-        be used to group records when computing distinct counts.
+        if self._aggregation_key is None:
+            raise RuntimeError('aggregation_key is required.')
 
-        The aggregation_key should be a field that is NOT analyzed by the index (like one of the
-        faceted _exact fields). Using a field that is analyzed will result in inaccurate counts,
-        as analyzed fields are broken down by the search backend and will result in records being
-        grouped by substrings of the aggregation_key field.
+    def _validate_field_facet_options(self, field, options):
+        """ Verify that the provided field facet options are valid and can be converted to an aggregation. """
+        supported_options = DistinctCountsElasticsearchBackendWrapper.SUPPORTED_FIELD_FACET_OPTIONS
+        for option, value in options.items():
+            if option not in supported_options:
+                msg = 'DistinctCountsSearchQuery only supports a limited set of field facet options.'
+                msg += 'Field: {}, Supported Options: ({}), '.format(field, ','.join(supported_options))
+                msg += 'Provided Options: ({})'.format(','.join(options.keys()))
+                raise RuntimeError(msg)
 
-        The aggregation_key must be set prior to calling DistinctCountsSearchQuery.run, or
-        an error will be raised.
-        """
-        self._aggregation_key = aggregation_key
+    def more_like_this(self, *args, **kwargs):
+        """ Raise an exception since we do not currently want/need to support more_like_this queries."""
+        raise RuntimeError('DistinctCountsSearchQuery does not support more_like_this queries.')
 
-    def get_distinct_count(self):
-        """
-        Return the distinct hit count for this query.
+    def run_mlt(self, *args, **kwargs):
+        """ Raise an exception since we do not currently want/need to support more_like_this queries."""
+        raise RuntimeError('DistinctCountsSearchQuery does not support more_like_this queries.')
 
-        Note: Calling this method will cause the query to execute if it hasn't already been run.
-        """
-        if self._distinct_hit_count is None:
-            # Calling get_count will cause the query to run and both count and distinct_count to be populated.
-            self.get_count()
-        return self._distinct_hit_count
+    def raw_search(self, *args, **kwargs):
+        """ Raise an exception since we do not currently want/need to support raw queries."""
+        raise RuntimeError('DistinctCountsSearchQuery does not support raw queries.')
+
+    def run_raw(self, *args, **kwargs):
+        """ Raise an exception since we do not currently want/need to support raw queries."""
+        raise RuntimeError('DistinctCountsSearchQuery does not support raw queries.')
+
+    def add_date_facet(self, *args, **kwargs):
+        """ Raise an exception since we do not currently want/need to support date facets."""
+        raise RuntimeError('DistinctCountsSearchQuery does not support date facets.')
+
+    def add_field_facet(self, field, **options):
+        """ Add a field facet to the Query. Raise an error if any unsupported options are provided."""
+        self._validate_field_facet_options(field, options)
+        return super(DistinctCountsSearchQuery, self).add_field_facet(field, **options)
 
 
 class DistinctCountsElasticsearchBackendWrapper(object):
@@ -114,6 +129,9 @@ class DistinctCountsElasticsearchBackendWrapper(object):
     # The maximum setting for the elasticsearch cardinality aggregation precision_threshold field.
     # See https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-aggregations-metrics-cardinality-aggregation.html
     MAX_CARDINALITY_PRECISION = 40000
+
+    # Field facet options that are currently supported for conversion to aggregations.
+    SUPPORTED_FIELD_FACET_OPTIONS = {'size'}
 
     def __init__(self, backend, aggregation_key):
         """
@@ -172,7 +190,7 @@ class DistinctCountsElasticsearchBackendWrapper(object):
             if not self.backend.silently_fail:
                 raise
 
-            self.backend.log.error("Failed to query Elasticsearch using '%s': %s", query_string, e, exc_info=True)
+            self.backend.log.error('Failed to query Elasticsearch using "%s": %s', query_string, e, exc_info=True)
             raw_results = {}
 
         # Call the custom _process_results method instead of the wrapped backend version so that aggregations may

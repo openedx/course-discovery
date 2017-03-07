@@ -28,6 +28,7 @@ class DistinctCountsSearchQuerySet(SearchQuerySet):
         clone = self._clone()
         clone.query = clone.query._clone(DistinctCountsSearchQuery)
         clone.query.set_aggregation_key(aggregation_key)
+        clone.query.validate()
         return clone
 
     def distinct_count(self):

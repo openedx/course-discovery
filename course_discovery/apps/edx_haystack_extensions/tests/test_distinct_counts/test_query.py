@@ -36,6 +36,25 @@ class DistinctCountsSearchQuerySetTests(TestCase):
         assert isinstance(dc_queryset.query, DistinctCountsSearchQuery)
         assert dc_queryset.query._aggregation_key == 'aggregation_key'
 
+    def test_with_distinct_counts_raises_when_queryset_includes_unsupported_options(self):
+        """
+        Verify that an error is raised if the original queryset includes options that are not supported by our
+        custom Query class.
+        """
+        dc_queryset = DistinctCountsSearchQuerySet.from_queryset(SearchQuerySet())
+
+        with pytest.raises(RuntimeError) as err:
+            now = datetime.datetime.now()
+            ten_days = datetime.timedelta(days=10)
+            start = now - ten_days
+            end = now + ten_days
+            dc_queryset.date_facet('start', start, end, 'day').with_distinct_counts('aggregation_key')
+        assert str(err.value) == 'DistinctCountsSearchQuery does not support date facets.'
+
+        with pytest.raises(RuntimeError) as err:
+            dc_queryset.facet('pacing_type', order='term').with_distinct_counts('aggregation_key')
+        assert 'DistinctCountsSearchQuery only supports a limited set of field facet options.' in str(err.value)
+
     def test_distinct_count_returns_cached_distinct_count(self):
         """ Verify that distinct_count returns the cached distinct_result_count when present."""
         queryset = SearchQuerySet()
