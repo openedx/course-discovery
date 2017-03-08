@@ -59,11 +59,6 @@ class CourseTests(ElasticsearchTestMixin, TestCase):
 
         self.assertEqual(actual, courses)
 
-    def test_course_run_update_caught_exception(self):
-        """ Test that the index update process failing will not cause the course save to error """
-        with mock.patch.object(Course, 'reindex_course_runs', side_effect=Exception):
-            self.course.save()
-
 
 @ddt.ddt
 class CourseRunTests(TestCase):
@@ -662,11 +657,6 @@ class ProgramTests(MarketingSitePublisherTestMixin):
         toggle_switch('publish_program_to_marketing_site', True)
         self.program.delete()
         self.assert_responses_call_count(0)
-
-    def test_course_update_caught_exception(self):
-        """ Test that the index update process failing will not cause the program save to error """
-        with mock.patch.object(Course, 'reindex_course_runs', side_effect=Exception):
-            self.program.save()
 
 
 class PersonSocialNetworkTests(TestCase):

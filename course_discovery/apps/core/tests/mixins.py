@@ -4,6 +4,7 @@ from django.conf import settings
 from haystack import connections as haystack_connections
 
 from course_discovery.apps.core.utils import ElasticsearchUtils
+from course_discovery.apps.course_metadata.models import Course, CourseRun
 
 logger = logging.getLogger(__name__)
 
@@ -56,3 +57,14 @@ class ElasticsearchTestMixin(object):
         # pylint: disable=unexpected-keyword-arg
         self.es.indices.refresh(index=self.index)
         self.es.cluster.health(index=self.index, wait_for_status='yellow', request_timeout=1)
+
+    def reindex_course_runs(self, course):
+        index = haystack_connections['default'].get_unified_index().get_index(CourseRun)
+        for course_run in course.course_runs.all():
+            index.update_object(course_run)
+
+    def reindex_courses(self, program):
+        index = haystack_connections['default'].get_unified_index().get_index(Course)
+        for course in program.courses.all():
+            index.update_object(course)
+            self.reindex_course_runs(course)

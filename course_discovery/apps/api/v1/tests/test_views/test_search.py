@@ -264,7 +264,12 @@ class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, Login
             else:
                 non_excluded_course_run_list.append(course_run)
 
-        ProgramFactory(courses=course_list, status=ProgramStatus.Active, excluded_course_runs=excluded_course_run_list)
+        program = ProgramFactory(
+            courses=course_list,
+            status=ProgramStatus.Active,
+            excluded_course_runs=excluded_course_run_list
+        )
+        self.reindex_courses(program)
 
         with self.assertNumQueries(4):
             response = self.get_response('software', faceted=False)
@@ -288,6 +293,7 @@ class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, Login
                                       status=CourseRunStatus.Published)
         active_program = ProgramFactory(courses=[course_run.course], status=ProgramStatus.Active)
         ProgramFactory(courses=[course_run.course], status=program_status)
+        self.reindex_courses(active_program)
 
         with self.assertNumQueries(5):
             response = self.get_response('software', faceted=False)

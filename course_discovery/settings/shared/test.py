@@ -7,6 +7,9 @@ HAYSTACK_CONNECTIONS = {
         'INDEX_NAME': 'catalog_test',
     },
 }
+# We use the RealtimeSignalProcessor here to ensure that our index is
+# updated, so that we can search for data that we create in our tests.
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
 SYNONYMS_MODULE = 'course_discovery.settings.test_synonyms'
 
