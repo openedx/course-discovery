@@ -5,6 +5,7 @@ import pytest
 from django.test import TestCase
 from haystack.backends import SQ
 from haystack.backends.elasticsearch_backend import ElasticsearchSearchQuery
+from haystack.query import SearchQuerySet
 
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.models import CourseRun
@@ -237,3 +238,39 @@ class DistinctCountsSearchQueryTests(ElasticsearchTestMixin, TestCase):
 
         query.add_field_facet('pacing_type', size=5)
         assert query.facets['pacing_type_exact']['size'] == 5
+
+
+class DistinctCountsElasticsearchBackendWrapperTests(ElasticsearchTestMixin, TestCase):
+    def test_search_raises_when_called_with_date_facet(self):
+        now = datetime.datetime.now()
+        one_day = datetime.timedelta(days=1)
+
+        queryset = SearchQuerySet().date_facet('start', now - one_day, now + one_day, 'day')
+        querystring = queryset.query.build_query()
+        params = queryset.query.build_params()
+        backend = DistinctCountsElasticsearchBackendWrapper(queryset.query.backend, 'aggregation_key')
+
+        with pytest.raises(RuntimeError) as err:
+            backend.search(querystring, **params)
+        assert 'does not support date facets' in str(err.value)
+
+    def test_search_raises_when_called_with_unsupported_field_facet_option(self):
+        queryset = SearchQuerySet().facet('pacing_type', order='term')
+        querystring = queryset.query.build_query()
+        params = queryset.query.build_params()
+        backend = DistinctCountsElasticsearchBackendWrapper(queryset.query.backend, 'aggregation_key')
+
+        with pytest.raises(RuntimeError) as err:
+            backend.search(querystring, **params)
+        assert 'field facet with unsupported options' in str(err.value)
+
+    def test_build_search_kwargs_does_not_include_facet_clause(self):
+        """ Verify that a facets clause is not included with search kwargs."""
+        queryset = SearchQuerySet().query_facet('hidden', 'hidden:true').facet('pacing_type')
+        querystring = queryset.query.build_query()
+        params = queryset.query.build_params()
+        backend = DistinctCountsElasticsearchBackendWrapper(queryset.query.backend, 'aggregation_key')
+
+        search_kwargs = backend._build_search_kwargs(querystring, **params)
+        assert 'facets' not in search_kwargs
+        assert 'aggregations' in search_kwargs

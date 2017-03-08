@@ -121,17 +121,25 @@ class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
 class DistinctCountsElasticsearchBackendWrapper(object):
     """
     Custom backend-like class that enables the computation of distinct hit and facet counts during search queries.
-
     This class is not meant to be a true ElasticsearchSearchBackend. It is meant to wrap an existing
     ElasticsearchSearchBackend instance and expose a very limited subset of backend functionality.
     """
 
-    # The maximum setting for the elasticsearch cardinality aggregation precision_threshold field.
-    # See https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-aggregations-metrics-cardinality-aggregation.html
-    MAX_CARDINALITY_PRECISION = 40000
+    # Precision settings for the elasticsearch cardinality aggregations. We use a higher value for the distinct hit
+    # precision for two reasons:
+    #   1.) The hit count for the current query is more relevant to users than the facet counts.
+    #   2.) The performance penalty is lower for distinct hit count precision than it is for facet count precision,
+    #       since the distinct hit count requires only a single aggregation.
+    # See the elasticsearch docs for more information about the cardinality aggregation and precision settings.
+    # https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-aggregations-metrics-cardinality-aggregation.html
+    DISTINCT_HIT_PRECISION = 1500
+    DISTINCT_FACET_PRECISION = 250
 
-    # Field facet options that are currently supported for conversion to aggregations.
+    # The options that are supported for building field facet aggregations.
     SUPPORTED_FIELD_FACET_OPTIONS = {'size'}
+
+    # The default size for field facet aggregations. This is the same value used by haystack.
+    DEFAULT_FIELD_FACET_SIZE = 100
 
     def __init__(self, backend, aggregation_key):
         """
@@ -149,22 +157,14 @@ class DistinctCountsElasticsearchBackendWrapper(object):
         self.aggregation_name = 'distinct_{}'.format(aggregation_key)
 
     def search(self, query_string, **kwargs):
-        """
-        Run a search query and return the results.
-
-        Re-implements the ElasticsearchSearchBackend.search method so that the logic necessary for computing
-        and processing distinct hit and facet counts can be added in the appropriate places.
-        """
-
+        """ Run a search query and return the results."""
         if len(query_string) == 0:
-            return {'results': [], 'hits': 0,}
+            return {'results': [], 'hits': 0, 'distinct_hits': 0}
 
         if not self.backend.setup_complete:
             self.backend.setup()
 
-        # Call the custom build_search_kwargs method instead of the wrapped backend version so that aggregations
-        # may be added to the query.
-        search_kwargs = self.build_search_kwargs(query_string, **kwargs)
+        search_kwargs = self._build_search_kwargs(query_string, **kwargs)
         search_kwargs['from'] = kwargs.get('start_offset', 0)
 
         order_fields = set()
@@ -191,44 +191,33 @@ class DistinctCountsElasticsearchBackendWrapper(object):
             self.backend.log.error('Failed to query Elasticsearch using "%s": %s', query_string, e, exc_info=True)
             raw_results = {}
 
-        # Call the custom _process_results method instead of the wrapped backend version so that aggregations may
-        # be processed correctly.
         return self._process_results(raw_results,
                                      highlight=kwargs.get('highlight'),
                                      result_class=kwargs.get('result_class', SearchResult),
                                      distance_point=kwargs.get('distance_point'),
                                      geo_sort=geo_sort)
 
-    def build_search_kwargs(self, *args, **kwargs):
-        """
-        Build and return the arguments for the elasticsearch query.
+    def _build_search_kwargs(self, *args, **kwargs):
+        """ Build and return the arguments for the elasticsearch query."""
+        aggregations = self._build_cardinality_aggregation(precision=self.DISTINCT_HIT_PRECISION)
 
-        Overrides and re-implements the ElasticsearchSearchBackend.build_search_kwargs method so that
-        aggregations may be added to compute distinct counts.
+        if 'facets' in kwargs:
+            aggregations.update(self._build_field_facet_aggregations(
+                facet_dict=kwargs.pop('facets', {}),
+                precision=self.DISTINCT_FACET_PRECISION
+            ))
 
-        Note: If this query includes facets, each facet will be converted to an aggregation
-        and the facets clause will be removed.
-        """
+        if 'query_facets' in kwargs:
+            aggregations.update(self._build_query_facet_aggregations(
+                facet_list=kwargs.pop('query_facets', []),
+                precision=self.DISTINCT_FACET_PRECISION
+            ))
+
+        if 'date_facets' in kwargs:
+            raise RuntimeError('DistinctCountsElasticsearchBackendWrapper does not support date facets.')
+
         search_kwargs = self.backend.build_search_kwargs(*args, **kwargs)
-
-        # Setting precision to 1500 should result in a distinct hit count that is close to accurate
-        # when the query returns fewer than 1500 search results. This may be increased (with a performance
-        # penalty) when larger result sets become more common.
-        aggregations = self._build_cardinality_aggregation(precision=1500)
-
-        if search_kwargs.get('facets'):
-            for facet_name, facet_config in search_kwargs['facets'].items():
-                new_facet = self._convert_facet_to_aggregation(facet_config)
-
-                # Setting precision to 1000 should result in a distinct hit count that is close to accurate
-                # when the query returns fewer than 1000 search results. This may be increased (with a performance
-                # penalty) when larger result sets become more common.
-                new_facet['aggs'] = self._build_cardinality_aggregation(precision=1000)
-                aggregations[facet_name] = new_facet
-            del search_kwargs['facets']
-
-        search_kwargs['aggs'] = aggregations
-
+        search_kwargs['aggregations'] = aggregations
         return search_kwargs
 
     def _build_cardinality_aggregation(self, precision=None):
@@ -246,85 +235,46 @@ class DistinctCountsElasticsearchBackendWrapper(object):
         aggregation = {self.aggregation_name: {'cardinality': {'field': self.aggregation_key}}}
         if precision is not None:
             aggregation[self.aggregation_name]['cardinality']['precision_threshold'] = precision
-
         return aggregation
 
-    def _convert_facet_to_aggregation(self, facet_config):
-        """
-        Convert an elasticsearch facet into an aggregation.
+    def _build_field_facet_aggregations(self, facet_dict, precision=None):
+        """ Build and return a dictionary of aggregations for field facets."""
+        aggregations = {}
+        for facet_fieldname, opts in facet_dict.items():
+            for opt, val in opts.items():
+                if opt not in self.SUPPORTED_FIELD_FACET_OPTIONS:
+                    opts_str = ','.join(opts.keys())
+                    msg = 'Cannot build aggregation for field facet with unsupported options: {}'.format(opts_str)
+                    raise RuntimeError(msg)
 
-        Conversions are only supported for simple query and terms facets. An error will
-        be raised if conversion is attempted for other types of facets. See the elasticsearch docs
-        for information on converting other types of facets to aggregations.
-        https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-facets-migrating-to-aggs.html
-        """
-        if len(facet_config.keys()) != 1:
-            raise RuntimeError('Cannot convert facet to aggregation: Expected exactly 1 key in config.')
+            aggregations[facet_fieldname] = {
+                'terms': {'field': facet_fieldname, 'size': opts.get('size', self.DEFAULT_FIELD_FACET_SIZE)},
+                "aggregations": self._build_cardinality_aggregation(precision=precision),
+            }
+        return aggregations
 
-        if 'terms' in facet_config:
-            return self._convert_terms_facet_to_aggregation(facet_config)
-        elif 'query' in facet_config:
-            return self._convert_query_facet_to_aggregation(facet_config)
-        else:
-            raise RuntimeError('Cannot convert facet to aggregation: Unsupported facet type.')
-
-    def _convert_terms_facet_to_aggregation(self, facet_config):
-        """
-        Convert an elasticsearch terms facet to an aggregation.
-
-        Only the 'field' and 'size' options are supported for conversion. If other options are present, an error
-        will be raised. See the elasticsearch docs for more information on converting terms facets to aggregations.
-        https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-facets-migrating-to-aggs.html#_simple_cases
-        """
-        supported_options = {'field', 'size'}
-        for option, value in facet_config['terms'].items():
-            if option not in supported_options:
-                msg = 'Cannot convert terms facet to aggregation: Unsupported option ({})'.format(option)
-                raise RuntimeError(msg)
-
-        # In the simplest case, nothing needs to be done to convert a terms facet to an aggregation.
-        return facet_config
-
-    def _convert_query_facet_to_aggregation(self, facet_config):
-        """
-        Convert an elasticsearch query facet to an aggregation.
-
-        The 'query_string' option is currently the only option supported for conversion. The 'query' option is the only
-        option supported for conversion within the 'query_string' config. If other options are present, an error
-        will be raised. See the elasticsearch docs for more information on converting query facets to aggregations.
-        https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-facets-migrating-to-aggs.html#_query_facets
-        """
-        supported_query_options = {'query_string'}
-        for option, value in facet_config['query'].items():
-            if option not in supported_query_options:
-                msg = 'Cannot convert query facet to aggregation: Unsupported option ({})'.format(option)
-                raise RuntimeError(msg)
-
-        supported_query_string_options = {'query'}
-        for option, value in facet_config['query']['query_string'].items():
-            if option not in supported_query_string_options:
-                msg = 'Cannot convert query facet to aggregation: Unsupported query_string option ({})'.format(option)
-                raise RuntimeError(msg)
-
-        # In the simplest case, a query facet can be converted to an aggregation by wrapping it in a filter.
-        return {'filter': facet_config}
+    def _build_query_facet_aggregations(self, facet_list, precision=None):
+        """ Build and return a dictionary of aggregations for query facets."""
+        aggregations = {}
+        for facet_fieldname, value in facet_list:
+            aggregations[facet_fieldname] = {
+                'filter': {'query': {'query_string': {'query': value}}},
+                "aggregations": self._build_cardinality_aggregation(precision=precision),
+            }
+        return aggregations
 
     def _process_results(self, raw_results, **kwargs):
-        """
-        Construct and return a dictionary of query result information from the raw query results.
-
-        Overrides and re-implements the ElasticsearchSearchBackend._process_results method so that
-        the distinct count information may be extracted and included in the processed results dictionary.
-        """
+        """ Process the query results into a form that is more easily consumable by the client."""
         results = self.backend._process_results(raw_results, **kwargs)
-        aggs = raw_results['aggregations']
+        aggregations = raw_results['aggregations']
 
         # Process the distinct hit count
-        results['distinct_hits'] = aggs[self.aggregation_name]['value']
+        results['distinct_hits'] = aggregations[self.aggregation_name]['value']
 
         # Process the remaining aggregations, which should all be for facets.
         facets = {'fields': {}, 'dates': {}, 'queries': {}}
-        for name, data in aggs.items():
+        for name, data in aggregations.items():
+
             # The distinct hit count for the overall query was already processed.
             if name == self.aggregation_name:
                 continue
@@ -343,5 +293,4 @@ class DistinctCountsElasticsearchBackendWrapper(object):
                 facets['queries'][name] = (data['doc_count'], data[self.aggregation_name]['value'])
 
             results['facets'] = facets
-
         return results
