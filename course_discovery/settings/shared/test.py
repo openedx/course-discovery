@@ -8,10 +8,6 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
-# We are using RealtimeSignalProcessor because our tests depend on it being enabled
-# and it does not cause performance issues for testing
-HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
-
 SYNONYMS_MODULE = 'course_discovery.settings.test_synonyms'
 
 EDX_DRF_EXTENSIONS = {
