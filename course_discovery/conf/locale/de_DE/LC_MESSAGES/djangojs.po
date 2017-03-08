@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-24 13:09+0500\n"
-"PO-Revision-Date: 2017-02-26 15:49+0000\n"
+"POT-Creation-Date: 2017-03-07 18:14+0500\n"
+"PO-Revision-Date: 2017-03-08 10:36+0000\n"
 "Last-Translator: Alexander L. <alexander.lohberg@ufo-style.de>\n"
 "Language-Team: German (Germany) (http://www.transifex.com/open-edx/edx-platform/language/de_DE/)\n"
 "MIME-Version: 1.0\n"
@@ -27,14 +27,18 @@ msgstr "Vorschau"
 
 #: static/js/publisher/comparing-objects.js
 msgid "Hide changes"
-msgstr "Änderungen verstecken"
+msgstr ""
 
 #: static/js/publisher/comparing-objects.js
 msgid "Show changes"
-msgstr "Änderungen anzeigen"
+msgstr ""
 
 #: static/js/publisher/publisher.js
 msgid "Something went wrong!"
+msgstr ""
+
+#: static/js/publisher/publisher.js
+msgid "Something went wrong! please try again later."
 msgstr ""
 
 #: static/js/publisher/publisher.js
@@ -43,11 +47,11 @@ msgstr ""
 
 #: static/js/publisher/publisher.js
 msgid "Please enter a valid URL."
-msgstr "Bitte geben Sie eine gültige URL ein"
+msgstr ""
 
 #: static/js/publisher/publisher.js
 msgid "Save"
-msgstr "Speichern"
+msgstr ""
 
 #: static/js/publisher/views/dashboard.js
 msgid ""
@@ -57,7 +61,7 @@ msgstr ""
 
 #: static/js/publisher/views/dashboard.js
 msgid "There was an error in saving your data."
-msgstr "Beim Speichern Ihrer Daten ist ein Fehler aufgetreten."
+msgstr ""
 
 #: static/js/publisher/views/dashboard.js
 msgid "No course run previews are currently available."
@@ -65,8 +69,8 @@ msgstr ""
 
 #: static/js/publisher/views/navbar.js
 msgid "OFF"
-msgstr "AUS"
+msgstr ""
 
 #: static/js/publisher/views/navbar.js
 msgid "ON"
-msgstr "EIN"
+msgstr ""
