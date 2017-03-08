@@ -3,12 +3,13 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# Faton Nuha <faton11@live.com>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-24 13:09+0500\n"
-"PO-Revision-Date: 2017-02-24 08:25+0000\n"
+"POT-Creation-Date: 2017-03-02 19:53+0500\n"
+"PO-Revision-Date: 2017-03-03 09:40+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Albanian (http://www.transifex.com/open-edx/edx-platform/language/sq/)\n"
 "MIME-Version: 1.0\n"
@@ -23,27 +24,31 @@ msgstr "Parashiko"
 
 #: static/js/publisher/comparing-objects.js
 msgid "Hide changes"
-msgstr ""
+msgstr "Fsheh ndryshimet"
 
 #: static/js/publisher/comparing-objects.js
 msgid "Show changes"
-msgstr ""
+msgstr "Shfaq ndryshimet"
 
 #: static/js/publisher/publisher.js
 msgid "Something went wrong!"
+msgstr "Diçka shkoi keq!"
+
+#: static/js/publisher/publisher.js
+msgid "Something went wrong! please try again later."
 msgstr ""
 
 #: static/js/publisher/publisher.js
 msgid "File must be smaller than 1 megabyte in size."
-msgstr ""
+msgstr "Dokumenti duhet të jetë më i vogël se 1 megabajt në madhësi."
 
 #: static/js/publisher/publisher.js
 msgid "Please enter a valid URL."
-msgstr ""
+msgstr "Ju lutem shtypni një URL valide."
 
 #: static/js/publisher/publisher.js
 msgid "Save"
-msgstr ""
+msgstr "Ruaje"
 
 #: static/js/publisher/views/dashboard.js
 msgid ""

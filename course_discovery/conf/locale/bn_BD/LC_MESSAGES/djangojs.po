@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# Masud Ahmed <masud.ahmed92@gmail.com>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-24 13:09+0500\n"
-"PO-Revision-Date: 2017-02-24 08:25+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2017-03-02 19:53+0500\n"
+"PO-Revision-Date: 2017-03-03 16:48+0000\n"
+"Last-Translator: Masud Ahmed <masud.ahmed92@gmail.com>\n"
 "Language-Team: Bengali (Bangladesh) (http://www.transifex.com/open-edx/edx-platform/language/bn_BD/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -23,46 +24,50 @@ msgstr "প্রিভিউ"
 
 #: static/js/publisher/comparing-objects.js
 msgid "Hide changes"
-msgstr ""
+msgstr "পরিবর্তন গুলো লুকান"
 
 #: static/js/publisher/comparing-objects.js
 msgid "Show changes"
-msgstr ""
+msgstr "পরিবর্তনগুলি দেখান"
 
 #: static/js/publisher/publisher.js
 msgid "Something went wrong!"
-msgstr ""
+msgstr "কিছু ভুল হয়েছে!"
+
+#: static/js/publisher/publisher.js
+msgid "Something went wrong! please try again later."
+msgstr "হয়েছে! অনুগ্রহ করে একটু পরে আবার চেষ্টা করুন। "
 
 #: static/js/publisher/publisher.js
 msgid "File must be smaller than 1 megabyte in size."
-msgstr ""
+msgstr "ফাইলের আকার 1 মেগাবাইট হতে ছোট হতে হবে। "
 
 #: static/js/publisher/publisher.js
 msgid "Please enter a valid URL."
-msgstr ""
+msgstr "দয়াকরে একটি বৈধ ইউআরএল প্রবেশ করান। "
 
 #: static/js/publisher/publisher.js
 msgid "Save"
-msgstr ""
+msgstr "সংরক্ষণ করুন"
 
 #: static/js/publisher/views/dashboard.js
 msgid ""
 "You have successfully created a studio instance ({studioLinkTag}) for "
 "{courseRunDetail} with a start date of {startDate}"
-msgstr ""
+msgstr "{courseRunDetail} জন্য আপনি সফলভাবে একটি স্টুডিও ইন্সটেন্স  তৈরি করেছেন ({studioLinkTag}) আরম্ভের তারিখ সহকারে {startDate}"
 
 #: static/js/publisher/views/dashboard.js
 msgid "There was an error in saving your data."
-msgstr ""
+msgstr "আপনার তথ্য সংরক্ষণ করার সময় একটি ত্রুটি হয়েছিল .."
 
 #: static/js/publisher/views/dashboard.js
 msgid "No course run previews are currently available."
-msgstr ""
+msgstr "বর্তমানে কোন কোর্সের রান প্রিভিউ পাওয়া যায়নি। "
 
 #: static/js/publisher/views/navbar.js
 msgid "OFF"
-msgstr ""
+msgstr "বন্ধ"
 
 #: static/js/publisher/views/navbar.js
 msgid "ON"
-msgstr ""
+msgstr "চালু"

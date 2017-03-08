@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-24 13:09+0500\n"
-"PO-Revision-Date: 2017-02-26 15:49+0000\n"
+"POT-Creation-Date: 2017-03-02 19:53+0500\n"
+"PO-Revision-Date: 2017-03-04 18:00+0000\n"
 "Last-Translator: Alexander L. <alexander.lohberg@ufo-style.de>\n"
 "Language-Team: German (Germany) (http://www.transifex.com/open-edx/edx-platform/language/de_DE/)\n"
 "MIME-Version: 1.0\n"
@@ -35,11 +35,15 @@ msgstr "Änderungen anzeigen"
 
 #: static/js/publisher/publisher.js
 msgid "Something went wrong!"
-msgstr ""
+msgstr "Es ist irgendetwas schief gelaufen!"
+
+#: static/js/publisher/publisher.js
+msgid "Something went wrong! please try again later."
+msgstr "Etwas ist schief gelaufen! Bitte später nochmal versuchen."
 
 #: static/js/publisher/publisher.js
 msgid "File must be smaller than 1 megabyte in size."
-msgstr ""
+msgstr "Die Größe der Datei muss kleiner als 1 Megabyte sein."
 
 #: static/js/publisher/publisher.js
 msgid "Please enter a valid URL."
@@ -61,7 +65,7 @@ msgstr "Beim Speichern Ihrer Daten ist ein Fehler aufgetreten."
 
 #: static/js/publisher/views/dashboard.js
 msgid "No course run previews are currently available."
-msgstr ""
+msgstr "Momentan keine Vorschau für Kursdurchläufe verfügbar."
 
 #: static/js/publisher/views/navbar.js
 msgid "OFF"
