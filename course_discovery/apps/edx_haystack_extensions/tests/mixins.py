@@ -36,8 +36,9 @@ class SearchIndexTestMixin(object):
         self.index_prefix = self.backend.index_name
 
     def tearDown(self):
-        """ Remove the indexes we created """
+        """ Remove the indexes we created and reset the backend index_name."""
         self.backend.conn.indices.delete(index=self.index_prefix + '_*')
+        self.backend.index_name = self.index_prefix
         super(SearchIndexTestMixin, self).tearDown()
 
 
