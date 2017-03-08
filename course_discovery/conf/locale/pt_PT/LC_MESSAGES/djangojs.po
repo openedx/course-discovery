@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-24 13:09+0500\n"
-"PO-Revision-Date: 2017-02-24 08:25+0000\n"
+"POT-Creation-Date: 2017-03-07 18:14+0500\n"
+"PO-Revision-Date: 2017-03-03 09:40+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Portuguese (Portugal) (http://www.transifex.com/open-edx/edx-platform/language/pt_PT/)\n"
 "MIME-Version: 1.0\n"
@@ -20,7 +20,7 @@ msgstr ""
 
 #: static/js/catalogs-change-form.js
 msgid "Preview"
-msgstr "Pré-visualizar"
+msgstr ""
 
 #: static/js/publisher/comparing-objects.js
 msgid "Hide changes"
@@ -32,6 +32,10 @@ msgstr ""
 
 #: static/js/publisher/publisher.js
 msgid "Something went wrong!"
+msgstr ""
+
+#: static/js/publisher/publisher.js
+msgid "Something went wrong! please try again later."
 msgstr ""
 
 #: static/js/publisher/publisher.js

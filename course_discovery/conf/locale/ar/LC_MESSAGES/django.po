@@ -18,8 +18,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-24 13:09+0500\n"
-"PO-Revision-Date: 2017-02-24 09:56+0000\n"
+"POT-Creation-Date: 2017-03-07 15:35+0500\n"
+"PO-Revision-Date: 2017-03-08 08:23+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Arabic (http://www.transifex.com/open-edx/edx-platform/language/ar/)\n"
 "MIME-Version: 1.0\n"
@@ -515,12 +515,17 @@ msgstr ""
 
 #: apps/publisher/emails.py
 #, python-brace-format
-msgid "Preview for {run_name} has been approved"
+msgid "Publication requested: {course_name} {run_number}"
 msgstr ""
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Preview for {run_name} is available"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Publication complete: {course_name} {run_number}"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -656,6 +661,10 @@ msgstr "نوع المقعد"
 msgid "This field is required."
 msgstr ""
 
+#: apps/publisher/forms.py
+msgid "Invalid course key."
+msgstr ""
+
 #: apps/publisher/models.py
 msgid "Course title"
 msgstr "عنوان الدورة"
@@ -711,7 +720,7 @@ msgstr "المستوى 5"
 msgid "Content Language"
 msgstr "لغة المحتوى"
 
-#: apps/publisher/models.py templates/publisher/add_update_course_form.html
+#: apps/publisher/models.py
 msgid "Length of course, in number of weeks"
 msgstr "مدة الدورة، بالأسابيع"
 
@@ -785,7 +794,7 @@ msgstr ""
 #: apps/publisher/views.py
 #, python-brace-format
 msgid "An error occurred while saving your changes. {error}"
-msgstr "حدث خطأ أثناء حفظ التغييرات. {error}"
+msgstr ""
 
 #: apps/publisher/views.py
 msgid "Please fill all required fields."
@@ -838,12 +847,36 @@ msgstr "تم إضافة {subject_desc} في مجرى الدروة التعليم
 msgid "{subject_desc} in Course: {title}"
 msgstr "تم إضافة {subject_desc} في الدورة التعليمية: {title}"
 
+#. Translators: subject_desc will be Preview Decline for course run,
+#. 'title' will be the value of course title.
+#: apps/publisher_comments/emails.py
+#, python-brace-format
+msgid "Preview Decline for course run: {title}"
+msgstr ""
+
+#: apps/publisher_comments/models.py
+msgid "Default"
+msgstr ""
+
+#: apps/publisher_comments/models.py
+msgid "Decline Preview"
+msgstr ""
+
 #: apps/publisher_comments/models.py
 msgid "modified"
 msgstr "مُعدل"
 
 #: templates/comments/add_auth_comments.html
 msgid "Comment:"
+msgstr ""
+
+#: templates/comments/add_auth_comments.html
+#: templates/publisher/course_run_detail/_widgets.html
+msgid "Submit"
+msgstr ""
+
+#: templates/comments/add_auth_comments.html
+msgid "Add comment"
 msgstr ""
 
 #: templates/comments/comments_list.html
@@ -1045,6 +1078,23 @@ msgstr "%(history_date)s&nbsp;by&nbsp;%(changed_by)s"
 msgid "Open Selected Version"
 msgstr "فتح الإصدار المختار"
 
+#: templates/publisher/_render_optional_field.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_credit_seat.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "(Optional) Not yet added"
+msgstr ""
+
+#: templates/publisher/_render_required_field.html
+#: templates/publisher/course_detail.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_seats.html
+msgid "(Required) Not yet added"
+msgstr ""
+
 #: templates/publisher/add_courserun_form.html
 msgid "New Course Run"
 msgstr "مجرى دورة تعليمية جديد"
@@ -1115,8 +1165,6 @@ msgid "Sequence Courses:"
 msgstr "دورات تعليمية متسلسلة:"
 
 #: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
 msgid "Introduction to Statistics"
 msgstr "مقدمة في الإحصاء"
 
@@ -1299,11 +1347,6 @@ msgid "Single Courses"
 msgstr "دورات تعليمية واحدة"
 
 #: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Project Management Life Cycle"
-msgstr "دورة إدارة المشاريع الحياة"
-
-#: templates/publisher/add_update_course_form.html
 msgid "Start on a Tuesday, Wednesday, or Thursday."
 msgstr "ابدأ يوم الثلاثاء، الاربعاء، أو الخميس."
 
@@ -1355,6 +1398,16 @@ msgid ""
 msgstr "إذا كانت الدورة تتألف من عدة وحدات، لا يمكن لرقم المقرر أن ينتهي ب.1x أو .2x على سبيل المثال"
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "CS002x"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "BIO1.1x; BIO1.2x etc."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
 msgid "STUDIO INSTANCE"
 msgstr "مثيل الاستوديو"
 
@@ -1377,22 +1430,16 @@ msgid "PROGRAM ASSOCIATION"
 msgstr "رابطة البرنامج"
 
 #: templates/publisher/add_update_course_form.html
-msgid "Is this course a part of any programs?"
-msgstr "هل هذه الدورة جزء من أي برنامج؟"
-
-#: templates/publisher/add_update_course_form.html
-msgid "Select the type or types of programs."
-msgstr "اختر نوع أو أنواع البرامج."
-
-#: templates/publisher/add_update_course_form.html
-msgid "Add the name of the program this course will be a part of."
-msgstr "إضافة اسم برنامج هذه الدورة سوف يكون جزءاً منه."
+msgid ""
+"If this course is part of a program, select the program type and enter the "
+"name of the program."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 msgid ""
-"If Verified or Professional Education, indicate certificate price in US "
-"dollars (minimum of $49)"
-msgstr "إذا كان التعليم قد تم التحقق منه أو مهني، قم بالإشارة إلى سعر الشهادة بالدولار الأمريكي (الحد الأدنى 49$)"
+"If the course offers a verified or professional education certificate, "
+"select the certificate type and enter the price for the certificate."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
@@ -1401,20 +1448,35 @@ msgstr "وصف ملخص"
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
+msgid "An effective short description:"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Contains 25–50 words."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Functions as a tagline."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Conveys compelling reasons to take the course."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Follows SEO guidelines."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
-"Reads as a tag line - a short, engaging description for students browsing "
-"course listings"
-msgstr "كتابة سطر تعريف - عبارة عن وصف قصير لجذب الطلاب لتصفح قوائم الدورة"
-
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Conveys why someone should take the course"
-msgstr "يوضح السبب لما يُوصى أي شخص بتعلم هذه الدورة"
-
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "SEO optimized and targeted to a global audience"
-msgstr "مزود بخاصية تحسين محركات البحث SEO وموجه للجمهور العالمي"
+"The first MOOC to teach positive psychology. Learn science-based principles "
+"and practices for a happy, meaningful life."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
@@ -1428,34 +1490,71 @@ msgstr "وصف مفصّل"
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
-msgid "Summarized description of course content"
-msgstr "وصف ملخص لمحتوى المقرر"
+msgid "An effective long description:"
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
-msgid "Describe why a learner should take this course"
-msgstr "اشرح لماذا ينبغي للطلاب تعلم هذه الدورة"
+msgid "Contains 150–300 words."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
-msgid ""
-"Text should be easily scannable, using bullet points to highlight instead of"
-" long, dense text paragraphs"
-msgstr "يجب أن يكون من السهل الاطلاع على النص، باستخدام التعداد النقطي لإبراز النقاط بدلاً من الفقرات النصية الطويلة المكثفة"
+msgid "Is easy to skim."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
-msgid ""
-"Note: the first 4-5 lines will be visible to the learner immediately upon "
-"clicking the page;"
-msgstr "ملاحظة: ستكون أول 4-5 أسطر مرئية للطالب مباشرة بمجرد النقر على الصفحة؛"
+msgid "Uses bullet points instead of dense text paragraphs."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid ""
-"additional text will be hidden yet available via \"See More\" clickable text"
-" under the first 4-5 lines"
-msgstr "سيتم إخفاء النص الإضافي ومع ذلك سيبقى متاحاً من خلال النص القابل للنقر \"انظر المزيد\" أسفل الأسطر 4-5 الأولى"
+"The first four lines are visible when the About page opens. Learners can "
+"select \\"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Want to learn computer programming, but unsure where to begin? This is the "
+"course for you! Scratch is the computer programming language that makes it "
+"easy and fun to create interactive stories, games and animations and share "
+"them online."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"This course is an introduction to computer science using the programming "
+"language Scratch, developed by MIT. Starting with the basics of using "
+"Scratch, the course will stretch your mind and challenge you. You will learn"
+" how to create amazing games, animated images and songs in just minutes with"
+" a simple “drag and drop” interface."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"No previous programming knowledge needed. Join us as you start your computer"
+" science journey."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Skills-based example:"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Taught by instructors with decades of experience on Wall Street, this M&A "
+"course will equip analysts and associates with the skills they need to rise "
+"to employment in the M&A field. Additionally, directors and managers who "
+"have transitioned, or hope to transition, to M&A from other areas such as "
+"equities or fixed income can use this course to eliminate skill gaps."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
@@ -1469,27 +1568,41 @@ msgstr "توقعات التعلم"
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
-msgid "Answer to the question: \"What will you learn from this course?\""
-msgstr "إجابة للسؤال: \"ما الذي ستتعلمه في هذه الدورة؟\""
+msgid "The skills and knowledge learners will acquire in this course."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
-msgid "bulleted items, approximately 4-10 words per bullet"
-msgstr "عناصر التعداد النقطي، حوالي 4-10 كلمات في كل نقطة"
+msgid "Format each item as a bullet with four to ten words."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Basic R Programming"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "An applied understanding of linear and logistic regression"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Application of text analytics"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Linear and integer optimization"
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 msgid "COURSE STAFF"
 msgstr "طاقم الدورة"
 
 #: templates/publisher/add_update_course_form.html
-msgid ""
-"If there is more than one instructor, please indicate the order in which the"
-" instructors should be listed"
-msgstr "إذا كان هناك أكثر من معلم واحد، يرجى تحديد ترتيب المعلمين في القائمة"
-
-#: templates/publisher/add_update_course_form.html
-msgid "Limited to the primary instructors a learner will encounter in videos "
-msgstr "يقتصر على المعلمين الأساسيين الذين سيواجههم المتعلم في أشرطة الفيديو"
+msgid "The primary instructor or instructors in the course videos."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 msgid "Add New"
@@ -1506,10 +1619,15 @@ msgstr "خانة الموضوع"
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
+msgid "The subject of the course."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
-"Only one primary subject will appear on the About Page; please select one "
-"primary subject and a maximum of two additional subject areas for search."
-msgstr "سيظهر موضوع أساسي واحد على صفحة \"عن الدورة\"؛ لذا يرجى تحديد موضوع أساسي واحد وموضوعين إضافيين فرعيين للبحث كحد أقصى."
+"You can select up to two subjects in addition to the primary subject. Only "
+"the primary subject appears on the About page."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
@@ -1519,41 +1637,35 @@ msgstr "صورة الدورة"
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid ""
-"Select an eye-catching, colorful image that captures the content and essence"
-" of your course"
-msgstr "اختر صورة لافتة للنظر وملونة لمثيل محتوى وجوهر هذه الدورة"
+"An eye-catching, colorful image that captures the essence of your course."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
-msgid "Do not include text or headlines"
-msgstr "يحظر إدخال النصوص أو العناوين"
+msgid "Course Image Guidelines:"
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
-msgid "Choose an image that you have permission to use."
-msgstr "استخدم صورة التي لديك الإذن باستخدامها."
+msgid "The image size must be 2120 x 1192 pixels."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
-msgid "This can be a stock photo (try Flickr creative commons, "
-msgstr "ويشمل ذلك مواقع الصور المجانية (اطلع على موقع Flickr الإبداعي،"
+msgid "Each course in a sequence must have a unique image."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "The image cannot include text or headlines."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid ""
-"Stock Vault, Stock XCHNG, iStock Photo) or an image custom designed for your"
-" course"
-msgstr "Stock Vault، Stock XCHNG، iStock Photo) أو صورة مصممة خصيصًا لمقررك"
-
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Sequenced courses should each have a unique image"
-msgstr "يجب أن يكون لكل من الدورات المتسلسلة صورة فريدة"
-
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Size: 2120 x 1192 pixels"
-msgstr "الحجم: 2120 × 1192 بيكسل"
+"You must have permission to use the image. Possible image sources include "
+"Flickr creative commons, Stock Vault, Stock XCHNG, and iStock Photo."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
@@ -1562,20 +1674,30 @@ msgstr "المتطلبات الأساسية"
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
+msgid "Maximum 200 characters."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
-"List concepts and level (basic, advanced, undergraduate, graduate) students "
-"should be familiar with"
-msgstr "مفاهيم ومستوى القائمة (أساسي، متقدم،  المرحلة الجامعية أو الدراسات العليا) التي ينبغي أن يبلغها الطالب"
+"Specific knowledge learners must have to be successful in the course. If the"
+" course has no prerequisites, enter \\"
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
-msgid "If there are no prerequisites, please list \"None.\""
-msgstr "إذا لم يكن هناك متطلبات أساسية، الرجاء اختيار \"لا يوجد\""
+msgid "Secondary school (high school) algebra; basic mathematics concepts"
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
-msgid "200 character limit, including spaces"
-msgstr "الحد الأقصى للأحرف 200 حرف، يشمل الفراغات"
+msgid "Graduate-level understanding of Keynesian economics"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Basic algebra"
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
@@ -1588,18 +1710,62 @@ msgid "SYLLABUS"
 msgstr "منهاج دراسي"
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"A review of content covered in your course, organized by week or module."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Focus on topics and content."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Do not include detailed information about course logistics, such as grading,"
+" communication policies, and reading lists."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Format items as either paragraphs or a bulleted list."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Week 1: From Calculator to Computer"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Introduction to basic programming concepts, such as values and expressions, "
+"as well as making decisions when implementing algorithms and developing "
+"programs."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Week 2: State Transformation"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Introduction to state transformation, including representation of data and "
+"programs as well as conditional repetition."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
 msgid "ESTIMATED EFFORT"
 msgstr "المجهود المُقدر"
 
 #: templates/publisher/add_update_course_form.html
 msgid ""
-"Number of hours per week the learner should expect to spend on the course to"
-" be successful"
-msgstr "عدد الساعات الأسبوعية التي من المتوقع ان يقضيها الطالب في تعلم الدورة من أجل تحقيق النجاح"
-
-#: templates/publisher/add_update_course_form.html
-msgid "Should be realistic, and can be a range"
-msgstr "يجب أن يكون واقعي، وقد يكون ضمن نطاق"
+"The number of hours per week the learner should expect to spend on the "
+"course. This may be a range."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 msgid "Min Effort"
@@ -1614,28 +1780,19 @@ msgid "LANGUAGE(S)"
 msgstr "اللغة (ات)"
 
 #: templates/publisher/add_update_course_form.html
-msgid "Course content (navigation and course content excluding videos)"
-msgstr "محتوى الدورة (التصفح ومحتوى الدورة باستثناء مقاطع الفيديو)"
-
-#: templates/publisher/add_update_course_form.html
-msgid "Videos (language spoken in course videos)"
-msgstr "مقاطع الفيديو (لغة الحديث في مقاطع الفيديو في الدورة)"
-
-#: templates/publisher/add_update_course_form.html
-msgid "Video transcript (video caption language)"
-msgstr "نص الفيديو (لغة لقطات الفيديو)"
+msgid ""
+"The languages available for videos, video transcripts, and course content "
+"other than videos and transcripts."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 msgid "LENGTH"
 msgstr "المدة"
 
 #: templates/publisher/add_update_course_form.html
-msgid "If the time between start/end dates is not exact, ex: 8.5 weeks, "
-msgstr "إذا لم يكن الوقت بين تاريخ البدء/النهاية محدد بدقة، مثل: 8.5 أسابيع،"
-
-#: templates/publisher/add_update_course_form.html
-msgid "indicate whether the course should be listed as 8 weeks or 9 weeks."
-msgstr "التحديد ما إذا كانت مدة الدورة يجب أن تكون 8 أم 9 أسابيع."
+msgid ""
+"The length of the course, in weeks, rounded to the nearest whole number."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
@@ -1645,23 +1802,23 @@ msgstr "نوع المستوى"
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid ""
-"Introductory - No prerequisites; an individual with some to all of a "
-"secondary school degree could complete"
-msgstr "تمهيدي - لا يوجد متطلبات أساسية؛ يستطيع الشخص الحاصل على دراسة ثانوية جزئية أو كاملة انهاء هذه الدورة "
+"Introductory - No prerequisites; a learner with some to all of a secondary "
+"school degree could complete the course."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid ""
-"Intermediate - Basic prerequisites; a secondary school degree likely "
-"required to be successful as well as some university"
-msgstr "متوسط - يوجد متطلبات أساسية؛ قد يكون هناك حاجة لشهادة مدرسة ثانوية من أجل النجاح في الدورة وأيضاً إلى مستوى من الدراسة الجامعية"
+"Intermediate - Basic prerequisites; learners need a secondary school degree "
+"or some university courses."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid ""
-"Advanced - Significant number of prerequisites required; course geared to "
-"3rd or 4th year university student or a masters degree student"
-msgstr "متقدم - يوجد عدد كبير من المتطلبات الأساسية؛ هذه الدورة مُعدة لطلاب السنة 3 أو 4 في الجامعة أو طلاب درجة الماجستير"
+"Advanced - Significant prerequisites; the course is geared to third or "
+"fourth year university students or master's degree students."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 msgid ""
@@ -1811,6 +1968,12 @@ msgid "Course Run Detail"
 msgstr "تفاصيل تشغيل الدورة"
 
 #: templates/publisher/course_run_detail.html
+#, python-format
+msgid ""
+"Course run announced on %(course_publish_date)s - view it on edx.org at:"
+msgstr ""
+
+#: templates/publisher/course_run_detail.html
 msgid "All"
 msgstr "الكل"
 
@@ -1838,11 +2001,6 @@ msgstr "الرقم"
 
 #: templates/publisher/course_run_detail/_all.html
 msgid "Studio instance"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_render_field.html
-msgid "empty"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
@@ -1934,10 +2092,6 @@ msgstr "الساعات المعتمدة"
 #: templates/publisher/course_run_detail/_seats.html
 msgid "Upgrade Deadline"
 msgstr "الموعد النهائي للتحديث "
-
-#: templates/publisher/course_run_detail/_credit_seat.html
-msgid "No Credit Seats Available."
-msgstr "لا تتوفر مقاعد معتمدة في الدورة"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Sub Title"
@@ -2113,10 +2267,6 @@ msgstr "تاريخ انتهاء صلاحية التسجيل المعتمد"
 msgid "Certificate Issued Date"
 msgstr "تاريخ إصدار الشهادة"
 
-#: templates/publisher/course_run_detail/_seats.html
-msgid "No Seats Available."
-msgstr "لا تتوفر مقاعد في الدورة"
-
 #: templates/publisher/course_run_detail/_studio.html
 #: templates/publisher/courses.html
 #: templates/publisher/dashboard/_in_progress.html
@@ -2147,6 +2297,10 @@ msgid "Accept"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_widgets.html
+msgid "Publish"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_widgets.html
 msgid "Submitted for review"
 msgstr ""
 
@@ -2170,6 +2324,10 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "Not available"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_widgets.html
+msgid "Reason for declining preview"
 msgstr ""
 
 #: templates/publisher/courses.html
@@ -2276,10 +2434,10 @@ msgstr "عرض الدورة"
 #: templates/publisher/email/comment.txt
 #: templates/publisher/email/course_created.html
 #: templates/publisher/email/course_created.txt
-#: templates/publisher/email/course_run/preview_accepted.html
-#: templates/publisher/email/course_run/preview_accepted.txt
 #: templates/publisher/email/course_run/preview_available.html
 #: templates/publisher/email/course_run/preview_available.txt
+#: templates/publisher/email/decline_preview.html
+#: templates/publisher/email/decline_preview.txt
 msgid "The edX team"
 msgstr "فريق edX"
 
@@ -2296,10 +2454,12 @@ msgid ""
 msgstr "علق %(first_name)s  على %(object_type)s التي تنتمي إلى الدورة %(title)s (%(number)s)."
 
 #: templates/publisher/email/comment.html
+#: templates/publisher/email/decline_preview.html
 msgid "View comment"
 msgstr "عرض التعليق"
 
 #: templates/publisher/email/comment.txt
+#: templates/publisher/email/decline_preview.txt
 msgid "View comment: "
 msgstr "عرض التعليق:"
 
@@ -2309,6 +2469,8 @@ msgstr "عرض التعليق:"
 #: templates/publisher/email/course/send_for_review.txt
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
+#: templates/publisher/email/course_run/published.html
+#: templates/publisher/email/course_run/published.txt
 #: templates/publisher/email/course_run/send_for_review.html
 #: templates/publisher/email/course_run/send_for_review.txt
 #, python-format
@@ -2331,10 +2493,11 @@ msgstr ""
 #: templates/publisher/email/course_created.txt
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
-#: templates/publisher/email/course_run/preview_accepted.html
 #: templates/publisher/email/course_run/preview_accepted.txt
 #: templates/publisher/email/course_run/preview_available.html
 #: templates/publisher/email/course_run/preview_available.txt
+#: templates/publisher/email/course_run/published.html
+#: templates/publisher/email/course_run/published.txt
 #: templates/publisher/email/course_run/send_for_review.html
 #: templates/publisher/email/course_run/send_for_review.txt
 #: templates/publisher/email/studio_instance_created.html
@@ -2349,6 +2512,7 @@ msgstr "شكراً،"
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #: templates/publisher/email/course_run/preview_accepted.html
 #: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/published.html
 #: templates/publisher/email/course_run/send_for_review.html
 #: templates/publisher/email/studio_instance_created.html
 #, python-format
@@ -2367,6 +2531,7 @@ msgstr ""
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
 #: templates/publisher/email/course_run/preview_accepted.txt
 #: templates/publisher/email/course_run/preview_available.txt
+#: templates/publisher/email/course_run/published.txt
 #: templates/publisher/email/course_run/send_for_review.txt
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
@@ -2438,22 +2603,35 @@ msgstr ""
 
 #: templates/publisher/email/course_run/preview_accepted.html
 #: templates/publisher/email/course_run/preview_accepted.txt
-#: templates/publisher/email/course_run/preview_available.html
-#: templates/publisher/email/course_run/preview_available.txt
-msgid "Dear member,"
+#, python-format
+msgid "Dear %(publisher_role_name)s,"
 msgstr ""
 
 #: templates/publisher/email/course_run/preview_accepted.html
 #, python-format
 msgid ""
-"Preview for %(link_start)s%(page_url)s%(link_middle)s %(course_name)s "
-"%(link_end)s has beed approved by course team."
+"%(course_team)s has approved the preview of the "
+"%(link_start)s%(page_url)s%(link_middle)s%(run_number)s%(link_end)s course "
+"run of %(course_name)s from %(org_name)s. The course run is now ready for "
+"publication."
+msgstr ""
+
+#. Translators: It's closing of mail.
+#: templates/publisher/email/course_run/preview_accepted.html
+msgid "Thank you,"
 msgstr ""
 
 #: templates/publisher/email/course_run/preview_accepted.txt
 #, python-format
 msgid ""
-"Preview for %(course_name)s has beed approved by course team. %(page_url)s"
+"%(course_team)s has approved the preview of the %(run_number)s %(page_url)s "
+"course run of %(course_name)s from %(org_name)s. The course run is now ready"
+" for publication."
+msgstr ""
+
+#: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/preview_available.txt
+msgid "Dear member,"
 msgstr ""
 
 #: templates/publisher/email/course_run/preview_available.html
@@ -2468,6 +2646,22 @@ msgstr ""
 msgid "Preview for %(course_name)s is available for review. %(page_url)s"
 msgstr ""
 
+#: templates/publisher/email/course_run/published.html
+#, python-format
+msgid ""
+"The %(link_start)s%(page_url)s%(link_middle)s %(course_run_number)s course "
+"run %(link_end)s of %(course_name)s has been published. Visit "
+"%(link_start)s%(preview_url)s%(link_middle)slink to live course run "
+"page%(link_end)s to view the course run."
+msgstr ""
+
+#: templates/publisher/email/course_run/published.txt
+#, python-format
+msgid ""
+"The %(course_run_number)s %(page_url)s course run of %(course_name)s has "
+"been published. Visit %(preview_url)s to view the live course run."
+msgstr ""
+
 #: templates/publisher/email/course_run/send_for_review.html
 #, python-format
 msgid ""
@@ -2475,6 +2669,21 @@ msgid ""
 "%(link_end)s are ready for your review. "
 "%(link_start)s%(page_url)s%(link_middle)s View this course-run in Publisher "
 "%(link_end)s to approve or decline the changes."
+msgstr ""
+
+#: templates/publisher/email/decline_preview.html
+#, python-format
+msgid ""
+"Preview link %(preview_url)s for the "
+"%(link_start)s%(page_url)s%(link_middle)s%(course_title)s%(link_end)s has "
+"been declined."
+msgstr ""
+
+#: templates/publisher/email/decline_preview.txt
+#, python-format
+msgid ""
+"Preview link %(preview_url)s for the %(course_title)s: %(course_url)s has "
+"been declined."
 msgstr ""
 
 #. Translators: course_team_name is course team member name.

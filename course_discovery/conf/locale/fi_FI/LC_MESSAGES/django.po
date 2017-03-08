@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-24 13:09+0500\n"
-"PO-Revision-Date: 2017-02-24 09:56+0000\n"
+"POT-Creation-Date: 2017-03-07 15:35+0500\n"
+"PO-Revision-Date: 2017-03-08 08:23+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Finnish (Finland) (http://www.transifex.com/open-edx/edx-platform/language/fi_FI/)\n"
 "MIME-Version: 1.0\n"
@@ -75,7 +75,7 @@ msgstr ""
 
 #: apps/core/admin.py
 msgid "Permissions"
-msgstr "Käyttöoikeudet"
+msgstr ""
 
 #: apps/core/admin.py
 msgid "Important dates"
@@ -122,7 +122,7 @@ msgstr ""
 
 #: apps/core/models.py
 msgid "Full Name"
-msgstr "Koko nimi"
+msgstr ""
 
 #: apps/core/models.py
 msgid "Referral Tracking ID"
@@ -504,12 +504,17 @@ msgstr ""
 
 #: apps/publisher/emails.py
 #, python-brace-format
-msgid "Preview for {run_name} has been approved"
+msgid "Publication requested: {course_name} {run_number}"
 msgstr ""
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Preview for {run_name} is available"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Publication complete: {course_name} {run_number}"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -645,6 +650,10 @@ msgstr ""
 msgid "This field is required."
 msgstr ""
 
+#: apps/publisher/forms.py
+msgid "Invalid course key."
+msgstr ""
+
 #: apps/publisher/models.py
 msgid "Course title"
 msgstr ""
@@ -700,7 +709,7 @@ msgstr ""
 msgid "Content Language"
 msgstr ""
 
-#: apps/publisher/models.py templates/publisher/add_update_course_form.html
+#: apps/publisher/models.py
 msgid "Length of course, in number of weeks"
 msgstr ""
 
@@ -827,12 +836,36 @@ msgstr ""
 msgid "{subject_desc} in Course: {title}"
 msgstr ""
 
+#. Translators: subject_desc will be Preview Decline for course run,
+#. 'title' will be the value of course title.
+#: apps/publisher_comments/emails.py
+#, python-brace-format
+msgid "Preview Decline for course run: {title}"
+msgstr ""
+
+#: apps/publisher_comments/models.py
+msgid "Default"
+msgstr ""
+
+#: apps/publisher_comments/models.py
+msgid "Decline Preview"
+msgstr ""
+
 #: apps/publisher_comments/models.py
 msgid "modified"
 msgstr ""
 
 #: templates/comments/add_auth_comments.html
 msgid "Comment:"
+msgstr ""
+
+#: templates/comments/add_auth_comments.html
+#: templates/publisher/course_run_detail/_widgets.html
+msgid "Submit"
+msgstr ""
+
+#: templates/comments/add_auth_comments.html
+msgid "Add comment"
 msgstr ""
 
 #: templates/comments/comments_list.html
@@ -1034,6 +1067,23 @@ msgstr ""
 msgid "Open Selected Version"
 msgstr ""
 
+#: templates/publisher/_render_optional_field.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_credit_seat.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "(Optional) Not yet added"
+msgstr ""
+
+#: templates/publisher/_render_required_field.html
+#: templates/publisher/course_detail.html
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_seats.html
+msgid "(Required) Not yet added"
+msgstr ""
+
 #: templates/publisher/add_courserun_form.html
 msgid "New Course Run"
 msgstr ""
@@ -1104,8 +1154,6 @@ msgid "Sequence Courses:"
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
 msgid "Introduction to Statistics"
 msgstr ""
 
@@ -1288,11 +1336,6 @@ msgid "Single Courses"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Project Management Life Cycle"
-msgstr ""
-
-#: templates/publisher/add_update_course_form.html
 msgid "Start on a Tuesday, Wednesday, or Thursday."
 msgstr ""
 
@@ -1344,6 +1387,16 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "CS002x"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "BIO1.1x; BIO1.2x etc."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
 msgid "STUDIO INSTANCE"
 msgstr ""
 
@@ -1366,21 +1419,15 @@ msgid "PROGRAM ASSOCIATION"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
-msgid "Is this course a part of any programs?"
-msgstr ""
-
-#: templates/publisher/add_update_course_form.html
-msgid "Select the type or types of programs."
-msgstr ""
-
-#: templates/publisher/add_update_course_form.html
-msgid "Add the name of the program this course will be a part of."
+msgid ""
+"If this course is part of a program, select the program type and enter the "
+"name of the program."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 msgid ""
-"If Verified or Professional Education, indicate certificate price in US "
-"dollars (minimum of $49)"
+"If the course offers a verified or professional education certificate, "
+"select the certificate type and enter the price for the certificate."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
@@ -1390,19 +1437,34 @@ msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
+msgid "An effective short description:"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Contains 25–50 words."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Functions as a tagline."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Conveys compelling reasons to take the course."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Follows SEO guidelines."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
-"Reads as a tag line - a short, engaging description for students browsing "
-"course listings"
-msgstr ""
-
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Conveys why someone should take the course"
-msgstr ""
-
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "SEO optimized and targeted to a global audience"
+"The first MOOC to teach positive psychology. Learn science-based principles "
+"and practices for a happy, meaningful life."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
@@ -1417,33 +1479,70 @@ msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
-msgid "Summarized description of course content"
+msgid "An effective long description:"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
-msgid "Describe why a learner should take this course"
+msgid "Contains 150–300 words."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Is easy to skim."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Uses bullet points instead of dense text paragraphs."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid ""
-"Text should be easily scannable, using bullet points to highlight instead of"
-" long, dense text paragraphs"
+"The first four lines are visible when the About page opens. Learners can "
+"select \\"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid ""
-"Note: the first 4-5 lines will be visible to the learner immediately upon "
-"clicking the page;"
+"Want to learn computer programming, but unsure where to begin? This is the "
+"course for you! Scratch is the computer programming language that makes it "
+"easy and fun to create interactive stories, games and animations and share "
+"them online."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid ""
-"additional text will be hidden yet available via \"See More\" clickable text"
-" under the first 4-5 lines"
+"This course is an introduction to computer science using the programming "
+"language Scratch, developed by MIT. Starting with the basics of using "
+"Scratch, the course will stretch your mind and challenge you. You will learn"
+" how to create amazing games, animated images and songs in just minutes with"
+" a simple “drag and drop” interface."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"No previous programming knowledge needed. Join us as you start your computer"
+" science journey."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Skills-based example:"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Taught by instructors with decades of experience on Wall Street, this M&A "
+"course will equip analysts and associates with the skills they need to rise "
+"to employment in the M&A field. Additionally, directors and managers who "
+"have transitioned, or hope to transition, to M&A from other areas such as "
+"equities or fixed income can use this course to eliminate skill gaps."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
@@ -1458,12 +1557,32 @@ msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
-msgid "Answer to the question: \"What will you learn from this course?\""
+msgid "The skills and knowledge learners will acquire in this course."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
-msgid "bulleted items, approximately 4-10 words per bullet"
+msgid "Format each item as a bullet with four to ten words."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Basic R Programming"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "An applied understanding of linear and logistic regression"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Application of text analytics"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Linear and integer optimization"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
@@ -1471,13 +1590,7 @@ msgid "COURSE STAFF"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
-msgid ""
-"If there is more than one instructor, please indicate the order in which the"
-" instructors should be listed"
-msgstr ""
-
-#: templates/publisher/add_update_course_form.html
-msgid "Limited to the primary instructors a learner will encounter in videos "
+msgid "The primary instructor or instructors in the course videos."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
@@ -1495,9 +1608,14 @@ msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
+msgid "The subject of the course."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
-"Only one primary subject will appear on the About Page; please select one "
-"primary subject and a maximum of two additional subject areas for search."
+"You can select up to two subjects in addition to the primary subject. Only "
+"the primary subject appears on the About page."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
@@ -1508,40 +1626,34 @@ msgstr ""
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid ""
-"Select an eye-catching, colorful image that captures the content and essence"
-" of your course"
+"An eye-catching, colorful image that captures the essence of your course."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
-msgid "Do not include text or headlines"
+msgid "Course Image Guidelines:"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
-msgid "Choose an image that you have permission to use."
+msgid "The image size must be 2120 x 1192 pixels."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
-msgid "This can be a stock photo (try Flickr creative commons, "
+msgid "Each course in a sequence must have a unique image."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "The image cannot include text or headlines."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid ""
-"Stock Vault, Stock XCHNG, iStock Photo) or an image custom designed for your"
-" course"
-msgstr ""
-
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Sequenced courses should each have a unique image"
-msgstr ""
-
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Size: 2120 x 1192 pixels"
+"You must have permission to use the image. Possible image sources include "
+"Flickr creative commons, Stock Vault, Stock XCHNG, and iStock Photo."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
@@ -1551,19 +1663,29 @@ msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
+msgid "Maximum 200 characters."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
 msgid ""
-"List concepts and level (basic, advanced, undergraduate, graduate) students "
-"should be familiar with"
+"Specific knowledge learners must have to be successful in the course. If the"
+" course has no prerequisites, enter \\"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
-msgid "If there are no prerequisites, please list \"None.\""
+msgid "Secondary school (high school) algebra; basic mathematics concepts"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
-msgid "200 character limit, including spaces"
+msgid "Graduate-level understanding of Keynesian economics"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Basic algebra"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
@@ -1577,17 +1699,61 @@ msgid "SYLLABUS"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"A review of content covered in your course, organized by week or module."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Focus on topics and content."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Do not include detailed information about course logistics, such as grading,"
+" communication policies, and reading lists."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Format items as either paragraphs or a bulleted list."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Week 1: From Calculator to Computer"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Introduction to basic programming concepts, such as values and expressions, "
+"as well as making decisions when implementing algorithms and developing "
+"programs."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Week 2: State Transformation"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Introduction to state transformation, including representation of data and "
+"programs as well as conditional repetition."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
 msgid "ESTIMATED EFFORT"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 msgid ""
-"Number of hours per week the learner should expect to spend on the course to"
-" be successful"
-msgstr ""
-
-#: templates/publisher/add_update_course_form.html
-msgid "Should be realistic, and can be a range"
+"The number of hours per week the learner should expect to spend on the "
+"course. This may be a range."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
@@ -1603,15 +1769,9 @@ msgid "LANGUAGE(S)"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
-msgid "Course content (navigation and course content excluding videos)"
-msgstr ""
-
-#: templates/publisher/add_update_course_form.html
-msgid "Videos (language spoken in course videos)"
-msgstr ""
-
-#: templates/publisher/add_update_course_form.html
-msgid "Video transcript (video caption language)"
+msgid ""
+"The languages available for videos, video transcripts, and course content "
+"other than videos and transcripts."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
@@ -1619,11 +1779,8 @@ msgid "LENGTH"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
-msgid "If the time between start/end dates is not exact, ex: 8.5 weeks, "
-msgstr ""
-
-#: templates/publisher/add_update_course_form.html
-msgid "indicate whether the course should be listed as 8 weeks or 9 weeks."
+msgid ""
+"The length of the course, in weeks, rounded to the nearest whole number."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
@@ -1634,22 +1791,22 @@ msgstr ""
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid ""
-"Introductory - No prerequisites; an individual with some to all of a "
-"secondary school degree could complete"
+"Introductory - No prerequisites; a learner with some to all of a secondary "
+"school degree could complete the course."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid ""
-"Intermediate - Basic prerequisites; a secondary school degree likely "
-"required to be successful as well as some university"
+"Intermediate - Basic prerequisites; learners need a secondary school degree "
+"or some university courses."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid ""
-"Advanced - Significant number of prerequisites required; course geared to "
-"3rd or 4th year university student or a masters degree student"
+"Advanced - Significant prerequisites; the course is geared to third or "
+"fourth year university students or master's degree students."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
@@ -1800,6 +1957,12 @@ msgid "Course Run Detail"
 msgstr ""
 
 #: templates/publisher/course_run_detail.html
+#, python-format
+msgid ""
+"Course run announced on %(course_publish_date)s - view it on edx.org at:"
+msgstr ""
+
+#: templates/publisher/course_run_detail.html
 msgid "All"
 msgstr ""
 
@@ -1827,11 +1990,6 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
 msgid "Studio instance"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_render_field.html
-msgid "empty"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
@@ -1922,10 +2080,6 @@ msgstr ""
 #: templates/publisher/course_run_detail/_credit_seat.html
 #: templates/publisher/course_run_detail/_seats.html
 msgid "Upgrade Deadline"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_credit_seat.html
-msgid "No Credit Seats Available."
 msgstr ""
 
 #: templates/publisher/course_run_detail/_drupal.html
@@ -2102,10 +2256,6 @@ msgstr ""
 msgid "Certificate Issued Date"
 msgstr ""
 
-#: templates/publisher/course_run_detail/_seats.html
-msgid "No Seats Available."
-msgstr ""
-
 #: templates/publisher/course_run_detail/_studio.html
 #: templates/publisher/courses.html
 #: templates/publisher/dashboard/_in_progress.html
@@ -2136,6 +2286,10 @@ msgid "Accept"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_widgets.html
+msgid "Publish"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_widgets.html
 msgid "Submitted for review"
 msgstr ""
 
@@ -2159,6 +2313,10 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "Not available"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_widgets.html
+msgid "Reason for declining preview"
 msgstr ""
 
 #: templates/publisher/courses.html
@@ -2265,10 +2423,10 @@ msgstr ""
 #: templates/publisher/email/comment.txt
 #: templates/publisher/email/course_created.html
 #: templates/publisher/email/course_created.txt
-#: templates/publisher/email/course_run/preview_accepted.html
-#: templates/publisher/email/course_run/preview_accepted.txt
 #: templates/publisher/email/course_run/preview_available.html
 #: templates/publisher/email/course_run/preview_available.txt
+#: templates/publisher/email/decline_preview.html
+#: templates/publisher/email/decline_preview.txt
 msgid "The edX team"
 msgstr ""
 
@@ -2285,10 +2443,12 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/email/comment.html
+#: templates/publisher/email/decline_preview.html
 msgid "View comment"
 msgstr ""
 
 #: templates/publisher/email/comment.txt
+#: templates/publisher/email/decline_preview.txt
 msgid "View comment: "
 msgstr ""
 
@@ -2298,6 +2458,8 @@ msgstr ""
 #: templates/publisher/email/course/send_for_review.txt
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
+#: templates/publisher/email/course_run/published.html
+#: templates/publisher/email/course_run/published.txt
 #: templates/publisher/email/course_run/send_for_review.html
 #: templates/publisher/email/course_run/send_for_review.txt
 #, python-format
@@ -2320,10 +2482,11 @@ msgstr ""
 #: templates/publisher/email/course_created.txt
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
-#: templates/publisher/email/course_run/preview_accepted.html
 #: templates/publisher/email/course_run/preview_accepted.txt
 #: templates/publisher/email/course_run/preview_available.html
 #: templates/publisher/email/course_run/preview_available.txt
+#: templates/publisher/email/course_run/published.html
+#: templates/publisher/email/course_run/published.txt
 #: templates/publisher/email/course_run/send_for_review.html
 #: templates/publisher/email/course_run/send_for_review.txt
 #: templates/publisher/email/studio_instance_created.html
@@ -2338,6 +2501,7 @@ msgstr ""
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #: templates/publisher/email/course_run/preview_accepted.html
 #: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/published.html
 #: templates/publisher/email/course_run/send_for_review.html
 #: templates/publisher/email/studio_instance_created.html
 #, python-format
@@ -2356,6 +2520,7 @@ msgstr ""
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
 #: templates/publisher/email/course_run/preview_accepted.txt
 #: templates/publisher/email/course_run/preview_available.txt
+#: templates/publisher/email/course_run/published.txt
 #: templates/publisher/email/course_run/send_for_review.txt
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
@@ -2427,22 +2592,35 @@ msgstr ""
 
 #: templates/publisher/email/course_run/preview_accepted.html
 #: templates/publisher/email/course_run/preview_accepted.txt
-#: templates/publisher/email/course_run/preview_available.html
-#: templates/publisher/email/course_run/preview_available.txt
-msgid "Dear member,"
+#, python-format
+msgid "Dear %(publisher_role_name)s,"
 msgstr ""
 
 #: templates/publisher/email/course_run/preview_accepted.html
 #, python-format
 msgid ""
-"Preview for %(link_start)s%(page_url)s%(link_middle)s %(course_name)s "
-"%(link_end)s has beed approved by course team."
+"%(course_team)s has approved the preview of the "
+"%(link_start)s%(page_url)s%(link_middle)s%(run_number)s%(link_end)s course "
+"run of %(course_name)s from %(org_name)s. The course run is now ready for "
+"publication."
+msgstr ""
+
+#. Translators: It's closing of mail.
+#: templates/publisher/email/course_run/preview_accepted.html
+msgid "Thank you,"
 msgstr ""
 
 #: templates/publisher/email/course_run/preview_accepted.txt
 #, python-format
 msgid ""
-"Preview for %(course_name)s has beed approved by course team. %(page_url)s"
+"%(course_team)s has approved the preview of the %(run_number)s %(page_url)s "
+"course run of %(course_name)s from %(org_name)s. The course run is now ready"
+" for publication."
+msgstr ""
+
+#: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/preview_available.txt
+msgid "Dear member,"
 msgstr ""
 
 #: templates/publisher/email/course_run/preview_available.html
@@ -2457,6 +2635,22 @@ msgstr ""
 msgid "Preview for %(course_name)s is available for review. %(page_url)s"
 msgstr ""
 
+#: templates/publisher/email/course_run/published.html
+#, python-format
+msgid ""
+"The %(link_start)s%(page_url)s%(link_middle)s %(course_run_number)s course "
+"run %(link_end)s of %(course_name)s has been published. Visit "
+"%(link_start)s%(preview_url)s%(link_middle)slink to live course run "
+"page%(link_end)s to view the course run."
+msgstr ""
+
+#: templates/publisher/email/course_run/published.txt
+#, python-format
+msgid ""
+"The %(course_run_number)s %(page_url)s course run of %(course_name)s has "
+"been published. Visit %(preview_url)s to view the live course run."
+msgstr ""
+
 #: templates/publisher/email/course_run/send_for_review.html
 #, python-format
 msgid ""
@@ -2464,6 +2658,21 @@ msgid ""
 "%(link_end)s are ready for your review. "
 "%(link_start)s%(page_url)s%(link_middle)s View this course-run in Publisher "
 "%(link_end)s to approve or decline the changes."
+msgstr ""
+
+#: templates/publisher/email/decline_preview.html
+#, python-format
+msgid ""
+"Preview link %(preview_url)s for the "
+"%(link_start)s%(page_url)s%(link_middle)s%(course_title)s%(link_end)s has "
+"been declined."
+msgstr ""
+
+#: templates/publisher/email/decline_preview.txt
+#, python-format
+msgid ""
+"Preview link %(preview_url)s for the %(course_title)s: %(course_url)s has "
+"been declined."
 msgstr ""
 
 #. Translators: course_team_name is course team member name.

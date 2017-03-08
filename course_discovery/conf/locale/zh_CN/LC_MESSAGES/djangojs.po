@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# alisan617, 2017
 # jsgang <jsgang9@gmail.com>, 2016
 # Xuejia Tong <snowytong@hotmail.com>, 2016
 # yohann yang <heinerseiden@yahoo.com>, 2016
@@ -10,9 +11,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-24 13:09+0500\n"
-"PO-Revision-Date: 2017-02-24 08:25+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2017-03-07 18:14+0500\n"
+"PO-Revision-Date: 2017-03-06 18:53+0000\n"
+"Last-Translator: alisan617\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/open-edx/edx-platform/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -22,7 +23,7 @@ msgstr ""
 
 #: static/js/catalogs-change-form.js
 msgid "Preview"
-msgstr "预览"
+msgstr ""
 
 #: static/js/publisher/comparing-objects.js
 msgid "Hide changes"
@@ -34,6 +35,10 @@ msgstr ""
 
 #: static/js/publisher/publisher.js
 msgid "Something went wrong!"
+msgstr ""
+
+#: static/js/publisher/publisher.js
+msgid "Something went wrong! please try again later."
 msgstr ""
 
 #: static/js/publisher/publisher.js
@@ -64,8 +69,8 @@ msgstr ""
 
 #: static/js/publisher/views/navbar.js
 msgid "OFF"
-msgstr "关闭"
+msgstr ""
 
 #: static/js/publisher/views/navbar.js
 msgid "ON"
-msgstr "打开"
+msgstr ""

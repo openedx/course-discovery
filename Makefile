@@ -69,7 +69,7 @@ compile_translations: ## Compile translation files, outputting .po files for eac
 fake_translations: extract_translations dummy_translations compile_translations ## Generate and compile dummy translation files
 
 pull_translations: ## Pull translations from Transifex
-	tx pull -af
+	tx pull -af --mode reviewed
 
 start-devstack: ## Run a local development copy of the server
 	docker-compose up
