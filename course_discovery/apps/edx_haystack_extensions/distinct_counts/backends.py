@@ -16,8 +16,9 @@ class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
     def _clone(self, **kwargs):
         """ Create and return a new DistinctCountsSearchQuery with fields set to match those on the original object."""
         clone = super(DistinctCountsSearchQuery, self)._clone(**kwargs)
-        clone._aggregation_key = self._aggregation_key
-        clone._distinct_hit_count = self._distinct_hit_count
+        if isinstance(clone, DistinctCountsSearchQuery):
+            clone._aggregation_key = self._aggregation_key
+            clone._distinct_hit_count = self._distinct_hit_count
         return clone
 
     def set_aggregation_key(self, aggregation_key):
@@ -33,15 +34,14 @@ class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
         it hasn't already been run.
         """
         if self._distinct_hit_count is None:
-            # Calling get_count will cause the query to run and both count and distinct_count to be populated.
-            self.get_count()
+            self.run()
         return self._distinct_hit_count
 
     def run(self, spelling_query=None, **kwargs):
         """
         Run the query and cache the results.
 
-        Overrides and re-implements ElasticsearchSearchQuery.run so that the custom DistinctCountsSearchBackend
+        Overrides and re-implements ElasticsearchSearchQuery.run so that out custom backend wrapper
         may be used to execute the query and so that the distinct hit counts may be cached.
         """
         # Make sure that the Query is valid before running it.
@@ -83,7 +83,7 @@ class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
             raise RuntimeError('aggregation_key is required.')
 
     def _validate_field_facet_options(self, field, options):
-        """ Verify that the provided field facet options are valid and can be converted to an aggregation. """
+        """ Verify that the provided field facet options are valid and can be converted to an aggregation."""
         supported_options = DistinctCountsElasticsearchBackendWrapper.SUPPORTED_FIELD_FACET_OPTIONS
         for option, value in options.items():
             if option not in supported_options:
@@ -138,8 +138,8 @@ class DistinctCountsElasticsearchBackendWrapper(object):
         Initialize a new instance of the DistinctCountsElasticsearchBackendWrapper.
 
         -- Parameters --
-        backend - An ElasticsearchSearchBackend instance.
-        aggregation_key - The field that should be used to group records when computing distinct counts.
+        backend - ElasticsearchSearchBackend
+        aggregation_key - string - The field that should be used to group records when computing distinct counts.
             It should be a field that is NOT analyzed by the index (like one of the faceted _exact fields).
             Using a field that is analyzed will result in inaccurate counts, as analyzed fields are broken down by the
             search backend and will result in records being grouped by substrings of the aggregation_key field.
@@ -155,11 +155,9 @@ class DistinctCountsElasticsearchBackendWrapper(object):
         Re-implements the ElasticsearchSearchBackend.search method so that the logic necessary for computing
         and processing distinct hit and facet counts can be added in the appropriate places.
         """
+
         if len(query_string) == 0:
-            return {
-                'results': [],
-                'hits': 0,
-            }
+            return {'results': [], 'hits': 0,}
 
         if not self.backend.setup_complete:
             self.backend.setup()

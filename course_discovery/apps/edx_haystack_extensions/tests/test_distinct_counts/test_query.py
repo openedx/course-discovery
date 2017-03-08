@@ -4,11 +4,13 @@ import pytest
 from django.test import TestCase
 from haystack.query import SearchQuerySet
 
+from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
+from course_discovery.apps.course_metadata.models import CourseRun
 from course_discovery.apps.edx_haystack_extensions.distinct_counts.query import DistinctCountsSearchQuerySet
 from course_discovery.apps.edx_haystack_extensions.distinct_counts.backends import DistinctCountsSearchQuery
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory
 
-class DistinctCountsSearchQuerySetTests(TestCase):
+class DistinctCountsSearchQuerySetTests(ElasticsearchTestMixin, TestCase):
     def test_from_queryset(self):
         """ Verify that a DistinctCountsSearchQuerySet can be built from an existing SearchQuerySet."""
         course_1 = CourseFactory()
@@ -19,7 +21,7 @@ class DistinctCountsSearchQuerySetTests(TestCase):
         run_3 = CourseRunFactory(title='foo', course=course_2)
         run_4 = CourseRunFactory(title='bar', course=course_2)
 
-        queryset = SearchQuerySet().filter(title='foo')
+        queryset = SearchQuerySet().filter(title='foo').models(CourseRun)
         dc_queryset = DistinctCountsSearchQuerySet.from_queryset(queryset)
 
         expected = sorted([run.key for run in queryset])
@@ -73,7 +75,7 @@ class DistinctCountsSearchQuerySetTests(TestCase):
         run_3 = CourseRunFactory(title='foo', course=course_2)
         run_4 = CourseRunFactory(title='bar', course=course_2)
 
-        queryset = SearchQuerySet().filter(title='foo')
+        queryset = SearchQuerySet().filter(title='foo').models(CourseRun)
         dc_queryset = DistinctCountsSearchQuerySet.from_queryset(queryset).with_distinct_counts('aggregation_key')
 
         assert dc_queryset._distinct_result_count is None
@@ -100,7 +102,8 @@ class DistinctCountsSearchQuerySetTests(TestCase):
         run_3 = CourseRunFactory(title='foo', pacing_type='instructor_paced', hidden=False, course=course)
 
         # Make sure to add both a field facet and a query facet so that we can be sure that both work.
-        queryset = SearchQuerySet().filter(title='foo').facet('pacing_type').query_facet('hidden', 'hidden:true')
+        queryset = SearchQuerySet().filter(title='foo').models(CourseRun)
+        queryset = queryset.facet('pacing_type').query_facet('hidden', 'hidden:true')
         dc_queryset = DistinctCountsSearchQuerySet.from_queryset(queryset).with_distinct_counts('aggregation_key')
         facet_counts = dc_queryset.facet_counts()
 
