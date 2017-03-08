@@ -113,12 +113,25 @@ class CatalogViewSet(viewsets.ModelViewSet):
               type: string
               paramType: query
               multiple: true
+            - name: course_run_id
+              description: Course run IDs to check for existence in the Catalog.
+              required: false
+              type: string
+              paramType: query
+              multiple: true
         """
         course_ids = request.query_params.get('course_id')
-        course_ids = course_ids.split(',')
+        course_run_ids = request.query_params.get('course_run_id')
 
         catalog = self.get_object()
-        courses = catalog.contains(course_ids)
+        courses = {}
+        if course_ids:
+            course_ids = course_ids.split(',')
+            courses.update(catalog.contains(course_ids))
+
+        if course_run_ids:
+            course_run_ids = course_run_ids.split(',')
+            courses.update(catalog.contains_course_runs(course_run_ids))
 
         instance = {'courses': courses}
         serializer = serializers.ContainedCoursesSerializer(instance)

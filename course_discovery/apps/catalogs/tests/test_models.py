@@ -5,7 +5,7 @@ from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.catalogs.tests import factories
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory
 
 
 @ddt.ddt
@@ -37,6 +37,15 @@ class CatalogTests(ElasticsearchTestMixin, TestCase):
         self.assertDictEqual(
             self.catalog.contains([self.course.key, uncontained_course.key]),
             {self.course.key: True, uncontained_course.key: False}
+        )
+
+    def test_contains_course_runs(self):
+        """ Verify the method returns a mapping of course run IDs to booleans. """
+        course_run = CourseRunFactory(course=self.course)
+        uncontained_course_run = CourseRunFactory(title_override='ABD')
+        self.assertDictEqual(
+            self.catalog.contains_course_runs([course_run.key, uncontained_course_run.key]),
+            {course_run.key: True, uncontained_course_run.key: False}
         )
 
     def test_courses_count(self):
