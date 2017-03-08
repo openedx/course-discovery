@@ -430,8 +430,7 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
-# We are using BaseSignalProcessor to avoid overloading our production ES instance
-HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.BaseSignalProcessor'
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 HAYSTACK_INDEX_RETENTION_LIMIT = 3
 
 # Elasticsearch search query facet "size" option to increase from the default value of "100"
