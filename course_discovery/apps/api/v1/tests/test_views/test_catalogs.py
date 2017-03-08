@@ -59,6 +59,20 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.assertEqual(catalog.query, query)
         self.assertListEqual(list(catalog.viewers), [viewer])
 
+    def assert_catalog_contains_query_string(self, query_string_kwargs, course_key):
+        """
+        Helper method to validate the provided course key or course run key
+        in the catalog contains endpoint.
+        """
+        query_string = urllib.parse.urlencode(query_string_kwargs)
+        url = '{base_url}?{query_string}'.format(
+            base_url=reverse('api:v1:catalog-contains', kwargs={'id': self.catalog.id}),
+            query_string=query_string
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {'courses': {course_key: True}})
+
     def grant_catalog_permission_to_user(self, user, action, catalog=None):
         """ Grant the user access to view `self.catalog`. """
         catalog = catalog or self.catalog
@@ -152,18 +166,24 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         assert response.status_code == 200
         assert response.data['results'] == self.serialize_catalog_course(courses, many=True)
 
-    def test_contains(self):
-        """ Verify the endpoint returns a filtered list of courses contained in the catalog. """
+    def test_contains_for_course_key(self):
+        """
+        Verify the endpoint returns a filtered list of courses contained in
+        the catalog for course keys with the format "org+course".
+        """
         course_key = self.course.key
-        query_string = urllib.parse.urlencode({'course_id': course_key})
-        url = '{base_url}?{query_string}'.format(
-            base_url=reverse('api:v1:catalog-contains', kwargs={'id': self.catalog.id}),
-            query_string=query_string
-        )
+        query_string_kwargs = {'course_id': course_key}
+        self.assert_catalog_contains_query_string(query_string_kwargs, course_key)
 
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, {'courses': {course_key: True}})
+    def test_contains_for_course_run_key(self):
+        """
+        Verify the endpoint returns a filtered list of courses contained in
+        the catalog for course run keys with the format "org/course/run" or
+        "course-v1:org+course+key".
+        """
+        course_run_key = self.course_run.key
+        query_string_kwargs = {'course_run_id': course_run_key}
+        self.assert_catalog_contains_query_string(query_string_kwargs, course_run_key)
 
     def test_csv(self):
         SeatFactory(type='audit', course_run=self.course_run)

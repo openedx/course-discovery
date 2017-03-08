@@ -7,7 +7,7 @@ from guardian.shortcuts import get_users_with_perms
 from haystack.query import SearchQuerySet
 
 from course_discovery.apps.core.mixins import ModelPermissionsMixin
-from course_discovery.apps.course_metadata.models import Course
+from course_discovery.apps.course_metadata.models import Course, CourseRun
 
 
 class Catalog(ModelPermissionsMixin, TimeStampedModel):
@@ -53,6 +53,23 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
         results = self._get_query_results().filter(key__in=course_ids)
         for result in results:
             contains[result.get_stored_fields()['key']] = True
+
+        return contains
+
+    def contains_course_runs(self, course_run_ids):  # pylint: disable=unused-argument
+        """
+        Determines if the given course runs are contained in this catalog.
+
+        Arguments:
+            course_run_ids (str[]): List of course run IDs
+
+        Returns:
+            dict: Mapping of course IDs to booleans indicating if course run is
+                  contained in this catalog.
+        """
+        contains = {course_run_id: False for course_run_id in course_run_ids}
+        course_runs = CourseRun.search(self.query).filter(key__in=course_run_ids).values_list('key', flat=True)
+        contains.update({course_run_id: course_run_id in course_runs for course_run_id in course_run_ids})
 
         return contains
 
