@@ -1,4 +1,5 @@
 """ API v1 URLs. """
+from django.conf import settings
 from django.conf.urls import include, url
 from rest_framework import routers
 
@@ -33,3 +34,9 @@ router.register(r'search/course_runs', search_views.CourseRunSearchViewSet, base
 router.register(r'search/programs', search_views.ProgramSearchViewSet, base_name='search-programs')
 
 urlpatterns += router.urls
+
+# Add the catalog api extension urls if edx_catalog_extensions is installed.
+if 'course_discovery.apps.edx_catalog_extensions' in settings.INSTALLED_APPS:
+    urlpatterns.append(
+        url(r'extensions/', include('course_discovery.apps.edx_catalog_extensions.api.urls'))
+    )
