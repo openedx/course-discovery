@@ -430,7 +430,9 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
-HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+# We do not use the RealtimeSignalProcessor here to avoid overloading our 
+# Elasticsearch instance when running the refresh_course_metadata command
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.BaseSignalProcessor'
 HAYSTACK_INDEX_RETENTION_LIMIT = 3
 
 # Elasticsearch search query facet "size" option to increase from the default value of "100"

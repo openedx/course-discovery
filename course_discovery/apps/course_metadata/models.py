@@ -13,7 +13,6 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
-from haystack import connections
 from haystack.query import SearchQuerySet
 from solo.models import SingletonModel
 from sortedm2m.fields import SortedManyToManyField
@@ -332,19 +331,6 @@ class Course(TimeStampedModel):
         results = SearchQuerySet().models(cls).raw_search(query)
         ids = [result.pk for result in results]
         return cls.objects.filter(pk__in=ids)
-
-    def save(self, *args, **kwargs):
-        super(Course, self).save(*args, **kwargs)
-        try:
-            self.reindex_course_runs()
-        except Exception:  # pylint: disable=broad-except
-            logger.exception("An error occurred while attempting to reindex the course runs"
-                             "of Course with key: [{key}].".format(key=self.key))
-
-    def reindex_course_runs(self):
-        index = connections['default'].get_unified_index().get_index(CourseRun)
-        for course_run in self.course_runs.all():
-            index.update_object(course_run)
 
 
 class CourseRun(TimeStampedModel):
@@ -938,17 +924,6 @@ class Program(TimeStampedModel):
                 publisher.publish_program(self)
         else:
             super(Program, self).save(*args, **kwargs)
-        self.reindex_courses()
-
-    def reindex_courses(self):
-        try:
-            index = connections['default'].get_unified_index().get_index(Course)
-            for course in self.courses.all():
-                index.update_object(course)
-                course.reindex_course_runs()
-        except Exception:  # pylint: disable=broad-except
-            logger.exception("An error occurred while attempting to reindex the courses"
-                             "of Program with uuid: [{uuid}].".format(uuid=self.uuid))
 
 
 class PersonSocialNetwork(AbstractSocialNetworkModel):

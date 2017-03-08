@@ -1190,11 +1190,12 @@ class CourseSearchSerializerTests(TestCase):
         return serializer
 
 
-class CourseRunSearchSerializerTests(TestCase):
+class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
     def test_data(self):
         course_run = CourseRunFactory(transcript_languages=LanguageTag.objects.filter(code__in=['en-us', 'zh-cn']),
                                       authoring_organizations=[OrganizationFactory()])
-        ProgramFactory(courses=[course_run.course])
+        program = ProgramFactory(courses=[course_run.course])
+        self.reindex_courses(program)
         serializer = self.serialize_course_run(course_run)
         course_run_key = CourseKey.from_string(course_run.key)
         orgs = course_run.authoring_organizations.all()
