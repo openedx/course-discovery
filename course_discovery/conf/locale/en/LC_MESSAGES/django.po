@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-07 18:14+0500\n"
+"POT-Creation-Date: 2017-03-09 14:55+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -494,6 +494,11 @@ msgstr ""
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Changes to {title} has been approved"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Review requested: {title} {run_number}"
 msgstr ""
 
 #: apps/publisher/emails.py
@@ -2486,8 +2491,6 @@ msgstr ""
 #: templates/publisher/email/course_run/preview_available.txt
 #: templates/publisher/email/course_run/published.html
 #: templates/publisher/email/course_run/published.txt
-#: templates/publisher/email/course_run/send_for_review.html
-#: templates/publisher/email/course_run/send_for_review.txt
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
 #: templates/publisher/email/studio_instance_needed.html
@@ -2538,7 +2541,6 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/email/course/send_for_review.txt
-#: templates/publisher/email/course_run/send_for_review.txt
 #, python-format
 msgid ""
 "New changes to %(course_name)s are ready for your review. %(page_url)s View "
@@ -2606,6 +2608,8 @@ msgstr ""
 
 #. Translators: It's closing of mail.
 #: templates/publisher/email/course_run/preview_accepted.html
+#: templates/publisher/email/course_run/send_for_review.html
+#: templates/publisher/email/course_run/send_for_review.txt
 msgid "Thank you,"
 msgstr ""
 
@@ -2653,10 +2657,20 @@ msgstr ""
 #: templates/publisher/email/course_run/send_for_review.html
 #, python-format
 msgid ""
-"New changes to %(link_start)s%(page_url)s%(link_middle)s %(course_name)s "
-"%(link_end)s are ready for your review. "
-"%(link_start)s%(page_url)s%(link_middle)s View this course-run in Publisher "
-"%(link_end)s to approve or decline the changes."
+"The %(sender_team)s for %(course_name)s from %(org_name)s has submitted the "
+"%(link_start)s%(page_url)s%(link_middle)s%(run_number)s course "
+"run%(link_end)s for review. Visit the course run details page to approve or "
+"decline this course run."
+msgstr ""
+
+#: templates/publisher/email/course_run/send_for_review.txt
+#, python-format
+msgid ""
+"New changes to %(course_name)s are ready for your review. %(page_url)s View "
+"this course in Publisher to approve or decline the changes. The "
+"%(sender_team)s for %(course_name)s from %(org_name)s has submitted the "
+"%(run_number)s course run for review. %(page_url)s Visit the course run "
+"details page to approve or decline this course run."
 msgstr ""
 
 #: templates/publisher/email/decline_preview.html

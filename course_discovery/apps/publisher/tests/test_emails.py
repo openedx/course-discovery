@@ -209,6 +209,7 @@ class CourseRunSendForReviewEmailTests(TestCase):
         self.seat = factories.SeatFactory()
         self.course_run = self.seat.course_run
         self.course = self.course_run.course
+        self.course.organizations.add(OrganizationFactory())
 
         # add user in course-user-role table
         factories.CourseUserRoleFactory(
@@ -218,6 +219,10 @@ class CourseRunSendForReviewEmailTests(TestCase):
             course=self.course, role=PublisherUserRole.Publisher, user=self.user_3
         )
         self.course_run_state = factories.CourseRunStateFactory(course_run=self.course_run)
+        self.course_run.lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
+        self.course_run.save()
+
+        self.course_key = CourseKey.from_string(self.course_run.lms_course_id)
 
         toggle_switch('enable_publisher_email_notifications', True)
 
@@ -227,7 +232,7 @@ class CourseRunSendForReviewEmailTests(TestCase):
             course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
         )
         emails.send_email_for_send_for_review_course_run(self.course_run_state.course_run, self.user)
-        subject = 'Changes to {title} are ready for review'.format(title=self.course_run.course.title)
+        subject = 'Review requested: {title} {run_number}'.format(title=self.course, run_number=self.course_key.run)
         self.assert_email_sent(subject, self.user_2)
 
     def test_email_sent_by_course_team(self):
@@ -236,7 +241,7 @@ class CourseRunSendForReviewEmailTests(TestCase):
             course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
         )
         emails.send_email_for_send_for_review_course_run(self.course_run_state.course_run, self.user_2)
-        subject = 'Changes to {title} are ready for review'.format(title=self.course_run.course.title)
+        subject = 'Review requested: {title} {run_number}'.format(title=self.course, run_number=self.course_key.run)
         self.assert_email_sent(subject, self.user)
 
     def test_email_with_error(self):
@@ -263,7 +268,7 @@ class CourseRunSendForReviewEmailTests(TestCase):
         page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id})
         page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
         self.assertIn(page_url, body)
-        self.assertIn('are ready for your review.', body)
+        self.assertIn('Visit the course run details page to approve or decline this course run.', body)
 
 
 class CourseRunMarkAsReviewedEmailTests(TestCase):
@@ -278,6 +283,7 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
         self.seat = factories.SeatFactory()
         self.course_run = self.seat.course_run
         self.course = self.course_run.course
+        self.course.organizations.add(OrganizationFactory())
 
         # add user in course-user-role table
         factories.CourseUserRoleFactory(
@@ -287,6 +293,9 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
             course=self.course, role=PublisherUserRole.Publisher, user=self.user_3
         )
         self.course_run_state = factories.CourseRunStateFactory(course_run=self.course_run)
+
+        self.course_run.lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
+        self.course_run.save()
 
         toggle_switch('enable_publisher_email_notifications', True)
 

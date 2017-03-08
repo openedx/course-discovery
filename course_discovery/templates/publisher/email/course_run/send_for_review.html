@@ -8,12 +8,12 @@
         {% endblocktrans %}
     <p>
         {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' trimmed %}
-            New changes to {{ link_start }}{{ page_url }}{{ link_middle }} {{ course_name }} {{ link_end }} are ready for your review. {{ link_start }}{{ page_url }}{{ link_middle }} View this course-run in Publisher {{ link_end }} to approve or decline the changes.
+            The {{ sender_team }} for {{ course_name }} from {{ org_name }} has submitted the {{ link_start }}{{ page_url }}{{ link_middle }}{{ run_number }} course run{{ link_end }} for review. Visit the course run details page to approve or decline this course run.
         {% endblocktrans %}
     </p>
 
     {% comment %}Translators: It's closing of mail.{% endcomment %}
-    {% trans "Thanks," %}<br>
+    {% trans "Thank you," %}<br>
     {{ sender_name }}
 
 
