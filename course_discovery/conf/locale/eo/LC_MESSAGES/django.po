@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-07 18:14+0500\n"
+"POT-Creation-Date: 2017-03-09 14:55+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -612,6 +612,12 @@ msgstr ""
 msgid "Changes to {title} has been approved"
 msgstr ""
 "Çhängés tö {title} häs ßéén äpprövéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Review requested: {title} {run_number}"
+msgstr ""
+"Révïéw réqüéstéd: {title} {run_number} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: apps/publisher/emails.py
 #, python-brace-format
@@ -2913,8 +2919,6 @@ msgstr ""
 #: templates/publisher/email/course_run/preview_available.txt
 #: templates/publisher/email/course_run/published.html
 #: templates/publisher/email/course_run/published.txt
-#: templates/publisher/email/course_run/send_for_review.html
-#: templates/publisher/email/course_run/send_for_review.txt
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
 #: templates/publisher/email/studio_instance_needed.html
@@ -2981,7 +2985,6 @@ msgstr ""
 " σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαв#"
 
 #: templates/publisher/email/course/send_for_review.txt
-#: templates/publisher/email/course_run/send_for_review.txt
 #, python-format
 msgid ""
 "New changes to %(course_name)s are ready for your review. %(page_url)s View "
@@ -3070,6 +3073,8 @@ msgstr ""
 
 #. Translators: It's closing of mail.
 #: templates/publisher/email/course_run/preview_accepted.html
+#: templates/publisher/email/course_run/send_for_review.html
+#: templates/publisher/email/course_run/send_for_review.txt
 msgid "Thank you,"
 msgstr "Thänk ýöü, Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
@@ -3140,21 +3145,40 @@ msgstr ""
 #: templates/publisher/email/course_run/send_for_review.html
 #, python-format
 msgid ""
-"New changes to %(link_start)s%(page_url)s%(link_middle)s %(course_name)s "
-"%(link_end)s are ready for your review. "
-"%(link_start)s%(page_url)s%(link_middle)s View this course-run in Publisher "
-"%(link_end)s to approve or decline the changes."
+"The %(sender_team)s for %(course_name)s from %(org_name)s has submitted the "
+"%(link_start)s%(page_url)s%(link_middle)s%(run_number)s course "
+"run%(link_end)s for review. Visit the course run details page to approve or "
+"decline this course run."
 msgstr ""
-"Néw çhängés tö %(link_start)s%(page_url)s%(link_middle)s %(course_name)s "
-"%(link_end)s äré réädý för ýöür révïéw. "
-"%(link_start)s%(page_url)s%(link_middle)s Vïéw thïs çöürsé-rün ïn Püßlïshér "
-"%(link_end)s tö äpprövé ör déçlïné thé çhängés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
-" ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт"
-" ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση "
-"υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє "
-"∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα"
-" ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι"
-" σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт#"
+"Thé %(sender_team)s för %(course_name)s fröm %(org_name)s häs süßmïttéd thé "
+"%(link_start)s%(page_url)s%(link_middle)s%(run_number)s çöürsé "
+"rün%(link_end)s för révïéw. Vïsït thé çöürsé rün détäïls pägé tö äpprövé ör "
+"déçlïné thïs çöürsé rün. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя "
+"α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα"
+" αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ "
+"ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη "
+"яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα "
+"ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι "
+"σƒƒι¢ια ∂єѕєяυηт мσłł#"
+
+#: templates/publisher/email/course_run/send_for_review.txt
+#, python-format
+msgid ""
+"New changes to %(course_name)s are ready for your review. %(page_url)s View "
+"this course in Publisher to approve or decline the changes. The "
+"%(sender_team)s for %(course_name)s from %(org_name)s has submitted the "
+"%(run_number)s course run for review. %(page_url)s Visit the course run "
+"details page to approve or decline this course run."
+msgstr ""
+"Néw çhängés tö %(course_name)s äré réädý för ýöür révïéw. %(page_url)s Vïéw "
+"thïs çöürsé ïn Püßlïshér tö äpprövé ör déçlïné thé çhängés. Thé "
+"%(sender_team)s för %(course_name)s fröm %(org_name)s häs süßmïttéd thé "
+"%(run_number)s çöürsé rün för révïéw. %(page_url)s Vïsït thé çöürsé rün "
+"détäïls pägé tö äpprövé ör déçlïné thïs çöürsé rün. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт "
+"łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ "
+"єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ "
+"αυтє ιяυяє ∂σł#"
 
 #: templates/publisher/email/decline_preview.html
 #, python-format

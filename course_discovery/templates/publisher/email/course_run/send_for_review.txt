@@ -5,9 +5,10 @@
 {% endblocktrans %}
 {% blocktrans trimmed %}
      New changes to {{ course_name }} are ready for your review. {{ page_url }} View this course in Publisher to approve or decline the changes.
+     The {{ sender_team }} for {{ course_name }} from {{ org_name }} has submitted the {{ run_number }} course run for review. {{ page_url }} Visit the course run details page to approve or decline this course run.
 {% endblocktrans %}
 
-{% trans "Thanks," %}
+{% trans "Thank you," %}
 {{ sender_name }}
 
 {% blocktrans trimmed %}

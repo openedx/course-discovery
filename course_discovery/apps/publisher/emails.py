@@ -147,7 +147,8 @@ def send_email_for_mark_as_reviewed(course, user):
         logger.exception('Failed to send email notifications mark as reviewed of course %s', course.id)
 
 
-def send_course_workflow_email(course, user, subject, txt_template, html_template, page_path, course_name=None):
+def send_course_workflow_email(course, user, subject, txt_template, html_template, page_path, course_name=None,
+                               run_number=None):
     """ Send email for course workflow state change.
 
         Arguments:
@@ -158,6 +159,7 @@ def send_course_workflow_email(course, user, subject, txt_template, html_templat
             html_template: (String): Email html template path
             page_path: (URL): Detail page url
             course_name: (String): Custom course name, by default None
+            run_number: (String): Course run number, by default None
     """
     recipient_user = course.marketing_reviewer
     user_role = course.course_user_roles.get(user=user)
@@ -172,6 +174,9 @@ def send_course_workflow_email(course, user, subject, txt_template, html_templat
             'recipient_name': recipient_user.full_name or recipient_user.username if recipient_user else '',
             'sender_name': user.full_name or user.username,
             'course_name': course_name if course_name else course.title,
+            'run_number': run_number,
+            'org_name': course.organizations.all().first().name,
+            'sender_team': 'course team' if user_role.role == PublisherUserRole.MarketingReviewer else 'marketing team',
             'contact_us_email': project_coordinator.email if project_coordinator else '',
             'page_url': 'https://{host}{path}'.format(
                 host=Site.objects.get_current().domain.strip('/'), path=page_path
@@ -196,13 +201,18 @@ def send_email_for_send_for_review_course_run(course_run, user):
             course-run (Object): CourseRun object
             user (Object): User object
     """
+    course_key = CourseKey.from_string(course_run.lms_course_id)
     txt_template = 'publisher/email/course_run/send_for_review.txt'
     html_template = 'publisher/email/course_run/send_for_review.html'
-    subject = _('Changes to {title} are ready for review').format(title=course_run.course.title)  # pylint: disable=no-member
+    subject = _('Review requested: {title} {run_number}').format(  # pylint: disable=no-member
+        title=course_run.course.title,
+        run_number=course_key.run)
 
     try:
         page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
-        send_course_workflow_email(course_run.course, user, subject, txt_template, html_template, page_path)
+        send_course_workflow_email(course_run.course, user, subject, txt_template, html_template, page_path,
+                                   run_number=course_key.run)
+
     except Exception:  # pylint: disable=broad-except
         logger.exception('Failed to send email notifications send for review of course-run %s', course_run.id)
 
