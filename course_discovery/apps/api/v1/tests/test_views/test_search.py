@@ -3,6 +3,7 @@ import json
 import urllib.parse
 
 import ddt
+import pytest
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from haystack.query import SearchQuerySet
@@ -234,14 +235,17 @@ class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, Login
         }
         self.assertDictContainsSubset(expected, response_data['queries'])
 
+    @pytest.mark.skip(reason="turning off temporarily for experiment - ECOM-7346")
     def test_exclude_deleted_program_types(self):
         """ Verify the deleted programs do not show in the program_types representation. """
         self._test_exclude_program_types(ProgramStatus.Deleted)
 
+    @pytest.mark.skip(reason="turning off temporarily for experiment - ECOM-7346")
     def test_exclude_unpublished_program_types(self):
         """ Verify the unpublished programs do not show in the program_types representation. """
         self._test_exclude_program_types(ProgramStatus.Unpublished)
 
+    @pytest.mark.skip(reason="turning off temporarily for experiment - ECOM-7346")
     @ddt.data(
         [{'title': 'Software Testing', 'excluded': True}],
         [{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True}],

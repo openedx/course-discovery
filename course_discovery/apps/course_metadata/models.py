@@ -333,13 +333,14 @@ class Course(TimeStampedModel):
         ids = [result.pk for result in results]
         return cls.objects.filter(pk__in=ids)
 
-    def save(self, *args, **kwargs):
-        super(Course, self).save(*args, **kwargs)
-        try:
-            self.reindex_course_runs()
-        except Exception:  # pylint: disable=broad-except
-            logger.exception("An error occurred while attempting to reindex the course runs"
-                             "of Course with key: [{key}].".format(key=self.key))
+    # This is commented out for a temporary experiment for ECOM-7346
+    # def save(self, *args, **kwargs):
+    #     super(Course, self).save(*args, **kwargs)
+    #     try:
+    #         self.reindex_course_runs()
+    #     except Exception:  # pylint: disable=broad-except
+    #         logger.exception("An error occurred while attempting to reindex the course runs"
+    #                          "of Course with key: [{key}].".format(key=self.key))
 
     def reindex_course_runs(self):
         index = connections['default'].get_unified_index().get_index(CourseRun)
@@ -938,7 +939,8 @@ class Program(TimeStampedModel):
                 publisher.publish_program(self)
         else:
             super(Program, self).save(*args, **kwargs)
-        self.reindex_courses()
+        # This is commented out for a temporary experiment for ECOM-7346
+        # self.reindex_courses()
 
     def reindex_courses(self):
         try:
