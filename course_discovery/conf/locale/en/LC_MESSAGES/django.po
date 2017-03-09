@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-09 14:55+0500\n"
+"POT-Creation-Date: 2017-03-09 15:51+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -521,6 +521,11 @@ msgstr ""
 msgid "Publication complete: {course_name} {run_number}"
 msgstr ""
 
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Role assignment changed for role: {role_name} against {course_title}"
+msgstr ""
+
 #: apps/publisher/forms.py
 msgid "Remove Image"
 msgstr ""
@@ -991,7 +996,7 @@ msgid "day in ownership"
 msgstr ""
 
 #: templates/publisher/_approval_widget.html
-msgid "change owner"
+msgid "change"
 msgstr ""
 
 #: templates/publisher/_approval_widget.html
@@ -2688,6 +2693,32 @@ msgid ""
 "been declined."
 msgstr ""
 
+#: templates/publisher/email/role_assignment_changed.html
+#, python-format
+msgid ""
+"The %(role_name)s for the "
+"%(link_start)s%(course_url)s%(link_middle)s%(course_title)s%(link_end)s has "
+"been changed."
+msgstr ""
+
+#: templates/publisher/email/role_assignment_changed.html
+#: templates/publisher/email/role_assignment_changed.txt
+#, python-format
+msgid "Former %(role_name)s: %(former_user_name)s"
+msgstr ""
+
+#: templates/publisher/email/role_assignment_changed.html
+#: templates/publisher/email/role_assignment_changed.txt
+#, python-format
+msgid "Current %(role_name)s: %(current_user_name)s"
+msgstr ""
+
+#: templates/publisher/email/role_assignment_changed.txt
+#, python-format
+msgid ""
+"The %(role_name)s for the %(course_title)s: %(course_url)s has been changed."
+msgstr ""
+
 #. Translators: course_team_name is course team member name.
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
@@ -2761,33 +2792,6 @@ msgstr ""
 #: templates/publisher/email/studio_instance_needed.html
 #: templates/publisher/email/studio_instance_needed.txt
 msgid "Please create a Studio instance for the following course."
-msgstr ""
-
-#: templates/publisher/email/user_role_changed.html
-#, python-format
-msgid ""
-"The %(role_name)s for the "
-"%(link_start)s%(course_url)s%(link_middle)s%(course_title)s%(link_end)s "
-"course has changed."
-msgstr ""
-
-#: templates/publisher/email/user_role_changed.html
-#: templates/publisher/email/user_role_changed.txt
-#, python-format
-msgid "Former %(role_name)s: %(former_user_name)s"
-msgstr ""
-
-#: templates/publisher/email/user_role_changed.html
-#: templates/publisher/email/user_role_changed.txt
-#, python-format
-msgid "Current %(role_name)s: %(current_user_name)s"
-msgstr ""
-
-#: templates/publisher/email/user_role_changed.txt
-#, python-format
-msgid ""
-"The %(role_name)s for the %(course_title)s: %(course_url)s course has "
-"changed."
 msgstr ""
 
 #: templates/publisher/seat_form.html

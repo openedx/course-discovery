@@ -13,8 +13,8 @@ from rest_framework import serializers
 from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.emails import (
-    send_email_for_studio_instance_created, send_email_preview_accepted, send_email_preview_page_is_available
-)
+    send_change_role_assignment_email, send_email_for_studio_instance_created, send_email_preview_accepted,
+    send_email_preview_page_is_available)
 from course_discovery.apps.publisher.models import CourseRun, CourseRunState, CourseState, CourseUserRole
 
 
@@ -34,6 +34,15 @@ class CourseUserRoleSerializer(serializers.ModelSerializer):
             validated_values.update({'changed_by': request.user})
 
         return validated_values
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        former_user = instance.user
+        instance = super(CourseUserRoleSerializer, self).update(instance, validated_data)
+        if not instance.role == PublisherUserRole.CourseTeam:
+            send_change_role_assignment_email(instance, former_user)
+
+        return instance
 
 
 class GroupUserSerializer(serializers.ModelSerializer):

@@ -1,7 +1,7 @@
 {% load i18n %}
 
 {% blocktrans trimmed %}
-    The {{ role_name }} for the {{ course_title }}: {{ course_url }} course has changed.
+    The {{ role_name }} for the {{ course_title }}: {{ course_url }} has been changed.
 {% endblocktrans %}
 
 {% blocktrans trimmed %}

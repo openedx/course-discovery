@@ -1,4 +1,5 @@
 """Tests API Serializers."""
+import mock
 from django.core import mail
 from django.test import RequestFactory, TestCase
 from opaque_keys.edx.keys import CourseKey
@@ -25,7 +26,7 @@ class CourseUserRoleSerializerTests(TestCase):
     def setUp(self):
         super(CourseUserRoleSerializerTests, self).setUp()
         self.request = RequestFactory()
-        self.course_user_role = CourseUserRoleFactory()
+        self.course_user_role = CourseUserRoleFactory(role=PublisherUserRole.MarketingReviewer)
         self.request.user = self.course_user_role.user
 
     def get_expected_data(self):
@@ -40,6 +41,27 @@ class CourseUserRoleSerializerTests(TestCase):
         serializer = self.serializer_class(self.course_user_role, context={'request': self.request})
         validated_data = serializer.validate(serializer.data)
         self.assertEqual(validated_data, self.get_expected_data())
+
+    def test_update(self):
+        """
+        Test that user role assignment changed on update.
+        """
+        new_user = UserFactory()
+        serializer = self.serializer_class(self.course_user_role, context={'request': self.request})
+        course_role = serializer.update(self.course_user_role, {'user': new_user})
+        self.assertEqual(course_role.user, new_user)
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_update_with_error(self):
+        """
+        Test that whole transaction roll backed if error in email sending.
+        """
+        new_user = UserFactory()
+        serializer = self.serializer_class(self.course_user_role, context={'request': self.request})
+        with mock.patch('django.core.mail.message.EmailMessage.send', side_effect=TypeError):
+            with self.assertRaises(Exception):
+                course_role = serializer.update(self.course_user_role, {'user': new_user})
+                self.assertNotEqual(course_role.user, new_user)
 
 
 class GroupUserSerializerTests(TestCase):
