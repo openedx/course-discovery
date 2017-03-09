@@ -136,14 +136,14 @@ class TypeaheadSearchView(PartnerMixin, APIView):
         course_runs = course_runs.filter(published=True).exclude(hidden=True).filter(partner=partner.short_code)
 
         # Get first three results after deduplicating by course key.
-        seen_course_keys, course_run_list = [], []
+        seen_course_keys, course_run_list = set(), []
         for course_run in course_runs:
             course_key = course_run.course_key
 
             if course_key in seen_course_keys:
                 continue
             else:
-                seen_course_keys.append(course_key)
+                seen_course_keys.add(course_key)
                 course_run_list.append(course_run)
 
             if len(course_run_list) == self.RESULT_COUNT:
