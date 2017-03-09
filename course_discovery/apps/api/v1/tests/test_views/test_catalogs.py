@@ -149,22 +149,41 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         """ Verify the endpoint returns the list of courses contained in the catalog. """
         url = reverse('api:v1:catalog-courses', kwargs={'id': self.catalog.id})
 
+        # This run is published, has seats, and has a valid slug. We expect its
+        # parent course to be included in the response.
         SeatFactory(course_run=self.course_run)
-        courses = [self.course]
+        included_courses = [self.course]
 
         # These courses/course runs should not be returned because they are no longer open for enrollment.
-        enrollment_end = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=30)
+        past = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=30)
         excluded_runs = [
-            CourseRunFactory(enrollment_end=enrollment_end, course__title='ABC Test Course 2'),
-            CourseRunFactory(enrollment_end=enrollment_end, course=self.course),
+            # Despite the enrollment end date for this run being in the past, we
+            # still expect the parent course to be in the response. It had an active
+            # run associated with it above.
+            CourseRunFactory(enrollment_end=past, course=self.course),
+            # The course associated with this run is included in the catalog query,
+            # but the run is not active, so we don't expect to see the associated
+            # course in the response.
+            CourseRunFactory(enrollment_end=past, course__title='ABC Test Course 2'),
         ]
         for course_run in excluded_runs:
             SeatFactory(course_run=course_run)
 
+        # The course associated with this run is included in the catalog query,
+        # but the run is not marketable (no seats), so we don't expect to see the
+        # associated course in the response.
+        future = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=30)
+        CourseRunFactory(
+            enrollment_end=future,
+            end=future,
+            course__title='ABC Test Course 3'
+        )
+
         with self.assertNumQueries(27):
             response = self.client.get(url)
+
         assert response.status_code == 200
-        assert response.data['results'] == self.serialize_catalog_course(courses, many=True)
+        assert response.data['results'] == self.serialize_catalog_course(included_courses, many=True)
 
     def test_contains_for_course_key(self):
         """

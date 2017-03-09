@@ -84,14 +84,12 @@ class CatalogViewSet(viewsets.ModelViewSet):
         """
         Retrieve the list of courses contained within this catalog.
 
-        Only courses with active course runs are returned. A course run is considered active if it is currently
-        open for enrollment, or will open in the future.
+        Only courses with at least one active and marketable course run are returned.
         ---
         serializer: serializers.CourseSerializerExcludingClosedRuns
         """
-
         catalog = self.get_object()
-        queryset = catalog.courses().active()
+        queryset = catalog.courses().active().marketable()
         queryset = prefetch_related_objects_for_courses(queryset)
 
         page = self.paginate_queryset(queryset)

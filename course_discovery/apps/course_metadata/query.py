@@ -9,18 +9,40 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus, Progr
 
 class CourseQuerySet(models.QuerySet):
     def active(self):
-        """ Filters Courses to those with CourseRuns that are either currently open for enrollment,
-        or will be open for enrollment in the future. """
-
+        """
+        Filter Courses to those with CourseRuns that have not yet ended and are
+        either open for enrollment or will be open for enrollment in the future.
+        """
         now = datetime.datetime.now(pytz.UTC)
         return self.filter(
             (
-                Q(course_runs__end__gt=now) | Q(course_runs__end__isnull=True)
+                Q(course_runs__end__gt=now) |
+                Q(course_runs__end__isnull=True)
             ) &
             (
-                Q(course_runs__enrollment_end__gt=now) | Q(course_runs__enrollment_end__isnull=True)
+                Q(course_runs__enrollment_end__gt=now) |
+                Q(course_runs__enrollment_end__isnull=True)
             )
         )
+
+    def marketable(self):
+        """
+        Filter Courses to those with CourseRuns that can be marketed. A CourseRun
+        is deemed marketable if it has a defined slug, has seats, and has been published.
+        """
+        # exclude() is intentionally avoided here. We want Courses to be included
+        # in the resulting queryset if only one of their runs matches our "marketable"
+        # criteria. For example, consider a Course with two CourseRuns; one of the
+        # runs is published while the other is not. If you used exclude(), the Course
+        # would be dropped from the queryset even though it has one run which matches
+        # our criteria.
+        return self.filter(
+            Q(course_runs__slug__isnull=False) & ~Q(course_runs__slug='')
+        ).filter(
+            course_runs__seats__isnull=False
+        ).filter(
+            course_runs__status=CourseRunStatus.Published
+        ).distinct()
 
 
 class CourseRunQuerySet(models.QuerySet):
