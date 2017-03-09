@@ -383,6 +383,7 @@ class NestedProgramSerializer(serializers.ModelSerializer):
 class MinimalCourseRunSerializer(TimestampModelSerializer):
     image = ImageField(read_only=True, source='card_image_url')
     marketing_url = serializers.SerializerMethodField()
+    seats = SeatSerializer(many=True)
 
     @classmethod
     def prefetch_queryset(cls):
@@ -393,7 +394,7 @@ class MinimalCourseRunSerializer(TimestampModelSerializer):
 
     class Meta:
         model = CourseRun
-        fields = ('key', 'uuid', 'title', 'image', 'short_description', 'marketing_url',
+        fields = ('key', 'uuid', 'title', 'image', 'short_description', 'marketing_url', 'seats',
                   'start', 'end', 'enrollment_start', 'enrollment_end', 'pacing_type', 'type',)
 
     def get_marketing_url(self, obj):

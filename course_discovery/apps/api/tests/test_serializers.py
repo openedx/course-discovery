@@ -318,6 +318,7 @@ class MinimalCourseRunSerializerTests(TestCase):
             'enrollment_end': json_date_format(course_run.enrollment_end),
             'pacing_type': course_run.pacing_type,
             'type': course_run.type,
+            'seats': SeatSerializer(course_run.seats, many=True).data
         }
 
     def test_data(self):
@@ -613,6 +614,37 @@ class MinimalProgramCourseSerializerTests(TestCase):
 
         self.assertSequenceEqual(serializer.data, expected)
 
+    def test_use_full_course_serializer(self):
+        """
+        Verify that we can use the `use_full_course_serializer` parameter to use the
+        CourseRun serializer.
+        """
+        request = make_request()
+        course = CourseFactory()
+        program = ProgramFactory(courses=[course])
+        CourseRunFactory(course=course)
+
+        serializer_data = MinimalProgramCourseSerializer(
+            course,
+            context={
+                'request': request,
+                'program': program,
+                'use_full_course_serializer': 1,
+                'course_runs': list(program.course_runs),
+            }
+        ).data
+
+        expected = CourseRunSerializer(
+            course.course_runs.all(),
+            many=True,
+            context={
+                'request': request,
+                'use_full_course_serializer': 1
+            }
+        ).data
+
+        assert serializer_data['course_runs'] == expected
+
 
 class MinimalProgramSerializerTests(TestCase):
     serializer_class = MinimalProgramSerializer
@@ -862,35 +894,6 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         serializer = self.serializer_class(program, context={'request': request})
         expected = self.get_expected_data(program, request)
         self.assertDictEqual(serializer.data, expected)
-
-    def test_use_full_course_serializer(self):
-        """
-        Verify that we can use the `use_full_course_serializer` parameter to toggle the CourseRun
-        serializer used when returning program data.
-        """
-        request = make_request()
-        program = self.create_program()
-
-        # Assert that the seats are not available when fetched without any flag
-        program_without_seats = self.serializer_class(program, context={'request': request}).data
-        course_run_without_seats = program_without_seats['courses'][0]['course_runs'][0]
-        assert 'seats' not in course_run_without_seats
-
-        # Assert that the seats are not available when fetched with the use_full_course_serializer param set to 0
-        program_without_seats = self.serializer_class(program, context={
-            'request': request,
-            'use_full_course_serializer': 0
-        }).data
-        course_run_without_seats = program_without_seats['courses'][0]['course_runs'][0]
-        assert 'seats' not in course_run_without_seats
-
-        # Assert that the seats are available when fetched with the use_full_course_serializer param set to 1
-        program_with_seats = self.serializer_class(
-            program,
-            context={'request': request, 'use_full_course_serializer': 1}
-        ).data
-        course_run_with_seats = program_with_seats['courses'][0]['course_runs'][0]
-        assert 'seats' in course_run_with_seats
 
     def test_marketable_enrollable_course_runs_with_archived(self):
         """ Test that the marketable_enrollable_course_runs_with_archived flag hides course runs
