@@ -218,7 +218,7 @@
                                             </label>
                                             {{ seat_form.type}}
                                         </div>
-                                        <div class="col col-6">
+                                        <div id="SeatPriceBlock" class="col col-6">
                                             <label class="field-label ">{{ seat_form.price.label_tag }}</label>
                                             {{ seat_form.price}}
                                         </div>
@@ -246,6 +246,5 @@
 {% endblock %}
 
 {% block extra_js %}
-    <script src="{% static 'js/publisher/publisher.js' %}"></script>
-    <script src="{% static 'js/publisher/seat-type-change.js' %}"></script>
+    <script src="{% static 'js/publisher/courses/seat-type-change.js' %}"></script>
 {% endblock %}

@@ -636,7 +636,9 @@
 {% endblock %}
 
 {% block extra_js %}
-    <script src="{% static 'js/publisher/publisher.js' %}"></script>
-    <script src="{% static 'js/publisher/seat-type-change.js' %}"></script>
+    <script src="{% static 'js/publisher/courses/organizations.js' %}"></script>
+    <script src="{% static 'js/publisher/courses/seat-type-change.js' %}"></script>
+    <script src="{% static 'js/publisher/courses/add_instructor.js' %}"></script>
+    <script src="{% static 'js/publisher/utils/modal.js' %}"></script>
     {{ run_form.media }}
 {% endblock %}
