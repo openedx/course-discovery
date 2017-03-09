@@ -642,10 +642,18 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 
     def get_courses(self, program):
+        course_runs = list(program.course_runs)
+
+        if self.context.get('marketable_enrollable_course_runs_with_archived'):
+            marketable_enrollable_course_runs = set()
+            for course in program.courses.all():
+                marketable_enrollable_course_runs.update(course.course_runs.marketable().enrollable())
+            course_runs = list(set(course_runs).intersection(marketable_enrollable_course_runs))
+
         if program.order_courses_by_start_date:
-            courses, course_runs = self.sort_courses(program)
+            courses = self.sort_courses(program, course_runs)
         else:
-            courses, course_runs = program.courses.all(), list(program.course_runs)
+            courses = program.courses.all()
 
         course_serializer = MinimalProgramCourseSerializer(
             courses,
@@ -662,7 +670,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
 
         return course_serializer.data
 
-    def sort_courses(self, program):
+    def sort_courses(self, program, course_runs):
         """
         Sorting by enrollment start then by course start yields a list ordered by course start, with
         ties broken by enrollment start. This works because Python sorting is stable: two objects with
@@ -672,7 +680,6 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
         course_runs should never be empty. If it is, key functions in this method attempting to find the
         min of an empty sequence will raise a ValueError.
         """
-        course_runs = list(program.course_runs)
 
         def min_run_enrollment_start(course):
             # Enrollment starts may be empty. When this is the case, we make the same assumption as
@@ -715,7 +722,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
         courses.sort(key=min_run_enrollment_start)
         courses.sort(key=min_run_start)
 
-        return courses, course_runs
+        return courses
 
 
 class ProgramSerializer(MinimalProgramSerializer):

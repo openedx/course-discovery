@@ -892,6 +892,45 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         course_run_with_seats = program_with_seats['courses'][0]['course_runs'][0]
         assert 'seats' in course_run_with_seats
 
+    def test_marketable_enrollable_course_runs_with_archived(self):
+        """ Test that the marketable_enrollable_course_runs_with_archived flag hides course runs
+        that are not marketable or enrollable
+        """
+        course = CourseFactory()
+        CourseRunFactory(status=CourseRunStatus.Unpublished, course=course)
+        marketable_enrollable_run = CourseRunFactory(
+            status=CourseRunStatus.Published,
+            end=datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10),
+            enrollment_start=None,
+            enrollment_end=None,
+            course=course
+        )
+        SeatFactory(course_run=marketable_enrollable_run)
+        program = ProgramFactory(courses=[course])
+        request = make_request()
+
+        serializer = self.serializer_class(
+            program,
+            context={
+                'request': request,
+                'marketable_enrollable_course_runs_with_archived': True
+            }
+        )
+
+        expected = MinimalProgramCourseSerializer(
+            [course],
+            many=True,
+            context={
+                'request': request,
+                'program': program,
+                'course_runs': [marketable_enrollable_run]
+            }
+        ).data
+
+        assert len(expected[0]['course_runs']) == 1
+        assert sorted(serializer.data['courses'][0]['course_runs'], key=lambda x: x['key']) == \
+            sorted(expected[0]['course_runs'], key=lambda x: x['key'])
+
 
 class ProgramTypeSerializerTests(TestCase):
     serializer_class = ProgramTypeSerializer
