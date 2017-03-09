@@ -4,7 +4,7 @@
     Dear {{ recipient_name }},
 {% endblocktrans %}
 {% blocktrans trimmed %}
-     Changes to {{ course_name }} has been marked as reviewed. {{ page_url }}
+     The {{ sender_team }} has reviewed the {{ run_number }} course run of {{ course_name }} {{ page_url }}. You will receive another email when the course run preview is available for you to review.
 {% endblocktrans %}
 
 {% trans "Thanks," %}

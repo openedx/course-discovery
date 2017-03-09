@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-09 15:51+0500\n"
+"POT-Creation-Date: 2017-03-10 12:45+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -503,7 +503,7 @@ msgstr ""
 
 #: apps/publisher/emails.py
 #, python-brace-format
-msgid "Changes to {run_name} has been marked as reviewed"
+msgid "Review complete: {course_name} {run_number}"
 msgstr ""
 
 #: apps/publisher/emails.py
@@ -2587,13 +2587,18 @@ msgstr ""
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #, python-format
 msgid ""
-"Changes to %(link_start)s%(page_url)s%(link_middle)s %(course_name)s "
-"%(link_end)s has been marked as reviewed."
+"The %(sender_team)s has reviewed the "
+"%(link_start)s%(page_url)s%(link_middle)s %(run_number)s course "
+"run%(link_end)s of %(course_name)s. You will receive another email when the "
+"course run preview is available for you to review."
 msgstr ""
 
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
 #, python-format
-msgid "Changes to %(course_name)s has been marked as reviewed. %(page_url)s"
+msgid ""
+"The %(sender_team)s has reviewed the %(run_number)s course run of "
+"%(course_name)s %(page_url)s. You will receive another email when the course"
+" run preview is available for you to review."
 msgstr ""
 
 #: templates/publisher/email/course_run/preview_accepted.html

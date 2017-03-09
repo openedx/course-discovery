@@ -332,6 +332,9 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
 
     def test_email_sent_to_publisher(self):
         """ Verify that email works successfully."""
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
+        )
         emails.send_email_to_publisher(self.course_run_state.course_run, self.user)
         self.assert_email_sent(self.user_3)
 
@@ -353,13 +356,13 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
 
     def assert_email_sent(self, to_email):
         """ Verify the email data for tests cases."""
-        run_name = '{pacing_type}: {start_date}'.format(
-            pacing_type=self.course_run.get_pacing_type_display(),
-            start_date=self.course_run.start.strftime("%B %d, %Y")
+
+        course_key = CourseKey.from_string(self.course_run.lms_course_id)
+        subject = 'Review complete: {course_name} {run_number}'.format(
+            course_name=self.course.title,
+            run_number=course_key.run
         )
-        subject = 'Changes to {run_name} has been marked as reviewed'.format(
-            run_name=run_name
-        )
+
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(to_email.email, mail.outbox[0].to[0])
         self.assertEqual(str(mail.outbox[0].subject), subject)
@@ -367,7 +370,7 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
         page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id})
         page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
         self.assertIn(page_url, body)
-        self.assertIn('has been marked as reviewed.', body)
+        self.assertIn('You will receive another email when the course run preview is available', body)
 
 
 class CourseRunPreviewEmailTests(TestCase):

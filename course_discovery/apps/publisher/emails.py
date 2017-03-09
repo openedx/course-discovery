@@ -227,11 +227,11 @@ def send_email_for_mark_as_reviewed_course_run(course_run, user):
     txt_template = 'publisher/email/course_run/mark_as_reviewed.txt'
     html_template = 'publisher/email/course_run/mark_as_reviewed.html'
 
-    run_name = '{pacing_type}: {start_date}'.format(
-        pacing_type=course_run.get_pacing_type_display(),
-        start_date=course_run.start.strftime("%B %d, %Y")
+    course_key = CourseKey.from_string(course_run.lms_course_id)
+    subject = _('Review complete: {course_name} {run_number}').format(  # pylint: disable=no-member
+        course_name=course_run.course.title,
+        run_number=course_key.run
     )
-    subject = _('Changes to {run_name} has been marked as reviewed').format(run_name=run_name)  # pylint: disable=no-member
 
     try:
         page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
@@ -242,7 +242,7 @@ def send_email_for_mark_as_reviewed_course_run(course_run, user):
             txt_template,
             html_template,
             page_path,
-            course_name=run_name
+            run_number=course_key.run
         )
     except Exception:  # pylint: disable=broad-except
         logger.exception('Failed to send email notifications for mark as reviewed of course-run %s', course_run.id)
@@ -258,12 +258,17 @@ def send_email_to_publisher(course_run, user):
     txt_template = 'publisher/email/course_run/mark_as_reviewed.txt'
     html_template = 'publisher/email/course_run/mark_as_reviewed.html'
 
-    run_name = '{pacing_type}: {start_date}'.format(
-        pacing_type=course_run.get_pacing_type_display(),
-        start_date=course_run.start.strftime("%B %d, %Y")
+    course_key = CourseKey.from_string(course_run.lms_course_id)
+    subject = _('Review complete: {course_name} {run_number}').format(  # pylint: disable=no-member
+        course_name=course_run.course.title,
+        run_number=course_key.run
     )
-    subject = _('Changes to {run_name} has been marked as reviewed').format(run_name=run_name)  # pylint: disable=no-member
+
     recipient_user = course_run.course.publisher
+    user_role = course_run.course.course_user_roles.get(user=user)
+    sender_team = 'course team'
+    if user_role.role == PublisherUserRole.MarketingReviewer:
+        sender_team = 'marketing team'
 
     try:
         if is_email_notification_enabled(recipient_user):
@@ -274,12 +279,16 @@ def send_email_to_publisher(course_run, user):
             context = {
                 'recipient_name': recipient_user.full_name or recipient_user.username if recipient_user else '',
                 'sender_name': user.full_name or user.username,
-                'course_name': run_name,
+                'course_name': course_run.course.title,
+                'run_number': course_key.run,
+                'org_name': course_run.course.organizations.all().first().name,
+                'sender_team': sender_team,
                 'contact_us_email': project_coordinator.email if project_coordinator else '',
                 'page_url': 'https://{host}{path}'.format(
                     host=Site.objects.get_current().domain.strip('/'), path=page_path
                 )
             }
+
             template = get_template(txt_template)
             plain_content = template.render(context)
             template = get_template(html_template)
@@ -290,6 +299,7 @@ def send_email_to_publisher(course_run, user):
             )
             email_msg.attach_alternative(html_content, 'text/html')
             email_msg.send()
+
     except Exception:  # pylint: disable=broad-except
         logger.exception('Failed to send email notifications for mark as reviewed of course-run %s', course_run.id)
 
