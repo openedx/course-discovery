@@ -8,7 +8,7 @@
         {% endblocktrans %}
     <p>
         {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' trimmed %}
-            Changes to {{ link_start }}{{ page_url }}{{ link_middle }} {{ course_name }} {{ link_end }} has been marked as reviewed.
+            The {{ sender_team }} has reviewed the {{ link_start }}{{ page_url }}{{ link_middle }} {{ run_number }} course run{{ link_end }} of {{ course_name }}. You will receive another email when the course run preview is available for you to review.
         {% endblocktrans %}
     </p>
 
