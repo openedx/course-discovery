@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-09 14:55+0500\n"
+"POT-Creation-Date: 2017-03-09 15:51+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -647,6 +647,13 @@ msgstr ""
 "Püßlïçätïön çömplété: {course_name} {run_number} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢#"
 
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Role assignment changed for role: {role_name} against {course_title}"
+msgstr ""
+"Rölé ässïgnmént çhängéd för rölé: {role_name} ägäïnst {course_title} Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
 #: apps/publisher/forms.py
 msgid "Remove Image"
 msgstr "Rémövé Ìmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
@@ -1159,8 +1166,8 @@ msgid "day in ownership"
 msgstr "däý ïn öwnérshïp Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: templates/publisher/_approval_widget.html
-msgid "change owner"
-msgstr "çhängé öwnér Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+msgid "change"
+msgstr "çhängé Ⱡ'σяєм ιρѕυ#"
 
 #: templates/publisher/_approval_widget.html
 msgid "CHANGE"
@@ -3200,6 +3207,38 @@ msgstr ""
 "Prévïéw lïnk %(preview_url)s för thé %(course_title)s: %(course_url)s häs "
 "ßéén déçlïnéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
+#: templates/publisher/email/role_assignment_changed.html
+#, python-format
+msgid ""
+"The %(role_name)s for the "
+"%(link_start)s%(course_url)s%(link_middle)s%(course_title)s%(link_end)s has "
+"been changed."
+msgstr ""
+"Thé %(role_name)s för thé "
+"%(link_start)s%(course_url)s%(link_middle)s%(course_title)s%(link_end)s häs "
+"ßéén çhängéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: templates/publisher/email/role_assignment_changed.html
+#: templates/publisher/email/role_assignment_changed.txt
+#, python-format
+msgid "Former %(role_name)s: %(former_user_name)s"
+msgstr "Förmér %(role_name)s: %(former_user_name)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: templates/publisher/email/role_assignment_changed.html
+#: templates/publisher/email/role_assignment_changed.txt
+#, python-format
+msgid "Current %(role_name)s: %(current_user_name)s"
+msgstr ""
+"Çürrént %(role_name)s: %(current_user_name)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: templates/publisher/email/role_assignment_changed.txt
+#, python-format
+msgid ""
+"The %(role_name)s for the %(course_title)s: %(course_url)s has been changed."
+msgstr ""
+"Thé %(role_name)s för thé %(course_title)s: %(course_url)s häs ßéén çhängéd."
+" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
 #. Translators: course_team_name is course team member name.
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
@@ -3307,39 +3346,6 @@ msgid "Please create a Studio instance for the following course."
 msgstr ""
 "Pléäsé çréäté ä Stüdïö ïnstänçé för thé föllöwïng çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя"
 " ѕιт αмєт, ¢σηѕє¢тєтυя α#"
-
-#: templates/publisher/email/user_role_changed.html
-#, python-format
-msgid ""
-"The %(role_name)s for the "
-"%(link_start)s%(course_url)s%(link_middle)s%(course_title)s%(link_end)s "
-"course has changed."
-msgstr ""
-"Thé %(role_name)s för thé "
-"%(link_start)s%(course_url)s%(link_middle)s%(course_title)s%(link_end)s "
-"çöürsé häs çhängéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
-
-#: templates/publisher/email/user_role_changed.html
-#: templates/publisher/email/user_role_changed.txt
-#, python-format
-msgid "Former %(role_name)s: %(former_user_name)s"
-msgstr "Förmér %(role_name)s: %(former_user_name)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
-
-#: templates/publisher/email/user_role_changed.html
-#: templates/publisher/email/user_role_changed.txt
-#, python-format
-msgid "Current %(role_name)s: %(current_user_name)s"
-msgstr ""
-"Çürrént %(role_name)s: %(current_user_name)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
-
-#: templates/publisher/email/user_role_changed.txt
-#, python-format
-msgid ""
-"The %(role_name)s for the %(course_title)s: %(course_url)s course has "
-"changed."
-msgstr ""
-"Thé %(role_name)s för thé %(course_title)s: %(course_url)s çöürsé häs "
-"çhängéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: templates/publisher/seat_form.html
 msgid "Seat Form"

@@ -449,3 +449,56 @@ def send_course_run_published_email(course_run):
         )
         logger.exception(error_message)
         raise Exception(error_message)
+
+
+def send_change_role_assignment_email(course_role, former_user):
+    """ Send email for role assignment changed.
+
+        Arguments:
+            course_role (Object): CourseUserRole object
+            former_user (Object): User object
+    """
+    txt_template = 'publisher/email/role_assignment_changed.txt'
+    html_template = 'publisher/email/role_assignment_changed.html'
+
+    try:
+        subject = _('Role assignment changed for role: {role_name} against {course_title}').format(  # pylint: disable=no-member
+            role_name=course_role.get_role_display(),
+            course_title=course_role.course.title
+        )
+        to_addresses = course_role.course.get_course_users_emails()
+        to_addresses.append(former_user.email)
+        if course_role.course.course_team_admin:
+            to_addresses.remove(course_role.course.course_team_admin.email)
+
+        from_address = settings.PUBLISHER_FROM_EMAIL
+        project_coordinator = course_role.course.project_coordinator
+        page_path = reverse('publisher:publisher_course_detail', kwargs={'pk': course_role.course.id})
+        context = {
+            'course_title': course_role.course.title,
+            'role_name': course_role.get_role_display(),
+            'former_user_name': former_user.get_full_name() or former_user.username,
+            'current_user_name': course_role.user.get_full_name() or course_role.user.username,
+            'contact_us_email': project_coordinator.email if project_coordinator else '',
+            'course_url': 'https://{host}{path}'.format(
+                host=Site.objects.get_current().domain.strip('/'), path=page_path
+            ),
+            'platform_name': settings.PLATFORM_NAME,
+        }
+        template = get_template(txt_template)
+        plain_content = template.render(context)
+        template = get_template(html_template)
+        html_content = template.render(context)
+
+        email_msg = EmailMultiAlternatives(
+            subject, plain_content, from_address, to=to_addresses
+        )
+        email_msg.attach_alternative(html_content, 'text/html')
+        email_msg.send()
+
+    except Exception:  # pylint: disable=broad-except
+        error_message = 'Failed to send email notifications for change role assignment of role: [{role_id}]'.format(
+            role_id=course_role.id
+        )
+        logger.exception(error_message)
+        raise Exception(error_message)

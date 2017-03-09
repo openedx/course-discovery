@@ -544,3 +544,56 @@ class CourseRunPublishedEmailTests(TestCase):
             with self.assertRaises(Exception) as ex:
                 emails.send_course_run_published_email(self.course_run)
                 self.assertEqual(str(ex.exception), message)
+
+
+class CourseChangeRoleAssignmentEmailTests(TestCase):
+    """
+    Tests email functionality for course role assignment changed.
+    """
+
+    def setUp(self):
+        super(CourseChangeRoleAssignmentEmailTests, self).setUp()
+        self.user = UserFactory()
+
+        self.marketing_role = factories.CourseUserRoleFactory(role=PublisherUserRole.MarketingReviewer, user=self.user)
+        self.course = self.marketing_role.course
+        factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.Publisher)
+        factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.ProjectCoordinator)
+        factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.CourseTeam)
+
+        toggle_switch('enable_publisher_email_notifications', True)
+
+    def test_change_role_assignment_email(self):
+        """
+        Verify that course role assignment chnage email functionality works fine.
+        """
+        emails.send_change_role_assignment_email(self.marketing_role, self.user)
+        expected_subject = 'Role assignment changed for role: {role_name} against {course_title}'.format(
+            role_name=self.marketing_role.get_role_display(),
+            course_title=self.course.title
+        )
+
+        expected_emails = set(self.course.get_course_users_emails())
+        expected_emails.remove(self.course.course_team_admin.email)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(expected_emails, set(mail.outbox[0].to))
+        self.assertEqual(str(mail.outbox[0].subject), expected_subject)
+        body = mail.outbox[0].body.strip()
+        page_path = reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id})
+        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
+        self.assertIn(page_url, body)
+        self.assertIn('has been changed.', body)
+
+    def test_change_role_assignment_email_with_error(self):
+        """
+        Verify that email failure raises exception.
+        """
+
+        message = 'Failed to send email notifications for change role assignment of role: [{role_id}]'.format(
+            role_id=self.marketing_role.id
+        )
+        with mock.patch('django.core.mail.message.EmailMessage.send', side_effect=TypeError):
+            with self.assertRaises(Exception) as ex:
+                emails.send_change_role_assignment_email(self.marketing_role, self.user)
+                self.assertEqual(str(ex.exception), message)

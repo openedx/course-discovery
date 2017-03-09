@@ -1,9 +1,10 @@
-{% extends "publisher/email/email_base.html" %}{% load i18n %}
+{% extends "publisher/email/email_base.html" %}
+{% load i18n %}
+
 {% block body %}
   <p>
     {% blocktrans trimmed with link_start='<a href="' link_middle='">' link_end='</a>' %}
-      The {{ role_name }} for the {{ link_start }}{{ course_url }}{{ link_middle }}{{ course_title }}{{ link_end }}
-      course has changed.
+      The {{ role_name }} for the {{ link_start }}{{ course_url }}{{ link_middle }}{{ course_title }}{{ link_end }} has been changed.
     {% endblocktrans %}
   </p>
 

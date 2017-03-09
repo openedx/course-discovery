@@ -130,6 +130,7 @@ class CourseRoleAssignmentViewTests(TestCase):
         }
         self.assertDictEqual(response.data, expected)
         self.assertEqual(self.internal_user, self.course.course_user_roles.get(role=user_course_role.role).user)
+        self.assertEqual(len(mail.outbox), 1)
 
 
 class OrganizationGroupUserViewTests(TestCase):
