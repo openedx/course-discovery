@@ -69,5 +69,10 @@
         });
     </script>
 
-    {% block extra_js %}{% endblock %}
+    {% compress js %}
+        {% block extra_js %}
+        {% endblock %}
+    {% endcompress %}
+
+    {% block js_without_compress %}{% endblock %}
 {% endblock %}
