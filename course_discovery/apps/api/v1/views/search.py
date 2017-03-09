@@ -135,15 +135,18 @@ class TypeaheadSearchView(PartnerMixin, APIView):
         )
         course_runs = course_runs.filter(published=True).exclude(hidden=True).filter(partner=partner.short_code)
 
-        # Get first three results after deduplicating by course run
-        course_runs_list, course_keys_set = [], set()
+        # Get first three results after deduplicating by course key.
+        seen_course_keys, course_run_list = [], []
         for course_run in course_runs:
             course_key = course_run.course_key
-            if course_key in course_keys_set:
+
+            if course_key in seen_course_keys:
                 continue
-            course_keys_set.add(course_key)
-            course_runs_list.append(course_run)
-            if len(course_runs_list) == 3:
+            else:
+                seen_course_keys.append(course_key)
+                course_run_list.append(course_run)
+
+            if len(course_run_list) == self.RESULT_COUNT:
                 break
 
         programs = sqs.models(Program).filter(
@@ -153,7 +156,7 @@ class TypeaheadSearchView(PartnerMixin, APIView):
         programs = programs.filter(status=ProgramStatus.Active).filter(partner=partner.short_code)
         programs = programs[:self.RESULT_COUNT]
 
-        return course_runs_list, programs
+        return course_run_list, programs
 
     def get(self, request, *args, **kwargs):
         """
