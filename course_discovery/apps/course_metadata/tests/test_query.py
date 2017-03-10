@@ -46,26 +46,33 @@ class CourseQuerySetTests(TestCase):
 class CourseRunQuerySetTests(TestCase):
     def test_active(self):
         """ Verify the method returns only course runs currently open for enrollment or opening in the future. """
+        now = datetime.datetime.now(pytz.UTC)
+        active_course_end = now + datetime.timedelta(days=60)
+        inactive_course_end = now - datetime.timedelta(days=15)
+        open_enrollment_end = now + datetime.timedelta(days=30)
+        closed_enrollment_end = now - datetime.timedelta(days=30)
+
         # Create course with end date in future and enrollment_end in past.
-        end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=2)
-        enrollment_end = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1)
-        CourseRunFactory(end=end, enrollment_end=enrollment_end)
+        CourseRunFactory(end=active_course_end, enrollment_end=closed_enrollment_end)
 
         # Create course with end date in past and no enrollment_end.
-        end = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=2)
-        CourseRunFactory(end=end, enrollment_end=None)
+        CourseRunFactory(end=inactive_course_end, enrollment_end=None)
 
         self.assertEqual(CourseRun.objects.active().count(), 0)
 
         # Create course with end date in future and enrollment_end in future.
-        end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=2)
-        enrollment_end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
-        active_enrollment_end = CourseRunFactory(end=end, enrollment_end=enrollment_end)
+        active_enrollment_end = CourseRunFactory(end=active_course_end, enrollment_end=open_enrollment_end)
 
         # Create course with end date in future and no enrollment_end.
-        active_no_enrollment_end = CourseRunFactory(end=end, enrollment_end=None)
+        active_no_enrollment_end = CourseRunFactory(end=active_course_end, enrollment_end=None)
 
-        self.assertEqual(set(CourseRun.objects.active()), {active_enrollment_end, active_no_enrollment_end})
+        # Create course with no end date and enrollment date in future.
+        active_no_end_date = CourseRunFactory(end=None, enrollment_end=open_enrollment_end)
+
+        self.assertEqual(
+            set(CourseRun.objects.active()),
+            {active_enrollment_end, active_no_enrollment_end, active_no_end_date}
+        )
 
     def test_enrollable(self):
         """ Verify the method returns only course runs currently open for enrollment. """

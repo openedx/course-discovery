@@ -35,8 +35,10 @@ class CourseRunQuerySet(models.QuerySet):
         """
         now = datetime.datetime.now(pytz.UTC)
         return self.filter(
-            Q(end__gt=now) &
             (
+                Q(end__gt=now) |
+                Q(end__isnull=True)
+            ) & (
                 Q(enrollment_end__gt=now) |
                 Q(enrollment_end__isnull=True)
             )
