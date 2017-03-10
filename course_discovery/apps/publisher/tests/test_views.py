@@ -1331,6 +1331,9 @@ class DashboardTests(TestCase):
         response = self.client.get(self.page_url)
         self.assertEqual(response.status_code, 200)
 
+        self.assertContains(response, 'COURSE ABOUT PAGES')
+        self.assertContains(response, 'EdX Publisher is used to create course About pages.')
+
         self.assertEqual(len(response.context['studio_request_courses']), studio_count)
         self.assertEqual(len(response.context['published_course_runs']), published_count)
         self.assertEqual(len(response.context['in_progress_course_runs']), progress_count)
