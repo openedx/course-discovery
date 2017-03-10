@@ -271,6 +271,12 @@ class CustomCourseRunForm(CourseRunForm):
 
         return None
 
+    def __init__(self, *args, **kwargs):
+        is_project_coordinator = kwargs.pop('is_project_coordinator', None)
+        super(CustomCourseRunForm, self).__init__(*args, **kwargs)
+        if not is_project_coordinator:
+            self.fields['lms_course_id'].widget = forms.HiddenInput()
+
 
 class SeatForm(BaseCourseForm):
     """ Course Seat Form. """

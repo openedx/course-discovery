@@ -1937,6 +1937,8 @@ class CourseRunEditViewTests(TestCase):
         self.group = self.organization_extension.group
         self.user.groups.add(self.group)
 
+        self.group_project_coordinator = Group.objects.get(name=PROJECT_COORDINATOR_GROUP_NAME)
+
         self.course = factories.CourseFactory()
         self.course_run = factories.CourseRunFactory(course=self.course)
         self.seat = factories.SeatFactory(course_run=self.course_run, type=Seat.VERIFIED, price=2)
@@ -2284,7 +2286,7 @@ class CourseRunEditViewTests(TestCase):
         )
         response = self.client.get(self.edit_page_url)
 
-        self.assertNotContains(response, 'name="lms_course_id"')
+        self.assertContains(response, '<input id="id_lms_course_id" name="lms_course_id" type="hidden"')
 
         self.assertContains(response, 'Course Run Key')
         self.assertContains(response, 'STUDIO URL')
@@ -2294,6 +2296,40 @@ class CourseRunEditViewTests(TestCase):
         self.new_course_run.save()
         response = self.client.get(self.edit_page_url)
 
+        self.assertContains(
+            response, '<input id="id_lms_course_id" name="lms_course_id" type="hidden"'
+        )
+        self.assertContains(response, '<a class="studio-link"')
+
+    def test_studio_instance_with_project_coordinator(self):
+        """
+        Verify that PC can see the course-key input field. And on post course-key remains in db.
+        """
+        pc_user = UserFactory()
+        pc_user.groups.add(self.group_project_coordinator)
+        pc_user.groups.add(self.organization_extension.group)
+
+        assign_perm(
+            OrganizationExtension.EDIT_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+        self.client.logout()
+        self.client.login(username=pc_user.username, password=USER_PASSWORD)
+
+        self.new_course_run.lms_course_id = 'course-v1:edxTest+Test342+2016Q1'
+        self.new_course_run.save()
+        response = self.client.get(self.edit_page_url)
+
+        self.assertContains(response, self.new_course_run.lms_course_id)
+        self.assertContains(
+            response, '<input class="field-input input-text" id="id_lms_course_id" name="lms_course_id"'
+        )
+
+        self.assertNotContains(response, '<a class="studio-link"')
+        data = {'full_description': 'This is testing description.', 'image': ''}
+        updated_dict = self._post_data(data, self.new_course, None, None)
+        self.client.post(self.edit_page_url, updated_dict)
+
+        response = self.client.get(self.edit_page_url)
         self.assertContains(response, self.new_course_run.lms_course_id)
 
     def test_price_hidden_without_seat(self):
