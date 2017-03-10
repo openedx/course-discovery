@@ -7,8 +7,11 @@
 {% endblock title %}
 
 {% block page_content %}
-    {% with studio_count=studio_request_courses|length published_count=published_course_runs|length preview_count=preview_course_runs|length in_progress_count=in_progress_course_runs|length %}
     <div class="publisher-container">
+        <h2 class="hd-2 emphasized">{% trans "COURSE ABOUT PAGES" %}</h2>
+        <p>{% trans "EdX Publisher is used to create course About pages. Users enter, review, and approve content in Publisher. Publisher keeps track of the details and sends email updates when actions are necessary." %}</p>
+        <p>{% trans "EdX Publisher is a companion to edX Studio. Course teams enter About page information in Publisher, and course content in Studio." %}</p>
+        {% with studio_count=studio_request_courses|length published_count=published_course_runs|length preview_count=preview_course_runs|length in_progress_count=in_progress_course_runs|length %}
         <h2 class="hd-2 emphasized">{% trans "Course runs" %}</h2>
         <ul role="tablist" class="tabs">
             <li role="tab" id="tab-progress" class="tab" aria-selected="true" aria-expanded="false"
