@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-10 12:45+0500\n"
+"POT-Creation-Date: 2017-03-13 14:43+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -722,9 +722,9 @@ msgstr "Çöürsé Stärt Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм
 msgid "Course End Date"
 msgstr "Çöürsé Énd Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
-#: apps/publisher/forms.py
-msgid "instructor"
-msgstr "ïnstrüçtör Ⱡ'σяєм ιρѕυм ∂σłσ#"
+#: apps/publisher/forms.py templates/publisher/add_update_course_form.html
+msgid "Instructor"
+msgstr "Ìnstrüçtör Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: apps/publisher/forms.py
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
@@ -1910,10 +1910,6 @@ msgstr ""
 #: templates/publisher/add_update_course_form.html
 msgid "Add New"
 msgstr "Àdd Néw Ⱡ'σяєм ιρѕυм #"
-
-#: templates/publisher/add_update_course_form.html
-msgid "Instructor"
-msgstr "Ìnstrüçtör Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
