@@ -529,6 +529,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
             'publisher_add_instructor_feature': waffle.switch_is_active('publisher_add_instructor_feature'),
             'is_internal_user': mixins.check_roles_access(self.request.user),
             'edit_mode': True,
+            'is_project_coordinator': is_project_coordinator_user(self.request.user),
         }
 
     def get(self, request, *args, **kwargs):
@@ -541,7 +542,9 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
             organization=context.get('organization'),
             edit_mode=True
         )
-        context['run_form'] = self.run_form(instance=course_run)
+        context['run_form'] = self.run_form(
+            instance=course_run, is_project_coordinator=context.get('is_project_coordinator')
+        )
         context['seat_form'] = self.seat_form(instance=course_run.seats.first())
 
         context['breadcrumbs'] = make_bread_crumbs(
@@ -570,7 +573,9 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
             organization=context.get('organization'),
             edit_mode=True
         )
-        run_form = self.run_form(request.POST, instance=course_run)
+        run_form = self.run_form(
+            request.POST, instance=course_run, is_project_coordinator=context.get('is_project_coordinator')
+        )
         seat_form = self.seat_form(request.POST, instance=course_run.seats.first())
         if course_form.is_valid() and run_form.is_valid() and seat_form.is_valid():
             try:

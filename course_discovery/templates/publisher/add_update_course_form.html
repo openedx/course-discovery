@@ -196,9 +196,9 @@
                         </div>
                         <div class="col col-6">
                             <label class="field-label ">{{ run_form.lms_course_id.label_tag }}  <span class="required">*</span></label>
-                            {% if is_internal_user %}
-                                {{ run_form.lms_course_id }}
-                            {% else %}
+                            {{ run_form.lms_course_id }}
+
+                            {% if not is_project_coordinator %}
                                 <div class="studio-url">
                                     <span class="studio-url-heading">{% trans "STUDIO URL" %} - </span>
                                     {% if course_run.studio_url %}
