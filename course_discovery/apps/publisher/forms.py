@@ -187,7 +187,7 @@ class CustomCourseRunForm(CourseRunForm):
     start = forms.DateTimeField(label=_('Course Start Date'), required=True)
     end = forms.DateTimeField(label=_('Course End Date'), required=True)
     staff = PersonModelMultipleChoice(
-        label=_('instructor'),
+        label=_('Instructor'),
         queryset=Person.objects.all(),
         widget=autocomplete.ModelSelect2Multiple(
             url='admin_metadata:person-autocomplete',

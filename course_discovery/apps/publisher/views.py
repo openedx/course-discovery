@@ -537,6 +537,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
         course_run = context.get('course_run')
         course = course_run.course
         context['course_form'] = self.course_form(
+            user=request.user,
             instance=course,
             initial=context.get('initial'),
             organization=context.get('organization'),
@@ -568,6 +569,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
 
         course_form = self.course_form(
             request.POST, request.FILES,
+            user=request.user,
             instance=course_run.course,
             initial=context.get('initial'),
             organization=context.get('organization'),

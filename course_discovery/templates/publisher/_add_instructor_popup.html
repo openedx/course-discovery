@@ -29,13 +29,19 @@
                 <label class="field-label">{% trans "Organization" %}:
                     <span class="required">* {% trans "required" %}</span>
                 </label>
-                {% if course_form.organization.field.queryset.all.count > 1 %}
+
+                {% if edit_mode %}
+                    <span class="read-only-field">{{ organization_name }}</span>
                     {{ course_form.organization }}
                 {% else %}
-                    {% with course_form.organization.field.queryset|first as organization %}
-                        <span class="read-only-field">{{ organization.name }}</span>
-                        <input id="id_organization" name="organization" type="hidden" value="{{ organization.id }}">
-                    {% endwith %}
+                    {% if course_form.organization.field.queryset.all.count > 1 %}
+                        {{ course_form.organization }}
+                    {% else %}
+                        {% with course_form.organization.field.queryset|first as organization %}
+                            <span class="read-only-field">{{ organization.name }}</span>
+                            <input id="id_organization" name="organization" type="hidden" value="{{ organization.id }}">
+                        {% endwith %}
+                    {% endif %}
                 {% endif %}
 
                 <label class="field-label" for="bio">{% trans "Bio" %}:

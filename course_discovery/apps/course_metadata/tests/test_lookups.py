@@ -1,4 +1,5 @@
 import json
+from urllib.parse import quote
 
 import ddt
 from django.core.urlresolvers import reverse
@@ -204,3 +205,30 @@ class AutocompleteTests(TestCase):
             reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q=uuid)
         )
         self._assert_response(response, 0)
+
+    def test_instructor_autocomplete_without_staff_user(self):
+        """ Verify instructor autocomplete returns the data if user is not staff. """
+        non_staff_user = UserFactory()
+        self.client.logout()
+        self.client.login(username=non_staff_user.username, password=USER_PASSWORD)
+
+        response = self.client.get(
+            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q='ins')
+        )
+        self._assert_response(response, 2)
+
+    def test_instructor_autocomplete_without_login(self):
+        """ Verify instructor autocomplete returns the zero record if user is not logged in. """
+        self.client.logout()
+        person_autocomplete_url = reverse(
+            'admin_metadata:person-autocomplete'
+        ) + '?q={q}'.format(q=self.instructors[0].uuid)
+
+        response = self.client.get(person_autocomplete_url)
+
+        self.assertRedirects(
+            response,
+            expected_url='{url}?next={next}'.format(url=reverse('login'), next=quote(person_autocomplete_url)),
+            status_code=302,
+            target_status_code=302
+        )
