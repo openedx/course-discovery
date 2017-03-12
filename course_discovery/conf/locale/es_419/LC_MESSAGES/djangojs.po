@@ -3,7 +3,7 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-# Juan Camilo Montoya Franco <juan.montoya@edunext.co>, 2016
+# Juan Camilo Montoya Franco <juan.montoya@edunext.co>, 2016-2017
 # Laura Silva <lingison@edx.org>, 2016
 # Luis Benites <lbenitesanchez@gmail.com>, 2016
 # Ned Weitzman <nweitzman@edx.org>, 2016-2017
@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-07 18:14+0500\n"
-"PO-Revision-Date: 2017-03-08 04:35+0000\n"
+"POT-Creation-Date: 2017-03-15 12:12+0500\n"
+"PO-Revision-Date: 2017-03-09 23:34+0000\n"
 "Last-Translator: Juan Camilo Montoya Franco <juan.montoya@edunext.co>\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
 "MIME-Version: 1.0\n"
@@ -28,31 +28,31 @@ msgstr "Vista previa"
 
 #: static/js/publisher/comparing-objects.js
 msgid "Hide changes"
-msgstr ""
+msgstr "Ocultar cambios"
 
 #: static/js/publisher/comparing-objects.js
 msgid "Show changes"
-msgstr ""
+msgstr "Mostrar cambios"
 
 #: static/js/publisher/publisher.js
 msgid "Something went wrong!"
-msgstr ""
+msgstr "Algo falló!"
 
 #: static/js/publisher/publisher.js
 msgid "Something went wrong! please try again later."
-msgstr ""
+msgstr "Algo falló! Por favor reintente más tarde."
 
 #: static/js/publisher/publisher.js
 msgid "File must be smaller than 1 megabyte in size."
-msgstr ""
+msgstr "El archivo debe tener un tamaño menor a 1 MB."
 
 #: static/js/publisher/publisher.js
 msgid "Please enter a valid URL."
-msgstr ""
+msgstr "Por favor, ingrese una URL válida."
 
 #: static/js/publisher/publisher.js
 msgid "Save"
-msgstr ""
+msgstr "Guardar"
 
 #: static/js/publisher/views/dashboard.js
 msgid ""
@@ -66,7 +66,7 @@ msgstr "Ocurrió un error al guardar sus datos."
 
 #: static/js/publisher/views/dashboard.js
 msgid "No course run previews are currently available."
-msgstr ""
+msgstr "No hay vistas previas de curso disponibles actualmente."
 
 #: static/js/publisher/views/navbar.js
 msgid "OFF"
