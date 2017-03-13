@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
-from course_discovery.apps.api.v1.views import get_query_param, prefetch_related_objects_for_courses
+from course_discovery.apps.api.v1.views import get_query_param
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX
 from course_discovery.apps.course_metadata.models import Course
 
@@ -31,8 +31,7 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
         if q:
             queryset = Course.search(q)
         else:
-            queryset = super(CourseViewSet, self).get_queryset()
-            queryset = prefetch_related_objects_for_courses(queryset)
+            queryset = self.get_serializer_class().prefetch_queryset()
 
         return queryset.order_by(Lower('key'))
 
