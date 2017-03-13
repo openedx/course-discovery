@@ -106,9 +106,8 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
         context['in_progress_course_runs'] = [CourseRunWrapper(course_run) for course_run in in_progress_course_runs]
         context['preview_course_runs'] = [CourseRunWrapper(course_run) for course_run in preview_course_runs]
 
-        # If user is course team member only show in-progress tab.
-        # shows all tabs to internal-users and publisher admins
-        context['can_view_all_tabs'] = mixins.check_roles_access(self.request.user)
+        # shows 'studio request' tab only to project coordinators
+        context['is_project_coordinator'] = is_project_coordinator_user(self.request.user)
 
         return context
 
