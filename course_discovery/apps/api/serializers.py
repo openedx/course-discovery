@@ -258,10 +258,11 @@ class PersonSerializer(serializers.ModelSerializer):
         return person
 
     def get_social_network_url(self, url_type, obj):
-        social_network = obj.person_networks.filter(type=url_type).first()
+        # filter() isn't used to avoid discarding prefetched results.
+        social_networks = [network for network in obj.person_networks.all() if network.type == url_type]
 
-        if social_network:
-            return social_network.value
+        if social_networks:
+            return social_networks[0].value
 
     def get_urls(self, obj):
         return {
@@ -531,7 +532,8 @@ class CourseWithProgramsSerializer(CourseSerializer):
     programs = serializers.SerializerMethodField()
 
     def get_course_runs(self, course):
-        course_runs = course.course_runs.exclude(hidden=True)
+        # exclude() isn't used to avoid discarding prefetched results.
+        course_runs = [course_run for course_run in course.course_runs.all() if not course_run.hidden]
 
         if self.context.get('marketable_course_runs_only'):
             # A client requesting marketable_course_runs_only should only receive course runs
@@ -539,14 +541,23 @@ class CourseWithProgramsSerializer(CourseSerializer):
             # should be excluded. As an unfortunate side-effect of the way we've marketed course
             # runs in the past - a course run could be marketed despite enrollment in that run being
             # closed - achieving this requires applying both the marketable and active filters.
-            course_runs = course_runs.marketable().active()
+
+            # TODO: These queryset methods chain filter() and exclude() calls, causing
+            # prefetched results to be discarded.
+            course_runs = course.course_runs.exclude(hidden=True).marketable().active()
 
         if self.context.get('marketable_enrollable_course_runs_with_archived'):
             # Same as "marketable_course_runs_only", but includes courses with an end date in the past
-            course_runs = course_runs.marketable().enrollable()
+
+            # TODO: These queryset methods chain filter() and exclude() calls, causing
+            # prefetched results to be discarded.
+            course_runs = course.course_runs.exclude(hidden=True).marketable().enrollable()
 
         if self.context.get('published_course_runs_only'):
-            course_runs = course_runs.filter(status=CourseRunStatus.Published)
+            # filter() isn't used to avoid discarding prefetched results.
+            course_runs = [
+                course_run for course_run in course_runs if course_run.status == CourseRunStatus.Published
+            ]
 
         return CourseRunSerializer(
             course_runs,
