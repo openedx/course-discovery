@@ -1186,7 +1186,7 @@ class DashboardTests(TestCase):
         self.client.logout()
         self.client.login(username=UserFactory(), password=USER_PASSWORD)
         response = self.assert_dashboard_response(studio_count=0, published_count=0, progress_count=0, preview_count=0)
-        self._assert_tabs_without_roles(response)
+        self._assert_tabs_with_roles(response)
 
     @ddt.data('progress', 'preview', 'studio', 'published')
     def test_with_internal_group(self, tab):
@@ -1205,7 +1205,7 @@ class DashboardTests(TestCase):
         self.course_run_1.course.organizations.add(self.organization_extension.organization)
 
         response = self.assert_dashboard_response(studio_count=0, published_count=0, progress_count=0, preview_count=0)
-        self._assert_tabs_without_roles(response)
+        self._assert_tabs_with_roles(response)
 
     def test_with_permissions_with_data(self):
         """ Verify that user with assigned permission on course can see all tabs
@@ -1228,7 +1228,7 @@ class DashboardTests(TestCase):
         )
 
         response = self.assert_dashboard_response(studio_count=0, published_count=0, progress_count=2, preview_count=1)
-        self._assert_tabs_without_roles(response)
+        self._assert_tabs_with_roles(response)
 
     def test_studio_request_course_runs_as_pc(self):
         """ Verify that PC user can see only those courses on which he is assigned as PC role. """
@@ -1338,16 +1338,19 @@ class DashboardTests(TestCase):
 
         return response
 
-    def _assert_tabs_without_roles(self, response):
-        """ Dry method to assert the tabs data."""
-        self.assertContains(response, '<li role="tab" id="tab-progress" class="tab"')
-        for tab in ['preview', 'studio', 'published']:
-            self.assertNotIn(
-                '<li role="tab" id="tab-{tab}" class="tab"'.format(tab=tab), response.content.decode('UTF-8')
-            )
-
     def _assert_tabs_with_roles(self, response):
         """ Dry method to assert the tabs data."""
+        for tab in ['progress', 'preview', 'published']:
+            self.assertContains(response, '<li role="tab" id="tab-{tab}" class="tab"'.format(tab=tab))
+
+    def test_tabs_with_pc(self):
+        """Verify that only pc use can see studio request tab on dashboard."""
+        pc_user = UserFactory()
+        pc_user.groups.add(Group.objects.get(name=PROJECT_COORDINATOR_GROUP_NAME))
+        self.client.logout()
+        self.client.login(username=pc_user.username, password=USER_PASSWORD)
+
+        response = self.client.get(self.page_url)
         for tab in ['progress', 'preview', 'studio', 'published']:
             self.assertContains(response, '<li role="tab" id="tab-{tab}" class="tab"'.format(tab=tab))
 

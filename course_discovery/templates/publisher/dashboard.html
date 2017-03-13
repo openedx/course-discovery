@@ -13,22 +13,23 @@
         <ul role="tablist" class="tabs">
             <li role="tab" id="tab-progress" class="tab" aria-selected="true" aria-expanded="false"
                     aria-controls="progress" tabindex="0">
-                    <span>{{ in_progress_count }}</span>{% trans "IN PROGRESS" %}
+                    <span>{{ in_progress_count }}</span>{% trans "IN DEVELOPMENT" %}
             </li>
-            {% if can_view_all_tabs %}
-                <li role="tab" id="tab-preview" class="tab" aria-selected="false" aria-expanded="false"
-                    aria-controls="preview" tabindex="-1">
-                    <span>{{ preview_count }}</span>{% trans "PREVIEW READY" %}
-                </li>
+            <li role="tab" id="tab-preview" class="tab" aria-selected="false" aria-expanded="false"
+                aria-controls="preview" tabindex="-1">
+                <span>{{ preview_count }}</span>{% trans "PREVIEW READY" %}
+            </li>
+            {% if is_project_coordinator %}
                 <li role="tab" id="tab-studio" class="tab" aria-selected="false" aria-expanded="true"
                     aria-controls="studio" tabindex="-1" data-studio-count="{{ studio_count }}">
                     <span id="studio-count">{{ studio_count }}</span>{% trans "STUDIO REQUEST" %}
                 </li>
-                <li role="tab" id="tab-published" class="tab" aria-selected="false" aria-expanded="false"
-                    aria-controls="published" tabindex="-1">
-                    <span>{{ published_count }}</span>{% trans "PUBLISHED COURSE RUNS" %}
-                </li>
             {% endif %}
+            <li role="tab" id="tab-published" class="tab" aria-selected="false" aria-expanded="false"
+                aria-controls="published" tabindex="-1">
+                <span>{{ published_count }}</span>{% trans "PUBLISHED COURSE RUNS" %}
+            </li>
+
         </ul>
 
         <div role="tabpanel" id="progress" class="tab-panel" aria-labelledby="tab-progress" aria-hidden="false" tabindex="-1">
@@ -40,9 +41,12 @@
             <p></p>
         </div>
 
-        <div role="tabpanel" id="studio" class="tab-panel" aria-labelledby="tab-studio" aria-hidden="false" tabindex="0">
-            {% include "publisher/dashboard/_studio_requests.html" %}
-        </div>
+        {% if is_project_coordinator %}
+            <div role="tabpanel" id="studio" class="tab-panel" aria-labelledby="tab-studio" aria-hidden="false" tabindex="0">
+                {% include "publisher/dashboard/_studio_requests.html" %}
+            </div>
+        {% endif %}
+
         <div role="tabpanel" id="published" class="tab-panel" aria-labelledby="tab-published" aria-hidden="false" tabindex="0">
             {% include "publisher/dashboard/_published.html" %}
         </div>
