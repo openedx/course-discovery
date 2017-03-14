@@ -20,10 +20,9 @@
                 {% endfor %}
             {% endif %}
             <p>
-                {% trans "The information in the Studio Instance section is required before edX can create a Studio instance for the course run." %}
-            </p>
-            <p class="{% if publisher_hide_features_for_pilot %}hidden{% endif %}">
-                {% trans "The information in the About Page section is not required before edX creates a Studio instance for the course run. You can return to this page and enter this information later. This information is required before edX announces the course." %}
+                {% trans "To add or edit information about this course, make changes on this page and then select" %}
+                <strong>{% trans "Update Course." %}</strong>
+                {% trans "All required fields must be complete before this course can be sent for review." %}
             </p>
             <form class="form" method="post" action="" enctype="multipart/form-data">{% csrf_token %}
                 <div class="layout-full publisher-layout layout">
@@ -130,15 +129,8 @@
                                 </div>
                             </fieldset>
                         </div>
-                    </div>
-                </div>
 
-
-                <div class="layout-full publisher-layout layout {% if publisher_hide_features_for_pilot %}hidden{% endif %}">
-                    <h2 class="layout-title">{% trans "About page information" %}</h2>
-                    <p>{% trans "You can enter this information at any time before edX publishes the About page." %}</p>
-                    <p>{% trans "You must enter this information both in this section and in Studio." %}</p>
-                    <div class="card course-form">
+                        <div class="{% if publisher_hide_features_for_pilot %}hidden{% endif %}">
                         <div class="course-information">
                             <fieldset class="form-group grid-container grid-manual">
                                 <div class="field-title">{% trans "BRIEF DESCRIPTION" %}</div>
@@ -390,6 +382,7 @@
                                 </div>
                             </fieldset>
                         </div>
+                    </div>
                     </div>
                 </div>
 
