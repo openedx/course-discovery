@@ -2366,7 +2366,7 @@ class CourseRunEditViewTests(TestCase):
         """
         toggle_switch('publisher_hide_features_for_pilot', True)
         response = self.client.get(self.edit_page_url)
-        self.assertContains(response, '<div id="about-page" class="layout-full publisher-layout layout hidden">')
+        self.assertContains(response, '<div id="about-page" class="course-information hidden">')
 
     def test_page_with_disable_waffle_switch(self):
         """
@@ -2375,7 +2375,7 @@ class CourseRunEditViewTests(TestCase):
         """
         toggle_switch('publisher_hide_features_for_pilot', False)
         response = self.client.get(self.edit_page_url)
-        self.assertContains(response, '<div id="about-page" class="layout-full publisher-layout layout ">')
+        self.assertContains(response, '<div id="about-page" class="course-information ">')
 
 
 class CourseRevisionViewTests(TestCase):

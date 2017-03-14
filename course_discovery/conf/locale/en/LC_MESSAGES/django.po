@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-14 12:15+0500\n"
+"POT-Creation-Date: 2017-03-14 14:33+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -1241,7 +1241,6 @@ msgid "etc."
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid "About page information"
 msgstr ""
@@ -1273,17 +1272,29 @@ msgid "Save Draft"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
-msgid "Course Form"
-msgstr ""
-
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Edit Course"
+msgid "Edit Course Run"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/courses.html
 msgid "Create New Course"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#, python-format
+msgid ""
+"To add or edit information about this course run, make changes on this page "
+"and then select %(strong_start)sUpdate Course Run%(strong_end)s. All "
+"required fields must be complete before this course run can be sent for "
+"review."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#, python-format
+msgid ""
+"%(strong_start)sNote:%(strong_end)s If you edit course information after edX"
+" marketing has reviewed the course, you have to send the course to edX "
+"marketing for review again."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
@@ -1295,6 +1306,10 @@ msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 msgid "All of the following information is required."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+msgid "About Page Information"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
@@ -1829,6 +1844,10 @@ msgid ""
 "publishes the course About page."
 msgstr ""
 
+#: templates/publisher/add_update_course_form.html
+msgid "Update Course Run"
+msgstr ""
+
 #: templates/publisher/admin/add_user_form.html
 msgid ""
 "First, enter a username and select a group. Then, you'll be able to edit "
@@ -1908,6 +1927,10 @@ msgid ""
 "\n"
 "                        Created %(created_date)s at %(created_time)s by %(created_by)s\n"
 "                    "
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Edit Course"
 msgstr ""
 
 #: templates/publisher/course_edit_form.html
