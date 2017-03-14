@@ -3,14 +3,18 @@
 {% load staticfiles %}
 
 {% block title %}
-    {% trans "Course Form" %}
+    {% if edit_mode %}
+        {% trans "Edit Course Run" %}
+    {% else %}
+        {% trans "Create New Course" %}
+    {% endif %}
 {% endblock title %}
 
 {% block page_content %}
 <div>
 <h1 class="hd-1 emphasized">
     {% if edit_mode %}
-        {% trans "Edit Course" %}
+        {% trans "Edit Course Run" %}
     {% else %}
         {% trans "Create New Course" %}
     {% endif %}
@@ -24,17 +28,36 @@
     </div>
     {% endfor %}
 {% endif %}
-<p>
-    {% blocktrans with strong_start='<strong>' strong_end='</strong>' trimmed %}
-        To create a parent course, enter the following information about the course and select {{ strong_start }}Create New Course{{  strong_end }}.
-    {% endblocktrans %}
-    <strong class="required">{% trans "All of the following information is required." %}</strong>
-</p>
+{% if edit_mode %}
+    <p>
+        {% blocktrans with strong_start='<strong>' strong_end='</strong>' trimmed %}
+            To add or edit information about this course run, make changes on this page and then select {{ strong_start }}Update Course Run{{  strong_end }}. All required fields must be complete before this course run can be sent for review.
+        {% endblocktrans %}
+    </p>
+    <p>
+        {% blocktrans with strong_start='<strong>' strong_end='</strong>' trimmed %}
+            {{ strong_start }}Note:{{  strong_end }} If you edit course information after edX marketing has reviewed the course, you have to send the course to edX marketing for review again.
+        {% endblocktrans %}
+    </p>
+{% else %}
+    <p>
+        {% blocktrans with strong_start='<strong>' strong_end='</strong>' trimmed %}
+            To create a parent course, enter the following information about the course and select {{ strong_start }}Create New Course{{  strong_end }}.
+        {% endblocktrans %}
+        <strong class="required">{% trans "All of the following information is required." %}</strong>
+    </p>
+{% endif %}
 <form class="form" method="post" action="" enctype="multipart/form-data">
 {% csrf_token %}
 <div class="layout-full publisher-layout layout">
 
-    <h2 class="layout-title">{% trans "Studio Instance" %}</h2>
+    <h2 class="layout-title">
+        {% if edit_mode %}
+            {% trans "About Page Information" %}
+        {% else %}
+            {% trans "Studio Instance" %}
+        {% endif %}
+    </h2>
 
     <div class="card course-form">
         <div class="course-information">
@@ -213,14 +236,8 @@
                 {% endif %}
             </fieldset>
         </div>
-    </div>
-</div>
-
-{% if edit_mode %}
-    <div id="about-page" class="layout-full publisher-layout layout {% if publisher_hide_features_for_pilot %}hidden{% endif %}">
-        <h2 class="layout-title">{% trans "About page information" %}</h2>
-        <div class="card course-form">
-            <div class="course-information">
+        {% if edit_mode %}
+            <div id="about-page" class="course-information {% if publisher_hide_features_for_pilot %}hidden{% endif %}">
                 <fieldset class="form-group grid-container grid-manual">
                     <div class="field-title">{% trans "PROGRAM ASSOCIATION" %}</div>
                     <div class="row">
@@ -571,7 +588,7 @@
                             <label class="field-label ">{{ run_form.transcript_languages.label_tag }}</label>
                             {{ run_form.transcript_languages}}
 
-                            <label class="field-label ">{{ run_form.video_language.label_tag }}</label>
+                            <label class="field-label margin-top20">{{ run_form.video_language.label_tag }}</label>
                             {{ run_form.video_language}}
 
                         </div>
@@ -605,20 +622,21 @@
                     </div>
                 </fieldset>
             </div>
-        </div>
+        {% endif %}
+    </div>
+</div>
+{% if not edit_mode %}
+    <div class="layout-full layout">
+        <p>{% trans "After you submit this information, an edX project coordinator creates an instance for the course as well as a course run in Studio. When the Studio instance is ready, you will receive an email notification. You can then enter course content in Studio." %}</p>
+        <p>{% trans "If you have additional information for your course About page, you can enter it on the next page. You can edit this information at any time before edX publishes the course About page." %}</p>
     </div>
 {% endif %}
-<div class="layout-full layout">
-
-    <p>{% trans "After you submit this information, an edX project coordinator creates an instance for the course as well as a course run in Studio. When the Studio instance is ready, you will receive an email notification. You can then enter course content in Studio." %}</p>
-    <p>{% trans "If you have additional information for your course About page, you can enter it on the next page. You can edit this information at any time before edX publishes the course About page." %}</p>
-</div>
 <div class="course-form">
     <div class="course-information action-buttons">
         <a href="{% url 'publisher:publisher_courses' %}">{% trans "Cancel" %}</a>
-        <button class="btn-brand btn-base" type="submit">
+        <button class="btn-brand btn-base btn-save" type="submit">
             {% if edit_mode %}
-                {% trans "Edit Course" %}
+                {% trans "Update Course Run" %}
             {% else %}
                 {% trans "Create New Course" %}
             {% endif %}

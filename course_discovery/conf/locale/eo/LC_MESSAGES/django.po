@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-14 12:15+0500\n"
+"POT-Creation-Date: 2017-03-14 14:33+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -1445,7 +1445,6 @@ msgid "etc."
 msgstr "étç. Ⱡ'σяєм ι#"
 
 #: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid "About page information"
 msgstr "Àßöüt pägé ïnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
@@ -1481,18 +1480,47 @@ msgid "Save Draft"
 msgstr "Sävé Dräft Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: templates/publisher/add_update_course_form.html
-msgid "Course Form"
-msgstr "Çöürsé Förm Ⱡ'σяєм ιρѕυм ∂σłσя #"
-
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Edit Course"
-msgstr "Édït Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя #"
+msgid "Edit Course Run"
+msgstr "Édït Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/courses.html
 msgid "Create New Course"
 msgstr "Çréäté Néw Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: templates/publisher/add_update_course_form.html
+#, python-format
+msgid ""
+"To add or edit information about this course run, make changes on this page "
+"and then select %(strong_start)sUpdate Course Run%(strong_end)s. All "
+"required fields must be complete before this course run can be sent for "
+"review."
+msgstr ""
+"Tö ädd ör édït ïnförmätïön äßöüt thïs çöürsé rün, mäké çhängés ön thïs pägé "
+"änd thén séléçt %(strong_start)sÛpdäté Çöürsé Rün%(strong_end)s. Àll "
+"réqüïréd fïélds müst ßé çömplété ßéföré thïs çöürsé rün çän ßé sént för "
+"révïéw. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ "
+"єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм"
+" νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα "
+"¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт"
+" єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт#"
+
+#: templates/publisher/add_update_course_form.html
+#, python-format
+msgid ""
+"%(strong_start)sNote:%(strong_end)s If you edit course information after edX"
+" marketing has reviewed the course, you have to send the course to edX "
+"marketing for review again."
+msgstr ""
+"%(strong_start)sNöté:%(strong_end)s Ìf ýöü édït çöürsé ïnförmätïön äftér édX"
+" märkétïng häs révïéwéd thé çöürsé, ýöü hävé tö sénd thé çöürsé tö édX "
+"märkétïng för révïéw ägäïn. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя "
+"α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα"
+" αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ "
+"ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη "
+"яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα "
+"ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι "
+"σƒƒι¢ια ∂єѕєяυηт мσłłιт αη#"
 
 #: templates/publisher/add_update_course_form.html
 #, python-format
@@ -1509,6 +1537,10 @@ msgid "All of the following information is required."
 msgstr ""
 "Àll öf thé föllöwïng ïnförmätïön ïs réqüïréd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
+
+#: templates/publisher/add_update_course_form.html
+msgid "About Page Information"
+msgstr "Àßöüt Pägé Ìnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_edit_form.html
@@ -2205,6 +2237,10 @@ msgstr ""
 "яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα "
 "ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕ#"
 
+#: templates/publisher/add_update_course_form.html
+msgid "Update Course Run"
+msgstr "Ûpdäté Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
 #: templates/publisher/admin/add_user_form.html
 msgid ""
 "First, enter a username and select a group. Then, you'll be able to edit "
@@ -2290,6 +2326,10 @@ msgstr ""
 "\n"
 "                        Çréätéd %(created_date)s ät %(created_time)s ßý %(created_by)s\n"
 "                     Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
+
+#: templates/publisher/course_edit_form.html
+msgid "Edit Course"
+msgstr "Édït Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
