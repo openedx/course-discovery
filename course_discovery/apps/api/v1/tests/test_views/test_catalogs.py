@@ -3,6 +3,7 @@ import datetime
 import urllib
 
 import ddt
+import pytest
 import pytz
 import responses
 from django.contrib.auth import get_user_model
@@ -15,12 +16,14 @@ from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
+from course_discovery.apps.course_metadata.models import Course
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, SeatFactory
 
 User = get_user_model()
 
 
 @ddt.ddt
+@pytest.mark.usefixtures('course_run_states')
 class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixin, APITestCase):
     """ Tests for the catalog resource. """
     catalog_list_url = reverse('api:v1:catalog-list')
@@ -130,8 +133,8 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
         catalog = Catalog.objects.latest()
         latest_user = User.objects.latest()
-        self.assertEqual(latest_user.username, new_viewer_username)
-        self.assertListEqual(list(catalog.viewers), [existing_viewer, latest_user])
+        assert latest_user.username == new_viewer_username
+        assert set(catalog.viewers) == {existing_viewer, latest_user}
 
     def test_create_with_new_user_error(self):
         """ Verify no users are created if an error occurs while processing a create request. """
@@ -146,44 +149,43 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.assertEqual(User.objects.count(), original_user_count)
 
     def test_courses(self):
-        """ Verify the endpoint returns the list of courses contained in the catalog. """
+        """
+        Verify the endpoint returns the list of available courses contained in
+        the catalog, and that courses appearing in the response always have at
+        least one serialized run.
+        """
         url = reverse('api:v1:catalog-courses', kwargs={'id': self.catalog.id})
 
-        # This run is published, has seats, and has a valid slug. We expect its
-        # parent course to be included in the response.
-        SeatFactory(course_run=self.course_run)
-        included_courses = [self.course]
+        for state in self.states():
+            Course.objects.all().delete()
 
-        # These courses/course runs should not be returned because they are no longer open for enrollment.
-        past = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=30)
-        excluded_runs = [
-            # Despite the enrollment end date for this run being in the past, we
-            # still expect the parent course to be in the response. It had an active
-            # run associated with it above.
-            CourseRunFactory(enrollment_end=past, course=self.course),
-            # The course associated with this run is included in the catalog query,
-            # but the run is not active, so we don't expect to see the associated
-            # course in the response.
-            CourseRunFactory(enrollment_end=past, course__title='ABC Test Course 2'),
-        ]
-        for course_run in excluded_runs:
-            SeatFactory(course_run=course_run)
+            course_run = CourseRunFactory(course__title='ABC Test Course')
+            for function in state:
+                function(course_run)
 
-        # The course associated with this run is included in the catalog query,
-        # but the run is not marketable (no seats), so we don't expect to see the
-        # associated course in the response.
-        future = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=30)
-        CourseRunFactory(
-            enrollment_end=future,
-            end=future,
-            course__title='ABC Test Course 3'
-        )
+            course_run.save()
 
-        with self.assertNumQueries(27):
-            response = self.client.get(url)
+            if state in self.available_states:
+                course = course_run.course
 
-        assert response.status_code == 200
-        assert response.data['results'] == self.serialize_catalog_course(included_courses, many=True)
+                # This run has no seats, but we still expect its parent course
+                # to be included.
+                CourseRunFactory(course=course)
+
+                with self.assertNumQueries(26):
+                    response = self.client.get(url)
+
+                assert response.status_code == 200
+                assert response.data['results'] == self.serialize_catalog_course([course], many=True)
+
+                # Any course appearing in the response must have at least one serialized run.
+                assert len(response.data['results'][0]['course_runs']) > 0
+            else:
+                with self.assertNumQueries(3):
+                    response = self.client.get(url)
+
+                assert response.status_code == 200
+                assert response.data['results'] == []
 
     def test_contains_for_course_key(self):
         """

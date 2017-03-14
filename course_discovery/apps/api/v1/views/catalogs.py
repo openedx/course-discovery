@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.renderers import CourseRunCSVRenderer
-from course_discovery.apps.api.v1.views import User, prefetch_related_objects_for_courses
+from course_discovery.apps.api.v1.views import User
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.models import CourseRun
 
@@ -86,14 +86,14 @@ class CatalogViewSet(viewsets.ModelViewSet):
 
         Only courses with at least one active and marketable course run are returned.
         ---
-        serializer: serializers.CourseSerializerExcludingClosedRuns
+        serializer: serializers.CatalogCourseSerializer
         """
         catalog = self.get_object()
-        queryset = catalog.courses().active().marketable()
-        queryset = prefetch_related_objects_for_courses(queryset)
+        queryset = catalog.courses().available()
+        queryset = serializers.CatalogCourseSerializer.prefetch_queryset(queryset=queryset)
 
         page = self.paginate_queryset(queryset)
-        serializer = serializers.CourseSerializerExcludingClosedRuns(page, many=True, context={'request': request})
+        serializer = serializers.CatalogCourseSerializer(page, many=True, context={'request': request})
         return self.get_paginated_response(serializer.data)
 
     @detail_route()
