@@ -8,16 +8,20 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus, Progr
 
 
 class CourseQuerySet(models.QuerySet):
-    def active(self):
+    def available(self):
         """
-        Filter Courses to those with CourseRuns that have not yet ended and are
-        either open for enrollment or will be open for enrollment in the future.
+        A Course is considered to be "available" if it contains at least one CourseRun
+        that can be enrolled in immediately, is ongoing or yet to start, and appears
+        on the marketing site.
         """
         now = datetime.datetime.now(pytz.UTC)
-        return self.filter(
+
+        # A CourseRun is "enrollable" if its enrollment start date has passed,
+        # is now, or is None, and its enrollment end date is in the future or is None.
+        enrollable = (
             (
-                Q(course_runs__end__gt=now) |
-                Q(course_runs__end__isnull=True)
+                Q(course_runs__enrollment_start__lte=now) |
+                Q(course_runs__enrollment_start__isnull=True)
             ) &
             (
                 Q(course_runs__enrollment_end__gt=now) |
@@ -25,24 +29,28 @@ class CourseQuerySet(models.QuerySet):
             )
         )
 
-    def marketable(self):
-        """
-        Filter Courses to those with CourseRuns that can be marketed. A CourseRun
-        is deemed marketable if it has a defined slug, has seats, and has been published.
-        """
+        # A CourseRun is "not ended" if its end date is in the future or is None.
+        not_ended = (
+            Q(course_runs__end__gt=now) | Q(course_runs__end__isnull=True)
+        )
+
+        # A CourseRun is "marketable" if it has a non-empty slug, has seats, and
+        # is has a "published" status.
+        marketable = (
+            (
+                Q(course_runs__slug__isnull=False) & ~Q(course_runs__slug='')
+            ) &
+            Q(course_runs__seats__isnull=False) &
+            Q(course_runs__status=CourseRunStatus.Published)
+        )
+
         # exclude() is intentionally avoided here. We want Courses to be included
-        # in the resulting queryset if only one of their runs matches our "marketable"
+        # in the resulting queryset if at least one of their runs matches our availability
         # criteria. For example, consider a Course with two CourseRuns; one of the
         # runs is published while the other is not. If you used exclude(), the Course
         # would be dropped from the queryset even though it has one run which matches
-        # our criteria.
-        return self.filter(
-            Q(course_runs__slug__isnull=False) & ~Q(course_runs__slug='')
-        ).filter(
-            course_runs__seats__isnull=False
-        ).filter(
-            course_runs__status=CourseRunStatus.Published
-        ).distinct()
+        # our availability criteria.
+        return self.filter(enrollable & not_ended & marketable)
 
 
 class CourseRunQuerySet(models.QuerySet):

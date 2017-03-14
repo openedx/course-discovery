@@ -477,8 +477,12 @@ class MinimalCourseSerializer(TimestampModelSerializer):
     image = ImageField(read_only=True, source='card_image_url')
 
     @classmethod
-    def prefetch_queryset(cls):
-        return Course.objects.all().select_related('partner').prefetch_related(
+    def prefetch_queryset(cls, queryset=None):
+        # Explicitly check for None to avoid returning all Courses when the
+        # queryset passed in happens to be empty.
+        queryset = queryset if queryset is not None else Course.objects.all()
+
+        return queryset.select_related('partner').prefetch_related(
             'authoring_organizations',
             Prefetch('course_runs', queryset=MinimalCourseRunSerializer.prefetch_queryset()),
         )
@@ -501,8 +505,12 @@ class CourseSerializer(MinimalCourseSerializer):
     marketing_url = serializers.SerializerMethodField()
 
     @classmethod
-    def prefetch_queryset(cls):
-        return Course.objects.all().select_related('level_type', 'video', 'partner').prefetch_related(
+    def prefetch_queryset(cls, queryset=None):
+        # Explicitly check for None to avoid returning all Courses when the
+        # queryset passed in happens to be empty.
+        queryset = queryset if queryset is not None else Course.objects.all()
+
+        return queryset.select_related('level_type', 'video', 'partner').prefetch_related(
             'expected_learning_items',
             'prerequisites',
             'subjects',
@@ -581,12 +589,23 @@ class CourseWithProgramsSerializer(CourseSerializer):
         fields = CourseSerializer.Meta.fields + ('programs',)
 
 
-class CourseSerializerExcludingClosedRuns(CourseSerializer):
-    """A ``CourseSerializer`` which only includes active course runs, as determined by ``CourseQuerySet``."""
+class CatalogCourseSerializer(CourseSerializer):
+    """
+    A CourseSerializer which only includes course runs that can be enrolled in
+    immediately, are ongoing or yet to start, and appear on the marketing site
+    (i.e., sellable runs that should appear in a catalog distributed to affiliates).
+    """
     course_runs = serializers.SerializerMethodField()
 
     def get_course_runs(self, course):
-        return CourseRunSerializer(course.course_runs.active().marketable(), many=True, context=self.context).data
+        return CourseRunSerializer(
+            # TODO: These queryset methods chain filter() and exclude() calls,
+            # causing prefetched results to be discarded. They should be replaced
+            # with Python-based filtering that preserves the prefetched data.
+            course.course_runs.active().enrollable().marketable(),
+            many=True,
+            context=self.context
+        ).data
 
 
 class ContainedCoursesSerializer(serializers.Serializer):

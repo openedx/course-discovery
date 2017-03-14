@@ -1,6 +1,8 @@
+# pylint: disable=no-member
 import datetime
 
 import ddt
+import pytest
 import pytz
 from django.test import TestCase
 
@@ -9,69 +11,33 @@ from course_discovery.apps.course_metadata.models import Course, CourseRun, Prog
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory, SeatFactory
 
 
+@pytest.mark.usefixtures('course_run_states')
 class CourseQuerySetTests(TestCase):
-    def test_active(self):
+    def test_available(self):
         """
-        Verify the method filters Courses to those with active CourseRuns.
+        Verify the method filters Courses to those which contain at least one
+        CourseRun that can be enrolled in immediately, is ongoing or yet to start,
+        and appears on the marketing site.
         """
-        now = datetime.datetime.now(pytz.UTC)
-        active_course_end = now + datetime.timedelta(days=60)
-        inactive_course_end = now - datetime.timedelta(days=15)
-        open_enrollment_end = now + datetime.timedelta(days=30)
-        closed_enrollment_end = now - datetime.timedelta(days=30)
+        for state in self.states():
+            Course.objects.all().delete()
 
-        # Create an active, enrollable course run
-        active_course = CourseRunFactory(enrollment_end=open_enrollment_end, end=active_course_end).course
+            course_run = CourseRunFactory()
+            for function in state:
+                function(course_run)
 
-        # Create an active, unenrollable course run
-        CourseRunFactory(enrollment_end=closed_enrollment_end, end=active_course_end, course__title='ABC Test Course 2')
+            course_run.save()
 
-        # Create an inactive, unenrollable course run
-        CourseRunFactory(enrollment_end=closed_enrollment_end, end=inactive_course_end)
+            if state in self.available_states:
+                course = course_run.course
 
-        # Create an active course run with an unspecified enrollment end
-        course_without_enrollment_end = CourseRunFactory(enrollment_end=None, end=active_course_end).course
+                # This run has no seats, but we still expect its parent course
+                # to be included.
+                CourseRunFactory(course=course)
 
-        # Create an inactive course run with an unspecified enrollment end
-        CourseRunFactory(enrollment_end=None, end=inactive_course_end)
-
-        # Create an enrollable course run with an unspecified end date
-        course_without_end = CourseRunFactory(enrollment_end=open_enrollment_end, end=None).course
-
-        assert set(Course.objects.active()) == {
-            active_course, course_without_enrollment_end, course_without_end
-        }
-
-    def test_marketable(self):
-        """
-        Verify the method filters Courses to those with marketable CourseRuns.
-        """
-        # Courses whose runs have null or empty slugs are excluded, even if
-        # those runs are published and have seats.
-        for invalid_slug in (None, ''):
-            excluded_course_run = CourseRunFactory(slug=invalid_slug)
-            SeatFactory(course_run=excluded_course_run)
-
-        # Courses whose runs have no seats are excluded, even if those runs
-        # are published and have valid slugs.
-        CourseRunFactory()
-
-        # Courses whose runs are unpublished are excluded, even if those runs
-        # have seats and valid slugs.
-        excluded_course_run = CourseRunFactory(status=CourseRunStatus.Unpublished)
-        SeatFactory(course_run=excluded_course_run)
-
-        # Courses with at least one run that is published and has seats and a valid
-        # slug are included.
-        included_course_run = CourseRunFactory()
-        SeatFactory(course_run=included_course_run)
-
-        included_course = included_course_run.course
-        # This run has no seats and will be excluded, but we still expect its parent
-        # course to be included.
-        CourseRunFactory(course=included_course)
-
-        assert set(Course.objects.marketable()) == {included_course}
+                assert set(Course.objects.available()) == {course}
+            else:
+                assert set(Course.objects.available()) == set()
 
 
 @ddt.ddt
