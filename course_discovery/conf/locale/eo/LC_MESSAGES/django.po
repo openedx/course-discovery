@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-15 12:12+0500\n"
+"POT-Creation-Date: 2017-03-15 13:14+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1497,7 +1497,6 @@ msgid "BIO1.1x; BIO1.2x etc."
 msgstr "BÌÖ1.1x; BÌÖ1.2x étç. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: templates/publisher/add_courserun_form.html
-#: templates/publisher/course_edit_form.html
 msgid "About page information"
 msgstr "Àßöüt pägé ïnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
@@ -2247,27 +2246,23 @@ msgstr "Édït Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
-"The information in the Studio Instance section is required before edX can "
-"create a Studio instance for the course run."
+"To add or edit information about this course, make changes on this page and "
+"then select"
 msgstr ""
-"Thé ïnförmätïön ïn thé Stüdïö Ìnstänçé séçtïön ïs réqüïréd ßéföré édX çän "
-"çréäté ä Stüdïö ïnstänçé för thé çöürsé rün. Ⱡ'σяєм ιρѕυм #"
+"Tö ädd ör édït ïnförmätïön äßöüt thïs çöürsé, mäké çhängés ön thïs pägé änd "
+"thén séléçt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+
+#: templates/publisher/course_edit_form.html
+msgid "Update Course."
+msgstr "Ûpdäté Çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
-"The information in the About Page section is not required before edX creates"
-" a Studio instance for the course run. You can return to this page and enter"
-" this information later. This information is required before edX announces "
-"the course."
+"All required fields must be complete before this course can be sent for "
+"review."
 msgstr ""
-"Thé ïnförmätïön ïn thé Àßöüt Pägé séçtïön ïs nöt réqüïréd ßéföré édX çréätés"
-" ä Stüdïö ïnstänçé för thé çöürsé rün. Ýöü çän rétürn tö thïs pägé änd éntér"
-" thïs ïnförmätïön lätér. Thïs ïnförmätïön ïs réqüïréd ßéföré édX ännöünçés "
-"thé çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ "
-"∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ "
-"мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ "
-"єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє "
-"νєłιт єѕѕє#"
+"Àll réqüïréd fïélds müst ßé çömplété ßéföré thïs çöürsé çän ßé sént för "
+"révïéw. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
@@ -2276,20 +2271,6 @@ msgid ""
 msgstr ""
 "Thïs ïnförmätïön ïs réqüïréd ßéföré édX çän çréäté ä Stüdïö ïnstänçé för ä "
 "çöürsé rün. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
-
-#: templates/publisher/course_edit_form.html
-msgid ""
-"You can enter this information at any time before edX publishes the About "
-"page."
-msgstr ""
-"Ýöü çän éntér thïs ïnförmätïön ät äný tïmé ßéföré édX püßlïshés thé Àßöüt "
-"pägé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
-
-#: templates/publisher/course_edit_form.html
-msgid "You must enter this information both in this section and in Studio."
-msgstr ""
-"Ýöü müst éntér thïs ïnförmätïön ßöth ïn thïs séçtïön änd ïn Stüdïö. Ⱡ'σяєм "
-"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: templates/publisher/course_edit_form.html
 msgid "UPDATE COURSE"
