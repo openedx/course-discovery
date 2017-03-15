@@ -6,7 +6,9 @@ from guardian.shortcuts import get_group_perms
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
-from course_discovery.apps.publisher.constants import PROJECT_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME
+from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.constants import (PARTNER_MANAGER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME,
+                                                       PUBLISHER_GROUP_NAME, REVIEWER_GROUP_NAME)
 from course_discovery.apps.publisher.forms import CourseRunAdminForm
 from course_discovery.apps.publisher.models import CourseRun, OrganizationExtension
 from course_discovery.apps.publisher.tests import factories
@@ -15,7 +17,6 @@ USER_PASSWORD = 'password'
 
 
 # pylint: disable=no-member
-@ddt.ddt
 class AdminTests(TestCase):
     """ Tests Admin page."""
 
@@ -129,3 +130,37 @@ class OrganizationExtensionAdminTests(TestCase):
     def _assert_permissions(self, organization_extension, group, expected_permissions):
         permissions = get_group_perms(group, organization_extension)
         self.assertEqual(sorted(permissions), sorted(expected_permissions))
+
+
+@ddt.ddt
+class OrganizationUserRoleAdminTests(TestCase):
+    """ Tests for OrganizationUserRoleAdmin."""
+
+    def setUp(self):
+        super(OrganizationUserRoleAdminTests, self).setUp()
+        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.run_state = factories.CourseRunStateFactory()
+        self.admin_page_url = reverse('admin:publisher_organizationuserrole_add')
+
+    @ddt.data(
+        (PublisherUserRole.MarketingReviewer, REVIEWER_GROUP_NAME),
+        (PublisherUserRole.ProjectCoordinator, PROJECT_COORDINATOR_GROUP_NAME),
+        (PublisherUserRole.Publisher, PUBLISHER_GROUP_NAME),
+        (PublisherUserRole.PartnerManager, PARTNER_MANAGER_GROUP_NAME)
+    )
+    @ddt.unpack
+    def test_organization_user_role_groups(self, role, group_name):
+        """
+        Verify that a group is assigned to user according to its role upon OrganizationUserRole creation.
+        """
+        test_organization = OrganizationFactory()
+        test_user = UserFactory()
+        post_data = {
+            'organization': test_organization.id, 'user': test_user.id, 'role': role
+        }
+
+        self.client.post(self.admin_page_url, data=post_data)
+
+        # Verify that user is added to Marketing Reviewers group.
+        self.assertIn(Group.objects.get(name=group_name), test_user.groups.all())

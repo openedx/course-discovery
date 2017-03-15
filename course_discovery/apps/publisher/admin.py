@@ -4,7 +4,9 @@ from django.contrib.auth.models import Group
 from guardian.admin import GuardedModelAdmin
 from guardian.shortcuts import assign_perm
 
-from course_discovery.apps.publisher.constants import PROJECT_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME
+from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.constants import (PARTNER_MANAGER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME,
+                                                       PUBLISHER_GROUP_NAME, REVIEWER_GROUP_NAME)
 from course_discovery.apps.publisher.forms import (CourseRunAdminForm, CourseUserRoleForm, OrganizationUserRoleForm,
                                                    PublisherUserCreationForm, UserAttributesAdminForm)
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
@@ -62,6 +64,20 @@ class UserAttributesAdmin(admin.ModelAdmin):
 @admin.register(OrganizationUserRole)
 class OrganizationUserRoleAdmin(admin.ModelAdmin):
     form = OrganizationUserRoleForm
+    role_groups_dict = {
+        PublisherUserRole.MarketingReviewer: REVIEWER_GROUP_NAME,
+        PublisherUserRole.ProjectCoordinator: PROJECT_COORDINATOR_GROUP_NAME,
+        PublisherUserRole.Publisher: PUBLISHER_GROUP_NAME,
+        PublisherUserRole.PartnerManager: PARTNER_MANAGER_GROUP_NAME
+    }
+
+    def save_model(self, request, obj, form, change):
+        obj.save()
+
+        # Assign user a group according to its role.
+        group = Group.objects.get(name=self.role_groups_dict.get(obj.role))
+        if group not in obj.user.groups.all():
+            obj.user.groups.add(group)
 
 
 @admin.register(CourseState)
