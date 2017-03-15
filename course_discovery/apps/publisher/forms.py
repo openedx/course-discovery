@@ -133,7 +133,7 @@ class CustomCourseForm(CourseForm):
     class Meta(CourseForm.Meta):
         model = Course
         widgets = {
-            'image': ClearableImageInput()
+            'image': ClearableImageInput(attrs={'accept': 'image/*'})
         }
         fields = (
             'title', 'number', 'short_description', 'full_description',
