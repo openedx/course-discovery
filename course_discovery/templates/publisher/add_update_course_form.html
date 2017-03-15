@@ -479,7 +479,11 @@
                         </div>
                         <div class="col col-6">
                             <label class="field-label ">{{ course_form.image.label_tag }}</label>
-                            <div class="course-image-field">{{ course_form.image }}</div>
+                            <div class="course-image-field">
+                                {{ course_form.image }}
+                                {{ course_form.image.errors }}
+                                <div class="image-error"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -657,6 +661,7 @@
      <script src="{% static 'js/publisher/course-tabs.js' %}"></script>
      <script src="{% static 'js/publisher/organizations.js' %}"></script>
      <script src="{% static 'js/publisher/seat-type-change.js' %}"></script>
+     <script src="{% static 'js/publisher/image-validation.js' %}"></script>
 {% endblock %}
 
 {% block js_without_compress %}

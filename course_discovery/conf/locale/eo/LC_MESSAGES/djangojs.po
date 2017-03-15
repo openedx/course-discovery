@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-15 18:26+0500\n"
+"POT-Creation-Date: 2017-03-20 12:29+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,6 +28,12 @@ msgstr "Hïdé çhängés Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 #: static/js/publisher/comparing-objects.js
 msgid "Show changes"
 msgstr "Shöw çhängés Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: static/js/publisher/image-validation.js
+msgid "The image file size cannot exceed 1 MB."
+msgstr ""
+"Thé ïmägé fïlé sïzé çännöt éxçééd 1 MB. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
 
 #: static/js/publisher/publisher.js
 msgid "Something went wrong!"

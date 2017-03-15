@@ -289,6 +289,7 @@
                                         <div class="course-image-field">
                                             {{ form.image }}
                                             {{ form.image.errors }}
+                                            <div class="image-error"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -404,4 +405,5 @@
     <script src="{% static 'js/publisher/publisher.js' %}"></script>
     <script src="{% static 'js/publisher/course-tabs.js' %}"></script>
     <script src="{% static 'js/publisher/organizations.js' %}"></script>
+    <script src="{% static 'js/publisher/image-validation.js' %}"></script>
 {% endblock %}
