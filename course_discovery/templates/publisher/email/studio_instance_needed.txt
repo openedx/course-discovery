@@ -4,7 +4,7 @@
 {% trans "Dear" %} {{ edx_pc_name }},
 </p>
 <p>
-{% trans "Please create a Studio instance for the following course." %}
+{% trans "Please create a Studio instance for the following course. After you create the Studio instance, enter the course key for that instance on the course run page in Publisher." %}
 </p>
 
 <ul>

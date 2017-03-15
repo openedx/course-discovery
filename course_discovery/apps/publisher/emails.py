@@ -120,7 +120,7 @@ def send_email_for_send_for_review(course, user):
     """
     txt_template = 'publisher/email/course/send_for_review.txt'
     html_template = 'publisher/email/course/send_for_review.html'
-    subject = _('Changes to {title} are ready for review').format(title=course.title)  # pylint: disable=no-member
+    subject = _('Review requested: {title}').format(title=course.title)  # pylint: disable=no-member
 
     try:
         recipient_user = course.marketing_reviewer
@@ -151,7 +151,7 @@ def send_email_for_mark_as_reviewed(course, user):
     """
     txt_template = 'publisher/email/course/mark_as_reviewed.txt'
     html_template = 'publisher/email/course/mark_as_reviewed.html'
-    subject = _('Changes to {title} has been approved').format(title=course.title)  # pylint: disable=no-member
+    subject = _('Review complete: {title}').format(title=course.title)  # pylint: disable=no-member
 
     try:
         recipient_user = course.marketing_reviewer
@@ -190,14 +190,21 @@ def send_course_workflow_email(course, user, subject, txt_template, html_templat
         project_coordinator = course.project_coordinator
         to_addresses = [recipient_user.email]
         from_address = settings.PUBLISHER_FROM_EMAIL
+
+        course_page_path = reverse('publisher:publisher_course_detail', kwargs={'pk': course.id})
+
         context.update(
             {
                 'recipient_name': recipient_user.full_name or recipient_user.username if recipient_user else '',
                 'sender_name': user.full_name or user.username,
                 'org_name': course.organizations.all().first().name,
                 'contact_us_email': project_coordinator.email if project_coordinator else '',
+                'course_page_url': 'https://{host}{path}'.format(
+                    host=Site.objects.get_current().domain.strip('/'), path=course_page_path
+                )
             }
         )
+
         template = get_template(txt_template)
         plain_content = template.render(context)
         template = get_template(html_template)
@@ -363,6 +370,7 @@ def send_email_preview_accepted(course_run):
                 to_addresses.append(project_coordinator.email)
             from_address = settings.PUBLISHER_FROM_EMAIL
             page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
+            course_page_path = reverse('publisher:publisher_course_detail', kwargs={'pk': course_run.course.id})
             context = {
                 'course_name': course.title,
                 'run_number': course_key.run,
@@ -372,6 +380,9 @@ def send_email_preview_accepted(course_run):
                 'contact_us_email': project_coordinator.email if project_coordinator else '',
                 'page_url': 'https://{host}{path}'.format(
                     host=Site.objects.get_current().domain.strip('/'), path=page_path
+                ),
+                'course_page_url': 'https://{host}{path}'.format(
+                    host=Site.objects.get_current().domain.strip('/'), path=course_page_path
                 )
             }
             template = get_template(txt_template)
@@ -413,6 +424,7 @@ def send_email_preview_page_is_available(course_run):
             from_address = settings.PUBLISHER_FROM_EMAIL
             project_coordinator = course_run.course.project_coordinator
             page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
+            course_page_path = reverse('publisher:publisher_course_detail', kwargs={'pk': course_run.course.id})
             context = {
                 'sender_role': PublisherUserRole.Publisher,
                 'recipient_name': course_team_user.get_full_name() or course_team_user.username,
@@ -422,6 +434,9 @@ def send_email_preview_page_is_available(course_run):
                 'contact_us_email': project_coordinator.email if project_coordinator else '',
                 'page_url': 'https://{host}{path}'.format(
                     host=Site.objects.get_current().domain.strip('/'), path=page_path
+                ),
+                'course_page_url': 'https://{host}{path}'.format(
+                    host=Site.objects.get_current().domain.strip('/'), path=course_page_path
                 ),
                 'platform_name': settings.PLATFORM_NAME
             }
@@ -465,6 +480,7 @@ def send_course_run_published_email(course_run):
             from_address = settings.PUBLISHER_FROM_EMAIL
             project_coordinator = course_run.course.project_coordinator
             page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
+            course_page_path = reverse('publisher:publisher_course_detail', kwargs={'pk': course_run.course.id})
             context = {
                 'sender_role': PublisherUserRole.Publisher,
                 'course_name': course_run.course.title,
@@ -474,6 +490,9 @@ def send_course_run_published_email(course_run):
                 'contact_us_email': project_coordinator.email if project_coordinator else '',
                 'page_url': 'https://{host}{path}'.format(
                     host=Site.objects.get_current().domain.strip('/'), path=page_path
+                ),
+                'course_page_url': 'https://{host}{path}'.format(
+                    host=Site.objects.get_current().domain.strip('/'), path=course_page_path
                 ),
                 'platform_name': settings.PLATFORM_NAME,
             }
@@ -507,8 +526,9 @@ def send_change_role_assignment_email(course_role, former_user):
     html_template = 'publisher/email/role_assignment_changed.html'
 
     try:
-        subject = _('Role assignment changed for role: {role_name} against {course_title}').format(  # pylint: disable=no-member
-            role_name=course_role.get_role_display(),
+        role_name = course_role.get_role_display()
+        subject = _('{role_name} changed for {course_title}').format(  # pylint: disable=no-member
+            role_name=role_name.lower(),
             course_title=course_role.course.title
         )
         to_addresses = course_role.course.get_course_users_emails()
@@ -521,7 +541,7 @@ def send_change_role_assignment_email(course_role, former_user):
         page_path = reverse('publisher:publisher_course_detail', kwargs={'pk': course_role.course.id})
         context = {
             'course_title': course_role.course.title,
-            'role_name': course_role.get_role_display(),
+            'role_name': role_name.lower(),
             'former_user_name': former_user.get_full_name() or former_user.username,
             'current_user_name': course_role.user.get_full_name() or course_role.user.username,
             'contact_us_email': project_coordinator.email if project_coordinator else '',

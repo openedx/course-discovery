@@ -4,7 +4,7 @@
     Dear {{ recipient_name }},
 {% endblocktrans %}
 {% blocktrans trimmed %}
-     The {{ sender_team }} has reviewed the {{ run_number }} course run of {{ course_name }} {{ page_url }}. You will receive another email when the course run preview is available for you to review.
+     The {{ sender_team }} has reviewed the {{ run_number }} {{ page_url }} course run of {{ course_name }} {{ course_page_url }}. You can now submit a request for a preview of the course run About page.
 {% endblocktrans %}
 
 {% trans "Thanks," %}

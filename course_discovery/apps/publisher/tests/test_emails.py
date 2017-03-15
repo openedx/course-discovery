@@ -270,7 +270,7 @@ class CourseRunSendForReviewEmailTests(TestCase):
         page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id})
         page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
         self.assertIn(page_url, body)
-        self.assertIn('Visit the course run details page to approve or decline this course run.', body)
+        self.assertIn('View this course run in Publisher to review the changes or suggest edits.', body)
 
 
 class CourseRunMarkAsReviewedEmailTests(TestCase):
@@ -372,7 +372,7 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
         page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id})
         page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
         self.assertIn(page_url, body)
-        self.assertIn('You will receive another email when the course run preview is available', body)
+        self.assertIn('You can now submit a request for a preview of the course run About page.', body)
 
 
 class CourseRunPreviewEmailTests(TestCase):
@@ -573,8 +573,8 @@ class CourseChangeRoleAssignmentEmailTests(TestCase):
         Verify that course role assignment chnage email functionality works fine.
         """
         emails.send_change_role_assignment_email(self.marketing_role, self.user)
-        expected_subject = 'Role assignment changed for role: {role_name} against {course_title}'.format(
-            role_name=self.marketing_role.get_role_display(),
+        expected_subject = '{role_name} changed for {course_title}'.format(
+            role_name=self.marketing_role.get_role_display().lower(),
             course_title=self.course.title
         )
 
@@ -588,7 +588,7 @@ class CourseChangeRoleAssignmentEmailTests(TestCase):
         page_path = reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id})
         page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
         self.assertIn(page_url, body)
-        self.assertIn('has been changed.', body)
+        self.assertIn('has changed.', body)
 
     def test_change_role_assignment_email_with_error(self):
         """

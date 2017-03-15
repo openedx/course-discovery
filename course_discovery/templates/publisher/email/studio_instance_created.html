@@ -2,6 +2,9 @@
 {% load i18n %}
 {% block body %}
 <!-- Message Body -->
+
+<!-- Is it still true that we need users to enter this info "both in Publisher and in Studio" (line 21)? -->
+
     <p>
         {% comment %}Translators: course_team_name is course team member name.{% endcomment %}
         {% blocktrans trimmed %}
@@ -9,7 +12,7 @@
         {% endblocktrans %}
     <p>
         {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' trimmed %}
-            EdX has {{ updated_text }} a Studio instance for {{ link_start }}{{ course_run_page_url }}{{ link_middle }} {{ course_name }} {{ link_end }}.
+            EdX has {{ updated_text }} a Studio instance for {{ link_start }}{{ course_run_page_url }}{{ link_middle }} {{ course_name }}{{ link_end }}.
             You can now edit this course and configure your course team in Studio.
         {% endblocktrans %}
     </p>
