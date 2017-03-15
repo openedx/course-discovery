@@ -45,25 +45,31 @@
                                                 {% trans "Best Practices" %}
                                             </li>
                                             <li class="course-tabs" data-tab="tab-example">
-                                                {% trans "Example" %}
+                                                {% trans "Examples" %}
                                             </li>
                                         </ul>
                                     </div>
                                     <div id="tab-practices" class="content active">
-                                        <p>{% trans "Concise 70 characters maximum; < 50 chars. recommended." %}</p>
-
-                                        <p>{% trans "Descriptive - clearly indicates what the course is about." %}</p>
-
-                                        <p>{% trans "SEO-optimized and targeted to a global audience." %}</p>
-
-                                        <p>{% trans 'If the course falls in a sequence, our titling convention is: "Course Title: Subtitle"' %}</p>
+                                        <p>{% trans "Maximum 70 characters. Recommended 50 or fewer characters." %}</p>
+                                        <p>{% trans "An effective course title:" %}</p>
+                                        <ul>
+                                            <li>{% trans "Clearly indicates the course subject matter." %}</li>
+                                            <li>{% trans "Follows search engine optimization (SEO) guidelines." %}</li>
+                                            <li>{% trans "Targets a global audience." %}</li>
+                                        </ul>
+                                        <p>{% trans "If the course is part of a sequence, include both sequence and course information as \"Sequence: Course\"." %}</p>
                                     </div>
                                     <div id="tab-example" class="content">
-                                        <p>"{% trans "English Grammar and Essay Writing" %}"</p>
-                                        <p>{% trans "Sequence Courses:" %}</p>
-                                        <p>"{% trans "Introduction to Statistics" %}"</p>
-                                        <p>"{% trans "Statistics: Inference" %}"</p>
-                                        <p>"{% trans "Statistics: Probability" %}"</p>
+                                        <p></p>
+                                        <strong>{% trans "Single Courses" %}</strong>
+                                        <ul>
+                                            <li>{% trans "English Grammar and Essay Writing" %}</li>
+                                        </ul>
+                                        <strong>{% trans "Sequence Courses:" %}</strong>
+                                        <ul>
+                                            <li>{% trans "Statistics: Inference" %}</li>
+                                            <li>{% trans "Statistics: Probability" %}</li>
+                                        </ul>
                                     </div>
                                 </div>
                                 <div class="col col-6">
@@ -71,7 +77,7 @@
                                     <label class="field-label ">
                                         <label class="field-label">
                                             {% trans "Course Title" %}
-                                        </label>
+                                    </label>
                                     </label>
                                     <span class="field-readonly">{{ parent_course.title }}</span>
                                     <div class="hidden">{{ course_form.title }}</div>
@@ -83,11 +89,11 @@
                                             {% if course_form.team_admin.field.required %}
                                                 <span class="required">* {% trans "required" %}</span>
                                             {% endif %}
-                                        </label>
+                                    </label>
                                         <div id="field-team-admin" {% if is_team_admin_hidden %}class="hidden"{% endif %}>
                                             {{ course_form.team_admin }}
-                                        </div>
-                                    </div>
+                                </div>
+                            </div>
                                     {% if parent_course.course_team_admin %}
                                         <div class="field-admin-name margin-top20 {% if course_form.team_admin.errors %}hidden{% endif %}">
                                             <span class="field-readonly">{{ parent_course.course_team_admin.full_name }}</span>
@@ -103,26 +109,20 @@
                             <div class="field-title">{% trans "COURSE START DATE" %}</div>
                             <div class="row">
                                 <div class="col col-6 help-text">
-                                    <div>
-                                        {% blocktrans %}
-                                            Start on a weekday (preferably Tuesday, Wednesday, or Thursday) and avoid major U.S. holidays
-                                            for best access to edX staff.
-                                        {% endblocktrans %}
-                                    </div>
-                                    <div>
-                                        {% blocktrans %}
-                                            Approximate dates are acceptable; If you are unable to give an exact date, please identify a
-                                            month in which the course will be offered.
-                                        {% endblocktrans %}
-                                    </div>
+                                    <ul>
+                                        <li>
+                                            {% trans "Start on a Tuesday, Wednesday, or Thursday." %}
+                                        </li>
+                                        <li>
+                                            {% trans "Avoid major U.S. holidays." %}
+                                        </li>
+                                        <li>
+                                            {% trans "Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated start date. For example, if your course will start near the end of March, specify March 31." %}
+                                        </li>
+                                    </ul>
                                 </div>
                                 <div class="col col-6">
-                                    <label class="field-label ">
-                                        {{ run_form.start.label_tag }}
-                                        {% if run_form.start.field.required %}
-                                            <span class="required">* {% trans "required" %}</span>
-                                        {% endif %}
-                                    </label>
+                                    <label class="field-label ">{{ run_form.start.label_tag }}  <span class="required">*</span></label>
                                     {{ run_form.start }}
                                 </div>
                             </div>
@@ -130,54 +130,47 @@
                             <div class="field-title">{% trans "PACING TYPE" %}</div>
                             <div class="row">
                                 <div class="col col-6 help-text">
-                                    {% trans "Will your course be open to students at the same time as it is announced?" %}
+                                    <p>{% trans "Instructor-paced courses include individual assignments that have specific due dates before the course end date." %} </p>
+                                    <p>{% trans "Self-paced courses do not have individual assignments that have specific due dates before the course end date. All assignments are due on the course end date." %}</p>
                                 </div>
                                 <div class="col col-6">
-                                    <label class="field-label">
-                                        {{ run_form.pacing_type.label_tag }}
-                                        <span class="required">* {% trans "required" %}</span>
-                                    </label>
+                                    <label class="field-label">{{ run_form.pacing_type.label_tag }}  <span class="required">*</span></label>
                                     <div class="checkbox-inline">{{ run_form.pacing_type }}</div>
                                 </div>
                             </div>
 
                             <div class="field-title">{% trans "COURSE NUMBER" %}</div>
                             <div class="row">
-                                <div class="col col-6 help-text">
-                                    <div class="row">
-                                        <ul class="tabs">
-                                            <li class="course-tabs active" data-tab="number-practices">
-                                                {% trans "Best Practices" %}
-                                            </li>
-                                            <li class="course-tabs" data-tab="number-example">
-                                                {% trans "Example" %}
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <div id="number-practices" class="content active">
-                                        {% blocktrans %}
-                                            Courses split into several modules can be denoted by adding .1, .2, etc. at the end of the
-                                            course number before the “x”
-                                            No special html characters, accents, spaces, dashes, or underscores
-                                            10 character limit
-                                        {% endblocktrans %}
-                                    </div>
-                                    <div id="number-example" class="content">
-                                        <p>{% trans "Example:" %}</p>
-                                        <p>“CS002x”</p>
-                                        <p>“BIO1.1x”, “BIO1.2x”, {% trans "etc." %}</p>
-                                    </div>
+                            <div class="col col-6 help-text">
+                                <div class="row">
+                                    <ul class="tabs">
+                                        <li class="course-tabs active" data-tab="tab-practices">
+                                            {% trans "Best Practices" %}
+                                        </li>
+                                        <li class="course-tabs" data-tab="tab-example">
+                                            {% trans "Examples" %}
+                                        </li>
+                                    </ul>
                                 </div>
-                                <div class="col col-6">
-                                    <label class="field-label ">
-                                        {{ course_form.number.label_tag }}
-                                        {% if course_form.number.field.required %}
-                                            <span class="required">* {% trans "required" %}</span>
-                                        {% endif %}
-                                    </label>
-                                    {{ course_form.number }}
+                                <div id="tab-practices" class="content active">
+                                    <ul>
+                                        <li>{% trans "Maximum 10 characters. Characters can be letters, numbers, or periods." %}</li>
+                                        <li>{% trans "If a course consists of several modules, the course number can have an ending such as .1x or .2x." %}</li>
+                                    </ul>
+                                </div>
+                                <div id="tab-example" class="content">
+                                    <ul>
+                                        <li>{% trans "CS002x" %}</li>
+                                        <li>{% trans "BIO1.1x; BIO1.2x etc." %}</li>
+                                    </ul>
                                 </div>
                             </div>
+                            <div class="col col-6">
+                                <label class="field-label ">{{ course_form.number.label_tag }}  <span class="required">*</span></label>
+                                {% if edit_mode %}{{ course_form.number.value }}{% endif %}
+                                 {{ course_form.number }}
+                            </div>
+                        </div>
 
                         </fieldset>
                     </div>
@@ -194,10 +187,10 @@
                             <div class="field-title">{% trans "COURSE END DATE" %}</div>
                             <div class="row">
                                 <div class="col col-6 help-text">
-                                    {% trans "The date when this self-paced course run will end, replaced by an updated version of the course" %}
+                                    {% trans "Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated end date. For example, if your course will end near the end of March, specify March 31." %}
                                 </div>
                                 <div class="col col-6">
-                                    <label class="field-label ">{{ run_form.end.label_tag }}</label>
+                                    <label class="field-label ">{{ run_form.end.label_tag }}  <span class="required">*</span></label>
                                     {{ run_form.end }}
                                 </div>
                             </div>
@@ -205,26 +198,27 @@
                             <div class="field-title">{% trans "CERTIFICATE TYPE AND PRICE" %}</div>
                             <div class="row">
                                 <div class="col col-6 help-text">
-                                    {% trans "If Verified or Professional Ed, indicate certificate price in US dollars (minimum of $49)" %}
+                                    {% trans "If the course offers a verified or professional education certificate, select the certificate type and enter the price for the certificate." %}
                                 </div>
                                 <div class="col col-6">
                                     <div class="row">
                                         <div class="col col-6">
-                                            <label class="field-label ">
-                                                {{ seat_form.type.label_tag }}
-                                                {% if seat_form.type.field.required %}
-                                                    <span class="required">* {% trans "required" %}</span>
-                                                {% endif %}
-                                            </label>
-                                            {{ seat_form.type}}
+                                            <label class="field-label ">{{ seat_form.type.label_tag }}
+                                            </label> {{ seat_form.type }}
                                         </div>
-                                        <div class="col col-6">
+                                        <div id="SeatPriceBlock" class="col col-6 {% if not seat_form.price.value %}hidden{% endif %}">
                                             <label class="field-label ">{{ seat_form.price.label_tag }}</label>
-                                            {{ seat_form.price}}
+                                            {{ seat_form.price }}
                                         </div>
                                     </div>
+                                    {% if seat_form.price.errors %}
+                                        <div class="field-message has-error">
+                                                    <span class="field-message-content">
+                                                        {{ seat_form.price.errors|escape }}
+                                                    </span>
+                                        </div>
+                                    {% endif %}
                                 </div>
-
                             </div>
 
                         </fieldset>
@@ -248,5 +242,6 @@
 {% block extra_js %}
     <script src="{% static 'js/publisher/publisher.js' %}"></script>
     <script src="{% static 'js/publisher/organizations.js' %}"></script>
+    <script src="{% static 'js/publisher/course-tabs.js' %}"></script>
     <script src="{% static 'js/publisher/seat-type-change.js' %}"></script>
 {% endblock %}
