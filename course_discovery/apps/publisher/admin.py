@@ -2,7 +2,9 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
 from guardian.admin import GuardedModelAdmin
+from guardian.shortcuts import assign_perm
 
+from course_discovery.apps.publisher.constants import PROJECT_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME
 from course_discovery.apps.publisher.forms import (CourseRunAdminForm, CourseUserRoleForm, OrganizationUserRoleForm,
                                                    PublisherUserCreationForm, UserAttributesAdminForm)
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
@@ -18,7 +20,25 @@ class CourseUserRoleAdmin(admin.ModelAdmin):
 
 @admin.register(OrganizationExtension)
 class OrganizationExtensionAdmin(GuardedModelAdmin):
-    pass
+
+    def save_model(self, request, obj, form, change):
+        obj.save()
+
+        # Assign EDIT/VIEW permissions to organization group.
+        permissions = [
+            OrganizationExtension.VIEW_COURSE,
+            OrganizationExtension.EDIT_COURSE,
+            OrganizationExtension.VIEW_COURSE_RUN,
+            OrganizationExtension.EDIT_COURSE_RUN
+        ]
+        for permission in permissions:
+            assign_perm(permission, obj.group, obj)
+
+        # Assign EDIT_COURSE permission to Marketing Reviewers group.
+        assign_perm(OrganizationExtension.EDIT_COURSE, Group.objects.get(name=REVIEWER_GROUP_NAME), obj)
+
+        # Assign EDIT_COURSE_RUN permission to Project Coordinators group.
+        assign_perm(OrganizationExtension.EDIT_COURSE_RUN, Group.objects.get(name=PROJECT_COORDINATOR_GROUP_NAME), obj)
 
 
 @admin.register(UserAttributes)

@@ -1,10 +1,14 @@
 import ddt
+from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from guardian.shortcuts import get_group_perms
 
 from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
+from course_discovery.apps.publisher.constants import PROJECT_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME
 from course_discovery.apps.publisher.forms import CourseRunAdminForm
-from course_discovery.apps.publisher.models import CourseRun
+from course_discovery.apps.publisher.models import CourseRun, OrganizationExtension
 from course_discovery.apps.publisher.tests import factories
 
 USER_PASSWORD = 'password'
@@ -73,3 +77,41 @@ class AdminTests(TestCase):
         """ Verify page loads successfully."""
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+
+class OrganizationExtensionAdminTests(TestCase):
+    """ Tests for OrganizationExtensionAdmin."""
+
+    def setUp(self):
+        super(OrganizationExtensionAdminTests, self).setUp()
+        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.run_state = factories.CourseRunStateFactory()
+        self.admin_page_url = reverse('admin:publisher_organizationextension_add')
+
+    def test_organization_extension_permission(self):
+        """
+        Verify that required permissions assigned to OrganizationExtension object.
+        """
+        test_organization = OrganizationFactory()
+        test_group = factories.GroupFactory()
+        post_data = {'organization': test_organization.id, 'group': test_group.id}
+        self.client.post(self.admin_page_url, data=post_data)
+
+        organization_extension = OrganizationExtension.objects.get(organization=test_organization, group=test_group)
+
+        expected_permissions = [
+            OrganizationExtension.VIEW_COURSE,
+            OrganizationExtension.EDIT_COURSE,
+            OrganizationExtension.VIEW_COURSE_RUN,
+            OrganizationExtension.EDIT_COURSE_RUN
+        ]
+
+        course_team_permissions = get_group_perms(test_group, organization_extension)
+        self.assertEqual(sorted(course_team_permissions), sorted(expected_permissions))
+
+        marketing_permissions = get_group_perms(Group.objects.get(name=REVIEWER_GROUP_NAME), organization_extension)
+        self.assertEqual(list(marketing_permissions), [OrganizationExtension.EDIT_COURSE])
+
+        pc_permissions = get_group_perms(Group.objects.get(name=PROJECT_COORDINATOR_GROUP_NAME), organization_extension)
+        self.assertEqual(list(pc_permissions), [OrganizationExtension.EDIT_COURSE_RUN])
