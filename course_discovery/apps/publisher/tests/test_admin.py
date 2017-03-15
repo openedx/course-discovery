@@ -100,18 +100,32 @@ class OrganizationExtensionAdminTests(TestCase):
 
         organization_extension = OrganizationExtension.objects.get(organization=test_organization, group=test_group)
 
-        expected_permissions = [
+        course_team_permissions = [
             OrganizationExtension.VIEW_COURSE,
             OrganizationExtension.EDIT_COURSE,
             OrganizationExtension.VIEW_COURSE_RUN,
             OrganizationExtension.EDIT_COURSE_RUN
         ]
+        self._assert_permissions(organization_extension, test_group, course_team_permissions)
 
-        course_team_permissions = get_group_perms(test_group, organization_extension)
-        self.assertEqual(sorted(course_team_permissions), sorted(expected_permissions))
+        marketing_permissions = [
+            OrganizationExtension.VIEW_COURSE,
+            OrganizationExtension.EDIT_COURSE,
+            OrganizationExtension.VIEW_COURSE_RUN
+        ]
+        self._assert_permissions(
+            organization_extension, Group.objects.get(name=REVIEWER_GROUP_NAME), marketing_permissions
+        )
 
-        marketing_permissions = get_group_perms(Group.objects.get(name=REVIEWER_GROUP_NAME), organization_extension)
-        self.assertEqual(list(marketing_permissions), [OrganizationExtension.EDIT_COURSE])
+        pc_permissions = [
+            OrganizationExtension.VIEW_COURSE,
+            OrganizationExtension.EDIT_COURSE_RUN,
+            OrganizationExtension.VIEW_COURSE_RUN
+        ]
+        self._assert_permissions(
+            organization_extension, Group.objects.get(name=PROJECT_COORDINATOR_GROUP_NAME), pc_permissions
+        )
 
-        pc_permissions = get_group_perms(Group.objects.get(name=PROJECT_COORDINATOR_GROUP_NAME), organization_extension)
-        self.assertEqual(list(pc_permissions), [OrganizationExtension.EDIT_COURSE_RUN])
+    def _assert_permissions(self, organization_extension, group, expected_permissions):
+        permissions = get_group_perms(group, organization_extension)
+        self.assertEqual(sorted(permissions), sorted(expected_permissions))

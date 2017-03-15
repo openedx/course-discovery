@@ -25,20 +25,33 @@ class OrganizationExtensionAdmin(GuardedModelAdmin):
         obj.save()
 
         # Assign EDIT/VIEW permissions to organization group.
-        permissions = [
+        course_team_permissions = [
             OrganizationExtension.VIEW_COURSE,
             OrganizationExtension.EDIT_COURSE,
             OrganizationExtension.VIEW_COURSE_RUN,
             OrganizationExtension.EDIT_COURSE_RUN
         ]
-        for permission in permissions:
-            assign_perm(permission, obj.group, obj)
+        self.assign_permissions(obj, obj.group, course_team_permissions)
 
         # Assign EDIT_COURSE permission to Marketing Reviewers group.
-        assign_perm(OrganizationExtension.EDIT_COURSE, Group.objects.get(name=REVIEWER_GROUP_NAME), obj)
+        marketing_permissions = [
+            OrganizationExtension.EDIT_COURSE,
+            OrganizationExtension.VIEW_COURSE,
+            OrganizationExtension.VIEW_COURSE_RUN
+        ]
+        self.assign_permissions(obj, Group.objects.get(name=REVIEWER_GROUP_NAME), marketing_permissions)
 
         # Assign EDIT_COURSE_RUN permission to Project Coordinators group.
-        assign_perm(OrganizationExtension.EDIT_COURSE_RUN, Group.objects.get(name=PROJECT_COORDINATOR_GROUP_NAME), obj)
+        pc_permissions = [
+            OrganizationExtension.VIEW_COURSE,
+            OrganizationExtension.EDIT_COURSE_RUN,
+            OrganizationExtension.VIEW_COURSE_RUN
+        ]
+        self.assign_permissions(obj, Group.objects.get(name=PROJECT_COORDINATOR_GROUP_NAME), pc_permissions)
+
+    def assign_permissions(self, obj, group, permissions):
+        for permission in permissions:
+            assign_perm(permission, group, obj)
 
 
 @admin.register(UserAttributes)
