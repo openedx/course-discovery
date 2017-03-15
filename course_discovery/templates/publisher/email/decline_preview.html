@@ -1,20 +1,30 @@
 {% extends "publisher/email/email_base.html" %}
 {% load i18n %}
 {% block body %}
-<!-- Message Body -->
-        <p>
-            {% blocktrans trimmed with link_start='<a href="' link_middle='">' link_end='</a>' %}
-              Preview link {{ preview_url }} for the {{ link_start }}{{ page_url }}{{ link_middle }}{{ course_title }}{{ link_end }}
-              has been declined.
-            {% endblocktrans %}
-        </p>
-        <p>
-            {{ comment.comment }}
-        </p>
+    <p>
+        {% blocktrans trimmed %}
+            Dear {{ recipient_name }},
+        {% endblocktrans %}
+    </p>
 
-        <p>
-            <a href="{{ page_url }}">{% trans "View comment" %}</a>
-        </p>
-        <p>{% trans "The edX team" %}</p>
+    <p>
+        {% blocktrans trimmed with link_start='<a href="' link_middle='">' link_end='</a>' %}
+            The {{ team_name }} has reviewed the preview for {{ link_start }}{{ page_url }}{{ link_middle }}{{ course_name }}{{ link_end }}. View the course run in Publisher for more information.
+        {% endblocktrans %}
+    </p>
+
+    <p>
+        {% blocktrans trimmed %}
+            {{ team_name }} added the following comment to this preview.
+        {% endblocktrans %}
+    </p>
+    <p style="font-style: italic;">
+        "{{ comment.comment }}"
+    </p>
+
+    <p>
+        <a href="{{ page_url }}">{% trans "View comment in Publisher" %}</a>
+    </p>
+    <p>{% trans "The edX team" %}</p>
 <!-- End Message Body -->
 {% endblock body %}

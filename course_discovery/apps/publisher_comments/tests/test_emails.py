@@ -5,6 +5,7 @@ from django.contrib.sites.models import Site
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from opaque_keys.edx.keys import CourseKey
 from testfixtures import LogCapture
 
 from course_discovery.apps.core.tests.factories import UserFactory
@@ -65,7 +66,7 @@ class CommentsEmailTests(TestCase):
         to multiple users depending upon the course related group.
         """
         comment = self.create_comment(content_object=self.course)
-        subject = 'New comment added in Course: {title}'.format(title=self.course.title)
+        subject = 'Comment added: {title}'.format(title=self.course.title)
         self.assert_comment_email_sent(
             self.course, comment, reverse('publisher:publisher_courses_edit', args=[self.course.id]),
             subject
@@ -76,7 +77,7 @@ class CommentsEmailTests(TestCase):
         depending upon the parent course related group.
         """
         comment = self.create_comment(content_object=self.course_run)
-        subject = 'New comment added in course run: {title}-{pacing_type}-{start}'.format(
+        subject = 'Comment added: {title} {start} - {pacing_type}'.format(
             title=self.course_run.course.title,
             pacing_type=self.course_run.get_pacing_type_display(),
             start=self.course_run.start.strftime('%B %d, %Y')
@@ -112,7 +113,7 @@ class CommentsEmailTests(TestCase):
         self.course_run.start = None
         self.course_run.save()
         comment = self.create_comment(content_object=self.course_run)
-        subject = 'New comment added in course run: {title}-{pacing_type}-{start}'.format(
+        subject = 'Comment added: {title} {start} - {pacing_type}'.format(
             title=self.course_run.course.title,
             pacing_type=self.course_run.get_pacing_type_display(),
             start=''
@@ -125,18 +126,20 @@ class CommentsEmailTests(TestCase):
 
     def assert_comment_email_sent(self, content_object, comment, object_path, subject):
         """ DRY method to assert send email data"""
-        object_type = content_object.__class__.__name__
         self.assertEqual([self.user.email, self.user_2.email], mail.outbox[0].to)
         self.assertEqual(str(mail.outbox[0].subject), subject)
         body = mail.outbox[0].body.strip()
-        heading = '{first_name} commented on a {object_type} belonging to the course {title} ({number})'
-        self.assertIn(
-            heading.format(
-                first_name=comment.user.first_name, object_type=object_type.lower(),
-                title=self.course.title, number=self.course.number
-            ),
-            body
-        )
+        if isinstance(content_object, CourseRun):
+            course_name = '{title} {start} - {pacing_type}'.format(
+                title=content_object.course.title,
+                pacing_type=content_object.get_pacing_type_display(),
+                start=content_object.start.strftime('%B %d, %Y') if content_object.start else ''
+            )
+        else:
+            course_name = content_object.title
+
+        expected = 'The marketing team made the following comment on {course_name}'.format(course_name=course_name)
+        self.assertIn(expected, body)
         page_url = 'https://{host}{path}'.format(host=comment.site.domain.strip('/'), path=object_path)
         self.assertIn(comment.comment, body)
         self.assertIn(page_url, body)
@@ -175,13 +178,13 @@ class CommentsEmailTests(TestCase):
         to multiple users.
         """
         comment = self.create_comment(content_object=self.course)
-        subject = 'New comment added in Course: {title}'.format(title=self.course.title)
+        subject = 'Comment added: {title}'.format(title=self.course.title)
         self.assertEqual(str(mail.outbox[0].subject), subject)
         self.assertIn(comment.comment, str(mail.outbox[0].body.strip()))
 
         comment.comment = 'update the comment'
         comment.save()  # pylint: disable=no-member
-        subject = 'Comment updated in Course: {title}'.format(title=self.course.title)
+        subject = 'Comment updated: {title}'.format(title=self.course.title)
         self.assertEqual(str(mail.outbox[1].subject), subject)
         self.assertIn(comment.comment, str(mail.outbox[1].body.strip()), 'update the comment')
 
@@ -196,7 +199,7 @@ class CommentsEmailTests(TestCase):
         comment.comment = 'Update the comment'
         comment.save()  # pylint: disable=no-member
 
-        subject = 'Comment updated in course run: {title}-{pacing_type}-{start}'.format(
+        subject = 'Comment updated: {title} {start} - {pacing_type}'.format(
             title=self.course_run.course.title,
             pacing_type=self.course_run.get_pacing_type_display(),
             start=self.course_run.start.strftime('%B %d, %Y')
@@ -210,11 +213,15 @@ class CommentsEmailTests(TestCase):
         factories.CourseUserRoleFactory(
             course=self.course, role=PublisherUserRole.Publisher, user=user
         )
+        self.course_run.lms_course_id = 'course-v1:testX+testX2.0+testCourse'
+        self.course_run.save()
+
+        course_key = CourseKey.from_string(self.course_run.lms_course_id)
         comment = self._create_decline_comment()
-        subject = 'Preview Decline for course run: {title}'.format(title=self.course.title)
+        subject = 'Preview reviewed: {title} {run}'.format(title=self.course.title, run=course_key.run)
         self.assertEqual([user.email], mail.outbox[0].to)
         self.assertEqual(str(mail.outbox[0].subject), subject)
-        body = 'Preview link {url} for the {title}:  has been declined'.format(
+        body = 'has reviewed the preview for'.format(
             url=self.url,
             title=self.course.title
         )

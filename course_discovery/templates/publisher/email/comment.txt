@@ -1,11 +1,11 @@
 {% load i18n %}
 
-{% blocktrans with first_name=comment.user.first_name object_type=object_type|lower title=course.title number=course.number trimmed %}
-{{ first_name }} commented on a {{ object_type }} belonging to the course {{ title }} ({{ number }}).
+{% blocktrans with date=comment_date|date:'m/d/y' time=comment_date.time trimmed %}
+The {{ team_name }} made the following comment on {{ course_name }} {{ date }} at {{ time }}.
 {% endblocktrans %}
 
-{{ comment.comment }}
+{{ comment_message }}
 
-{% trans "View comment: " %}{{ page_url }}
+{% trans "View comment in Publisher" %}{{ page_url }}
 
 {% trans "The edX team" %}

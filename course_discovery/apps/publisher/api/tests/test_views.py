@@ -471,7 +471,7 @@ class ChangeCourseStateViewTests(TestCase):
         # Verify that course is marked as reviewed by marketing.
         self.assertTrue(self.course_state.marketing_reviewed)
 
-        subject = 'Changes to {title} are ready for review'.format(title=self.course.title)
+        subject = 'Review requested: {title}'.format(title=self.course.title)
         self._assert_email_sent(course_team_user, subject)
 
     def test_change_course_state_with_course_team(self):
@@ -507,7 +507,7 @@ class ChangeCourseStateViewTests(TestCase):
         self.assertEqual(self.course_state.owner_role, PublisherUserRole.MarketingReviewer)
         self.assertGreater(self.course_state.owner_role_modified, old_owner_role_modified)
 
-        subject = 'Changes to {title} are ready for review'.format(title=self.course.title)
+        subject = 'Review requested: {title}'.format(title=self.course.title)
         self._assert_email_sent(marketing_user, subject)
 
     def _assert_email_sent(self, user, subject):
@@ -571,7 +571,7 @@ class ChangeCourseStateViewTests(TestCase):
 
         self.assertEqual(self.course_state.name, CourseStateChoices.Approved)
 
-        subject = 'Changes to {title} has been approved'.format(title=self.course.title)
+        subject = 'Review complete: {title}'.format(title=self.course.title)
         self._assert_email_sent(course_team_user, subject)
 
 

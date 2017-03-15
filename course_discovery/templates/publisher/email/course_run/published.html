@@ -8,10 +8,14 @@
         {% endblocktrans %}
     <p>
         {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' trimmed %}
-            The {{ link_start }}{{ page_url }}{{ link_middle }} {{ course_run_number }} course run {{ link_end }} of {{ course_name }} has been published. Visit {{ link_start }}{{ preview_url }}{{ link_middle }}link to live course run page{{ link_end }} to view the course run.
+            The {{ link_start }}{{ page_url }}{{ link_middle }}{{ course_run_number }} course run{{ link_end }} of {{ link_start }}{{ course_page_url }}{{ link_middle }}{{ course_name }}{{ link_end }} has been published. No further action is necessary for this course run.
         {% endblocktrans %}
     </p>
-
+    <p>
+        {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' trimmed %}
+            {{ link_start }}{{ preview_url }}{{ link_middle }}View this course run live.{{ link_end }}
+        {% endblocktrans %}
+    </p>
     {% comment %}Translators: It's closing of mail.{% endcomment %}
     {% trans "Thanks," %}<br>
     {{ platform_name}} {{ sender_role }}

@@ -2,13 +2,14 @@
 {% load i18n %}
 {% block body %}
 <!-- Message Body -->
+
     <p>
         {% blocktrans trimmed %}
             Dear {{ recipient_name }},
         {% endblocktrans %}
     <p>
         {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' trimmed %}
-            The {{ sender_team }} has reviewed the {{ link_start }}{{ page_url }}{{ link_middle }} {{ run_number }} course run{{ link_end }} of {{ course_name }}. You will receive another email when the course run preview is available for you to review.
+            The {{ sender_team }} has reviewed the {{ link_start }}{{ page_url }}{{ link_middle }}{{ run_number }} course run{{ link_end }} of {{ link_start }}{{ course_page_url }}{{ link_middle }}{{ course_name }}{{ link_end }}. You can now submit a request for a preview of the course run About page.
         {% endblocktrans %}
     </p>
 

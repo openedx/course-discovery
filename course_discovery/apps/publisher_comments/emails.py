@@ -5,6 +5,7 @@ from django.core.mail.message import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
+from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.publisher.models import CourseRun
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
@@ -24,10 +25,12 @@ def send_email_for_comment(comment, created=False):
         publisher_obj = comment.content_type.get_object_for_this_type(pk=object_pk)
         comment_class = comment.content_type.model_class()
 
-        subject_desc = _('New comment added')
+        subject_desc = _('Comment added:')
+        comment_date = comment.submit_date
 
         if not created:
-            subject_desc = _('Comment updated')
+            subject_desc = _('Comment updated:')
+            comment_date = comment.modified
 
         if comment_class == CourseRun:
             course = publisher_obj.course
@@ -36,8 +39,13 @@ def send_email_for_comment(comment, created=False):
             # Translators: subject_desc will be choice from ('New comment added', 'Comment updated'),
             # 'pacing_type' will be choice from ('instructor-paced', 'self-paced'),
             # 'title' and 'start' will be the value of course title & start date fields.
-            subject = _('{subject_desc} in course run: {title}-{pacing_type}-{start}').format(  # pylint: disable=no-member
+            subject = _('{subject_desc} {title} {start} - {pacing_type}').format(  # pylint: disable=no-member
                 subject_desc=subject_desc,
+                title=course.title,
+                pacing_type=publisher_obj.get_pacing_type_display(),
+                start=publisher_obj.start.strftime('%B %d, %Y') if publisher_obj.start else ''
+            )
+            course_name = '{title} {start} - {pacing_type}'.format(
                 title=course.title,
                 pacing_type=publisher_obj.get_pacing_type_display(),
                 start=publisher_obj.start.strftime('%B %d, %Y') if publisher_obj.start else ''
@@ -48,18 +56,20 @@ def send_email_for_comment(comment, created=False):
 
             # Translators: 'subject_desc' will be choice from ('New comment added', 'Comment updated')
             # and 'title' will be the value of course title field.
-            subject = _('{subject_desc} in Course: {title}').format(  # pylint: disable=no-member
+            subject = _('{subject_desc} {title}').format(  # pylint: disable=no-member
                 subject_desc=subject_desc,
                 title=course.title
             )
+            course_name = course.title
 
         to_addresses = course.get_course_users_emails()
         from_address = settings.PUBLISHER_FROM_EMAIL
 
         context = {
-            'comment': comment,
-            'course': course,
-            'object_type': comment_class.__name__,
+            'comment_message': comment.comment,
+            'team_name': 'course team' if comment.user == course.course_team_admin else 'marketing team',
+            'course_name': course_name,
+            'comment_date': comment_date,
             'page_url': 'https://{host}{path}'.format(host=comment.site.domain.strip('/'), path=object_path)
         }
 
@@ -89,11 +99,16 @@ def send_email_decline_preview(comment, course_run, preview_url):
     """
     try:
         object_path = reverse('publisher:publisher_course_run_detail', args=[course_run.id])
+        course_key = CourseKey.from_string(course_run.lms_course_id)
+        course_name = '{title} {run_number}'.format(
+            title=course_run.course.title,
+            run_number=course_key.run
+        )
 
         # Translators: subject_desc will be Preview Decline for course run,
         # 'title' will be the value of course title.
-        subject = _('Preview Decline for course run: {title}').format(  # pylint: disable=no-member
-            title=course_run.course.title
+        subject = _('Preview reviewed: {course_name}').format(  # pylint: disable=no-member
+            course_name=course_name
         )
 
         recipient_user = course_run.course.publisher
@@ -103,9 +118,11 @@ def send_email_decline_preview(comment, course_run, preview_url):
             from_address = settings.PUBLISHER_FROM_EMAIL
             context = {
                 'comment': comment,
+                'team_name': 'course team',
                 'page_url': 'https://{host}{path}'.format(host=comment.site.domain.strip('/'), path=object_path),
                 'preview_url': preview_url,
-                'course_title': course_run.course.title,
+                'course_name': course_name,
+                'recipient_name': recipient_user.get_full_name() or recipient_user.username
             }
 
             txt_template = 'publisher/email/decline_preview.txt'

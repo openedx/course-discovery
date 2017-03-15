@@ -4,11 +4,11 @@
     Dear {{ recipient_name }},
 {% endblocktrans %}
 {% blocktrans trimmed %}
-     New changes to {{ course_name }} are ready for your review. {{ page_url }} View this course in Publisher to approve or decline the changes.
+     {{ sender_team }} from {{ org_name }} has submitted {{ course_name }} for review. {{ page_url }} View this course in Publisher to review the changes or suggest edits.
 {% endblocktrans %}
 
 {% trans "Thanks," %}
-{{ sender_name }}
+{% trans "The edX team" %}
 
 {% blocktrans trimmed %}
     Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.

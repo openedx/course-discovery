@@ -1,11 +1,15 @@
 {% load i18n %}
 
 {% blocktrans trimmed %}
-    Preview link {{ preview_url }} for the {{ course_title }}: {{ course_url }} has been declined.
+    Dear {{ recipient_name }},
+{% endblocktrans %}
+
+{% blocktrans trimmed %}
+    The {{ team_name }} has reviewed the preview for {{ course_name }}. View the course run in Publisher for more information.
 {% endblocktrans %}
 
 {{ comment.comment }}
 
-{% trans "View comment: " %}{{ page_url }}
+{% trans "View comment in Publisher: " %}{{ page_url }}
 
 {% trans "The edX team" %}

@@ -3,8 +3,9 @@
 {% blocktrans trimmed %}
     Dear {{ recipient_name }},
 {% endblocktrans %}
+
 {% blocktrans trimmed %}
-    A preview is now available for the {{ course_run_number }} course run of {{ course_name }}. Visit {{ page_url }} to approve or decline the preview for this course run.
+    A preview is now available for the {{ course_run_number }} course run of {{ course_name }} {{ course_page_url }}. See the preview {{ page_url }} to review or suggest edits to this course run.
 {% endblocktrans %}
 
 {% trans "Thanks," %}
