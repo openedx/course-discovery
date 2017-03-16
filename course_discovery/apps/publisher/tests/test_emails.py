@@ -358,9 +358,11 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
 
     def assert_email_sent(self, to_email):
         """ Verify the email data for tests cases."""
-        run_name = '{pacing_type}: {start_date}'.format(
-            pacing_type=self.course_run.get_pacing_type_display(),
-            start_date=self.course_run.start.strftime("%B %d, %Y")
+
+        course_key = CourseKey.from_string(self.course_run.lms_course_id)
+        subject = 'Review complete: {course_name} {run_number}'.format(
+            course_name=self.course.title,
+            run_number=course_key.run
         )
 
         self.assertEqual(len(mail.outbox), 1)
