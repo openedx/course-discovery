@@ -16,6 +16,11 @@ $(document).ready(function(){
         $('body').addClass('stopScroll');
     });
 
+    $('.btn-courserun-edit').click(function(e){
+        $('#editCourseRun').show();
+        $('body').addClass('stopScroll');
+    });
+
     $('.btn-preview-accept').click(function(e){
         $('#acceptPreviewModal').show();
         $('body').addClass('stopScroll');
