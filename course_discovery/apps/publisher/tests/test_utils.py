@@ -7,18 +7,16 @@ from guardian.shortcuts import assign_perm
 from mock import Mock
 
 from course_discovery.apps.core.tests.factories import UserFactory
-from course_discovery.apps.publisher.constants import (
-    ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME
-)
-from course_discovery.apps.publisher.mixins import (
-    check_course_organization_permission, check_roles_access, publisher_user_required
-)
+from course_discovery.apps.publisher.constants import (ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME,
+                                                       PROJECT_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME)
+from course_discovery.apps.publisher.mixins import (check_course_organization_permission, check_roles_access,
+                                                    publisher_user_required)
 from course_discovery.apps.publisher.models import OrganizationExtension
 from course_discovery.apps.publisher.tests import factories
-from course_discovery.apps.publisher.utils import (
-    get_internal_users, is_email_notification_enabled, is_internal_user, is_project_coordinator_user,
-    is_publisher_admin, is_publisher_user, make_bread_crumbs
-)
+from course_discovery.apps.publisher.utils import (get_internal_users, has_role_for_course,
+                                                   is_email_notification_enabled, is_internal_user,
+                                                   is_project_coordinator_user, is_publisher_admin, is_publisher_user,
+                                                   make_bread_crumbs)
 
 
 @ddt.ddt
@@ -197,3 +195,12 @@ class PublisherUtilsTests(TestCase):
             [{'url': '/publisher/courses/new/', 'slug': 'Courses'}, {'url': None, 'slug': 'Testing'}],
             make_bread_crumbs(links)
         )
+
+    def test_has_role_for_course(self):
+        """
+        Verify the function returns a boolean indicating if the user has a role for course.
+        """
+
+        self.assertFalse(has_role_for_course(self.course, self.user))
+        factories.CourseUserRoleFactory(course=self.course, user=self.user)
+        self.assertTrue(has_role_for_course(self.course, self.user))

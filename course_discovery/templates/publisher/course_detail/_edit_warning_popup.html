@@ -1,0 +1,19 @@
+{% load i18n %}
+
+<div id="editWarningModal" class="modal">
+    <div class="modal-content">
+        <h2 class="hd-2 emphasized">
+            <span class="icon fa fa-exclamation-triangle" aria-hidden="true"></span> {% trans "CAUTION" %}
+        </h2>
+        <span class="sr-only">CAUTION</span>
+        <p class="margin-top20">
+            {% blocktrans%}
+                The {{ current_team_name }} team is currently reviewing this course. If you edit course information, you might overwrite the team’s changes, and you will have to send the course to the {{ team_name }} team for review again.
+            {% endblocktrans %}
+        </p>
+        <div class="actions">
+            <a class="btn-cancel closeModal" href="#">{% trans "Cancel" %}</a>
+            <a class="btn-brand btn-base btn-accept" href="{% url 'publisher:publisher_courses_edit' pk=object.id %}">{% trans "Edit" %}</a>
+        </div>
+    </div>
+</div>

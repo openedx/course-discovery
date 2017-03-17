@@ -23,8 +23,8 @@ from course_discovery.apps.publisher.choices import CourseRunStateChoices, Cours
 from course_discovery.apps.publisher.forms import CustomCourseForm, CustomCourseRunForm, CustomSeatForm
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
                                                     OrganizationExtension, UserAttributes)
-from course_discovery.apps.publisher.utils import (get_internal_users, is_internal_user, is_project_coordinator_user,
-                                                   is_publisher_admin, make_bread_crumbs)
+from course_discovery.apps.publisher.utils import (get_internal_users, has_role_for_course, is_internal_user,
+                                                   is_project_coordinator_user, is_publisher_admin, make_bread_crumbs)
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
 logger = logging.getLogger(__name__)
@@ -352,13 +352,13 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
 
             course_admin_role.user = team_admin
             course_admin_role.save()
-
-        user_role = self.object.course_user_roles.get(user=user)
-        self.object.course_state.owner_role = user_role.role
         if self.object.course_state.name != CourseStateChoices.Draft:
             self.object.course_state.change_state(state=CourseStateChoices.Draft, user=user)
 
-        self.object.course_state.save()
+        # Change ownership if user role not equal to owner role.
+        user_role = self.object.course_user_roles.get(user=user)
+        if self.object.course_state.owner_role != user_role.role:
+            self.object.course_state.change_owner_role(user_role.role)
 
         messages.success(self.request, _('Course  updated successfully.'))
         return HttpResponseRedirect(self.get_success_url())
@@ -377,7 +377,7 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
         course = self.object
         context['can_edit'] = mixins.check_course_organization_permission(
             user, course, OrganizationExtension.EDIT_COURSE
-        )
+        ) and has_role_for_course(course, user)
 
         context['breadcrumbs'] = make_bread_crumbs(
             [
@@ -394,6 +394,19 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
         context['role_widgets'] = get_course_role_widgets_data(
             user, course, course.course_state, 'publisher:api:change_course_state'
         )
+
+        # Add warning popup information if user can edit the course but does not own it.
+        if context['can_edit']:
+            current_owner_role = course.course_user_roles.get(role=course.course_state.owner_role)
+            user_role = course.course_user_roles.get(user=user)
+            if user_role.role != current_owner_role.role:
+                context['add_warning_popup'] = True
+                context['current_team_name'] = (_('course')
+                                                if current_owner_role.role == PublisherUserRole.CourseTeam
+                                                else _('marketing'))
+                context['team_name'] = (_('course')
+                                        if current_owner_role.role == PublisherUserRole.MarketingReviewer
+                                        else _('marketing'))
 
         return context
 

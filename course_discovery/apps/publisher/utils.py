@@ -94,3 +94,17 @@ def make_bread_crumbs(links):
         }
         for url, slug in links
     ]
+
+
+def has_role_for_course(course, user):
+    """
+    Check user has a role for course.
+
+    Arguments:
+        course: Course object
+        user: User object
+
+    Returns:
+        bool: True, if user has a role for course; otherwise, False.
+    """
+    return course.course_user_roles.filter(user=user).exists()

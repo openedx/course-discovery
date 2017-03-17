@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-20 12:29+0500\n"
+"POT-Creation-Date: 2017-03-20 14:01+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -803,6 +803,14 @@ msgid "Course  updated successfully."
 msgstr ""
 
 #: apps/publisher/views.py
+msgid "course"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "marketing"
+msgstr ""
+
+#: apps/publisher/views.py
 #, python-brace-format
 msgid "Course run created successfully for course \"{course_title}\"."
 msgstr ""
@@ -898,6 +906,7 @@ msgstr ""
 #: templates/metadata/admin/course_run.html
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_detail/_edit_warning_popup.html
 #: templates/publisher/course_edit_form.html
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Cancel"
@@ -1849,6 +1858,24 @@ msgstr ""
 msgid "Course Level"
 msgstr ""
 
+#: templates/publisher/course_detail/_edit_warning_popup.html
+msgid "CAUTION"
+msgstr ""
+
+#: templates/publisher/course_detail/_edit_warning_popup.html
+#, python-format
+msgid ""
+"\n"
+"                The %(current_team_name)s team is currently reviewing this course. If you edit course information, you might overwrite the team’s changes, and you will have to send the course to the %(team_name)s team for review again.\n"
+"            "
+msgstr ""
+
+#: templates/publisher/course_detail/_edit_warning_popup.html
+#: templates/publisher/course_run_detail/_widgets.html
+#: templates/publisher/courses.html
+msgid "Edit"
+msgstr ""
+
 #: templates/publisher/course_detail/_widgets.html
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "EDIT"
@@ -2252,11 +2279,6 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "Submitted for review"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-#: templates/publisher/courses.html
-msgid "Edit"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_widgets.html

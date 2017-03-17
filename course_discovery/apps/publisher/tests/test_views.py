@@ -1479,6 +1479,10 @@ class CourseDetailViewTests(TestCase):
         # Initialize workflow for Course.
         self.course_state = factories.CourseStateFactory(course=self.course, owner_role=PublisherUserRole.CourseTeam)
 
+        self.course_team_role = factories.CourseUserRoleFactory(
+            course=self.course, user=self.user, role=PublisherUserRole.CourseTeam
+        )
+
         self.detail_page_url = reverse('publisher:publisher_course_detail', args=[self.course.id])
 
     def test_detail_page_without_permission(self):
@@ -1558,9 +1562,6 @@ class CourseDetailViewTests(TestCase):
         """
         Verify that user can see course details on detail page.
         """
-        factories.CourseUserRoleFactory(
-            course=self.course, user=self.user, role=PublisherUserRole.CourseTeam
-        )
         self.user.groups.add(self.organization_extension.group)
         assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
         response = self.client.get(self.detail_page_url)
@@ -1657,9 +1658,6 @@ class CourseDetailViewTests(TestCase):
         """
         Verify that user can see approval widget on course detail page.
         """
-        factories.CourseUserRoleFactory(
-            course=self.course, user=self.user, role=PublisherUserRole.CourseTeam
-        )
         self.user.groups.add(self.organization_extension.group)
         assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
         response = self.client.get(self.detail_page_url)
@@ -1690,9 +1688,8 @@ class CourseDetailViewTests(TestCase):
         self.course_state.name = CourseStateChoices.Review
         self.course_state.save()
 
-        factories.CourseUserRoleFactory(
-            course=self.course, user=UserFactory(), role=PublisherUserRole.CourseTeam
-        )
+        self.course_team_role.user = UserFactory()
+        self.course_team_role.save()
 
         self.user.groups.add(self.organization_extension.group)
         assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
@@ -1718,12 +1715,14 @@ class CourseDetailViewTests(TestCase):
         """
         Verify that user can see approval widget on course detail page with `Reviewed`.
         """
+        self.course_team_role.user = UserFactory()
+        self.course_team_role.save()
+
         factories.CourseUserRoleFactory(
             course=self.course, user=self.user, role=PublisherUserRole.MarketingReviewer
         )
-
         factories.CourseUserRoleFactory(
-            course=self.course, user=UserFactory(), role=PublisherUserRole.CourseTeam
+            course=self.course, user=UserFactory(), role=PublisherUserRole.Publisher
         )
 
         # To create history objects for both `Review` and `Approved` states
@@ -1743,6 +1742,31 @@ class CourseDetailViewTests(TestCase):
         self.assertContains(response, 'Reviewed', count=1)
         self.assertContains(response, '<span class="icon fa fa-check" aria-hidden="true">', count=2)
         self.assertContains(response, 'Send for Review', count=1)
+
+    def test_edit_permission_with_owner_role(self):
+        """
+        Test that user can see edit button if he has permission and has role for course.
+        """
+        self.course_state.owner_role = PublisherUserRole.MarketingReviewer
+        self.course_state.save()
+
+        factories.CourseUserRoleFactory(
+            course=self.course, user=UserFactory(), role=PublisherUserRole.MarketingReviewer
+        )
+
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
+        assign_perm(OrganizationExtension.EDIT_COURSE, self.organization_extension.group, self.organization_extension)
+
+        # Verify that user can see edit button with edit permission.
+        self.assert_can_edit_permission(can_edit=True)
+
+        # Assign new user to course team role.
+        self.course_team_role.user = UserFactory()
+        self.course_team_role.save()
+
+        # Verify that user cannot see edit button if he has no role for course.
+        self.assert_can_edit_permission(can_edit=False)
 
 
 class CourseEditViewTests(TestCase):
@@ -1934,6 +1958,35 @@ class CourseEditViewTests(TestCase):
 
         course_state = CourseState.objects.get(id=self.course.course_state.id)
         self.assertEqual(course_state.name, CourseStateChoices.Draft)
+
+    def test_edit_course_with_ownership_changed(self):
+        """
+        Verify that on editing course state changed to `Draft` and ownership changed
+        to `CourseTeam` if course team user updating the course.
+        """
+        self.client.logout()
+        self.client.login(username=self.course_team_role.user.username, password=USER_PASSWORD)
+        self._assign_permissions(self.organization_extension)
+
+        self.course.course_state.name = CourseStateChoices.Review
+        self.course.course_state.owner_role = PublisherUserRole.MarketingReviewer
+        self.course.course_state.save()
+
+        post_data = self._post_data(self.organization_extension)
+        post_data['team_admin'] = self.course_team_role.user.id
+
+        response = self.client.post(self.edit_page_url, data=post_data)
+
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        course_state = CourseState.objects.get(id=self.course.course_state.id)
+        self.assertEqual(course_state.name, CourseStateChoices.Draft)
+        self.assertEqual(course_state.owner_role, PublisherUserRole.CourseTeam)
 
 
 @ddt.ddt
