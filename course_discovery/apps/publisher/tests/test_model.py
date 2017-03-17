@@ -507,6 +507,17 @@ class CourseStateTests(TestCase):
 
         self.assertFalse(self.course_state.can_send_for_review())
 
+    @ddt.data(
+        PublisherUserRole.MarketingReviewer,
+        PublisherUserRole.CourseTeam,
+    )
+    def test_change_owner_role(self, role):
+        """
+        Verify that method change_owner_role updates the role.
+        """
+        self.course_state.change_owner_role(role)
+        self.assertEqual(self.course_state.owner_role, role)
+
 
 @ddt.ddt
 class CourseRunStateTests(TestCase):

@@ -548,6 +548,14 @@ class CourseState(TimeStampedModel, ChangedByMixin):
         """ Check that course is approved or not."""
         return self.name == CourseStateChoices.Approved
 
+    def change_owner_role(self, role):
+        """
+        Change ownership role.
+        """
+        self.owner_role = role
+        self.owner_role_modified = timezone.now()
+        self.save()
+
 
 class CourseRunState(TimeStampedModel, ChangedByMixin):
     """ Publisher Workflow Course Run State Model. """

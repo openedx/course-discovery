@@ -155,6 +155,11 @@ $(document).ready(function(){
             }
         });
     });
+
+    $('.btn-course-edit').click(function(e){
+        $('#editWarningModal').show();
+        $('body').addClass('stopScroll');
+    });
 });
 
 $(document).on('change', '#id_organization', function (e) {

@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-20 12:29+0500\n"
+"POT-Creation-Date: 2017-03-20 14:01+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -955,6 +955,14 @@ msgid "Course  updated successfully."
 msgstr "Çöürsé  üpdätéd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
 #: apps/publisher/views.py
+msgid "course"
+msgstr "çöürsé Ⱡ'σяєм ιρѕυ#"
+
+#: apps/publisher/views.py
+msgid "marketing"
+msgstr "märkétïng Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/publisher/views.py
 #, python-brace-format
 msgid "Course run created successfully for course \"{course_title}\"."
 msgstr ""
@@ -1059,6 +1067,7 @@ msgstr "Sävé Ⱡ'σяєм ι#"
 #: templates/metadata/admin/course_run.html
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_detail/_edit_warning_popup.html
 #: templates/publisher/course_edit_form.html
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Cancel"
@@ -2216,6 +2225,27 @@ msgstr "Çöürsé Ìmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 msgid "Course Level"
 msgstr "Çöürsé Lévél Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
+#: templates/publisher/course_detail/_edit_warning_popup.html
+msgid "CAUTION"
+msgstr "ÇÀÛTÌÖN Ⱡ'σяєм ιρѕυм #"
+
+#: templates/publisher/course_detail/_edit_warning_popup.html
+#, python-format
+msgid ""
+"\n"
+"                The %(current_team_name)s team is currently reviewing this course. If you edit course information, you might overwrite the team’s changes, and you will have to send the course to the %(team_name)s team for review again.\n"
+"            "
+msgstr ""
+"\n"
+"                Thé %(current_team_name)s téäm ïs çürréntlý révïéwïng thïs çöürsé. Ìf ýöü édït çöürsé ïnförmätïön, ýöü mïght övérwrïté thé téäm’s çhängés, änd ýöü wïll hävé tö sénd thé çöürsé tö thé %(team_name)s téäm för révïéw ägäïn.\n"
+"             Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα#"
+
+#: templates/publisher/course_detail/_edit_warning_popup.html
+#: templates/publisher/course_run_detail/_widgets.html
+#: templates/publisher/courses.html
+msgid "Edit"
+msgstr "Édït Ⱡ'σяєм ι#"
+
 #: templates/publisher/course_detail/_widgets.html
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "EDIT"
@@ -2639,11 +2669,6 @@ msgstr "Püßlïsh Ⱡ'σяєм ιρѕυм #"
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "Submitted for review"
 msgstr "Süßmïttéd för révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
-
-#: templates/publisher/course_run_detail/_widgets.html
-#: templates/publisher/courses.html
-msgid "Edit"
-msgstr "Édït Ⱡ'σяєм ι#"
 
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "COURSE PREVIEW"
