@@ -139,7 +139,8 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
 
         context['can_edit'] = mixins.check_course_organization_permission(
             user, course_run.course, OrganizationExtension.EDIT_COURSE_RUN
-        )
+        ) and has_role_for_course(course_run.course, user)
+
         context['role_widgets'] = get_course_role_widgets_data(
             user, course_run.course, course_run.course_run_state, 'publisher:api:change_course_run_state'
         )
@@ -173,6 +174,18 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
         context['publisher_comment_widget_feature'] = waffle.switch_is_active('publisher_comment_widget_feature')
         context['publisher_approval_widget_feature'] = waffle.switch_is_active('publisher_approval_widget_feature')
         context['publish_state_name'] = CourseRunStateChoices.Published
+
+        if context['can_edit']:
+            current_owner_role = course_run.course.course_user_roles.get(role=course_run.course_run_state.owner_role)
+            user_role = course_run.course.course_user_roles.get(user=user)
+            if user_role.role != current_owner_role.role:
+                context['add_warning_popup'] = True
+                context['current_team_name'] = (_('course team')
+                                                if current_owner_role.role == PublisherUserRole.CourseTeam
+                                                else _('project coordinator'))
+                context['team_name'] = (_('course team')
+                                        if current_owner_role.role == PublisherUserRole.ProjectCoordinator
+                                        else _('project coordinator'))
 
         return context
 
@@ -628,6 +641,12 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
 
                     # pylint: disable=no-member
                     messages.success(request, _('Course run updated successfully.'))
+
+                    # after editing course owner role will be changed to current user
+                    user_role = course_run.course.course_user_roles.get(user=user).role
+                    if user_role != course_run.course_run_state.owner_role:
+                        course_run.course_run_state.change_owner_role(user_role)
+
                     return HttpResponseRedirect(reverse(self.success_url, kwargs={'pk': course_run.id}))
             except Exception as e:  # pylint: disable=broad-except
                 # pylint: disable=no-member

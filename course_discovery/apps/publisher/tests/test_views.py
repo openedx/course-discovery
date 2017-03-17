@@ -25,7 +25,8 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.constants import (ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME,
                                                        PROJECT_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME)
-from course_discovery.apps.publisher.models import Course, CourseRun, CourseState, OrganizationExtension, Seat
+from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState,
+                                                    OrganizationExtension, Seat)
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
@@ -776,6 +777,11 @@ class CourseRunDetailTests(TestCase):
 
         self.assert_can_edit_permission()
 
+        factories.CourseUserRoleFactory(course=self.course, user=user, role=PublisherUserRole.CourseTeam)
+
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE_RUN, organization_extension.group, organization_extension
+        )
         assign_perm(
             OrganizationExtension.EDIT_COURSE_RUN, organization_extension.group, organization_extension
         )
@@ -1119,6 +1125,35 @@ class CourseRunDetailTests(TestCase):
         )
         self.assertContains(response, expected)
         self.assertNotContains(response, '<button class="btn-brand btn-base btn-publish"')
+
+    def test_edit_permission_with_owner_role(self):
+        """
+        Test that user can see edit button if he has permission and has role for course.
+        """
+
+        course_team_role = factories.CourseUserRoleFactory(
+            course=self.course, user=self.user, role=PublisherUserRole.CourseTeam
+        )
+
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group,
+                    self.organization_extension)
+        assign_perm(OrganizationExtension.EDIT_COURSE_RUN, self.organization_extension.group,
+                    self.organization_extension)
+
+        # verify popup message will not added in context
+        response = self.client.get(self.page_url)
+        self.assertEqual(response.context['can_edit'], True)
+        self.assertNotIn('add_warning_popup', response.context)
+        self.assertNotIn('current_team_name', response.context)
+        self.assertNotIn('team_name', response.context)
+
+        # Assign new user to course team role.
+        course_team_role.user = UserFactory()
+        course_team_role.save()
+
+        # Verify that user cannot see edit button if he has no role for course.
+        self.assert_can_edit_permission(can_edit=False)
 
 
 # pylint: disable=attribute-defined-outside-init
@@ -2052,6 +2087,9 @@ class CourseRunEditViewTests(TestCase):
         self.new_course = Course.objects.get(number=data['number'])
         self.new_course_run = self.new_course.course_runs.first()
 
+        assign_perm(OrganizationExtension.EDIT_COURSE_RUN, self.group, self.organization_extension)
+        assign_perm(OrganizationExtension.VIEW_COURSE_RUN, self.group, self.organization_extension)
+
         # assert edit page is loading sucesfully.
         self.edit_page_url = reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.new_course_run.id})
         response = self.client.get(self.edit_page_url)
@@ -2130,43 +2168,6 @@ class CourseRunEditViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Edit Course')
 
-    @ddt.data(INTERNAL_USER_GROUP_NAME, ADMIN_GROUP_NAME)
-    def test_update_course_run_without_seat(self, publisher_group):
-        """ Verify that internal users can update the data from course run edit page."""
-
-        self.assertEqual(self.new_course_run.history.all().count(), 1)
-        self.assertEqual(self.new_course_run.course.history.all().count(), 1)
-
-        self.client.logout()
-        user, __ = create_non_staff_user_and_login(self)
-
-        self.assertNotEqual(self.course_run.changed_by, user)
-        user.groups.add(Group.objects.get(name=publisher_group))
-
-        response = self.client.post(self.edit_page_url, self.updated_dict)
-
-        self.assertRedirects(
-            response,
-            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.new_course_run.id}),
-            status_code=302,
-            target_status_code=200
-        )
-
-        updated_course = Course.objects.get(id=self.new_course.id)
-        self.assertEqual(updated_course.full_description, 'This is testing description.')
-
-        course_run = CourseRun.objects.get(id=self.new_course_run.id)
-        self.assertEqual(course_run.changed_by, user)
-        self.assertEqual(course_run.xseries_name, 'Test XSeries')
-
-        self.assertFalse(course_run.seats.all().exists())
-        # no mail will be send because course-run state is already draft.
-        # 1st email is of course-creation
-        self.assertEqual(len(mail.outbox), 1)
-
-        self.assertEqual(course_run.history.all().count(), 2)
-        self.assertEqual(course_run.course.history.all().count(), 2)
-
     @ddt.data('start', 'end', 'pacing_type')
     def test_update_with_errors(self, field):
         """ Verify that course run edit page throws error in case of missing required field."""
@@ -2201,10 +2202,9 @@ class CourseRunEditViewTests(TestCase):
         """ Verify that course run edit page create seat object also if not exists previously."""
 
         self.client.logout()
-        user, __ = create_non_staff_user_and_login(self)
-
+        user = self.new_course_run.course.course_user_roles.get(role=PublisherUserRole.CourseTeam).user
+        self.client.login(username=user.username, password=USER_PASSWORD)
         self.assertNotEqual(self.course_run.changed_by, user)
-        user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
 
         # post data without seat
         data = {'full_description': 'This is testing description.', 'image': ''}
@@ -2457,6 +2457,46 @@ class CourseRunEditViewTests(TestCase):
         toggle_switch('publisher_hide_features_for_pilot', False)
         response = self.client.get(self.edit_page_url)
         self.assertContains(response, '<div id="about-page" class="course-information ">')
+
+    def test_owner_role_change_on_edit(self):
+        """ Verify that when a user made changes in course run, course will be assign to him,
+        and state will be changed to `Draft`. """
+
+        self.new_course_run.course_run_state.name = CourseRunStateChoices.Review
+        self.new_course_run.save()
+        # check that current owner is course team
+        self.assertEqual(self.new_course_run.course_run_state.owner_role, PublisherUserRole.CourseTeam)
+
+        pc_user = self.new_course_run.course.course_user_roles.get(role=PublisherUserRole.ProjectCoordinator).user
+        pc_user.groups.add(self.group_project_coordinator)
+        pc_user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+
+        assign_perm(
+            OrganizationExtension.EDIT_COURSE_RUN, self.group_project_coordinator, self.organization_extension
+        )
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE_RUN, self.group_project_coordinator, self.organization_extension
+        )
+        self.client.logout()
+        self.client.login(username=pc_user.username, password=USER_PASSWORD)
+
+        response = self.client.get(reverse('publisher:publisher_course_run_detail', args=[self.new_course_run.id]))
+        self.assertEqual(response.context['add_warning_popup'], True)
+        self.assertEqual(response.context['current_team_name'], 'course team')
+        self.assertEqual(response.context['team_name'], 'project coordinator')
+
+        response = self.client.post(self.edit_page_url, self.updated_dict)
+
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.new_course_run.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        course_run_state = CourseRunState.objects.get(id=self.new_course_run.course_run_state.id)
+        self.assertEqual(course_run_state.name, CourseRunStateChoices.Draft)
+        self.assertEqual(course_run_state.owner_role, PublisherUserRole.ProjectCoordinator)
 
 
 class CourseRevisionViewTests(TestCase):

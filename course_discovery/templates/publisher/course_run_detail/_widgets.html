@@ -2,7 +2,8 @@
 
 <div class="course-widgets">
     {% if can_edit %}
-        <a href="{% url 'publisher:publisher_course_runs_edit' pk=object.id %}" class="btn btn-neutral btn-courserun-edit">
+        {% url 'publisher:publisher_courses_edit' pk=object.id as edit_page_url %}
+        <a href="{% if add_warning_popup %}#{% else %}{{ edit_page_url }}{% endif %}" class="btn btn-neutral btn-courserun-edit">
             {% trans "EDIT" %}
         </a>
         <div class="clearfix"></div>
@@ -69,5 +70,9 @@
             {% include 'comments/add_auth_comments.html' with comment_type='decline_preview' box_label=decline_reason btn_label=submit %}
         </div>
         {% include 'publisher/course_run_detail/_preview_accept_popup.html' %}
+
+        {% if add_warning_popup %}
+            {% include 'publisher/course_run_detail/_edit_warning.html' %}
+        {% endif %}
     </div>
 </div>

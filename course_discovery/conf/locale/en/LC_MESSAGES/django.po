@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-21 12:56+0500\n"
+"POT-Creation-Date: 2017-03-21 16:21+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -781,6 +781,14 @@ msgid "Mark as Reviewed"
 msgstr ""
 
 #: apps/publisher/views.py
+msgid "course team"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "project coordinator"
+msgstr ""
+
+#: apps/publisher/views.py
 msgid ""
 "You have successfully created a course. You can edit the course information "
 "or enter information for the course About page at any time. An edX project "
@@ -908,6 +916,7 @@ msgstr ""
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_detail/_edit_warning_popup.html
 #: templates/publisher/course_edit_form.html
+#: templates/publisher/course_run_detail/_edit_warning.html
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Cancel"
 msgstr ""
@@ -1859,6 +1868,7 @@ msgid "Course Level"
 msgstr ""
 
 #: templates/publisher/course_detail/_edit_warning_popup.html
+#: templates/publisher/course_run_detail/_edit_warning.html
 msgid "CAUTION"
 msgstr ""
 
@@ -1871,6 +1881,7 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/course_detail/_edit_warning_popup.html
+#: templates/publisher/course_run_detail/_edit_warning.html
 #: templates/publisher/course_run_detail/_widgets.html
 #: templates/publisher/courses.html
 msgid "Edit"
@@ -2136,6 +2147,14 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Seats"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_edit_warning.html
+#, python-format
+msgid ""
+"The %(current_team_name)s is currently reviewing this course run. If you "
+"edit course run information, you might overwrite the team’s changes, and you"
+" will have to send the course run to the %(team_name)s for review again."
 msgstr ""
 
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
