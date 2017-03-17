@@ -1,3 +1,4 @@
+from django.conf import settings
 from haystack.query import SearchQuerySet
 from course_discovery.apps.edx_haystack_extensions.distinct_counts.backends import DistinctCountsSearchQuery
 
@@ -49,3 +50,25 @@ class DistinctCountsSearchQuerySet(SearchQuerySet):
         if self._distinct_result_count is None:
             self._distinct_result_count = self.query.get_distinct_count()
         return self._distinct_result_count
+
+    def facet_counts(self):
+        """
+        Return the facet counts. Note: this will cause the query to run if it hasn't already.
+
+        Override the original implementation so that if we're forced to run the query, we can
+        cache the results that come back with it and avoid having to make another request to get
+        them later. Original implementation:
+        https://github.com/django-haystack/django-haystack/blob/master/haystack/query.py#L532
+        """
+        if self.query.has_run():
+            return self.query.get_facet_counts()
+        else:
+            # Force the query to run and fill the cache with the first page of results.
+            # This will cause the facet_counts to be cached along with the rest of the results
+            # and could potentially reduce the number of queries required to complete a search
+            # request.
+            #
+            # Note: If there are fewer than count results for the query, ES will simply return what it
+            # has found without raising an exception.
+            self._fill_cache(0, settings.DISTINCT_COUNTS_QUERY_CACHE_WARMING_COUNT)
+            return self.query.get_facet_counts()

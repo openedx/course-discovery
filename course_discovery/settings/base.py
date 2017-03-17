@@ -454,6 +454,11 @@ SEARCH_FACET_LIMIT = 10000
 DISTINCT_COUNTS_HIT_PRECISION = 1500
 DISTINCT_COUNTS_FACET_PRECISION = 250
 
+# The number of records that should be requested when warming the SearchQuerySet cache. Set this to equal the
+# number of records typically requested with each search query in order to reduce the number of queries that need
+# to be executed.
+DISTINCT_COUNTS_QUERY_CACHE_WARMING_COUNT = 20
+
 DEFAULT_PARTNER_ID = None
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#site-id

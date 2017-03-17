@@ -1,4 +1,5 @@
 import datetime
+import mock
 
 import pytest
 from django.test import TestCase
@@ -123,3 +124,39 @@ class DistinctCountsSearchQuerySetTests(ElasticsearchTestMixin, TestCase):
         hidden_count, hidden_distinct_count = facet_counts['queries']['hidden']
         assert hidden_count == 2
         assert hidden_distinct_count == 1
+
+    def test_facet_counts_caches_results(self):
+        """ Verify that facet_counts cache results when it is forced to run the query."""
+        course = CourseFactory()
+        runs = [
+            CourseRunFactory(title='foo', pacing_type='self_paced', hidden=True, course=course),
+            CourseRunFactory(title='foo', pacing_type='self_paced', hidden=True, course=course),
+            CourseRunFactory(title='foo', pacing_type='instructor_paced', hidden=False, course=course),
+        ]
+
+        queryset = SearchQuerySet().filter(title='foo').models(CourseRun)
+        queryset = queryset.facet('pacing_type').query_facet('hidden', 'hidden:true')
+        dc_queryset = DistinctCountsSearchQuerySet.from_queryset(queryset).with_distinct_counts('aggregation_key')
+
+        # This should force the query to run and the results to be cached
+        facet_counts = dc_queryset.facet_counts()
+
+        with mock.patch.object(DistinctCountsSearchQuery, 'run') as mock_run:
+            # Calling facet_counts again shouldn't result in an additional query
+            cached_facet_counts = dc_queryset.facet_counts()
+            assert not mock_run.called
+            assert facet_counts == cached_facet_counts
+
+            # Calling count shouldn't result in another query, as we should have already cached it with the
+            # first request.
+            count = dc_queryset.count()
+            assert not mock_run.called
+            assert count == len(runs)
+
+            # Fetching the results shouldn't result in another query, as we should have already cached them
+            # with the initial request.
+            results = dc_queryset[:]
+            assert not mock_run.called
+            expected = {run.key for run in runs}
+            actual = {run.key for run in results}
+            assert expected == actual
