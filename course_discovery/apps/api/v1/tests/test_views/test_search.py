@@ -1,6 +1,7 @@
 import datetime
 import json
 import urllib.parse
+from unittest import mock
 
 import ddt
 from django.conf import settings
@@ -436,6 +437,41 @@ class AggregateSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, Login
             [obj.get('aggregation_key') for obj in response_data['objects']['results']]
         )
         assert expected == actual
+
+    @ddt.data(
+        (5, {'q': 'cs'}, 5),
+        (5, {'q': 'cs', 'page_size': 100}, 5),
+        (5, {'q': 'cs', 'page_size': -1}, 5),  # when page_size is negative, PageNumberPagination uses the default size
+        (5, {'q': 'cs', 'page': 1}, 5),
+        (5, {'q': 'cs', 'page': 1, 'page_size': 2}, 2),
+        (5, {'q': 'cs', 'page': 3, 'page_size': 2}, 1),
+        (5, {'q': 'cs', 'page': 'last', 'page_size': 5}, 5),  # 'last' can be used to request the last page of results
+    )
+    @ddt.unpack
+    def test_faceted_search_executes_a_single_query(self, record_count, query_params, expected_results_count):
+        """ Verify the view only needs to execute a single query to return results and facets. """
+        for __ in range(record_count):
+            course = CourseFactory(partner=self.partner)
+            CourseRunFactory(course=course, status=CourseRunStatus.Published, title='cs')
+
+        with mock.patch.object(self.backend, 'search', wraps=self.backend.search) as mock_search:
+            response = self.get_response(query_params)
+            assert response.status_code == 200
+            assert mock_search.call_count == 1
+            assert response.data['objects']['count'] == record_count
+            assert len(response.data['objects']['results']) == expected_results_count
+
+    @ddt.data(
+        {'q': 'cs', 'page': -1},
+        {'q': 'cs', 'page': 0},
+        {'q': 'cs', 'page': 'foo'},
+    )
+    def test_faceted_search_handles_invalid_pagination_params(self, query_params):
+        """ Verify the view handles invalid pagination parameters correctly. """
+        CourseRunFactory(course__partner=self.partner, status=CourseRunStatus.Published, title='cs')
+        response = self.get_response(query_params)
+        assert response.status_code == 404
+        assert response.data['detail'] == 'Invalid page.'
 
 
 class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin, LoginMixin, ElasticsearchTestMixin,
