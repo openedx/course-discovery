@@ -84,7 +84,8 @@ class CatalogViewSet(viewsets.ModelViewSet):
         """
         Retrieve the list of courses contained within this catalog.
 
-        Only courses with at least one active and marketable course run are returned.
+        Only courses with at least one course run that can be enrolled in immediately,
+        is ongoing or yet to start, and appears on the marketing site are returned.
         ---
         serializer: serializers.CatalogCourseSerializer
         """
