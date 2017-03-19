@@ -19,9 +19,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-15 12:12+0500\n"
-"PO-Revision-Date: 2017-03-15 15:15+0000\n"
-"Last-Translator: Christopher Lee <clee@edx.org>\n"
+"POT-Creation-Date: 2017-03-15 18:26+0500\n"
+"PO-Revision-Date: 2017-03-17 09:14+0000\n"
+"Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1298,7 +1298,6 @@ msgid "BIO1.1x; BIO1.2x etc."
 msgstr "BIO1.1x; BIO1.2x etc."
 
 #: templates/publisher/add_courserun_form.html
-#: templates/publisher/course_edit_form.html
 msgid "About page information"
 msgstr "Información de la pagina Acerca de"
 
@@ -1890,33 +1889,25 @@ msgstr "Editar curso"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
-"The information in the Studio Instance section is required before edX can "
-"create a Studio instance for the course run."
-msgstr "La información de la sección Instancia de Studio es necesaria antes de que edX pueda crear una instancia de Studio para la ejecución del curso."
+"To add or edit information about this course, make changes on this page and "
+"then select"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Update Course."
+msgstr ""
 
 #: templates/publisher/course_edit_form.html
 msgid ""
-"The information in the About Page section is not required before edX creates"
-" a Studio instance for the course run. You can return to this page and enter"
-" this information later. This information is required before edX announces "
-"the course."
-msgstr "La información de la sección Acerca de la página no es necesaria antes de que edX cree una instancia de Studio para la ejecución del curso. Puede regresar a esta página e ingresar esta información más adelante. Esta información es necesaria antes de que edX anuncie el curso."
+"All required fields must be complete before this course can be sent for "
+"review."
+msgstr ""
 
 #: templates/publisher/course_edit_form.html
 msgid ""
 "This information is required before edX can create a Studio instance for a "
 "course run."
 msgstr "Esta información es necesaria antes de que edX pueda crear una instancia de Studio para una ejecución de curso."
-
-#: templates/publisher/course_edit_form.html
-msgid ""
-"You can enter this information at any time before edX publishes the About "
-"page."
-msgstr "Puede ingresar esta información en cualquier momento antes de edX publicar la página Acerca de."
-
-#: templates/publisher/course_edit_form.html
-msgid "You must enter this information both in this section and in Studio."
-msgstr "Debe introducir esta información tanto en esta sección como en Studio."
 
 #: templates/publisher/course_edit_form.html
 msgid "UPDATE COURSE"
@@ -2307,6 +2298,23 @@ msgid "Runs"
 msgstr "Versiones"
 
 #: templates/publisher/dashboard.html
+msgid "COURSE ABOUT PAGES"
+msgstr ""
+
+#: templates/publisher/dashboard.html
+msgid ""
+"EdX Publisher is used to create course About pages. Users enter, review, and"
+" approve content in Publisher. Publisher keeps track of the details and "
+"sends email updates when actions are necessary."
+msgstr ""
+
+#: templates/publisher/dashboard.html
+msgid ""
+"EdX Publisher is a companion to edX Studio. Course teams enter About page "
+"information in Publisher, and course content in Studio."
+msgstr ""
+
+#: templates/publisher/dashboard.html
 msgid "Course runs"
 msgstr "Versiones del curso"
 
@@ -2357,7 +2365,7 @@ msgstr "Parece que Ud. aún no ha publicado un curso."
 msgid ""
 "The list below contains all course runs published in the past "
 "%(default_published_days)s days."
-msgstr ""
+msgstr "La lista a continuación contiene todas las ejecuciones del curso publicadas en los últimos %(default_published_days)s días."
 
 #: templates/publisher/dashboard/_published.html
 msgid "Published Date"
