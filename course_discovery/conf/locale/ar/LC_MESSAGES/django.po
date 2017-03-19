@@ -18,8 +18,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-15 12:12+0500\n"
-"PO-Revision-Date: 2017-03-15 09:28+0000\n"
+"POT-Creation-Date: 2017-03-15 18:26+0500\n"
+"PO-Revision-Date: 2017-03-17 09:14+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Arabic (http://www.transifex.com/open-edx/edx-platform/language/ar/)\n"
 "MIME-Version: 1.0\n"
@@ -1297,7 +1297,6 @@ msgid "BIO1.1x; BIO1.2x etc."
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
-#: templates/publisher/course_edit_form.html
 msgid "About page information"
 msgstr "معلومات صفحة اللمحة"
 
@@ -1889,33 +1888,25 @@ msgstr "تجرير الدورة التعليمية"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
-"The information in the Studio Instance section is required before edX can "
-"create a Studio instance for the course run."
-msgstr "المعلومات في قسم مثيل الاستوديو مطلوبة قبل أن تتمكن edX من إنشاء مثيل ستوديو لمجرى الدورة."
+"To add or edit information about this course, make changes on this page and "
+"then select"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Update Course."
+msgstr ""
 
 #: templates/publisher/course_edit_form.html
 msgid ""
-"The information in the About Page section is not required before edX creates"
-" a Studio instance for the course run. You can return to this page and enter"
-" this information later. This information is required before edX announces "
-"the course."
-msgstr "المعلومات في قسم عن الدورة ليست مطلوبة من قبل edX قبل إنشاء مثيل ستوديو لمدرى الدورة. يمكنك العودة إلى هذه الصفحة وإدخال هذه المعلومات في وقت لاحق. هذه المعلومات مطلوبة قبل  أن تعلن edX عن الدورة."
+"All required fields must be complete before this course can be sent for "
+"review."
+msgstr ""
 
 #: templates/publisher/course_edit_form.html
 msgid ""
 "This information is required before edX can create a Studio instance for a "
 "course run."
 msgstr "هذه المعلومات مطلوبة قبل أن تتمكن edX من إنشاء مثيل ستوديو لمجرى الدورة."
-
-#: templates/publisher/course_edit_form.html
-msgid ""
-"You can enter this information at any time before edX publishes the About "
-"page."
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid "You must enter this information both in this section and in Studio."
-msgstr ""
 
 #: templates/publisher/course_edit_form.html
 msgid "UPDATE COURSE"
@@ -2304,6 +2295,23 @@ msgstr ""
 #: templates/publisher/courses.html
 msgid "Runs"
 msgstr "مجريات"
+
+#: templates/publisher/dashboard.html
+msgid "COURSE ABOUT PAGES"
+msgstr ""
+
+#: templates/publisher/dashboard.html
+msgid ""
+"EdX Publisher is used to create course About pages. Users enter, review, and"
+" approve content in Publisher. Publisher keeps track of the details and "
+"sends email updates when actions are necessary."
+msgstr ""
+
+#: templates/publisher/dashboard.html
+msgid ""
+"EdX Publisher is a companion to edX Studio. Course teams enter About page "
+"information in Publisher, and course content in Studio."
+msgstr ""
 
 #: templates/publisher/dashboard.html
 msgid "Course runs"
