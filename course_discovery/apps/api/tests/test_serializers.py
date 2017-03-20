@@ -342,6 +342,7 @@ class CourseRunSerializerTests(MinimalCourseRunSerializerTests):
             'announcement': json_date_format(course_run.announcement),
             'video': VideoSerializer(course_run.video).data,
             'mobile_available': course_run.mobile_available,
+            'eligible_for_financial_aid': course_run.eligible_for_financial_aid,
             'hidden': course_run.hidden,
             'content_language': course_run.language.code,
             'transcript_languages': [],
