@@ -6,8 +6,9 @@ from rest_framework.permissions import IsAuthenticated
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.v1.views import get_query_param
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX
-from course_discovery.apps.course_metadata.models import Course
+from course_discovery.apps.course_metadata.models import Course, CourseRun
 
 
 # pylint: disable=no-member
@@ -26,19 +27,34 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = ProxiedPagination
 
     def get_queryset(self):
-        q = self.request.query_params.get('q', None)
+        q = self.request.query_params.get('q')
 
         if q:
             queryset = Course.search(q)
+            queryset = self.get_serializer_class().prefetch_queryset(queryset=queryset)
         else:
-            queryset = self.get_serializer_class().prefetch_queryset()
+            course_runs = CourseRun.objects.exclude(hidden=True)
+
+            if get_query_param(self.request, 'marketable_course_runs_only'):
+                course_runs = course_runs.marketable().active()
+
+            if get_query_param(self.request, 'marketable_enrollable_course_runs_with_archived'):
+                course_runs = course_runs.marketable().enrollable()
+
+            if get_query_param(self.request, 'published_course_runs_only'):
+                course_runs = course_runs.filter(status=CourseRunStatus.Published)
+
+            queryset = self.get_serializer_class().prefetch_queryset(
+                queryset=self.queryset,
+                course_runs=course_runs
+            )
 
         return queryset.order_by(Lower('key'))
 
     def get_serializer_context(self, *args, **kwargs):
         context = super().get_serializer_context(*args, **kwargs)
-        query_params = ['exclude_utm', 'include_deleted_programs', 'marketable_course_runs_only',
-                        'marketable_enrollable_course_runs_with_archived', 'published_course_runs_only']
+        query_params = ['exclude_utm', 'include_deleted_programs']
+
         for query_param in query_params:
             context[query_param] = get_query_param(self.request, query_param)
 

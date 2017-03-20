@@ -80,7 +80,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         SeatFactory(course_run=unpublished_course_run)
 
         # Published course run with no seats.
-        CourseRunFactory(status=CourseRunStatus.Published, course=self.course)
+        no_seats_course_run = CourseRunFactory(status=CourseRunStatus.Published, course=self.course)
 
         # Published course run with a seat and an end date in the past.
         closed_course_run = CourseRunFactory(
@@ -94,14 +94,14 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         url = '{}?marketable_course_runs_only={}'.format(url, marketable_course_runs_only)
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.data,
-            self.serialize_course(
-                self.course,
-                extra_context={'marketable_course_runs_only': marketable_course_runs_only}
-            )
-        )
+        assert response.status_code == 200
+
+        if marketable_course_runs_only:
+            # Emulate prefetching behavior.
+            for course_run in (unpublished_course_run, no_seats_course_run, closed_course_run):
+                course_run.delete()
+
+        assert response.data == self.serialize_course(self.course)
 
     @ddt.data(1, 0)
     def test_marketable_enrollable_course_runs_with_archived(self, marketable_enrollable_course_runs_with_archived):
@@ -111,13 +111,17 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         past = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=2)
         future = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=2)
 
-        CourseRunFactory(enrollment_start=None, enrollment_end=future, course=self.course)
-        CourseRunFactory(enrollment_start=None, enrollment_end=None, course=self.course)
-        CourseRunFactory(
-            enrollment_start=past, enrollment_end=future, course=self.course
-        )
-        CourseRunFactory(enrollment_start=future, course=self.course)
-        CourseRunFactory(enrollment_end=past, course=self.course)
+        course_run = CourseRunFactory(enrollment_start=None, enrollment_end=future, course=self.course)
+        SeatFactory(course_run=course_run)
+
+        filtered_course_runs = [
+            CourseRunFactory(enrollment_start=None, enrollment_end=None, course=self.course),
+            CourseRunFactory(
+                enrollment_start=past, enrollment_end=future, course=self.course
+            ),
+            CourseRunFactory(enrollment_start=future, course=self.course),
+            CourseRunFactory(enrollment_end=past, course=self.course),
+        ]
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
         url = '{}?marketable_enrollable_course_runs_with_archived={}'.format(
@@ -126,12 +130,13 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         response = self.client.get(url)
 
         assert response.status_code == 200
-        assert response.data == self.serialize_course(
-            self.course,
-            extra_context={
-                'marketable_enrollable_course_runs_with_archived': marketable_enrollable_course_runs_with_archived
-            }
-        )
+
+        if marketable_enrollable_course_runs_with_archived:
+            # Emulate prefetching behavior.
+            for course_run in filtered_course_runs:
+                course_run.delete()
+
+        assert response.data == self.serialize_course(self.course)
 
     @ddt.data(1, 0)
     def test_get_include_published_course_run(self, published_course_runs_only):
@@ -140,15 +145,20 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         the 'published_course_runs_only' flag is set to True
         """
         CourseRunFactory(status=CourseRunStatus.Published, course=self.course)
-        CourseRunFactory(status=CourseRunStatus.Unpublished, course=self.course)
+        unpublished_course_run = CourseRunFactory(status=CourseRunStatus.Unpublished, course=self.course)
+
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
         url = '{}?published_course_runs_only={}'.format(url, published_course_runs_only)
+
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.data,
-            self.serialize_course(self.course, extra_context={'published_course_runs_only': published_course_runs_only})
-        )
+
+        assert response.status_code == 200
+
+        if published_course_runs_only:
+            # Emulate prefetching behavior.
+            unpublished_course_run.delete()
+
+        assert response.data == self.serialize_course(self.course)
 
     def test_list(self):
         """ Verify the endpoint returns a list of all courses. """
@@ -170,7 +180,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         query = 'title:' + title
         url = '{root}?q={query}'.format(root=reverse('api:v1:course-list'), query=query)
 
-        with self.assertNumQueries(58):
+        with self.assertNumQueries(37):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
