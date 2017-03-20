@@ -449,6 +449,12 @@ class CourseRunWithProgramsSerializer(CourseRunSerializer):
     """A ``CourseRunSerializer`` which includes programs derived from parent course."""
     programs = serializers.SerializerMethodField()
 
+    @classmethod
+    def prefetch_queryset(cls, queryset=None):
+        queryset = super().prefetch_queryset(queryset=queryset)
+
+        return queryset.prefetch_related('course__programs')
+
     def get_programs(self, obj):
         programs = []
         # Filter out non-deleted programs which this course_run is part of the program course_run exclusion
@@ -482,14 +488,14 @@ class MinimalCourseSerializer(TimestampModelSerializer):
     image = ImageField(read_only=True, source='card_image_url')
 
     @classmethod
-    def prefetch_queryset(cls, queryset=None):
+    def prefetch_queryset(cls, queryset=None, course_runs=None):
         # Explicitly check for None to avoid returning all Courses when the
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else Course.objects.all()
 
         return queryset.select_related('partner').prefetch_related(
             'authoring_organizations',
-            Prefetch('course_runs', queryset=MinimalCourseRunSerializer.prefetch_queryset()),
+            Prefetch('course_runs', queryset=MinimalCourseRunSerializer.prefetch_queryset(queryset=course_runs)),
         )
 
     class Meta:
@@ -510,7 +516,7 @@ class CourseSerializer(MinimalCourseSerializer):
     marketing_url = serializers.SerializerMethodField()
 
     @classmethod
-    def prefetch_queryset(cls, queryset=None):
+    def prefetch_queryset(cls, queryset=None, course_runs=None):
         # Explicitly check for None to avoid returning all Courses when the
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else Course.objects.all()
@@ -519,7 +525,7 @@ class CourseSerializer(MinimalCourseSerializer):
             'expected_learning_items',
             'prerequisites',
             'subjects',
-            Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset()),
+            Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset()),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset()),
         )
@@ -544,36 +550,26 @@ class CourseWithProgramsSerializer(CourseSerializer):
     course_runs = serializers.SerializerMethodField()
     programs = serializers.SerializerMethodField()
 
+    @classmethod
+    def prefetch_queryset(cls, queryset=None, course_runs=None):
+        """
+        Similar to the CourseSerializer's prefetch_queryset, but prefetches a
+        filtered CourseRun queryset.
+        """
+        queryset = queryset if queryset is not None else Course.objects.all()
+
+        return queryset.select_related('level_type', 'video', 'partner').prefetch_related(
+            'expected_learning_items',
+            'prerequisites',
+            'subjects',
+            Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
+            Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset()),
+            Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset()),
+        )
+
     def get_course_runs(self, course):
-        # exclude() isn't used to avoid discarding prefetched results.
-        course_runs = [course_run for course_run in course.course_runs.all() if not course_run.hidden]
-
-        if self.context.get('marketable_course_runs_only'):
-            # A client requesting marketable_course_runs_only should only receive course runs
-            # that are published, have seats, and can still be enrolled in. All other course runs
-            # should be excluded. As an unfortunate side-effect of the way we've marketed course
-            # runs in the past - a course run could be marketed despite enrollment in that run being
-            # closed - achieving this requires applying both the marketable and active filters.
-
-            # TODO: These queryset methods chain filter() and exclude() calls, causing
-            # prefetched results to be discarded.
-            course_runs = course.course_runs.exclude(hidden=True).marketable().active()
-
-        if self.context.get('marketable_enrollable_course_runs_with_archived'):
-            # Same as "marketable_course_runs_only", but includes courses with an end date in the past
-
-            # TODO: These queryset methods chain filter() and exclude() calls, causing
-            # prefetched results to be discarded.
-            course_runs = course.course_runs.exclude(hidden=True).marketable().enrollable()
-
-        if self.context.get('published_course_runs_only'):
-            # filter() isn't used to avoid discarding prefetched results.
-            course_runs = [
-                course_run for course_run in course_runs if course_run.status == CourseRunStatus.Published
-            ]
-
         return CourseRunSerializer(
-            course_runs,
+            course.course_runs,
             many=True,
             context={
                 'request': self.context.get('request'),
@@ -603,33 +599,25 @@ class CatalogCourseSerializer(CourseSerializer):
     course_runs = serializers.SerializerMethodField()
 
     @classmethod
-    def prefetch_queryset(cls, queryset=None):
+    def prefetch_queryset(cls, queryset=None, course_runs=None):
         """
         Similar to the CourseSerializer's prefetch_queryset, but prefetches a
         filtered CourseRun queryset.
         """
         queryset = queryset if queryset is not None else Course.objects.all()
-        available_course_runs = CourseRun.objects.active().enrollable().marketable()
 
         return queryset.select_related('level_type', 'video', 'partner').prefetch_related(
             'expected_learning_items',
             'prerequisites',
             'subjects',
-            Prefetch(
-                'course_runs',
-                queryset=CourseRunSerializer.prefetch_queryset(queryset=available_course_runs),
-                # Using to_attr is recommended when filtering down a prefetch
-                # result as it is less ambiguous than storing a filtered result
-                # in the related manager’s cache and accessing it via all().
-                to_attr='available_course_runs'
-            ),
+            Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset()),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset()),
         )
 
     def get_course_runs(self, course):
         return CourseRunSerializer(
-            course.available_course_runs,
+            course.course_runs,
             many=True,
             context=self.context
         ).data

@@ -40,7 +40,7 @@ class CourseRunViewSet(PartnerMixin, viewsets.ModelViewSet):
               paramType: query
               multiple: false
         """
-        q = self.request.query_params.get('q', None)
+        q = self.request.query_params.get('q')
         partner = self.get_partner()
 
         if q:
@@ -50,9 +50,7 @@ class CourseRunViewSet(PartnerMixin, viewsets.ModelViewSet):
             return qs
         else:
             queryset = super(CourseRunViewSet, self).get_queryset().filter(course__partner=partner)
-            queryset = queryset.select_related(*serializers.SELECT_RELATED_FIELDS['course_run'])
-            queryset = queryset.prefetch_related(*serializers.PREFETCH_FIELDS['course_run'])
-            return queryset
+            return self.get_serializer_class().prefetch_queryset(queryset=queryset)
 
     def get_serializer_context(self, *args, **kwargs):
         context = super().get_serializer_context(*args, **kwargs)

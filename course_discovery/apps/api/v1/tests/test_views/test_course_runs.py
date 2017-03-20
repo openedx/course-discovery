@@ -51,7 +51,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
 
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
 
-        with self.assertNumQueries(13):
+        with self.assertNumQueries(10):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data.get('programs') == []
@@ -78,7 +78,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
 
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
 
-        with self.assertNumQueries(13):
+        with self.assertNumQueries(11):
             response = self.client.get(url)
             assert response.status_code == 200
             assert response.data.get('programs') == []
@@ -130,10 +130,10 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         assert response.status_code == 403
 
     def test_list(self):
-        """ Verify the endpoint returns a list of all catalogs. """
+        """ Verify the endpoint returns a list of all course runs. """
         url = reverse('api:v1:course_run-list')
 
-        with self.assertNumQueries(12):
+        with self.assertNumQueries(13):
             response = self.client.get(url)
 
         assert response.status_code == 200
@@ -143,10 +143,10 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         )
 
     def test_list_sorted_by_course_start_date(self):
-        """ Verify the endpoint returns a list of all catalogs sorted by course start date. """
+        """ Verify the endpoint returns a list of all course runs sorted by start date. """
         url = '{root}?ordering=start'.format(root=reverse('api:v1:course_run-list'))
 
-        with self.assertNumQueries(12):
+        with self.assertNumQueries(13):
             response = self.client.get(url)
 
         assert response.status_code == 200

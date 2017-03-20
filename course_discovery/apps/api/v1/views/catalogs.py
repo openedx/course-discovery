@@ -91,7 +91,12 @@ class CatalogViewSet(viewsets.ModelViewSet):
         """
         catalog = self.get_object()
         queryset = catalog.courses().available()
-        queryset = serializers.CatalogCourseSerializer.prefetch_queryset(queryset=queryset)
+        course_runs = CourseRun.objects.active().enrollable().marketable()
+
+        queryset = serializers.CatalogCourseSerializer.prefetch_queryset(
+            queryset=queryset,
+            course_runs=course_runs
+        )
 
         page = self.paginate_queryset(queryset)
         serializer = serializers.CatalogCourseSerializer(page, many=True, context={'request': request})

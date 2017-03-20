@@ -170,15 +170,16 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
                 # This run has no seats, but we still expect its parent course
                 # to be included.
-                CourseRunFactory(course=course)
+                filtered_course_run = CourseRunFactory(course=course)
 
                 with self.assertNumQueries(18):
                     response = self.client.get(url)
 
-                # Prefetched results are assigned to a custom attribute.
-                course.available_course_runs = [course_run]
-
                 assert response.status_code == 200
+
+                # Emulate prefetching behavior.
+                filtered_course_run.delete()
+
                 assert response.data['results'] == self.serialize_catalog_course([course], many=True)
 
                 # Any course appearing in the response must have at least one serialized run.
