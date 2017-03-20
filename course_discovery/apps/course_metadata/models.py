@@ -385,6 +385,7 @@ class CourseRun(TimeStampedModel):
         help_text=_('Indicates whether the course relation has been manually overridden.')
     )
     reporting_type = models.CharField(max_length=255, choices=ReportingType.choices, default=ReportingType.mooc)
+    eligible_for_financial_aid = models.BooleanField(default=True)
 
     tags = TaggableManager(
         blank=True,
