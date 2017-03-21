@@ -1721,16 +1721,13 @@ class CourseDetailViewTests(TestCase):
         factories.CourseUserRoleFactory(
             course=self.course, user=self.user, role=PublisherUserRole.MarketingReviewer
         )
-        factories.CourseUserRoleFactory(
-            course=self.course, user=UserFactory(), role=PublisherUserRole.Publisher
-        )
 
         # To create history objects for both `Review` and `Approved` states
         self.course_state.name = CourseStateChoices.Review
         self.course_state.save()
         self.course_state.name = CourseStateChoices.Approved
-        self.course_state.owner_role = PublisherUserRole.Publisher
-        self.course_state.approved_by_role = PublisherUserRole.CourseTeam
+        self.course_state.owner_role = PublisherUserRole.MarketingReviewer
+        self.course_state.approved_by_role = PublisherUserRole.MarketingReviewer
         self.course_state.save()
 
         self.user.groups.add(self.organization_extension.group)
@@ -1767,6 +1764,29 @@ class CourseDetailViewTests(TestCase):
 
         # Verify that user cannot see edit button if he has no role for course.
         self.assert_can_edit_permission(can_edit=False)
+
+    def test_detail_page_with_role_widgets(self):
+        """
+        Test that user can see only two role widgets `Course Team` and `Marketing`
+        on detail page even if other roles exists for course.
+        """
+        factories.CourseUserRoleFactory(
+            course=self.course, user=UserFactory(), role=PublisherUserRole.MarketingReviewer
+        )
+        factories.CourseUserRoleFactory(
+            course=self.course, user=UserFactory(), role=PublisherUserRole.Publisher
+        )
+
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
+        assign_perm(OrganizationExtension.EDIT_COURSE, self.organization_extension.group, self.organization_extension)
+
+        response = self.client.get(self.detail_page_url)
+
+        self.assertContains(response, '<div class="role-widget">', 2)
+        self.assertContains(response, '<strong>COURSE TEAM</strong>')
+        self.assertContains(response, '<strong>MARKETING</strong>')
+        self.assertNotContains(response, '<strong>PUBLISHER</strong>')
 
 
 class CourseEditViewTests(TestCase):
