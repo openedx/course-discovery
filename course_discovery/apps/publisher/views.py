@@ -392,7 +392,7 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
         context['publisher_history_widget_feature'] = waffle.switch_is_active('publisher_history_widget_feature')
         context['publisher_approval_widget_feature'] = waffle.switch_is_active('publisher_approval_widget_feature')
         context['role_widgets'] = get_course_role_widgets_data(
-            user, course, course.course_state, 'publisher:api:change_course_state'
+            user, course, course.course_state, 'publisher:api:change_course_state', parent_course=True
         )
 
         # Add warning popup information if user can edit the course but does not own it.
@@ -703,11 +703,14 @@ class CourseRevisionView(mixins.LoginRequiredMixin, DetailView):
         return context
 
 
-def get_course_role_widgets_data(user, course, state_object, change_state_url):
+def get_course_role_widgets_data(user, course, state_object, change_state_url, parent_course=False):
     """ Create role widgets list for course user roles. """
     role_widgets = []
+    course_roles = course.course_user_roles
+    if parent_course:
+        course_roles = course_roles.filter(role__in=[PublisherUserRole.CourseTeam, PublisherUserRole.MarketingReviewer])
 
-    for course_role in course.course_user_roles.order_by('role'):
+    for course_role in course_roles.order_by('role'):
         role_widget = {
             'course_role': course_role,
             'heading': ROLE_WIDGET_HEADINGS.get(course_role.role),
