@@ -1584,14 +1584,6 @@ class CourseDetailViewTests(TestCase):
         self.assertContains(response, 'STUDIO URL -')
         self.assertContains(response, 'Not yet created')
         self.assertContains(response, reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id}))
-        self.assertContains(response, 'REVISION HISTORY')
-
-        revision_url = reverse(
-            'publisher:publisher_course_revision', args=[self.course.id, self.course.history.first().history_id]
-        )
-        self.assertContains(
-            response, '<option value="{revision_url}">Latest version</option>'.format(revision_url=revision_url)
-        )
 
     def test_detail_page_data(self):
         """
@@ -1657,6 +1649,9 @@ class CourseDetailViewTests(TestCase):
         """ Verify that user will see the history widget when
         'publisher_history_widget_feature' is enabled.
         """
+        # Update course to create multiple history objects.
+        self.course.title = 'Updated Test Title'
+        self.course.save()
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         toggle_switch('publisher_history_widget_feature', True)
         response = self.client.get(self.detail_page_url)
@@ -1666,6 +1661,9 @@ class CourseDetailViewTests(TestCase):
         """ Verify that user will not see the history widget when
         'publisher_history_widget_feature' is disabled.
         """
+        # Update course to create multiple history objects.
+        self.course.title = 'Updated Test Title'
+        self.course.save()
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         toggle_switch('publisher_history_widget_feature', False)
         response = self.client.get(self.detail_page_url)
@@ -1822,6 +1820,33 @@ class CourseDetailViewTests(TestCase):
         self.assertContains(response, '<strong>COURSE TEAM</strong>')
         self.assertContains(response, '<strong>MARKETING</strong>')
         self.assertNotContains(response, '<strong>PUBLISHER</strong>')
+
+    def test_detail_page_with_history_widget(self):
+        """
+        Test that user can see history widget on detail page if history exists.
+        """
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
+
+        response = self.client.get(self.detail_page_url)
+
+        # Verify that user cannot see history widget if there is only one history object.
+        self.assertEqual(self.course.history.count(), 1)
+        self.assertNotContains(response, 'REVISION HISTORY')
+
+        # Update course to create multiple history objects.
+        self.course.title = 'Updated Test Title'
+        self.course.save()
+
+        response = self.client.get(self.detail_page_url)
+
+        self.assertContains(response, 'REVISION HISTORY')
+        revision_url = reverse(
+            'publisher:publisher_course_revision', args=[self.course.id, self.course.history.first().history_id]
+        )
+        self.assertContains(
+            response, '<option value="{revision_url}">Latest version</option>'.format(revision_url=revision_url)
+        )
 
 
 class CourseEditViewTests(TestCase):

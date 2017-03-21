@@ -40,9 +40,14 @@
             </div>
         {% endfor %}
     </div>
-    <div class="history-widget {% if not publisher_history_widget_feature %}hidden{% endif %}">
-      {% include 'publisher/_history_widget.html' %}
-    </div>
+
+    {% with object.history.all as history_list %}
+        {% if history_list.count > 1 %}
+            <div class="history-widget {% if not publisher_history_widget_feature %}hidden{% endif %}">
+              {% include 'publisher/_history_widget.html' %}
+            </div>
+        {% endif %}
+    {% endwith %}
     <div class="approval-widget {% if not publisher_approval_widget_feature %}hidden{% endif %}">
       {% include 'publisher/_approval_widget.html' %}
     </div>
