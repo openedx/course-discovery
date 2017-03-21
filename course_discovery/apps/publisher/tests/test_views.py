@@ -586,7 +586,6 @@ class CourseRunDetailTests(TestCase):
         self._assert_studio_fields(response)
         self._assert_cat(response)
         self._assert_drupal(response)
-        self._assert_subjects(response)
         self._assert_breadcrumbs(response, self.course_run)
 
     def _assert_credits_seats(self, response, seat):
@@ -638,20 +637,19 @@ class CourseRunDetailTests(TestCase):
             'Title', 'Number', 'Course ID', 'Price', 'Sub Title', 'School', 'Subject', 'XSeries',
             'Start Date', 'End Date', 'Self Paced', 'Staff', 'Estimated Effort', 'Languages',
             'Video Translations', 'Level', 'About this Course', "What you'll learn",
-            'Prerequisite', 'Keywords', 'Sponsors', 'Enrollments'
+            'Keywords', 'Sponsors', 'Enrollments'
         ]
         for field in fields:
             self.assertContains(response, field)
 
         values = [
             self.wrapped_course_run.title, self.wrapped_course_run.lms_course_id,
-            self.wrapped_course_run.verified_seat_price, self.wrapped_course_run.short_description,
-            self.wrapped_course_run.xseries_name, self.wrapped_course_run.min_effort,
+            self.wrapped_course_run.verified_seat_price,
+            self.wrapped_course_run.min_effort,
             self.wrapped_course_run.pacing_type, self.wrapped_course_run.persons,
             self.wrapped_course_run.max_effort, self.wrapped_course_run.language.name,
             self.wrapped_course_run.transcript_languages, self.wrapped_course_run.level_type,
-            self.wrapped_course_run.full_description, self.wrapped_course_run.expected_learnings,
-            self.wrapped_course_run.prerequisites, self.wrapped_course_run.keywords
+            self.wrapped_course_run.expected_learnings
         ]
         for value in values:
             self.assertContains(response, value)
@@ -679,11 +677,6 @@ class CourseRunDetailTests(TestCase):
                       self.course_run.enrollment_end]:
             self.assertContains(response, value.strftime(self.date_format))
 
-    def _assert_subjects(self, response):
-        """ Helper method to test course subjects. """
-        for subject in self.wrapped_course_run.subjects:
-            self.assertContains(response, subject.name)
-
     def test_detail_page_with_comments(self):
         """ Verify that detail page contains all the data along with comments
         for course.
@@ -700,7 +693,6 @@ class CourseRunDetailTests(TestCase):
         self._assert_studio_fields(response)
         self._assert_cat(response)
         self._assert_drupal(response)
-        self._assert_subjects(response)
         self.assertContains(response, comment.comment)
         self._assert_breadcrumbs(response, self.course_run)
 
@@ -2242,7 +2234,7 @@ class CourseRunEditViewTests(TestCase):
         """ Verify that in case of any error transactions roll back and no object
         updated in db.
         """
-        with patch.object(Course, "save") as mock_method:
+        with patch.object(CourseRun, "save") as mock_method:
             mock_method.side_effect = IntegrityError
             response = self.client.post(self.edit_page_url, self.updated_dict)
 
@@ -2262,7 +2254,7 @@ class CourseRunEditViewTests(TestCase):
         self.assertNotEqual(self.course_run.changed_by, user)
 
         # post data without seat
-        data = {'full_description': 'This is testing description.', 'image': ''}
+        data = {'image': ''}
         updated_dict = self._post_data(data, self.new_course, self.new_course_run, None)
 
         updated_dict['type'] = Seat.PROFESSIONAL
@@ -2276,9 +2268,6 @@ class CourseRunEditViewTests(TestCase):
             status_code=302,
             target_status_code=200
         )
-
-        updated_course = Course.objects.get(id=self.new_course.id)
-        self.assertEqual(updated_course.full_description, 'This is testing description.')
 
         course_run = CourseRun.objects.get(id=self.new_course_run.id)
 

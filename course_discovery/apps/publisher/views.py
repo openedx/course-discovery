@@ -123,7 +123,7 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
 class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, DetailView):
     """ Course Run Detail View."""
     model = CourseRun
-    template_name = 'publisher/course_run_detail.html'
+    template_name = 'publisher/course_run_detail/course_run_detail.html'
     permission = OrganizationExtension.VIEW_COURSE_RUN
 
     def get_context_data(self, **kwargs):
@@ -541,7 +541,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
     course_form = CustomCourseForm
     run_form = CustomCourseRunForm
     seat_form = CustomSeatForm
-    template_name = 'publisher/add_update_course_form.html'
+    template_name = 'publisher/course_run/edit_run_form.html'
     success_url = 'publisher:publisher_course_run_detail'
     form_class = CustomCourseRunForm
     permission = OrganizationExtension.EDIT_COURSE_RUN
@@ -550,24 +550,11 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
     def get_context_data(self):
-        course_run = self.get_object()
-        team_admin_name = course_run.course.course_team_admin
-        organization = course_run.course.organizations.first()
-        initial = {
-            'organization': organization,
-            'team_admin': team_admin_name,
-        }
-
         return {
-            'initial': initial,
             'course_run': self.get_object(),
-            'team_admin_name': team_admin_name.get_full_name(),
-            'organization_name': organization.name,
-            'organization': organization,
             'publisher_hide_features_for_pilot': waffle.switch_is_active('publisher_hide_features_for_pilot'),
             'publisher_add_instructor_feature': waffle.switch_is_active('publisher_add_instructor_feature'),
             'is_internal_user': mixins.check_roles_access(self.request.user),
-            'edit_mode': True,
             'is_project_coordinator': is_project_coordinator_user(self.request.user),
         }
 
@@ -575,13 +562,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
         context = self.get_context_data()
         course_run = context.get('course_run')
         course = course_run.course
-        context['course_form'] = self.course_form(
-            user=request.user,
-            instance=course,
-            initial=context.get('initial'),
-            organization=context.get('organization'),
-            edit_mode=True
-        )
+
         context['run_form'] = self.run_form(
             instance=course_run, is_project_coordinator=context.get('is_project_coordinator')
         )
@@ -605,26 +586,13 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
         context = self.get_context_data()
         course_run = context.get('course_run')
         lms_course_id = course_run.lms_course_id
-
-        course_form = self.course_form(
-            request.POST, request.FILES,
-            user=request.user,
-            instance=course_run.course,
-            initial=context.get('initial'),
-            organization=context.get('organization'),
-            edit_mode=True
-        )
         run_form = self.run_form(
             request.POST, instance=course_run, is_project_coordinator=context.get('is_project_coordinator')
         )
         seat_form = self.seat_form(request.POST, instance=course_run.seats.first())
-        if course_form.is_valid() and run_form.is_valid() and seat_form.is_valid():
+        if run_form.is_valid() and seat_form.is_valid():
             try:
                 with transaction.atomic():
-
-                    course = course_form.save(commit=False)
-                    course.changed_by = self.request.user
-                    course.save()
 
                     course_run = run_form.save(commit=False)
                     course_run.changed_by = self.request.user
@@ -663,7 +631,6 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
 
         context.update(
             {
-                'course_form': course_form,
                 'run_form': run_form,
                 'seat_form': seat_form
             }

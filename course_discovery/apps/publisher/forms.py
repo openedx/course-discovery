@@ -146,7 +146,6 @@ class CustomCourseForm(CourseForm):
     def __init__(self, *args, **kwargs):
         # In case of edit mode pre-populate the drop-downs
         user = kwargs.pop('user', None)
-        edit_mode = kwargs.pop('edit_mode', None)
         organization = kwargs.pop('organization', None)
         if organization:
             org_extension = OrganizationExtension.objects.get(organization=organization)
@@ -169,11 +168,6 @@ class CustomCourseForm(CourseForm):
             self.declared_fields['team_admin'].widget.attrs = {'data-user': user.id}
 
         super(CustomCourseForm, self).__init__(*args, **kwargs)
-        if edit_mode:
-            self.fields['title'].widget = forms.HiddenInput()
-            self.fields['number'].widget = forms.HiddenInput()
-            self.fields['team_admin'].widget = forms.HiddenInput()
-            self.fields['organization'].widget = forms.HiddenInput()
 
 
 class CourseRunForm(BaseCourseForm):
