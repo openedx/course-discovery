@@ -21,7 +21,8 @@ function loadAdminUsers(org_id) {
         success: function (data) {
             var teamAdminDropDown = $('#id_team_admin'),
                 selectedTeamAdmin = $('#id_team_admin option:selected').val(),
-                organizationInputType = $('#id_organization').attr('type');
+                organizationInputType = $('#id_organization').attr('type'),
+                currentUser = teamAdminDropDown.data('user');
             teamAdminDropDown.empty();
 
             if (organizationInputType == 'hidden' ) {
@@ -32,7 +33,7 @@ function loadAdminUsers(org_id) {
             }
 
             $.each(data.results, function (i, user) {
-                if (selectedTeamAdmin == user.id && organizationInputType === 'hidden' ) {
+                if ((selectedTeamAdmin == user.id && organizationInputType === 'hidden') || currentUser == user.id) {
                     teamAdminDropDown.append(
                         $('<option selected="selected"> </option>').val(user.id).html(user.full_name)
                     );
