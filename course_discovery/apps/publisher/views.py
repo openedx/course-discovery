@@ -726,8 +726,10 @@ def get_course_role_widgets_data(user, course, state_object, change_state_url, p
     """ Create role widgets list for course user roles. """
     role_widgets = []
     course_roles = course.course_user_roles
+    roles = [PublisherUserRole.CourseTeam, PublisherUserRole.ProjectCoordinator]
     if parent_course:
-        course_roles = course_roles.filter(role__in=[PublisherUserRole.CourseTeam, PublisherUserRole.MarketingReviewer])
+        roles = [PublisherUserRole.CourseTeam, PublisherUserRole.MarketingReviewer]
+        course_roles = course_roles.filter(role__in=roles)
 
     for course_role in course_roles.order_by('role'):
         role_widget = {
@@ -756,7 +758,7 @@ def get_course_role_widgets_data(user, course, state_object, change_state_url, p
                 if state_object.name == CourseStateChoices.Draft and not state_object.can_send_for_review():
                     role_widget['button_disabled'] = True
 
-        if course_role.role in [PublisherUserRole.CourseTeam, PublisherUserRole.MarketingReviewer]:
+        if course_role.role in roles:
             if state_object.name == CourseStateChoices.Approved and course_role.role == state_object.approved_by_role:
                 history_record = state_object.history.filter(
                     name=CourseStateChoices.Approved

@@ -616,11 +616,11 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
             self.draft()
         elif state == CourseRunStateChoices.Review:
             user_role = self.course_run.course.course_user_roles.get(user=user)
-            if user_role.role == PublisherUserRole.MarketingReviewer:
+            if user_role.role == PublisherUserRole.ProjectCoordinator:
                 self.owner_role = PublisherUserRole.CourseTeam
                 self.owner_role_modified = timezone.now()
             elif user_role.role == PublisherUserRole.CourseTeam:
-                self.owner_role = PublisherUserRole.MarketingReviewer
+                self.owner_role = PublisherUserRole.ProjectCoordinator
                 self.owner_role_modified = timezone.now()
 
             self.review()
