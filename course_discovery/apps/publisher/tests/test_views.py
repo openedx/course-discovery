@@ -888,7 +888,7 @@ class CourseRunDetailTests(TestCase):
 
         new_user = UserFactory()
         factories.CourseUserRoleFactory(
-            course=self.course, user=new_user, role=PublisherUserRole.MarketingReviewer
+            course=self.course, user=new_user, role=PublisherUserRole.ProjectCoordinator
         )
 
         response = self.client.get(self.page_url)
@@ -907,12 +907,12 @@ class CourseRunDetailTests(TestCase):
 
     def test_course_approval_widget_for_marketing_team(self):
         """
-        Verify that marketing User can't see the `Send for Review` button.
+        Verify that project coordinator can't see the `Send for Review` button.
         """
         toggle_switch('publisher_approval_widget_feature', True)
 
         factories.CourseUserRoleFactory(
-            course=self.course, user=self.user, role=PublisherUserRole.MarketingReviewer
+            course=self.course, user=self.user, role=PublisherUserRole.ProjectCoordinator
         )
 
         new_user = UserFactory()
@@ -979,7 +979,7 @@ class CourseRunDetailTests(TestCase):
             course=self.course, user=self.user, role=PublisherUserRole.CourseTeam
         )
         factories.CourseUserRoleFactory(
-            course=self.course, user=UserFactory(), role=PublisherUserRole.MarketingReviewer
+            course=self.course, user=UserFactory(), role=PublisherUserRole.ProjectCoordinator
         )
 
         response = self.client.get(self.page_url)
@@ -995,7 +995,7 @@ class CourseRunDetailTests(TestCase):
         Verify that user can see approval widget on course detail page with `Reviewed`.
         """
         factories.CourseUserRoleFactory(
-            course=self.course, user=self.user, role=PublisherUserRole.MarketingReviewer
+            course=self.course, user=self.user, role=PublisherUserRole.ProjectCoordinator
         )
 
         factories.CourseUserRoleFactory(

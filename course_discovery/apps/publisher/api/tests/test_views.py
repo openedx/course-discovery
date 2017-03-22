@@ -625,10 +625,10 @@ class ChangeCourseRunStateViewTests(TestCase):
         Verify that user can change course-run workflow state and owner role will be changed to `CourseTeam`.
         """
         self.run_state.name = CourseRunStateChoices.Draft
-        self.run_state.owner_role = PublisherUserRole.MarketingReviewer
+        self.run_state.owner_role = PublisherUserRole.ProjectCoordinator
         self.run_state.save()
 
-        self._assign_role(self.course_run.course, PublisherUserRole.MarketingReviewer, self.user)
+        self._assign_role(self.course_run.course, PublisherUserRole.ProjectCoordinator, self.user)
 
         course_team_user = UserFactory()
         self._assign_role(self.course_run.course, PublisherUserRole.CourseTeam, course_team_user)
@@ -663,7 +663,7 @@ class ChangeCourseRunStateViewTests(TestCase):
         self.run_state.save()
 
         self._assign_role(self.course_run.course, PublisherUserRole.CourseTeam, self.user)
-        self._assign_role(self.course_run.course, PublisherUserRole.MarketingReviewer, UserFactory())
+        self._assign_role(self.course_run.course, PublisherUserRole.ProjectCoordinator, UserFactory())
 
         self._assign_role(self.course_run.course, PublisherUserRole.Publisher, UserFactory())
 

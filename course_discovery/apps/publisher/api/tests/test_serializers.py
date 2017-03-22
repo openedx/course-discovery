@@ -329,18 +329,24 @@ class CourseRunStateSerializerTests(TestCase):
         serializer.update(self.run_state, data)
 
         self.assertEqual(self.run_state.name, CourseRunStateChoices.Review)
-
-        self.assertFalse(self.run_state.preview_accepted)
-        serializer.update(self.run_state, {'preview_accepted': True})
-
-        self.assertTrue(CourseRun.objects.get(id=self.course_run.id).preview_url)
         self.assertEqual(len(mail.outbox), 1)
+
         course_key = CourseKey.from_string(self.course_run.lms_course_id)
-        subject = 'Publication requested: {course_name} {run_name}'.format(
+        subject = 'Review requested: {course_name} {run_name}'.format(
             course_name=self.course_run.course.title,
             run_name=course_key.run
         )
         self.assertIn(subject, str(mail.outbox[0].subject))
+
+        self.assertFalse(self.run_state.preview_accepted)
+        serializer.update(self.run_state, {'preview_accepted': True})
+
+        self.assertEqual(len(mail.outbox), 2)
+        subject = 'Publication requested: {course_name} {run_name}'.format(
+            course_name=self.course_run.course.title,
+            run_name=course_key.run
+        )
+        self.assertIn(subject, str(mail.outbox[1].subject))
 
     def test_update_with_error(self):
         """

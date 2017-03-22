@@ -43,7 +43,7 @@
                             <strong>{{ role_widget.heading }}</strong>
                         </span>
                         {% if role_widget.ownership %}
-                            <span>{{ role_widget.ownership.days }} {% trans "day in ownership" %}</span>
+                            <span class="ownership-label">{{ role_widget.ownership.days }} {% trans "day in ownership" %}</span>
                         {% endif %}
                         <div class="role-assignment-container">
                             <div id="userRoleContainer-{{ role_widget.course_role.role }}">

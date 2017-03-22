@@ -8,7 +8,7 @@
         {% endblocktrans %}
     <p>
         {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' trimmed %}
-            The {{ sender_team }} for {{ course_name }} from {{ org_name }} has submitted the {{ link_start }}{{ page_url }}{{ link_middle }}{{ run_number }} course run{{ link_end }} for review. Visit the course run details page to approve or decline this course run.
+            The {{ sender_team }} for {{ course_name }} from {{ org_name }} has submitted the {{ link_start }}{{ page_url }}{{ link_middle }}{{ run_number }} course run{{ link_end }} for review. Visit the {{ link_start }}{{ page_url }}{{ link_middle }}course run details page{{ link_end }} to approve or decline this course run.
         {% endblocktrans %}
     </p>
 

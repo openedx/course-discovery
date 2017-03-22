@@ -231,7 +231,7 @@ class CourseRunSendForReviewEmailTests(TestCase):
     def test_email_sent_by_marketing_reviewer(self):
         """ Verify that email works successfully for marketing user."""
         factories.CourseUserRoleFactory(
-            course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
+            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=self.user
         )
         emails.send_email_for_send_for_review_course_run(self.course_run_state.course_run, self.user)
         subject = 'Review requested: {title} {run_number}'.format(title=self.course, run_number=self.course_key.run)
@@ -240,7 +240,7 @@ class CourseRunSendForReviewEmailTests(TestCase):
     def test_email_sent_by_course_team(self):
         """ Verify that email works successfully for course team user."""
         factories.CourseUserRoleFactory(
-            course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
+            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=self.user
         )
         emails.send_email_for_send_for_review_course_run(self.course_run_state.course_run, self.user_2)
         subject = 'Review requested: {title} {run_number}'.format(title=self.course, run_number=self.course_key.run)
@@ -304,7 +304,7 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
     def test_email_sent_by_marketing_reviewer(self):
         """ Verify that email works successfully for marketing user."""
         factories.CourseUserRoleFactory(
-            course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
+            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=self.user
         )
         emails.send_email_for_mark_as_reviewed_course_run(self.course_run_state.course_run, self.user)
         self.assert_email_sent(self.user_2)
@@ -312,7 +312,7 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
     def test_email_sent_by_course_team(self):
         """ Verify that email works successfully for course team user."""
         factories.CourseUserRoleFactory(
-            course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
+            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=self.user
         )
         emails.send_email_for_mark_as_reviewed_course_run(self.course_run_state.course_run, self.user_2)
         self.assert_email_sent(self.user)
@@ -335,7 +335,7 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
     def test_email_sent_to_publisher(self):
         """ Verify that email works successfully."""
         factories.CourseUserRoleFactory(
-            course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
+            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=self.user
         )
         emails.send_email_to_publisher(self.course_run_state.course_run, self.user)
         self.assert_email_sent(self.user_3)
