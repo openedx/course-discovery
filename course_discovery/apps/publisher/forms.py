@@ -165,6 +165,7 @@ class CustomCourseForm(CourseForm):
                 ).order_by(Lower('key'))
 
             self.declared_fields['organization'].queryset = organizations
+            self.declared_fields['team_admin'].widget.attrs = {'data-user': user.id}
 
         super(CustomCourseForm, self).__init__(*args, **kwargs)
         if edit_mode:
