@@ -435,6 +435,10 @@ HAYSTACK_CONNECTIONS = {
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.BaseSignalProcessor'
 HAYSTACK_INDEX_RETENTION_LIMIT = 3
 
+# Update Index Settings
+# Make sure the size of the new index does not change by more than this percentage
+INDEX_SIZE_CHANGE_THRESHOLD = .1
+
 # Elasticsearch search query facet "size" option to increase from the default value of "100"
 # See  https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-facets-terms-facet.html#_accuracy_control
 SEARCH_FACET_LIMIT = 10000

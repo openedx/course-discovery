@@ -1,5 +1,7 @@
 import logging
 
+from django.conf import settings
+from django.core.management import CommandError
 from haystack import connections as haystack_connections
 from haystack.management.commands.update_index import Command as HaystackCommand
 
@@ -10,6 +12,9 @@ logger = logging.getLogger(__name__)
 
 class Command(HaystackCommand):
     backends = []
+
+    def get_record_count(self, conn, index_name):
+        return conn.count(index_name).get('count')
 
     def handle(self, *items, **options):
         self.backends = options.get('using')
@@ -22,6 +27,7 @@ class Command(HaystackCommand):
         for backend_name in self.backends:
             connection = haystack_connections[backend_name]
             backend = connection.get_backend()
+            record_count = self.get_record_count(backend.conn, backend.index_name)
             alias, index_name = self.prepare_backend_index(backend)
             alias_mappings.append((backend, index_name, alias))
 
@@ -29,7 +35,33 @@ class Command(HaystackCommand):
 
         # Set the alias (from settings) to the timestamped catalog.
         for backend, index, alias in alias_mappings:
+            record_count_is_sane, index_info_string = self.sanity_check_new_index(backend.conn, index, record_count)
+            if not record_count_is_sane:
+                raise CommandError('Sanity check failed for new index. ' + index_info_string)
             self.set_alias(backend, alias, index)
+
+    def percentage_change(self, current, previous):
+        try:
+            return abs(current - previous) / previous
+        except ZeroDivisionError:
+            # pick large percentage for division by 0
+            # This is done to fail the sanity check
+            return 1
+
+    def sanity_check_new_index(self, conn, index, previous_record_count):
+        """ Ensure that we do not point to an index that looks like it has missing data. """
+        current_record_count = conn.count(index).get('count')
+        percentage_change = self.percentage_change(current_record_count, previous_record_count)
+
+        # Verify there was not a big shift in record count
+        record_count_is_sane = percentage_change < settings.INDEX_SIZE_CHANGE_THRESHOLD
+        index_info_string = (
+            'The previous index contained [{}] records. '
+            'The new index contains [{}] records, a [{:.2f}%] change.'.format(
+                previous_record_count, current_record_count, percentage_change * 100
+            )
+        )
+        return record_count_is_sane, index_info_string
 
     def set_alias(self, backend, alias, index):
         """
