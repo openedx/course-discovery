@@ -475,6 +475,7 @@ class CourseState(TimeStampedModel, ChangedByMixin):
     owner_role = models.CharField(max_length=63, choices=PublisherUserRole.choices)
     course = models.OneToOneField(Course, related_name='course_state')
     owner_role_modified = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    marketing_reviewed = models.BooleanField(default=False)
 
     history = HistoricalRecords()
 
