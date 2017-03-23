@@ -1,4 +1,3 @@
-import pytest
 from django.conf import settings
 from django.core.management import call_command
 from django.test import TestCase
@@ -8,7 +7,6 @@ from freezegun import freeze_time
 from course_discovery.apps.edx_haystack_extensions.tests.mixins import SearchIndexTestMixin
 
 
-@pytest.mark.skip(reason="Temporarily disabling for testing update index command")
 class UpdateIndexTests(SearchIndexTestMixin, TestCase):
     @freeze_time('2016-06-21')
     def test_handle(self):
