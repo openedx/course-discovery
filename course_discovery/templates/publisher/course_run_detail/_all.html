@@ -118,13 +118,15 @@
         {% for obj in object.course_staff %}
           <div class="course-staff">
             <img src="{{ obj.image_url }}" alt=""/>
-
             <div class="staff-detail">
-              <div class="name">{{ obj.full_name }}</div>
+              <div class="name">
+                <a href="{{ obj.profile_url }}" target="_blank">{{ obj.full_name }}</a>
+              </div>
               <div>{{ obj.position }}</div>
               <div class="organization">{{ obj.organization }}</div>
             </div>
           </div>
+          <div class="clearfix"></div>
         {% endfor %}
       {% endif %}
     </div>

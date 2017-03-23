@@ -315,6 +315,20 @@ class PersonTests(TestCase):
         """ Verify casting an instance to a string returns the person's full name. """
         self.assertEqual(str(self.person), self.person.full_name)
 
+    def test_profile_url(self):
+        """
+        Verify that property returns profile_url by joining marketing_site_url_root and user full name.
+        """
+        expected = '{marketing_site_url_root}bio/{full_name}'.format(
+            marketing_site_url_root=self.person.partner.marketing_site_url_root,
+            full_name='-'.join((self.person.given_name, self.person.family_name))
+        )
+        self.assertEqual(self.person.profile_url, expected)
+
+        # if marketing_site_url_root is none property will return None
+        self.person.partner.marketing_site_url_root = None
+        self.assertFalse(self.person.profile_url)
+
 
 class PositionTests(TestCase):
     """ Tests for the `Position` model. """
