@@ -68,7 +68,7 @@ class Command(BaseCommand):
         """
         # Elasticsearch in AWS is not a full implementation of ES, and we need to use the (more verbose) status
         # endpoint instead of the (more succinct) settings endpoint. For more information, see
-        # http://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es_version_1_5.html
+        # http://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/aes-supported-es-operations.html
         all_index_status = indices_client.status()
         all_indexes = list(all_index_status['indices'].keys())
         all_current_indexes = [index_name for index_name in all_indexes if index_name.startswith(index_prefix + '_')]
