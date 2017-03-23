@@ -28,8 +28,9 @@ class Command(HaystackCommand):
         super(Command, self).handle(*items, **options)
 
         # Set the alias (from settings) to the timestamped catalog.
-        for backend, index, alias in alias_mappings:
-            self.set_alias(backend, alias, index)
+        # Temporarily commenting this out to test if update index command is still broken
+        # for backend, index, alias in alias_mappings:
+        #    self.set_alias(backend, alias, index)
 
     def set_alias(self, backend, alias, index):
         """
