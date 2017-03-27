@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-22 12:01+0500\n"
+"POT-Creation-Date: 2017-03-27 17:23+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -1857,6 +1857,7 @@ msgstr ""
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Course Image"
 msgstr ""
 
@@ -2016,6 +2017,11 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
 msgid "Course Staff"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Download"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
@@ -2679,8 +2685,9 @@ msgstr ""
 msgid ""
 "The %(sender_team)s for %(course_name)s from %(org_name)s has submitted the "
 "%(link_start)s%(page_url)s%(link_middle)s%(run_number)s course "
-"run%(link_end)s for review. Visit the course run details page to approve or "
-"decline this course run."
+"run%(link_end)s for review. Visit the "
+"%(link_start)s%(page_url)s%(link_middle)scourse run details page%(link_end)s"
+" to approve or decline this course run."
 msgstr ""
 
 #: templates/publisher/email/course_run/send_for_review.txt
