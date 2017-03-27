@@ -18,8 +18,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-15 12:12+0500\n"
-"PO-Revision-Date: 2017-03-15 09:28+0000\n"
+"POT-Creation-Date: 2017-03-22 12:01+0500\n"
+"PO-Revision-Date: 2017-03-22 09:05+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Arabic (http://www.transifex.com/open-edx/edx-platform/language/ar/)\n"
 "MIME-Version: 1.0\n"
@@ -793,6 +793,14 @@ msgid "Mark as Reviewed"
 msgstr ""
 
 #: apps/publisher/views.py
+msgid "course team"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "project coordinator"
+msgstr ""
+
+#: apps/publisher/views.py
 msgid ""
 "You have successfully created a course. You can edit the course information "
 "or enter information for the course About page at any time. An edX project "
@@ -813,6 +821,14 @@ msgstr "الرجاء ملء جميع الحقول المطلوبة."
 #: apps/publisher/views.py
 msgid "Course  updated successfully."
 msgstr "تم تحديث الدورة التعليمية بنجاح."
+
+#: apps/publisher/views.py
+msgid "course"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "marketing"
+msgstr ""
 
 #: apps/publisher/views.py
 #, python-brace-format
@@ -910,7 +926,9 @@ msgstr "حفظ"
 #: templates/metadata/admin/course_run.html
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_detail/_edit_warning_popup.html
 #: templates/publisher/course_edit_form.html
+#: templates/publisher/course_run_detail/_edit_warning.html
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Cancel"
 msgstr "إلغاء"
@@ -1297,7 +1315,6 @@ msgid "BIO1.1x; BIO1.2x etc."
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
-#: templates/publisher/course_edit_form.html
 msgid "About page information"
 msgstr "معلومات صفحة اللمحة"
 
@@ -1862,6 +1879,26 @@ msgstr "صورة الدورة التعليمية"
 msgid "Course Level"
 msgstr "مستوى الدورة"
 
+#: templates/publisher/course_detail/_edit_warning_popup.html
+#: templates/publisher/course_run_detail/_edit_warning.html
+msgid "CAUTION"
+msgstr ""
+
+#: templates/publisher/course_detail/_edit_warning_popup.html
+#, python-format
+msgid ""
+"\n"
+"                The %(current_team_name)s team is currently reviewing this course. If you edit course information, you might overwrite the team’s changes, and you will have to send the course to the %(team_name)s team for review again.\n"
+"            "
+msgstr ""
+
+#: templates/publisher/course_detail/_edit_warning_popup.html
+#: templates/publisher/course_run_detail/_edit_warning.html
+#: templates/publisher/course_run_detail/_widgets.html
+#: templates/publisher/courses.html
+msgid "Edit"
+msgstr "تحرير"
+
 #: templates/publisher/course_detail/_widgets.html
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "EDIT"
@@ -1889,33 +1926,25 @@ msgstr "تجرير الدورة التعليمية"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
-"The information in the Studio Instance section is required before edX can "
-"create a Studio instance for the course run."
-msgstr "المعلومات في قسم مثيل الاستوديو مطلوبة قبل أن تتمكن edX من إنشاء مثيل ستوديو لمجرى الدورة."
+"To add or edit information about this course, make changes on this page and "
+"then select"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Update Course."
+msgstr ""
 
 #: templates/publisher/course_edit_form.html
 msgid ""
-"The information in the About Page section is not required before edX creates"
-" a Studio instance for the course run. You can return to this page and enter"
-" this information later. This information is required before edX announces "
-"the course."
-msgstr "المعلومات في قسم عن الدورة ليست مطلوبة من قبل edX قبل إنشاء مثيل ستوديو لمدرى الدورة. يمكنك العودة إلى هذه الصفحة وإدخال هذه المعلومات في وقت لاحق. هذه المعلومات مطلوبة قبل  أن تعلن edX عن الدورة."
+"All required fields must be complete before this course can be sent for "
+"review."
+msgstr ""
 
 #: templates/publisher/course_edit_form.html
 msgid ""
 "This information is required before edX can create a Studio instance for a "
 "course run."
 msgstr "هذه المعلومات مطلوبة قبل أن تتمكن edX من إنشاء مثيل ستوديو لمجرى الدورة."
-
-#: templates/publisher/course_edit_form.html
-msgid ""
-"You can enter this information at any time before edX publishes the About "
-"page."
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid "You must enter this information both in this section and in Studio."
-msgstr ""
 
 #: templates/publisher/course_edit_form.html
 msgid "UPDATE COURSE"
@@ -2132,6 +2161,14 @@ msgstr "التسجيلات "
 msgid "Seats"
 msgstr "المقاعد"
 
+#: templates/publisher/course_run_detail/_edit_warning.html
+#, python-format
+msgid ""
+"The %(current_team_name)s is currently reviewing this course run. If you "
+"edit course run information, you might overwrite the team’s changes, and you"
+" will have to send the course run to the %(team_name)s for review again."
+msgstr ""
+
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Publish Course Run"
 msgstr ""
@@ -2276,11 +2313,6 @@ msgid "Submitted for review"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_widgets.html
-#: templates/publisher/courses.html
-msgid "Edit"
-msgstr "تحرير"
-
-#: templates/publisher/course_run_detail/_widgets.html
 msgid "COURSE PREVIEW"
 msgstr ""
 
@@ -2304,6 +2336,23 @@ msgstr ""
 #: templates/publisher/courses.html
 msgid "Runs"
 msgstr "مجريات"
+
+#: templates/publisher/dashboard.html
+msgid "COURSE ABOUT PAGES"
+msgstr ""
+
+#: templates/publisher/dashboard.html
+msgid ""
+"EdX Publisher is used to create course About pages. Users enter, review, and"
+" approve content in Publisher. Publisher keeps track of the details and "
+"sends email updates when actions are necessary."
+msgstr ""
+
+#: templates/publisher/dashboard.html
+msgid ""
+"EdX Publisher is a companion to edX Studio. Course teams enter About page "
+"information in Publisher, and course content in Studio."
+msgstr ""
 
 #: templates/publisher/dashboard.html
 msgid "Course runs"

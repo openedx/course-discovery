@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-15 12:12+0500\n"
-"PO-Revision-Date: 2017-03-03 09:40+0000\n"
+"POT-Creation-Date: 2017-03-22 12:01+0500\n"
+"PO-Revision-Date: 2017-03-20 10:08+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Hebrew (http://www.transifex.com/open-edx/edx-platform/language/he/)\n"
 "MIME-Version: 1.0\n"
@@ -24,6 +24,10 @@ msgstr ""
 msgid "Preview"
 msgstr "תצוגה מקדימה"
 
+#: static/js/publisher/change-state.js
+msgid "Something went wrong! please try again later."
+msgstr ""
+
 #: static/js/publisher/comparing-objects.js
 msgid "Hide changes"
 msgstr "הסתר שינויים"
@@ -32,24 +36,24 @@ msgstr "הסתר שינויים"
 msgid "Show changes"
 msgstr "הצג שינויים"
 
-#: static/js/publisher/publisher.js
+#: static/js/publisher/image-validation.js
+msgid "The image file size cannot exceed 1 MB."
+msgstr ""
+
+#: static/js/publisher/instructors.js static/js/publisher/preview-url.js
 msgid "Something went wrong!"
 msgstr ""
 
-#: static/js/publisher/publisher.js
-msgid "Something went wrong! please try again later."
-msgstr ""
-
-#: static/js/publisher/publisher.js
+#: static/js/publisher/instructors.js
 msgid "File must be smaller than 1 megabyte in size."
 msgstr ""
 
-#: static/js/publisher/publisher.js
-msgid "Please enter a valid URL."
+#: static/js/publisher/preview-url.js
+msgid "Save"
 msgstr ""
 
-#: static/js/publisher/publisher.js
-msgid "Save"
+#: static/js/publisher/preview-url.js
+msgid "Please enter a valid URL."
 msgstr ""
 
 #: static/js/publisher/views/dashboard.js
