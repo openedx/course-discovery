@@ -365,13 +365,17 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
 
             course_admin_role.user = team_admin
             course_admin_role.save()
-        if self.object.course_state.name != CourseStateChoices.Draft:
-            self.object.course_state.change_state(state=CourseStateChoices.Draft, user=user)
 
-        # Change ownership if user role not equal to owner role.
         user_role = self.object.course_user_roles.get(user=user)
-        if self.object.course_state.owner_role != user_role.role:
-            self.object.course_state.change_owner_role(user_role.role)
+        # Change course state to draft if marketing not yet reviewed or
+        # if marketing person updating the course.
+        if not self.object.course_state.marketing_reviewed or user_role.role == PublisherUserRole.MarketingReviewer:
+            if self.object.course_state.name != CourseStateChoices.Draft:
+                self.object.course_state.change_state(state=CourseStateChoices.Draft, user=user)
+
+            # Change ownership if user role not equal to owner role.
+            if self.object.course_state.owner_role != user_role.role:
+                self.object.course_state.change_owner_role(user_role.role)
 
         messages.success(self.request, _('Course  updated successfully.'))
         return HttpResponseRedirect(self.get_success_url())

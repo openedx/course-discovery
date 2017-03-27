@@ -2068,6 +2068,36 @@ class CourseEditViewTests(TestCase):
         self.assertEqual(course_state.name, CourseStateChoices.Draft)
         self.assertEqual(course_state.owner_role, PublisherUserRole.CourseTeam)
 
+    def test_edit_course_with_marketing_reviewed(self):
+        """
+        Verify that if marketing already reviewed the course and then course team editing the course,
+        state does not change to `Draft` and ownership remains to `CourseTeam`.
+        """
+        self.client.logout()
+        self.client.login(username=self.course_team_role.user.username, password=USER_PASSWORD)
+        self._assign_permissions(self.organization_extension)
+
+        self.course.course_state.name = CourseStateChoices.Review
+        self.course.course_state.owner_role = PublisherUserRole.CourseTeam
+        self.course.course_state.marketing_reviewed = True
+        self.course.course_state.save()
+
+        post_data = self._post_data(self.organization_extension)
+        post_data['team_admin'] = self.course_team_role.user.id
+
+        response = self.client.post(self.edit_page_url, data=post_data)
+
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        course_state = CourseState.objects.get(id=self.course.course_state.id)
+        self.assertEqual(course_state.name, CourseStateChoices.Review)
+        self.assertEqual(course_state.owner_role, PublisherUserRole.CourseTeam)
+
 
 @ddt.ddt
 class CourseRunEditViewTests(TestCase):

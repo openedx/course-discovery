@@ -522,11 +522,10 @@ class CourseState(TimeStampedModel, ChangedByMixin):
         elif state == CourseStateChoices.Review:
             user_role = self.course.course_user_roles.get(user=user)
             if user_role.role == PublisherUserRole.MarketingReviewer:
-                self.owner_role = PublisherUserRole.CourseTeam
-                self.owner_role_modified = timezone.now()
+                self.change_owner_role(PublisherUserRole.CourseTeam)
+                self.marketing_reviewed = True
             elif user_role.role == PublisherUserRole.CourseTeam:
-                self.owner_role = PublisherUserRole.MarketingReviewer
-                self.owner_role_modified = timezone.now()
+                self.change_owner_role(PublisherUserRole.MarketingReviewer)
 
             self.review()
 
@@ -536,7 +535,6 @@ class CourseState(TimeStampedModel, ChangedByMixin):
         elif state == CourseStateChoices.Approved:
             user_role = self.course.course_user_roles.get(user=user)
             self.approved_by_role = user_role.role
-            self.owner_role_modified = timezone.now()
             self.approved()
 
             if waffle.switch_is_active('enable_publisher_email_notifications'):
@@ -618,11 +616,9 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
         elif state == CourseRunStateChoices.Review:
             user_role = self.course_run.course.course_user_roles.get(user=user)
             if user_role.role == PublisherUserRole.ProjectCoordinator:
-                self.owner_role = PublisherUserRole.CourseTeam
-                self.owner_role_modified = timezone.now()
+                self.change_owner_role(PublisherUserRole.CourseTeam)
             elif user_role.role == PublisherUserRole.CourseTeam:
-                self.owner_role = PublisherUserRole.ProjectCoordinator
-                self.owner_role_modified = timezone.now()
+                self.change_owner_role(PublisherUserRole.ProjectCoordinator)
 
             self.review()
 
@@ -632,8 +628,7 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
         elif state == CourseRunStateChoices.Approved:
             user_role = self.course_run.course.course_user_roles.get(user=user)
             self.approved_by_role = user_role.role
-            self.owner_role = PublisherUserRole.Publisher
-            self.owner_role_modified = timezone.now()
+            self.change_owner_role(PublisherUserRole.Publisher)
             self.approved()
 
             if waffle.switch_is_active('enable_publisher_email_notifications'):
