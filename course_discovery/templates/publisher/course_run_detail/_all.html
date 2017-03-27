@@ -170,7 +170,12 @@
       {% if not object.course_image %}
         {% trans "(Required) Not yet added" %}
       {% else %}
-        <img src="{{ object.course_image }}" alt=""/>
+        <img class="course-image" src="{{ object.course_image.url }}" alt="{% trans 'Course Image' %}">
+        <div class="download-image">
+            <a download href="{{ object.course_image.url }}">
+                {% trans "Download" %}
+            </a>
+        </div>
       {% endif %}
     </div>
   </div>
