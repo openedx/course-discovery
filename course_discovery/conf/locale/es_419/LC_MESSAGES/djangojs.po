@@ -12,9 +12,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-15 12:12+0500\n"
-"PO-Revision-Date: 2017-03-09 23:34+0000\n"
-"Last-Translator: Juan Camilo Montoya Franco <juan.montoya@edunext.co>\n"
+"POT-Creation-Date: 2017-03-22 12:01+0500\n"
+"PO-Revision-Date: 2017-03-20 10:08+0000\n"
+"Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -26,6 +26,10 @@ msgstr ""
 msgid "Preview"
 msgstr "Vista previa"
 
+#: static/js/publisher/change-state.js
+msgid "Something went wrong! please try again later."
+msgstr "Algo falló! Por favor reintente más tarde."
+
 #: static/js/publisher/comparing-objects.js
 msgid "Hide changes"
 msgstr "Ocultar cambios"
@@ -34,25 +38,25 @@ msgstr "Ocultar cambios"
 msgid "Show changes"
 msgstr "Mostrar cambios"
 
-#: static/js/publisher/publisher.js
+#: static/js/publisher/image-validation.js
+msgid "The image file size cannot exceed 1 MB."
+msgstr ""
+
+#: static/js/publisher/instructors.js static/js/publisher/preview-url.js
 msgid "Something went wrong!"
 msgstr "Algo falló!"
 
-#: static/js/publisher/publisher.js
-msgid "Something went wrong! please try again later."
-msgstr "Algo falló! Por favor reintente más tarde."
-
-#: static/js/publisher/publisher.js
+#: static/js/publisher/instructors.js
 msgid "File must be smaller than 1 megabyte in size."
 msgstr "El archivo debe tener un tamaño menor a 1 MB."
 
-#: static/js/publisher/publisher.js
-msgid "Please enter a valid URL."
-msgstr "Por favor, ingrese una URL válida."
-
-#: static/js/publisher/publisher.js
+#: static/js/publisher/preview-url.js
 msgid "Save"
 msgstr "Guardar"
+
+#: static/js/publisher/preview-url.js
+msgid "Please enter a valid URL."
+msgstr "Por favor, ingrese una URL válida."
 
 #: static/js/publisher/views/dashboard.js
 msgid ""
