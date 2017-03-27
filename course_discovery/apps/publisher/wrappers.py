@@ -181,7 +181,9 @@ class CourseRunWrapper(BaseWrapper):
     @property
     def course_image(self):
         if self.wrapped_obj.course.image:
-            return self.wrapped_obj.course.image.thumbnail.url
+            return self.wrapped_obj.course.image
+
+        return None
 
     @property
     def course_staff(self):

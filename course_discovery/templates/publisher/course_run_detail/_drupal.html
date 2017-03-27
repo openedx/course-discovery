@@ -185,6 +185,23 @@
     </div>
     <div class="info-item">
         <div class="heading">
+            {% trans "Course Image" %}
+        </div>
+        <div>
+            {% if not object.course_image %}
+                {% trans "(Required) Not yet added" %}
+            {% else %}
+                <img class="course-image" src="{{ object.course_image.url }}" alt="{% trans 'Course Image' %}">
+                <div class="download-image">
+                    <a download href="{{ object.course_image.url }}">
+                        {% trans "Download" %}
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="info-item">
+        <div class="heading">
             {% trans "Prerequisite" %}
             {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
