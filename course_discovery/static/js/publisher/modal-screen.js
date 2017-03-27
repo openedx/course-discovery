@@ -39,6 +39,7 @@ function addModalError(errorMessage) {
 
     $('#modal-errors').html(errorHtml);
     $('#modal-errors').show();
+    $('.modal').scrollTop(0);
 }
 
 function clearModalError($modal) {

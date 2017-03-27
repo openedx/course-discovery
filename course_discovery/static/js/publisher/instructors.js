@@ -9,11 +9,18 @@ $(document).ready(function(){
     });
 
     $('#add-new-instructor').click(function(e){
+        clearModalError();
         $('#addInstructorModal').show();
         $('body').addClass('stopScroll');
     });
 
     $('#add-instructor-btn').click(function (e) {
+
+        if ($('#staffImageSelect').get(0).files.length === 0){
+            addModalError(gettext("Please upload a instructor image. File must be smaller than 1 megabyte in size."));
+            return false;
+        }
+
         $.ajax({
             type: "POST",
             url: $(this).data('url'),

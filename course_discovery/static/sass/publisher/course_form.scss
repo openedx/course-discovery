@@ -107,6 +107,20 @@
             height: 150px;
             display: block;
             margin: auto;
+          span{
+            position: absolute;
+            top: 60px;
+            left: 10px;
+            z-index: 0;
+            font-size: 13px;
+            right: 10px;
+            text-align: center;
+            color: #98A;
+          }
+          img{
+            position: relative;
+            z-index: 1;
+          }
         }
 
         img.select-image {
