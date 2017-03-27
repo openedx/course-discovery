@@ -441,7 +441,7 @@ class ChangeCourseStateViewTests(TestCase):
 
     def test_change_course_state(self):
         """
-        Verify that if marketing user change course workflow state, owner role will be changed to `CourseTeam`.
+        Verify that if marketing user change course state, owner role will be changed to `CourseTeam`.
         """
         self.assertNotEqual(self.course_state.name, CourseStateChoices.Review)
         factories.CourseUserRoleFactory(
@@ -465,6 +465,8 @@ class ChangeCourseStateViewTests(TestCase):
 
         self.assertEqual(self.course_state.name, CourseStateChoices.Review)
         self.assertEqual(self.course_state.owner_role, PublisherUserRole.CourseTeam)
+        # Verify that course is marked as reviewed by marketing.
+        self.assertTrue(self.course_state.marketing_reviewed)
 
         subject = 'Changes to {title} are ready for review'.format(title=self.course.title)
         self._assert_email_sent(course_team_user, subject)
