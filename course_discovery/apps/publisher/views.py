@@ -312,7 +312,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
     model = Course
     form_class = CustomCourseForm
     permission = OrganizationExtension.EDIT_COURSE
-    template_name = 'publisher/course_edit_form.html'
+    template_name = 'publisher/course_detail/course_edit_form.html'
     success_url = 'publisher:publisher_course_detail'
 
     def get_success_url(self):
@@ -384,7 +384,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
 class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, DetailView):
     """ Course Detail View."""
     model = Course
-    template_name = 'publisher/course_detail.html'
+    template_name = 'publisher/course_detail/course_detail.html'
     permission = OrganizationExtension.VIEW_COURSE
 
     def get_context_data(self, **kwargs):
