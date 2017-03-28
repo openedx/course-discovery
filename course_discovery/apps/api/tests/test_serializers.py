@@ -225,7 +225,7 @@ class MinimalCourseRunSerializerTests(TestCase):
             'enrollment_end': json_date_format(course_run.enrollment_end),
             'pacing_type': course_run.pacing_type,
             'type': course_run.type,
-            'seats': SeatSerializer(course_run.seats, many=True).data
+            'seats': SeatSerializer(course_run.seats, many=True).data,
         }
 
     def test_data(self):
@@ -601,6 +601,7 @@ class MinimalProgramSerializerTests(TestCase):
                 }).data,
             'authoring_organizations': MinimalOrganizationSerializer(program.authoring_organizations, many=True).data,
             'card_image_url': program.card_image_url,
+            'is_program_eligible_for_one_click_purchase': program.is_program_eligible_for_one_click_purchase
         }
 
     def test_data(self):

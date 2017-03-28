@@ -13,9 +13,10 @@ from selenium.webdriver.support.wait import WebDriverWait
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
+from course_discovery.apps.course_metadata.admin import ProgramEligibilityFilter
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.forms import ProgramAdminForm
-from course_discovery.apps.course_metadata.models import Program, ProgramType
+from course_discovery.apps.course_metadata.models import Program, ProgramType, Seat, SeatType
 from course_discovery.apps.course_metadata.tests import factories
 
 
@@ -286,8 +287,8 @@ class ProgramAdminFunctionalTests(LiveServerTestCase):
             'field-credit_redemption_overview', 'field-video', 'field-weeks_to_complete',
             'field-min_hours_effort_per_week', 'field-max_hours_effort_per_week', 'field-courses',
             'field-order_courses_by_start_date', 'field-custom_course_runs_display', 'field-excluded_course_runs',
-            'field-authoring_organizations', 'field-credit_backing_organizations', 'field-job_outlook_items',
-            'field-expected_learning_items',
+            'field-authoring_organizations', 'field-credit_backing_organizations', 'field-one_click_purchase_enabled',
+            'field-job_outlook_items', 'field-expected_learning_items',
         ]
         self.assertEqual(actual, expected)
 
@@ -349,3 +350,55 @@ class ProgramAdminFunctionalTests(LiveServerTestCase):
         self.program = Program.objects.get(pk=self.program.pk)
         self.assertEqual(self.program.title, title)
         self.assertEqual(self.program.subtitle, subtitle)
+
+
+class ProgramEligibilityFilterTests(TestCase):
+    """ Tests for Program Eligibility Filter class. """
+    parameter_name = 'eligible_for_one_click_purchase'
+
+    def test_queryset_method_returns_all_programs(self):
+        """ Verify that all programs pass the filter. """
+        verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
+        program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
+        program_filter = ProgramEligibilityFilter(None, {}, None, None)
+        course_run = factories.CourseRunFactory()
+        factories.SeatFactory(course_run=course_run, type='verified', upgrade_deadline=None)
+        one_click_purchase_eligible_program = factories.ProgramFactory(
+            type=program_type,
+            courses=[course_run.course],
+            one_click_purchase_enabled=True
+        )
+        one_click_purchase_ineligible_program = factories.ProgramFactory(courses=[course_run.course])
+        with self.assertNumQueries(1):
+            self.assertEqual(
+                list(program_filter.queryset({}, Program.objects.all())),
+                [one_click_purchase_ineligible_program, one_click_purchase_eligible_program]
+            )
+
+    def test_queryset_method_returns_eligible_programs(self):
+        """ Verify that one click purchase eligible programs pass the filter. """
+        verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
+        program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
+        program_filter = ProgramEligibilityFilter(None, {self.parameter_name: 1}, None, None)
+        course_run = factories.CourseRunFactory(end=None, enrollment_end=None,)
+        factories.SeatFactory(course_run=course_run, type='verified', upgrade_deadline=None)
+        one_click_purchase_eligible_program = factories.ProgramFactory(
+            type=program_type,
+            courses=[course_run.course],
+            one_click_purchase_enabled=True,
+        )
+        with self.assertNumQueries(10):
+            self.assertEqual(
+                list(program_filter.queryset({}, Program.objects.all())),
+                [one_click_purchase_eligible_program]
+            )
+
+    def test_queryset_method_returns_ineligible_programs(self):
+        """ Verify programs ineligible for one-click purchase do not pass the filter. """
+        program_filter = ProgramEligibilityFilter(None, {self.parameter_name: 0}, None, None)
+        one_click_purchase_ineligible_program = factories.ProgramFactory(one_click_purchase_enabled=False)
+        with self.assertNumQueries(4):
+            self.assertEqual(
+                list(program_filter.queryset({}, Program.objects.all())),
+                [one_click_purchase_ineligible_program]
+            )

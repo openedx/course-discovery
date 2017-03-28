@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-06 12:30+0500\n"
+"POT-Creation-Date: 2017-04-07 11:51+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -240,6 +240,19 @@ msgstr "Pärtnér Ⱡ'σяєм ιρѕυм #"
 #: apps/core/models.py
 msgid "Partners"
 msgstr "Pärtnérs Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/admin.py
+msgid "eligible for one-click purchase"
+msgstr "élïgïßlé för öné-çlïçk pürçhäsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/course_metadata/admin.py apps/publisher/forms.py
+#: templates/publisher/course_run_detail/_preview_accept_popup.html
+msgid "Yes"
+msgstr "Ýés Ⱡ'σяєм#"
+
+#: apps/course_metadata/admin.py apps/publisher/forms.py
+msgid "No"
+msgstr "Nö Ⱡ'σя#"
 
 #: apps/course_metadata/admin.py
 msgid "Included course runs"
@@ -531,6 +544,12 @@ msgstr ""
 "Thé désçrïptïön öf çrédït rédémptïön för çöürsés ïn prögräm Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
+#: apps/course_metadata/models.py
+msgid "Allow courses in this program to be purchased in a single transaction"
+msgstr ""
+"Àllöw çöürsés ïn thïs prögräm tö ßé pürçhäséd ïn ä sïnglé tränsäçtïön Ⱡ'σяєм"
+" ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
 #: apps/course_metadata/views.py
 msgid "Change program excluded course runs"
 msgstr ""
@@ -725,15 +744,6 @@ msgstr "Çöürsé Énd Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 #: templates/publisher/course_run/edit_run_form.html
 msgid "Instructor"
 msgstr "Ìnstrüçtör Ⱡ'σяєм ιρѕυм ∂σłσ#"
-
-#: apps/publisher/forms.py
-#: templates/publisher/course_run_detail/_preview_accept_popup.html
-msgid "Yes"
-msgstr "Ýés Ⱡ'σяєм#"
-
-#: apps/publisher/forms.py
-msgid "No"
-msgstr "Nö Ⱡ'σя#"
 
 #: apps/publisher/forms.py
 msgid "Pacing"
