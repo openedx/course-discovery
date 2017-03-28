@@ -427,6 +427,7 @@ HAYSTACK_CONNECTIONS = {
         'ENGINE': 'course_discovery.apps.edx_haystack_extensions.backends.EdxElasticsearchSearchEngine',
         'URL': 'http://localhost:9200/',
         'INDEX_NAME': 'catalog',
+        'TIMEOUT': 30,
     },
 }
 
