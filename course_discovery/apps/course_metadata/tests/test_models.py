@@ -68,6 +68,17 @@ class CourseRunTests(TestCase):
         super(CourseRunTests, self).setUp()
         self.course_run = factories.CourseRunFactory()
 
+    def test_enrollable_seats(self):
+        """ Verify the expected seats get returned. """
+        course_run = factories.CourseRunFactory(start=None, end=None, enrollment_start=None, enrollment_end=None)
+        verified_seat = factories.SeatFactory(course_run=course_run, type=Seat.VERIFIED, upgrade_deadline=None)
+        professional_seat = factories.SeatFactory(course_run=course_run, type=Seat.PROFESSIONAL, upgrade_deadline=None)
+        factories.SeatFactory(course_run=course_run, type=Seat.HONOR, upgrade_deadline=None)
+        self.assertEqual(
+            course_run.enrollable_seats([Seat.VERIFIED, Seat.PROFESSIONAL]),
+            [verified_seat, professional_seat]
+        )
+
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the key and title. """
         course_run = self.course_run
@@ -404,6 +415,146 @@ class ProgramTests(MarketingSitePublisherTestMixin):
         program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
 
         return factories.ProgramFactory(type=program_type, courses=[course_run.course])
+
+    def assert_one_click_purchase_ineligible_program(self, start=None, end=None, enrollment_start=None,
+                                                     enrollment_end=None, seat_type=Seat.VERIFIED,
+                                                     upgrade_deadline=None, one_click_purchase_enabled=True,
+                                                     excluded_course_runs=None, program_type=None,):
+        course_run = factories.CourseRunFactory(
+            start=start, end=end, enrollment_start=enrollment_start, enrollment_end=enrollment_end
+        )
+        factories.SeatFactory(course_run=course_run, type=seat_type, upgrade_deadline=upgrade_deadline)
+        program = factories.ProgramFactory(
+            courses=[course_run.course],
+            excluded_course_runs=excluded_course_runs,
+            one_click_purchase_enabled=one_click_purchase_enabled,
+            type=program_type,
+        )
+        self.assertFalse(program.is_program_eligible_for_one_click_purchase)
+
+    def test_one_click_purchase_eligible(self):
+        """ Verify that program is one click purchase eligible. """
+        verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
+        program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
+
+        # Program has one_click_purchase_enabled set to True,
+        # all courses have one course run, all course runs have
+        # verified seat types
+        courses = []
+        for __ in range(3):
+            course_run = factories.CourseRunFactory(
+                end=None,
+                enrollment_end=None
+            )
+            factories.SeatFactory(course_run=course_run, type=Seat.VERIFIED, upgrade_deadline=None)
+            courses.append(course_run.course)
+        program = factories.ProgramFactory(
+            courses=courses,
+            one_click_purchase_enabled=True,
+            type=program_type,
+        )
+        self.assertTrue(program.is_program_eligible_for_one_click_purchase)
+
+        # Program has one_click_purchase_enabled set to True,
+        # course has all course runs excluded except one which
+        # has verified seat type
+        course_run = factories.CourseRunFactory(
+            end=None,
+            enrollment_end=None
+        )
+        factories.SeatFactory(course_run=course_run, type=Seat.VERIFIED, upgrade_deadline=None)
+        course = course_run.course
+        excluded_course_runs = [
+            factories.CourseRunFactory(course=course),
+            factories.CourseRunFactory(course=course)
+        ]
+        program = factories.ProgramFactory(
+            courses=[course],
+            excluded_course_runs=excluded_course_runs,
+            one_click_purchase_enabled=True,
+            type=program_type,
+        )
+        self.assertTrue(program.is_program_eligible_for_one_click_purchase)
+
+    def test_one_click_purchase_ineligible(self):
+        """ Verify that program is one click purchase ineligible. """
+        yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
+        tomorrow = datetime.datetime.now() + datetime.timedelta(days=1)
+        verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
+        program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
+
+        # Program has one_click_purchase_enabled set to False and
+        # every course has one course run
+        self.assert_one_click_purchase_ineligible_program(
+            one_click_purchase_enabled=False,
+            program_type=program_type,
+        )
+
+        # Program has one_click_purchase_enabled set to True and
+        # one course has two course runs
+        course_run = factories.CourseRunFactory(end=None, enrollment_end=None)
+        factories.CourseRunFactory(end=None, enrollment_end=None, course=course_run.course)
+        factories.SeatFactory(course_run=course_run, type='verified', upgrade_deadline=None)
+        program = factories.ProgramFactory(
+            courses=[course_run.course],
+            one_click_purchase_enabled=True,
+            type=program_type,
+        )
+        self.assertFalse(program.is_program_eligible_for_one_click_purchase)
+
+        # Program has one_click_purchase_enabled set to True and
+        # one course with one course run excluded from the program
+        course_run = factories.CourseRunFactory(end=None, enrollment_end=None)
+        factories.SeatFactory(course_run=course_run, type='verified', upgrade_deadline=None)
+        program = factories.ProgramFactory(
+            courses=[course_run.course],
+            one_click_purchase_enabled=True,
+            excluded_course_runs=[course_run],
+            type=program_type,
+        )
+        self.assertFalse(program.is_program_eligible_for_one_click_purchase)
+
+        # Program has one_click_purchase_enabled set to True, one course
+        # with one course run, course run start date not passed
+        self.assert_one_click_purchase_ineligible_program(
+            start=tomorrow,
+            program_type=program_type,
+        )
+
+        # Program has one_click_purchase_enabled set to True, one course
+        # with one course run, course run end date passed
+        self.assert_one_click_purchase_ineligible_program(
+            end=yesterday,
+            program_type=program_type,
+        )
+
+        # Program has one_click_purchase_enabled set to True, one course
+        # with one course run, course run enrollment start date not passed
+        self.assert_one_click_purchase_ineligible_program(
+            enrollment_start=tomorrow,
+            program_type=program_type,
+        )
+
+        # Program has one_click_purchase_enabled set to True, one course
+        # with one course run, course run enrollment end date passed
+        self.assert_one_click_purchase_ineligible_program(
+            enrollment_end=yesterday,
+            program_type=program_type,
+        )
+
+        # Program has one_click_purchase_enabled set to True, one course
+        # with one course run, seat upgrade deadline passed
+        self.assert_one_click_purchase_ineligible_program(
+            upgrade_deadline=yesterday,
+            program_type=program_type,
+        )
+
+        # Program has one_click_purchase_enabled set to True, one course
+        # with one course run, seat type is not purchasable
+        self.assert_one_click_purchase_ineligible_program(
+            seat_type='incorrect',
+            program_type=program_type,
+        )
 
     def test_str(self):
         """Verify that a program is properly converted to a str."""

@@ -9,6 +9,7 @@ import pytz
 import waffle
 from django.db import models, transaction
 from django.db.models.query_utils import Q
+from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
@@ -436,6 +437,37 @@ class CourseRun(TimeStampedModel):
 
         return deadline
 
+    def enrollable_seats(self, types):
+        """
+        Returns seats, of the given type(s), that can be enrolled in/purchased.
+
+        Arguments:
+            types (list of seat type names): Type of seats to limit the returned value to.
+
+        Returns:
+            List of Seats
+        """
+        now = timezone.now()
+        enrollable_seats = []
+
+        if self.start and self.start > now:
+            return enrollable_seats
+
+        if self.end and now > self.end:
+            return enrollable_seats
+
+        if self.enrollment_start and self.enrollment_start > now:
+            return enrollable_seats
+
+        if self.enrollment_end and now > self.enrollment_end:
+            return enrollable_seats
+
+        for seat in self.seats.all():
+            if seat.type in types and (not seat.upgrade_deadline or now < seat.upgrade_deadline):
+                enrollable_seats.append(seat)
+
+        return enrollable_seats
+
     @property
     def program_types(self):
         """
@@ -729,11 +761,41 @@ class Program(TimeStampedModel):
         help_text=_('The description of credit redemption for courses in program'),
         blank=True, null=True
     )
+    one_click_purchase_enabled = models.BooleanField(
+        default=False,
+        help_text=_('Allow courses in this program to be purchased in a single transaction')
+    )
 
     objects = ProgramQuerySet.as_manager()
 
     def __str__(self):
         return self.title
+
+    @property
+    def is_program_eligible_for_one_click_purchase(self):
+        """
+        Checks if the program is eligible for one click purchase.
+
+        To pass the check the program must have one_click_purchase field enabled
+        and all its courses must contain only one course run and the remaining
+        not excluded course run must contain a purchasable seat.
+        """
+        if not self.one_click_purchase_enabled:
+            return False
+
+        excluded_course_runs = set(self.excluded_course_runs.all())
+        applicable_seat_types = [seat_type.name.lower() for seat_type in self.type.applicable_seat_types.all()]
+
+        for course in self.courses.all():
+            course_runs = set(course.course_runs.all()) - excluded_course_runs
+
+            if len(course_runs) != 1:
+                return False
+
+            if not course_runs.pop().enrollable_seats(applicable_seat_types):
+                return False
+
+        return True
 
     @cached_property
     def _course_run_weeks_to_complete(self):

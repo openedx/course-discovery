@@ -713,7 +713,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
         model = Program
         fields = (
             'uuid', 'title', 'subtitle', 'type', 'status', 'marketing_slug', 'marketing_url', 'banner_image',
-            'courses', 'authoring_organizations', 'card_image_url',
+            'courses', 'authoring_organizations', 'card_image_url', 'is_program_eligible_for_one_click_purchase',
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 

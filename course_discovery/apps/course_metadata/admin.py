@@ -10,6 +10,33 @@ from course_discovery.apps.course_metadata.publishers import ProgramPublisherExc
 from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClientException
 
 
+class ProgramEligibilityFilter(admin.SimpleListFilter):
+    title = _('eligible for one-click purchase')
+    parameter_name = 'eligible_for_one_click_purchase'
+
+    def lookups(self, request, model_admin):  # pragma: no cover
+        return (
+            (1, _('Yes')),
+            (0, _('No'))
+        )
+
+    def queryset(self, request, queryset):
+        """
+        The queryset can be filtered to contain programs that are eligible for
+        one click purchase or to exclude them.
+        """
+        value = self.value()
+        if value is None:
+            return queryset
+
+        program_ids = set()
+        queryset = queryset.prefetch_related('courses__course_runs')
+        for program in queryset:
+            if program.is_program_eligible_for_one_click_purchase == bool(int(value)):
+                program_ids.add(program.id)
+        return queryset.filter(pk__in=program_ids)
+
+
 class SeatInline(admin.TabularInline):
     model = Seat
     extra = 1
@@ -81,7 +108,7 @@ class ProgramAdmin(admin.ModelAdmin):
     form = ProgramAdminForm
     inlines = [FaqsInline, IndividualEndorsementInline, CorporateEndorsementsInline]
     list_display = ('id', 'uuid', 'title', 'type', 'partner', 'status',)
-    list_filter = ('partner', 'type', 'status',)
+    list_filter = ('partner', 'type', 'status', ProgramEligibilityFilter,)
     ordering = ('uuid', 'title', 'status')
     readonly_fields = ('uuid', 'custom_course_runs_display', 'excluded_course_runs',)
     search_fields = ('uuid', 'title', 'marketing_slug')
@@ -92,11 +119,9 @@ class ProgramAdmin(admin.ModelAdmin):
     fields = (
         'title', 'subtitle', 'status', 'type', 'partner', 'banner_image', 'banner_image_url', 'card_image_url',
         'marketing_slug', 'overview', 'credit_redemption_overview', 'video', 'weeks_to_complete',
-        'min_hours_effort_per_week', 'max_hours_effort_per_week',
-    )
-    fields += (
-        'courses', 'order_courses_by_start_date', 'custom_course_runs_display', 'excluded_course_runs',
-        'authoring_organizations', 'credit_backing_organizations'
+        'min_hours_effort_per_week', 'max_hours_effort_per_week', 'courses', 'order_courses_by_start_date',
+        'custom_course_runs_display', 'excluded_course_runs', 'authoring_organizations',
+        'credit_backing_organizations', 'one_click_purchase_enabled',
     )
     fields += filter_horizontal
     save_error = False
