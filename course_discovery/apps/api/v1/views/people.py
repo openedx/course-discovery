@@ -1,4 +1,3 @@
-import json
 import logging
 
 import waffle
@@ -29,7 +28,7 @@ class PersonViewSet(PartnerMixin, viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         """ Create a new person. """
-        person_data = json.loads(request.data.get('data'))
+        person_data = request.data
 
         partner = self.get_partner()
         person_data['partner'] = partner.id
