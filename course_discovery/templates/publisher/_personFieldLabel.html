@@ -1,1 +1,1 @@
-<img src="{{ profile_image }}"/><span>{{ full_name }}</span>
+<img src="{{ profile_image }}"/><span{% if uuid %} data-uuid="{{ uuid }}" {% endif %}>{{ full_name }}</span>

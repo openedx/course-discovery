@@ -257,6 +257,34 @@ class PersonSerializer(serializers.ModelSerializer):
 
         return person
 
+    def update(self, instance, validated_data):
+        position_data = validated_data.pop('position')
+        works_data = validated_data.pop('works', [])
+        urls_data = validated_data.pop('urls', {})
+
+        instance.position.title = position_data['title']
+        instance.position.organization = position_data['organization']
+        instance.position.save()
+
+        for url_type in [PersonSocialNetwork.FACEBOOK, PersonSocialNetwork.TWITTER, PersonSocialNetwork.BLOG]:
+            value = urls_data.get(url_type)
+            if value:
+                network, __ = PersonSocialNetwork.objects.get_or_create(person=instance, type=url_type)
+                network.value = value
+                network.save()
+            else:
+                PersonSocialNetwork.objects.filter(person=instance, type=url_type).delete()
+
+        instance.person_works.exclude(value__in=works_data).delete()
+        for work in works_data:
+            PersonWork.objects.get_or_create(person=instance, value=work)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
+
     def get_social_network_url(self, url_type, obj):
         # filter() isn't used to avoid discarding prefetched results.
         social_networks = [network for network in obj.person_networks.all() if network.type == url_type]

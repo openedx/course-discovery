@@ -1,6 +1,4 @@
 # pylint: disable=redefined-builtin,no-member
-import json
-
 import ddt
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -16,7 +14,8 @@ from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
 from course_discovery.apps.course_metadata.tests import toggle_switch
-from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PartnerFactory, PersonFactory
+from course_discovery.apps.course_metadata.tests.factories import (OrganizationFactory, PartnerFactory, PersonFactory,
+                                                                   PositionFactory)
 
 User = get_user_model()
 
@@ -31,6 +30,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.force_authenticate(self.user)
         self.person = PersonFactory()
+        PositionFactory(person=self.person)
         self.organization = OrganizationFactory()
         # DEFAULT_PARTNER_ID is used explicitly here to avoid issues with differences in
         # auto-incrementing behavior across databases. Otherwise, it's not safe to assume
@@ -50,7 +50,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
             response = self.client.post(self.people_list_url, self._person_data(), format='json')
             self.assertEqual(response.status_code, 201)
 
-        data = json.loads(self._person_data()['data'])
+        data = self._person_data()
         person = Person.objects.last()
         self.assertDictEqual(response.data, self.serialize_person(person))
         self.assertEqual(person.given_name, data['given_name'])
@@ -68,7 +68,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         """ Verify that if credentials are missing api will return the error. """
         self.partner.marketing_site_api_username = None
         self.partner.save()
-        data = json.loads(self._person_data()['data'])
+        data = self._person_data()
 
         with LogCapture(people_logger.name) as log_capture:
             response = self.client.post(self.people_list_url, self._person_data(), format='json')
@@ -87,7 +87,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         """ Verify that after creating drupal page if serializer fail due to any error, message
         will be logged and drupal page will be deleted. """
 
-        data = json.loads(self._person_data()['data'])
+        data = self._person_data()
         with mock.patch.object(MarketingSitePeople, 'publish_person', return_value=self.expected_node):
             with mock.patch(
                 'course_discovery.apps.api.v1.views.people.PersonViewSet.perform_create',
@@ -137,23 +137,52 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(response.status_code, 400)
 
     def _person_data(self):
-
         return {
-            'data': json.dumps(
-                {
-                    'given_name': "Robert",
-                    'family_name': "Ford",
-                    'bio': "The maze is not for him.",
-                    'position': {
-                        'title': "Park Director",
-                        'organization': self.organization.id
-                    },
-                    'works': ["Delores", "Teddy", "Maive"],
-                    'urls': {
-                        'facebook': 'http://www.facebook.com/hopkins',
-                        'twitter': 'http://www.twitter.com/hopkins',
-                        'blog': 'http://www.blog.com/hopkins'
-                    }
-                }
-            )
+            'given_name': "Robert",
+            'family_name': "Ford",
+            'bio': "The maze is not for him.",
+            'position': {
+                'title': "Park Director",
+                'organization': self.organization.id
+            },
+            'works': ["Delores", "Teddy", "Maive"],
+            'urls': {
+                'facebook': 'http://www.facebook.com/hopkins',
+                'twitter': 'http://www.twitter.com/hopkins',
+                'blog': 'http://www.blog.com/hopkins'
+            }
         }
+
+    def test_update(self):
+        """Verify that people data can be updated using endpoint."""
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
+
+        data = {
+            'given_name': "updated",
+            'family_name': "name",
+            'bio': "updated bio",
+            'position': {
+                'title': "new title",
+                'organization': self.organization.id
+            },
+            'works': ["new", "added"],
+            'urls': {
+                'facebook': 'http://www.facebook.com/new',
+                'twitter': 'http://www.twitter.com/new',
+            }
+        }
+
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        updated_person = Person.objects.get(id=self.person.id)
+
+        self.assertEqual(updated_person.given_name, data['given_name'])
+        self.assertEqual(updated_person.family_name, data['family_name'])
+        self.assertEqual(updated_person.bio, data['bio'])
+        self.assertEqual(updated_person.position.title, data['position']['title'])
+        self.assertEqual(updated_person.person_works.all()[0].value, data['works'][0])
+        self.assertEqual(updated_person.person_works.all()[1].value, data['works'][1])
+        self.assertEqual(updated_person.person_networks.get(type='facebook').value, data['urls']['facebook'])
+        self.assertEqual(updated_person.person_networks.get(type='twitter').value, data['urls']['twitter'])
+        self.assertFalse(updated_person.person_networks.filter(type='blog').exists())

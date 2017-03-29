@@ -516,8 +516,11 @@
   div {
     text-align: center;
   }
-  a {
+  a.delete {
     color: red;
+  }
+  a.edit {
+    color: #000000;
   }
 }
 
