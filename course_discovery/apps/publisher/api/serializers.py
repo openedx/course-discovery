@@ -131,6 +131,7 @@ class CourseRevisionSerializer(serializers.ModelSerializer):
         fields = (
             'history_id', 'title', 'number', 'short_description', 'full_description', 'expected_learnings',
             'prerequisites', 'primary_subject', 'secondary_subject', 'tertiary_subject', 'level_type',
+            'learner_testimonial', 'faq', 'video_link',
         )
 
     def get_primary_subject(self, obj):

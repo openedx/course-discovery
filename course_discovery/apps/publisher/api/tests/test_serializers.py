@@ -207,7 +207,10 @@ class CourseRevisionSerializerTests(TestCase):
             'primary_subject': revision.primary_subject.name,
             'secondary_subject': revision.secondary_subject.name,
             'tertiary_subject': revision.tertiary_subject.name,
-            'level_type': revision.level_type.name
+            'level_type': revision.level_type.name,
+            'learner_testimonial': revision.learner_testimonial,
+            'faq': revision.faq,
+            'video_link': revision.video_link
         }
 
         self.assertDictEqual(serializer.data, expected)
@@ -234,7 +237,10 @@ class CourseRevisionSerializerTests(TestCase):
             'primary_subject': None,
             'secondary_subject': None,
             'tertiary_subject': None,
-            'level_type': None
+            'level_type': None,
+            'learner_testimonial': revision.learner_testimonial,
+            'faq': revision.faq,
+            'video_link': revision.video_link
         }
 
         self.assertDictEqual(serializer.data, expected)

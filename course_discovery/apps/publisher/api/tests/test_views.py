@@ -392,7 +392,10 @@ class CourseRevisionDetailViewTests(TestCase):
             'primary_subject': revision.primary_subject.name,
             'secondary_subject': revision.secondary_subject.name,
             'tertiary_subject': revision.tertiary_subject.name,
-            'level_type': revision.level_type.name
+            'level_type': revision.level_type.name,
+            'learner_testimonial': revision.learner_testimonial,
+            'faq': revision.faq,
+            'video_link': revision.video_link
         }
 
         response = self._get_response(revision.history_id)

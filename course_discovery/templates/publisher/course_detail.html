@@ -150,6 +150,38 @@
                 </div>
                 <div class="show-diff"></div>
             </div>
+            <div class="info-item history-field-container">
+                <div class="heading">{% trans "Learner Testimonials" %}
+                </div>
+                <div class="current learner_testimonial">
+                    {% with  object.learner_testimonial as field %}
+                        {% include "publisher/_render_optional_field.html" %}
+                    {% endwith %}
+                </div>
+                <div class="show-diff"></div>
+            </div>
+            <div class="info-item history-field-container">
+                <div class="heading">{% trans "FAQ" %}
+                </div>
+                <div class="current faq">
+                    {% with  object.faq as field %}
+                        {% include "publisher/_render_optional_field.html" %}
+                    {% endwith %}
+                </div>
+                <div class="show-diff"></div>
+            </div>
+            <div class="info-item history-field-container">
+                <div class="heading">{% trans "Video Link" %}
+                </div>
+                {% with  object.video_link as value %}
+                    {% if value %}
+                        <a class="current video_link" href="{{ value }}" target="_blank">{{ value }}</a>
+                    {% else %}
+                        {% trans "(Optional) Not yet added" %}
+                    {% endif %}
+                {% endwith %}
+                <div class="show-diff"></div>
+            </div>
         </div>
     </main>
 

@@ -99,6 +99,27 @@
       <span class="history-object">{{ history_object.level_type }}</span>
       <span class="show-diff"></span>
     </div>
+
+    <div class="field-container">
+      <div class="field-title">{% trans "Learner Testimonials" %}</div>
+      <span class="object">{{ object.learner_testimonial }}</span>
+      <span class="history-object">{{ history_object.learner_testimonial }}</span>
+      <span class="show-diff"></span>
+    </div>
+
+    <div class="field-container">
+      <div class="field-title">{% trans "FAQ" %}</div>
+      <span class="object">{{ object.faq }}</span>
+      <span class="history-object">{{ history_object.faq }}</span>
+      <span class="show-diff"></span>
+    </div>
+
+    <div class="field-container">
+      <div class="field-title">{% trans "Video Link" %}</div>
+      <span class="object">{{ object.video_link }}</span>
+      <span class="history-object">{{ history_object.video_link }}</span>
+      <span class="show-diff"></span>
+    </div>
   </div>
 
 {% endblock %}

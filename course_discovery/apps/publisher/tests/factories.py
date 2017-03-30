@@ -32,6 +32,8 @@ class CourseFactory(factory.DjangoModelFactory):
     primary_subject = factory.SubFactory(factories.SubjectFactory)
     secondary_subject = factory.SubFactory(factories.SubjectFactory)
     tertiary_subject = factory.SubFactory(factories.SubjectFactory)
+    faq = FuzzyText(prefix='Frequently asked questions')
+    video_link = FuzzyText(prefix='http://video.com/çօմɾʂҽ/')
 
     class Meta:
         model = Course
