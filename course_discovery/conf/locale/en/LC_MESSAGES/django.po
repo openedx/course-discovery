@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-30 14:08+0500\n"
+"POT-Creation-Date: 2017-03-30 14:55+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -363,7 +363,7 @@ msgstr ""
 msgid "Credit"
 msgstr ""
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/publisher/models.py
 msgid "FAQ"
 msgstr ""
 
@@ -686,12 +686,20 @@ msgid "Expected Learnings"
 msgstr ""
 
 #: apps/publisher/models.py
+msgid "Learner Testimonials"
+msgstr ""
+
+#: apps/publisher/models.py
 msgid "Verification deadline"
 msgstr ""
 
 #: apps/publisher/models.py
 msgid ""
 "Last date/time on which verification for this product can be submitted."
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Video Link"
 msgstr ""
 
 #: apps/publisher/models.py
