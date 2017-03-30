@@ -52,7 +52,7 @@ class Course(TimeStampedModel, ChangedByMixin):
     expected_learnings = models.TextField(default=None, null=True, blank=True, verbose_name=_("Expected Learnings"))
     syllabus = models.TextField(default=None, null=True, blank=True)
     prerequisites = models.TextField(default=None, null=True, blank=True, verbose_name=_('Prerequisites'))
-    learner_testimonial = models.CharField(max_length=50, null=True, blank=True)
+    learner_testimonial = models.TextField(default=None, null=True, blank=True, verbose_name=_('Learner Testimonials'))
     verification_deadline = models.DateTimeField(
         null=True,
         blank=True,
@@ -85,6 +85,8 @@ class Course(TimeStampedModel, ChangedByMixin):
 
     is_seo_review = models.BooleanField(default=False)
     keywords = TaggableManager(blank=True, verbose_name='keywords')
+    faq = models.TextField(default=None, null=True, blank=True, verbose_name=_('FAQ'))
+    video_link = models.URLField(default=None, null=True, blank=True, verbose_name=_('Video Link'))
 
     history = HistoricalRecords()
 
