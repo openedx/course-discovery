@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-30 12:20+0500\n"
+"POT-Creation-Date: 2017-03-30 14:08+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2211,18 +2211,21 @@ msgstr "Çöürsé Téäm Àdmïn Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α�
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Primary Subject"
 msgstr "Prïmärý Süßjéçt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Secondary Subject"
 msgstr "Séçöndärý Süßjéçt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Tertiary Subject"
 msgstr "Tértïärý Süßjéçt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
@@ -2433,6 +2436,7 @@ msgstr ""
 "Längüägé spökén ïn çöürsé vïdéös Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
 #: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Course Length (Weeks)"
 msgstr "Çöürsé Léngth (Wééks) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
@@ -2454,7 +2458,6 @@ msgid "Credit Provider"
 msgstr "Çrédït Prövïdér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: templates/publisher/course_run_detail/_credit_seat.html
-#: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_seats.html
 msgid "Price"
 msgstr "Prïçé Ⱡ'σяєм ιρѕ#"
@@ -2480,10 +2483,6 @@ msgstr "Süß Tïtlé Ⱡ'σяєм ιρѕυм ∂σł#"
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "School"
 msgstr "Sçhööl Ⱡ'σяєм ιρѕυ#"
-
-#: templates/publisher/course_run_detail/_drupal.html
-msgid "Subject"
-msgstr "Süßjéçt Ⱡ'σяєм ιρѕυм #"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "XSeries"
@@ -2532,6 +2531,10 @@ msgstr "Kéýwörds Ⱡ'σяєм ιρѕυм ∂#"
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Sponsors"
 msgstr "Spönsörs Ⱡ'σяєм ιρѕυм ∂#"
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Course syllabus"
+msgstr "Çöürsé sýlläßüs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Enrollments"

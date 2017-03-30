@@ -44,19 +44,6 @@
         </div>
         <div class="copy">{{ object.organization_key }}</div>
     </div>
-    <div class="info-item">
-        <div class="heading">
-            {% trans "Subject" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
-        </div>
-        <div class="copy">
-        {% if object.subjects.all %}
-            {% for subject in object.subjects %}{{ subject.name }}{% endfor %}
-        {% else %}
-            {% trans "(Required) Not yet added" %}
-        {% endif %}
-        </div>
-    </div>
 
     <div class="info-item">
         <div class="heading">
@@ -237,17 +224,61 @@
             {% endif %}
         </div>
     </div>
-     <div class="info-item">
-        <div class="heading">
-            {% trans "Price" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
-        </div>
-        <div class="copy">
-            {% with  object.verified_seat_price as field %}
-                {% include "publisher/_render_optional_field.html" %}
-            {% endwith %}
-        </div>
+
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Course syllabus" %}
     </div>
+    <div>
+      {% with  object.syllabus as field %}
+        {% include "publisher/_render_optional_field.html" %}
+      {% endwith %}
+    </div>
+  </div>
+
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Primary Subject" %}
+    </div>
+    <div>
+      {% with  object.subjects.0 as field %}
+        {% include "publisher/_render_required_field.html" %}
+      {% endwith %}
+    </div>
+  </div>
+
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Secondary Subject" %}
+    </div>
+    <div>
+      {% with  object.subjects.1 as field %}
+        {% include "publisher/_render_optional_field.html" %}
+      {% endwith %}
+    </div>
+  </div>
+
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Tertiary Subject" %}
+    </div>
+    <div>
+      {% with  object.subjects.2 as field %}
+        {% include "publisher/_render_optional_field.html" %}
+      {% endwith %}
+    </div>
+  </div>
+
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Course Length (Weeks)" %}
+    </div>
+    <div>
+      {% with  object.length as field %}
+        {% include "publisher/_render_optional_field.html" %}
+      {% endwith %}
+    </div>
+  </div>
 
     <h3 class="hd-3 de-emphasized">{% trans "Enrollments" %}</h3>
     <div class="info-item">
