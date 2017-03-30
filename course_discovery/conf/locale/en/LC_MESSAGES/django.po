@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-30 12:20+0500\n"
+"POT-Creation-Date: 2017-03-30 14:08+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1844,18 +1844,21 @@ msgstr ""
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Primary Subject"
 msgstr ""
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Secondary Subject"
 msgstr ""
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Tertiary Subject"
 msgstr ""
 
@@ -2051,6 +2054,7 @@ msgid "Language spoken in course videos"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Course Length (Weeks)"
 msgstr ""
 
@@ -2072,7 +2076,6 @@ msgid "Credit Provider"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_credit_seat.html
-#: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_seats.html
 msgid "Price"
 msgstr ""
@@ -2097,10 +2100,6 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "School"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_drupal.html
-msgid "Subject"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_drupal.html
@@ -2149,6 +2148,10 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Sponsors"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Course syllabus"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_drupal.html
