@@ -1,7 +1,7 @@
 {% load i18n %}
 
 {% if field %}
-  {{ field }}
+  {{ field|safe }}
 {% else %}
   {% trans "(Required) Not yet added" %}
 {% endif %}

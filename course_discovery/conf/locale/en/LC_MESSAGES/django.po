@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-07 11:51+0200\n"
+"POT-Creation-Date: 2017-04-08 22:45+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -376,8 +376,8 @@ msgstr ""
 msgid "Credit"
 msgstr ""
 
-#: apps/course_metadata/models.py apps/publisher/models.py
-#: templates/publisher/course_detail.html
+#: apps/course_metadata/models.py apps/publisher/forms.py
+#: apps/publisher/models.py templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "FAQ"
@@ -602,6 +602,21 @@ msgstr ""
 msgid "Tertiary (optional)"
 msgstr ""
 
+#: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
+msgid "Expected Learnings"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Learner Testimonial"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Syllabus"
+msgstr ""
+
 #: apps/publisher/forms.py
 msgid "Course Start Date"
 msgstr ""
@@ -685,12 +700,6 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Level Type"
-msgstr ""
-
-#: apps/publisher/models.py templates/publisher/course_detail.html
-#: templates/publisher/course_revision_history.html
-#: templates/publisher/course_run_detail/_all.html
-msgid "Expected Learnings"
 msgstr ""
 
 #: apps/publisher/models.py templates/publisher/course_detail.html
@@ -1517,7 +1526,6 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
 msgid "140 character limit, including spaces."
 msgstr ""
 
@@ -2009,6 +2017,10 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/course_edit_form.html
+msgid "255 character limit, including spaces."
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
 msgid ""
 "Please provide any frequently asked questions and corresponding answers to "
 "those questions."
@@ -2118,6 +2130,10 @@ msgid ""
 "“Brilliant course! It's definitely the best introduction to electronics in "
 "the world! Interesting material, clean explanations, well prepared quizzes, "
 "challenging homeworks and fun labs.” – Previous Student"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "500 character limit, including spaces."
 msgstr ""
 
 #: templates/publisher/course_edit_form.html
