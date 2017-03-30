@@ -7,6 +7,12 @@
     {% trans "Edit Course" %}
 {% endblock title %}
 
+{% block stylesheets %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'bower_components/tinymce/skins/lightgray/content.min.css' %}" type="text/x-scss">
+    <link rel="stylesheet" href="{% static 'bower_components/tinymce/skins/lightgray/skin.min.css' %}" type="text/x-scss">
+{% endblock %}
+
 {% block page_content %}
     <div>
         <h1 class="hd-1 emphasized">{% trans "Edit Course" %}</h1>
@@ -163,7 +169,14 @@
                                     <div class="col col-6">
                                         <label class="field-label ">{{ form.short_description.label_tag }}</label>
                                         {{ form.short_description }}
-                                        <p>{% trans "140 character limit, including spaces." %}</p>
+                                        <p>{% trans "255 character limit, including spaces." %}</p>
+                                            {% if form.short_description.errors %}
+                                                <div class="field-message has-error">
+                                                    <span class="field-message-content">
+                                                        {{ form.short_description.errors|escape }}
+                                                    </span>
+                                                </div>
+                                            {% endif %}
                                     </div>
                                 </div>
 
@@ -203,6 +216,13 @@
                                         <label class="field-label ">{{ form.full_description.label_tag }}</label>
                                         {{ form.full_description }}
                                         <p>{% trans "2500 character limit, including spaces." %}</p>
+                                            {% if form.full_description.errors %}
+                                                <div class="field-message has-error">
+                                                    <span class="field-message-content">
+                                                        {{ form.full_description.errors|escape }}
+                                                    </span>
+                                                </div>
+                                            {% endif %}
                                     </div>
                                 </div>
 
@@ -238,6 +258,14 @@
                                     <div class="col col-6">
                                         <label class="field-label ">{{ form.expected_learnings.label_tag }}</label>
                                         {{ form.expected_learnings }}
+                                        <p>{% trans "2500 character limit, including spaces." %}</p>
+                                            {% if form.expected_learnings.errors %}
+                                                <div class="field-message has-error">
+                                                    <span class="field-message-content">
+                                                        {{ form.expected_learnings.errors|escape }}
+                                                    </span>
+                                                </div>
+                                            {% endif %}
                                     </div>
                                 </div>
 
@@ -326,6 +354,13 @@
                                         <label class="field-label ">{{ form.prerequisites.label_tag }}</label>
                                         {{ form.prerequisites }}
                                         <p>{% trans "200 character limit, including spaces." %}</p>
+                                            {% if form.prerequisites.errors %}
+                                                <div class="field-message has-error">
+                                                    <span class="field-message-content">
+                                                        {{ form.prerequisites.errors|escape }}
+                                                    </span>
+                                                </div>
+                                            {% endif %}
                                     </div>
                                 </div>
 
@@ -364,6 +399,14 @@
                                     <div class="col col-6">
                                         <label class="field-label ">{{ form.syllabus.label_tag }}</label>
                                         {{ form.syllabus }}
+                                        <p>{% trans "2500 character limit, including spaces." %}</p>
+                                            {% if form.syllabus.errors %}
+                                                <div class="field-message has-error">
+                                                    <span class="field-message-content">
+                                                        {{ form.syllabus.errors|escape }}
+                                                    </span>
+                                                </div>
+                                            {% endif %}
                                     </div>
                                 </div>
 
@@ -390,6 +433,14 @@
                                     <div class="col col-6 help-text">
                                         <label class="field-label ">{{ form.faq.label }}</label>
                                         {{ form.faq }}
+                                        <p>{% trans "2500 character limit, including spaces." %}</p>
+                                            {% if form.faq.errors %}
+                                                <div class="field-message has-error">
+                                                    <span class="field-message-content">
+                                                        {{ form.faq.errors|escape }}
+                                                    </span>
+                                                </div>
+                                            {% endif %}
                                     </div>
                                 </div>
                                 {% if is_internal_user %}
@@ -477,6 +528,14 @@
                                     <div class="col col-6 help-text">
                                         <label class="field-label ">{{ form.learner_testimonial.label }}</label>
                                         {{ form.learner_testimonial }}
+                                        <p>{% trans "500 character limit, including spaces." %}</p>
+                                            {% if form.learner_testimonial.errors %}
+                                                <div class="field-message has-error">
+                                                    <span class="field-message-content">
+                                                        {{ form.learner_testimonial.errors|escape }}
+                                                    </span>
+                                                </div>
+                                            {% endif %}
                                     </div>
                                 </div>
                             </fieldset>
@@ -499,9 +558,20 @@
     </div>
 {% endblock %}
 
-{% block extra_js %}
+{{% block extra_js %}
     <script src="{% static 'js/publisher/course-tabs.js' %}"></script>
     <script src="{% static 'js/publisher/organizations.js' %}"></script>
     <script src="{% static 'js/publisher/image-validation.js' %}"></script>
     <script src="{% static 'js/publisher/course-image.js' %}"></script>
+    <script src="{% static 'bower_components/tinymce/tinymce.min.js' %}"></script>
+    <script src="{% static 'js/publisher/tinymce-init.js' %}"></script>
+    <script src="{% static 'js/publisher/tinymce-charactercount.plugin.js' %}"></script>
+
+    <script src="{% static 'bower_components/tinymce/themes/modern/theme.min.js' %}"></script>
+    <script src="{% static 'bower_components/tinymce/plugins/lists/plugin.min.js' %}"></script>
+    <script src="{% static 'bower_components/tinymce/plugins/link/plugin.min.js' %}"></script>
+    <script src="{% static 'bower_components/tinymce/plugins/anchor/plugin.min.js' %}"></script>
+
+
 {% endblock %}
+

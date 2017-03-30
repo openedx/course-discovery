@@ -1935,6 +1935,7 @@ class CourseEditViewTests(TestCase):
 
         updated_course_title = 'Updated {}'.format(self.course.title)
         post_data['title'] = updated_course_title
+        post_data['short_description'] = 'Testing description'
 
         self.assertNotEqual(self.course.title, updated_course_title)
         self.assertNotEqual(self.course.changed_by, self.user)
@@ -1952,6 +1953,7 @@ class CourseEditViewTests(TestCase):
         # Assert that course is updated.
         self.assertEqual(course.title, updated_course_title)
         self.assertEqual(course.changed_by, self.user)
+        self.assertEqual(course.short_description, 'Testing description')
 
         # After updating 2 history object exists for a course.
         self.assertEqual(self.course.history.all().count(), 2)

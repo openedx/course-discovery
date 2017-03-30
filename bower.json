@@ -19,6 +19,7 @@
     "moment": "~2.13.0",
     "pikaday": "https://github.com/owenmead/Pikaday.git#1.4.0",
     "underscore": "~1.8.3",
-    "google-diff-match-patch": "0.1.0"
+    "google-diff-match-patch": "0.1.0",
+    "tinymce": "4.5.6"
   }
 }

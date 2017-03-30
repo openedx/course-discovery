@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-07 11:51+0200\n"
+"POT-Creation-Date: 2017-04-08 22:45+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -461,8 +461,8 @@ msgstr "Pröféssïönäl Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 msgid "Credit"
 msgstr "Çrédït Ⱡ'σяєм ιρѕυ#"
 
-#: apps/course_metadata/models.py apps/publisher/models.py
-#: templates/publisher/course_detail.html
+#: apps/course_metadata/models.py apps/publisher/forms.py
+#: apps/publisher/models.py templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "FAQ"
@@ -732,6 +732,21 @@ msgstr "Séçöndärý (öptïönäl) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт
 msgid "Tertiary (optional)"
 msgstr "Tértïärý (öptïönäl) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
+#: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
+msgid "Expected Learnings"
+msgstr "Éxpéçtéd Léärnïngs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: apps/publisher/forms.py
+msgid "Learner Testimonial"
+msgstr "Léärnér Téstïmönïäl Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: apps/publisher/forms.py
+msgid "Syllabus"
+msgstr "Sýlläßüs Ⱡ'σяєм ιρѕυм ∂#"
+
 #: apps/publisher/forms.py
 msgid "Course Start Date"
 msgstr "Çöürsé Stärt Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
@@ -818,12 +833,6 @@ msgstr "Pärtnér Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 #: apps/publisher/models.py
 msgid "Level Type"
 msgstr "Lévél Týpé Ⱡ'σяєм ιρѕυм ∂σłσ#"
-
-#: apps/publisher/models.py templates/publisher/course_detail.html
-#: templates/publisher/course_revision_history.html
-#: templates/publisher/course_run_detail/_all.html
-msgid "Expected Learnings"
-msgstr "Éxpéçtéd Léärnïngs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
 #: apps/publisher/models.py templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
@@ -1775,7 +1784,6 @@ msgstr ""
 "änd präçtïçés för ä häppý, méänïngfül lïfé. Ⱡ'σяєм ιρѕυм#"
 
 #: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
 msgid "140 character limit, including spaces."
 msgstr ""
 "140 çhäräçtér lïmït, ïnçlüdïng späçés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
@@ -2390,6 +2398,12 @@ msgstr ""
 "çöürsé rün. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
 #: templates/publisher/course_edit_form.html
+msgid "255 character limit, including spaces."
+msgstr ""
+"255 çhäräçtér lïmït, ïnçlüdïng späçés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: templates/publisher/course_edit_form.html
 msgid ""
 "Please provide any frequently asked questions and corresponding answers to "
 "those questions."
@@ -2537,6 +2551,12 @@ msgstr ""
 "єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ "
 "αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ "
 "ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт#"
+
+#: templates/publisher/course_edit_form.html
+msgid "500 character limit, including spaces."
+msgstr ""
+"500 çhäräçtér lïmït, ïnçlüdïng späçés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
 
 #: templates/publisher/course_edit_form.html
 msgid "UPDATE COURSE"
