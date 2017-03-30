@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-03 15:32+0500\n"
+"POT-Creation-Date: 2017-04-03 16:28+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -449,6 +449,9 @@ msgid "Credit"
 msgstr "Çrédït Ⱡ'σяєм ιρѕυ#"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
+#: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "FAQ"
 msgstr "FÀQ Ⱡ'σяєм#"
 
@@ -812,7 +815,9 @@ msgstr "Lévél Týpé Ⱡ'σяєм ιρѕυм ∂σłσ#"
 msgid "Expected Learnings"
 msgstr "Éxpéçtéd Léärnïngs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
-#: apps/publisher/models.py
+#: apps/publisher/models.py templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Learner Testimonials"
 msgstr "Léärnér Téstïmönïäls Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
@@ -827,7 +832,9 @@ msgstr ""
 "Läst däté/tïmé ön whïçh vérïfïçätïön för thïs prödüçt çän ßé süßmïttéd. "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
-#: apps/publisher/models.py
+#: apps/publisher/models.py templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Video Link"
 msgstr "Vïdéö Lïnk Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
@@ -1277,6 +1284,7 @@ msgid "Open Selected Version"
 msgstr "Öpén Séléçtéd Vérsïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: templates/publisher/_render_optional_field.html
+#: templates/publisher/course_detail.html
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_credit_seat.html
 #: templates/publisher/course_run_detail/_drupal.html

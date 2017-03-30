@@ -18,7 +18,7 @@ function loadRevisionHistory(revisionUrl) {
         success: function (data) {
             $.each(data, function(key, value) {
               var currentObject = $('.history-field-container').find('.' + key);
-                if (currentObject.length) {
+                if (currentObject.length && value != null) {
                     showDiffCourseDetails(value, currentObject.text(), currentObject.siblings('.show-diff'));
                     currentObject.hide();
                 }

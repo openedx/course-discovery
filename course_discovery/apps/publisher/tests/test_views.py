@@ -637,7 +637,7 @@ class CourseRunDetailTests(TestCase):
             'Title', 'Number', 'Course ID', 'Price', 'Sub Title', 'School', 'Subject', 'XSeries',
             'Start Date', 'End Date', 'Self Paced', 'Staff', 'Estimated Effort', 'Languages',
             'Video Translations', 'Level', 'About this Course', "What you'll learn",
-            'Keywords', 'Sponsors', 'Enrollments'
+            'Keywords', 'Sponsors', 'Enrollments', 'Learner Testimonials', 'FAQ', 'Video Link'
         ]
         for field in fields:
             self.assertContains(response, field)
@@ -649,7 +649,8 @@ class CourseRunDetailTests(TestCase):
             self.wrapped_course_run.pacing_type, self.wrapped_course_run.persons,
             self.wrapped_course_run.max_effort, self.wrapped_course_run.language.name,
             self.wrapped_course_run.transcript_languages, self.wrapped_course_run.level_type,
-            self.wrapped_course_run.expected_learnings
+            self.wrapped_course_run.expected_learnings, self.wrapped_course_run.course.learner_testimonial,
+            self.wrapped_course_run.course.faq, self.wrapped_course_run.course.video_link
         ]
         for value in values:
             self.assertContains(response, value)
@@ -1598,6 +1599,9 @@ class CourseDetailViewTests(TestCase):
         self.assertContains(response, self.course.short_description)
         self.assertContains(response, self.course.full_description)
         self.assertContains(response, self.course.expected_learnings)
+        self.assertContains(response, self.course.learner_testimonial)
+        self.assertContains(response, self.course.faq)
+        self.assertContains(response, self.course.video_link)
 
     def test_details_page_with_course_runs_lms_id(self):
         """ Test that user can see course runs with lms-id on course detail page. """
