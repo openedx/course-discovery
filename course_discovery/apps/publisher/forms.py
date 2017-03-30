@@ -141,6 +141,7 @@ class CustomCourseForm(CourseForm):
             'expected_learnings', 'primary_subject', 'secondary_subject',
             'tertiary_subject', 'prerequisites', 'image', 'team_admin',
             'level_type', 'organization', 'is_seo_review', 'syllabus',
+            'learner_testimonial', 'faq', 'video_link',
         )
 
     def __init__(self, *args, **kwargs):
