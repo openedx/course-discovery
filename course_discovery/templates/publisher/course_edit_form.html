@@ -381,6 +381,104 @@
                                         {{ form.level_type }}
                                     </div>
                                 </div>
+
+                                <div class="field-title">{{ form.faq.label }}</div>
+                                <div class="row">
+                                    <div class="col col-6 help-text">
+                                        <p>{% trans "Please provide any frequently asked questions and corresponding answers to those questions." %}</p>
+                                    </div>
+                                    <div class="col col-6 help-text">
+                                        <label class="field-label ">{{ form.faq.label }}</label>
+                                        {{ form.faq }}
+                                    </div>
+                                </div>
+                                {% if is_internal_user %}
+                                    <div class="field-title">{{ form.video_link.label|upper }}</div>
+                                    <div class="row">
+                                        <div class="col col-6 help-text">
+                                            <div class="row">
+                                                <ul class="tabs">
+                                                    <li class="course-tabs active" data-tab="tab-practices">
+                                                        {% trans "Best Practices" %}
+                                                    </li>
+                                                    <li class="course-tabs" data-tab="tab-example">
+                                                        {% trans "Examples" %}
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div id="tab-practices" class="content active">
+                                                <p>
+                                                    {%trans "The About Video should excite and entice potential students to take your course. Think of it as a movie trailer or TV show promotion. The video should be compelling, and exhibit the instructor’s personality." %}<br>
+                                                    {%trans "Length: ideal length is 30-90 seconds (learners typically only watch an average of 30 seconds)" %}<br>
+                                                    {%trans "Should be produced and edited, using elements such as graphics, stock footage" %}
+                                                </p>
+                                                <p>{% trans "The About video should answer these key questions:" %}</p>
+                                                <ul>
+                                                    <li>{% trans "Why should a learner register?" %}</li>
+                                                    <li>{% trans "What topics and concepts are covered?" %}</li>
+                                                    <li>{% trans "Who is teaching the course?" %}</li>
+                                                    <li>{% trans "What institution is delivering the course?" %}</li>
+                                                </ul>
+                                                <p>{% trans "Naming Specifications:" %}</p>
+                                                <ul>
+                                                    <li>{% trans "Name: InstitutionX_CourseNumber_About.mov" %}</li>
+                                                    <li>{% trans "Post to:" %} <a href="http://veda.edx.org/upload" target="_blank">http://veda.edx.org/upload</a></li>
+                                                </ul>
+                                                <p>{% trans "Technical specifications:" %}</p>
+                                                <ul>
+                                                    <li>{% trans "Codec: H.264" %}</li>
+                                                    <li>{% trans "Container: .mp4" %}</li>
+                                                    <li>{% trans "Resolution: 1920x1080" %}</li>
+                                                    <li>{% trans "Frame Rate: 29.97 fps" %}</li>
+                                                    <li>{% trans "Aspect: 1.0" %}</li>
+                                                    <li>{% trans "Bitrate: 5Mbps VBR" %}</li>
+                                                    <li>{% trans "Audio Codec: AAC 44.1KHz/192 Kbps" %}</li>
+                                                </ul>
+                                            </div>
+                                            <div id="tab-example" class="content">
+                                                <p>
+                                                    {%trans "Visit edX’s Youtube channel for inspiration and examples of other About Videos:" %}
+                                                    <a href="www.youtube.com/user/EdXOnline" target="_blank">www.youtube.com/user/EdXOnline</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col col-6 help-text">
+                                            <label class="field-label ">{{ form.video_link.label }}</label>
+                                            {{ form.video_link }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                <div class="field-title">{{ form.learner_testimonial.label|upper }}</div>
+                                <div class="row">
+                                    <div class="col col-6 help-text">
+                                        <div class="row">
+                                            <ul class="tabs">
+                                                <li class="course-tabs active" data-tab="tab-practices">
+                                                    {% trans "Best Practices" %}
+                                                </li>
+                                                <li class="course-tabs" data-tab="tab-example">
+                                                    {% trans "Examples" %}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div id="tab-practices" class="content active">
+                                            <ul>
+                                                <li>{% trans "A quote from a learner in the course, demonstrating the value of taking the course." %}</li>
+                                                <li>{% trans "Should be no more than 25-50 words in length." %}</li>
+                                            </ul>
+                                        </div>
+                                        <div id="tab-example" class="content">
+                                            <p>
+                                                {%trans "“Brilliant course! It's definitely the best introduction to electronics in the world! Interesting material, clean explanations, well prepared quizzes, challenging homeworks and fun labs.” – Previous Student" %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="col col-6 help-text">
+                                        <label class="field-label ">{{ form.learner_testimonial.label }}</label>
+                                        {{ form.learner_testimonial }}
+                                    </div>
+                                </div>
                             </fieldset>
                         </div>
                     </div>

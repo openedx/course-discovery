@@ -341,6 +341,14 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
 
         return kwargs
 
+    def get_context_data(self, **kwargs):
+        context = super(CourseEditView, self).get_context_data(**kwargs)
+        context.update(
+            {'is_internal_user': is_internal_user(self.request.user)}
+        )
+
+        return context
+
     def form_valid(self, form):
         """
         If the form is valid, update organization and team_admin.

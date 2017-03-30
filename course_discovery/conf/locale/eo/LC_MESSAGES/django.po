@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-03 16:28+0500\n"
+"POT-Creation-Date: 2017-04-05 12:07+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2358,6 +2358,155 @@ msgid ""
 msgstr ""
 "Thïs ïnförmätïön ïs réqüïréd ßéföré édX çän çréäté ä Stüdïö ïnstänçé för ä "
 "çöürsé rün. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Please provide any frequently asked questions and corresponding answers to "
+"those questions."
+msgstr ""
+"Pléäsé prövïdé äný fréqüéntlý äskéd qüéstïöns änd çörréspöndïng änswérs tö "
+"thösé qüéstïöns. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"The About Video should excite and entice potential students to take your "
+"course. Think of it as a movie trailer or TV show promotion. The video "
+"should be compelling, and exhibit the instructor’s personality."
+msgstr ""
+"Thé Àßöüt Vïdéö shöüld éxçïté änd éntïçé pöténtïäl stüdénts tö täké ýöür "
+"çöürsé. Thïnk öf ït äs ä mövïé träïlér ör TV shöw prömötïön. Thé vïdéö "
+"shöüld ßé çömpéllïng, änd éxhïßït thé ïnstrüçtör’s pérsönälïtý. Ⱡ'σяєм ιρѕυм"
+" ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
+"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
+"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕι#"
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Length: ideal length is 30-90 seconds (learners typically only watch an "
+"average of 30 seconds)"
+msgstr ""
+"Léngth: ïdéäl léngth ïs 30-90 séçönds (léärnérs týpïçällý önlý wätçh än "
+"ävérägé öf 30 séçönds) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Should be produced and edited, using elements such as graphics, stock "
+"footage"
+msgstr ""
+"Shöüld ßé prödüçéd änd édïtéd, üsïng éléménts süçh äs gräphïçs, stöçk "
+"föötägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: templates/publisher/course_edit_form.html
+msgid "The About video should answer these key questions:"
+msgstr ""
+"Thé Àßöüt vïdéö shöüld änswér thésé kéý qüéstïöns: Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: templates/publisher/course_edit_form.html
+msgid "Why should a learner register?"
+msgstr "Whý shöüld ä léärnér régïstér? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: templates/publisher/course_edit_form.html
+msgid "What topics and concepts are covered?"
+msgstr ""
+"Whät töpïçs änd çönçépts äré çövéréd? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
+
+#: templates/publisher/course_edit_form.html
+msgid "Who is teaching the course?"
+msgstr "Whö ïs téäçhïng thé çöürsé? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+
+#: templates/publisher/course_edit_form.html
+msgid "What institution is delivering the course?"
+msgstr ""
+"Whät ïnstïtütïön ïs délïvérïng thé çöürsé? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: templates/publisher/course_edit_form.html
+msgid "Naming Specifications:"
+msgstr "Nämïng Spéçïfïçätïöns: Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: templates/publisher/course_edit_form.html
+msgid "Name: InstitutionX_CourseNumber_About.mov"
+msgstr ""
+"Nämé: ÌnstïtütïönX_ÇöürséNümßér_Àßöüt.möv Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: templates/publisher/course_edit_form.html
+msgid "Post to:"
+msgstr "Pöst tö: Ⱡ'σяєм ιρѕυм ∂#"
+
+#: templates/publisher/course_edit_form.html
+msgid "Technical specifications:"
+msgstr "Téçhnïçäl spéçïfïçätïöns: Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: templates/publisher/course_edit_form.html
+msgid "Codec: H.264"
+msgstr "Çödéç: H.264 Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: templates/publisher/course_edit_form.html
+msgid "Container: .mp4"
+msgstr "Çöntäïnér: .mp4 Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: templates/publisher/course_edit_form.html
+msgid "Resolution: 1920x1080"
+msgstr "Résölütïön: 1920x1080 Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: templates/publisher/course_edit_form.html
+msgid "Frame Rate: 29.97 fps"
+msgstr "Främé Räté: 29.97 fps Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: templates/publisher/course_edit_form.html
+msgid "Aspect: 1.0"
+msgstr "Àspéçt: 1.0 Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: templates/publisher/course_edit_form.html
+msgid "Bitrate: 5Mbps VBR"
+msgstr "Bïträté: 5Mßps VBR Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: templates/publisher/course_edit_form.html
+msgid "Audio Codec: AAC 44.1KHz/192 Kbps"
+msgstr ""
+"Àüdïö Çödéç: ÀÀÇ 44.1KHz/192 Kßps Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Visit edX’s Youtube channel for inspiration and examples of other About "
+"Videos:"
+msgstr ""
+"Vïsït édX’s Ýöütüßé çhännél för ïnspïrätïön änd éxämplés öf öthér Àßöüt "
+"Vïdéös: Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"A quote from a learner in the course, demonstrating the value of taking the "
+"course."
+msgstr ""
+"À qüöté fröm ä léärnér ïn thé çöürsé, démönsträtïng thé välüé öf täkïng thé "
+"çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: templates/publisher/course_edit_form.html
+msgid "Should be no more than 25-50 words in length."
+msgstr ""
+"Shöüld ßé nö möré thän 25-50 wörds ïn léngth. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"“Brilliant course! It's definitely the best introduction to electronics in "
+"the world! Interesting material, clean explanations, well prepared quizzes, "
+"challenging homeworks and fun labs.” – Previous Student"
+msgstr ""
+"“Brïllïänt çöürsé! Ìt's défïnïtélý thé ßést ïntrödüçtïön tö éléçtrönïçs ïn "
+"thé wörld! Ìntéréstïng mätérïäl, çléän éxplänätïöns, wéll prépäréd qüïzzés, "
+"çhälléngïng höméwörks änd fün läßs.” – Prévïöüs Stüdént Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт "
+"łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ "
+"єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ "
+"αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ "
+"ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт#"
 
 #: templates/publisher/course_edit_form.html
 msgid "UPDATE COURSE"

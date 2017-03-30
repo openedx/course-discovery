@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-03 16:28+0500\n"
+"POT-Creation-Date: 2017-04-05 12:07+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1978,6 +1978,118 @@ msgstr ""
 msgid ""
 "This information is required before edX can create a Studio instance for a "
 "course run."
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Please provide any frequently asked questions and corresponding answers to "
+"those questions."
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"The About Video should excite and entice potential students to take your "
+"course. Think of it as a movie trailer or TV show promotion. The video "
+"should be compelling, and exhibit the instructor’s personality."
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Length: ideal length is 30-90 seconds (learners typically only watch an "
+"average of 30 seconds)"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Should be produced and edited, using elements such as graphics, stock "
+"footage"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "The About video should answer these key questions:"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Why should a learner register?"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "What topics and concepts are covered?"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Who is teaching the course?"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "What institution is delivering the course?"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Naming Specifications:"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Name: InstitutionX_CourseNumber_About.mov"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Post to:"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Technical specifications:"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Codec: H.264"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Container: .mp4"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Resolution: 1920x1080"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Frame Rate: 29.97 fps"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Aspect: 1.0"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Bitrate: 5Mbps VBR"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Audio Codec: AAC 44.1KHz/192 Kbps"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Visit edX’s Youtube channel for inspiration and examples of other About "
+"Videos:"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"A quote from a learner in the course, demonstrating the value of taking the "
+"course."
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Should be no more than 25-50 words in length."
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"“Brilliant course! It's definitely the best introduction to electronics in "
+"the world! Interesting material, clean explanations, well prepared quizzes, "
+"challenging homeworks and fun labs.” – Previous Student"
 msgstr ""
 
 #: templates/publisher/course_edit_form.html

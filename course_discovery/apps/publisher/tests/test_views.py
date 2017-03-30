@@ -2101,6 +2101,21 @@ class CourseEditViewTests(TestCase):
         self.assertEqual(course_state.name, CourseStateChoices.Review)
         self.assertEqual(course_state.owner_role, PublisherUserRole.CourseTeam)
 
+    def test_video_link_field(self):
+        """
+        Verify that only internal user can see video link field on course edit page.
+        """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        response = self.client.get(self.edit_page_url)
+        self.assertContains(response, 'VIDEO LINK')
+
+        # Verify that course team user cannot see video link field.
+        self.user.groups.remove(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.EDIT_COURSE, self.organization_extension.group, self.organization_extension)
+        response = self.client.get(self.edit_page_url)
+        self.assertNotContains(response, 'VIDEO LINK')
+
 
 @ddt.ddt
 class CourseRunEditViewTests(TestCase):
