@@ -20,16 +20,16 @@ $(document).ready(function(){
     });
 
     $('#add-instructor-btn').click(function (e) {
-        if ($('#staffImageSelect').get(0).files.length === 0){
-            addModalError(gettext("Please upload a instructor image. File must be smaller than 1 megabyte in size."));
-            return false;
-        }
         var editMode = $(this).hasClass('edit-mode'),
             requestType,
             personData,
             url = $(this).data('url'),
             uuid = $('#addInstructorModal').data('uuid');
 
+        if (!editMode && $('#staffImageSelect').get(0).files.length === 0){
+            addModalError(gettext("Please upload a instructor image. File must be smaller than 1 megabyte in size."));
+            return false;
+        }
         personData = {
             'given_name': $('#given-name').val(),
             'family_name': $('#family-name').val(),
@@ -217,9 +217,7 @@ $(document).on('click', '.selected-instructor a.edit', function (e) {
     $.getJSON({
         url: btnInstructor.data('url') + uuid,
         success: function (data) {
-            convertFileToDataURL(data['profile_image']['medium']['url'], function(base64Img) {
-                $('.select-image').attr('src', base64Img);
-            });
+            $('.select-image').attr('src', data['profile_image']['medium']['url']);
             $('#given-name').val(data['given_name']);
             $('#family-name').val(data['family_name']);
             $('#title').val(data['position']['title']);
@@ -231,17 +229,3 @@ $(document).on('click', '.selected-instructor a.edit', function (e) {
         }
     });
 });
-
-function convertFileToDataURL(url, callback) {
-  var xhr = new XMLHttpRequest();
-  xhr.onload = function() {
-    var reader = new FileReader();
-    reader.onloadend = function() {
-      callback(reader.result);
-    };
-    reader.readAsDataURL(xhr.response);
-  };
-  xhr.open('GET', url);
-  xhr.responseType = 'blob';
-  xhr.send();
-}
