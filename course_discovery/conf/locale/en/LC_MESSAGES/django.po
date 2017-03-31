@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-31 15:15+0500\n"
+"POT-Creation-Date: 2017-04-03 15:32+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -468,7 +468,7 @@ msgstr ""
 
 #: apps/publisher/choices.py
 #: templates/publisher/course_run_detail/_widgets.html
-#: templates/publisher/dashboard/_preview_ready.html
+#: templates/publisher/dashboard/_in_preview.html
 msgid "Approved"
 msgstr ""
 
@@ -543,7 +543,6 @@ msgstr ""
 #: apps/publisher/forms.py templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 #: templates/publisher/dashboard/_in_progress.html
-#: templates/publisher/dashboard/_preview_ready.html
 #: templates/publisher/dashboard/_published.html
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Course Number"
@@ -965,7 +964,7 @@ msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/course_run_detail/_studio.html
-#: templates/publisher/dashboard/_preview_ready.html
+#: templates/publisher/dashboard/_in_preview.html
 #: templates/publisher/dashboard/_published.html
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Organization"
@@ -2278,8 +2277,8 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_studio.html
 #: templates/publisher/courses.html
+#: templates/publisher/dashboard/_in_preview.html
 #: templates/publisher/dashboard/_in_progress.html
-#: templates/publisher/dashboard/_preview_ready.html
 #: templates/publisher/dashboard/_published.html
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Course Name"
@@ -2318,7 +2317,7 @@ msgid "COURSE PREVIEW"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_widgets.html
-#: templates/publisher/dashboard/_preview_ready.html
+#: templates/publisher/dashboard/_in_preview.html
 msgid "Preview URL"
 msgstr ""
 
@@ -2393,7 +2392,7 @@ msgid "IN DEVELOPMENT"
 msgstr ""
 
 #: templates/publisher/dashboard.html
-msgid "PREVIEW READY"
+msgid "IN PREVIEW"
 msgstr ""
 
 #: templates/publisher/dashboard.html
@@ -2402,6 +2401,26 @@ msgstr ""
 
 #: templates/publisher/dashboard.html
 msgid "PUBLISHED COURSE RUNS"
+msgstr ""
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid ""
+"The following course run previews are available for course team approval. "
+"After the course team approves the preview, the edX marketing team will "
+"publish the course run on edx.org. The course team will receive an email "
+"message when the course run has been published."
+msgstr ""
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "Status"
+msgstr ""
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "Preview Requested"
+msgstr ""
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "In Review"
 msgstr ""
 
 #: templates/publisher/dashboard/_in_progress.html
@@ -2416,14 +2435,6 @@ msgstr ""
 #: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_published.html
 msgid "End"
-msgstr ""
-
-#: templates/publisher/dashboard/_preview_ready.html
-msgid ""
-"The following course run previews are available for course team approval. "
-"After the course team approves the preview, the edX marketing team will "
-"publish the course run on edx.org. The course team will receive an email "
-"message when the course run has been published."
 msgstr ""
 
 #: templates/publisher/dashboard/_published.html

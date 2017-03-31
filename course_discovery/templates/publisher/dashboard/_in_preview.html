@@ -11,13 +11,10 @@
                     {% trans "Course Name" %}
                 </th>
                 <th role="button">
-                    {% trans "Course Number" %}
-                </th>
-                <th role="button">
                     {% trans "Organization" %}
                 </th>
                 <th role="button">
-                    {% trans "Approved" %}
+                    {% trans "Status" %}
                 </th>
                 <th role="button">
                     {% trans "Preview URL" %}
@@ -31,13 +28,16 @@
                         <a href="{% url 'publisher:publisher_course_run_detail' course_run.id %}">{{ course_run.title }}</a>
                     </td>
                     <td>
-                        {{ course_run.number }}
+                    {% if course_run.course.organizations.first %}{{ course_run.course.organizations.first.key }}{% endif %}
                     </td>
                     <td>
-                    {% if course_run.course.organizations.first %}{{ course_run.course.organizations.first.name }}{% endif %}
-                    </td>
-                    <td>
-                         {{ course_run.state }}
+                        {% if not course_run.preview_url %}
+                            {% trans "Preview Requested" %}
+                        {% elif course_run.course_run_state.preview_accepted %}
+                            {% trans "Approved" %}
+                        {% else %}
+                            {% trans "In Review" %}
+                        {% endif %}
                     </td>
                     <td>
                         <a target="_blank" href="{{ course_run.preview_url }}">{{ course_run.preview_url }}</a>

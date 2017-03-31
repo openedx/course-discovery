@@ -1341,15 +1341,22 @@ class DashboardTests(TestCase):
     def test_without_preview_ready_course_runs(self):
         """ Verify preview ready tabs shows a message if no course run available. """
         self.course_run_2.preview_url = None
-        self.course_run_2.save()
-        response = self.assert_dashboard_response(studio_count=2, preview_count=0, progress_count=2, published_count=1)
+        self.course_run_2.course_run_state.name = CourseRunStateChoices.Draft
+        self.course_run_2.course_run_state.save()
+        response = self.assert_dashboard_response(studio_count=2, preview_count=0, progress_count=3, published_count=1)
         self._assert_tabs_with_roles(response)
 
     def test_without_preview_url(self):
-        """ Verify preview ready tabs shows a message if no course run available. """
+        """ Verify in preview tab shows course in "in review" tab if course run is approve regardless of
+        preview url is added or not.
+        """
+        response = self.assert_dashboard_response(studio_count=2, preview_count=1, progress_count=2, published_count=1)
+        self._assert_tabs_with_roles(response)
+
+        # without preview url
         self.course_run_2.preview_url = None
         self.course_run_2.save()
-        response = self.assert_dashboard_response(studio_count=2, preview_count=0, progress_count=2, published_count=1)
+        response = self.assert_dashboard_response(studio_count=2, preview_count=1, progress_count=2, published_count=1)
         self._assert_tabs_with_roles(response)
 
     def test_with_in_progress_course_runs(self):

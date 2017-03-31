@@ -20,7 +20,7 @@
             </li>
             <li role="tab" id="tab-preview" class="tab" aria-selected="false" aria-expanded="false"
                 aria-controls="preview" tabindex="-1">
-                <span>{{ preview_count }}</span>{% trans "PREVIEW READY" %}
+                <span>{{ preview_count }}</span>{% trans "IN PREVIEW" %}
             </li>
             {% if is_project_coordinator %}
                 <li role="tab" id="tab-studio" class="tab" aria-selected="false" aria-expanded="true"
@@ -40,7 +40,7 @@
         </div>
 
         <div role="tabpanel" id="preview" class="tab-panel" aria-labelledby="tab-preview" aria-hidden="true" tabindex="-1">
-            {% include "publisher/dashboard/_preview_ready.html" %}
+            {% include "publisher/dashboard/_in_preview.html" %}
             <p></p>
         </div>
 

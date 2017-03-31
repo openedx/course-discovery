@@ -108,7 +108,6 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
 
         preview_course_runs = unpublished_course_runs.filter(
             course_run_state__name=CourseRunStateChoices.Approved,
-            preview_url__isnull=False
         ).order_by('-course_run_state__modified')
 
         context['in_progress_course_runs'] = [CourseRunWrapper(course_run) for course_run in in_progress_course_runs]

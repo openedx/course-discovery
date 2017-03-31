@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-31 15:15+0500\n"
+"POT-Creation-Date: 2017-04-03 15:32+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -580,7 +580,7 @@ msgstr "Révïéw Ⱡ'σяєм ιρѕυ#"
 
 #: apps/publisher/choices.py
 #: templates/publisher/course_run_detail/_widgets.html
-#: templates/publisher/dashboard/_preview_ready.html
+#: templates/publisher/dashboard/_in_preview.html
 msgid "Approved"
 msgstr "Àpprövéd Ⱡ'σяєм ιρѕυм ∂#"
 
@@ -671,7 +671,6 @@ msgstr "Çöürsé Tïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 #: apps/publisher/forms.py templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 #: templates/publisher/dashboard/_in_progress.html
-#: templates/publisher/dashboard/_preview_ready.html
 #: templates/publisher/dashboard/_published.html
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Course Number"
@@ -1126,7 +1125,7 @@ msgstr "Tïtlé Ⱡ'σяєм ιρѕ#"
 
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/course_run_detail/_studio.html
-#: templates/publisher/dashboard/_preview_ready.html
+#: templates/publisher/dashboard/_in_preview.html
 #: templates/publisher/dashboard/_published.html
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Organization"
@@ -2673,8 +2672,8 @@ msgstr "Çértïfïçäté Ìssüéd Däté Ⱡ'σяєм ιρѕυм ∂σłσя 
 
 #: templates/publisher/course_run_detail/_studio.html
 #: templates/publisher/courses.html
+#: templates/publisher/dashboard/_in_preview.html
 #: templates/publisher/dashboard/_in_progress.html
-#: templates/publisher/dashboard/_preview_ready.html
 #: templates/publisher/dashboard/_published.html
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Course Name"
@@ -2713,7 +2712,7 @@ msgid "COURSE PREVIEW"
 msgstr "ÇÖÛRSÉ PRÉVÌÉW Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: templates/publisher/course_run_detail/_widgets.html
-#: templates/publisher/dashboard/_preview_ready.html
+#: templates/publisher/dashboard/_in_preview.html
 msgid "Preview URL"
 msgstr "Prévïéw ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
@@ -2800,8 +2799,8 @@ msgid "IN DEVELOPMENT"
 msgstr "ÌN DÉVÉLÖPMÉNT Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: templates/publisher/dashboard.html
-msgid "PREVIEW READY"
-msgstr "PRÉVÌÉW RÉÀDÝ Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+msgid "IN PREVIEW"
+msgstr "ÌN PRÉVÌÉW Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: templates/publisher/dashboard.html
 msgid "STUDIO REQUEST"
@@ -2810,6 +2809,33 @@ msgstr "STÛDÌÖ RÉQÛÉST Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 #: templates/publisher/dashboard.html
 msgid "PUBLISHED COURSE RUNS"
 msgstr "PÛBLÌSHÉD ÇÖÛRSÉ RÛNS Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid ""
+"The following course run previews are available for course team approval. "
+"After the course team approves the preview, the edX marketing team will "
+"publish the course run on edx.org. The course team will receive an email "
+"message when the course run has been published."
+msgstr ""
+"Thé föllöwïng çöürsé rün prévïéws äré äväïläßlé för çöürsé téäm äppröväl. "
+"Àftér thé çöürsé téäm äpprövés thé prévïéw, thé édX märkétïng téäm wïll "
+"püßlïsh thé çöürsé rün ön édx.örg. Thé çöürsé téäm wïll réçéïvé än émäïl "
+"méssägé whén thé çöürsé rün häs ßéén püßlïshéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
+" ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт"
+" ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση "
+"υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє#"
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "Status"
+msgstr "Stätüs Ⱡ'σяєм ιρѕυ#"
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "Preview Requested"
+msgstr "Prévïéw Réqüéstéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "In Review"
+msgstr "Ìn Révïéw Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: templates/publisher/dashboard/_in_progress.html
 msgid "There are no in progress course runs."
@@ -2826,21 +2852,6 @@ msgstr "Stärt Ⱡ'σяєм ιρѕ#"
 #: templates/publisher/dashboard/_published.html
 msgid "End"
 msgstr "Énd Ⱡ'σяєм#"
-
-#: templates/publisher/dashboard/_preview_ready.html
-msgid ""
-"The following course run previews are available for course team approval. "
-"After the course team approves the preview, the edX marketing team will "
-"publish the course run on edx.org. The course team will receive an email "
-"message when the course run has been published."
-msgstr ""
-"Thé föllöwïng çöürsé rün prévïéws äré äväïläßlé för çöürsé téäm äppröväl. "
-"Àftér thé çöürsé téäm äpprövés thé prévïéw, thé édX märkétïng téäm wïll "
-"püßlïsh thé çöürsé rün ön édx.örg. Thé çöürsé téäm wïll réçéïvé än émäïl "
-"méssägé whén thé çöürsé rün häs ßéén püßlïshéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
-" ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт"
-" ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση "
-"υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє#"
 
 #: templates/publisher/dashboard/_published.html
 msgid "Looks like you haven't published any course yet"
