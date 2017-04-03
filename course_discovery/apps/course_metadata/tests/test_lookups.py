@@ -232,3 +232,18 @@ class AutocompleteTests(TestCase):
             status_code=302,
             target_status_code=302
         )
+
+    def test_instructor_autocomplete_from_django_admin(self):
+        """ Verify instructor autocomplete return default data from django admin. """
+        admin_user = UserFactory(is_staff=True, is_superuser=True)
+        self.client.logout()
+        self.client.login(username=admin_user.username, password=USER_PASSWORD)
+
+        response = self.client.get(
+            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q='ins'),
+            HTTP_REFERER=reverse('admin:publisher_courserun_add')
+        )
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode('utf-8'))
+        expected_results = [{'id': instructor.id, 'text': str(instructor)} for instructor in self.instructors]
+        self.assertEqual(data.get('results'), expected_results)

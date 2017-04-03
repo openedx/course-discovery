@@ -396,6 +396,15 @@ class CourseRunAdminForm(forms.ModelForm):
     class Meta:
         model = CourseRun
         fields = '__all__'
+        widgets = {
+            'staff': autocomplete.ModelSelect2Multiple(
+                url='admin_metadata:person-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 3,
+                    'data-html': 'false',
+                }
+            ),
+        }
 
     def clean_lms_course_id(self):
         lms_course_id = self.cleaned_data['lms_course_id']
