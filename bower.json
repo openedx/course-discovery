@@ -13,7 +13,7 @@
     "clipboard": "1.5.12",
     "datatables": "1.10.12",
     "edx-pattern-library": "~0.18.0",
-    "jquery": "^3.1.1",
+    "jquery": "^3.2.1",
     "jquery-ui": "1.10.3",
     "js-cookie": "2.1.2",
     "moment": "~2.13.0",
