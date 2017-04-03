@@ -73,11 +73,15 @@ class PersonAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
         return []
 
     def get_result_label(self, result):
-        context = {
-            'uuid': result.uuid,
-            'profile_image': result.get_profile_image_url,
-            'full_name': result.full_name,
-            'position': result.position if hasattr(result, 'position') else None
-        }
+        http_referer = self.request.META.get('HTTP_REFERER')
+        if http_referer and '/admin/' in http_referer:
+            return super(PersonAutocomplete, self).get_result_label(result)
+        else:
+            context = {
+                'uuid': result.uuid,
+                'profile_image': result.get_profile_image_url,
+                'full_name': result.full_name,
+                'position': result.position if hasattr(result, 'position') else None
+            }
 
-        return render_to_string('publisher/_personLookup.html', context=context)
+            return render_to_string('publisher/_personLookup.html', context=context)
