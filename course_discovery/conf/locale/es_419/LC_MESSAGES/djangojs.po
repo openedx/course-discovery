@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-22 12:01+0500\n"
-"PO-Revision-Date: 2017-03-20 10:08+0000\n"
+"POT-Creation-Date: 2017-04-03 16:28+0500\n"
+"PO-Revision-Date: 2017-03-31 08:30+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
 "MIME-Version: 1.0\n"
@@ -42,6 +42,20 @@ msgstr "Mostrar cambios"
 msgid "The image file size cannot exceed 1 MB."
 msgstr ""
 
+#: static/js/publisher/instructors.js
+msgid "New Instructor"
+msgstr ""
+
+#: static/js/publisher/instructors.js
+msgid "Add staff member"
+msgstr ""
+
+#: static/js/publisher/instructors.js
+msgid ""
+"Please upload a instructor image. File must be smaller than 1 megabyte in "
+"size."
+msgstr ""
+
 #: static/js/publisher/instructors.js static/js/publisher/preview-url.js
 msgid "Something went wrong!"
 msgstr "Algo falló!"
@@ -49,6 +63,14 @@ msgstr "Algo falló!"
 #: static/js/publisher/instructors.js
 msgid "File must be smaller than 1 megabyte in size."
 msgstr "El archivo debe tener un tamaño menor a 1 MB."
+
+#: static/js/publisher/instructors.js
+msgid "Update staff member"
+msgstr ""
+
+#: static/js/publisher/instructors.js
+msgid "Update Instructor"
+msgstr ""
 
 #: static/js/publisher/preview-url.js
 msgid "Save"
