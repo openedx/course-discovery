@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-22 12:01+0500\n"
-"PO-Revision-Date: 2017-03-22 09:05+0000\n"
+"POT-Creation-Date: 2017-04-03 16:28+0500\n"
+"PO-Revision-Date: 2017-04-04 09:52+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Malayalam (http://www.transifex.com/open-edx/edx-platform/language/ml/)\n"
 "MIME-Version: 1.0\n"
@@ -364,7 +364,10 @@ msgstr ""
 msgid "Credit"
 msgstr ""
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/publisher/models.py
+#: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "FAQ"
 msgstr ""
 
@@ -469,7 +472,7 @@ msgstr ""
 
 #: apps/publisher/choices.py
 #: templates/publisher/course_run_detail/_widgets.html
-#: templates/publisher/dashboard/_preview_ready.html
+#: templates/publisher/dashboard/_in_preview.html
 msgid "Approved"
 msgstr ""
 
@@ -544,7 +547,6 @@ msgstr ""
 #: apps/publisher/forms.py templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 #: templates/publisher/dashboard/_in_progress.html
-#: templates/publisher/dashboard/_preview_ready.html
 #: templates/publisher/dashboard/_published.html
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Course Number"
@@ -553,21 +555,18 @@ msgstr ""
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
-#: templates/publisher/course_run_detail/_all.html
 msgid "Brief Description"
 msgstr ""
 
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
-#: templates/publisher/course_run_detail/_all.html
 msgid "Full Description"
 msgstr ""
 
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
-#: templates/publisher/course_run_detail/_all.html
 msgid "Prerequisites"
 msgstr ""
 
@@ -596,6 +595,7 @@ msgid "Course End Date"
 msgstr ""
 
 #: apps/publisher/forms.py templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "Instructor"
 msgstr ""
 
@@ -686,6 +686,12 @@ msgstr ""
 msgid "Expected Learnings"
 msgstr ""
 
+#: apps/publisher/models.py templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Learner Testimonials"
+msgstr ""
+
 #: apps/publisher/models.py
 msgid "Verification deadline"
 msgstr ""
@@ -693,6 +699,12 @@ msgstr ""
 #: apps/publisher/models.py
 msgid ""
 "Last date/time on which verification for this product can be submitted."
+msgstr ""
+
+#: apps/publisher/models.py templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Video Link"
 msgstr ""
 
 #: apps/publisher/models.py
@@ -917,6 +929,7 @@ msgstr ""
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_detail/_edit_warning_popup.html
 #: templates/publisher/course_edit_form.html
+#: templates/publisher/course_run/edit_run_form.html
 #: templates/publisher/course_run_detail/_edit_warning.html
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Cancel"
@@ -935,6 +948,10 @@ msgid "New Instructor"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+msgid "Click here to upload your image"
+msgstr ""
+
+#: templates/publisher/_add_instructor_popup.html
 msgid "Name"
 msgstr ""
 
@@ -948,7 +965,6 @@ msgid "Family Name"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
-#: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Title"
@@ -956,7 +972,7 @@ msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/course_run_detail/_studio.html
-#: templates/publisher/dashboard/_preview_ready.html
+#: templates/publisher/dashboard/_in_preview.html
 #: templates/publisher/dashboard/_published.html
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Organization"
@@ -1096,6 +1112,7 @@ msgid "Open Selected Version"
 msgstr ""
 
 #: templates/publisher/_render_optional_field.html
+#: templates/publisher/course_detail.html
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_credit_seat.html
 #: templates/publisher/course_run_detail/_drupal.html
@@ -1231,21 +1248,25 @@ msgstr ""
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "COURSE START DATE"
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "Start on a Tuesday, Wednesday, or Thursday."
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "Avoid major U.S. holidays."
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid ""
 "Specify a month, day, and year. If you are unsure of the exact date, specify"
 " a day that is close to the estimated start date. For example, if your "
@@ -1258,6 +1279,7 @@ msgstr ""
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid ""
 "Instructor-paced courses include individual assignments that have specific "
 "due dates before the course end date."
@@ -1265,6 +1287,7 @@ msgstr ""
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid ""
 "Self-paced courses do not have individual assignments that have specific due"
 " dates before the course end date. All assignments are due on the course end"
@@ -1309,11 +1332,13 @@ msgstr ""
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "COURSE END DATE"
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid ""
 "Specify a month, day, and year. If you are unsure of the exact date, specify"
 " a day that is close to the estimated end date. For example, if your course "
@@ -1322,11 +1347,13 @@ msgstr ""
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "CERTIFICATE TYPE AND PRICE"
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid ""
 "If the course offers a verified or professional education certificate, "
 "select the certificate type and enter the price for the certificate."
@@ -1337,6 +1364,7 @@ msgid "Save Draft"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "Edit Course Run"
 msgstr ""
 
@@ -1346,6 +1374,7 @@ msgid "Create New Course"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 #, python-format
 msgid ""
 "To add or edit information about this course run, make changes on this page "
@@ -1355,6 +1384,7 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 #, python-format
 msgid ""
 "%(strong_start)sNote:%(strong_end)s If you edit course information after edX"
@@ -1374,6 +1404,7 @@ msgid "All of the following information is required."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "About Page Information"
 msgstr ""
 
@@ -1383,32 +1414,39 @@ msgid "Studio Instance"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "COURSE PACING"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "STUDIO INSTANCE"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "This is the course studio URL."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_detail/_widgets.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "STUDIO URL"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_detail/_widgets.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "Not yet created"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "PROGRAM ASSOCIATION"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid ""
 "If this course is part of a program, select the program type and enter the "
 "name of the program."
@@ -1570,14 +1608,17 @@ msgid "Linear and integer optimization"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "COURSE STAFF"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "The primary instructor or instructors in the course videos."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "Add New"
 msgstr ""
 
@@ -1727,38 +1768,46 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "ESTIMATED EFFORT"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid ""
 "The number of hours per week the learner should expect to spend on the "
 "course. This may be a range."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "Min Effort"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "Max Effort"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "LANGUAGE(S)"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid ""
 "The languages available for videos, video transcripts, and course content "
 "other than videos and transcripts."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "LENGTH"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid ""
 "The length of the course, in weeks, rounded to the nearest whole number."
 msgstr ""
@@ -1805,6 +1854,7 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_run/edit_run_form.html
 msgid "Update Course Run"
 msgstr ""
 
@@ -1826,44 +1876,40 @@ msgstr ""
 msgid "Course Detail"
 msgstr ""
 
-#: templates/publisher/course_detail.html
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/courses.html
+#: templates/publisher/course_detail.html templates/publisher/courses.html
 #: templates/publisher/dashboard/_in_progress.html
 msgid "Institution"
 msgstr ""
 
 #: templates/publisher/course_detail.html
-#: templates/publisher/course_run_detail/_all.html
 msgid "Course Team Admin"
 msgstr ""
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
-#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Primary Subject"
 msgstr ""
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
-#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Secondary Subject"
 msgstr ""
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
-#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Tertiary Subject"
 msgstr ""
 
 #: templates/publisher/course_detail.html
-#: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Course Image"
 msgstr ""
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
-#: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Level"
 msgstr ""
@@ -1952,42 +1998,6 @@ msgstr ""
 msgid "Show changes"
 msgstr ""
 
-#: templates/publisher/course_run_detail.html
-msgid "Course Run Detail"
-msgstr ""
-
-#: templates/publisher/course_run_detail.html
-#, python-format
-msgid ""
-"Course run announced on %(course_publish_date)s - view it on edx.org at:"
-msgstr ""
-
-#: templates/publisher/course_run_detail.html
-msgid "All"
-msgstr ""
-
-#. Translators: Studio is an edX tool for course creation.
-#: templates/publisher/course_run_detail.html
-msgid "STUDIO"
-msgstr ""
-
-#. Translators: CAT is an acronym for Course Administration Tool.
-#: templates/publisher/course_run_detail.html
-msgid "CAT"
-msgstr ""
-
-#. Translators: DRUPAL is an edX marketing site.
-#: templates/publisher/course_run_detail.html
-msgid "DRUPAL"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_drupal.html
-#: templates/publisher/course_run_detail/_salesforce.html
-#: templates/publisher/course_run_detail/_studio.html
-msgid "Number"
-msgstr ""
-
 #: templates/publisher/course_run_detail/_all.html
 msgid "Studio instance"
 msgstr ""
@@ -2042,6 +2052,7 @@ msgid "Language spoken in course videos"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Course Length (Weeks)"
 msgstr ""
 
@@ -2063,7 +2074,6 @@ msgid "Credit Provider"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_credit_seat.html
-#: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_seats.html
 msgid "Price"
 msgstr ""
@@ -2083,15 +2093,17 @@ msgid "Upgrade Deadline"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_salesforce.html
+#: templates/publisher/course_run_detail/_studio.html
+msgid "Number"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Sub Title"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "School"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_drupal.html
-msgid "Subject"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_drupal.html
@@ -2131,6 +2143,10 @@ msgid "What you'll learn"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_drupal.html
+msgid "Download"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Prerequisite"
 msgstr ""
 
@@ -2140,6 +2156,10 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Sponsors"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_drupal.html
+msgid "Course syllabus"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_drupal.html
@@ -2266,8 +2286,8 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_studio.html
 #: templates/publisher/courses.html
+#: templates/publisher/dashboard/_in_preview.html
 #: templates/publisher/dashboard/_in_progress.html
-#: templates/publisher/dashboard/_preview_ready.html
 #: templates/publisher/dashboard/_published.html
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Course Name"
@@ -2306,7 +2326,7 @@ msgid "COURSE PREVIEW"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_widgets.html
-#: templates/publisher/dashboard/_preview_ready.html
+#: templates/publisher/dashboard/_in_preview.html
 msgid "Preview URL"
 msgstr ""
 
@@ -2320,6 +2340,35 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "Reason for declining preview"
+msgstr ""
+
+#: templates/publisher/course_run_detail/course_run_detail.html
+msgid "Course Run Detail"
+msgstr ""
+
+#: templates/publisher/course_run_detail/course_run_detail.html
+#, python-format
+msgid ""
+"Course run announced on %(course_publish_date)s - view it on edx.org at:"
+msgstr ""
+
+#: templates/publisher/course_run_detail/course_run_detail.html
+msgid "All"
+msgstr ""
+
+#. Translators: Studio is an edX tool for course creation.
+#: templates/publisher/course_run_detail/course_run_detail.html
+msgid "STUDIO"
+msgstr ""
+
+#. Translators: CAT is an acronym for Course Administration Tool.
+#: templates/publisher/course_run_detail/course_run_detail.html
+msgid "CAT"
+msgstr ""
+
+#. Translators: DRUPAL is an edX marketing site.
+#: templates/publisher/course_run_detail/course_run_detail.html
+msgid "DRUPAL"
 msgstr ""
 
 #: templates/publisher/courses.html
@@ -2352,7 +2401,7 @@ msgid "IN DEVELOPMENT"
 msgstr ""
 
 #: templates/publisher/dashboard.html
-msgid "PREVIEW READY"
+msgid "IN PREVIEW"
 msgstr ""
 
 #: templates/publisher/dashboard.html
@@ -2361,6 +2410,26 @@ msgstr ""
 
 #: templates/publisher/dashboard.html
 msgid "PUBLISHED COURSE RUNS"
+msgstr ""
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid ""
+"The following course run previews are available for course team approval. "
+"After the course team approves the preview, the edX marketing team will "
+"publish the course run on edx.org. The course team will receive an email "
+"message when the course run has been published."
+msgstr ""
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "Status"
+msgstr ""
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "Preview Requested"
+msgstr ""
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "In Review"
 msgstr ""
 
 #: templates/publisher/dashboard/_in_progress.html
@@ -2375,14 +2444,6 @@ msgstr ""
 #: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_published.html
 msgid "End"
-msgstr ""
-
-#: templates/publisher/dashboard/_preview_ready.html
-msgid ""
-"The following course run previews are available for course team approval. "
-"After the course team approves the preview, the edX marketing team will "
-"publish the course run on edx.org. The course team will receive an email "
-"message when the course run has been published."
 msgstr ""
 
 #: templates/publisher/dashboard/_published.html
@@ -2680,8 +2741,9 @@ msgstr ""
 msgid ""
 "The %(sender_team)s for %(course_name)s from %(org_name)s has submitted the "
 "%(link_start)s%(page_url)s%(link_middle)s%(run_number)s course "
-"run%(link_end)s for review. Visit the course run details page to approve or "
-"decline this course run."
+"run%(link_end)s for review. Visit the "
+"%(link_start)s%(page_url)s%(link_middle)scourse run details page%(link_end)s"
+" to approve or decline this course run."
 msgstr ""
 
 #: templates/publisher/email/course_run/send_for_review.txt
