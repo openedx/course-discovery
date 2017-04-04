@@ -126,6 +126,11 @@ class CustomCourseForm(CourseForm):
         required=False
     )
 
+    level_type = forms.ModelChoiceField(
+        queryset=LevelType.objects.all().order_by('-name'),
+        required=False
+    )
+
     class Meta(CourseForm.Meta):
         model = Course
         widgets = {
