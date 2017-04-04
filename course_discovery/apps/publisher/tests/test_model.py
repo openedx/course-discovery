@@ -677,3 +677,21 @@ class CourseRunStateTests(TestCase):
         self.course_run_state.name = CourseRunStateChoices.Published
         self.course_run_state.save()
         self.assertTrue(self.course_run_state.is_published)
+
+    def test_is_draft(self):
+        """
+        Verify that method return is_draft status.
+        """
+        self.assertFalse(self.course_run_state.is_draft)
+        self.course_run_state.name = CourseRunStateChoices.Draft
+        self.course_run_state.save()
+        self.assertTrue(self.course_run_state.is_draft)
+
+    def test_is_in_review(self):
+        """
+        Verify that method return is_in_review status.
+        """
+        self.assertFalse(self.course_run_state.is_in_review)
+        self.course_run_state.name = CourseRunStateChoices.Review
+        self.course_run_state.save()
+        self.assertTrue(self.course_run_state.is_in_review)

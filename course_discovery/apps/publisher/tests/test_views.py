@@ -1407,6 +1407,14 @@ class DashboardTests(TestCase):
         for tab in ['progress', 'preview', 'studio', 'published']:
             self.assertContains(response, '<li role="tab" id="tab-{tab}" class="tab"'.format(tab=tab))
 
+    def test_site_name(self):
+        """
+        Verify that site_name is available in context.
+        """
+        response = self.client.get(self.page_url)
+        site = Site.objects.first()
+        self.assertEqual(response.context['site_name'], site.name)
+
 
 class ToggleEmailNotificationTests(TestCase):
     """ Tests for `ToggleEmailNotification` view. """

@@ -8,6 +8,7 @@ from django.test import TestCase
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory, PositionFactory
+from course_discovery.apps.publisher.choices import CourseRunStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.models import Seat
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
@@ -200,3 +201,57 @@ class CourseRunWrapperTests(TestCase):
         ]
 
         self.assertEqual(self.wrapped_course_run.course_staff, expected)
+
+    def _assert_course_run_status(self, actual_status, expected_status_text, expected_date):
+        """
+        Assert course run statuses.
+        """
+        expected_status = {'status_text': expected_status_text, 'date': expected_date}
+        self.assertEqual(actual_status, expected_status)
+
+    def _change_state_and_owner(self, course_run_state):
+        """
+        Change course run state to review and ownership to project coordinator.
+        """
+        course_run_state.name = CourseRunStateChoices.Review
+        course_run_state.change_owner_role(PublisherUserRole.ProjectCoordinator)
+
+    def test_course_team_status(self):
+        """
+        Verify that course_team_status returns right statuses.
+        """
+        course_run_state = factories.CourseRunStateFactory(
+            course_run=self.course_run, owner_role=PublisherUserRole.CourseTeam
+        )
+        self._assert_course_run_status(
+            self.wrapped_course_run.course_team_status, 'In Draft since', self.wrapped_course_run.owner_role_modified
+        )
+
+        self._change_state_and_owner(course_run_state)
+        self._assert_course_run_status(
+            self.wrapped_course_run.course_team_status, 'Submitted on', self.wrapped_course_run.owner_role_modified
+        )
+
+        course_run_state.change_owner_role(PublisherUserRole.CourseTeam)
+        self._assert_course_run_status(
+            self.wrapped_course_run.course_team_status, 'In Review since', self.wrapped_course_run.owner_role_modified
+        )
+
+    def test_internal_user_status(self):
+        """
+        Verify that internal_user_status returns right statuses.
+        """
+        course_run_state = factories.CourseRunStateFactory(
+            course_run=self.course_run, owner_role=PublisherUserRole.CourseTeam
+        )
+        self._assert_course_run_status(self.wrapped_course_run.internal_user_status, 'n/a', '')
+
+        self._change_state_and_owner(course_run_state)
+        self._assert_course_run_status(
+            self.wrapped_course_run.internal_user_status, 'In Review since', self.wrapped_course_run.owner_role_modified
+        )
+
+        course_run_state.change_owner_role(PublisherUserRole.CourseTeam)
+        self._assert_course_run_status(
+            self.wrapped_course_run.internal_user_status, 'Reviewed on', self.wrapped_course_run.owner_role_modified
+        )

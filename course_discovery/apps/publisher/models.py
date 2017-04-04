@@ -670,6 +670,16 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
         """ Check that course run is published or not."""
         return self.name == CourseRunStateChoices.Published
 
+    @property
+    def is_draft(self):
+        """ Check that course run is in Draft state or not."""
+        return self.name == CourseRunStateChoices.Draft
+
+    @property
+    def is_in_review(self):
+        """ Check that course run is in Review state or not."""
+        return self.name == CourseRunStateChoices.Review
+
 
 class PublisherUser(User):
     """ Publisher User Proxy Model. """
