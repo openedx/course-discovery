@@ -205,6 +205,7 @@ class Person(TimeStampedModel):
         },
     )
     slug = AutoSlugField(populate_from=('given_name', 'family_name'), editable=True)
+    profile_url = models.URLField(null=True, blank=True)
 
     class Meta:
         unique_together = (

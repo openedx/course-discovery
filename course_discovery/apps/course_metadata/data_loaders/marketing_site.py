@@ -276,6 +276,7 @@ class PersonMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'bio': self.clean_html(data['field_person_resume']['value']),
             'profile_image_url': self._get_nested_url(data.get('field_person_image')),
             'slug': slug,
+            'profile_url': data['url'],
         }
         person, created = Person.objects.update_or_create(uuid=uuid, partner=self.partner, defaults=defaults)
 
