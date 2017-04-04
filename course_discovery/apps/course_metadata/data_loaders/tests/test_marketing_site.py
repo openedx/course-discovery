@@ -309,6 +309,7 @@ class PersonMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
             'bio': self.loader.clean_html(data['field_person_resume']['value']),
             'profile_image_url': data['field_person_image']['url'],
             'slug': data['url'].split('/')[-1],
+            'profile_url': data['url']
         }
 
         for field, value in expected_values.items():
