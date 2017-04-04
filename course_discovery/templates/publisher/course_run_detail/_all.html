@@ -72,11 +72,18 @@
             <img src="{{ obj.image_url }}" alt=""/>
 
             <div class="staff-detail">
-              <div class="name">{{ obj.full_name }}</div>
+              <div class="name">
+                {% if obj.profile_url %}
+                  <a href="{{ obj.profile_url }}" target="_blank">{{ obj.full_name }}</a>
+                {% else %}
+                  {{ obj.full_name }}
+                {% endif %}
+              </div>
               <div>{{ obj.position }}</div>
               <div class="organization">{{ obj.organization }}</div>
             </div>
           </div>
+          <div class="clearfix"></div>
         {% endfor %}
       {% endif %}
     </div>

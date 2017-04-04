@@ -188,12 +188,14 @@ class CourseRunWrapperTests(TestCase):
             {
                 'full_name': staff.full_name,
                 'image_url': staff.get_profile_image_url,
+                'profile_url': staff.profile_url,
             },
             {
                 'full_name': staff_2.full_name,
                 'image_url': staff_2.get_profile_image_url,
                 'position': position.title,
-                'organization': position.organization_name
+                'organization': position.organization_name,
+                'profile_url': staff.profile_url,
             }
         ]
 
