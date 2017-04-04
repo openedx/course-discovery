@@ -530,6 +530,7 @@ class CourseRunDetailTests(TestCase):
         )
         self.course_state.name = CourseStateChoices.Approved
         self.course_state.save()
+        self.course_run.staff.add(PersonFactory(profile_url='http://test-profile'))
 
     def test_page_without_login(self):
         """ Verify that user can't access detail page when not logged in. """
@@ -587,6 +588,15 @@ class CourseRunDetailTests(TestCase):
         self._assert_cat(response)
         self._assert_drupal(response)
         self._assert_breadcrumbs(response, self.course_run)
+
+        # assert person name appearing with url.
+        person = self.course_run.staff.all()[0]
+        self.assertContains(
+            response, '<a href="{url}" target="_blank">{name}</a>'.format(
+                url=person.profile_url,
+                name=person.full_name
+            )
+        )
 
     def _assert_credits_seats(self, response, seat):
         """ Helper method to test to all credit seats. """
