@@ -20,6 +20,12 @@
                 <th role="button">
                     {% trans "End" %}
                 </th>
+                <th role="button">
+                    {% trans "Course Team" %}
+                </th>
+                <th role="button">
+                    {{ site_name }}
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -39,6 +45,14 @@
                     </td>
                     <td>
                         {{ course_run.end|date:"Y-m-d" }}
+                    </td>
+                    <td>
+                        {{ course_run.course_team_status.status_text }}<br>
+                        {{ course_run.course_team_status.date|date:'m/d/y' }}
+                    </td>
+                    <td>
+                        {{ course_run.internal_user_status.status_text }}<br>
+                        {{ course_run.internal_user_status.date|date:'m/d/y' }}
                     </td>
                 </tr>
             {% endfor %}

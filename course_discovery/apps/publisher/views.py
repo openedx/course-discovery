@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 
 import waffle
 from django.contrib import messages
+from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import transaction
@@ -115,6 +116,9 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
 
         # shows 'studio request' tab only to project coordinators
         context['is_project_coordinator'] = is_project_coordinator_user(self.request.user)
+
+        site = Site.objects.first()
+        context['site_name'] = 'edX' if 'edx' in site.name else site.name
 
         return context
 
