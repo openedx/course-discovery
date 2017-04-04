@@ -126,11 +126,6 @@ class CustomCourseForm(CourseForm):
         required=False
     )
 
-    level_type = forms.ModelChoiceField(
-        queryset=LevelType.objects.all().order_by('-name'),
-        required=False
-    )
-
     class Meta(CourseForm.Meta):
         model = Course
         widgets = {
@@ -141,6 +136,7 @@ class CustomCourseForm(CourseForm):
             'expected_learnings', 'primary_subject', 'secondary_subject',
             'tertiary_subject', 'prerequisites', 'image', 'team_admin',
             'level_type', 'organization', 'is_seo_review', 'syllabus',
+            'faq', 'video_link', 'learner_testimonial'
         )
 
     def __init__(self, *args, **kwargs):

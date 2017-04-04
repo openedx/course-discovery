@@ -381,6 +381,40 @@
                                         {{ form.level_type }}
                                     </div>
                                 </div>
+
+                                <div class="field-title">{% trans "FAQ" %}</div>
+                                <div class="row">
+                                    <div class="col col-6 help-text">
+                                        <p>{% trans "Course FAQs." %}</p>
+                                    </div>
+                                    <div class="col col-6">
+                                        <label class="field-label ">{{ form.faq.label_tag }}</label>
+                                        {{ form.faq }}
+                                    </div>
+                                </div>
+
+                                <div class="field-title">{% trans "Video Link" %}</div>
+                                <div class="row">
+                                    <div class="col col-6 help-text">
+                                        <p>{% trans "Video Link." %}</p>
+                                    </div>
+                                    <div class="col col-6">
+                                        <label class="field-label ">{{ form.video_link.label_tag }}</label>
+                                        {{ form.video_link }}
+                                    </div>
+                                </div>
+
+                                <div class="field-title">{% trans "Learner Testimonial" %}</div>
+                                <div class="row">
+                                    <div class="col col-6 help-text">
+                                        <p>{% trans "Leaner Testimonial." %}</p>
+                                    </div>
+                                    <div class="col col-6">
+                                        <label class="field-label ">{{ form.learner_testimonial.label_tag }}</label>
+                                        {{ form.learner_testimonial }}
+                                    </div>
+                                </div>
+
                             </fieldset>
                         </div>
                     </div>
