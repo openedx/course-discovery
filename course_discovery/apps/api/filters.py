@@ -14,6 +14,7 @@ from rest_framework.exceptions import NotFound, PermissionDenied
 
 from course_discovery.apps.api.utils import cast2int
 from course_discovery.apps.core.models import Partner
+from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Organization, Program
 
 logger = logging.getLogger(__name__)
@@ -156,6 +157,7 @@ class CourseRunFilter(FilterSetMixin, django_filters.FilterSet):
 
 class ProgramFilter(FilterSetMixin, django_filters.FilterSet):
     marketable = django_filters.MethodFilter()
+    status = django_filters.MultipleChoiceFilter(choices=ProgramStatus.choices)
     type = django_filters.CharFilter(name='type__name', lookup_expr='iexact')
     types = CharListFilter(name='type__slug', lookup_expr='in')
     uuids = UUIDListFilter()

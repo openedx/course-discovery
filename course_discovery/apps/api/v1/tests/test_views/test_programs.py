@@ -166,6 +166,20 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(list(Program.objects.marketable()), expected)
         self.assert_list_results(url, expected, expected_query_count)
 
+    def test_filter_by_status(self):
+        """ Verify the endpoint allows programs to filtered by one, or more, statuses. """
+        active = ProgramFactory(status=ProgramStatus.Active)
+        retired = ProgramFactory(status=ProgramStatus.Retired)
+
+        url = self.list_path + '?status=active'
+        self.assert_list_results(url, [active], 8)
+
+        url = self.list_path + '?status=retired'
+        self.assert_list_results(url, [retired], 8)
+
+        url = self.list_path + '?status=active&status=retired'
+        self.assert_list_results(url, [retired, active], 8)
+
     def test_list_exclude_utm(self):
         """ Verify the endpoint returns marketing URLs without UTM parameters. """
         url = self.list_path + '?exclude_utm=1'
