@@ -621,6 +621,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'authoring_organizations': OrganizationSerializer(program.authoring_organizations, many=True).data,
             'video': VideoSerializer(program.video).data,
             'credit_redemption_overview': program.credit_redemption_overview,
+            'applicable_seat_types': list(program.type.applicable_seat_types.values_list('slug', flat=True)),
             'corporate_endorsements': CorporateEndorsementSerializer(program.corporate_endorsements, many=True).data,
             'credit_backing_organizations': OrganizationSerializer(
                 program.credit_backing_organizations,
@@ -642,7 +643,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'overview': program.overview,
             'price_ranges': program.price_ranges,
             'subjects': SubjectSerializer(program.subjects, many=True).data,
-            'transcript_languages': [serialize_language_to_code(l) for l in program.transcript_languages]
+            'transcript_languages': [serialize_language_to_code(l) for l in program.transcript_languages],
         })
 
         return expected

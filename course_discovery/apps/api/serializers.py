@@ -820,6 +820,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     )
     subjects = SubjectSerializer(many=True)
     staff = PersonSerializer(many=True)
+    applicable_seat_types = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls):
@@ -848,6 +849,9 @@ class ProgramSerializer(MinimalProgramSerializer):
             Prefetch('individual_endorsements', queryset=EndorsementSerializer.prefetch_queryset()),
         )
 
+    def get_applicable_seat_types(self, obj):
+        return list(obj.type.applicable_seat_types.values_list('slug', flat=True))
+
     class Meta(MinimalProgramSerializer.Meta):
         model = Program
         fields = MinimalProgramSerializer.Meta.fields + (
@@ -855,7 +859,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'min_hours_effort_per_week', 'max_hours_effort_per_week', 'video', 'expected_learning_items',
             'faq', 'credit_backing_organizations', 'corporate_endorsements', 'job_outlook_items',
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
-            'staff', 'credit_redemption_overview',
+            'staff', 'credit_redemption_overview', 'applicable_seat_types'
         )
 
 
