@@ -228,6 +228,18 @@ class Person(TimeStampedModel):
 
         return url
 
+    @property
+    def profile_url(self):
+        url = None
+        marketing_site_url_root = self.partner.marketing_site_url_root
+        if marketing_site_url_root:
+            path = '{marketing_site_url_root}bio/{full_name}'.format(
+                marketing_site_url_root=marketing_site_url_root, full_name='-'.join((self.given_name, self.family_name))
+            )
+            url = urljoin(self.partner.marketing_site_url_root, path)
+
+        return url
+
 
 class Position(TimeStampedModel):
     """ Position model.

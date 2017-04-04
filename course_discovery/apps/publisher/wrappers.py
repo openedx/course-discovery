@@ -192,6 +192,7 @@ class CourseRunWrapper(BaseWrapper):
             staff_dict = {
                 'full_name': staff.full_name,
                 'image_url': staff.get_profile_image_url,
+                'profile_url': staff.profile_url
             }
 
             if hasattr(staff, 'position'):
