@@ -350,6 +350,9 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
         self.object.changed_by = user
         self.object.save()
 
+        # Without keywords won't be saved.
+        form.save_m2m()
+
         organization = form.cleaned_data['organization']
         if self.object.organizations.first() != organization:
             organization_extension = get_object_or_404(OrganizationExtension, organization=organization)
