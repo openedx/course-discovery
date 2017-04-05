@@ -182,6 +182,45 @@
                 {% endwith %}
                 <div class="show-diff"></div>
             </div>
+
+            <div class="info-item history-field-container">
+                <div class="heading">
+                    {% trans "Keywords" %}
+                </div>
+                <div class="current keywords">
+                    {% if object.keywords.all %}
+                        {{ object.keywords.all|join:", " }}
+                    {% else %}
+                        {% trans "(Optional) Not yet added" %}
+                    {% endif %}
+                </div>
+                <div class="show-diff"></div>
+            </div>
+
+            <div class="info-item history-field-container">
+                <div class="heading">
+                    {% trans "Seo Review" %}
+                </div>
+                <div class="current is_seo_review">
+                    {% with  object.is_seo_review as field %}
+                        {% include "publisher/_render_optional_field.html" %}
+                    {% endwith %}
+                </div>
+                <div class="show-diff"></div>
+            </div>
+
+            <div class="info-item history-field-container">
+                <div class="heading">
+                    {% trans "Verification Deadline" %}
+                </div>
+                <div class="current verification_deadline">
+                    {% with  object.verification_deadline as field %}
+                        {% include "publisher/_render_optional_field.html" %}
+                    {% endwith %}
+                </div>
+                <div class="show-diff"></div>
+            </div>
+
         </div>
     </main>
 
