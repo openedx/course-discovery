@@ -156,6 +156,7 @@ class CourseRunFilter(FilterSetMixin, django_filters.FilterSet):
 
 class ProgramFilter(FilterSetMixin, django_filters.FilterSet):
     marketable = django_filters.MethodFilter()
+    partner_short_code = django_filters.CharFilter(name='partner__short_code', lookup_expr='iexact')
     type = django_filters.CharFilter(name='type__name', lookup_expr='iexact')
     types = CharListFilter(name='type__slug', lookup_expr='in')
     uuids = UUIDListFilter()

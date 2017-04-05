@@ -50,6 +50,11 @@ class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
               required: false
               type: string
               paramType: query
+            - name: partner_short_code
+              description: Filter by partner short code
+              required: false
+              type: string
+              paramType: query
               multiple: false
             - name: marketable
               description: Retrieve marketable programs. A program is considered marketable if it is active

@@ -116,6 +116,16 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         expected.reverse()
         self.assert_list_results(self.list_path, expected, 13)
 
+    def test_filter_by_partner_short_code(self):
+        """ Verify that the endpoint filters programs to those matching the provided Partner short_code. """
+        partner_short_code = 'foo'
+        program = ProgramFactory(partner__short_code=partner_short_code)
+        url = self.list_path + '?partner_short_code=' + partner_short_code
+        self.assert_list_results(url, [program], 8)
+
+        url = self.list_path + '?partner_short_code=bar'
+        self.assert_list_results(url, [], 4)
+
     def test_filter_by_type(self):
         """ Verify that the endpoint filters programs to those of a given type. """
         program_type_name = 'foo'
