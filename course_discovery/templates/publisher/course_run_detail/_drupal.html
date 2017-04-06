@@ -105,6 +105,11 @@
                     </div>
                   </div>
                   <div class="clearfix"></div>
+                  <div class="download-profile-image">
+                    <a download href="{{ obj.image_url }}">
+                        {% trans "Download" %}
+                    </a>
+                  </div>
                 {% endfor %}
             {% endif %}
         </div>
