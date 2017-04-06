@@ -60,3 +60,40 @@
     border-radius: 5px;
     margin-top: 10px;
 }
+
+$btn-filter-active-color: rgba(54, 54, 54, 1);
+$btn-filter-color: rgba(228, 228, 228, 1);
+
+.btn-filter {
+    @include margin-right(5px);
+    border-color: $btn-filter-color;
+    background: $btn-filter-color;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    color: black;
+
+    .filter-count {
+        @include padding(1px, 6px, 1px, 6px);
+        @include margin-left(5px);
+        background: white;
+        border-radius: 4px;
+        color: black;
+    }
+
+    &:hover,
+    &.is-hovered,
+    &:focus,
+    &.is-focused {
+        border-color: $btn-filter-color;
+        background: $btn-filter-color;
+        color: black;
+    }
+
+    &.active,
+    &.is-pressed,
+    &.is-active {
+        border-color: $btn-filter-active-color;
+        background: $btn-filter-active-color;
+        color: white;
+    }
+}

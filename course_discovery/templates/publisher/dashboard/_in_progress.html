@@ -3,6 +3,18 @@
     <p>{% trans "There are no in progress course runs." %}</p>
 {% else %}
     <table class="data-table-in-progress display" cellspacing="0" width="100%">
+        <div class="filters">
+            <strong>{% trans "Filter by" %}:</strong>
+            <button type="button" class="btn-neutral btn-small btn-filter active" data-filter-column="-1">{% trans "All" %}
+                <span class="filter-count">{{ in_progress_count }}</span>
+            </button>
+            <button type="button" class="btn-neutral btn-small btn-filter" data-filter-column="5">{% trans "With Course Team" %}
+                <span class="filter-count">{{ course_team_count }}</span>
+            </button>
+            <button type="button" class="btn-neutral btn-small btn-filter" data-filter-column="6">{% trans "With" %} {{ site_name }}
+                <span class="filter-count">{{ internal_user_count }}</span>
+            </button>
+        </div>
         <thead>
             <tr>
                 <th role="button">
