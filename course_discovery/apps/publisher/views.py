@@ -118,7 +118,14 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
         context['is_project_coordinator'] = is_project_coordinator_user(self.request.user)
 
         site = Site.objects.first()
-        context['site_name'] = 'edX' if 'edx' in site.name else site.name
+        context['site_name'] = 'edX' if 'edx' in site.name.lower() else site.name
+
+        context['course_team_count'] = in_progress_course_runs.filter(
+            course_run_state__owner_role=PublisherUserRole.CourseTeam
+        ).count()
+        context['internal_user_count'] = in_progress_course_runs.exclude(
+            course_run_state__owner_role=PublisherUserRole.CourseTeam
+        ).count()
 
         return context
 

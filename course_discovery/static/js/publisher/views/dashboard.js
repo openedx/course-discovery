@@ -62,8 +62,31 @@ $(document).ready(function() {
          "oLanguage": { "sEmptyTable": gettext("No course run previews are currently available.") }
      });
 
-    $('.data-table-in-progress').DataTable({
+    var inProgressTable = $('.data-table-in-progress').DataTable({
         "autoWidth": false
     });
 
+    $('.btn-filter').click( function (e) {
+        var searchValue = 'In Review|In Draft',
+            currentFilterColumn = $(this).data('filter-column'),
+            oldFilterColumn = $('.btn-filter.active').data('filter-column');
+        e.preventDefault();
+        $('.btn-filter').removeClass('active');
+        $(this).addClass('active');
+
+        if (currentFilterColumn == -1) {
+            applyCustomFilter(inProgressTable, oldFilterColumn, '');
+        } else {
+            if (oldFilterColumn != -1) {
+                // Clear previous filter if applied otherwise search will return no record.
+                applyCustomFilter(inProgressTable, oldFilterColumn, '');
+            }
+            applyCustomFilter(inProgressTable, currentFilterColumn, searchValue);
+        }
+    });
+
 });
+
+function applyCustomFilter(dataTable, columnIndex, value) {
+    dataTable.columns(columnIndex).search(value, true, false).draw();
+}
