@@ -94,8 +94,8 @@ class CourseRunSelectionForm(forms.ModelForm):
         )
 
         query_set = [course.pk for course in instance.courses.all()]
-        self.fields["excluded_course_runs"].widget = forms.widgets.CheckboxSelectMultiple()
-        self.fields["excluded_course_runs"].help_text = ""
+        self.fields['excluded_course_runs'].widget = forms.widgets.CheckboxSelectMultiple()
+        self.fields['excluded_course_runs'].help_text = ''
         self.fields['excluded_course_runs'].queryset = CourseRun.objects.filter(
             course__id__in=query_set
         )

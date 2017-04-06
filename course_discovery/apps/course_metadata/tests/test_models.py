@@ -4,13 +4,11 @@ from decimal import Decimal
 
 import ddt
 import mock
-import responses
 from dateutil.parser import parse
 from django.conf import settings
 from django.db import IntegrityError
 from django.db.models.functions import Lower
 from django.test import TestCase
-from factory.fuzzy import FuzzyText
 from freezegun import freeze_time
 
 from course_discovery.apps.core.models import Currency
@@ -20,12 +18,13 @@ from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractMediaModel, AbstractNamedModel, AbstractValueModel, CorporateEndorsement, Course, CourseRun,
-    Endorsement, ProgramType, Seat, SeatType
+    Endorsement, Seat, SeatType
 )
-from course_discovery.apps.course_metadata.publishers import MarketingSitePublisher
+from course_discovery.apps.course_metadata.publishers import (
+    CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
+)
 from course_discovery.apps.course_metadata.tests import factories, toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ImageFactory
-from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
@@ -257,7 +256,7 @@ class CourseRunTests(TestCase):
     @ddt.unpack
     def test_get_paid_seat_enrollment_end(self, seat_config, course_end, course_enrollment_end, expected_result):
         """
-        Verify that paid_seat_enrollment_end returns the latest possible date for which an unerolled user may
+        Verify that paid_seat_enrollment_end returns the latest possible date for which an unenrolled user may
         enroll and purchase an upgrade for the CourseRun or None if date unknown or paid Seats are not available.
         """
         end = parse(course_end) if course_end else None
@@ -269,6 +268,43 @@ class CourseRunTests(TestCase):
 
         expected_result = parse(expected_result) if expected_result else None
         self.assertEqual(course_run.get_paid_seat_enrollment_end(), expected_result)
+
+    def test_publication_disabled(self):
+        """
+        Verify that the publisher is not initialized when publication is disabled.
+        """
+        toggle_switch('publish_course_runs_to_marketing_site', active=False)
+
+        with mock.patch.object(CourseRunMarketingSitePublisher, '__init__') as mock_init:
+            self.course_run.save()
+            self.course_run.delete()
+
+            assert mock_init.call_count == 0
+
+        toggle_switch('publish_course_runs_to_marketing_site')
+        self.course_run.course.partner.marketing_site_url_root = ''
+        self.course_run.course.partner.save()
+
+        with mock.patch.object(CourseRunMarketingSitePublisher, '__init__') as mock_init:
+            self.course_run.save()
+            self.course_run.delete()
+
+            assert mock_init.call_count == 0
+
+    def test_publication_enabled(self):
+        """
+        Verify that the publisher is called when publication is enabled.
+        """
+        toggle_switch('publish_course_runs_to_marketing_site')
+
+        with mock.patch.object(CourseRunMarketingSitePublisher, 'publish_obj', return_value=None) as mock_publish_obj:
+            self.course_run.save()
+            assert mock_publish_obj.called
+
+        with mock.patch.object(CourseRunMarketingSitePublisher, 'delete_obj', return_value=None) as mock_delete_obj:
+            self.course_run.delete()
+            # We don't want to delete course run nodes when CourseRuns are deleted.
+            assert not mock_delete_obj.called
 
 
 class OrganizationTests(TestCase):
@@ -390,7 +426,7 @@ class AbstractValueModelTests(TestCase):
 
 
 @ddt.ddt
-class ProgramTests(MarketingSitePublisherTestMixin):
+class ProgramTests(TestCase):
     """Tests of the Program model."""
 
     def setUp(self):
@@ -737,77 +773,41 @@ class ProgramTests(MarketingSitePublisherTestMixin):
         self.program.status = status
         self.assertEqual(self.program.is_active, status == ProgramStatus.Active)
 
-    @responses.activate
-    def test_save_without_publish(self):
-        self.program.title = FuzzyText().fuzz()
-        self.program.save()
-        self.assert_responses_call_count(0)
-
-    @responses.activate
-    def test_delete_without_publish(self):
-        self.program.delete()
-        self.assert_responses_call_count(0)
-
-    @responses.activate
-    def test_save_and_publish_success(self):
-        self.program.partner.marketing_site_url_root = self.api_root
-        self.program.partner.marketing_site_api_username = self.username
-        self.program.partner.marketing_site_api_password = self.password
-        self.program.type = ProgramType.objects.get(name='MicroMasters')
-        self.mock_api_client(200)
-        self.mock_node_retrieval(self.program.uuid)
-        self.mock_node_edit(200)
-        toggle_switch('publish_program_to_marketing_site', True)
-        self.program.title = FuzzyText().fuzz()
-        self.mock_add_alias()
-        self.mock_delete_alias()
-        with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
-            with mock.patch.object(MarketingSitePublisher, '_get_form_build_id_and_form_token', return_value={}):
-                with mock.patch.object(MarketingSitePublisher, '_get_delete_alias_url', return_value='/foo'):
-                    self.program.save()
-                    self.assert_responses_call_count(8)
-
-    @responses.activate
-    def test_xseries_program_save(self):
+    def test_publication_disabled(self):
         """
-        Make sure if the Program instance is of type XSeries, we do not publish to Marketing Site
+        Verify that the publisher is not initialized when publication is disabled.
         """
-        self.program.partner.marketing_site_url_root = self.api_root
-        self.program.partner.marketing_site_api_username = self.username
-        self.program.partner.marketing_site_api_password = self.password
-        self.program.type = ProgramType.objects.get(name='XSeries')
-        toggle_switch('publish_program_to_marketing_site', True)
-        self.program.title = FuzzyText().fuzz()
-        self.program.save()
-        self.assert_responses_call_count(0)
+        toggle_switch('publish_program_to_marketing_site', active=False)
 
-    @responses.activate
-    def test_save_and_no_marketing_site(self):
-        self.program.partner.marketing_site_url_root = None
-        toggle_switch('publish_program_to_marketing_site', True)
-        self.program.title = FuzzyText().fuzz()
-        self.program.save()
-        self.assert_responses_call_count(0)
+        with mock.patch.object(ProgramMarketingSitePublisher, '__init__') as mock_init:
+            self.program.save()
+            self.program.delete()
 
-    @responses.activate
-    def test_delete_and_publish_success(self):
-        self.program.partner.marketing_site_url_root = self.api_root
-        self.program.partner.marketing_site_api_username = self.username
-        self.program.partner.marketing_site_api_password = self.password
-        self.program.type = ProgramType.objects.get(name='MicroMasters')
-        self.mock_api_client(200)
-        self.mock_node_retrieval(self.program.uuid)
-        self.mock_node_delete(204)
-        toggle_switch('publish_program_to_marketing_site', True)
-        self.program.delete()
-        self.assert_responses_call_count(5)
+            assert mock_init.call_count == 0
 
-    @responses.activate
-    def test_delete_and_no_marketing_site(self):
-        self.program.partner.marketing_site_url_root = None
-        toggle_switch('publish_program_to_marketing_site', True)
-        self.program.delete()
-        self.assert_responses_call_count(0)
+        toggle_switch('publish_program_to_marketing_site')
+        self.program.partner.marketing_site_url_root = ''
+        self.program.partner.save()
+
+        with mock.patch.object(ProgramMarketingSitePublisher, '__init__') as mock_init:
+            self.program.save()
+            self.program.delete()
+
+            assert mock_init.call_count == 0
+
+    def test_publication_enabled(self):
+        """
+        Verify that the publisher is called when publication is enabled.
+        """
+        toggle_switch('publish_program_to_marketing_site')
+
+        with mock.patch.object(ProgramMarketingSitePublisher, 'publish_obj', return_value=None) as mock_publish_obj:
+            self.program.save()
+            assert mock_publish_obj.called
+
+        with mock.patch.object(ProgramMarketingSitePublisher, 'delete_obj', return_value=None) as mock_delete_obj:
+            self.program.delete()
+            assert mock_delete_obj.called
 
 
 class PersonSocialNetworkTests(TestCase):

@@ -1,4 +1,5 @@
 import json
+import random
 import urllib
 
 import responses
@@ -77,49 +78,46 @@ class MarketingSiteAPIClientTestMixin(TestCase):
 
 class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
     """
-    The mixing to help mock the responses for marketing site publisher
+    Mixin for mocking Drupal responses when testing marketing site publishers.
     """
     def setUp(self):
         super(MarketingSitePublisherTestMixin, self).setUp()
-        self.node_id = FuzzyText().fuzz()
+        self.node_id = str(random.randint(1, 1000))
 
-    def mock_api_client(self, status):
+    def mock_api_client(self, status=200):
         self.mock_login_response(status)
         self.mock_csrf_token_response(status)
         self.mock_user_id_response(status)
 
-    def mock_node_retrieval(self, program_uuid, exists=True):
-        data = {}
-        status = 200
+    def mock_node_retrieval(self, node_lookup_field, node_lookup_value, exists=True, status=200):
+        url = '{root}/node.json?{node_lookup_field}={node_lookup_value}'.format(
+            root=self.api_root,
+            node_lookup_field=node_lookup_field,
+            node_lookup_value=node_lookup_value,
+        )
+
         data = {
-            'list': []
+            'list': [{'nid': self.node_id}] if exists else []
         }
-        if exists:
-            data['list'] = [{
-                'nid': self.node_id
-            }]
 
         responses.add(
             responses.GET,
-            '{root}/node.json?field_uuid={uuid}'.format(root=self.api_root, uuid=str(program_uuid)),
+            url,
             body=json.dumps(data),
             content_type='application/json',
             status=status,
             match_querystring=True
         )
 
-    def mock_add_alias(self, status=200):
+    def mock_add_alias(self, alias=None, status=200):
         node_url = 'node/{node_id}'.format(node_id=self.node_id)
-        alias = '{program_type}/{slug}'.format(
-            program_type=self.program.type.name.lower(),
-            slug=self.program.marketing_slug
-        )
         data = {
             'source': node_url,
             'alias': alias,
             'form_id': 'path_admin_form',
             'op': 'Save'
         }
+
         responses.add(
             responses.POST,
             '{root}/admin/config/search/path/add'.format(root=self.api_root),
@@ -129,13 +127,14 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
 
     def mock_delete_alias(self, status=200):
         data = {
-            "confirm": 1,
-            "form_id": "path_admin_delete_confirm",
-            "op": "Confirm"
+            'confirm': 1,
+            'form_id': 'path_admin_delete_confirm',
+            'op': 'Confirm'
         }
+
         responses.add(
             responses.POST,
-            '{root}/foo'.format(root=self.api_root),
+            '{root}/admin/config/search/path/delete/foo'.format(root=self.api_root),
             body=urllib.parse.urlencode(data),
             status=status
         )
@@ -154,12 +153,15 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
             responses.GET,
             '{root}/admin/config/search/path/list/{alias}'.format(root=self.api_root, alias=alias),
             status=status,
-            body='<li class="delete last"><a href="/admin/config/search/path/delete/bar"></a></li>'
+            body='<li class="delete last"><a href="/admin/config/search/path/delete/foo"></a></li>'
         )
 
+    def mock_node_create(self, response_data, status):
         responses.add(
             responses.POST,
-            '{root}/admin/config/search/path/delete/bar'.format(root=self.api_root),
+            '{root}/node.json'.format(root=self.api_root),
+            body=json.dumps(response_data),
+            content_type='application/json',
             status=status
         )
 
@@ -168,15 +170,6 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
             responses.PUT,
             '{root}/node.json/{node_id}'.format(root=self.api_root, node_id=self.node_id),
             body=json.dumps({}),
-            content_type='application/json',
-            status=status
-        )
-
-    def mock_node_create(self, response_data, status):
-        responses.add(
-            responses.POST,
-            '{root}/node.json'.format(root=self.api_root),
-            body=json.dumps(response_data),
             content_type='application/json',
             status=status
         )

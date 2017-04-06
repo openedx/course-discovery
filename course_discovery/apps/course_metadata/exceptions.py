@@ -1,15 +1,37 @@
 class MarketingSiteAPIClientException(Exception):
-    """ The exception thrown from MarketingSiteAPIClient """
     pass
 
 
-class ProgramPublisherException(Exception):
-    """ The exception thrown during the program publishing process to marketing site """
+class MarketingSitePublisherException(Exception):
+    pass
 
-    def __init__(self, message):
-        super(ProgramPublisherException, self).__init__(message)
-        suffix = 'The program data has not been saved. Please check your marketing site configuration'
-        self.message = '{exception_msg} {suffix}'.format(exception_msg=message, suffix=suffix)
+
+class AliasCreateError(MarketingSitePublisherException):
+    pass
+
+
+class AliasDeleteError(MarketingSitePublisherException):
+    pass
+
+
+class FormRetrievalError(MarketingSitePublisherException):
+    pass
+
+
+class NodeCreateError(MarketingSitePublisherException):
+    pass
+
+
+class NodeDeleteError(MarketingSitePublisherException):
+    pass
+
+
+class NodeEditError(MarketingSitePublisherException):
+    pass
+
+
+class NodeLookupError(MarketingSitePublisherException):
+    pass
 
 
 class PersonToMarketingException(Exception):

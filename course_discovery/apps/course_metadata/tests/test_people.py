@@ -3,8 +3,8 @@ import responses
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.course_metadata.exceptions import PersonToMarketingException
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
-from course_discovery.apps.course_metadata.publishers import MarketingSiteAPIClient
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
+from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
 
 
 class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
@@ -71,6 +71,6 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
     @responses.activate
     def test_delete_program(self):
         self.mock_api_client(200)
-        self.mock_node_delete(204)
+        self.mock_node_delete(200)
         people = MarketingSitePeople()
         people.delete_person(self.partner, self.node_id)

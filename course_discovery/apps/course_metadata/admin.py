@@ -4,10 +4,17 @@ from django.http import HttpResponseRedirect
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
+from course_discovery.apps.course_metadata.exceptions import (
+    MarketingSiteAPIClientException, MarketingSitePublisherException
+)
 from course_discovery.apps.course_metadata.forms import CourseAdminForm, ProgramAdminForm
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
-from course_discovery.apps.course_metadata.publishers import ProgramPublisherException
-from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClientException
+
+
+PUBLICATION_FAILURE_MSG_TPL = _(
+    'An error occurred while publishing the {model} to the marketing site. '
+    'Please try again. If the error persists, please contact the Engineering Team.'
+)
 
 
 class ProgramEligibilityFilter(admin.SimpleListFilter):
@@ -101,6 +108,24 @@ class CourseRunAdmin(admin.ModelAdmin):
     ordering = ('key',)
     readonly_fields = ('uuid',)
     search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug',)
+    save_error = False
+
+    def response_change(self, request, obj):
+        if self.save_error:
+            return self.response_post_save_change(request, obj)
+
+        return super().response_change(request, obj)
+
+    def save_model(self, request, obj, form, change):
+        try:
+            super().save_model(request, obj, form, change)
+        except (MarketingSitePublisherException, MarketingSiteAPIClientException):
+            self.save_error = True
+
+            logger.exception('An error occurred while publishing course run [%s] to the marketing site.', obj.key)
+
+            msg = PUBLICATION_FAILURE_MSG_TPL.format(model='course run')  # pylint: disable=no-member
+            messages.add_message(request, messages.ERROR, msg)
 
 
 @admin.register(Program)
@@ -158,14 +183,13 @@ class ProgramAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         try:
             super().save_model(request, obj, form, change)
-            self.save_error = False
-        except (ProgramPublisherException, MarketingSiteAPIClientException):
-            # TODO Redirect the user back to the form so that he/she can try again.
-            logger.exception('An error occurred while publishing the program [%s] to the marketing site.', obj.uuid)
-            msg = _('An error occurred while publishing the program to the marketing site. Please try again. '
-                    'If the error persists, please contact the Engineering Team.')
-            messages.add_message(request, messages.ERROR, msg)
+        except (MarketingSitePublisherException, MarketingSiteAPIClientException):
             self.save_error = True
+
+            logger.exception('An error occurred while publishing program [%s] to the marketing site.', obj.uuid)
+
+            msg = PUBLICATION_FAILURE_MSG_TPL.format(model='program')  # pylint: disable=no-member
+            messages.add_message(request, messages.ERROR, msg)
 
     class Media:
         js = ('bower_components/jquery-ui/ui/minified/jquery-ui.min.js',

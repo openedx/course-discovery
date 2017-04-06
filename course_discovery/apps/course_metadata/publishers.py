@@ -1,171 +1,381 @@
 import json
+from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
+from django.utils.functional import cached_property
 
-from course_discovery.apps.course_metadata.exceptions import ProgramPublisherException
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
+from course_discovery.apps.course_metadata.exceptions import (
+    AliasCreateError,
+    AliasDeleteError,
+    FormRetrievalError,
+    NodeCreateError,
+    NodeDeleteError,
+    NodeEditError,
+    NodeLookupError
+)
 from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
 
 
-class MarketingSitePublisher(object):
+class BaseMarketingSitePublisher:
     """
-    This is the publisher that would publish the object data to marketing site
+    Utility for publishing data to a Drupal marketing site.
+
+    Arguments:
+        partner (apps.core.models.Partner): Partner instance containing information
+            about the marketing site to which to publish.
     """
-    program_before = None
+    unique_field = None
+    node_lookup_field = None
 
-    def __init__(self, program_before=None):
-        if program_before:
-            self.program_before = program_before
+    def __init__(self, partner):
+        self.partner = partner
 
-    def _get_api_client(self, program):
-        if not program.partner.has_marketing_site:
-            return
-
-        if not (program.partner.marketing_site_api_username and program.partner.marketing_site_api_password):
-            msg = 'Marketing Site API credentials are not properly configured for Partner [{partner}]!'.format(
-                partner=program.partner.short_code)
-            raise ProgramPublisherException(msg)
-
-        if program.type.name not in ['MicroMasters', 'Professional Certificate']:
-            # We do not publish programs that are not MicroMasters or Professional Certificate to the Marketing Site
-            return
-
-        fields_that_trigger_publish = ['title', 'status', 'type', 'marketing_slug']
-        if self.program_before and \
-                all(getattr(self.program_before, key) == getattr(program, key) for key in fields_that_trigger_publish):
-            # We don't need to publish to marketing site because
-            # nothing we care about has changed. This would save at least 4 network calls
-            return
-
-        return MarketingSiteAPIClient(
-            program.partner.marketing_site_api_username,
-            program.partner.marketing_site_api_password,
-            program.partner.marketing_site_url_root
+        self.client = MarketingSiteAPIClient(
+            self.partner.marketing_site_api_username,
+            self.partner.marketing_site_api_password,
+            self.partner.marketing_site_url_root
         )
 
-    def _get_node_data(self, program, user_id):
+        self.node_api_base = urljoin(self.client.api_url, '/node.json')
+
+    def publish_obj(self, obj, previous_obj=None):
+        """
+        Update or create a Drupal node corresponding to the given model instance.
+
+        Arguments:
+            obj (django.db.models.Model): Model instance to be published.
+
+        Keyword Arguments:
+            previous_obj (CourseRun): Model instance representing the previous
+                state of the model being changed. Inspected to determine if publication
+                is necessary. May not exist if the model instance is being saved
+                for the first time.
+        """
+        raise NotImplementedError
+
+    def delete_obj(self, obj):
+        """
+        Delete a Drupal node corresponding to the given model instance.
+
+        Arguments:
+            obj (django.db.models.Model): Model instance to be deleted.
+        """
+        node_id = self.node_id(obj)
+
+        self.delete_node(node_id)
+
+    def serialize_obj(self, obj):
+        """
+        Serialize a model instance to a representation that can be written to Drupal.
+
+        Arguments:
+            obj (django.db.models.Model): Model instance to be published.
+
+        Returns:
+            dict: Data to PUT to the Drupal API.
+        """
         return {
-            'type': str(program.type).lower().replace(' ', '_'),
-            'title': program.title,
-            'field_uuid': str(program.uuid),
-            'uuid': str(program.uuid),
-            'author': {
-                'id': user_id,
-            },
-            'status': 1 if program.is_active else 0
+            self.node_lookup_field: str(getattr(obj, self.unique_field)),
+            'author': {'id': self.client.user_id},
         }
 
-    def _get_node_id(self, api_client, uuid):
-        node_url = '{root}/node.json?field_uuid={uuid}'.format(root=api_client.api_url, uuid=uuid)
-        response = api_client.api_session.get(node_url)
+    def node_id(self, obj):
+        """
+        Find the ID of the node we want to publish to, if it exists.
+
+        Arguments:
+            obj (django.db.models.Model): Model instance to be published.
+
+        Returns:
+            str: The node ID.
+
+        Raises:
+            NodeLookupError: If node lookup fails.
+        """
+        params = {
+            self.node_lookup_field: getattr(obj, self.unique_field),
+        }
+
+        response = self.client.api_session.get(self.node_api_base, params=params)
+
         if response.status_code == 200:
-            list_item = response.json().get('list')
-            if list_item:
-                return list_item[0]['nid']
-
-    def _edit_node(self, api_client, node_id, node_data):
-        # Drupal does not allow us to update the UUID field on node update
-        node_data.pop('uuid', None)
-        node_url = '{root}/node.json/{node_id}'.format(root=api_client.api_url, node_id=node_id)
-        response = api_client.api_session.put(node_url, data=json.dumps(node_data))
-        if response.status_code != 200:
-            raise ProgramPublisherException("Marketing site page edit failed!")
-
-    def _create_node(self, api_client, node_data):
-        node_url = '{root}/node.json'.format(root=api_client.api_url)
-        response = api_client.api_session.post(node_url, data=json.dumps(node_data))
-        if response.status_code == 201:
-            response_json = response.json()
-            return response_json['id']
+            return response.json()['list'][0]['nid']
         else:
-            raise ProgramPublisherException("Marketing site page creation failed!")
+            raise NodeLookupError
 
-    def _delete_node(self, api_client, node_id):
-        node_url = '{root}/node.json/{node_id}'.format(root=api_client.api_url, node_id=node_id)
-        api_client.api_session.delete(node_url)
+    def create_node(self, node_data):
+        """
+        Create a Drupal node.
 
-    def _get_form_build_id_and_form_token(self, api_client, url):
-        form_attributes = {}
-        response = api_client.api_session.get(url)
+        Arguments:
+            node_data (dict): Data to POST to Drupal for node creation.
+
+        Returns:
+            str: The ID of the created node.
+
+        Raises:
+            NodeCreateError: If the POST to Drupal fails.
+        """
+        node_data = json.dumps(node_data)
+
+        response = self.client.api_session.post(self.node_api_base, data=node_data)
+
+        if response.status_code == 201:
+            return response.json()['id']
+        else:
+            raise NodeCreateError
+
+    def edit_node(self, node_id, node_data):
+        """
+        Edit a Drupal node.
+
+        Arguments:
+            node_id (str): ID of the node to edit.
+            node_data (dict): Fields to overwrite on the node.
+
+        Raises:
+            NodeEditError: If the PUT to Drupal fails.
+        """
+        node_url = '{base}/{node_id}'.format(base=self.node_api_base, node_id=node_id)
+        node_data = json.dumps(node_data)
+
+        response = self.client.api_session.put(node_url, data=node_data)
+
         if response.status_code != 200:
-            raise ProgramPublisherException('Marketing site alias form retrieval failed!')
-        form = BeautifulSoup(response.text, 'html.parser')
-        for field in ('form_build_id', 'form_token'):
-            form_attributes[field] = form.find('input', {'name': field}).get('value')
-        return form_attributes
+            raise NodeEditError
 
-    def _get_delete_alias_url(self, api_client, url):
-        response = api_client.api_session.get(url)
+    def delete_node(self, node_id):
+        """
+        Delete a Drupal node.
+
+        Arguments:
+            node_id (str): ID of the node to delete.
+
+        Raises:
+            NodeDeleteError: If the DELETE to Drupal fails.
+        """
+        node_url = '{base}/{node_id}'.format(base=self.node_api_base, node_id=node_id)
+
+        response = self.client.api_session.delete(node_url)
+
         if response.status_code != 200:
-            raise ProgramPublisherException('Marketing site alias form retrieval failed!')
-        form = BeautifulSoup(response.text, 'html.parser')
-        delete_element = form.select('.delete.last a')
-        return delete_element[0].get('href') if delete_element else None
+            raise NodeDeleteError
 
-    def _get_headers(self):
-        headers = {
-            'content-type': 'application/x-www-form-urlencoded'
+
+class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):
+    """
+    Utility for publishing course run data to a Drupal marketing site.
+    """
+    unique_field = 'key'
+    node_lookup_field = 'field_course_id'
+
+    def publish_obj(self, obj, previous_obj=None):
+        """
+        Publish a CourseRun to the marketing site.
+
+        Publication only occurs if the CourseRun's status has changed.
+
+        Arguments:
+            obj (CourseRun): CourseRun instance to be published.
+
+        Keyword Arguments:
+            previous_obj (CourseRun): Previous state of the course run. Inspected to
+                determine if publication is necessary. May not exist if the course run
+                is being saved for the first time.
+        """
+        if previous_obj and obj.status != previous_obj.status:
+            node_id = self.node_id(obj)
+            node_data = self.serialize_obj(obj)
+
+            self.edit_node(node_id, node_data)
+
+    def serialize_obj(self, obj):
+        """
+        Serialize the CourseRun instance to be published.
+
+        Arguments:
+            obj (CourseRun): CourseRun instance to be published.
+
+        Returns:
+            dict: Data to PUT to the Drupal API.
+        """
+        data = super().serialize_obj(obj)
+
+        return {
+            **data,
+            'status': 1 if obj.status == CourseRunStatus.Published else 0,
         }
-        return headers
 
-    def _make_alias(self, program):
-        alias = '{program_type_slug}/{slug}'.format(program_type_slug=program.type.slug, slug=program.marketing_slug)
-        return alias
 
-    def _add_alias(self, api_client, node_id, alias, before_slug):
-        base_aliases_url = '{root}/admin/config/search/path'.format(root=api_client.api_url)
-        add_aliases_url = '{url}/add'.format(url=base_aliases_url)
-        node_url = 'node/{node_id}'.format(node_id=node_id)
+class ProgramMarketingSitePublisher(BaseMarketingSitePublisher):
+    """
+    Utility for publishing program data to a Drupal marketing site.
+    """
+    unique_field = 'uuid'
+    node_lookup_field = 'field_uuid'
 
-        data = {
-            'source': node_url,
-            'alias': alias,
-            'form_id': 'path_admin_form',
-            'op': 'Save'
-        }
-        form_attributes = self._get_form_build_id_and_form_token(api_client, add_aliases_url)
-        data.update(form_attributes)
-        headers = self._get_headers()
-        response = api_client.api_session.post(add_aliases_url, headers=headers, data=data)
-        if response.status_code != 200:
-            raise ProgramPublisherException('Marketing site alias creation failed!')
+    def __init__(self, partner):
+        super().__init__(partner)
 
-        # Delete old alias after saving new one
-        if before_slug:
-            list_aliases_url = '{url}/list/{slug}'.format(url=base_aliases_url, slug=before_slug)
-            delete_alias_url = self._get_delete_alias_url(api_client, list_aliases_url)
-            if delete_alias_url:
-                delete_alias_url = '{root}{url}'.format(root=api_client.api_url, url=delete_alias_url)
-                data = {
-                    "confirm": 1,
-                    "form_id": "path_admin_delete_confirm",
-                    "op": "Confirm"
-                }
-                form_attributes = self._get_form_build_id_and_form_token(api_client, delete_alias_url)
-                data.update(form_attributes)
-                response = api_client.api_session.post(delete_alias_url, headers=headers, data=data)
-                if response.status_code != 200:
-                    raise ProgramPublisherException('Marketing site alias deletion failed!')
+        self.alias_api_base = urljoin(self.client.api_url, '/admin/config/search/path')
+        self.alias_add_url = '{}/add'.format(self.alias_api_base)
 
-    def publish_program(self, program):
-        api_client = self._get_api_client(program)
-        if api_client:
-            node_data = self._get_node_data(program, api_client.user_id)
-            node_id = self._get_node_id(api_client, program.uuid)
-            if node_id:
-                # We would like to edit the existing node
-                self._edit_node(api_client, node_id, node_data)
+    def publish_obj(self, obj, previous_obj=None):
+        """
+        Publish a Program to the marketing site.
+
+        Arguments:
+            obj (Program): Program instance to be published.
+
+        Keyword Arguments:
+            previous_obj (Program): Previous state of the program. Inspected to
+                determine if publication is necessary. May not exist if the program
+                is being saved for the first time.
+        """
+        if obj.type.name in {'MicroMasters', 'Professional Certificate'}:
+            node_data = self.serialize_obj(obj)
+
+            node_id = None
+            if not previous_obj:
+                node_id = self.create_node(node_data)
             else:
-                # We should create a new node
-                node_id = self._create_node(api_client, node_data)
-            before_alias = self._make_alias(self.program_before) if self.program_before else None
-            new_alias = self._make_alias(program)
-            before_slug = self.program_before.marketing_slug if self.program_before else None
-            if not self.program_before or (before_alias != new_alias):
-                self._add_alias(api_client, node_id, new_alias, before_slug)
+                trigger_fields = (
+                    'marketing_slug',
+                    'status',
+                    'title',
+                    'type',
+                )
 
-    def delete_program(self, program):
-        api_client = self._get_api_client(program)
-        if api_client:
-            node_id = self._get_node_id(api_client, program.uuid)
+                if any(getattr(obj, field) != getattr(previous_obj, field) for field in trigger_fields):
+                    node_id = self.node_id(obj)
+                    # Drupal does not allow modification of the UUID field.
+                    node_data.pop('uuid', None)
+
+                    self.edit_node(node_id, node_data)
+
             if node_id:
-                self._delete_node(api_client, node_id)
+                self.update_node_alias(obj, node_id, previous_obj)
+
+    def serialize_obj(self, obj):
+        """
+        Serialize the Program instance to be published.
+
+        Arguments:
+            obj (Program): Program instance to be published.
+
+        Returns:
+            dict: Data to PUT to the Drupal API.
+        """
+        data = super().serialize_obj(obj)
+
+        return {
+            **data,
+            'status': 1 if obj.is_active else 0,
+            'title': obj.title,
+            'type': str(obj.type).lower().replace(' ', '_'),
+            'uuid': str(obj.uuid),
+        }
+
+    def update_node_alias(self, obj, node_id, previous_obj):
+        """
+        Update alias of the Drupal node corresponding to the given object.
+
+        Arguments:
+            obj (Program): Program instance to be published.
+            node_id (str): The ID of the node corresponding to the object.
+            previous_obj (Program): Previous state of the program. May be None.
+
+        Raises:
+            AliasCreateError: If there's a problem creating a new alias.
+            AliasDeleteError: If there's a problem deleting an old alias.
+        """
+        new_alias = self.alias(obj)
+        previous_alias = self.alias(previous_obj) if previous_obj else None
+
+        if new_alias != previous_alias:
+            alias_add_url = '{}/add'.format(self.alias_api_base)
+
+            headers = {
+                'content-type': 'application/x-www-form-urlencoded'
+            }
+
+            data = {
+                **self.alias_form_inputs,
+                'alias': new_alias,
+                'form_id': 'path_admin_form',
+                'op': 'Save',
+                'source': 'node/{}'.format(node_id),
+            }
+
+            response = self.client.api_session.post(alias_add_url, headers=headers, data=data)
+
+            if response.status_code != 200:
+                raise AliasCreateError
+
+            # Delete old alias after saving the new one.
+            if previous_obj:
+                alias_list_url = '{base}/list/{slug}'.format(
+                    base=self.alias_api_base,
+                    slug=previous_obj.marketing_slug
+                )
+                alias_delete_path = self.alias_delete_path(alias_list_url)
+
+                if alias_delete_path:
+                    alias_delete_url = '{base}/{path}'.format(
+                        base=self.client.api_url,
+                        path=alias_delete_path.strip('/')
+                    )
+
+                    data = {
+                        **self.alias_form_inputs,
+                        'confirm': 1,
+                        'form_id': 'path_admin_delete_confirm',
+                        'op': 'Confirm',
+                    }
+
+                    response = self.client.api_session.post(alias_delete_url, headers=headers, data=data)
+
+                    if response.status_code != 200:
+                        raise AliasDeleteError
+
+    def alias(self, obj):
+        return '{type}/{slug}'.format(type=obj.type.slug, slug=obj.marketing_slug)
+
+    @cached_property
+    def alias_form_inputs(self):
+        """
+        Scrape input values from the form used to modify Drupal aliases.
+
+        Raises:
+            FormRetrievalError: If there's a problem getting the form from Drupal.
+        """
+        response = self.client.api_session.get(self.alias_add_url)
+
+        if response.status_code != 200:
+            raise FormRetrievalError
+
+        html = BeautifulSoup(response.text, 'html.parser')
+
+        return {
+            field: html.find('input', {'name': field}).get('value')
+            for field in ('form_build_id', 'form_token')
+        }
+
+    def alias_delete_path(self, url):
+        """
+        Scrape the path to which we need to POST to delete an alias from the form
+        used to modify aliases.
+
+        Raises:
+            FormRetrievalError: If there's a problem getting the form from Drupal.
+        """
+        response = self.client.api_session.get(url)
+
+        if response.status_code != 200:
+            raise FormRetrievalError
+
+        html = BeautifulSoup(response.text, 'html.parser')
+        delete_element = html.select('.delete.last a')
+
+        return delete_element[0].get('href') if delete_element else None
