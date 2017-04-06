@@ -23,7 +23,10 @@ from taggit_autosuggest.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus, ProgramStatus, ReportingType
-from course_discovery.apps.course_metadata.publishers import MarketingSitePublisher
+from course_discovery.apps.course_metadata.publishers import (
+    CourseRunMarketingSitePublisher,
+    ProgramMarketingSitePublisher
+)
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath, clean_query, custom_render_variations
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -337,7 +340,6 @@ class Course(TimeStampedModel):
 
 class CourseRun(TimeStampedModel):
     """ CourseRun model. """
-
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
     course = models.ForeignKey(Course, related_name='course_runs')
     key = models.CharField(max_length=255, unique=True)
@@ -594,6 +596,22 @@ class CourseRun(TimeStampedModel):
 
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
+
+    def save(self, *args, **kwargs):
+        is_publishable = (
+            self.course.partner.has_marketing_site and
+            waffle.switch_is_active('publish_course_runs_to_marketing_site')
+        )
+
+        if is_publishable:
+            publisher = CourseRunMarketingSitePublisher(self.course.partner)
+            previous_obj = CourseRun.objects.get(id=self.id) if self.id else None
+
+            with transaction.atomic():
+                super(CourseRun, self).save(*args, **kwargs)
+                publisher.publish_obj(self, previous_obj=previous_obj)
+        else:
+            super(CourseRun, self).save(*args, **kwargs)
 
 
 class SeatType(TimeStampedModel):
@@ -973,19 +991,18 @@ class Program(TimeStampedModel):
         return self.status == ProgramStatus.Active
 
     def save(self, *args, **kwargs):
-        if waffle.switch_is_active('publish_program_to_marketing_site') and self.partner.has_marketing_site:
-            # Before save, get from database the existing data if exists
-            existing_program = None
-            if self.id:
-                existing_program = Program.objects.get(id=self.id)
-            # Pass existing data to the publisher so it can decide whether we should publish
-            publisher = MarketingSitePublisher(existing_program)
+        is_publishable = (
+            self.partner.has_marketing_site and
+            waffle.switch_is_active('publish_program_to_marketing_site')
+        )
+
+        if is_publishable:
+            publisher = ProgramMarketingSitePublisher(self.partner)
+            previous_obj = Program.objects.get(id=self.id) if self.id else None
 
             with transaction.atomic():
                 super(Program, self).save(*args, **kwargs)
-                # Once save complete, we need to update the marketing site
-                # So the marketing page for this program is automatically updated
-                publisher.publish_program(self)
+                publisher.publish_obj(self, previous_obj=previous_obj)
         else:
             super(Program, self).save(*args, **kwargs)
 

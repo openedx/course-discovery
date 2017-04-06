@@ -28,14 +28,14 @@ class CourseRunSelectionAdmin(UpdateView):
             context = super(CourseRunSelectionAdmin, self).get_context_data(**kwargs)
             context.update({
                 'program_id': self.object.id,
-                'title': _('Change program excluded course runs')
+                'title': _('Update excluded course runs')
             })
             return context
         raise Http404
 
     def form_valid(self, form):
         self.object = form.save()
-        message = 'The program course runs was changed successfully.'
+        message = _('The program was changed successfully.')
         messages.add_message(self.request, messages.SUCCESS, message)
         return HttpResponseRedirect(self.get_success_url())
 
