@@ -22,9 +22,8 @@ class MarketingSiteAPIClientTestMixin(TestCase):
 
     def mock_login_response(self, status):
         """ Mock the response of the marketing site login """
-        response_url = '{root}/users/{username}'.format(
-            root=self.api_root,
-            username=self.username
+        response_url = '{root}/admin'.format(
+            root=self.api_root
         )
 
         def request_callback(request):  # pylint: disable=unused-argument
@@ -45,15 +44,6 @@ class MarketingSiteAPIClientTestMixin(TestCase):
             response_url,
             body='',
             content_type='text/html',
-            status=status
-        )
-
-    def mock_admin_response(self, status):
-        """ Test that we can access the admin """
-        response_url = '{root}/admin'.format(root=self.api_root)
-        responses.add(
-            responses.GET,
-            response_url,
             status=status
         )
 
@@ -95,7 +85,6 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
 
     def mock_api_client(self, status):
         self.mock_login_response(status)
-        self.mock_admin_response(status)
         self.mock_csrf_token_response(status)
         self.mock_user_id_response(status)
 

@@ -614,7 +614,7 @@ class ProgramTests(MarketingSitePublisherTestMixin):
             with mock.patch.object(MarketingSitePublisher, '_get_form_build_id_and_form_token', return_value={}):
                 with mock.patch.object(MarketingSitePublisher, '_get_delete_alias_url', return_value='/foo'):
                     self.program.save()
-                    self.assert_responses_call_count(9)
+                    self.assert_responses_call_count(8)
 
     @responses.activate
     def test_xseries_program_save(self):
@@ -649,7 +649,7 @@ class ProgramTests(MarketingSitePublisherTestMixin):
         self.mock_node_delete(204)
         toggle_switch('publish_program_to_marketing_site', True)
         self.program.delete()
-        self.assert_responses_call_count(6)
+        self.assert_responses_call_count(5)
 
     @responses.activate
     def test_delete_and_no_marketing_site(self):

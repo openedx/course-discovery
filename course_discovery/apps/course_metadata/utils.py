@@ -96,12 +96,10 @@ class MarketingSiteAPIClient(object):
             'op': 'Log in',
         }
         response = session.post(login_url, data=login_data)
-        expected_url = '{root}/users/{username}'.format(root=self.api_url, username=self.username)
         admin_url = '{root}/admin'.format(root=self.api_url)
-        # Temporary way of checking whether the user has been logged into marketing site until
-        # the marketing site login flow is fixed
-        can_access_admin = session.get(admin_url)
-        if not (can_access_admin.status_code == 200 and response.url == expected_url):
+        # This is not a RESTful API so checking the status code is not enough
+        # We also check that we were redirected to the admin page
+        if not (response.status_code == 200 and response.url == admin_url):
             raise MarketingSiteAPIClientException('Marketing Site Login failed!')
         return session
 
