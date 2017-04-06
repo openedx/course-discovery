@@ -77,19 +77,17 @@ class AbstractMarketingSiteDataLoaderTestMixin(DataLoaderTestMixin):
 
     def mock_login_response(self, failure=False):
         url = self.api_url + 'user'
-        landing_url = '{base}users/{username}'.format(base=self.api_url,
-                                                      username=self.partner.marketing_site_api_username)
+        landing_url = '{base}admin'.format(base=self.api_url)
         status = 500 if failure else 302
         adding_headers = {}
 
         if not failure:
             adding_headers['Location'] = landing_url
         responses.add(responses.POST, url, status=status, adding_headers=adding_headers)
-        responses.add(responses.GET, landing_url)
 
         responses.add(
             responses.GET,
-            '{root}admin'.format(root=self.api_url),
+            landing_url,
             status=(500 if failure else 200)
         )
 

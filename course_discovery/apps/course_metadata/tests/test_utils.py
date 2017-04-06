@@ -49,31 +49,27 @@ class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
     @responses.activate
     def test_init_session(self):
         self.mock_login_response(200)
-        self.mock_admin_response(200)
         session = self.api_client.init_session
-        self.assert_responses_call_count(3)
+        self.assert_responses_call_count(2)
         self.assertIsNotNone(session)
 
     @responses.activate
     def test_init_session_failed(self):
         self.mock_login_response(500)
-        self.mock_admin_response(500)
         with self.assertRaises(MarketingSiteAPIClientException):
             self.api_client.init_session  # pylint: disable=pointless-statement
 
     @responses.activate
     def test_csrf_token(self):
         self.mock_login_response(200)
-        self.mock_admin_response(200)
         self.mock_csrf_token_response(200)
         csrf_token = self.api_client.csrf_token
-        self.assert_responses_call_count(4)
+        self.assert_responses_call_count(3)
         self.assertEqual(self.csrf_token, csrf_token)
 
     @responses.activate
     def test_csrf_token_failed(self):
         self.mock_login_response(200)
-        self.mock_admin_response(200)
         self.mock_csrf_token_response(500)
         with self.assertRaises(MarketingSiteAPIClientException):
             self.api_client.csrf_token  # pylint: disable=pointless-statement
@@ -81,16 +77,14 @@ class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
     @responses.activate
     def test_user_id(self):
         self.mock_login_response(200)
-        self.mock_admin_response(200)
         self.mock_user_id_response(200)
         user_id = self.api_client.user_id
-        self.assert_responses_call_count(4)
+        self.assert_responses_call_count(3)
         self.assertEqual(self.user_id, user_id)
 
     @responses.activate
     def test_user_id_failed(self):
         self.mock_login_response(200)
-        self.mock_admin_response(200)
         self.mock_user_id_response(500)
         with self.assertRaises(MarketingSiteAPIClientException):
             self.api_client.user_id  # pylint: disable=pointless-statement
@@ -98,10 +92,9 @@ class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
     @responses.activate
     def test_api_session(self):
         self.mock_login_response(200)
-        self.mock_admin_response(200)
         self.mock_csrf_token_response(200)
         api_session = self.api_client.api_session
-        self.assert_responses_call_count(4)
+        self.assert_responses_call_count(3)
         self.assertIsNotNone(api_session)
         self.assertEqual(api_session.headers.get('Content-Type'), 'application/json')
         self.assertEqual(api_session.headers.get('X-CSRF-Token'), self.csrf_token)
@@ -109,7 +102,6 @@ class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
     @responses.activate
     def test_api_session_failed(self):
         self.mock_login_response(500)
-        self.mock_admin_response(500)
         self.mock_csrf_token_response(500)
         with self.assertRaises(MarketingSiteAPIClientException):
             self.api_client.api_session  # pylint: disable=pointless-statement

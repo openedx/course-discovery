@@ -57,7 +57,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_retrieval(self.program.uuid)
         publisher = MarketingSitePublisher()
         node_id = publisher._get_node_id(self.api_client, self.program.uuid)  # pylint: disable=protected-access
-        self.assert_responses_call_count(5)
+        self.assert_responses_call_count(4)
         self.assertEqual(node_id, self.node_id)
 
     @responses.activate
@@ -75,7 +75,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         publisher = MarketingSitePublisher()
         publish_data = publisher._get_node_data(self.program, self.user_id)  # pylint: disable=protected-access
         publisher._edit_node(self.api_client, self.node_id, publish_data)  # pylint: disable=protected-access
-        self.assert_responses_call_count(5)
+        self.assert_responses_call_count(4)
 
     @responses.activate
     def test_edit_node_failed(self):
@@ -114,7 +114,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
             with mock.patch.object(MarketingSitePublisher, '_get_form_build_id_and_form_token', return_value={}):
                 publisher.publish_program(self.program)
-                self.assert_responses_call_count(8)
+                self.assert_responses_call_count(7)
 
     @responses.activate
     def test_publish_program_edit(self):
@@ -126,7 +126,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
             with mock.patch.object(MarketingSitePublisher, '_get_form_build_id_and_form_token', return_value={}):
                 publisher.publish_program(self.program)
-                self.assert_responses_call_count(8)
+                self.assert_responses_call_count(7)
 
     @responses.activate
     def test_publish_modified_program(self):
@@ -141,7 +141,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
             with mock.patch.object(MarketingSitePublisher, '_get_form_build_id_and_form_token', return_value={}):
                 with mock.patch.object(MarketingSitePublisher, '_get_delete_alias_url', return_value='/foo'):
                     publisher.publish_program(self.program)
-                    self.assert_responses_call_count(9)
+                    self.assert_responses_call_count(8)
 
     @responses.activate
     def test_get_alias_form(self):
@@ -153,7 +153,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_get_alias_form()
         with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
             publisher.publish_program(self.program)
-            self.assert_responses_call_count(9)
+            self.assert_responses_call_count(8)
 
     @responses.activate
     def test_get_delete_form(self):
@@ -167,7 +167,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
             with mock.patch.object(MarketingSitePublisher, '_get_form_build_id_and_form_token', return_value={}):
                 publisher.publish_program(self.program)
-                self.assert_responses_call_count(10)
+                self.assert_responses_call_count(9)
 
     @responses.activate
     def test_get_alias_form_failed(self):
@@ -236,7 +236,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_delete(204)
         publisher = MarketingSitePublisher()
         publisher.delete_program(self.program)
-        self.assert_responses_call_count(6)
+        self.assert_responses_call_count(5)
 
     @responses.activate
     def test_publish_delete_non_existent_program(self):
@@ -244,7 +244,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_retrieval(self.program.uuid, exists=False)
         publisher = MarketingSitePublisher()
         publisher.delete_program(self.program)
-        self.assert_responses_call_count(5)
+        self.assert_responses_call_count(4)
 
     @responses.activate
     def test_publish_delete_xseries(self):
