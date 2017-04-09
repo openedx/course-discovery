@@ -3,15 +3,15 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-# Fundacja Eduprojekt.org <maciej@eduprojekt.org>, 2016
+# Fundacja Eduprojekt.org <maciej@eduprojekt.org>, 2016-2017
 # Paweł Marchewka <mamior@o2.pl>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-03 16:28+0500\n"
-"PO-Revision-Date: 2017-03-31 08:30+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2017-04-08 22:45+0500\n"
+"PO-Revision-Date: 2017-04-06 17:32+0000\n"
+"Last-Translator: Fundacja Eduprojekt.org <maciej@eduprojekt.org>\n"
 "Language-Team: Polish (http://www.transifex.com/open-edx/edx-platform/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -25,76 +25,76 @@ msgstr "Podgląd"
 
 #: static/js/publisher/change-state.js
 msgid "Something went wrong! please try again later."
-msgstr ""
+msgstr "Coś poszło nie tak! Spróbuj ponownie później."
 
 #: static/js/publisher/comparing-objects.js
 msgid "Hide changes"
-msgstr ""
+msgstr "Ukryj zmiany"
 
 #: static/js/publisher/comparing-objects.js
 msgid "Show changes"
-msgstr ""
+msgstr "Pokaż zmiany"
 
 #: static/js/publisher/image-validation.js
 msgid "The image file size cannot exceed 1 MB."
-msgstr ""
+msgstr "Plik zdjęcia nie może przekroczyć 1 MB wielkości."
 
 #: static/js/publisher/instructors.js
 msgid "New Instructor"
-msgstr ""
+msgstr "Nowy prowadzący"
 
 #: static/js/publisher/instructors.js
 msgid "Add staff member"
-msgstr ""
+msgstr "Dodaj członka kadry"
 
 #: static/js/publisher/instructors.js
 msgid ""
 "Please upload a instructor image. File must be smaller than 1 megabyte in "
 "size."
-msgstr ""
+msgstr "Proszę przesłać zdjęcie prowadzącego. Plik musi być mniejszy niż 1 megabajt."
 
 #: static/js/publisher/instructors.js static/js/publisher/preview-url.js
 msgid "Something went wrong!"
-msgstr ""
+msgstr "Coś poszło nie tak!"
 
 #: static/js/publisher/instructors.js
 msgid "File must be smaller than 1 megabyte in size."
-msgstr ""
+msgstr "Plik musi być mniejszy niż 1 megabajt."
 
 #: static/js/publisher/instructors.js
 msgid "Update staff member"
-msgstr ""
+msgstr "Aktualizuj członka kadry"
 
 #: static/js/publisher/instructors.js
 msgid "Update Instructor"
-msgstr ""
+msgstr "Aktualizuj prowadzącego"
 
 #: static/js/publisher/preview-url.js
 msgid "Save"
-msgstr ""
+msgstr "Zapisz"
 
 #: static/js/publisher/preview-url.js
 msgid "Please enter a valid URL."
-msgstr ""
+msgstr "Proszę podać poprawny adres URL."
 
 #: static/js/publisher/views/dashboard.js
 msgid ""
 "You have successfully created a studio instance ({studioLinkTag}) for "
 "{courseRunDetail} with a start date of {startDate}"
-msgstr ""
+msgstr "Pomyślnie utworzyłeś pozycję w Studio o nazwie ({studioLinkTag}) dla {courseRunDetail} o dacie rozpoczęcia {startDate}."
 
 #: static/js/publisher/views/dashboard.js
 msgid "There was an error in saving your data."
-msgstr ""
+msgstr "Wystąpił błąd w trakcie zapisywania twoich danych."
 
 #: static/js/publisher/views/dashboard.js
 msgid "No course run previews are currently available."
-msgstr ""
+msgstr "Podglądy edycji kursów są obecnie niedostępne."
 
 #: static/js/publisher/views/navbar.js
 msgid "OFF"
-msgstr ""
+msgstr "WYŁ"
 
 #: static/js/publisher/views/navbar.js
 msgid "ON"
-msgstr ""
+msgstr "WŁ"
