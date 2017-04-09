@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-03 16:28+0500\n"
-"PO-Revision-Date: 2017-04-04 09:52+0000\n"
+"POT-Creation-Date: 2017-04-08 22:45+0500\n"
+"PO-Revision-Date: 2017-04-09 09:31+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Spanish (Argentina) (http://www.transifex.com/open-edx/edx-platform/language/es_AR/)\n"
 "MIME-Version: 1.0\n"
@@ -204,6 +204,19 @@ msgid "Partners"
 msgstr ""
 
 #: apps/course_metadata/admin.py
+msgid "eligible for one-click purchase"
+msgstr ""
+
+#: apps/course_metadata/admin.py apps/publisher/forms.py
+#: templates/publisher/course_run_detail/_preview_accept_popup.html
+msgid "Yes"
+msgstr ""
+
+#: apps/course_metadata/admin.py apps/publisher/forms.py
+msgid "No"
+msgstr ""
+
+#: apps/course_metadata/admin.py
 msgid "Included course runs"
 msgstr ""
 
@@ -366,8 +379,8 @@ msgstr ""
 msgid "Credit"
 msgstr ""
 
-#: apps/course_metadata/models.py apps/publisher/models.py
-#: templates/publisher/course_detail.html
+#: apps/course_metadata/models.py apps/publisher/forms.py
+#: apps/publisher/models.py templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "FAQ"
@@ -425,6 +438,10 @@ msgstr ""
 msgid "The description of credit redemption for courses in program"
 msgstr ""
 
+#: apps/course_metadata/models.py
+msgid "Allow courses in this program to be purchased in a single transaction"
+msgstr ""
+
 #: apps/course_metadata/views.py
 msgid "Change program excluded course runs"
 msgstr ""
@@ -460,7 +477,7 @@ msgstr ""
 msgid "Publisher"
 msgstr ""
 
-#: apps/publisher/choices.py
+#: apps/publisher/choices.py templates/publisher/dashboard/_in_progress.html
 msgid "Course Team"
 msgstr ""
 
@@ -588,6 +605,21 @@ msgstr ""
 msgid "Tertiary (optional)"
 msgstr ""
 
+#: apps/publisher/forms.py apps/publisher/models.py
+#: templates/publisher/course_detail.html
+#: templates/publisher/course_revision_history.html
+#: templates/publisher/course_run_detail/_all.html
+msgid "Expected Learnings"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Learner Testimonial"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Syllabus"
+msgstr ""
+
 #: apps/publisher/forms.py
 msgid "Course Start Date"
 msgstr ""
@@ -599,15 +631,6 @@ msgstr ""
 #: apps/publisher/forms.py templates/publisher/add_update_course_form.html
 #: templates/publisher/course_run/edit_run_form.html
 msgid "Instructor"
-msgstr ""
-
-#: apps/publisher/forms.py
-#: templates/publisher/course_run_detail/_preview_accept_popup.html
-msgid "Yes"
-msgstr ""
-
-#: apps/publisher/forms.py
-msgid "No"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -680,12 +703,6 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Level Type"
-msgstr ""
-
-#: apps/publisher/models.py templates/publisher/course_detail.html
-#: templates/publisher/course_revision_history.html
-#: templates/publisher/course_run_detail/_all.html
-msgid "Expected Learnings"
 msgstr ""
 
 #: apps/publisher/models.py templates/publisher/course_detail.html
@@ -849,6 +866,26 @@ msgstr ""
 
 #: apps/publisher/views.py
 msgid "Course run updated successfully."
+msgstr ""
+
+#: apps/publisher/wrappers.py
+msgid "In Draft since"
+msgstr ""
+
+#: apps/publisher/wrappers.py
+msgid "Submitted on"
+msgstr ""
+
+#: apps/publisher/wrappers.py
+msgid "In Review since"
+msgstr ""
+
+#: apps/publisher/wrappers.py
+msgid "n/a"
+msgstr ""
+
+#: apps/publisher/wrappers.py
+msgid "Reviewed on"
 msgstr ""
 
 #: apps/publisher_comments/emails.py
@@ -1492,7 +1529,6 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
 msgid "140 character limit, including spaces."
 msgstr ""
 
@@ -1981,6 +2017,126 @@ msgstr ""
 msgid ""
 "This information is required before edX can create a Studio instance for a "
 "course run."
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "255 character limit, including spaces."
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Please provide any frequently asked questions and corresponding answers to "
+"those questions."
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"The About Video should excite and entice potential students to take your "
+"course. Think of it as a movie trailer or TV show promotion. The video "
+"should be compelling, and exhibit the instructor’s personality."
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Length: ideal length is 30-90 seconds (learners typically only watch an "
+"average of 30 seconds)"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Should be produced and edited, using elements such as graphics, stock "
+"footage"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "The About video should answer these key questions:"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Why should a learner register?"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "What topics and concepts are covered?"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Who is teaching the course?"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "What institution is delivering the course?"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Naming Specifications:"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Name: InstitutionX_CourseNumber_About.mov"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Post to:"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Technical specifications:"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Codec: H.264"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Container: .mp4"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Resolution: 1920x1080"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Frame Rate: 29.97 fps"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Aspect: 1.0"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Bitrate: 5Mbps VBR"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Audio Codec: AAC 44.1KHz/192 Kbps"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"Visit edX’s Youtube channel for inspiration and examples of other About "
+"Videos:"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"A quote from a learner in the course, demonstrating the value of taking the "
+"course."
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Should be no more than 25-50 words in length."
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"“Brilliant course! It's definitely the best introduction to electronics in "
+"the world! Interesting material, clean explanations, well prepared quizzes, "
+"challenging homeworks and fun labs.” – Previous Student"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "500 character limit, including spaces."
 msgstr ""
 
 #: templates/publisher/course_edit_form.html
