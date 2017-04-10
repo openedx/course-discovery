@@ -8,9 +8,9 @@
 {% endblock title %}
 
 {% block stylesheets %}
-    {{ block.super }}
     <link rel="stylesheet" href="{% static 'bower_components/tinymce/skins/lightgray/content.min.css' %}" type="text/x-scss">
     <link rel="stylesheet" href="{% static 'bower_components/tinymce/skins/lightgray/skin.min.css' %}" type="text/x-scss">
+    {{ block.super }}
 {% endblock %}
 
 {% block page_content %}
@@ -498,6 +498,8 @@
                                             {{ form.video_link }}
                                         </div>
                                     </div>
+                                {% else %}
+                                    {{ form.video_link }}
                                 {% endif %}
 
                                 <div class="field-title">{{ form.learner_testimonial.label|upper }}</div>
