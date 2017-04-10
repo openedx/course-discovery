@@ -282,9 +282,9 @@ class ProgramAdminFunctionalTests(LiveServerTestCase):
             actual += [_class for _class in element.get_attribute('class').split(' ') if _class.startswith('field-')]
 
         expected = [
-            'field-title', 'field-subtitle', 'field-status', 'field-type', 'field-partner', 'field-banner_image',
-            'field-banner_image_url', 'field-card_image_url', 'field-marketing_slug', 'field-overview',
-            'field-credit_redemption_overview', 'field-video', 'field-weeks_to_complete',
+            'field-uuid', 'field-title', 'field-subtitle', 'field-status', 'field-type', 'field-partner',
+            'field-banner_image', 'field-banner_image_url', 'field-card_image_url', 'field-marketing_slug',
+            'field-overview', 'field-credit_redemption_overview', 'field-video', 'field-weeks_to_complete',
             'field-min_hours_effort_per_week', 'field-max_hours_effort_per_week', 'field-courses',
             'field-order_courses_by_start_date', 'field-custom_course_runs_display', 'field-excluded_course_runs',
             'field-authoring_organizations', 'field-credit_backing_organizations', 'field-one_click_purchase_enabled',
