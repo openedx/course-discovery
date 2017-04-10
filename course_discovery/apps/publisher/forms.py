@@ -16,6 +16,7 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.mixins import LanguageModelSelect2Multiple, check_roles_access
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseUserRole, OrganizationExtension,
                                                     OrganizationUserRole, PublisherUser, Seat, User)
+from course_discovery.apps.publisher.utils import is_internal_user
 
 
 class UserModelChoiceField(forms.ModelChoiceField):
@@ -185,6 +186,9 @@ class CustomCourseForm(CourseForm):
             self.declared_fields['team_admin'].widget.attrs = {'data-user': user.id}
 
         super(CustomCourseForm, self).__init__(*args, **kwargs)
+
+        if user and not is_internal_user(user):
+            self.fields['video_link'].widget = forms.HiddenInput()
 
 
 class CourseRunForm(BaseCourseForm):
