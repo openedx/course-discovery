@@ -32,13 +32,8 @@
 </p>
 <form class="form" method="post" action="" enctype="multipart/form-data">
 {% csrf_token %}
-<div class="layout-full publisher-layout layout">
-
-    <h2 class="layout-title">
-        {% trans "About Page Information" %}
-    </h2>
-
-    <div class="card course-form">
+<div class="layout-full layout">
+    <div class="course-form">
         <div class="course-information">
             <fieldset class="form-group grid-container grid-manual">
                 <div class="field-title">{% trans "COURSE START DATE" %}</div>
