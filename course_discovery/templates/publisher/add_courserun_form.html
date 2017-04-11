@@ -225,14 +225,12 @@
                     </div>
                 </div>
             </div>
-
-            <div class="layout-full layout publisher-layout">
-                <div class="card course-form">
-                    <div class="course-information">
-                        <fieldset class="form-group grid-container grid-manual">
-                                <button class="btn-brand btn-base" type="submit">{% trans "Save Draft" %}</button>
-                        </fieldset>
-                    </div>
+            <div class="course-form">
+                <div class="course-information action-buttons">
+                    <a href="{{ course_url }}">{% trans "Cancel" %}</a>
+                    <button class="btn-brand btn-base btn-save" type="submit">
+                            {% trans "Create New Course Run" %}
+                    </button>
                 </div>
             </div>
         </form>

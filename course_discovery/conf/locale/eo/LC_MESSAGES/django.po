@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-10 13:14+0500\n"
+"POT-Creation-Date: 2017-04-11 12:13+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1125,6 +1125,7 @@ msgstr "Sävé Ⱡ'σяєм ι#"
 
 #: templates/metadata/admin/course_run.html
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/add_courserun_form.html
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_detail/_edit_warning_popup.html
 #: templates/publisher/course_edit_form.html
@@ -1626,8 +1627,8 @@ msgstr ""
 "ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łα#"
 
 #: templates/publisher/add_courserun_form.html
-msgid "Save Draft"
-msgstr "Sävé Dräft Ⱡ'σяєм ιρѕυм ∂σłσ#"
+msgid "Create New Course Run"
+msgstr "Çréäté Néw Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_run/edit_run_form.html
