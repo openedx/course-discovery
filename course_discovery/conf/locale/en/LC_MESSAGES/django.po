@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-11 12:13+0500\n"
+"POT-Creation-Date: 2017-04-11 13:01+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1446,7 +1446,6 @@ msgid "About Page Information"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
 msgid "Studio Instance"
 msgstr ""
 
@@ -2009,12 +2008,6 @@ msgstr ""
 msgid ""
 "All required fields must be complete before this course can be sent for "
 "review."
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
-msgid ""
-"This information is required before edX can create a Studio instance for a "
-"course run."
 msgstr ""
 
 #: templates/publisher/course_edit_form.html

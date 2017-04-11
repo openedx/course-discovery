@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-11 12:13+0500\n"
+"POT-Creation-Date: 2017-04-11 13:01+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1698,7 +1698,6 @@ msgid "About Page Information"
 msgstr "Àßöüt Pägé Ìnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
 #: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
 msgid "Studio Instance"
 msgstr "Stüdïö Ìnstänçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
@@ -2389,14 +2388,6 @@ msgid ""
 msgstr ""
 "Àll réqüïréd fïélds müst ßé çömplété ßéföré thïs çöürsé çän ßé sént för "
 "révïéw. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
-
-#: templates/publisher/course_edit_form.html
-msgid ""
-"This information is required before edX can create a Studio instance for a "
-"course run."
-msgstr ""
-"Thïs ïnförmätïön ïs réqüïréd ßéföré édX çän çréäté ä Stüdïö ïnstänçé för ä "
-"çöürsé rün. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
 #: templates/publisher/course_edit_form.html
 msgid "255 character limit, including spaces."
