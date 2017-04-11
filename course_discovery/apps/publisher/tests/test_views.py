@@ -36,9 +36,6 @@ from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 from course_discovery.apps.publisher_comments.models import CommentTypeChoices
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
 
-IMAGE_TOO_SMALL = 'The image you uploaded is too small. The required minimum resolution is: 2120x1192 px.'
-IMAGE_TOO_LARGE = 'The image you uploaded is too large. The required maximum resolution is: 2120x1192 px.'
-
 
 @ddt.ddt
 class CreateCourseViewTests(TestCase):
@@ -147,22 +144,24 @@ class CreateCourseViewTests(TestCase):
         self._assert_test_data(response, course, self.seat.type, self.seat.price)
 
     @ddt.data(
-        (make_image_file('test_banner00.jpg', width=2120, height=1191), [IMAGE_TOO_SMALL]),
-        (make_image_file('test_banner01.jpg', width=2120, height=1193), [IMAGE_TOO_LARGE]),
-        (make_image_file('test_banner02.jpg', width=2119, height=1192), [IMAGE_TOO_SMALL]),
-        (make_image_file('test_banner03.jpg', width=2121, height=1192), [IMAGE_TOO_LARGE]),
-        (make_image_file('test_banner04.jpg', width=2121, height=1191), [IMAGE_TOO_LARGE, IMAGE_TOO_SMALL]),
+        make_image_file('test_banner00.jpg', width=2120, height=1191),
+        make_image_file('test_banner01.jpg', width=2120, height=1193),
+        make_image_file('test_banner02.jpg', width=2119, height=1192),
+        make_image_file('test_banner03.jpg', width=2121, height=1192),
+        make_image_file('test_banner04.jpg', width=2121, height=1191),
     )
-    @ddt.unpack
-    def test_create_course_invalid_image(self, image, errors):
+    def test_create_course_invalid_image(self, image):
         """
         Verify that a new course with an invalid image shows the proper error.
         """
+        image_error = [
+            'The image you uploaded is of incorrect resolution. Course image files must be 2120 x 1192 pixels in size.'
+        ]
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         self._assert_records(1)
         course_dict = self._post_data({'image': image}, self.course, self.course_run, self.seat)
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=image)
-        self.assertEqual(response.context['course_form'].errors['image'], errors)
+        self.assertEqual(response.context['course_form'].errors['image'], image_error)
         self._assert_records(1)
 
     def test_create_with_fail_transaction(self):

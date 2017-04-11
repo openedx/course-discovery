@@ -12,7 +12,6 @@ from django_fsm import FSMField, transition
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
-from stdimage.validators import MaxSizeValidator, MinSizeValidator
 from taggit.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, User
@@ -23,6 +22,7 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher import emails
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
+from course_discovery.apps.publisher.validators import ImageSizeValidator
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +80,7 @@ class Course(TimeStampedModel, ChangedByMixin):
         variations={
             'thumbnail': (100, 100, True),
         },
-        validators=[MaxSizeValidator(2120, 1192), MinSizeValidator(2120, 1192), ]
+        validators=[ImageSizeValidator(width=2120, height=1192)]
     )
 
     is_seo_review = models.BooleanField(default=False)
