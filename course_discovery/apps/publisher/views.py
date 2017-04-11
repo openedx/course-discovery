@@ -398,6 +398,11 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
         messages.success(self.request, _('Course  updated successfully.'))
         return HttpResponseRedirect(self.get_success_url())
 
+    def form_invalid(self, form):
+        # pylint: disable=no-member
+        messages.error(self.request, _('Please fill all required fields.'))
+        return self.render_to_response(self.get_context_data(form=form))
+
 
 class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, DetailView):
     """ Course Detail View."""
