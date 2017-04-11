@@ -249,7 +249,7 @@
 
 <div class="course-form">
     <div class="course-information action-buttons">
-        <a href="{% url 'publisher:publisher_courses' %}">{% trans "Cancel" %}</a>
+        <a href="{% url 'publisher:publisher_course_run_detail' course_run.id %}">{% trans "Cancel" %}</a>
         <button class="btn-brand btn-base btn-save" type="submit">
             {% trans "Update Course Run" %}
         </button>
