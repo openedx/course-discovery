@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-11 13:01+0500\n"
+"POT-Creation-Date: 2017-04-13 13:09+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -781,6 +781,13 @@ msgstr ""
 msgid "Course Role"
 msgstr ""
 
+#: apps/publisher/validators.py
+#, python-format
+msgid ""
+"The image you uploaded is of incorrect resolution. Course image files must "
+"be %(with)s x %(height)s pixels in size."
+msgstr ""
+
 #: apps/publisher/views.py
 msgid "PARTNER MANAGER"
 msgstr ""
@@ -1441,7 +1448,6 @@ msgid "All of the following information is required."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_run/edit_run_form.html
 msgid "About Page Information"
 msgstr ""
 

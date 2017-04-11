@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-11 13:01+0500\n"
+"POT-Creation-Date: 2017-04-13 13:09+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -925,6 +925,15 @@ msgstr "Örgänïzätïön Rölé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α�
 msgid "Course Role"
 msgstr "Çöürsé Rölé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
+#: apps/publisher/validators.py
+#, python-format
+msgid ""
+"The image you uploaded is of incorrect resolution. Course image files must "
+"be %(with)s x %(height)s pixels in size."
+msgstr ""
+"Thé ïmägé ýöü üplöädéd ïs öf ïnçörréçt résölütïön. Çöürsé ïmägé fïlés müst "
+"ßé %(with)s x %(height)s pïxéls ïn sïzé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
 #: apps/publisher/views.py
 msgid "PARTNER MANAGER"
 msgstr "PÀRTNÉR MÀNÀGÉR Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
@@ -1693,7 +1702,6 @@ msgstr ""
 "¢σηѕє¢тєтυя #"
 
 #: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_run/edit_run_form.html
 msgid "About Page Information"
 msgstr "Àßöüt Pägé Ìnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
