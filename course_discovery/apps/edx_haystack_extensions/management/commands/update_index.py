@@ -13,6 +13,13 @@ logger = logging.getLogger(__name__)
 class Command(HaystackCommand):
     backends = []
 
+    def add_arguments(self, parser):
+        super().add_arguments(parser)
+        parser.add_argument(
+            '--disable-change-limit', action='store_true', dest='disable_change_limit',
+            help='Disables checks limiting the number of records modified.'
+        )
+
     def get_record_count(self, conn, index_name):
         return conn.count(index_name).get('count')
 
@@ -35,9 +42,13 @@ class Command(HaystackCommand):
 
         # Set the alias (from settings) to the timestamped catalog.
         for backend, index, alias in alias_mappings:
-            record_count_is_sane, index_info_string = self.sanity_check_new_index(backend.conn, index, record_count)
-            if not record_count_is_sane:
-                raise CommandError('Sanity check failed for new index. ' + index_info_string)
+            # Run a sanity check to ensure we aren't drastically changing the
+            # index, which could be indicative of a bug.
+            if not options.get('disable_change_limit', False):
+                record_count_is_sane, index_info_string = self.sanity_check_new_index(backend.conn, index, record_count)
+                if not record_count_is_sane:
+                    raise CommandError('Sanity check failed for new index. ' + index_info_string)
+
             self.set_alias(backend, alias, index)
 
     def percentage_change(self, current, previous):

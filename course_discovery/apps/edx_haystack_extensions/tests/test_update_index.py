@@ -63,3 +63,11 @@ class UpdateIndexTests(ElasticsearchTestMixin, SearchIndexTestMixin, TestCase):
             with mock.patch('course_discovery.apps.edx_haystack_extensions.management.commands.'
                             'update_index.Command.get_record_count', return_value=record_count):
                 call_command('update_index')
+
+    @freeze_time('2016-06-21')
+    def test_sanity_check_disabled(self):
+        """ Verify the sanity check can be disabled. """
+        with mock.patch('course_discovery.apps.edx_haystack_extensions.management.commands.'
+                        'update_index.Command.sanity_check_new_index') as mock_sanity_check_new_index:
+            call_command('update_index', disable_change_limit=True)
+            self.assertFalse(mock_sanity_check_new_index.called)
