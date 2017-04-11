@@ -2165,6 +2165,17 @@ class CourseEditViewTests(TestCase):
         response = self.client.get(self.edit_page_url)
         self.assertNotContains(response, 'VIDEO LINK')
 
+    def test_update_course_with_non_errors(self):
+        """
+        Verify that page shows error if any required field data is missing.
+        """
+        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+        post_data = self._post_data(self.organization_extension)
+
+        post_data['title'] = ''
+        response = self.client.post(self.edit_page_url, data=post_data)
+        self.assertContains(response, 'Please fill all required fields.')
+
 
 @ddt.ddt
 class CourseRunEditViewTests(TestCase):
