@@ -17,6 +17,7 @@ from course_discovery.apps.publisher.mixins import LanguageModelSelect2Multiple,
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseUserRole, OrganizationExtension,
                                                     OrganizationUserRole, PublisherUser, Seat, User)
 from course_discovery.apps.publisher.utils import is_internal_user
+from course_discovery.apps.publisher.validators import validate_text_count
 
 
 class UserModelChoiceField(forms.ModelChoiceField):
@@ -95,13 +96,16 @@ class CustomCourseForm(CourseForm):
     title = forms.CharField(label=_('Course Title'), required=True)
     number = forms.CharField(label=_('Course Number'), required=True)
     short_description = forms.CharField(
-        label=_('Brief Description'), max_length=255, widget=forms.Textarea, required=False
+        label=_('Brief Description'),
+        widget=forms.Textarea, required=False, validators=[validate_text_count(max_length=255)]
     )
     full_description = forms.CharField(
-        label=_('Full Description'), max_length=2500, widget=forms.Textarea, required=False
+        label=_('Full Description'), widget=forms.Textarea, required=False,
+        validators=[validate_text_count(max_length=2500)]
     )
     prerequisites = forms.CharField(
-        label=_('Prerequisites'), max_length=200, widget=forms.Textarea, required=False
+        label=_('Prerequisites'), widget=forms.Textarea, required=False,
+        validators=[validate_text_count(max_length=200)]
     )
 
     # users will be loaded through AJAX call based on organization
@@ -133,19 +137,23 @@ class CustomCourseForm(CourseForm):
     )
 
     expected_learnings = forms.CharField(
-        label=_('Expected Learnings'), max_length=2500, widget=forms.Textarea, required=False
+        label=_('Expected Learnings'), widget=forms.Textarea, required=False,
+        validators=[validate_text_count(max_length=2500)]
     )
 
     learner_testimonial = forms.CharField(
-        label=_('Learner Testimonial'), max_length=500, widget=forms.Textarea, required=False
+        label=_('Learner Testimonial'), widget=forms.Textarea, required=False,
+        validators=[validate_text_count(max_length=500)]
     )
 
     faq = forms.CharField(
-        label=_('FAQ'), max_length=2500, widget=forms.Textarea, required=False
+        label=_('FAQ'), widget=forms.Textarea, required=False,
+        validators=[validate_text_count(max_length=2500)]
     )
 
     syllabus = forms.CharField(
-        label=_('Syllabus'), max_length=2500, widget=forms.Textarea, required=False
+        label=_('Syllabus'), widget=forms.Textarea, required=False,
+        validators=[validate_text_count(max_length=2500)]
     )
 
     class Meta(CourseForm.Meta):

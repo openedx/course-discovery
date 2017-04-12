@@ -31,7 +31,15 @@ tinymce.PluginManager.add('charactercount', function (editor) {
 
   _self.getCount = function () {
     var tx = editor.getContent({ format: 'raw' });
-    return tx.length;
+    var decoded = decodeHtml(tx);
+    var decodedStripped = decoded.replace(/(<([^>]+)>)/ig, "").trim();
+    var tc = decodedStripped.length;
+    return tc;
   };
 
+  function decodeHtml(html) {
+    var txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
+  }
 });

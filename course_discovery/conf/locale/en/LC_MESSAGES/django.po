@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-13 13:09+0500\n"
+"POT-Creation-Date: 2017-04-13 14:28+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -788,6 +788,13 @@ msgid ""
 "be %(with)s x %(height)s pixels in size."
 msgstr ""
 
+#: apps/publisher/validators.py
+#, python-brace-format
+msgid ""
+"Ensure this value has at most {allowed_char} characters (it has "
+"{current_char})."
+msgstr ""
+
 #: apps/publisher/views.py
 msgid "PARTNER MANAGER"
 msgstr ""
@@ -975,6 +982,7 @@ msgstr ""
 #: templates/publisher/course_edit_form.html
 #: templates/publisher/course_run/edit_run_form.html
 #: templates/publisher/course_run_detail/_edit_warning.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Cancel"
 msgstr ""
@@ -988,33 +996,40 @@ msgid "Save Course Run"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "New Instructor"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Click here to upload your image"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Name"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/add_courserun_form.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "required"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Family Name"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Title"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 #: templates/publisher/course_run_detail/_studio.html
 #: templates/publisher/dashboard/_in_preview.html
 #: templates/publisher/dashboard/_published.html
@@ -1023,34 +1038,42 @@ msgid "Organization"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Bio"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Facebook URL"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "optional"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Twitter URL"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Blog URL"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Major Works"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "optional - one per line"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Add Staff Member"
 msgstr ""
 
