@@ -15,12 +15,24 @@ $(document).on('click', '.btn-show-changes', function (e) {
     }
 });
 
+function getComparableText(object) {
+    if ($(object).find('.dont-compare').length > 0) {
+        return "";
+    } else {
+        return object.text().trim()
+    }
+}
+
 var dmp = new diff_match_patch();
 dmp.Diff_EditCost = 8;
 function showDiff($object, $historyObject, $outputDiv) {
-    var d = dmp.diff_main($historyObject.text(), $object.text());
-    dmp.diff_cleanupEfficiency(d);
-    $outputDiv.html(dmp.diff_prettyHtml(d));
+    var currentText = $($.parseHTML($object.text())).text().trim(),
+        historyText = getComparableText($historyObject),
+        diff;
+
+    diff = dmp.diff_main(historyText, currentText);
+    dmp.diff_cleanupEfficiency(diff);
+    $outputDiv.html(dmp.diff_prettyHtml(diff));
     $historyObject.hide();
     $outputDiv.show();
 }
