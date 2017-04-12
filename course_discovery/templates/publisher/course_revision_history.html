@@ -45,7 +45,11 @@
     <div class="field-container">
       <div class="field-title">{% trans "Brief Description" %}</div>
       <span class="object">{{ object.short_description }}</span>
-      <span class="history-object">{{ history_object.short_description }}</span>
+      <span class="history-object">
+        {% with  history_object.short_description as field %}
+            {% include "publisher/_render_required_field.html" %}
+        {% endwith %}
+      </span>
       <span class="show-diff"></span>
     </div>
 
@@ -53,7 +57,11 @@
     <div class="field-container">
       <div class="field-title">{% trans "Full Description" %}</div>
       <span class="object">{{ object.full_description }}</span>
-      <span class="history-object">{{ history_object.full_description }}</span>
+      <span class="history-object">
+        {% with history_object.full_description as field %}
+            {% include "publisher/_render_required_field.html" %}
+        {% endwith %}
+      </span>
       <span class="show-diff"></span>
 
     </div>
@@ -61,56 +69,88 @@
     <div class="field-container">
       <div class="field-title">{% trans "Expected Learnings" %}</div>
       <span class="object">{{ object.expected_learnings }}</span>
-      <span class="history-object">{{ history_object.expected_learnings }}</span>
+      <span class="history-object">
+        {% with history_object.expected_learnings as field %}
+            {% include "publisher/_render_required_field.html" %}
+        {% endwith %}
+      </span>
       <span class="show-diff"></span>
     </div>
 
     <div class="field-container">
       <div class="field-title">{% trans "Primary Subject" %}</div>
       <span class="object">{{ object.primary_subject }}</span>
-      <span class="history-object">{{ history_object.primary_subject }}</span>
+      <span class="history-object">
+        {% with history_object.primary_subject as field %}
+            {% include "publisher/_render_required_field.html" %}
+        {% endwith %}
+      </span>
       <span class="show-diff"></span>
     </div>
 
     <div class="field-container">
       <div class="field-title">{% trans "Secondary Subject" %}</div>
       <span class="object">{{ object.secondary_subject }}</span>
-      <span class="history-object">{{ history_object.secondary_subject }}</span>
+      <span class="history-object">
+        {% with  history_object.secondary_subject as field %}
+            {% include "publisher/_render_optional_field.html" %}
+        {% endwith %}
+      </span>
       <span class="show-diff"></span>
     </div>
 
     <div class="field-container">
       <div class="field-title">{% trans "Tertiary Subject" %}</div>
       <span class="object">{{ object.tertiary_subject }}</span>
-      <span class="history-object">{{ history_object.tertiary_subject }}</span>
+      <span class="history-object">
+        {% with  history_object.tertiary_subject as field %}
+            {% include "publisher/_render_optional_field.html" %}
+        {% endwith %}
+      </span>
       <span class="show-diff"></span>
     </div>
 
     <div class="field-container">
       <div class="field-title">{% trans "Prerequisites" %}</div>
       <span class="object">{{ object.prerequisites }}</span>
-      <span class="history-object">{{ history_object.prerequisites }}</span>
+      <span class="history-object">
+        {% with  history_object.prerequisites as field %}
+            {% include "publisher/_render_required_field.html" %}
+        {% endwith %}
+      </span>
       <span class="show-diff"></span>
     </div>
 
     <div class="field-container">
       <div class="field-title">{% trans "Course Level" %}</div>
       <span class="object">{{ object.level_type }}</span>
-      <span class="history-object">{{ history_object.level_type }}</span>
+      <span class="history-object">
+        {% with  history_object.level_type as field %}
+            {% include "publisher/_render_required_field.html" %}
+        {% endwith %}
+      </span>
       <span class="show-diff"></span>
     </div>
 
     <div class="field-container">
       <div class="field-title">{% trans "Learner Testimonials" %}</div>
       <span class="object">{{ object.learner_testimonial }}</span>
-      <span class="history-object">{{ history_object.learner_testimonial }}</span>
+      <span class="history-object">
+        {% with  history_object.learner_testimonial as field %}
+            {% include "publisher/_render_optional_field.html" %}
+        {% endwith %}
+      </span>
       <span class="show-diff"></span>
     </div>
 
     <div class="field-container">
       <div class="field-title">{% trans "FAQ" %}</div>
       <span class="object">{{ object.faq }}</span>
-      <span class="history-object">{{ history_object.faq }}</span>
+      <span class="history-object">
+        {% with  history_object.faq as field %}
+            {% include "publisher/_render_optional_field.html" %}
+        {% endwith %}
+      </span>
       <span class="show-diff"></span>
     </div>
 

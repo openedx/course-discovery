@@ -3,5 +3,5 @@
 {% if field %}
   {{ field|safe }}
 {% else %}
-  {% trans "(Required) Not yet added" %}
+  <div class="dont-compare">{% trans "(Required) Not yet added" %}</div>
 {% endif %}

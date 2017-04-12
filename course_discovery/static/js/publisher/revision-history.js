@@ -12,14 +12,18 @@ $(document).on('change', '#id_select_revisions', function (e) {
 });
 
 function loadRevisionHistory(revisionUrl) {
+    var currentObject,
+        currentObjectText;
 
     $.getJSON({
         url: revisionUrl,
         success: function (data) {
             $.each(data, function(key, value) {
-              var currentObject = $('.history-field-container').find('.' + key);
+                currentObject = $('.history-field-container').find('.' + key);
                 if (currentObject.length && value != null) {
-                    showDiffCourseDetails(value, currentObject.text(), currentObject.siblings('.show-diff'));
+                    currentObjectText = getComparableText(currentObject);
+                    value = $($.parseHTML(value)).text().trim();
+                    showDiffCourseDetails(value, currentObjectText, currentObject.siblings('.show-diff'));
                     currentObject.hide();
                 }
             });
