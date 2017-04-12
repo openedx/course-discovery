@@ -39,8 +39,8 @@ class Course(TimeStampedModel, ChangedByMixin):
 
     title = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_('Course title'))
     number = models.CharField(max_length=50, null=True, blank=True, verbose_name=_('Course number'))
-    short_description = models.CharField(
-        max_length=255, default=None, null=True, blank=True, verbose_name=_('Brief Description')
+    short_description = models.TextField(
+        default=None, null=True, blank=True, verbose_name=_('Brief Description')
     )
     full_description = models.TextField(default=None, null=True, blank=True, verbose_name=_('Full Description'))
     organizations = models.ManyToManyField(

@@ -1898,6 +1898,7 @@ class CourseDetailViewTests(TestCase):
         )
 
 
+@ddt.ddt
 class CourseEditViewTests(TestCase):
     """ Tests for the course edit view. """
 
@@ -2164,7 +2165,7 @@ class CourseEditViewTests(TestCase):
         response = self.client.get(self.edit_page_url)
         self.assertNotContains(response, 'VIDEO LINK')
 
-    def test_update_course_with_non_errors(self):
+    def test_update_with_errors(self):
         """
         Verify that page shows error if any required field data is missing.
         """
@@ -2174,6 +2175,72 @@ class CourseEditViewTests(TestCase):
         post_data['title'] = ''
         response = self.client.post(self.edit_page_url, data=post_data)
         self.assertContains(response, 'Please fill all required fields.')
+
+    def test_text_area_max_length_error(self):
+        """
+        Verify that page shows error if any text area exceeds the max length.
+        """
+        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+        post_data = self._post_data(self.organization_extension)
+        post_data['title'] = 'test'
+        post_data['short_description'] = '''
+            <html>
+                <body>
+                <h2>An Unordered HTML List</h2>
+                <ul>
+                  <li>An Unordered HTML List. An Unordered HTML List</li>
+                  <li>An Unordered HTML List. An Unordered HTML List</li>
+                  <li>An Unordered HTML List</li>
+                </ul>
+                <ul>
+                  <li>An Unordered HTML List</li>
+                  <li>An Unordered HTML List</li>
+                  <li>An Unordered HTML List</li>
+                </ul>
+                <ul>
+                  <li>An Unordered HTML List</li>
+                  <li>An Unordered HTML List</li>
+                  <li>An Unordered HTML List</li>
+                </ul>
+                </body>
+            </html>
+        '''
+        response = self.client.post(self.edit_page_url, data=post_data)
+
+        self.assertContains(response, 'Ensure this value has at most 255 characters')
+
+    @ddt.data(
+        'short_description', 'full_description', 'prerequisites', 'expected_learnings',
+        'learner_testimonial', 'faq', 'syllabus'
+    )
+    def test_text_area_post_with_html(self, field):
+        """
+        Verify that page saves the text area html in db.
+        """
+        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+        post_data = self._post_data(self.organization_extension)
+        post_data['title'] = 'test'
+        post_data[field] = '''
+            <html>
+                <body>
+                <h2>An Unordered HTML List</h2>
+                <ul>
+                  <li>Coffee</li>
+                  <li>Tea</li>
+                </ul>
+                </body>
+            </html>
+        '''
+
+        response = self.client.post(self.edit_page_url, data=post_data)
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
+            status_code=302,
+            target_status_code=200
+        )
+        course = Course.objects.get(id=self.course.id)
+        self.assertEqual(post_data[field].strip(), getattr(course, field).strip())
 
 
 @ddt.ddt

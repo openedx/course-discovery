@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-13 13:09+0500\n"
+"POT-Creation-Date: 2017-04-13 14:28+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -934,6 +934,15 @@ msgstr ""
 "Thé ïmägé ýöü üplöädéd ïs öf ïnçörréçt résölütïön. Çöürsé ïmägé fïlés müst "
 "ßé %(with)s x %(height)s pïxéls ïn sïzé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
+#: apps/publisher/validators.py
+#, python-brace-format
+msgid ""
+"Ensure this value has at most {allowed_char} characters (it has "
+"{current_char})."
+msgstr ""
+"Énsüré thïs välüé häs ät möst {allowed_char} çhäräçtérs (ït häs "
+"{current_char}). Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
 #: apps/publisher/views.py
 msgid "PARTNER MANAGER"
 msgstr "PÀRTNÉR MÀNÀGÉR Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
@@ -1140,6 +1149,7 @@ msgstr "Sävé Ⱡ'σяєм ι#"
 #: templates/publisher/course_edit_form.html
 #: templates/publisher/course_run/edit_run_form.html
 #: templates/publisher/course_run_detail/_edit_warning.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Cancel"
 msgstr "Çänçél Ⱡ'σяєм ιρѕυ#"
@@ -1153,33 +1163,40 @@ msgid "Save Course Run"
 msgstr "Sävé Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "New Instructor"
 msgstr "Néw Ìnstrüçtör Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Click here to upload your image"
 msgstr "Çlïçk héré tö üplöäd ýöür ïmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Name"
 msgstr "Nämé Ⱡ'σяєм ι#"
 
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/add_courserun_form.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "required"
 msgstr "réqüïréd Ⱡ'σяєм ιρѕυм ∂#"
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Family Name"
 msgstr "Fämïlý Nämé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Title"
 msgstr "Tïtlé Ⱡ'σяєм ιρѕ#"
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 #: templates/publisher/course_run_detail/_studio.html
 #: templates/publisher/dashboard/_in_preview.html
 #: templates/publisher/dashboard/_published.html
@@ -1188,34 +1205,42 @@ msgid "Organization"
 msgstr "Örgänïzätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Bio"
 msgstr "Bïö Ⱡ'σяєм#"
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Facebook URL"
 msgstr "Fäçéßöök ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "optional"
 msgstr "öptïönäl Ⱡ'σяєм ιρѕυм ∂#"
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Twitter URL"
 msgstr "Twïttér ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Blog URL"
 msgstr "Blög ÛRL Ⱡ'σяєм ιρѕυм ∂#"
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Major Works"
 msgstr "Mäjör Wörks Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "optional - one per line"
 msgstr "öptïönäl - öné pér lïné Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Add Staff Member"
 msgstr "Àdd Stäff Mémßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
