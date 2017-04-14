@@ -75,7 +75,8 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         program = self.create_program()
         with self.assertNumQueries(42):
             response = self.assert_retrieve_success(program)
-
+        # property does not have the right values while being indexed
+        del program._course_run_weeks_to_complete
         assert response.data == self.serialize_program(program)
 
         # Verify that repeated retrieve requests use the cache.
@@ -93,6 +94,8 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         for course in course_list:
             CourseRunFactory(course=course)
         program = ProgramFactory(courses=course_list, order_courses_by_start_date=order_courses_by_start_date)
+        # property does not have the right values while being indexed
+        del program._course_run_weeks_to_complete
         with self.assertNumQueries(29):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)

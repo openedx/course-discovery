@@ -1154,6 +1154,9 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
         orgs = course_run.authoring_organizations.all()
         expected = {
             'transcript_languages': [serialize_language(l) for l in course_run.transcript_languages.all()],
+            'min_effort': course_run.min_effort,
+            'max_effort': course_run.max_effort,
+            'weeks_to_complete': course_run.weeks_to_complete,
             'short_description': course_run.short_description,
             'start': serialize_datetime(course_run.start),
             'end': serialize_datetime(course_run.end),
@@ -1216,6 +1219,10 @@ class ProgramSearchSerializerTests(TestCase):
             'subject_uuids': get_uuids([course.subjects for course in program.courses.all()]),
             'staff_uuids': get_uuids([course.staff for course in list(program.course_runs)]),
             'aggregation_key': 'program:{}'.format(program.uuid),
+            'weeks_to_complete_min': program.weeks_to_complete_min,
+            'weeks_to_complete_max': program.weeks_to_complete_max,
+            'min_hours_effort_per_week': program.min_hours_effort_per_week,
+            'max_hours_effort_per_week': program.max_hours_effort_per_week,
         }
 
     def test_data(self):

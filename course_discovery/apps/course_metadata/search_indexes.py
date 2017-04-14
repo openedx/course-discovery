@@ -140,6 +140,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     announcement = indexes.DateTimeField(model_attr='announcement', null=True)
     min_effort = indexes.IntegerField(model_attr='min_effort', null=True)
     max_effort = indexes.IntegerField(model_attr='max_effort', null=True)
+    weeks_to_complete = indexes.IntegerField(model_attr='weeks_to_complete', null=True)
     language = indexes.CharField(null=True, faceted=True)
     transcript_languages = indexes.MultiValueField(faceted=True)
     pacing_type = indexes.CharField(model_attr='pacing_type', null=True, faceted=True)
@@ -235,6 +236,10 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     start = indexes.DateTimeField(model_attr='start', null=True, faceted=True)
     seat_types = indexes.MultiValueField(model_attr='seat_types', null=True, faceted=True)
     published = indexes.BooleanField(null=False, faceted=True)
+    min_hours_effort_per_week = indexes.IntegerField(model_attr='min_hours_effort_per_week', null=True)
+    max_hours_effort_per_week = indexes.IntegerField(model_attr='max_hours_effort_per_week', null=True)
+    weeks_to_complete_min = indexes.IntegerField(model_attr='weeks_to_complete_min', null=True)
+    weeks_to_complete_max = indexes.IntegerField(model_attr='weeks_to_complete_max', null=True)
 
     def prepare_aggregation_key(self, obj):
         return 'program:{}'.format(obj.uuid)
