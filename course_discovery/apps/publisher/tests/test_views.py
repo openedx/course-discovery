@@ -1822,6 +1822,16 @@ class CourseDetailViewTests(TestCase):
         self.assertContains(response, '<span class="icon fa fa-check" aria-hidden="true">', count=2)
         self.assertContains(response, 'Send for Review', count=1)
 
+        self.course_state.marketing_reviewed = True
+        self.course_state.owner_role = PublisherUserRole.CourseTeam
+        self.course_state.save()
+
+        response = self.client.get(self.detail_page_url)
+
+        # Verify that content is marked as reviewed by both marketing and course team.
+        self.assertNotContains(response, 'Send for Review')
+        self.assertContains(response, 'Reviewed', count=2)
+
     def test_edit_permission_with_owner_role(self):
         """
         Test that user can see edit button if he has permission and has role for course.

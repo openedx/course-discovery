@@ -767,7 +767,10 @@ def get_course_role_widgets_data(user, course, state_object, change_state_url, p
                     name=CourseStateChoices.Review
                 ).order_by('-modified').first()
                 if history_record:
-                    role_widget['sent_for_review'] = history_record.modified
+                    if hasattr(state_object, 'marketing_reviewed') and state_object.marketing_reviewed:
+                        role_widget['reviewed'] = history_record.modified
+                    else:
+                        role_widget['sent_for_review'] = history_record.modified
 
         role_widgets.append(role_widget)
 
