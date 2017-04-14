@@ -1,6 +1,6 @@
 {% load i18n %}
 {% if published_count == 0 %}
-    <p>{% trans "Looks like you haven't published any course yet" %}</p>
+    <div class="empty-courserun-text">{% trans "Looks like you haven't published any course yet." %}</div>
 {% else %}
     <p>
         {% blocktrans trimmed %}
