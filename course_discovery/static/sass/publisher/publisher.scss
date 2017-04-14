@@ -328,16 +328,11 @@
 }
 
 
-
 .empty-courserun-text {
-    @include padding(100px, 160px, 100px, 160px);
-
-    p {
-        @include padding(0px, 0px, 0px, 0px);
-        @include margin(0px, 0px, 0px, 0px);
-    }
+    padding-top: 20px;
+    padding-bottom: 20px;
+    text-align: center;
 }
-
 
 
 .approval-widget, .course-widgets {

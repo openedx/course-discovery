@@ -1,6 +1,6 @@
 {% load i18n %}
 {% if in_progress_count == 0 %}
-    <p>{% trans "There are no in progress course runs." %}</p>
+    <div class="empty-courserun-text">{% trans "There are no in development course runs." %}</div>
 {% else %}
     <table class="data-table-in-progress display" cellspacing="0" width="100%">
         <div class="filters">

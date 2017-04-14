@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-13 18:39+0500\n"
+"POT-Creation-Date: 2017-04-14 15:14+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2576,6 +2576,10 @@ msgid "PUBLISHED COURSE RUNS"
 msgstr ""
 
 #: templates/publisher/dashboard/_in_preview.html
+msgid "No course run previews are currently available."
+msgstr ""
+
+#: templates/publisher/dashboard/_in_preview.html
 msgid ""
 "The following course run previews are available for course team approval. "
 "After the course team approves the preview, the edX marketing team will "
@@ -2596,7 +2600,7 @@ msgid "In Review"
 msgstr ""
 
 #: templates/publisher/dashboard/_in_progress.html
-msgid "There are no in progress course runs."
+msgid "There are no in development course runs."
 msgstr ""
 
 #: templates/publisher/dashboard/_in_progress.html
@@ -2622,7 +2626,7 @@ msgid "End"
 msgstr ""
 
 #: templates/publisher/dashboard/_published.html
-msgid "Looks like you haven't published any course yet"
+msgid "Looks like you haven't published any course yet."
 msgstr ""
 
 #: templates/publisher/dashboard/_published.html
