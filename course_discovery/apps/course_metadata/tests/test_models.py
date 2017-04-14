@@ -434,7 +434,8 @@ class ProgramTests(TestCase):
         transcript_languages = LanguageTag.objects.all()[:2]
         subjects = factories.SubjectFactory.create_batch(2)
         self.course_runs = factories.CourseRunFactory.create_batch(
-            3, transcript_languages=transcript_languages, course__subjects=subjects)
+            3, transcript_languages=transcript_languages, course__subjects=subjects,
+            weeks_to_complete=2)
         self.courses = [course_run.course for course_run in self.course_runs]
         self.excluded_course_run = factories.CourseRunFactory(course=self.courses[0])
         self.program = factories.ProgramFactory(courses=self.courses, excluded_course_runs=[self.excluded_course_run])
@@ -601,6 +602,8 @@ class ProgramTests(TestCase):
         weeks_to_complete_values = [course_run.weeks_to_complete for course_run in self.course_runs]
         expected_min = min(weeks_to_complete_values) if weeks_to_complete_values else None
         expected_max = max(weeks_to_complete_values) if weeks_to_complete_values else None
+        # property does not have the right values while being indexed
+        del self.program._course_run_weeks_to_complete
         self.assertEqual(self.program.weeks_to_complete_min, expected_min)
         self.assertEqual(self.program.weeks_to_complete_max, expected_max)
 
