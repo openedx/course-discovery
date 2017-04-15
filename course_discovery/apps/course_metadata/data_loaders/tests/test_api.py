@@ -123,6 +123,24 @@ class OrganizationsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, T
         # Verify multiple calls to ingest data do NOT result in data integrity errors.
         self.loader.ingest()
 
+    @responses.activate
+    def test_ingest_respects_partner(self):
+        """
+        Existing organizations with the same key but linked to different partners
+        shouldn't cause organization data loading to fail.
+        """
+        api_data = self.mock_api()
+        key = api_data[1]['short_name']
+
+        OrganizationFactory(key=key, partner=self.partner)
+        OrganizationFactory(key=key)
+
+        assert Organization.objects.count() == 2
+
+        self.loader.ingest()
+
+        assert Organization.objects.count() == len(api_data) + 1
+
 
 @ddt.ddt
 class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase):
