@@ -63,7 +63,7 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
                 'logo_image_url': logo,
             })
 
-        Organization.objects.update_or_create(key__iexact=key, defaults=defaults)
+        Organization.objects.update_or_create(key__iexact=key, partner=self.partner, defaults=defaults)
         logger.info('Processed organization "%s"', key)
 
 
