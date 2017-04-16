@@ -1,0 +1,49 @@
+{% load i18n %}
+
+{% load compress %}
+{% load staticfiles %}
+
+<div id="instructorProfileModal" class="modal">
+    <div class="modal-content course-information">
+        <div class="head" style="text-align: center;">
+            <img class="image_url instructor-image" src="" alt="avatar">
+            <a download href="" class="btn btn-download">
+                <span class="icon fa fa-download" aria-hidden="true"></span>
+                {% trans "Download" %}
+            </a>
+        </div>
+
+        <div class="info-item">
+            <div class="heading">{% trans "Name" %}:
+                {% include "publisher/course_run_detail/_clipboard.html" %}
+            </div>
+            <div class="copy full_name"></div>
+        </div>
+
+        <div class="info-item">
+            <div class="heading">{% trans "Organization" %}:
+                {% include "publisher/course_run_detail/_clipboard.html" %}
+            </div>
+            <div class="copy organization"></div>
+        </div>
+
+        <div class="info-item">
+            <div class="heading">{% trans "Position" %}:
+                {% include "publisher/course_run_detail/_clipboard.html" %}
+            </div>
+            <div class="copy position"></div>
+        </div>
+
+        <div class="info-item">
+            <div class="heading">
+                <a class="profile_url" target="_blank">{% trans "Profile URL "%}</a>
+                {% include "publisher/course_run_detail/_clipboard.html" %}
+            </div>
+            <div class="copy profile_url_copy"></div>
+        </div>
+
+        <div class="actions">
+            <a class="btn-cancel closeModal" href="#">{% trans "Close" %}</a>
+        </div>
+    </div>
+</div>

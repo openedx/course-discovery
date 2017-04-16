@@ -73,11 +73,7 @@
 
             <div class="staff-detail">
               <div class="name">
-                {% if obj.profile_url %}
-                  <a href="{{ obj.profile_url }}" target="_blank">{{ obj.full_name }}</a>
-                {% else %}
-                  {{ obj.full_name }}
-                {% endif %}
+                  <a href="#" class="btn-instructor-detail"  data-staff_id="{{ obj.uuid }}">{{ obj.full_name }}</a>
               </div>
               <div>{{ obj.position }}</div>
               <div class="organization">{{ obj.organization }}</div>
@@ -147,3 +143,6 @@
   </div>
 </div>
 <div class="clearfix"></div>
+<script type="text/javascript">
+    var staffData = {{ course_staff_config | safe }};
+</script>

@@ -193,6 +193,7 @@ class CourseRunWrapper(BaseWrapper):
         staff_list = []
         for staff in self.wrapped_obj.staff.all():
             staff_dict = {
+                'uuid': str(staff.uuid),
                 'full_name': staff.full_name,
                 'image_url': staff.get_profile_image_url,
                 'profile_url': staff.profile_url,

@@ -187,11 +187,13 @@ class CourseRunWrapperTests(TestCase):
 
         expected = [
             {
+                'uuid': str(staff.uuid),
                 'full_name': staff.full_name,
                 'image_url': staff.get_profile_image_url,
                 'profile_url': staff.profile_url,
             },
             {
+                'uuid': str(staff_2.uuid),
                 'full_name': staff_2.full_name,
                 'image_url': staff_2.get_profile_image_url,
                 'position': position.title,
