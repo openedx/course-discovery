@@ -185,6 +185,11 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
         context['publisher_approval_widget_feature'] = waffle.switch_is_active('publisher_approval_widget_feature')
         context['publish_state_name'] = CourseRunStateChoices.Published
 
+        context['course_staff_config'] = json.dumps({
+            staff['uuid']: staff
+            for staff in course_run.course_staff
+        })
+
         if context['can_edit']:
             current_owner_role = course_run.course.course_user_roles.get(role=course_run.course_run_state.owner_role)
             user_role = course_run.course.course_user_roles.get(user=user)

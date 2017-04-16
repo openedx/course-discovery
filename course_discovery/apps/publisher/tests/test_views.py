@@ -593,6 +593,13 @@ class CourseRunDetailTests(TestCase):
             )
         )
 
+        # assert context contains data for the instructor-pop
+        staff = self.wrapped_course_run.course_staff[0]
+        self.assertEqual(
+            json.loads(response.context['course_staff_config']),
+            {"{uuid}".format(uuid=staff['uuid']): staff}
+        )
+
     def _assert_credits_seats(self, response, seat):
         """ Helper method to test to all credit seats. """
         self.assertContains(response, 'Credit Seats')
