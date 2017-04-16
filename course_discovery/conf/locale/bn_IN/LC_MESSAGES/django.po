@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-08 22:45+0500\n"
-"PO-Revision-Date: 2017-04-09 09:31+0000\n"
+"POT-Creation-Date: 2017-04-14 15:14+0500\n"
+"PO-Revision-Date: 2017-04-15 09:42+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Bengali (India) (http://www.transifex.com/open-edx/edx-platform/language/bn_IN/)\n"
 "MIME-Version: 1.0\n"
@@ -509,12 +509,12 @@ msgstr ""
 
 #: apps/publisher/emails.py
 #, python-brace-format
-msgid "Changes to {title} are ready for review"
+msgid "Review requested: {title}"
 msgstr ""
 
 #: apps/publisher/emails.py
 #, python-brace-format
-msgid "Changes to {title} has been approved"
+msgid "Review complete: {title}"
 msgstr ""
 
 #: apps/publisher/emails.py
@@ -544,7 +544,7 @@ msgstr ""
 
 #: apps/publisher/emails.py
 #, python-brace-format
-msgid "Role assignment changed for role: {role_name} against {course_title}"
+msgid "{role_name} changed for {course_title}"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -782,6 +782,20 @@ msgstr ""
 msgid "Course Role"
 msgstr ""
 
+#: apps/publisher/validators.py
+#, python-format
+msgid ""
+"The image you uploaded is of incorrect resolution. Course image files must "
+"be %(with)s x %(height)s pixels in size."
+msgstr ""
+
+#: apps/publisher/validators.py
+#, python-brace-format
+msgid ""
+"Ensure this value has at most {allowed_char} characters (it has "
+"{current_char})."
+msgstr ""
+
 #: apps/publisher/views.py
 msgid "PARTNER MANAGER"
 msgstr ""
@@ -887,11 +901,11 @@ msgid "Reviewed on"
 msgstr ""
 
 #: apps/publisher_comments/emails.py
-msgid "New comment added"
+msgid "Comment added:"
 msgstr ""
 
 #: apps/publisher_comments/emails.py
-msgid "Comment updated"
+msgid "Comment updated:"
 msgstr ""
 
 #. Translators: subject_desc will be choice from ('New comment added',
@@ -900,7 +914,7 @@ msgstr ""
 #. 'title' and 'start' will be the value of course title & start date fields.
 #: apps/publisher_comments/emails.py
 #, python-brace-format
-msgid "{subject_desc} in course run: {title}-{pacing_type}-{start}"
+msgid "{subject_desc} {title} {start} - {pacing_type}"
 msgstr ""
 
 #. Translators: 'subject_desc' will be choice from ('New comment added',
@@ -908,14 +922,14 @@ msgstr ""
 #. and 'title' will be the value of course title field.
 #: apps/publisher_comments/emails.py
 #, python-brace-format
-msgid "{subject_desc} in Course: {title}"
+msgid "{subject_desc} {title}"
 msgstr ""
 
 #. Translators: subject_desc will be Preview Decline for course run,
 #. 'title' will be the value of course title.
 #: apps/publisher_comments/emails.py
 #, python-brace-format
-msgid "Preview Decline for course run: {title}"
+msgid "Preview reviewed: {course_name}"
 msgstr ""
 
 #: apps/publisher_comments/models.py
@@ -963,6 +977,7 @@ msgstr ""
 
 #: templates/metadata/admin/course_run.html
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/add_courserun_form.html
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_detail/_edit_warning_popup.html
 #: templates/publisher/course_edit_form.html
@@ -1397,7 +1412,7 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
-msgid "Save Draft"
+msgid "Create New Course Run"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
@@ -1441,12 +1456,10 @@ msgid "All of the following information is required."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_run/edit_run_form.html
 msgid "About Page Information"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
 msgid "Studio Instance"
 msgstr ""
 
@@ -2012,12 +2025,6 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/course_edit_form.html
-msgid ""
-"This information is required before edX can create a Studio instance for a "
-"course run."
-msgstr ""
-
-#: templates/publisher/course_edit_form.html
 msgid "255 character limit, including spaces."
 msgstr ""
 
@@ -2509,6 +2516,7 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/course_run_detail/course_run_detail.html
+#: templates/publisher/dashboard/_in_progress.html
 msgid "All"
 msgstr ""
 
@@ -2569,6 +2577,10 @@ msgid "PUBLISHED COURSE RUNS"
 msgstr ""
 
 #: templates/publisher/dashboard/_in_preview.html
+msgid "No course run previews are currently available."
+msgstr ""
+
+#: templates/publisher/dashboard/_in_preview.html
 msgid ""
 "The following course run previews are available for course team approval. "
 "After the course team approves the preview, the edX marketing team will "
@@ -2589,7 +2601,19 @@ msgid "In Review"
 msgstr ""
 
 #: templates/publisher/dashboard/_in_progress.html
-msgid "There are no in progress course runs."
+msgid "There are no in development course runs."
+msgstr ""
+
+#: templates/publisher/dashboard/_in_progress.html
+msgid "Filter by"
+msgstr ""
+
+#: templates/publisher/dashboard/_in_progress.html
+msgid "With Course Team"
+msgstr ""
+
+#: templates/publisher/dashboard/_in_progress.html
+msgid "With"
 msgstr ""
 
 #: templates/publisher/dashboard/_in_progress.html
@@ -2603,7 +2627,7 @@ msgid "End"
 msgstr ""
 
 #: templates/publisher/dashboard/_published.html
-msgid "Looks like you haven't published any course yet"
+msgid "Looks like you haven't published any course yet."
 msgstr ""
 
 #: templates/publisher/dashboard/_published.html
@@ -2639,25 +2663,23 @@ msgstr ""
 msgid "There are no course-runs require studio instance."
 msgstr ""
 
-#: templates/publisher/email/change_state.html
-#: templates/publisher/email/change_state.txt
-msgid "Hi,"
-msgstr ""
-
-#: templates/publisher/email/change_state.html
-#: templates/publisher/email/change_state.txt
+#: templates/publisher/email/comment.html
 #, python-format
-msgid "The following course run has been submitted for %(state_name)s."
+msgid ""
+"The %(team_name)s made the following comment on %(course_name)s on %(date)s "
+"at %(time)s"
 msgstr ""
 
-#: templates/publisher/email/change_state.html
-msgid "View Course"
-msgstr ""
-
-#: templates/publisher/email/change_state.html
-#: templates/publisher/email/change_state.txt
 #: templates/publisher/email/comment.html
 #: templates/publisher/email/comment.txt
+#: templates/publisher/email/decline_preview.html
+msgid "View comment in Publisher"
+msgstr ""
+
+#: templates/publisher/email/comment.html
+#: templates/publisher/email/comment.txt
+#: templates/publisher/email/course/send_for_review.html
+#: templates/publisher/email/course/send_for_review.txt
 #: templates/publisher/email/course_created.html
 #: templates/publisher/email/course_created.txt
 #: templates/publisher/email/decline_preview.html
@@ -2665,26 +2687,11 @@ msgstr ""
 msgid "The edX team"
 msgstr ""
 
-#: templates/publisher/email/change_state.txt
-msgid "View Course:"
-msgstr ""
-
-#: templates/publisher/email/comment.html
 #: templates/publisher/email/comment.txt
 #, python-format
 msgid ""
-"%(first_name)s commented on a %(object_type)s belonging to the course "
-"%(title)s (%(number)s)."
-msgstr ""
-
-#: templates/publisher/email/comment.html
-#: templates/publisher/email/decline_preview.html
-msgid "View comment"
-msgstr ""
-
-#: templates/publisher/email/comment.txt
-#: templates/publisher/email/decline_preview.txt
-msgid "View comment: "
+"The %(team_name)s made the following comment on %(course_name)s %(date)s at "
+"%(time)s."
 msgstr ""
 
 #: templates/publisher/email/course/mark_as_reviewed.html
@@ -2699,15 +2706,30 @@ msgstr ""
 #: templates/publisher/email/course_run/published.txt
 #: templates/publisher/email/course_run/send_for_review.html
 #: templates/publisher/email/course_run/send_for_review.txt
+#: templates/publisher/email/decline_preview.html
+#: templates/publisher/email/decline_preview.txt
 #, python-format
 msgid "Dear %(recipient_name)s,"
 msgstr ""
 
 #: templates/publisher/email/course/mark_as_reviewed.html
+#: templates/publisher/email/course/mark_as_reviewed.txt
 #, python-format
 msgid ""
-"Changes to %(link_start)s%(page_url)s%(link_middle)s %(course_name)s "
-"%(link_end)s has been approved."
+"The %(sender_team)s has reviewed %(link_start)s%(page_url)s%(link_middle)s "
+"%(course_name)s%(link_end)s and has suggested no changes. The review for "
+"this course is complete."
+msgstr ""
+
+#: templates/publisher/email/course/mark_as_reviewed.html
+#: templates/publisher/email/course/mark_as_reviewed.txt
+#, python-format
+msgid ""
+"You can now submit a course run for review. To do this, "
+"%(link_start)s%(page_url)s%(link_middle)s go to the course page%(link_end)s "
+"and open the page for any course run. On the course run page, add all "
+"required information for that course run, and then submit the course run for"
+" review."
 msgstr ""
 
 #. Translators: It's closing of mail.
@@ -2746,11 +2768,6 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/email/course/mark_as_reviewed.txt
-#, python-format
-msgid "Changes to %(course_name)s has been approved. %(page_url)s"
-msgstr ""
-
-#: templates/publisher/email/course/mark_as_reviewed.txt
 #: templates/publisher/email/course/send_for_review.txt
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
 #: templates/publisher/email/course_run/preview_accepted.txt
@@ -2767,17 +2784,18 @@ msgstr ""
 #: templates/publisher/email/course/send_for_review.html
 #, python-format
 msgid ""
-"New changes to %(link_start)s%(page_url)s%(link_middle)s %(course_name)s "
-"%(link_end)s are ready for your review. "
-"%(link_start)s%(page_url)s%(link_middle)s View this course in Publisher "
-"%(link_end)s to approve or decline the changes."
+"%(sender_team)s from %(org_name)s has submitted "
+"%(link_start)s%(page_url)s%(link_middle)s%(course_name)s%(link_end)s for "
+"review. %(link_start)s%(page_url)s%(link_middle)s View this course in "
+"Publisher%(link_end)s to review the changes or suggest edits."
 msgstr ""
 
 #: templates/publisher/email/course/send_for_review.txt
 #, python-format
 msgid ""
-"New changes to %(course_name)s are ready for your review. %(page_url)s View "
-"this course in Publisher to approve or decline the changes."
+"%(sender_team)s from %(org_name)s has submitted %(course_name)s for review. "
+"%(page_url)s View this course in Publisher to review the changes or suggest "
+"edits."
 msgstr ""
 
 #. Translators: project_coordinator_name is a member name.
@@ -2790,8 +2808,8 @@ msgstr ""
 #, python-format
 msgid ""
 "%(course_team_name)s created the "
-"%(link_start)s%(dashboard_url)s%(link_middle)s %(course_title)s %(link_end)s"
-" course in Publisher on %(date)s at %(time)s."
+"%(link_start)s%(dashboard_url)s%(link_middle)s %(course_title)s%(link_end)s "
+"course in Publisher on %(date)s at %(time)s."
 msgstr ""
 
 #: templates/publisher/email/course_created.html
@@ -2816,17 +2834,18 @@ msgstr ""
 #, python-format
 msgid ""
 "The %(sender_team)s has reviewed the "
-"%(link_start)s%(page_url)s%(link_middle)s %(run_number)s course "
-"run%(link_end)s of %(course_name)s. You will receive another email when the "
-"course run preview is available for you to review."
+"%(link_start)s%(page_url)s%(link_middle)s%(run_number)s course "
+"run%(link_end)s of "
+"%(link_start)s%(course_page_url)s%(link_middle)s%(course_name)s%(link_end)s."
+" You can now submit a request for a preview of the course run About page."
 msgstr ""
 
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
 #, python-format
 msgid ""
-"The %(sender_team)s has reviewed the %(run_number)s course run of "
-"%(course_name)s %(page_url)s. You will receive another email when the course"
-" run preview is available for you to review."
+"The %(sender_team)s has reviewed the %(run_number)s %(page_url)s course run "
+"of %(course_name)s %(course_page_url)s. You can now submit a request for a "
+"preview of the course run About page."
 msgstr ""
 
 #: templates/publisher/email/course_run/preview_accepted.html
@@ -2838,10 +2857,11 @@ msgstr ""
 #: templates/publisher/email/course_run/preview_accepted.html
 #, python-format
 msgid ""
-"%(course_team)s has approved the preview of the "
+"%(course_team)s has reviewed the preview of the "
 "%(link_start)s%(page_url)s%(link_middle)s%(run_number)s%(link_end)s course "
-"run of %(course_name)s from %(org_name)s. The course run is now ready for "
-"publication."
+"run of "
+"%(link_start)s%(course_page_url)s%(link_middle)s%(course_name)s%(link_end)s "
+"from %(org_name)s. The course run is now ready for publication."
 msgstr ""
 
 #. Translators: It's closing of mail.
@@ -2854,85 +2874,109 @@ msgstr ""
 #: templates/publisher/email/course_run/preview_accepted.txt
 #, python-format
 msgid ""
-"%(course_team)s has approved the preview of the %(run_number)s %(page_url)s "
-"course run of %(course_name)s from %(org_name)s. The course run is now ready"
-" for publication."
+"%(course_team)s has reviewed the preview of the %(run_number)s %(page_url)s "
+"course run of %(course_name)s %(course_page_url)s from %(org_name)s. The "
+"course run is now ready for publication."
 msgstr ""
 
 #: templates/publisher/email/course_run/preview_available.html
 #, python-format
 msgid ""
-"A preview is now available for the %(link_start)s%(page_url)s%(link_middle)s"
-" %(course_run_number)s course run %(link_end)s of %(course_name)s. Visit "
-"%(link_start)s%(preview_link)s%(link_middle)s link to preview %(link_end)s "
-"to approve or decline the preview for this course run."
+"A preview is now available for the "
+"%(link_start)s%(page_url)s%(link_middle)s%(course_run_number)s%(link_end)s "
+"course run of "
+"%(link_start)s%(course_page_url)s%(link_middle)s%(course_name)s%(link_end)s."
+" %(link_start)s%(preview_link)s%(link_middle)s See the preview%(link_end)s "
+"to review or suggest edits to this course run."
 msgstr ""
 
 #: templates/publisher/email/course_run/preview_available.txt
 #, python-format
 msgid ""
 "A preview is now available for the %(course_run_number)s course run of "
-"%(course_name)s. Visit %(page_url)s to approve or decline the preview for "
-"this course run."
+"%(course_name)s %(course_page_url)s. See the preview %(page_url)s to review "
+"or suggest edits to this course run."
 msgstr ""
 
 #: templates/publisher/email/course_run/published.html
 #, python-format
 msgid ""
-"The %(link_start)s%(page_url)s%(link_middle)s %(course_run_number)s course "
-"run %(link_end)s of %(course_name)s has been published. Visit "
-"%(link_start)s%(preview_url)s%(link_middle)slink to live course run "
-"page%(link_end)s to view the course run."
+"The %(link_start)s%(page_url)s%(link_middle)s%(course_run_number)s course "
+"run%(link_end)s of "
+"%(link_start)s%(course_page_url)s%(link_middle)s%(course_name)s%(link_end)s "
+"has been published. No further action is necessary for this course run."
+msgstr ""
+
+#: templates/publisher/email/course_run/published.html
+#, python-format
+msgid ""
+"%(link_start)s%(preview_url)s%(link_middle)sView this course run "
+"live.%(link_end)s"
 msgstr ""
 
 #: templates/publisher/email/course_run/published.txt
 #, python-format
 msgid ""
-"The %(course_run_number)s %(page_url)s course run of %(course_name)s has "
-"been published. Visit %(preview_url)s to view the live course run."
+"The %(course_run_number)s %(page_url)s course run of %(course_name)s "
+"%(course_page_url)s has been published. No further action is necessary for "
+"this course run."
+msgstr ""
+
+#: templates/publisher/email/course_run/published.txt
+#, python-format
+msgid "View this course run live. %(preview_url)s"
 msgstr ""
 
 #: templates/publisher/email/course_run/send_for_review.html
 #, python-format
 msgid ""
-"The %(sender_team)s for %(course_name)s from %(org_name)s has submitted the "
+"%(sender_team)s for "
+"%(link_start)s%(course_page_url)s%(link_middle)s%(course_name)s%(link_end)s "
+"from %(org_name)s has submitted the "
 "%(link_start)s%(page_url)s%(link_middle)s%(run_number)s course "
-"run%(link_end)s for review. Visit the "
-"%(link_start)s%(page_url)s%(link_middle)scourse run details page%(link_end)s"
-" to approve or decline this course run."
+"run%(link_end)s for review. %(link_start)s%(page_url)s%(link_middle)s View "
+"this course run in Publisher%(link_end)s to review the changes or suggest "
+"edits."
 msgstr ""
 
 #: templates/publisher/email/course_run/send_for_review.txt
 #, python-format
 msgid ""
-"New changes to %(course_name)s are ready for your review. %(page_url)s View "
-"this course in Publisher to approve or decline the changes. The "
 "%(sender_team)s for %(course_name)s from %(org_name)s has submitted the "
-"%(run_number)s course run for review. %(page_url)s Visit the course run "
-"details page to approve or decline this course run."
+"%(run_number)s course run for review. %(page_url)s  View this course run in "
+"Publisher to review the changes or suggest edits."
 msgstr ""
 
 #: templates/publisher/email/decline_preview.html
 #, python-format
 msgid ""
-"Preview link %(preview_url)s for the "
-"%(link_start)s%(page_url)s%(link_middle)s%(course_title)s%(link_end)s has "
-"been declined."
+"The %(team_name)s has reviewed the preview for "
+"%(link_start)s%(page_url)s%(link_middle)s%(course_name)s%(link_end)s. View "
+"the course run in Publisher for more information."
+msgstr ""
+
+#: templates/publisher/email/decline_preview.html
+#, python-format
+msgid "%(team_name)s added the following comment to this preview."
 msgstr ""
 
 #: templates/publisher/email/decline_preview.txt
 #, python-format
 msgid ""
-"Preview link %(preview_url)s for the %(course_title)s: %(course_url)s has "
-"been declined."
+"The %(team_name)s has reviewed the preview for %(course_name)s. View the "
+"course run in Publisher for more information."
+msgstr ""
+
+#: templates/publisher/email/decline_preview.txt
+msgid "View comment in Publisher: "
 msgstr ""
 
 #: templates/publisher/email/role_assignment_changed.html
 #, python-format
 msgid ""
-"The %(role_name)s for the "
+"The %(role_name)s for "
 "%(link_start)s%(course_url)s%(link_middle)s%(course_title)s%(link_end)s has "
-"been changed."
+"changed."
 msgstr ""
 
 #: templates/publisher/email/role_assignment_changed.html
@@ -2949,8 +2993,7 @@ msgstr ""
 
 #: templates/publisher/email/role_assignment_changed.txt
 #, python-format
-msgid ""
-"The %(role_name)s for the %(course_title)s: %(course_url)s has been changed."
+msgid "The %(role_name)s for %(course_title)s: %(course_url)s has changed."
 msgstr ""
 
 #. Translators: course_team_name is course team member name.
@@ -2964,9 +3007,9 @@ msgstr ""
 #, python-format
 msgid ""
 "EdX has %(updated_text)s a Studio instance for "
-"%(link_start)s%(course_run_page_url)s%(link_middle)s %(course_name)s "
-"%(link_end)s. You can now edit this course and configure your course team in"
-" Studio."
+"%(link_start)s%(course_run_page_url)s%(link_middle)s "
+"%(course_name)s%(link_end)s. You can now edit this course and configure your"
+" course team in Studio."
 msgstr ""
 
 #: templates/publisher/email/studio_instance_created.html
@@ -3025,7 +3068,10 @@ msgstr ""
 
 #: templates/publisher/email/studio_instance_needed.html
 #: templates/publisher/email/studio_instance_needed.txt
-msgid "Please create a Studio instance for the following course."
+msgid ""
+"Please create a Studio instance for the following course. After you create "
+"the Studio instance, enter the course key for that instance on the course "
+"run page in Publisher."
 msgstr ""
 
 #: templates/publisher/seat_form.html
