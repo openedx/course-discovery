@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-08 22:45+0500\n"
-"PO-Revision-Date: 2017-03-31 08:30+0000\n"
+"POT-Creation-Date: 2017-04-14 15:14+0500\n"
+"PO-Revision-Date: 2017-04-15 09:22+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Arabic (http://www.transifex.com/open-edx/edx-platform/language/ar/)\n"
 "MIME-Version: 1.0\n"
@@ -90,10 +90,6 @@ msgstr "لقد قمت بنجاح بإنشاء مثال على استديو ({stu
 #: static/js/publisher/views/dashboard.js
 msgid "There was an error in saving your data."
 msgstr "لقد حدث خطأ خلال محاولة حفظ بياناتك."
-
-#: static/js/publisher/views/dashboard.js
-msgid "No course run previews are currently available."
-msgstr "لا تتوفر حالياً أي معاينات لمجرى الدورة التعليمية."
 
 #: static/js/publisher/views/navbar.js
 msgid "OFF"
