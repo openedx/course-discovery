@@ -83,7 +83,7 @@ def send_email_for_course_creation(course, course_run):
             from_address = settings.PUBLISHER_FROM_EMAIL
 
             context = {
-                'course_title': course_run.course.title,
+                'course_title': course.title,
                 'date': course_run.created.strftime("%B %d, %Y"),
                 'time': course_run.created.strftime("%H:%M:%S"),
                 'course_team_name': course_team.get_full_name(),

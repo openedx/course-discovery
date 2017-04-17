@@ -535,6 +535,8 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
                         course_title=course.title
                     )
                     messages.success(request, success_msg)
+
+                    emails.send_email_for_course_creation(course, course_run)
                     return HttpResponseRedirect(reverse(self.success_url, kwargs={'pk': course_run.id}))
             except Exception as error:  # pylint: disable=broad-except
                 # pylint: disable=no-member
