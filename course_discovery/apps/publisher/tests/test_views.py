@@ -449,6 +449,9 @@ class CreateCourseRunViewTests(TestCase):
         """ Verify that we can create a new course run with seat. """
         new_user = factories.UserFactory()
         new_user.groups.add(self.organization_extension.group)
+        factories.CourseUserRoleFactory.create(
+            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=factories.UserFactory()
+        )
 
         self.assertEqual(self.course.course_team_admin, self.user)
 
@@ -496,6 +499,12 @@ class CreateCourseRunViewTests(TestCase):
         # Verify that number and team admin is updated for parent course
         self.assertEqual(self.course.number, updated_course_number)
         self.assertEqual(new_seat.course_run.course.course_team_admin, new_user)
+
+        # Verify that and email is sent for studio instance request to project coordinator.
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual([self.course.project_coordinator.email], mail.outbox[0].to)
+        expected_subject = 'New Studio instance request for {title}'.format(title=self.course.title)
+        self.assertEqual(str(mail.outbox[0].subject), expected_subject)
 
 
 @ddt.ddt
