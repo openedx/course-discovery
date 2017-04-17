@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-14 15:14+0500\n"
+"POT-Creation-Date: 2017-04-17 13:15+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -1183,6 +1183,7 @@ msgstr "Tïtlé Ⱡ'σяєм ιρѕ#"
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/course_run_detail/_studio.html
 #: templates/publisher/dashboard/_in_preview.html
+#: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_published.html
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Organization"
@@ -2290,7 +2291,6 @@ msgid "Course Detail"
 msgstr "Çöürsé Détäïl Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: templates/publisher/course_detail.html templates/publisher/courses.html
-#: templates/publisher/dashboard/_in_progress.html
 msgid "Institution"
 msgstr "Ìnstïtütïön Ⱡ'σяєм ιρѕυм ∂σłσя #"
 

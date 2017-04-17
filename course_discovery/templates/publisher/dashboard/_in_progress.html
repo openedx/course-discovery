@@ -24,7 +24,7 @@
                     {% trans "Course Number" %}
                 </th>
                 <th role="button">
-                    {% trans "Institution" %}
+                    {% trans "Organization" %}
                 </th>
                 <th role="button">
                     {% trans "Start" %}
@@ -50,7 +50,7 @@
                         {{ course_run.number }}
                     </td>
                     <td>
-                        {% if course_run.course.organizations.first %}{{ course_run.course.organizations.first.name }}{% endif %}
+                        {% if course_run.course.organizations.first %}{{ course_run.course.organizations.first.key }}{% endif %}
                     </td>
                     <td>
                          {{ course_run.start|date:"Y-m-d" }}
