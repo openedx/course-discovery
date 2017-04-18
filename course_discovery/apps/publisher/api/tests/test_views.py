@@ -2,7 +2,6 @@
 import json
 
 import ddt
-from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core import mail
@@ -267,6 +266,11 @@ class UpdateCourseRunViewTests(TestCase):
         # By default `lms_course_id` and `changed_by` are None
         self.assert_course_key_and_changed_by()
 
+        # create course team role for email
+        factories.CourseUserRoleFactory(
+            course=self.course_run.course, role=PublisherUserRole.CourseTeam, user=self.user
+        )
+
         lms_course_id = 'course-v1:edxTest+TC12+2050Q1'
         response = self.client.patch(
             self.update_course_run_url,
@@ -297,8 +301,7 @@ class UpdateCourseRunViewTests(TestCase):
         Helper method to assert sent email data.
         """
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual([settings.PUBLISHER_FROM_EMAIL], mail.outbox[0].to)
-        self.assertEqual([self.user.email], mail.outbox[0].bcc)
+        self.assertEqual([self.user.email], mail.outbox[0].to)
         self.assertEqual(str(mail.outbox[0].subject), subject)
 
         body = mail.outbox[0].body.strip()
