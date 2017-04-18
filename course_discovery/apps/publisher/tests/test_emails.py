@@ -1,7 +1,6 @@
 # pylint: disable=no-member
 
 import mock
-from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core import mail
 from django.core.urlresolvers import reverse
@@ -65,8 +64,7 @@ class StudioInstanceCreatedEmailTests(TestCase):
     def assert_email_sent(self, object_path, subject, expected_body):
         """ Assert email data"""
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual([settings.PUBLISHER_FROM_EMAIL], mail.outbox[0].to)
-        self.assertEqual([self.user.email, self.course_team.email], mail.outbox[0].bcc)
+        self.assertEqual([self.course_team.email], mail.outbox[0].to)
         self.assertEqual(str(mail.outbox[0].subject), subject)
 
         body = mail.outbox[0].body.strip()

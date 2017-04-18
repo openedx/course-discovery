@@ -25,7 +25,7 @@ def send_email_for_studio_instance_created(course_run, updated_text=_('created')
         object_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
         subject = _('Studio instance {updated_text}').format(updated_text=updated_text)     # pylint: disable=no-member
 
-        to_addresses = course_run.course.get_course_users_emails()
+        to_addresses = [course_run.course.course_team_admin.email]
         from_address = settings.PUBLISHER_FROM_EMAIL
 
         course_user_roles = course_run.course.course_user_roles.all()
@@ -52,9 +52,7 @@ def send_email_for_studio_instance_created(course_run, updated_text=_('created')
         plain_content = txt_template.render(context)
         html_template = get_template(html_template_path)
         html_content = html_template.render(context)
-        email_msg = EmailMultiAlternatives(
-            subject, plain_content, from_address, to=[settings.PUBLISHER_FROM_EMAIL], bcc=to_addresses
-        )
+        email_msg = EmailMultiAlternatives(subject, plain_content, from_address, to=to_addresses)
         email_msg.attach_alternative(html_content, 'text/html')
         email_msg.send()
     except Exception:  # pylint: disable=broad-except
