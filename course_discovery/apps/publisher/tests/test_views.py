@@ -353,15 +353,14 @@ class CreateCourseRunViewTests(TestCase):
         self.user = UserFactory()
         self.course_run = factories.CourseRunFactory()
         self.course = self.course_run.course
+        factories.CourseStateFactory(course=self.course)
         factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.CourseTeam, user=self.user)
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.course.organizations.add(self.organization_extension.organization)
         self.user.groups.add(self.organization_extension.group)
 
         self.course_run_dict = model_to_dict(self.course_run)
-        self.course_run_dict.update(
-            {'number': self.course.number, 'team_admin': self.user.id, 'is_self_paced': True}
-        )
+        self.course_run_dict.update({'is_self_paced': True})
         self._pop_valuse_from_dict(
             self.course_run_dict,
             [
@@ -415,11 +414,10 @@ class CreateCourseRunViewTests(TestCase):
         """ Verify that without providing required data course run cannot be
         created.
         """
-        post_data = model_to_dict(self.course)
-        post_data.update(self.course_run_dict)
+        post_data = self.course_run_dict
         post_data.update(factory.build(dict, FACTORY_CLASS=factories.SeatFactory))
         self._pop_valuse_from_dict(
-            post_data, ['id', 'upgrade_deadline', 'image', 'team_admin', 'start']
+            post_data, ['upgrade_deadline', 'start']
         )
 
         response = self.client.post(
@@ -455,20 +453,14 @@ class CreateCourseRunViewTests(TestCase):
 
         self.assertEqual(self.course.course_team_admin, self.user)
 
-        updated_course_number = '{number}.2'.format(number=self.course.number)
         new_price = 450
         post_data = self.course_run_dict
         seat = factories.SeatFactory(course_run=self.course_run, type=Seat.HONOR, price=0)
         post_data.update(**model_to_dict(seat))
         post_data.update(
             {
-                'title': self.course.title,
-                'number': updated_course_number,
                 'type': Seat.VERIFIED,
-                'price': new_price,
-                'team_admin': new_user.id,
-                'organization': self.organization_extension.organization.id,
-                'contacted_partner_manager': False
+                'price': new_price
             }
         )
         self._pop_valuse_from_dict(post_data, ['id', 'course', 'course_run', 'lms_course_id'])
@@ -494,11 +486,6 @@ class CreateCourseRunViewTests(TestCase):
         self.assertNotEqual(new_seat.price, seat.price)
         self.assertEqual(new_seat.price, new_price)
         self.assertNotEqual(new_seat.course_run, self.course_run)
-
-        self.course = new_seat.course_run.course
-        # Verify that number and team admin is updated for parent course
-        self.assertEqual(self.course.number, updated_course_number)
-        self.assertEqual(new_seat.course_run.course.course_team_admin, new_user)
 
         # Verify that and email is sent for studio instance request to project coordinator.
         self.assertEqual(len(mail.outbox), 1)

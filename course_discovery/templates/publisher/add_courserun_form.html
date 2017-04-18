@@ -23,10 +23,8 @@
         {% include 'alert_messages.html' %}
 
         <form class="form" method="post" enctype="multipart/form-data">{% csrf_token %}
-            <div class="layout-full layout publisher-layout">
-                <h2 class="layout-title">{% trans "Studio instance information" %}</h2>
-
-                <div class="card course-form">
+            <div class="layout-full layout">
+                <div class="course-form">
                     <div class="course-information">
                         <div class="copy-base">
                             <p>
@@ -36,76 +34,6 @@
                             </p>
                         </div>
                         <fieldset class="form-group grid-container grid-manual">
-                            <div class="field-title">{% trans "COURSE TITLE" %}</div>
-                            <div class="row">
-                                <div class="col col-6 help-text">
-                                    <div class="row">
-                                        <ul class="tabs">
-                                            <li class="course-tabs active" data-tab="tab-practices">
-                                                {% trans "Best Practices" %}
-                                            </li>
-                                            <li class="course-tabs" data-tab="tab-example">
-                                                {% trans "Examples" %}
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <div id="tab-practices" class="content active">
-                                        <p>{% trans "Maximum 70 characters. Recommended 50 or fewer characters." %}</p>
-                                        <p>{% trans "An effective course title:" %}</p>
-                                        <ul>
-                                            <li>{% trans "Clearly indicates the course subject matter." %}</li>
-                                            <li>{% trans "Follows search engine optimization (SEO) guidelines." %}</li>
-                                            <li>{% trans "Targets a global audience." %}</li>
-                                        </ul>
-                                        <p>{% trans "If the course is part of a sequence, include both sequence and course information as \"Sequence: Course\"." %}</p>
-                                    </div>
-                                    <div id="tab-example" class="content">
-                                        <p></p>
-                                        <strong>{% trans "Single Courses" %}</strong>
-                                        <ul>
-                                            <li>{% trans "English Grammar and Essay Writing" %}</li>
-                                        </ul>
-                                        <strong>{% trans "Sequence Courses:" %}</strong>
-                                        <ul>
-                                            <li>{% trans "Statistics: Inference" %}</li>
-                                            <li>{% trans "Statistics: Probability" %}</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="col col-6">
-
-                                    <label class="field-label ">
-                                        <label class="field-label">
-                                            {% trans "Course Title" %}
-                                    </label>
-                                    </label>
-                                    <span class="field-readonly">{{ parent_course.title }}</span>
-                                    <div class="hidden">{{ course_form.title }}</div>
-                                    <div class="hidden">{{ course_form.organization }}</div>
-
-                                    <div class="field-admin margin-top20">
-                                        <label class="field-label">
-                                            {% trans "Institution Course Admin" %}
-                                            {% if course_form.team_admin.field.required %}
-                                                <span class="required">* {% trans "required" %}</span>
-                                            {% endif %}
-                                    </label>
-                                        <div id="field-team-admin" {% if is_team_admin_hidden %}class="hidden"{% endif %}>
-                                            {{ course_form.team_admin }}
-                                </div>
-                            </div>
-                                    {% if parent_course.course_team_admin %}
-                                        <div class="field-admin-name margin-top20 {% if course_form.team_admin.errors %}hidden{% endif %}">
-                                            <span class="field-readonly">{{ parent_course.course_team_admin.full_name }}</span>
-                                            <input id="team-admin-id" type="hidden" value="{{ parent_course.course_team_admin.id }}">
-                                            <div>
-                                                <a id="change-admin" href="#">{% trans "Change" %}</a>
-                                            </div>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-
                             <div class="field-title">{% trans "COURSE START DATE" %}</div>
                             <div class="row">
                                 <div class="col col-6 help-text">
@@ -138,49 +66,13 @@
                                     <div class="checkbox-inline">{{ run_form.pacing_type }}</div>
                                 </div>
                             </div>
-
-                            <div class="field-title">{% trans "COURSE NUMBER" %}</div>
-                            <div class="row">
-                            <div class="col col-6 help-text">
-                                <div class="row">
-                                    <ul class="tabs">
-                                        <li class="course-tabs active" data-tab="tab-practices">
-                                            {% trans "Best Practices" %}
-                                        </li>
-                                        <li class="course-tabs" data-tab="tab-example">
-                                            {% trans "Examples" %}
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div id="tab-practices" class="content active">
-                                    <ul>
-                                        <li>{% trans "Maximum 10 characters. Characters can be letters, numbers, or periods." %}</li>
-                                        <li>{% trans "If a course consists of several modules, the course number can have an ending such as .1x or .2x." %}</li>
-                                    </ul>
-                                </div>
-                                <div id="tab-example" class="content">
-                                    <ul>
-                                        <li>{% trans "CS002x" %}</li>
-                                        <li>{% trans "BIO1.1x; BIO1.2x etc." %}</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="col col-6">
-                                <label class="field-label ">{{ course_form.number.label_tag }}  <span class="required">*</span></label>
-                                {% if edit_mode %}{{ course_form.number.value }}{% endif %}
-                                 {{ course_form.number }}
-                            </div>
-                        </div>
-
                         </fieldset>
                     </div>
                 </div>
             </div>
 
-            <div class="layout-full layout publisher-layout">
-                <h2 class="layout-title">{% trans "About page information" %}</h2>
-
-                <div class="card course-form">
+            <div class="layout-full layout">
+                <div class="course-form">
                     <div class="course-information">
                         <fieldset class="form-group grid-container grid-manual">
 
