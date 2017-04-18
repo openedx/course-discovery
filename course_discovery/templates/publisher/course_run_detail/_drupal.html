@@ -82,29 +82,46 @@
     <div class="info-item">
         <div class="heading">
             {% trans "Staff" %}
-            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
         <div>
             {% if not object.course_staff %}
                 {% trans "(Required) Not yet added" %}
             {% else %}
                 {% for obj in object.course_staff %}
-                  <div class="course-staff">
-                    <img src="{{ obj.image_url }}" alt=""/>
+                  <div class="course-staff {% if not obj.profile_url %}image-error{% endif %}">
+                        <img src="{{ obj.image_url }}" alt=""/>
+                        <div class="staff-detail info-item">
+                            {% if obj.profile_url %}
+                              <a href="{{ obj.profile_url }}" target="_blank">{{ obj.full_name }}</a>
+                            {% else %}
+                              {{ obj.full_name }}
+                            {% endif %}
+                            {% include "publisher/course_run_detail/_clipboard.html" %}
+                        </div>
+                        <div class="copy hidden">{{ obj.full_name }}</div>
 
-                    <div class="staff-detail">
-                      <div class="name">
-                        {% if obj.profile_url %}
-                          <a href="{{ obj.profile_url }}" target="_blank">{{ obj.full_name }}</a>
-                        {% else %}
-                          {{ obj.full_name }}
-                        {% endif %}
-                      </div>
-                      <div>{{ obj.position }}</div>
-                      <div class="organization">{{ obj.organization }}</div>
-                    </div>
+                        <div>
+                            {{ obj.position }}
+                            {% include "publisher/course_run_detail/_clipboard.html" %}
+                        </div>
+                        <div class="copy hidden">{{ obj.position }}</div>
+
+                        <div class="organization">
+                            {{ obj.organization }}
+                            {% include "publisher/course_run_detail/_clipboard.html" %}
+                        </div>
+                        <div class="copy hidden">{{ obj.organization }}</div>
+
+                        <div class="download-profile-image">
+                            <a download href="{{ obj.image_url }}">
+                                {% trans "Download" %}
+                            </a>
+                        </div>
+
                   </div>
+
                   <div class="clearfix"></div>
+
                 {% endfor %}
             {% endif %}
         </div>
