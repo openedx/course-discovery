@@ -18,6 +18,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = []
 
+USE_X_FORWARDED_HOST = True
 # Application definition
 
 INSTALLED_APPS = [
