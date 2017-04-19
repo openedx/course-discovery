@@ -113,12 +113,12 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_retrieval(self.program.uuid, exists=False)
         self.mock_node_create(self.expected_node, 201)
         publisher = MarketingSitePublisher()
-        self.mock_get_delete_form(self.slugified_title, 200)
+        self.mock_get_delete_form(self.slugified_title)
         self.mock_add_alias()
         with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
             with mock.patch.object(MarketingSitePublisher, '_get_form_build_id_and_form_token', return_value={}):
                 publisher.publish_program(self.program)
-                self.assert_responses_call_count(7)
+                self.assert_responses_call_count(9)
 
     @responses.activate
     def test_publish_program_edit(self):
@@ -126,12 +126,12 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_retrieval(self.program.uuid)
         self.mock_node_edit(200)
         publisher = MarketingSitePublisher()
-        self.mock_get_delete_form(self.slugified_title, 200)
+        self.mock_get_delete_form(self.slugified_title)
         self.mock_add_alias()
         with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
             with mock.patch.object(MarketingSitePublisher, '_get_form_build_id_and_form_token', return_value={}):
                 publisher.publish_program(self.program)
-                self.assert_responses_call_count(7)
+                self.assert_responses_call_count(9)
 
     @responses.activate
     def test_publish_modified_program(self):
@@ -154,11 +154,13 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_retrieval(self.program.uuid)
         self.mock_node_edit(200)
         publisher = MarketingSitePublisher()
+        self.mock_get_delete_form(self.slugified_title)
         self.mock_add_alias()
         self.mock_get_alias_form()
         with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
-            publisher.publish_program(self.program)
-            self.assert_responses_call_count(8)
+            with mock.patch.object(MarketingSitePublisher, '_get_form_build_id_and_form_token', return_value={}):
+                publisher.publish_program(self.program)
+                self.assert_responses_call_count(9)
 
     @responses.activate
     def test_get_delete_form(self):
@@ -167,12 +169,13 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_edit(200)
         program_before = ProgramFactory()
         publisher = MarketingSitePublisher(program_before)
+        self.mock_get_delete_form(self.slugified_title)
         self.mock_add_alias()
         self.mock_get_delete_form(program_before.marketing_slug)
         with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
             with mock.patch.object(MarketingSitePublisher, '_get_form_build_id_and_form_token', return_value={}):
                 publisher.publish_program(self.program)
-                self.assert_responses_call_count(9)
+                self.assert_responses_call_count(11)
 
     @responses.activate
     def test_get_alias_form_failed(self):
@@ -180,11 +183,13 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_retrieval(self.program.uuid)
         self.mock_node_edit(200)
         publisher = MarketingSitePublisher()
+        self.mock_get_delete_form(self.slugified_title)
         self.mock_add_alias()
         self.mock_get_alias_form(500)
         with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
-            with self.assertRaises(ProgramPublisherException):
-                publisher.publish_program(self.program)
+            with mock.patch.object(MarketingSitePublisher, '_delete_title_alias', return_value={}):
+                with self.assertRaises(ProgramPublisherException):
+                    publisher.publish_program(self.program)
 
     @responses.activate
     def test_get_delete_form_failed(self):
@@ -193,7 +198,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_edit(200)
         program_before = ProgramFactory()
         publisher = MarketingSitePublisher(program_before)
-        self.mock_get_delete_form(self.slugified_title, 200)
+        self.mock_get_delete_form(self.slugified_title)
         self.mock_add_alias()
         self.mock_get_delete_form(program_before.marketing_slug, 500)
         with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
@@ -207,7 +212,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_retrieval(self.program.uuid)
         self.mock_node_edit(200)
         publisher = MarketingSitePublisher()
-        self.mock_get_delete_form(self.slugified_title, 200)
+        self.mock_get_delete_form(self.slugified_title)
         self.mock_add_alias(500)
         with mock.patch.object(MarketingSitePublisher, '_get_form_build_id_and_form_token', return_value={}):
             with self.assertRaises(ProgramPublisherException):

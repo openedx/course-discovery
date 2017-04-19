@@ -765,7 +765,7 @@ class ProgramTests(MarketingSitePublisherTestMixin):
             with mock.patch.object(MarketingSitePublisher, '_get_form_build_id_and_form_token', return_value={}):
                 with mock.patch.object(MarketingSitePublisher, '_get_delete_alias_url', return_value='/foo'):
                     self.program.save()
-                    self.assert_responses_call_count(8)
+                    self.assert_responses_call_count(9)
 
     @responses.activate
     def test_xseries_program_save(self):
