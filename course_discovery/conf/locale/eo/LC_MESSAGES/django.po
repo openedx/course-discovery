@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-19 11:14+0500\n"
+"POT-Creation-Date: 2017-04-20 11:50+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -729,7 +729,6 @@ msgstr "Tértïärý (öptïönäl) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт �
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
-#: templates/publisher/course_run_detail/_all.html
 msgid "Expected Learnings"
 msgstr "Éxpéçtéd Léärnïngs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
@@ -1322,8 +1321,11 @@ msgid "REVISION HISTORY"
 msgstr "RÉVÌSÌÖN HÌSTÖRÝ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: templates/publisher/_history_widget.html
-msgid "Latest version"
-msgstr "Lätést vérsïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+#, python-format
+msgid "%(history_date)s&nbsp;by&nbsp;%(changed_by)s (Latest version)"
+msgstr ""
+"%(history_date)s&nbsp;ßý&nbsp;%(changed_by)s (Lätést vérsïön) Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: templates/publisher/_history_widget.html
 #, python-format
