@@ -28,9 +28,8 @@ def send_email_for_studio_instance_created(course_run, updated_text=_('created')
         to_addresses = [course_run.course.course_team_admin.email]
         from_address = settings.PUBLISHER_FROM_EMAIL
 
-        course_user_roles = course_run.course.course_user_roles.all()
-        course_team = course_user_roles.filter(role=PublisherUserRole.CourseTeam).first()
-        project_coordinator = course_user_roles.filter(role=PublisherUserRole.ProjectCoordinator).first()
+        course_team_admin = course_run.course.course_team_admin
+        project_coordinator = course_run.course.project_coordinator
 
         context = {
             'updated_text': updated_text,
@@ -40,9 +39,9 @@ def send_email_for_studio_instance_created(course_run, updated_text=_('created')
             ),
             'course_name': course_run.course.title,
             'from_address': from_address,
-            'course_team_name': course_team.user.full_name if course_team else '',
-            'project_coordinator_name': project_coordinator.user.full_name if project_coordinator else '',
-            'contact_us_email': project_coordinator.user.email if project_coordinator else ''
+            'course_team_name': course_team_admin.get_full_name() or course_team_admin.username,
+            'project_coordinator_name': project_coordinator.get_full_name() or project_coordinator.username,
+            'contact_us_email': project_coordinator.email
         }
 
         txt_template_path = 'publisher/email/studio_instance_created.txt'
