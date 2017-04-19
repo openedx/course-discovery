@@ -7,7 +7,8 @@ from django.test import TestCase
 
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
-from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory, PositionFactory
+from course_discovery.apps.course_metadata.tests.factories import (OrganizationFactory, PersonFactory,
+                                                                   PersonSocialNetworkFactory, PositionFactory)
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.models import Seat
 from course_discovery.apps.publisher.tests import factories
@@ -185,12 +186,17 @@ class CourseRunWrapperTests(TestCase):
         self.course_run.staff = [staff, staff_2]
         self.course_run.save()
 
+        facebook = PersonSocialNetworkFactory(person=staff_2, type='facebook')
+        twitter = PersonSocialNetworkFactory(person=staff_2, type='twitter')
+
         expected = [
             {
                 'uuid': str(staff.uuid),
                 'full_name': staff.full_name,
                 'image_url': staff.get_profile_image_url,
                 'profile_url': staff.profile_url,
+                'social_networks': {},
+                'bio': staff.bio
             },
             {
                 'uuid': str(staff_2.uuid),
@@ -199,6 +205,8 @@ class CourseRunWrapperTests(TestCase):
                 'position': position.title,
                 'organization': position.organization_name,
                 'profile_url': staff.profile_url,
+                'social_networks': {'facebook': facebook.value, 'twitter': twitter.value},
+                'bio': staff_2.bio
             }
         ]
 

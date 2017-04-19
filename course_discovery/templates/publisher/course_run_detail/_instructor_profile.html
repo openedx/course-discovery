@@ -1,6 +1,5 @@
-{% load i18n %}
-
 {% load compress %}
+{% load i18n %}
 {% load staticfiles %}
 
 <div id="instructorProfileModal" class="modal">
@@ -39,7 +38,34 @@
                 <a class="profile_url" target="_blank">{% trans "Profile URL "%}</a>
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
-            <div class="copy profile_url_copy"></div>
+            <div class="copy profile_url_copy hidden"></div>
+        </div>
+
+        <div class="info-item">
+            <div class="heading">{% trans "Bio" %}:
+                {% include "publisher/course_run_detail/_clipboard.html" %}
+            </div>
+            <div class="copy bio"></div>
+        </div>
+
+        <div class="social-links">
+            <div class="heading icon">
+                <a class="facebook_url" target="_blank">{% trans "FaceBook URL "%}</a>
+                {% include "publisher/course_run_detail/_clipboard.html" %}
+                <div class="copy facebook_url_copy hidden"></div>
+            </div>
+
+            <div class="heading icon">
+                <a class="twitter_url" target="_blank">{% trans "Twitter URL "%}</a>
+                {% include "publisher/course_run_detail/_clipboard.html" %}
+                <div class="copy twitter_url_copy hidden"></div>
+            </div>
+
+            <div class="heading icon">
+                <a class="blog_url" target="_blank">{% trans "Blog URL "%}</a>
+                {% include "publisher/course_run_detail/_clipboard.html" %}
+                <div class="copy blog_url_copy hidden"></div>
+            </div>
         </div>
 
         <div class="actions">
@@ -47,3 +73,13 @@
         </div>
     </div>
 </div>
+{% block extra_js %}
+    <script src="{% static 'bower_components/clipboard/dist/clipboard.min.js' %}"></script>
+    <script>
+        new Clipboard(".btn-copy", {
+            text: function(trigger) {
+                return $(trigger).next('.copy').text().trim();
+            }
+        });
+    </script>
+{% endblock %}
