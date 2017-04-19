@@ -47,18 +47,6 @@
       </div>
     {% endif %}
 
-
-  <div class="info-item">
-    <div class="heading">
-      {% trans "Expected Learnings" %}
-    </div>
-    <div>
-      {% with  object.expected_learnings as field %}
-        {% include "publisher/_render_required_field.html" %}
-      {% endwith %}
-    </div>
-  </div>
-
   <div class="info-item">
     <div class="heading">
       {% trans "Course Staff" %}
@@ -114,7 +102,7 @@
       {% trans "Video Language Transcript" %}
     </div>
     <div>
-      {% with  object.transcript_language as field %}
+      {% with  object.transcript_languages as field %}
         {% include "publisher/_render_required_field.html" %}
       {% endwith %}
     </div>
