@@ -37,15 +37,14 @@ $(document).ready(function(){
         $('#instructorProfileModal div.organization').html(data['organization']);
         $('#instructorProfileModal img.image_url').attr('src', data['image_url']);
         $('#instructorProfileModal a.btn-download').attr('href', data['image_url']);
-
-        if (data['profile_url']) {
-            $('#instructorProfileModal a.profile_url').attr("href", data['profile_url']);
-            $('#instructorProfileModal div.profile_url_copy').html(data['profile_url']).hide();
-        }
-        else
-           $('#instructorProfileModal a.profile_url').attr("href", '#');
-
         $('#instructorProfileModal div.position').html(data['position']);
+        $('#instructorProfileModal div.bio').html(data['bio']);
+
+        assignData('.profile_url', data['profile_url']);
+        assignData('.facebook_url', data['social_networks']['facebook']);
+        assignData('.twitter_url', data['social_networks']['twitter']);
+        assignData('.blog_url', data['social_networks']['blog']);
+
     });
 });
 
@@ -72,9 +71,18 @@ function clearModalError($modal) {
 function resetModalData() {
     $('#instructorProfileModal div.full_name').html('');
     $('#instructorProfileModal div.organization').html('');
-    $('#instructorProfileModal img.image_url').attr('src','');
-    $('#instructorProfileModal a.btn-download').attr('href', '');
-    $('#instructorProfileModal a.profile_url').attr("href", '');
-    $('#instructorProfileModal div.profile_url_copy').html('');
+    $('#instructorProfileModal img.image_url').attr('src','#');
     $('#instructorProfileModal div.position').html('');
+    $('#instructorProfileModal a.btn-download').attr('href', '#');
+    $('#instructorProfileModal div.bio').html('');
+
+    assignData('.facebook_url', '#');
+    assignData('.twitter_url', '#');
+    assignData('.profile_url', '#');
+    assignData('.blog_url', '#');
+}
+
+function assignData(element, data){
+    $(element).attr("href", data);
+    $(element + '_copy').html(data);
 }

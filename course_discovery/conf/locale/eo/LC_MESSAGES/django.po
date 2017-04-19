@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-20 11:50+0500\n"
+"POT-Creation-Date: 2017-04-20 12:22+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1189,6 +1189,7 @@ msgid "Organization"
 msgstr "Örgänïzätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Bio"
 msgstr "Bïö Ⱡ'σяєм#"
 
@@ -2740,6 +2741,18 @@ msgstr "Pösïtïön Ⱡ'σяєм ιρѕυм ∂#"
 #: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Profile URL "
 msgstr "Pröfïlé ÛRL  Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "FaceBook URL "
+msgstr "FäçéBöök ÛRL  Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Twitter URL "
+msgstr "Twïttér ÛRL  Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Blog URL "
+msgstr "Blög ÛRL  Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Close"

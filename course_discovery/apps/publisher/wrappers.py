@@ -197,6 +197,11 @@ class CourseRunWrapper(BaseWrapper):
                 'full_name': staff.full_name,
                 'image_url': staff.get_profile_image_url,
                 'profile_url': staff.profile_url,
+                'bio': staff.bio,
+                'social_networks': {
+                    staff.type: staff.value
+                    for staff in staff.person_networks.all()
+                }
             }
 
             if hasattr(staff, 'position'):
