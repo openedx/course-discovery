@@ -1903,12 +1903,6 @@ class CourseDetailViewTests(TestCase):
         response = self.client.get(self.detail_page_url)
 
         self.assertContains(response, 'REVISION HISTORY')
-        revision_url = reverse(
-            'publisher:publisher_course_revision', args=[self.course.id, self.course.history.first().history_id]
-        )
-        self.assertContains(
-            response, '<option value="{revision_url}">Latest version</option>'.format(revision_url=revision_url)
-        )
 
 
 @ddt.ddt
