@@ -1651,6 +1651,7 @@ class CourseDetailViewTests(TestCase):
         self.assertContains(response, self.course.learner_testimonial)
         self.assertContains(response, self.course.faq)
         self.assertContains(response, self.course.video_link)
+        self.assertContains(response, self.course.syllabus)
 
     def test_details_page_with_course_runs_lms_id(self):
         """ Test that user can see course runs with lms-id on course detail page. """
