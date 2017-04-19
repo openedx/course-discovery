@@ -295,12 +295,18 @@ class CustomCourseRunForm(CourseRunForm):
 
             return lms_course_id
 
+        instance = getattr(self, 'instance', None)
+        # If `lms_course_id` is none in `cleaned_data` and user is not project coordinator
+        # return actual value of the instance, it will prevent `lms_course_id` from getting blanked.
+        if instance and instance.pk and hasattr(self, 'is_project_coordinator') and not self.is_project_coordinator:
+            return instance.lms_course_id
+
         return None
 
     def __init__(self, *args, **kwargs):
-        is_project_coordinator = kwargs.pop('is_project_coordinator', None)
+        self.is_project_coordinator = kwargs.pop('is_project_coordinator', None)
         super(CustomCourseRunForm, self).__init__(*args, **kwargs)
-        if not is_project_coordinator:
+        if not self.is_project_coordinator:
             self.fields['lms_course_id'].widget = forms.HiddenInput()
 
 

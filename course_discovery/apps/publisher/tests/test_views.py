@@ -2707,6 +2707,35 @@ class CourseRunEditViewTests(TestCase):
         self.assertEqual(course_run_state.name, CourseRunStateChoices.Draft)
         self.assertEqual(course_run_state.owner_role, PublisherUserRole.ProjectCoordinator)
 
+    def test_course_key_not_getting_blanked(self):
+        """
+        Verify that `lms_course_id` not getting blanked if course team updates with empty value.
+        """
+        self.client.logout()
+        user = self.new_course.course_team_admin
+        self.client.login(username=user.username, password=USER_PASSWORD)
+
+        post_data = self._post_data({'image': ''}, self.new_course, self.new_course_run, None)
+        lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
+        self.new_course_run.lms_course_id = lms_course_id
+        self.new_course_run.save()
+
+        # Verify that post data has empty value for `lms_course_id`
+        self.assertEqual(post_data['lms_course_id'], '')
+
+        response = self.client.post(self.edit_page_url, post_data)
+
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.new_course_run.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        self.new_course_run = CourseRun.objects.get(id=self.new_course_run.id)
+        # Verify that `lms_course_id` not wiped.
+        self.assertEqual(self.new_course_run.lms_course_id, lms_course_id)
+
 
 class CourseRevisionViewTests(TestCase):
     """ Tests for CourseReview"""

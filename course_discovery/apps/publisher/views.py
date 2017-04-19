@@ -526,7 +526,6 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
 class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, UpdateView):
     """ Course Run Edit View."""
     model = CourseRun
-    course_form = CustomCourseForm
     run_form = CustomCourseRunForm
     seat_form = CustomSeatForm
     template_name = 'publisher/course_run/edit_run_form.html'
@@ -582,9 +581,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
             try:
                 with transaction.atomic():
 
-                    course_run = run_form.save(commit=False)
-                    course_run.changed_by = self.request.user
-                    course_run.save()
+                    course_run = run_form.save(changed_by=user)
 
                     run_form.save_m2m()
 
