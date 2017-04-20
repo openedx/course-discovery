@@ -1,6 +1,7 @@
 import json
 
 from bs4 import BeautifulSoup
+from django.utils.text import slugify
 
 from course_discovery.apps.course_metadata.exceptions import ProgramPublisherException
 from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
@@ -146,6 +147,24 @@ class MarketingSitePublisher(object):
                 if response.status_code != 200:
                     raise ProgramPublisherException('Marketing site alias deletion failed!')
 
+    def _delete_title_alias(self, api_client, title_slug):
+        base_aliases_url = '{root}/admin/config/search/path'.format(root=api_client.api_url)
+        headers = self._get_headers()
+        list_aliases_url = '{url}/list/{slug}'.format(url=base_aliases_url, slug=title_slug)
+        delete_alias_url = self._get_delete_alias_url(api_client, list_aliases_url)
+        if delete_alias_url:
+            delete_alias_url = '{root}{url}'.format(root=api_client.api_url, url=delete_alias_url)
+            data = {
+                "confirm": 1,
+                "form_id": "path_admin_delete_confirm",
+                "op": "Confirm"
+            }
+            form_attributes = self._get_form_build_id_and_form_token(api_client, delete_alias_url)
+            data.update(form_attributes)
+            response = api_client.api_session.post(delete_alias_url, headers=headers, data=data)
+            if response.status_code != 200:
+                raise ProgramPublisherException('Marketing site alias deletion failed!')
+
     def publish_program(self, program):
         api_client = self._get_api_client(program)
         if api_client:
@@ -160,6 +179,9 @@ class MarketingSitePublisher(object):
             before_alias = self._make_alias(self.program_before) if self.program_before else None
             new_alias = self._make_alias(program)
             before_slug = self.program_before.marketing_slug if self.program_before else None
+            title_slug = slugify(program.title, allow_unicode=True)
+            self._delete_title_alias(api_client, title_slug)
+
             if not self.program_before or (before_alias != new_alias):
                 self._add_alias(api_client, node_id, new_alias, before_slug)
 
