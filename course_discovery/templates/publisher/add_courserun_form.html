@@ -7,16 +7,19 @@
 {% endblock title %}
 
 {% block page_content %}
-    <div>
+<div xmlns="http://www.w3.org/1999/html">
         <h1 class="hd-1 emphasized">{% trans "New Course Run" %}</h1>
         <div class="copy-base">
+            <span class="required">* Required</span>
             <p>
-                {% url 'publisher:publisher_course_detail' parent_course.id as course_url %}
-                {% with link_start='<a href="' link_middle='">' link_end='</a>' %}
-                {% blocktrans with course_name=parent_course.title %}
-                    The information on this page applies only to this course run. To make changes to all course runs for this course, go to the {{ link_start }}{{ course_url }}{{ link_middle }}{{ course_name }}{{ link_end }} page.
+                {% blocktrans %}
+                    The information on this page is based on the latest published course run, if a published course run exists.
                 {% endblocktrans %}
-                {% endwith %}
+            </p>
+            <p>
+                {% blocktrans %}
+                    When you create a course run, Publisher immediately creates a page for the course run in Publisher, and the edX team creates a Studio URL for the course run. You will receive an email message when edX has created the Studio URL.
+                {% endblocktrans %}
             </p>
         </div>
 
@@ -26,10 +29,6 @@
             <div class="layout-full layout">
                 <div class="course-form">
                     <div class="course-information">
-                        <div class="copy-base">
-                            <p>{% trans "The following information is required before edX can create a Studio URL for this course run." %} </p>
-                            <p>{% trans "After you create this course run, you can add more information on the course run page." %}</p>
-                        </div>
                         <fieldset class="form-group grid-container grid-manual">
                             <div class="field-title">{% trans "COURSE START DATE" %}</div>
                             <div class="row">
@@ -116,6 +115,7 @@
             </div>
             <div class="course-form">
                 <div class="course-information action-buttons">
+                    {% url 'publisher:publisher_course_detail' parent_course.id as course_url %}
                     <a href="{{ course_url }}">{% trans "Cancel" %}</a>
                     <button class="btn-brand btn-base btn-save" type="submit">
                             {% trans "Create New Course Run" %}

@@ -363,10 +363,7 @@ class CreateCourseRunViewTests(TestCase):
         self.course_run_dict.update({'is_self_paced': True})
         self._pop_valuse_from_dict(
             self.course_run_dict,
-            [
-                'end', 'enrollment_start', 'enrollment_end',
-                'priority', 'certificate_generation', 'video_language', 'id'
-            ]
+            ['end', 'enrollment_start', 'enrollment_end', 'priority', 'certificate_generation', 'id']
         )
         self.course_run_dict['start'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.course_run_dict['end'] = (datetime.now() + timedelta(days=60)).strftime('%Y-%m-%d %H:%M:%S')
@@ -492,6 +489,32 @@ class CreateCourseRunViewTests(TestCase):
         self.assertEqual([self.course.project_coordinator.email], mail.outbox[0].to)
         expected_subject = 'New Studio instance request for {title}'.format(title=self.course.title)
         self.assertEqual(str(mail.outbox[0].subject), expected_subject)
+
+    def test_existing_run_and_seat_data_auto_populated(self):
+        """
+        Verify that existing course run and seat data auto populated on new course run form.
+        """
+        latest_run = self.course.course_runs.latest('created')
+        factories.SeatFactory(course_run=latest_run, type=Seat.VERIFIED, price=550.0)
+        latest_seat = latest_run.seats.latest('created')
+        response = self.client.get(
+            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id})
+        )
+
+        # Verify that existing course run and seat values auto populated on form.
+        expected_pacing = '<input checked="checked" class="field-input input-checkbox" '
+        'id="id_pacing_type_0" name="pacing_type" type="radio" value="{pacing}" />'.format(
+            pacing=latest_run.pacing_type
+        )
+        self.assertContains(response, expected_pacing)
+
+        expected_seat_type = '<option value="{seat_type}" selected="selected">'.format(seat_type=latest_seat.type)
+        self.assertContains(response, expected_seat_type)
+
+        expected_seat_price = 'id="id_price" name="price" step="0.01" type="number" value="{price}" />'.format(
+            price=latest_seat.price
+        )
+        self.assertContains(response, expected_seat_price)
 
 
 @ddt.ddt
