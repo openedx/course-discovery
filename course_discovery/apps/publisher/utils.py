@@ -1,4 +1,5 @@
 """ Publisher Utils."""
+from dateutil import parser
 from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.constants import (ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME,
                                                        PROJECT_COORDINATOR_GROUP_NAME)
@@ -107,3 +108,23 @@ def has_role_for_course(course, user):
         bool: True, if user has a role for course; otherwise, False.
     """
     return course.course_user_roles.filter(user=user).exists()
+
+
+def parse_datetime_field(date):
+    """
+    Parse datetime field to make same format YYYY-MM-DD 00:00:00.
+
+    Arguments:
+        date (str): date string in any possible format
+
+    Returns:
+        datetime (object): returns datetime object after parsing
+    """
+    if not date:
+        return
+
+    try:
+        return parser.parse(date)
+
+    except ValueError:
+        return
