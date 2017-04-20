@@ -1032,6 +1032,9 @@ class CourseRunDetailTests(TestCase):
         factories.CourseUserRoleFactory(
             course=self.course, user=self.user, role=PublisherUserRole.CourseTeam
         )
+        factories.CourseUserRoleFactory(
+            course=self.course, user=UserFactory(), role=PublisherUserRole.Publisher
+        )
         self.course_run_state.name = CourseStateChoices.Approved
         self.course_run_state.save()
 

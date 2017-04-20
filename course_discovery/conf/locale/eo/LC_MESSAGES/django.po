@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-20 14:13+0500\n"
+"POT-Creation-Date: 2017-04-20 16:51+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -600,8 +600,7 @@ msgstr "Dräft Ⱡ'σяєм ιρѕ#"
 msgid "Review"
 msgstr "Révïéw Ⱡ'σяєм ιρѕυ#"
 
-#: apps/publisher/choices.py
-#: templates/publisher/course_run_detail/_widgets.html
+#: apps/publisher/choices.py templates/publisher/_approval_widget.html
 #: templates/publisher/dashboard/_in_preview.html
 msgid "Approved"
 msgstr "Àpprövéd Ⱡ'σяєм ιρѕυм ∂#"
@@ -1126,7 +1125,7 @@ msgid "Edit Comment"
 msgstr "Édït Çömmént Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: templates/comments/edit_comment.html
-#: templates/publisher/course_run_detail/_widgets.html
+#: templates/publisher/_approval_widget.html
 #: templates/publisher/seat_form.html
 msgid "Save"
 msgstr "Sävé Ⱡ'σяєм ι#"
@@ -1241,6 +1240,46 @@ msgstr ""
 "¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
 "¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
 "ηση ρяσι∂єηт, ѕυηт ιη #"
+
+#: templates/publisher/_approval_widget.html
+msgid "Decline"
+msgstr "Déçlïné Ⱡ'σяєм ιρѕυм #"
+
+#: templates/publisher/_approval_widget.html
+msgid "Accept"
+msgstr "Àççépt Ⱡ'σяєм ιρѕυ#"
+
+#: templates/publisher/_approval_widget.html
+msgid "Publish"
+msgstr "Püßlïsh Ⱡ'σяєм ιρѕυм #"
+
+#: templates/publisher/_approval_widget.html
+msgid "Submitted for review"
+msgstr "Süßmïttéd för révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: templates/publisher/_approval_widget.html
+#: templates/publisher/course_detail/_edit_warning_popup.html
+#: templates/publisher/course_run_detail/_edit_warning.html
+#: templates/publisher/courses.html
+msgid "Edit"
+msgstr "Édït Ⱡ'σяєм ι#"
+
+#: templates/publisher/_approval_widget.html
+msgid "COURSE PREVIEW"
+msgstr "ÇÖÛRSÉ PRÉVÌÉW Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#: templates/publisher/_approval_widget.html
+#: templates/publisher/dashboard/_in_preview.html
+msgid "Preview URL"
+msgstr "Prévïéw ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: templates/publisher/_approval_widget.html
+msgid "View course preview live"
+msgstr "Vïéw çöürsé prévïéw lïvé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: templates/publisher/_approval_widget.html
+msgid "Not available"
+msgstr "Nöt äväïläßlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: templates/publisher/_approval_widget.html
 msgid "Reviewed"
@@ -2311,13 +2350,6 @@ msgstr ""
 "                Thé %(current_team_name)s téäm ïs çürréntlý révïéwïng thïs çöürsé. Ìf ýöü édït çöürsé ïnförmätïön, ýöü mïght övérwrïté thé téäm’s çhängés, änd ýöü wïll hävé tö sénd thé çöürsé tö thé %(team_name)s téäm för révïéw ägäïn.\n"
 "             Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα#"
 
-#: templates/publisher/course_detail/_edit_warning_popup.html
-#: templates/publisher/course_run_detail/_edit_warning.html
-#: templates/publisher/course_run_detail/_widgets.html
-#: templates/publisher/courses.html
-msgid "Edit"
-msgstr "Édït Ⱡ'σяєм ι#"
-
 #: templates/publisher/course_detail/_widgets.html
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "EDIT"
@@ -2891,39 +2923,6 @@ msgstr "Énröllmént Énd Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α�
 #: templates/publisher/course_run_detail/_studio.html
 msgid "Pacing Type"
 msgstr "Päçïng Týpé Ⱡ'σяєм ιρѕυм ∂σłσя #"
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "Decline"
-msgstr "Déçlïné Ⱡ'σяєм ιρѕυм #"
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "Accept"
-msgstr "Àççépt Ⱡ'σяєм ιρѕυ#"
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "Publish"
-msgstr "Püßlïsh Ⱡ'σяєм ιρѕυм #"
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "Submitted for review"
-msgstr "Süßmïttéd för révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "COURSE PREVIEW"
-msgstr "ÇÖÛRSÉ PRÉVÌÉW Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
-
-#: templates/publisher/course_run_detail/_widgets.html
-#: templates/publisher/dashboard/_in_preview.html
-msgid "Preview URL"
-msgstr "Prévïéw ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя #"
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "View course preview live"
-msgstr "Vïéw çöürsé prévïéw lïvé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "Not available"
-msgstr "Nöt äväïläßlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "Reason for declining preview"
