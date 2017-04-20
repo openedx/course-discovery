@@ -192,6 +192,17 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
                     publisher.publish_program(self.program)
 
     @responses.activate
+    def test_delete_title_alias_failed(self):
+        self.mock_api_client(200)
+        self.mock_node_retrieval(self.program.uuid)
+        self.mock_node_edit(200)
+        publisher = MarketingSitePublisher()
+        self.mock_get_delete_form(self.slugified_title, 500)
+        with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
+            with self.assertRaises(ProgramPublisherException):
+                publisher.publish_program(self.program)
+
+    @responses.activate
     def test_get_delete_form_failed(self):
         self.mock_api_client(200)
         self.mock_node_retrieval(self.program.uuid)
