@@ -197,7 +197,8 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_retrieval(self.program.uuid)
         self.mock_node_edit(200)
         publisher = MarketingSitePublisher()
-        self.mock_get_delete_form(self.slugified_title, 500)
+        self.mock_get_delete_form(self.slugified_title)
+        self.mock_delete_alias(500)
         with mock.patch.object(MarketingSitePublisher, '_get_headers', return_value={}):
             with self.assertRaises(ProgramPublisherException):
                 publisher.publish_program(self.program)
