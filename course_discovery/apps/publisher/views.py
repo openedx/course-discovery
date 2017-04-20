@@ -681,11 +681,11 @@ class CourseRevisionView(mixins.LoginRequiredMixin, DetailView):
 def get_course_role_widgets_data(user, course, state_object, change_state_url, parent_course=False):
     """ Create role widgets list for course user roles. """
     role_widgets = []
-    course_roles = course.course_user_roles
+    course_roles = course.course_user_roles.exclude(role__in = [PublisherUserRole.MarketingReviewer])
     roles = [PublisherUserRole.CourseTeam, PublisherUserRole.ProjectCoordinator]
     if parent_course:
         roles = [PublisherUserRole.CourseTeam, PublisherUserRole.MarketingReviewer]
-        course_roles = course_roles.filter(role__in=roles)
+        course_roles = course.course_user_roles.filter(role__in=roles)
 
     for course_role in course_roles.order_by('role'):
         role_widget = {
