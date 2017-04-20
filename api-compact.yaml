@@ -50,6 +50,12 @@ auth_header: &auth_header
   required: true
   type: "string"
 
+host_header: &host_header
+  name: "Host"
+  in: "header"
+  required: true
+  type: "string"
+
 limit_qs_parameter: &limit_qs_parameter
   in: querystring
   name: limit
@@ -70,6 +76,7 @@ x-amazon-apigateway-integration: &apigateway_integration
   type: "http"
   requestParameters:
     integration.request.header.Authorization: "method.request.header.Authorization"
+    integration.request.header.X-Forwarded-Host: "method.request.header.Host"
 
 x-amazon-apigateway-integration-with-id: &apigateway_integration_with_id_parameter
   responses: *apigateway_responses
@@ -77,6 +84,7 @@ x-amazon-apigateway-integration-with-id: &apigateway_integration_with_id_paramet
   type: "http"
   requestParameters:
     integration.request.header.Authorization: "method.request.header.Authorization"
+    integration.request.header.X-Forwarded-Host: "method.request.header.Host"
     integration.request.path.id: "method.request.path.id"
 
 endpoints:
@@ -88,6 +96,7 @@ endpoints:
           produces: *produces
           parameters:
             - *auth_header
+            - *host_header
             - *limit_qs_parameter
             - *offset_qs_parameter
           operationId: "get_catalogs"
@@ -102,6 +111,7 @@ endpoints:
           produces: *produces
           parameters:
             - *auth_header
+            - *host_header
             - *id_parameter
           operationId: "get_catalog_by_id"
           responses: *responses
@@ -115,6 +125,7 @@ endpoints:
           produces: *produces
           parameters:
             - *auth_header
+            - *host_header
             - *id_parameter
             - *limit_qs_parameter
             - *offset_qs_parameter
