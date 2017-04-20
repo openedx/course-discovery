@@ -1,4 +1,6 @@
 """ Tests publisher.utils"""
+from datetime import datetime
+
 import ddt
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
@@ -16,7 +18,7 @@ from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.utils import (get_internal_users, has_role_for_course,
                                                    is_email_notification_enabled, is_internal_user,
                                                    is_project_coordinator_user, is_publisher_admin, is_publisher_user,
-                                                   make_bread_crumbs)
+                                                   make_bread_crumbs, parse_datetime_field)
 
 
 @ddt.ddt
@@ -204,3 +206,26 @@ class PublisherUtilsTests(TestCase):
         self.assertFalse(has_role_for_course(self.course, self.user))
         factories.CourseUserRoleFactory(course=self.course, user=self.user)
         self.assertTrue(has_role_for_course(self.course, self.user))
+
+    @ddt.data(
+        'april 20, 2017',
+        'aug 20 2019',
+        '2020 may 20',
+        '09 04 2018',
+        'jan 20 2020'
+    )
+    def test_parse_datetime_field(self, date):
+        """ Verify that function return datetime after parsing different possible date format. """
+        parsed_date = parse_datetime_field(date)
+        self.assertTrue(isinstance(parsed_date, datetime))
+
+    @ddt.data(
+        None,
+        'jan 20 20203'
+        'invalid-date-string'
+        'jan 20'
+    )
+    def test_parse_datetime_field_with_invalid_date_format(self, invalid_date):
+        """ Verify that function return None if date string does not match any possible date format. """
+        parsed_date = parse_datetime_field(invalid_date)
+        self.assertIsNone(parsed_date)

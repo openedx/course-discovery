@@ -25,7 +25,8 @@ from course_discovery.apps.publisher.forms import CustomCourseForm, CustomCourse
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
                                                     OrganizationExtension, UserAttributes)
 from course_discovery.apps.publisher.utils import (get_internal_users, has_role_for_course, is_internal_user,
-                                                   is_project_coordinator_user, is_publisher_admin, make_bread_crumbs)
+                                                   is_project_coordinator_user, is_publisher_admin, make_bread_crumbs,
+                                                   parse_datetime_field)
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
 logger = logging.getLogger(__name__)
@@ -237,6 +238,10 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
         # choices into institution admin field
         user = self.request.user
         organization = self.request.POST.get('organization')
+
+        self.request.POST['start'] = parse_datetime_field(self.request.POST.get('start'))
+        self.request.POST['end'] = parse_datetime_field(self.request.POST.get('end'))
+
         course_form = self.course_form(
             request.POST, request.FILES, user=user, organization=organization
         )
@@ -484,6 +489,10 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
     def post(self, request, *args, **kwargs):
         user = request.user
         parent_course = self.get_parent_course()
+
+        self.request.POST['start'] = parse_datetime_field(self.request.POST.get('start'))
+        self.request.POST['end'] = parse_datetime_field(self.request.POST.get('end'))
+
         run_form = self.run_form(request.POST, initial={'contacted_partner_manager': False})
         seat_form = self.seat_form(request.POST)
 
@@ -573,6 +582,10 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
         context = self.get_context_data()
         course_run = context.get('course_run')
         lms_course_id = course_run.lms_course_id
+
+        self.request.POST['start'] = parse_datetime_field(self.request.POST.get('start'))
+        self.request.POST['end'] = parse_datetime_field(self.request.POST.get('end'))
+
         run_form = self.run_form(
             request.POST, instance=course_run, is_project_coordinator=context.get('is_project_coordinator')
         )
