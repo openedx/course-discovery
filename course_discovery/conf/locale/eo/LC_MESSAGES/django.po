@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-03 17:40+0500\n"
+"POT-Creation-Date: 2017-05-04 13:50+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -1664,31 +1664,24 @@ msgid "New Course Run"
 msgstr "Néw Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: templates/publisher/add_courserun_form.html
-#, python-format
 msgid ""
 "\n"
-"                    The information on this page applies only to this course run. To make changes to all course runs for this course, go to the %(link_start)s%(course_url)s%(link_middle)s%(course_name)s%(link_end)s page.\n"
+"                    The information on this page is based on the latest published course run, if a published course run exists.\n"
 "                "
 msgstr ""
 "\n"
-"                    Thé ïnförmätïön ön thïs pägé äpplïés önlý tö thïs çöürsé rün. Tö mäké çhängés tö äll çöürsé rüns för thïs çöürsé, gö tö thé %(link_start)s%(course_url)s%(link_middle)s%(course_name)s%(link_end)s pägé.\n"
-"                 Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕ#"
+"                    Thé ïnförmätïön ön thïs pägé ïs ßäséd ön thé lätést püßlïshéd çöürsé rün, ïf ä püßlïshéd çöürsé rün éxïsts.\n"
+"                 Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂#"
 
 #: templates/publisher/add_courserun_form.html
 msgid ""
-"The following information is required before edX can create a Studio URL for"
-" this course run."
+"\n"
+"                    When you create a course run, Publisher immediately creates a page for the course run in Publisher, and the edX team creates a Studio URL for the course run. You will receive an email message when edX has created the Studio URL.\n"
+"                "
 msgstr ""
-"Thé föllöwïng ïnförmätïön ïs réqüïréd ßéföré édX çän çréäté ä Stüdïö ÛRL för"
-" thïs çöürsé rün. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
-
-#: templates/publisher/add_courserun_form.html
-msgid ""
-"After you create this course run, you can add more information on the course"
-" run page."
-msgstr ""
-"Àftér ýöü çréäté thïs çöürsé rün, ýöü çän ädd möré ïnförmätïön ön thé çöürsé"
-" rün pägé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+"\n"
+"                    Whén ýöü çréäté ä çöürsé rün, Püßlïshér ïmmédïätélý çréätés ä pägé för thé çöürsé rün ïn Püßlïshér, änd thé édX téäm çréätés ä Stüdïö ÛRL för thé çöürsé rün. Ýöü wïll réçéïvé än émäïl méssägé whén édX häs çréätéd thé Stüdïö ÛRL.\n"
+"                 Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє#"
 
 #: templates/publisher/add_courserun_form.html
 msgid "PACING TYPE"

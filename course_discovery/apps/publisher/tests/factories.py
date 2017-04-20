@@ -54,6 +54,7 @@ class CourseRunFactory(factory.DjangoModelFactory):
     notes = "Testing notes"
     preview_url = FuzzyText(prefix='https://example.com/')
     contacted_partner_manager = FuzzyChoice((True, False))
+    video_language = factory.Iterator(LanguageTag.objects.all())
 
     class Meta:
         model = CourseRun

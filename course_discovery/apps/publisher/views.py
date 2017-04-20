@@ -11,6 +11,7 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.forms import model_to_dict
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
@@ -19,11 +20,13 @@ from django.views.generic import CreateView, DetailView, ListView, UpdateView, V
 from guardian.shortcuts import get_objects_for_user
 
 from course_discovery.apps.core.models import User
+from course_discovery.apps.course_metadata.models import Person
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher import emails, mixins
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.forms import CustomCourseForm, CustomCourseRunForm, CustomSeatForm
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
-                                                    OrganizationExtension, UserAttributes)
+                                                    OrganizationExtension, Seat, UserAttributes)
 from course_discovery.apps.publisher.utils import (get_internal_users, has_role_for_course, is_internal_user,
                                                    is_project_coordinator_user, is_publisher_admin, make_bread_crumbs,
                                                    parse_datetime_field)
@@ -469,6 +472,7 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
     template_name = 'publisher/add_courserun_form.html'
     success_url = 'publisher:publisher_course_run_detail'
     parent_course = None
+    last_run = None
     fields = ()
 
     def get_parent_course(self):
@@ -477,12 +481,55 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
 
         return self.parent_course
 
+    def get_last_run(self):
+        if not self.last_run:
+            parent_course = self.get_parent_course()
+            self.last_run = parent_course.course_runs.latest('created')
+
+        return self.last_run
+
+    def set_last_run_data(self, new_run):
+        last_run = self.get_last_run()
+        last_run_data = model_to_dict(last_run)
+        # Delete all those fields which cannot be copied from previous run
+        del (last_run_data['id'], last_run_data['start'], last_run_data['end'], last_run_data['pacing_type'],
+             last_run_data['preview_url'], last_run_data['lms_course_id'], last_run_data['changed_by'],
+             last_run_data['course'], last_run_data['sponsor'])
+
+        staff = Person.objects.filter(id__in=last_run_data.pop('staff'))
+        transcript_languages = LanguageTag.objects.filter(code__in=last_run_data.pop('transcript_languages'))
+        language_code = last_run_data.pop('language')
+        if language_code:
+            last_run_data['language'] = LanguageTag.objects.get(code=language_code)
+        video_language_code = last_run_data.pop('video_language')
+        if video_language_code:
+            last_run_data['video_language'] = LanguageTag.objects.get(code=video_language_code)
+
+        for attr, value in last_run_data.items():
+            setattr(new_run, attr, value)
+
+        new_run.save()
+        new_run.staff.add(*staff)
+        new_run.transcript_languages.add(*transcript_languages)
+
+    def get_seat_initial_data(self):
+        last_run = self.get_last_run()
+        try:
+            latest_seat = last_run.seats.latest('created')
+            initial_seat_data = model_to_dict(latest_seat)
+            del initial_seat_data['id'], initial_seat_data['course_run'], initial_seat_data['changed_by']
+        except Seat.DoesNotExist:
+            initial_seat_data = {}
+
+        return initial_seat_data
+
     def get_context_data(self, **kwargs):
         parent_course = self.get_parent_course()
+        last_run = self.get_last_run()
         context = {
             'parent_course': parent_course,
-            'run_form': self.run_form(initial={'contacted_partner_manager': False}),
-            'seat_form': self.seat_form
+            'run_form': self.run_form(initial={'pacing_type': last_run.pacing_type}),
+            'seat_form': self.seat_form(initial=self.get_seat_initial_data())
         }
         return context
 
@@ -493,13 +540,14 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
         self.request.POST['start'] = parse_datetime_field(self.request.POST.get('start'))
         self.request.POST['end'] = parse_datetime_field(self.request.POST.get('end'))
 
-        run_form = self.run_form(request.POST, initial={'contacted_partner_manager': False})
+        run_form = self.run_form(request.POST)
         seat_form = self.seat_form(request.POST)
 
         if run_form.is_valid() and seat_form.is_valid():
             try:
                 with transaction.atomic():
-                    course_run = run_form.save(course=parent_course, changed_by=user)
+                    course_run = run_form.save(commit=False, course=parent_course, changed_by=user)
+                    self.set_last_run_data(course_run)
                     seat_form.save(course_run=course_run, changed_by=user)
 
                     # Initialize workflow for Course-run.
