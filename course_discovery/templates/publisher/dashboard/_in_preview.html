@@ -1,9 +1,9 @@
 {% load i18n %}
 {% if preview_count == 0 %}
-    <div class="empty-courserun-text">{% trans "No course run previews are currently available." %}</div>
+    <div class="empty-courserun-text">{% trans "No course runs currently have an About page preview available for course team review." %}</div>
 {% else %}
     <p>
-        {% trans "The following course run previews are available for course team approval. After the course team approves the preview, the edX marketing team will publish the course run on edx.org. The course team will receive an email message when the course run has been published." %}
+        {% trans "About page previews for the following course runs are available for course team review. After the course team approves the preview, the edX marketing team will publish the About page for the course run on edx.org. The course team will receive an email message when the About page has been published." %}
     </p>
     <div class="table-view">
         <table class="data-table-preview display" cellspacing="0" width="100%">
