@@ -1,7 +1,7 @@
 {% load i18n %}
 
 {% if studio_count > 0 %}
-    <p>{% trans "The list below are the courses that need a studio instance to start development." %}</p>
+    <p>{% trans "The following courses are ready for a Studio URL." %}</p>
         <div class="studio-instance-success depth depth-0">
           <p class="copy-meta"></p>
         </div>
@@ -58,5 +58,5 @@
     </div>
 
 {% else %}
-    <div class="empty-courserun-text">{% trans "There are no course-runs require studio instance." %}</div>
+    <div class="empty-courserun-text">{% trans "No courses are currently ready for a Studio URL." %}</div>
 {% endif %}

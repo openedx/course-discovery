@@ -1319,21 +1319,21 @@ class DashboardTests(TestCase):
         self.course_run_2.lms_course_id = 'test-2'
         self.course_run_2.save()
         response = self.assert_dashboard_response(studio_count=0, published_count=1, progress_count=2, preview_count=1)
-        self.assertContains(response, 'There are no course-runs require studio instance.')
+        self.assertContains(response, 'No courses are currently ready for a Studio URL.')
 
     def test_without_published_course_runs(self):
         """ Verify that published tab indicates a message if no course-run available. """
         self.course_run_3.course_run_state.name = CourseRunStateChoices.Draft
         self.course_run_3.course_run_state.save()
         response = self.assert_dashboard_response(studio_count=3, published_count=0, progress_count=3, preview_count=1)
-        self.assertContains(response, "Looks like you haven't published any course yet")
+        self.assertContains(response, 'No About pages have been published yet')
         self._assert_tabs_with_roles(response)
 
     def test_published_course_runs(self):
         """ Verify that published tab loads course runs list. """
         response = self.assert_dashboard_response(studio_count=2, published_count=1, progress_count=2, preview_count=1)
         self.assertContains(response, self.table_class.format(id='published'))
-        self.assertContains(response, 'The list below contains all course runs published in the past 30 days')
+        self.assertContains(response, 'About pages for the following course runs have been published in the')
         self._assert_tabs_with_roles(response)
 
     def test_published_course_runs_as_user_role(self):
@@ -1374,7 +1374,7 @@ class DashboardTests(TestCase):
         """ Verify that preview ready tabs loads the course runs list. """
         response = self.assert_dashboard_response(studio_count=2, preview_count=1, progress_count=2, published_count=1)
         self.assertContains(response, self.table_class.format(id='preview'))
-        self.assertContains(response, 'The following course run previews are available for course team approval.')
+        self.assertContains(response, 'About page previews for the following course runs are available for course team')
         self._assert_tabs_with_roles(response)
 
     def test_without_preview_ready_course_runs(self):
