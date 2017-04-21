@@ -94,6 +94,18 @@ class MarketingSitePublisher(object):
             form_attributes[field] = form.find('input', {'name': field}).get('value')
         return form_attributes
 
+    def _get_alias_url(self, api_client, slug):
+        base_aliases_url = '{root}/admin/config/search/path'.format(root=api_client.api_url)
+        list_aliases_url = '{url}/list/{slug}'.format(url=base_aliases_url, slug=slug)
+        response = api_client.api_session.get(list_aliases_url)
+
+        if response.status_code != 200:
+            raise ProgramPublisherException('Marketing site alias form retrieval failed!')
+
+        form = BeautifulSoup(response.text, 'html.parser')
+        delete_element = form.select('.delete.last a')
+        return delete_element[0].get('href') if delete_element else None
+
     def _get_delete_alias_url(self, api_client, url):
         response = api_client.api_session.get(url)
         if response.status_code != 200:
@@ -112,7 +124,7 @@ class MarketingSitePublisher(object):
         alias = '{program_type_slug}/{slug}'.format(program_type_slug=program.type.slug, slug=program.marketing_slug)
         return alias
 
-    def _add_alias(self, api_client, node_id, alias, before_slug):
+    def _add_alias(self, api_client, node_id, alias, before_slug, new_slug):
         base_aliases_url = '{root}/admin/config/search/path'.format(root=api_client.api_url)
         add_aliases_url = '{url}/add'.format(url=base_aliases_url)
         node_url = 'node/{node_id}'.format(node_id=node_id)
@@ -131,7 +143,7 @@ class MarketingSitePublisher(object):
             raise ProgramPublisherException('Marketing site alias creation failed!')
 
         # Delete old alias after saving new one
-        if before_slug:
+        if before_slug and before_slug != new_slug:
             list_aliases_url = '{url}/list/{slug}'.format(url=base_aliases_url, slug=before_slug)
             delete_alias_url = self._get_delete_alias_url(api_client, list_aliases_url)
             if delete_alias_url:
@@ -147,11 +159,8 @@ class MarketingSitePublisher(object):
                 if response.status_code != 200:
                     raise ProgramPublisherException('Marketing site alias deletion failed!')
 
-    def _delete_title_alias(self, api_client, title_slug):
-        base_aliases_url = '{root}/admin/config/search/path'.format(root=api_client.api_url)
+    def _delete_title_alias(self, api_client, delete_alias_url):
         headers = self._get_headers()
-        list_aliases_url = '{url}/list/{slug}'.format(url=base_aliases_url, slug=title_slug)
-        delete_alias_url = self._get_delete_alias_url(api_client, list_aliases_url)
         if delete_alias_url:
             delete_alias_url = '{root}{url}'.format(root=api_client.api_url, url=delete_alias_url)
             data = {
@@ -176,14 +185,20 @@ class MarketingSitePublisher(object):
             else:
                 # We should create a new node
                 node_id = self._create_node(api_client, node_data)
+
             before_alias = self._make_alias(self.program_before) if self.program_before else None
             new_alias = self._make_alias(program)
+            new_slug = program.marketing_slug
             before_slug = self.program_before.marketing_slug if self.program_before else None
             title_slug = slugify(program.title, allow_unicode=True)
-            self._delete_title_alias(api_client, title_slug)
+            title_url_alias = self._get_alias_url(api_client, title_slug)
+            if title_url_alias:
+                self._delete_title_alias(api_client, title_url_alias)
 
-            if not self.program_before or (before_alias != new_alias):
-                self._add_alias(api_client, node_id, new_alias, before_slug)
+            slug_url_alias = self._get_alias_url(api_client, new_slug)
+
+            if not self.program_before or (before_alias != new_alias) or not slug_url_alias:
+                self._add_alias(api_client, node_id, new_alias, before_slug, new_slug)
 
     def delete_program(self, program):
         api_client = self._get_api_client(program)
