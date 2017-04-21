@@ -1,10 +1,10 @@
 {% load i18n %}
 {% if published_count == 0 %}
-    <div class="empty-courserun-text">{% trans "Looks like you haven't published any course yet." %}</div>
+    <div class="empty-courserun-text">{% trans "No course runs have been published yet." %}</div>
 {% else %}
     <p>
         {% blocktrans trimmed %}
-            The list below contains all course runs published in the past {{ default_published_days }} days.
+            About pages for the following course runs have been published in the past {{ default_published_days }} days.
         {% endblocktrans %}
     </p>
     <table class="data-table-published display" cellspacing="0" width="100%">
