@@ -18,7 +18,7 @@
         {% for course_run in course.course_runs %}
             <div class="layout-1t2t layout-reversed course-run-item">
                 <div class="layout-col layout-col-a created-by">
-                    {% blocktrans with created_date=course_run.created.date created_time=course_run.created.time created_by=course_run.created_by.full_name %}
+                    {% blocktrans with created_date=course_run.created.date created_time=course_run.created.time created_by=course_run.created_by %}
                         Created {{ created_date }} at {{ created_time }} by {{ created_by }}
                     {% endblocktrans %}
                 </div>

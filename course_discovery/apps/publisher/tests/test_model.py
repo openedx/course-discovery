@@ -49,7 +49,7 @@ class CourseRunTests(TestCase):
         history_object.history_user = user
         history_object.save()
 
-        self.assertEqual(self.course_run.created_by, user)
+        self.assertEqual(self.course_run.created_by, user.get_full_name())
 
     def test_studio_url(self):
         """ Verify that property returns studio url. """
