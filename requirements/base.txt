@@ -44,3 +44,5 @@ python-dateutil==2.5.3
 pytz==2016.6.1
 # Pinning `requests` at 2.9.1 because the latest version of the package causes test failures with mocked requests
 requests==2.9.1
+# Temporary. An upgraded version of edx-auth-backends will require this for installation.
+social-auth-app-django==0.1.0
