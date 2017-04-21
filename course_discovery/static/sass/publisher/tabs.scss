@@ -141,13 +141,3 @@
       display: block;
     }
   }
-
-#progress {
-    max-width: 100%;
-    overflow-x: auto;
-
-    .dataTables_wrapper {
-        @include padding-right(20px);
-        width: 120%;
-    }
-}

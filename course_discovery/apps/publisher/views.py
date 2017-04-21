@@ -728,7 +728,8 @@ def get_course_role_widgets_data(user, course, state_object, change_state_url, p
                     role_widget['button_disabled'] = True
 
         if course_role.role in roles:
-            if state_object.name == CourseStateChoices.Approved and course_role.role == state_object.approved_by_role:
+            reviewed_states = [CourseStateChoices.Approved, CourseRunStateChoices.Published]
+            if state_object.name in reviewed_states and course_role.role == state_object.approved_by_role:
                 history_record = state_object.history.filter(
                     name=CourseStateChoices.Approved
                 ).order_by('-modified').first()

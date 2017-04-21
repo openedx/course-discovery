@@ -271,7 +271,11 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
 
     @property
     def created_by(self):
-        return self.history.order_by('history_date').first().history_user     # pylint: disable=no-member
+        history_user = self.history.order_by('history_date').first().history_user     # pylint: disable=no-member
+        if history_user:
+            return history_user.get_full_name() or history_user.username
+
+        return
 
     @property
     def studio_url(self):
