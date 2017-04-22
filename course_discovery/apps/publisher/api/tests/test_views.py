@@ -143,7 +143,7 @@ class OrganizationGroupUserViewTests(TestCase):
 
         organization_extension = factories.OrganizationExtensionFactory()
         self.org_user1 = UserFactory.create(full_name="org user1")
-        self.org_user2 = UserFactory.create(first_name='', last_name='', full_name='')
+        self.org_user2 = UserFactory.create(first_name='', last_name='', full_name='', username='abc user')
         organization_extension.group.user_set.add(*[self.org_user1, self.org_user2])
         self.organization = organization_extension.organization
 
@@ -157,17 +157,16 @@ class OrganizationGroupUserViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         expected_results = [
             {
-                "id": self.org_user1.id,
-                "full_name": self.org_user1.full_name
-            },
-            {
                 "id": self.org_user2.id,
                 "full_name": self.org_user2.username
+            },
+            {
+                "id": self.org_user1.id,
+                "full_name": self.org_user1.full_name
             }
         ]
 
-        self.assertIn(expected_results[0], json.loads(response.content.decode("utf-8"))["results"])
-        self.assertIn(expected_results[1], json.loads(response.content.decode("utf-8"))["results"])
+        self.assertEqual(expected_results, json.loads(response.content.decode("utf-8"))["results"])
 
     def test_get_organization_not_found(self):
         """
