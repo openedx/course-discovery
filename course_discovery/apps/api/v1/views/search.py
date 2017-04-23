@@ -5,7 +5,7 @@ from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 from rest_framework import status
 from rest_framework.decorators import list_route
-from rest_framework.exceptions import ParseError, ValidationError
+from rest_framework.exceptions import NotFound, ParseError, ValidationError
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -66,8 +66,53 @@ class BaseHaystackViewSet(FacetMixin, HaystackViewSet):
               items:
                 pytype: str
               required: false
+
+        Overrides and re-implement FacetsMixin.facets so that we can populate the queryset cache before passing it to
+        the serializer and avoid making extra search queries. Original implimentation:
+        https://github.com/inonit/drf-haystack/blob/master/drf_haystack/mixins.py#L47
         """
-        return super(BaseHaystackViewSet, self).facets(request)
+        queryset = self.filter_facet_queryset(self.get_queryset())
+
+        for facet in request.query_params.getlist("selected_facets"):
+
+            if ":" not in facet:
+                continue
+
+            field, value = facet.split(":", 1)
+            if value:
+                queryset = queryset.narrow('%s:"%s"' % (field, queryset.query.clean(value)))
+
+        # Run the query and populate the cache before passing the queryset to the serializer, to prevent extra
+        # queries from running.
+        self.populate_queryset_cache(queryset, request)
+        serializer = self.get_facet_serializer(queryset.facet_counts(), objects=queryset, many=False)
+        return Response(serializer.data)
+
+    def populate_queryset_cache(self, queryset, request):
+        """ Execute the query and populate the cache with the results for the requested page/page_size."""
+        pagination_instance = self.pagination_class()
+        page_size = pagination_instance.get_page_size(request)
+        page_number = request.query_params.get(pagination_instance.page_query_param, 1)
+
+        # If page_number is something like 'last', we have no way to infer what the actual page number should
+        # be. Set it to one so that we can at least warm the cache for the calls to facet_counts and count
+        # that will come later, even though we'll probably still have to run an additional query to actually
+        # get the results.
+        if page_number in pagination_instance.last_page_strings:
+            page_number = 1
+
+        # Page number validation logic borrowed from the django.core.Paginator:
+        # https://github.com/django/django/blob/1.9.12/django/core/paginator.py#L29
+        try:
+            page_number = int(page_number)
+        except (TypeError, ValueError):
+            raise NotFound('Invalid page.')
+        if page_number < 1:
+            raise NotFound('Invalid page.')
+
+        start = (page_number - 1) * page_size
+        end = start + page_size
+        queryset._fill_cache(start, end)  # pylint: disable=protected-access
 
     def filter_facet_queryset(self, queryset):
         queryset = super().filter_facet_queryset(queryset)
