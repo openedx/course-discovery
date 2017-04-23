@@ -18,8 +18,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-14 15:14+0500\n"
-"PO-Revision-Date: 2017-04-15 09:42+0000\n"
+"POT-Creation-Date: 2017-04-20 11:56-0400\n"
+"PO-Revision-Date: 2017-04-21 09:15+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Arabic (http://www.transifex.com/open-edx/edx-platform/language/ar/)\n"
 "MIME-Version: 1.0\n"
@@ -213,6 +213,13 @@ msgid "Partners"
 msgstr "شركاء"
 
 #: apps/course_metadata/admin.py
+#, python-brace-format
+msgid ""
+"An error occurred while publishing the {model} to the marketing site. Please"
+" try again. If the error persists, please contact the Engineering Team."
+msgstr ""
+
+#: apps/course_metadata/admin.py
 msgid "eligible for one-click purchase"
 msgstr ""
 
@@ -228,12 +235,6 @@ msgstr "كلا"
 #: apps/course_metadata/admin.py
 msgid "Included course runs"
 msgstr "مجريات الدورات الموجودة"
-
-#: apps/course_metadata/admin.py
-msgid ""
-"An error occurred while publishing the program to the marketing site. Please"
-" try again. If the error persists, please contact the Engineering Team."
-msgstr "لقد حدث خطأ أثناء نشر البرنامج في موقع التسويق. حاول مرة اخرى. إذا استمر الخطأ، يرجى الاتصال بفريق الهندسة."
 
 #: apps/course_metadata/choices.py apps/publisher/choices.py
 msgid "Published"
@@ -452,8 +453,12 @@ msgid "Allow courses in this program to be purchased in a single transaction"
 msgstr ""
 
 #: apps/course_metadata/views.py
-msgid "Change program excluded course runs"
-msgstr "تغيير البرنامج استبعد مجرى الدورة"
+msgid "Update excluded course runs"
+msgstr ""
+
+#: apps/course_metadata/views.py
+msgid "The program was changed successfully."
+msgstr ""
 
 #: apps/publisher/api/serializers.py
 #, python-brace-format
@@ -498,8 +503,7 @@ msgstr "مسودّة"
 msgid "Review"
 msgstr "مراجعة"
 
-#: apps/publisher/choices.py
-#: templates/publisher/course_run_detail/_widgets.html
+#: apps/publisher/choices.py templates/publisher/_approval_widget.html
 #: templates/publisher/dashboard/_in_preview.html
 msgid "Approved"
 msgstr "موافق عليه"
@@ -566,8 +570,7 @@ msgstr "إزالة الصورة"
 msgid "Organization Name"
 msgstr "اسم المنظمة"
 
-#: apps/publisher/forms.py templates/publisher/add_courserun_form.html
-#: templates/publisher/course_detail.html
+#: apps/publisher/forms.py templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 msgid "Course Title"
 msgstr "عنوان المقرر"
@@ -617,7 +620,6 @@ msgstr "التعليم العالي (اختياري)"
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
-#: templates/publisher/course_run_detail/_all.html
 msgid "Expected Learnings"
 msgstr "توقعات التعلم"
 
@@ -625,7 +627,7 @@ msgstr "توقعات التعلم"
 msgid "Learner Testimonial"
 msgstr ""
 
-#: apps/publisher/forms.py
+#: apps/publisher/forms.py templates/publisher/course_detail.html
 msgid "Syllabus"
 msgstr ""
 
@@ -981,7 +983,7 @@ msgid "Edit Comment"
 msgstr "تعديل التعليق"
 
 #: templates/comments/edit_comment.html
-#: templates/publisher/course_run_detail/_widgets.html
+#: templates/publisher/_approval_widget.html
 #: templates/publisher/seat_form.html
 msgid "Save"
 msgstr "حفظ"
@@ -1015,11 +1017,11 @@ msgid "Click here to upload your image"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Name"
 msgstr "الاسم"
 
 #: templates/publisher/_add_instructor_popup.html
-#: templates/publisher/add_courserun_form.html
 msgid "required"
 msgstr "مطلوب"
 
@@ -1034,14 +1036,17 @@ msgid "Title"
 msgstr "العنوان"
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 #: templates/publisher/course_run_detail/_studio.html
 #: templates/publisher/dashboard/_in_preview.html
+#: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_published.html
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Organization"
 msgstr "المؤسسة"
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Bio"
 msgstr "السيرة الذاتية"
 
@@ -1083,6 +1088,46 @@ msgid ""
 "The %(link_start)s%(course_url)s%(link_middle)s parent course %(link_end)s "
 "for this course run has changes that must be approved before you can submit "
 "this course run for approval. You can save changes to this course run."
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "Decline"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "Accept"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "Publish"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "Submitted for review"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+#: templates/publisher/course_detail/_edit_warning_popup.html
+#: templates/publisher/course_run_detail/_edit_warning.html
+#: templates/publisher/courses.html
+msgid "Edit"
+msgstr "تحرير"
+
+#: templates/publisher/_approval_widget.html
+msgid "COURSE PREVIEW"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+#: templates/publisher/dashboard/_in_preview.html
+msgid "Preview URL"
+msgstr "معاينة URL"
+
+#: templates/publisher/_approval_widget.html
+msgid "View course preview live"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "Not available"
 msgstr ""
 
 #: templates/publisher/_approval_widget.html
@@ -1162,8 +1207,9 @@ msgid "REVISION HISTORY"
 msgstr "تاريخ المراجعة"
 
 #: templates/publisher/_history_widget.html
-msgid "Latest version"
-msgstr "الإصدار الأخير"
+#, python-format
+msgid "%(history_date)s&nbsp;by&nbsp;%(changed_by)s (Latest version)"
+msgstr ""
 
 #: templates/publisher/_history_widget.html
 #, python-format
@@ -1205,109 +1251,11 @@ msgid ""
 msgstr "\nستؤثر الحقول أدناه فقط على مجرى الدورة التعليمية الجديدة. إذا كنت تشعر بحاجة إلى تحرير المعلومات من الدورة الأصل، يمكنك القيام بذلك على %(link_start)s%(course_url)s%(link_middle)sالدورة الأصل لهذا المجرى%(link_end)s."
 
 #: templates/publisher/add_courserun_form.html
-msgid "Studio instance information"
-msgstr "معلومات مثيل الاستديو"
-
-#: templates/publisher/add_courserun_form.html
 msgid ""
 "\n"
 "                                    The information in this section is required to create a course studio instance. You must fill all required information but are welcome to come back and enter the rest of the information when you are ready to announce the course, or you can do it all at once if you are ready to do so.\n"
 "                                "
 msgstr "\nالمعلومات في هذا القسم مطلوبة لإنشاء مثيل استديو دورة تعليمية. يجب ملء جميع المعلومات المطلوبة ولكن يمكنك أن تعود مرة أخرى وتدخل بقية المعلومات عندما تكون مستعداً لإعلان هذه الدورة التعليمية، أو يمكنك القيام بذلك عندما تكون مستعد لذلك."
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "COURSE TITLE"
-msgstr "عنوان المقرر"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Best Practices"
-msgstr "أفضل الممارسات"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Examples"
-msgstr "أمثلة"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Maximum 70 characters. Recommended 50 or fewer characters."
-msgstr "الحد الأقصى 70 حرف. يوصى ب 50 حرف أو أقل."
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "An effective course title:"
-msgstr "عنوان دورة تدريسية فعال:"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Clearly indicates the course subject matter."
-msgstr "يشير بوضوح إلى موضوع الدورة التعليمية."
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Follows search engine optimization (SEO) guidelines."
-msgstr " المبادئ التوجيهية لتطوير محرك البحث (SEO)"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Targets a global audience."
-msgstr "يستهدف جمهور عالمي."
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid ""
-"If the course is part of a sequence, include both sequence and course "
-"information as \\"
-msgstr "إذا كانت الدورة التعليمية هي جزء من سلسلة، قم بشمل كلاً من التسلسل ومعلومات الدورة التعليمية كما /"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Single Courses"
-msgstr "دورات تعليمية واحدة"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "English Grammar and Essay Writing"
-msgstr "قواعد اللغة الإنجليزية وكتابة المقالات"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Sequence Courses:"
-msgstr "دورات تعليمية متسلسلة:"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Statistics: Inference"
-msgstr "الإحصاء: الاستدلال الاحصائي"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Statistics: Probability"
-msgstr "الإحصاء: الاحتمالات"
-
-#: templates/publisher/add_courserun_form.html
-msgid "Institution Course Admin"
-msgstr "مشرف المؤسسة على الدورة التعليمية"
-
-#: templates/publisher/add_courserun_form.html
-msgid "Change"
-msgstr "تغيير"
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/add_update_course_form.html
@@ -1356,42 +1304,6 @@ msgid ""
 " dates before the course end date. All assignments are due on the course end"
 " date."
 msgstr "لا تشمل الدورات التي تجري وفقاً للوتيرة الشخصية مهام فردية التي لديها تواريخ تقديم محددة قبل تاريخ نهاية الدورة. يجب تقديم جيمع المهام في تاريخ انتهاء الدورة."
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "COURSE NUMBER"
-msgstr "رقم الدورة التعليمية"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Maximum 10 characters. Characters can be letters, numbers, or periods."
-msgstr "الحد الأقصى 10 أحرف. يمكن للأحرف أن تكون حروف وأرقام، أو فترات"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid ""
-"If a course consists of several modules, the course number can have an "
-"ending such as .1x or .2x."
-msgstr "إذا كانت الدورة تتألف من عدة وحدات، لا يمكن لرقم المقرر أن ينتهي ب.1x أو .2x على سبيل المثال"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "CS002x"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "BIO1.1x; BIO1.2x etc."
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "About page information"
-msgstr "معلومات صفحة اللمحة"
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/add_update_course_form.html
@@ -1475,9 +1387,108 @@ msgid "Studio Instance"
 msgstr "مثال الاستوديو"
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "COURSE TITLE"
+msgstr "عنوان المقرر"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Best Practices"
+msgstr "أفضل الممارسات"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Examples"
+msgstr "أمثلة"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Maximum 70 characters. Recommended 50 or fewer characters."
+msgstr "الحد الأقصى 70 حرف. يوصى ب 50 حرف أو أقل."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "An effective course title:"
+msgstr "عنوان دورة تدريسية فعال:"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Clearly indicates the course subject matter."
+msgstr "يشير بوضوح إلى موضوع الدورة التعليمية."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Follows search engine optimization (SEO) guidelines."
+msgstr " المبادئ التوجيهية لتطوير محرك البحث (SEO)"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Targets a global audience."
+msgstr "يستهدف جمهور عالمي."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"If the course is part of a sequence, include both sequence and course "
+"information as \\"
+msgstr "إذا كانت الدورة التعليمية هي جزء من سلسلة، قم بشمل كلاً من التسلسل ومعلومات الدورة التعليمية كما /"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Single Courses"
+msgstr "دورات تعليمية واحدة"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "English Grammar and Essay Writing"
+msgstr "قواعد اللغة الإنجليزية وكتابة المقالات"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Sequence Courses:"
+msgstr "دورات تعليمية متسلسلة:"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Statistics: Inference"
+msgstr "الإحصاء: الاستدلال الاحصائي"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Statistics: Probability"
+msgstr "الإحصاء: الاحتمالات"
+
+#: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_run/edit_run_form.html
 msgid "COURSE PACING"
 msgstr "وتيرة الدورة"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "COURSE NUMBER"
+msgstr "رقم الدورة التعليمية"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Maximum 10 characters. Characters can be letters, numbers, or periods."
+msgstr "الحد الأقصى 10 أحرف. يمكن للأحرف أن تكون حروف وأرقام، أو فترات"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"If a course consists of several modules, the course number can have an "
+"ending such as .1x or .2x."
+msgstr "إذا كانت الدورة تتألف من عدة وحدات، لا يمكن لرقم المقرر أن ينتهي ب.1x أو .2x على سبيل المثال"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "CS002x"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "BIO1.1x; BIO1.2x etc."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_run/edit_run_form.html
@@ -1937,7 +1948,6 @@ msgid "Course Detail"
 msgstr ""
 
 #: templates/publisher/course_detail.html templates/publisher/courses.html
-#: templates/publisher/dashboard/_in_progress.html
 msgid "Institution"
 msgstr "المؤسسة التعليمية"
 
@@ -1986,13 +1996,6 @@ msgid ""
 "                The %(current_team_name)s team is currently reviewing this course. If you edit course information, you might overwrite the team’s changes, and you will have to send the course to the %(team_name)s team for review again.\n"
 "            "
 msgstr ""
-
-#: templates/publisher/course_detail/_edit_warning_popup.html
-#: templates/publisher/course_run_detail/_edit_warning.html
-#: templates/publisher/course_run_detail/_widgets.html
-#: templates/publisher/courses.html
-msgid "Edit"
-msgstr "تحرير"
 
 #: templates/publisher/course_detail/_widgets.html
 #: templates/publisher/course_run_detail/_widgets.html
@@ -2317,6 +2320,7 @@ msgid "What you'll learn"
 msgstr "ما الذي ستتعلمه"
 
 #: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Download"
 msgstr ""
 
@@ -2350,6 +2354,30 @@ msgid ""
 "The %(current_team_name)s is currently reviewing this course run. If you "
 "edit course run information, you might overwrite the team’s changes, and you"
 " will have to send the course run to the %(team_name)s for review again."
+msgstr ""
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Position"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Profile URL "
+msgstr ""
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "FaceBook URL "
+msgstr ""
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Twitter URL "
+msgstr ""
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Blog URL "
+msgstr ""
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Close"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
@@ -2478,39 +2506,6 @@ msgstr "تاريخ انتهاء التسجيل"
 #: templates/publisher/course_run_detail/_studio.html
 msgid "Pacing Type"
 msgstr "نوع الدراسة"
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "Decline"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "Accept"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "Publish"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "Submitted for review"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "COURSE PREVIEW"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-#: templates/publisher/dashboard/_in_preview.html
-msgid "Preview URL"
-msgstr "معاينة URL"
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "View course preview live"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "Not available"
-msgstr ""
 
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "Reason for declining preview"

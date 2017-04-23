@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-14 15:14+0500\n"
-"PO-Revision-Date: 2017-04-15 09:42+0000\n"
+"POT-Creation-Date: 2017-04-20 11:56-0400\n"
+"PO-Revision-Date: 2017-04-21 09:15+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Hebrew (http://www.transifex.com/open-edx/edx-platform/language/he/)\n"
 "MIME-Version: 1.0\n"
@@ -207,6 +207,13 @@ msgid "Partners"
 msgstr "שותפים"
 
 #: apps/course_metadata/admin.py
+#, python-brace-format
+msgid ""
+"An error occurred while publishing the {model} to the marketing site. Please"
+" try again. If the error persists, please contact the Engineering Team."
+msgstr ""
+
+#: apps/course_metadata/admin.py
 msgid "eligible for one-click purchase"
 msgstr ""
 
@@ -222,12 +229,6 @@ msgstr "לא"
 #: apps/course_metadata/admin.py
 msgid "Included course runs"
 msgstr "כולל הרצות קורס"
-
-#: apps/course_metadata/admin.py
-msgid ""
-"An error occurred while publishing the program to the marketing site. Please"
-" try again. If the error persists, please contact the Engineering Team."
-msgstr "התרחשה שגיאה בעת פרסום התכנית באתר השיווק. נא נסה שנית. אם השגיאה חוזרת על עצמה, נא צור קשר עם צוות ההנדסה."
 
 #: apps/course_metadata/choices.py apps/publisher/choices.py
 msgid "Published"
@@ -446,8 +447,12 @@ msgid "Allow courses in this program to be purchased in a single transaction"
 msgstr ""
 
 #: apps/course_metadata/views.py
-msgid "Change program excluded course runs"
-msgstr "שינוי תכנית מוציא מכלל אפשרות הרצות קורס"
+msgid "Update excluded course runs"
+msgstr ""
+
+#: apps/course_metadata/views.py
+msgid "The program was changed successfully."
+msgstr ""
 
 #: apps/publisher/api/serializers.py
 #, python-brace-format
@@ -492,8 +497,7 @@ msgstr "טיוטה"
 msgid "Review"
 msgstr "סקירה"
 
-#: apps/publisher/choices.py
-#: templates/publisher/course_run_detail/_widgets.html
+#: apps/publisher/choices.py templates/publisher/_approval_widget.html
 #: templates/publisher/dashboard/_in_preview.html
 msgid "Approved"
 msgstr "מאושר"
@@ -560,8 +564,7 @@ msgstr "הסר תמונה"
 msgid "Organization Name"
 msgstr "שם הארגון"
 
-#: apps/publisher/forms.py templates/publisher/add_courserun_form.html
-#: templates/publisher/course_detail.html
+#: apps/publisher/forms.py templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 msgid "Course Title"
 msgstr "כותרת הקורס"
@@ -611,7 +614,6 @@ msgstr "על-תיכוני (רשות)"
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
-#: templates/publisher/course_run_detail/_all.html
 msgid "Expected Learnings"
 msgstr "לימודים צפויים"
 
@@ -619,7 +621,7 @@ msgstr "לימודים צפויים"
 msgid "Learner Testimonial"
 msgstr ""
 
-#: apps/publisher/forms.py
+#: apps/publisher/forms.py templates/publisher/course_detail.html
 msgid "Syllabus"
 msgstr ""
 
@@ -975,7 +977,7 @@ msgid "Edit Comment"
 msgstr "ערוך הערה"
 
 #: templates/comments/edit_comment.html
-#: templates/publisher/course_run_detail/_widgets.html
+#: templates/publisher/_approval_widget.html
 #: templates/publisher/seat_form.html
 msgid "Save"
 msgstr "שמור"
@@ -1009,11 +1011,11 @@ msgid "Click here to upload your image"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Name"
 msgstr "שם"
 
 #: templates/publisher/_add_instructor_popup.html
-#: templates/publisher/add_courserun_form.html
 msgid "required"
 msgstr "נדרש"
 
@@ -1028,14 +1030,17 @@ msgid "Title"
 msgstr "כותרת"
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 #: templates/publisher/course_run_detail/_studio.html
 #: templates/publisher/dashboard/_in_preview.html
+#: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_published.html
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Organization"
 msgstr "ארגון"
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Bio"
 msgstr "ביוגרפיה"
 
@@ -1077,6 +1082,46 @@ msgid ""
 "The %(link_start)s%(course_url)s%(link_middle)s parent course %(link_end)s "
 "for this course run has changes that must be approved before you can submit "
 "this course run for approval. You can save changes to this course run."
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "Decline"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "Accept"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "Publish"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "Submitted for review"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+#: templates/publisher/course_detail/_edit_warning_popup.html
+#: templates/publisher/course_run_detail/_edit_warning.html
+#: templates/publisher/courses.html
+msgid "Edit"
+msgstr "ערוך"
+
+#: templates/publisher/_approval_widget.html
+msgid "COURSE PREVIEW"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+#: templates/publisher/dashboard/_in_preview.html
+msgid "Preview URL"
+msgstr "כתובת URL לתצוגה מקדימה"
+
+#: templates/publisher/_approval_widget.html
+msgid "View course preview live"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "Not available"
 msgstr ""
 
 #: templates/publisher/_approval_widget.html
@@ -1156,8 +1201,9 @@ msgid "REVISION HISTORY"
 msgstr "סקירת היסטוריה"
 
 #: templates/publisher/_history_widget.html
-msgid "Latest version"
-msgstr "הגרסה האחרונה"
+#, python-format
+msgid "%(history_date)s&nbsp;by&nbsp;%(changed_by)s (Latest version)"
+msgstr ""
 
 #: templates/publisher/_history_widget.html
 #, python-format
@@ -1199,109 +1245,11 @@ msgid ""
 msgstr "\nהשדות להלן ישפיעו רק על הרצת הקורס החדשה הזו. אם יש צורך לערוך מידע מהקורס המקורי, ניתן לעשות זאת ב- %(link_start)s%(course_url)s%(link_middle)s קורס המקורי עבור הרצה זו %(link_end)s."
 
 #: templates/publisher/add_courserun_form.html
-msgid "Studio instance information"
-msgstr "מידע על דוגמה לסטודיו"
-
-#: templates/publisher/add_courserun_form.html
 msgid ""
 "\n"
 "                                    The information in this section is required to create a course studio instance. You must fill all required information but are welcome to come back and enter the rest of the information when you are ready to announce the course, or you can do it all at once if you are ready to do so.\n"
 "                                "
 msgstr "\nהמידע בחלק זה דרוש ליצירת דוגמה לסטודיו בקורס. עליך למלא את כל המידע הדרוש. אתה מוזמן לחזור ולהזין את שאר המידע ברגע שאתה מוכן להכריז על הקורס או להזין הכל בבת אחת אם אתה מוכן לכך."
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "COURSE TITLE"
-msgstr "שם הקורס"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Best Practices"
-msgstr "שיטות מומלצות"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Examples"
-msgstr "דוגמאות"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Maximum 70 characters. Recommended 50 or fewer characters."
-msgstr "מקסימום 70 תווים. מומלץ על 50 תווים ומטה."
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "An effective course title:"
-msgstr "כותרת קורס מרשימה:"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Clearly indicates the course subject matter."
-msgstr "מתאר בבירור את עניין נושא הקורס."
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Follows search engine optimization (SEO) guidelines."
-msgstr "עקוב אחר הוראות אופטימיזציה של מנועי חיפוש (SEO)."
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Targets a global audience."
-msgstr "נועד לקהל גלובלי."
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid ""
-"If the course is part of a sequence, include both sequence and course "
-"information as \\"
-msgstr "אם הקורס הוא חלק מרצף, כלול את המידע על הקורס והרצף כ /"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Single Courses"
-msgstr "קורסים בודדים"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "English Grammar and Essay Writing"
-msgstr "דקדוק באנגלית וכתיבת חיבור"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Sequence Courses:"
-msgstr "קורסי המשך:"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Statistics: Inference"
-msgstr "סטטיסטיקה: הסקת מסקנות"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Statistics: Probability"
-msgstr "סטטיסטיקה: הסתברות"
-
-#: templates/publisher/add_courserun_form.html
-msgid "Institution Course Admin"
-msgstr "מינהלת מוסד הקורס"
-
-#: templates/publisher/add_courserun_form.html
-msgid "Change"
-msgstr "שינוי"
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/add_update_course_form.html
@@ -1350,42 +1298,6 @@ msgid ""
 " dates before the course end date. All assignments are due on the course end"
 " date."
 msgstr "לקורסים בקצב אישי אין משימות אישיות בעלית תאריכי יעד מסוימים לפני תאריך סיום הקורס. כל המשימות מיועדות לתאריך סיום הקורס."
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "COURSE NUMBER"
-msgstr "מספר קורס"
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Maximum 10 characters. Characters can be letters, numbers, or periods."
-msgstr "מקסימום 10 תווים. התווים יכולים להיות אותיות, מספרים או נקודות."
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid ""
-"If a course consists of several modules, the course number can have an "
-"ending such as .1x or .2x."
-msgstr "אם הקורס מכיל מספר מודולים, מספר הקורס יכול להסתיים ב-.1x או .2x."
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "CS002x"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "BIO1.1x; BIO1.2x etc."
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "About page information"
-msgstr "מידע על עמוד \"אודות\""
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/add_update_course_form.html
@@ -1469,9 +1381,108 @@ msgid "Studio Instance"
 msgstr "דוגמה לסטודיו"
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "COURSE TITLE"
+msgstr "שם הקורס"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Best Practices"
+msgstr "שיטות מומלצות"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Examples"
+msgstr "דוגמאות"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Maximum 70 characters. Recommended 50 or fewer characters."
+msgstr "מקסימום 70 תווים. מומלץ על 50 תווים ומטה."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "An effective course title:"
+msgstr "כותרת קורס מרשימה:"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Clearly indicates the course subject matter."
+msgstr "מתאר בבירור את עניין נושא הקורס."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Follows search engine optimization (SEO) guidelines."
+msgstr "עקוב אחר הוראות אופטימיזציה של מנועי חיפוש (SEO)."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Targets a global audience."
+msgstr "נועד לקהל גלובלי."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"If the course is part of a sequence, include both sequence and course "
+"information as \\"
+msgstr "אם הקורס הוא חלק מרצף, כלול את המידע על הקורס והרצף כ /"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Single Courses"
+msgstr "קורסים בודדים"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "English Grammar and Essay Writing"
+msgstr "דקדוק באנגלית וכתיבת חיבור"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Sequence Courses:"
+msgstr "קורסי המשך:"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Statistics: Inference"
+msgstr "סטטיסטיקה: הסקת מסקנות"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Statistics: Probability"
+msgstr "סטטיסטיקה: הסתברות"
+
+#: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_run/edit_run_form.html
 msgid "COURSE PACING"
 msgstr "קצב קורס"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "COURSE NUMBER"
+msgstr "מספר קורס"
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Maximum 10 characters. Characters can be letters, numbers, or periods."
+msgstr "מקסימום 10 תווים. התווים יכולים להיות אותיות, מספרים או נקודות."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"If a course consists of several modules, the course number can have an "
+"ending such as .1x or .2x."
+msgstr "אם הקורס מכיל מספר מודולים, מספר הקורס יכול להסתיים ב-.1x או .2x."
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "CS002x"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "BIO1.1x; BIO1.2x etc."
+msgstr ""
 
 #: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_run/edit_run_form.html
@@ -1931,7 +1942,6 @@ msgid "Course Detail"
 msgstr ""
 
 #: templates/publisher/course_detail.html templates/publisher/courses.html
-#: templates/publisher/dashboard/_in_progress.html
 msgid "Institution"
 msgstr "מוסד"
 
@@ -1980,13 +1990,6 @@ msgid ""
 "                The %(current_team_name)s team is currently reviewing this course. If you edit course information, you might overwrite the team’s changes, and you will have to send the course to the %(team_name)s team for review again.\n"
 "            "
 msgstr ""
-
-#: templates/publisher/course_detail/_edit_warning_popup.html
-#: templates/publisher/course_run_detail/_edit_warning.html
-#: templates/publisher/course_run_detail/_widgets.html
-#: templates/publisher/courses.html
-msgid "Edit"
-msgstr "ערוך"
 
 #: templates/publisher/course_detail/_widgets.html
 #: templates/publisher/course_run_detail/_widgets.html
@@ -2311,6 +2314,7 @@ msgid "What you'll learn"
 msgstr "מה תלמד"
 
 #: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Download"
 msgstr ""
 
@@ -2344,6 +2348,30 @@ msgid ""
 "The %(current_team_name)s is currently reviewing this course run. If you "
 "edit course run information, you might overwrite the team’s changes, and you"
 " will have to send the course run to the %(team_name)s for review again."
+msgstr ""
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Position"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Profile URL "
+msgstr ""
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "FaceBook URL "
+msgstr ""
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Twitter URL "
+msgstr ""
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Blog URL "
+msgstr ""
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Close"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
@@ -2472,39 +2500,6 @@ msgstr "תאריך סיום ההרשמה"
 #: templates/publisher/course_run_detail/_studio.html
 msgid "Pacing Type"
 msgstr "סוג קצב"
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "Decline"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "Accept"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "Publish"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "Submitted for review"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "COURSE PREVIEW"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-#: templates/publisher/dashboard/_in_preview.html
-msgid "Preview URL"
-msgstr "כתובת URL לתצוגה מקדימה"
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "View course preview live"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "Not available"
-msgstr ""
 
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "Reason for declining preview"

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-14 15:14+0500\n"
-"PO-Revision-Date: 2017-04-15 09:42+0000\n"
+"POT-Creation-Date: 2017-04-20 11:56-0400\n"
+"PO-Revision-Date: 2017-04-21 09:15+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: English (United States) (http://www.transifex.com/open-edx/edx-platform/language/en_US/)\n"
 "MIME-Version: 1.0\n"
@@ -202,6 +202,13 @@ msgid "Partners"
 msgstr ""
 
 #: apps/course_metadata/admin.py
+#, python-brace-format
+msgid ""
+"An error occurred while publishing the {model} to the marketing site. Please"
+" try again. If the error persists, please contact the Engineering Team."
+msgstr ""
+
+#: apps/course_metadata/admin.py
 msgid "eligible for one-click purchase"
 msgstr ""
 
@@ -216,12 +223,6 @@ msgstr ""
 
 #: apps/course_metadata/admin.py
 msgid "Included course runs"
-msgstr ""
-
-#: apps/course_metadata/admin.py
-msgid ""
-"An error occurred while publishing the program to the marketing site. Please"
-" try again. If the error persists, please contact the Engineering Team."
 msgstr ""
 
 #: apps/course_metadata/choices.py apps/publisher/choices.py
@@ -441,7 +442,11 @@ msgid "Allow courses in this program to be purchased in a single transaction"
 msgstr ""
 
 #: apps/course_metadata/views.py
-msgid "Change program excluded course runs"
+msgid "Update excluded course runs"
+msgstr ""
+
+#: apps/course_metadata/views.py
+msgid "The program was changed successfully."
 msgstr ""
 
 #: apps/publisher/api/serializers.py
@@ -487,8 +492,7 @@ msgstr ""
 msgid "Review"
 msgstr ""
 
-#: apps/publisher/choices.py
-#: templates/publisher/course_run_detail/_widgets.html
+#: apps/publisher/choices.py templates/publisher/_approval_widget.html
 #: templates/publisher/dashboard/_in_preview.html
 msgid "Approved"
 msgstr ""
@@ -555,8 +559,7 @@ msgstr ""
 msgid "Organization Name"
 msgstr ""
 
-#: apps/publisher/forms.py templates/publisher/add_courserun_form.html
-#: templates/publisher/course_detail.html
+#: apps/publisher/forms.py templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 msgid "Course Title"
 msgstr ""
@@ -606,7 +609,6 @@ msgstr ""
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
-#: templates/publisher/course_run_detail/_all.html
 msgid "Expected Learnings"
 msgstr ""
 
@@ -614,7 +616,7 @@ msgstr ""
 msgid "Learner Testimonial"
 msgstr ""
 
-#: apps/publisher/forms.py
+#: apps/publisher/forms.py templates/publisher/course_detail.html
 msgid "Syllabus"
 msgstr ""
 
@@ -970,7 +972,7 @@ msgid "Edit Comment"
 msgstr ""
 
 #: templates/comments/edit_comment.html
-#: templates/publisher/course_run_detail/_widgets.html
+#: templates/publisher/_approval_widget.html
 #: templates/publisher/seat_form.html
 msgid "Save"
 msgstr ""
@@ -1004,11 +1006,11 @@ msgid "Click here to upload your image"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Name"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
-#: templates/publisher/add_courserun_form.html
 msgid "required"
 msgstr ""
 
@@ -1023,14 +1025,17 @@ msgid "Title"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 #: templates/publisher/course_run_detail/_studio.html
 #: templates/publisher/dashboard/_in_preview.html
+#: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_published.html
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Organization"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Bio"
 msgstr ""
 
@@ -1072,6 +1077,46 @@ msgid ""
 "The %(link_start)s%(course_url)s%(link_middle)s parent course %(link_end)s "
 "for this course run has changes that must be approved before you can submit "
 "this course run for approval. You can save changes to this course run."
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "Decline"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "Accept"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "Publish"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "Submitted for review"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+#: templates/publisher/course_detail/_edit_warning_popup.html
+#: templates/publisher/course_run_detail/_edit_warning.html
+#: templates/publisher/courses.html
+msgid "Edit"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "COURSE PREVIEW"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+#: templates/publisher/dashboard/_in_preview.html
+msgid "Preview URL"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "View course preview live"
+msgstr ""
+
+#: templates/publisher/_approval_widget.html
+msgid "Not available"
 msgstr ""
 
 #: templates/publisher/_approval_widget.html
@@ -1151,7 +1196,8 @@ msgid "REVISION HISTORY"
 msgstr ""
 
 #: templates/publisher/_history_widget.html
-msgid "Latest version"
+#, python-format
+msgid "%(history_date)s&nbsp;by&nbsp;%(changed_by)s (Latest version)"
 msgstr ""
 
 #: templates/publisher/_history_widget.html
@@ -1194,108 +1240,10 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
-msgid "Studio instance information"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
 msgid ""
 "\n"
 "                                    The information in this section is required to create a course studio instance. You must fill all required information but are welcome to come back and enter the rest of the information when you are ready to announce the course, or you can do it all at once if you are ready to do so.\n"
 "                                "
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "COURSE TITLE"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Best Practices"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Examples"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Maximum 70 characters. Recommended 50 or fewer characters."
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "An effective course title:"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Clearly indicates the course subject matter."
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Follows search engine optimization (SEO) guidelines."
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Targets a global audience."
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid ""
-"If the course is part of a sequence, include both sequence and course "
-"information as \\"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Single Courses"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "English Grammar and Essay Writing"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Sequence Courses:"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Statistics: Inference"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Statistics: Probability"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "Institution Course Admin"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "Change"
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
@@ -1344,42 +1292,6 @@ msgid ""
 "Self-paced courses do not have individual assignments that have specific due"
 " dates before the course end date. All assignments are due on the course end"
 " date."
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "COURSE NUMBER"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Maximum 10 characters. Characters can be letters, numbers, or periods."
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid ""
-"If a course consists of several modules, the course number can have an "
-"ending such as .1x or .2x."
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "CS002x"
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/add_update_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "BIO1.1x; BIO1.2x etc."
-msgstr ""
-
-#: templates/publisher/add_courserun_form.html
-msgid "About page information"
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
@@ -1464,8 +1376,107 @@ msgid "Studio Instance"
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "COURSE TITLE"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Best Practices"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Examples"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Maximum 70 characters. Recommended 50 or fewer characters."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "An effective course title:"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Clearly indicates the course subject matter."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Follows search engine optimization (SEO) guidelines."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Targets a global audience."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"If the course is part of a sequence, include both sequence and course "
+"information as \\"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Single Courses"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "English Grammar and Essay Writing"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Sequence Courses:"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Statistics: Inference"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Statistics: Probability"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
 #: templates/publisher/course_run/edit_run_form.html
 msgid "COURSE PACING"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "COURSE NUMBER"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "Maximum 10 characters. Characters can be letters, numbers, or periods."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid ""
+"If a course consists of several modules, the course number can have an "
+"ending such as .1x or .2x."
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "CS002x"
+msgstr ""
+
+#: templates/publisher/add_update_course_form.html
+#: templates/publisher/course_edit_form.html
+msgid "BIO1.1x; BIO1.2x etc."
 msgstr ""
 
 #: templates/publisher/add_update_course_form.html
@@ -1926,7 +1937,6 @@ msgid "Course Detail"
 msgstr ""
 
 #: templates/publisher/course_detail.html templates/publisher/courses.html
-#: templates/publisher/dashboard/_in_progress.html
 msgid "Institution"
 msgstr ""
 
@@ -1974,13 +1984,6 @@ msgid ""
 "\n"
 "                The %(current_team_name)s team is currently reviewing this course. If you edit course information, you might overwrite the team’s changes, and you will have to send the course to the %(team_name)s team for review again.\n"
 "            "
-msgstr ""
-
-#: templates/publisher/course_detail/_edit_warning_popup.html
-#: templates/publisher/course_run_detail/_edit_warning.html
-#: templates/publisher/course_run_detail/_widgets.html
-#: templates/publisher/courses.html
-msgid "Edit"
 msgstr ""
 
 #: templates/publisher/course_detail/_widgets.html
@@ -2306,6 +2309,7 @@ msgid "What you'll learn"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_drupal.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Download"
 msgstr ""
 
@@ -2339,6 +2343,30 @@ msgid ""
 "The %(current_team_name)s is currently reviewing this course run. If you "
 "edit course run information, you might overwrite the team’s changes, and you"
 " will have to send the course run to the %(team_name)s for review again."
+msgstr ""
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Position"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Profile URL "
+msgstr ""
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "FaceBook URL "
+msgstr ""
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Twitter URL "
+msgstr ""
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Blog URL "
+msgstr ""
+
+#: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Close"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
@@ -2466,39 +2494,6 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_studio.html
 msgid "Pacing Type"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "Decline"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "Accept"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "Publish"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "Submitted for review"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "COURSE PREVIEW"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-#: templates/publisher/dashboard/_in_preview.html
-msgid "Preview URL"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "View course preview live"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "Not available"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_widgets.html
