@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# eric maginot <eric_maginot@hotmail.fr>, 2017
 # harifetraram <harifetraram@gmail.com>, 2017
 # Matthieu Falce <falce.matthieu@gmail.com>, 2016
 # Pierre TASSEL <pierre.tassel@outlook.fr>, 2016
@@ -11,9 +12,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-14 15:14+0500\n"
-"PO-Revision-Date: 2017-04-15 09:22+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2017-04-20 11:56-0400\n"
+"PO-Revision-Date: 2017-04-23 18:17+0000\n"
+"Last-Translator: eric maginot <eric_maginot@hotmail.fr>\n"
 "Language-Team: French (http://www.transifex.com/open-edx/edx-platform/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
