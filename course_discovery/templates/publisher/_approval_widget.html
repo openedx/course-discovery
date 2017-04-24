@@ -1,13 +1,13 @@
 {% load i18n %}
 
 <div class="approval-widget">
-    <h5 class="hd-5 emphasized approvals-heading">{% trans "APPROVALS" %}</h5>
+    <h5 class="hd-5 emphasized approvals-heading">{% trans "REVIEWS" %}</h5>
     {% if is_course_run and not object.course.course_state.is_approved %}
         <div class="parent-course-approval">
             {% url 'publisher:publisher_course_detail' object.course.id as course_url %}
             {% with link_start='<a href="' link_middle='">' link_end='</a>' %}
-            {% blocktrans trimmed %}
-              The {{ link_start }}{{ course_url }}{{ link_middle }} parent course {{ link_end }} for this course run has changes that must be approved before you can submit this course run for approval. You can save changes to this course run.
+            {% blocktrans with course_name=object.course.title trimmed %}
+                You can currently edit information for this course run. However, before you can submit this course run for review, you must finalize the information for {{ link_start }}{{ course_url }}{{ link_middle }}{{ course_name }}{{ link_end }} with edX.
             {% endblocktrans %}
             {% endwith %}
         </div>
@@ -30,7 +30,7 @@
                         {% elif preview_accepted_date %}
                             <span class="state-status">
                                 <span class="icon fa fa-check" aria-hidden="true"></span>
-                                {% trans "Approved" %}<br>
+                                {% trans "Accepted" %}<br>
                                 {{ preview_accepted_date|date:'m/d/y H:i a' }}
                             </span>
                             {% if object.course_run_state.is_ready_to_publish and object.course.publisher == request.user %}
@@ -48,18 +48,18 @@
                     </div>
                     <div class="layout-col layout-col-b">
                         <span class="preview-heading">
-                            <strong>{% trans "COURSE PREVIEW" %}</strong>
+                            <strong>{% trans "ABOUT PAGE PREVIEW" %}</strong>
                         </span>
                         <div class="preview-url">
                             {% if object.preview_url %}
                                 <span class="preview-url-heading">{% trans "Preview URL" %} - </span>
-                                <a href="{{ object.preview_url }}" target="_blank">{% trans "View course preview live" %}</a>
+                                <a href="{{ object.preview_url }}" target="_blank">{% trans "View About page preview" %}</a>
                             {% else %}
                                 {% if object.course.publisher == request.user %}
                                     <input id="id-review-url" type="text">
                                     <span class="error-message"></span>
                                 {% else %}
-                                    <span>{% trans "Not available" %}</span>
+                                    <span>{% trans "About page preview not available" %}</span>
                                 {% endif %}
                             {% endif %}
                         </div>
@@ -98,7 +98,13 @@
                             <strong>{{ role_widget.heading }}</strong>
                         </span>
                         {% if role_widget.ownership %}
-                            <span class="ownership-label">{{ role_widget.ownership.days }} {% trans "day in ownership" %}</span>
+                            <span class="ownership-label">{{ role_widget.ownership.days }}
+                                {% if role_widget.ownership.days == 1 %}
+                                    {% trans "day in ownership" %}
+                                {% else %}
+                                    {% trans "days in ownership" %}
+                                {% endif %}
+                            </span>
                         {% endif %}
                         <div class="role-assignment-container">
                             <div id="userRoleContainer-{{ role_widget.course_role.role }}">

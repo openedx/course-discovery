@@ -118,7 +118,7 @@
                                         <div id="tab-example" class="content">
                                             <ul>
                                                 <li>{% trans "CS002x" %}</li>
-                                                <li>{% trans "BIO1.1x; BIO1.2x etc." %}</li>
+                                                <li>{% trans "BIO1.1x, BIO1.2x" %}</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -133,7 +133,7 @@
                         <div class="{% if publisher_hide_features_for_pilot %}hidden{% endif %}">
                         <div class="course-information">
                             <fieldset class="form-group grid-container grid-manual">
-                                <div class="field-title">{% trans "BRIEF DESCRIPTION" %}</div>
+                                <div class="field-title">{% trans "SHORT DESCRIPTION" %}</div>
                                 <div class="row">
                                     <div class="col col-6 help-text">
                                         <div class="row">
@@ -174,7 +174,7 @@
                                     </div>
                                 </div>
 
-                                <div class="field-title">{% trans "FULL DESCRIPTION" %}</div>
+                                <div class="field-title">{% trans "LONG DESCRIPTION" %}</div>
                                 <div class="row">
                                     <div class="col col-6 help-text">
                             <div class="row">
@@ -199,6 +199,7 @@
                                 <p>{% trans "The first four lines are visible when the About page opens. Learners can select \"See More\" to view the full description." %}</p>
                             </div>
                             <div id="tab-example" class="content">
+                                <strong>{% trans "Content-based example:" %}</strong>
                                 <p>{% trans "Want to learn computer programming, but unsure where to begin? This is the course for you! Scratch is the computer programming language that makes it easy and fun to create interactive stories, games and animations and share them online." %}</p>
                                 <p>{% trans "This course is an introduction to computer science using the programming language Scratch, developed by MIT. Starting with the basics of using Scratch, the course will stretch your mind and challenge you. You will learn how to create amazing games, animated images and songs in just minutes with a simple “drag and drop” interface." %}</p>
                                 <p>{% trans "No previous programming knowledge needed. Join us as you start your computer science journey." %}</p>
@@ -221,7 +222,7 @@
                                 </div>
 
 
-                                <div class="field-title">{% trans "EXPECTED LEARNINGS" %}</div>
+                                <div class="field-title">{% trans "EXPECTED LEARNING" %}</div>
                                 <div class="row">
                                     <div class="col col-6 help-text">
                                         <div class="row">
@@ -273,7 +274,6 @@
                                         <label class="field-label ">{{ form.primary_subject.label_tag }}</label>
                                         {{ form.primary_subject }}
                                     </div>
-                                </div>
 
                                 <div class="row">
                                     <div class="col col-6 help-text">&nbsp;
@@ -409,12 +409,12 @@
                                     </div>
                                 </div>
 
-                                <div class="field-title">{% trans "LEVEL TYPE" %}</div>
+                                <div class="field-title">{% trans "LEVEL" %}</div>
                                 <div class="row">
                                     <div class="col col-6 help-text">
                                         <ul>
-                                            <li>{% trans "Introductory - No prerequisites; a learner with some to all of a secondary school degree could complete the course." %}</li>
-                                            <li>{% trans "Intermediate - Basic prerequisites; learners need a secondary school degree or some university courses." %}</li>
+                                            <li>{% trans "Introductory - No prerequisites; a learner who has completed some or all secondary school could complete the course." %}</li>
+                                            <li>{% trans "Intermediate - Basic prerequisites; learners need to complete secondary school or some university courses." %}</li>
                                             <li>{% trans "Advanced - Significant prerequisites; the course is geared to third or fourth year university students or master's degree students." %}</li>
                                         </ul>
                                     </div>
@@ -427,7 +427,7 @@
                                 <div class="field-title">{{ form.faq.label }}</div>
                                 <div class="row">
                                     <div class="col col-6 help-text">
-                                        <p>{% trans "Please provide any frequently asked questions and corresponding answers to those questions." %}</p>
+                                        <p>{% trans "Any frequently asked questions and the answers to those questions." %}</p>
                                     </div>
                                     <div class="col col-6 help-text">
                                         <label class="field-label ">{{ form.faq.label }}</label>
@@ -458,18 +458,18 @@
                                             </div>
                                             <div id="tab-practices" class="content active">
                                                 <p>
-                                                    {%trans "The About Video should excite and entice potential students to take your course. Think of it as a movie trailer or TV show promotion. The video should be compelling, and exhibit the instructor’s personality." %}<br>
-                                                    {%trans "Length: ideal length is 30-90 seconds (learners typically only watch an average of 30 seconds)" %}<br>
-                                                    {%trans "Should be produced and edited, using elements such as graphics, stock footage" %}
+                                                    {%trans "The About video should excite and entice potential students to take your course. Think of it as a movie trailer or TV show promotion. The video should be compelling, and exhibit the instructor’s personality." %}<br>
+                                                    {%trans "The ideal length is 30-90 seconds (learners typically watch an average of 30 seconds)." %}<br>
+                                                    {%trans "The About video should be produced and edited, using elements such as graphics and stock footage." %}
                                                 </p>
-                                                <p>{% trans "The About video should answer these key questions:" %}</p>
+                                                <p>{% trans "The About video should answer these key questions." %}</p>
                                                 <ul>
                                                     <li>{% trans "Why should a learner register?" %}</li>
                                                     <li>{% trans "What topics and concepts are covered?" %}</li>
                                                     <li>{% trans "Who is teaching the course?" %}</li>
                                                     <li>{% trans "What institution is delivering the course?" %}</li>
                                                 </ul>
-                                                <p>{% trans "Naming Specifications:" %}</p>
+                                                <p>{% trans "Naming specifications:" %}</p>
                                                 <ul>
                                                     <li>{% trans "Name: InstitutionX_CourseNumber_About.mov" %}</li>
                                                     <li>{% trans "Post to:" %} <a href="http://veda.edx.org/upload" target="_blank">http://veda.edx.org/upload</a></li>
@@ -479,15 +479,15 @@
                                                     <li>{% trans "Codec: H.264" %}</li>
                                                     <li>{% trans "Container: .mp4" %}</li>
                                                     <li>{% trans "Resolution: 1920x1080" %}</li>
-                                                    <li>{% trans "Frame Rate: 29.97 fps" %}</li>
+                                                    <li>{% trans "Frame rate: 29.97 fps" %}</li>
                                                     <li>{% trans "Aspect: 1.0" %}</li>
                                                     <li>{% trans "Bitrate: 5Mbps VBR" %}</li>
-                                                    <li>{% trans "Audio Codec: AAC 44.1KHz/192 Kbps" %}</li>
+                                                    <li>{% trans "Audio codec: AAC 44.1KHz/192 Kbps" %}</li>
                                                 </ul>
                                             </div>
                                             <div id="tab-example" class="content">
                                                 <p>
-                                                    {%trans "Visit edX’s Youtube channel for inspiration and examples of other About Videos:" %}
+                                                    {%trans "Visit edX’s YouTube channel for examples of other About videos:" %}
                                                     <a href="www.youtube.com/user/EdXOnline" target="_blank">www.youtube.com/user/EdXOnline</a>
                                                 </p>
                                             </div>
