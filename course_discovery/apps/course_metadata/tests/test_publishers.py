@@ -263,7 +263,10 @@ class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
     @mock.patch.object(ProgramMarketingSitePublisher, 'create_node', return_value='node_id')
     @mock.patch.object(ProgramMarketingSitePublisher, 'edit_node', return_value=None)
     @mock.patch.object(ProgramMarketingSitePublisher, 'update_node_alias', return_value=None)
-    def test_publish_obj(self, mock_update_node_alias, mock_edit_node, mock_create_node, *args):  # pylint: disable=unused-argument
+    @mock.patch.object(ProgramMarketingSitePublisher, 'get_and_delete_alias', return_value=None)
+    def test_publish_obj(
+            self, mock_get_and_delete_alias, mock_update_node_alias, mock_edit_node, mock_create_node, *args
+    ):  # pylint: disable=unused-argument
         """
         Verify that the publisher only attempts to publish programs of certain types,
         only attempts an edit when any one of a set of trigger fields is changed,
@@ -287,6 +290,7 @@ class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
 
             assert mock_create_node.called
             assert not mock_edit_node.called
+            assert mock_get_and_delete_alias.called
             assert mock_update_node_alias.called
 
             for mocked_method in mocked_methods:
@@ -305,6 +309,7 @@ class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
 
             assert not mock_create_node.called
             assert mock_edit_node.called
+            assert mock_get_and_delete_alias.called
             assert mock_update_node_alias.called
 
     @responses.activate
@@ -340,10 +345,14 @@ class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         and deletes an old alias, if one existed, and that appropriate exceptions
         are raised for non-200 status codes.
         """
-        # No previous object is provided. Alias creation should occur, but alias
-        # deletion should not.
+        # No previous object is provided. Create a new node and make sure
+        # title alias created, by default, based on the title is deleted
+        # and a new alias based on marketing slug is created.
         self.mock_api_client()
         self.mock_get_alias_form()
+        self.mock_get_delete_form(self.obj.title)
+        self.mock_delete_alias()
+        self.mock_get_delete_form(self.obj.marketing_slug)
         self.mock_add_alias()
 
         self.publisher.update_node_alias(self.obj, self.node_id, None)
@@ -356,6 +365,9 @@ class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         # alias creation. An exception should be raised.
         self.mock_api_client()
         self.mock_get_alias_form()
+        self.mock_get_delete_form(self.obj.title)
+        self.mock_delete_alias()
+        self.mock_get_delete_form(self.obj.marketing_slug)
         self.mock_add_alias(status=500)
 
         with pytest.raises(AliasCreateError):
@@ -366,6 +378,7 @@ class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         # A previous object is provided, but the marketing slug hasn't changed.
         # Neither alias creation nor alias deletion should occur.
         self.mock_api_client()
+        self.mock_get_delete_form(self.obj.marketing_slug)
 
         self.publisher.update_node_alias(self.obj, self.node_id, self.obj)
 
@@ -376,10 +389,13 @@ class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         previous_obj = ProgramFactory()
 
         self.mock_api_client()
-        self.mock_get_alias_form()
-        self.mock_add_alias()
+        self.mock_get_delete_form(self.obj.marketing_slug)
         self.mock_get_delete_form(previous_obj.marketing_slug)
+        self.mock_delete_alias_form()
         self.mock_delete_alias()
+        self.mock_get_alias_form()
+        self.mock_get_delete_form(self.obj.marketing_slug)
+        self.mock_add_alias()
 
         self.publisher.update_node_alias(self.obj, self.node_id, previous_obj)
 
@@ -391,9 +407,9 @@ class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         # Same scenario, but this time a non-200 status code is returned during
         # alias deletion. An exception should be raised.
         self.mock_api_client()
-        self.mock_get_alias_form()
-        self.mock_add_alias()
+        self.mock_get_delete_form(self.obj.marketing_slug)
         self.mock_get_delete_form(previous_obj.marketing_slug)
+        self.mock_delete_alias_form()
         self.mock_delete_alias(status=500)
 
         with pytest.raises(AliasDeleteError):

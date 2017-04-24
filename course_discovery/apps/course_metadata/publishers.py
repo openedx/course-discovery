@@ -2,7 +2,7 @@ import json
 from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
-from django.utils.functional import cached_property
+from django.utils.text import slugify
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.exceptions import (
@@ -255,6 +255,7 @@ class ProgramMarketingSitePublisher(BaseMarketingSitePublisher):
                     self.edit_node(node_id, node_data)
 
             if node_id:
+                self.get_and_delete_alias(slugify(obj.title))
                 self.update_node_alias(obj, node_id, previous_obj)
 
     def serialize_obj(self, obj):
@@ -292,65 +293,77 @@ class ProgramMarketingSitePublisher(BaseMarketingSitePublisher):
         """
         new_alias = self.alias(obj)
         previous_alias = self.alias(previous_obj) if previous_obj else None
+        new_alias_delete_path = self.alias_delete_path(self.get_alias_list_url(obj.marketing_slug))
 
-        if new_alias != previous_alias:
-            alias_add_url = '{}/add'.format(self.alias_api_base)
+        if new_alias != previous_alias or not new_alias_delete_path:
+            # Delete old alias before saving the new one.
+            if previous_obj and previous_obj.marketing_slug != obj.marketing_slug:
+                self.get_and_delete_alias(previous_obj.marketing_slug)
 
             headers = {
                 'content-type': 'application/x-www-form-urlencoded'
             }
 
             data = {
-                **self.alias_form_inputs,
+                **self.alias_form_inputs(self.alias_add_url),
                 'alias': new_alias,
                 'form_id': 'path_admin_form',
                 'op': 'Save',
                 'source': 'node/{}'.format(node_id),
             }
 
-            response = self.client.api_session.post(alias_add_url, headers=headers, data=data)
+            response = self.client.api_session.post(self.alias_add_url, headers=headers, data=data)
 
             if response.status_code != 200:
                 raise AliasCreateError
 
-            # Delete old alias after saving the new one.
-            if previous_obj:
-                alias_list_url = '{base}/list/{slug}'.format(
-                    base=self.alias_api_base,
-                    slug=previous_obj.marketing_slug
-                )
-                alias_delete_path = self.alias_delete_path(alias_list_url)
+    def get_and_delete_alias(self, slug):
+        """
+        Get the URL alias for the provided slug and delete it if exists.
 
-                if alias_delete_path:
-                    alias_delete_url = '{base}/{path}'.format(
-                        base=self.client.api_url,
-                        path=alias_delete_path.strip('/')
-                    )
+        Arguments:
+            slug (str): slug for which URL alias has to be fetched.
+        """
+        alias_list_url = self.get_alias_list_url(slug)
+        alias_delete_path = self.alias_delete_path(alias_list_url)
+        if alias_delete_path:
+            self.delete_alias(alias_delete_path)
 
-                    data = {
-                        **self.alias_form_inputs,
-                        'confirm': 1,
-                        'form_id': 'path_admin_delete_confirm',
-                        'op': 'Confirm',
-                    }
+    def delete_alias(self, alias_delete_path):
+        """
+        Delete the url alias for provided path
+        """
+        headers = {
+            'content-type': 'application/x-www-form-urlencoded'
+        }
+        alias_delete_url = '{base}/{path}'.format(
+            base=self.client.api_url,
+            path=alias_delete_path.strip('/')
+        )
 
-                    response = self.client.api_session.post(alias_delete_url, headers=headers, data=data)
+        data = {
+            **self.alias_form_inputs(alias_delete_url),
+            'confirm': 1,
+            'form_id': 'path_admin_delete_confirm',
+            'op': 'Confirm'
+        }
 
-                    if response.status_code != 200:
-                        raise AliasDeleteError
+        response = self.client.api_session.post(alias_delete_url, headers=headers, data=data)
+
+        if response.status_code != 200:
+            raise AliasDeleteError
 
     def alias(self, obj):
         return '{type}/{slug}'.format(type=obj.type.slug, slug=obj.marketing_slug)
 
-    @cached_property
-    def alias_form_inputs(self):
+    def alias_form_inputs(self, url):
         """
         Scrape input values from the form used to modify Drupal aliases.
 
         Raises:
             FormRetrievalError: If there's a problem getting the form from Drupal.
         """
-        response = self.client.api_session.get(self.alias_add_url)
+        response = self.client.api_session.get(url)
 
         if response.status_code != 200:
             raise FormRetrievalError
@@ -379,3 +392,9 @@ class ProgramMarketingSitePublisher(BaseMarketingSitePublisher):
         delete_element = html.select('.delete.last a')
 
         return delete_element[0].get('href') if delete_element else None
+
+    def get_alias_list_url(self, slug):
+        return '{base}/list/{slug}'.format(
+            base=self.alias_api_base,
+            slug=slug
+        )
