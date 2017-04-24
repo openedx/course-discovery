@@ -63,6 +63,11 @@ def send_email_for_comment(comment, created=False):
             course_name = course.title
 
         to_addresses = course.get_course_users_emails()
+
+        # remove email of comment owner if exists
+        if comment.user_email in to_addresses:
+            to_addresses.remove(comment.user_email)
+
         from_address = settings.PUBLISHER_FROM_EMAIL
 
         context = {
