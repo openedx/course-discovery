@@ -13,8 +13,8 @@
             <p>
                 {% url 'publisher:publisher_course_detail' parent_course.id as course_url %}
                 {% with link_start='<a href="' link_middle='">' link_end='</a>' %}
-                {% blocktrans %}
-                    The fields below will only affect this new course run. If you feel the need edit information from the parent course then you may do so on the {{ link_start }}{{ course_url }}{{ link_middle }}parent course for this run{{ link_end }}.
+                {% blocktrans with course_name=parent_course.title %}
+                    The information on this page applies only to this course run. To make changes to all course runs for this course, go to the {{ link_start }}{{ course_url }}{{ link_middle }}{{ course_name }}{{ link_end }} page.
                 {% endblocktrans %}
                 {% endwith %}
             </p>
@@ -27,11 +27,8 @@
                 <div class="course-form">
                     <div class="course-information">
                         <div class="copy-base">
-                            <p>
-                                {% blocktrans %}
-                                    The information in this section is required to create a course studio instance. You must fill all required information but are welcome to come back and enter the rest of the information when you are ready to announce the course, or you can do it all at once if you are ready to do so.
-                                {% endblocktrans%}
-                            </p>
+                            <p>{% trans "The following information is required before edX can create a Studio URL for this course run." %} </p>
+                            <p>{% trans "After you create this course run, you can add more information on the course run page." %}</p>
                         </div>
                         <fieldset class="form-group grid-container grid-manual">
                             <div class="field-title">{% trans "COURSE START DATE" %}</div>

@@ -50,7 +50,7 @@
 
             <div class="info-item history-field-container">
                 <div class="heading">
-                    {% trans "Brief Description" %}
+                    {% trans "Short Description" %}
                 </div>
                 <div class="current short_description">
                     {% with  object.short_description as field %}
@@ -62,7 +62,7 @@
 
             <div class="info-item history-field-container">
                 <div class="heading">
-                    {% trans "Full Description" %}
+                    {% trans "Long Description" %}
                 </div>
                 <div class="current full_description">
                     {% with  object.full_description as field %}
@@ -74,7 +74,7 @@
 
             <div class="info-item history-field-container">
                 <div class="heading">
-                    {% trans "Expected Learnings" %}
+                    {% trans "Expected Learning" %}
                 </div>
                 <div class="current expected_learnings">
                     {% with  object.expected_learnings as field %}
@@ -98,7 +98,7 @@
 
             <div class="info-item history-field-container">
                 <div class="heading">
-                    {% trans "Secondary Subject" %}
+                    {% trans "Additional Subject" %}
                 </div>
                 <div class="current secondary_subject">
                     {% with  object.secondary_subject as field %}
@@ -110,7 +110,7 @@
 
             <div class="info-item history-field-container">
                 <div class="heading">
-                    {% trans "Tertiary Subject" %}
+                    {% trans "Additional Subject" %}
                 </div>
                 <div class="current tertiary_subject">
                     {% with  object.tertiary_subject as field %}
@@ -183,7 +183,7 @@
             </div>
 
             <div class="info-item history-field-container">
-                <div class="heading">{% trans "Video Link" %}
+                <div class="heading">{% trans "About Video Link" %}
                 </div>
                 {% with  object.video_link as value %}
                     {% if value %}

@@ -213,7 +213,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
     course_form = CustomCourseForm
     run_form = CustomCourseRunForm
     seat_form = CustomSeatForm
-    template_name = 'publisher/add_update_course_form.html'
+    template_name = 'publisher/add_course_form.html'
     success_url = 'publisher:publisher_course_detail'
 
     def get_success_url(self, course_id):  # pylint: disable=arguments-differ

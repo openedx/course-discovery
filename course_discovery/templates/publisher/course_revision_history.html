@@ -43,7 +43,7 @@
 
 
     <div class="field-container">
-      <div class="field-title">{% trans "Brief Description" %}</div>
+      <div class="field-title">{% trans "Short Description" %}</div>
       <span class="object">{{ object.short_description }}</span>
       <span class="history-object">
         {% with  history_object.short_description as field %}
@@ -55,7 +55,7 @@
 
 
     <div class="field-container">
-      <div class="field-title">{% trans "Full Description" %}</div>
+      <div class="field-title">{% trans "Long Description" %}</div>
       <span class="object">{{ object.full_description }}</span>
       <span class="history-object">
         {% with history_object.full_description as field %}
@@ -67,7 +67,7 @@
     </div>
 
     <div class="field-container">
-      <div class="field-title">{% trans "Expected Learnings" %}</div>
+      <div class="field-title">{% trans "Expected Learning" %}</div>
       <span class="object">{{ object.expected_learnings }}</span>
       <span class="history-object">
         {% with history_object.expected_learnings as field %}
@@ -89,7 +89,7 @@
     </div>
 
     <div class="field-container">
-      <div class="field-title">{% trans "Secondary Subject" %}</div>
+      <div class="field-title">{% trans "Additional Subject" %}</div>
       <span class="object">{{ object.secondary_subject }}</span>
       <span class="history-object">
         {% with  history_object.secondary_subject as field %}
@@ -100,7 +100,7 @@
     </div>
 
     <div class="field-container">
-      <div class="field-title">{% trans "Tertiary Subject" %}</div>
+      <div class="field-title">{% trans "Additional Subject" %}</div>
       <span class="object">{{ object.tertiary_subject }}</span>
       <span class="history-object">
         {% with  history_object.tertiary_subject as field %}
@@ -155,7 +155,7 @@
     </div>
 
     <div class="field-container">
-      <div class="field-title">{% trans "Video Link" %}</div>
+      <div class="field-title">{% trans "About Video Link" %}</div>
       <span class="object">{{ object.video_link }}</span>
       <span class="history-object">{{ history_object.video_link }}</span>
       <span class="show-diff"></span>

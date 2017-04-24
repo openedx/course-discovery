@@ -12,22 +12,22 @@
                     <img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" class="select-image" />
                     <input name="staff-image" id="staffImageSelect" type="file" accept="image/*" onchange="loadSelectedImage(this);">
                 </div>
-                <label class="field-label" for="given-name">{% trans "Name" %}:
+                <label class="field-label" for="given-name">{% trans "First Name" %}
                     <span class="required">* {% trans "required" %}</span>
                 </label>
                 <input class="field-input input-text" type="text" id="given-name" name="given-name" />
 
-                <label class="field-label" for="family-name">{% trans "Family Name" %}:
+                <label class="field-label" for="family-name">{% trans "Last Name" %}
                     <span class="required">* {% trans "required" %}</span>
                 </label>
                 <input class="field-input input-text" type="text" id="family-name" name="family-name" />
 
-                <label class="field-label" for="title">{% trans "Title" %}:
+                <label class="field-label" for="title">{% trans "Title" %}
                     <span class="required">* {% trans "required" %}</span>
                 </label>
                 <input class="field-input input-text" type="text" id="title" name="title" />
 
-                <label class="field-label">{% trans "Organization" %}:
+                <label class="field-label">{% trans "Organization" %}
                     <span class="required">* {% trans "required" %}</span>
                 </label>
 
@@ -45,27 +45,27 @@
                     {% endif %}
                 {% endif %}
 
-                <label class="field-label" for="bio">{% trans "Bio" %}:
+                <label class="field-label" for="bio">{% trans "Bio" %}
                     <span class="required">* {% trans "required" %}</span>
                 </label>
                 <textarea class="field-textarea input-textarea textarea-medium textarea-block" id="bio" name="bio"></textarea>
 
-                <label class="field-label" for="facebook">{% trans "Facebook URL" %}:
+                <label class="field-label" for="facebook">{% trans "Facebook URL" %}
                     <span class="optional">* {% trans "optional" %}</span>
                 </label>
                 <input class="field-input input-text" type="text" id="facebook" name="facebook" />
 
-                <label class="field-label" for="twitter">{% trans "Twitter URL" %}:
+                <label class="field-label" for="twitter">{% trans "Twitter URL" %}
                     <span class="optional">* {% trans "optional" %}</span>
                 </label>
                 <input class="field-input input-text" type="text" id="twitter" name="twitter" />
 
-                <label class="field-label" for="blog">{% trans "Blog URL" %}:
+                <label class="field-label" for="blog">{% trans "Blog URL" %}
                     <span class="optional">* {% trans "optional" %}</span>
                 </label>
                 <input class="field-input input-text" type="text" id="blog" name="blog" />
 
-                <label class="field-label" for="majorWorks">{% trans "Major Works" %}:
+                <label class="field-label" for="majorWorks">{% trans "Major Works" %}
                     <span class="optional">({% trans "optional - one per line" %} )</span>
                 </label>
                 <textarea class="field-textarea input-textarea textarea-medium textarea-block" id="majorWorks" name="major-works"></textarea>
