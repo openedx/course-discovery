@@ -96,11 +96,11 @@ class CustomCourseForm(CourseForm):
     title = forms.CharField(label=_('Course Title'), required=True)
     number = forms.CharField(label=_('Course Number'), required=True)
     short_description = forms.CharField(
-        label=_('Brief Description'),
+        label=_('Short Description'),
         widget=forms.Textarea, required=False, validators=[validate_text_count(max_length=255)]
     )
     full_description = forms.CharField(
-        label=_('Full Description'), widget=forms.Textarea, required=False,
+        label=_('Long Description'), widget=forms.Textarea, required=False,
         validators=[validate_text_count(max_length=2500)]
     )
     prerequisites = forms.CharField(
@@ -122,22 +122,23 @@ class CustomCourseForm(CourseForm):
     )
     secondary_subject = forms.ModelChoiceField(
         queryset=subjects,
-        label=_('Secondary (optional)'),
+        label=_('Additional Subject (optional)'),
         required=False
     )
     tertiary_subject = forms.ModelChoiceField(
         queryset=subjects,
-        label=_('Tertiary (optional)'),
+        label=_('Additional Subject (optional)'),
         required=False
     )
 
     level_type = forms.ModelChoiceField(
         queryset=LevelType.objects.all().order_by('-name'),
+        label=_('Level'),
         required=False
     )
 
     expected_learnings = forms.CharField(
-        label=_('Expected Learnings'), widget=forms.Textarea, required=False,
+        label=_('Expected Learning'), widget=forms.Textarea, required=False,
         validators=[validate_text_count(max_length=2500)]
     )
 
@@ -237,6 +238,7 @@ class CustomCourseRunForm(CourseRunForm):
 
     transcript_languages = forms.ModelMultipleChoiceField(
         queryset=LanguageTag.objects.all(),
+        label=_('Transcript Languages'),
         widget=LanguageModelSelect2Multiple(
             url='language_tags:language-tag-autocomplete',
             attrs={
@@ -247,13 +249,13 @@ class CustomCourseRunForm(CourseRunForm):
     )
 
     is_xseries = forms.BooleanField(
-        label=_('Is XSeries?'),
+        label=_('XSeries'),
         widget=forms.CheckboxInput,
         required=False,
     )
 
     is_micromasters = forms.BooleanField(
-        label=_('Is MicroMasters?'),
+        label=_('MicroMasters'),
         widget=forms.CheckboxInput,
         required=False,
     )
@@ -261,6 +263,11 @@ class CustomCourseRunForm(CourseRunForm):
     xseries_name = forms.CharField(label=_('XSeries Name'), required=False)
     micromasters_name = forms.CharField(label=_('MicroMasters Name'), required=False)
     lms_course_id = forms.CharField(label=_('Course Run Key'), required=False)
+    video_language = forms.ModelChoiceField(
+        queryset=LanguageTag.objects.all(),
+        label=_('Video Language'),
+        required=False
+    )
 
     class Meta(CourseRunForm.Meta):
         fields = (

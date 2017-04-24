@@ -771,7 +771,7 @@ class CourseRunDetailTests(TestCase):
         response = self.client.get(self.page_url)
 
         self.assertIn('role_widgets', response.context)
-        self.assertContains(response, 'APPROVALS')
+        self.assertContains(response, 'REVIEWS')
 
     def test_details_page_with_edit_permission(self):
         """ Test that user can see edit button on course run detail page. """
@@ -900,7 +900,7 @@ class CourseRunDetailTests(TestCase):
 
         # Verify that content is sent for review and user can see Reviewed button as disabled.
         self.assertContains(response, 'Send for Review')
-        self.assertContains(response, '0 day in ownership')
+        self.assertContains(response, 'days in ownership')
         self.assertContains(response, self.get_expected_data(CourseRunStateChoices.Review, disabled=True))
 
         self._data_for_review_button()
@@ -1042,7 +1042,7 @@ class CourseRunDetailTests(TestCase):
         assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
         response = self.client.get(self.page_url)
 
-        self.assertContains(response, 'COURSE PREVIEW')
+        self.assertContains(response, 'ABOUT PAGE PREVIEW')
         self.assertContains(response, '<button class="btn btn-neutral btn-preview btn-preview-accept" type="button">')
         self.assertContains(response, '<button class="btn btn-neutral btn-preview btn-preview-decline" type="button">')
         self.assertContains(response, 'Reason for declining preview:')
@@ -1060,7 +1060,7 @@ class CourseRunDetailTests(TestCase):
         self.assertNotContains(
             response, '<button class="btn btn-neutral btn-preview btn-preview-decline" type="button">'
         )
-        self.assertContains(response, 'Approved')
+        self.assertContains(response, 'Accepted')
 
     def test_course_preview(self):
         """Verify that publisher user can see preview widget."""
@@ -1074,7 +1074,7 @@ class CourseRunDetailTests(TestCase):
         preview_api_url = reverse('publisher:api:update_course_run', args=[self.course_run.id])
 
         response = self.client.get(self.page_url)
-        self.assertContains(response, 'COURSE PREVIEW')
+        self.assertContains(response, 'ABOUT PAGE PREVIEW')
         self.assertContains(
             response,
             '<button data-url="{url}" class="btn btn-neutral btn-edit-preview-url">'.format(url=preview_api_url)
@@ -1085,7 +1085,7 @@ class CourseRunDetailTests(TestCase):
         self.course_run.save()
 
         response = self.client.get(self.page_url)
-        self.assertContains(response, 'COURSE PREVIEW')
+        self.assertContains(response, 'ABOUT PAGE PREVIEW')
         self.assertContains(
             response,
             '<button data-url="{url}" class="btn btn-neutral btn-save-preview-url">'.format(url=preview_api_url)
@@ -1751,8 +1751,8 @@ class CourseDetailViewTests(TestCase):
         assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
         response = self.client.get(self.detail_page_url)
 
-        self.assertContains(response, 'APPROVALS')
-        self.assertContains(response, '0 day in ownership')
+        self.assertContains(response, 'REVIEWS')
+        self.assertContains(response, 'days in ownership')
         self.assertContains(response, 'Send for Review')
         self.assertContains(response, self.user.full_name)
         # Verify that `Send for Review` button is disabled
