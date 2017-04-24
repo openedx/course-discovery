@@ -126,7 +126,7 @@ class CommentsEmailTests(TestCase):
 
     def assert_comment_email_sent(self, content_object, comment, object_path, subject):
         """ DRY method to assert send email data"""
-        self.assertEqual([self.user.email, self.user_2.email], mail.outbox[0].to)
+        self.assertEqual([self.user_2.email], mail.outbox[0].to)
         self.assertEqual(str(mail.outbox[0].subject), subject)
         body = mail.outbox[0].body.strip()
         if isinstance(content_object, CourseRun):
@@ -160,7 +160,7 @@ class CommentsEmailTests(TestCase):
         )
         self.create_comment(content_object=self.course_run)
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual([self.user.email, self.user_2.email, user_4.email, user_5.email], mail.outbox[0].to)
+        self.assertEqual([self.user_2.email, user_4.email, user_5.email], mail.outbox[0].to)
 
     def test_email_for_roles_only(self):
         """ Verify the emails send to the course roles users even if groups has no users. """
@@ -255,7 +255,7 @@ class CommentsEmailTests(TestCase):
     def create_comment(self, content_object, comment_type=CommentTypeChoices.Default):
         """ DRY method to create the comment for a given content type."""
         return CommentFactory(
-            content_object=content_object, user=self.user, site=self.site,
+            content_object=content_object, user=self.user, site=self.site, user_email=self.user.email,
             comment_type=comment_type
         )
 
