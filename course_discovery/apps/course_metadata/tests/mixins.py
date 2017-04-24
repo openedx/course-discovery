@@ -148,6 +148,15 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
                  '</input><input name="form_token" value="2"></input></form></html>'
         )
 
+    def mock_delete_alias_form(self, status=200):
+        responses.add(
+            responses.GET,
+            '{root}/admin/config/search/path/delete/foo'.format(root=self.api_root),
+            status=status,
+            body='<html><form><input name="form_build_id" value="1">'
+                 '</input><input name="form_token" value="2"></input></form></html>'
+        )
+
     def mock_get_delete_form(self, alias, status=200):
         responses.add(
             responses.GET,
