@@ -1,6 +1,7 @@
 from rest_framework import mixins, viewsets
 from rest_framework.filters import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
@@ -9,7 +10,7 @@ from course_discovery.apps.course_metadata.models import ProgramType
 
 
 # pylint: disable=no-member
-class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
+class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
     """ Program resource. """
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'

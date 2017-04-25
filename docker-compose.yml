@@ -27,9 +27,9 @@ services:
       - "9200:9200"
       - "9300:9300"
 
-  memcache:
+  memcached:
     image: memcached:1.4.24
-    container_name: memcache
+    container_name: memcached
 
   course-discovery:
     # Uncomment this line to use the official course-discovery base image
@@ -47,7 +47,7 @@ services:
     depends_on:
       - "db"
       - "es"
-      - "memcache"
+      - "memcached"
     environment:
       TEST_ELASTICSEARCH_URL: "http://es:9200"
       ENABLE_DJANGO_TOOLBAR: 1

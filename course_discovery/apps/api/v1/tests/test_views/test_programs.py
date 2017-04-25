@@ -1,4 +1,5 @@
 import ddt
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from rest_framework.test import APITestCase
 
@@ -23,6 +24,9 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         super(ProgramViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+        # Clear the cache between test cases, so they don't interfere with each other.
+        cache.clear()
 
     def create_program(self):
         organizations = [OrganizationFactory()]
@@ -66,7 +70,12 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         program = self.create_program()
         with self.assertNumQueries(42):
             response = self.assert_retrieve_success(program)
+
         assert response.data == self.serialize_program(program)
+
+        # Verify that repeated retrieve requests use the cache.
+        with self.assertNumQueries(2):
+            self.assert_retrieve_success(program)
 
     @ddt.data(True, False)
     def test_retrieve_with_sorting_flag(self, order_courses_by_start_date):
@@ -115,6 +124,9 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         expected = [self.create_program() for __ in range(3)]
         expected.reverse()
         self.assert_list_results(self.list_path, expected, 13)
+
+        # Verify that repeated list requests use the cache.
+        self.assert_list_results(self.list_path, expected, 2)
 
     def test_filter_by_type(self):
         """ Verify that the endpoint filters programs to those of a given type. """
