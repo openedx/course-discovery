@@ -308,7 +308,6 @@ LOGGING = {
     }
 }
 
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
@@ -333,6 +332,12 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'user': '100/hour',
     },
+}
+
+# http://chibisov.github.io/drf-extensions/docs/
+REST_FRAMEWORK_EXTENSIONS = {
+    'DEFAULT_CACHE_ERRORS': False,
+    'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60,
 }
 
 # NOTE (CCB): JWT_SECRET_KEY is intentionally not set here to avoid production releases with a public value.

@@ -14,9 +14,9 @@ services:
   es:
     image: elasticsearch:1.5.2
     container_name: es
-  memcache:
+  memcached:
     image: memcached:1.4.24
-    container_name: memcache
+    container_name: memcached
   course-discovery:
     # Uncomment this line to use the official course-discovery base image
     image: edxops/discovery:latest
@@ -33,8 +33,10 @@ services:
     depends_on:
       - "db"
       - "es"
-      - "memcache"
+      - "memcached"
     environment:
+      CACHE_BACKEND: "django.core.cache.backends.memcached.MemcachedCache"
+      CACHE_LOCATION: "memcached:11211"
       CONN_MAX_AGE: 60
       DB_ENGINE: "django.db.backends.mysql"
       DB_HOST: "db"
