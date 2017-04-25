@@ -472,6 +472,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'mobile_available': data.get('field_course_enrollment_mobile') or False,
             'video': course.video,
             'course': course,
+            'short_description_override': self.clean_html(data['field_course_sub_title_short']) or None,
         }
 
         if weeks_to_complete:
