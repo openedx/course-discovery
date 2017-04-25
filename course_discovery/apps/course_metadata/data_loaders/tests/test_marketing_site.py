@@ -524,6 +524,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
             'pacing_type': self.loader.get_pacing_type(data),
             'hidden': self.loader.get_hidden(data),
             'mobile_available': data['field_course_enrollment_mobile'] or False,
+            'short_description_override': self.loader.clean_html(data['field_course_sub_title_short']) or None,
         }
 
         if weeks_to_complete:
