@@ -337,7 +337,9 @@ REST_FRAMEWORK = {
 # http://chibisov.github.io/drf-extensions/docs/
 REST_FRAMEWORK_EXTENSIONS = {
     'DEFAULT_CACHE_ERRORS': False,
-    'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60,
+    'DEFAULT_CACHE_RESPONSE_TIMEOUT': None,
+    'DEFAULT_LIST_CACHE_KEY_FUNC': 'course_discovery.apps.api.cache.timestamped_list_key_constructor',
+    'DEFAULT_OBJECT_CACHE_KEY_FUNC': 'course_discovery.apps.api.cache.timestamped_object_key_constructor',
 }
 
 # NOTE (CCB): JWT_SECRET_KEY is intentionally not set here to avoid production releases with a public value.

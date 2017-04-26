@@ -124,7 +124,9 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
         )
         return bodies
 
-    def test_refresh_course_metadata_serial(self):
+    @mock.patch('course_discovery.apps.api.cache.set_api_timestamp')
+    @mock.patch('course_discovery.apps.course_metadata.management.commands.refresh_course_metadata.set_api_timestamp')
+    def test_refresh_course_metadata_serial(self, mock_set_api_timestamp, mock_receiver):
         with responses.RequestsMock() as rsps:
             self.mock_access_token_api(rsps)
             self.mock_apis()
@@ -139,7 +141,14 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
                                   for loader_class, api_url, max_workers in self.pipeline]
                 mock_executor.assert_has_calls(expected_calls)
 
-    def test_refresh_course_metadata_parallel(self):
+        # Verify that the API cache is invalidated once, and that it isn't
+        # being done by the signal receiver.
+        assert mock_set_api_timestamp.call_count == 1
+        assert not mock_receiver.called
+
+    @mock.patch('course_discovery.apps.api.cache.set_api_timestamp')
+    @mock.patch('course_discovery.apps.course_metadata.management.commands.refresh_course_metadata.set_api_timestamp')
+    def test_refresh_course_metadata_parallel(self, mock_set_api_timestamp, mock_receiver):
         for name in ['threaded_metadata_write', 'parallel_refresh_pipeline']:
             toggle_switch(name)
 
@@ -160,6 +169,11 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
                                             'JWT', max_workers or 7, True, **self.kwargs)
                                   for loader_class, api_url, max_workers in self.pipeline]
                 mock_executor.assert_has_calls(expected_calls, any_order=True)
+
+        # Verify that the API cache is invalidated once, and that it isn't
+        # being done by the signal receiver.
+        assert mock_set_api_timestamp.call_count == 1
+        assert not mock_receiver.called
 
     def test_refresh_course_metadata_with_invalid_partner_code(self):
         """ Verify an error is raised if an invalid partner code is passed on the command line. """
