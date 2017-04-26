@@ -129,10 +129,15 @@ $(document).on('change', '#id_staff', function (e) {
 $(document).on('click', '.selected-instructor a.delete', function (e) {
     e.preventDefault();
     var id = this.id,
-        option = $('#id_staff').find('option[value="' + id + '"]');
-
-    option.prop("selected", false);
+        $staff = $('#id_staff'),
+        option = $staff.find('option[value="' + id + '"]');
+    // This condition is to check for the existence of id or uuid
+    if (option.length == 0) {
+        option = $staff.find('option:contains("' + id + '")');
+    }
+    option.remove();
     this.closest('.selected-instructor, .instructor').remove();
+    $('.instructor-select').find('.select2-selection__choice').remove();
 });
 
 function renderSelectedInstructor(id, name, image, uuid) {
