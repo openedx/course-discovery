@@ -64,17 +64,6 @@ class PrerequisiteFactory(AbstractNamedModelFactory):
         model = Prerequisite
 
 
-class SeatFactory(factory.DjangoModelFactory):
-    type = FuzzyChoice([name for name, __ in Seat.SEAT_TYPE_CHOICES])
-    price = FuzzyDecimal(0.0, 650.0)
-    currency = factory.Iterator(Currency.objects.all())
-    upgrade_deadline = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
-    sku = FuzzyText(length=8)
-
-    class Meta:
-        model = Seat
-
-
 class CourseFactory(factory.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
     key = FuzzyText(prefix='course-id/')
@@ -147,6 +136,18 @@ class CourseRunFactory(factory.DjangoModelFactory):
     def authoring_organizations(self, create, extracted, **kwargs):
         if create:  # pragma: no cover
             add_m2m_data(self.authoring_organizations, extracted)
+
+
+class SeatFactory(factory.DjangoModelFactory):
+    type = FuzzyChoice([name for name, __ in Seat.SEAT_TYPE_CHOICES])
+    price = FuzzyDecimal(0.0, 650.0)
+    currency = factory.Iterator(Currency.objects.all())
+    upgrade_deadline = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
+    sku = FuzzyText(length=8)
+    course_run = factory.SubFactory(CourseRunFactory)
+
+    class Meta:
+        model = Seat
 
 
 class OrganizationFactory(factory.DjangoModelFactory):
@@ -334,3 +335,15 @@ class SeatTypeFactory(factory.django.DjangoModelFactory):
         model = SeatType
 
     name = FuzzyText()
+
+
+class SyllabusItemFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = SyllabusItem
+
+
+class PersonWorkFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = PersonWork
+
+    person = factory.SubFactory(PersonFactory)
