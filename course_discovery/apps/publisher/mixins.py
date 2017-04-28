@@ -2,9 +2,11 @@ from functools import wraps
 
 from dal import autocomplete
 from django.contrib.auth.decorators import login_required
+from django.db.models.functions import Lower
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.utils.decorators import method_decorator
 
+from course_discovery.apps.course_metadata.models import Organization
 from course_discovery.apps.publisher.models import Course, Seat
 from course_discovery.apps.publisher.utils import is_internal_user, is_publisher_admin, is_publisher_user
 
@@ -131,3 +133,25 @@ class LanguageModelSelect2Multiple(autocomplete.ModelSelect2Multiple):
         self.choices.queryset = self.choices.queryset.filter(
             code__in=[c for c in selected_choices if c]
         )
+
+
+def get_user_organizations(user):
+    """
+    Get organizations for user.
+
+    Args:
+        user (Object): User object
+    Returns:
+        Organization (QuerySet): returns Organization objects queryset
+    """
+    organizations = Organization.objects.filter(
+        organization_extension__organization_id__isnull=False
+    ).order_by(Lower('key'))
+
+    if not check_roles_access(user):
+        # If not internal user return only those organizations which belongs to user.
+        organizations = organizations.filter(
+            organization_extension__group__in=user.groups.all()
+        ).order_by(Lower('key'))
+
+    return organizations

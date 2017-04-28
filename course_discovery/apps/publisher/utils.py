@@ -1,5 +1,6 @@
 """ Publisher Utils."""
 from dateutil import parser
+
 from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.constants import (ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME,
                                                        PROJECT_COORDINATOR_GROUP_NAME)

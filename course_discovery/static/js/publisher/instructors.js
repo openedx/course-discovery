@@ -34,6 +34,7 @@ $(document).ready(function(){
             'given_name': $('#given-name').val(),
             'family_name': $('#family-name').val(),
             'bio': $('#bio').val(),
+            'email': $('#email').val(),
             'profile_image': $('.select-image').attr('src'),
             'position': {
                 title: $('#title').val(),

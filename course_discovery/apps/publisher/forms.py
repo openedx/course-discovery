@@ -13,7 +13,7 @@ from opaque_keys.edx.keys import CourseKey
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import LevelType, Organization, Person, Subject
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.mixins import LanguageModelSelect2Multiple, check_roles_access
+from course_discovery.apps.publisher.mixins import LanguageModelSelect2Multiple, get_user_organizations
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseUserRole, OrganizationExtension,
                                                     OrganizationUserRole, PublisherUser, Seat, User)
 from course_discovery.apps.publisher.utils import is_internal_user
@@ -181,17 +181,7 @@ class CustomCourseForm(CourseForm):
             ).order_by('full_name', 'username')
 
         if user:
-            organizations = Organization.objects.filter(
-                organization_extension__organization_id__isnull=False
-            ).order_by(Lower('key'))
-
-            if not check_roles_access(user):
-                # If not internal user return only those organizations which belongs to user.
-                organizations = organizations.filter(
-                    organization_extension__group__in=user.groups.all()
-                ).order_by(Lower('key'))
-
-            self.declared_fields['organization'].queryset = organizations
+            self.declared_fields['organization'].queryset = get_user_organizations(user)
             self.declared_fields['team_admin'].widget.attrs = {'data-user': user.id}
 
         super(CustomCourseForm, self).__init__(*args, **kwargs)
