@@ -16,32 +16,6 @@ from course_discovery.apps.publisher.models import CourseRunState, CourseState, 
 logger = logging.getLogger(__name__)
 
 
-def execute_loader(loader_class, *loader_args, **loader_kwargs):
-    try:
-        loader_class(*loader_args, **loader_kwargs).ingest()
-    except Exception:  # pylint: disable=broad-except
-        logger.exception('%s failed!', loader_class.__name__)
-
-
-def execute_parallel_loader(loader_class, *loader_args, **loader_kwargs):
-    """
-    ProcessPoolExecutor uses the multiprocessing module. Multiprocessing forks processes,
-    causing connection objects to be copied across processes. The key goal when running
-    multiple Python processes is to prevent any database connections from being shared
-    across processes. Depending on specifics of the driver and OS, the issues that arise
-    here range from non-working connections to socket connections that are used by multiple
-    processes concurrently, leading to broken messaging (e.g., 'MySQL server has gone away').
-
-    To get around this, we force each process to open its own connection to the database by
-    closing the existing, copied connection as soon as we're within the new process. This works
-    because as long as there is no existing, open connection, Django is smart enough to initialize
-    a new connection the next time one is necessary.
-    """
-    connection.close()
-
-    execute_loader(loader_class, *loader_args, **loader_kwargs)
-
-
 class Command(BaseCommand):
     help = 'Import courses into publisher app.'
 
