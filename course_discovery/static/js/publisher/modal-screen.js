@@ -39,6 +39,7 @@ $(document).ready(function(){
         $('#instructorProfileModal a.btn-download').attr('href', data['image_url']);
         $('#instructorProfileModal div.position').html(data['position']);
         $('#instructorProfileModal div.bio').html(data['bio']);
+        $('#instructorProfileModal div.email').html(data['email']);
 
         assignData('.profile_url', data['profile_url']);
         assignData('.facebook_url', data['social_networks']['facebook']);

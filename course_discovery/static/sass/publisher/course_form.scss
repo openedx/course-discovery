@@ -159,6 +159,14 @@
         .actions {
             @include text-align(right);
         }
+
+        #email {
+            margin-bottom: 5px;
+        }
+
+        .email-field {
+            margin-bottom: 20px;
+        }
     }
 }
 

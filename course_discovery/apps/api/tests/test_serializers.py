@@ -1075,6 +1075,7 @@ class PersonSerializerTests(TestCase):
                 'blog': None
             },
             'slug': person.slug,
+            'email': person.email,
         }
 
         self.assertDictEqual(serializer.data, expected)

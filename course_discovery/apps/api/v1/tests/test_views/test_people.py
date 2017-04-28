@@ -140,6 +140,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         return {
             'given_name': "Robert",
             'family_name': "Ford",
+            'email': "test@example.com",
             'bio': "The maze is not for him.",
             'position': {
                 'title': "Park Director",

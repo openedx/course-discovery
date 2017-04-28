@@ -594,12 +594,14 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
     def get_context_data(self):
+        user = self.request.user
         return {
             'course_run': self.get_object(),
             'publisher_hide_features_for_pilot': waffle.switch_is_active('publisher_hide_features_for_pilot'),
             'publisher_add_instructor_feature': waffle.switch_is_active('publisher_add_instructor_feature'),
-            'is_internal_user': mixins.check_roles_access(self.request.user),
-            'is_project_coordinator': is_project_coordinator_user(self.request.user),
+            'is_internal_user': mixins.check_roles_access(user),
+            'is_project_coordinator': is_project_coordinator_user(user),
+            'organizations': mixins.get_user_organizations(user)
         }
 
     def get(self, request, *args, **kwargs):

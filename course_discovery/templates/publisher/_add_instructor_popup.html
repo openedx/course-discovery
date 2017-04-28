@@ -27,22 +27,30 @@
                 </label>
                 <input class="field-input input-text" type="text" id="title" name="title" />
 
+                <label class="field-label" for="title">{% trans "Email" %}
+                    <span class="required">* {% trans "required" %}</span>
+                </label>
+                <div class="email-field">
+                    <input class="field-input input-text" aria-describedby="email-hint" type="email" id="email" name="email" />
+                    <span id="email-hint">{% trans "Institution email is preferred" %}</span>
+                </div>
+
                 <label class="field-label">{% trans "Organization" %}
                     <span class="required">* {% trans "required" %}</span>
                 </label>
 
-                {% if edit_mode %}
-                    <span class="read-only-field">{{ organization_name }}</span>
-                    {{ course_form.organization }}
+                {% if organizations.count > 1 %}
+                    <select class="field-input input-select" id="id_organization" name="organization">
+                        <option value="------">-----</option>
+                        {% for organization in organizations %}
+                            <option value="{{ organization.id }}">{{ organization.name }}</option>
+                        {% endfor%}
+                    </select>
                 {% else %}
-                    {% if course_form.organization.field.queryset.all.count > 1 %}
-                        {{ course_form.organization }}
-                    {% else %}
-                        {% with course_form.organization.field.queryset|first as organization %}
-                            <span class="read-only-field">{{ organization.name }}</span>
-                            <input id="id_organization" name="organization" type="hidden" value="{{ organization.id }}">
-                        {% endwith %}
-                    {% endif %}
+                    {% with organizations|first as organization %}
+                        <span class="read-only-field">{{ organization.name }}</span>
+                        <input id="id_organization" name="organization" type="hidden" value="{{ organization.id }}">
+                    {% endwith %}
                 {% endif %}
 
                 <label class="field-label" for="bio">{% trans "Bio" %}

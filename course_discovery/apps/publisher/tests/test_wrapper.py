@@ -200,6 +200,7 @@ class CourseRunWrapperTests(TestCase):
                 'social_networks': {},
                 'bio': staff.bio,
                 'is_new': True,
+                'email': staff.email
             },
             {
                 'uuid': str(staff_2.uuid),
@@ -210,7 +211,8 @@ class CourseRunWrapperTests(TestCase):
                 'profile_url': staff.profile_url,
                 'is_new': False,
                 'social_networks': {'facebook': facebook.value, 'twitter': twitter.value},
-                'bio': staff_2.bio
+                'bio': staff_2.bio,
+                'email': staff_2.email
             }
         ]
 

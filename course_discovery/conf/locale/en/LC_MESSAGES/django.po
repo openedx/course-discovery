@@ -1037,6 +1037,15 @@ msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Email"
+msgstr ""
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "Institution email is preferred"
+msgstr ""
+
+#: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/course_run_detail/_instructor_profile.html
 #: templates/publisher/course_run_detail/_studio.html
 #: templates/publisher/dashboard/_in_preview.html
 #: templates/publisher/dashboard/_in_progress.html
