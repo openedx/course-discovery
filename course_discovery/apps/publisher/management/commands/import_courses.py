@@ -70,7 +70,8 @@ class Command(BaseCommand):
             'title': meta_data_course.title, 'number': meta_data_course.number,
             'short_description': meta_data_course.short_description,
             'full_description': meta_data_course.full_description,
-            'level_type': meta_data_course.level_type
+            'level_type': meta_data_course.level_type,
+            'card_image_url': meta_data_course.card_image_url
         }
 
         course, created = Publisher_Course.objects.update_or_create(
