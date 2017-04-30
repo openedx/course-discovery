@@ -79,26 +79,26 @@ class Command(BaseCommand):
             defaults=defaults
         )
 
-        if created:
-            subjects = meta_data_course.subjects.all()
-            subject_count = subjects.count()
+        subjects = meta_data_course.subjects.all()
+        subject_count = subjects.count()
 
-            if subject_count == 1:
-                publisher_course.primary_subject = subjects[0]
+        if subject_count == 1:
+            publisher_course.primary_subject = subjects[0]
 
-            if subject_count == 2:
-                publisher_course.primary_subject = subjects[0]
-                publisher_course.secondary_subject = subjects[1]
+        if subject_count == 2:
+            publisher_course.primary_subject = subjects[0]
+            publisher_course.secondary_subject = subjects[1]
 
-            if subject_count == 3:
-                publisher_course.primary_subject = subjects[0]
-                publisher_course.secondary_subject = subjects[1]
-                publisher_course.tertiary_subject = subjects[2]
+        if subject_count == 3:
+            publisher_course.primary_subject = subjects[0]
+            publisher_course.secondary_subject = subjects[1]
+            publisher_course.tertiary_subject = subjects[2]
 
         publisher_course.save()
 
         if created:
             for organization in meta_data_course.authoring_organizations.all():
+                publisher_course.organizations.add(organization)
                 self.assign_course_user_roles(publisher_course, organization)
 
             # marked course as approved with related fields.
@@ -109,17 +109,6 @@ class Command(BaseCommand):
             )
 
         self.create_course_runs(meta_data_course, publisher_course)
-
-        return (publisher_course, created)
-
-    def assign_course_user_roles(self, course, organization):
-        # Assign the course user roles against each organization users.
-
-        course.organizations.add(organization)
-
-        # add default organization roles into course-user-roles
-        for user_role in organization.organization_user_roles.all():
-            CourseUserRole.add_course_roles(course, user_role.role, user_role.user)
 
     def create_course_runs(self, meta_data_course, publisher_course):
         # create or update all metadata course runs.
@@ -159,8 +148,16 @@ class Command(BaseCommand):
                 'credit_provider': metadata_seat.credit_provider, 'credit_hours': metadata_seat.credit_hours,
                 'upgrade_deadline': metadata_seat.upgrade_deadline
             }
-            publisher_seat, created = Publisher_Seat.objects.update_or_create(
+
+            Publisher_Seat.objects.update_or_create(
                 course_run=publisher_course_run,
                 type=metadata_seat.type,
                 defaults=defaults
             )
+
+    def assign_course_user_roles(self, course, organization):
+        # Assign the course user roles against each organization users.
+
+        # add default organization roles into course-user-roles
+        for user_role in organization.organization_user_roles.all():
+            CourseUserRole.add_course_roles(course, user_role.role, user_role.user)
