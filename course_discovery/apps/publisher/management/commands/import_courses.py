@@ -1,11 +1,8 @@
 import logging
 
 from django.core.management import BaseCommand
-from django.shortcuts import get_object_or_404
 
-from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.models import Course as Metadata_Course
-from course_discovery.apps.course_metadata.models import Organization
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.models import Course as Publisher_Course
 from course_discovery.apps.publisher.models import CourseRun as Publisher_CourseRun
@@ -20,47 +17,35 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--organization_code',
+            '--start_id',
             action='store',
-            dest='organization_code',
+            dest='start_id',
             default=None,
             required=True,
-            help='The short code for a specific organization to load courses.'
+            help='The Primary key value starting id to download the courses.'
 
         )
 
         parser.add_argument(
-            '--partner_code',
+            '--end_id',
             action='store',
-            dest='partner_code',
+            dest='end_id',
             default=None,
             required=True,
-            help='Partner code.'
+            help='To this id courses will be downloaded.'
         )
 
     def handle(self, *args, **options):
         # If a specific partner was indicated, filter down the set
 
-        organization_code = options.get('organization_code')
-        partner_code = options.get('partner_code')
-
-        partner = get_object_or_404(
-            Partner, short_code=partner_code
-        )
-
-        organization = get_object_or_404(
-            Organization, key=organization_code, partner=partner
-        )
-
-        get_object_or_404(
-            OrganizationExtension, organization=organization
-        )
+        start_id = options.get('start_id')
+        end_id = options.get('end_id')
 
         # if organization.organization_user_roles.all().count() != 4:
         #     raise CommandError('Organization User Roles are missing.')
 
         # courses = Metadata_Course.objects.filter(partner=partner, authoring_organizations=organization)
-        for course in Metadata_Course.objects.all():
+        for course in Metadata_Course.objects.filter(id__range=(start_id, end_id)):
             self.get_or_create_course(course)
 
     def get_or_create_course(self, meta_data_course):
