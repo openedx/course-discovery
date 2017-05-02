@@ -1,3 +1,5 @@
+import urllib.parse
+
 import ddt
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
@@ -48,9 +50,12 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         )
         return program
 
-    def assert_retrieve_success(self, program):
+    def assert_retrieve_success(self, program, querystring=None):
         """ Verify the retrieve endpoint succesfully returns a serialized program. """
         url = reverse('api:v1:program-detail', kwargs={'uuid': program.uuid})
+
+        if querystring:
+            url += '?' + urllib.parse.urlencode(querystring)
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -76,6 +81,10 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         # Verify that repeated retrieve requests use the cache.
         with self.assertNumQueries(2):
             self.assert_retrieve_success(program)
+
+        # Verify that requests including querystring parameters are cached separately.
+        response = self.assert_retrieve_success(program, querystring={'use_full_course_serializer': 1})
+        assert response.data == self.serialize_program(program, extra_context={'use_full_course_serializer': 1})
 
     @ddt.data(True, False)
     def test_retrieve_with_sorting_flag(self, order_courses_by_start_date):

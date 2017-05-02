@@ -2,7 +2,7 @@ import logging
 import time
 
 from django.core.cache import cache
-from rest_framework_extensions.key_constructor.bits import KeyBitBase
+from rest_framework_extensions.key_constructor.bits import KeyBitBase, QueryParamsKeyBit
 from rest_framework_extensions.key_constructor.constructors import (
     DefaultListKeyConstructor, DefaultObjectKeyConstructor
 )
@@ -22,6 +22,9 @@ class TimestampedListKeyConstructor(DefaultListKeyConstructor):
 
 class TimestampedObjectKeyConstructor(DefaultObjectKeyConstructor):
     timestamp = ApiTimestampKeyBit()
+    # The DefaultObjectKeyConstructor doesn't include querystring parameters
+    # in its cache key.
+    querystring = QueryParamsKeyBit()
 
 
 def timestamped_list_key_constructor(*args, **kwargs):  # pylint: disable=unused-argument
