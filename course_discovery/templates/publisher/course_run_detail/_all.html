@@ -4,7 +4,7 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Studio instance" %}
+      {% trans "Studio URL" %}
     </div>
     <div>
       {% if object.studio_url %}
@@ -17,21 +17,21 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Start Date" %}
+      {% trans "Start Date (time in UTC)" %}
     </div>
     <div>{{ object.start }}</div>
   </div>
 
   <div class="info-item">
     <div class="heading">
-      {% trans "End Date" %}
+      {% trans "End Date (time in UTC)" %}
     </div>
     <div>{{ object.end }}</div>
   </div>
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Certificate type" %}
+      {% trans "Certificate Type" %}
     </div>
     <div>{{ object.course_type }}</div>
   </div>
@@ -91,7 +91,7 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Course content language" %}
+      {% trans "Course Content Language" %}
     </div>
     <div>
       {% with  object.language.name as field %}
@@ -102,7 +102,7 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Video Language Transcript" %}
+      {% trans "Video Transcript Language" %}
     </div>
     <div>
       {% with  object.transcript_languages as field %}
@@ -113,7 +113,7 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Language spoken in course videos" %}
+      {% trans "Course Video Language" %}
     </div>
     <div>
       {% with  object.video_language as field %}

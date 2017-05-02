@@ -28,7 +28,7 @@
     </div>
     <div class="info-item">
         <div class="heading">
-            {% trans "Sub Title" %}
+            {% trans "Subtitle" %}
             {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
         <div class="copy">
@@ -39,7 +39,7 @@
     </div>
     <div class="info-item">
         <div class="heading">
-            {% trans "School" %}
+            {% trans "Organization" %}
             {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
         <div class="copy">{{ object.organization_key }}</div>
@@ -61,13 +61,13 @@
 
     <div class="info-item">
         <div class="heading">
-            {% trans "Start Date" %}
+            {% trans "Start Date (time in UTC)" %}
            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
         <div class="copy">{{ object.start|date:"Y-m-d" }}</div>
     </div>
     <div class="info-item">
-        <div class="heading">{% trans "End Date" %}
+        <div class="heading">{% trans "End Date (time in UTC)" %}
             {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
         <div class="copy">{{ object.end|date:"Y-m-d" }}</div>
@@ -134,7 +134,7 @@
     </div>
     <div class="info-item">
         <div class="heading">
-            {% trans "Video Translations" %}
+            {% trans "Video Transcript Languages" %}
             {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
         <div class="copy">
@@ -156,7 +156,7 @@
     </div>
     <div class="info-item">
         <div class="heading">
-            {% trans "About this Course" %}
+            {% trans "Full Description" %}
             {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
         <div class="copy">
@@ -167,7 +167,7 @@
     </div>
     <div class="info-item">
         <div class="heading">
-            {% trans "What you'll learn" %}
+            {% trans "What You'll Learn" %}
             {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
         <div class="copy">
@@ -195,7 +195,7 @@
     </div>
     <div class="info-item">
         <div class="heading">
-            {% trans "Prerequisite" %}
+            {% trans "Prerequisites" %}
             {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
         <div class="copy">
@@ -233,7 +233,7 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Course syllabus" %}
+      {% trans "Course Syllabus" %}
     </div>
     <div>
       {% with  object.syllabus as field %}
@@ -255,7 +255,7 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Secondary Subject" %}
+      {% trans "Additional Subject" %}
     </div>
     <div>
       {% with  object.subjects.1 as field %}
@@ -266,7 +266,7 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Tertiary Subject" %}
+      {% trans "Additional Subject" %}
     </div>
     <div>
       {% with  object.subjects.2 as field %}
@@ -310,7 +310,7 @@
     </div>
     <div class="info-item">
         <div class="heading">
-            {% trans "Video Link" %}
+            {% trans "Course About Video" %}
             {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
         {% with  object.course.video_link as value %}
@@ -322,7 +322,7 @@
         {% endwith %}
     </div>
 
-    <h3 class="hd-3 de-emphasized">{% trans "Enrollments" %}</h3>
+    <h3 class="hd-3 de-emphasized">{% trans "Enrollment Types" %}</h3>
     <div class="info-item">
         <div class="heading">
             {% trans "Seats" %}
