@@ -12,7 +12,7 @@ from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Organization, Program, ProgramType, Seat, Video
+    Course, CourseRun, Organization, Person, Position, Program, ProgramType, Seat, Video
 )
 
 logger = logging.getLogger(__name__)
