@@ -125,6 +125,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                     if created:
                         course.canonical_course_run = course_run
                         course.save()
+
             except:  # pylint: disable=bare-except
                 msg = 'An error occurred while updating {course_run} from {api_url}'.format(
                     course_run=course_run_id,
@@ -141,6 +142,10 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
     def update_course_run(self, course_run, body):
         validated_data = self.format_course_run_data(body)
+
+        if validated_data['instructors']:
+            self.set_course_run_instructors(course_run, validated_data['instructors'])
+
         self._update_instance(course_run, validated_data)
 
         logger.info('Processed course run with UUID [%s].', course_run.uuid)
@@ -193,6 +198,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
             'enrollment_start': self.parse_date(body['enrollment_start']),
             'enrollment_end': self.parse_date(body['enrollment_end']),
             'hidden': body.get('hidden', False),
+            'instructors': body.get('instructors'),
         }
 
         # When using a marketing site, only dates (excluding start) should come from the Course API.
@@ -241,6 +247,46 @@ class CoursesApiDataLoader(AbstractDataLoader):
             video, __ = Video.objects.get_or_create(src=video_url)
 
         return video
+
+    def _process_instructors_data(self, data):
+        """
+        Process instructors' data
+
+        Args:
+            course_run (CourseRun): Course run being updated
+            data (list): list containing data about instructors
+        """
+        for instructor in data:
+            person, __ = Person.objects.update_or_create(
+                uuid=instructor['uuid'],
+                partner=self.partner,
+                defaults={
+                    'bio': instructor.get('bio'),
+                    'given_name': instructor.get('name', ''),
+                    'profile_image_url': instructor.get('image_url'),
+                }
+            )
+            Position.objects.update_or_create(
+                person=person,
+                defaults={
+                    'organization_override': instructor.get('organization'),
+                    'title': instructor.get('title'),
+                }
+            )
+
+    def set_course_run_instructors(self, course_run, data):
+        """
+        Update the list of course run instructors by reseting its value.
+
+        Args:
+            course_run (CourseRun): Course run being updated
+            data (list): list containing data about instructors
+        """
+        self._process_instructors_data(data)
+        instructor_uuids = [instructor['uuid'] for instructor in data]
+        instructors = Person.objects.filter(uuid__in=instructor_uuids)
+        course_run.instructors.clear()
+        course_run.instructors.add(*instructors)
 
 
 class EcommerceApiDataLoader(AbstractDataLoader):

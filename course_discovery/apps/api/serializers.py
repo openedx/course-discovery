@@ -448,7 +448,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     transcript_languages = serializers.SlugRelatedField(many=True, read_only=True, slug_field='code')
     video = VideoSerializer()
     seats = SeatSerializer(many=True)
-    instructors = serializers.SerializerMethodField(help_text='This field is deprecated. Use staff.')
+    instructors = PersonSerializer(many=True)
     staff = PersonSerializer(many=True)
     level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
 
@@ -469,10 +469,6 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'transcript_languages', 'instructors', 'staff', 'min_effort', 'max_effort', 'modified',
             'level_type', 'availability', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid'
         )
-
-    def get_instructors(self, obj):  # pylint: disable=unused-argument
-        # This field is deprecated. Use the staff field.
-        return []
 
 
 class CourseRunWithProgramsSerializer(CourseRunSerializer):
