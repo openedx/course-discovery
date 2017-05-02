@@ -5,7 +5,7 @@
 {% load staticfiles %}
 
 {% block title %}
-    {% trans "Course Run Detail" %}
+    {% trans "Course Run Details" %}
 {% endblock title %}
 
 {% block page_content %}
@@ -14,8 +14,9 @@
         {% if object.course_run_state.is_published %}
             <div class="depth depth-0 published-status">
                 <strong>
+<!-- Is it possible to make "View it on edx.org" into a link? If so, make it into a link, add a period at the end, and delete "at". If not, keep "at", but remove the colon and add a period after the link. -->
                     {% blocktrans with publish_date|date:'m/d/y' as course_publish_date trimmed %}
-                        Course run announced on {{ course_publish_date }} - view it on edx.org at:
+                        The About page for this course run was published on {{ course_publish_date }}. View it on edx.org at
                     {% endblocktrans %}
                 </strong>
                 <a href="{{ object.preview_url }}" target="_blank">{{ object.preview_url }}</a>

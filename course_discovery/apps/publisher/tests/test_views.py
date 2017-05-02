@@ -605,10 +605,10 @@ class CourseRunDetailTests(TestCase):
 
     def _assert_non_credits_seats(self, response, seats):
         """ Helper method to test to all non-credit seats. """
-        self.assertContains(response, 'Seat Type')
+        self.assertContains(response, 'Enrollment Type')
         self.assertContains(response, 'Price')
         self.assertContains(response, 'Currency')
-        self.assertContains(response, 'Upgrade Deadline')
+        self.assertContains(response, 'Upgrade Deadline (time in UTC)')
 
         for seat in seats:
             self.assertContains(response, seat.type)
@@ -636,10 +636,10 @@ class CourseRunDetailTests(TestCase):
     def _assert_drupal(self, response):
         """ Helper method to test drupal values and labels. """
         fields = [
-            'Title', 'Number', 'Course ID', 'Price', 'Sub Title', 'School', 'Subject', 'XSeries',
-            'Start Date', 'End Date', 'Self Paced', 'Staff', 'Estimated Effort', 'Languages',
-            'Video Translations', 'Level', 'About this Course', "What you'll learn",
-            'Keywords', 'Sponsors', 'Enrollments', 'Learner Testimonials', 'FAQ', 'Video Link'
+            'Title', 'Number', 'Course ID', 'Price', 'Subtitle', 'Organization', 'Subject', 'XSeries',
+            'Start Date (time in UTC)', 'End Date (time in UTC)', 'Self Paced', 'Staff', 'Estimated Effort',
+            'Languages', 'Video Transcript Languages', 'Level', 'Full Description', "What You'll Learn",
+            'Keywords', 'Sponsors', 'Enrollment Types', 'Learner Testimonials', 'FAQ', 'Course About Video'
         ]
         for field in fields:
             self.assertContains(response, field)
@@ -663,7 +663,7 @@ class CourseRunDetailTests(TestCase):
     def _assert_cat(self, response):
         """ Helper method to test cat data. """
         fields = [
-            'Course ID', 'Course Type'
+            'Course ID', 'Enrollment Types'
         ]
         values = [self.course_run.lms_course_id]
         for field in fields:
@@ -980,7 +980,7 @@ class CourseRunDetailTests(TestCase):
         response = self.client.get(self.page_url)
 
         # Verify that content is sent for review and user can see `Mark as Reviewed` button.
-        self.assertContains(response, 'Send for Review')
+        self.assertContains(response, 'Sent for Review')
         self.assertContains(response, '<span class="icon fa fa-check" aria-hidden="true">', count=1)
         self.assertContains(response, 'Mark as Reviewed')
         self.assertContains(response, self.get_expected_data(CourseRunStateChoices.Approved))
@@ -1013,7 +1013,7 @@ class CourseRunDetailTests(TestCase):
         self.assertNotContains(response, 'Mark as Reviewed')
         self.assertContains(response, 'Reviewed', count=1)
         self.assertContains(response, '<span class="icon fa fa-check" aria-hidden="true">', count=2)
-        self.assertContains(response, 'Send for Review', count=1)
+        self.assertContains(response, 'Sent for Review', count=1)
 
     def test_preview_widget(self):
         """
@@ -1118,7 +1118,7 @@ class CourseRunDetailTests(TestCase):
         history_object = self.course_run_state.history.filter(
             name=CourseRunStateChoices.Published
         ).order_by('-modified').first()
-        expected = 'Course run announced on {publish_date} - view it on edx.org at:'.format(
+        expected = 'The About page for this course run was published on {publish_date}. View it on edx.org at'.format(
             publish_date=history_object.modified.strftime('%m/%d/%y')
         )
         self.assertContains(response, expected)
@@ -1777,7 +1777,7 @@ class CourseDetailViewTests(TestCase):
         # Verify that content is sent for review and user can see Reviewed button.
         self.assertContains(response, 'Mark as Reviewed')
         self.assertContains(response, '<span class="icon fa fa-check" aria-hidden="true">')
-        self.assertContains(response, 'Send for Review')
+        self.assertContains(response, 'Sent for Review')
         self.assertContains(response, self.get_expected_data(CourseStateChoices.Approved))
 
     def get_expected_data(self, state_name, disabled=False):
@@ -1817,7 +1817,7 @@ class CourseDetailViewTests(TestCase):
         self.assertNotContains(response, 'Mark as Reviewed')
         self.assertContains(response, 'Reviewed', count=1)
         self.assertContains(response, '<span class="icon fa fa-check" aria-hidden="true">', count=2)
-        self.assertContains(response, 'Send for Review', count=1)
+        self.assertContains(response, 'Sent for Review', count=1)
 
         self.course_state.marketing_reviewed = True
         self.course_state.owner_role = PublisherUserRole.CourseTeam

@@ -26,21 +26,21 @@
 
         <div class="info-item">
             <div class="heading">
-                {% trans "Start Date" %}
+                {% trans "Start Date (time in UTC)" %}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">{{ object.start|date:"M d, Y, H:i:s A" }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "End Date" %}
+                {% trans "End Date (time in UTC)" %}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">{{ object.end|date:"M d, Y, H:i:s A" }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Enrollment Start Date" %}
+                {% trans "Enrollment Start Date (time in UTC)" %}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
@@ -53,7 +53,7 @@
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Enrollment End Date" %}
+                {% trans "Enrollment End Date (time in UTC)" %}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
