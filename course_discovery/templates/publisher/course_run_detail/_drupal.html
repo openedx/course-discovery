@@ -94,6 +94,9 @@
 
                     <div class="staff-detail">
                       <div class="name">
+                        {% if obj.is_new %}
+                            <span class="new-staff">{% trans "New" %}</span>
+                        {% endif %}
                         <a href="#" class="btn-instructor-detail"  data-staff_id="{{ obj.uuid }}">{{ obj.full_name }}</a>
                       </div>
                       <div>{{ obj.position }}</div>

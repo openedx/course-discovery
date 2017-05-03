@@ -201,7 +201,8 @@ class CourseRunWrapper(BaseWrapper):
                 'social_networks': {
                     staff.type: staff.value
                     for staff in staff.person_networks.all()
-                }
+                },
+                'is_new': False if staff.profile_image_url else True
             }
 
             if hasattr(staff, 'position'):
