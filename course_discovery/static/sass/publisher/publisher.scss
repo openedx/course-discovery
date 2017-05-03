@@ -623,6 +623,7 @@
   }
   .name {
     color: #169BD5;
+    margin-bottom: 5px;
   }
   .organization{
     font-weight: 600;
@@ -696,4 +697,13 @@
       }
     }
   }
+}
+
+.new-staff {
+  color: black;
+  border: 1px #666666 solid;
+  border-radius: 9px;
+  font-size: 12px;
+  padding: 4px;
+  background-color: #F2F2F2;
 }

@@ -178,6 +178,8 @@ class CourseRunWrapperTests(TestCase):
     def test_course_staff(self):
         """Verify that the wrapper return staff list."""
         staff = PersonFactory()
+        staff.profile_image_url = None
+        staff.save()
 
         # another staff with position by default staff has no position associated.
         staff_2 = PersonFactory()
@@ -196,7 +198,8 @@ class CourseRunWrapperTests(TestCase):
                 'image_url': staff.get_profile_image_url,
                 'profile_url': staff.profile_url,
                 'social_networks': {},
-                'bio': staff.bio
+                'bio': staff.bio,
+                'is_new': True,
             },
             {
                 'uuid': str(staff_2.uuid),
@@ -205,6 +208,7 @@ class CourseRunWrapperTests(TestCase):
                 'position': position.title,
                 'organization': position.organization_name,
                 'profile_url': staff.profile_url,
+                'is_new': False,
                 'social_networks': {'facebook': facebook.value, 'twitter': twitter.value},
                 'bio': staff_2.bio
             }
