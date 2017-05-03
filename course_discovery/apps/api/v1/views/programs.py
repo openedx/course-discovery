@@ -1,12 +1,13 @@
 from rest_framework import mixins, viewsets
 from rest_framework.filters import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.v1.views import get_query_param
-from course_discovery.apps.course_metadata.models import ProgramType
+from course_discovery.apps.course_metadata.models import Program, ProgramType
 
 
 # pylint: disable=no-member
@@ -91,6 +92,14 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
               paramType: query
               multiple: false
         """
+        if get_query_param(self.request, 'uuids_only'):
+            # DRF serializers don't have good support for simple, flat
+            # representations like the one we want here.
+            queryset = self.filter_queryset(Program.objects.all())
+            uuids = queryset.values_list('uuid', flat=True)
+
+            return Response(uuids)
+
         return super(ProgramViewSet, self).list(request, *args, **kwargs)
 
 
