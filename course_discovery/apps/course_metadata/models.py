@@ -365,7 +365,6 @@ class CourseRun(TimeStampedModel):
             "Full description specific for this run of a course. Leave this value blank to default to "
             "the parent course's full_description attribute."))
     staff = SortedManyToManyField(Person, blank=True, related_name='courses_staffed')
-    instructors = SortedManyToManyField(Person, blank=True, related_name='courses_instructed')
     min_effort = models.PositiveSmallIntegerField(
         null=True, blank=True,
         help_text=_('Estimated minimum number of hours per week needed to complete a course run.'))

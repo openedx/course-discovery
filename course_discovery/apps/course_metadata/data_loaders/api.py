@@ -125,7 +125,6 @@ class CoursesApiDataLoader(AbstractDataLoader):
                     if created:
                         course.canonical_course_run = course_run
                         course.save()
-
             except:  # pylint: disable=bare-except
                 msg = 'An error occurred while updating {course_run} from {api_url}'.format(
                     course_run=course_run_id,
@@ -144,7 +143,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         validated_data = self.format_course_run_data(body)
 
         if validated_data['instructors']:
-            self.set_course_run_instructors(course_run, validated_data['instructors'])
+            self.set_course_run_staff(course_run, validated_data['instructors'])
 
         self._update_instance(course_run, validated_data)
 
@@ -250,12 +249,16 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
     def _process_instructors_data(self, data):
         """
-        Process instructors' data
+        Update or create person and position records based using instructors' data.
 
         Args:
             course_run (CourseRun): Course run being updated
             data (list): list containing data about instructors
+
+        Returns:
+            staff: list of staff members
         """
+        staff = []
         for instructor in data:
             person, __ = Person.objects.update_or_create(
                 uuid=instructor['uuid'],
@@ -273,20 +276,20 @@ class CoursesApiDataLoader(AbstractDataLoader):
                     'title': instructor.get('title'),
                 }
             )
+            staff.append(person)
+        return staff
 
-    def set_course_run_instructors(self, course_run, data):
+    def set_course_run_staff(self, course_run, data):
         """
-        Update the list of course run instructors by reseting its value.
+        Update the list of course run staff members by resetting its value.
 
         Args:
             course_run (CourseRun): Course run being updated
             data (list): list containing data about instructors
         """
-        self._process_instructors_data(data)
-        instructor_uuids = [instructor['uuid'] for instructor in data]
-        instructors = Person.objects.filter(uuid__in=instructor_uuids)
-        course_run.instructors.clear()
-        course_run.instructors.add(*instructors)
+        staff = self._process_instructors_data(data)
+        course_run.staff.clear()
+        course_run.staff.add(*staff)
 
 
 class EcommerceApiDataLoader(AbstractDataLoader):
