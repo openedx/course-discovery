@@ -20,6 +20,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.views.i18n import javascript_catalog
 
 from course_discovery.apps.core import views as core_views
 from course_discovery.apps.course_metadata.views import QueryPreviewView
@@ -46,7 +47,7 @@ urlpatterns = auth_urlpatterns + [
     url(r'^language-tags/', include('course_discovery.apps.ietf_language_tags.urls', namespace='language_tags')),
     url(r'^comments/', include('django_comments.urls')),
     url(r'^i18n/', include('django.conf.urls.i18n')),
-    url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog', name='javascript-catalog'),
+    url(r'^jsi18n/$', javascript_catalog, name='javascript-catalog'),
     url(r'^taggit_autosuggest/', include('taggit_autosuggest.urls')),
 ]
 
