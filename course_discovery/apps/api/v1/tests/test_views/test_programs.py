@@ -137,6 +137,28 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         # Verify that repeated list requests use the cache.
         self.assert_list_results(self.list_path, expected, 2)
 
+    def test_uuids_only(self):
+        """
+        Verify that the list view returns a simply list of UUIDs when the
+        uuids_only query parameter is passed.
+        """
+        active = ProgramFactory.create_batch(3)
+        retired = [ProgramFactory(status=ProgramStatus.Retired)]
+        programs = active + retired
+
+        querystring = {'uuids_only': 1}
+        url = '{base}?{query}'.format(base=self.list_path, query=urllib.parse.urlencode(querystring))
+        response = self.client.get(url)
+
+        assert set(response.data) == {program.uuid for program in programs}
+
+        # Verify that filtering (e.g., by status) is still supported.
+        querystring['status'] = ProgramStatus.Retired
+        url = '{base}?{query}'.format(base=self.list_path, query=urllib.parse.urlencode(querystring))
+        response = self.client.get(url)
+
+        assert set(response.data) == {program.uuid for program in retired}
+
     def test_filter_by_type(self):
         """ Verify that the endpoint filters programs to those of a given type. """
         program_type_name = 'foo'
