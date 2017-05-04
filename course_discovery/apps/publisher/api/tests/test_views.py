@@ -6,18 +6,23 @@ from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core import mail
 from django.core.urlresolvers import reverse
+from django.db import IntegrityError
 from django.test import TestCase
 from guardian.shortcuts import assign_perm
+from mock import patch
 from opaque_keys.edx.keys import CourseKey
+from testfixtures import LogCapture
 
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from course_discovery.apps.publisher.api import views
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.constants import INTERNAL_USER_GROUP_NAME
-from course_discovery.apps.publisher.models import CourseRun, CourseRunState, CourseState, OrganizationExtension, Seat
+from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState,
+                                                    OrganizationExtension, Seat)
 from course_discovery.apps.publisher.tests import JSON_CONTENT_TYPE, factories
 
 
@@ -756,3 +761,67 @@ class ChangeCourseRunStateViewTests(TestCase):
         )
         self.assertEqual(str(mail.outbox[0].subject), expected_subject)
         self.assertIn('has been published', mail.outbox[0].body.strip())
+
+
+class RevertCourseByRevisionTests(TestCase):
+
+    def setUp(self):
+        super(RevertCourseByRevisionTests, self).setUp()
+        self.course = factories.CourseFactory(title='first title')
+
+        # update title so that another revision created
+        self.course.title = "updated title"
+        self.course.save()
+
+        self.user = UserFactory()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+    def test_revert_course_revision_with_invalid_id(self):
+        """Verify that api return 404 error if revision_id does not exists. """
+        response = self._revert_course(0000)
+        self.assertEqual(response.status_code, 404)
+
+    def test_revert_course_revision_without_authentication(self):
+        """Verify that api return authentication error if user is not logged in. """
+        self.client.logout()
+        revision = self.course.history.first()
+        response = self._revert_course(revision.history_id)
+        self.assertEqual(response.status_code, 403)
+
+    def test_revert_course_revision(self):
+        """Verify that api update the course with the according to the revision id. """
+
+        revision = self.course.history.last()
+        self.assertNotEqual(revision.title, self.course.title)
+        response = self._revert_course(revision.history_id)
+        self.assertEqual(response.status_code, 204)
+
+        course = Course.objects.get(id=self.course.id)
+        self.assertEqual(revision.title, course.title)
+
+    def test_update_with_error(self):
+        """ Verify that in case of any error api returns proper error message and code."""
+        with LogCapture(views.logger.name) as l:
+            with patch.object(Course, "save") as mock_method:
+                mock_method.side_effect = IntegrityError
+                revision = self.course.history.last()
+                response = self._revert_course(revision.history_id)
+                l.check(
+                    (
+                        views.logger.name,
+                        'ERROR',
+                        'Unable to revert the course [{}] for revision [{}].'.format(
+                            self.course.id,
+                            revision.history_id
+                        )
+                    )
+                )
+
+        self.assertEqual(response.status_code, 400)
+
+    def _revert_course(self, revision_id):
+        """Returns response of api against given revision_id."""
+        course_revision_path = reverse(
+            'publisher:api:course_revision_revert', kwargs={'history_id': revision_id}
+        )
+        return self.client.put(path=course_revision_path)

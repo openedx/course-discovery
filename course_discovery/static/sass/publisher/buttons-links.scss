@@ -39,9 +39,19 @@
 .btn-courserun-add {
     @include padding(3px, 16px, 3px, 16px);
     @include margin-left(10px);
+    @include margin-right(10px);
     background-color: #169bd5;
     border-color: #169bd5;
     border-radius: 5px;
+}
+
+.select-revision {
+  margin-right: 10px;
+}
+
+.btn-revision {
+  @include margin-left(0);
+  margin-top: 8px;
 }
 
 .btn-accept {

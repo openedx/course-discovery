@@ -9,6 +9,13 @@ $(document).on('change', '#id_select_revisions', function (e) {
         $('.show-diff').hide();
         $('.current').show();
     }
+
+    //show revert button for any revision except current version.
+    if (this.selectedIndex > 0)
+        $('#span_revert_revision').show();
+    else
+        $('#span_revert_revision').hide();
+
 });
 
 function loadRevisionHistory(revisionUrl) {
@@ -30,3 +37,25 @@ function loadRevisionHistory(revisionUrl) {
         }
     });
 }
+
+$(document).on('click', '#id_revert_revision', function (e) {
+    e.preventDefault();
+    $('#confirmationModal').show();
+});
+
+$(document).on('click', '#id_confirm_revert_revision', function (e) {
+    // after the confirmation update the course according to the history id
+    e.preventDefault();
+    var revertUrl = $('select#id_select_revisions option:selected').data('revertUrl');
+    $('#confirmationModal').show();
+    $.ajax({
+        type: "PUT",
+        url: revertUrl,
+        success: function (response) {
+            location.reload();
+        },
+        error: function () {
+            $('#RevertRevisionAlert').show();
+        }
+    });
+});
