@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-05 13:13+0500\n"
+"POT-Creation-Date: 2017-05-08 16:26+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -1151,6 +1151,7 @@ msgstr "Sävé Ⱡ'σяєм ι#"
 
 #: templates/metadata/admin/course_run.html
 #: templates/publisher/_add_instructor_popup.html
+#: templates/publisher/_revert_confirmation.html
 #: templates/publisher/add_course_form.html
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/course_detail/_edit_warning_popup.html
@@ -1410,8 +1411,19 @@ msgid "%(history_date)s&nbsp;by&nbsp;%(changed_by)s"
 msgstr "%(history_date)s&nbsp;ßý&nbsp;%(changed_by)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: templates/publisher/_history_widget.html
+#: templates/publisher/_revert_confirmation.html
+msgid "Restore to this version"
+msgstr "Réstöré tö thïs vérsïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: templates/publisher/_history_widget.html
 msgid "Open Selected Version"
 msgstr "Öpén Séléçtéd Vérsïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: templates/publisher/_history_widget.html
+msgid "Unable to revert the revision, Please try again later."
+msgstr ""
+"Ûnäßlé tö révért thé révïsïön, Pléäsé trý ägäïn lätér. Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/_render_optional_field.html
 #: templates/publisher/course_detail.html
@@ -1430,6 +1442,18 @@ msgstr "(Öptïönäl) Nöt ýét äddéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕ
 #: templates/publisher/course_run_detail/_seats.html
 msgid "(Required) Not yet added"
 msgstr "(Réqüïréd) Nöt ýét äddéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: templates/publisher/_revert_confirmation.html
+#: templates/publisher/course_detail/_edit_warning_popup.html
+#: templates/publisher/course_run_detail/_edit_warning.html
+msgid "CAUTION"
+msgstr "ÇÀÛTÌÖN Ⱡ'σяєм ιρѕυм #"
+
+#: templates/publisher/_revert_confirmation.html
+msgid "Are you sure you want to revert all changes to this version ?"
+msgstr ""
+"Àré ýöü süré ýöü wänt tö révért äll çhängés tö thïs vérsïön ? Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/add_course_form.html templates/publisher/courses.html
 msgid "Create New Course"
@@ -1767,11 +1791,6 @@ msgstr "Çöürsé Lévél Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 #: templates/publisher/course_revision_history.html
 msgid "About Video Link"
 msgstr "Àßöüt Vïdéö Lïnk Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
-
-#: templates/publisher/course_detail/_edit_warning_popup.html
-#: templates/publisher/course_run_detail/_edit_warning.html
-msgid "CAUTION"
-msgstr "ÇÀÛTÌÖN Ⱡ'σяєм ιρѕυм #"
 
 #: templates/publisher/course_detail/_edit_warning_popup.html
 #, python-format

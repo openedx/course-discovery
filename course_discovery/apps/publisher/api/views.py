@@ -1,5 +1,11 @@
+import logging
+
+from django.apps import apps
+from rest_framework import status
 from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.api.permissions import (CanViewAssociatedCourse, InternalUserPermission,
@@ -7,8 +13,13 @@ from course_discovery.apps.publisher.api.permissions import (CanViewAssociatedCo
 from course_discovery.apps.publisher.api.serializers import (CourseRevisionSerializer, CourseRunSerializer,
                                                              CourseRunStateSerializer, CourseStateSerializer,
                                                              CourseUserRoleSerializer, GroupUserSerializer)
+from course_discovery.apps.publisher.forms import CustomCourseForm
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
                                                     OrganizationExtension)
+
+logger = logging.getLogger(__name__)
+
+historicalcourse = apps.get_model('publisher', 'historicalcourse')
 
 
 class CourseRoleAssignmentView(UpdateAPIView):
@@ -56,3 +67,24 @@ class ChangeCourseRunStateView(UpdateAPIView):
     permission_classes = (IsAuthenticated, PublisherUserPermission,)
     queryset = CourseRunState.objects.all()
     serializer_class = CourseRunStateSerializer
+
+
+class RevertCourseRevisionView(APIView):
+    """ Revert view for Course against a history version """
+    permission_classes = (IsAuthenticated, )
+
+    def put(self, request, history_id):  # pylint: disable=unused-argument
+        """ Update the course version against the given revision id. """
+        history_object = get_object_or_404(historicalcourse, pk=history_id)
+        course = get_object_or_404(Course, id=history_object.id)
+        try:
+            for field in CustomCourseForm().fields:
+                if field not in ['team_admin', 'organization', 'add_new_run']:
+                    setattr(course, field, getattr(history_object, field))
+
+            course.save()
+        except:  # pylint: disable=bare-except
+            logger.exception('Unable to revert the course [%s] for revision [%s].', course.id, history_id)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)

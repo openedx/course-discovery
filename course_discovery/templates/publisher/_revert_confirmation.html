@@ -1,0 +1,17 @@
+{% load i18n %}
+
+<div id="confirmationModal" class="modal">
+    <div class="modal-content">
+        <h2 class="hd-2 emphasized">
+            <span class="icon fa fa-exclamation-triangle" aria-hidden="true"></span> {% trans "CAUTION" %}
+        </h2>
+        <span class="sr-only">CAUTION</span>
+        <p class="margin-top20">
+            {% trans "Are you sure you want to revert all changes to this version ?" %}
+        </p>
+        <div class="actions">
+            <a class="btn-cancel closeModal" href="#">{% trans "Cancel" %}</a>
+            <a id="id_confirm_revert_revision" class="btn-brand btn-base btn-accept" href="#">{% trans "Restore to this version" %}</a>
+        </div>
+    </div>
+</div>
