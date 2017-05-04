@@ -47,12 +47,6 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
         """ List all programs.
         ---
         parameters:
-            - name: partner
-              description: Filter by partner
-              required: false
-              type: string
-              paramType: query
-              multiple: false
             - name: marketable
               description: Retrieve marketable programs. A program is considered marketable if it is active
                 and has a marketing slug.
