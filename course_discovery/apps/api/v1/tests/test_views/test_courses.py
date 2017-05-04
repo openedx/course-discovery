@@ -59,6 +59,29 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
                 self.serialize_course(self.course, extra_context={'include_deleted_programs': True})
             )
 
+    def test_get_include_hidden_course_runs(self):
+        """
+        Verify the endpoint returns associated hidden course runs
+        with the 'include_hidden_course_runs' flag set to True
+        """
+        CourseRunFactory(
+            status=CourseRunStatus.Published,
+            end=datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10),
+            enrollment_start=None,
+            enrollment_end=None,
+            hidden=True,
+            course=self.course
+        )
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
+        url += '?include_hidden_course_runs=1'
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.data,
+            self.serialize_course(self.course)
+        )
+
     @ddt.data(1, 0)
     def test_marketable_course_runs_only(self, marketable_course_runs_only):
         """

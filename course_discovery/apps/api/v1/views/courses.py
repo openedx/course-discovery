@@ -33,7 +33,10 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = Course.search(q)
             queryset = self.get_serializer_class().prefetch_queryset(queryset=queryset)
         else:
-            course_runs = CourseRun.objects.exclude(hidden=True)
+            if get_query_param(self.request, 'include_hidden_course_runs'):
+                course_runs = CourseRun.objects.all()
+            else:
+                course_runs = CourseRun.objects.exclude(hidden=True)
 
             if get_query_param(self.request, 'marketable_course_runs_only'):
                 course_runs = course_runs.marketable().active()
@@ -82,6 +85,12 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
               type: string
               paramType: query
               multiple: false
+            - name: include_hidden_course_runs
+              description: Include course runs that are hidden in the response.
+              required: false
+              type: integer
+              paramType: query
+              mulitple: false
             - name: marketable_course_runs_only
               description: Restrict returned course runs to those that are published, have seats,
                 and are enrollable or will be enrollable in the future
