@@ -157,6 +157,8 @@ class CustomCourseForm(CourseForm):
         validators=[validate_text_count(max_length=2500)]
     )
 
+    add_new_run = forms.BooleanField(required=False)
+
     class Meta(CourseForm.Meta):
         model = Course
         widgets = {

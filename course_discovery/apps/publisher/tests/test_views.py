@@ -53,16 +53,12 @@ class CreateCourseViewTests(TestCase):
         self.group = self.organization_extension.group
         self.user.groups.add(self.group)
 
-        # create base course objects
+        # create base course object
         self.course = factories.CourseFactory()
-        self.course_run = factories.CourseRunFactory(course=self.course)
-        self.seat = factories.SeatFactory(course_run=self.course_run, type=Seat.VERIFIED, price=2)
 
         self.course.organizations.add(self.organization_extension.organization)
         self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.start_date_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        self.end_date_time = (datetime.now() + timedelta(days=60)).strftime('%Y-%m-%d %H:%M:%S')
 
         # creating default organizations roles
         factories.OrganizationUserRoleFactory(
@@ -98,50 +94,36 @@ class CreateCourseViewTests(TestCase):
             response, "Must be Publisher user to perform this action.", status_code=403
         )
 
-    def test_create_course_and_course_run_and_seat_with_errors(self):
+    def test_create_course_with_errors(self):
         """
-        Verify that without providing required data course and other objects cannot be created.
+        Verify that without providing required data course cannot be created.
         """
         course_dict = model_to_dict(self.course)
-        course_dict['number'] = 'test course'
+        course_dict['number'] = ''
         course_dict['image'] = ''
         course_dict['lms_course_id'] = ''
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
         self.assertEqual(response.status_code, 400)
 
-    def test_create_course_and_course_run_without_seat(self):
+    def test_create_course(self):
         """
-        Verify that course and course run objects create successfully if seat type is not provided.
+        Verify that user can create course successfully.
         """
-        data = {'number': 'course_without_seat', 'image': ''}
-        course_dict = self._post_data(data, self.course, self.course_run, None)
-        course_dict['image'] = ''
-        self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
+        data = {'number': 'testX453', 'image': make_image_file('test_banner.jpg')}
+        course_dict = self._post_data(data, self.course)
+        response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
 
         course = Course.objects.get(number=course_dict['number'])
-        course_run = course.publisher_course_runs.first()
-        # verify no seat object created with course run.
-        self.assertFalse(course_run.seats.all())
 
-    @ddt.data(
-        {'number': 'course_1', 'image': ''},
-        {'number': 'course_2', 'image': make_image_file('test_banner.jpg')},
-        {'number': 'course_3', 'image': make_image_file('test_banner1.jpg')}
-    )
-    def test_create_course_and_course_run_and_seat(self, data):
-        """
-        Verify that new course, course run and seat can be created with different data sets.
-        """
-        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
-        self._assert_records(1)
-        course_dict = self._post_data(data, self.course, self.course_run, self.seat)
-        response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=data['image'])
-        course = Course.objects.get(number=data['number'])
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': course.id}),
+            status_code=302,
+            target_status_code=200
+        )
 
-        if data['image']:
-            self._assert_image(course)
-
-        self._assert_test_data(response, course, self.seat.type, self.seat.price)
+        self.assertEqual(course.number, data['number'])
+        self._assert_image(course)
 
     @ddt.data(
         make_image_file('test_banner00.jpg', width=2120, height=1191),
@@ -159,7 +141,7 @@ class CreateCourseViewTests(TestCase):
         ]
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         self._assert_records(1)
-        course_dict = self._post_data({'image': image}, self.course, self.course_run, self.seat)
+        course_dict = self._post_data({'image': image}, self.course)
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=image)
         self.assertEqual(response.context['course_form'].errors['image'], image_error)
         self._assert_records(1)
@@ -170,47 +152,13 @@ class CreateCourseViewTests(TestCase):
         """
         self._assert_records(1)
         data = {'number': 'course_2', 'image': make_image_file('test_banner.jpg')}
-        course_dict = self._post_data(data, self.course, self.course_run, self.seat)
+        course_dict = self._post_data(data, self.course)
         with patch.object(Course, "save") as mock_method:
             mock_method.side_effect = IntegrityError
             response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=data['image'])
 
         self.assertEqual(response.status_code, 400)
         self._assert_records(1)
-
-    @ddt.data(Seat.VERIFIED, Seat.PROFESSIONAL)
-    def test_create_course_without_price_with_error(self, seat_type):
-        """ Verify that error is thrown if seat type is not honor/audit and no price is input.
-        """
-        self._assert_records(1)
-        data = {'number': 'course_1', 'image': ''}
-        course_dict = self._post_data(data, self.course, self.course_run, self.seat)
-        course_dict['price'] = 0
-        course_dict['type'] = seat_type
-        response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=data['image'])
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            response.context['seat_form'].errors['price'][0], 'Only audit seat can be without price.'
-        )
-        self._assert_records(1)
-
-    def test_create_course_without_price_with_success(self):
-        """ Verify that if seat type is audit then price is not required. """
-        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
-        self._assert_records(1)
-        data = {'number': 'course_1', 'image': ''}
-        course_dict = self._post_data(data, self.course, self.course_run, self.seat)
-        course_dict['price'] = 0
-        course_dict['type'] = Seat.AUDIT
-        response = self.client.post(
-            reverse('publisher:publisher_courses_new'), course_dict, files=data['image'], follow=True
-        )
-        course = Course.objects.get(number=data['number'])
-        self._assert_test_data(response, course, Seat.AUDIT, 0)
-        self.assertIn(
-            'You have successfully created a course. You can edit the course information',
-            response.content.decode('UTF-8')
-        )
 
     def test_create_form_with_single_organization(self):
         """Verify that if there is only one organization then that organization will be shown as text. """
@@ -257,13 +205,12 @@ class CreateCourseViewTests(TestCase):
             )
         )
 
-    def test_create_without_selecting_radio_buttons(self):
+    def test_create_course_without_course_number(self):
         """
-        Verify that without selecting pacing type course cannot be created.
+        Verify that without course number course cannot be created.
         """
-        data = {'number': 'course_1', 'image': ''}
-        course_dict = self._post_data(data, self.course, self.course_run, self.seat)
-        course_dict.pop('pacing_type')
+        course_dict = self._post_data({'image': ''}, self.course)
+        course_dict.pop('number')
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
         self.assertEqual(response.status_code, 400)
 
@@ -274,26 +221,14 @@ class CreateCourseViewTests(TestCase):
             '<div id="about-page" class="layout-full publisher-layout layout', response.content.decode('UTF-8')
         )
 
-    def _post_data(self, data, course, course_run, seat):
+    def _post_data(self, data, course):
         """ Returns dict of data to posts to a course endpoint. """
         course_dict = model_to_dict(course)
         course_dict.update(**data)
         course_dict['team_admin'] = self.user.id
-        if course_run:
-            course_dict.update(**model_to_dict(course_run))
-            course_dict.pop('video_language')
-            course_dict.pop('end')
-            course_dict.pop('priority')
-            course_dict.pop('contacted_partner_manager')
-            course_dict['start'] = self.start_date_time
-            course_dict['end'] = self.end_date_time
-            course_dict['organization'] = self.organization_extension.organization.id
-            course_dict['lms_course_id'] = ''
-        if seat:
-            course_dict.update(**model_to_dict(seat))
-            course_dict.pop('verification_deadline')
-
+        course_dict['organization'] = self.organization_extension.organization.id
         course_dict.pop('id')
+
         return course_dict
 
     def _assert_image(self, course):
@@ -308,41 +243,26 @@ class CreateCourseViewTests(TestCase):
             self.assertIn(image_url_prefix, sized_file.url)
 
     def _assert_records(self, count):
-        """ Asserts expected counts for Course, CourseRun, and Seat objects """
+        """ Asserts expected counts for Course"""
         self.assertEqual(Course.objects.all().count(), count)
-        self.assertEqual(CourseRun.objects.all().count(), count)
-        self.assertEqual(Seat.objects.all().count(), count)
 
-    def _assert_test_data(self, response, course, expected_type, expected_price):
-        """ Asserts expected data present on create. """
-        course_run = course.publisher_course_runs.get()
-        course_detail_path = reverse('publisher:publisher_course_detail', kwargs={'pk': course.id})
+    def test_create_course_with_add_run(self):
+        """
+        Verify that if add_new_run is checked user is redirected to
+        create course run page instead course detail page.
+        """
+        data = {'number': 'testX234', 'image': '', 'add_new_run': True}
+        course_dict = self._post_data(data, self.course)
+        response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
+
+        course = Course.objects.get(number=course_dict['number'])
 
         self.assertRedirects(
             response,
-            expected_url=course_detail_path,
+            expected_url=reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': course.id}),
             status_code=302,
             target_status_code=200
         )
-        self.assertEqual(course.organizations.first(), self.organization_extension.organization)
-        self.assertEqual(len(course.course_user_roles.all()), 3)
-        self.assertEqual(course.course_user_roles.filter(role=PublisherUserRole.CourseTeam).count(), 1)
-
-        self.assertEqual(self.course_run.language, course_run.language)
-        self.assertFalse(course_run.contacted_partner_manager)
-        self.assertEqual(self.course_run.pacing_type, course_run.pacing_type)
-        self.assertEqual(course_run.start.strftime("%Y-%m-%d %H:%M:%S"), self.start_date_time)
-        self.assertEqual(course_run.end.strftime("%Y-%m-%d %H:%M:%S"), self.end_date_time)
-
-        seat = course_run.seats.first()
-        self.assertEqual(seat.type, expected_type)
-        self.assertEqual(seat.price, expected_price)
-        self._assert_records(2)
-
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual([course.project_coordinator.email], mail.outbox[0].to)
-        expected_subject = 'New Studio instance request for {title}'.format(title=course.title)
-        self.assertEqual(str(mail.outbox[0].subject), expected_subject)
 
 
 class CreateCourseRunViewTests(TestCase):
@@ -489,6 +409,51 @@ class CreateCourseRunViewTests(TestCase):
         self.assertEqual([self.course.project_coordinator.email], mail.outbox[0].to)
         expected_subject = 'New Studio instance request for {title}'.format(title=self.course.title)
         self.assertEqual(str(mail.outbox[0].subject), expected_subject)
+
+    def test_seat_without_price(self):
+        """ Verify that user cannot create a new course run without seat price. """
+        new_user = factories.UserFactory()
+        new_user.groups.add(self.organization_extension.group)
+        factories.CourseUserRoleFactory.create(
+            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=factories.UserFactory()
+        )
+
+        self.assertEqual(self.course.course_team_admin, self.user)
+
+        post_data = self.course_run_dict
+        seat = factories.SeatFactory(course_run=self.course_run, type=Seat.HONOR, price=0)
+        post_data.update(**model_to_dict(seat))
+        post_data.update(
+            {
+                'type': Seat.VERIFIED,
+                'price': 0
+            }
+        )
+        self._pop_valuse_from_dict(post_data, ['id', 'course', 'course_run', 'lms_course_id'])
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+        response = self.client.post(
+            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
+            post_data
+        )
+
+        self.assertContains(response, 'Only audit seat can be without price.', status_code=400)
+
+        post_data['price'] = 450
+
+        response = self.client.post(
+            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
+            post_data
+        )
+
+        new_seat = Seat.objects.get(type=post_data['type'], price=post_data['price'])
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': new_seat.course_run.id}),
+            status_code=302,
+            target_status_code=200
+        )
 
     def test_existing_run_and_seat_data_auto_populated(self):
         """
@@ -2313,12 +2278,13 @@ class CourseRunEditViewTests(TestCase):
         # in other tables also
         data = {'number': 'course_update_1', 'image': '', 'title': 'test course'}
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
-        course_dict = self._post_data(data, self.course, self.course_run, None)
+        course_dict = self._post_data(data, self.course, self.course_run)
         self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=data['image'])
 
         # newly created course from the page.
         self.new_course = Course.objects.get(number=data['number'])
-        self.new_course_run = self.new_course.course_runs.first()
+        self.new_course_run = factories.CourseRunFactory(course=self.new_course)
+        factories.CourseRunStateFactory(course_run=self.new_course_run, owner_role=PublisherUserRole.CourseTeam)
 
         assign_perm(OrganizationExtension.EDIT_COURSE_RUN, self.group, self.organization_extension)
         assign_perm(OrganizationExtension.VIEW_COURSE_RUN, self.group, self.organization_extension)
@@ -2330,7 +2296,7 @@ class CourseRunEditViewTests(TestCase):
 
         # Update the data for course
         data = {'full_description': 'This is testing description.', 'image': ''}
-        self.updated_dict = self._post_data(data, self.new_course, self.new_course_run, None)
+        self.updated_dict = self._post_data(data, self.new_course, self.new_course_run)
 
         # Update the data for course-run
         self.updated_dict['is_xseries'] = True
@@ -2338,14 +2304,7 @@ class CourseRunEditViewTests(TestCase):
 
         toggle_switch('enable_publisher_email_notifications', True)
 
-        # 1st email is due to course-creation.
-        self.assertEqual(len(mail.outbox), 1)
-
-    def _pop_valuse_from_dict(self, data_dict, key_list):
-        for key in key_list:
-            data_dict.pop(key)
-
-    def _post_data(self, data, course, course_run, seat):
+    def _post_data(self, data, course, course_run):
         course_dict = model_to_dict(course)
         course_dict.update(**data)
         course_dict['team_admin'] = self.user.id
@@ -2358,9 +2317,6 @@ class CourseRunEditViewTests(TestCase):
             course_dict['start'] = self.start_date_time
             course_dict['end'] = self.end_date_time
             course_dict['organization'] = self.organization_extension.organization.id
-        if seat:
-            course_dict.update(**model_to_dict(seat))
-            course_dict.pop('verification_deadline')
 
         course_dict.pop('id')
         return course_dict
@@ -2441,7 +2397,7 @@ class CourseRunEditViewTests(TestCase):
 
         # post data without seat
         data = {'image': ''}
-        updated_dict = self._post_data(data, self.new_course, self.new_course_run, None)
+        updated_dict = self._post_data(data, self.new_course, self.new_course_run)
 
         updated_dict['type'] = Seat.PROFESSIONAL
         updated_dict['price'] = 10.00
@@ -2581,10 +2537,10 @@ class CourseRunEditViewTests(TestCase):
         """
         DRY method to assert sent email data.
         """
-        self.assertEqual(len(mail.outbox), 2)
-        self.assertEqual(str(mail.outbox[1].subject), subject)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(str(mail.outbox[0].subject), subject)
 
-        body = mail.outbox[1].body.strip()
+        body = mail.outbox[0].body.strip()
         self.assertIn(expected_body, body)
         page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=object_path)
         self.assertIn(page_url, body)
@@ -2640,7 +2596,7 @@ class CourseRunEditViewTests(TestCase):
 
         self.assertNotContains(response, '<a class="studio-link"')
         data = {'full_description': 'This is testing description.', 'image': ''}
-        updated_dict = self._post_data(data, self.new_course, None, None)
+        updated_dict = self._post_data(data, self.new_course, None)
         self.client.post(self.edit_page_url, updated_dict)
 
         response = self.client.get(self.edit_page_url)
@@ -2661,7 +2617,7 @@ class CourseRunEditViewTests(TestCase):
         """
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         data = {'full_description': 'This is testing description.', 'image': ''}
-        updated_dict = self._post_data(data, self.new_course, self.new_course_run, None)
+        updated_dict = self._post_data(data, self.new_course, self.new_course_run)
         updated_dict['type'] = seat_type
         updated_dict['price'] = 10.00
 
@@ -2736,7 +2692,7 @@ class CourseRunEditViewTests(TestCase):
         user = self.new_course.course_team_admin
         self.client.login(username=user.username, password=USER_PASSWORD)
 
-        post_data = self._post_data({'image': ''}, self.new_course, self.new_course_run, None)
+        post_data = self._post_data({'image': ''}, self.new_course, self.new_course_run)
         lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
         self.new_course_run.lms_course_id = lms_course_id
         self.new_course_run.save()

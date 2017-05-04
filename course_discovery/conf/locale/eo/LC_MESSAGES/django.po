@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-04 15:16+0500\n"
+"POT-Creation-Date: 2017-05-05 13:13+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -1516,98 +1516,6 @@ msgid "Statistics: Probability"
 msgstr "Stätïstïçs: Prößäßïlïtý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/course_run/edit_run_form.html
-msgid "COURSE START DATE"
-msgstr "ÇÖÛRSÉ STÀRT DÀTÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/course_run/edit_run_form.html
-msgid "Start on a Tuesday, Wednesday, or Thursday."
-msgstr ""
-"Stärt ön ä Tüésdäý, Wédnésdäý, ör Thürsdäý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя #"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/course_run/edit_run_form.html
-msgid "Avoid major U.S. holidays."
-msgstr "Àvöïd mäjör Û.S. hölïdäýs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/course_run/edit_run_form.html
-msgid ""
-"Specify a month, day, and year. If you are unsure of the exact date, specify"
-" a day that is close to the estimated start date. For example, if your "
-"course will start near the end of March, specify March 31."
-msgstr ""
-"Spéçïfý ä mönth, däý, änd ýéär. Ìf ýöü äré ünsüré öf thé éxäçt däté, spéçïfý"
-" ä däý thät ïs çlösé tö thé éstïmätéd stärt däté. För éxämplé, ïf ýöür "
-"çöürsé wïll stärt néär thé énd öf Märçh, spéçïfý Märçh 31. Ⱡ'σяєм ιρѕυм "
-"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
-"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
-"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
-"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
-"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт #"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/course_run/edit_run_form.html
-msgid "COURSE END DATE"
-msgstr "ÇÖÛRSÉ ÉND DÀTÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/course_run/edit_run_form.html
-msgid ""
-"Specify a month, day, and year. If you are unsure of the exact date, specify"
-" a day that is close to the estimated end date. For example, if your course "
-"will end near the end of March, specify March 31."
-msgstr ""
-"Spéçïfý ä mönth, däý, änd ýéär. Ìf ýöü äré ünsüré öf thé éxäçt däté, spéçïfý"
-" ä däý thät ïs çlösé tö thé éstïmätéd énd däté. För éxämplé, ïf ýöür çöürsé "
-"wïll énd néär thé énd öf Märçh, spéçïfý Märçh 31. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
-"αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт "
-"łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ "
-"єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ "
-"αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ "
-"ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢α#"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/course_run/edit_run_form.html
-msgid "COURSE PACING"
-msgstr "ÇÖÛRSÉ PÀÇÌNG Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/course_run/edit_run_form.html
-msgid ""
-"Instructor-paced courses include individual assignments that have specific "
-"due dates before the course end date."
-msgstr ""
-"Ìnstrüçtör-päçéd çöürsés ïnçlüdé ïndïvïdüäl ässïgnménts thät hävé spéçïfïç "
-"düé dätés ßéföré thé çöürsé énd däté. Ⱡ'σяєм ιρѕυм ∂σłσя#"
-
-#: templates/publisher/add_course_form.html
-#: templates/publisher/add_courserun_form.html
-#: templates/publisher/course_run/edit_run_form.html
-msgid ""
-"Self-paced courses do not have individual assignments that have specific due"
-" dates before the course end date. All assignments are due on the course end"
-" date."
-msgstr ""
-"Sélf-päçéd çöürsés dö nöt hävé ïndïvïdüäl ässïgnménts thät hävé spéçïfïç düé"
-" dätés ßéföré thé çöürsé énd däté. Àll ässïgnménts äré düé ön thé çöürsé énd"
-" däté. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ "
-"єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм"
-" νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα "
-"¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт"
-" єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт "
-"¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт#"
-
-#: templates/publisher/add_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid "COURSE NUMBER"
 msgstr "ÇÖÛRSÉ NÛMBÉR Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
@@ -1668,6 +1576,12 @@ msgstr ""
 "∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα"
 " ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση#"
 
+#: templates/publisher/add_course_form.html
+msgid "I want to add a run to this course at this time"
+msgstr ""
+"Ì wänt tö ädd ä rün tö thïs çöürsé ät thïs tïmé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
+" ¢σηѕє¢тєтυя α#"
+
 #: templates/publisher/add_courserun_form.html
 msgid "New Course Run"
 msgstr "Néw Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
@@ -1693,8 +1607,87 @@ msgstr ""
 "                 Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє#"
 
 #: templates/publisher/add_courserun_form.html
+#: templates/publisher/course_run/edit_run_form.html
+msgid "COURSE START DATE"
+msgstr "ÇÖÛRSÉ STÀRT DÀTÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: templates/publisher/add_courserun_form.html
+#: templates/publisher/course_run/edit_run_form.html
+msgid "Start on a Tuesday, Wednesday, or Thursday."
+msgstr ""
+"Stärt ön ä Tüésdäý, Wédnésdäý, ör Thürsdäý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: templates/publisher/add_courserun_form.html
+#: templates/publisher/course_run/edit_run_form.html
+msgid "Avoid major U.S. holidays."
+msgstr "Àvöïd mäjör Û.S. hölïdäýs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: templates/publisher/add_courserun_form.html
+#: templates/publisher/course_run/edit_run_form.html
+msgid ""
+"Specify a month, day, and year. If you are unsure of the exact date, specify"
+" a day that is close to the estimated start date. For example, if your "
+"course will start near the end of March, specify March 31."
+msgstr ""
+"Spéçïfý ä mönth, däý, änd ýéär. Ìf ýöü äré ünsüré öf thé éxäçt däté, spéçïfý"
+" ä däý thät ïs çlösé tö thé éstïmätéd stärt däté. För éxämplé, ïf ýöür "
+"çöürsé wïll stärt néär thé énd öf Märçh, spéçïfý Märçh 31. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
+"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
+"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт #"
+
+#: templates/publisher/add_courserun_form.html
 msgid "PACING TYPE"
 msgstr "PÀÇÌNG TÝPÉ Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: templates/publisher/add_courserun_form.html
+#: templates/publisher/course_run/edit_run_form.html
+msgid ""
+"Instructor-paced courses include individual assignments that have specific "
+"due dates before the course end date."
+msgstr ""
+"Ìnstrüçtör-päçéd çöürsés ïnçlüdé ïndïvïdüäl ässïgnménts thät hävé spéçïfïç "
+"düé dätés ßéföré thé çöürsé énd däté. Ⱡ'σяєм ιρѕυм ∂σłσя#"
+
+#: templates/publisher/add_courserun_form.html
+#: templates/publisher/course_run/edit_run_form.html
+msgid ""
+"Self-paced courses do not have individual assignments that have specific due"
+" dates before the course end date. All assignments are due on the course end"
+" date."
+msgstr ""
+"Sélf-päçéd çöürsés dö nöt hävé ïndïvïdüäl ässïgnménts thät hävé spéçïfïç düé"
+" dätés ßéföré thé çöürsé énd däté. Àll ässïgnménts äré düé ön thé çöürsé énd"
+" däté. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ "
+"єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм"
+" νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα "
+"¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт"
+" єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт "
+"¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт#"
+
+#: templates/publisher/add_courserun_form.html
+#: templates/publisher/course_run/edit_run_form.html
+msgid "COURSE END DATE"
+msgstr "ÇÖÛRSÉ ÉND DÀTÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: templates/publisher/add_courserun_form.html
+#: templates/publisher/course_run/edit_run_form.html
+msgid ""
+"Specify a month, day, and year. If you are unsure of the exact date, specify"
+" a day that is close to the estimated end date. For example, if your course "
+"will end near the end of March, specify March 31."
+msgstr ""
+"Spéçïfý ä mönth, däý, änd ýéär. Ìf ýöü äré ünsüré öf thé éxäçt däté, spéçïfý"
+" ä däý thät ïs çlösé tö thé éstïmätéd énd däté. För éxämplé, ïf ýöür çöürsé "
+"wïll énd néär thé énd öf Märçh, spéçïfý Märçh 31. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт "
+"łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ "
+"єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ "
+"αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ "
+"ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢α#"
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/course_run/edit_run_form.html
@@ -2424,6 +2417,10 @@ msgstr ""
 "яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα "
 "ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι "
 "σƒƒι¢ια ∂єѕєяυηт мσłłιт αη#"
+
+#: templates/publisher/course_run/edit_run_form.html
+msgid "COURSE PACING"
+msgstr "ÇÖÛRSÉ PÀÇÌNG Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid "The Studio URL for this course run."
