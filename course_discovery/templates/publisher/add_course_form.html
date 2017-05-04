@@ -87,51 +87,6 @@
                     </div>
                 </div>
 
-                <div class="field-title">{% trans "COURSE START DATE" %}</div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        <ul>
-                            <li>
-                                {% trans "Start on a Tuesday, Wednesday, or Thursday." %}
-                            </li>
-                            <li>
-                                {% trans "Avoid major U.S. holidays." %}
-                            </li>
-                            <li>
-                                {% trans "Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated start date. For example, if your course will start near the end of March, specify March 31." %}
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="col col-6">
-                        <label class="field-label ">{{ run_form.start.label_tag }}  <span class="required">*</span></label>
-                        {{ run_form.start }}
-                    </div>
-                </div>
-
-
-                <div class="field-title">{% trans "COURSE END DATE" %}</div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        {% trans "Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated end date. For example, if your course will end near the end of March, specify March 31." %}
-                    </div>
-                    <div class="col col-6">
-                        <label class="field-label ">{{ run_form.end.label_tag }}  <span class="required">*</span></label>
-                        {{ run_form.end }}
-                    </div>
-                </div>
-
-                <div class="field-title">{% trans "COURSE PACING" %}</div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        <p>{% trans "Instructor-paced courses include individual assignments that have specific due dates before the course end date." %} </p>
-                        <p>{% trans "Self-paced courses do not have individual assignments that have specific due dates before the course end date. All assignments are due on the course end date." %}</p>
-                    </div>
-                    <div class="col col-6">
-                        <label class="field-label">{{ run_form.pacing_type.label_tag }}  <span class="required">*</span></label>
-                        <div class="checkbox-inline">{{ run_form.pacing_type }}</div>
-                    </div>
-                </div>
-
                 <div class="field-title">{% trans "COURSE NUMBER" %}</div>
                 <div class="row">
                     <div class="col col-6 help-text">
@@ -177,10 +132,20 @@
 </div>
 <div class="course-form">
     <div class="course-information action-buttons">
-        <a href="{% url 'publisher:publisher_courses' %}">{% trans "Cancel" %}</a>
-        <button class="btn-brand btn-base btn-save" type="submit">
-            {% trans "Create New Course" %}
-        </button>
+        <div class="field">
+            <label class="field-label label-inline">
+                {{ course_form.add_new_run }}
+                <span class="field-input-label">
+                    {% trans "I want to add a run to this course at this time" %}
+                </span>
+            </label>
+        </div>
+        <div class="action-buttons">
+            <a href="{% url 'publisher:publisher_courses' %}">{% trans "Cancel" %}</a>
+            <button class="btn-brand btn-base btn-save" type="submit">
+                {% trans "Create New Course" %}
+            </button>
+        </div>
     </div>
 </div>
 
@@ -198,8 +163,4 @@
      <script src="{% static 'js/publisher/program-types.js' %}"></script>
      <script src="{% static 'js/publisher/modal-screen.js' %}"></script>
      <script src="{% static 'js/publisher/course-image.js' %}"></script>
-{% endblock %}
-
-{% block js_without_compress %}
-    {{ run_form.media }}
 {% endblock %}

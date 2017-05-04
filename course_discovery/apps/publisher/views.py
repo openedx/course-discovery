@@ -214,19 +214,18 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
     """ Create Course View."""
     model = Course
     course_form = CustomCourseForm
-    run_form = CustomCourseRunForm
-    seat_form = CustomSeatForm
     template_name = 'publisher/add_course_form.html'
     success_url = 'publisher:publisher_course_detail'
 
-    def get_success_url(self, course_id):  # pylint: disable=arguments-differ
-        return reverse(self.success_url, kwargs={'pk': course_id})
+    def get_success_url(self, course_id, add_new_run=None):  # pylint: disable=arguments-differ
+        success_url = reverse(self.success_url, kwargs={'pk': course_id})
+        if add_new_run:
+            success_url = reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': course_id})
+        return success_url
 
     def get_context_data(self):
         return {
             'course_form': self.course_form(user=self.request.user),
-            'run_form': self.run_form,
-            'seat_form': self.seat_form,
             'publisher_hide_features_for_pilot': waffle.switch_is_active('publisher_hide_features_for_pilot'),
             'publisher_add_instructor_feature': waffle.switch_is_active('publisher_add_instructor_feature'),
         }
@@ -236,45 +235,24 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
 
     def post(self, request, *args, **kwargs):
         ctx = self.get_context_data()
+        add_new_run = request.POST.get('add_new_run')
 
         # pass selected organization to CustomCourseForm to populate related
         # choices into institution admin field
         user = self.request.user
         organization = self.request.POST.get('organization')
 
-        self.request.POST['start'] = parse_datetime_field(self.request.POST.get('start'))
-        self.request.POST['end'] = parse_datetime_field(self.request.POST.get('end'))
-
         course_form = self.course_form(
             request.POST, request.FILES, user=user, organization=organization
         )
-        run_form = self.run_form(request.POST)
-        seat_form = self.seat_form(request.POST)
-        if course_form.is_valid() and run_form.is_valid() and seat_form.is_valid():
+        if course_form.is_valid():
             try:
                 with transaction.atomic():
-                    seat = None
-                    if request.POST.get('type'):
-                        seat = seat_form.save(commit=False)
-
-                    run_course = run_form.save(commit=False)
                     course = course_form.save(commit=False)
                     course.changed_by = user
                     course.save()
                     # commit false does not save m2m object. Keyword field is m2m.
                     course_form.save_m2m()
-
-                    run_course.course = course
-                    run_course.changed_by = user
-                    run_course.save()
-
-                    # commit false does not save m2m object.
-                    run_form.save_m2m()
-
-                    if seat:
-                        seat.course_run = run_course
-                        seat.changed_by = user
-                        seat.save()
 
                     organization_extension = get_object_or_404(
                         OrganizationExtension, organization=course_form.data['organization']
@@ -291,24 +269,19 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
                     # Initialize workflow for Course.
                     CourseState.objects.create(course=course, owner_role=PublisherUserRole.CourseTeam)
 
-                    # Initialize workflow for Course-run.
-                    CourseRunState.objects.create(course_run=run_course, owner_role=PublisherUserRole.CourseTeam)
-
-                    # pylint: disable=no-member
-                    messages.success(
-                        request, _(
-                            "You have successfully created a course. You can edit the course information or enter "
-                            "information for the course About page at any time. "
-                            "An edX project coordinator will create a Studio instance for this course. When you "
-                            "receive an email notification that the Studio instance is ready, you can enter course "
-                            "content in Studio."
+                    if not add_new_run:
+                        # pylint: disable=no-member
+                        messages.success(
+                            request, _(
+                                "You have successfully created a course. You can edit the course information or enter "
+                                "information for the course About page at any time. "
+                                "An edX project coordinator will create a Studio instance for this course. When you "
+                                "receive an email notification that the Studio instance is ready, you can enter course "
+                                "content in Studio."
+                            )
                         )
-                    )
 
-                    # sending email for notifying new course is created.
-                    emails.send_email_for_course_creation(course, run_course)
-
-                    return HttpResponseRedirect(self.get_success_url(course.id))
+                    return HttpResponseRedirect(self.get_success_url(course.id, add_new_run=add_new_run))
             except Exception as e:  # pylint: disable=broad-except
                 # pylint: disable=no-member
                 error_message = _('An error occurred while saving your changes. {error}').format(error=str(e))
@@ -323,8 +296,6 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
         ctx.update(
             {
                 'course_form': course_form,
-                'run_form': run_form,
-                'seat_form': seat_form
             }
         )
         return render(request, self.template_name, ctx, status=400)
@@ -484,36 +455,44 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
     def get_last_run(self):
         if not self.last_run:
             parent_course = self.get_parent_course()
-            self.last_run = parent_course.course_runs.latest('created')
+            try:
+                self.last_run = parent_course.course_runs.latest('created')
+            except CourseRun.DoesNotExist:
+                self.last_run = None
 
         return self.last_run
 
     def set_last_run_data(self, new_run):
         last_run = self.get_last_run()
-        last_run_data = model_to_dict(last_run)
-        # Delete all those fields which cannot be copied from previous run
-        del (last_run_data['id'], last_run_data['start'], last_run_data['end'], last_run_data['pacing_type'],
-             last_run_data['preview_url'], last_run_data['lms_course_id'], last_run_data['changed_by'],
-             last_run_data['course'], last_run_data['sponsor'])
+        if last_run:
+            last_run_data = model_to_dict(last_run)
+            # Delete all those fields which cannot be copied from previous run
+            del (last_run_data['id'], last_run_data['start'], last_run_data['end'], last_run_data['pacing_type'],
+                 last_run_data['preview_url'], last_run_data['lms_course_id'], last_run_data['changed_by'],
+                 last_run_data['course'], last_run_data['sponsor'])
 
-        staff = Person.objects.filter(id__in=last_run_data.pop('staff'))
-        transcript_languages = LanguageTag.objects.filter(code__in=last_run_data.pop('transcript_languages'))
-        language_code = last_run_data.pop('language')
-        if language_code:
-            last_run_data['language'] = LanguageTag.objects.get(code=language_code)
-        video_language_code = last_run_data.pop('video_language')
-        if video_language_code:
-            last_run_data['video_language'] = LanguageTag.objects.get(code=video_language_code)
+            staff = Person.objects.filter(id__in=last_run_data.pop('staff'))
+            transcript_languages = LanguageTag.objects.filter(code__in=last_run_data.pop('transcript_languages'))
+            language_code = last_run_data.pop('language')
+            if language_code:
+                last_run_data['language'] = LanguageTag.objects.get(code=language_code)
+            video_language_code = last_run_data.pop('video_language')
+            if video_language_code:
+                last_run_data['video_language'] = LanguageTag.objects.get(code=video_language_code)
 
-        for attr, value in last_run_data.items():
-            setattr(new_run, attr, value)
+            for attr, value in last_run_data.items():
+                setattr(new_run, attr, value)
 
-        new_run.save()
-        new_run.staff.add(*staff)
-        new_run.transcript_languages.add(*transcript_languages)
+            new_run.save()
+            new_run.staff.add(*staff)
+            new_run.transcript_languages.add(*transcript_languages)
 
     def get_seat_initial_data(self):
+        initial_seat_data = {}
         last_run = self.get_last_run()
+        if not last_run:
+            return initial_seat_data
+
         try:
             latest_seat = last_run.seats.latest('created')
             initial_seat_data = model_to_dict(latest_seat)
@@ -526,9 +505,13 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         parent_course = self.get_parent_course()
         last_run = self.get_last_run()
+        run_initial_data = {}
+        if last_run:
+            run_initial_data = {'pacing_type': last_run.pacing_type}
+
         context = {
             'parent_course': parent_course,
-            'run_form': self.run_form(initial={'pacing_type': last_run.pacing_type}),
+            'run_form': self.run_form(initial=run_initial_data),
             'seat_form': self.seat_form(initial=self.get_seat_initial_data())
         }
         return context
