@@ -714,7 +714,7 @@ class ProgramType(TimeStampedModel):
         },
         help_text=_('Please provide an image file with transparent background'),
     )
-    slug = AutoSlugField(populate_from='name', editable=True, blank=True,
+    slug = AutoSlugField(populate_from='name', editable=True, unique=True,
                          help_text=_('Leave this field blank to have the value generated automatically.'))
 
     def __str__(self):

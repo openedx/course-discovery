@@ -198,7 +198,7 @@ class ProgramAdmin(admin.ModelAdmin):
 
 @admin.register(ProgramType)
 class ProgramTypeAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'slug',)
 
 
 @admin.register(SeatType)
