@@ -1,4 +1,4 @@
-from rest_framework import mixins, viewsets
+from rest_framework import viewsets
 from rest_framework.filters import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -7,7 +7,7 @@ from rest_framework_extensions.cache.mixins import CacheResponseMixin
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.v1.views import get_query_param
-from course_discovery.apps.course_metadata.models import Program, ProgramType
+from course_discovery.apps.course_metadata.models import Program
 
 
 # pylint: disable=no-member
@@ -95,15 +95,3 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
             return Response(uuids)
 
         return super(ProgramViewSet, self).list(request, *args, **kwargs)
-
-
-class ProgramTypeListViewSet(mixins.ListModelMixin,
-                             viewsets.GenericViewSet):
-    """ ProgramType resource. """
-    serializer_class = serializers.ProgramTypeSerializer
-    permission_classes = (IsAuthenticated,)
-    queryset = ProgramType.objects.all()
-
-    # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
-    # versions of this API should only support the system default, PageNumberPagination.
-    pagination_class = ProxiedPagination

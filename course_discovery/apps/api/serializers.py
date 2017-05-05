@@ -868,16 +868,17 @@ class ProgramSerializer(MinimalProgramSerializer):
 
 
 class ProgramTypeSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the Program Types
-    """
+    """ Serializer for the Program Types. """
+    applicable_seat_types = serializers.SlugRelatedField(many=True, read_only=True, slug_field='slug')
     logo_image = StdImageSerializerField()
+
+    @classmethod
+    def prefetch_queryset(cls, queryset):
+        return queryset.prefetch_related('applicable_seat_types')
 
     class Meta:
         model = ProgramType
-        fields = (
-            'name', 'logo_image',
-        )
+        fields = ('name', 'logo_image', 'applicable_seat_types', 'slug',)
 
 
 class AffiliateWindowSerializer(serializers.ModelSerializer):

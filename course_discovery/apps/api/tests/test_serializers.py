@@ -30,7 +30,7 @@ from course_discovery.apps.course_metadata.models import Course, CourseRun, Prog
 from course_discovery.apps.course_metadata.tests.factories import (
     CorporateEndorsementFactory, CourseFactory, CourseRunFactory, EndorsementFactory, ExpectedLearningItemFactory,
     ImageFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, PositionFactory, PrerequisiteFactory,
-    ProgramFactory, ProgramTypeFactory, SeatFactory, SubjectFactory, VideoFactory
+    ProgramFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory, SubjectFactory, VideoFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -855,11 +855,14 @@ class ProgramTypeSerializerTests(TestCase):
         return {
             'name': program_type.name,
             'logo_image': image_field.to_representation(program_type.logo_image),
+            'applicable_seat_types': [seat_type.slug for seat_type in program_type.applicable_seat_types.all()],
+            'slug': program_type.slug,
         }
 
     def test_data(self):
         request = make_request()
-        program_type = ProgramTypeFactory()
+        applicable_seat_types = SeatTypeFactory.create_batch(3)
+        program_type = ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
         serializer = self.serializer_class(program_type, context={'request': request})
         expected = self.get_expected_data(program_type, request)
         self.assertDictEqual(serializer.data, expected)
