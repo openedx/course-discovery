@@ -302,6 +302,15 @@ class CustomCourseRunForm(CourseRunForm):
 
         return None
 
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        min_effort = cleaned_data.get("min_effort")
+        max_effort = cleaned_data.get("max_effort")
+        if min_effort and max_effort and min_effort > max_effort:
+                raise ValidationError({'min_effort': "Minimum effort cannot be greater than Maximum effort"})
+
+        return cleaned_data
+
     def __init__(self, *args, **kwargs):
         self.is_project_coordinator = kwargs.pop('is_project_coordinator', None)
         super(CustomCourseRunForm, self).__init__(*args, **kwargs)

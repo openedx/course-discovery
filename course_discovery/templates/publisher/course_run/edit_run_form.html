@@ -200,6 +200,9 @@
                             <div class="col col-6">
                                 <label class="field-label ">{% trans "Min Effort" %}</label>
                                 {{ run_form.min_effort }}
+                                {% if run_form.min_effort.errors %}
+                                    {{ run_form.min_effort.errors|escape }}
+                                {% endif %}
                             </div>
                             <div class="col col-6">
                                 <label class="field-label ">{% trans "Max Effort" %}</label>

@@ -77,3 +77,22 @@ class PublisherUserCreationFormTests(TestCase):
 
         user_form.cleaned_data['groups'] = ['test_group']
         self.assertEqual(user_form.clean(), user_form.cleaned_data)
+
+
+class PublisherCourseRunEditFormTests(TestCase):
+    """
+    Tests for the publisher 'CustomCourseRunForm'.
+    """
+
+    def test_minimum_effort(self):
+        """
+        Verify that 'clean' raises 'ValidationError' error if Minimum effort is greater
+        than Maximum effort.
+        """
+        run_form = CustomCourseRunForm()
+        run_form.cleaned_data = {'min_effort': 4, 'max_effort': 2}
+        with self.assertRaises(ValidationError):
+            run_form.clean()
+
+        run_form.cleaned_data['min_effort'] = 1
+        self.assertEqual(run_form.clean(), run_form.cleaned_data)
