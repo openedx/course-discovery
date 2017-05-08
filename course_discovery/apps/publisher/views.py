@@ -487,6 +487,8 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
             new_run.staff.add(*staff)
             new_run.transcript_languages.add(*transcript_languages)
 
+        new_run.save()
+
     def get_seat_initial_data(self):
         initial_seat_data = {}
         last_run = self.get_last_run()
