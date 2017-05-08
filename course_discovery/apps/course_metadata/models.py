@@ -608,9 +608,12 @@ class CourseRun(TimeStampedModel):
             publisher = CourseRunMarketingSitePublisher(self.course.partner)
             previous_obj = CourseRun.objects.get(id=self.id) if self.id else None
 
-            with transaction.atomic():
-                super(CourseRun, self).save(*args, **kwargs)
+            super(CourseRun, self).save(*args, **kwargs)
+
+            try:
                 publisher.publish_obj(self, previous_obj=previous_obj)
+            except:  # pylint: disable=bare-except
+                logger.exception('Unable to publish course run {key} to the marketing site.'.format(key=self.key))
         else:
             super(CourseRun, self).save(*args, **kwargs)
 
