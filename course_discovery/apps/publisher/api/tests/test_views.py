@@ -1,5 +1,6 @@
 # pylint: disable=no-member
 import json
+from urllib.parse import quote
 
 import ddt
 from django.contrib.auth.models import Group
@@ -20,7 +21,7 @@ from course_discovery.apps.course_metadata.tests.factories import OrganizationFa
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api import views
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
-from course_discovery.apps.publisher.constants import INTERNAL_USER_GROUP_NAME
+from course_discovery.apps.publisher.constants import ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState,
                                                     OrganizationExtension, Seat)
 from course_discovery.apps.publisher.tests import JSON_CONTENT_TYPE, factories
@@ -825,3 +826,70 @@ class RevertCourseByRevisionTests(TestCase):
             'publisher:api:course_revision_revert', kwargs={'history_id': revision_id}
         )
         return self.client.put(path=course_revision_path)
+
+
+class CoursesAutoCompleteTests(TestCase):
+    """ Tests for course autocomplete."""
+
+    def setUp(self):
+        super(CoursesAutoCompleteTests, self).setUp()
+        self.user = UserFactory()
+        self.course = factories.CourseFactory(title='Test course 1')
+        self.course2 = factories.CourseFactory(title='Test course 2')
+        self.organization_extension = factories.OrganizationExtensionFactory()
+        self.course.organizations.add(self.organization_extension.organization)
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension
+        )
+
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+        self.course_autocomplete_url = reverse('publisher:api:course-autocomplete') + '?q={title}'
+
+    def test_course_autocomplete_without_login(self):
+        """ Verify course autocomplete without login. """
+        self.client.logout()
+        self.course_autocomplete_url = self.course_autocomplete_url.format(title='test')
+        response = self.client.get(self.course_autocomplete_url)
+
+        self.assertRedirects(
+            response,
+            expected_url='{url}?next={next}'.format(
+                url=reverse('login'),
+                next=quote(self.course_autocomplete_url)
+            ),
+            status_code=302,
+            target_status_code=302
+        )
+
+    def test_course_autocomplete_with_course_team(self):
+        """ Verify course autocomplete returns data for course team user. """
+        response = self.client.get(self.course_autocomplete_url.format(title='test'))
+        self._assert_response(response, 1)
+
+        response = self.client.get(
+            self.course_autocomplete_url.format(title='dummy')
+        )
+        self._assert_response(response, 0)
+
+    def test_course_autocomplete_with_admin(self):
+        """ Verify course autocomplete returns all courses for publisher admin. """
+        self.user.groups.remove(self.organization_extension.group)
+        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+        response = self.client.get(self.course_autocomplete_url.format(title='test'))
+        self._assert_response(response, 2)
+
+    def test_course_autocomplete_with_internal_user(self):
+        """ Verify course autocomplete returns all courses for publisher admin. """
+        self.user.groups.remove(self.organization_extension.group)
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        factories.CourseUserRoleFactory(course=self.course2, user=self.user, role=PublisherUserRole.MarketingReviewer)
+        response = self.client.get(self.course_autocomplete_url.format(title='test'))
+        self._assert_response(response, 1)
+
+    def _assert_response(self, response, expected_length):
+        """ Assert autocomplete response. """
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(len(data['results']), expected_length)

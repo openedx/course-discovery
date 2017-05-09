@@ -24,7 +24,8 @@ from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher import emails, mixins
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
-from course_discovery.apps.publisher.forms import CustomCourseForm, CustomCourseRunForm, CustomSeatForm
+from course_discovery.apps.publisher.forms import (CourseSearchForm, CustomCourseForm, CustomCourseRunForm,
+                                                   CustomSeatForm)
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
                                                     OrganizationExtension, Seat, UserAttributes)
 from course_discovery.apps.publisher.utils import (get_internal_users, has_role_for_course, is_internal_user,
@@ -562,6 +563,39 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
             }
         )
 
+        return render(request, self.template_name, context, status=400)
+
+
+class CreateRunFromDashboardView(CreateCourseRunView):
+    """ Create Course Run From Dashboard With Type ahead Search For Parent Course."""
+    course_form = CourseSearchForm
+
+    def get_context_data(self, **kwargs):
+        context = {
+            'from_dashboard': True,
+            'course_form': self.course_form(),
+            'run_form': self.run_form(),
+            'seat_form': self.seat_form()
+        }
+        return context
+
+    def post(self, request, *args, **kwargs):
+        course_form = self.course_form(request.POST)
+        run_form = self.run_form(request.POST)
+        seat_form = self.seat_form(request.POST)
+        if course_form.is_valid() and run_form.is_valid() and seat_form.is_valid():
+            self.parent_course = course_form.cleaned_data.get('course')
+            return super(CreateRunFromDashboardView, self).post(request, *args, **kwargs)
+
+        messages.error(request, _('Please fill all required fields.'))
+        context = self.get_context_data()
+        context.update(
+            {
+                'course_form': course_form,
+                'run_form': run_form,
+                'seat_form': seat_form,
+            }
+        )
         return render(request, self.template_name, context, status=400)
 
 

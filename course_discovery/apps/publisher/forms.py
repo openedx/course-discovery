@@ -192,6 +192,21 @@ class CustomCourseForm(CourseForm):
             self.fields['video_link'].widget = forms.HiddenInput()
 
 
+class CourseSearchForm(forms.Form):
+    """ Course Type ahead Search Form. """
+    course = forms.ModelChoiceField(
+        label=_('Find Course By Title'),
+        queryset=Course.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url='publisher:api:course-autocomplete',
+            attrs={
+                'data-minimum-input-length': 3,
+            }
+        ),
+        required=True,
+    )
+
+
 class CourseRunForm(BaseCourseForm):
     """ Course Run Form. """
 
