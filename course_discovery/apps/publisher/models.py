@@ -88,6 +88,8 @@ class Course(TimeStampedModel, ChangedByMixin):
     faq = models.TextField(default=None, null=True, blank=True, verbose_name=_('FAQ'))
     video_link = models.URLField(default=None, null=True, blank=True, verbose_name=_('Video Link'))
 
+    card_image_url = models.URLField(null=True, blank=True)
+
     history = HistoricalRecords()
 
     def __str__(self):
