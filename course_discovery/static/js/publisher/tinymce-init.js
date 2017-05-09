@@ -10,9 +10,15 @@ $(document).ready(function(){
           paste_remove_styles: true,
           paste_as_text: true,
           paste_auto_cleanup_on_paste: true,
-          skin: false
+          skin: false,
+          forced_root_block : false
     };
 
     tinymceConfig["selector"]="textarea";
     tinymce.init(tinymceConfig);
+
+    tinymceConfig["selector"]= "#id_title";
+    tinymceConfig["toolbar"] = false;
+    tinymce.init(tinymceConfig);
+
 });

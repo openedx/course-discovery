@@ -3,11 +3,14 @@
 <div class="course-widgets">
     {% if can_edit %}
         {% url 'publisher:publisher_courses_edit' pk=object.id as edit_page_url %}
-        <a href="{% if add_warning_popup %}#{% else %}{{ edit_page_url }}{% endif %}" class="btn btn-neutral btn-course-edit">
+        <a id="btn_course_edit" href="{% if add_warning_popup %}#{% else %}{{ edit_page_url }}{% endif %}" class="btn btn-neutral btn-course-edit">
             {% trans "EDIT" %}
         </a>
         <div class="clearfix"></div>
     {% endif %}
+
+    <div class="clearfix"></div>
+
     <div class="margin-top20">
         <h5 class="hd-5 emphasized course-runs-heading">{% trans "COURSE RUNS" %}</h5>
         <a href="{% url 'publisher:publisher_course_runs_new' parent_course_id=object.id %}" class="btn btn-brand btn-small btn-courserun-add">

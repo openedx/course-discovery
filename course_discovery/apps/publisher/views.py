@@ -339,10 +339,19 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(CourseEditView, self).get_context_data(**kwargs)
-        context.update(
-            {'is_internal_user': is_internal_user(self.request.user)}
-        )
+        history_id = self.request.GET.get('history_id', None)
 
+        try:
+            history_object = self.object.history.get(history_id=history_id) if history_id else None
+        except:  # pylint: disable=bare-except
+            history_object = None
+
+        context.update(
+            {
+                'is_internal_user': is_internal_user(self.request.user),
+                'history_object': history_object
+            }
+        )
         return context
 
     def form_valid(self, form):
