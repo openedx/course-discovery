@@ -2764,3 +2764,97 @@ class CourseRevisionViewTests(TestCase):
                                 kwargs={'pk': course_id, 'revision_id': revision_id})
 
         return self.client.get(path=revision_path)
+
+
+class CreateRunFromDashboardViewTests(TestCase):
+    """ Tests for the publisher `CreateRunFromDashboardView`. """
+
+    def setUp(self):
+        super(CreateRunFromDashboardViewTests, self).setUp()
+        self.user = UserFactory()
+        self.course = factories.CourseFactory()
+        factories.CourseStateFactory(course=self.course)
+        factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.CourseTeam, user=self.user)
+        self.organization_extension = factories.OrganizationExtensionFactory()
+        self.course.organizations.add(self.organization_extension.organization)
+        self.user.groups.add(self.organization_extension.group)
+
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+        self.create_course_run_url = reverse('publisher:publisher_create_run_from_dashboard')
+
+    def test_courserun_form_without_login(self):
+        """ Verify that user can't access new course run form page when not logged in. """
+        self.client.logout()
+        response = self.client.get(self.create_course_run_url)
+
+        self.assertRedirects(
+            response,
+            expected_url='{url}?next={next}'.format(
+                url=reverse('login'),
+                next=self.create_course_run_url
+            ),
+            status_code=302,
+            target_status_code=302
+        )
+
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+        response = self.client.get(self.create_course_run_url)
+
+        self.assertEqual(response.status_code, 200)
+
+    def _post_data(self):
+        return {
+            'course': self.course.id,
+            'start': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'end': (datetime.now() + timedelta(days=60)).strftime('%Y-%m-%d %H:%M:%S'),
+            'pacing_type': 'self_paced',
+            'type': Seat.VERIFIED,
+            'price': 450
+        }
+
+    def test_create_course_run_and_seat_without_parent_course(self):
+        """ Verify that user cannot create course run without selecting parent course.
+        """
+        post_data = self._post_data()
+        post_data.pop('course')
+        response = self.client.post(self.create_course_run_url, post_data)
+        self.assertContains(response, 'Please fill all required fields.', status_code=400)
+
+    def test_create_course_run_and_seat(self):
+        """ Verify that we can create a new course run with seat. """
+        self.assertEqual(self.course.course_runs.count(), 0)
+        new_user = factories.UserFactory()
+        new_user.groups.add(self.organization_extension.group)
+        factories.CourseUserRoleFactory.create(
+            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=factories.UserFactory()
+        )
+
+        self.assertEqual(self.course.course_team_admin, self.user)
+
+        post_data = self._post_data()
+        response = self.client.post(self.create_course_run_url, self._post_data())
+
+        self.assertEqual(self.course.course_runs.count(), 1)
+
+        new_seat = Seat.objects.get(type=post_data['type'], price=post_data['price'])
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': new_seat.course_run.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        self.assertEqual(new_seat.type, Seat.VERIFIED)
+        self.assertEqual(new_seat.price, post_data['price'])
+
+        # Verify that and email is sent for studio instance request to project coordinator.
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual([self.course.project_coordinator.email], mail.outbox[0].to)
+        expected_subject = 'New Studio instance request for {title}'.format(title=self.course.title)
+        self.assertEqual(str(mail.outbox[0].subject), expected_subject)

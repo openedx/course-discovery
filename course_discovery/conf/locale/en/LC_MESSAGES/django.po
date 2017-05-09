@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-09 15:18+0500\n"
+"POT-Creation-Date: 2017-05-09 17:22+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -613,6 +613,10 @@ msgstr ""
 
 #: apps/publisher/forms.py templates/publisher/course_detail.html
 msgid "Syllabus"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Find Course By Title"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -1412,6 +1416,18 @@ msgid ""
 "\n"
 "                    When you create a course run, Publisher immediately creates a page for the course run in Publisher, and the edX team creates a Studio URL for the course run. You will receive an email message when edX has created the Studio URL.\n"
 "                "
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid "FIND COURSE BY TITLE"
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+#, python-format
+msgid ""
+"\n"
+"                                                Find the course that you are creating a run for by typing in the title. If you don't find a match, please check that the name is correct or %(link_start)s%(new_course_url)s%(link_middle)screate a new course%(link_end)s.\n"
+"                                            "
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
@@ -2491,6 +2507,10 @@ msgstr ""
 
 #: templates/publisher/dashboard.html
 msgid "Add a New Course"
+msgstr ""
+
+#: templates/publisher/dashboard.html
+msgid "Add a Course Run"
 msgstr ""
 
 #: templates/publisher/dashboard.html
