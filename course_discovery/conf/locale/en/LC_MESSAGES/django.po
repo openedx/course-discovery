@@ -664,6 +664,18 @@ msgid "Video Language"
 msgstr ""
 
 #: apps/publisher/forms.py
+msgid "Start date cannot be in the Past"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Start date cannot be after the End date"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Minimum effort cannot be greater than Maximum effort"
+msgstr ""
+
+#: apps/publisher/forms.py
 msgid "Only audit seat can be without price."
 msgstr ""
 

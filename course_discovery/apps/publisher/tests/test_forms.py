@@ -1,5 +1,7 @@
+from datetime import datetime, timedelta
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from pytz import timezone
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
@@ -95,4 +97,25 @@ class PublisherCourseRunEditFormTests(TestCase):
             run_form.clean()
 
         run_form.cleaned_data['min_effort'] = 1
+        self.assertEqual(run_form.clean(), run_form.cleaned_data)
+
+    def test_course_run_dates(self):
+        """
+        Verify that 'clean' raises 'ValidationError' if the Start date is in the past
+        Or if the Start date is after the End date
+        """
+        run_form = CustomCourseRunForm()
+        current_datetime = datetime.now(timezone('US/Central'))
+        run_form.cleaned_data = {'start': current_datetime + timedelta(days=3),
+                                 'end': current_datetime + timedelta(days=1)}
+        with self.assertRaises(ValidationError):
+            run_form.clean()
+
+        run_form.cleaned_data = {'start': current_datetime - timedelta(days=3),
+                                 'end': current_datetime + timedelta(days=3)}
+        with self.assertRaises(ValidationError):
+            run_form.clean()
+
+        run_form.cleaned_data['start'] = current_datetime + timedelta(days=1)
+        run_form.cleaned_data['end'] = current_datetime + timedelta(days=3)
         self.assertEqual(run_form.clean(), run_form.cleaned_data)
