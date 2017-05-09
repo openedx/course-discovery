@@ -1,7 +1,10 @@
 $(document).on('change', '#id_select_revisions', function (e) {
     var revisionUrl = $(this.selectedOptions).data('revisionUrl');
-    // on changing the revision from dropdown set the href of button.
+    // on changing the revision from drop-down set the href of button.
     $('#id_open_revision').prop("href", this.value);
+
+    var btn_edit = $('#btn_course_edit');
+    var current_btn_edit_url = btn_edit.attr('href');
 
     if (revisionUrl) {
         loadRevisionHistory(revisionUrl);
@@ -11,10 +14,14 @@ $(document).on('change', '#id_select_revisions', function (e) {
     }
 
     //show revert button for any revision except current version.
-    if (this.selectedIndex > 0)
+    if (this.selectedIndex > 0) {
         $('#span_revert_revision').show();
-    else
+        btn_edit.prop("href", $(this.selectedOptions).data('revisionId'));
+    }
+    else {
         $('#span_revert_revision').hide();
+        btn_edit.prop("href", current_btn_edit_url.split('?history')[0]);
+    }
 
 });
 

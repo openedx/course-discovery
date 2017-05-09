@@ -93,7 +93,9 @@
                                         </label> {{ form.team_admin }}
 
 
-                                        <label class="field-label ">{{ form.title.label }}</label> {{ form.title }}
+                                        <label class="field-label ">{{ form.title.label }}</label>
+                                        <input id="id_title_revision" type="text" value="{{ history_object.title }}" class="history">
+                                        {{ form.title }}
                                     </div>
                                 </div>
                                 <div class="field-title">{% trans "COURSE NUMBER" %}</div>
@@ -161,6 +163,7 @@
                                     </div>
                                     </div>
                                     <div class="col col-6">
+                                        <input id="id_short_description_revision" type="hidden" value="{{ history_object.short_description }}" class="history">
                                         <label class="field-label ">{{ form.short_description.label_tag }}</label>
                                         {{ form.short_description }}
                                         <p>{% trans "255 character limit, including spaces." %}</p>
@@ -209,6 +212,7 @@
                         </div>
                                     <div class="col col-6">
                                         <label class="field-label ">{{ form.full_description.label_tag }}</label>
+                                        <input id="id_full_description_revision" type="hidden" value="{{ history_object.full_description }}" class="history">
                                         {{ form.full_description }}
                                         <p>{% trans "2500 character limit, including spaces." %}</p>
                                             {% if form.full_description.errors %}
@@ -252,6 +256,7 @@
                                     </div>
                                     <div class="col col-6">
                                         <label class="field-label ">{{ form.expected_learnings.label_tag }}</label>
+                                        <input id="id_expected_learnings_revision" type="hidden" value="{{ history_object.expected_learnings }}" class="history">
                                         {{ form.expected_learnings }}
                                         <p>{% trans "2500 character limit, including spaces." %}</p>
                                             {% if form.expected_learnings.errors %}
@@ -351,6 +356,7 @@
                                     </div>
                                     <div class="col col-6">
                                         <label class="field-label ">{{ form.prerequisites.label_tag }}</label>
+                                        <input id="id_prerequisites_revision" type="hidden" value="{{ history_object.prerequisites }}" class="history">
                                         {{ form.prerequisites }}
                                         <p>{% trans "200 character limit, including spaces." %}</p>
                                             {% if form.prerequisites.errors %}
@@ -397,6 +403,7 @@
                                     </div>
                                     <div class="col col-6">
                                         <label class="field-label ">{{ form.syllabus.label_tag }}</label>
+                                        <input id="id_syllabus_revision" type="hidden" value="{{ history_object.syllabus }}" class="history">
                                         {{ form.syllabus }}
                                         <p>{% trans "2500 character limit, including spaces." %}</p>
                                             {% if form.syllabus.errors %}
@@ -431,6 +438,7 @@
                                     </div>
                                     <div class="col col-6 help-text">
                                         <label class="field-label ">{{ form.faq.label }}</label>
+                                        <input id="id_faq_revision" type="hidden" value="{{ history_object.faq }}" class="history">
                                         {{ form.faq }}
                                         <p>{% trans "2500 character limit, including spaces." %}</p>
                                             {% if form.faq.errors %}
@@ -528,6 +536,7 @@
                                     </div>
                                     <div class="col col-6 help-text">
                                         <label class="field-label ">{{ form.learner_testimonial.label }}</label>
+                                         <input id="id_learner_testimonial_revision" type="hidden" value="{{ history_object.learner_testimonial }}" class="history">
                                         {{ form.learner_testimonial }}
                                         <p>{% trans "500 character limit, including spaces." %}</p>
                                             {% if form.learner_testimonial.errors %}
@@ -557,9 +566,12 @@
             </form>
         </div>
     </div>
+
+    <input type="button" id="show" value="showdif">
 {% endblock %}
 
 {{% block extra_js %}
+
     <script src="{% static 'js/publisher/course-tabs.js' %}"></script>
     <script src="{% static 'js/publisher/organizations.js' %}"></script>
     <script src="{% static 'js/publisher/image-validation.js' %}"></script>
@@ -573,6 +585,8 @@
     <script src="{% static 'bower_components/tinymce/plugins/link/plugin.min.js' %}"></script>
     <script src="{% static 'bower_components/tinymce/plugins/anchor/plugin.min.js' %}"></script>
     <script src="{% static 'bower_components/tinymce/plugins/paste/plugin.min.js' %}"></script>
+    <script src="{% static 'bower_components/google-diff-match-patch/diff_match_patch.js' %}"></script>
 
+    <script src="{% static 'js/publisher/course-edit-history-compare.js' %}"></script>
 {% endblock %}
 

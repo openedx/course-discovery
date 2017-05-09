@@ -11,7 +11,14 @@
                     {% endblocktrans %}
                 </option>
             {% else %}
-                <option data-revision-url="{% url 'publisher:api:course_revisions' history.history_id  %}" value="{% url 'publisher:publisher_course_revision' course.id history.history_id %}" data-revert-url="{% url 'publisher:api:course_revision_revert' history.history_id  %}">
+                {% url 'publisher:api:course_revisions' history.history_id as revision_url  %}
+                {% url 'publisher:publisher_course_revision' course.id history.history_id as course_revision_url %}
+                {% url 'publisher:api:course_revision_revert' history.history_id as revision_revert_url %}
+                {% url 'publisher:publisher_courses_edit' pk=object.id  as revision_id_url %}
+                <option data-revision-url="{{ revision_url }}"
+                        value="{{ course_revision_url }}"
+                        data-revert-url="{{ revision_revert_url }}"
+                        data-revision-id="{{ revision_id_url }}?history_id={{ history.history_id }}" >
                     {% blocktrans with history.history_date|date:'d-m-Y' as history_date and history.changed_by as changed_by trimmed %}
                         {{ history_date }}&nbsp;by&nbsp;{{ changed_by}}
                     {% endblocktrans %}

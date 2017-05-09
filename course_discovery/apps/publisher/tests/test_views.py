@@ -2243,6 +2243,31 @@ class CourseEditViewTests(TestCase):
         course = Course.objects.get(id=self.course.id)
         self.assertEqual(post_data[field].strip(), getattr(course, field).strip())
 
+    def test_edit_page_with_revision_changes(self):
+        """
+        Verify that page contains the history object.
+        """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+
+        self.course.title = "updated title"
+        self.course.save()
+
+        history_obj = self.course.history.first()
+        response = self.client.get(self.edit_page_url + '?history_id={}'.format(history_obj.history_id))
+        self.assertEqual(history_obj.history_id, response.context['history_object'].history_id)
+
+    def test_edit_page_with_invalid_revision_id(self):
+        """
+        Verify that if history id is invalid then history object will be none.
+        """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+
+        self.course.title = "updated title"
+        self.course.save()
+
+        response = self.client.get(self.edit_page_url + '?history_id={}'.format(100))
+        self.assertIsNone(response.context['history_object'])
+
 
 @ddt.ddt
 class CourseRunEditViewTests(TestCase):
