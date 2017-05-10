@@ -15,6 +15,7 @@ from django.test import TestCase
 from guardian.shortcuts import assign_perm
 from mock import patch
 from testfixtures import LogCapture
+from pytz import timezone
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
@@ -285,8 +286,9 @@ class CreateCourseRunViewTests(TestCase):
             self.course_run_dict,
             ['end', 'enrollment_start', 'enrollment_end', 'priority', 'certificate_generation', 'id']
         )
-        self.course_run_dict['start'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        self.course_run_dict['end'] = (datetime.now() + timedelta(days=60)).strftime('%Y-%m-%d %H:%M:%S')
+        current_datetime = datetime.now(timezone('US/Central'))
+        self.course_run_dict['start'] = (current_datetime + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
+        self.course_run_dict['end'] = (current_datetime + timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S')
         self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
@@ -2263,8 +2265,9 @@ class CourseRunEditViewTests(TestCase):
         self.course.organizations.add(self.organization_extension.organization)
         self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.start_date_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        self.end_date_time = (datetime.now() + timedelta(days=60)).strftime('%Y-%m-%d %H:%M:%S')
+        current_datetime = datetime.now(timezone('US/Central'))
+        self.start_date_time = (current_datetime + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
+        self.end_date_time = (current_datetime + timedelta(days=60)).strftime('%Y-%m-%d %H:%M:%S')
 
         # creating default organizations roles
         factories.OrganizationUserRoleFactory(
@@ -2809,10 +2812,11 @@ class CreateRunFromDashboardViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def _post_data(self):
+        current_datetime = datetime.now(timezone('US/Central'))
         return {
             'course': self.course.id,
-            'start': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'end': (datetime.now() + timedelta(days=60)).strftime('%Y-%m-%d %H:%M:%S'),
+            'start': (current_datetime + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S'),
+            'end': (current_datetime + timedelta(days=60)).strftime('%Y-%m-%d %H:%M:%S'),
             'pacing_type': 'self_paced',
             'type': Seat.VERIFIED,
             'price': 450
