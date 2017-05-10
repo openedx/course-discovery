@@ -14,8 +14,8 @@ from django.forms import model_to_dict
 from django.test import TestCase
 from guardian.shortcuts import assign_perm
 from mock import patch
-from testfixtures import LogCapture
 from pytz import timezone
+from testfixtures import LogCapture
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
