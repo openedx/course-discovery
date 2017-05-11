@@ -14,6 +14,7 @@ from django.forms import model_to_dict
 from django.test import TestCase
 from guardian.shortcuts import assign_perm
 from mock import patch
+from opaque_keys.edx.keys import CourseKey
 from pytz import timezone
 from testfixtures import LogCapture
 
@@ -409,7 +410,7 @@ class CreateCourseRunViewTests(TestCase):
         # Verify that and email is sent for studio instance request to project coordinator.
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual([self.course.project_coordinator.email], mail.outbox[0].to)
-        expected_subject = 'New Studio instance request for {title}'.format(title=self.course.title)
+        expected_subject = 'Studio URL requested: {title}'.format(title=self.course.title)
         self.assertEqual(str(mail.outbox[0].subject), expected_subject)
 
     def test_seat_without_price(self):
@@ -2534,10 +2535,11 @@ class CourseRunEditViewTests(TestCase):
         self.new_course_run = CourseRun.objects.get(id=self.new_course_run.id)
         self.assertEqual(self.new_course_run.lms_course_id, self.updated_dict['lms_course_id'])
 
+        course_key = CourseKey.from_string(self.new_course_run.lms_course_id)
         self.assert_email_sent(
             reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.new_course_run.id}),
-            'Studio instance updated',
-            'EdX has updated a Studio instance for '
+            'Studio URL created: {title} {run}'.format(title=self.new_course.title, run=course_key.run),
+            'has created a Studio URL'
         )
 
     def test_effort_on_edit_page(self):
@@ -2885,5 +2887,5 @@ class CreateRunFromDashboardViewTests(TestCase):
         # Verify that and email is sent for studio instance request to project coordinator.
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual([self.course.project_coordinator.email], mail.outbox[0].to)
-        expected_subject = 'New Studio instance request for {title}'.format(title=self.course.title)
+        expected_subject = 'Studio URL requested: {title}'.format(title=self.course.title)
         self.assertEqual(str(mail.outbox[0].subject), expected_subject)

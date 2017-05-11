@@ -14,16 +14,19 @@ from course_discovery.apps.publisher.utils import is_email_notification_enabled
 logger = logging.getLogger(__name__)
 
 
-def send_email_for_studio_instance_created(course_run, updated_text=_('created')):
+def send_email_for_studio_instance_created(course_run):
     """ Send an email to course team on studio instance creation.
 
         Arguments:
             course_run (CourseRun): CourseRun object
-            updated_text (String): String object
     """
     try:
+        course_key = CourseKey.from_string(course_run.lms_course_id)
         object_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
-        subject = _('Studio instance {updated_text}').format(updated_text=updated_text)     # pylint: disable=no-member
+        subject = _('Studio URL created: {title} {run_number}').format(     # pylint: disable=no-member
+            title=course_run.course.title,
+            run_number=course_key.run
+        )
 
         to_addresses = [course_run.course.course_team_admin.email]
         from_address = settings.PUBLISHER_FROM_EMAIL
@@ -32,7 +35,6 @@ def send_email_for_studio_instance_created(course_run, updated_text=_('created')
         project_coordinator = course_run.course.project_coordinator
 
         context = {
-            'updated_text': updated_text,
             'course_run': course_run,
             'course_run_page_url': 'https://{host}{path}'.format(
                 host=Site.objects.get_current().domain.strip('/'), path=object_path
@@ -41,7 +43,8 @@ def send_email_for_studio_instance_created(course_run, updated_text=_('created')
             'from_address': from_address,
             'course_team_name': course_team_admin.get_full_name() or course_team_admin.username,
             'project_coordinator_name': project_coordinator.get_full_name() or project_coordinator.username,
-            'contact_us_email': project_coordinator.email
+            'contact_us_email': project_coordinator.email,
+            'studio_url': course_run.studio_url
         }
 
         txt_template_path = 'publisher/email/studio_instance_created.txt'
@@ -70,7 +73,7 @@ def send_email_for_course_creation(course, course_run):
     txt_template = 'publisher/email/course_created.txt'
     html_template = 'publisher/email/course_created.html'
 
-    subject = _('New Studio instance request for {title}').format(title=course.title)  # pylint: disable=no-member
+    subject = _('Studio URL requested: {title}').format(title=course.title)  # pylint: disable=no-member
     project_coordinator = course.project_coordinator
     course_team = course.course_team_admin
 
@@ -242,7 +245,8 @@ def send_email_for_send_for_review_course_run(course_run, user):
             'sender_team': 'course team' if user_role.role == PublisherUserRole.CourseTeam else 'project coordinators',
             'page_url': 'https://{host}{path}'.format(
                 host=Site.objects.get_current().domain.strip('/'), path=page_path
-            )
+            ),
+            'studio_url': course_run.studio_url
         }
 
         send_course_workflow_email(course, user, subject, txt_template, html_template, context, recipient_user)
@@ -469,7 +473,7 @@ def send_course_run_published_email(course_run):
     try:
         if is_email_notification_enabled(course_team_user):
             course_key = CourseKey.from_string(course_run.lms_course_id)
-            subject = _('Publication complete: {course_name} {run_number}').format(     # pylint: disable=no-member
+            subject = _('Publication complete: About page for {course_name} {run_number}').format(     # pylint: disable=no-member
                 course_name=course_run.course.title,
                 run_number=course_key.run
             )

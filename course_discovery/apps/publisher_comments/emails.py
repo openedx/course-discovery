@@ -112,7 +112,7 @@ def send_email_decline_preview(comment, course_run, preview_url):
 
         # Translators: subject_desc will be Preview Decline for course run,
         # 'title' will be the value of course title.
-        subject = _('Preview reviewed: {course_name}').format(  # pylint: disable=no-member
+        subject = _('Preview declined: {course_name}').format(  # pylint: disable=no-member
             course_name=course_name
         )
 

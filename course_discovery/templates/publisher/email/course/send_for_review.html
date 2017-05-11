@@ -9,13 +9,13 @@
         {% endblocktrans %}
     <p>
         {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' trimmed %}
-            {{ sender_team }} from {{ org_name }} has submitted {{ link_start }}{{ page_url }}{{ link_middle }}{{ course_name }}{{ link_end }} for review. {{ link_start }}{{ page_url }}{{ link_middle }} View this course in Publisher{{ link_end }} to review the changes or suggest edits.
+            {{ sender_team }} from {{ org_name }} has submitted {{ course_name }} for review. {{ link_start }}{{ page_url }}{{ link_middle }} View this course in Publisher{{ link_end }} to mark the course as reviewed or suggest edits.
         {% endblocktrans %}
     </p>
 
     {% comment %}Translators: It's closing of mail.{% endcomment %}
     {% trans "Thanks," %}<br>
-    {% trans "The edX team" %}
+    {{ sender_name }}
 
 
 {% blocktrans trimmed %}

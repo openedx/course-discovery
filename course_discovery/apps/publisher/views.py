@@ -685,7 +685,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
                         course_run.course_run_state.change_state(state=CourseStateChoices.Draft, user=user)
 
                     if course_run.lms_course_id and lms_course_id != course_run.lms_course_id:
-                        emails.send_email_for_studio_instance_created(course_run, updated_text=_('updated'))
+                        emails.send_email_for_studio_instance_created(course_run)
 
                     # pylint: disable=no-member
                     messages.success(request, _('Course run updated successfully.'))

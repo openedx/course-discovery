@@ -4,7 +4,7 @@
     Dear {{ recipient_name }},
 {% endblocktrans %}
 {% blocktrans trimmed %}
-     {{ sender_team }} from {{ org_name }} has submitted {{ course_name }} for review. {{ page_url }} View this course in Publisher to review the changes or suggest edits.
+     {{ sender_team }} from {{ org_name }} has submitted {{ course_name }} for review. {{ page_url }} View this course in Publisher to mark the course as reviewed or suggest edits.
 {% endblocktrans %}
 
 {% trans "Thanks," %}

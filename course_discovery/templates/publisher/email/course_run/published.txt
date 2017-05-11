@@ -4,11 +4,11 @@
     Dear {{ recipient_name }},
 {% endblocktrans %}
 {% blocktrans trimmed %}
-    The {{ course_run_number }} {{ page_url }} course run of {{ course_name }} {{ course_page_url }} has been published. No further action is necessary for this course run.
+    The About page for the {{ course_run_number }} course run of {{ course_name }} has been published. No further action is necessary.
 {% endblocktrans %}
 
 {% blocktrans trimmed %}
-    View this course run live. {{ preview_url }}
+    View this About page on edx.org. {{ preview_url }}
 {% endblocktrans %}
 
 

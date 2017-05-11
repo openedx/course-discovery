@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-12 12:13+0500\n"
+"POT-Creation-Date: 2017-05-15 12:57+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -611,20 +611,15 @@ msgid "Approved"
 msgstr "Àpprövéd Ⱡ'σяєм ιρѕυм ∂#"
 
 #: apps/publisher/emails.py
-msgid "created"
-msgstr "çréätéd Ⱡ'σяєм ιρѕυм #"
-
-#: apps/publisher/emails.py
 #, python-brace-format
-msgid "Studio instance {updated_text}"
-msgstr "Stüdïö ïnstänçé {updated_text} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
-
-#: apps/publisher/emails.py
-#, python-brace-format
-msgid "New Studio instance request for {title}"
+msgid "Studio URL created: {title} {run_number}"
 msgstr ""
-"Néw Stüdïö ïnstänçé réqüést för {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєт#"
+"Stüdïö ÛRL çréätéd: {title} {run_number} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Studio URL requested: {title}"
+msgstr "Stüdïö ÛRL réqüéstéd: {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: apps/publisher/emails.py
 #, python-brace-format
@@ -665,10 +660,10 @@ msgstr ""
 
 #: apps/publisher/emails.py
 #, python-brace-format
-msgid "Publication complete: {course_name} {run_number}"
+msgid "Publication complete: About page for {course_name} {run_number}"
 msgstr ""
-"Püßlïçätïön çömplété: {course_name} {run_number} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
-"αмєт, ¢σηѕє¢#"
+"Püßlïçätïön çömplété: Àßöüt pägé för {course_name} {run_number} Ⱡ'σяєм ιρѕυм"
+" ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: apps/publisher/emails.py
 #, python-brace-format
@@ -1067,10 +1062,6 @@ msgstr ""
 "¢σηѕє¢тєтυя #"
 
 #: apps/publisher/views.py
-msgid "updated"
-msgstr "üpdätéd Ⱡ'σяєм ιρѕυм #"
-
-#: apps/publisher/views.py
 msgid "Course run updated successfully."
 msgstr ""
 "Çöürsé rün üpdätéd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
@@ -1125,8 +1116,8 @@ msgstr "{subject_desc} {title} Ⱡ'σяєм ιρѕυм #"
 #. 'title' will be the value of course title.
 #: apps/publisher_comments/emails.py
 #, python-brace-format
-msgid "Preview reviewed: {course_name}"
-msgstr "Prévïéw révïéwéd: {course_name} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+msgid "Preview declined: {course_name}"
+msgstr "Prévïéw déçlïnéd: {course_name} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: apps/publisher_comments/models.py
 msgid "Default"
@@ -3140,13 +3131,11 @@ msgstr ""
 
 #: templates/publisher/email/comment.html
 #: templates/publisher/email/comment.txt
-#: templates/publisher/email/decline_preview.html
 msgid "View comment in Publisher"
 msgstr "Vïéw çömmént ïn Püßlïshér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: templates/publisher/email/comment.html
 #: templates/publisher/email/comment.txt
-#: templates/publisher/email/course/send_for_review.html
 #: templates/publisher/email/course/send_for_review.txt
 #: templates/publisher/email/course_created.html
 #: templates/publisher/email/course_created.txt
@@ -3222,11 +3211,14 @@ msgstr ""
 #: templates/publisher/email/course_created.txt
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
+#: templates/publisher/email/course_run/preview_accepted.html
 #: templates/publisher/email/course_run/preview_accepted.txt
 #: templates/publisher/email/course_run/preview_available.html
 #: templates/publisher/email/course_run/preview_available.txt
 #: templates/publisher/email/course_run/published.html
 #: templates/publisher/email/course_run/published.txt
+#: templates/publisher/email/decline_preview.html
+#: templates/publisher/email/decline_preview.txt
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
 #: templates/publisher/email/studio_instance_needed.html
@@ -3269,32 +3261,30 @@ msgstr ""
 #: templates/publisher/email/course/send_for_review.html
 #, python-format
 msgid ""
-"%(sender_team)s from %(org_name)s has submitted "
-"%(link_start)s%(page_url)s%(link_middle)s%(course_name)s%(link_end)s for "
-"review. %(link_start)s%(page_url)s%(link_middle)s View this course in "
-"Publisher%(link_end)s to review the changes or suggest edits."
+"%(sender_team)s from %(org_name)s has submitted %(course_name)s for review. "
+"%(link_start)s%(page_url)s%(link_middle)s View this course in "
+"Publisher%(link_end)s to mark the course as reviewed or suggest edits."
 msgstr ""
-"%(sender_team)s fröm %(org_name)s häs süßmïttéd "
-"%(link_start)s%(page_url)s%(link_middle)s%(course_name)s%(link_end)s för "
-"révïéw. %(link_start)s%(page_url)s%(link_middle)s Vïéw thïs çöürsé ïn "
-"Püßlïshér%(link_end)s tö révïéw thé çhängés ör süggést édïts. Ⱡ'σяєм ιρѕυм "
-"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
-"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
-"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"%(sender_team)s fröm %(org_name)s häs süßmïttéd %(course_name)s för révïéw. "
+"%(link_start)s%(page_url)s%(link_middle)s Vïéw thïs çöürsé ïn "
+"Püßlïshér%(link_end)s tö märk thé çöürsé äs révïéwéd ör süggést édïts. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ "
+"тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм,"
+" qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
 "¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
 "¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
-"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαв#"
+"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαвσяυм#"
 
 #: templates/publisher/email/course/send_for_review.txt
 #, python-format
 msgid ""
 "%(sender_team)s from %(org_name)s has submitted %(course_name)s for review. "
-"%(page_url)s View this course in Publisher to review the changes or suggest "
-"edits."
+"%(page_url)s View this course in Publisher to mark the course as reviewed or"
+" suggest edits."
 msgstr ""
 "%(sender_team)s fröm %(org_name)s häs süßmïttéd %(course_name)s för révïéw. "
-"%(page_url)s Vïéw thïs çöürsé ïn Püßlïshér tö révïéw thé çhängés ör süggést "
-"édïts. Ⱡ'σяєм ιρѕυм ∂σ#"
+"%(page_url)s Vïéw thïs çöürsé ïn Püßlïshér tö märk thé çöürsé äs révïéwéd ör"
+" süggést édïts. Ⱡ'σяєм #"
 
 #. Translators: project_coordinator_name is a member name.
 #: templates/publisher/email/course_created.html
@@ -3306,20 +3296,20 @@ msgstr "Déär %(project_coordinator_name)s, Ⱡ'σяєм ιρѕυм ∂σł#"
 #, python-format
 msgid ""
 "%(course_team_name)s created the "
-"%(link_start)s%(dashboard_url)s%(link_middle)s %(course_title)s%(link_end)s "
-"course in Publisher on %(date)s at %(time)s."
+"%(link_start)s%(page_url)s%(link_middle)s%(run_number)s course "
+"run%(link_end)s of %(course_title)s in Publisher on %(date)s at %(time)s."
 msgstr ""
 "%(course_team_name)s çréätéd thé "
-"%(link_start)s%(dashboard_url)s%(link_middle)s %(course_title)s%(link_end)s "
-"çöürsé ïn Püßlïshér ön %(date)s ät %(time)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя #"
+"%(link_start)s%(page_url)s%(link_middle)s%(run_number)s çöürsé "
+"rün%(link_end)s öf %(course_title)s ïn Püßlïshér ön %(date)s ät %(time)s. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
 
 #: templates/publisher/email/course_created.html
 #: templates/publisher/email/course_created.txt
-msgid "Please create a Studio instance for this course."
+msgid "Please create a Studio URL for this course."
 msgstr ""
-"Pléäsé çréäté ä Stüdïö ïnstänçé för thïs çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
-"αмєт, ¢σηѕє¢тєтυя α#"
+"Pléäsé çréäté ä Stüdïö ÛRL för thïs çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
 
 #: templates/publisher/email/course_created.txt
 #: templates/publisher/email/studio_instance_needed.html
@@ -3330,44 +3320,66 @@ msgstr "Déär Ⱡ'σяєм ι#"
 #: templates/publisher/email/course_created.txt
 #, python-format
 msgid ""
-"%(course_team_name)s created the %(course_title)s : %(dashboard_url)s course"
-" in Publisher on %(date)s at %(time)s."
+"%(course_team_name)s created the %(course_run)s : %(dashboard_url)s course "
+"run of %(course_title)s in Publisher on %(date)s at %(time)s."
 msgstr ""
-"%(course_team_name)s çréätéd thé %(course_title)s : %(dashboard_url)s çöürsé"
-" ïn Püßlïshér ön %(date)s ät %(time)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя α#"
+"%(course_team_name)s çréätéd thé %(course_run)s : %(dashboard_url)s çöürsé "
+"rün öf %(course_title)s ïn Püßlïshér ön %(date)s ät %(time)s. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #, python-format
 msgid ""
-"The %(sender_team)s has reviewed the "
+"%(sender_team)s has reviewed the "
 "%(link_start)s%(page_url)s%(link_middle)s%(run_number)s course "
-"run%(link_end)s of "
-"%(link_start)s%(course_page_url)s%(link_middle)s%(course_name)s%(link_end)s."
-" You can now submit a request for a preview of the course run About page."
+"run%(link_end)s of %(course_name)s and has not added comments or suggested "
+"edits. The review for this course run is complete."
 msgstr ""
-"Thé %(sender_team)s häs révïéwéd thé "
+"%(sender_team)s häs révïéwéd thé "
 "%(link_start)s%(page_url)s%(link_middle)s%(run_number)s çöürsé "
-"rün%(link_end)s öf "
-"%(link_start)s%(course_page_url)s%(link_middle)s%(course_name)s%(link_end)s."
-" Ýöü çän nöw süßmït ä réqüést för ä prévïéw öf thé çöürsé rün Àßöüt pägé. "
-"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ "
-"тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм,"
-" qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
-"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
-"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
-"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂#"
+"rün%(link_end)s öf %(course_name)s änd häs nöt äddéd çömménts ör süggéstéd "
+"édïts. Thé révïéw för thïs çöürsé rün ïs çömplété. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт "
+"łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ "
+"єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ "
+"αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ "
+"ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт "
+"ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂#"
+
+#: templates/publisher/email/course_run/mark_as_reviewed.html
+#: templates/publisher/email/course_run/mark_as_reviewed.txt
+msgid ""
+"Please create a preview of the About page for this course run and enter the "
+"preview URL in Publisher."
+msgstr ""
+"Pléäsé çréäté ä prévïéw öf thé Àßöüt pägé för thïs çöürsé rün änd éntér thé "
+"prévïéw ÛRL ïn Püßlïshér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: templates/publisher/email/course_run/mark_as_reviewed.html
+#: templates/publisher/email/course_run/mark_as_reviewed.txt
+msgid ""
+"Additionally, please check the comments in Publisher for information about "
+"OFAC blocking."
+msgstr ""
+"Àddïtïönällý, pléäsé çhéçk thé çömménts ïn Püßlïshér för ïnförmätïön äßöüt "
+"ÖFÀÇ ßlöçkïng. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
 #, python-format
 msgid ""
 "The %(sender_team)s has reviewed the %(run_number)s %(page_url)s course run "
-"of %(course_name)s %(course_page_url)s. You can now submit a request for a "
-"preview of the course run About page."
+"of %(course_name)s and has not added comments or suggested edits. The review"
+" for this course run is complete."
 msgstr ""
 "Thé %(sender_team)s häs révïéwéd thé %(run_number)s %(page_url)s çöürsé rün "
-"öf %(course_name)s %(course_page_url)s. Ýöü çän nöw süßmït ä réqüést för ä "
-"prévïéw öf thé çöürsé rün Àßöüt pägé. Ⱡ'σя#"
+"öf %(course_name)s änd häs nöt äddéd çömménts ör süggéstéd édïts. Thé révïéw"
+" för thïs çöürsé rün ïs çömplété. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя "
+"α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα"
+" αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ "
+"ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη "
+"яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα "
+"ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι "
+"σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт #"
 
 #: templates/publisher/email/course_run/preview_accepted.html
 #: templates/publisher/email/course_run/preview_accepted.txt
@@ -3378,140 +3390,129 @@ msgstr "Déär %(publisher_role_name)s, Ⱡ'σяєм ιρѕυм ∂σł#"
 #: templates/publisher/email/course_run/preview_accepted.html
 #, python-format
 msgid ""
-"%(course_team)s has reviewed the preview of the "
+"%(course_team)s has reviewed the preview of the About page for the "
 "%(link_start)s%(page_url)s%(link_middle)s%(run_number)s%(link_end)s course "
-"run of "
-"%(link_start)s%(course_page_url)s%(link_middle)s%(course_name)s%(link_end)s "
-"from %(org_name)s. The course run is now ready for publication."
+"run of %(course_name)s from %(org_name)s. You can now publish this About "
+"page."
 msgstr ""
-"%(course_team)s häs révïéwéd thé prévïéw öf thé "
+"%(course_team)s häs révïéwéd thé prévïéw öf thé Àßöüt pägé för thé "
 "%(link_start)s%(page_url)s%(link_middle)s%(run_number)s%(link_end)s çöürsé "
-"rün öf "
-"%(link_start)s%(course_page_url)s%(link_middle)s%(course_name)s%(link_end)s "
-"fröm %(org_name)s. Thé çöürsé rün ïs nöw réädý för püßlïçätïön. Ⱡ'σяєм ιρѕυм"
-" ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
-"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
-"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
-"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
-"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
-"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαв#"
-
-#. Translators: It's closing of mail.
-#: templates/publisher/email/course_run/preview_accepted.html
-#: templates/publisher/email/course_run/send_for_review.html
-#: templates/publisher/email/course_run/send_for_review.txt
-msgid "Thank you,"
-msgstr "Thänk ýöü, Ⱡ'σяєм ιρѕυм ∂σłσ#"
+"rün öf %(course_name)s fröm %(org_name)s. Ýöü çän nöw püßlïsh thïs Àßöüt "
+"pägé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ "
+"єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм"
+" νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα "
+"¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт"
+" єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт "
+"¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ "
+"єѕт łαвσяυ#"
 
 #: templates/publisher/email/course_run/preview_accepted.txt
 #, python-format
 msgid ""
-"%(course_team)s has reviewed the preview of the %(run_number)s %(page_url)s "
-"course run of %(course_name)s %(course_page_url)s from %(org_name)s. The "
-"course run is now ready for publication."
+"%(course_team)s has reviewed the preview of the About page for the "
+"%(run_number)s %(page_url)s course run of %(course_name)s from %(org_name)s."
+" You can now publish this About page."
 msgstr ""
-"%(course_team)s häs révïéwéd thé prévïéw öf thé %(run_number)s %(page_url)s "
-"çöürsé rün öf %(course_name)s %(course_page_url)s fröm %(org_name)s. Thé "
-"çöürsé rün ïs nöw réädý för püßlïçätïön. Ⱡ'σяєм ιρѕυ#"
+"%(course_team)s häs révïéwéd thé prévïéw öf thé Àßöüt pägé för thé "
+"%(run_number)s %(page_url)s çöürsé rün öf %(course_name)s fröm %(org_name)s."
+" Ýöü çän nöw püßlïsh thïs Àßöüt pägé. Ⱡ'σяє#"
 
 #: templates/publisher/email/course_run/preview_available.html
 #, python-format
 msgid ""
-"A preview is now available for the "
-"%(link_start)s%(page_url)s%(link_middle)s%(course_run_number)s%(link_end)s "
-"course run of "
-"%(link_start)s%(course_page_url)s%(link_middle)s%(course_name)s%(link_end)s."
-" %(link_start)s%(preview_link)s%(link_middle)s See the preview%(link_end)s "
-"to review or suggest edits to this course run."
+"A preview is now available for the %(course_run_number)s course run of "
+"%(course_name)s. %(link_start)s%(preview_link)s%(link_middle)s View the "
+"course run in Publisher%(link_end)s to access the preview for this About "
+"page and accept or decline the preview."
 msgstr ""
-"À prévïéw ïs nöw äväïläßlé för thé "
-"%(link_start)s%(page_url)s%(link_middle)s%(course_run_number)s%(link_end)s "
-"çöürsé rün öf "
-"%(link_start)s%(course_page_url)s%(link_middle)s%(course_name)s%(link_end)s."
-" %(link_start)s%(preview_link)s%(link_middle)s Séé thé prévïéw%(link_end)s "
-"tö révïéw ör süggést édïts tö thïs çöürsé rün. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"À prévïéw ïs nöw äväïläßlé för thé %(course_run_number)s çöürsé rün öf "
+"%(course_name)s. %(link_start)s%(preview_link)s%(link_middle)s Vïéw thé "
+"çöürsé rün ïn Püßlïshér%(link_end)s tö äççéss thé prévïéw för thïs Àßöüt "
+"pägé änd äççépt ör déçlïné thé prévïéw. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт "
 "∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση "
 "υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє "
 "∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα"
-" ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι"
-" σƒƒι¢ια ∂єѕє#"
+" ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт #"
 
 #: templates/publisher/email/course_run/preview_available.txt
 #, python-format
 msgid ""
 "A preview is now available for the %(course_run_number)s course run of "
-"%(course_name)s %(course_page_url)s. See the preview %(page_url)s to review "
-"or suggest edits to this course run."
+"%(course_name)s. View the course run in Publisher %(page_url)s to access the"
+" preview for this About page and accept or decline the preview."
 msgstr ""
 "À prévïéw ïs nöw äväïläßlé för thé %(course_run_number)s çöürsé rün öf "
-"%(course_name)s %(course_page_url)s. Séé thé prévïéw %(page_url)s tö révïéw "
-"ör süggést édïts tö thïs çöürsé rün. Ⱡ'σя#"
+"%(course_name)s. Vïéw thé çöürsé rün ïn Püßlïshér %(page_url)s tö äççéss thé"
+" prévïéw för thïs Àßöüt pägé änd äççépt ör déçlïné thé prévïéw. Ⱡ'σяєм ιρѕυм"
+" ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
+"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
+"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
+"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι#"
+
+#: templates/publisher/email/course_run/published.html
+#: templates/publisher/email/course_run/published.txt
+#, python-format
+msgid ""
+"The About page for the %(course_run_number)s course run of %(course_name)s "
+"has been published. No further action is necessary."
+msgstr ""
+"Thé Àßöüt pägé för thé %(course_run_number)s çöürsé rün öf %(course_name)s "
+"häs ßéén püßlïshéd. Nö fürthér äçtïön ïs néçéssärý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, #"
 
 #: templates/publisher/email/course_run/published.html
 #, python-format
 msgid ""
-"The %(link_start)s%(page_url)s%(link_middle)s%(course_run_number)s course "
-"run%(link_end)s of "
-"%(link_start)s%(course_page_url)s%(link_middle)s%(course_name)s%(link_end)s "
-"has been published. No further action is necessary for this course run."
+"%(link_start)s%(preview_url)s%(link_middle)sView this About page on "
+"edx.org.%(link_end)s"
 msgstr ""
-"Thé %(link_start)s%(page_url)s%(link_middle)s%(course_run_number)s çöürsé "
-"rün%(link_end)s öf "
-"%(link_start)s%(course_page_url)s%(link_middle)s%(course_name)s%(link_end)s "
-"häs ßéén püßlïshéd. Nö fürthér äçtïön ïs néçéssärý för thïs çöürsé rün. "
-"Ⱡ'σяєм ιρѕυ#"
-
-#: templates/publisher/email/course_run/published.html
-#, python-format
-msgid ""
-"%(link_start)s%(preview_url)s%(link_middle)sView this course run "
-"live.%(link_end)s"
-msgstr ""
-"%(link_start)s%(preview_url)s%(link_middle)sVïéw thïs çöürsé rün "
-"lïvé.%(link_end)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
+"%(link_start)s%(preview_url)s%(link_middle)sVïéw thïs Àßöüt pägé ön "
+"édx.örg.%(link_end)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: templates/publisher/email/course_run/published.txt
 #, python-format
-msgid ""
-"The %(course_run_number)s %(page_url)s course run of %(course_name)s "
-"%(course_page_url)s has been published. No further action is necessary for "
-"this course run."
+msgid "View this About page on edx.org. %(preview_url)s"
 msgstr ""
-"Thé %(course_run_number)s %(page_url)s çöürsé rün öf %(course_name)s "
-"%(course_page_url)s häs ßéén püßlïshéd. Nö fürthér äçtïön ïs néçéssärý för "
-"thïs çöürsé rün. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт #"
-
-#: templates/publisher/email/course_run/published.txt
-#, python-format
-msgid "View this course run live. %(preview_url)s"
-msgstr ""
-"Vïéw thïs çöürsé rün lïvé. %(preview_url)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢т#"
+"Vïéw thïs Àßöüt pägé ön édx.örg. %(preview_url)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυ#"
 
 #: templates/publisher/email/course_run/send_for_review.html
 #, python-format
 msgid ""
-"%(sender_team)s for "
-"%(link_start)s%(course_page_url)s%(link_middle)s%(course_name)s%(link_end)s "
-"from %(org_name)s has submitted the "
-"%(link_start)s%(page_url)s%(link_middle)s%(run_number)s course "
-"run%(link_end)s for review. %(link_start)s%(page_url)s%(link_middle)s View "
-"this course run in Publisher%(link_end)s to review the changes or suggest "
-"edits."
+"%(sender_team)s for course_name from %(org_name)s has submitted the "
+"%(run_number)s course run for review. "
+"%(link_start)s%(page_url)s%(link_middle)s View this course run in "
+"Publisher%(link_end)s to review the changes or suggest edits."
 msgstr ""
-"%(sender_team)s för "
-"%(link_start)s%(course_page_url)s%(link_middle)s%(course_name)s%(link_end)s "
-"fröm %(org_name)s häs süßmïttéd thé "
-"%(link_start)s%(page_url)s%(link_middle)s%(run_number)s çöürsé "
-"rün%(link_end)s för révïéw. %(link_start)s%(page_url)s%(link_middle)s Vïéw "
-"thïs çöürsé rün ïn Püßlïshér%(link_end)s tö révïéw thé çhängés ör süggést "
-"édïts. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ "
-"єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм"
-" νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα "
-"¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт"
-" єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт "
-"¢υρι∂αтαт ηση ρяσι∂єηт, ѕυ#"
+"%(sender_team)s för çöürsé_nämé fröm %(org_name)s häs süßmïttéd thé "
+"%(run_number)s çöürsé rün för révïéw. "
+"%(link_start)s%(page_url)s%(link_middle)s Vïéw thïs çöürsé rün ïn "
+"Püßlïshér%(link_end)s tö révïéw thé çhängés ör süggést édïts. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
+"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
+"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
+"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυ#"
+
+#: templates/publisher/email/course_run/send_for_review.html
+#, python-format
+msgid ""
+"This is a good time to %(link_start)s%(studio_url)s%(link_middle)s review "
+"this course run in Studio%(link_end)s."
+msgstr ""
+"Thïs ïs ä gööd tïmé tö %(link_start)s%(studio_url)s%(link_middle)s révïéw "
+"thïs çöürsé rün ïn Stüdïö%(link_end)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#. Translators: It's closing of mail.
+#: templates/publisher/email/course_run/send_for_review.html
+#: templates/publisher/email/course_run/send_for_review.txt
+msgid "Thank you,"
+msgstr "Thänk ýöü, Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: templates/publisher/email/course_run/send_for_review.txt
 #, python-format
@@ -3530,36 +3531,50 @@ msgstr ""
 "ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт "
 "ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ є#"
 
-#: templates/publisher/email/decline_preview.html
+#: templates/publisher/email/course_run/send_for_review.txt
 #, python-format
 msgid ""
-"The %(team_name)s has reviewed the preview for "
-"%(link_start)s%(page_url)s%(link_middle)s%(course_name)s%(link_end)s. View "
-"the course run in Publisher for more information."
+"This is a good time to %(studio_url)s review this course run in Studio."
 msgstr ""
-"Thé %(team_name)s häs révïéwéd thé prévïéw för "
-"%(link_start)s%(page_url)s%(link_middle)s%(course_name)s%(link_end)s. Vïéw "
-"thé çöürsé rün ïn Püßlïshér för möré ïnförmätïön. Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+"Thïs ïs ä gööd tïmé tö %(studio_url)s révïéw thïs çöürsé rün ïn Stüdïö. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/email/decline_preview.html
 #, python-format
-msgid "%(team_name)s added the following comment to this preview."
+msgid ""
+"%(team_name)s has declined the preview of the About page for the "
+"%(run_number)s course run of %(course_name)s. "
+"%(link_start)s%(page_url)s%(link_middle)sView the course run in "
+"Publisher.%(link_end)s"
 msgstr ""
-"%(team_name)s äddéd thé föllöwïng çömmént tö thïs prévïéw. Ⱡ'σяєм ιρѕυм "
-"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+"%(team_name)s häs déçlïnéd thé prévïéw öf thé Àßöüt pägé för thé "
+"%(run_number)s çöürsé rün öf %(course_name)s. "
+"%(link_start)s%(page_url)s%(link_middle)sVïéw thé çöürsé rün ïn "
+"Püßlïshér.%(link_end)s Ⱡ'σяєм ιρ#"
+
+#: templates/publisher/email/decline_preview.html
+#, python-format
+msgid "%(team_name)s added the following comment."
+msgstr ""
+"%(team_name)s äddéd thé föllöwïng çömmént. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тє#"
 
 #: templates/publisher/email/decline_preview.txt
 #, python-format
 msgid ""
-"The %(team_name)s has reviewed the preview for %(course_name)s. View the "
-"course run in Publisher for more information."
+"%(team_name)s has declined the preview of the About page for the "
+"%(run_number)s course run of %(course_name)s. View the course run in "
+"Publisher."
 msgstr ""
-"Thé %(team_name)s häs révïéwéd thé prévïéw för %(course_name)s. Vïéw thé "
-"çöürsé rün ïn Püßlïshér för möré ïnförmätïön. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+"%(team_name)s häs déçlïnéd thé prévïéw öf thé Àßöüt pägé för thé "
+"%(run_number)s çöürsé rün öf %(course_name)s. Vïéw thé çöürsé rün ïn "
+"Püßlïshér. Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: templates/publisher/email/decline_preview.txt
-msgid "View comment in Publisher: "
-msgstr "Vïéw çömmént ïn Püßlïshér:  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+msgid "{{ team_name }} added the following comment."
+msgstr ""
+"{{ team_name }} äddéd thé föllöwïng çömmént. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тє#"
 
 #: templates/publisher/email/role_assignment_changed.html
 #, python-format
@@ -3600,42 +3615,62 @@ msgid "Dear %(course_team_name)s,"
 msgstr "Déär %(course_team_name)s, Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
 #, python-format
 msgid ""
-"EdX has %(updated_text)s a Studio instance for "
-"%(link_start)s%(course_run_page_url)s%(link_middle)s "
-"%(course_name)s%(link_end)s. You can now edit this course and configure your"
-" course team in Studio."
+"%(project_coordinator_name)s has created a Studio URL for the %(course_run)s"
+" course run of %(course_name)s. You can now take either of the following "
+"actions."
 msgstr ""
-"ÉdX häs %(updated_text)s ä Stüdïö ïnstänçé för "
-"%(link_start)s%(course_run_page_url)s%(link_middle)s "
-"%(course_name)s%(link_end)s. Ýöü çän nöw édït thïs çöürsé änd çönfïgüré ýöür"
-" çöürsé téäm ïn Stüdïö. Ⱡ'σяєм ιρѕ#"
+"%(project_coordinator_name)s häs çréätéd ä Stüdïö ÛRL för thé %(course_run)s"
+" çöürsé rün öf %(course_name)s. Ýöü çän nöw täké éïthér öf thé föllöwïng "
+"äçtïöns. Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: templates/publisher/email/studio_instance_created.html
-#, python-format
+#: templates/publisher/email/studio_instance_created.txt
+msgid "Enter course run content in Studio."
+msgstr ""
+"Éntér çöürsé rün çöntént ïn Stüdïö. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
 msgid ""
-"Before edX can announce your course on %(link_start)sedx.org%(link_end)s, "
-"you need to add the following items %(start_tag)sboth in Publisher and in "
-"Studio%(end_tag)s."
+"Continue adding About page information for this course run in Publisher."
 msgstr ""
-"Béföré édX çän ännöünçé ýöür çöürsé ön %(link_start)sédx.örg%(link_end)s, "
-"ýöü nééd tö ädd thé föllöwïng ïtéms %(start_tag)sßöth ïn Püßlïshér änd ïn "
-"Stüdïö%(end_tag)s. Ⱡ'σя#"
+"Çöntïnüé äddïng Àßöüt pägé ïnförmätïön för thïs çöürsé rün ïn Püßlïshér. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
 #: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
+msgid "Important Notes"
+msgstr "Ìmpörtänt Nötés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
+msgid ""
+"Before edX can publish the About page for this course run, you must also add"
+" the following items for this course run in Studio."
+msgstr ""
+"Béföré édX çän püßlïsh thé Àßöüt pägé för thïs çöürsé rün, ýöü müst älsö ädd"
+" thé föllöwïng ïtéms för thïs çöürsé rün ïn Stüdïö. Ⱡ'σяє#"
+
+#: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
 msgid "Course start date"
 msgstr "Çöürsé stärt däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
 msgid "Course end date"
 msgstr "Çöürsé énd däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
 msgid "Course image"
 msgstr "Çöürsé ïmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
 msgid ""
 "Certificate assets (including signatory names, titles, and signature images)"
 msgstr ""
@@ -3643,55 +3678,55 @@ msgstr ""
 " Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
 
 #: templates/publisher/email/studio_instance_created.html
+#, python-format
 msgid ""
-"In addition, keep the following items in mind as you build your course."
+"EdX expects your completed %(link_start)sMOOC Development "
+"Checklist%(link_end)s before the course run starts."
 msgstr ""
-"Ìn äddïtïön, kéép thé föllöwïng ïtéms ïn mïnd äs ýöü ßüïld ýöür çöürsé. "
-"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
+"ÉdX éxpéçts ýöür çömplétéd %(link_start)sMÖÖÇ Dévélöpmént "
+"Çhéçklïst%(link_end)s ßéföré thé çöürsé rün stärts. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕ#"
 
 #: templates/publisher/email/studio_instance_created.html
 #, python-format
 msgid ""
-"If this course is not a re-run, your video administrator must work with edX "
-"partner support to enable the %(link_start)svideo upload tool%(link_end)s "
-"before you can add videos to your course."
+"If this is the first run of a course, you should upload the course About "
+"video before you submit the course for review in Publisher. For more "
+"information, see %(link_start)sAdd a Course About Video to "
+"edx.org%(link_end)s."
 msgstr ""
-"Ìf thïs çöürsé ïs nöt ä ré-rün, ýöür vïdéö ädmïnïsträtör müst wörk wïth édX "
-"pärtnér süppört tö énäßlé thé %(link_start)svïdéö üplöäd tööl%(link_end)s "
-"ßéföré ýöü çän ädd vïdéös tö ýöür çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт "
-"∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση "
-"υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє "
-"∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα"
-" ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα "
-"qυι#"
-
-#: templates/publisher/email/studio_instance_created.html
-#, python-format
-msgid ""
-"We expect your completed %(link_start)sMOOC Development "
-"Checklist%(link_end)s before your course starts. This checklist includes "
-"valuable best practices that help you to stay on track as you design and "
-"build your course. We recommend that you use the list early!"
-msgstr ""
-"Wé éxpéçt ýöür çömplétéd %(link_start)sMÖÖÇ Dévélöpmént "
-"Çhéçklïst%(link_end)s ßéföré ýöür çöürsé stärts. Thïs çhéçklïst ïnçlüdés "
-"välüäßlé ßést präçtïçés thät hélp ýöü tö stäý ön träçk äs ýöü désïgn änd "
-"ßüïld ýöür çöürsé. Wé réçömménd thät ýöü üsé thé lïst éärlý! Ⱡ'σяєм ιρѕυм "
-"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
-"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
-"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
-"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєł#"
+"Ìf thïs ïs thé fïrst rün öf ä çöürsé, ýöü shöüld üplöäd thé çöürsé Àßöüt "
+"vïdéö ßéföré ýöü süßmït thé çöürsé för révïéw ïn Püßlïshér. För möré "
+"ïnförmätïön, séé %(link_start)sÀdd ä Çöürsé Àßöüt Vïdéö tö "
+"édx.örg%(link_end)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg "
+"єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт "
+"єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт "
+"αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη "
+"νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт "
+"σ¢¢αє¢α#"
 
 #: templates/publisher/email/studio_instance_created.txt
-#, python-format
 msgid ""
-"EdX has %(updated_text)s a Studio instance for %(course_name)s: "
-"%(course_run_page_url)s. You can now edit this course in Studio."
+"EdX expects your completed MOOC Development Checklist before the course run "
+"starts."
 msgstr ""
-"ÉdX häs %(updated_text)s ä Stüdïö ïnstänçé för %(course_name)s: "
-"%(course_run_page_url)s. Ýöü çän nöw édït thïs çöürsé ïn Stüdïö. Ⱡ'σяєм "
-"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+"ÉdX éxpéçts ýöür çömplétéd MÖÖÇ Dévélöpmént Çhéçklïst ßéföré thé çöürsé rün "
+"stärts. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: templates/publisher/email/studio_instance_created.txt
+msgid ""
+"If this is the first run of a course, you should upload the course About "
+"video before you submit the course for review in Publisher. For more "
+"information, see Add a Course About Video to edx.org."
+msgstr ""
+"Ìf thïs ïs thé fïrst rün öf ä çöürsé, ýöü shöüld üplöäd thé çöürsé Àßöüt "
+"vïdéö ßéföré ýöü süßmït thé çöürsé för révïéw ïn Püßlïshér. För möré "
+"ïnförmätïön, séé Àdd ä Çöürsé Àßöüt Vïdéö tö édx.örg. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
+" αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт "
+"łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ "
+"єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ "
+"αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ "
+"ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αт#"
 
 #: templates/publisher/email/studio_instance_needed.html
 #: templates/publisher/email/studio_instance_needed.txt

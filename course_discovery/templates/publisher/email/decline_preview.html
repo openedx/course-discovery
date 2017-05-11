@@ -9,22 +9,21 @@
 
     <p>
         {% blocktrans trimmed with link_start='<a href="' link_middle='">' link_end='</a>' %}
-            The {{ team_name }} has reviewed the preview for {{ link_start }}{{ page_url }}{{ link_middle }}{{ course_name }}{{ link_end }}. View the course run in Publisher for more information.
+            {{ team_name }} has declined the preview of the About page for the {{ run_number }} course run of {{course_name}}. {{ link_start }}{{ page_url }}{{ link_middle }}View the course run in Publisher.{{ link_end }}
         {% endblocktrans %}
     </p>
 
     <p>
         {% blocktrans trimmed %}
-            {{ team_name }} added the following comment to this preview.
+            {{ team_name }} added the following comment.
         {% endblocktrans %}
     </p>
     <p style="font-style: italic;">
         "{{ comment.comment }}"
     </p>
 
-    <p>
-        <a href="{{ page_url }}">{% trans "View comment in Publisher" %}</a>
-    </p>
-    <p>{% trans "The edX team" %}</p>
+    {% comment %}Translators: It's closing of mail.{% endcomment %}
+    {% trans "Thanks," %}<br>
+    {% trans "The edX team" %}
 <!-- End Message Body -->
 {% endblock body %}

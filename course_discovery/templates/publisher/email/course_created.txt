@@ -3,10 +3,10 @@
 {% trans "Dear" %} {{ project_coordinator_name }},
 
 {% blocktrans trimmed %}
-    {{ course_team_name }} created the {{ course_title }} : {{ dashboard_url }} course in Publisher on {{ date }} at {{ time }}.
+    {{ course_team_name }} created the {{ course_run }} : {{ dashboard_url }} course run of {{ course_title }} in Publisher on {{ date }} at {{ time }}.
 {% endblocktrans %}
 
-{% trans "Please create a Studio instance for this course." %}
+{% trans "Please create a Studio URL for this course." %}
 
 {% trans "Thanks," %}
 {% trans "The edX team" %}

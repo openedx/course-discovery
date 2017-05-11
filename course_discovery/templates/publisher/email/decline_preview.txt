@@ -5,11 +5,12 @@
 {% endblocktrans %}
 
 {% blocktrans trimmed %}
-    The {{ team_name }} has reviewed the preview for {{ course_name }}. View the course run in Publisher for more information.
+    {{ team_name }} has declined the preview of the About page for the {{ run_number }} course run of {{ course_name }}. View the course run in Publisher.
 {% endblocktrans %}
+
+{% trans "{{ team_name }} added the following comment." %}{{ page_url }}
 
 {{ comment.comment }}
 
-{% trans "View comment in Publisher: " %}{{ page_url }}
-
+{% trans "Thanks," %}
 {% trans "The edX team" %}

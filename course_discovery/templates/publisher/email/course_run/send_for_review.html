@@ -9,10 +9,15 @@
         {% endblocktrans %}
     <p>
         {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' trimmed %}
-            {{ sender_team }} for {{ link_start }}{{ course_page_url }}{{ link_middle }}{{ course_name }}{{ link_end }} from {{ org_name }} has submitted the {{ link_start }}{{ page_url }}{{ link_middle }}{{ run_number }} course run{{ link_end }} for review. {{ link_start }}{{ page_url }}{{ link_middle }} View this course run in Publisher{{ link_end }} to review the changes or suggest edits.
+            {{ sender_team }} for course_name from {{ org_name }} has submitted the {{ run_number }} course run for review. {{ link_start }}{{ page_url }}{{ link_middle }} View this course run in Publisher{{ link_end }} to review the changes or suggest edits.
         {% endblocktrans %}
     </p>
-
+    <!-- The link in this new sentence should go to the course run in Studio.-->
+    <p>
+        {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' trimmed %}
+            This is a good time to {{ link_start }}{{ studio_url }}{{ link_middle }} review this course run in Studio{{ link_end }}.
+        {% endblocktrans %}
+    </p>
     {% comment %}Translators: It's closing of mail.{% endcomment %}
     {% trans "Thank you," %}<br>
     {{ sender_name }}

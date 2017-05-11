@@ -8,12 +8,12 @@
         {% endblocktrans %}
     <p>
         {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' trimmed %}
-            {{ course_team }} has reviewed the preview of the {{ link_start }}{{ page_url }}{{ link_middle }}{{ run_number }}{{ link_end }} course run of {{ link_start }}{{ course_page_url }}{{ link_middle }}{{ course_name }}{{ link_end }} from {{ org_name }}. The course run is now ready for publication.
+            {{ course_team }} has reviewed the preview of the About page for the {{ link_start }}{{ page_url }}{{ link_middle }}{{ run_number }}{{ link_end }} course run of {{ course_name }} from {{ org_name }}. You can now publish this About page.
         {% endblocktrans %}
     </p>
 
     {% comment %}Translators: It's closing of mail.{% endcomment %}
-    {% trans "Thank you," %}<br>
+    {% trans "Thanks," %}<br>
     {{ course_team }}
 
 
