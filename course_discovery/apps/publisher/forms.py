@@ -196,7 +196,7 @@ class CustomCourseForm(CourseForm):
 class CourseSearchForm(forms.Form):
     """ Course Type ahead Search Form. """
     course = forms.ModelChoiceField(
-        label=_('Find Course By Title'),
+        label=_('Find Course'),
         queryset=Course.objects.all(),
         widget=autocomplete.ModelSelect2(
             url='publisher:api:course-autocomplete',

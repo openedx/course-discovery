@@ -743,8 +743,8 @@ msgid "Syllabus"
 msgstr "Sýlläßüs Ⱡ'σяєм ιρѕυм ∂#"
 
 #: apps/publisher/forms.py
-msgid "Find Course By Title"
-msgstr "Fïnd Çöürsé Bý Tïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+msgid "Find Course"
+msgstr "Fïnd Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: apps/publisher/forms.py
 msgid "Course Start Date"
@@ -1659,19 +1659,26 @@ msgstr ""
 "                 Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє#"
 
 #: templates/publisher/add_courserun_form.html
-msgid "FIND COURSE BY TITLE"
-msgstr "FÌND ÇÖÛRSÉ BÝ TÌTLÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+msgid "FIND COURSE"
+msgstr "FÌND ÇÖÛRSÉ Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: templates/publisher/add_courserun_form.html
+msgid ""
+"Enter the name of the course for which you want to create a course run."
+msgstr ""
+"Éntér thé nämé öf thé çöürsé för whïçh ýöü wänt tö çréäté ä çöürsé rün. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
 #: templates/publisher/add_courserun_form.html
 #, python-format
 msgid ""
 "\n"
-"                                                Find the course that you are creating a run for by typing in the title. If you don't find a match, please check that the name is correct or %(link_start)s%(new_course_url)s%(link_middle)screate a new course%(link_end)s.\n"
+"                                                Cannot find your course? Make sure the course name is correct, or %(link_start)s%(new_course_url)s%(link_middle)screate a new course%(link_end)s.\n"
 "                                            "
 msgstr ""
 "\n"
-"                                                Fïnd thé çöürsé thät ýöü äré çréätïng ä rün för ßý týpïng ïn thé tïtlé. Ìf ýöü dön't fïnd ä mätçh, pléäsé çhéçk thät thé nämé ïs çörréçt ör %(link_start)s%(new_course_url)s%(link_middle)sçréäté ä néw çöürsé%(link_end)s.\n"
-"                                             Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє#"
+"                                                Çännöt fïnd ýöür çöürsé? Mäké süré thé çöürsé nämé ïs çörréçt, ör %(link_start)s%(new_course_url)s%(link_middle)sçréäté ä néw çöürsé%(link_end)s.\n"
+"                                             Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ησ#"
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/course_run/edit_run_form.html
