@@ -89,6 +89,9 @@ class Course(TimeStampedModel, ChangedByMixin):
     faq = models.TextField(default=None, null=True, blank=True, verbose_name=_('FAQ'))
     video_link = models.URLField(default=None, null=True, blank=True, verbose_name=_('Video Link'))
 
+    # temp fields for data migrations only.
+    course_metadata_pk = models.PositiveIntegerField(null=True, blank=True, verbose_name=_('Course Metadata Course PK'))
+
     history = HistoricalRecords()
 
     def __str__(self):
@@ -260,6 +263,10 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     )
     video_language = models.ForeignKey(LanguageTag, null=True, blank=True, related_name='video_language')
     preview_url = models.URLField(null=True, blank=True)
+
+    # temporary field to save the canonical course run image. In 2nd script this url field
+    # will be used to download the image and save into course model --> course image.
+    card_image_url = models.URLField(null=True, blank=True, verbose_name='canonical course run image')
 
     history = HistoricalRecords()
 
