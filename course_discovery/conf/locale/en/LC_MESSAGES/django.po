@@ -617,7 +617,7 @@ msgid "Syllabus"
 msgstr ""
 
 #: apps/publisher/forms.py
-msgid "Find Course By Title"
+msgid "Find Course"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -1438,14 +1438,19 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
-msgid "FIND COURSE BY TITLE"
+msgid "FIND COURSE"
+msgstr ""
+
+#: templates/publisher/add_courserun_form.html
+msgid ""
+"Enter the name of the course for which you want to create a course run."
 msgstr ""
 
 #: templates/publisher/add_courserun_form.html
 #, python-format
 msgid ""
 "\n"
-"                                                Find the course that you are creating a run for by typing in the title. If you don't find a match, please check that the name is correct or %(link_start)s%(new_course_url)s%(link_middle)screate a new course%(link_end)s.\n"
+"                                                Cannot find your course? Make sure the course name is correct, or %(link_start)s%(new_course_url)s%(link_middle)screate a new course%(link_end)s.\n"
 "                                            "
 msgstr ""
 
