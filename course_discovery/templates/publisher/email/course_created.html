@@ -10,13 +10,15 @@
         <p>
         <p>
             {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' trimmed %}
-                {{ course_team_name }} created the {{ link_start }}{{ dashboard_url }}{{ link_middle }} {{ course_title }}{{ link_end }} course in Publisher on {{ date }} at {{ time }}.
+                {{ course_team_name }} created the {{ link_start }}{{ page_url }}{{ link_middle }}{{ run_number }} course run{{ link_end }} of {{ course_title }} in Publisher on {{ date }} at {{ time }}.
             {% endblocktrans %}
         </p>
-        <p>{% trans "Please create a Studio instance for this course." %}</p>
+        <p>{% trans "Please create a Studio URL for this course." %}</p>
 
         {# Translators: It's closing of mail. #}
         <p>{% trans "Thanks," %}</p>
         <p>{% trans "The edX team" %}</p>
 <!-- End Message Body -->
 {% endblock body %}
+
+

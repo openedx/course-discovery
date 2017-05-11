@@ -288,11 +288,12 @@ class UpdateCourseRunViewTests(TestCase):
         # Verify that `lms_course_id` and `changed_by` are not None
         self.assert_course_key_and_changed_by(lms_course_id=lms_course_id, changed_by=self.user)
 
+        course_key = CourseKey.from_string(lms_course_id)
         # Assert email sent
         self.assert_email_sent(
             reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id}),
-            'Studio instance created',
-            'EdX has created a Studio instance for '
+            'Studio URL created: {title} {run}'.format(title=self.course_run.course.title, run=course_key.run),
+            'has created a Studio URL'
         )
 
     def assert_course_key_and_changed_by(self, lms_course_id=None, changed_by=None):
@@ -756,7 +757,7 @@ class ChangeCourseRunStateViewTests(TestCase):
         self.assertEqual([course.course_team_admin.email], mail.outbox[0].to)
 
         course_key = CourseKey.from_string(self.course_run.lms_course_id)
-        expected_subject = 'Publication complete: {course_name} {run_number}'.format(
+        expected_subject = 'Publication complete: About page for {course_name} {run_number}'.format(
             course_name=course.title,
             run_number=course_key.run
         )

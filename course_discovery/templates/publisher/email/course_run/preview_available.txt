@@ -5,7 +5,7 @@
 {% endblocktrans %}
 
 {% blocktrans trimmed %}
-    A preview is now available for the {{ course_run_number }} course run of {{ course_name }} {{ course_page_url }}. See the preview {{ page_url }} to review or suggest edits to this course run.
+    A preview is now available for the {{ course_run_number }} course run of {{ course_name }}. View the course run in Publisher {{ page_url }} to access the preview for this About page and accept or decline the preview.
 {% endblocktrans %}
 
 {% trans "Thanks," %}

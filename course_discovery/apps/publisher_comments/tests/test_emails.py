@@ -218,11 +218,10 @@ class CommentsEmailTests(TestCase):
 
         course_key = CourseKey.from_string(self.course_run.lms_course_id)
         comment = self._create_decline_comment()
-        subject = 'Preview reviewed: {title} {run}'.format(title=self.course.title, run=course_key.run)
+        subject = 'Preview declined: {title} {run}'.format(title=self.course.title, run=course_key.run)
         self.assertEqual([user.email], mail.outbox[0].to)
         self.assertEqual(str(mail.outbox[0].subject), subject)
-        body = 'has reviewed the preview for'.format(
-            url=self.url,
+        body = 'has declined the preview of the About page for the  course run of {title}'.format(
             title=self.course.title
         )
         self.assertIn(body, str(mail.outbox[0].body.strip()))

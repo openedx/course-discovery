@@ -3,42 +3,51 @@
 {% block body %}
 <!-- Message Body -->
 
-<!-- Is it still true that we need users to enter this info "both in Publisher and in Studio" (line 21)? -->
-
     <p>
         {% comment %}Translators: course_team_name is course team member name.{% endcomment %}
         {% blocktrans trimmed %}
             Dear {{ course_team_name }},
         {% endblocktrans %}
     <p>
-        {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' trimmed %}
-            EdX has {{ updated_text }} a Studio instance for {{ link_start }}{{ course_run_page_url }}{{ link_middle }} {{ course_name }}{{ link_end }}.
-            You can now edit this course and configure your course team in Studio.
+        {% blocktrans trimmed %}
+            {{ project_coordinator_name }} has created a Studio URL for the {{ course_run }} course run of {{ course_name }}. You can now take either of the following actions.
         {% endblocktrans %}
-    </p>
-    <p>
-        {% blocktrans with link_start='<a href="https://www.edx.org/">' link_end='</a>' start_tag='<b>' end_tag='</b>' trimmed %}
-            Before edX can announce your course on {{ link_start }}edx.org{{ link_end }}, you need to add the following items {{ start_tag }}both in Publisher and in Studio{{ end_tag }}.
-        {% endblocktrans %}
-    </p>
-    <ul>
-        <li>{% trans "Course start date" %}</li>
-        <li>{% trans "Course end date" %}</li>
-        <li>{% trans "Course image" %}</li>
-        <li>{% trans "Certificate assets (including signatory names, titles, and signature images)" %}</li>
-    </ul>
-    <p>
-        {% trans "In addition, keep the following items in mind as you build your course." %}
     </p>
     <ul>
         <li>
-            {% blocktrans with link_start='<a href="http://edx.readthedocs.io/projects/edx-partner-course-staff/en/latest/video/video_prereqs.html#video-getting-started">' link_end='</a>' trimmed %}
-                If this course is not a re-run, your video administrator must work with edX partner support to enable the {{ link_start }}video upload tool{{ link_end }} before you can add videos to your course.
+            <a href="{{ studio_url }}">
+                {% trans "Enter course run content in Studio." %}
+            </a>
+        </li>
+        <li>
+            <a href="{{ course_run_page_url }}">
+                {% trans "Continue adding About page information for this course run in Publisher." %}
+            </a>
+        </li>
+    </ul>
+    <p>
+        <b>
+            {% trans "Important Notes" %}
+        </b>
+    </p>
+    <ul>
+        <li>
+            {% trans "Before edX can publish the About page for this course run, you must also add the following items for this course run in Studio." %}
+        </li>
+            <ul>
+                <li>{% trans "Course start date" %}</li>
+                <li>{% trans "Course end date" %}</li>
+                <li>{% trans "Course image" %}</li>
+                <li>{% trans "Certificate assets (including signatory names, titles, and signature images)" %}</li>
+            </ul>
+        <li>
+            {% blocktrans with link_start='<a href="https://docs.google.com/spreadsheets/d/1phjmDNoARq4YjJoiFZc0ELumj3r04r36LEncCjN9PVk/">' link_end='</a>' trimmed %}
+                EdX expects your completed {{ link_start }}MOOC Development Checklist{{ link_end }} before the course run starts.
             {% endblocktrans %}
         </li>
         <li>
-            {% blocktrans with link_start='<a href="https://docs.google.com/spreadsheets/d/1phjmDNoARq4YjJoiFZc0ELumj3r04r36LEncCjN9PVk/">' link_end='</a>' trimmed %}
-                We expect your completed {{ link_start }}MOOC Development Checklist{{ link_end }} before your course starts. This checklist includes valuable best practices that help you to stay on track as you design and build your course. We recommend that you use the list early!
+            {% blocktrans with link_start='<a href="http://edx.readthedocs.io/projects/edx-partner-course-staff/en/latest/set_up_course/setting_up_student_view.html#add-a-course-about-video-to-edx-org">' link_end='</a>' trimmed %}
+                If this is the first run of a course, you should upload the course About video before you submit the course for review in Publisher. For more information, see {{ link_start }}Add a Course About Video to edx.org{{ link_end }}.
             {% endblocktrans %}
         </li>
     </ul>

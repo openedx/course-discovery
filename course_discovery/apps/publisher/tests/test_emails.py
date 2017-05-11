@@ -26,7 +26,7 @@ class StudioInstanceCreatedEmailTests(TestCase):
     def setUp(self):
         super(StudioInstanceCreatedEmailTests, self).setUp()
         self.user = UserFactory()
-        self.course_run = factories.CourseRunFactory()
+        self.course_run = factories.CourseRunFactory(lms_course_id='course-v1:edX+DemoX+Demo_Course')
 
         # add user in course-user-role table
         factories.CourseUserRoleFactory(
@@ -55,10 +55,14 @@ class StudioInstanceCreatedEmailTests(TestCase):
         """ Verify that emails sent successfully for studio instance created."""
 
         emails.send_email_for_studio_instance_created(self.course_run)
+        course_key = CourseKey.from_string(self.course_run.lms_course_id)
         self.assert_email_sent(
             reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id}),
-            'Studio instance created',
-            'EdX has created a Studio instance for'
+            'Studio URL created: {title} {run_number}'.format(
+                title=self.course_run.course.title,
+                run_number=course_key.run
+            ),
+            'created a Studio URL for the'
         )
 
     def assert_email_sent(self, object_path, subject, expected_body):
@@ -71,7 +75,7 @@ class StudioInstanceCreatedEmailTests(TestCase):
         self.assertIn(expected_body, body)
         page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=object_path)
         self.assertIn(page_url, body)
-        self.assertIn('You can now edit this course in Studio.', body)
+        self.assertIn('Enter course run content in Studio.', body)
         self.assertIn('Thanks', body)
         self.assertIn('This email address is unable to receive replies. For questions or comments', body)
         self.assertIn(self.course_team.full_name, body)
@@ -124,7 +128,7 @@ class CourseCreatedEmailTests(TestCase):
         """ Verify that studio instance request email sent successfully."""
 
         emails.send_email_for_course_creation(self.course_run.course, self.course_run)
-        subject = 'New Studio instance request for {title}'.format(title=self.course_run.course.title)
+        subject = 'Studio URL requested: {title}'.format(title=self.course_run.course.title)
         self.assert_email_sent(subject)
 
     def assert_email_sent(self, subject):
@@ -136,7 +140,7 @@ class CourseCreatedEmailTests(TestCase):
         body = mail.outbox[0].body.strip()
         self.assertIn('{name} created the'.format(name=self.course_team.full_name), body)
         self.assertIn('{dashboard_url}'.format(dashboard_url=reverse('publisher:publisher_dashboard')), body)
-        self.assertIn('Please create a Studio instance for this course', body)
+        self.assertIn('Please create a Studio URL for this course.', body)
         self.assertIn('Thanks', body)
 
     def test_email_not_sent_with_notification_disabled(self):
@@ -370,7 +374,7 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
         page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id})
         page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
         self.assertIn(page_url, body)
-        self.assertIn('You can now submit a request for a preview of the course run About page.', body)
+        self.assertIn('The review for this course run is complete.', body)
 
 
 class CourseRunPreviewEmailTests(TestCase):
@@ -421,7 +425,7 @@ class CourseRunPreviewEmailTests(TestCase):
         page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.run_state.course_run.id})
         page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
         self.assertIn(page_url, body)
-        self.assertIn('The course run is now ready for publication.', body)
+        self.assertIn('You can now publish this About page.', body)
 
     def test_preview_accepted_email_with_error(self):
         """ Verify that email failure log error message."""
@@ -523,7 +527,7 @@ class CourseRunPublishedEmailTests(TestCase):
         emails.send_course_run_published_email(self.course_run)
 
         course_key = CourseKey.from_string(self.course_run.lms_course_id)
-        subject = 'Publication complete: {course_name} {run_number}'.format(
+        subject = 'Publication complete: About page for {course_name} {run_number}'.format(
             course_name=self.course_run.course.title,
             run_number=course_key.run
         )
@@ -531,9 +535,7 @@ class CourseRunPublishedEmailTests(TestCase):
         self.assertEqual([self.course.course_team_admin.email], mail.outbox[0].to)
         self.assertEqual(str(mail.outbox[0].subject), subject)
         body = mail.outbox[0].body.strip()
-        page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id})
-        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
-        self.assertIn(page_url, body)
+        self.assertIn(self.course_run.preview_url, body)
         self.assertIn(self.course_run.preview_url, body)
         self.assertIn('has been published', body)
 

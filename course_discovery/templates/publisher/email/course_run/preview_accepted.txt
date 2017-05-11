@@ -4,7 +4,7 @@
     Dear {{ publisher_role_name }},
 {% endblocktrans %}
 {% blocktrans trimmed %}
-    {{ course_team }} has reviewed the preview of the {{ run_number }} {{ page_url }} course run of {{ course_name }} {{ course_page_url }} from {{ org_name }}. The course run is now ready for publication.
+    {{ course_team }} has reviewed the preview of the About page for the {{ run_number }} {{ page_url }} course run of {{ course_name }} from {{ org_name }}. You can now publish this About page.
 {% endblocktrans %}
 
 {% trans "Thanks," %}
