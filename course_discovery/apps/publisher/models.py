@@ -20,7 +20,8 @@ from course_discovery.apps.course_metadata.models import LevelType, Organization
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher import emails
-from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
+from course_discovery.apps.publisher.choices import (CourseRunStateChoices, CourseStateChoices, InternalUserRole,
+                                                     PublisherUserRole)
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
 from course_discovery.apps.publisher.validators import ImageSizeValidator
 
@@ -390,7 +391,7 @@ class OrganizationUserRole(TimeStampedModel):
     organization = models.ForeignKey(Organization, related_name='organization_user_roles')
     user = models.ForeignKey(User, related_name='organization_user_roles')
     role = models.CharField(
-        max_length=63, choices=PublisherUserRole.choices, verbose_name=_('Organization Role')
+        max_length=63, choices=InternalUserRole.choices, verbose_name=_('Organization Role')
     )
 
     history = HistoricalRecords()
