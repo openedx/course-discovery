@@ -6,10 +6,16 @@ $(document).ready(function(){
         var current_course_object = $('#' + element_id).val();
         var history_object_value = $(this).val().trim();
 
-        if (history_object_value !='') {
-            var d = dmp.diff_main(current_course_object, history_object_value);
-            dmp.diff_cleanupEfficiency(d)
-            tinymce.get(element_id).setContent(dmp.diff_prettyHtml(d))
-        }
+        var d = dmp.diff_main(history_object_value, current_course_object);
+        dmp.diff_cleanupEfficiency(d)
+        tinymce.get(element_id).setContent(decodeEntities(dmp.diff_prettyHtml(d)))
+
     });
 });
+
+function decodeEntities(encodedString) {
+    var textArea = document.createElement('textarea');
+    textArea.innerHTML = encodedString;
+    return textArea.value;
+}
+
