@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-11 15:39+0500\n"
+"POT-Creation-Date: 2017-05-12 12:13+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -1673,12 +1673,12 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"                                                Cannot find your course? Make sure the course name is correct, or %(link_start)s%(new_course_url)s%(link_middle)screate a new course%(link_end)s.\n"
+"                                                If your course cannot be found, make sure the course name is correct, or %(link_start)s%(new_course_url)s%(link_middle)screate a new course%(link_end)s.\n"
 "                                            "
 msgstr ""
 "\n"
-"                                                Çännöt fïnd ýöür çöürsé? Mäké süré thé çöürsé nämé ïs çörréçt, ör %(link_start)s%(new_course_url)s%(link_middle)sçréäté ä néw çöürsé%(link_end)s.\n"
-"                                             Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ησ#"
+"                                                Ìf ýöür çöürsé çännöt ßé föünd, mäké süré thé çöürsé nämé ïs çörréçt, ör %(link_start)s%(new_course_url)s%(link_middle)sçréäté ä néw çöürsé%(link_end)s.\n"
+"                                             Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢#"
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/course_run/edit_run_form.html

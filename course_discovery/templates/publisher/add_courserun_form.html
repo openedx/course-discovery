@@ -40,7 +40,7 @@
                                         <p class="margin-top20">
                                             {% url 'publisher:publisher_courses_new' as new_course_url %}
                                             {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' %}
-                                                Cannot find your course? Make sure the course name is correct, or {{ link_start }}{{ new_course_url }}{{ link_middle }}create a new course{{ link_end }}.
+                                                If your course cannot be found, make sure the course name is correct, or {{ link_start }}{{ new_course_url }}{{ link_middle }}create a new course{{ link_end }}.
                                             {% endblocktrans%}
                                         </p>
                                     </div>
