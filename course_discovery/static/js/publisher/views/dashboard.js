@@ -28,6 +28,7 @@ $(document).ready(function() {
                 }
             );
         e.preventDefault();
+        $studioInstanceError.addClass("hidden");
 
         $.ajax({
             url: updateCourseKeyURL,
