@@ -31,6 +31,7 @@
                 {% trans "All required fields must be complete before this course can be sent for review." %}
             </p>
             <form class="form" method="post" action="" enctype="multipart/form-data">{% csrf_token %}
+                <input id="id_history_revision" type="hidden" value="{{ history_object.id }}">
                 <div class="layout-full layout">
                     <div class="course-form">
                         <div class="course-information">
@@ -94,8 +95,16 @@
 
 
                                         <label class="field-label ">{{ form.title.label }}</label>
-                                        <input id="id_title_revision" type="text" value="{{ history_object.title }}" class="history">
+                                        <input id="id_title_revision" type="hidden" value="{{ history_object.title }}" class="history">
                                         {{ form.title }}
+                                        <p>{% trans "255 character limit, including spaces." %}</p>
+                                        {% if form.title.errors %}
+                                            <div class="field-message has-error">
+                                                <span class="field-message-content">
+                                                    {{ form.title.errors|escape }}
+                                                </span>
+                                            </div>
+                                        {% endif %}
                                     </div>
                                 </div>
                                 <div class="field-title">{% trans "COURSE NUMBER" %}</div>
