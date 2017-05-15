@@ -1,8 +1,11 @@
 import uuid
+
 from dal import autocomplete
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.template.loader import render_to_string
+
+from course_discovery.apps.publisher.mixins import get_user_organizations
 
 from .models import Course, CourseRun, Organization, Person, Video
 
@@ -60,7 +63,8 @@ class PersonAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def get_queryset(self):
         queryset = Person.objects.all()
         if self.q:
-            qs = queryset.filter(Q(given_name__icontains=self.q) | Q(family_name__icontains=self.q))
+            qs = queryset.filter(Q(given_name__icontains=self.q) | Q(family_name__icontains=self.q),
+                                 position__organization__in=get_user_organizations(self.request.user))
             if not qs:
                 try:
                     q_uuid = uuid.UUID(self.q).hex
