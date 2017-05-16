@@ -1533,10 +1533,16 @@ class CourseListViewTests(TestCase):
 
     def test_page_with_disable_waffle_switch(self):
         """
-        Verify that edit button will be shown if 'publisher_hide_features_for_pilot' dectivated.
+        Verify that edit button will be shown if 'publisher_hide_features_for_pilot' deactivated.
         """
-        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-        factories.CourseUserRoleFactory(course=self.course, user=self.user)
+        organization_extension = factories.OrganizationExtensionFactory()
+        self.course.organizations.add(organization_extension.organization)
+        self.user.groups.add(organization_extension.group)
+        factories.CourseUserRoleFactory(course=self.course, user=self.user, role=PublisherUserRole.CourseTeam)
+
+        assign_perm(OrganizationExtension.VIEW_COURSE, organization_extension.group, organization_extension)
+        assign_perm(OrganizationExtension.EDIT_COURSE, organization_extension.group, organization_extension)
+
         toggle_switch('publisher_hide_features_for_pilot', False)
         response = self.client.get(self.courses_url)
         self.assertContains(response, 'Edit')
