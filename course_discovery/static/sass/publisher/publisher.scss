@@ -26,25 +26,25 @@
             @include margin-left(0);
             @include padding-left(0);
             @include padding-right(0);
-            width: 20%;
+            width: 12%;
         }
 
         .layout-col-container {
             @include padding(20px, 20px, 20px, 20px);
             @include margin-right(0);
-            width: 80%;
+            width: 88%;
         }
 
         
 
         .layout-col-a-custom {
             @include margin-left(0);
-            width: 50%;
+            width: 45%;
         }
 
         .layout-col-b-custom {
             @include margin-right(0);
-            width: 50%;
+            width: 55%;
         }
     }
 
@@ -345,7 +345,7 @@
 }
 
 
-.approval-widget, .course-widgets {
+.approval-widget, .course-widgets, .edit-history-widget {
   
     .btn-course-edit, .btn-courserun-edit, .btn-change-state, .btn-preview, .btn-save-preview-url, .btn-edit-preview-url {
         @include padding(2px, 20px, 3px, 20px);
@@ -422,6 +422,20 @@
     }
 
 }//approval-widget (END)
+
+.edit-history-widget {
+    position: relative;
+
+    #btn_course_edit {
+        @include right(4px);
+        position: absolute;
+        margin: 0 auto;
+        top: 42px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        @include margin-right(50px);
+    }
+}
 
 
 

@@ -15,9 +15,30 @@
         </div>
     </div>
 </div>
+
+
 <div class="layout-1t2t layout-flush publisher-container course-detail">
     <main class="layout-col layout-col-b layout-col-b-custom">
         <div class="course-information">
+
+        <div class="edit-history-widget">
+            {% with object.history.all as history_list %}
+                {% if history_list.count > 1 %}
+                    <div class="history-widget {% if not publisher_history_widget_feature %}hidden{% endif %}">
+                        {% include 'publisher/_history_widget.html' %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% if can_edit %}
+                {% url 'publisher:publisher_courses_edit' pk=object.id as edit_page_url %}
+                <a id="btn_course_edit" href="{% if add_warning_popup %}#{% else %}{{ edit_page_url }}{% endif %}" class="btn btn-neutral btn-course-edit">
+                    {% trans "EDIT" %}
+                </a>
+                <div class="clearfix"></div>
+            {% endif %}
+        </div>
+
             <div class="info-item">
                 <div class="heading">
                     {% trans "Institution" %}

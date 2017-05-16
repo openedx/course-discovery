@@ -1,13 +1,12 @@
 {% load i18n %}
 <div class="margin-top20">
-    <h5 class="hd-5 emphasized course-runs-heading">{% trans "REVISION HISTORY" %}</h5>
-    <br>
+    <div class="info-item heading"><strong>{% trans "REVISION HISTORY" %}</strong></div>
     <select id="id_select_revisions" class="select-revision">
         {% for history in history_list %}
             {% if forloop.first %}
                 <option value="{% url 'publisher:publisher_course_revision' course.id history.history_id %}">
                     {% blocktrans with history.history_date|date:'d-m-Y' as history_date and history.changed_by as changed_by trimmed %}
-                        {{ history_date }}&nbsp;by&nbsp;{{ changed_by}} (Latest version)
+                        {{ history_date }}&nbsp;by&nbsp;{{ changed_by}} (Latest)
                     {% endblocktrans %}
                 </option>
             {% else %}
@@ -29,7 +28,6 @@
     <span id="span_revert_revision" class="hidden">
         <a id="id_revert_revision" class="btn btn-brand btn-small btn-courserun-add btn-revision">{% trans "Restore to this version" %}</a>
     </span>
-    <a id="id_open_revision" class="btn btn-brand btn-small btn-courserun-add btn-revision" href="{% url 'publisher:publisher_course_revision' course.id history_list.first.history_id %}" target="_blank">{% trans "Open Selected Version" %}</a>
     <div id="RevertRevisionAlert" class="alert alert-error hidden" role="alert">{% trans "Unable to revert the revision, Please try again later." %}</div>
 </div>
 {% include 'publisher/_revert_confirmation.html' %}
