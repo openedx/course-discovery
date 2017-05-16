@@ -600,6 +600,11 @@ class ProgramTests(TestCase):
     def test_weeks_to_complete_range(self):
         """ Verify that weeks to complete range works correctly """
         weeks_to_complete_values = [course_run.weeks_to_complete for course_run in self.course_runs]
+        for course_run in self.course_runs:
+            course = course_run.course
+            course.canonical_course_run = course_run
+            course.save()
+
         expected_min = min(weeks_to_complete_values) if weeks_to_complete_values else None
         expected_max = max(weeks_to_complete_values) if weeks_to_complete_values else None
         # property does not have the right values while being indexed
@@ -631,6 +636,19 @@ class ProgramTests(TestCase):
         factories.ProgramFactory(courses=[course_run.course])
         # Verify that course run is not returned in set
         self.assertEqual(set(self.program.course_runs), set(self.course_runs))
+
+    def test_canonical_course_runs(self):
+        course = self.course_runs[0].course
+        course.canonical_course_run = self.course_runs[0]
+        course.save()
+
+        course = self.course_runs[1].course
+        course.canonical_course_run = self.course_runs[1]
+        course.save()
+
+        expected_canonical_runs = [self.course_runs[0], self.course_runs[1]]
+        # Verify only canonical course runs are returned in set
+        self.assertEqual(set(self.program.canonical_course_runs), set(expected_canonical_runs))
 
     def test_languages(self):
         expected_languages = set([course_run.language for course_run in self.course_runs])
