@@ -1,6 +1,7 @@
 {% extends 'publisher/base.html' %}
 
 {% load i18n %}
+{% load publisher_extras %}
 
 {% block title %}
     {% trans "Courses" %}
@@ -51,13 +52,13 @@
                         <td>
                              {{ course.publisher_course_runs.count }}
                         </td>
-                        {% if not publisher_hide_features_for_pilot %}
-                          <td>
-                            <a href="{% url 'publisher:publisher_courses_edit' course.id %}" class="btn btn-brand btn-small btn-course-edit">
-                              {% trans "Edit" %}
-                            </a>
-                          </td>
-                        {% endif %}
+                        <td>
+                            {% if not publisher_hide_features_for_pilot and course|can_edit_course:request.user %}
+                                <a href="{% url 'publisher:publisher_courses_edit' course.id %}" class="btn btn-brand btn-small btn-course-edit">
+                                  {% trans "Edit" %}
+                                </a>
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
