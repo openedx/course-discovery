@@ -1200,8 +1200,8 @@ class DashboardTests(TestCase):
         # admin user can see all courses.
 
     def _create_course_assign_role(self, state, user, role):
-        """ DRY method to create course and assign the permissions"""
-        course_run_state = factories.CourseRunStateFactory(name=state)
+        """ Create course-run-state, course-user-role and return course-run. """
+        course_run_state = factories.CourseRunStateFactory(name=state, owner_role=role)
         factories.CourseUserRoleFactory(course=course_run_state.course_run.course, role=role, user=user)
         return course_run_state.course_run
 
