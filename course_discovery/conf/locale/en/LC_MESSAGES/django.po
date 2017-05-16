@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-15 19:22+0500\n"
+"POT-Creation-Date: 2017-05-17 15:46+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1242,7 +1242,7 @@ msgstr ""
 
 #: templates/publisher/_history_widget.html
 #, python-format
-msgid "%(history_date)s&nbsp;by&nbsp;%(changed_by)s (Latest version)"
+msgid "%(history_date)s&nbsp;by&nbsp;%(changed_by)s (Latest)"
 msgstr ""
 
 #: templates/publisher/_history_widget.html
@@ -1253,10 +1253,6 @@ msgstr ""
 #: templates/publisher/_history_widget.html
 #: templates/publisher/_revert_confirmation.html
 msgid "Restore to this version"
-msgstr ""
-
-#: templates/publisher/_history_widget.html
-msgid "Open Selected Version"
 msgstr ""
 
 #: templates/publisher/_history_widget.html
@@ -1534,6 +1530,11 @@ msgstr ""
 msgid "Course Detail"
 msgstr ""
 
+#: templates/publisher/course_detail.html
+#: templates/publisher/course_run_detail/_widgets.html
+msgid "EDIT"
+msgstr ""
+
 #: templates/publisher/course_detail.html templates/publisher/courses.html
 msgid "Institution"
 msgstr ""
@@ -1576,11 +1577,6 @@ msgid ""
 "\n"
 "                The %(current_team_name)s team is currently reviewing this course. If you edit course information, you might overwrite the team’s changes, and you will have to send the course to the %(team_name)s team for review again.\n"
 "            "
-msgstr ""
-
-#: templates/publisher/course_detail/_widgets.html
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "EDIT"
 msgstr ""
 
 #: templates/publisher/course_detail/_widgets.html

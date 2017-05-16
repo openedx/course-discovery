@@ -30,7 +30,7 @@
                 <strong>{% trans "Update Course." %}</strong>
                 {% trans "All required fields must be complete before this course can be sent for review." %}
             </p>
-            <form class="form" method="post" action="" enctype="multipart/form-data">{% csrf_token %}
+            <form id="frm_course_edit" class="form" method="post" action="" enctype="multipart/form-data">{% csrf_token %}
                 <input id="id_history_revision" type="hidden" value="{{ history_object.id }}">
                 <div class="layout-full layout">
                     <div class="course-form">
@@ -568,7 +568,7 @@
                         <a class="btn-cancel" href="{% url 'publisher:publisher_course_detail' course.id %}">
                             {% trans "Cancel" %}
                         </a>
-                        <button class="btn-brand btn-base btn-save" type="submit">{% trans "UPDATE COURSE" %}</button>
+                        <button class="btn-brand btn-base btn-save" type="button" onclick="saveEditForm(); return false;">{% trans "UPDATE COURSE" %}</button>
                     </div>
                 </div>
 
@@ -595,5 +595,15 @@
     <script src="{% static 'bower_components/google-diff-match-patch/diff_match_patch.js' %}"></script>
 
     <script src="{% static 'js/publisher/course-edit-history-compare.js' %}"></script>
+
+    <script type="text/javascript">
+        function saveEditForm() {
+             if (hasValidData()) {
+                 $('#frm_course_edit').submit();
+             }
+        }
+    </script>
+
 {% endblock %}
+
 

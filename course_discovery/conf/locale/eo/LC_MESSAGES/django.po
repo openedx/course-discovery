@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-15 19:22+0500\n"
+"POT-Creation-Date: 2017-05-17 15:46+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1419,10 +1419,10 @@ msgstr "RÉVÌSÌÖN HÌSTÖRÝ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#
 
 #: templates/publisher/_history_widget.html
 #, python-format
-msgid "%(history_date)s&nbsp;by&nbsp;%(changed_by)s (Latest version)"
+msgid "%(history_date)s&nbsp;by&nbsp;%(changed_by)s (Latest)"
 msgstr ""
-"%(history_date)s&nbsp;ßý&nbsp;%(changed_by)s (Lätést vérsïön) Ⱡ'σяєм ιρѕυм "
-"∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+"%(history_date)s&nbsp;ßý&nbsp;%(changed_by)s (Lätést) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
+" αмєт, ¢σ#"
 
 #: templates/publisher/_history_widget.html
 #, python-format
@@ -1433,10 +1433,6 @@ msgstr "%(history_date)s&nbsp;ßý&nbsp;%(changed_by)s Ⱡ'σяєм ιρѕυм �
 #: templates/publisher/_revert_confirmation.html
 msgid "Restore to this version"
 msgstr "Réstöré tö thïs vérsïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
-
-#: templates/publisher/_history_widget.html
-msgid "Open Selected Version"
-msgstr "Öpén Séléçtéd Vérsïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: templates/publisher/_history_widget.html
 msgid "Unable to revert the revision, Please try again later."
@@ -1797,6 +1793,11 @@ msgstr "Çöürsés Ⱡ'σяєм ιρѕυм #"
 msgid "Course Detail"
 msgstr "Çöürsé Détäïl Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
+#: templates/publisher/course_detail.html
+#: templates/publisher/course_run_detail/_widgets.html
+msgid "EDIT"
+msgstr "ÉDÌT Ⱡ'σяєм ι#"
+
 #: templates/publisher/course_detail.html templates/publisher/courses.html
 msgid "Institution"
 msgstr "Ìnstïtütïön Ⱡ'σяєм ιρѕυм ∂σłσя #"
@@ -1843,11 +1844,6 @@ msgstr ""
 "\n"
 "                Thé %(current_team_name)s téäm ïs çürréntlý révïéwïng thïs çöürsé. Ìf ýöü édït çöürsé ïnförmätïön, ýöü mïght övérwrïté thé téäm’s çhängés, änd ýöü wïll hävé tö sénd thé çöürsé tö thé %(team_name)s téäm för révïéw ägäïn.\n"
 "             Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα#"
-
-#: templates/publisher/course_detail/_widgets.html
-#: templates/publisher/course_run_detail/_widgets.html
-msgid "EDIT"
-msgstr "ÉDÌT Ⱡ'σяєм ι#"
 
 #: templates/publisher/course_detail/_widgets.html
 msgid "COURSE RUNS"
