@@ -818,7 +818,7 @@ class Program(TimeStampedModel):
 
     @cached_property
     def _course_run_weeks_to_complete(self):
-        return [course_run.weeks_to_complete for course_run in self.course_runs
+        return [course_run.weeks_to_complete for course_run in self.canonical_course_runs
                 if course_run.weeks_to_complete is not None]
 
     @property
@@ -849,6 +849,15 @@ class Program(TimeStampedModel):
             for run in course.course_runs.all():
                 if run.id not in excluded_course_run_ids:
                     yield run
+
+    @property
+    def canonical_course_runs(self):
+        excluded_course_run_ids = [course_run.id for course_run in self.excluded_course_runs.all()]
+
+        for course in self.courses.all():
+            canonical_course_run = course.canonical_course_run
+            if canonical_course_run and canonical_course_run.id not in excluded_course_run_ids:
+                yield canonical_course_run
 
     @property
     def languages(self):
