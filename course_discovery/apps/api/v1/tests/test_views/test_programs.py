@@ -73,7 +73,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
     def test_retrieve(self):
         """ Verify the endpoint returns the details for a single program. """
         program = self.create_program()
-        with self.assertNumQueries(42):
+        with self.assertNumQueries(37):
             response = self.assert_retrieve_success(program)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
@@ -96,7 +96,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         program = ProgramFactory(courses=course_list, order_courses_by_start_date=order_courses_by_start_date)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
-        with self.assertNumQueries(29):
+        with self.assertNumQueries(26):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
         self.assertEqual(course_list, list(program.courses.all()))  # pylint: disable=no-member
@@ -135,7 +135,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of all programs. """
         expected = [self.create_program() for __ in range(3)]
         expected.reverse()
-        self.assert_list_results(self.list_path, expected, 13)
+        self.assert_list_results(self.list_path, expected, 12)
 
         # Verify that repeated list requests use the cache.
         self.assert_list_results(self.list_path, expected, 2)
@@ -230,7 +230,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns marketing URLs without UTM parameters. """
         url = self.list_path + '?exclude_utm=1'
         program = self.create_program()
-        self.assert_list_results(url, [program], 13, extra_context={'exclude_utm': 1})
+        self.assert_list_results(url, [program], 12, extra_context={'exclude_utm': 1})
 
     def test_minimal_serializer_use(self):
         """ Verify that the list view uses the minimal serializer. """

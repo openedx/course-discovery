@@ -178,7 +178,7 @@ class CreateCourseViewTests(TestCase):
 
         self.assertContains(
             response,
-            '<select class="field-input input-select" id="id_organization" name="organization">'
+            '<select class="field-input input-select" id="id_organization" name="organization" required>'
         )
 
         new_organization_extension = factories.OrganizationExtensionFactory()
