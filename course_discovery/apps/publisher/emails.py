@@ -271,22 +271,22 @@ def send_email_for_mark_as_reviewed_course_run(course_run, user):
     )
 
     try:
-        page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
-        recipient_user = course.project_coordinator
         user_role = course.course_user_roles.get(user=user)
-        if user_role.role == PublisherUserRole.ProjectCoordinator:
-            recipient_user = course.course_team_admin
+        # Send this email only to PC if approving person is course team member
+        if user_role.role == PublisherUserRole.CourseTeam:
+            page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
+            recipient_user = course.project_coordinator
 
-        context = {
-            'course_name': course.title,
-            'run_number': course_key.run,
-            'sender_team': 'course team' if user_role.role == PublisherUserRole.CourseTeam else 'project coordinators',
-            'page_url': 'https://{host}{path}'.format(
-                host=Site.objects.get_current().domain.strip('/'), path=page_path
-            )
-        }
+            context = {
+                'course_name': course.title,
+                'run_number': course_key.run,
+                'sender_team': 'course team',
+                'page_url': 'https://{host}{path}'.format(
+                    host=Site.objects.get_current().domain.strip('/'), path=page_path
+                )
+            }
 
-        send_course_workflow_email(course, user, subject, txt_template, html_template, context, recipient_user)
+            send_course_workflow_email(course, user, subject, txt_template, html_template, context, recipient_user)
     except Exception:  # pylint: disable=broad-except
         logger.exception('Failed to send email notifications for mark as reviewed of course-run %s', course_run.id)
 

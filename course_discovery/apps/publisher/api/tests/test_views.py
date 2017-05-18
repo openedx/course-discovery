@@ -671,7 +671,7 @@ class ChangeCourseRunStateViewTests(TestCase):
 
     def test_mark_as_reviewed(self):
         """
-        Verify that user can change course-run workflow state and owner role will be changed to `Publisher`.
+        Verify that course team can approve the changes and owner role will be changed to `Publisher`.
         """
         self.run_state.name = CourseRunStateChoices.Review
         self.run_state.owner_role = PublisherUserRole.CourseTeam
@@ -696,6 +696,35 @@ class ChangeCourseRunStateViewTests(TestCase):
         self.assertEqual(self.run_state.owner_role, PublisherUserRole.Publisher)
 
         self.assertEqual(len(mail.outbox), 2)
+
+    def test_mark_as_reviewed_by_pc(self):
+        """
+        Verify that project coordinator can approve the changes and email not sent to course team.
+        """
+        self.run_state.name = CourseRunStateChoices.Review
+        self.run_state.owner_role = PublisherUserRole.ProjectCoordinator
+        self.run_state.save()
+
+        self._assign_role(self.course_run.course, PublisherUserRole.ProjectCoordinator, self.user)
+        self._assign_role(self.course_run.course, PublisherUserRole.CourseTeam, UserFactory())
+
+        self._assign_role(self.course_run.course, PublisherUserRole.Publisher, UserFactory())
+
+        response = self.client.patch(
+            self.change_state_url,
+            data=json.dumps({'name': CourseStateChoices.Approved}),
+            content_type=JSON_CONTENT_TYPE
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.run_state = CourseRunState.objects.get(course_run=self.course_run)
+
+        self.assertEqual(self.run_state.name, CourseRunStateChoices.Approved)
+        self.assertEqual(self.run_state.owner_role, PublisherUserRole.Publisher)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertNotIn(self.course_run.course.course_team_admin.email, mail.outbox[0].to)
 
     def test_preview_accepted(self):
         """
