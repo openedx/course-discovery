@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.test import TestCase
 from guardian.shortcuts import assign_perm
-from mock import patch
+from mock import mock, patch
 from opaque_keys.edx.keys import CourseKey
 from testfixtures import LogCapture
 
@@ -484,7 +484,8 @@ class ChangeCourseStateViewTests(TestCase):
         subject = 'Review requested: {title}'.format(title=self.course.title)
         self._assert_email_sent(course_team_user, subject)
 
-    def test_change_course_state_with_course_team(self):
+    @mock.patch('course_discovery.apps.publisher.emails.send_email_for_seo_review')
+    def test_change_course_state_with_course_team(self, mocked_seo_review_email):
         """ Verify that if course team admin can change course workflow state,
         owner role will be changed to `MarketingReviewer`.
         """
@@ -519,6 +520,7 @@ class ChangeCourseStateViewTests(TestCase):
 
         subject = 'Review requested: {title}'.format(title=self.course.title)
         self._assert_email_sent(marketing_user, subject)
+        self.assertTrue(mocked_seo_review_email.called)
 
     def _assert_email_sent(self, user, subject):
         """Helper method to assert sent email data."""

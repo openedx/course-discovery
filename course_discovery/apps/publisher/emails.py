@@ -8,7 +8,9 @@ from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
 from opaque_keys.edx.keys import CourseKey
 
+from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.constants import LEGAL_TEAM_GROUP_NAME
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
 
 logger = logging.getLogger(__name__)
@@ -568,3 +570,46 @@ def send_change_role_assignment_email(course_role, former_user):
         )
         logger.exception(error_message)
         raise Exception(error_message)
+
+
+def send_email_for_seo_review(course):
+    """ Send email when course is submitted for seo review.
+
+        Arguments:
+            course (Object): Course object
+    """
+    txt_template = 'publisher/email/course/seo_review.txt'
+    html_template = 'publisher/email/course/seo_review.html'
+    subject = _('Legal review requested: {title}').format(title=course.title)  # pylint: disable=no-member
+
+    try:
+        legal_team_users = User.objects.filter(groups__name=LEGAL_TEAM_GROUP_NAME)
+        project_coordinator = course.project_coordinator
+        to_addresses = [user.email for user in legal_team_users]
+        from_address = settings.PUBLISHER_FROM_EMAIL
+
+        course_page_path = reverse('publisher:publisher_course_detail', kwargs={'pk': course.id})
+
+        context = {
+            'course_name': course.title,
+            'sender_team': _('Course team'),
+            'recipient_name': _('Legal Team'),
+            'org_name': course.organizations.all().first().name,
+            'contact_us_email': project_coordinator.email,
+            'course_page_url': 'https://{host}{path}'.format(
+                host=Site.objects.get_current().domain.strip('/'), path=course_page_path
+            )
+        }
+
+        template = get_template(txt_template)
+        plain_content = template.render(context)
+        template = get_template(html_template)
+        html_content = template.render(context)
+
+        email_msg = EmailMultiAlternatives(
+            subject, plain_content, from_address, to_addresses
+        )
+        email_msg.attach_alternative(html_content, 'text/html')
+        email_msg.send()
+    except Exception:  # pylint: disable=broad-except
+        logger.exception('Failed to send email notifications for legal review requested of course %s', course.id)
