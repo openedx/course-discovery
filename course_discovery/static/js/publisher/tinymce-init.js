@@ -3,7 +3,7 @@ $(document).ready(function(){
           plugins: [
             'link lists charactercount paste'
           ],
-          toolbar: 'addbutton removebutton |undo redo | styleselect | bold italic | bullist numlist outdent indent | link anchor',
+          toolbar: 'accept reject acceptall rejectall |undo redo | styleselect | bold italic | bullist numlist outdent indent | link anchor',
           menubar: false,
           statusbar: true,
           paste_remove_spans: true,
@@ -16,44 +16,68 @@ $(document).ready(function(){
                 function monitorNodeChange() {
                     var btn = this;
                     editor.on('NodeChange', function(e) {
-
                         var trackElem = getInsDelElement(e.element);
                         btn.disabled((trackElem == null) || (trackElem.nodeName != 'DEL' && trackElem.nodeName != 'INS'));
                     });
                 }
-                editor.addButton('addbutton', {
+                editor.addButton('accept', {
                     text: 'Accept',
                     icon: false,
                     onclick: function() {
-//
-                        var trackElem = getInsDelElement(editor.selection.getNode());
-                        if (trackElem != null && trackElem.nodeName === 'INS') {
-
-                            removeTrackingElement(trackElem);
-                        }
-                        if (trackElem.nodeName === 'DEL') {
-                            trackElem.remove();
-                        }
+                        acceptElement(getInsDelElement(editor.selection.getNode()));
                     },
                     onpostrender: monitorNodeChange
                 });
 
-                editor.addButton('removebutton', {
+                editor.addButton('reject', {
                     text: 'Reject',
                     icon: false,
                     onclick: function() {
-                        var trackElem = getInsDelElement(editor.selection.getNode());
-                        if (trackElem != null && trackElem.nodeName === 'DEL') {
-                            removeTrackingElement(trackElem);
-                        }
-                        if (trackElem.nodeName === 'INS') {
-                            trackElem.remove();
-                        }
+                        rejectElement(getInsDelElement(editor.selection.getNode()));
                     },
                     onpostrender: monitorNodeChange
                 });
+                editor.addButton('acceptall', {
+                    text: 'Accept All',
+                    icon: false,
+                    onclick: function() {
+
+                        var nodes = $(editor.getBody())[0].childNodes;
+                        $(nodes).each(function() {
+                            acceptElement(this);
+                        });
+                    }
+                });
+                editor.addButton('rejectall', {
+                    text: 'Reject All',
+                    icon: false,
+                    onclick: function() {
+
+                        var nodes = $(editor.getBody())[0].childNodes;
+                        $(nodes).each(function() {
+                            rejectElement(this);
+                        });
+                    }
+                });
             }
     };
+
+    function acceptElement(trackElem){
+        if (trackElem != null && trackElem.nodeName === 'INS') {
+            removeTrackingElement(trackElem);
+        }
+        if (trackElem.nodeName === 'DEL') {
+            trackElem.remove();
+        }
+    }
+    function rejectElement(trackElem){
+        if (trackElem != null && trackElem.nodeName === 'DEL') {
+            removeTrackingElement(trackElem);
+        }
+        if (trackElem.nodeName === 'INS') {
+            trackElem.remove();
+        }
+    }
 
     function getInsDelElement(elem)
     {
@@ -77,7 +101,7 @@ $(document).ready(function(){
     tinymce.init(tinymceConfig);
 
     tinymceConfig["selector"]= "#id_title";
-    tinymceConfig["toolbar"] = "addbutton removebutton";
+    tinymceConfig["toolbar"] = "accept reject acceptall rejectall";
     tinymce.init(tinymceConfig);
 
 });
