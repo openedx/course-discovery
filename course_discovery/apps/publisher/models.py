@@ -524,6 +524,7 @@ class CourseState(TimeStampedModel, ChangedByMixin):
         """
         Change course workflow state and ownership also send emails if required.
         """
+        is_notifications_enabled = waffle.switch_is_active('enable_publisher_email_notifications')
         if state == CourseStateChoices.Draft:
             self.draft()
         elif state == CourseStateChoices.Review:
@@ -533,10 +534,12 @@ class CourseState(TimeStampedModel, ChangedByMixin):
                 self.marketing_reviewed = True
             elif user_role.role == PublisherUserRole.CourseTeam:
                 self.change_owner_role(PublisherUserRole.MarketingReviewer)
+                if is_notifications_enabled:
+                    emails.send_email_for_seo_review(self.course)
 
             self.review()
 
-            if waffle.switch_is_active('enable_publisher_email_notifications'):
+            if is_notifications_enabled:
                 emails.send_email_for_send_for_review(self.course, user)
 
         elif state == CourseStateChoices.Approved:
@@ -544,7 +547,7 @@ class CourseState(TimeStampedModel, ChangedByMixin):
             self.approved_by_role = user_role.role
             self.approved()
 
-            if waffle.switch_is_active('enable_publisher_email_notifications'):
+            if is_notifications_enabled:
                 emails.send_email_for_mark_as_reviewed(self.course, user)
 
         self.save()

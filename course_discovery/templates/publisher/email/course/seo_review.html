@@ -1,0 +1,26 @@
+{% extends "publisher/email/email_base.html" %}
+{% load i18n %}
+{% block body %}
+<!-- Message Body -->
+
+    <p>
+        {% blocktrans trimmed %}
+            Dear {{ recipient_name }},
+        {% endblocktrans %}
+    <p>
+        {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' trimmed %}
+            {{ sender_team }} from {{ org_name }} has submitted {{ course_name }} for review. {{ link_start }}{{ course_page_url }}{{ link_middle }}View this course in Publisher{{ link_end }} to determine OFAC status.
+        {% endblocktrans %}
+    </p>
+
+    {% comment %}Translators: It's closing of mail.{% endcomment %}
+    {% trans "Thanks," %}<br>
+    {{ sender_team }}
+
+
+{% blocktrans trimmed %}
+    <p>Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.</p>
+{% endblocktrans %}
+
+<!-- End Message Body -->
+{% endblock body %}

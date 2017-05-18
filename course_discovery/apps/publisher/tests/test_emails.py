@@ -1,6 +1,7 @@
 # pylint: disable=no-member
 
 import mock
+from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core import mail
 from django.core.urlresolvers import reverse
@@ -8,11 +9,13 @@ from django.test import TestCase
 from opaque_keys.edx.keys import CourseKey
 from testfixtures import LogCapture
 
+from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher import emails
 from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.constants import LEGAL_TEAM_GROUP_NAME
 from course_discovery.apps.publisher.models import UserAttributes
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.factories import UserAttributeFactory
@@ -602,3 +605,53 @@ class CourseChangeRoleAssignmentEmailTests(TestCase):
             with self.assertRaises(Exception) as ex:
                 emails.send_change_role_assignment_email(self.marketing_role, self.user)
                 self.assertEqual(str(ex.exception), message)
+
+
+class SEOReviewEmailTests(TestCase):
+    """ Tests for the seo review email functionality. """
+
+    def setUp(self):
+        super(SEOReviewEmailTests, self).setUp()
+        self.user = UserFactory()
+        self.course_state = factories.CourseStateFactory()
+        self.course = self.course_state.course
+        self.course.organizations.add(OrganizationFactory())
+        factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.CourseTeam, user=self.user)
+        self.legal_user = UserFactory()
+        self.legal_user.groups.add(Group.objects.get(name=LEGAL_TEAM_GROUP_NAME))
+
+        UserAttributeFactory(user=self.user, enable_email_notification=True)
+
+    def test_email_with_error(self):
+        """ Verify that email failure logs error message."""
+
+        with LogCapture(emails.logger.name) as l:
+            emails.send_email_for_seo_review(self.course)
+            l.check(
+                (
+                    emails.logger.name,
+                    'ERROR',
+                    'Failed to send email notifications for legal review requested of course {}'.format(
+                        self.course.id
+                    )
+                )
+            )
+
+    def test_seo_review_email(self):
+        """
+        Verify that seo review email functionality works fine.
+        """
+        factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.ProjectCoordinator)
+        emails.send_email_for_seo_review(self.course)
+        expected_subject = 'Legal review requested: {title}'.format(title=self.course.title)
+
+        self.assertEqual(len(mail.outbox), 1)
+        legal_team_users = User.objects.filter(groups__name=LEGAL_TEAM_GROUP_NAME)
+        expected_addresses = [user.email for user in legal_team_users]
+        self.assertEqual(expected_addresses, mail.outbox[0].to)
+        self.assertEqual(str(mail.outbox[0].subject), expected_subject)
+        body = mail.outbox[0].body.strip()
+        page_path = reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id})
+        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
+        self.assertIn(page_url, body)
+        self.assertIn('determine OFAC status', body)

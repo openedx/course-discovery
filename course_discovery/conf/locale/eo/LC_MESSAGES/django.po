@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-17 15:46+0500\n"
+"POT-Creation-Date: 2017-05-19 19:30+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -669,6 +669,19 @@ msgstr ""
 #, python-brace-format
 msgid "{role_name} changed for {course_title}"
 msgstr "{role_name} çhängéd för {course_title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Legal review requested: {title}"
+msgstr "Légäl révïéw réqüéstéd: {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+
+#: apps/publisher/emails.py
+msgid "Course team"
+msgstr "Çöürsé téäm Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: apps/publisher/emails.py
+msgid "Legal Team"
+msgstr "Légäl Téäm Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: apps/publisher/forms.py
 msgid "Remove Image"
@@ -3153,6 +3166,8 @@ msgstr ""
 #: templates/publisher/email/course/mark_as_reviewed.txt
 #: templates/publisher/email/course/send_for_review.html
 #: templates/publisher/email/course/send_for_review.txt
+#: templates/publisher/email/course/seo_review.html
+#: templates/publisher/email/course/seo_review.txt
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
 #: templates/publisher/email/course_run/preview_available.html
@@ -3203,6 +3218,8 @@ msgstr ""
 #: templates/publisher/email/course/mark_as_reviewed.txt
 #: templates/publisher/email/course/send_for_review.html
 #: templates/publisher/email/course/send_for_review.txt
+#: templates/publisher/email/course/seo_review.html
+#: templates/publisher/email/course/seo_review.txt
 #: templates/publisher/email/course_created.html
 #: templates/publisher/email/course_created.txt
 #: templates/publisher/email/course_run/mark_as_reviewed.html
@@ -3224,6 +3241,7 @@ msgstr "Thänks, Ⱡ'σяєм ιρѕυм #"
 
 #: templates/publisher/email/course/mark_as_reviewed.html
 #: templates/publisher/email/course/send_for_review.html
+#: templates/publisher/email/course/seo_review.html
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #: templates/publisher/email/course_run/preview_accepted.html
 #: templates/publisher/email/course_run/preview_available.html
@@ -3240,6 +3258,7 @@ msgstr ""
 
 #: templates/publisher/email/course/mark_as_reviewed.txt
 #: templates/publisher/email/course/send_for_review.txt
+#: templates/publisher/email/course/seo_review.txt
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
 #: templates/publisher/email/course_run/preview_accepted.txt
 #: templates/publisher/email/course_run/preview_available.txt
@@ -3281,6 +3300,27 @@ msgstr ""
 "%(sender_team)s fröm %(org_name)s häs süßmïttéd %(course_name)s för révïéw. "
 "%(page_url)s Vïéw thïs çöürsé ïn Püßlïshér tö märk thé çöürsé äs révïéwéd ör"
 " süggést édïts. Ⱡ'σяєм #"
+
+#: templates/publisher/email/course/seo_review.html
+#, python-format
+msgid ""
+"%(sender_team)s from %(org_name)s has submitted %(course_name)s for review. "
+"%(link_start)s%(course_page_url)s%(link_middle)sView this course in "
+"Publisher%(link_end)s to determine OFAC status."
+msgstr ""
+"%(sender_team)s fröm %(org_name)s häs süßmïttéd %(course_name)s för révïéw. "
+"%(link_start)s%(course_page_url)s%(link_middle)sVïéw thïs çöürsé ïn "
+"Püßlïshér%(link_end)s tö détérmïné ÖFÀÇ stätüs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: templates/publisher/email/course/seo_review.txt
+#, python-format
+msgid ""
+"%(sender_team)s from %(org_name)s has submitted %(course_name)s for review. "
+"%(course_page_url)s View this course in Publisher to determine OFAC status."
+msgstr ""
+"%(sender_team)s fröm %(org_name)s häs süßmïttéd %(course_name)s för révïéw. "
+"%(course_page_url)s Vïéw thïs çöürsé ïn Püßlïshér tö détérmïné ÖFÀÇ stätüs. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #. Translators: project_coordinator_name is a member name.
 #: templates/publisher/email/course_created.html
