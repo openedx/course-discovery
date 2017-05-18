@@ -303,13 +303,13 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
 
         toggle_switch('enable_publisher_email_notifications', True)
 
-    def test_email_sent_by_marketing_reviewer(self):
-        """ Verify that email works successfully for marketing user."""
+    def test_email_not_sent_by_project_coordinator(self):
+        """ Verify that no email is sent if approving person is project coordinator. """
         factories.CourseUserRoleFactory(
             course=self.course, role=PublisherUserRole.ProjectCoordinator, user=self.user
         )
         emails.send_email_for_mark_as_reviewed_course_run(self.course_run_state.course_run, self.user)
-        self.assert_email_sent(self.user_2)
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_email_sent_by_course_team(self):
         """ Verify that email works successfully for course team user."""
