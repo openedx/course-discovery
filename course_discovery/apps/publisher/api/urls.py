@@ -1,10 +1,11 @@
 """ Publisher API URLs. """
 from django.conf.urls import url
 
-from course_discovery.apps.publisher.api.views import (ChangeCourseRunStateView, ChangeCourseStateView,
-                                                       CourseRevisionDetailView, CourseRoleAssignmentView,
-                                                       CoursesAutoComplete, OrganizationGroupUserView,
-                                                       RevertCourseRevisionView, UpdateCourseRunView)
+from course_discovery.apps.publisher.api.views import (AcceptAllRevisionView, ChangeCourseRunStateView,
+                                                       ChangeCourseStateView, CourseRevisionDetailView,
+                                                       CourseRoleAssignmentView, CoursesAutoComplete,
+                                                       OrganizationGroupUserView, RevertCourseRevisionView,
+                                                       UpdateCourseRunView)
 
 urlpatterns = [
     url(r'^course_role_assignments/(?P<pk>\d+)/$', CourseRoleAssignmentView.as_view(), name='course_role_assignments'),
@@ -19,4 +20,8 @@ urlpatterns = [
         RevertCourseRevisionView.as_view(), name='course_revision_revert'
     ),
     url(r'^course-autocomplete/$', CoursesAutoComplete.as_view(), name='course-autocomplete'),
+    url(
+        r'^course/revision/(?P<history_id>\d+)/accept_revision/$',
+        AcceptAllRevisionView.as_view(), name='accept_all_revision'
+    ),
 ]

@@ -19,14 +19,14 @@ function getComparableText(object) {
     if ($(object).find('.dont-compare').length > 0) {
         return "";
     } else {
-        return object.text().trim()
+        return object.html().trim()
     }
 }
 
 var dmp = new diff_match_patch();
 dmp.Diff_EditCost = 8;
 function showDiff($object, $historyObject, $outputDiv) {
-    var currentText = $($.parseHTML($object.text())).text().trim(),
+    var currentText = $object.html().trim(),
         historyText = getComparableText($historyObject),
         diff;
 
@@ -40,7 +40,12 @@ function showDiff($object, $historyObject, $outputDiv) {
 function showDiffCourseDetails(currentObject, historyObject, $outputDiv) {
     var d = dmp.diff_main(currentObject, historyObject);
     dmp.diff_cleanupEfficiency(d);
-    $outputDiv.html(dmp.diff_prettyHtml(d));
+    $outputDiv.append(decodeEntities(dmp.diff_prettyHtml(d)));
     $outputDiv.show();
 }
 
+function decodeEntities(encodedString) {
+    var textArea = document.createElement('textarea');
+    textArea.innerHTML = encodedString;
+    return textArea.value;
+}

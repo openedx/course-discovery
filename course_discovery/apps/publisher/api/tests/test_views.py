@@ -925,3 +925,56 @@ class CoursesAutoCompleteTests(TestCase):
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(len(data['results']), expected_length)
+
+
+class AcceptAllByRevisionTests(TestCase):
+
+    def setUp(self):
+        super(AcceptAllByRevisionTests, self).setUp()
+        self.user = UserFactory()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+        self.course = factories.CourseFactory(title='first title', changed_by=self.user)
+
+        # update title so that another revision created
+        self.course.title = "updated title"
+        self.course.changed_by = self.user
+        self.course.save()
+
+    def test_update_all_revision_with_invalid_id(self):
+        """Verify that api return 404 error if revision_id does not exists. """
+        response = self._update_all_by_revision_course(0000)
+        self.assertEqual(response.status_code, 404)
+
+    def test_update_all_course_revision_without_authentication(self):
+        """Verify that api return authentication error if user is not logged in. """
+        self.client.logout()
+        revision = self.course.history.first()
+        response = self._update_all_by_revision_course(revision.history_id)
+        self.assertEqual(response.status_code, 403)
+
+    def test_update_all_course_revision(self):
+        """Verify that api update the course with the according to the revision id. """
+
+        # most recent history revision made by user
+        revision = self.course.history.latest()
+        self.assertEqual(revision.changed_by, self.user)
+        self.client.logout()
+
+        # update the course through api and now change-by and history user will the 2nd user.
+        user_2 = UserFactory()
+        self.client.login(username=user_2.username, password=USER_PASSWORD)
+        response = self._update_all_by_revision_course(revision.history_id)
+        self.assertEqual(response.status_code, 201)
+
+        revision = self.course.history.latest()
+        self.assertEqual(revision.history_user, user_2)
+        course = Course.objects.get(id=self.course.id)
+        self.assertEqual(course.changed_by, user_2)
+
+    def _update_all_by_revision_course(self, revision_id):
+        """Update the course objects by changing just changed-by attr."""
+        course_revision_path = reverse(
+            'publisher:api:accept_all_revision', kwargs={'history_id': revision_id}
+        )
+        return self.client.post(path=course_revision_path)

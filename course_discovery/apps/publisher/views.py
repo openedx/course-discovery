@@ -442,6 +442,22 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
                                         if current_owner_role.role == PublisherUserRole.MarketingReviewer
                                         else _('marketing'))
 
+            history_list = self.object.history.all().order_by('history_id')
+
+            # Find out history of a logged-in user from the history list and if there is any other latest history
+            # from other users then show accept changes button.
+            if history_list and history_list.filter(history_user=self.request.user).exists():
+                    logged_in_user_history = history_list.filter(history_user=self.request.user).latest()
+                    context['most_recent_revision_id'] = (
+                        logged_in_user_history.history_id if logged_in_user_history else None
+                    )
+
+                    if history_list.latest().history_id > logged_in_user_history.history_id:
+                        context['accept_all_button'] = (
+                            current_owner_role.role == PublisherUserRole.CourseTeam and
+                            current_owner_role.user == self.request.user
+                        )
+
         return context
 
 
@@ -761,6 +777,7 @@ class CourseRevisionView(mixins.LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(CourseRevisionView, self).get_context_data(**kwargs)
+
         try:
             context['history_object'] = self.object.history.get(history_id=self.kwargs.get('revision_id'))
         except ObjectDoesNotExist:
