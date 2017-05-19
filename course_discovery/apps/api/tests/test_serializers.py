@@ -226,6 +226,7 @@ class MinimalCourseRunSerializerTests(TestCase):
             'pacing_type': course_run.pacing_type,
             'type': course_run.type,
             'seats': SeatSerializer(course_run.seats, many=True).data,
+            'status': course_run.status,
         }
 
     def test_data(self):
@@ -262,6 +263,7 @@ class CourseRunSerializerTests(MinimalCourseRunSerializerTests):
             'level_type': course_run.level_type.name,
             'availability': course_run.availability,
             'reporting_type': course_run.reporting_type,
+            'status': course_run.status,
         })
 
         return expected
