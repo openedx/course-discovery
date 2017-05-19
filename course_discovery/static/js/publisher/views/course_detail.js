@@ -26,4 +26,8 @@ $(document).ready(function() {
         $('#userRoleContainer-' + roleName).hide();
     });
 
+    $('#btn_accept_revision').hide();
+    $("#id_select_revisions ").find(
+        '[data-reversion-value="' + $('#btn_accept_revision').data('most-recent-revision-id') + '"]'
+    ).attr("selected", "selected").change();
 });

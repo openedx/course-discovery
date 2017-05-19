@@ -86,6 +86,7 @@ class RevertCourseRevisionView(APIView):
                 if field not in ['team_admin', 'organization', 'add_new_run']:
                     setattr(course, field, getattr(history_object, field))
 
+            course.changed_by = self.request.user
             course.save()
         except:  # pylint: disable=bare-except
             logger.exception('Unable to revert the course [%s] for revision [%s].', course.id, history_id)
@@ -117,3 +118,19 @@ class CoursesAutoComplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
             return qs
 
         return []
+
+
+class AcceptAllRevisionView(APIView):
+    """ Generate history version. """
+    permission_classes = (IsAuthenticated, )
+
+    def post(self, request, history_id):  # pylint: disable=unused-argument
+        """ Update the course against the given revision id. """
+
+        history_object = get_object_or_404(historicalcourse, pk=history_id)
+        course = get_object_or_404(Course, id=history_object.id)
+
+        course.changed_by = self.request.user
+        course.save()
+
+        return Response(status=status.HTTP_201_CREATED)

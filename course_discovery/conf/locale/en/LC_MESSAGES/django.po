@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-19 19:30+0500\n"
+"POT-Creation-Date: 2017-05-22 17:08+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -1270,6 +1270,10 @@ msgstr ""
 
 #: templates/publisher/_history_widget.html
 msgid "Unable to revert the revision, Please try again later."
+msgstr ""
+
+#: templates/publisher/_history_widget.html
+msgid "Accept All"
 msgstr ""
 
 #: templates/publisher/_render_optional_field.html

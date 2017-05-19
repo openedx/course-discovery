@@ -1905,6 +1905,58 @@ class CourseDetailViewTests(TestCase):
 
         self.assertContains(response, 'REVISION HISTORY')
 
+    def test_detail_page_without_most_recent_revision(self):
+        """
+        Test that user can see history widget on detail page if history exists.
+        """
+        self._assign_user_permission()
+
+        response = self.client.get(self.detail_page_url)
+        self.assertNotIn('most_recent_revision_id', response.context)
+        self.assertNotIn('accept_all_button', response.context)
+
+    def test_detail_page_with_accept_button(self):
+        """
+        Test that user can see accept button and context has most recent revision id
+        """
+        self._assign_user_permission()
+
+        # update course object through page so that it will create history objects properly.
+        # otherwise history_user does not appear in table.
+        self._post_data(self.organization_extension)
+        self._post_data(self.organization_extension)
+
+        response = self.client.get(self.detail_page_url)
+        current_user_revision = self.course.history.latest().history_id
+        self.assertEqual(response.context['most_recent_revision_id'], current_user_revision)
+        self.assertNotIn('accept_all_button', response.context)
+
+        # it will make another history object without any history_user object.
+        self.course.save()
+        response = self.client.get(self.detail_page_url)
+        self.assertEqual(response.context['most_recent_revision_id'], current_user_revision)
+        self.assertTrue(response.context['accept_all_button'])
+
+    def _assign_user_permission(self):
+        """ Assign permissions."""
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
+        assign_perm(
+            OrganizationExtension.EDIT_COURSE, self.organization_extension.group, self.organization_extension
+        )
+
+    def _post_data(self, organization_extension):
+        """
+        Generate post data and return.
+        """
+        post_data = model_to_dict(self.course)
+        post_data.pop('image')
+        post_data['team_admin'] = self.user.id
+        post_data['organization'] = organization_extension.organization.id
+        post_data['title'] = 'updated title'
+
+        self.client.post(reverse('publisher:publisher_courses_edit', args=[self.course.id]), post_data)
+
 
 @ddt.ddt
 class CourseEditViewTests(TestCase):
