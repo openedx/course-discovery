@@ -18,6 +18,13 @@ class ApiTimestampKeyBit(KeyBitBase):
 
 class TimestampedListKeyConstructor(DefaultListKeyConstructor):
     timestamp = ApiTimestampKeyBit()
+    # The DefaultListKeyConstructor includes the PaginationKeyBit. While it does
+    # subclass QueryParamsKeyBit, it also bypasses logic which includes all query
+    # params in the cache key, restricting the set of query params that end up in
+    # the cache key to those that are used for page number pagination. This causes
+    # cache collisions when other query params are involved. For more, see:
+    # https://github.com/chibisov/drf-extensions/blob/master/rest_framework_extensions/key_constructor/bits.py#L48-L49
+    querystring = QueryParamsKeyBit()
 
 
 class TimestampedObjectKeyConstructor(DefaultObjectKeyConstructor):
