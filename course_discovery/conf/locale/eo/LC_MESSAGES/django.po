@@ -1021,6 +1021,15 @@ msgid "project coordinator"
 msgstr "pröjéçt çöördïnätör Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
 #: apps/publisher/views.py
+#, python-brace-format
+msgid ""
+"{course_title} has been created successfully. Enter information on this page"
+" to create a course run for this course."
+msgstr ""
+"{course_title} häs ßéén çréätéd süççéssfüllý. Éntér ïnförmätïön ön thïs pägé"
+" tö çréäté ä çöürsé rün för thïs çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт #"
+
+#: apps/publisher/views.py
 msgid ""
 "You have successfully created a course. You can edit the course information "
 "or enter information for the course About page at any time. An edX project "
