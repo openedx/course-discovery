@@ -270,7 +270,15 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
                     # Initialize workflow for Course.
                     CourseState.objects.create(course=course, owner_role=PublisherUserRole.CourseTeam)
 
-                    if not add_new_run:
+                    if add_new_run:
+                        # pylint: disable=no-member
+                        messages.success(
+                            request, _(
+                                "{course_title} has been created successfully. Enter information on this page to "
+                                "create a course run for this course."
+                            ).format(course_title=course.title)
+                        )
+                    else:
                         # pylint: disable=no-member
                         messages.success(
                             request, _(
