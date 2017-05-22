@@ -6,8 +6,10 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
-from course_discovery.apps.course_metadata.tests import factories
-from course_discovery.apps.course_metadata.tests.factories import PositionFactory
+from course_discovery.apps.course_metadata.tests.factories import (CourseFactory, CourseRunFactory, OrganizationFactory,
+                                                                   PersonFactory, PositionFactory)
+from course_discovery.apps.publisher.tests import factories
+
 
 # pylint: disable=no-member
 
@@ -19,12 +21,12 @@ class AutocompleteTests(TestCase):
         super(AutocompleteTests, self).setUp()
         self.user = UserFactory(is_staff=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.courses = factories.CourseFactory.create_batch(3, title='Some random course title')
+        self.courses = CourseFactory.create_batch(3, title='Some random course title')
         for course in self.courses:
-            factories.CourseRunFactory(course=course)
-        self.organizations = factories.OrganizationFactory.create_batch(3)
-        first_instructor = factories.PersonFactory(given_name="First Instructor")
-        second_instructor = factories.PersonFactory(given_name="Second Instructor")
+            CourseRunFactory(course=course)
+        self.organizations = OrganizationFactory.create_batch(3)
+        first_instructor = PersonFactory(given_name="First Instructor")
+        second_instructor = PersonFactory(given_name="Second Instructor")
         self.instructors = [first_instructor, second_instructor]
 
     @ddt.data('dum', 'ing')
@@ -141,6 +143,30 @@ class AutocompleteTests(TestCase):
         self.user.save()
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
+
+@ddt.ddt
+class AutoCompletePersonTests(TestCase):
+    """
+    Tests for person autocomplete lookups
+    """
+    def setUp(self):
+        super(AutoCompletePersonTests, self).setUp()
+        self.user = UserFactory(is_staff=True)
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.courses = factories.CourseFactory.create_batch(3, title='Some random course title')
+        for course in self.courses:
+            factories.CourseRunFactory(course=course)
+        self.organizations = OrganizationFactory.create_batch(3)
+        self.organization_extensions = []
+        for organization in self.organizations:
+            self.organization_extensions.append(factories.OrganizationExtensionFactory(organization=organization))
+        self.user.groups.add(self.organization_extensions[0].group)
+        first_instructor = PersonFactory(given_name="First Instructor")
+        second_instructor = PersonFactory(given_name="Second Instructor")
+        self.instructors = [first_instructor, second_instructor]
+        for instructor in self.instructors:
+            PositionFactory(organization=self.organizations[0], title="professor", person=instructor)
+
     def test_instructor_autocomplete(self):
         """ Verify instructor autocomplete returns the data. """
         response = self.client.get(
@@ -166,7 +192,6 @@ class AutocompleteTests(TestCase):
     def test_instructor_position_in_label(self):
         """ Verify that instructor label contains position of instructor if it exists."""
         position_title = 'professor'
-        PositionFactory.create(person=self.instructors[0], title=position_title, organization=self.organizations[0])
 
         response = self.client.get(
             reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q='ins')
@@ -209,6 +234,7 @@ class AutocompleteTests(TestCase):
     def test_instructor_autocomplete_without_staff_user(self):
         """ Verify instructor autocomplete returns the data if user is not staff. """
         non_staff_user = UserFactory()
+        non_staff_user.groups.add(self.organization_extensions[0].group)
         self.client.logout()
         self.client.login(username=non_staff_user.username, password=USER_PASSWORD)
 
@@ -247,3 +273,9 @@ class AutocompleteTests(TestCase):
         data = json.loads(response.content.decode('utf-8'))
         expected_results = [{'id': instructor.id, 'text': str(instructor)} for instructor in self.instructors]
         self.assertEqual(data.get('results'), expected_results)
+
+    def _make_user_non_staff(self):
+        self.client.logout()
+        self.user = UserFactory(is_staff=False)
+        self.user.save()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)

@@ -65,6 +65,9 @@ class PersonAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
         if self.q:
             qs = queryset.filter(Q(given_name__icontains=self.q) | Q(family_name__icontains=self.q),
                                  position__organization__in=get_user_organizations(self.request.user))
+            if self.request.user.is_staff and self.request.user.is_superuser:
+                qs = queryset.filter(Q(given_name__icontains=self.q) | Q(family_name__icontains=self.q))
+
             if not qs:
                 try:
                     q_uuid = uuid.UUID(self.q).hex
