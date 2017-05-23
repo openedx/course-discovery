@@ -8,10 +8,10 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core import mail
-from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.forms import model_to_dict
 from django.test import TestCase
+from django.urls import reverse
 from guardian.shortcuts import assign_perm
 from mock import patch
 from opaque_keys.edx.keys import CourseKey

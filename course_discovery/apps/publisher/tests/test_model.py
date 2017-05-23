@@ -1,8 +1,8 @@
 # pylint: disable=no-member
 import ddt
-from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.test import TestCase
+from django.urls import reverse
 from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import assign_perm
 

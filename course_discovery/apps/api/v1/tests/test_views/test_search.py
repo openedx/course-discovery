@@ -4,7 +4,7 @@ import urllib.parse
 
 import ddt
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from haystack.query import SearchQuerySet
 from rest_framework.test import APITestCase
 

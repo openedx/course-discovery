@@ -3,8 +3,8 @@ from urllib.parse import urljoin
 
 import waffle
 from django.contrib.auth.models import Group
-from django.core.urlresolvers import reverse
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel

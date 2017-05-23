@@ -1,7 +1,7 @@
 import ddt
 from django.contrib.auth.models import Group
-from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.urls import reverse
 from guardian.shortcuts import get_group_perms
 
 from course_discovery.apps.core.tests.factories import UserFactory

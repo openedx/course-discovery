@@ -5,6 +5,8 @@ INSTALLED_APPS += [
     'course_discovery.apps.edx_catalog_extensions',
 ]
 
+ALLOWED_HOSTS = ['*']
+
 DEFAULT_PARTNER_ID = 1
 
 TEST_NON_SERIALIZED_APPS = [

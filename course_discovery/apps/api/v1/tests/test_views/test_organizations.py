@@ -1,7 +1,6 @@
 import uuid
 
-import ddt
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
@@ -9,7 +8,6 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.course_metadata.tests.factories import Organization, OrganizationFactory
 
 
-@ddt.ddt
 class OrganizationViewSetTests(SerializationMixin, APITestCase):
     list_path = reverse('api:v1:organization-list')
 
@@ -108,10 +106,9 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assert_response_data_valid(response, organization, many=False)
 
-    @ddt.data(123, uuid.uuid4())
-    def test_retrieve_not_found(self, organization_uuid):
+    def test_retrieve_not_found(self):
         """ Verify the endpoint returns HTTP 404 if the specified UUID does not match an organization. """
-        url = reverse('api:v1:organization-detail', kwargs={'uuid': organization_uuid})
+        url = reverse('api:v1:organization-detail', kwargs={'uuid': uuid.uuid4()})
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)

@@ -4,8 +4,8 @@ import mock
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core import mail
-from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.urls import reverse
 from opaque_keys.edx.keys import CourseKey
 from testfixtures import LogCapture
 

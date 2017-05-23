@@ -1,7 +1,7 @@
 import json
 
-from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.urls import reverse
 
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 
