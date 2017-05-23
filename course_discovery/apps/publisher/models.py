@@ -398,7 +398,8 @@ class OrganizationUserRole(TimeStampedModel):
 
     class Meta:
         unique_together = (
-            ('organization', 'user', 'role'),
+            ('organization', 'user'),
+            ('organization', 'role'),
         )
 
     def __str__(self):
@@ -421,7 +422,8 @@ class CourseUserRole(TimeStampedModel, ChangedByMixin):
 
     class Meta:
         unique_together = (
-            ('course', 'user', 'role'),
+            ('course', 'user'),
+            ('course', 'role'),
         )
 
     def __str__(self):

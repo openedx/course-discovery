@@ -195,6 +195,7 @@ class UpdateCourseRunViewTests(TestCase):
         super(UpdateCourseRunViewTests, self).setUp()
         self.course_run = factories.CourseRunFactory()
         self.user = UserFactory()
+        self.course_team_user = UserFactory()
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
 
         self.organization_extension = factories.OrganizationExtensionFactory()
@@ -208,6 +209,12 @@ class UpdateCourseRunViewTests(TestCase):
             role=PublisherUserRole.ProjectCoordinator,
             course=self.course_run.course,
             user=self.user
+        )
+
+        factories.CourseUserRoleFactory(
+            role=PublisherUserRole.CourseTeam,
+            course=self.course_run.course,
+            user=self.course_team_user
         )
 
         factories.UserAttributeFactory(user=self.user, enable_email_notification=True)
@@ -272,11 +279,6 @@ class UpdateCourseRunViewTests(TestCase):
         # By default `lms_course_id` and `changed_by` are None
         self.assert_course_key_and_changed_by()
 
-        # create course team role for email
-        factories.CourseUserRoleFactory(
-            course=self.course_run.course, role=PublisherUserRole.CourseTeam, user=self.user
-        )
-
         lms_course_id = 'course-v1:edxTest+TC12+2050Q1'
         response = self.client.patch(
             self.update_course_run_url,
@@ -308,7 +310,7 @@ class UpdateCourseRunViewTests(TestCase):
         Helper method to assert sent email data.
         """
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual([self.user.email], mail.outbox[0].to)
+        self.assertEqual([self.course_team_user.email], mail.outbox[0].to)
         self.assertEqual(str(mail.outbox[0].subject), subject)
 
         body = mail.outbox[0].body.strip()
@@ -325,9 +327,6 @@ class UpdateCourseRunViewTests(TestCase):
         factories.CourseUserRoleFactory(
             course=self.course_run.course, role=PublisherUserRole.Publisher
         )
-        course_team_role = factories.CourseUserRoleFactory(
-            course=self.course_run.course, role=PublisherUserRole.CourseTeam
-        )
         response = self._make_request(preview_url)
 
         self.assertEqual(response.status_code, 200)
@@ -340,7 +339,7 @@ class UpdateCourseRunViewTests(TestCase):
             run_number=course_key.run
         )
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual([course_team_role.user.email], mail.outbox[0].to)
+        self.assertEqual([self.course_team_user.email], mail.outbox[0].to)
         self.assertEqual(str(mail.outbox[0].subject), subject)
 
     def test_update_with_invalid_preview_url(self):
@@ -364,10 +363,7 @@ class UpdateCourseRunViewTests(TestCase):
         """
         preview_url = 'https://example.com/abc/course'
         factories.CourseRunStateFactory.create(course_run=self.course_run, owner_role=PublisherUserRole.Publisher)
-        course_team_role = factories.CourseUserRoleFactory(
-            course=self.course_run.course, role=PublisherUserRole.CourseTeam
-        )
-        factories.UserAttributeFactory(user=course_team_role.user, enable_email_notification=False)
+        factories.UserAttributeFactory(user=self.course_team_user, enable_email_notification=False)
 
         response = self._make_request(preview_url)
 
