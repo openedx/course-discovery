@@ -1,6 +1,6 @@
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 

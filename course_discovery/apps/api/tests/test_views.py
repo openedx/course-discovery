@@ -1,8 +1,8 @@
 import ddt
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
 from django.test import RequestFactory, TestCase
+from django.urls import reverse
 
 from course_discovery.apps.api.views import api_docs_permission_denied_handler
 from course_discovery.apps.core.tests.factories import UserFactory

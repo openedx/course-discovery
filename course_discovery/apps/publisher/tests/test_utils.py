@@ -3,8 +3,8 @@ from datetime import datetime
 
 import ddt
 from django.contrib.auth.models import Group
-from django.core.urlresolvers import reverse
 from django.test import RequestFactory, TestCase
+from django.urls import reverse
 from guardian.shortcuts import assign_perm
 from mock import Mock
 

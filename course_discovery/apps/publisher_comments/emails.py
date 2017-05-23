@@ -2,8 +2,8 @@ import logging
 
 from django.conf import settings
 from django.core.mail.message import EmailMultiAlternatives
-from django.core.urlresolvers import reverse
 from django.template.loader import get_template
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from opaque_keys.edx.keys import CourseKey
 

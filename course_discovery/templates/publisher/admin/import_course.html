@@ -6,7 +6,7 @@
 {% endblock title %}
 
 {% block page_content %}
-        <form method="post" action="">
+        <form method="post" action="" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="col col-6 help-text">
                 <label class="field-label ">{{ form.start_id.label }}</label>

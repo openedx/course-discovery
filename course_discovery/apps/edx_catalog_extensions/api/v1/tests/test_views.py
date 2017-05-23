@@ -1,7 +1,7 @@
 import datetime
 import urllib.parse
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from course_discovery.apps.api.v1.tests.test_views.test_search import (

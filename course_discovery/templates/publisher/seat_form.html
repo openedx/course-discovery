@@ -10,7 +10,7 @@
         <div class="publisher-container">
             <div class="course-information">
                 <h4 class="hd-4">{% trans "Seat Form" %}</h4>
-                <form class="form" method="post" action="">
+                <form class="form" method="post" action="" enctype="multipart/form-data">
                     {% csrf_token %}
                     <fieldset class="form-group">
                         {% for field in form %}

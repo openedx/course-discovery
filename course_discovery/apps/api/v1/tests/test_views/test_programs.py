@@ -2,7 +2,7 @@ import urllib.parse
 
 import ddt
 from django.core.cache import cache
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from course_discovery.apps.api.serializers import MinimalProgramSerializer
