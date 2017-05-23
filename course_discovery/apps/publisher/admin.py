@@ -19,6 +19,8 @@ from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRun
 class CourseUserRoleAdmin(admin.ModelAdmin):
     form = CourseUserRoleForm
     raw_id_fields = ('changed_by',)
+    list_display = ['role', 'course', 'user']
+    search_fields = ['course__title']
 
 
 @admin.register(OrganizationExtension)
@@ -72,6 +74,8 @@ class UserAttributesAdmin(admin.ModelAdmin):
 @admin.register(OrganizationUserRole)
 class OrganizationUserRoleAdmin(admin.ModelAdmin):
     form = OrganizationUserRoleForm
+    list_display = ['role', 'organization', 'user']
+    search_fields = ['organization__name']
     role_groups_dict = {
         InternalUserRole.MarketingReviewer: REVIEWER_GROUP_NAME,
         InternalUserRole.ProjectCoordinator: PROJECT_COORDINATOR_GROUP_NAME,
@@ -91,22 +95,35 @@ class OrganizationUserRoleAdmin(admin.ModelAdmin):
 @admin.register(CourseState)
 class CourseStateAdmin(admin.ModelAdmin):
     raw_id_fields = ('changed_by',)
+    list_display = ['name', 'approved_by_role', 'owner_role', 'course', 'marketing_reviewed']
+    search_fields = ['name']
 
 
 @admin.register(CourseRunState)
 class CourseRunStateAdmin(admin.ModelAdmin):
     raw_id_fields = ('changed_by',)
+    list_display = ['id', 'name', 'approved_by_role', 'owner_role',
+                    'course_run', 'owner_role_modified', 'preview_accepted']
+    search_fields = ['id', 'name']
+    ordering = ['id']
 
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     raw_id_fields = ('changed_by',)
+    list_display = ['title', 'number']
+    search_fields = ['title', 'number']
 
 
 @admin.register(CourseRun)
 class CourseRunAdmin(admin.ModelAdmin):
     form = CourseRunAdminForm
     raw_id_fields = ('changed_by',)
+    list_display = ['course_name', 'lms_course_id', 'start', 'end']
+    search_fields = ['id', 'lms_course_id', 'course__title']
+
+    def course_name(self, obj):
+        return obj.course.title
 
 
 @admin.register(Seat)
