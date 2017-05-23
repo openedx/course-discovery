@@ -1966,6 +1966,7 @@ class CourseEditViewTests(TestCase):
         super(CourseEditViewTests, self).setUp()
         self.course = factories.CourseFactory()
         self.user = UserFactory()
+        self.course_team_user = UserFactory()
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
         self.organization_extension = factories.OrganizationExtensionFactory()
@@ -1974,8 +1975,10 @@ class CourseEditViewTests(TestCase):
         # Initialize workflow for Course.
         CourseState.objects.create(course=self.course, owner_role=PublisherUserRole.CourseTeam)
 
-        self.course_team_role = factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.CourseTeam)
-        self.organization_extension.group.user_set.add(*(self.user, self.course_team_role.user))
+        self.course_team_role = factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.CourseTeam, user=self.user
+        )
+        self.organization_extension.group.user_set.add(*(self.user, self.course_team_user))
 
         self.edit_page_url = reverse('publisher:publisher_courses_edit', args=[self.course.id])
 
@@ -2079,7 +2082,7 @@ class CourseEditViewTests(TestCase):
             target_status_code=200
         )
 
-        self.assertEqual(self.course.course_team_admin, self.user)
+        self.assertEqual(self.course.course_team_admin, self.course_team_user)
         self.assertEqual(self.course.history.all().count(), 2)
 
     def test_update_course_organization(self):
@@ -2090,7 +2093,7 @@ class CourseEditViewTests(TestCase):
 
         # Create new OrganizationExtension and assign edit/view permissions.
         organization_extension = factories.OrganizationExtensionFactory()
-        organization_extension.group.user_set.add(*(self.user, self.course_team_role.user))
+        organization_extension.group.user_set.add(*(self.user, self.course_team_user))
         self._assign_permissions(organization_extension)
 
         self.assertEqual(self.course.organizations.first(), self.organization_extension.organization)
@@ -2120,7 +2123,7 @@ class CourseEditViewTests(TestCase):
         """
         post_data = model_to_dict(self.course)
         post_data.pop('image')
-        post_data['team_admin'] = self.user.id
+        post_data['team_admin'] = self.course_team_user.id
         post_data['organization'] = organization_extension.organization.id
 
         return post_data
