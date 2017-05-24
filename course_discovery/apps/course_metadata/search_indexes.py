@@ -240,6 +240,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     max_hours_effort_per_week = indexes.IntegerField(model_attr='max_hours_effort_per_week', null=True)
     weeks_to_complete_min = indexes.IntegerField(model_attr='weeks_to_complete_min', null=True)
     weeks_to_complete_max = indexes.IntegerField(model_attr='weeks_to_complete_max', null=True)
+    hidden = indexes.BooleanField(model_attr='hidden', faceted=True)
 
     def prepare_aggregation_key(self, obj):
         return 'program:{}'.format(obj.uuid)
