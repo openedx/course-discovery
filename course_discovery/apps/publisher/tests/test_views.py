@@ -1318,9 +1318,9 @@ class DashboardTests(TestCase):
         self.assert_dashboard_response(studio_count=0, published_count=0, progress_count=0, preview_count=0)
 
         # assign user course role
-        course_role = self.course_run_3.course.course_user_roles.get(role=PublisherUserRole.ProjectCoordinator)
-        course_role.user = internal_user
-        course_role.save()
+        factories.CourseUserRoleFactory(
+            course=self.course_run_3.course, user=internal_user, role=PublisherUserRole.ProjectCoordinator
+        )
 
         # Verify that user can see 1 published course run
         response = self.assert_dashboard_response(studio_count=0, published_count=1, progress_count=0, preview_count=0)
@@ -1767,9 +1767,6 @@ class CourseDetailViewTests(TestCase):
         """
         Verify that user can see approval widget on course detail page with `Mark as Reviewed`.
         """
-        self.course_team_role.user = UserFactory()
-        self.course_team_role.save()
-
         factories.CourseUserRoleFactory(
             course=self.course, user=self.user, role=PublisherUserRole.MarketingReviewer
         )
@@ -1777,11 +1774,14 @@ class CourseDetailViewTests(TestCase):
         self.course_state.name = CourseStateChoices.Review
         self.course_state.save()
 
+        self.course_team_role.user = UserFactory()
+        self.course_team_role.save()
+
         self.user.groups.add(self.organization_extension.group)
         assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
         response = self.client.get(self.detail_page_url)
 
-        # Verify that content is sent for review and user can see "Mark as Reviewed" button.
+        # Verify that content is sent for review and user can see Reviewed button.
         self.assertContains(response, 'Mark as Reviewed')
         self.assertContains(response, '<span class="icon fa fa-check" aria-hidden="true">')
         self.assertContains(response, 'Sent for Review')

@@ -201,8 +201,8 @@ class CourseTests(TestCase):
         permitted to access the course AND have not disabled email notifications.
         """
         self.assertListEqual(
-            sorted(self.course.get_course_users_emails()),
-            sorted([self.user1.email, self.user2.email, self.user3.email])
+            self.course.get_course_users_emails(),
+            [self.user1.email, self.user2.email, self.user3.email]
         )
 
         # The email addresses of users who have disabled email notifications should NOT be returned.
