@@ -784,6 +784,7 @@ class Program(TimeStampedModel):
         default=False,
         help_text=_('Allow courses in this program to be purchased in a single transaction')
     )
+    hidden = models.BooleanField(default=False, db_index=True)
 
     objects = ProgramQuerySet.as_manager()
 
