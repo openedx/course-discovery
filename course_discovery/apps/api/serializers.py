@@ -70,6 +70,7 @@ BASE_PROGRAM_FIELDS = (
 PROGRAM_SEARCH_FIELDS = BASE_PROGRAM_FIELDS + (
     'aggregation_key', 'authoring_organizations', 'authoring_organization_uuids', 'subject_uuids', 'staff_uuids',
     'weeks_to_complete_min', 'weeks_to_complete_max', 'min_hours_effort_per_week', 'max_hours_effort_per_week',
+    'hidden',
 )
 
 PROGRAM_FACET_FIELDS = BASE_PROGRAM_FIELDS + ('organizations',)
@@ -716,7 +717,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
         fields = (
-            'uuid', 'title', 'subtitle', 'type', 'status', 'marketing_slug', 'marketing_url', 'banner_image',
+            'uuid', 'title', 'subtitle', 'type', 'status', 'marketing_slug', 'marketing_url', 'banner_image', 'hidden',
             'courses', 'authoring_organizations', 'card_image_url', 'is_program_eligible_for_one_click_purchase',
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
