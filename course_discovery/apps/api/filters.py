@@ -161,6 +161,7 @@ class ProgramFilter(FilterSetMixin, django_filters.FilterSet):
     type = django_filters.CharFilter(name='type__name', lookup_expr='iexact')
     types = CharListFilter(name='type__slug', lookup_expr='in')
     uuids = UUIDListFilter()
+    hidden = django_filters.BooleanFilter(name='hidden')
 
     class Meta:
         model = Program

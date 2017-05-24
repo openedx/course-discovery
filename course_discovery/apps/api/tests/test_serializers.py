@@ -593,6 +593,7 @@ class MinimalProgramSerializerTests(TestCase):
             'marketing_slug': program.marketing_slug,
             'marketing_url': program.marketing_url,
             'banner_image': image_field.to_representation(program.banner_image),
+            'hidden': False,
             'courses': MinimalProgramCourseSerializer(
                 program.courses,
                 many=True,

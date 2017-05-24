@@ -723,7 +723,6 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 
     def get_courses(self, program):
-        print("GOT HERE !!!" * 50)
         course_runs = list(program.course_runs)
 
         if self.context.get('marketable_enrollable_course_runs_with_archived'):
