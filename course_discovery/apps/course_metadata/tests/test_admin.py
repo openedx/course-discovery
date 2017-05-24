@@ -288,7 +288,7 @@ class ProgramAdminFunctionalTests(LiveServerTestCase):
             'field-min_hours_effort_per_week', 'field-max_hours_effort_per_week', 'field-courses',
             'field-order_courses_by_start_date', 'field-custom_course_runs_display', 'field-excluded_course_runs',
             'field-authoring_organizations', 'field-credit_backing_organizations', 'field-one_click_purchase_enabled',
-            'field-job_outlook_items', 'field-expected_learning_items',
+            'field-hidden', 'field-job_outlook_items', 'field-expected_learning_items'
         ]
         self.assertEqual(actual, expected)
 

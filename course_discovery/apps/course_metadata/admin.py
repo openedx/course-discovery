@@ -132,8 +132,8 @@ class CourseRunAdmin(admin.ModelAdmin):
 class ProgramAdmin(admin.ModelAdmin):
     form = ProgramAdminForm
     inlines = [FaqsInline, IndividualEndorsementInline, CorporateEndorsementsInline]
-    list_display = ('id', 'uuid', 'title', 'type', 'partner', 'status',)
-    list_filter = ('partner', 'type', 'status', ProgramEligibilityFilter,)
+    list_display = ('id', 'uuid', 'title', 'type', 'partner', 'status', 'hidden')
+    list_filter = ('partner', 'type', 'status', ProgramEligibilityFilter, 'hidden',)
     ordering = ('uuid', 'title', 'status')
     readonly_fields = ('uuid', 'custom_course_runs_display', 'excluded_course_runs',)
     search_fields = ('uuid', 'title', 'marketing_slug')
@@ -146,7 +146,7 @@ class ProgramAdmin(admin.ModelAdmin):
         'marketing_slug', 'overview', 'credit_redemption_overview', 'video', 'weeks_to_complete',
         'min_hours_effort_per_week', 'max_hours_effort_per_week', 'courses', 'order_courses_by_start_date',
         'custom_course_runs_display', 'excluded_course_runs', 'authoring_organizations',
-        'credit_backing_organizations', 'one_click_purchase_enabled',
+        'credit_backing_organizations', 'one_click_purchase_enabled', 'hidden',
     )
     fields += filter_horizontal
     save_error = False
