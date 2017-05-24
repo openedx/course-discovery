@@ -78,6 +78,14 @@ class CourseRunTests(TestCase):
             [verified_seat, professional_seat]
         )
 
+        # The method should not care about the course run's start date.
+        course_run.start = datetime.datetime.utcnow() + datetime.timedelta(days=1)
+        course_run.save()
+        self.assertEqual(
+            course_run.enrollable_seats([Seat.VERIFIED, Seat.PROFESSIONAL]),
+            [verified_seat, professional_seat]
+        )
+
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the key and title. """
         course_run = self.course_run
@@ -453,12 +461,12 @@ class ProgramTests(TestCase):
 
         return factories.ProgramFactory(type=program_type, courses=[course_run.course])
 
-    def assert_one_click_purchase_ineligible_program(self, start=None, end=None, enrollment_start=None,
-                                                     enrollment_end=None, seat_type=Seat.VERIFIED,
-                                                     upgrade_deadline=None, one_click_purchase_enabled=True,
-                                                     excluded_course_runs=None, program_type=None,):
+    def assert_one_click_purchase_ineligible_program(
+        self, end=None, enrollment_start=None, enrollment_end=None, seat_type=Seat.VERIFIED,
+        upgrade_deadline=None, one_click_purchase_enabled=True, excluded_course_runs=None, program_type=None
+    ):
         course_run = factories.CourseRunFactory(
-            start=start, end=end, enrollment_start=enrollment_start, enrollment_end=enrollment_end
+            end=end, enrollment_start=enrollment_start, enrollment_end=enrollment_end
         )
         factories.SeatFactory(course_run=course_run, type=seat_type, upgrade_deadline=upgrade_deadline)
         program = factories.ProgramFactory(
@@ -515,8 +523,8 @@ class ProgramTests(TestCase):
 
     def test_one_click_purchase_ineligible(self):
         """ Verify that program is one click purchase ineligible. """
-        yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
-        tomorrow = datetime.datetime.now() + datetime.timedelta(days=1)
+        yesterday = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+        tomorrow = datetime.datetime.utcnow() + datetime.timedelta(days=1)
         verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
 
@@ -550,13 +558,6 @@ class ProgramTests(TestCase):
             type=program_type,
         )
         self.assertFalse(program.is_program_eligible_for_one_click_purchase)
-
-        # Program has one_click_purchase_enabled set to True, one course
-        # with one course run, course run start date not passed
-        self.assert_one_click_purchase_ineligible_program(
-            start=tomorrow,
-            program_type=program_type,
-        )
 
         # Program has one_click_purchase_enabled set to True, one course
         # with one course run, course run end date passed
@@ -722,10 +723,13 @@ class ProgramTests(TestCase):
             factories.SeatFactory(type='verified', currency=currency, course_run=course_run, price=10)
 
         day_separation = 1
+        now = datetime.datetime.utcnow()
+
         for course_run in course_runs_same_course:
             if set_all_dates or day_separation < 2:
-                course_run.enrollment_start = datetime.datetime.now() - datetime.timedelta(days=day_separation)
-                course_run.end = datetime.datetime.now() + datetime.timedelta(weeks=day_separation)
+                date_delta = datetime.timedelta(days=day_separation)
+                course_run.enrollment_start = now - date_delta
+                course_run.end = now + datetime.timedelta(weeks=day_separation)
             else:
                 course_run.enrollment_start = None
                 course_run.end = None
