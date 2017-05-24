@@ -1229,6 +1229,7 @@ class ProgramSearchSerializerTests(TestCase):
             'weeks_to_complete_max': program.weeks_to_complete_max,
             'min_hours_effort_per_week': program.min_hours_effort_per_week,
             'max_hours_effort_per_week': program.max_hours_effort_per_week,
+            'hidden': program.hidden,
         }
 
     def test_data(self):
