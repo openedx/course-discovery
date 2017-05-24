@@ -9,7 +9,6 @@ import pytz
 import waffle
 from django.db import models, transaction
 from django.db.models.query_utils import Q
-from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
@@ -450,11 +449,8 @@ class CourseRun(TimeStampedModel):
         Returns:
             List of Seats
         """
-        now = timezone.now()
+        now = datetime.datetime.now(pytz.UTC)
         enrollable_seats = []
-
-        if self.start and self.start > now:
-            return enrollable_seats
 
         if self.end and now > self.end:
             return enrollable_seats
