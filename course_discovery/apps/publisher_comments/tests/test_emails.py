@@ -11,7 +11,7 @@ from testfixtures import LogCapture
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.publisher.choices import PublisherUserRole
-from course_discovery.apps.publisher.models import CourseRun, CourseUserRole, UserAttributes
+from course_discovery.apps.publisher.models import CourseRun, CourseUserRole
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.factories import UserAttributeFactory
 from course_discovery.apps.publisher_comments.emails import log as comments_email_logger
@@ -45,11 +45,11 @@ class CommentsEmailTests(TestCase):
 
         # add user in course-user-role table
         factories.CourseUserRoleFactory(
-            course=self.course, role=PublisherUserRole.MarketingReviewer, user=self.user
+            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=self.user
         )
 
         factories.CourseUserRoleFactory(
-            course=self.course, role=PublisherUserRole.CourseTeam, user=self.user_2
+            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=self.user_2
         )
 
         factories.CourseUserRoleFactory(
@@ -148,16 +148,28 @@ class CommentsEmailTests(TestCase):
 
     def test_email_with_roles(self):
         """ Verify that emails send to the users against course-user-roles also."""
-        UserAttributeFactory(user=self.user_2, enable_email_notification=True)
-        user_attribute, __ = UserAttributes.objects.get_or_create(user=self.user_3)
-        user_attribute.enable_email_notification = True
-        user_attribute.save()
+        user_4 = UserFactory()
+        user_5 = UserFactory()
+
+        # assign the role against a course
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.MarketingReviewer, user=user_4
+        )
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=user_5
+        )
         self.create_comment(content_object=self.course_run)
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual([self.user_2.email, self.user_3.email], mail.outbox[0].to)
+        self.assertEqual([self.user_2.email, user_4.email, user_5.email], mail.outbox[0].to)
 
     def test_email_for_roles_only(self):
         """ Verify the emails send to the course roles users even if groups has no users. """
+        user_4 = UserFactory()
+        # assign the role against a course
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.MarketingReviewer, user=user_4
+        )
+
         self.create_comment(content_object=self.course)
         self.assertEqual(len(mail.outbox), 1)
 
@@ -180,6 +192,9 @@ class CommentsEmailTests(TestCase):
         """ Verify that after editing a comment against a course emails send
         to multiple users.
         """
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.Publisher, user=self.user
+        )
         comment = self.create_comment(content_object=self.course_run)
         comment.comment = 'Update the comment'
         comment.save()  # pylint: disable=no-member
