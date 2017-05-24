@@ -1235,6 +1235,7 @@ class ProgramSearchSerializerTests(TestCase):
             'min_hours_effort_per_week': program.min_hours_effort_per_week,
             'max_hours_effort_per_week': program.max_hours_effort_per_week,
             'language': [serialize_language(language) for language in program.languages],
+            'hidden': program.hidden,
         }
 
     def test_data(self):
