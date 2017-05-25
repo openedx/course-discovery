@@ -1119,7 +1119,7 @@ class CourseRunDetailTests(TestCase):
         history_object = self.course_run_state.history.filter(
             name=CourseRunStateChoices.Published
         ).order_by('-modified').first()
-        expected = 'The About page for this course run was published on {publish_date}. View it on edx.org at'.format(
+        expected = 'The About page for this course run was published on {publish_date}.'.format(
             publish_date=history_object.modified.strftime('%m/%d/%y')
         )
         self.assertContains(response, expected)

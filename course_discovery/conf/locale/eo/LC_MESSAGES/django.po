@@ -11,10 +11,10 @@ msgstr ""
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -2956,10 +2956,13 @@ msgstr "Çöürsé Rün Détäïls Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α
 #, python-format
 msgid ""
 "The About page for this course run was published on %(course_publish_date)s."
-" View it on edx.org at"
 msgstr ""
 "Thé Àßöüt pägé för thïs çöürsé rün wäs püßlïshéd ön %(course_publish_date)s."
-" Vïéw ït ön édx.örg ät Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: templates/publisher/course_run_detail/course_run_detail.html
+msgid "View it on edx.org at"
+msgstr "Vïéw ït ön édx.örg ät Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: templates/publisher/course_run_detail/course_run_detail.html
 #: templates/publisher/dashboard/_in_progress.html
