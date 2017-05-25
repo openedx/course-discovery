@@ -25,6 +25,8 @@ class CourseUserRoleAdmin(admin.ModelAdmin):
 
 @admin.register(OrganizationExtension)
 class OrganizationExtensionAdmin(GuardedModelAdmin):
+    list_display = ['organization', 'group']
+    search_fields = ['organization__name', 'group__name']
 
     def save_model(self, request, obj, form, change):
         obj.save()
@@ -94,6 +96,8 @@ class CourseRunAdmin(admin.ModelAdmin):
 @admin.register(Seat)
 class SeatAdmin(admin.ModelAdmin):
     raw_id_fields = ('changed_by',)
+    list_display = ['course_run', 'type']
+    search_fields = ['course_run__course__title', 'type']
 
 
 @admin.register(PublisherUser)
