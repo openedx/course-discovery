@@ -58,7 +58,9 @@
                         <label class="field-label ">{{ run_form.start.label_tag }}  <span class="required">*</span></label>
                         {{ run_form.start }}
                         {% if run_form.start.errors %}
+                            <div class="field-message-content">
                             {{ run_form.start.errors|escape }}
+                            </div>
                         {% endif %}
                     </div>
                 </div>
