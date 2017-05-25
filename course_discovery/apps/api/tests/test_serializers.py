@@ -1,5 +1,6 @@
 # pylint: disable=no-member, test-inherits-tests
 import datetime
+import itertools
 from urllib.parse import urlencode
 
 import ddt
@@ -1221,13 +1222,18 @@ class ProgramSearchSerializerTests(TestCase):
             'published': program.status == ProgramStatus.Active,
             'partner': program.partner.short_code,
             'authoring_organization_uuids': get_uuids(program.authoring_organizations.all()),
-            'subject_uuids': get_uuids([course.subjects for course in program.courses.all()]),
-            'staff_uuids': get_uuids([course.staff for course in list(program.course_runs)]),
+            'subject_uuids': get_uuids(
+                itertools.chain.from_iterable(course.subjects.all() for course in program.courses.all())
+            ),
+            'staff_uuids': get_uuids(
+                itertools.chain.from_iterable(course.staff.all() for course in list(program.course_runs))
+            ),
             'aggregation_key': 'program:{}'.format(program.uuid),
             'weeks_to_complete_min': program.weeks_to_complete_min,
             'weeks_to_complete_max': program.weeks_to_complete_max,
             'min_hours_effort_per_week': program.min_hours_effort_per_week,
             'max_hours_effort_per_week': program.max_hours_effort_per_week,
+            'language': [serialize_language(language) for language in program.languages],
         }
 
     def test_data(self):
@@ -1253,6 +1259,29 @@ class ProgramSearchSerializerTests(TestCase):
 
         expected = self._create_expected_data(program)
         assert serializer.data == expected
+
+    def test_data_with_languages(self):
+        """
+        Verify that program languages are serialized.
+        """
+        course_run = CourseRunFactory(
+            language=LanguageTag.objects.get(code='en-us'),
+            authoring_organizations=[OrganizationFactory()]
+        )
+
+        CourseRunFactory(
+            course=course_run.course,
+            language=LanguageTag.objects.get(code='zh-cmn')
+        )
+
+        program = ProgramFactory(courses=[course_run.course])
+
+        result = SearchQuerySet().models(Program).filter(uuid=program.uuid)[0]
+        serializer = ProgramSearchSerializer(result)
+
+        expected = self._create_expected_data(program)
+        assert serializer.data == expected
+        assert {'English', 'Chinese - Mandarin'} == {*expected['language']}
 
 
 class TypeaheadCourseRunSearchSerializerTests(TestCase):
