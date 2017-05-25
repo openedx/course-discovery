@@ -40,7 +40,7 @@ function showDiff($object, $historyObject, $outputDiv) {
 function showDiffCourseDetails(currentObject, historyObject, $outputDiv) {
     var d = dmp.diff_main(currentObject, historyObject);
     dmp.diff_cleanupEfficiency(d);
-    $outputDiv.append(decodeEntities(dmp.diff_prettyHtml(d)));
+    $outputDiv.html(decodeEntities(dmp.diff_prettyHtml(d)));
     $outputDiv.show();
 }
 
