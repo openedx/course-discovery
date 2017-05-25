@@ -68,6 +68,16 @@ class BaseIndex(indexes.SearchIndex):
     def prepare_authoring_organization_uuids(self, obj):
         return [str(organization.uuid) for organization in obj.authoring_organizations.all()]
 
+    def _prepare_language(self, language):
+        if language:
+            # ECOM-5466: Render the macro language for all languages except Chinese
+            if language.code.startswith('zh'):
+                return language.name
+            else:
+                return language.macrolanguage
+
+        return None
+
 
 class BaseCourseIndex(OrganizationsMixin, BaseIndex):
     key = indexes.CharField(model_attr='key', stored=True)
@@ -176,16 +186,6 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     def prepare_published(self, obj):
         return obj.status == CourseRunStatus.Published
 
-    def _prepare_language(self, language):
-        if language:
-            # ECOM-5466: Render the macro language for all languages except Chinese
-            if language.code.startswith('zh'):
-                return language.name
-            else:
-                return language.macrolanguage
-
-        return None
-
     def prepare_language(self, obj):
         return self._prepare_language(obj.language)
 
@@ -240,6 +240,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     max_hours_effort_per_week = indexes.IntegerField(model_attr='max_hours_effort_per_week', null=True)
     weeks_to_complete_min = indexes.IntegerField(model_attr='weeks_to_complete_min', null=True)
     weeks_to_complete_max = indexes.IntegerField(model_attr='weeks_to_complete_max', null=True)
+    language = indexes.MultiValueField(faceted=True)
 
     def prepare_aggregation_key(self, obj):
         return 'program:{}'.format(obj.uuid)
@@ -261,3 +262,6 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
 
     def prepare_marketing_url(self, obj):
         return obj.marketing_url
+
+    def prepare_language(self, obj):
+        return [self._prepare_language(language) for language in obj.languages]

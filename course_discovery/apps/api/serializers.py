@@ -64,7 +64,7 @@ PROGRAM_FACET_FIELD_OPTIONS = {
 
 BASE_PROGRAM_FIELDS = (
     'text', 'uuid', 'title', 'subtitle', 'type', 'marketing_url', 'content_type', 'status', 'card_image_url',
-    'published', 'partner',
+    'published', 'partner', 'language',
 )
 
 PROGRAM_SEARCH_FIELDS = BASE_PROGRAM_FIELDS + (
