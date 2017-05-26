@@ -8,19 +8,13 @@ $(document).ready(function () {
             var history_object_value = $(this).val().trim();
 
             var d = dmp.diff_main(history_object_value, current_course_object);
-            dmp.diff_cleanupEfficiency(d)
-            tinymce.get(element_id).setContent(decodeEntities(dmp.diff_prettyHtml(d)))
+            dmp.diff_cleanupSemantic(d);
+            tinymce.get(element_id).setContent(decodeEntities(dmp.diff_prettyHtml(d)));
         }
     });
 });
 
-function decodeEntities(encodedString) {
-    var textArea = document.createElement('textarea');
-    textArea.innerHTML = encodedString;
-    return textArea.value;
-}
-
-function hasValidData(){
+function hasValidData() {
     for (var i = 0; i < tinyMCE.editors.length; i++) {
         var editor = tinyMCE.editors[i];
         if (editor.dom.select('ins').length > 0) {
