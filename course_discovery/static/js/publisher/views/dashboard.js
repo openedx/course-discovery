@@ -44,6 +44,9 @@ $(document).ready(function() {
             error: function (response) {
                 if(response.responseJSON.lms_course_id) {
                     $studioInstanceError.find(".copy").html(response.responseJSON.lms_course_id['lms_course_id']);
+                    if (response.responseJSON['lms_course_id'][0]){
+                        $studioInstanceError.find(".copy").html(response.responseJSON['lms_course_id'][0]);
+                    }
                 } else if(response.responseJSON.detail) {
                     $studioInstanceError.find(".copy").html(response.responseJSON.detail);
                 } else {
