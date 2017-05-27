@@ -38,8 +38,12 @@
                             <fieldset class="form-group grid-container grid-manual">
 
                                 <div class="field-title">{% trans "COURSE TITLE" %}</div>
-                                <div class="row">
+                                <div class="row show-comparison-container">
                                     <div class="col col-6 help-text">
+                                        <div id="id_title_parent" class="comparison-container">
+                                            <a id="close-comparison" class="close " href="#!">x</a>
+                                            <div id="id_title_comparison" class="show-comparison-data"></div>
+                                        </div>
                                         <div class="row">
                                             <ul class="tabs">
                                                 <li class="course-tabs active" data-tab="tab-practices">
@@ -145,8 +149,12 @@
                         <div class="course-information">
                             <fieldset class="form-group grid-container grid-manual">
                                 <div class="field-title">{% trans "SHORT DESCRIPTION" %}</div>
-                                <div class="row">
+                                <div class="row show-comparison-container">
                                     <div class="col col-6 help-text">
+                                        <div id="id_short_description_parent" class="comparison-container">
+                                            <a id="close-comparison" class="close " href="#!">x</a>
+                                            <div id="id_short_description_comparison" class="show-comparison-data"></div>
+                                        </div>
                                         <div class="row">
                                         <ul class="tabs">
                                             <li class="course-tabs active" data-tab="tab-practices">
@@ -187,8 +195,12 @@
                                 </div>
 
                                 <div class="field-title">{% trans "LONG DESCRIPTION" %}</div>
-                                <div class="row">
+                                <div class="row show-comparison-container">
                                     <div class="col col-6 help-text">
+                                        <div id="id_full_description_parent" class="comparison-container">
+                                            <a id="close-comparison" class="close " href="#!">x</a>
+                                            <div id="id_full_description_comparison" class="show-comparison-data"></div>
+                                        </div>
                             <div class="row">
                                 <ul class="tabs">
                                     <li class="course-tabs active" data-tab="tab-practices">
@@ -236,8 +248,12 @@
 
 
                                 <div class="field-title">{% trans "WHAT YOU WILL LEARN" %}</div>
-                                <div class="row">
+                                <div class="row show-comparison-container">
                                     <div class="col col-6 help-text">
+                                        <div id="id_expected_learnings_parent" class="comparison-container">
+                                            <a id="close-comparison" class="close " href="#!">x</a>
+                                            <div id="id_expected_learnings_comparison" class="show-comparison-data"></div>
+                                        </div>
                                         <div class="row">
                                             <ul class="tabs">
                                                 <li class="course-tabs active" data-tab="tab-practices">
@@ -336,8 +352,12 @@
                                 </div>
 
                                 <div class="field-title">{% trans "PREREQUISITES" %}</div>
-                                <div class="row">
+                                <div class="row show-comparison-container">
                                     <div class="col col-6 help-text">
+                                        <div id="id_prerequisites_parent" class="comparison-container">
+                                            <a id="close-comparison" class="close " href="#!">x</a>
+                                            <div id="id_prerequisites_comparison" class="show-comparison-data"></div>
+                                        </div>
                                         <div class="row">
                                             <ul class="tabs">
                                                 <li class="course-tabs active" data-tab="tab-practices">
@@ -379,8 +399,12 @@
                                 </div>
 
                                 <div class="field-title">{% trans "SYLLABUS" %}</div>
-                                <div class="row">
+                                <div class="row show-comparison-container">
                                     <div class="col col-6 help-text">
+                                        <div id="id_syllabus_parent" class="comparison-container">
+                                            <a id="close-comparison" class="close " href="#!">x</a>
+                                            <div id="id_syllabus_comparison" class="show-comparison-data"></div>
+                                        </div>
                                         <div class="row">
                                             <ul class="tabs">
                                                 <li class="course-tabs active" data-tab="tab-practices">
@@ -441,10 +465,14 @@
                                 </div>
 
                                 <div class="field-title">{{ form.faq.label }}</div>
-                                <div class="row">
+                                <div class="row show-comparison-container">
                                     <div class="col col-6 help-text">
                                         <p>{% trans "Any frequently asked questions and the answers to those questions." %}</p>
                                     </div>
+                                        <div id="id_faq_parent" class="comparison-container">
+                                            <a id="close-comparison" class="close " href="#!">x</a>
+                                            <div id="id_faq_comparison" class="show-comparison-data"></div>
+                                        </div>
                                     <div class="col col-6 help-text">
                                         <label class="field-label ">{{ form.faq.label }}</label>
                                         <input id="id_faq_revision" type="hidden" value="{{ history_object.faq }}" class="history">
@@ -519,8 +547,12 @@
                                 {% endif %}
 
                                 <div class="field-title">{{ form.learner_testimonial.label|upper }}</div>
-                                <div class="row">
+                                <div class="row show-comparison-container">
                                     <div class="col col-6 help-text">
+                                        <div id="id_learner_testimonial_parent" class="comparison-container">
+                                            <a id="close-comparison" class="close " href="#!">x</a>
+                                            <div id="id_learner_testimonial_comparison" class="show-comparison-data"></div>
+                                        </div>
                                         <div class="row">
                                             <ul class="tabs">
                                                 <li class="course-tabs active" data-tab="tab-practices">
@@ -544,6 +576,7 @@
                                         </div>
                                     </div>
                                     <div class="col col-6 help-text">
+
                                         <label class="field-label ">{{ form.learner_testimonial.label }}</label>
                                          <input id="id_learner_testimonial_revision" type="hidden" value="{{ history_object.learner_testimonial }}" class="history">
                                         {{ form.learner_testimonial }}
@@ -568,7 +601,7 @@
                         <a class="btn-cancel" href="{% url 'publisher:publisher_course_detail' course.id %}">
                             {% trans "Cancel" %}
                         </a>
-                        <button class="btn-brand btn-base btn-save" type="button" onclick="saveEditForm(); return false;">{% trans "UPDATE COURSE" %}</button>
+                        <button class="btn-brand btn-base btn-save" type="submit">{% trans "UPDATE COURSE" %}</button>
                     </div>
                 </div>
 
@@ -592,17 +625,11 @@
     <script src="{% static 'bower_components/tinymce/plugins/link/plugin.min.js' %}"></script>
     <script src="{% static 'bower_components/tinymce/plugins/anchor/plugin.min.js' %}"></script>
     <script src="{% static 'bower_components/tinymce/plugins/paste/plugin.min.js' %}"></script>
+
     <script src="{% static 'bower_components/google-diff-match-patch/diff_match_patch.js' %}"></script>
+    <script src="{% static 'js/publisher/decode-html.js' %}"></script>
 
-    <script src="{% static 'js/publisher/course-edit-history-compare.js' %}"></script>
-
-    <script type="text/javascript">
-        function saveEditForm() {
-             if (hasValidData()) {
-                 $('#frm_course_edit').submit();
-             }
-        }
-    </script>
+    <script src="{% static 'js/publisher/modal-screen.js' %}"></script>
 
 {% endblock %}
 
