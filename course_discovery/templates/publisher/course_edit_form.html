@@ -575,6 +575,7 @@
             </form>
         </div>
     </div>
+ {% include "publisher/_show_difference.html" %}
 {% endblock %}
 
 {{% block extra_js %}
@@ -595,6 +596,7 @@
     <script src="{% static 'bower_components/google-diff-match-patch/diff_match_patch.js' %}"></script>
 
     <script src="{% static 'js/publisher/course-edit-history-compare.js' %}"></script>
+            <script src="{% static 'js/publisher/modal-screen.js' %}"></script>
 
     <script type="text/javascript">
         function saveEditForm() {
