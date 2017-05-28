@@ -1,12 +1,11 @@
 import logging
-
-from django.core.management import BaseCommand
-
-from course_discovery.apps.publisher.models import Course
 from io import BytesIO
 
 import requests
 from django.core.files import File
+from django.core.management import BaseCommand
+
+from course_discovery.apps.publisher.models import Course
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +41,10 @@ class Command(BaseCommand):
         end_id = options.get('end_id')
 
         for course in Course.objects.filter(id__range=(start_id, end_id)):
-            self._download_image(course)
+            try:
+                self._download_image(course)
+            except:  # pylint: disable=bare-except
+                logger.error('Exception appear for course-id [%s].', course.id)
 
     def _download_image(self, course):
 
@@ -59,7 +61,8 @@ class Command(BaseCommand):
             image_data = File(BytesIO(r.content))
             course_run.course.image.save('image.jpg', content=image_data)
             course_run.course.save()
-            logger.info('Import')
+            logger.info('Successfully Import for course [%s]', course.id)
+            return
         else:
             logger.exception(
                 'Loading the image for course [%s] for course-run [%s] failed',
