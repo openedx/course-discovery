@@ -85,10 +85,10 @@ def mock_api_callback(url, data, results_key=True, pagination=False):
     return request_callback
 
 
-def mock_jpeg_callback():
+def mock_jpeg_callback(status=200):
     def request_callback(request):  # pylint: disable=unused-argument
         image_stream = make_image_stream(2120, 1192)
 
-        return 200, {}, image_stream.getvalue()
+        return status, {}, image_stream.getvalue()
 
     return request_callback
