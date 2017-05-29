@@ -1,11 +1,7 @@
 import logging
 
-from django.contrib.auth.models import Group
-from course_discovery.apps.publisher.assign_permissions import assign_permissions
-
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
-from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
-                                                    OrganizationExtension, Seat)
+from course_discovery.apps.publisher.models import Course, CourseRun, CourseRunState, CourseState, Seat
 
 logger = logging.getLogger(__name__)
 
@@ -56,9 +52,6 @@ def create_or_update_course(meta_data_course, available_organization):
     if created:
         if available_organization:
             publisher_course.organizations.add(available_organization)
-
-            # assign course-user-roles
-            assign_course_user_roles(publisher_course, available_organization)
 
         # marked course as approved with related fields.
         state, created = CourseState.objects.get_or_create(course=publisher_course)
@@ -154,13 +147,6 @@ def create_seats(metadata_course_run, publisher_course_run):
         )
 
 
-def assign_course_user_roles(course, organization):
-    # Assign the course user roles against each organization users.
-
-    for user_role in organization.organization_user_roles.all():
-        CourseUserRole.add_course_roles(course, user_role.role, user_role.user)
-
-
 def organizations_requirements(organizations, meta_data_course):
     """ Before adding course make sure organization exists and has OrganizationExtension
     object also.
@@ -179,25 +165,4 @@ def organizations_requirements(organizations, meta_data_course):
         )
         return None
 
-    if available_organization.key.strip() == "":
-        logger.warning(
-            'Organization key has empty value [%s].', available_organization.uuid
-        )
-        return None
-
-    group, __ = Group.objects.get_or_create(
-        name__iexact=available_organization.key, defaults={'name': available_organization.key}
-    )
-
-    organization_extension = OrganizationExtension.objects.filter(organization=available_organization)
-
-    if not organization_extension.exists():
-        organization_extension, __ = OrganizationExtension.objects.get_or_create(
-            organization=available_organization,
-            group=group
-        )
-    else:
-        organization_extension = organization_extension.first()
-
-    assign_permissions(organization_extension)
-    return organization_extension.organization
+    return available_organization
