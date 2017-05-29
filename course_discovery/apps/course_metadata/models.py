@@ -881,6 +881,15 @@ class Program(TimeStampedModel):
                     yield seat
 
     @property
+    def canonical_seats(self):
+        applicable_seat_types = set(seat_type.slug for seat_type in self.type.applicable_seat_types.all())
+
+        for run in self.canonical_course_runs:
+            for seat in run.seats.all():
+                if seat.type in applicable_seat_types:
+                    yield seat
+
+    @property
     def seat_types(self):
         return set(seat.type for seat in self.seats)
 
@@ -912,7 +921,7 @@ class Program(TimeStampedModel):
         """
         currencies_with_total = defaultdict()
         course_map = defaultdict(list)
-        for seat in self.seats:
+        for seat in self.canonical_seats:
             course_uuid = seat.course_run.course.uuid
             # Identify the most relevant course_run seat for a course.
             # And use the price of the seat to represent the price of the course
@@ -959,7 +968,7 @@ class Program(TimeStampedModel):
     @property
     def price_ranges(self):
         currencies = defaultdict(list)
-        for seat in self.seats:
+        for seat in self.canonical_seats:
             currencies[seat.currency].append(seat.price)
 
         total_by_currency = self._get_total_price_by_currency()
