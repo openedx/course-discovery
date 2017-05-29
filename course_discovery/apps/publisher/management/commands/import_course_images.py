@@ -56,15 +56,12 @@ class Command(BaseCommand):
         if course_run and not course_run.card_image_url:
             return
 
-        from nose.tools import set_trace; set_trace()
-
         r = requests.get(course_run.card_image_url)
         if r.status_code == 200:
             image_data = File(BytesIO(r.content))
             course_run.course.image.save('image.jpg', content=image_data)
             course_run.course.save()
             logger.info('Successfully Import for course [%s]', course.id)
-            return
         else:
             logger.exception(
                 'Loading the image for course [%s] for course-run [%s] failed',

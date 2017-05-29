@@ -62,7 +62,7 @@ class ImportCoursesTests(TestCase):
         self.course_2 = CourseFactory()
 
         self.command_name = 'import_metadata_courses'
-        self.command_args = ['--start_id={}'.format(self.course.id), '--end_id={}'.format(format(self.course.id))]
+        self.command_args = ['--start_id={}'.format(self.course.id), '--end_id={}'.format(self.course.id)]
 
     @mock.patch('course_discovery.apps.publisher.management.commands.import_metadata_courses.process_course')
     def test_query_return_correct_course(self, process_course):
@@ -125,7 +125,7 @@ class CreateCoursesTests(TestCase):
         self.course = CourseFactory()
 
         self.command_name = 'import_metadata_courses'
-        self.command_args = ['--start_id={}'.format(self.course.id), '--end_id={}'.format(format(self.course.id))]
+        self.command_args = ['--start_id={}'.format(self.course.id), '--end_id={}'.format(self.course.id)]
 
         # create multiple course-runs against course.
         course_runs = CourseRunFactory.create_batch(
