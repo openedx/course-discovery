@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-25 17:32+0500\n"
+"POT-Creation-Date: 2017-05-29 14:22+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -612,9 +612,8 @@ msgstr ""
 msgid "Level"
 msgstr ""
 
-#: apps/publisher/forms.py templates/publisher/course_detail.html
-#: templates/publisher/course_revision_history.html
-msgid "Expected Learning"
+#: apps/publisher/forms.py
+msgid "What you will learn"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -1572,6 +1571,10 @@ msgid "Course Team Admin"
 msgstr ""
 
 #: templates/publisher/course_detail.html
+msgid "What You Will Learn"
+msgstr ""
+
+#: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Primary Subject"
@@ -1766,7 +1769,7 @@ msgid "2500 character limit, including spaces."
 msgstr ""
 
 #: templates/publisher/course_edit_form.html
-msgid "EXPECTED LEARNING"
+msgid "WHAT YOU WILL LEARN"
 msgstr ""
 
 #: templates/publisher/course_edit_form.html
@@ -2061,6 +2064,10 @@ msgstr ""
 
 #: templates/publisher/course_revision_history.html
 msgid "Show changes"
+msgstr ""
+
+#: templates/publisher/course_revision_history.html
+msgid "Expected Learning"
 msgstr ""
 
 #: templates/publisher/course_run/edit_run_form.html
