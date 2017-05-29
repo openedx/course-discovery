@@ -1,22 +1,16 @@
 import ddt
 import mock
-from django.contrib.auth.models import Group
 from django.core.management import CommandError, call_command
 from django.test import TestCase
-from guardian.shortcuts import get_group_perms
 from testfixtures import LogCapture
 
 from course_discovery.apps.course_metadata.tests.factories import (CourseFactory, CourseRunFactory, OrganizationFactory,
-                                                                   PersonFactory, SeatFactory, SubjectFactory)
+                                                                   PersonFactory, SeatFactory)
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.choices import PublisherUserRole
-from course_discovery.apps.publisher.constants import REVIEWER_GROUP_NAME
 from course_discovery.apps.publisher.dataloader.create_courses import logger as dataloader_logger
 from course_discovery.apps.publisher.models import Course as Publisher_Course
 from course_discovery.apps.publisher.models import CourseRun as Publisher_CourseRun
-from course_discovery.apps.publisher.models import OrganizationExtension
 from course_discovery.apps.publisher.tests import factories
-from course_discovery.apps.publisher.tests.factories import GroupFactory
 
 
 @ddt.ddt
@@ -144,7 +138,8 @@ class CreateCoursesTests(TestCase):
         self.course.save()
 
         # create org and assign to the course-metadata
-        self.organization = OrganizationFactory()
+        self.forganization_extension = factories.OrganizationExtensionFactory()
+        self.organization = self.forganization_extension.organization
         self.course.authoring_organizations.add(self.organization)
 
     def test_course_create_successfully(self):
@@ -158,30 +153,6 @@ class CreateCoursesTests(TestCase):
         self._assert_seats(course.course_runs.first(), self.course.canonical_course_run)
         self.assertFalse(course.course_user_roles.all())
         self.assertFalse(self.course.subjects.all())
-
-    def test_course_create_successfully_with_roles(self):
-        """ Verify that publisher course with default roles and subjects."""
-        for role, __ in PublisherUserRole.choices:
-            factories.OrganizationUserRoleFactory(role=role, organization=self.organization)
-
-        subjects = SubjectFactory.create_batch(3)
-        self.course.subjects.add(*subjects)
-
-        call_command(self.command_name, *self.command_args)
-        publisher_course = Publisher_Course.objects.all().first()
-
-        self._assert_course(publisher_course)
-        self._assert_course_run(publisher_course.course_runs.first(), self.course.canonical_course_run)
-        self._assert_seats(publisher_course.course_runs.first(), self.course.canonical_course_run)
-
-        roles = publisher_course.course_user_roles.all()
-        for role in PublisherUserRole.choices:
-            self.assertEqual(roles.get(role=role[0]).role, role[0])
-
-        subjects = self.course.subjects.all()
-        self.assertEqual(subjects[0], publisher_course.primary_subject)
-        self.assertEqual(subjects[1], publisher_course.secondary_subject)
-        self.assertEqual(subjects[2], publisher_course.tertiary_subject)
 
     def test_course_does_not_create_twice(self):
         """ Verify that course does not create two course with same title and number.
@@ -254,55 +225,6 @@ class CreateCoursesTests(TestCase):
                 ),
             )
 
-    def test_course_create_with_org_extension(self):
-        """ Verify that publisher course having organization-ext."""
-        factories.OrganizationExtensionFactory(
-            organization=self.course.authoring_organizations.all().first()
-        )
-        call_command(self.command_name, *self.command_args)
-        course = Publisher_Course.objects.all().first()
-        self._assert_course(course)
-
-    def test_course_create_with_empty_org_key(self):
-        """ Verify that publisher course having organization-ext."""
-        org = self.course.authoring_organizations.all().first()
-        org.key = ''
-        org.save()
-        with LogCapture(dataloader_logger.name) as log_capture:
-            call_command(self.command_name, *self.command_args)
-            log_capture.check(
-                (
-                    dataloader_logger.name,
-                    'WARNING',
-                    'Organization key has empty value [{}].'.format(org.uuid)
-                ),
-            )
-
-    def test_organization_ext_with_duplicate_organization(self):
-        """ Verify that if organization-ext already exists but with different group it will raise error
-        if it comes again with different org."""
-
-        # make org and create its org-ext object.
-        organization = OrganizationFactory(name='test-org', key='testing')
-        factories.OrganizationExtensionFactory(
-            organization=organization, group=GroupFactory(name='testing name')
-        )
-
-        # update org key to a same group name so that it will raise exception.
-        course_organization = self.course.authoring_organizations.all().first()
-        course_organization.key = 'testing name'
-        course_organization.save()
-
-        with LogCapture(dataloader_logger.name) as log_capture:
-            call_command(self.command_name, *self.command_args)
-            log_capture.check(
-                (
-                    dataloader_logger.name,
-                    'ERROR',
-                    'Exception appear for course-id [{}].'.format(self.course.uuid)
-                ),
-            )
-
     def _assert_course(self, publisher_course):
         """ Verify that publisher course  and metadata course has correct values."""
 
@@ -352,35 +274,3 @@ class CreateCoursesTests(TestCase):
             sorted([(seat.type, seat.price, seat.credit_provider, seat.currency) for seat in metadata_seats]),
             sorted([(seat.type, seat.price, seat.credit_provider, seat.currency) for seat in publisher_seats])
         )
-
-    def test_organization_extension_permission(self):
-        """
-        Verify that required permissions assigned to OrganizationExtension object.
-        """
-        call_command(self.command_name, *self.command_args)
-        course = Publisher_Course.objects.all().first()
-        organization_extension = course.organizations.first().organization_extension
-
-        course_team_permissions = [
-            OrganizationExtension.VIEW_COURSE,
-            OrganizationExtension.EDIT_COURSE,
-            OrganizationExtension.VIEW_COURSE_RUN,
-            OrganizationExtension.EDIT_COURSE_RUN
-        ]
-
-        self._assert_permissions(
-            organization_extension, organization_extension.group, course_team_permissions
-        )
-
-        marketing_permissions = [
-            OrganizationExtension.VIEW_COURSE,
-            OrganizationExtension.EDIT_COURSE,
-            OrganizationExtension.VIEW_COURSE_RUN
-        ]
-        self._assert_permissions(
-            organization_extension, Group.objects.get(name=REVIEWER_GROUP_NAME), marketing_permissions
-        )
-
-    def _assert_permissions(self, organization_extension, group, expected_permissions):
-        permissions = get_group_perms(group, organization_extension)
-        self.assertEqual(sorted(permissions), sorted(expected_permissions))
