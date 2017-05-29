@@ -69,7 +69,7 @@ def create_or_update_course(meta_data_course, available_organization):
             state.name = CourseStateChoices.Approved
             state.save()
 
-        logger.info('Import course with id [%s], number [%s].', publisher_course.id, publisher_course.number)
+        logger.info('Impor2t course with id [%s], number [%s].', publisher_course.id, publisher_course.number)
 
     # create canonical course-run against the course.
     create_course_runs(meta_data_course, publisher_course)

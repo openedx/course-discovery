@@ -64,4 +64,4 @@ class Command(BaseCommand):
             course_run.course.save()
             logger.info('Successfully Import for course [%s]', course.id)
         else:
-            logger.error('Loading the image for course-run [%s] failed.', course_run.id)
+            logger.warning('Loading the image for course-run [%s] failed.', course_run.id)

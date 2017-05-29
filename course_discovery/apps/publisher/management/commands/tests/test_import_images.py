@@ -6,10 +6,9 @@ from testfixtures import LogCapture
 
 from course_discovery.apps.core.tests.utils import mock_jpeg_callback
 from course_discovery.apps.course_metadata.data_loaders.tests import JPEG
-from course_discovery.apps.publisher.management.commands.import_course_images import logger
 from course_discovery.apps.publisher.models import Course
-from course_discovery.apps.publisher.tests.factories import CourseFactory, CourseRunFactory
-
+from course_discovery.apps.publisher.tests.factories import CourseRunFactory
+from course_discovery.apps.publisher.management.commands.import_course_images import logger as dataloader_logger
 
 @ddt.ddt
 class ImportCourseImagesCommandTests(TestCase):
@@ -61,21 +60,8 @@ class ImportCourseImageTests(TestCase):
             callback=mock_jpeg_callback(),
             content_type=JPEG
         )
-        call_command(self.command_name, *self.command_args)
-        course = Course.objects.first()
-        self.assert_program_banner_image_loaded(course)
 
-    @responses.activate
-    def test_course_import_image_successfully(self):
-        """ Verify that course-run image successfully imported."""
-        responses.add_callback(
-            responses.GET,
-            self.course_run.card_image_url,
-            callback=mock_jpeg_callback(403),
-            content_type=JPEG
-        )
-
-        with LogCapture(logger.name) as log_capture:
+        with LogCapture(dataloader_logger.name) as log_capture:
             call_command(self.command_name, *self.command_args)
             log_capture.check(
                 (
@@ -86,30 +72,37 @@ class ImportCourseImageTests(TestCase):
             )
 
         course = Course.objects.first()
-        self.assert_program_banner_image_loaded(course)
+        self.assert_image(course)
 
-    @responses.activate
-    def test_course_import_image_successfully(self):
-        """ Verify that import logs warning message in case of any error."""
-        responses.add_callback(
-            responses.GET,
-            self.course_run.card_image_url,
-            callback=mock_jpeg_callback(403),
-            content_type=JPEG
-        )
+    def test_course_import_without_course_run(self):
+        """ Verify that course-run image successfully imported."""
+        self.course_run.course = None
+        self.course_run.save()
+        call_command(self.command_name, *self.command_args)
+        course = Course.objects.first()
+        self.assert_image(course)
 
-        with LogCapture(logger.name) as log_capture:
-            call_command(self.command_name, *self.command_args)
-            log_capture.check(
-                (
-                    log_capture.name,
-                    'ERROR',
-                    'Loading the image for course-run [{}] failed.'.format(self.course_run.id)
-                )
-            )
+    # @responses.activate
+    # def test_course_import_image_fail(self):
+    #     """ Verify that course-run image successfully imported."""
+    #     responses.add_callback(
+    #         responses.GET,
+    #         self.course_run.card_image_url,
+    #         callback=mock_jpeg_callback(403),
+    #         content_type=JPEG
+    #     )
+    #
+    #     with LogCapture(logger.name) as log_capture:
+    #         call_command(self.command_name, *self.command_args)
+    #         log_capture.check(
+    #             (
+    #                 log_capture.name, 'WARNING',
+    #                 'Loading the image for course-run [{}] failed.'.format(self.course_run.id)
+    #             ),
+    #         )
 
-    def assert_program_banner_image_loaded(self, course):
-        """ Assert a program corresponding to the specified data body has banner image loaded into DB """
+    def assert_image(self, course):
+        """ Assert a course image loaded into DB """
         for size_key in course.image.field.variations:
             # Get different sizes specs from the model field
             # Then get the file path from the available files
