@@ -36,13 +36,24 @@
     <div>{{ object.course_type }}</div>
   </div>
 
-    {% if object.verified_seat_price %}
+    {% if object.seat_price %}
       <div class="info-item">
         <div class="heading">
           {% trans "Certificate Price" %}
         </div>
         <div>
-            ${{ object.verified_seat_price }}
+            ${{ object.seat_price }}
+        </div>
+      </div>
+    {% endif %}
+
+    {% if object.credit_seat_price %}
+      <div class="info-item">
+        <div class="heading">
+          {% trans "Credit Price" %}
+        </div>
+        <div>
+            ${{ object.credit_seat_price }}
         </div>
       </div>
     {% endif %}

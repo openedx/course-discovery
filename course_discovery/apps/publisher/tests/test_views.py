@@ -484,6 +484,64 @@ class CreateCourseRunViewTests(TestCase):
         )
         self.assertContains(response, expected_seat_price)
 
+    def test_credit_type_without_price(self):
+        """ Verify that without credit price course-run cannot be created with credit seat type. """
+        post_data = self.course_run_dict
+        seat = factories.SeatFactory(course_run=self.course_run, type=Seat.AUDIT, price=0, credit_price=0)
+        post_data.update(**model_to_dict(seat))
+        post_data.update(
+            {
+                'type': Seat.CREDIT,
+                'price': 450
+            }
+        )
+        self._pop_valuse_from_dict(post_data, ['id', 'course', 'course_run', 'lms_course_id'])
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+        response = self.client.post(
+            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
+            post_data
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_create_course_run_with_credit_seat(self):
+        """ Verify that user can create a new course run with credit seat. """
+        price = 450
+        credit_price = 350
+        post_data = self.course_run_dict
+        seat = factories.SeatFactory(course_run=self.course_run, type=Seat.AUDIT, price=0, credit_price=0)
+        post_data.update(**model_to_dict(seat))
+        post_data.update(
+            {
+                'type': Seat.CREDIT,
+                'price': price,
+                'credit_price': credit_price
+            }
+        )
+        self._pop_valuse_from_dict(post_data, ['id', 'course', 'course_run', 'lms_course_id'])
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+        response = self.client.post(
+            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
+            post_data
+        )
+
+        new_seat = Seat.objects.get(type=post_data['type'])
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': new_seat.course_run.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        # Verify that new seat and new course run are unique
+        self.assertEqual(new_seat.type, Seat.CREDIT)
+        self.assertEqual(new_seat.price, price)
+        self.assertEqual(new_seat.credit_price, credit_price)
+
 
 @ddt.ddt
 class CourseRunDetailTests(TestCase):
@@ -647,7 +705,7 @@ class CourseRunDetailTests(TestCase):
 
         values = [
             self.wrapped_course_run.title, self.wrapped_course_run.lms_course_id,
-            self.wrapped_course_run.verified_seat_price,
+            self.wrapped_course_run.seat_price,
             self.wrapped_course_run.min_effort,
             self.wrapped_course_run.pacing_type, self.wrapped_course_run.persons,
             self.wrapped_course_run.max_effort, self.wrapped_course_run.language.name,

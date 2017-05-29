@@ -82,13 +82,21 @@ class CourseRunWrapperTests(TestCase):
         wrapped_course_run = CourseRunWrapper(course_run)
         self.assertEqual(wrapped_course_run.organization_key, organization.key)
 
-    def test_verified_seat_price(self):
-        """ Verify that the wrapper return the verified seat price. """
-        self.assertEqual(self.wrapped_course_run.verified_seat_price, None)
+    def test_seat_price(self):
+        """ Verify that the wrapper return the seat price. """
+        self.assertEqual(self.wrapped_course_run.seat_price, None)
 
         seat = factories.SeatFactory(type=Seat.VERIFIED, course_run=self.course_run)
         wrapped_course_run = CourseRunWrapper(self.course_run)
-        self.assertEqual(wrapped_course_run.verified_seat_price, seat.price)
+        self.assertEqual(wrapped_course_run.seat_price, seat.price)
+
+    def test_credit_seat_price(self):
+        """ Verify that the wrapper return the credit seat price. """
+        self.assertEqual(self.wrapped_course_run.credit_seat_price, None)
+
+        seat = factories.SeatFactory(type=Seat.CREDIT, course_run=self.course_run)
+        wrapped_course_run = CourseRunWrapper(self.course_run)
+        self.assertEqual(wrapped_course_run.credit_seat_price, seat.credit_price)
 
     def test_credit_seat(self):
         """ Verify that the wrapper return the credit seat. """

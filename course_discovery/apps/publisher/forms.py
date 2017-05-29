@@ -354,15 +354,12 @@ class SeatForm(BaseCourseForm):
         if seat.type in [Seat.HONOR, Seat.AUDIT]:
             seat.price = 0.00
             seat.upgrade_deadline = None
-            seat.credit_provider = ''
-            seat.credit_hours = None
+            self.reset_credit_to_default(seat)
         if seat.type == Seat.VERIFIED:
-            seat.credit_provider = ''
-            seat.credit_hours = None
+            self.reset_credit_to_default(seat)
         if seat.type in [Seat.PROFESSIONAL, Seat.NO_ID_PROFESSIONAL]:
             seat.upgrade_deadline = None
-            seat.credit_provider = ''
-            seat.credit_hours = None
+            self.reset_credit_to_default(seat)
 
         if course_run:
             seat.course_run = course_run
@@ -377,12 +374,21 @@ class SeatForm(BaseCourseForm):
 
     def clean(self):
         price = self.cleaned_data.get('price')
+        credit_price = self.cleaned_data.get('credit_price')
         seat_type = self.cleaned_data.get('type')
 
-        if seat_type in [Seat.PROFESSIONAL, Seat.VERIFIED] and not price:
+        if seat_type in [Seat.PROFESSIONAL, Seat.VERIFIED, Seat.CREDIT] and not price:
             self.add_error('price', _('Only audit seat can be without price.'))
 
+        if seat_type == Seat.CREDIT and not credit_price:
+            self.add_error('credit_price', _('Only audit seat can be without price.'))
+
         return self.cleaned_data
+
+    def reset_credit_to_default(self, seat):
+        seat.credit_provider = ''
+        seat.credit_hours = None
+        seat.credit_price = 0.00
 
 
 class CustomSeatForm(SeatForm):
@@ -403,13 +409,15 @@ class CustomSeatForm(SeatForm):
         (Seat.AUDIT, _('Audit Only')),
         (Seat.VERIFIED, _('Verified Certificate')),
         (Seat.PROFESSIONAL, _('Professional Education')),
+        (Seat.CREDIT, _('Credit')),
     ]
 
     type = forms.ChoiceField(choices=TYPE_CHOICES, required=False, label=_('Seat Type'))
     price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
+    credit_price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
 
     class Meta(SeatForm.Meta):
-        fields = ('price', 'type')
+        fields = ('price', 'type', 'credit_price')
 
 
 class BaseUserAdminForm(forms.ModelForm):
