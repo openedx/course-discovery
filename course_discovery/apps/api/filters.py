@@ -4,6 +4,7 @@ import django_filters
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
+from django.forms import BooleanField
 from django.utils.translation import ugettext as _
 from drf_haystack.filters import HaystackFilter as DefaultHaystackFilter
 from drf_haystack.filters import HaystackFacetFilter
@@ -155,13 +156,17 @@ class CourseRunFilter(FilterSetMixin, django_filters.FilterSet):
         fields = ['keys', 'hidden']
 
 
+class NonNullableBooleanFilter(django_filters.BooleanFilter):
+    field_class = BooleanField
+
+
 class ProgramFilter(FilterSetMixin, django_filters.FilterSet):
     marketable = django_filters.MethodFilter()
     status = django_filters.MultipleChoiceFilter(choices=ProgramStatus.choices)
     type = django_filters.CharFilter(name='type__name', lookup_expr='iexact')
     types = CharListFilter(name='type__slug', lookup_expr='in')
     uuids = UUIDListFilter()
-    hidden = django_filters.BooleanFilter(name='hidden')
+    hidden = NonNullableBooleanFilter(name='hidden')
 
     class Meta:
         model = Program
