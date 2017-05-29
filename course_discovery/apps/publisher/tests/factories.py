@@ -66,6 +66,7 @@ class SeatFactory(factory.DjangoModelFactory):
     currency = factory.Iterator(Currency.objects.all())
     upgrade_deadline = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
     course_run = factory.SubFactory(CourseRunFactory)
+    credit_price = FuzzyDecimal(0.0, 650.0)
 
     class Meta:
         model = Seat

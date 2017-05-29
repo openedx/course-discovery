@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-29 14:22+0500\n"
+"POT-Creation-Date: 2017-05-29 16:50+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -458,7 +458,8 @@ msgstr "Vérïfïéd Ⱡ'σяєм ιρѕυм ∂#"
 msgid "Professional"
 msgstr "Pröféssïönäl Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: apps/course_metadata/models.py apps/publisher/models.py
+#: apps/course_metadata/models.py apps/publisher/forms.py
+#: apps/publisher/models.py
 msgid "Credit"
 msgstr "Çrédït Ⱡ'σяєм ιρѕυ#"
 
@@ -2641,6 +2642,10 @@ msgid "Certificate Price"
 msgstr "Çértïfïçäté Prïçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: templates/publisher/course_run_detail/_all.html
+msgid "Credit Price"
+msgstr "Çrédït Prïçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: templates/publisher/course_run_detail/_all.html
 msgid "Course Staff"
 msgstr "Çöürsé Stäff Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
@@ -2898,6 +2903,10 @@ msgstr "édX Çöürsé Rün ÌD Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Course $ (minimum)"
 msgstr "Çöürsé $ (mïnïmüm) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Credit $ (minimum)"
+msgstr "Çrédït $ (mïnïmüm) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Self Paced?"

@@ -52,11 +52,18 @@ class CourseRunWrapper(BaseWrapper):
         return ', '.join([person.full_name for person in self.wrapped_obj.staff.all()])
 
     @property
-    def verified_seat_price(self):
-        seat = self.wrapped_obj.seats.filter(type=Seat.VERIFIED).first()
+    def seat_price(self):
+        seat = self.wrapped_obj.seats.filter(type__in=[Seat.VERIFIED, Seat.PROFESSIONAL, Seat.CREDIT]).first()
         if not seat:
             return None
         return seat.price
+
+    @property
+    def credit_seat_price(self):
+        seat = self.wrapped_obj.seats.filter(type=Seat.CREDIT).first()
+        if not seat:
+            return None
+        return seat.credit_price
 
     @property
     def verified_seat_expiry(self):
@@ -114,7 +121,7 @@ class CourseRunWrapper(BaseWrapper):
         seats_types = [seat.type for seat in self.wrapped_obj.seats.all()]
         if [Seat.AUDIT] == seats_types:
             return Seat.AUDIT
-        if Seat.CREDIT in seats_types and Seat.VERIFIED in seats_types:
+        if Seat.CREDIT in seats_types:
             return Seat.CREDIT
         if Seat.VERIFIED in seats_types:
             return Seat.VERIFIED
