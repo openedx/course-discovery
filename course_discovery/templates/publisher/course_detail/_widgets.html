@@ -12,6 +12,7 @@
         </a>
     </div>
     <div class="course-run-list">
+        {% if course.course_runs %}
         {% for course_run in course.course_runs %}
             <div class="layout-1t2t layout-reversed course-run-item">
                 <div class="layout-col layout-col-a created-by">
@@ -36,6 +37,11 @@
                 </div>
             </div>
         {% endfor %}
+        {% else %}
+        <div class="course-run-item">
+            {% trans "No course runs exist for this course" %}
+        </div>
+        {% endif %}
     </div>
 
     <div class="approval-widget {% if not publisher_approval_widget_feature %}hidden{% endif %}">

@@ -1907,6 +1907,12 @@ msgstr "STÛDÌÖ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσ#"
 msgid "Not yet created"
 msgstr "Nöt ýét çréätéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
+#: templates/publisher/course_detail/_widgets.html
+msgid "No course runs exist for this course"
+msgstr ""
+"Nö çöürsé rüns éxïst för thïs çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
+
 #: templates/publisher/course_edit_form.html
 msgid "Edit Course"
 msgstr "Édït Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя #"
