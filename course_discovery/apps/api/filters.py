@@ -1,10 +1,10 @@
 import logging
 
-import django_filters
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
 from django.utils.translation import ugettext as _
+from django_filters import rest_framework as filters
 from drf_haystack.filters import HaystackFilter as DefaultHaystackFilter
 from drf_haystack.filters import HaystackFacetFilter
 from drf_haystack.query import FacetQueryBuilder
@@ -98,7 +98,7 @@ class HaystackFilter(HaystackRequestFilterMixin, DefaultHaystackFilter):
         return filters
 
 
-class CharListFilter(django_filters.CharFilter):
+class CharListFilter(filters.CharFilter):
     """ Filters a field via a comma-delimited list of values. """
 
     def filter(self, qs, value):  # pylint: disable=method-hidden
@@ -111,9 +111,9 @@ class CharListFilter(django_filters.CharFilter):
 class UUIDListFilter(CharListFilter):
     """ Filters a field via a comma-delimited list of UUIDs. """
 
-    def __init__(self, name='uuid', label=None, widget=None, action=None,
-                 lookup_expr='in', required=False, distinct=False, exclude=False, **kwargs):
-        super().__init__(name=name, label=label, widget=widget, action=action, lookup_expr=lookup_expr,
+    def __init__(self, name='uuid', label=None, widget=None, method=None, lookup_expr='in', required=False,
+                 distinct=False, exclude=False, **kwargs):
+        super().__init__(name=name, label=label, widget=widget, method=method, lookup_expr=lookup_expr,
                          required=required, distinct=distinct, exclude=exclude, **kwargs)
 
 
@@ -121,14 +121,14 @@ class FilterSetMixin:
     def _apply_filter(self, name, queryset, value):
         return getattr(queryset, name)() if cast2int(value, name) else queryset
 
-    def filter_active(self, queryset, value):
-        return self._apply_filter('active', queryset, value)
+    def filter_active(self, queryset, name, value):
+        return self._apply_filter(name, queryset, value)
 
-    def filter_marketable(self, queryset, value):
-        return self._apply_filter('marketable', queryset, value)
+    def filter_marketable(self, queryset, name, value):
+        return self._apply_filter(name, queryset, value)
 
 
-class CourseFilter(django_filters.FilterSet):
+class CourseFilter(filters.FilterSet):
     keys = CharListFilter(name='key', lookup_expr='in')
 
     class Meta:
@@ -136,9 +136,9 @@ class CourseFilter(django_filters.FilterSet):
         fields = ['keys']
 
 
-class CourseRunFilter(FilterSetMixin, django_filters.FilterSet):
-    active = django_filters.MethodFilter()
-    marketable = django_filters.MethodFilter()
+class CourseRunFilter(FilterSetMixin, filters.FilterSet):
+    active = filters.BooleanFilter(method='filter_active')
+    marketable = filters.BooleanFilter(method='filter_marketable')
     keys = CharListFilter(name='key', lookup_expr='in')
 
     @property
@@ -155,20 +155,22 @@ class CourseRunFilter(FilterSetMixin, django_filters.FilterSet):
         fields = ['keys', 'hidden']
 
 
-class ProgramFilter(FilterSetMixin, django_filters.FilterSet):
-    marketable = django_filters.MethodFilter()
-    status = django_filters.MultipleChoiceFilter(choices=ProgramStatus.choices)
-    type = django_filters.CharFilter(name='type__name', lookup_expr='iexact')
+class ProgramFilter(FilterSetMixin, filters.FilterSet):
+    marketable = filters.BooleanFilter(method='filter_marketable')
+    status = filters.MultipleChoiceFilter(choices=ProgramStatus.choices)
+    type = filters.CharFilter(name='type__name', lookup_expr='iexact')
     types = CharListFilter(name='type__slug', lookup_expr='in')
     uuids = UUIDListFilter()
 
     class Meta:
         model = Program
+        fields = ('hidden', 'marketable', 'status', 'type', 'types',)
 
 
-class OrganizationFilter(django_filters.FilterSet):
+class OrganizationFilter(filters.FilterSet):
     tags = CharListFilter(name='tags__name', lookup_expr='in')
     uuids = UUIDListFilter()
 
     class Meta:
         model = Organization
+        fields = ('tags', 'uuids',)

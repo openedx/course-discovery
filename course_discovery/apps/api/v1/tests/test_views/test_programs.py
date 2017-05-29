@@ -226,6 +226,23 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         url = self.list_path + '?status=active&status=retired'
         self.assert_list_results(url, [retired, active], 8)
 
+    def test_filter_by_hidden(self):
+        """ Endpoint should filter programs by their hidden attribute value. """
+        hidden = ProgramFactory(hidden=True)
+        not_hidden = ProgramFactory(hidden=False)
+
+        url = self.list_path + '?hidden=True'
+        self.assert_list_results(url, [hidden], 8)
+
+        url = self.list_path + '?hidden=False'
+        self.assert_list_results(url, [not_hidden], 8)
+
+        url = self.list_path + '?hidden=1'
+        self.assert_list_results(url, [hidden], 8)
+
+        url = self.list_path + '?hidden=0'
+        self.assert_list_results(url, [not_hidden], 8)
+
     def test_list_exclude_utm(self):
         """ Verify the endpoint returns marketing URLs without UTM parameters. """
         url = self.list_path + '?exclude_utm=1'
