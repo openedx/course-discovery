@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-01 16:02+0500\n"
+"POT-Creation-Date: 2017-06-01 18:07+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -551,6 +551,14 @@ msgid "Allow courses in this program to be purchased in a single transaction"
 msgstr ""
 "Àllöw çöürsés ïn thïs prögräm tö ßé pürçhäséd ïn ä sïnglé tränsäçtïön Ⱡ'σяєм"
 " ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Hide program on marketing site landing and search pages. This program MAY "
+"have a detail page."
+msgstr ""
+"Hïdé prögräm ön märkétïng sïté ländïng änd séärçh pägés. Thïs prögräm MÀÝ "
+"hävé ä détäïl pägé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
 #: apps/course_metadata/views.py
 msgid "Update excluded course runs"
