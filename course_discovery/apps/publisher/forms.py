@@ -139,7 +139,7 @@ class CustomCourseForm(CourseForm):
     )
 
     expected_learnings = forms.CharField(
-        label=_('Expected Learning'), widget=forms.Textarea, required=False,
+        label=_('What you will learn'), widget=forms.Textarea, required=False,
         validators=[validate_text_count(max_length=2500)]
     )
 

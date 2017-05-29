@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-25 17:32+0500\n"
+"POT-Creation-Date: 2017-05-29 14:22+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -737,10 +737,9 @@ msgstr "Àddïtïönäl Süßjéçt (öptïönäl) Ⱡ'σяєм ιρѕυм ∂σ
 msgid "Level"
 msgstr "Lévél Ⱡ'σяєм ιρѕ#"
 
-#: apps/publisher/forms.py templates/publisher/course_detail.html
-#: templates/publisher/course_revision_history.html
-msgid "Expected Learning"
-msgstr "Éxpéçtéd Léärnïng Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+#: apps/publisher/forms.py
+msgid "What you will learn"
+msgstr "Whät ýöü wïll léärn Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
 #: apps/publisher/forms.py
 msgid "Learner Testimonial"
@@ -1837,6 +1836,10 @@ msgid "Course Team Admin"
 msgstr "Çöürsé Téäm Àdmïn Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: templates/publisher/course_detail.html
+msgid "What You Will Learn"
+msgstr "Whät Ýöü Wïll Léärn Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Primary Subject"
@@ -2075,8 +2078,8 @@ msgstr ""
 "¢σηѕє¢тєтυя#"
 
 #: templates/publisher/course_edit_form.html
-msgid "EXPECTED LEARNING"
-msgstr "ÉXPÉÇTÉD LÉÀRNÌNG Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+msgid "WHAT YOU WILL LEARN"
+msgstr "WHÀT ÝÖÛ WÌLL LÉÀRN Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
 #: templates/publisher/course_edit_form.html
 msgid "The skills and knowledge learners will acquire in this course."
@@ -2465,6 +2468,10 @@ msgstr "%(date)s ßý %(name)s Ⱡ'σяєм ιρѕυм ∂σłσ#"
 #: templates/publisher/course_revision_history.html
 msgid "Show changes"
 msgstr "Shöw çhängés Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: templates/publisher/course_revision_history.html
+msgid "Expected Learning"
+msgstr "Éxpéçtéd Léärnïng Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid "Edit Course Run"
