@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-30 14:29+0500\n"
+"POT-Creation-Date: 2017-05-30 16:22+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -1547,16 +1547,21 @@ msgid ""
 "more user options."
 msgstr ""
 
+#: templates/publisher/admin/import_course.html
+#: templates/publisher/course_detail.html
+msgid "Course Detail"
+msgstr ""
+
+#: templates/publisher/admin/import_course.html
+msgid "Import COURSE"
+msgstr ""
+
 #: templates/publisher/base.html templates/publisher/dashboard.html
 msgid "Dashboard"
 msgstr ""
 
 #: templates/publisher/base.html templates/publisher/courses.html
 msgid "Courses"
-msgstr ""
-
-#: templates/publisher/course_detail.html
-msgid "Course Detail"
 msgstr ""
 
 #: templates/publisher/course_detail.html

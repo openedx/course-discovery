@@ -32,4 +32,6 @@ urlpatterns = [
     ),
     url(r'^courses/(?P<pk>\d+)/revisions/(?P<revision_id>\d+)/$', views.CourseRevisionView.as_view(),
         name='publisher_course_revision'),
+
+    url(r'^admin/importcourses/$', views.AdminImportCourse.as_view(), name='publisher_admin_import_course'),
 ]
