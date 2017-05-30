@@ -1,7 +1,3 @@
-Part of `edX code`__.
-
-__ http://code.edx.org/
-
 Course Discovery Service  |Travis|_ |Codecov|_
 ==============================================
 .. |Travis| image:: https://travis-ci.org/edx/course-discovery.svg?branch=master
@@ -10,57 +6,39 @@ Course Discovery Service  |Travis|_ |Codecov|_
 .. |Codecov| image:: http://codecov.io/github/edx/course-discovery/coverage.svg?branch=master
 .. _Codecov: http://codecov.io/github/edx/course-discovery?branch=master
 
-The Course Discovery API is a data aggregator with several purposes:
+The Course Discovery service is a data aggregator with several purposes:
 
-1. Allow external parties to access data about Courses in an OpenEdX installation
-   from a single central location (no matter which the system of record for that
-   data is), in a way that can be secured and will not have operational impact
-   on the running OpenEdX installation.
-2. Allow other services inside an OpenEdX installation to consume a consolidated
-   source of course content for presentation to users (for instance, for
-   the purposes of course marketing and discoverability).
-3. Provide a facility for naming dynamic groups of courses (catalogs) for
-   use by other services in the system (such as coupon fulfillment and external
-   course discovery filtering).
+1. Allow external parties to access data about Courses in an OpenEdX installation from a single central location (no matter which the system of record for that data is), in a way that can be secured and will not have operational impact on the running OpenEdX installation.
+2. Allow other services inside an OpenEdX installation to consume a consolidated source of course content for presentation to users (for instance, for the purposes of course marketing and discoverability).
+3. Provide a facility for naming dynamic groups of courses (catalogs) for use by other services in the system (such as coupon fulfillment and external course discovery filtering).
 
-To aid in these goals, the Course Discovery Service will collect data from
-several systems internal to the OpenEdX installation. Initially, this will
-just be Otto (the E-Commerce Service), and in the future it will also include
-Studio, and in the edX.org implementation, our Drupal marketing site. The design
-intention is that additional systems should be cheap to add to the same framework.
-
+To aid in these goals, the Course Discovery Service collects data from several systems internal to the Open edX installation. These include Otto (the E-Commerce Service), Studio, and in the edX.org implementation, the Drupal marketing site. The data loading framework is designed to make adding additional systems easy.
 
 Documentation
 -------------
+.. |ReadtheDocs| image:: https://readthedocs.org/projects/open-edx-course-catalog/badge/?version=latest
+.. _ReadtheDocs: https://open-edx-course-catalog.readthedocs.io/en/latest/
 
-The docs for Course Discovery Service will be on Read the Docs:  https://open-edx-course-catalog.readthedocs.org.
+`Documentation <https://open-edx-course-catalog.readthedocs.io/en/latest/>`_ is hosted on Read the Docs. The source is hosted in this repo's `docs <https://github.com/edx/course-discovery/tree/master/docs>`_ directory. To contribute, please open a PR against this repo.
 
 License
 -------
 
-The code in this repository is licensed under AGPL unless
-otherwise noted.
+The code in this repository is licensed under version 3 of the AGPL unless otherwise noted. Please see the LICENSE_ file for details.
 
-Please see ``LICENSE.txt`` for details.
+.. _LICENSE: https://github.com/edx/course-discovery/blob/master/LICENSE
 
 How To Contribute
 -----------------
 
-Contributions are very welcome.
-
-Please read `How To Contribute <https://github.com/edx/edx-platform/blob/master/CONTRIBUTING.rst>`_ for details.
-
-Even though they were written with ``edx-platform`` in mind, the guidelines
-should be followed for Open edX code in general.
+Contributions are welcome. Please read `How To Contribute <https://github.com/edx/edx-platform/blob/master/CONTRIBUTING.rst>`_ for details. Even though it was written with ``edx-platform`` in mind, these guidelines should be followed for Open edX code in general.
 
 Reporting Security Issues
 -------------------------
 
 Please do not report security issues in public. Please email security@edx.org.
 
-Mailing List and IRC Channel
-----------------------------
+Get Help
+--------
 
-You can discuss this code in the `edx-code Google Group`__ or in the ``#edx-code`` IRC channel on Freenode.
-
-__ https://groups.google.com/forum/#!forum/edx-code
+Ask questions and discuss this project on `Slack <https://openedx.slack.com/messages/general/>`_ or in the `edx-code Google Group <https://groups.google.com/forum/#!forum/edx-code>`_.
