@@ -28,6 +28,12 @@
                     <th role="button">
                         {% trans "Runs" %}
                     </th>
+                    <th role="button">
+                        {% trans "Course Team" %}
+                    </th>
+                    <th role="button">
+                        {{ site_name }}
+                    </th>
                     <th></th>
                 </tr>
             </thead>
@@ -51,6 +57,14 @@
                         </td>
                         <td>
                              {{ course.publisher_course_runs.count }}
+                        </td>
+                        <td>
+                            {{ course.course_state.course_team_status.status_text }}<br>
+                            {{ course.course_state.course_team_status.date|date:'m/d/y' }}
+                        </td>
+                        <td>
+                            {{ course.course_state.internal_user_status.status_text }}<br>
+                            {{ course.course_state.internal_user_status.date|date:'m/d/y' }}
                         </td>
                         <td>
                             {% if not publisher_hide_features_for_pilot and course|can_edit_course:request.user %}
