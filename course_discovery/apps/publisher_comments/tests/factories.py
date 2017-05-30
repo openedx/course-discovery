@@ -1,14 +1,8 @@
 import factory
-from django.contrib.sites.models import Site
 
-from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.core.tests.factories import SiteFactory, UserFactory
 from course_discovery.apps.publisher.tests.factories import CourseRunFactory
 from course_discovery.apps.publisher_comments.models import Comments
-
-
-class SiteFactory(factory.DjangoModelFactory):  # pylint: disable=missing-docstring
-    class Meta(object):  # pylint: disable=missing-docstring
-        model = Site
 
 
 class CommentFactory(factory.DjangoModelFactory):

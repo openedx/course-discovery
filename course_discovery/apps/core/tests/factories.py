@@ -1,10 +1,19 @@
 import factory
-from factory.fuzzy import FuzzyText
+from django.contrib.sites.models import Site
 
 from course_discovery.apps.core.models import Partner, User
 from course_discovery.apps.core.tests.utils import FuzzyUrlRoot
 
+
 USER_PASSWORD = 'password'
+
+
+class SiteFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Site
+
+    domain = factory.Sequence(lambda n: 'test-domain-{number}.fake'.format(number=n))
+    name = factory.Faker('name')
 
 
 class UserFactory(factory.DjangoModelFactory):
@@ -31,11 +40,12 @@ class PartnerFactory(factory.DjangoModelFactory):
     programs_api_url = '{root}/api/programs/v1/'.format(root=FuzzyUrlRoot().fuzz())
     marketing_site_api_url = '{root}/api/courses/v1/'.format(root=FuzzyUrlRoot().fuzz())
     marketing_site_url_root = '{root}/'.format(root=FuzzyUrlRoot().fuzz())
-    marketing_site_api_username = FuzzyText().fuzz()
-    marketing_site_api_password = FuzzyText().fuzz()
+    marketing_site_api_username = factory.Faker('user_name')
+    marketing_site_api_password = factory.Faker('password')
     oidc_url_root = '{root}'.format(root=FuzzyUrlRoot().fuzz())
-    oidc_key = FuzzyText().fuzz()
-    oidc_secret = FuzzyText().fuzz()
+    oidc_key = factory.Faker('sha256')
+    oidc_secret = factory.Faker('sha256')
+    site = factory.SubFactory(SiteFactory)
     studio_url = FuzzyUrlRoot().fuzz()
 
     class Meta(object):
