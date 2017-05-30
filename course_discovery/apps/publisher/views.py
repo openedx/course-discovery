@@ -775,6 +775,8 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(CourseListView, self).get_context_data(**kwargs)
         context['publisher_hide_features_for_pilot'] = waffle.switch_is_active('publisher_hide_features_for_pilot')
+        site = Site.objects.first()
+        context['site_name'] = 'edX' if 'edx' in site.name.lower() else site.name
         return context
 
 

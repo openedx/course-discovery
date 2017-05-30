@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-29 16:50+0500\n"
+"POT-Creation-Date: 2017-05-30 14:29+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -595,7 +595,8 @@ msgstr "Märkétïng Révïéwér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α�
 msgid "Publisher"
 msgstr "Püßlïshér Ⱡ'σяєм ιρѕυм ∂σł#"
 
-#: apps/publisher/choices.py templates/publisher/dashboard/_in_progress.html
+#: apps/publisher/choices.py templates/publisher/courses.html
+#: templates/publisher/dashboard/_in_progress.html
 msgid "Course Team"
 msgstr "Çöürsé Téäm Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
@@ -970,6 +971,26 @@ msgstr "Örgänïzätïön Rölé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α�
 msgid "Course Role"
 msgstr "Çöürsé Rölé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
+#: apps/publisher/models.py apps/publisher/wrappers.py
+msgid "In Draft since"
+msgstr "Ìn Dräft sïnçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#: apps/publisher/models.py apps/publisher/wrappers.py
+msgid "Submitted on"
+msgstr "Süßmïttéd ön Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/publisher/models.py apps/publisher/wrappers.py
+msgid "Reviewed on"
+msgstr "Révïéwéd ön Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: apps/publisher/models.py apps/publisher/wrappers.py
+msgid "In Review since"
+msgstr "Ìn Révïéw sïnçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/publisher/models.py apps/publisher/wrappers.py
+msgid "n/a"
+msgstr "n/ä Ⱡ'σяєм#"
+
 #: apps/publisher/validators.py
 #, python-format
 msgid ""
@@ -1091,26 +1112,6 @@ msgstr ""
 msgid "Course run updated successfully."
 msgstr ""
 "Çöürsé rün üpdätéd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
-
-#: apps/publisher/wrappers.py
-msgid "In Draft since"
-msgstr "Ìn Dräft sïnçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
-
-#: apps/publisher/wrappers.py
-msgid "Submitted on"
-msgstr "Süßmïttéd ön Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
-
-#: apps/publisher/wrappers.py
-msgid "In Review since"
-msgstr "Ìn Révïéw sïnçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
-
-#: apps/publisher/wrappers.py
-msgid "n/a"
-msgstr "n/ä Ⱡ'σяєм#"
-
-#: apps/publisher/wrappers.py
-msgid "Reviewed on"
-msgstr "Révïéwéd ön Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: apps/publisher_comments/emails.py
 msgid "Comment added:"

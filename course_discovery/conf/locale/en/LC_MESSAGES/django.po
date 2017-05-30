@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-29 16:50+0500\n"
+"POT-Creation-Date: 2017-05-30 14:29+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -480,7 +480,8 @@ msgstr ""
 msgid "Publisher"
 msgstr ""
 
-#: apps/publisher/choices.py templates/publisher/dashboard/_in_progress.html
+#: apps/publisher/choices.py templates/publisher/courses.html
+#: templates/publisher/dashboard/_in_progress.html
 msgid "Course Team"
 msgstr ""
 
@@ -826,6 +827,26 @@ msgstr ""
 msgid "Course Role"
 msgstr ""
 
+#: apps/publisher/models.py apps/publisher/wrappers.py
+msgid "In Draft since"
+msgstr ""
+
+#: apps/publisher/models.py apps/publisher/wrappers.py
+msgid "Submitted on"
+msgstr ""
+
+#: apps/publisher/models.py apps/publisher/wrappers.py
+msgid "Reviewed on"
+msgstr ""
+
+#: apps/publisher/models.py apps/publisher/wrappers.py
+msgid "In Review since"
+msgstr ""
+
+#: apps/publisher/models.py apps/publisher/wrappers.py
+msgid "n/a"
+msgstr ""
+
 #: apps/publisher/validators.py
 #, python-format
 msgid ""
@@ -925,26 +946,6 @@ msgstr ""
 
 #: apps/publisher/views.py
 msgid "Course run updated successfully."
-msgstr ""
-
-#: apps/publisher/wrappers.py
-msgid "In Draft since"
-msgstr ""
-
-#: apps/publisher/wrappers.py
-msgid "Submitted on"
-msgstr ""
-
-#: apps/publisher/wrappers.py
-msgid "In Review since"
-msgstr ""
-
-#: apps/publisher/wrappers.py
-msgid "n/a"
-msgstr ""
-
-#: apps/publisher/wrappers.py
-msgid "Reviewed on"
 msgstr ""
 
 #: apps/publisher_comments/emails.py

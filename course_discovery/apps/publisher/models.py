@@ -557,6 +557,7 @@ class CourseState(TimeStampedModel, ChangedByMixin):
         elif state == CourseStateChoices.Approved:
             user_role = self.course.course_user_roles.get(user=user)
             self.approved_by_role = user_role.role
+            self.marketing_reviewed = True
             self.approved()
 
             if is_notifications_enabled:
@@ -576,6 +577,36 @@ class CourseState(TimeStampedModel, ChangedByMixin):
         self.owner_role = role
         self.owner_role_modified = timezone.now()
         self.save()
+
+    @property
+    def is_draft(self):
+        """ Check that course is in Draft state or not."""
+        return self.name == CourseStateChoices.Draft
+
+    @property
+    def is_in_review(self):
+        """ Check that course is in Review state or not."""
+        return self.name == CourseStateChoices.Review
+
+    @property
+    def course_team_status(self):
+        if self.is_draft and self.owner_role == PublisherUserRole.CourseTeam and not self.marketing_reviewed:
+            return {'status_text': _('In Draft since'), 'date': self.owner_role_modified}
+        elif self.owner_role == PublisherUserRole.MarketingReviewer:
+            return {'status_text': _('Submitted on'), 'date': self.owner_role_modified}
+        elif self.owner_role == PublisherUserRole.CourseTeam and self.is_approved:
+            return {'status_text': _('Reviewed on'), 'date': self.owner_role_modified}
+        elif self.marketing_reviewed and self.owner_role == PublisherUserRole.CourseTeam:
+            return {'status_text': _('In Review since'), 'date': self.owner_role_modified}
+
+    @property
+    def internal_user_status(self):
+        if self.is_draft and self.owner_role == PublisherUserRole.CourseTeam:
+            return {'status_text': _('n/a'), 'date': ''}
+        elif self.owner_role == PublisherUserRole.MarketingReviewer and (self.is_in_review or self.is_draft):
+            return {'status_text': _('In Review since'), 'date': self.owner_role_modified}
+        elif self.marketing_reviewed:
+            return {'status_text': _('Reviewed on'), 'date': self.owner_role_modified}
 
 
 class CourseRunState(TimeStampedModel, ChangedByMixin):
