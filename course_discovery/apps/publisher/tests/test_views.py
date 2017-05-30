@@ -22,7 +22,7 @@ from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
-from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory, OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.constants import (ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME,
@@ -3008,3 +3008,64 @@ class CreateRunFromDashboardViewTests(TestCase):
         self.assertEqual([self.course.project_coordinator.email], mail.outbox[0].to)
         expected_subject = 'Studio URL requested: {title}'.format(title=self.course.title)
         self.assertEqual(str(mail.outbox[0].subject), expected_subject)
+
+
+class CreateAdminImportCourseTest(TestCase):
+    """ Tests for the publisher `CreateAdminImportCourse`. """
+
+    def setUp(self):
+        super(CreateAdminImportCourseTest, self).setUp()
+        self.user = UserFactory()
+
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.page_url = reverse('publisher:publisher_admin_import_course')
+
+        self.course = CourseFactory()
+
+    def test_page_without_login(self):
+        """ Verify that user can't access page when not logged in. """
+        self.client.logout()
+        response = self.client.get(self.page_url)
+
+        self.assertRedirects(
+            response,
+            expected_url='{url}?next={next}'.format(
+                url=reverse('login'),
+                next=self.page_url
+            ),
+            status_code=302,
+            target_status_code=302
+        )
+
+    def test_page_without_superuser(self):
+        """ Verify that user can't access page when not logged in. """
+        response = self.client.get(self.page_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_page_with_superuser_and_waffle(self):
+        """ Verify that user can't access page when not logged in. """
+        response = self._make_users_valid(True)
+        self.assertEqual(response.status_code, 200)
+
+    def test_page_with_superuser_without_waffle(self):
+        """ Verify that user can't access page when not logged in. """
+        response = self._make_users_valid(False)
+        self.assertEqual(response.status_code, 404)
+
+    def test_page_with_post(self):
+        """ Verify post from page. """
+        self._make_users_valid(True)
+        post_data = {'start_id': self.course.pk}
+        response = self.client.post(self.page_url, post_data)
+        self.assertEqual(response.status_code, 200)
+
+    def _make_users_valid(self, switch):
+        """ make user eligible for the page."""
+        self.client.logout()
+        self.user.is_superuser = True
+        self.user.save()
+
+        toggle_switch('publisher_enable_course_import', switch)
+
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        return self.client.get(self.page_url)

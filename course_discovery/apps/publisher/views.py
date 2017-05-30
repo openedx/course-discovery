@@ -16,7 +16,7 @@ from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import CreateView, DetailView, ListView, UpdateView, View
+from django.views.generic import CreateView, DetailView, ListView, TemplateView, UpdateView, View
 from guardian.shortcuts import get_objects_for_user
 
 from course_discovery.apps.core.models import User
@@ -24,8 +24,9 @@ from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher import emails, mixins
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
-from course_discovery.apps.publisher.forms import (CourseSearchForm, CustomCourseForm, CustomCourseRunForm,
-                                                   CustomSeatForm)
+from course_discovery.apps.publisher.dataloader.create_courses import process_course
+from course_discovery.apps.publisher.forms import (AdminImportCourseForm, CourseSearchForm, CustomCourseForm,
+                                                   CustomCourseRunForm, CustomSeatForm)
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
                                                     OrganizationExtension, Seat, UserAttributes)
 from course_discovery.apps.publisher.utils import (get_internal_users, has_role_for_course, is_internal_user,
@@ -856,3 +857,42 @@ def get_course_role_widgets_data(user, course, state_object, change_state_url, p
         role_widgets.append(role_widget)
 
     return role_widgets
+
+
+class AdminImportCourse(mixins.LoginRequiredMixin, TemplateView):
+    """Admin page to import course from course-metadata to publisher. """
+    # page is accessible to the admin users and also if the waffle switch is enable.
+
+    model = Course
+    template_name = 'publisher/admin/import_course.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(AdminImportCourse, self).get_context_data(**kwargs)
+        context['form'] = AdminImportCourseForm()
+
+        return context
+
+    def get(self, request, *args, **kwargs):
+        """Get method for import page."""
+        if self.request.user.is_superuser and waffle.switch_is_active('publisher_enable_course_import'):
+            return super(AdminImportCourse, self).get(request, args, **kwargs)
+        else:
+            raise Http404
+
+    def post(self, request, *args, **kwargs):
+        """Post method for import page."""
+
+        # inline import to avoid any circular issues.
+        from course_discovery.apps.course_metadata.models import Course as metadata_course
+
+        if not (self.request.user.is_superuser and waffle.switch_is_active('publisher_enable_course_import')):
+            raise Http404
+
+        form = AdminImportCourseForm(request.POST)
+        if form.is_valid():
+
+            start_id = self.request.POST.get('start_id')
+            for course in metadata_course.objects.filter(id__range=(start_id, int(start_id) + 9)):
+                process_course(course)
+
+        return super(AdminImportCourse, self).get(request, args, **kwargs,)

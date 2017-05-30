@@ -491,3 +491,10 @@ class CourseRunAdminForm(forms.ModelForm):
             return lms_course_id
 
         return None
+
+
+class AdminImportCourseForm(forms.Form):
+    start_id = forms.IntegerField(min_value=1, label='This course id will import along with next 9 courses.')
+
+    class Meta:
+        fields = ('start_id',)
