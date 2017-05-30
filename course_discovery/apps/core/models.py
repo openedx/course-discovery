@@ -1,6 +1,7 @@
 """ Core models. """
 
 from django.contrib.auth.models import AbstractUser
+from django.contrib.sites.models import Site
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
@@ -78,6 +79,7 @@ class Partner(TimeStampedModel):
     oidc_key = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect Key'))
     oidc_secret = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect Secret'))
     studio_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('Studio URL'))
+    site = models.OneToOneField(Site, null=True, blank=True, on_delete=models.PROTECT)
 
     def __str__(self):
         return self.name
