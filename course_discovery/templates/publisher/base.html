@@ -16,7 +16,7 @@
     <div class="container">
         {% include 'publisher/_header.html' %}
         <div class="layout-1q3q layout-flush border-top">
-            <main class="layout-col layout-col-a layout-col-menu">
+            <nav class="layout-col layout-col-a layout-col-menu">
                 <ul class="list-divided menu-list">
                     <li class="item">
                         {% url 'publisher:publisher_dashboard' as dashboard_url %}
@@ -32,14 +32,22 @@
                         </a>
                     </li>
                 </ul>
-            </main>
+            </nav>
 
-            <aside class="layout-col layout-col-b border-left layout-col-container">
+            
+
+        {% if request.path == dashboard_url %}
+            <main class="layout-col layout-col-b border-left layout-col-container-dashboard">
+        {% else %}
+            <main class="layout-col layout-col-b border-left layout-col-container">
+        {% endif %}
+
                 {% block breadcrumbs %}
                     {% include 'publisher/_breadcrumbs.html' %}
                 {% endblock %}
-                {% block page_content %}{% endblock %}
-            </aside>
+                {% block page_content %}
+                {% endblock %}
+            </main>
 
         </div>
 

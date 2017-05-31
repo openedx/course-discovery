@@ -15,18 +15,18 @@
       @include padding(12px, 20px, 12px, 20px);
       @include margin-right(1px);
       @include float(left);
-      background: #f2f2f2;
+      background: transparent;
       margin-bottom: 0 !important;
       position: relative;
       text-align: center;
       font-weight: 600;
       font-size: 15px;
-      color: #949494;
+      color: $tab-default;
       text-transform: capitalize;
       text-decoration: none;
       z-index: 999;
       border: {
-        width: 2px;
+        width: 0px;
         style: solid;
         color: #f2f2f2;
         bottom-width: 0;
@@ -41,12 +41,12 @@
       &.is-active {
         cursor: default;
         background: white;
-        color: #169bd5;
+        color: $active-blue;
         z-index: 1001;
         border: {
-          width: 2px;
+          width: 1px;
           style: solid;
-          color: #169bd5;
+          color: $tab-border;
           bottom-width: 0;
         }
 
@@ -89,7 +89,7 @@
   .tab-panel {
     @include padding(20px, 20px, 20px, 20px);
     display: none;
-    border: 2px solid #169bd5;
+    border: 1px solid $tab-border;
     background-color: #fff;
     margin-bottom: 50px;
     outline: none;

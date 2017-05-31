@@ -9,6 +9,13 @@
   }
 }
 
+.float-left{ 
+  @include float(left); 
+}
+.float-right{ 
+  @include float(right); 
+}
+
 .margin-top20 {
     margin-top: 20px;
     margin-bottom: 10px;
@@ -19,11 +26,11 @@
 }
 
 .border-left {
-    @include border-left(1px solid);
+    @include border-left(0px solid);
 }
 
 .border-top {
-    border-top: 1px solid;
+    border-top: 1px solid $gray-border;
 }
 
 .actions {

@@ -1,4 +1,8 @@
 
+.layout-full{
+  @include padding(1em, 1em, 1em, 1em);
+  background: $white;
+}
 
 .course-detail {
     @include margin(0px, 0px, 0px, 0px);
@@ -21,6 +25,7 @@
         @include margin-left(0);
         @include margin-right(0);
         max-width: 100%;
+        @include padding(0,0,0,0);
 
         .layout-col-menu {
             @include margin-left(0);
@@ -30,21 +35,29 @@
         }
 
         .layout-col-container {
-            @include padding(20px, 20px, 20px, 20px);
+            @include padding(1em, 1.5em, 1em, 1.5em);
             @include margin-right(0);
             width: 88%;
         }
 
-        
+        .layout-col-container-dashboard{
+          width: 88%;
+          margin: 0;
+        }
 
         .layout-col-a-custom {
-            @include margin-left(0);
-            width: 45%;
+            @include margin-left(3%);
+            width: 37%;
         }
 
         .layout-col-b-custom {
             @include margin-right(0);
             width: 55%;
+            background: $white;
+            padding-top: 1em;
+            padding-bottom: 1em;
+            @include padding-right(2.5%);
+            @include padding-left(2.5%);
         }
     }
 
@@ -452,15 +465,6 @@
 .course-runs-heading, .approvals-heading {
     display: inline-block;
 }
-
-.about-publisher {
-    max-width: 60%;
-}
-
-.about-and-button {
-    display: -webkit-box;
-}
-
 
 #id_organization {
   width: auto;
