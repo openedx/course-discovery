@@ -2,13 +2,13 @@
 
 import mock
 from django.contrib.auth.models import Group
-from django.contrib.sites.models import Site
 from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
 from opaque_keys.edx.keys import CourseKey
 from testfixtures import LogCapture
 
+from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests import toggle_switch
@@ -21,7 +21,7 @@ from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.factories import UserAttributeFactory
 
 
-class StudioInstanceCreatedEmailTests(TestCase):
+class StudioInstanceCreatedEmailTests(SiteMixin, TestCase):
     """
     Tests for the studio instance created email functionality.
     """
@@ -50,14 +50,14 @@ class StudioInstanceCreatedEmailTests(TestCase):
         """ Verify that emails failure raise exception."""
 
         with self.assertRaises(Exception) as ex:
-            emails.send_email_for_studio_instance_created(self.course_run)
+            emails.send_email_for_studio_instance_created(self.course_run, self.site)
             error_message = 'Failed to send email notifications for course_run [{}]'.format(self.course_run.id)
             self.assertEqual(ex.message, error_message)
 
     def test_email_sent_successfully(self):
         """ Verify that emails sent successfully for studio instance created."""
 
-        emails.send_email_for_studio_instance_created(self.course_run)
+        emails.send_email_for_studio_instance_created(self.course_run, self.site)
         course_key = CourseKey.from_string(self.course_run.lms_course_id)
         self.assert_email_sent(
             reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id}),
@@ -76,7 +76,7 @@ class StudioInstanceCreatedEmailTests(TestCase):
 
         body = mail.outbox[0].body.strip()
         self.assertIn(expected_body, body)
-        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=object_path)
+        page_url = 'https://{host}{path}'.format(host=self.site.domain.strip('/'), path=object_path)
         self.assertIn(page_url, body)
         self.assertIn('Enter course run content in Studio.', body)
         self.assertIn('Thanks', body)
@@ -89,7 +89,7 @@ class StudioInstanceCreatedEmailTests(TestCase):
         )
 
 
-class CourseCreatedEmailTests(TestCase):
+class CourseCreatedEmailTests(SiteMixin, TestCase):
     """ Tests for the new course created email functionality. """
 
     def setUp(self):
@@ -116,7 +116,7 @@ class CourseCreatedEmailTests(TestCase):
         """ Verify that emails failure logs error message."""
 
         with LogCapture(emails.logger.name) as l:
-            emails.send_email_for_course_creation(self.course_run.course, self.course_run)
+            emails.send_email_for_course_creation(self.course_run.course, self.course_run, self.site)
             l.check(
                 (
                     emails.logger.name,
@@ -130,7 +130,7 @@ class CourseCreatedEmailTests(TestCase):
     def test_email_sent_successfully(self):
         """ Verify that studio instance request email sent successfully."""
 
-        emails.send_email_for_course_creation(self.course_run.course, self.course_run)
+        emails.send_email_for_course_creation(self.course_run.course, self.course_run, self.site)
         subject = 'Studio URL requested: {title}'.format(title=self.course_run.course.title)
         self.assert_email_sent(subject)
 
@@ -151,12 +151,12 @@ class CourseCreatedEmailTests(TestCase):
         user_attribute = UserAttributes.objects.get(user=self.user)
         user_attribute.enable_email_notification = False
         user_attribute.save()
-        emails.send_email_for_course_creation(self.course_run.course, self.course_run)
+        emails.send_email_for_course_creation(self.course_run.course, self.course_run, self.site)
 
         self.assertEqual(len(mail.outbox), 0)
 
 
-class SendForReviewEmailTests(TestCase):
+class SendForReviewEmailTests(SiteMixin, TestCase):
     """ Tests for the send for review email functionality. """
 
     def setUp(self):
@@ -168,7 +168,7 @@ class SendForReviewEmailTests(TestCase):
         """ Verify that email failure logs error message."""
 
         with LogCapture(emails.logger.name) as l:
-            emails.send_email_for_send_for_review(self.course_state.course, self.user)
+            emails.send_email_for_send_for_review(self.course_state.course, self.user, self.site)
             l.check(
                 (
                     emails.logger.name,
@@ -180,7 +180,7 @@ class SendForReviewEmailTests(TestCase):
             )
 
 
-class CourseMarkAsReviewedEmailTests(TestCase):
+class CourseMarkAsReviewedEmailTests(SiteMixin, TestCase):
     """ Tests for the mark as reviewed email functionality. """
 
     def setUp(self):
@@ -192,7 +192,7 @@ class CourseMarkAsReviewedEmailTests(TestCase):
         """ Verify that email failure logs error message."""
 
         with LogCapture(emails.logger.name) as l:
-            emails.send_email_for_mark_as_reviewed(self.course_state.course, self.user)
+            emails.send_email_for_mark_as_reviewed(self.course_state.course, self.user, self.site)
             l.check(
                 (
                     emails.logger.name,
@@ -204,7 +204,7 @@ class CourseMarkAsReviewedEmailTests(TestCase):
             )
 
 
-class CourseRunSendForReviewEmailTests(TestCase):
+class CourseRunSendForReviewEmailTests(SiteMixin, TestCase):
     """ Tests for the CourseRun send for review email functionality. """
 
     def setUp(self):
@@ -238,7 +238,7 @@ class CourseRunSendForReviewEmailTests(TestCase):
         factories.CourseUserRoleFactory(
             course=self.course, role=PublisherUserRole.ProjectCoordinator, user=self.user
         )
-        emails.send_email_for_send_for_review_course_run(self.course_run_state.course_run, self.user)
+        emails.send_email_for_send_for_review_course_run(self.course_run_state.course_run, self.user, self.site)
         subject = 'Review requested: {title} {run_number}'.format(title=self.course, run_number=self.course_key.run)
         self.assert_email_sent(subject, self.user_2)
 
@@ -247,7 +247,7 @@ class CourseRunSendForReviewEmailTests(TestCase):
         factories.CourseUserRoleFactory(
             course=self.course, role=PublisherUserRole.ProjectCoordinator, user=self.user
         )
-        emails.send_email_for_send_for_review_course_run(self.course_run_state.course_run, self.user_2)
+        emails.send_email_for_send_for_review_course_run(self.course_run_state.course_run, self.user_2, self.site)
         subject = 'Review requested: {title} {run_number}'.format(title=self.course, run_number=self.course_key.run)
         self.assert_email_sent(subject, self.user)
 
@@ -255,7 +255,7 @@ class CourseRunSendForReviewEmailTests(TestCase):
         """ Verify that email failure logs error message."""
 
         with LogCapture(emails.logger.name) as l:
-            emails.send_email_for_send_for_review_course_run(self.course_run, self.user)
+            emails.send_email_for_send_for_review_course_run(self.course_run, self.user, self.site)
             l.check(
                 (
                     emails.logger.name,
@@ -273,12 +273,12 @@ class CourseRunSendForReviewEmailTests(TestCase):
         self.assertEqual(str(mail.outbox[0].subject), subject)
         body = mail.outbox[0].body.strip()
         page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id})
-        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
+        page_url = 'https://{host}{path}'.format(host=self.site.domain.strip('/'), path=page_path)
         self.assertIn(page_url, body)
         self.assertIn('View this course run in Publisher to review the changes or suggest edits.', body)
 
 
-class CourseRunMarkAsReviewedEmailTests(TestCase):
+class CourseRunMarkAsReviewedEmailTests(SiteMixin, TestCase):
     """ Tests for the CourseRun mark as reviewed email functionality. """
 
     def setUp(self):
@@ -311,7 +311,7 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
         factories.CourseUserRoleFactory(
             course=self.course, role=PublisherUserRole.ProjectCoordinator, user=self.user
         )
-        emails.send_email_for_mark_as_reviewed_course_run(self.course_run_state.course_run, self.user)
+        emails.send_email_for_mark_as_reviewed_course_run(self.course_run_state.course_run, self.user, self.site)
         self.assertEqual(len(mail.outbox), 0)
 
     def test_email_sent_by_course_team(self):
@@ -319,14 +319,14 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
         factories.CourseUserRoleFactory(
             course=self.course, role=PublisherUserRole.ProjectCoordinator, user=self.user
         )
-        emails.send_email_for_mark_as_reviewed_course_run(self.course_run_state.course_run, self.user_2)
+        emails.send_email_for_mark_as_reviewed_course_run(self.course_run_state.course_run, self.user_2, self.site)
         self.assert_email_sent(self.user)
 
     def test_email_mark_as_reviewed_with_error(self):
         """ Verify that email failure log error message."""
 
         with LogCapture(emails.logger.name) as l:
-            emails.send_email_for_mark_as_reviewed_course_run(self.course_run, self.user)
+            emails.send_email_for_mark_as_reviewed_course_run(self.course_run, self.user, self.site)
             l.check(
                 (
                     emails.logger.name,
@@ -342,7 +342,7 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
         factories.CourseUserRoleFactory(
             course=self.course, role=PublisherUserRole.ProjectCoordinator, user=self.user
         )
-        emails.send_email_to_publisher(self.course_run_state.course_run, self.user)
+        emails.send_email_to_publisher(self.course_run_state.course_run, self.user, self.site)
         self.assert_email_sent(self.user_3)
 
     def test_email_to_publisher_with_error(self):
@@ -350,7 +350,7 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
 
         with mock.patch('django.core.mail.message.EmailMessage.send', side_effect=TypeError):
             with LogCapture(emails.logger.name) as l:
-                emails.send_email_to_publisher(self.course_run, self.user_3)
+                emails.send_email_to_publisher(self.course_run, self.user_3, self.site)
                 l.check(
                     (
                         emails.logger.name,
@@ -375,12 +375,12 @@ class CourseRunMarkAsReviewedEmailTests(TestCase):
         self.assertEqual(str(mail.outbox[0].subject), subject)
         body = mail.outbox[0].body.strip()
         page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id})
-        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
+        page_url = 'https://{host}{path}'.format(host=self.site.domain.strip('/'), path=page_path)
         self.assertIn(page_url, body)
         self.assertIn('The review for this course run is complete.', body)
 
 
-class CourseRunPreviewEmailTests(TestCase):
+class CourseRunPreviewEmailTests(SiteMixin, TestCase):
     """
     Tests for the course preview email functionality.
     """
@@ -414,7 +414,7 @@ class CourseRunPreviewEmailTests(TestCase):
         lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
         self.run_state.course_run.lms_course_id = lms_course_id
 
-        emails.send_email_preview_accepted(self.run_state.course_run)
+        emails.send_email_preview_accepted(self.run_state.course_run, self.site)
 
         course_key = CourseKey.from_string(lms_course_id)
         subject = 'Publication requested: {course_name} {run_number}'.format(
@@ -426,7 +426,7 @@ class CourseRunPreviewEmailTests(TestCase):
         self.assertEqual(str(mail.outbox[0].subject), subject)
         body = mail.outbox[0].body.strip()
         page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.run_state.course_run.id})
-        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
+        page_url = 'https://{host}{path}'.format(host=self.site.domain.strip('/'), path=page_path)
         self.assertIn(page_url, body)
         self.assertIn('You can now publish this About page.', body)
 
@@ -440,7 +440,7 @@ class CourseRunPreviewEmailTests(TestCase):
             with self.assertRaises(Exception) as ex:
                 self.assertEqual(str(ex.exception), message)
                 with LogCapture(emails.logger.name) as l:
-                    emails.send_email_preview_accepted(self.run_state.course_run)
+                    emails.send_email_preview_accepted(self.run_state.course_run, self.site)
                     l.check(
                         (
                             emails.logger.name,
@@ -457,7 +457,7 @@ class CourseRunPreviewEmailTests(TestCase):
         course_run.lms_course_id = 'course-v1:testX+testX1.0+2017T1'
         course_run.save()
 
-        emails.send_email_preview_page_is_available(course_run)
+        emails.send_email_preview_page_is_available(course_run, self.site)
 
         course_key = CourseKey.from_string(course_run.lms_course_id)
         subject = 'Review requested: Preview for {course_name} {run_number}'.format(
@@ -469,7 +469,7 @@ class CourseRunPreviewEmailTests(TestCase):
         self.assertEqual(str(mail.outbox[0].subject), subject)
         body = mail.outbox[0].body.strip()
         page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
-        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
+        page_url = 'https://{host}{path}'.format(host=self.site.domain.strip('/'), path=page_path)
         self.assertIn(page_url, body)
         self.assertIn('A preview is now available for the', body)
 
@@ -477,7 +477,7 @@ class CourseRunPreviewEmailTests(TestCase):
         """ Verify that exception raised on email failure."""
 
         with self.assertRaises(Exception) as ex:
-            emails.send_email_preview_page_is_available(self.run_state.course_run)
+            emails.send_email_preview_page_is_available(self.run_state.course_run, self.site)
             error_message = 'Failed to send email notifications for preview available of course-run {}'.format(
                 self.run_state.course_run.id
             )
@@ -486,19 +486,19 @@ class CourseRunPreviewEmailTests(TestCase):
     def test_preview_available_email_with_notification_disabled(self):
         """ Verify that email not sent if notification disabled by user."""
         factories.UserAttributeFactory(user=self.course.course_team_admin, enable_email_notification=False)
-        emails.send_email_preview_page_is_available(self.run_state.course_run)
+        emails.send_email_preview_page_is_available(self.run_state.course_run, self.site)
 
         self.assertEqual(len(mail.outbox), 0)
 
     def test_preview_accepted_email_with_notification_disabled(self):
         """ Verify that preview accepted email not sent if notification disabled by user."""
         factories.UserAttributeFactory(user=self.course.publisher, enable_email_notification=False)
-        emails.send_email_preview_accepted(self.run_state.course_run)
+        emails.send_email_preview_accepted(self.run_state.course_run, self.site)
 
         self.assertEqual(len(mail.outbox), 0)
 
 
-class CourseRunPublishedEmailTests(TestCase):
+class CourseRunPublishedEmailTests(SiteMixin, TestCase):
     """
     Tests for course run published email functionality.
     """
@@ -527,7 +527,7 @@ class CourseRunPublishedEmailTests(TestCase):
         """
         self.course_run.lms_course_id = 'course-v1:testX+test45+2017T2'
         self.course_run.save()
-        emails.send_course_run_published_email(self.course_run)
+        emails.send_course_run_published_email(self.course_run, self.site)
 
         course_key = CourseKey.from_string(self.course_run.lms_course_id)
         subject = 'Publication complete: About page for {course_name} {run_number}'.format(
@@ -550,11 +550,11 @@ class CourseRunPublishedEmailTests(TestCase):
         )
         with mock.patch('django.core.mail.message.EmailMessage.send', side_effect=TypeError):
             with self.assertRaises(Exception) as ex:
-                emails.send_course_run_published_email(self.course_run)
+                emails.send_course_run_published_email(self.course_run, self.site)
                 self.assertEqual(str(ex.exception), message)
 
 
-class CourseChangeRoleAssignmentEmailTests(TestCase):
+class CourseChangeRoleAssignmentEmailTests(SiteMixin, TestCase):
     """
     Tests email functionality for course role assignment changed.
     """
@@ -575,7 +575,7 @@ class CourseChangeRoleAssignmentEmailTests(TestCase):
         """
         Verify that course role assignment chnage email functionality works fine.
         """
-        emails.send_change_role_assignment_email(self.marketing_role, self.user)
+        emails.send_change_role_assignment_email(self.marketing_role, self.user, self.site)
         expected_subject = '{role_name} changed for {course_title}'.format(
             role_name=self.marketing_role.get_role_display().lower(),
             course_title=self.course.title
@@ -589,7 +589,7 @@ class CourseChangeRoleAssignmentEmailTests(TestCase):
         self.assertEqual(str(mail.outbox[0].subject), expected_subject)
         body = mail.outbox[0].body.strip()
         page_path = reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id})
-        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
+        page_url = 'https://{host}{path}'.format(host=self.site.domain.strip('/'), path=page_path)
         self.assertIn(page_url, body)
         self.assertIn('has changed.', body)
 
@@ -603,11 +603,11 @@ class CourseChangeRoleAssignmentEmailTests(TestCase):
         )
         with mock.patch('django.core.mail.message.EmailMessage.send', side_effect=TypeError):
             with self.assertRaises(Exception) as ex:
-                emails.send_change_role_assignment_email(self.marketing_role, self.user)
+                emails.send_change_role_assignment_email(self.marketing_role, self.user, self.site)
                 self.assertEqual(str(ex.exception), message)
 
 
-class SEOReviewEmailTests(TestCase):
+class SEOReviewEmailTests(SiteMixin, TestCase):
     """ Tests for the seo review email functionality. """
 
     def setUp(self):
@@ -626,7 +626,7 @@ class SEOReviewEmailTests(TestCase):
         """ Verify that email failure logs error message."""
 
         with LogCapture(emails.logger.name) as l:
-            emails.send_email_for_seo_review(self.course)
+            emails.send_email_for_seo_review(self.course, self.site)
             l.check(
                 (
                     emails.logger.name,
@@ -642,7 +642,7 @@ class SEOReviewEmailTests(TestCase):
         Verify that seo review email functionality works fine.
         """
         factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.ProjectCoordinator)
-        emails.send_email_for_seo_review(self.course)
+        emails.send_email_for_seo_review(self.course, self.site)
         expected_subject = 'Legal review requested: {title}'.format(title=self.course.title)
 
         self.assertEqual(len(mail.outbox), 1)
@@ -652,7 +652,7 @@ class SEOReviewEmailTests(TestCase):
         self.assertEqual(str(mail.outbox[0].subject), expected_subject)
         body = mail.outbox[0].body.strip()
         page_path = reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id})
-        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
+        page_url = 'https://{host}{path}'.format(host=self.site.domain.strip('/'), path=page_path)
         self.assertIn(page_url, body)
         self.assertIn('determine OFAC status', body)
 
@@ -671,7 +671,7 @@ class CourseRunPublishedEditEmailTests(CourseRunPublishedEmailTests):
         )
         self.course_run.lms_course_id = 'course-v1:testX+test45+2017T2'
         self.course_run.save()
-        emails.send_email_for_published_course_run_editing(self.course_run)
+        emails.send_email_for_published_course_run_editing(self.course_run, self.site)
 
         course_key = CourseKey.from_string(self.course_run.lms_course_id)
 
@@ -692,7 +692,7 @@ class CourseRunPublishedEditEmailTests(CourseRunPublishedEmailTests):
         """ Verify that email failure logs error message."""
 
         with LogCapture(emails.logger.name) as l:
-            emails.send_email_for_published_course_run_editing(self.course_run)
+            emails.send_email_for_published_course_run_editing(self.course_run, self.site)
             l.check(
                 (
                     emails.logger.name,
