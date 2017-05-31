@@ -4,6 +4,7 @@ import json
 
 import responses
 from django.conf import settings
+from rest_framework.test import APITestCase as RestAPITestCase
 from rest_framework.test import APIRequestFactory
 
 from course_discovery.apps.api.serializers import (
@@ -11,6 +12,7 @@ from course_discovery.apps.api.serializers import (
     CourseWithProgramsSerializer, FlattenedCourseRunWithCourseSerializer, MinimalProgramSerializer,
     OrganizationSerializer, PersonSerializer, ProgramSerializer, ProgramTypeSerializer
 )
+from course_discovery.apps.api.tests.mixins import PartnerMixin
 
 
 class SerializationMixin(object):
@@ -88,3 +90,7 @@ class OAuth2Mixin(object):
             content_type='application/json',
             status=status
         )
+
+
+class APITestCase(PartnerMixin, RestAPITestCase):
+    pass

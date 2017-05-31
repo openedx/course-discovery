@@ -1,6 +1,5 @@
 import logging
 
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
 from django.utils.translation import ugettext as _
@@ -13,7 +12,6 @@ from guardian.shortcuts import get_objects_for_user
 from rest_framework.exceptions import NotFound, PermissionDenied
 
 from course_discovery.apps.api.utils import cast2int
-from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Organization, Program
 
@@ -93,7 +91,7 @@ class HaystackFilter(HaystackRequestFilterMixin, DefaultHaystackFilter):
 
         # Return data for the default partner, if no partner is requested
         if not any(field in filters for field in ('partner', 'partner_exact')):
-            filters['partner'] = Partner.objects.get(pk=settings.DEFAULT_PARTNER_ID).short_code
+            filters['partner'] = request.site.partner.short_code
 
         return filters
 
