@@ -329,7 +329,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         """
         Validate course-run has a  valid seats.
         """
-        seats = self.seats.filter(type__in=[Seat.AUDIT, Seat.VERIFIED, Seat.PROFESSIONAL])
+        seats = self.seats.filter(type__in=[Seat.AUDIT, Seat.VERIFIED, Seat.PROFESSIONAL, Seat.CREDIT])
         return all([seat.is_valid_seat for seat in seats]) if seats else False
 
 
@@ -379,7 +379,7 @@ class Seat(TimeStampedModel, ChangedByMixin):
         return (
             self.type == self.AUDIT or
             (self.type in [self.VERIFIED, self.PROFESSIONAL] and self.price > 0) or
-            (self.type == self.CREDIT and self.credit_price > 0)
+            (self.type == self.CREDIT and self.credit_price > 0 and self.price > 0)
         )
 
 

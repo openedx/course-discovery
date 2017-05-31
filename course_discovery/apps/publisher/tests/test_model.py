@@ -123,6 +123,15 @@ class CourseRunTests(TestCase):
 
         self.assertTrue(self.course_run.has_valid_seats)
 
+        credit_seat = factories.SeatFactory(course_run=self.course_run, type=Seat.CREDIT, price=0, credit_price=0)
+        self.assertFalse(self.course_run.has_valid_seats)
+
+        credit_seat.price = 200
+        credit_seat.credit_price = 200
+        credit_seat.save()
+
+        self.assertTrue(self.course_run.has_valid_seats)
+
 
 class CourseTests(TestCase):
     """ Tests for the publisher `Course` model. """
