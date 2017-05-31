@@ -189,6 +189,21 @@ class Course(TimeStampedModel, ChangedByMixin):
         except CourseUserRole.DoesNotExist:
             return None
 
+    @property
+    def course_image_url(self):
+        """
+        Return course image url.
+        """
+
+        if self.image:
+            return self.image.url
+
+        course_run = self.course_runs.filter(course_run_state__name=CourseRunStateChoices.Published).first()
+        if course_run and course_run.card_image_url:
+            return course_run.card_image_url
+
+        return None
+
 
 class CourseRun(TimeStampedModel, ChangedByMixin):
     """ Publisher CourseRun model. It contains fields related to the course run intake form."""
