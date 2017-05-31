@@ -32,7 +32,8 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         # This method prevents prefetches on the program queryset from "stacking,"
         # which happens when the queryset is stored in a class property.
-        return self.get_serializer_class().prefetch_queryset()
+        partner = self.request.site.partner
+        return self.get_serializer_class().prefetch_queryset(partner)
 
     def get_serializer_context(self, *args, **kwargs):
         context = super().get_serializer_context(*args, **kwargs)
@@ -89,7 +90,7 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
         if get_query_param(self.request, 'uuids_only'):
             # DRF serializers don't have good support for simple, flat
             # representations like the one we want here.
-            queryset = self.filter_queryset(Program.objects.all())
+            queryset = self.filter_queryset(Program.objects.filter(partner=self.request.site.partner))
             uuids = queryset.values_list('uuid', flat=True)
 
             return Response(uuids)

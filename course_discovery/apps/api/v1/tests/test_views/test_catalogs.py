@@ -185,8 +185,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
                 # Any course appearing in the response must have at least one serialized run.
                 assert len(response.data['results'][0]['course_runs']) > 0
             else:
-                with self.assertNumQueries(3):
-                    response = self.client.get(url)
+                response = self.client.get(url)
 
                 assert response.status_code == 200
                 assert response.data['results'] == []
@@ -218,7 +217,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
         url = reverse('api:v1:catalog-csv', kwargs={'id': self.catalog.id})
 
-        with self.assertNumQueries(17):
+        with self.assertNumQueries(18):
             response = self.client.get(url)
 
         course_run = self.serialize_catalog_flat_course_run(self.course_run)
