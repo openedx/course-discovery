@@ -15,6 +15,18 @@ logger = logging.getLogger(__name__)
 User = get_user_model()
 
 
+def get_database_status():
+    """Run a database query to see if the database is responsive."""
+    try:
+        cursor = connection.cursor()
+        cursor.execute("SELECT 1")
+        cursor.fetchone()
+        cursor.close()
+        return Status.OK
+    except DatabaseError:
+        return Status.UNAVAILABLE
+
+
 @transaction.non_atomic_requests
 def health(_):
     """Allows a load balancer to verify this service is up.
@@ -32,15 +44,7 @@ def health(_):
         >>> response.content
         '{"overall_status": "OK", "detailed_status": {"database_status": "OK"}}'
     """
-
-    try:
-        cursor = connection.cursor()
-        cursor.execute("SELECT 1")
-        cursor.fetchone()
-        cursor.close()
-        database_status = Status.OK
-    except DatabaseError:
-        database_status = Status.UNAVAILABLE
+    database_status = get_database_status()
 
     overall_status = Status.OK if (database_status == Status.OK) else Status.UNAVAILABLE
 

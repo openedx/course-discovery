@@ -3,10 +3,9 @@ import urllib.parse
 import ddt
 from django.core.cache import cache
 from django.urls import reverse
-from rest_framework.test import APITestCase
 
 from course_discovery.apps.api.serializers import MinimalProgramSerializer
-from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
 from course_discovery.apps.api.v1.views.programs import ProgramViewSet
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
@@ -31,10 +30,10 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         cache.clear()
 
     def create_program(self):
-        organizations = [OrganizationFactory()]
+        organizations = [OrganizationFactory(partner=self.partner)]
         person = PersonFactory()
 
-        course = CourseFactory()
+        course = CourseFactory(partner=self.partner)
         CourseRunFactory(course=course, staff=[person])
 
         program = ProgramFactory(
@@ -46,7 +45,8 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
             expected_learning_items=ExpectedLearningItemFactory.create_batch(1),
             job_outlook_items=JobOutlookItemFactory.create_batch(1),
             banner_image=make_image_file('test_banner.jpg'),
-            video=VideoFactory()
+            video=VideoFactory(),
+            partner=self.partner
         )
         return program
 
@@ -73,7 +73,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
     def test_retrieve(self):
         """ Verify the endpoint returns the details for a single program. """
         program = self.create_program()
-        with self.assertNumQueries(37):
+        with self.assertNumQueries(39):
             response = self.assert_retrieve_success(program)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
@@ -90,22 +90,25 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
     @ddt.data(True, False)
     def test_retrieve_with_sorting_flag(self, order_courses_by_start_date):
         """ Verify the number of queries is the same with sorting flag set to true. """
-        course_list = CourseFactory.create_batch(3)
+        course_list = CourseFactory.create_batch(3, partner=self.partner)
         for course in course_list:
             CourseRunFactory(course=course)
-        program = ProgramFactory(courses=course_list, order_courses_by_start_date=order_courses_by_start_date)
+        program = ProgramFactory(
+            courses=course_list,
+            order_courses_by_start_date=order_courses_by_start_date,
+            partner=self.partner)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
-        with self.assertNumQueries(26):
+        with self.assertNumQueries(28):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
         self.assertEqual(course_list, list(program.courses.all()))  # pylint: disable=no-member
 
     def test_retrieve_without_course_runs(self):
         """ Verify the endpoint returns data for a program even if the program's courses have no course runs. """
-        course = CourseFactory()
-        program = ProgramFactory(courses=[course])
-        with self.assertNumQueries(20):
+        course = CourseFactory(partner=self.partner)
+        program = ProgramFactory(courses=[course], partner=self.partner)
+        with self.assertNumQueries(22):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
 
@@ -135,7 +138,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of all programs. """
         expected = [self.create_program() for __ in range(3)]
         expected.reverse()
-        self.assert_list_results(self.list_path, expected, 12)
+        self.assert_list_results(self.list_path, expected, 14)
 
         # Verify that repeated list requests use the cache.
         self.assert_list_results(self.list_path, expected, 2)
@@ -145,8 +148,8 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         Verify that the list view returns a simply list of UUIDs when the
         uuids_only query parameter is passed.
         """
-        active = ProgramFactory.create_batch(3)
-        retired = [ProgramFactory(status=ProgramStatus.Retired)]
+        active = ProgramFactory.create_batch(3, partner=self.partner)
+        retired = [ProgramFactory(status=ProgramStatus.Retired, partner=self.partner)]
         programs = active + retired
 
         querystring = {'uuids_only': 1}
@@ -165,47 +168,47 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
     def test_filter_by_type(self):
         """ Verify that the endpoint filters programs to those of a given type. """
         program_type_name = 'foo'
-        program = ProgramFactory(type__name=program_type_name)
+        program = ProgramFactory(type__name=program_type_name, partner=self.partner)
         url = self.list_path + '?type=' + program_type_name
-        self.assert_list_results(url, [program], 8)
+        self.assert_list_results(url, [program], 10)
 
         url = self.list_path + '?type=bar'
         self.assert_list_results(url, [], 4)
 
     def test_filter_by_types(self):
         """ Verify that the endpoint filters programs to those matching the provided ProgramType slugs. """
-        expected = ProgramFactory.create_batch(2)
+        expected = ProgramFactory.create_batch(2, partner=self.partner)
         expected.reverse()
         type_slugs = [p.type.slug for p in expected]
         url = self.list_path + '?types=' + ','.join(type_slugs)
 
         # Create a third program, which should be filtered out.
-        ProgramFactory()
+        ProgramFactory(partner=self.partner)
 
-        self.assert_list_results(url, expected, 8)
+        self.assert_list_results(url, expected, 10)
 
     def test_filter_by_uuids(self):
         """ Verify that the endpoint filters programs to those matching the provided UUIDs. """
-        expected = ProgramFactory.create_batch(2)
+        expected = ProgramFactory.create_batch(2, partner=self.partner)
         expected.reverse()
         uuids = [str(p.uuid) for p in expected]
         url = self.list_path + '?uuids=' + ','.join(uuids)
 
         # Create a third program, which should be filtered out.
-        ProgramFactory()
+        ProgramFactory(partner=self.partner)
 
-        self.assert_list_results(url, expected, 8)
+        self.assert_list_results(url, expected, 10)
 
     @ddt.data(
-        (ProgramStatus.Unpublished, False, 4),
-        (ProgramStatus.Active, True, 8),
+        (ProgramStatus.Unpublished, False, 6),
+        (ProgramStatus.Active, True, 10),
     )
     @ddt.unpack
     def test_filter_by_marketable(self, status, is_marketable, expected_query_count):
         """ Verify the endpoint filters programs to those that are marketable. """
         url = self.list_path + '?marketable=1'
-        ProgramFactory(marketing_slug='')
-        programs = ProgramFactory.create_batch(3, status=status)
+        ProgramFactory(marketing_slug='', partner=self.partner)
+        programs = ProgramFactory.create_batch(3, status=status, partner=self.partner)
         programs.reverse()
 
         expected = programs if is_marketable else []
@@ -214,11 +217,11 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
 
     def test_filter_by_status(self):
         """ Verify the endpoint allows programs to filtered by one, or more, statuses. """
-        active = ProgramFactory(status=ProgramStatus.Active)
-        retired = ProgramFactory(status=ProgramStatus.Retired)
+        active = ProgramFactory(status=ProgramStatus.Active, partner=self.partner)
+        retired = ProgramFactory(status=ProgramStatus.Retired, partner=self.partner)
 
         url = self.list_path + '?status=active'
-        self.assert_list_results(url, [active], 8)
+        self.assert_list_results(url, [active], 10)
 
         url = self.list_path + '?status=retired'
         self.assert_list_results(url, [retired], 8)
@@ -228,11 +231,11 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
 
     def test_filter_by_hidden(self):
         """ Endpoint should filter programs by their hidden attribute value. """
-        hidden = ProgramFactory(hidden=True)
-        not_hidden = ProgramFactory(hidden=False)
+        hidden = ProgramFactory(hidden=True, partner=self.partner)
+        not_hidden = ProgramFactory(hidden=False, partner=self.partner)
 
         url = self.list_path + '?hidden=True'
-        self.assert_list_results(url, [hidden], 8)
+        self.assert_list_results(url, [hidden], 10)
 
         url = self.list_path + '?hidden=False'
         self.assert_list_results(url, [not_hidden], 8)
@@ -247,7 +250,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns marketing URLs without UTM parameters. """
         url = self.list_path + '?exclude_utm=1'
         program = self.create_program()
-        self.assert_list_results(url, [program], 12, extra_context={'exclude_utm': 1})
+        self.assert_list_results(url, [program], 14, extra_context={'exclude_utm': 1})
 
     def test_minimal_serializer_use(self):
         """ Verify that the list view uses the minimal serializer. """
