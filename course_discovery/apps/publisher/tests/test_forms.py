@@ -111,11 +111,6 @@ class PublisherCourseRunEditFormTests(TestCase):
         with self.assertRaises(ValidationError):
             run_form.clean()
 
-        run_form.cleaned_data = {'start': current_datetime - timedelta(days=3),
-                                 'end': current_datetime + timedelta(days=3)}
-        with self.assertRaises(ValidationError):
-            run_form.clean()
-
         run_form.cleaned_data['start'] = current_datetime + timedelta(days=1)
         run_form.cleaned_data['end'] = current_datetime + timedelta(days=3)
         self.assertEqual(run_form.clean(), run_form.cleaned_data)

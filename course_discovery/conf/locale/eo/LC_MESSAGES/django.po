@@ -11,10 +11,10 @@ msgstr ""
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -798,11 +798,6 @@ msgstr "Çöürsé Rün Kéý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 #: apps/publisher/forms.py
 msgid "Video Language"
 msgstr "Vïdéö Längüägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
-
-#: apps/publisher/forms.py
-msgid "Start date cannot be in the Past"
-msgstr ""
-"Stärt däté çännöt ßé ïn thé Päst Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
 #: apps/publisher/forms.py
 msgid "Start date cannot be after the End date"
