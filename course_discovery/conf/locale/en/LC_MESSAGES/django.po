@@ -675,10 +675,6 @@ msgid "Video Language"
 msgstr ""
 
 #: apps/publisher/forms.py
-msgid "Start date cannot be in the Past"
-msgstr ""
-
-#: apps/publisher/forms.py
 msgid "Start date cannot be after the End date"
 msgstr ""
 

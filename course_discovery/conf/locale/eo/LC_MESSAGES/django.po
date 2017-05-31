@@ -800,11 +800,6 @@ msgid "Video Language"
 msgstr "Vïdéö Längüägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: apps/publisher/forms.py
-msgid "Start date cannot be in the Past"
-msgstr ""
-"Stärt däté çännöt ßé ïn thé Päst Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
-
-#: apps/publisher/forms.py
 msgid "Start date cannot be after the End date"
 msgstr ""
 "Stärt däté çännöt ßé äftér thé Énd däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "

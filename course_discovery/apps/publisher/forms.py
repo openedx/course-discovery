@@ -6,7 +6,6 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models.functions import Lower
 from django.template.loader import render_to_string
-from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
@@ -324,8 +323,6 @@ class CustomCourseRunForm(CourseRunForm):
         max_effort = cleaned_data.get("max_effort")
         start = cleaned_data.get("start")
         end = cleaned_data.get("end")
-        if start and start < timezone.now():
-            raise ValidationError({'start': _('Start date cannot be in the Past')})
         if start and end and start > end:
             raise ValidationError({'start': _('Start date cannot be after the End date')})
         if min_effort and max_effort and min_effort > max_effort:
