@@ -174,14 +174,14 @@ class CourseRunWrapperTests(TestCase):
         """ Verify that the wrapper return the course team admin. """
         self.assertEqual(self.wrapped_course_run.course_team_admin, self.course.course_team_admin)
 
-    def test_course_image(self):
-        """ Verify that the wrapper return the course image. """
-        self.assertIsNone(self.wrapped_course_run.course_image)
+    def test_course_image_url(self):
+        """ Verify that the wrapper return the course image url. """
+        self.assertIsNone(self.wrapped_course_run.course_image_url)
 
         self.course.image = make_image_file('test_banner1.jpg')
         self.course.save()
 
-        self.assertEqual(self.wrapped_course_run.course_image, self.course.image)
+        self.assertEqual(self.wrapped_course_run.course_image_url, self.course.image.url)
 
     def test_course_staff(self):
         """Verify that the wrapper return staff list."""

@@ -144,8 +144,8 @@
                 <div class="heading course-image-heading">
                     {% trans "Course Image" %}
                 </div>
-                {% if object.image %}
-                    <img class="course-image" src="{{ object.image.url }}" alt="{% trans 'Course Image' %}">
+                {% if object.course_image_url %}
+                    <img class="course-image" src="{{ object.course_image_url }}" alt="{% trans 'Course Image' %}">
                 {% else %}
                     {% trans "(Required) Not yet added" %}
                 {% endif %}

@@ -312,6 +312,26 @@ class CourseTests(TestCase):
 
         self.assertEqual(self.user1, self.course2.publisher)
 
+    def test_course_image_url(self):
+        """ Verify that the property returns the course image url. """
+        self.assertIsNone(self.course.course_image_url)
+
+        # Create a published course-run with card_image_url.
+        course_run = factories.CourseRunFactory(course=self.course)
+        factories.CourseRunStateFactory(course_run=course_run, name=CourseRunStateChoices.Published)
+        course_run.card_image_url = 'http://example.com/test.jpg'
+        course_run.save()
+
+        # Verify that property returns card_image_url of course-run.
+        self.assertEqual(self.course.course_image_url, course_run.card_image_url)
+
+        # Create a course image.
+        self.course.image = make_image_file('test_banner1.jpg')
+        self.course.save()
+
+        # Verify that property returns course image field url.
+        self.assertEqual(self.course.course_image_url, self.course.image.url)
+
 
 class SeatTests(TestCase):
     """ Tests for the publisher `Seat` model. """
