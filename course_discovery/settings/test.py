@@ -45,3 +45,7 @@ JWT_AUTH['JWT_SECRET_KEY'] = 'course-discovery-jwt-secret-key'
 LOGGING['handlers']['local'] = {'class': 'logging.NullHandler'}
 
 PUBLISHER_FROM_EMAIL = 'test@example.com'
+
+# Set to 0 to disable edx-django-sites-extensions to retrieve
+# the site from cache and risk working with outdated information.
+SITE_CACHE_TTL = 0

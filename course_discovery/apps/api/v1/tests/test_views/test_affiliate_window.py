@@ -7,10 +7,9 @@ import ddt
 import pytz
 from lxml import etree
 from rest_framework.reverse import reverse
-from rest_framework.test import APITestCase
 
 from course_discovery.apps.api.serializers import AffiliateWindowSerializer
-from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
@@ -46,8 +45,7 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
 
     def test_affiliate_with_supported_seats(self):
         """ Verify that endpoint returns course runs for verified and professional seats only. """
-        with self.assertNumQueries(8):
-            response = self.client.get(self.affiliate_url)
+        response = self.client.get(self.affiliate_url)
 
         self.assertEqual(response.status_code, 200)
         root = ET.fromstring(response.content)
@@ -130,7 +128,7 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
         # Superusers can view all catalogs
         self.client.force_authenticate(superuser)
 
-        with self.assertNumQueries(4):
+        with self.assertNumQueries(5):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
 
@@ -140,7 +138,7 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
         self.assertEqual(response.status_code, 403)
 
         catalog.viewers = [self.user]
-        with self.assertNumQueries(7):
+        with self.assertNumQueries(8):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
 

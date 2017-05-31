@@ -394,14 +394,16 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
 
         if latest_run and latest_run.course_run_state.name == CourseRunStateChoices.Published:
             # If latest run of this course is published send an email to Publisher and don't change state.
-            send_email_for_published_course_run_editing(latest_run)
+            send_email_for_published_course_run_editing(latest_run, self.request.site)
         else:
             user_role = self.object.course_user_roles.get(user=user)
             # Change course state to draft if marketing not yet reviewed or
             # if marketing person updating the course.
             if not self.object.course_state.marketing_reviewed or user_role.role == PublisherUserRole.MarketingReviewer:
                 if self.object.course_state.name != CourseStateChoices.Draft:
-                    self.object.course_state.change_state(state=CourseStateChoices.Draft, user=user)
+                    self.object.course_state.change_state(
+                        state=CourseStateChoices.Draft, user=user, site=self.request.site
+                    )
 
                 # Change ownership if user role not equal to owner role.
                 if self.object.course_state.owner_role != user_role.role:
@@ -599,7 +601,7 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
                         )
                         messages.success(request, success_msg)
 
-                        emails.send_email_for_course_creation(parent_course, course_run)
+                        emails.send_email_for_course_creation(parent_course, course_run, request.site)
                         return HttpResponseRedirect(reverse(self.success_url, kwargs={'pk': course_run.id}))
                 except Exception as error:  # pylint: disable=broad-except
                     # pylint: disable=no-member
@@ -740,10 +742,10 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
 
                     course_run_state = course_run.course_run_state
                     if course_run_state.name not in immutable_states:
-                        course_run_state.change_state(state=CourseStateChoices.Draft, user=user)
+                        course_run_state.change_state(state=CourseStateChoices.Draft, user=user, site=request.site)
 
                     if course_run.lms_course_id and lms_course_id != course_run.lms_course_id:
-                        emails.send_email_for_studio_instance_created(course_run)
+                        emails.send_email_for_studio_instance_created(course_run, site=request.site)
 
                     # pylint: disable=no-member
                     messages.success(request, _('Course run updated successfully.'))
@@ -757,7 +759,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
                         course_run_state.change_owner_role(user_role)
 
                     if CourseRunStateChoices.Published == course_run_state.name:
-                        send_email_for_published_course_run_editing(course_run)
+                        send_email_for_published_course_run_editing(course_run, request.site)
 
                     return HttpResponseRedirect(reverse(self.success_url, kwargs={'pk': course_run.id}))
             except Exception as e:  # pylint: disable=broad-except

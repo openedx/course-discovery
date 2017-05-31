@@ -1,9 +1,8 @@
 import uuid
 
 from django.urls import reverse
-from rest_framework.test import APITestCase
 
-from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.tests.factories import Organization, OrganizationFactory
 
@@ -14,6 +13,7 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
     def setUp(self):
         super(OrganizationViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.request.user = self.user
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
     def test_authentication(self):
@@ -27,17 +27,17 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
 
     def assert_response_data_valid(self, response, organizations, many=True):
         """ Asserts the response data (only) contains the expected organizations. """
-
         actual = response.data
+        serializer_data = self.serialize_organization(organizations, many=many)
         if many:
             actual = actual['results']
 
-        self.assertEqual(actual, self.serialize_organization(organizations, many=many))
+        self.assertCountEqual(actual, serializer_data)
 
-    def assert_list_uuid_filter(self, organizations):
+    def assert_list_uuid_filter(self, organizations, expected_query_count):
         """ Asserts the list endpoint supports filtering by UUID. """
-
-        with self.assertNumQueries(5):
+        organizations = sorted(organizations, key=lambda o: o.created)
+        with self.assertNumQueries(expected_query_count):
             uuids = ','.join([organization.uuid.hex for organization in organizations])
             url = '{root}?uuids={uuids}'.format(root=self.list_path, uuids=uuids)
             response = self.client.get(url)
@@ -45,9 +45,8 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assert_response_data_valid(response, organizations)
 
-    def assert_list_tag_filter(self, organizations, tags, expected_query_count=5):
+    def assert_list_tag_filter(self, organizations, tags, expected_query_count=7):
         """ Asserts the list endpoint supports filtering by tags. """
-
         with self.assertNumQueries(expected_query_count):
             tags = ','.join(tags)
             url = '{root}?tags={tags}'.format(root=self.list_path, tags=tags)
@@ -58,10 +57,9 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
 
     def test_list(self):
         """ Verify the endpoint returns a list of all organizations. """
+        OrganizationFactory.create_batch(3, partner=self.partner)
 
-        OrganizationFactory.create_batch(3)
-
-        with self.assertNumQueries(5):
+        with self.assertNumQueries(7):
             response = self.client.get(self.list_path)
 
         self.assertEqual(response.status_code, 200)
@@ -70,22 +68,22 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
     def test_list_uuid_filter(self):
         """ Verify the endpoint returns a list of organizations filtered by UUID. """
 
-        organizations = OrganizationFactory.create_batch(3)
+        organizations = OrganizationFactory.create_batch(3, partner=self.partner)
 
         # Test with a single UUID
-        self.assert_list_uuid_filter([organizations[0]])
+        self.assert_list_uuid_filter([organizations[0]], 7)
 
         # Test with multiple UUIDs
-        self.assert_list_uuid_filter(organizations)
+        self.assert_list_uuid_filter(organizations, 7)
 
     def test_list_tag_filter(self):
         """ Verify the endpoint returns a list of organizations filtered by tag. """
 
         tag = 'test-org'
-        organizations = OrganizationFactory.create_batch(2)
+        organizations = OrganizationFactory.create_batch(2, partner=self.partner)
 
         # If no organizations have been tagged, the endpoint should not return any data
-        self.assert_list_tag_filter([], [tag], expected_query_count=3)
+        self.assert_list_tag_filter([], [tag], expected_query_count=5)
 
         # Tagged organizations should be returned
         organizations[0].tags.add(tag)
@@ -99,7 +97,7 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
 
     def test_retrieve(self):
         """ Verify the endpoint returns details for a single organization. """
-        organization = OrganizationFactory()
+        organization = OrganizationFactory(partner=self.partner)
         url = reverse('api:v1:organization-detail', kwargs={'uuid': organization.uuid})
 
         response = self.client.get(url)
