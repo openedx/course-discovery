@@ -94,6 +94,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
         course_runs = CourseRun.objects.active().enrollable().marketable()
 
         queryset = serializers.CatalogCourseSerializer.prefetch_queryset(
+            self.request.site.partner,
             queryset=queryset,
             course_runs=course_runs
         )

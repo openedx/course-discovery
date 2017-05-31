@@ -5,6 +5,7 @@ from django.test import RequestFactory, TestCase
 from opaque_keys.edx.keys import CourseKey
 from rest_framework.exceptions import ValidationError
 
+from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
@@ -20,7 +21,7 @@ from course_discovery.apps.publisher.tests.factories import (CourseFactory, Cour
                                                              OrganizationExtensionFactory, SeatFactory)
 
 
-class CourseUserRoleSerializerTests(TestCase):
+class CourseUserRoleSerializerTests(SiteMixin, TestCase):
     serializer_class = CourseUserRoleSerializer
 
     def setUp(self):
@@ -28,6 +29,7 @@ class CourseUserRoleSerializerTests(TestCase):
         self.request = RequestFactory()
         self.course_user_role = CourseUserRoleFactory(role=PublisherUserRole.MarketingReviewer)
         self.request.user = self.course_user_role.user
+        self.request.site = self.site
 
     def get_expected_data(self):
         """ Helper method which will return expected serialize data. """
@@ -138,7 +140,7 @@ class CourseRunSerializerTests(TestCase):
         """
         self.course_run.preview_url = ''
         self.course_run.save()
-        serializer = self.serializer_class(self.course_run)
+        serializer = self.serializer_class(self.course_run, context={'request': self.request})
         serializer.update(self.course_run, {'preview_url': 'https://example.com/abc/course'})
 
         self.assertEqual(self.course_state.owner_role, PublisherUserRole.CourseTeam)
@@ -246,13 +248,12 @@ class CourseRevisionSerializerTests(TestCase):
         self.assertDictEqual(serializer.data, expected)
 
 
-class CourseStateSerializerTests(TestCase):
+class CourseStateSerializerTests(SiteMixin, TestCase):
     serializer_class = CourseStateSerializer
 
     def setUp(self):
         super(CourseStateSerializerTests, self).setUp()
         self.course_state = CourseStateFactory(name=CourseStateChoices.Draft)
-        self.request = RequestFactory()
         self.user = UserFactory()
         self.request.user = self.user
 
@@ -289,14 +290,13 @@ class CourseStateSerializerTests(TestCase):
             serializer.update(self.course_state, data)
 
 
-class CourseRunStateSerializerTests(TestCase):
+class CourseRunStateSerializerTests(SiteMixin, TestCase):
     serializer_class = CourseRunStateSerializer
 
     def setUp(self):
         super(CourseRunStateSerializerTests, self).setUp()
         self.run_state = CourseRunStateFactory(name=CourseRunStateChoices.Draft)
         self.course_run = self.run_state.course_run
-        self.request = RequestFactory()
         self.user = UserFactory()
         self.request.user = self.user
         CourseStateFactory(name=CourseStateChoices.Approved, course=self.course_run.course)

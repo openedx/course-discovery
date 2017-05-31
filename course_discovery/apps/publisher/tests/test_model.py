@@ -6,7 +6,7 @@ from django.urls import reverse
 from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import assign_perm
 
-from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -525,6 +525,8 @@ class CourseStateTests(TestCase):
     def setUp(self):
         super(CourseStateTests, self).setUp()
 
+        self.site = SiteFactory()
+        self.partner = PartnerFactory(site=self.site)
         self.course = self.course_state.course
         self.course.image = make_image_file('test_banner.jpg')
         self.course.save()
@@ -548,7 +550,7 @@ class CourseStateTests(TestCase):
         """
         self.assertNotEqual(self.course_state.name, state)
 
-        self.course_state.change_state(state=state, user=self.user)
+        self.course_state.change_state(state=state, user=self.user, site=self.site)
 
         self.assertEqual(self.course_state.name, state)
 
@@ -561,7 +563,7 @@ class CourseStateTests(TestCase):
         self.assertEqual(self.course_state.name, CourseStateChoices.Draft)
 
         with self.assertRaises(TransitionNotAllowed):
-            self.course_state.change_state(state=CourseStateChoices.Review, user=self.user)
+            self.course_state.change_state(state=CourseStateChoices.Review, user=self.user, site=self.site)
 
     def test_can_send_for_review(self):
         """
@@ -673,6 +675,9 @@ class CourseRunStateTests(TestCase):
 
         language_tag = LanguageTag(code='te-st', name='Test Language')
         language_tag.save()
+
+        self.site = SiteFactory()
+        self.partner = PartnerFactory(site=self.site)
         self.course_run.transcript_languages.add(language_tag)
         self.course_run.language = language_tag
         self.course_run.is_micromasters = True
@@ -703,7 +708,7 @@ class CourseRunStateTests(TestCase):
         Verify that we can change course-run state according to workflow.
         """
         self.assertNotEqual(self.course_run_state.name, state)
-        self.course_run_state.change_state(state=state, user=self.user)
+        self.course_run_state.change_state(state=state, user=self.user, site=self.site)
         self.assertEqual(self.course_run_state.name, state)
 
     def test_with_invalid_parent_course_state(self):

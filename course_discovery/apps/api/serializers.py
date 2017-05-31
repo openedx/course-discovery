@@ -369,8 +369,8 @@ class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
     tags = TagListSerializerField()
 
     @classmethod
-    def prefetch_queryset(cls):
-        return Organization.objects.all().select_related('partner').prefetch_related('tags')
+    def prefetch_queryset(cls, partner):
+        return Organization.objects.filter(partner=partner).select_related('partner').prefetch_related('tags')
 
     class Meta(MinimalOrganizationSerializer.Meta):
         fields = MinimalOrganizationSerializer.Meta.fields + (
@@ -551,18 +551,18 @@ class CourseSerializer(MinimalCourseSerializer):
     marketing_url = serializers.SerializerMethodField()
 
     @classmethod
-    def prefetch_queryset(cls, queryset=None, course_runs=None):
+    def prefetch_queryset(cls, partner, queryset=None, course_runs=None):
         # Explicitly check for None to avoid returning all Courses when the
         # queryset passed in happens to be empty.
-        queryset = queryset if queryset is not None else Course.objects.all()
+        queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
 
         return queryset.select_related('level_type', 'video', 'partner').prefetch_related(
             'expected_learning_items',
             'prerequisites',
             'subjects',
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
-            Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset()),
-            Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset()),
+            Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
+            Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
         )
 
     class Meta(MinimalCourseSerializer.Meta):
@@ -586,20 +586,20 @@ class CourseWithProgramsSerializer(CourseSerializer):
     programs = serializers.SerializerMethodField()
 
     @classmethod
-    def prefetch_queryset(cls, queryset=None, course_runs=None):
+    def prefetch_queryset(cls, partner, queryset=None, course_runs=None):
         """
         Similar to the CourseSerializer's prefetch_queryset, but prefetches a
         filtered CourseRun queryset.
         """
-        queryset = queryset if queryset is not None else Course.objects.all()
+        queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
 
         return queryset.select_related('level_type', 'video', 'partner').prefetch_related(
             'expected_learning_items',
             'prerequisites',
             'subjects',
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
-            Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset()),
-            Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset()),
+            Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
+            Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
         )
 
     def get_course_runs(self, course):
@@ -634,20 +634,20 @@ class CatalogCourseSerializer(CourseSerializer):
     course_runs = serializers.SerializerMethodField()
 
     @classmethod
-    def prefetch_queryset(cls, queryset=None, course_runs=None):
+    def prefetch_queryset(cls, partner, queryset=None, course_runs=None):
         """
         Similar to the CourseSerializer's prefetch_queryset, but prefetches a
         filtered CourseRun queryset.
         """
-        queryset = queryset if queryset is not None else Course.objects.all()
+        queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
 
         return queryset.select_related('level_type', 'video', 'partner').prefetch_related(
             'expected_learning_items',
             'prerequisites',
             'subjects',
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
-            Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset()),
-            Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset()),
+            Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
+            Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
         )
 
     def get_course_runs(self, course):
@@ -703,8 +703,8 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
 
     @classmethod
-    def prefetch_queryset(cls):
-        return Program.objects.all().select_related('type', 'partner').prefetch_related(
+    def prefetch_queryset(cls, partner):
+        return Program.objects.filter(partner=partner).select_related('type', 'partner').prefetch_related(
             'excluded_course_runs',
             # `type` is serialized by a third-party serializer. Providing this field name allows us to
             # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
@@ -828,7 +828,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     applicable_seat_types = serializers.SerializerMethodField()
 
     @classmethod
-    def prefetch_queryset(cls):
+    def prefetch_queryset(cls, partner):
         """
         Prefetch the related objects that will be serialized with a `Program`.
 
@@ -836,7 +836,7 @@ class ProgramSerializer(MinimalProgramSerializer):
         chain of related fields from programs to course runs (i.e., we want control over
         the querysets that we're prefetching).
         """
-        return Program.objects.all().select_related('type', 'video', 'partner').prefetch_related(
+        return Program.objects.filter(partner=partner).select_related('type', 'video', 'partner').prefetch_related(
             'excluded_course_runs',
             'expected_learning_items',
             'faq',
@@ -847,9 +847,9 @@ class ProgramSerializer(MinimalProgramSerializer):
             'type__applicable_seat_types',
             # We need the full Course prefetch here to get CourseRun information that methods on the Program
             # model iterate across (e.g. language). These fields aren't prefetched by the minimal Course serializer.
-            Prefetch('courses', queryset=CourseSerializer.prefetch_queryset()),
-            Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset()),
-            Prefetch('credit_backing_organizations', queryset=OrganizationSerializer.prefetch_queryset()),
+            Prefetch('courses', queryset=CourseSerializer.prefetch_queryset(partner=partner)),
+            Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
+            Prefetch('credit_backing_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('corporate_endorsements', queryset=CorporateEndorsementSerializer.prefetch_queryset()),
             Prefetch('individual_endorsements', queryset=EndorsementSerializer.prefetch_queryset()),
         )

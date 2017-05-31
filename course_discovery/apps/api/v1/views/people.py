@@ -7,7 +7,6 @@ from rest_framework.response import Response
 
 from course_discovery.apps.api import serializers
 from course_discovery.apps.api.pagination import PageNumberPagination
-from course_discovery.apps.api.v1.views import PartnerMixin
 
 from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException, PersonToMarketingException
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
@@ -16,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 # pylint: disable=no-member
-class PersonViewSet(PartnerMixin, viewsets.ModelViewSet):
+class PersonViewSet(viewsets.ModelViewSet):
     """ PersonSerializer resource. """
 
     lookup_field = 'uuid'
@@ -30,7 +29,7 @@ class PersonViewSet(PartnerMixin, viewsets.ModelViewSet):
         """ Create a new person. """
         person_data = request.data
 
-        partner = self.get_partner()
+        partner = request.site.partner
         person_data['partner'] = partner.id
         serializer = self.get_serializer(data=person_data)
         serializer.is_valid(raise_exception=True)

@@ -1,13 +1,12 @@
 import ddt
 import mock
-from django.conf import settings
-from django.contrib.sites.models import Site
 from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
 from opaque_keys.edx.keys import CourseKey
 from testfixtures import LogCapture
 
+from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.publisher.choices import PublisherUserRole
@@ -20,7 +19,7 @@ from course_discovery.apps.publisher_comments.tests.factories import CommentFact
 
 
 @ddt.ddt
-class CommentsEmailTests(TestCase):
+class CommentsEmailTests(SiteMixin, TestCase):
     """ Tests for the e-mail functionality for course, course-run and seats. """
 
     def setUp(self):
@@ -29,8 +28,6 @@ class CommentsEmailTests(TestCase):
         self.user = UserFactory()
         self.user_2 = UserFactory()
         self.user_3 = UserFactory()
-
-        self.site = Site.objects.get(pk=settings.SITE_ID)
 
         self.organization_extension = factories.OrganizationExtensionFactory()
 
