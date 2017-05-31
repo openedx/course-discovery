@@ -35,18 +35,3 @@ def prefetch_related_objects_for_courses(queryset):
     queryset = queryset.select_related(*_select_related_fields['course'])
     queryset = queryset.prefetch_related(*_prefetch_fields['course'])
     return queryset
-
-
-class PartnerMixin:
-    def get_partner(self):
-        """ Return the partner for the short_code passed in or the default partner """
-        partner_code = self.request.query_params.get('partner')
-        if partner_code:
-            try:
-                partner = Partner.objects.get(short_code=partner_code)
-            except Partner.DoesNotExist:
-                raise InvalidPartnerError('Unknown Partner: {}'.format(partner_code))
-        else:
-            partner = Partner.objects.get(id=settings.DEFAULT_PARTNER_ID)
-
-        return partner

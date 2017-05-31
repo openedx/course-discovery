@@ -9,18 +9,20 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.encoding import force_text
 
+from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.constants import Status
 
 User = get_user_model()
 
 
-class HealthTests(TestCase):
+class HealthTests(SiteMixin, TestCase):
     """Tests of the health endpoint."""
 
     def test_all_services_available(self):
         """Test that the endpoint reports when all services are healthy."""
         self._assert_health(200, Status.OK, Status.OK)
 
+    @mock.patch('django.contrib.sites.middleware.get_current_site', mock.Mock(return_value=None))
     def test_database_outage(self):
         """Test that the endpoint reports when the database is unavailable."""
         with mock.patch('django.db.backends.base.base.BaseDatabaseWrapper.cursor', side_effect=DatabaseError):
@@ -42,7 +44,7 @@ class HealthTests(TestCase):
         self.assertJSONEqual(force_text(response.content), expected_data)
 
 
-class AutoAuthTests(TestCase):
+class AutoAuthTests(SiteMixin, TestCase):
     """ Auto Auth view tests. """
     AUTO_AUTH_PATH = reverse('auto_auth')
 
