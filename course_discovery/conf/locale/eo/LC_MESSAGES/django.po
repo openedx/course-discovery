@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-01 18:07+0500\n"
+"POT-Creation-Date: 2017-06-02 14:58+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -3044,20 +3044,20 @@ msgstr ""
 " ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αт#"
 
 #: templates/publisher/dashboard.html
-msgid "Add a New Course"
-msgstr "Àdd ä Néw Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
-
-#: templates/publisher/dashboard.html
-msgid "Add a Course Run"
-msgstr "Àdd ä Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
-
-#: templates/publisher/dashboard.html
 msgid ""
 "EdX Publisher is a companion to edX Studio. Course teams enter About page "
 "information in Publisher, and course content in Studio."
 msgstr ""
 "ÉdX Püßlïshér ïs ä çömpänïön tö édX Stüdïö. Çöürsé téäms éntér Àßöüt pägé "
 "ïnförmätïön ïn Püßlïshér, änd çöürsé çöntént ïn Stüdïö. Ⱡ'σ#"
+
+#: templates/publisher/dashboard.html
+msgid "Add a New Course"
+msgstr "Àdd ä Néw Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: templates/publisher/dashboard.html
+msgid "Add a Course Run"
+msgstr "Àdd ä Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: templates/publisher/dashboard.html
 msgid "Course runs"

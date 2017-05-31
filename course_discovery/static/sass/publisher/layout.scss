@@ -1,0 +1,24 @@
+//main-ltr is adding a height of 100%
+html
+, body{
+	height: auto;
+}
+
+body{
+	background: $dark-blue;
+}
+
+header{
+	background: $white;
+}
+
+.layout-col-b{
+	background: $gray-background;
+}
+
+//at the momment main-ltr is adding a margin of 20px at the bottom of the div
+.container .wrapper-footer{
+	margin: 0 !important;
+	background: $white;
+}
+

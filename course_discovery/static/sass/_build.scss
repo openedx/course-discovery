@@ -22,8 +22,10 @@
 // #EXTENSIONS
 // ------------------------------
 @import "base";
-@import "publisher/lib";
 @import 'publisher/color-palette';
+@import "publisher/lib";
+@import 'publisher/layout';
+@import 'publisher/grid';
 @import 'publisher/typography';
 @import 'publisher/buttons-links';
 @import 'publisher/navigations';
