@@ -323,10 +323,18 @@ class CustomCourseRunForm(CourseRunForm):
         max_effort = cleaned_data.get("max_effort")
         start = cleaned_data.get("start")
         end = cleaned_data.get("end")
+        is_xseries = cleaned_data.get("is_xseries")
+        xseries_name = cleaned_data.get("xseries_name")
+        is_micromasters = cleaned_data.get("is_micromasters")
+        micromasters_name = cleaned_data.get("micromasters_name")
         if start and end and start > end:
             raise ValidationError({'start': _('Start date cannot be after the End date')})
         if min_effort and max_effort and min_effort > max_effort:
                 raise ValidationError({'min_effort': _('Minimum effort cannot be greater than Maximum effort')})
+        if is_xseries and not xseries_name:
+            raise ValidationError({'xseries_name': _('Enter XSeries program name')})
+        if is_micromasters and not micromasters_name:
+            raise ValidationError({'micromasters_name': _('Enter Micromasters program name')})
 
         return cleaned_data
 
