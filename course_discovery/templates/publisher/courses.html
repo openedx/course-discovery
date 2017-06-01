@@ -20,7 +20,7 @@
                         {% trans "Course Name" %}
                     </th>
                     <th role="button">
-                        {% trans "Institution" %}
+                        {% trans "Organization" %}
                     </th>
                     <th role="button">
                         {% trans "Project Coordinator" %}
@@ -50,7 +50,7 @@
                           {% endif %}
                         </td>
                         <td>
-                            {% if course.organizations.first %}{{ course.organizations.first.name }}{% endif %}
+                            {% if course.organizations.first %}{{ course.organizations.first.key }}{% endif %}
                         </td>
                         <td>
                             {{ course.project_coordinator.full_name }}

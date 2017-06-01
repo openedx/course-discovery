@@ -41,9 +41,11 @@
 
             <div class="info-item">
                 <div class="heading">
-                    {% trans "Institution" %}
+                    {% trans "Organization Name" %}
                 </div>
-                <div>{{ object.organizations.first.name }}</div>
+                <div>
+                    {{ object.organizations.first }}
+                </div>
             </div>
 
             <div class="info-item">

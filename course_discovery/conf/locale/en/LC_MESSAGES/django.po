@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-31 20:11+0500\n"
+"POT-Creation-Date: 2017-06-01 14:43+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -564,7 +564,7 @@ msgstr ""
 msgid "Remove Image"
 msgstr ""
 
-#: apps/publisher/forms.py
+#: apps/publisher/forms.py templates/publisher/course_detail.html
 msgid "Organization Name"
 msgstr ""
 
@@ -1084,6 +1084,7 @@ msgstr ""
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_instructor_profile.html
 #: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/courses.html
 #: templates/publisher/dashboard/_in_preview.html
 #: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_published.html
@@ -1567,10 +1568,6 @@ msgstr ""
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "EDIT"
-msgstr ""
-
-#: templates/publisher/course_detail.html templates/publisher/courses.html
-msgid "Institution"
 msgstr ""
 
 #: templates/publisher/course_detail.html
