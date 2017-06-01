@@ -43,9 +43,3 @@ function showDiffCourseDetails(currentObject, historyObject, $outputDiv) {
     $outputDiv.html(decodeEntities(dmp.diff_prettyHtml(d)));
     $outputDiv.show();
 }
-
-function decodeEntities(encodedString) {
-    var textArea = document.createElement('textarea');
-    textArea.innerHTML = encodedString;
-    return textArea.value;
-}

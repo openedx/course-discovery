@@ -5,7 +5,7 @@ from django.test import TestCase
 from testfixtures import LogCapture
 
 from course_discovery.apps.course_metadata.tests.factories import (CourseFactory, CourseRunFactory, OrganizationFactory,
-                                                                   PersonFactory, SeatFactory)
+                                                                   PersonFactory, SeatFactory, SubjectFactory)
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.dataloader.create_courses import logger as dataloader_logger
 from course_discovery.apps.publisher.models import Course as Publisher_Course
@@ -58,14 +58,14 @@ class ImportCoursesTests(TestCase):
         self.command_name = 'import_metadata_courses'
         self.command_args = ['--start_id={}'.format(self.course.id), '--end_id={}'.format(format(self.course.id))]
 
-    @mock.patch('course_discovery.apps.publisher.management.commands.import_metadata_courses.process_course')
+    @mock.patch('course_discovery.apps.publisher.dataloader.create_courses.process_course')
     def test_query_return_correct_course(self, process_course):
         """ Verify that query return correct courses using start and end ids. """
         call_command(self.command_name, *self.command_args)
         call_list = [mock.call(self.course), ]
         self.assertEqual(call_list, process_course.call_args_list)
 
-    @mock.patch('course_discovery.apps.publisher.management.commands.import_metadata_courses.process_course')
+    @mock.patch('course_discovery.apps.publisher.dataloader.create_courses.process_course')
     def test_query_return_correct_courses(self, process_course):
         """ Verify that query return correct courses using start and end ids. """
         course_3 = CourseFactory()
@@ -116,7 +116,8 @@ class CreateCoursesTests(TestCase):
         super(CreateCoursesTests, self).setUp()
 
         transcript_languages = LanguageTag.objects.all()[:2]
-        self.course = CourseFactory()
+        self.subjects = SubjectFactory.create_batch(3)
+        self.course = CourseFactory(subjects=self.subjects)
 
         self.command_name = 'import_metadata_courses'
         self.command_args = ['--start_id={}'.format(self.course.id), '--end_id={}'.format(format(self.course.id))]
@@ -143,7 +144,18 @@ class CreateCoursesTests(TestCase):
         self.course.authoring_organizations.add(self.organization)
 
     def test_course_create_successfully(self):
-        """ Verify that publisher course without default user roles and subjects."""
+        """ Verify that publisher course successfully."""
+        call_command(self.command_name, *self.command_args)
+        course = Publisher_Course.objects.all().first()
+
+        self._assert_course(course)
+        self._assert_course_run(course.course_runs.first(), self.course.canonical_course_run)
+        self._assert_seats(course.course_runs.first(), self.course.canonical_course_run)
+
+    def test_course_create_without_video(self):
+        """ Verify that publisher course successfully."""
+        self.course.video = None
+        self.course.save()
 
         call_command(self.command_name, *self.command_args)
         course = Publisher_Course.objects.all().first()
@@ -151,8 +163,6 @@ class CreateCoursesTests(TestCase):
         self._assert_course(course)
         self._assert_course_run(course.course_runs.first(), self.course.canonical_course_run)
         self._assert_seats(course.course_runs.first(), self.course.canonical_course_run)
-        self.assertFalse(course.course_user_roles.all())
-        self.assertFalse(self.course.subjects.all())
 
     def test_course_does_not_create_twice(self):
         """ Verify that course does not create two course with same title and number.
@@ -237,6 +247,14 @@ class CreateCoursesTests(TestCase):
         # each course will have only 1 course-run
         self.assertEqual(publisher_course.course_runs.all().count(), 1)
         self.assertEqual(publisher_course.course_metadata_pk, self.course.pk)
+        self.assertEqual(publisher_course.primary_subject, self.subjects[0])
+        self.assertEqual(publisher_course.secondary_subject, self.subjects[1])
+        self.assertEqual(publisher_course.tertiary_subject, self.subjects[2])
+
+        if self.course.video:
+            self.assertEqual(publisher_course.video_link, self.course.video.src)
+        else:
+            self.assertFalse(publisher_course.video_link)
 
     def _assert_course_run(self, publisher_course_run, metadata_course_run):
         """ Verify that publisher course-run and metadata course run has correct values."""

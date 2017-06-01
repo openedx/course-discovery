@@ -6,6 +6,17 @@ from course_discovery.apps.publisher.models import Course, CourseRun, CourseRunS
 logger = logging.getLogger(__name__)
 
 
+def execute_query(start_id, end_id):
+    """ Execute query according to the range."""
+
+    from course_discovery.apps.course_metadata.models import Course as CourseMetaData
+
+    for course in CourseMetaData.objects.select_related('canonical_course_run', 'level_type', 'video').filter(
+            id__range=(start_id, end_id)):
+
+        process_course(course)
+
+
 def process_course(meta_data_course):
     """ Create or update the course."""
 
@@ -27,27 +38,32 @@ def process_course(meta_data_course):
 
 def create_or_update_course(meta_data_course, available_organization):
 
+    primary_subject = None
+    secondary_subject = None
+    tertiary_subject = None
+
+    for i, subject in enumerate(meta_data_course.subjects.all()):
+        if i == 0:
+            primary_subject = subject
+        elif i == 1:
+            secondary_subject = subject
+        elif i == 2:
+            tertiary_subject = subject
+
     defaults = {
         'title': meta_data_course.title, 'number': meta_data_course.number,
         'short_description': meta_data_course.short_description,
         'full_description': meta_data_course.full_description,
-        'level_type': meta_data_course.level_type
+        'level_type': meta_data_course.level_type,
+        'primary_subject': primary_subject, 'secondary_subject': secondary_subject,
+        'tertiary_subject': tertiary_subject,
+        'video_link': meta_data_course.video.src if meta_data_course.video else None
     }
 
     publisher_course, created = Course.objects.update_or_create(
         course_metadata_pk=meta_data_course.id,
         defaults=defaults
     )
-
-    for i, subject in enumerate(meta_data_course.subjects.all()):
-        if i == 0:
-            publisher_course.primary_subject = subject
-        elif i == 1:
-            publisher_course.secondary_subject = subject
-        elif i == 2:
-            publisher_course.tertiary_subject = subject
-
-    publisher_course.save()
 
     if created:
         if available_organization:

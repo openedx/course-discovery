@@ -718,3 +718,60 @@
   padding: 4px;
   background-color: #F2F2F2;
 }
+
+.show-comparison-container {
+  position: relative;
+
+  .comparison-container {
+    @include left(0);
+    @include right(0);
+    background: rgba(0, 0, 0, .7);
+    position: absolute;
+    top: 0;
+    bottom: 20px;
+    width: 50%;
+    padding: 40px;
+    display: None;
+
+    .close {
+      @include right(25px);
+      background: #f2f2f2;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: block;
+      position: absolute;
+      top: 25px;
+      line-height: 26px;
+      text-align: center;
+      color: #666;
+      font-weight: bold;
+      box-shadow: 0 0 4px rgba(0,0,0,.7);
+      -webkit-transition: all 0.3 ease;
+      -moz-transition: all 0.3 ease;
+      -ms-transition: all 0.3 ease;
+      -o-transition: all 0.3 ease;
+      transition: all 0.3 ease;
+
+      &:hover {
+        color: #333;
+        cursor: pointer;
+        background: #ccc;
+      }
+
+      &:focus,
+      &:active,
+      &:hover {
+        text-decoration: none;
+      }
+    }
+
+    .show-comparison-data {
+      background: #fff;
+      padding: 15px;
+      font-size: 14px;
+      height: 100%;
+      overflow: auto;
+    }
+  }
+}

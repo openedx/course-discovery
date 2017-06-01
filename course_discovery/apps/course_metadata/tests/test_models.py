@@ -452,6 +452,8 @@ class ProgramTests(TestCase):
         currency = Currency.objects.get(code='USD')
 
         course_run = factories.CourseRunFactory()
+        course_run.course.canonical_course_run = course_run
+        course_run.course.save()
         factories.SeatFactory(type='audit', currency=currency, course_run=course_run, price=0)
         factories.SeatFactory(type='credit', currency=currency, course_run=course_run, price=600)
         factories.SeatFactory(type='verified', currency=currency, course_run=course_run, price=100)
@@ -651,6 +653,24 @@ class ProgramTests(TestCase):
         # Verify only canonical course runs are returned in set
         self.assertEqual(set(self.program.canonical_course_runs), set(expected_canonical_runs))
 
+    def test_canonical_course_seats(self):
+        """ Test canonical course seats returns only canonical course run's applicable seats """
+        currency = Currency.objects.get(code='USD')
+
+        course = factories.CourseFactory()
+        course_runs_same_course = factories.CourseRunFactory.create_batch(3, course=course)
+        for course_run in course_runs_same_course:
+            factories.SeatFactory(type='verified', currency=currency, course_run=course_run, price=100)
+        course.canonical_course_run = course_runs_same_course[0]
+        course.save()
+
+        applicable_seat_types = SeatType.objects.filter(slug__in=['verified'])
+        program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
+
+        program = factories.ProgramFactory(type=program_type, courses=[course])
+
+        self.assertEqual(set(course.canonical_course_run.seats.all()), set(program.canonical_seats))
+
     def test_languages(self):
         expected_languages = set([course_run.language for course_run in self.course_runs])
         actual_languages = self.program.languages
@@ -704,6 +724,8 @@ class ProgramTests(TestCase):
             factories.SeatFactory(type='audit', currency=currency, course_run=course_run, price=0)
             factories.SeatFactory(type='verified', currency=currency, course_run=course_run, price=test_price)
             test_price += 100
+            course_run.course.canonical_course_run = course_run
+            course_run.course.save()
 
         applicable_seat_types = SeatType.objects.filter(slug__in=['verified'])
         program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
@@ -721,6 +743,8 @@ class ProgramTests(TestCase):
         for course_run in single_course_course_runs:
             factories.SeatFactory(type='audit', currency=currency, course_run=course_run, price=0)
             factories.SeatFactory(type='verified', currency=currency, course_run=course_run, price=10)
+            course_run.course.canonical_course_run = course_run
+            course_run.course.save()
 
         day_separation = 1
         now = datetime.datetime.utcnow()
@@ -741,7 +765,8 @@ class ProgramTests(TestCase):
                 course_run=course_run,
                 price=(day_separation * 100))
             day_separation += 1
-
+        course.canonical_course_run = course_runs_same_course[2]
+        course.save()
         applicable_seat_types = SeatType.objects.filter(slug__in=['verified'])
         program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
 
@@ -757,7 +782,7 @@ class ProgramTests(TestCase):
         """
         program = self.create_program_with_multiple_course_runs()
 
-        expected_price_ranges = [{'currency': 'USD', 'min': Decimal(10), 'max': Decimal(300), 'total': Decimal(130)}]
+        expected_price_ranges = [{'currency': 'USD', 'min': Decimal(10), 'max': Decimal(300), 'total': Decimal(330)}]
         self.assertEqual(program.price_ranges, expected_price_ranges)
 
     def test_price_ranges_with_multiple_course_runs_and_none_dates(self):
@@ -765,9 +790,10 @@ class ProgramTests(TestCase):
         Verifies the price_range property of a program with multiple courses,
         and a course with multiple runs, and some of the dates in the course runs are None
         """
+
         program = self.create_program_with_multiple_course_runs(set_all_dates=False)
 
-        expected_price_ranges = [{'currency': 'USD', 'min': Decimal(10), 'max': Decimal(300), 'total': Decimal(130)}]
+        expected_price_ranges = [{'currency': 'USD', 'min': Decimal(10), 'max': Decimal(300), 'total': Decimal(330)}]
         self.assertEqual(program.price_ranges, expected_price_ranges)
 
     def test_staff(self):
