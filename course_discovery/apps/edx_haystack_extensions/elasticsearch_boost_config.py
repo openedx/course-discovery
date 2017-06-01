@@ -1,4 +1,25 @@
+# pylint: disable=line-too-long
 def get_elasticsearch_boost_config():
+    """
+    Custom boosting config used to control relevance scores.
+
+    For a good primer on the theory behind relevance scoring, read
+    https://www.elastic.co/guide/en/elasticsearch/guide/1.x/scoring-theory.html.
+
+    If you're trying to tweak this config locally with a small dataset and are
+    seeing strange relevance scores, keep in mind that Elasticsearch computes
+    shard-local relevance scores. This causes small discrepancies between relevance
+    scores across shards that become more pronounced with small data sets. For more
+    on this, see https://www.elastic.co/blog/understanding-query-then-fetch-vs-dfs-query-then-fetch.
+
+    Use search_type=dfs_query_then_fetch to counteract this effect when querying
+    Elasticsearch while debugging. The search_type parameter must be passed in the
+    querystring. For more, see https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-request-body.html
+    and https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-request-search-type.html.
+
+    To see how a given hit's score was computed, use the explain parameter:
+    https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-request-explain.html
+    """
     elasticsearch_boost_config = {
         'function_score': {
             'boost_mode': 'sum',
@@ -8,7 +29,34 @@ def get_elasticsearch_boost_config():
                 {'filter': {'term': {'pacing_type_exact': 'self_paced'}}, 'weight': 1.0},
                 {'filter': {'term': {'type_exact': 'Professional Certificate'}}, 'weight': 1.0},
                 {'filter': {'term': {'type_exact': 'MicroMasters'}}, 'weight': 1.0},
-                {'linear': {'start': {'origin': 'now', 'decay': 0.95, 'scale': '1d'}}, 'weight': 5.0},
+
+                # Decay function for modifying scores based on the value of the
+                # start field. The Gaussian function decays slowly, then rapidly,
+                # then slowly again. This creates a cluster of high-scoring results
+                # whose start field is near the present, and a spread of results
+                # whose starts are further from the present, either in the past
+                # or in future.
+                #
+                # Be careful with scales less than 30 days! Scales that are too
+                # small can cause scores to quickly drop to 0, leaving you with
+                # no start field boosting at all.
+                #
+                # For more on how decay functions work, especially if you're thinking
+                # about changing this, read https://www.elastic.co/guide/en/elasticsearch/guide/1.x/decay-functions.html
+                # and https://www.elastic.co/guide/en/elasticsearch/reference/1.5/query-dsl-function-score-query.html#_decay_functions.
+                #
+                # For help visualizing the effect different decay functions can
+                # have on relevance scores, try https://codepen.io/xyu/full/MyQYjN.
+                {
+                    'gauss': {
+                        'start': {
+                            'origin': 'now',
+                            'decay': 0.95,
+                            'scale': '30d'
+                        }
+                    },
+                    'weight': 5.0
+                },
 
                 # Boost function for CourseRuns with enrollable paid Seats.
                 # We want to boost if:

@@ -11,14 +11,7 @@ LOGGING['handlers']['local'] = {
 # Determine which requests should render Django Debug Toolbar
 INTERNAL_IPS = ('127.0.0.1',)
 
-
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
-        'URL': 'http://edx.devstack.elasticsearch:9200/',
-        'INDEX_NAME': 'catalog',
-    },
-}
+HAYSTACK_CONNECTIONS['default']['URL'] = 'http://edx.devstack.elasticsearch:9200/'
 
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
 
