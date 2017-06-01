@@ -494,7 +494,7 @@ class CourseRunAdminForm(forms.ModelForm):
 
 
 class AdminImportCourseForm(forms.Form):
-    start_id = forms.IntegerField(min_value=1, label='This course id will import along with next 9 courses.')
+    start_id = forms.IntegerField(min_value=1, label='This course id will import.')
 
     class Meta:
         fields = ('start_id',)
