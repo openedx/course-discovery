@@ -129,9 +129,9 @@
                                 {{ run_form.micromasters_name }}
                             </div>
                             {% if run_form.micromasters_name.errors %}
-                            <div class="field-message has-error">
-                                <span class="field-message-content">
-                                    {{ run_form.micromasters_name.errors|escape }}
+                            <div class="field-message-error">
+                                <span>
+                            {{ run_form.micromasters_name.errors|escape }}
                                 </span>
                             </div>
                             {% endif %}
@@ -146,7 +146,7 @@
                                 {{ run_form.xseries_name}}
                             </div>
                             {% if run_form.xseries_name.errors %}
-                            <div class="field-message has-error">
+                            <div class="field-messag-error">
                                 <span class="field-message-content">
                                     {{ run_form.xseries_name.errors|escape }}
                                 </span>
