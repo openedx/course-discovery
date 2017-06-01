@@ -114,3 +114,29 @@ class PublisherCourseRunEditFormTests(TestCase):
         run_form.cleaned_data['start'] = current_datetime + timedelta(days=1)
         run_form.cleaned_data['end'] = current_datetime + timedelta(days=3)
         self.assertEqual(run_form.clean(), run_form.cleaned_data)
+
+    def test_course_run_xseries(self):
+        """
+        Verify that 'clean' raises 'ValidationError' if the is_xseries is checked
+         but no xseries_name has been entered
+        """
+        run_form = CustomCourseRunForm()
+        run_form.cleaned_data = {'is_xseries': True, 'xseries_name': ''}
+        with self.assertRaises(ValidationError):
+            run_form.clean()
+
+        run_form.cleaned_data['xseries_name'] = "Test Name"
+        self.assertEqual(run_form.clean(), run_form.cleaned_data)
+
+    def test_course_run_micromasters(self):
+        """
+         Verify that 'clean' raises 'ValidationError' if the is_micromasters is checked
+         but no micromasters_name has been entered
+        """
+        run_form = CustomCourseRunForm()
+        run_form.cleaned_data = {'is_micromasters': True, 'micromasters_name': ''}
+        with self.assertRaises(ValidationError):
+            run_form.clean()
+
+        run_form.cleaned_data['micromasters_name'] = "Test Name"
+        self.assertEqual(run_form.clean(), run_form.cleaned_data)
