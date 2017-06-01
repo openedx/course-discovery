@@ -882,8 +882,8 @@ class AdminImportCourse(mixins.LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         """Post method for import page."""
 
-        # inline import to avoid any circular issues.
-        from course_discovery.apps.course_metadata.models import Course as metadata_course
+        #  inline import to avoid any circular issues.
+        from course_discovery.apps.course_metadata.models import Course as CourseMetaData
 
         if not (self.request.user.is_superuser and waffle.switch_is_active('publisher_enable_course_import')):
             raise Http404
@@ -892,7 +892,10 @@ class AdminImportCourse(mixins.LoginRequiredMixin, TemplateView):
         if form.is_valid():
 
             start_id = self.request.POST.get('start_id')
-            for course in metadata_course.objects.filter(id__range=(start_id, int(start_id) + 9)):
+            for course in CourseMetaData.objects.select_related('canonical_course_run', 'level_type', 'video').filter(
+                    id=start_id
+            ):
+
                 process_course(course)
 
         return super(AdminImportCourse, self).get(request, args, **kwargs,)
