@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-31 20:11+0500\n"
+"POT-Creation-Date: 2017-06-01 14:43+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -689,7 +689,7 @@ msgstr "Légäl Téäm Ⱡ'σяєм ιρѕυм ∂σłσ#"
 msgid "Remove Image"
 msgstr "Rémövé Ìmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: apps/publisher/forms.py
+#: apps/publisher/forms.py templates/publisher/course_detail.html
 msgid "Organization Name"
 msgstr "Örgänïzätïön Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
@@ -1245,6 +1245,7 @@ msgstr "Ìnstïtütïön émäïl ïs préférréd Ⱡ'σяєм ιρѕυм ∂σ
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_instructor_profile.html
 #: templates/publisher/course_run_detail/_studio.html
+#: templates/publisher/courses.html
 #: templates/publisher/dashboard/_in_preview.html
 #: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_published.html
@@ -1828,10 +1829,6 @@ msgstr "Çöürsés Ⱡ'σяєм ιρѕυм #"
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "EDIT"
 msgstr "ÉDÌT Ⱡ'σяєм ι#"
-
-#: templates/publisher/course_detail.html templates/publisher/courses.html
-msgid "Institution"
-msgstr "Ìnstïtütïön Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: templates/publisher/course_detail.html
 msgid "Course Team Admin"
