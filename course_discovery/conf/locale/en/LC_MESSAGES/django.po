@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-05 14:41+0500\n"
+"POT-Creation-Date: 2017-06-05 17:17+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -564,6 +564,11 @@ msgstr ""
 
 #: apps/publisher/emails.py
 msgid "Legal Team"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Changes to published course run: {title} {run_number}"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -2754,6 +2759,8 @@ msgstr ""
 #: templates/publisher/email/course_run/preview_available.txt
 #: templates/publisher/email/course_run/published.html
 #: templates/publisher/email/course_run/published.txt
+#: templates/publisher/email/course_run/published_course_run_editing.html
+#: templates/publisher/email/course_run/published_course_run_editing.txt
 #: templates/publisher/email/course_run/send_for_review.html
 #: templates/publisher/email/course_run/send_for_review.txt
 #: templates/publisher/email/decline_preview.html
@@ -2799,6 +2806,8 @@ msgstr ""
 #: templates/publisher/email/course_run/preview_available.txt
 #: templates/publisher/email/course_run/published.html
 #: templates/publisher/email/course_run/published.txt
+#: templates/publisher/email/course_run/published_course_run_editing.html
+#: templates/publisher/email/course_run/published_course_run_editing.txt
 #: templates/publisher/email/decline_preview.html
 #: templates/publisher/email/decline_preview.txt
 #: templates/publisher/email/studio_instance_created.html
@@ -2815,6 +2824,7 @@ msgstr ""
 #: templates/publisher/email/course_run/preview_accepted.html
 #: templates/publisher/email/course_run/preview_available.html
 #: templates/publisher/email/course_run/published.html
+#: templates/publisher/email/course_run/published_course_run_editing.html
 #: templates/publisher/email/course_run/send_for_review.html
 #: templates/publisher/email/studio_instance_created.html
 #, python-format
@@ -2830,6 +2840,7 @@ msgstr ""
 #: templates/publisher/email/course_run/preview_accepted.txt
 #: templates/publisher/email/course_run/preview_available.txt
 #: templates/publisher/email/course_run/published.txt
+#: templates/publisher/email/course_run/published_course_run_editing.txt
 #: templates/publisher/email/course_run/send_for_review.txt
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
@@ -2990,6 +3001,23 @@ msgstr ""
 #: templates/publisher/email/course_run/published.txt
 #, python-format
 msgid "View this About page on edx.org. %(preview_url)s"
+msgstr ""
+
+#: templates/publisher/email/course_run/published_course_run_editing.html
+#: templates/publisher/email/course_run/published_course_run_editing.txt
+#, python-format
+msgid ""
+"%(course_team)s has made changes to the following published course run."
+msgstr ""
+
+#: templates/publisher/email/course_run/published_course_run_editing.html
+#: templates/publisher/email/course_run/published_course_run_editing.txt
+msgid "View the course run in Publisher"
+msgstr ""
+
+#: templates/publisher/email/course_run/published_course_run_editing.html
+#: templates/publisher/email/course_run/published_course_run_editing.txt
+msgid "to make changes and republish the course run."
 msgstr ""
 
 #: templates/publisher/email/course_run/send_for_review.html

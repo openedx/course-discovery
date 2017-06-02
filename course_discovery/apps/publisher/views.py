@@ -25,6 +25,7 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher import emails, mixins
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.dataloader.create_courses import process_course
+from course_discovery.apps.publisher.emails import send_email_for_published_course_run_editing
 from course_discovery.apps.publisher.forms import (AdminImportCourseForm, CourseSearchForm, CustomCourseForm,
                                                    CustomCourseRunForm, CustomSeatForm)
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
@@ -733,9 +734,12 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
                     if request.POST.get('type'):
                         seat_form.save(changed_by=user, course_run=course_run)
 
-                    # in case of any updating move the course-run state to draft.
-                    if course_run.course_run_state.name != CourseStateChoices.Draft:
-                        course_run.course_run_state.change_state(state=CourseStateChoices.Draft, user=user)
+                    # in case of any updating move the course-run state to draft except draft and published state.
+                    immutable_states = [CourseRunStateChoices.Draft, CourseRunStateChoices.Published]
+
+                    course_run_state = course_run.course_run_state
+                    if course_run_state.name not in immutable_states:
+                        course_run_state.change_state(state=CourseStateChoices.Draft, user=user)
 
                     if course_run.lms_course_id and lms_course_id != course_run.lms_course_id:
                         emails.send_email_for_studio_instance_created(course_run)
@@ -745,8 +749,14 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
 
                     # after editing course owner role will be changed to current user
                     user_role = course_run.course.course_user_roles.get(user=user).role
-                    if user_role != course_run.course_run_state.owner_role:
-                        course_run.course_run_state.change_owner_role(user_role)
+                    if (
+                        user_role != course_run_state.owner_role and
+                        course_run_state.name != CourseRunStateChoices.Published
+                    ):
+                        course_run_state.change_owner_role(user_role)
+
+                    if CourseRunStateChoices.Published == course_run_state.name:
+                        send_email_for_published_course_run_editing(course_run)
 
                     return HttpResponseRedirect(reverse(self.success_url, kwargs={'pk': course_run.id}))
             except Exception as e:  # pylint: disable=broad-except
