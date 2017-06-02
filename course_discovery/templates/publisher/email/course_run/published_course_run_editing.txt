@@ -1,0 +1,19 @@
+{% load i18n %}
+
+{% blocktrans trimmed %}
+    Dear {{ recipient_name }},
+{% endblocktrans %}
+
+{% blocktrans trimmed %}
+    {{ course_team }} has made changes to the following published course run.
+{% endblocktrans %}
+
+{{ course_name }} {{ course_run_number }} <a href="{{ course_run_page_url }}">{% trans "View the course run in Publisher" %}</a> {% trans "to make changes and republish the course run." %}
+
+{% comment %}Translators: It's closing of mail.{% endcomment %}
+{% trans "Thanks," %}<br>
+{{ course_team }}
+
+{% blocktrans trimmed %}
+    Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.
+{% endblocktrans %}

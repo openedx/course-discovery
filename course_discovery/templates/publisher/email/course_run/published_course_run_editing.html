@@ -1,0 +1,30 @@
+{% extends "publisher/email/email_base.html" %}
+{% load i18n %}
+{% block body %}
+<!-- Message Body -->
+
+    <p>
+        {% blocktrans trimmed %}
+            Dear {{ recipient_name }},
+        {% endblocktrans %}
+    </p>
+    <p>
+        {% blocktrans trimmed %}
+            {{ course_team }} has made changes to the following published course run.
+        {% endblocktrans %}
+    </p>
+    <p>
+        {{ course_name }} {{ course_run_number }} <a href="{{ course_run_page_url }}">{% trans "View the course run in Publisher" %}</a> {% trans "to make changes and republish the course run." %}
+    </p>
+
+    {% comment %}Translators: It's closing of mail.{% endcomment %}
+    {% trans "Thanks," %}<br>
+    {{ course_team }}
+
+
+{% blocktrans trimmed %}
+    <p>Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.</p>
+{% endblocktrans %}
+
+<!-- End Message Body -->
+{% endblock body %}

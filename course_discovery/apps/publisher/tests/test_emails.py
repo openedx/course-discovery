@@ -655,3 +655,50 @@ class SEOReviewEmailTests(TestCase):
         page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=page_path)
         self.assertIn(page_url, body)
         self.assertIn('determine OFAC status', body)
+
+
+class CourseRunPublishedEditEmailTests(CourseRunPublishedEmailTests):
+    """
+    Tests for published course-run editing email functionality.
+    """
+
+    def test_published_course_run_editing_email(self):
+        """
+        Verify that on edit the published course-run email send to publisher.
+        """
+        factories.CourseUserRoleFactory(
+            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=self.user
+        )
+        self.course_run.lms_course_id = 'course-v1:testX+test45+2017T2'
+        self.course_run.save()
+        emails.send_email_for_published_course_run_editing(self.course_run)
+
+        course_key = CourseKey.from_string(self.course_run.lms_course_id)
+
+        subject = 'Changes to published course run: {title} {run_number}'.format(
+            title=self.course_run.course.title,
+            run_number=course_key.run
+        )
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual([self.course.publisher.email], mail.outbox[0].to)
+        self.assertEqual(str(mail.outbox[0].subject), subject)
+        body = mail.outbox[0].body.strip()
+        self.assertIn('has made changes to the following published course run.', body)
+        page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.run_state.course_run.id})
+        self.assertIn(page_path, body)
+
+    def test_email_with_error(self):
+        """ Verify that email failure logs error message."""
+
+        with LogCapture(emails.logger.name) as l:
+            emails.send_email_for_published_course_run_editing(self.course_run)
+            l.check(
+                (
+                    emails.logger.name,
+                    'ERROR',
+                    'Failed to send email notifications for publisher course-run [{}] editing.'.format(
+                        self.course_run.id
+                    )
+                )
+            )

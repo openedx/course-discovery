@@ -613,3 +613,51 @@ def send_email_for_seo_review(course):
         email_msg.send()
     except Exception:  # pylint: disable=broad-except
         logger.exception('Failed to send email notifications for legal review requested of course %s', course.id)
+
+
+def send_email_for_published_course_run_editing(course_run):
+    """ Send email when published course-run is edited.
+
+        Arguments:
+            course-run (Object): Course Run object
+    """
+    try:
+        course = course_run.course
+        publisher_user = course.publisher
+        course_team_user = course_run.course.course_team_admin
+        course_key = CourseKey.from_string(course_run.lms_course_id)
+
+        txt_template = 'publisher/email/course_run/published_course_run_editing.txt'
+        html_template = 'publisher/email/course_run/published_course_run_editing.html'
+        subject = _('Changes to published course run: {title} {run_number}').format(  # pylint: disable=no-member
+            title=course.title,
+            run_number=course_key.run
+        )
+
+        to_addresses = [publisher_user.email]
+        from_address = settings.PUBLISHER_FROM_EMAIL
+        object_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
+
+        context = {
+            'course_name': course.title,
+            'course_team': course_team_user.get_full_name(),
+            'recipient_name': publisher_user.get_full_name(),
+            'contact_us_email': course.project_coordinator.email,
+            'course_run_page_url': 'https://{host}{path}'.format(
+                host=Site.objects.get_current().domain.strip('/'), path=object_path
+            ),
+            'course_run_number': course_key.run,
+        }
+
+        template = get_template(txt_template)
+        plain_content = template.render(context)
+        template = get_template(html_template)
+        html_content = template.render(context)
+
+        email_msg = EmailMultiAlternatives(
+            subject, plain_content, from_address, to_addresses
+        )
+        email_msg.attach_alternative(html_content, 'text/html')
+        email_msg.send()
+    except Exception:  # pylint: disable=broad-except
+        logger.exception('Failed to send email notifications for publisher course-run [%s] editing.', course_run.id)

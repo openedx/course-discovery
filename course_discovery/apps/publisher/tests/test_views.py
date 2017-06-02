@@ -2931,6 +2931,52 @@ class CourseRunEditViewTests(TestCase):
         # Verify that `lms_course_id` not wiped.
         self.assertEqual(self.new_course_run.lms_course_id, lms_course_id)
 
+    def test_published_course_run_editing_not_change_state_and_ownership(self):
+        """ Verify that when a user made changes in published course run, course-run state remains
+         same and owner ship as well."""
+
+        factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.CourseTeam, user=self.user)
+
+        factories.CourseUserRoleFactory(
+            course=self.new_course_run.course, role=PublisherUserRole.Publisher, user=UserFactory()
+        )
+
+        self.new_course_run.course_run_state.name = CourseRunStateChoices.Published
+        self.new_course_run.course_run_state.preview_accepted = True
+        self.new_course_run.course_run_state.owner_role = PublisherUserRole.Publisher
+        self.new_course_run.course_run_state.save()
+
+        lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
+        self.new_course_run.lms_course_id = lms_course_id
+        self.new_course_run.save()
+
+        self.updated_dict['min_effort'] = 2
+        self.updated_dict['max_effort'] = 51
+
+        response = self.client.post(self.edit_page_url, self.updated_dict)
+
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.new_course_run.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        self.assertEqual(self.new_course_run.course_run_state.name, CourseRunStateChoices.Published)
+        self.assertEqual(self.new_course_run.course_run_state.owner_role, PublisherUserRole.Publisher)
+
+        course_key = CourseKey.from_string(self.new_course_run.lms_course_id)
+
+        # email send after editing.
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual([self.new_course_run.course.publisher.email], mail.outbox[0].to)
+
+        expected_subject = 'Changes to published course run: {title} {run_number}'.format(
+            title=self.new_course_run.course.title,
+            run_number=course_key.run
+        )
+        self.assertEqual(str(mail.outbox[0].subject), expected_subject)
+
 
 class CourseRevisionViewTests(TestCase):
     """ Tests for CourseReview"""
