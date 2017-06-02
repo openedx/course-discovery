@@ -111,10 +111,9 @@ class CreateCourseViewTests(TestCase):
         """
         Verify that user can create course successfully.
         """
-        data = {'number': 'testX453', 'image': make_image_file('test_banner.jpg')}
+        data = {'title': 'Test2', 'number': 'testX453', 'image': make_image_file('test_banner.jpg')}
         course_dict = self._post_data(data, self.course)
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
-
         course = Course.objects.get(number=course_dict['number'])
 
         self.assertRedirects(
@@ -253,7 +252,7 @@ class CreateCourseViewTests(TestCase):
         Verify that if add_new_run is checked user is redirected to
         create course run page instead course detail page.
         """
-        data = {'number': 'testX234', 'image': '', 'add_new_run': True}
+        data = {'title': 'Test2', 'number': 'testX234', 'image': '', 'add_new_run': True}
         course_dict = self._post_data(data, self.course)
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
 

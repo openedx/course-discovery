@@ -6,7 +6,8 @@ from pytz import timezone
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.models import Person
-from course_discovery.apps.course_metadata.tests.factories import PersonFactory
+from course_discovery.apps.course_metadata.tests.factories import PersonFactory, OrganizationFactory
+from course_discovery.apps.publisher.tests.factories import CourseFactory
 from course_discovery.apps.publisher.forms import CustomCourseForm, CustomCourseRunForm, PublisherUserCreationForm
 
 
@@ -153,3 +154,41 @@ class PublisherCourseRunEditFormTests(TestCase):
 
         run_form.cleaned_data['professional_certificate_name'] = "Test Name"
         self.assertEqual(run_form.clean(), run_form.cleaned_data)
+
+
+class PublisherCustomCourseFormTests(TestCase):
+    """
+    Tests for publisher 'CustomCourseForm'
+    """
+    def setUp(self):
+        super(PublisherCustomCourseFormTests, self).setUp()
+        self.course_form = CustomCourseForm()
+        self.course = CourseFactory(title="Test", number="a123")
+        self.organization = OrganizationFactory()
+        self.course.organizations.add(self.organization)
+
+    def test_duplicate_title(self):
+        """
+        Verify that clean raises 'ValidationError' if the course title is a duplicate of another course title
+        within the same organization
+        """
+        course_form = CustomCourseForm()
+        course_form.cleaned_data = {'title': 'Test', 'number': '123a', 'organization': self.organization}
+        with self.assertRaises(ValidationError):
+            course_form.clean()
+
+        course_form.cleaned_data['title'] = "Test2"
+        self.assertEqual(course_form.clean(), course_form.cleaned_data)
+
+    def test_duplicate_number(self):
+        """
+        Verify that clean raises 'ValidationError' if the course number is a duplicate of another course number
+        within the same organization
+        """
+        course_form = CustomCourseForm()
+        course_form.cleaned_data = {'title': 'Test2', 'number': 'a123', 'organization': self.organization}
+        with self.assertRaises(ValidationError):
+            course_form.clean()
+
+        course_form.cleaned_data['number'] = "123a"
+        self.assertEqual(course_form.clean(), course_form.cleaned_data)

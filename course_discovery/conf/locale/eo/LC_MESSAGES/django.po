@@ -767,6 +767,16 @@ msgid "Syllabus"
 msgstr "Sýlläßüs Ⱡ'σяєм ιρѕυм ∂#"
 
 #: apps/publisher/forms.py
+msgid "This course title already exists"
+msgstr ""
+"Thïs çöürsé tïtlé älréädý éxïsts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: apps/publisher/forms.py
+msgid "This course number already exists"
+msgstr ""
+"Thïs çöürsé nümßér älréädý éxïsts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: apps/publisher/forms.py
 msgid "Find Course"
 msgstr "Fïnd Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
@@ -1638,10 +1648,9 @@ msgid "COURSE NUMBER"
 msgstr "ÇÖÛRSÉ NÛMBÉR Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Maximum 10 characters. Characters can be letters, numbers, or periods."
+msgid "Maximum 50 characters. Characters can be letters, numbers, or periods."
 msgstr ""
-"Mäxïmüm 10 çhäräçtérs. Çhäräçtérs çän ßé léttérs, nümßérs, ör pérïöds. "
+"Mäxïmüm 50 çhäräçtérs. Çhäräçtérs çän ßé léttérs, nümßérs, ör pérïöds. "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: templates/publisher/add_course_form.html
@@ -1996,6 +2005,12 @@ msgid "255 character limit, including spaces."
 msgstr ""
 "255 çhäräçtér lïmït, ïnçlüdïng späçés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя#"
+
+#: templates/publisher/course_edit_form.html
+msgid "Maximum 10 characters. Characters can be letters, numbers, or periods."
+msgstr ""
+"Mäxïmüm 10 çhäräçtérs. Çhäräçtérs çän ßé léttérs, nümßérs, ör pérïöds. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: templates/publisher/course_edit_form.html
 msgid "BIO1.1x, BIO1.2x"
