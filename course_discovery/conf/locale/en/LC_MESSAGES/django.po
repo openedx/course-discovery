@@ -638,6 +638,14 @@ msgid "Syllabus"
 msgstr ""
 
 #: apps/publisher/forms.py
+msgid "This course title already exists"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "This course number already exists"
+msgstr ""
+
+#: apps/publisher/forms.py
 msgid "Find Course"
 msgstr ""
 
@@ -1431,8 +1439,7 @@ msgid "COURSE NUMBER"
 msgstr ""
 
 #: templates/publisher/add_course_form.html
-#: templates/publisher/course_edit_form.html
-msgid "Maximum 10 characters. Characters can be letters, numbers, or periods."
+msgid "Maximum 50 characters. Characters can be letters, numbers, or periods."
 msgstr ""
 
 #: templates/publisher/add_course_form.html
@@ -1703,6 +1710,10 @@ msgstr ""
 
 #: templates/publisher/course_edit_form.html
 msgid "255 character limit, including spaces."
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Maximum 10 characters. Characters can be letters, numbers, or periods."
 msgstr ""
 
 #: templates/publisher/course_edit_form.html

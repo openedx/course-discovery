@@ -94,7 +94,10 @@ class CustomCourseForm(CourseForm):
         required=True
     )
     title = forms.CharField(label=_('Course Title'), required=True)
-    number = forms.CharField(label=_('Course Number'), required=True)
+    number = forms.CharField(
+        label=_('Course Number'), required=True,
+        validators=[validate_text_count(max_length=50)]
+    )
     short_description = forms.CharField(
         label=_('Short Description'),
         widget=forms.Textarea, required=False, validators=[validate_text_count(max_length=255)]
@@ -190,6 +193,19 @@ class CustomCourseForm(CourseForm):
 
         if user and not is_internal_user(user):
             self.fields['video_link'].widget = forms.HiddenInput()
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        organization = cleaned_data.get("organization")
+        title = cleaned_data.get("title")
+        number = cleaned_data.get("number")
+        instance = getattr(self, 'instance', None)
+        if not instance.pk:
+            if Course.objects.filter(title=title, organizations__in=[organization]).exists():
+                raise ValidationError({'title': _('This course title already exists')})
+            if Course.objects.filter(number=number, organizations__in=[organization]).exists():
+                raise ValidationError({'number': _('This course number already exists')})
+        return cleaned_data
 
 
 class CourseSearchForm(forms.Form):
