@@ -6,8 +6,10 @@ from django.db.models.functions import Lower
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.utils.decorators import method_decorator
 
+from course_discovery.apps.core.models import User
 from course_discovery.apps.course_metadata.models import Organization
-from course_discovery.apps.publisher.models import Course, Seat
+from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.models import Course, CourseUserRole, Seat
 from course_discovery.apps.publisher.utils import is_internal_user, is_publisher_admin, is_publisher_user
 
 
@@ -155,3 +157,27 @@ def get_user_organizations(user):
         ).order_by(Lower('key'))
 
     return organizations
+
+
+def add_course_role(course, organization_extension, role):
+    default_role = organization_extension.organization.organization_user_roles.get(role=role)
+    CourseUserRole.add_course_roles(course=course, role=default_role.role, user=default_role.user)
+
+
+def check_and_create_course_user_roles(course):
+    organization_extension = course.organization_extension
+
+    if not course.course_team_admin:
+        course_team_users = User.objects.filter(groups__name=organization_extension.group.name)
+        CourseUserRole.add_course_roles(
+            course=course, role=PublisherUserRole.CourseTeam, user=course_team_users.first()
+        )
+
+    if not course.project_coordinator:
+        add_course_role(course, organization_extension, PublisherUserRole.ProjectCoordinator)
+
+    if not course.publisher:
+        add_course_role(course, organization_extension, PublisherUserRole.Publisher)
+
+    if not course.marketing_reviewer:
+        add_course_role(course, organization_extension, PublisherUserRole.MarketingReviewer)
