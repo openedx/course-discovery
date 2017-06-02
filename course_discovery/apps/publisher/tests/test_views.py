@@ -277,6 +277,13 @@ class CreateCourseRunViewTests(TestCase):
         self.course = self.course_run.course
         factories.CourseStateFactory(course=self.course)
         factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.CourseTeam, user=self.user)
+        factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.Publisher, user=UserFactory())
+        factories.CourseUserRoleFactory.create(
+            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=UserFactory()
+        )
+        factories.CourseUserRoleFactory.create(
+            course=self.course, role=PublisherUserRole.MarketingReviewer, user=UserFactory()
+        )
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.course.organizations.add(self.organization_extension.organization)
         self.user.groups.add(self.organization_extension.group)
@@ -367,9 +374,6 @@ class CreateCourseRunViewTests(TestCase):
         """ Verify that we can create a new course run with seat. """
         new_user = factories.UserFactory()
         new_user.groups.add(self.organization_extension.group)
-        factories.CourseUserRoleFactory.create(
-            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=factories.UserFactory()
-        )
 
         self.assertEqual(self.course.course_team_admin, self.user)
 
@@ -417,9 +421,6 @@ class CreateCourseRunViewTests(TestCase):
         """ Verify that user cannot create a new course run without seat price. """
         new_user = factories.UserFactory()
         new_user.groups.add(self.organization_extension.group)
-        factories.CourseUserRoleFactory.create(
-            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=factories.UserFactory()
-        )
 
         self.assertEqual(self.course.course_team_admin, self.user)
 
@@ -541,6 +542,22 @@ class CreateCourseRunViewTests(TestCase):
         self.assertEqual(new_seat.type, Seat.CREDIT)
         self.assertEqual(new_seat.price, price)
         self.assertEqual(new_seat.credit_price, credit_price)
+
+    def test_canot_create_course_run_without_roles(self):
+        """
+        Verify that user can create a new course run with credit seat.
+        """
+        course = factories.CourseFactory()
+        organization_extension = factories.OrganizationExtensionFactory()
+        course.organizations.add(organization_extension.organization)
+        self.user.groups.add(organization_extension.group)
+
+        response = self.client.post(
+            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': course.id}),
+            {}
+        )
+
+        self.assertContains(response, 'Your organization does not have default roles', status_code=400)
 
 
 @ddt.ddt
@@ -1211,6 +1228,32 @@ class CourseRunDetailTests(TestCase):
 
         # Verify that user cannot see edit button if he has no role for course.
         self.assert_can_edit_permission(can_edit=False)
+
+    def test_create_course_user_roles_if_not_exist(self):
+        """
+        Verify that course user roles created if default roles exist on viewing detail page.
+        """
+        self.user.groups.add(self.organization_extension.group)
+
+        default_roles = [
+            PublisherUserRole.MarketingReviewer, PublisherUserRole.ProjectCoordinator, PublisherUserRole.Publisher
+        ]
+        self.assertEqual(self.course.course_user_roles.filter(role__in=default_roles).count(), 0)
+
+        factories.OrganizationUserRoleFactory(
+            organization=self.organization_extension.organization, role=PublisherUserRole.MarketingReviewer
+        )
+        factories.OrganizationUserRoleFactory(
+            organization=self.organization_extension.organization, role=PublisherUserRole.ProjectCoordinator
+        )
+        factories.OrganizationUserRoleFactory(
+            organization=self.organization_extension.organization, role=PublisherUserRole.Publisher
+        )
+
+        self.client.get(self.page_url)
+
+        expected_count = self.course.course_user_roles.filter(course=self.course, role__in=default_roles).count()
+        self.assertEqual(len(default_roles), expected_count)
 
 
 # pylint: disable=attribute-defined-outside-init
@@ -2014,6 +2057,32 @@ class CourseDetailViewTests(TestCase):
         post_data['title'] = 'updated title'
 
         self.client.post(reverse('publisher:publisher_courses_edit', args=[self.course.id]), post_data)
+
+    def test_create_course_user_roles_if_not_exist(self):
+        """
+        Verify that course user roles created if default roles exist on viewing detail page.
+        """
+        self._assign_user_permission()
+
+        default_roles = [
+            PublisherUserRole.MarketingReviewer, PublisherUserRole.ProjectCoordinator, PublisherUserRole.Publisher
+        ]
+        self.assertEqual(self.course.course_user_roles.filter(role__in=default_roles).count(), 0)
+
+        factories.OrganizationUserRoleFactory(
+            organization=self.organization_extension.organization, role=PublisherUserRole.MarketingReviewer
+        )
+        factories.OrganizationUserRoleFactory(
+            organization=self.organization_extension.organization, role=PublisherUserRole.ProjectCoordinator
+        )
+        factories.OrganizationUserRoleFactory(
+            organization=self.organization_extension.organization, role=PublisherUserRole.Publisher
+        )
+
+        self.client.get(self.detail_page_url)
+
+        expected_count = self.course.course_user_roles.filter(course=self.course, role__in=default_roles).count()
+        self.assertEqual(len(default_roles), expected_count)
 
 
 @ddt.ddt
@@ -2924,6 +2993,14 @@ class CreateRunFromDashboardViewTests(TestCase):
         self.course = factories.CourseFactory()
         factories.CourseStateFactory(course=self.course)
         factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.CourseTeam, user=self.user)
+        factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.Publisher, user=UserFactory())
+        factories.CourseUserRoleFactory.create(
+            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=UserFactory()
+        )
+        factories.CourseUserRoleFactory.create(
+            course=self.course, role=PublisherUserRole.MarketingReviewer, user=UserFactory()
+        )
+
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.course.organizations.add(self.organization_extension.organization)
         self.user.groups.add(self.organization_extension.group)
@@ -2981,9 +3058,6 @@ class CreateRunFromDashboardViewTests(TestCase):
         self.assertEqual(self.course.course_runs.count(), 0)
         new_user = factories.UserFactory()
         new_user.groups.add(self.organization_extension.group)
-        factories.CourseUserRoleFactory.create(
-            course=self.course, role=PublisherUserRole.ProjectCoordinator, user=factories.UserFactory()
-        )
 
         self.assertEqual(self.course.course_team_admin, self.user)
 

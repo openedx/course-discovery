@@ -50,6 +50,13 @@ STATE_BUTTONS = {
     CourseStateChoices.Review: {'text': _('Mark as Reviewed'), 'value': CourseStateChoices.Approved}
 }
 
+DEFAULT_ROLES = [
+    PublisherUserRole.MarketingReviewer, PublisherUserRole.ProjectCoordinator, PublisherUserRole.Publisher
+]
+
+COURSE_ROLES = [PublisherUserRole.CourseTeam]
+COURSE_ROLES.extend(DEFAULT_ROLES)
+
 
 class Dashboard(mixins.LoginRequiredMixin, ListView):
     """ Create Course View."""
@@ -147,6 +154,12 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
 
         user = self.request.user
         course_run = CourseRunWrapper(self.get_object())
+        course = course_run.course
+        organization = course.organization_extension.organization
+
+        if organization.organization_user_roles.filter(role__in=DEFAULT_ROLES).count() == len(DEFAULT_ROLES):
+            mixins.check_and_create_course_user_roles(course)
+
         context['object'] = course_run
         context['comment_object'] = course_run
 
@@ -418,6 +431,11 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
 
         user = self.request.user
         course = self.object
+        organization = course.organization_extension.organization
+
+        if organization.organization_user_roles.filter(role__in=DEFAULT_ROLES).count() == len(DEFAULT_ROLES):
+            mixins.check_and_create_course_user_roles(course)
+
         context['can_edit'] = mixins.check_course_organization_permission(
             user, course, OrganizationExtension.EDIT_COURSE
         ) and has_role_for_course(course, user)
@@ -559,35 +577,45 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
 
         self.request.POST['start'] = parse_datetime_field(self.request.POST.get('start'))
         self.request.POST['end'] = parse_datetime_field(self.request.POST.get('end'))
-
         run_form = self.run_form(request.POST)
         seat_form = self.seat_form(request.POST)
 
-        if run_form.is_valid() and seat_form.is_valid():
-            try:
-                with transaction.atomic():
-                    course_run = run_form.save(commit=False, course=parent_course, changed_by=user)
-                    self.set_last_run_data(course_run)
-                    seat_form.save(course_run=course_run, changed_by=user)
+        if parent_course.course_user_roles.filter(role__in=COURSE_ROLES).count() == len(COURSE_ROLES):
 
-                    # Initialize workflow for Course-run.
-                    CourseRunState.objects.create(course_run=course_run, owner_role=PublisherUserRole.CourseTeam)
+            if run_form.is_valid() and seat_form.is_valid():
+                try:
+                    with transaction.atomic():
+                        course_run = run_form.save(commit=False, course=parent_course, changed_by=user)
+                        self.set_last_run_data(course_run)
+                        seat_form.save(course_run=course_run, changed_by=user)
 
+                        # Initialize workflow for Course-run.
+                        CourseRunState.objects.create(course_run=course_run, owner_role=PublisherUserRole.CourseTeam)
+
+                        # pylint: disable=no-member
+                        success_msg = _('Course run created successfully for course "{course_title}".').format(
+                            course_title=parent_course.title
+                        )
+                        messages.success(request, success_msg)
+
+                        emails.send_email_for_course_creation(parent_course, course_run)
+                        return HttpResponseRedirect(reverse(self.success_url, kwargs={'pk': course_run.id}))
+                except Exception as error:  # pylint: disable=broad-except
                     # pylint: disable=no-member
-                    success_msg = _('Course run created successfully for course "{course_title}".').format(
-                        course_title=parent_course.title
-                    )
-                    messages.success(request, success_msg)
+                    error_msg = _('There was an error saving course run, {error}').format(error=error)
+                    messages.error(request, error_msg)
+                    logger.exception('Unable to create course run and seat for course [%s].', parent_course.id)
+            else:
+                messages.error(request, _('Please fill all required fields.'))
 
-                    emails.send_email_for_course_creation(parent_course, course_run)
-                    return HttpResponseRedirect(reverse(self.success_url, kwargs={'pk': course_run.id}))
-            except Exception as error:  # pylint: disable=broad-except
-                # pylint: disable=no-member
-                error_msg = _('There was an error saving course run, {error}').format(error=error)
-                messages.error(request, error_msg)
-                logger.exception('Unable to create course run and seat for course [%s].', parent_course.id)
         else:
-            messages.error(request, _('Please fill all required fields.'))
+            messages.error(
+                request,
+                _(
+                    "Your organization does not have default roles to review/approve this course-run. "
+                    "Please contact your partner manager to create default roles."
+                )
+            )
 
         context = self.get_context_data()
         context.update(
