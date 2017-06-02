@@ -3,11 +3,13 @@ $(document).ready(function () {
     var dmp = new diff_match_patch();
     dmp.Diff_EditCost = 8;
 
+    var tool_bar = 'undo redo | bold italic underline | bullist numlist | link anchor';
+
     var tinymceConfig = {
         plugins: [
             'link lists charactercount paste'
         ],
-        toolbar: 'showdiff Accept Reject | undo redo | styleselect | bold italic | bullist numlist outdent indent | link anchor',
+        toolbar: tool_bar,
         menubar: false,
         statusbar: true,
         paste_remove_spans: true,
@@ -18,8 +20,9 @@ $(document).ready(function () {
         forced_root_block: false,
         setup: function (editor) {
             editor.addButton('showdiff', {
-                text: 'ShowDiff',
+                text: 'View Changes',
                 icon: false,
+                classes: 'history-changes',
                 onclick: function () {
 
 
@@ -44,6 +47,7 @@ $(document).ready(function () {
             editor.addButton('Accept', {
                 text: 'Accept All',
                 icon: false,
+                classes: 'history-changes',
                 onclick: function () {
                     editor.focus();
                     if ($('#id_history_revision').val()) {
@@ -57,6 +61,7 @@ $(document).ready(function () {
             editor.addButton('Reject', {
                 text: 'Reject All',
                 icon: false,
+                classes: 'history-changes',
                 onclick: function () {
                     editor.focus();
                     if ($('#id_history_revision').val()) {
@@ -75,11 +80,17 @@ $(document).ready(function () {
         }
     };
 
+    // if has a history object then load the accept all button. with 2 different rows.
+    if ($('#id_history_revision').val()) {
+        tinymceConfig["toolbar1"] = "showdiff Accept Reject | ";
+        tinymceConfig["toolbar2"] =  tool_bar;
+    }
+
     tinymceConfig["selector"] = "textarea";
     tinymce.init(tinymceConfig);
 
     tinymceConfig["selector"] = "#id_title";
-    tinymceConfig["toolbar"] = "showdiff Accept Reject";
+
     tinymce.init(tinymceConfig);
 });
 
