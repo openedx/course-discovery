@@ -1,0 +1,11 @@
+version: "2"
+
+services:
+  discovery:
+    # We need to run something, but running Django leads to Error 137 (out of memory).
+    command: tail -f /dev/null
+    environment:
+      - DJANGO_SETTINGS_MODULE=course_discovery.settings.test
+    volumes:
+      - ./.git:/edx/app/discovery/course_discovery/.git
+      - ./coverage:/edx/app/discovery/course_discovery/coverage

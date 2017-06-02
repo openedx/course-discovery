@@ -1,28 +1,55 @@
 language: python
 
 python:
-    - "3.5"
+  - "3.5"
+env:
+  global:
+  - secure: HpCBO+vupj0+iaR0eNn+ZV7SeSLnZGZIHweNCt8p7jka2+fIWkborBVbjOqnDbMDLFUT2zAIzhKkqLt1lokQv3EezgWuEJ57iwgyYcq//khCbb5EGku2y19GdH+HTMA3nRPhMASKWiKWbyVX4QxA6rzWz3pHmzXGnKJ8D8q0STHd3oW/BMlRF9Ks1zLAyavbFZGq/h/avm3gsz5ODAJdedHvnuzxPnmPGpVMR7i+mRFigA5wExyidA2us+hcbQU845R4Fdh3u9HVJqHHoZAvKi/9e9CQUr+XoX8sXPTJ3cAiXlZHiVjty2rd3/9vhkGBbjcAq3hud/3xwTJ4D/qyljxBK0amSYpbLV6tYxM5IRSuCY2EaNaxcNMRA5tRrQbpVNnsckB3g4fBsS3ubNptDZZ2CcaqOmSLlK6GAd98zBwyge66ZHRtQEtzpiIBvE4x7TLV9c78qxvug1gcL1MPL5chZvGX73ej9Uwq4HEzgw/yDuJXBAuDT7p/d/b5sYKGTW83eTueWh19wu/ZKdvVWQs3mle1vLd/lKs3HXAkXFxIZuGbSw8OV+nF+Arc96PF3aOUJMyoMJunW3TM0IX6iESO0F4g6lnJeymQtUxJPA+k0Mu1pDpJhD4hl8qQEshM+QTHU0XrddsEcj6cWCowHvpGwZlZgUWaQgtzBoZXBWA=
+  - secure: V1vg4yw/bnj26tmJqDPR7TkXT3qWfm4Vd0QQSOvQ4CCsDHMZb4o4mipd3yvKJYfiIwmbeknl8Apc7AasFXMAquvO222HE3rq9hRGmxnbFqDp3evkMDJwmH6X0i4DEnBL2aey7kgsrAgUeZCTxpvtWUruyACO8lPV8QdXihkwKqZZ2Vttpw31vXFnwirhPlTdjTLUxorQkIjDVFxAm40jj82/PVV4uyvyHRv4kd5V1tSrRTs6TTI0QglKYIS5AptwYFWt9ASXcx7iJGV8dJzM8MbwRuyc0MSfH8NqG8nl76i+9aEfFNHoXErGVMw/6ZOqpvBItKS3TmDRhWvuDSAsNwDTn9MLTud0UtdP8CU5MUwUvae8Gfsyt7VsBjKzVZG7A4+jv+iboS6BJ2IhEqI+4UPnd8JyPVjQYG2ew52O3WoWNc9LwDu+l+93dQcjbbsazK5HF081q/Go26XkzVxhCOMFT1DBXyFj+etsJKNADMgI2gDGOtVX/gyla3/Uow6pOTXrkjMEleM+lh3pvzRPyjgHletBOs8niqgglkkj4eYhb8JthrU/BV1MJzgEYjou3CTFOjKQkO79FqzyITUnujx38zyL/VX3s5BLMsBvzp/wPahnUyBQIBrBOmObefL40jNus4eQca3E4v/n4TPE5Oa5pgfLxC2Y3GJ/+VZkUXQ=
+
+sudo: required
 
 services:
   - docker
 
-sudo: required
-
 cache:
-  - directories:
-    - node_modules
-    - course_discovery/static/bower_components
+  - pip
 
 before_install:
-    - make travis_up
+  # Confirm Docker version and login credentials
+  - docker --version
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+
+  # Upgrade Docker
+  - sudo apt-get -y update
+  - sudo apt-get -y install -o Dpkg::Options::="--force-confnew" docker-ce
+  - docker --version
+
+  # Build the image
+  - docker-compose build
+
+  # Ensure we have a place to store coverage output
+  - mkdir -p coverage
+
+  # Bring everything online
+  - docker-compose up -d
+
+# Do NOT install Python requirements.
+# Doing so is a waste of time since they won't be used.
+install: true
 
 # We have no requirements to install since everything is run in Docker.
 install: true
 
 script:
-    - make travis_test
+  - docker-compose exec discovery make validate_translations
+  - docker-compose exec discovery xvfb-run make validate
 
 after_success:
-    - pip install -U codecov
-    - docker exec course-discovery /edx/app/discovery/discovery/.travis/run_coverage.sh
-    - codecov
+  - pip install --upgrade codecov
+  - make exec-coverage
+  - codecov
+  - if [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
+    docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+    docker push edxops/discovery:devstack-slim;
+    fi

@@ -1,0 +1,12 @@
+version: "2"
+
+services:
+  db:
+    ports:
+      - "3306:3306"
+
+  discovery:
+    volumes:
+      - .:/edx/app/discovery/course_discovery
+      - /edx/app/discovery/course_discovery/credentials/assets
+      - /edx/app/discovery/course_discovery/node_modules
