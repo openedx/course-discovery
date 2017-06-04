@@ -257,6 +257,8 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     xseries_name = models.CharField(max_length=255, null=True, blank=True)
     is_micromasters = models.BooleanField(default=False)
     micromasters_name = models.CharField(max_length=255, null=True, blank=True)
+    is_professional_certificate = models.BooleanField(default=False)
+    professional_certificate_name = models.CharField(max_length=255, null=True, blank=True)
     contacted_partner_manager = models.BooleanField(default=False)
 
     notes = models.TextField(
@@ -335,6 +337,17 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
             return True
 
         if self.is_xseries and self.xseries_name:
+            return True
+
+        return False
+
+    @property
+    def is_valid_professional_certificate(self):
+        """ Check that `professional_certificate_name` is provided if is_professional_certificate is True."""
+        if not self.is_professional_certificate:
+            return True
+
+        if self.is_professional_certificate and self.professional_certificate_name:
             return True
 
         return False
@@ -644,8 +657,8 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
         return all([
             course_run.course.course_state.is_approved, course_run.has_valid_seats, course_run.start, course_run.end,
             course_run.pacing_type, course_run.has_valid_staff, course_run.is_valid_micromasters,
-            course_run.is_valid_xseries, course_run.language, course_run.transcript_languages.all(),
-            course_run.lms_course_id
+            course_run.is_valid_professional_certificate, course_run.is_valid_xseries, course_run.language,
+            course_run.transcript_languages.all(), course_run.lms_course_id
         ])
 
     def __str__(self):

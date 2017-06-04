@@ -138,6 +138,23 @@
                         </div>
                         <div class="row">
                             <div class="col col-5">
+                                <label class="field-label ">{{ run_form.is_professional_certificate.label_tag }}</label>
+                                {{ run_form.is_professional_certificate}}
+                            </div>
+                            <div class="col col-7 {% if run_form.professional_certificate_name %} hidden {% endif %}" id="professional_certificate_group">
+                                <label class="field-label ">{{ run_form.professional_certificate_name.label_tag }}</label>
+                                {{ run_form.professional_certificate_name }}
+                            </div>
+                            {% if run_form.professional_certificate_name.errors %}
+                            <div class="field-message-error">
+                                <span>
+                            {{ run_form.professional_certificate_name.errors|escape }}
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="row">
+                            <div class="col col-5">
                                 <label class="field-label ">{{ run_form.is_xseries.label_tag }}</label>
                                 {{ run_form.is_xseries}}
                             </div>

@@ -267,7 +267,14 @@ class CustomCourseRunForm(CourseRunForm):
         required=False,
     )
 
+    is_professional_certificate = forms.BooleanField(
+        label=_('Professional Certificate'),
+        widget=forms.CheckboxInput,
+        required=False,
+    )
+
     xseries_name = forms.CharField(label=_('XSeries Name'), required=False)
+    professional_certificate_name = forms.CharField(label=_('Professional Certificate Name'), required=False)
     micromasters_name = forms.CharField(label=_('MicroMasters Name'), required=False)
     lms_course_id = forms.CharField(label=_('Course Run Key'), required=False)
     video_language = forms.ModelChoiceField(
@@ -280,8 +287,8 @@ class CustomCourseRunForm(CourseRunForm):
         fields = (
             'length', 'transcript_languages', 'language', 'min_effort', 'max_effort',
             'target_content', 'pacing_type', 'video_language',
-            'staff', 'start', 'end', 'is_xseries', 'xseries_name', 'is_micromasters',
-            'micromasters_name', 'lms_course_id',
+            'staff', 'start', 'end', 'is_xseries', 'xseries_name', 'is_professional_certificate',
+            'professional_certificate_name', 'is_micromasters', 'micromasters_name', 'lms_course_id',
         )
 
     def save(self, commit=True, course=None, changed_by=None):  # pylint: disable=arguments-differ
@@ -327,6 +334,8 @@ class CustomCourseRunForm(CourseRunForm):
         xseries_name = cleaned_data.get("xseries_name")
         is_micromasters = cleaned_data.get("is_micromasters")
         micromasters_name = cleaned_data.get("micromasters_name")
+        is_professional_certificate = cleaned_data.get("is_professional_certificate")
+        professional_certificate_name = cleaned_data.get("professional_certificate_name")
         if start and end and start > end:
             raise ValidationError({'start': _('Start date cannot be after the End date')})
         if min_effort and max_effort and min_effort > max_effort:
@@ -335,6 +344,8 @@ class CustomCourseRunForm(CourseRunForm):
             raise ValidationError({'xseries_name': _('Enter XSeries program name')})
         if is_micromasters and not micromasters_name:
             raise ValidationError({'micromasters_name': _('Enter Micromasters program name')})
+        if is_professional_certificate and not professional_certificate_name:
+            raise ValidationError({'professional_certificate_name': _('Enter Professional Certificate program name')})
 
         return cleaned_data
 
