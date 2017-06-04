@@ -99,6 +99,19 @@ class CourseRunTests(TestCase):
         self.course_run.save()
         self.assertFalse(self.course_run.is_valid_micromasters)
 
+    def test_is_professional_certificate(self):
+        """ Verify that property returns bool if both fields have value. """
+        self.assertTrue(self.course_run.is_valid_professional_certificate)
+
+        self.course_run.is_professional_certificate = True
+        self.course_run.professional_certificate_name = 'test'
+        self.course_run.save()
+        self.assertTrue(self.course_run.is_valid_professional_certificate)
+
+        self.course_run.professional_certificate_name = None
+        self.course_run.save()
+        self.assertFalse(self.course_run.is_valid_professional_certificate)
+
     def test_is_valid_xseries(self):
         """ Verify that property returns bool if both fields have value. """
         self.assertTrue(self.course_run.is_valid_xseries)

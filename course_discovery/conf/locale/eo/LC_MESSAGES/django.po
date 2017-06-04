@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-02 14:58+0500\n"
+"POT-Creation-Date: 2017-06-05 12:49+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -792,8 +792,16 @@ msgid "MicroMasters"
 msgstr "MïçröMästérs Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/publisher/forms.py
+msgid "Professional Certificate"
+msgstr "Pröféssïönäl Çértïfïçäté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/publisher/forms.py
 msgid "XSeries Name"
 msgstr "XSérïés Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/publisher/forms.py
+msgid "Professional Certificate Name"
+msgstr "Pröféssïönäl Çértïfïçäté Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
 #: apps/publisher/forms.py
 msgid "MicroMasters Name"
@@ -826,6 +834,12 @@ msgstr "Éntér XSérïés prögräm nämé Ⱡ'σяєм ιρѕυм ∂σłσя 
 #: apps/publisher/forms.py
 msgid "Enter Micromasters program name"
 msgstr "Éntér Mïçrömästérs prögräm nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/publisher/forms.py
+msgid "Enter Professional Certificate program name"
+msgstr ""
+"Éntér Pröféssïönäl Çértïfïçäté prögräm nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
 
 #: apps/publisher/forms.py
 msgid "Only audit seat can be without price."

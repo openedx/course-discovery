@@ -140,3 +140,16 @@ class PublisherCourseRunEditFormTests(TestCase):
 
         run_form.cleaned_data['micromasters_name'] = "Test Name"
         self.assertEqual(run_form.clean(), run_form.cleaned_data)
+
+    def test_course_run_professional_certificate(self):
+        """
+         Verify that 'clean' raises 'ValidationError' if the is_professional_certificate is checked
+         but no professional_certificate_name has been entered
+        """
+        run_form = CustomCourseRunForm()
+        run_form.cleaned_data = {'is_professional_certificate': True, 'professional_certificate_name': ''}
+        with self.assertRaises(ValidationError):
+            run_form.clean()
+
+        run_form.cleaned_data['professional_certificate_name'] = "Test Name"
+        self.assertEqual(run_form.clean(), run_form.cleaned_data)
