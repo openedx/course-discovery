@@ -108,6 +108,7 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
         context['unpublished_course_runs'] = [CourseRunWrapper(course_run) for course_run in unpublished_course_runs]
         context['published_course_runs'] = [CourseRunWrapper(course_run) for course_run in published_course_runs]
         context['default_published_days'] = self.default_published_days
+        context['test'] = None
 
         in_progress_course_runs = course_runs.filter(
             course_run_state__name__in=[CourseRunStateChoices.Review, CourseRunStateChoices.Draft]
