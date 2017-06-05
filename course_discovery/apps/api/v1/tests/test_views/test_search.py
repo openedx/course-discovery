@@ -552,6 +552,20 @@ class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin,
         }
         self.assertDictEqual(response_data, expected_response_data)
 
+    def test_typeahead_hidden_programs(self):
+        """ Verify that typeahead does not return hidden programs. """
+        title = "hiddenprogram"
+        program = ProgramFactory(title=title, hidden=False, status=ProgramStatus.Active, partner=self.partner)
+        ProgramFactory(title=program.title + 'hidden', hidden=True, status=ProgramStatus.Active, partner=self.partner)
+        response = self.get_response({'q': program.title})
+        self.assertEqual(response.status_code, 200)
+        response_data = response.json()
+        expected_response_data = {
+            'course_runs': [],
+            'programs': [self.serialize_program(program)]
+        }
+        self.assertDictEqual(response_data, expected_response_data)
+
     def test_exception(self):
         """ Verify the view raises an error if the 'q' query string parameter is not provided. """
         response = self.get_response()

@@ -153,7 +153,7 @@ class TypeaheadSearchView(PartnerMixin, APIView):
             SQ(title_autocomplete=clean_query) |
             SQ(authoring_organizations_autocomplete=clean_query)
         )
-        programs = programs.filter(status=ProgramStatus.Active).filter(partner=partner.short_code)
+        programs = programs.filter(status=ProgramStatus.Active).exclude(hidden=True).filter(partner=partner.short_code)
         programs = programs[:self.RESULT_COUNT]
 
         return course_run_list, programs
