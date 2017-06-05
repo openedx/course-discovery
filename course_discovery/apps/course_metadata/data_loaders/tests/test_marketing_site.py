@@ -16,11 +16,11 @@ from testfixtures import LogCapture
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
     CourseMarketingSiteDataLoader, PersonMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
-    SponsorMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, XSeriesMarketingSiteDataLoader
+    SponsorMarketingSiteDataLoader, SubjectMarketingSiteDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
-from course_discovery.apps.course_metadata.models import Course, Organization, Person, Program, Subject, Video
+from course_discovery.apps.course_metadata.models import Course, Organization, Person, Subject
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -135,67 +135,6 @@ class AbstractMarketingSiteDataLoaderTestMixin(DataLoaderTestMixin):
         self.partner.marketing_site_api_username = None
         with self.assertRaises(Exception):
             self.loader_class(self.partner, self.api_url)  # pylint: disable=not-callable
-
-
-class XSeriesMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
-    loader_class = XSeriesMarketingSiteDataLoader
-    mocked_data = mock_data.MARKETING_SITE_API_XSERIES_BODIES
-
-    def create_mock_programs(self, programs):
-        for program in programs:
-            marketing_slug = program['url'].split('/')[-1]
-            factories.ProgramFactory(marketing_slug=marketing_slug, partner=self.partner)
-
-    def mock_api(self):
-        bodies = super().mock_api()
-        self.create_mock_programs(bodies)
-        return bodies
-
-    def assert_program_loaded(self, data):
-        marketing_slug = data['url'].split('/')[-1]
-        program = Program.objects.get(marketing_slug=marketing_slug, partner=self.partner)
-
-        overview = self.loader.clean_html(data['body']['value'])
-        overview = overview.lstrip('### XSeries Program Overview').strip()
-        self.assertEqual(program.overview, overview)
-
-        self.assertEqual(program.subtitle, data.get('field_xseries_subtitle_short'))
-
-        card_image_url = data.get('field_card_image', {}).get('url')
-        self.assertEqual(program.card_image_url, card_image_url)
-
-        video_url = data.get('field_product_video', {}).get('url')
-        if video_url:
-            video = Video.objects.get(src=video_url)
-            self.assertEqual(program.video, video)
-
-    @responses.activate
-    def test_ingest(self):
-        self.mock_login_response()
-        api_data = self.mock_api()
-
-        self.loader.ingest()
-
-        for datum in api_data:
-            self.assert_program_loaded(datum)
-
-    @responses.activate
-    def test_ingest_with_missing_programs(self):
-        """ Verify ingestion properly logs issues when programs exist on the marketing site,
-        but not the Programs API. """
-        self.mock_login_response()
-        api_data = self.mock_api()
-
-        Program.objects.all().delete()
-        self.assertEqual(Program.objects.count(), 0)
-
-        with mock.patch(LOGGER_PATH) as mock_logger:
-            self.loader.ingest()
-            self.assertEqual(Program.objects.count(), 0)
-
-            calls = [mock.call('Program [%s] exists on the marketing site, but not in the Programs Service!',
-                               datum['url'].split('/')[-1]) for datum in api_data]
-            mock_logger.error.assert_has_calls(calls)
 
 
 class SubjectMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
