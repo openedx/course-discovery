@@ -15,7 +15,7 @@ from opaque_keys.edx.keys import CourseKey
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, LevelType, Organization, Person, Position, Program, Subject
+    Course, CourseRun, LevelType, Organization, Person, Position, Subject
 )
 from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -131,44 +131,6 @@ class AbstractMarketingSiteDataLoader(AbstractDataLoader):
     @abc.abstractproperty
     def node_type(self):  # pragma: no cover
         pass
-
-
-class XSeriesMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
-    @property
-    def node_type(self):
-        return 'xseries'
-
-    def process_node(self, data):
-        marketing_slug = data['url'].split('/')[-1]
-
-        try:
-            program = Program.objects.get(marketing_slug=marketing_slug, partner=self.partner)
-        except Program.DoesNotExist:
-            logger.error('Program [%s] exists on the marketing site, but not in the Programs Service!', marketing_slug)
-            return None
-
-        card_image_url = self._get_nested_url(data.get('field_card_image'))
-        video_url = self._get_nested_url(data.get('field_product_video'))
-
-        # NOTE (CCB): Remove the heading at the beginning of the overview. Why this isn't part of the template
-        # is beyond me. It's just silly.
-        overview = self.clean_html(data['body']['value'])
-        overview = overview.lstrip('### XSeries Program Overview').strip()
-
-        data = {
-            'subtitle': data.get('field_xseries_subtitle_short'),
-            'card_image_url': card_image_url,
-            'overview': overview,
-            'video': self.get_or_create_video(video_url),
-            'credit_redemption_overview': data.get('field_cards_section_description')
-        }
-
-        for field, value in data.items():
-            setattr(program, field, value)
-
-        program.save()
-        logger.info('Processed XSeries with marketing_slug [%s].', marketing_slug)
-        return program
 
 
 class SubjectMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):

@@ -233,7 +233,13 @@ class ProgramMarketingSitePublisher(BaseMarketingSitePublisher):
                 determine if publication is necessary. May not exist if the program
                 is being saved for the first time.
         """
-        if obj.type.name in {'MicroMasters', 'Professional Certificate'}:
+        types_to_publish = {
+            'XSeries',
+            'MicroMasters',
+            'Professional Certificate',
+        }
+
+        if obj.type.name in types_to_publish:
             node_data = self.serialize_obj(obj)
 
             node_id = None

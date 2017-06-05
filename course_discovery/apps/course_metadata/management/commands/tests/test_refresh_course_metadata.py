@@ -14,7 +14,7 @@ from course_discovery.apps.course_metadata.data_loaders.api import (
 )
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
     CourseMarketingSiteDataLoader, PersonMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
-    SponsorMarketingSiteDataLoader, SubjectMarketingSiteDataLoader, XSeriesMarketingSiteDataLoader
+    SponsorMarketingSiteDataLoader, SubjectMarketingSiteDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.management.commands.refresh_course_metadata import execute_parallel_loader
@@ -31,16 +31,17 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
         super(RefreshCourseMetadataCommandTests, self).setUp()
         self.partner = PartnerFactory()
         partner = self.partner
-        self.pipeline = [(SubjectMarketingSiteDataLoader, partner.marketing_site_url_root, None),
-                         (SchoolMarketingSiteDataLoader, partner.marketing_site_url_root, None),
-                         (SponsorMarketingSiteDataLoader, partner.marketing_site_url_root, None),
-                         (PersonMarketingSiteDataLoader, partner.marketing_site_url_root, None),
-                         (CourseMarketingSiteDataLoader, partner.marketing_site_url_root, None),
-                         (OrganizationsApiDataLoader, partner.organizations_api_url, None),
-                         (CoursesApiDataLoader, partner.courses_api_url, None),
-                         (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),
-                         (ProgramsApiDataLoader, partner.programs_api_url, None),
-                         (XSeriesMarketingSiteDataLoader, partner.marketing_site_url_root, None)]
+        self.pipeline = [
+            (SubjectMarketingSiteDataLoader, partner.marketing_site_url_root, None),
+            (SchoolMarketingSiteDataLoader, partner.marketing_site_url_root, None),
+            (SponsorMarketingSiteDataLoader, partner.marketing_site_url_root, None),
+            (PersonMarketingSiteDataLoader, partner.marketing_site_url_root, None),
+            (CourseMarketingSiteDataLoader, partner.marketing_site_url_root, None),
+            (OrganizationsApiDataLoader, partner.organizations_api_url, None),
+            (CoursesApiDataLoader, partner.courses_api_url, None),
+            (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),
+            (ProgramsApiDataLoader, partner.programs_api_url, None),
+        ]
         self.kwargs = {'username': 'bob'}
         self.mock_access_token_api()
 
@@ -210,7 +211,6 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
                     CoursesApiDataLoader,
                     EcommerceApiDataLoader,
                     ProgramsApiDataLoader,
-                    XSeriesMarketingSiteDataLoader,
                 )
                 expected_calls = [mock.call('%s failed!', loader_class.__name__) for loader_class in loader_classes]
                 mock_logger.exception.assert_has_calls(expected_calls)

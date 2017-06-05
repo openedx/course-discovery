@@ -279,7 +279,13 @@ class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         for mocked_method in mocked_methods:
             assert not mocked_method.called
 
-        for name in ('MicroMasters', 'Professional Certificate'):
+        types_to_publish = (
+            'XSeries',
+            'MicroMasters',
+            'Professional Certificate'
+        )
+
+        for name in types_to_publish:
             for mocked_method in mocked_methods:
                 mocked_method.reset_mock()
 
