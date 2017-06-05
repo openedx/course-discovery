@@ -1,7 +1,8 @@
 from django.contrib.auth.models import Group
 from guardian.shortcuts import assign_perm
 
-from course_discovery.apps.publisher.constants import (LEGAL_TEAM_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME,
+from course_discovery.apps.publisher.constants import (GENERAL_STAFF_GROUP_NAME, LEGAL_TEAM_GROUP_NAME,
+                                                       PARTNER_SUPPORT_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME,
                                                        REVIEWER_GROUP_NAME)
 from course_discovery.apps.publisher.models import OrganizationExtension
 
@@ -32,12 +33,16 @@ def assign_permissions(organization_extension):
     assign_permissions_to_group(organization_extension, Group.objects.get(name=PROJECT_COORDINATOR_GROUP_NAME),
                                 pc_permissions)
     # Assign view permissions to Legal Team group.
-    legal_team_permissions = [
+    view_permissions = [
         OrganizationExtension.VIEW_COURSE,
         OrganizationExtension.VIEW_COURSE_RUN
     ]
     assign_permissions_to_group(organization_extension, Group.objects.get(name=LEGAL_TEAM_GROUP_NAME),
-                                legal_team_permissions)
+                                view_permissions)
+    assign_permissions_to_group(organization_extension, Group.objects.get(name=GENERAL_STAFF_GROUP_NAME),
+                                view_permissions)
+    assign_permissions_to_group(organization_extension, Group.objects.get(name=PARTNER_SUPPORT_GROUP_NAME),
+                                view_permissions)
 
 
 def assign_permissions_to_group(organization_extension, group, permissions):
