@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from pytz import timezone
@@ -6,9 +7,9 @@ from pytz import timezone
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.models import Person
-from course_discovery.apps.course_metadata.tests.factories import PersonFactory, OrganizationFactory
-from course_discovery.apps.publisher.tests.factories import CourseFactory
+from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.publisher.forms import CustomCourseForm, CustomCourseRunForm, PublisherUserCreationForm
+from course_discovery.apps.publisher.tests.factories import CourseFactory
 
 
 class UserModelChoiceFieldTests(TestCase):
