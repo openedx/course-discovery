@@ -5,11 +5,11 @@ from guardian.admin import GuardedModelAdmin
 
 from course_discovery.apps.publisher.assign_permissions import assign_permissions
 from course_discovery.apps.publisher.choices import InternalUserRole
-from course_discovery.apps.publisher.constants import (PARTNER_MANAGER_GROUP_NAME,
-                                                       PROJECT_COORDINATOR_GROUP_NAME, PUBLISHER_GROUP_NAME,
-                                                       REVIEWER_GROUP_NAME)
-from course_discovery.apps.publisher.forms import (CourseRunAdminForm, CourseUserRoleForm, OrganizationUserRoleForm,
-                                                   PublisherUserCreationForm, UserAttributesAdminForm)
+from course_discovery.apps.publisher.constants import (PARTNER_MANAGER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME,
+                                                       PUBLISHER_GROUP_NAME, REVIEWER_GROUP_NAME)
+from course_discovery.apps.publisher.forms import (CourseRunAdminForm, CourseUserRoleForm, OrganizationExtensionForm,
+                                                   OrganizationUserRoleForm, PublisherUserCreationForm,
+                                                   UserAttributesAdminForm)
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
                                                     OrganizationExtension, OrganizationUserRole, PublisherUser, Seat,
                                                     UserAttributes)
@@ -25,6 +25,7 @@ class CourseUserRoleAdmin(admin.ModelAdmin):
 
 @admin.register(OrganizationExtension)
 class OrganizationExtensionAdmin(GuardedModelAdmin):
+    form = OrganizationExtensionForm
     list_display = ['organization', 'group']
     search_fields = ['organization__name', 'group__name']
 

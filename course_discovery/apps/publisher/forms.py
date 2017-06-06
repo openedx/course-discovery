@@ -458,6 +458,21 @@ class UserAttributesAdminForm(BaseUserAdminForm):
 class OrganizationUserRoleForm(BaseUserAdminForm):
     class Meta(BaseUserAdminForm.Meta):
         model = OrganizationUserRole
+        widgets = {
+            'organization': autocomplete.ModelSelect2(
+                url='admin_metadata:organisation-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 3,
+                    'class': 'sortable-select',
+                }
+            ),
+            'user': autocomplete.ModelSelect2(
+                url='admin_core:user-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 3,
+                }
+            ),
+        }
 
 
 class CourseUserRoleForm(BaseUserAdminForm):
@@ -514,3 +529,18 @@ class AdminImportCourseForm(forms.Form):
 
     class Meta:
         fields = ('start_id',)
+
+
+class OrganizationExtensionForm(forms.ModelForm):
+    class Meta:
+        model = OrganizationExtension
+        fields = '__all__'
+        widgets = {
+            'organization': autocomplete.ModelSelect2(
+                url='admin_metadata:organisation-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 3,
+                    'class': 'sortable-select',
+                }
+            ),
+        }
