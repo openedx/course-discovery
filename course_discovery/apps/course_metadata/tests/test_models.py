@@ -15,7 +15,7 @@ from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
-from course_discovery.apps.course_metadata.choices import ProgramStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractMediaModel, AbstractNamedModel, AbstractValueModel, CorporateEndorsement, Course, CourseRun,
     Endorsement, Seat, SeatType
@@ -518,6 +518,31 @@ class ProgramTests(TestCase):
         program = factories.ProgramFactory(
             courses=[course],
             excluded_course_runs=excluded_course_runs,
+            one_click_purchase_enabled=True,
+            type=program_type,
+        )
+        self.assertTrue(program.is_program_eligible_for_one_click_purchase)
+
+    def test_one_click_purchase_eligible_with_unpublished_runs(self):
+        """ Verify that program with unpublished course runs is one click purchase eligible. """
+
+        verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
+        program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
+        published_course_run = factories.CourseRunFactory(
+            end=None,
+            enrollment_end=None,
+            status=CourseRunStatus.Published
+        )
+        unpublished_course_run = factories.CourseRunFactory(
+            end=None,
+            enrollment_end=None,
+            status=CourseRunStatus.Unpublished,
+            course=published_course_run.course
+        )
+        factories.SeatFactory(course_run=published_course_run, type=Seat.VERIFIED, upgrade_deadline=None)
+        factories.SeatFactory(course_run=unpublished_course_run, type=Seat.VERIFIED, upgrade_deadline=None)
+        program = factories.ProgramFactory(
+            courses=[published_course_run.course],
             one_click_purchase_enabled=True,
             type=program_type,
         )
