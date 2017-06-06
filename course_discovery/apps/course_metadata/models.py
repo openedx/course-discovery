@@ -805,7 +805,7 @@ class Program(TimeStampedModel):
         applicable_seat_types = [seat_type.name.lower() for seat_type in self.type.applicable_seat_types.all()]
 
         for course in self.courses.all():
-            course_runs = set(course.course_runs.all()) - excluded_course_runs
+            course_runs = set(course.course_runs.filter(status=CourseRunStatus.Published)) - excluded_course_runs
 
             if len(course_runs) != 1:
                 return False

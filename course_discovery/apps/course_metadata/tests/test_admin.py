@@ -387,7 +387,7 @@ class ProgramEligibilityFilterTests(TestCase):
             courses=[course_run.course],
             one_click_purchase_enabled=True,
         )
-        with self.assertNumQueries(10):
+        with self.assertNumQueries(11):
             self.assertEqual(
                 list(program_filter.queryset({}, Program.objects.all())),
                 [one_click_purchase_eligible_program]
