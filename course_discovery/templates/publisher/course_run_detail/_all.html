@@ -143,6 +143,40 @@
       {% endwith %}
     </div>
   </div>
+
+  <div class="info-item">
+    <div class="heading">
+      {% trans "MicroMasters" %}
+    </div>
+    <div>
+      {% with  object.micromasters_name as field %}
+        {% include "publisher/_render_optional_field.html" %}
+      {% endwith %}
+    </div>
+  </div>
+
+  <div class="info-item">
+    <div class="heading">
+      {% trans "XSeries Name" %}
+    </div>
+    <div>
+      {% with  object.xseries_name as field %}
+        {% include "publisher/_render_optional_field.html" %}
+      {% endwith %}
+    </div>
+  </div>
+
+  <div class="info-item">
+    <div class="heading">
+      {% trans "Professional Certificate Name" %}
+    </div>
+    <div>
+      {% with  object.professional_certificate_name as field %}
+        {% include "publisher/_render_optional_field.html" %}
+      {% endwith %}
+    </div>
+  </div>
+
 </div>
 <div class="clearfix"></div>
 <script type="text/javascript">
