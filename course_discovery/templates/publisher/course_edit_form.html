@@ -340,6 +340,7 @@
                                         <label class="field-label ">{{ form.image.label_tag }}</label>
                                         <div class="course-image-field">
                                             {{ form.image }}
+                                            <div class="image-error has-error hidden"></div>
                                             {% if form.image.errors %}
                                                 <div class="field-message has-error">
                                                     <span class="field-message-content">
