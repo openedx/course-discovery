@@ -1,3 +1,20 @@
+form.form div.layout{
+  padding: 0em;
+  background: none;
+  &-no-bkg{
+    background: none;
+  }
+}
+
+fieldset{
+  & > .row{
+        -webkit-box-shadow: 0 8px 6px -6px rgba(0,0,0,0.05);
+        -moz-box-shadow: 0 8px 6px -6px rgba(0,0,0,0.05);
+        box-shadow: 0 8px 6px -6px rgba(0,0,0,0.05);
+  }
+}
+
+
 input,
 select {
   max-width: 100%;
@@ -5,11 +22,13 @@ select {
 
 .required {
   color: red;
-  font-size: 12px;
+  font-size: 15px;
 }
 
 .optional {
   font-weight: normal;
+  font-size: 15px;
+  color: $gray;
 }
 
 .checkbox-inline {

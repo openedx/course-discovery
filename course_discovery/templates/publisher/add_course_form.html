@@ -26,7 +26,7 @@
     <div class="course-form">
         <div class="course-information">
             <fieldset class="form-group grid-container grid-manual">
-                <div class="field-title">{% trans "COURSE TITLE" %}</div>
+                <div class="field-title">{% trans "COURSE TITLE" %} <span class="required float-right">* Required</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
                         <div class="row">
@@ -92,7 +92,7 @@
                     </div>
                 </div>
 
-                <div class="field-title">{% trans "COURSE NUMBER" %}</div>
+                <div class="field-title">{% trans "COURSE NUMBER" %} <span class="required float-right">* Required</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
                         <div class="row">
@@ -132,14 +132,7 @@
         </div>
     </div>
 </div>
-<div class="layout-full layout">
-    <p>
-        {% blocktrans with strong_start='<strong>' strong_end='</strong>' trimmed %}
-            After you select {{ strong_start }}Create New Course{{  strong_end }}, pages for the course and for one course run are created in Publisher. You can add About page information to the course and course run pages at any time.
-        {% endblocktrans %}
-    </p>
-    <p>{% trans "Additionally, edX will create a URL for the course in Studio. When the Studio URL is ready, you will receive an email notification. You can then go to Studio and enter content for the course." %}</p>
-</div>
+
 <div class="course-form">
     <div class="course-information action-buttons">
         <div class="field">
