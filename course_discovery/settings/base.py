@@ -332,6 +332,8 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'user': '100/hour',
     },
+    # NOTE: This is the same format as DRF's iso-8601, however the milliseconds are always rendered.
+    'DATETIME_FORMAT': '%Y-%m-%dT%H:%M:%S.%f%zZ',
 }
 
 # http://chibisov.github.io/drf-extensions/docs/

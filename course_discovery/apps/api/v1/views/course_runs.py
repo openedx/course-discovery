@@ -85,7 +85,7 @@ class CourseRunViewSet(PartnerMixin, viewsets.ModelViewSet):
               paramType: query
               multiple: false
             - name: hidden
-              description: Filter based on wether the course run is hidden from search.
+              description: Filter based on whether the course run is hidden from search.
               required: false
               type: Boolean
               paramType: query
