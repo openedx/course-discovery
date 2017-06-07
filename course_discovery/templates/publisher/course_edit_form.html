@@ -26,7 +26,11 @@
                 {% endfor %}
             {% endif %}
             <p>
-                {% trans "All required fields must be complete before this course can be sent for review." %}
+                {% trans "All required fields must be complete before this course can be sent to edX marketing for review." %}
+            </p>
+            <p>
+                <strong>{% trans "Note:" %}</strong>
+                {% trans "If you edit course information after edX marketing has reviewed the course, you have to send the course for review again." %}
             </p>
             <form id="frm_course_edit" class="form" method="post" action="" enctype="multipart/form-data">{% csrf_token %}
                 <input id="id_history_revision" type="hidden" value="{{ history_object.id }}">
@@ -96,7 +100,7 @@
                                         </label> {{ form.team_admin }}
 
 
-                                        <label class="field-label ">{{ form.title.label }} <span class="required">*</span></label> 
+                                        <label class="field-label ">{{ form.title.label }} <span class="required">*</span></label>
                                         <input id="id_title_revision" type="hidden" value="{{ history_object.title }}" class="history">
                                         {{ form.title }}
                                         <p>{% trans "255 character limit, including spaces." %}</p>

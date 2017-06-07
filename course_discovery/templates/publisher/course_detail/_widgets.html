@@ -8,7 +8,7 @@
     <div>
         <h5 class="hd-5 emphasized course-runs-heading">{% trans "COURSE RUNS" %}</h5>
         <a href="{% url 'publisher:publisher_course_runs_new' parent_course_id=object.id %}" class="btn btn-brand btn-small btn-courserun-add">
-            {% trans "ADD RUN" %}
+            {% trans "CREATE RUN" %}
         </a>
     </div>
     <div class="course-run-list">
@@ -31,7 +31,7 @@
                         {% if course_run.studio_url %}
                             <a class="studio-link" href="{{ course_run.studio_url }}" target="_blank">{{ course_run.lms_course_id }}</a>
                         {% else %}
-                            {% trans "Not yet created" %}
+                            {% trans "To be added by edX" %}
                         {% endif %}
                     </div>
                 </div>
