@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-05 17:17+0500\n"
+"POT-Creation-Date: 2017-06-07 14:59+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -804,7 +804,7 @@ msgstr "Tränsçrïpt Längüägés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт �
 msgid "XSeries"
 msgstr "XSérïés Ⱡ'σяєм ιρѕυм #"
 
-#: apps/publisher/forms.py
+#: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
 msgid "MicroMasters"
 msgstr "MïçröMästérs Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
@@ -812,11 +812,11 @@ msgstr "MïçröMästérs Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 msgid "Professional Certificate"
 msgstr "Pröféssïönäl Çértïfïçäté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
-#: apps/publisher/forms.py
+#: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
 msgid "XSeries Name"
 msgstr "XSérïés Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
-#: apps/publisher/forms.py
+#: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
 msgid "Professional Certificate Name"
 msgstr "Pröféssïönäl Çértïfïçäté Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
@@ -1275,6 +1275,18 @@ msgid "Click here to upload your image"
 msgstr "Çlïçk héré tö üplöäd ýöür ïmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: templates/publisher/_add_instructor_popup.html
+msgid "The image dimensions must be less than 110 x 110"
+msgstr ""
+"Thé ïmägé dïménsïöns müst ßé léss thän 110 x 110 Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "The image size must be less than 256KB"
+msgstr ""
+"Thé ïmägé sïzé müst ßé léss thän 256KB Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: templates/publisher/_add_instructor_popup.html
 msgid "First Name"
 msgstr "Fïrst Nämé Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
@@ -1318,6 +1330,10 @@ msgstr "Örgänïzätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 #: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Bio"
 msgstr "Bïö Ⱡ'σяєм#"
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "required (1-2 paragraphs)"
+msgstr "réqüïréd (1-2 pärägräphs) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "Facebook URL"

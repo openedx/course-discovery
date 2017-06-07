@@ -12,6 +12,10 @@
                     <img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" class="select-image" />
                     <input name="staff-image" id="staffImageSelect" type="file" accept="image/*" onchange="loadSelectedImage(this);">
                 </div>
+                <ul>
+                <li><span class="required"> {% trans "The image dimensions must be less than 110 x 110" %}</span></li>
+                <li><span class="required"> {% trans "The image size must be less than 256KB" %}</span></li>
+                </ul>
                 <label class="field-label" for="given-name">{% trans "First Name" %}
                     <span class="required">* {% trans "required" %}</span>
                 </label>
@@ -54,7 +58,7 @@
                 {% endif %}
 
                 <label class="field-label" for="bio">{% trans "Bio" %}
-                    <span class="required">* {% trans "required" %}</span>
+                    <span class="required">* {% trans "required (1-2 paragraphs)" %}</span>
                 </label>
                 <textarea class="field-textarea input-textarea textarea-medium textarea-block" id="bio" name="bio"></textarea>
 

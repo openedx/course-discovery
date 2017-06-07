@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-05 17:17+0500\n"
+"POT-Creation-Date: 2017-06-07 14:59+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -673,7 +673,7 @@ msgstr ""
 msgid "XSeries"
 msgstr ""
 
-#: apps/publisher/forms.py
+#: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
 msgid "MicroMasters"
 msgstr ""
 
@@ -681,11 +681,11 @@ msgstr ""
 msgid "Professional Certificate"
 msgstr ""
 
-#: apps/publisher/forms.py
+#: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
 msgid "XSeries Name"
 msgstr ""
 
-#: apps/publisher/forms.py
+#: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
 msgid "Professional Certificate Name"
 msgstr ""
 
@@ -1094,6 +1094,14 @@ msgid "Click here to upload your image"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
+msgid "The image dimensions must be less than 110 x 110"
+msgstr ""
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "The image size must be less than 256KB"
+msgstr ""
+
+#: templates/publisher/_add_instructor_popup.html
 msgid "First Name"
 msgstr ""
 
@@ -1136,6 +1144,10 @@ msgstr ""
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Bio"
+msgstr ""
+
+#: templates/publisher/_add_instructor_popup.html
+msgid "required (1-2 paragraphs)"
 msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
