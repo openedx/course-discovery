@@ -20,7 +20,7 @@ $(document).ready(function() {
             $studioInstanceSuccess = $(".studio-instance-success"),
             $studioInstanceError = $(".studio-instance-error"),
             successMessage = interpolateString(
-                gettext("You have successfully created a studio instance ({studioLinkTag}) for {courseRunDetail} with a start date of {startDate}"),
+                gettext("You have successfully created a Studio URL ({studioLinkTag}) for {courseRunDetail} with a start date of {startDate}"),
                 {
                     "studioLinkTag": "<a href=''>"+ courseKeyValue +"</a>",
                     "courseRunDetail": courseTitleTag,

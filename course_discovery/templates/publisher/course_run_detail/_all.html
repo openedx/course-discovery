@@ -10,7 +10,7 @@
       {% if object.studio_url %}
         <a target="_blank" href="{{ object.studio_url }}">{{ object.lms_course_id }}</a>
       {% else %}
-        {% trans "(Required) Not yet added" %}
+        {% trans "(Required) To be added by edX" %}
       {% endif %}
     </div>
   </div>
@@ -31,7 +31,7 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Certificate Type" %}
+      {% trans "Enrollment Track" %}
     </div>
     <div>{{ object.course_type }}</div>
   </div>
@@ -146,7 +146,7 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "MicroMasters" %}
+      {% trans "MicroMasters Program Name" %}
     </div>
     <div>
       {% with  object.micromasters_name as field %}
@@ -157,7 +157,7 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "XSeries Name" %}
+      {% trans "XSeries Program Name" %}
     </div>
     <div>
       {% with  object.xseries_name as field %}
@@ -168,7 +168,7 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Professional Certificate Name" %}
+      {% trans "Professional Certificate Program Name" %}
     </div>
     <div>
       {% with  object.professional_certificate_name as field %}

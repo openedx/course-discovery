@@ -2,10 +2,13 @@
 
 <div id="acceptPreviewModal" class="modal">
     <div class="modal-content">
-        <h2 class="hd-2 emphasized accept-preview-heading">{% trans "Publish Course Run" %}</h2>
+        <h2 class="hd-2 emphasized accept-preview-heading">{% trans "Accept About Page Preview" %}</h2>
         <div id="modal-errors" class="alert-messages"></div>
         <p>
-            {% trans "Before the About page for this course run can be published, the following information for the course run must be entered in Studio." %}
+            {% trans "By accepting the About page preview, you are confirming that the information for this course run in Publisher is correct." %}
+        </p>
+        <p>
+            {% trans "Note that before edX can publish the About page for this course run, the following information for the course run must be entered in Studio." %}
         </p>
         <ul>
             <li>{% trans "The course run start and end date." %}</li>
@@ -14,7 +17,7 @@
         </ul>
         <div class="actions">
             <a class="btn-cancel closeModal" href="#">{% trans "Cancel" %}</a>
-            <button class="btn-brand btn-base btn-accept" type="button" data-url="{% url 'publisher:api:change_course_run_state' object.course_run_state.id %}">{% trans "Yes" %}</button>
+            <button class="btn-brand btn-base btn-accept" type="button" data-url="{% url 'publisher:api:change_course_run_state' object.course_run_state.id %}">{% trans "OK" %}</button>
         </div>
     </div>
 </div>

@@ -1729,9 +1729,9 @@ class CourseDetailViewTests(TestCase):
 
         response = self.client.get(self.detail_page_url)
         self.assertContains(response, 'COURSE RUNS')
-        self.assertContains(response, 'ADD RUN')
+        self.assertContains(response, 'CREATE RUN')
         self.assertContains(response, 'STUDIO URL -')
-        self.assertContains(response, 'Not yet created')
+        self.assertContains(response, 'To be added by edX')
         self.assertContains(response, reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id}))
 
     def test_detail_page_data(self):
@@ -2363,7 +2363,7 @@ class CourseEditViewTests(TestCase):
 
         post_data['title'] = ''
         response = self.client.post(self.edit_page_url, data=post_data)
-        self.assertContains(response, 'Please fill all required fields.')
+        self.assertContains(response, 'The page could not be updated. Make sure that')
 
     def test_text_area_max_length_error(self):
         """
@@ -2705,7 +2705,7 @@ class CourseRunEditViewTests(TestCase):
         """
         response = self.client.get(self.edit_page_url)
 
-        self.assertContains(response, 'Course Run Key')
+        self.assertContains(response, 'Studio URL')
         self.assertContains(response, 'name="lms_course_id"')
 
         self.updated_dict['lms_course_id'] = 'course-v1:edxTest+Test342+2016Q1'
@@ -2775,7 +2775,7 @@ class CourseRunEditViewTests(TestCase):
 
         self.assertContains(response, '<input id="id_lms_course_id" name="lms_course_id" type="hidden"')
 
-        self.assertContains(response, 'Course Run Key')
+        self.assertContains(response, 'Studio URL')
         self.assertContains(response, 'STUDIO URL')
         self.assertContains(response, 'Not yet created')
 
@@ -3096,7 +3096,7 @@ class CreateRunFromDashboardViewTests(TestCase):
         post_data = self._post_data()
         post_data.pop('course')
         response = self.client.post(self.create_course_run_url, post_data)
-        self.assertContains(response, 'Please fill all required fields.', status_code=400)
+        self.assertContains(response, 'The page could not be updated. Make', status_code=400)
 
     def test_create_course_run_and_seat(self):
         """ Verify that we can create a new course run with seat. """

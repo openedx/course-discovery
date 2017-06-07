@@ -299,10 +299,8 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
                         messages.success(
                             request, _(
                                 "You have successfully created a course. You can edit the course information or enter "
-                                "information for the course About page at any time. "
-                                "An edX project coordinator will create a Studio instance for this course. When you "
-                                "receive an email notification that the Studio instance is ready, you can enter course "
-                                "content in Studio."
+                                "information for the course About page at any time before you send the course to"
+                                " edX marketing for review. "
                             )
                         )
 
@@ -313,7 +311,9 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
                 messages.error(request, error_message)
 
         if not messages.get_messages(request):
-            messages.error(request, _('Please fill all required fields.'))
+            messages.error(
+                request, _('The page could not be updated. Make sure that all values are correct, then try again.')
+            )
 
         if course_form.errors.get('image'):
             messages.error(request, course_form.errors.get('image'))
@@ -418,7 +418,9 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
 
     def form_invalid(self, form):
         # pylint: disable=no-member
-        messages.error(self.request, _('Please fill all required fields.'))
+        messages.error(
+            self.request, _('The page could not be updated. Make sure that all values are correct, then try again.')
+        )
         return self.render_to_response(self.get_context_data(form=form))
 
 
@@ -595,7 +597,7 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
                         CourseRunState.objects.create(course_run=course_run, owner_role=PublisherUserRole.CourseTeam)
 
                         # pylint: disable=no-member
-                        success_msg = _('Course run created successfully for course "{course_title}".').format(
+                        success_msg = _('You have successfully created a course run for {course_title}.').format(
                             course_title=parent_course.title
                         )
                         messages.success(request, success_msg)
@@ -604,12 +606,13 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
                         return HttpResponseRedirect(reverse(self.success_url, kwargs={'pk': course_run.id}))
                 except Exception as error:  # pylint: disable=broad-except
                     # pylint: disable=no-member
-                    error_msg = _('There was an error saving course run, {error}').format(error=error)
+                    error_msg = _('There was an error saving this course run: {error}').format(error=error)
                     messages.error(request, error_msg)
                     logger.exception('Unable to create course run and seat for course [%s].', parent_course.id)
             else:
-                messages.error(request, _('Please fill all required fields.'))
-
+                messages.error(
+                    request, _('The page could not be updated. Make sure that all values are correct, then try again.')
+                )
         else:
             messages.error(
                 request,
@@ -651,7 +654,9 @@ class CreateRunFromDashboardView(CreateCourseRunView):
             self.parent_course = course_form.cleaned_data.get('course')
             return super(CreateRunFromDashboardView, self).post(request, *args, **kwargs)
 
-        messages.error(request, _('Please fill all required fields.'))
+        messages.error(
+            request, _('The page could not be updated. Make sure that all values are correct, then try again.')
+        )
         context = self.get_context_data()
         context.update(
             {
@@ -768,8 +773,9 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
                 logger.exception('Unable to update course run and seat for course [%s].', course_run.id)
 
         if not messages.get_messages(request):
-            messages.error(request, _('Please fill all required fields.'))
-
+            messages.error(
+                request, _('The page could not be updated. Make sure that all values are correct, then try again.')
+            )
         context.update(
             {
                 'run_form': run_form,

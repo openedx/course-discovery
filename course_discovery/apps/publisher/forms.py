@@ -141,7 +141,7 @@ class CustomCourseForm(CourseForm):
     )
 
     expected_learnings = forms.CharField(
-        label=_('What you will learn'), widget=forms.Textarea, required=False,
+        label=_('What You Will Learn'), widget=forms.Textarea, required=False,
         validators=[validate_text_count(max_length=2500)]
     )
 
@@ -292,7 +292,7 @@ class CustomCourseRunForm(CourseRunForm):
     xseries_name = forms.CharField(label=_('XSeries Name'), required=False)
     professional_certificate_name = forms.CharField(label=_('Professional Certificate Name'), required=False)
     micromasters_name = forms.CharField(label=_('MicroMasters Name'), required=False)
-    lms_course_id = forms.CharField(label=_('Course Run Key'), required=False)
+    lms_course_id = forms.CharField(label=_('Studio URL'), required=False)
     video_language = forms.ModelChoiceField(
         queryset=LanguageTag.objects.all(),
         label=_('Video Language'),
@@ -437,14 +437,14 @@ class CustomSeatForm(SeatForm):
         self.fields['type'].widget.attrs = {'class': field_classes}
 
     TYPE_CHOICES = [
-        ('', _('Choose course type')),
-        (Seat.AUDIT, _('Audit Only')),
-        (Seat.VERIFIED, _('Verified Certificate')),
-        (Seat.PROFESSIONAL, _('Professional Education')),
+        ('', _('Choose enrollment track')),
+        (Seat.AUDIT, _('Audit only')),
+        (Seat.VERIFIED, _('Verified')),
+        (Seat.PROFESSIONAL, _('Professional education')),
         (Seat.CREDIT, _('Credit')),
     ]
 
-    type = forms.ChoiceField(choices=TYPE_CHOICES, required=False, label=_('Seat Type'))
+    type = forms.ChoiceField(choices=TYPE_CHOICES, required=False, label=_('Enrollment Track'))
     price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
     credit_price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-08 18:57+0500\n"
+"POT-Creation-Date: 2017-06-09 21:46+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -188,7 +188,8 @@ msgstr ""
 msgid "OpenID Connect Secret"
 msgstr ""
 
-#: apps/core/models.py templates/publisher/course_run_detail/_all.html
+#: apps/core/models.py apps/publisher/forms.py
+#: templates/publisher/course_run_detail/_all.html
 msgid "Studio URL"
 msgstr ""
 
@@ -212,7 +213,6 @@ msgid "eligible for one-click purchase"
 msgstr ""
 
 #: apps/course_metadata/admin.py apps/publisher/forms.py
-#: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Yes"
 msgstr ""
 
@@ -365,7 +365,8 @@ msgstr ""
 msgid "Audit"
 msgstr ""
 
-#: apps/course_metadata/models.py apps/publisher/models.py
+#: apps/course_metadata/models.py apps/publisher/forms.py
+#: apps/publisher/models.py
 msgid "Verified"
 msgstr ""
 
@@ -625,8 +626,8 @@ msgstr ""
 msgid "Level"
 msgstr ""
 
-#: apps/publisher/forms.py
-msgid "What you will learn"
+#: apps/publisher/forms.py templates/publisher/course_detail.html
+msgid "What You Will Learn"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -673,8 +674,7 @@ msgstr ""
 msgid "XSeries"
 msgstr ""
 
-#: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_drupal.html
+#: apps/publisher/forms.py templates/publisher/course_run_detail/_drupal.html
 msgid "MicroMasters"
 msgstr ""
 
@@ -682,21 +682,16 @@ msgstr ""
 msgid "Professional Certificate"
 msgstr ""
 
-#: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
+#: apps/publisher/forms.py
 msgid "XSeries Name"
 msgstr ""
 
-#: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_drupal.html
+#: apps/publisher/forms.py templates/publisher/course_run_detail/_drupal.html
 msgid "Professional Certificate Name"
 msgstr ""
 
 #: apps/publisher/forms.py
 msgid "MicroMasters Name"
-msgstr ""
-
-#: apps/publisher/forms.py
-msgid "Course Run Key"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -728,23 +723,19 @@ msgid "Only audit seat can be without price."
 msgstr ""
 
 #: apps/publisher/forms.py
-msgid "Choose course type"
+msgid "Choose enrollment track"
 msgstr ""
 
 #: apps/publisher/forms.py
-msgid "Audit Only"
+msgid "Audit only"
 msgstr ""
 
 #: apps/publisher/forms.py
-msgid "Verified Certificate"
+msgid "Professional education"
 msgstr ""
 
-#: apps/publisher/forms.py
-msgid "Professional Education"
-msgstr ""
-
-#: apps/publisher/forms.py
-msgid "Seat Type"
+#: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
+msgid "Enrollment Track"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -944,10 +935,8 @@ msgstr ""
 #: apps/publisher/views.py
 msgid ""
 "You have successfully created a course. You can edit the course information "
-"or enter information for the course About page at any time. An edX project "
-"coordinator will create a Studio instance for this course. When you receive "
-"an email notification that the Studio instance is ready, you can enter "
-"course content in Studio."
+"or enter information for the course About page at any time before you send "
+"the course to edX marketing for review. "
 msgstr ""
 
 #: apps/publisher/views.py
@@ -956,7 +945,9 @@ msgid "An error occurred while saving your changes. {error}"
 msgstr ""
 
 #: apps/publisher/views.py
-msgid "Please fill all required fields."
+msgid ""
+"The page could not be updated. Make sure that all values are correct, then "
+"try again."
 msgstr ""
 
 #: apps/publisher/views.py
@@ -973,12 +964,12 @@ msgstr ""
 
 #: apps/publisher/views.py
 #, python-brace-format
-msgid "Course run created successfully for course \"{course_title}\"."
+msgid "You have successfully created a course run for {course_title}."
 msgstr ""
 
 #: apps/publisher/views.py
 #, python-brace-format
-msgid "There was an error saving course run, {error}"
+msgid "There was an error saving this course run: {error}"
 msgstr ""
 
 #: apps/publisher/views.py
@@ -1234,7 +1225,7 @@ msgid "View About page preview"
 msgstr ""
 
 #: templates/publisher/_approval_widget.html
-msgid "About page preview not available"
+msgid "Not available"
 msgstr ""
 
 #: templates/publisher/_approval_widget.html
@@ -1607,10 +1598,6 @@ msgid "Course Team Admin"
 msgstr ""
 
 #: templates/publisher/course_detail.html
-msgid "What You Will Learn"
-msgstr ""
-
-#: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Primary Subject"
@@ -1651,7 +1638,7 @@ msgid "COURSE RUNS"
 msgstr ""
 
 #: templates/publisher/course_detail/_widgets.html
-msgid "ADD RUN"
+msgid "CREATE RUN"
 msgstr ""
 
 #: templates/publisher/course_detail/_widgets.html
@@ -1668,8 +1655,7 @@ msgid "STUDIO URL"
 msgstr ""
 
 #: templates/publisher/course_detail/_widgets.html
-#: templates/publisher/course_run/edit_run_form.html
-msgid "Not yet created"
+msgid "To be added by edX"
 msgstr ""
 
 #: templates/publisher/course_detail/_widgets.html
@@ -1682,8 +1668,18 @@ msgstr ""
 
 #: templates/publisher/course_edit_form.html
 msgid ""
-"All required fields must be complete before this course can be sent for "
-"review."
+"All required fields must be complete before this course can be sent to edX "
+"marketing for review."
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Note:"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid ""
+"If you edit course information after edX marketing has reviewed the course, "
+"you have to send the course for review again."
 msgstr ""
 
 #: templates/publisher/course_edit_form.html
@@ -2140,7 +2136,11 @@ msgid "COURSE PACING"
 msgstr ""
 
 #: templates/publisher/course_run/edit_run_form.html
-msgid "The Studio URL for this course run."
+msgid "The Studio URL for this course run. The edX PC creates this URL."
+msgstr ""
+
+#: templates/publisher/course_run/edit_run_form.html
+msgid "Not yet created"
 msgstr ""
 
 #: templates/publisher/course_run/edit_run_form.html
@@ -2207,6 +2207,10 @@ msgid "Update Course Run"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
+msgid "(Required) To be added by edX"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_studio.html
 msgid "Start Date (time in UTC)"
@@ -2216,11 +2220,6 @@ msgstr ""
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_studio.html
 msgid "End Date (time in UTC)"
-msgstr ""
-
-#: templates/publisher/course_run_detail/_all.html
-#: templates/publisher/course_run_detail/_salesforce.html
-msgid "Certificate Type"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_all.html
@@ -2265,6 +2264,18 @@ msgstr ""
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Course Length (Weeks)"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "MicroMasters Program Name"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "XSeries Program Name"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_all.html
+msgid "Professional Certificate Program Name"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_cat.html
@@ -2396,13 +2407,19 @@ msgid "Close"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
-msgid "Publish Course Run"
+msgid "Accept About Page Preview"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid ""
-"Before the About page for this course run can be published, the following "
-"information for the course run must be entered in Studio."
+"By accepting the About page preview, you are confirming that the information"
+" for this course run in Publisher is correct."
+msgstr ""
+
+#: templates/publisher/course_run_detail/_preview_accept_popup.html
+msgid ""
+"Note that before edX can publish the About page for this course run, the "
+"following information for the course run must be entered in Studio."
 msgstr ""
 
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
@@ -2415,6 +2432,10 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Names, titles, and signature images for all certificate signatories."
+msgstr ""
+
+#: templates/publisher/course_run_detail/_preview_accept_popup.html
+msgid "OK"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_salesforce.html
@@ -2471,6 +2492,10 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "edX Course Run ID"
+msgstr ""
+
+#: templates/publisher/course_run_detail/_salesforce.html
+msgid "Certificate Type"
 msgstr ""
 
 #: templates/publisher/course_run_detail/_salesforce.html
@@ -2631,9 +2656,9 @@ msgstr ""
 #: templates/publisher/dashboard/_in_preview.html
 msgid ""
 "About page previews for the following course runs are available for course "
-"team review. After the course team approves the preview, the edX marketing "
-"team will publish the About page for the course run on edx.org. The course "
-"team will receive an email message when the About page has been published."
+"team review. After the course team approves the preview, the edX publisher "
+"will publish the About page for the course run on edx.org. The course team "
+"will receive an email message when the About page has been published."
 msgstr ""
 
 #: templates/publisher/dashboard/_in_preview.html
@@ -3102,12 +3127,10 @@ msgid "Dear %(course_team_name)s,"
 msgstr ""
 
 #: templates/publisher/email/studio_instance_created.html
-#: templates/publisher/email/studio_instance_created.txt
 #, python-format
 msgid ""
-"%(project_coordinator_name)s has created a Studio URL for the %(course_run)s"
-" course run of %(course_name)s. You can now take either of the following "
-"actions."
+"%(project_coordinator_name)s has created a Studio URL for the "
+"%(course_run)s. You can now take either of the following actions."
 msgstr ""
 
 #: templates/publisher/email/studio_instance_created.html
@@ -3168,6 +3191,14 @@ msgid ""
 "video before you submit the course for review in Publisher. For more "
 "information, see %(link_start)sAdd a Course About Video to "
 "edx.org%(link_end)s."
+msgstr ""
+
+#: templates/publisher/email/studio_instance_created.txt
+#, python-format
+msgid ""
+"%(project_coordinator_name)s has created a Studio URL for the %(course_run)s"
+" course run of %(course_name)s. You can now take either of the following "
+"actions."
 msgstr ""
 
 #: templates/publisher/email/studio_instance_created.txt
