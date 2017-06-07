@@ -26,8 +26,6 @@
                 {% endfor %}
             {% endif %}
             <p>
-                {% trans "To add or edit information about this course, make changes on this page and then select" %}
-                <strong>{% trans "Update Course." %}</strong>
                 {% trans "All required fields must be complete before this course can be sent for review." %}
             </p>
             <form id="frm_course_edit" class="form" method="post" action="" enctype="multipart/form-data">{% csrf_token %}
@@ -37,7 +35,7 @@
                         <div class="course-information">
                             <fieldset class="form-group grid-container grid-manual">
 
-                                <div class="field-title">{% trans "COURSE TITLE" %}</div>
+                                <div class="field-title">{% trans "COURSE TITLE" %} <span class="required float-right">* Required for announcement</span></div>
                                 <div class="row show-comparison-container">
                                     <div class="col col-6 help-text">
                                         <div id="id_title_parent" class="comparison-container">
@@ -80,12 +78,12 @@
                                     </div>
                                     <div class="col col-6">
                                         {% if form.organization.field.queryset.all.count > 1 %}
-                                            <label class="field-label">{{ form.organization.label_tag }} </label>
+                                            <label class="field-label">{{ form.organization.label_tag }} <span class="required">*</span></label>
                                             {{ form.organization }}
                                         {% else %}
                                             {% with form.organization.field.queryset|first as organization %}
                                                 <label id="organization-name" class="field-label"
-                                                       data-org_id="{{ organization.id }}">{{ form.organization.label_tag }}
+                                                       data-org_id="{{ organization.id }}">{{ form.organization.label_tag }} <span class="required">*</span>
                                                 </label>
                                                 <span class="read-only-field">{{ organization.name }}</span>
                                                 <input id="id_organization" name="organization" type="hidden"
@@ -94,11 +92,11 @@
                                         {% endif %}
 
                                         <label class="field-label">
-                                            {{ form.team_admin.label_tag }}
+                                            {{ form.team_admin.label_tag }} <span class="required">*</span>
                                         </label> {{ form.team_admin }}
 
 
-                                        <label class="field-label ">{{ form.title.label }}</label>
+                                        <label class="field-label ">{{ form.title.label }} <span class="required">*</span></label> 
                                         <input id="id_title_revision" type="hidden" value="{{ history_object.title }}" class="history">
                                         {{ form.title }}
                                         <p>{% trans "255 character limit, including spaces." %}</p>
@@ -111,7 +109,7 @@
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="field-title">{% trans "COURSE NUMBER" %}</div>
+                                <div class="field-title">{% trans "COURSE NUMBER" %} <span class="required float-right">* Required for announcement</span></div>
                                 <div class="row">
                                     <div class="col col-6 help-text">
                                         <div class="row">
@@ -138,7 +136,7 @@
                                         </div>
                                     </div>
                                     <div class="col col-6">
-                                        <label class="field-label ">{{ form.number.label_tag }}</label>
+                                        <label class="field-label ">{{ form.number.label_tag }} <span class="required">*</span></label>
                                         {{ form.number }}
                                     </div>
                                 </div>
@@ -148,7 +146,7 @@
                         <div class="{% if publisher_hide_features_for_pilot %}hidden{% endif %}">
                         <div class="course-information">
                             <fieldset class="form-group grid-container grid-manual">
-                                <div class="field-title">{% trans "SHORT DESCRIPTION" %}</div>
+                                <div class="field-title">{% trans "SHORT DESCRIPTION" %} <span class="required float-right">* Required for announcement</span></div>
                                 <div class="row show-comparison-container">
                                     <div class="col col-6 help-text">
                                         <div id="id_short_description_parent" class="comparison-container">
@@ -181,7 +179,7 @@
                                     </div>
                                     <div class="col col-6">
                                         <input id="id_short_description_revision" type="hidden" value="{{ history_object.short_description }}" class="history">
-                                        <label class="field-label ">{{ form.short_description.label_tag }}</label>
+                                        <label class="field-label ">{{ form.short_description.label_tag }} <span class="required">*</span></label>
                                         {{ form.short_description }}
                                         <p>{% trans "255 character limit, including spaces." %}</p>
                                             {% if form.short_description.errors %}
@@ -194,7 +192,7 @@
                                     </div>
                                 </div>
 
-                                <div class="field-title">{% trans "LONG DESCRIPTION" %}</div>
+                                <div class="field-title">{% trans "LONG DESCRIPTION" %} <span class="required float-right">* Required for announcement</span></div>
                                 <div class="row show-comparison-container">
                                     <div class="col col-6 help-text">
                                         <div id="id_full_description_parent" class="comparison-container">
@@ -232,7 +230,7 @@
                             </div>
                         </div>
                                     <div class="col col-6">
-                                        <label class="field-label ">{{ form.full_description.label_tag }}</label>
+                                        <label class="field-label ">{{ form.full_description.label_tag }} <span class="required">*</span></label>
                                         <input id="id_full_description_revision" type="hidden" value="{{ history_object.full_description }}" class="history">
                                         {{ form.full_description }}
                                         <p>{% trans "2500 character limit, including spaces." %}</p>
@@ -247,7 +245,7 @@
                                 </div>
 
 
-                                <div class="field-title">{% trans "WHAT YOU WILL LEARN" %}</div>
+                                <div class="field-title">{% trans "WHAT YOU WILL LEARN" %} <span class="required float-right">* Required for announcement</span></div>
                                 <div class="row show-comparison-container">
                                     <div class="col col-6 help-text">
                                         <div id="id_expected_learnings_parent" class="comparison-container">
@@ -280,7 +278,7 @@
                                         </div>
                                     </div>
                                     <div class="col col-6">
-                                        <label class="field-label ">{{ form.expected_learnings.label_tag }}</label>
+                                        <label class="field-label ">{{ form.expected_learnings.label_tag }} <span class="required">*</span></label>
                                         <input id="id_expected_learnings_revision" type="hidden" value="{{ history_object.expected_learnings }}" class="history">
                                         {{ form.expected_learnings }}
                                         <p>{% trans "2500 character limit, including spaces." %}</p>
@@ -294,17 +292,17 @@
                                     </div>
                                 </div>
 
-                                <div class="field-title">{% trans "SUBJECT FIELD" %}</div>
+                                <div class="field-title">{% trans "SUBJECT FIELD" %} <span class="required float-right">* Required for announcement</span></div>
                                 <div class="row">
                                     <div class="col col-6 help-text">
                                         <p>{% trans "The subject of the course." %}</p>
                                         <p>{% trans "You can select up to two subjects in addition to the primary subject. Only the primary subject appears on the About page." %}</p>
                                     </div>
                                     <div class="col col-6">
-                                        <label class="field-label ">{{ form.primary_subject.label_tag }}</label>
+                                        <label class="field-label ">{{ form.primary_subject.label_tag }} <span class="required">*</span></label>
                                         {{ form.primary_subject }}
                                     </div>
-
+                                </div>
                                 <div class="row">
                                     <div class="col col-6 help-text">&nbsp;
                                     </div>
@@ -323,7 +321,7 @@
                                     </div>
                                 </div>
 
-                                <div class="field-title">{% trans "COURSE IMAGE" %}</div>
+                                <div class="field-title">{% trans "COURSE IMAGE" %} <span class="required float-right">* Required for announcement</span></div>
                                 <div class="row">
                                     <div class="col col-6 help-text">
                                         {% trans "An eye-catching, colorful image that captures the essence of your course." %}
@@ -337,7 +335,7 @@
                                         </ul>
                                     </div>
                                     <div class="col col-6">
-                                        <label class="field-label ">{{ form.image.label_tag }}</label>
+                                        <label class="field-label ">{{ form.image.label_tag }} <span class="required">*</span></label>
                                         <div class="course-image-field">
                                             {{ form.image }}
                                             <div class="image-error has-error hidden"></div>
@@ -352,7 +350,7 @@
                                     </div>
                                 </div>
 
-                                <div class="field-title">{% trans "PREREQUISITES" %}</div>
+                                <div class="field-title">{% trans "PREREQUISITES" %} <span class="optional float-right">Optional for announcement</span></div>
                                 <div class="row show-comparison-container">
                                     <div class="col col-6 help-text">
                                         <div id="id_prerequisites_parent" class="comparison-container">
@@ -399,7 +397,7 @@
                                     </div>
                                 </div>
 
-                                <div class="field-title">{% trans "SYLLABUS" %}</div>
+                                <div class="field-title">{% trans "SYLLABUS" %} <span class="optional float-right">Optional for announcement</span></div>
                                 <div class="row show-comparison-container">
                                     <div class="col col-6 help-text">
                                         <div id="id_syllabus_parent" class="comparison-container">
@@ -450,7 +448,7 @@
                                     </div>
                                 </div>
 
-                                <div class="field-title">{% trans "LEVEL" %}</div>
+                                <div class="field-title">{% trans "LEVEL" %}  <span class="required float-right">* Required for announcement</span></div>
                                 <div class="row">
                                     <div class="col col-6 help-text">
                                         <ul>
@@ -460,12 +458,12 @@
                                         </ul>
                                     </div>
                                     <div class="col col-6 help-text">
-                                        <label class="field-label ">{{ form.level_type.label_tag }}</label>
+                                        <label class="field-label ">{{ form.level_type.label_tag }} <span class="required">*</span></label>
                                         {{ form.level_type }}
                                     </div>
                                 </div>
 
-                                <div class="field-title">{{ form.faq.label }}</div>
+                                <div class="field-title">{{ form.faq.label }} <span class="optional float-right">Optional for announcement</span></div>
                                 <div class="row show-comparison-container">
                                     <div class="col col-6 help-text">
                                         <p>{% trans "Any frequently asked questions and the answers to those questions." %}</p>
@@ -489,7 +487,7 @@
                                     </div>
                                 </div>
                                 {% if is_internal_user %}
-                                    <div class="field-title">{{ form.video_link.label|upper }}</div>
+                                    <div class="field-title">{{ form.video_link.label|upper }} <span class="required float-right">* Required for announcement</span></div>
                                     <div class="row">
                                         <div class="col col-6 help-text">
                                             <div class="row">
@@ -539,7 +537,7 @@
                                             </div>
                                         </div>
                                         <div class="col col-6 help-text">
-                                            <label class="field-label ">{{ form.video_link.label }}</label>
+                                            <label class="field-label ">{{ form.video_link.label }} <span class="required">*</span></label>
                                             {{ form.video_link }}
                                         </div>
                                     </div>
@@ -547,7 +545,7 @@
                                     {{ form.video_link }}
                                 {% endif %}
 
-                                <div class="field-title">{{ form.learner_testimonial.label|upper }}</div>
+                                <div class="field-title">{{ form.learner_testimonial.label|upper }} <span class="optional float-right">Optional for announcement</span></div>
                                 <div class="row show-comparison-container">
                                     <div class="col col-6 help-text">
                                         <div id="id_learner_testimonial_parent" class="comparison-container">
@@ -597,12 +595,12 @@
                     </div>
                 </div>
 
-                <div class="layout-full layout">
+                <div class="layout-full layout-no-bkg">
                     <div class="course-edit-actions">
                         <a class="btn-cancel" href="{% url 'publisher:publisher_course_detail' course.id %}">
                             {% trans "Cancel" %}
                         </a>
-                        <button class="btn-brand btn-base btn-save" type="submit">{% trans "UPDATE COURSE" %}</button>
+                        <button class="btn-brand btn-base btn-save" type="submit">{% trans "Update Course" %}</button>
                     </div>
                 </div>
 

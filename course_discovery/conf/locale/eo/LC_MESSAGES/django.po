@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-08 13:53+0500\n"
+"POT-Creation-Date: 2017-06-08 18:57+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -805,6 +805,7 @@ msgid "XSeries"
 msgstr "XSérïés Ⱡ'σяєм ιρѕυм #"
 
 #: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "MicroMasters"
 msgstr "MïçröMästérs Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
@@ -817,6 +818,7 @@ msgid "XSeries Name"
 msgstr "XSérïés Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
+#: templates/publisher/course_run_detail/_drupal.html
 msgid "Professional Certificate Name"
 msgstr "Pröféssïönäl Çértïfïçäté Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
@@ -1688,37 +1690,6 @@ msgid "BIO1.1x; BIO1.2x etc."
 msgstr "BÌÖ1.1x; BÌÖ1.2x étç. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: templates/publisher/add_course_form.html
-#, python-format
-msgid ""
-"After you select %(strong_start)sCreate New Course%(strong_end)s, pages for "
-"the course and for one course run are created in Publisher. You can add "
-"About page information to the course and course run pages at any time."
-msgstr ""
-"Àftér ýöü séléçt %(strong_start)sÇréäté Néw Çöürsé%(strong_end)s, pägés för "
-"thé çöürsé änd för öné çöürsé rün äré çréätéd ïn Püßlïshér. Ýöü çän ädd "
-"Àßöüt pägé ïnförmätïön tö thé çöürsé änd çöürsé rün pägés ät äný tïmé. "
-"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ "
-"тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм,"
-" qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
-"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
-"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт#"
-
-#: templates/publisher/add_course_form.html
-msgid ""
-"Additionally, edX will create a URL for the course in Studio. When the "
-"Studio URL is ready, you will receive an email notification. You can then go"
-" to Studio and enter content for the course."
-msgstr ""
-"Àddïtïönällý, édX wïll çréäté ä ÛRL för thé çöürsé ïn Stüdïö. Whén thé "
-"Stüdïö ÛRL ïs réädý, ýöü wïll réçéïvé än émäïl nötïfïçätïön. Ýöü çän thén gö"
-" tö Stüdïö änd éntér çöntént för thé çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт "
-"∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση "
-"υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє "
-"∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα"
-" ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση#"
-
-#: templates/publisher/add_course_form.html
 msgid "I want to add a run to this course at this time"
 msgstr ""
 "Ì wänt tö ädd ä rün tö thïs çöürsé ät thïs tïmé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
@@ -1727,16 +1698,6 @@ msgstr ""
 #: templates/publisher/add_courserun_form.html
 msgid "New Course Run"
 msgstr "Néw Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
-
-#: templates/publisher/add_courserun_form.html
-msgid ""
-"\n"
-"                    The information on this page is based on the latest published course run, if a published course run exists.\n"
-"                "
-msgstr ""
-"\n"
-"                    Thé ïnförmätïön ön thïs pägé ïs ßäséd ön thé lätést püßlïshéd çöürsé rün, ïf ä püßlïshéd çöürsé rün éxïsts.\n"
-"                 Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂#"
 
 #: templates/publisher/add_courserun_form.html
 msgid ""
@@ -1991,18 +1952,6 @@ msgstr ""
 #: templates/publisher/course_edit_form.html
 msgid "Edit Course"
 msgstr "Édït Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя #"
-
-#: templates/publisher/course_edit_form.html
-msgid ""
-"To add or edit information about this course, make changes on this page and "
-"then select"
-msgstr ""
-"Tö ädd ör édït ïnförmätïön äßöüt thïs çöürsé, mäké çhängés ön thïs pägé änd "
-"thén séléçt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
-
-#: templates/publisher/course_edit_form.html
-msgid "Update Course."
-msgstr "Ûpdäté Çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
@@ -2540,8 +2489,8 @@ msgstr ""
 "¢σηѕє¢тєтυя#"
 
 #: templates/publisher/course_edit_form.html
-msgid "UPDATE COURSE"
-msgstr "ÛPDÀTÉ ÇÖÛRSÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+msgid "Update Course"
+msgstr "Ûpdäté Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: templates/publisher/course_revision_history.html
 msgid "Revision History"
@@ -2567,19 +2516,11 @@ msgstr "Édït Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 #: templates/publisher/course_run/edit_run_form.html
 #, python-format
 msgid ""
-"To add or edit information about this course run, make changes on this page "
-"and then select %(strong_start)sUpdate Course Run%(strong_end)s. All "
-"required fields must be complete before this course run can be sent for "
-"review."
+"%(span_start)s* All required fields must be complete before this course run "
+"can be sent for review.%(span_end)s"
 msgstr ""
-"Tö ädd ör édït ïnförmätïön äßöüt thïs çöürsé rün, mäké çhängés ön thïs pägé "
-"änd thén séléçt %(strong_start)sÛpdäté Çöürsé Rün%(strong_end)s. Àll "
-"réqüïréd fïélds müst ßé çömplété ßéföré thïs çöürsé rün çän ßé sént för "
-"révïéw. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ "
-"єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм"
-" νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα "
-"¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт"
-" єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт#"
+"%(span_start)s* Àll réqüïréd fïélds müst ßé çömplété ßéföré thïs çöürsé rün "
+"çän ßé sént för révïéw.%(span_end)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: templates/publisher/course_run/edit_run_form.html
 #, python-format
@@ -3091,8 +3032,8 @@ msgid "Runs"
 msgstr "Rüns Ⱡ'σяєм ι#"
 
 #: templates/publisher/dashboard.html
-msgid "COURSE ABOUT PAGES"
-msgstr "ÇÖÛRSÉ ÀBÖÛT PÀGÉS Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+msgid "Course About Pages"
+msgstr "Çöürsé Àßöüt Pägés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
 #: templates/publisher/dashboard.html
 msgid ""
@@ -3130,20 +3071,20 @@ msgid "Course runs"
 msgstr "Çöürsé rüns Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: templates/publisher/dashboard.html
-msgid "IN DEVELOPMENT"
-msgstr "ÌN DÉVÉLÖPMÉNT Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+msgid "In Development"
+msgstr "Ìn Dévélöpmént Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: templates/publisher/dashboard.html
-msgid "IN PREVIEW"
-msgstr "ÌN PRÉVÌÉW Ⱡ'σяєм ιρѕυм ∂σłσ#"
+msgid "In Preview"
+msgstr "Ìn Prévïéw Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: templates/publisher/dashboard.html
-msgid "STUDIO REQUEST"
-msgstr "STÛDÌÖ RÉQÛÉST Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+msgid "Studio Request"
+msgstr "Stüdïö Réqüést Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: templates/publisher/dashboard.html
-msgid "PUBLISHED ABOUT PAGES"
-msgstr "PÛBLÌSHÉD ÀBÖÛT PÀGÉS Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+msgid "Published About Pages"
+msgstr "Püßlïshéd Àßöüt Pägés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: templates/publisher/dashboard/_in_preview.html
 msgid ""

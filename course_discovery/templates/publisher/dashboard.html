@@ -9,7 +9,7 @@
 {% block page_content %}
     <div class="about-and-add-buttons clearfix">
 
-        <h2 class="hd-2 emphasized">{% trans "COURSE ABOUT PAGES" %}</h2>
+        <h2 class="hd-2 emphasized">{% trans "Course About Pages" %}</h2>
     
         <div class="col-60 float-left">
             <p class="about-publisher">{% trans "EdX Publisher is used to create course About pages. Users enter, review, and approve content in Publisher. Publisher keeps track of the details and sends email updates when actions are necessary." %}</p>
@@ -31,21 +31,21 @@
         <ul role="tablist" class="tabs">
             <li role="tab" id="tab-progress" class="tab" aria-selected="true" aria-expanded="false"
                     aria-controls="progress" tabindex="0">
-                    <span>{{ in_progress_count }}</span>{% trans "IN DEVELOPMENT" %}
+                    <span>{{ in_progress_count }}</span>{% trans "In Development" %}
             </li>
             <li role="tab" id="tab-preview" class="tab" aria-selected="false" aria-expanded="false"
                 aria-controls="preview" tabindex="-1">
-                <span>{{ preview_count }}</span>{% trans "IN PREVIEW" %}
+                <span>{{ preview_count }}</span>{% trans "In Preview" %}
             </li>
             {% if is_project_coordinator %}
                 <li role="tab" id="tab-studio" class="tab" aria-selected="false" aria-expanded="true"
                     aria-controls="studio" tabindex="-1" data-studio-count="{{ studio_count }}">
-                    <span id="studio-count">{{ studio_count }}</span>{% trans "STUDIO REQUEST" %}
+                    <span id="studio-count">{{ studio_count }}</span>{% trans "Studio Request" %}
                 </li>
             {% endif %}
             <li role="tab" id="tab-published" class="tab" aria-selected="false" aria-expanded="false"
                 aria-controls="published" tabindex="-1">
-                <span>{{ published_count }}</span>{% trans "PUBLISHED ABOUT PAGES" %}
+                <span>{{ published_count }}</span>{% trans "Published About Pages" %}
             </li>
 
         </ul>

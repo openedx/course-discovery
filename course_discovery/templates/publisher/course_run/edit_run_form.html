@@ -21,8 +21,8 @@
     {% endfor %}
 {% endif %}
 <p>
-    {% blocktrans with strong_start='<strong>' strong_end='</strong>' trimmed %}
-        To add or edit information about this course run, make changes on this page and then select {{ strong_start }}Update Course Run{{  strong_end }}. All required fields must be complete before this course run can be sent for review.
+    {% blocktrans with span_start='<span class="required">' span_end='</span>' trimmed %}
+        {{ span_start }}* All required fields must be complete before this course run can be sent for review.{{ span_end }}
     {% endblocktrans %}
 </p>
 <p>
@@ -36,7 +36,7 @@
     <div class="course-form">
         <div class="course-information">
             <fieldset class="form-group grid-container grid-manual">
-                <div class="field-title">{% trans "COURSE START DATE" %}</div>
+                <div class="field-title">{% trans "COURSE START DATE" %} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
                         <ul>
@@ -65,7 +65,7 @@
                     </div>
                 </div>
 
-                <div class="field-title">{% trans "COURSE END DATE" %}</div>
+                <div class="field-title">{% trans "COURSE END DATE" %} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
                         {% trans "Note that times use UTC. Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated end date. For example, if your course will end near the end of March, specify March 31." %}
@@ -76,7 +76,7 @@
                     </div>
                 </div>
 
-                <div class="field-title">{% trans "COURSE PACING" %}</div>
+                <div class="field-title">{% trans "COURSE PACING" %} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
                         <p>{% trans "Instructor-paced courses include individual assignments that have specific due dates before the course end date." %} </p>
@@ -88,7 +88,7 @@
                     </div>
                 </div>
 
-                <div class="field-title">{% trans "STUDIO URL" %}</div>
+                <div class="field-title">{% trans "STUDIO URL" %} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
                         <p>{% trans "The Studio URL for this course run." %}</p>
@@ -113,7 +113,7 @@
         </div>
         <div id="about-page" class="course-information {% if publisher_hide_features_for_pilot %}hidden{% endif %}">
             <fieldset class="form-group grid-container grid-manual">
-                <div class="field-title">{% trans "PROGRAM ASSOCIATION" %}</div>
+                <div class="field-title">{% trans "PROGRAM ASSOCIATION" %} <span class="optional float-right">Optional</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
                         {% trans "If this course is part of a program, select the program type, and then enter the name of the program." %}
@@ -173,7 +173,7 @@
                     </div>
                 </div>
 
-                <div class="field-title">{% trans "CERTIFICATE TYPE AND PRICE" %}</div>
+                <div class="field-title">{% trans "CERTIFICATE TYPE AND PRICE" %} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
                         {% trans "If the course offers a verified or professional education certificate, select the certificate type and enter the price for the certificate." %}
@@ -203,13 +203,13 @@
                     </div>
                 </div>
 
-                <div class="field-title">{% trans "COURSE STAFF" %}</div>
+                <div class="field-title">{% trans "COURSE STAFF" %} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
                         {% trans "The primary instructor or instructors for the course." %}
                     </div>
                     <div class="col col-6 instructor-select">
-                        <label class="field-label ">{{ run_form.staff.label_tag }}</label>
+                        <label class="field-label ">{{ run_form.staff.label_tag }} <span class="required">*</span></label>
                         {{ run_form.staff }}
                         <div class="selected-instructor">
                           {% if publisher_add_instructor_feature %}
@@ -219,7 +219,7 @@
                     </div>
                 </div>
 
-                <div class="field-title">{% trans "ESTIMATED EFFORT" %}</div>
+                <div class="field-title">{% trans "ESTIMATED EFFORT" %} <span class="optional float-right">Optional</span></div>
                 <div class="row">
                     <div class="col col-6">
                         {% trans "The number of hours per week the learner should expect to spend on the course. This may be a range." %}
@@ -241,16 +241,16 @@
                     </div>
                 </div>
 
-                <div class="field-title">{% trans "LANGUAGE(S)" %}</div>
+                <div class="field-title">{% trans "LANGUAGE(S)" %} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
                         {% trans "The languages available for videos, video transcripts, and other course content." %}
                     </div>
                     <div class="col col-6">
-                        <label class="field-label ">{{ run_form.language.label_tag }}</label>
+                        <label class="field-label ">{{ run_form.language.label_tag }} <span class="required">*</span></label>
                         {{ run_form.language}}
 
-                        <label class="field-label ">{{ run_form.transcript_languages.label_tag }}</label>
+                        <label class="field-label ">{{ run_form.transcript_languages.label_tag }} <span class="required">*</span></label>
                         {{ run_form.transcript_languages}}
 
                         <label class="field-label margin-top20">{{ run_form.video_language.label_tag }}</label>
@@ -258,7 +258,7 @@
                     </div>
                 </div>
 
-                <div class="field-title">{% trans "LENGTH" %}</div>
+                <div class="field-title">{% trans "LENGTH" %} <span class="optional float-right">Optional</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
                         {% trans "The length of the course, in weeks, rounded to the nearest whole number." %}
