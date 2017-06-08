@@ -109,7 +109,7 @@
     <script>
         new Clipboard(".btn-copy", {
             text: function(trigger) {
-                return $(trigger).parent().next('.copy').text().trim();
+                return $(trigger).parent().next('.copy').html().trim();
             }
         });
     </script>
