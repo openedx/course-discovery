@@ -46,8 +46,8 @@ function loadRevisionHistory(revisionUrl) {
                 currentObject = $('.history-field-container').find('.' + key);
                 if (currentObject.length && value != null) {
                     currentObjectText = getComparableText(currentObject);
-                    value = decodeEntities(value);
-                    currentObjectText = decodeEntities(currentObjectText);
+                    value = decodeEntities(value.split('<br>').join('<br />').trim());
+                    currentObjectText = decodeEntities(currentObjectText.split('<br>').join('<br />').trim());
                     showDiffCourseDetails(value, currentObjectText, currentObject.siblings('.show-diff'));
                     currentObject.hide();
                 }
