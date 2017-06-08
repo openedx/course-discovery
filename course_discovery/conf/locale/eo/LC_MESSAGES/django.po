@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-07 14:59+0500\n"
+"POT-Creation-Date: 2017-06-08 13:53+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3226,10 +3226,6 @@ msgstr ""
 #: templates/publisher/dashboard/_published.html
 msgid "Published Date"
 msgstr "Püßlïshéd Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
-
-#: templates/publisher/dashboard/_published.html
-msgid "Target Content"
-msgstr "Tärgét Çöntént Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "The following courses are ready for a Studio URL."
