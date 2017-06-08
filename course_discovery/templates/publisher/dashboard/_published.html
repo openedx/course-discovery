@@ -28,9 +28,6 @@
                 <th role="button">
                     {% trans "Published Date" %}
                 </th>
-                <th role="button">
-                    {% trans "Target Content" %}
-                </th>
             </tr>
         </thead>
         <tbody>
@@ -52,10 +49,7 @@
                         {{ course_run.end|date:"Y-m-d" }}
                     </td>
                     <td>
-                        {{ course_run.state.modified|date:"Y-m-d" }}
-                    </td>
-                    <td>
-                        {% if course_run.target_content %}Y{% else %}N{% endif %}
+                        {{ course_run.course_run_state.modified|date:"Y-m-d" }}
                     </td>
                 </tr>
             {% endfor %}
