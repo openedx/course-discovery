@@ -640,8 +640,8 @@ def send_email_for_published_course_run_editing(course_run):
 
         context = {
             'course_name': course.title,
-            'course_team': course_team_user.get_full_name(),
-            'recipient_name': publisher_user.get_full_name(),
+            'course_team': course_team_user.get_full_name() or course_team_user.username,
+            'recipient_name': publisher_user.get_full_name() or publisher_user.username,
             'contact_us_email': course.project_coordinator.email,
             'course_run_page_url': 'https://{host}{path}'.format(
                 host=Site.objects.get_current().domain.strip('/'), path=object_path
