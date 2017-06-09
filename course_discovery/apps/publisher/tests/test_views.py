@@ -2456,6 +2456,51 @@ class CourseEditViewTests(TestCase):
         response = self.client.get(self.edit_page_url + '?history_id={}'.format(100))
         self.assertIsNone(response.context['history_object'])
 
+    def test_course_with_published_course_run(self):
+        """
+        Verify that editing course with published course run does not changed state
+        and an email is sent to Publisher.
+        """
+        toggle_switch('enable_publisher_email_notifications', True)
+        self.client.logout()
+        self.client.login(username=self.course_team_role.user.username, password=USER_PASSWORD)
+        self._assign_permissions(self.organization_extension)
+
+        self.course.course_state.name = CourseStateChoices.Approved
+        self.course.course_state.save()
+
+        course_run = factories.CourseRunFactory(course=self.course, lms_course_id='course-v1:edxTest+Test342+2016Q1')
+        factories.CourseRunStateFactory(course_run=course_run, name=CourseRunStateChoices.Published)
+        factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.Publisher)
+        factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.ProjectCoordinator)
+
+        post_data = self._post_data(self.organization_extension)
+        post_data['number'] = 'testX654'
+
+        response = self.client.post(self.edit_page_url, data=post_data)
+
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        course_state = CourseState.objects.get(id=self.course.course_state.id)
+        self.assertEqual(course_state.name, CourseStateChoices.Approved)
+
+        # email send after editing.
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual([self.course.publisher.email], mail.outbox[0].to)
+
+        course_key = CourseKey.from_string(course_run.lms_course_id)
+        expected_subject = 'Changes to published course run: {title} {run_number}'.format(
+            title=self.course.title,
+            run_number=course_key.run
+        )
+
+        self.assertEqual(str(mail.outbox[0].subject), expected_subject)
+
 
 @ddt.ddt
 class CourseRunEditViewTests(TestCase):

@@ -393,16 +393,25 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
             self.object.organizations.remove(self.object.organizations.first())
             self.object.organizations.add(organization_extension.organization)
 
-        user_role = self.object.course_user_roles.get(user=user)
-        # Change course state to draft if marketing not yet reviewed or
-        # if marketing person updating the course.
-        if not self.object.course_state.marketing_reviewed or user_role.role == PublisherUserRole.MarketingReviewer:
-            if self.object.course_state.name != CourseStateChoices.Draft:
-                self.object.course_state.change_state(state=CourseStateChoices.Draft, user=user)
+        try:
+            latest_run = self.object.course_runs.latest()
+        except CourseRun.DoesNotExist:
+            latest_run = None
 
-            # Change ownership if user role not equal to owner role.
-            if self.object.course_state.owner_role != user_role.role:
-                self.object.course_state.change_owner_role(user_role.role)
+        if latest_run and latest_run.course_run_state.name == CourseRunStateChoices.Published:
+            # If latest run of this course is published send an email to Publisher and don't change state.
+            send_email_for_published_course_run_editing(latest_run)
+        else:
+            user_role = self.object.course_user_roles.get(user=user)
+            # Change course state to draft if marketing not yet reviewed or
+            # if marketing person updating the course.
+            if not self.object.course_state.marketing_reviewed or user_role.role == PublisherUserRole.MarketingReviewer:
+                if self.object.course_state.name != CourseStateChoices.Draft:
+                    self.object.course_state.change_state(state=CourseStateChoices.Draft, user=user)
+
+                # Change ownership if user role not equal to owner role.
+                if self.object.course_state.owner_role != user_role.role:
+                    self.object.course_state.change_owner_role(user_role.role)
 
         team_admin = form.cleaned_data['team_admin']
         if self.object.course_team_admin != team_admin:
