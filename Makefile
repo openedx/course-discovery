@@ -36,7 +36,7 @@ production-requirements: ## Install Python and JS requirements for production
 	$(NODE_BIN)/bower install --production
 
 test: clean ## Run tests and generate coverage report
-	coverage run -m pytest
+	coverage run -m pytest --durations=25
 	coverage combine
 	coverage report
 
