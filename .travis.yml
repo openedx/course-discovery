@@ -16,6 +16,9 @@ cache:
 before_install:
     - make travis_up
 
+# We have no requirements to install since everything is run in Docker.
+install: true
+
 script:
     - make travis_test
 
