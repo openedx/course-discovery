@@ -186,6 +186,7 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
             if history_object:
                 context['publish_date'] = history_object.modified
 
+        start_date = course_run.start.strftime("%B %d, %Y") if course_run.start else None
         context['breadcrumbs'] = make_bread_crumbs(
             [
                 (reverse('publisher:publisher_courses'), 'Courses'),
@@ -194,7 +195,7 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
                     course_run.course.title
                 ),
                 (None, '{type}: {start}'.format(
-                    type=course_run.get_pacing_type_display(), start=course_run.start.strftime("%B %d, %Y")
+                    type=course_run.get_pacing_type_display(), start=start_date
                 ))
             ]
         )
@@ -696,12 +697,13 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
         )
         context['seat_form'] = self.seat_form(instance=course_run.seats.first())
 
+        start_date = course_run.start.strftime("%B %d, %Y") if course_run.start else None
         context['breadcrumbs'] = make_bread_crumbs(
             [
                 (reverse('publisher:publisher_courses'), 'Courses'),
                 (reverse('publisher:publisher_course_detail', kwargs={'pk': course.id}), course.title),
                 (None, '{type}: {start}'.format(
-                    type=course_run.get_pacing_type_display(), start=course_run.start.strftime("%B %d, %Y")
+                    type=course_run.get_pacing_type_display(), start=start_date
                 ))
             ]
         )
