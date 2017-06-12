@@ -1,32 +1,25 @@
-from django.core.cache import cache
+import pytest
 from django.urls import reverse
-from rest_framework.test import APITestCase
 
-from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import UserThrottleRate
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.throttles import OverridableUserRateThrottle
 
 
-class RateLimitingTest(SiteMixin, APITestCase):
+@pytest.mark.django_db
+@pytest.mark.usefixtures('django_cache', 'partner')
+class TestRateLimiting:
     """
     Testing rate limiting of API calls.
     """
+    client = None
+    user = None
 
-    def setUp(self):
-        super(RateLimitingTest, self).setUp()
-
-        self.url = reverse('api_docs')
+    @pytest.fixture(autouse=True)
+    def setup(self, client):
         self.user = UserFactory()
-        self.client.login(username=self.user.username, password=USER_PASSWORD)
-
-    def tearDown(self):
-        """
-        Clear the cache, since DRF uses it for recording requests against a
-        URL. Django does not clear the cache between test runs.
-        """
-        super(RateLimitingTest, self).tearDown()
-        cache.clear()
+        client.login(username=self.user.username, password=USER_PASSWORD)
+        self.client = client
 
     def _make_requests(self):
         """ Make multiple requests until the throttle's limit is exceeded.
@@ -35,8 +28,11 @@ class RateLimitingTest(SiteMixin, APITestCase):
             Response: Response of the last request.
         """
         num_requests = OverridableUserRateThrottle().num_requests
+        url = reverse('api_docs')
+
         for __ in range(num_requests + 1):
-            response = self.client.get(self.url)
+            response = self.client.get(url)
+
         return response
 
     def test_rate_limiting(self):

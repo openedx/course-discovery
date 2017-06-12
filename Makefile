@@ -44,7 +44,8 @@ production-requirements: ## Install Python and JS requirements for production
 
 test: clean ## Run tests and generate coverage report
 	## The node_modules .bin directory is added to ensure we have access to Geckodriver.
-	PATH="$(NODE_BIN):$(PATH)" coverage run -m pytest --durations=25
+	## Certain tests (esp. those that rely on caching or multi-processing) don't work well when run in parallel.
+	PATH="$(NODE_BIN):$(PATH)" PYTHONHASHSEED=0  coverage run -a -m pytest --durations=25 -m "not serial"
 	coverage combine
 	coverage report
 

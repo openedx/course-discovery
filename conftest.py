@@ -76,7 +76,7 @@ def haystack_default_connection(haystack_add_xdist_suffix_to_index_name):  # pyl
 
 
 @pytest.fixture
-def site(db):  # pylint: disable=unused-argument
+def site():
     skip_if_no_django()
 
     from django.conf import settings
@@ -86,7 +86,7 @@ def site(db):  # pylint: disable=unused-argument
 
 
 @pytest.fixture
-def partner(db, site):  # pylint: disable=unused-argument
+def partner(site):
     skip_if_no_django()
     return PartnerFactory(site=site)
 

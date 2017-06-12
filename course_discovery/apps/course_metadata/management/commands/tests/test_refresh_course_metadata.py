@@ -1,13 +1,11 @@
 import json
 
-import ddt
 import jwt
 import mock
+import pytest
 import responses
 from django.core.management import CommandError, call_command
-from django.test import TransactionTestCase
 
-from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import mock_api_callback
 from course_discovery.apps.course_metadata.data_loaders.api import (
     CoursesApiDataLoader, EcommerceApiDataLoader, OrganizationsApiDataLoader, ProgramsApiDataLoader
@@ -25,12 +23,15 @@ JSON = 'application/json'
 ACCESS_TOKEN = str(jwt.encode({'preferred_username': 'bob'}, 'secret'), 'utf-8')
 
 
-@ddt.ddt
-class RefreshCourseMetadataCommandTests(TransactionTestCase):
-    def setUp(self):
-        super(RefreshCourseMetadataCommandTests, self).setUp()
-        self.partner = PartnerFactory()
-        partner = self.partner
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.usefixtures('haystack_default_connection')
+class TestRefreshCourseMetadataCommand:
+    pipeline = []
+    kwargs = {}
+    partner = None
+
+    @pytest.fixture(autouse=True)
+    def setup(self, partner):
         self.pipeline = [
             (SubjectMarketingSiteDataLoader, partner.marketing_site_url_root, None),
             (SchoolMarketingSiteDataLoader, partner.marketing_site_url_root, None),
@@ -43,6 +44,7 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
             (ProgramsApiDataLoader, partner.programs_api_url, None),
         ]
         self.kwargs = {'username': 'bob'}
+        self.partner = partner
         self.mock_access_token_api()
 
     def mock_apis(self):
@@ -147,9 +149,12 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
         assert mock_set_api_timestamp.call_count == 1
         assert not mock_receiver.called
 
+    @pytest.mark.serial
     @mock.patch('course_discovery.apps.api.cache.set_api_timestamp')
     @mock.patch('course_discovery.apps.course_metadata.management.commands.refresh_course_metadata.set_api_timestamp')
-    def test_refresh_course_metadata_parallel(self, mock_set_api_timestamp, mock_receiver):
+    def test_refresh_course_metadata_parallel(self, mock_set_api_timestamp, mock_receiver, settings):
+        settings.CACHES['default']['KEY_PREFIX'] = 'test_refresh_course_metadata_parallel'
+
         for name in ['threaded_metadata_write', 'parallel_refresh_pipeline']:
             toggle_switch(name)
 
@@ -178,7 +183,7 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
 
     def test_refresh_course_metadata_with_invalid_partner_code(self):
         """ Verify an error is raised if an invalid partner code is passed on the command line. """
-        with self.assertRaises(CommandError):
+        with pytest.raises(CommandError):
             command_args = ['--partner_code=invalid']
             call_command('refresh_course_metadata', *command_args)
 
@@ -187,7 +192,7 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
         with mock.patch('edx_rest_api_client.client.EdxRestApiClient.get_oauth_access_token', side_effect=Exception):
             logger = 'course_discovery.apps.course_metadata.management.commands.refresh_course_metadata.logger'
             with mock.patch(logger) as mock_logger:
-                with self.assertRaises(Exception):
+                with pytest.raises(Exception):
                     call_command('refresh_course_metadata')
             expected_calls = [mock.call('No access token acquired through client_credential flow.')]
             mock_logger.exception.assert_has_calls(expected_calls)

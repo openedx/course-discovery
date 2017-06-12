@@ -85,13 +85,12 @@ class TestProgramViewSet(SerializationMixin):
         response = self.client.get(self.list_path)
         assert response.status_code == 403
 
+    @pytest.mark.serial
     def test_retrieve(self, django_assert_num_queries):
         """ Verify the endpoint returns the details for a single program. """
         program = self.create_program()
         with django_assert_num_queries(40):
             response = self.assert_retrieve_success(program)
-        # property does not have the right values while being indexed
-        del program._course_run_weeks_to_complete
         assert response.data == self.serialize_program(program)
 
         # Verify that repeated retrieve requests use the cache.
@@ -108,14 +107,15 @@ class TestProgramViewSet(SerializationMixin):
         course_list = CourseFactory.create_batch(3, partner=self.partner)
         for course in course_list:
             CourseRunFactory(course=course)
+
         program = ProgramFactory(
             courses=course_list,
             order_courses_by_start_date=order_courses_by_start_date,
             partner=self.partner)
-        # property does not have the right values while being indexed
-        del program._course_run_weeks_to_complete
+
         with django_assert_num_queries(29):
             response = self.assert_retrieve_success(program)
+
         assert response.data == self.serialize_program(program)
         assert course_list == list(program.courses.all())  # pylint: disable=no-member
 
@@ -146,6 +146,7 @@ class TestProgramViewSet(SerializationMixin):
 
         assert response.data['results'] == self.serialize_program(expected, many=True, extra_context=extra_context)
 
+    @pytest.mark.serial
     def test_list(self):
         """ Verify the endpoint returns a list of all programs. """
         expected = [self.create_program() for __ in range(3)]
