@@ -18,8 +18,8 @@
                     <th role="button">
                         {% trans "Status" %}
                     </th>
-                    <th role="button">
-                        {% trans "Preview URL" %}
+                    <th>
+                        {% trans "Course start date" %}
                     </th>
                 </tr>
             </thead>
@@ -28,21 +28,26 @@
                     <tr>
                         <td id="course-title-{{ course_run.title }}">
                             <a href="{% url 'publisher:publisher_course_run_detail' course_run.id %}">{{ course_run.title }}</a>
+                            <br>
+                            <a target="_blank" href="{{ course_run.preview_url }}">{{ course_run.preview_url }}</a>
                         </td>
                         <td>
                         {% if course_run.course.organizations.first %}{{ course_run.course.organizations.first.key }}{% endif %}
                         </td>
                         <td>
-                            {% if not course_run.preview_url %}
-                                {% trans "Preview Requested" %}
-                            {% elif course_run.course_run_state.preview_accepted %}
-                                {% trans "Approved" %}
+                            {% if course_run.course_run_state.preview_accepted %}
+                                {% trans "Approved since " %}
+                            {% elif course_run.preview_declined and not course_run.preview_url %}
+                                {% trans "Declined since " %}
+                            {% elif not course_run.preview_url %}
+                                {% trans "Preview Requested since " %}
                             {% else %}
-                                {% trans "In Review" %}
+                                {% trans "In Review since " %}
                             {% endif %}
+                            {{ course_run.owner_role_modified }}
                         </td>
                         <td>
-                            <a target="_blank" href="{{ course_run.preview_url }}">{{ course_run.preview_url }}</a>
+                            {{ course_run.start }}
                         </td>
                     </tr>
                 {% endfor %}

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-14 14:42+0500\n"
+"POT-Creation-Date: 2017-06-14 17:09+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -617,7 +617,7 @@ msgstr "Dräft Ⱡ'σяєм ιρѕ#"
 msgid "Review"
 msgstr "Révïéw Ⱡ'σяєм ιρѕυ#"
 
-#: apps/publisher/choices.py templates/publisher/dashboard/_in_preview.html
+#: apps/publisher/choices.py
 msgid "Approved"
 msgstr "Àpprövéd Ⱡ'σяєм ιρѕυм ∂#"
 
@@ -1412,7 +1412,6 @@ msgid "ABOUT PAGE PREVIEW"
 msgstr "ÀBÖÛT PÀGÉ PRÉVÌÉW Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
 #: templates/publisher/_approval_widget.html
-#: templates/publisher/dashboard/_in_preview.html
 msgid "Preview URL"
 msgstr "Prévïéw ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
@@ -3153,12 +3152,26 @@ msgid "Status"
 msgstr "Stätüs Ⱡ'σяєм ιρѕυ#"
 
 #: templates/publisher/dashboard/_in_preview.html
-msgid "Preview Requested"
-msgstr "Prévïéw Réqüéstéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+#: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
+msgid "Course start date"
+msgstr "Çöürsé stärt däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: templates/publisher/dashboard/_in_preview.html
-msgid "In Review"
-msgstr "Ìn Révïéw Ⱡ'σяєм ιρѕυм ∂σł#"
+msgid "Approved since "
+msgstr "Àpprövéd sïnçé  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "Declined since "
+msgstr "Déçlïnéd sïnçé  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "Preview Requested since "
+msgstr "Prévïéw Réqüéstéd sïnçé  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "In Review since "
+msgstr "Ìn Révïéw sïnçé  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: templates/publisher/dashboard/_in_progress.html
 msgid "No About pages for any course runs are currently in development."
@@ -3813,11 +3826,6 @@ msgid ""
 msgstr ""
 "Béföré édX çän püßlïsh thé Àßöüt pägé för thïs çöürsé rün, ýöü müst älsö ädd"
 " thé föllöwïng ïtéms för thïs çöürsé rün ïn Stüdïö. Ⱡ'σяє#"
-
-#: templates/publisher/email/studio_instance_created.html
-#: templates/publisher/email/studio_instance_created.txt
-msgid "Course start date"
-msgstr "Çöürsé stärt däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
