@@ -279,3 +279,9 @@ class CourseRunWrapperTests(TestCase):
         self._assert_course_run_status(
             self.wrapped_course_run.internal_user_status, 'Reviewed on', self.wrapped_course_run.owner_role_modified
         )
+
+    def test_preview_declined(self):
+        """
+        Verify that preview_declined returns False for no preview_declined
+        """
+        self.assertEqual(self.wrapped_course_run.preview_declined, False)

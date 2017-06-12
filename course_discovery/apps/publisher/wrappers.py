@@ -1,11 +1,13 @@
 """Publisher Wrapper Classes"""
 from datetime import timedelta
 
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.models import Seat
+from course_discovery.apps.publisher_comments.models import Comments, CommentTypeChoices
 
 
 class BaseWrapper(object):
@@ -245,3 +247,11 @@ class CourseRunWrapper(BaseWrapper):
     @property
     def owner_role_modified(self):
         return self.wrapped_obj.course_run_state.owner_role_modified
+
+    @property
+    def preview_declined(self):
+        return Comments.objects.filter(
+            content_type=ContentType.objects.get_for_model(self.wrapped_obj),
+            object_pk=self.wrapped_obj.id,
+            comment_type=CommentTypeChoices.Decline_Preview
+        ).exists()
