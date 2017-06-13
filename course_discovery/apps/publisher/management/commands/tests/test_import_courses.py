@@ -89,25 +89,6 @@ class ImportCoursesTests(TestCase):
             )
             create_or_update_course.assert_not_called()
 
-    @mock.patch('course_discovery.apps.publisher.dataloader.create_courses.create_or_update_course')
-    def test_course_having_multiple_auth_organizations(self, create_or_update_course):
-        """ Verify that if the course has multiple organization then that course will not be
-        imported to publisher.
-        """
-        self.course.authoring_organizations.add(OrganizationFactory())
-        self.course.authoring_organizations.add(OrganizationFactory())
-
-        with LogCapture(dataloader_logger.name) as log_capture:
-            call_command(self.command_name, *self.command_args)
-            log_capture.check(
-                (
-                    dataloader_logger.name,
-                    'WARNING',
-                    'Course has more than 1 organization. Course uuid is [{}].'.format(self.course.uuid)
-                )
-            )
-            create_or_update_course.assert_not_called()
-
 
 # pylint: disable=no-member
 @ddt.ddt
@@ -163,6 +144,20 @@ class CreateCoursesTests(TestCase):
         self._assert_course(course)
         self._assert_course_run(course.course_runs.first(), self.course.canonical_course_run)
         self._assert_seats(course.course_runs.first(), self.course.canonical_course_run)
+
+    def test_course_having_multiple_auth_organizations(self):
+        """ Verify that if the course has multiple organization then that course will be
+        imported to publisher but with only 1 organization.
+        """
+        # later that record will be updated with dual org manually.
+
+        org2 = OrganizationFactory()
+        self.course.authoring_organizations.add(org2)
+
+        call_command(self.command_name, *self.command_args)
+        course = Publisher_Course.objects.all().first()
+
+        self._assert_course(course)
 
     def test_course_does_not_create_twice(self):
         """ Verify that course does not create two course with same title and number.
@@ -237,6 +232,9 @@ class CreateCoursesTests(TestCase):
 
     def _assert_course(self, publisher_course):
         """ Verify that publisher course  and metadata course has correct values."""
+
+        # assert organization
+        self.assertEqual(publisher_course.organizations.first(), self.organization)
 
         self.assertEqual(publisher_course.title, self.course.title)
         self.assertEqual(publisher_course.number, self.course.number)

@@ -167,12 +167,6 @@ def organizations_requirements(organizations, meta_data_course):
     """ Before adding course make sure organization exists and has OrganizationExtension
     object also.
     """
-    if organizations.count() > 1:
-        logger.warning(
-            'Course has more than 1 organization. Course uuid is [%s].', meta_data_course.uuid
-        )
-        return None
-
     available_organization = organizations.first()
 
     if not available_organization:
