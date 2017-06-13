@@ -3217,11 +3217,30 @@ class CreateAdminImportCourseTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_page_with_post(self):
-        """ Verify post from page. """
+        """ Verify page shows message with successful import. """
+
+        # organization should be available for import
+        self.course.authoring_organizations.add(OrganizationFactory())
+
         self._make_users_valid(True)
         post_data = {'start_id': self.course.pk}
         response = self.client.post(self.page_url, post_data)
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Course Imported')
+
+    def test_page_with_invalid_course_id(self):
+        """ Verify page shows error message if import fails. """
+        self._make_users_valid(True)
+        post_data = {'start_id': 100}
+        response = self.client.post(self.page_url, post_data)
+        self.assertContains(response, 'Invalid Course ID')
+
+    def test_import_with_failure(self):
+        """ Verify page shows error in case of any error. """
+        self._make_users_valid(True)
+        post_data = {'start_id': self.course.pk}
+        response = self.client.post(self.page_url, post_data)
+        self.assertContains(response, 'Some error occurred')
 
     def _make_users_valid(self, switch):
         """ make user eligible for the page."""

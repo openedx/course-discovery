@@ -947,10 +947,22 @@ class AdminImportCourse(mixins.LoginRequiredMixin, TemplateView):
         if form.is_valid():
 
             start_id = self.request.POST.get('start_id')
-            for course in CourseMetaData.objects.select_related('canonical_course_run', 'level_type', 'video').filter(
-                    id=start_id
-            ):
 
+            try:
+                course = CourseMetaData.objects.select_related('canonical_course_run', 'level_type', 'video').get(
+                    id=start_id
+                )
                 process_course(course)
 
-        return super(AdminImportCourse, self).get(request, args, **kwargs,)
+                # check publisher db that course is available now.
+                publisher_course = Course.objects.filter(course_metadata_pk=start_id)
+
+                if publisher_course.exists():
+                    messages.success(request, 'Course Imported')
+                else:
+                    messages.error(request, 'Some error occurred. Please check authoring organizations of course.')
+
+            except CourseMetaData.DoesNotExist:
+                messages.error(request, 'Invalid Course ID')
+
+        return super(AdminImportCourse, self).get(request, args, **kwargs)
