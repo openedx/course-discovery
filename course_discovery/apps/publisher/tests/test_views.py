@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 
 import ddt
 import factory
+
+from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
@@ -174,11 +176,12 @@ class CreateCourseViewTests(TestCase):
         organization_extension = factories.OrganizationExtensionFactory()
         self.user.groups.add(organization_extension.group)
         response = self.client.get(reverse('publisher:publisher_courses_new'))
+        response_content = BeautifulSoup(response.content)
 
-        self.assertContains(
-            response,
-            '<select class="field-input input-select" id="id_organization" name="organization" required>'
+        organization_attribute = response_content.find(
+            "select", {"id": "id_organization", "name": "organization", "class": "field-input"}
         )
+        assert organization_attribute is not None
 
         new_organization_extension = factories.OrganizationExtensionFactory()
         response = self.client.get(reverse('publisher:publisher_courses_new'))
@@ -468,21 +471,20 @@ class CreateCourseRunViewTests(TestCase):
         response = self.client.get(
             reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id})
         )
+        response_content = BeautifulSoup(response.content)
+
+        pacing_type_attribute = response_content.find(
+            "input", {"value": latest_run.pacing_type, "type": "radio", "name": "pacing_type"}
+        )
+        seat_type_attribute = response_content.find("option", {"value": latest_seat.type})
+        price_attribute = response_content.find(
+            "input", {"value": latest_seat.price, "id": "id_price", "step": "0.01", "type": "number"}
+        )
 
         # Verify that existing course run and seat values auto populated on form.
-        expected_pacing = '<input checked="checked" class="field-input input-checkbox" '
-        'id="id_pacing_type_0" name="pacing_type" type="radio" value="{pacing}" />'.format(
-            pacing=latest_run.pacing_type
-        )
-        self.assertContains(response, expected_pacing)
-
-        expected_seat_type = '<option value="{seat_type}" selected="selected">'.format(seat_type=latest_seat.type)
-        self.assertContains(response, expected_seat_type)
-
-        expected_seat_price = 'id="id_price" name="price" step="0.01" type="number" value="{price}" />'.format(
-            price=latest_seat.price
-        )
-        self.assertContains(response, expected_seat_price)
+        assert pacing_type_attribute is not None
+        assert seat_type_attribute is not None
+        assert price_attribute is not None
 
     def test_credit_type_without_price(self):
         """ Verify that without credit price course-run cannot be created with credit seat type. """
@@ -2778,8 +2780,12 @@ class CourseRunEditViewTests(TestCase):
             OrganizationExtension.EDIT_COURSE_RUN, self.organization_extension.group, self.organization_extension
         )
         response = self.client.get(self.edit_page_url)
+        response_content = BeautifulSoup(response.content)
 
-        self.assertContains(response, '<input id="id_lms_course_id" name="lms_course_id" type="hidden"')
+        course_id_attribute = response_content.find(
+            "input", {"id": "id_lms_course_id", "type": "hidden", "name": "lms_course_id"}
+        )
+        assert course_id_attribute is not None
 
         self.assertContains(response, 'Studio URL')
         self.assertContains(response, 'STUDIO URL')
@@ -2788,11 +2794,14 @@ class CourseRunEditViewTests(TestCase):
         self.new_course_run.lms_course_id = 'course-v1:edxTest+Test342+2016Q1'
         self.new_course_run.save()
         response = self.client.get(self.edit_page_url)
+        response_content = BeautifulSoup(response.content)
 
-        self.assertContains(
-            response, '<input id="id_lms_course_id" name="lms_course_id" type="hidden"'
+        lms_course_id_attribute = response_content.find(
+            "input", {"id": "id_lms_course_id", "type": "hidden", "name": "lms_course_id"}
         )
-        self.assertContains(response, '<a class="studio-link"')
+        studio_link_attribute = response_content.find("a", {"class": "studio-link"})
+        assert lms_course_id_attribute is not None
+        assert studio_link_attribute is not None
 
     def test_studio_instance_with_project_coordinator(self):
         """
@@ -2811,13 +2820,17 @@ class CourseRunEditViewTests(TestCase):
         self.new_course_run.lms_course_id = 'course-v1:edxTest+Test342+2016Q1'
         self.new_course_run.save()
         response = self.client.get(self.edit_page_url)
+        response_content = BeautifulSoup(response.content)
 
         self.assertContains(response, self.new_course_run.lms_course_id)
-        self.assertContains(
-            response, '<input class="field-input input-text" id="id_lms_course_id" name="lms_course_id"'
+        lms_course_id_attribute = response_content.find(
+            "input", {"id": "id_lms_course_id", "name": "lms_course_id", "class": "field-input"}
         )
+        assert lms_course_id_attribute is not None
 
-        self.assertNotContains(response, '<a class="studio-link"')
+        studio_link_attribute = response_content.find("a", {"class": "studio-link"})
+        assert studio_link_attribute is None
+
         data = {'full_description': 'This is testing description.', 'image': ''}
         updated_dict = self._post_data(data, self.new_course, None)
         self.client.post(self.edit_page_url, updated_dict)
