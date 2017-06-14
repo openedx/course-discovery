@@ -1,6 +1,7 @@
 import itertools
 
 import ddt
+from bs4 import BeautifulSoup
 from django.contrib.contenttypes.models import ContentType
 from django.test import LiveServerTestCase, TestCase
 from django.urls import reverse
@@ -98,11 +99,12 @@ class AdminTests(TestCase):
         # add some new courses and course runs
         factories.CourseRunFactory.create_batch(2)
         response = self.client.get(reverse('admin_metadata:update_course_runs', args=(self.program.id,)))
-        html = '<input checked="checked" id="id_excluded_course_runs_0" '
-        html += 'name="excluded_course_runs" type="checkbox" value="{id}" />'.format(
-            id=self.excluded_course_run.id
+        response_content = BeautifulSoup(response.content)
+        attribute = response_content.find(
+            "input", {"value": self.excluded_course_run.id, "type": "checkbox", "name": "excluded_course_runs"}
         )
-        self.assertContains(response, html)
+        assert attribute is not None
+
         for run in self.course_runs:
             self.assertContains(response, run.key)
 

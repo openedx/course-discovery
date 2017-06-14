@@ -31,8 +31,7 @@ from course_discovery.apps.publisher.forms import (AdminImportCourseForm, Course
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
                                                     OrganizationExtension, Seat, UserAttributes)
 from course_discovery.apps.publisher.utils import (get_internal_users, has_role_for_course, is_internal_user,
-                                                   is_project_coordinator_user, is_publisher_admin, make_bread_crumbs,
-                                                   parse_datetime_field)
+                                                   is_project_coordinator_user, is_publisher_admin, make_bread_crumbs)
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
 logger = logging.getLogger(__name__)
@@ -579,8 +578,6 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
         user = request.user
         parent_course = self.get_parent_course()
 
-        self.request.POST['start'] = parse_datetime_field(self.request.POST.get('start'))
-        self.request.POST['end'] = parse_datetime_field(self.request.POST.get('end'))
         run_form = self.run_form(request.POST)
         seat_form = self.seat_form(request.POST)
 
@@ -721,9 +718,6 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
         context = self.get_context_data()
         course_run = context.get('course_run')
         lms_course_id = course_run.lms_course_id
-
-        self.request.POST['start'] = parse_datetime_field(self.request.POST.get('start'))
-        self.request.POST['end'] = parse_datetime_field(self.request.POST.get('end'))
 
         run_form = self.run_form(
             request.POST, instance=course_run, is_project_coordinator=context.get('is_project_coordinator')
