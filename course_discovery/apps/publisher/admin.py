@@ -5,8 +5,9 @@ from guardian.admin import GuardedModelAdmin
 
 from course_discovery.apps.publisher.assign_permissions import assign_permissions
 from course_discovery.apps.publisher.choices import InternalUserRole
-from course_discovery.apps.publisher.constants import (PARTNER_MANAGER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME,
-                                                       PUBLISHER_GROUP_NAME, REVIEWER_GROUP_NAME)
+from course_discovery.apps.publisher.constants import (INTERNAL_USER_GROUP_NAME, PARTNER_MANAGER_GROUP_NAME,
+                                                       PROJECT_COORDINATOR_GROUP_NAME, PUBLISHER_GROUP_NAME,
+                                                       REVIEWER_GROUP_NAME)
 from course_discovery.apps.publisher.forms import (CourseRunAdminForm, CourseUserRoleForm, OrganizationExtensionForm,
                                                    OrganizationUserRoleForm, PublisherUserCreationForm,
                                                    UserAttributesAdminForm)
@@ -53,11 +54,16 @@ class OrganizationUserRoleAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         obj.save()
+        publisher_courses = obj.organization.publisher_courses
+        courses_without_role = publisher_courses.exclude(course_user_roles__role=obj.role)
+        CourseUserRole.objects.bulk_create(
+            [CourseUserRole(course=course, user=obj.user, role=obj.role) for course in courses_without_role]
+        )
 
         # Assign user a group according to its role.
         group = Group.objects.get(name=self.role_groups_dict.get(obj.role))
         if group not in obj.user.groups.all():
-            obj.user.groups.add(group)
+            obj.user.groups.add(*(group, Group.objects.get(name=INTERNAL_USER_GROUP_NAME)))
 
 
 @admin.register(CourseState)

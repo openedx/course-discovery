@@ -12,6 +12,7 @@ from course_discovery.apps.publisher.constants import (PARTNER_MANAGER_GROUP_NAM
 from course_discovery.apps.publisher.forms import CourseRunAdminForm
 from course_discovery.apps.publisher.models import CourseRun, OrganizationExtension
 from course_discovery.apps.publisher.tests import factories
+from course_discovery.apps.publisher.tests.factories import CourseFactory
 
 USER_PASSWORD = 'password'
 
@@ -140,8 +141,15 @@ class OrganizationUserRoleAdminTests(TestCase):
         super(OrganizationUserRoleAdminTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.run_state = factories.CourseRunStateFactory()
         self.admin_page_url = reverse('admin:publisher_organizationuserrole_add')
+
+        self.organization = OrganizationFactory()
+
+        self.course1 = CourseFactory()
+        self.course2 = CourseFactory()
+
+        self.course1.organizations.add(self.organization)
+        self.course2.organizations.add(self.organization)
 
     @ddt.data(
         (PublisherUserRole.MarketingReviewer, REVIEWER_GROUP_NAME),
@@ -152,15 +160,45 @@ class OrganizationUserRoleAdminTests(TestCase):
     @ddt.unpack
     def test_organization_user_role_groups(self, role, group_name):
         """
-        Verify that a group is assigned to user according to its role upon OrganizationUserRole creation.
+        Verify that a group is assigned to user according to its role upon OrganizationUserRole creation
+        and create course users also.
         """
-        test_organization = OrganizationFactory()
         test_user = UserFactory()
         post_data = {
-            'organization': test_organization.id, 'user': test_user.id, 'role': role
+            'organization': self.organization.id, 'user': test_user.id, 'role': role
         }
 
         self.client.post(self.admin_page_url, data=post_data)
 
-        # Verify that user is added to Marketing Reviewers group.
+        # Verify that user is added to the group.
         self.assertIn(Group.objects.get(name=group_name), test_user.groups.all())
+
+        self.assertEqual(self.course1.course_user_roles.filter(role=role).count(), 1)
+        self.assertEqual(self.course2.course_user_roles.filter(role=role).count(), 1)
+        self.assertEqual(self.course2.course_user_roles.filter(role=role).first().user, test_user)
+
+    def test_save_method_add_course_user_roles(self):
+        """
+        Verify that save method will not create the duplicate course user roles.
+        """
+        # for course 3 add course roles
+        user = UserFactory()
+        course3 = CourseFactory()
+        course3.organizations.add(self.organization)
+        factories.CourseUserRoleFactory(course=course3, role=PublisherUserRole.MarketingReviewer, user=user)
+
+        test_user = UserFactory()
+        post_data = {
+            'organization': self.organization.id, 'user': test_user.id, 'role': PublisherUserRole.MarketingReviewer
+        }
+        self.client.post(self.admin_page_url, data=post_data)
+
+        # for course-3 course-user-role remains there.
+        self.assertTrue(course3.course_user_roles.filter(role=PublisherUserRole.MarketingReviewer, user=user).exists())
+
+        self.assertTrue(
+            self.course1.course_user_roles.filter(role=PublisherUserRole.MarketingReviewer, user=test_user).exists()
+        )
+        self.assertTrue(
+            self.course2.course_user_roles.filter(role=PublisherUserRole.MarketingReviewer, user=test_user).exists()
+        )
