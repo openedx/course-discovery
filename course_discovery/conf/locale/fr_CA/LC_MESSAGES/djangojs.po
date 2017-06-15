@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-20 11:56-0400\n"
-"PO-Revision-Date: 2017-04-15 09:22+0000\n"
+"POT-Creation-Date: 2017-06-09 21:46+0500\n"
+"PO-Revision-Date: 2017-06-12 21:25+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: French (Canada) (http://www.transifex.com/open-edx/edx-platform/language/fr_CA/)\n"
 "MIME-Version: 1.0\n"
@@ -41,17 +41,17 @@ msgstr "La taille du fichier d'image ne peut excéder 1 MB."
 
 #: static/js/publisher/instructors.js
 msgid "New Instructor"
-msgstr ""
+msgstr "Nouvel instructeur"
 
 #: static/js/publisher/instructors.js
 msgid "Add staff member"
-msgstr ""
+msgstr "Ajouter un membre d'équipe pédagogique"
 
 #: static/js/publisher/instructors.js
 msgid ""
 "Please upload a instructor image. File must be smaller than 1 megabyte in "
 "size."
-msgstr ""
+msgstr "S'il vous plaît, télécharger une image de l'instructeur. La taille du fichier doit être plus petite que 1 mégaoctet."
 
 #: static/js/publisher/instructors.js static/js/publisher/preview-url.js
 msgid "Something went wrong!"
@@ -63,11 +63,11 @@ msgstr "Le fichier doit avoir une taille inférieure à 1 mégaoctet."
 
 #: static/js/publisher/instructors.js
 msgid "Update staff member"
-msgstr ""
+msgstr "Mettre à jour le membre de l'équipe pédagogique"
 
 #: static/js/publisher/instructors.js
 msgid "Update Instructor"
-msgstr ""
+msgstr "Mettre à jour l'instructeur"
 
 #: static/js/publisher/preview-url.js
 msgid "Save"
@@ -79,9 +79,9 @@ msgstr "S'il vous plaît entrer un URL valide."
 
 #: static/js/publisher/views/dashboard.js
 msgid ""
-"You have successfully created a studio instance ({studioLinkTag}) for "
+"You have successfully created a Studio URL ({studioLinkTag}) for "
 "{courseRunDetail} with a start date of {startDate}"
-msgstr "Vous avez créé avec succès une instance studio ({studioLinkTag}) pour {courseRunDetail} avec une date de début de {startDate}"
+msgstr ""
 
 #: static/js/publisher/views/dashboard.js
 msgid "There was an error in saving your data."
