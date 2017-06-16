@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-14 14:42+0500\n"
-"PO-Revision-Date: 2017-06-14 06:48+0000\n"
+"PO-Revision-Date: 2017-06-16 14:00+0000\n"
 "Last-Translator: YAHAYA MWAVURIZI <translations_1@camara.ie>\n"
 "Language-Team: Swahili (Kenya) (http://www.transifex.com/open-edx/edx-platform/language/sw_KE/)\n"
 "MIME-Version: 1.0\n"
@@ -55,7 +55,7 @@ msgstr "Vitambulisho vya kozi ya upangaji kamusi  kwenye thamani ya buli."
 
 #: apps/api/serializers.py
 msgid "Languages that course runs in this program are offered in."
-msgstr ""
+msgstr "Lugha ambazo zinatumika kufundishia masomo haya."
 
 #: apps/api/serializers.py
 msgid ""
