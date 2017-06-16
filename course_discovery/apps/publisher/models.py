@@ -537,7 +537,7 @@ class CourseState(TimeStampedModel, ChangedByMixin):
         return all([
             course.title, course.number, course.short_description, course.full_description,
             course.organizations.first(), course.level_type, course.expected_learnings,
-            course.prerequisites, course.primary_subject, course.image, course.course_team_admin
+            course.primary_subject, course.image, course.course_team_admin
         ])
 
     @transition(field=name, source='*', target=CourseStateChoices.Draft)
@@ -658,7 +658,9 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
             course_run.course.course_state.is_approved, course_run.has_valid_seats, course_run.start, course_run.end,
             course_run.pacing_type, course_run.has_valid_staff, course_run.is_valid_micromasters,
             course_run.is_valid_professional_certificate, course_run.is_valid_xseries, course_run.language,
-            course_run.transcript_languages.all(), course_run.lms_course_id
+            course_run.transcript_languages.all(), course_run.lms_course_id, course_run.min_effort,
+            course_run.max_effort, course_run.video_language
+
         ])
 
     def __str__(self):

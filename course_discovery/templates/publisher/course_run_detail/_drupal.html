@@ -139,7 +139,9 @@
             {% if object.min_effort and object.max_effort %}
                 {{ object.min_effort }} {% trans "to" %} {{ object.max_effort }} {% trans "hours per week" %}
             {% else %}
-                {% trans "(Optional) Not yet added" %}
+                {% with  object.estimated_effort as field %}
+                    {% include "publisher/_render_required_field.html" %}
+                {% endwith %}
             {% endif %}
         </div>
     </div>
@@ -222,7 +224,7 @@
         </div>
         <div class="copy">
             {% with  object.prerequisite as field %}
-                {% include "publisher/_render_required_field.html" %}
+                {% include "publisher/_render_optional_field.html" %}
             {% endwith %}
         </div>
     </div>
