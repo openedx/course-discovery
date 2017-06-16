@@ -20,15 +20,36 @@ def get_elasticsearch_boost_config():
     To see how a given hit's score was computed, use the explain parameter:
     https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-request-explain.html
     """
-    elasticsearch_boost_config = {
+    return {
         'function_score': {
             'boost_mode': 'sum',
             'boost': 1.0,
             'score_mode': 'sum',
             'functions': [
-                {'filter': {'term': {'pacing_type_exact': 'self_paced'}}, 'weight': 1.0},
-                {'filter': {'term': {'type_exact': 'Professional Certificate'}}, 'weight': 1.0},
-                {'filter': {'term': {'type_exact': 'MicroMasters'}}, 'weight': 1.0},
+                {
+                    'filter': {
+                        'term': {
+                            'pacing_type_exact': 'self_paced'
+                        }
+                    },
+                    'weight': 5.0
+                },
+                {
+                    'filter': {
+                        'term': {
+                            'type_exact': 'MicroMasters'
+                        }
+                    },
+                    'weight': 5.0
+                },
+                {
+                    'filter': {
+                        'term': {
+                            'type_exact': 'Professional Certificate'
+                        }
+                    },
+                    'weight': 5.0
+                },
 
                 # Decay function for modifying scores based on the value of the
                 # start field. The Gaussian function decays slowly, then rapidly,
@@ -58,74 +79,169 @@ def get_elasticsearch_boost_config():
                     'weight': 5.0
                 },
 
-                # Boost function for CourseRuns with enrollable paid Seats.
-                # We want to boost if:
-                #       - The course run has at least one enrollable paid Seat (has_enrollable_paid_seats is True)
-                # AND one of the following two conditions are true
-                #       - The paid_seat_enrollment_end is unspecified.
-                #       - The paid_seat_enrollment_end is in the future.
-                # We apply a weight of 1.0 to match the boost given for self paced courses.
+                # Reward course runs with enrollable, paid seats.
                 {
                     'filter': {
                         'bool': {
-                            'must': [
-                                {'exists': {'field': 'has_enrollable_paid_seats'}},
-                                {'term': {'has_enrollable_paid_seats': True}}
-                            ],
+                            'must': {
+                                'term': {
+                                    'has_enrollable_paid_seats': True
+                                }
+                            },
                             'should': [
-                                {'bool': {'must_not': {'exists': {'field': 'paid_seat_enrollment_end'}}}},
-                                {'range': {'paid_seat_enrollment_end': {'gte': 'now'}}}
+                                # A paid seat with a null enrollment end date is
+                                # considered to be available, as if the end date
+                                # were in the future.
+                                {
+                                    'bool': {
+                                        'must_not': {
+                                            'exists': {
+                                                'field': 'paid_seat_enrollment_end'
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    'range': {
+                                        'paid_seat_enrollment_end': {
+                                            'gte': 'now'
+                                        }
+                                    }
+                                }
                             ]
                         }
                     },
-                    'weight': 1.0
+                    'weight': 15.0
                 },
 
-                # Boost function for enrollable CourseRuns.
-                # We want to boost if:
-                #   - enrollment_start and enrollment_end are unspecified
-                #   - enrollment_start is unspecified and enrollment_end is in the future
-                #   - enrollment_end is unspecified and enrollment_start is in the past
-                #   - enrollment_start is in the past and enrollment_end is in the future
-                # We apply a weight of 1.0 to match the boost given for self paced and enrollable paid courses.
+                # Penalize course runs without enrollable, paid seats. This penalty
+                # applies specifically to course runs, so that we don't reduce the
+                # relevance score of programs.
+                {
+                    'filter': {
+                        'bool': {
+                            'must': {
+                                'term': {
+                                    'content_type_exact': 'courserun'
+                                }
+                            },
+                            'must_not': {
+                                'range': {
+                                    'paid_seat_enrollment_end': {
+                                        'gte': 'now'
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    'weight': -20.0
+                },
+
+                # Give a slight boost to enrollable course runs, regardless of seat
+                # configuration. Course runs with unexpired, paid seats should be
+                # rewarded more generously, but when comparing two course runs,
+                # the one in which the user can enroll should be given preference.
                 {
                     'filter': {
                         'bool': {
                             'should': [
-                                {'bool': {
-                                    'must_not': [
-                                        {'exists': {'field': 'enrollment_start'}},
-                                        {'exists': {'field': 'enrollment_end'}}
-                                    ]
-                                }},
-                                {'bool': {
-                                    'must_not': {'exists': {'field': 'enrollment_start'}},
-                                    'must': [
-                                        {'exists': {'field': 'enrollment_end'}},
-                                        {'range': {'enrollment_end': {'gt': 'now'}}}
-                                    ]
-                                }},
-                                {'bool': {
-                                    'must_not': {'exists': {'field': 'enrollment_end'}},
-                                    'must': [
-                                        {'exists': {'field': 'enrollment_start'}},
-                                        {'range': {'enrollment_start': {'lte': 'now'}}}
-                                    ]
-                                }},
-                                {'bool': {
-                                    'must': [
-                                        {'exists': {'field': 'enrollment_start'}},
-                                        {'exists': {'field': 'enrollment_end'}},
-                                        {'range': {'enrollment_start': {'lte': 'now'}}},
-                                        {'range': {'enrollment_end': {'gt': 'now'}}}
-                                    ]
-                                }}
+                                {
+                                    'bool': {
+                                        'must_not': [
+                                            {
+                                                'exists': {
+                                                    'field': 'enrollment_start'
+                                                }
+                                            },
+                                            {
+                                                'exists': {
+                                                    'field': 'enrollment_end'
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    'bool': {
+                                        'must': [
+                                            {
+                                                'exists': {
+                                                    'field': 'enrollment_end'
+                                                }
+                                            },
+                                            {
+                                                'range': {
+                                                    'enrollment_end': {
+                                                        'gt': 'now'
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        'must_not': {
+                                            'exists': {
+                                                'field': 'enrollment_start'
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    'bool': {
+                                        'must': [
+                                            {
+                                                'exists': {
+                                                    'field': 'enrollment_start'
+                                                }
+                                            },
+                                            {
+                                                'range': {
+                                                    'enrollment_start': {
+                                                        'lte': 'now'
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        'must_not': {
+                                            'exists': {
+                                                'field': 'enrollment_end'
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    'bool': {
+                                        'must': [
+                                            {
+                                                'exists': {
+                                                    'field': 'enrollment_start'
+                                                }
+                                            },
+                                            {
+                                                'exists': {
+                                                    'field': 'enrollment_end'
+                                                }
+                                            },
+                                            {
+                                                'range': {
+                                                    'enrollment_start': {
+                                                        'lte': 'now'
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                'range': {
+                                                    'enrollment_end': {
+                                                        'gt': 'now'
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
                             ]
                         }
                     },
-                    'weight': 1.0
+                    'weight': 2.0
                 }
             ]
         }
     }
-    return elasticsearch_boost_config

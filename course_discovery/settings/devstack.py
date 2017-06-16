@@ -7,7 +7,6 @@ LOGGING['handlers']['local'] = {
     'class': 'logging.NullHandler',
 }
 
-
 # Determine which requests should render Django Debug Toolbar
 INTERNAL_IPS = ('127.0.0.1',)
 

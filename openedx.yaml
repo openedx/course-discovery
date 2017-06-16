@@ -3,5 +3,6 @@
 
 nick: ctlg
 oeps: {}
+openedx-release: {ref: master}
 owner: edx/learner
 track-pulls: true
