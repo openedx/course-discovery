@@ -219,7 +219,7 @@
                     </div>
                 </div>
 
-                <div class="field-title">{% trans "ESTIMATED EFFORT" %} <span class="optional float-right">Optional</span></div>
+                <div class="field-title">{% trans "ESTIMATED EFFORT" %} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
                     <div class="col col-6">
                         {% trans "The number of hours per week the learner should expect to spend on the course. This may be a range." %}
@@ -253,7 +253,7 @@
                         <label class="field-label ">{{ run_form.transcript_languages.label_tag }} <span class="required">*</span></label>
                         {{ run_form.transcript_languages}}
 
-                        <label class="field-label margin-top20">{{ run_form.video_language.label_tag }}</label>
+                        <label class="field-label margin-top20">{{ run_form.video_language.label_tag }} <span class="required">*</span></label>
                         {{ run_form.video_language}}
                     </div>
                 </div>
