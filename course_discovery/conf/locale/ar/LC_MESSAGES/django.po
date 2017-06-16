@@ -31,7 +31,7 @@ msgstr ""
 #: apps/api/filters.py
 #, python-brace-format
 msgid "No user with the username [{username}] exists."
-msgstr "لا يوجد مستخدم بهذا الاسم [{username}]."
+msgstr "لا يوجد مستخدم بهذا الاسم [username}]."
 
 #: apps/api/filters.py
 msgid ""
