@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-14 14:42+0500\n"
-"PO-Revision-Date: 2017-06-12 23:05+0000\n"
+"POT-Creation-Date: 2017-06-14 17:09+0500\n"
+"PO-Revision-Date: 2017-06-16 21:51+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Hebrew (http://www.transifex.com/open-edx/edx-platform/language/he/)\n"
 "MIME-Version: 1.0\n"
@@ -506,7 +506,7 @@ msgstr "טיוטה"
 msgid "Review"
 msgstr "סקירה"
 
-#: apps/publisher/choices.py templates/publisher/dashboard/_in_preview.html
+#: apps/publisher/choices.py
 msgid "Approved"
 msgstr "מאושר"
 
@@ -1222,7 +1222,6 @@ msgid "ABOUT PAGE PREVIEW"
 msgstr ""
 
 #: templates/publisher/_approval_widget.html
-#: templates/publisher/dashboard/_in_preview.html
 msgid "Preview URL"
 msgstr "כתובת URL לתצוגה מקדימה"
 
@@ -2672,11 +2671,25 @@ msgid "Status"
 msgstr ""
 
 #: templates/publisher/dashboard/_in_preview.html
-msgid "Preview Requested"
+#: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
+msgid "Course start date"
+msgstr "תאריך תחילת קורס"
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "Approved since "
 msgstr ""
 
 #: templates/publisher/dashboard/_in_preview.html
-msgid "In Review"
+msgid "Declined since "
+msgstr ""
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "Preview Requested since "
+msgstr ""
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "In Review since "
 msgstr ""
 
 #: templates/publisher/dashboard/_in_progress.html
@@ -3161,11 +3174,6 @@ msgid ""
 "Before edX can publish the About page for this course run, you must also add"
 " the following items for this course run in Studio."
 msgstr ""
-
-#: templates/publisher/email/studio_instance_created.html
-#: templates/publisher/email/studio_instance_created.txt
-msgid "Course start date"
-msgstr "תאריך תחילת קורס"
 
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt

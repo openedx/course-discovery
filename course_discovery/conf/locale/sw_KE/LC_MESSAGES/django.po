@@ -12,9 +12,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-14 14:42+0500\n"
-"PO-Revision-Date: 2017-06-16 14:00+0000\n"
-"Last-Translator: YAHAYA MWAVURIZI <translations_1@camara.ie>\n"
+"POT-Creation-Date: 2017-06-14 17:09+0500\n"
+"PO-Revision-Date: 2017-06-16 21:51+0000\n"
+"Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Swahili (Kenya) (http://www.transifex.com/open-edx/edx-platform/language/sw_KE/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -506,7 +506,7 @@ msgstr ""
 msgid "Review"
 msgstr "Pitia upya"
 
-#: apps/publisher/choices.py templates/publisher/dashboard/_in_preview.html
+#: apps/publisher/choices.py
 msgid "Approved"
 msgstr "Imeidhinishwa"
 
@@ -1222,7 +1222,6 @@ msgid "ABOUT PAGE PREVIEW"
 msgstr ""
 
 #: templates/publisher/_approval_widget.html
-#: templates/publisher/dashboard/_in_preview.html
 msgid "Preview URL"
 msgstr ""
 
@@ -2672,11 +2671,25 @@ msgid "Status"
 msgstr "Hali "
 
 #: templates/publisher/dashboard/_in_preview.html
-msgid "Preview Requested"
+#: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
+msgid "Course start date"
+msgstr "Tarehe ya kuanza kozi"
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "Approved since "
 msgstr ""
 
 #: templates/publisher/dashboard/_in_preview.html
-msgid "In Review"
+msgid "Declined since "
+msgstr ""
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "Preview Requested since "
+msgstr ""
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "In Review since "
 msgstr ""
 
 #: templates/publisher/dashboard/_in_progress.html
@@ -3161,11 +3174,6 @@ msgid ""
 "Before edX can publish the About page for this course run, you must also add"
 " the following items for this course run in Studio."
 msgstr ""
-
-#: templates/publisher/email/studio_instance_created.html
-#: templates/publisher/email/studio_instance_created.txt
-msgid "Course start date"
-msgstr "Tarehe ya kuanza kozi"
 
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt

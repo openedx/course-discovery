@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-14 14:42+0500\n"
-"PO-Revision-Date: 2017-06-12 23:05+0000\n"
+"POT-Creation-Date: 2017-06-14 17:09+0500\n"
+"PO-Revision-Date: 2017-06-16 21:51+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Polish (http://www.transifex.com/open-edx/edx-platform/language/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -503,7 +503,7 @@ msgstr "Szkic"
 msgid "Review"
 msgstr "Ocena"
 
-#: apps/publisher/choices.py templates/publisher/dashboard/_in_preview.html
+#: apps/publisher/choices.py
 msgid "Approved"
 msgstr "Zatwierdzony"
 
@@ -1219,7 +1219,6 @@ msgid "ABOUT PAGE PREVIEW"
 msgstr "PODGLĄD STRONY \"O KURSIE\""
 
 #: templates/publisher/_approval_widget.html
-#: templates/publisher/dashboard/_in_preview.html
 msgid "Preview URL"
 msgstr "Adres URL zapowiedzi"
 
@@ -2669,12 +2668,26 @@ msgid "Status"
 msgstr "Stan"
 
 #: templates/publisher/dashboard/_in_preview.html
-msgid "Preview Requested"
-msgstr "Zażądano oceny zapowiedzi"
+#: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
+msgid "Course start date"
+msgstr "Data rozpoczęcia kursu"
 
 #: templates/publisher/dashboard/_in_preview.html
-msgid "In Review"
-msgstr "W trakcie oceny"
+msgid "Approved since "
+msgstr ""
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "Declined since "
+msgstr ""
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "Preview Requested since "
+msgstr ""
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "In Review since "
+msgstr ""
 
 #: templates/publisher/dashboard/_in_progress.html
 msgid "No About pages for any course runs are currently in development."
@@ -3158,11 +3171,6 @@ msgid ""
 "Before edX can publish the About page for this course run, you must also add"
 " the following items for this course run in Studio."
 msgstr "Zanim będzie można opublikować stronę \"O kursie\" tej edycji kursu, w Studio muszą zostać wprowadzone następujące informacje dotyczące edycji kursu."
-
-#: templates/publisher/email/studio_instance_created.html
-#: templates/publisher/email/studio_instance_created.txt
-msgid "Course start date"
-msgstr "Data rozpoczęcia kursu"
 
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
