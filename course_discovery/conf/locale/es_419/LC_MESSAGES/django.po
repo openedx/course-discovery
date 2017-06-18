@@ -20,9 +20,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-14 14:42+0500\n"
-"PO-Revision-Date: 2017-06-14 12:50+0000\n"
-"Last-Translator: Poxtic <erandelle@outlook.com>\n"
+"POT-Creation-Date: 2017-06-14 17:09+0500\n"
+"PO-Revision-Date: 2017-06-16 21:51+0000\n"
+"Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -514,7 +514,7 @@ msgstr "Borrador"
 msgid "Review"
 msgstr "Revisar"
 
-#: apps/publisher/choices.py templates/publisher/dashboard/_in_preview.html
+#: apps/publisher/choices.py
 msgid "Approved"
 msgstr "Aprobado"
 
@@ -1230,7 +1230,6 @@ msgid "ABOUT PAGE PREVIEW"
 msgstr ""
 
 #: templates/publisher/_approval_widget.html
-#: templates/publisher/dashboard/_in_preview.html
 msgid "Preview URL"
 msgstr "URL de la vista previa"
 
@@ -2680,11 +2679,25 @@ msgid "Status"
 msgstr ""
 
 #: templates/publisher/dashboard/_in_preview.html
-msgid "Preview Requested"
+#: templates/publisher/email/studio_instance_created.html
+#: templates/publisher/email/studio_instance_created.txt
+msgid "Course start date"
+msgstr "Fecha de inicio del curso"
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "Approved since "
 msgstr ""
 
 #: templates/publisher/dashboard/_in_preview.html
-msgid "In Review"
+msgid "Declined since "
+msgstr ""
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "Preview Requested since "
+msgstr ""
+
+#: templates/publisher/dashboard/_in_preview.html
+msgid "In Review since "
 msgstr ""
 
 #: templates/publisher/dashboard/_in_progress.html
@@ -3169,11 +3182,6 @@ msgid ""
 "Before edX can publish the About page for this course run, you must also add"
 " the following items for this course run in Studio."
 msgstr ""
-
-#: templates/publisher/email/studio_instance_created.html
-#: templates/publisher/email/studio_instance_created.txt
-msgid "Course start date"
-msgstr "Fecha de inicio del curso"
 
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
