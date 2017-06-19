@@ -44,6 +44,7 @@ class CourseTests(ElasticsearchTestMixin, TestCase):
 
     def test_search(self):
         """ Verify the method returns a filtered queryset of courses. """
+        toggle_switch('log_course_search_queries', active=True)
         title = 'Some random title'
         courses = factories.CourseFactory.create_batch(3, title=title)
         # Sort lowercase keys to prevent different sort orders due to casing.
