@@ -363,8 +363,15 @@ SWAGGER_SETTINGS = {
 # We are adding the lowercase analyzer and tweaking the ngram analyzers here,
 # so we need to use these settings rather than the index defaults.
 # We are making these changes to enable autocomplete for the typeahead endpoint.
+# In addition we are specifying the number of shards and replicas that indices
+# will be created with as recommended here:
+# https://aws.amazon.com/blogs/database/get-started-with-amazon-elasticsearch-service-how-many-shards-do-i-need/
 ELASTICSEARCH_INDEX_SETTINGS = {
     'settings': {
+        'index': {
+            'number_of_shards': 1,
+            'number_of_replicas': 1
+        },
         'analysis': {
             'tokenizer': {
                 'haystack_edgengram_tokenizer': {
