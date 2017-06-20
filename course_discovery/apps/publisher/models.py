@@ -285,6 +285,12 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     # will be used to download the image and save into course model --> course image.
     card_image_url = models.URLField(null=True, blank=True, verbose_name='canonical course run image')
 
+    short_description_override = models.CharField(
+        max_length=255, default=None, null=True, blank=True,
+        help_text=_(
+            "Short description specific for this run of a course. Leave this value blank to default to "
+            "the parent course's short_description attribute."))
+
     history = HistoricalRecords()
 
     def __str__(self):
