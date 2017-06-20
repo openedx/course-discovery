@@ -98,7 +98,8 @@ def create_course_runs(meta_data_course, publisher_course):
                 'language': canonical_course_run.language, 'pacing_type': canonical_course_run.pacing_type,
                 'length': canonical_course_run.weeks_to_complete,
                 'card_image_url': canonical_course_run.card_image_url,
-                'lms_course_id': canonical_course_run.key
+                'lms_course_id': canonical_course_run.key,
+                'short_description_override': canonical_course_run.short_description_override
             }
 
             publisher_course_run, created = CourseRun.objects.update_or_create(

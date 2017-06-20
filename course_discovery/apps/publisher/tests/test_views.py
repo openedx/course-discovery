@@ -2011,6 +2011,19 @@ class CourseDetailViewTests(TestCase):
         self.assertEqual(response.context['most_recent_revision_id'], current_user_revision)
         self.assertTrue(response.context['accept_all_button'])
 
+    def test_detail_page_with_override_short_description(self):
+        """
+        Test that pages shows the override short description.
+        """
+        description = 'Testing short description'
+        self._assign_user_permission()
+        course_run = factories.CourseRunFactory(
+            course=self.course, short_description_override=description
+        )
+        factories.CourseRunStateFactory(course_run=course_run, name=CourseRunStateChoices.Published)
+        response = self.client.get(self.detail_page_url)
+        self.assertContains(response, description)
+
     def _assign_user_permission(self):
         """ Assign permissions."""
         self.user.groups.add(self.organization_extension.group)
