@@ -55,6 +55,7 @@ class CourseRunFactory(factory.DjangoModelFactory):
     preview_url = FuzzyText(prefix='https://example.com/')
     contacted_partner_manager = FuzzyChoice((True, False))
     video_language = factory.Iterator(LanguageTag.objects.all())
+    short_description_override = FuzzyText()
 
     class Meta:
         model = CourseRun

@@ -106,7 +106,8 @@ class CreateCoursesTests(TestCase):
         # create multiple course-runs against course.
         course_runs = CourseRunFactory.create_batch(
             3, course=self.course, transcript_languages=transcript_languages,
-            language=transcript_languages[0]
+            language=transcript_languages[0],
+            short_description_override='Testing description'
         )
 
         canonical_course_run = course_runs[0]
@@ -274,6 +275,9 @@ class CreateCoursesTests(TestCase):
         self.assertEqual(publisher_course_run.card_image_url, metadata_course_run.card_image_url)
         self.assertEqual(publisher_course_run.language, metadata_course_run.language)
         self.assertEqual(publisher_course_run.lms_course_id, metadata_course_run.key)
+        self.assertEqual(
+            publisher_course_run.short_description_override, metadata_course_run.short_description_override
+        )
 
         # assert ManytoMany fields.
         self.assertEqual(

@@ -204,6 +204,15 @@ class Course(TimeStampedModel, ChangedByMixin):
 
         return None
 
+    @property
+    def course_short_description(self):
+        course_run = self.course_runs.filter(course_run_state__name=CourseRunStateChoices.Published).first()
+
+        if course_run and course_run.short_description_override:
+            return course_run.short_description_override
+
+        return self.short_description
+
 
 class CourseRun(TimeStampedModel, ChangedByMixin):
     """ Publisher CourseRun model. It contains fields related to the course run intake form."""

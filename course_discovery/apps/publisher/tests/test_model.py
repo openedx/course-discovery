@@ -345,6 +345,15 @@ class CourseTests(TestCase):
         # Verify that property returns course image field url.
         self.assertEqual(self.course.course_image_url, self.course.image.url)
 
+    def test_short_description_override(self):
+        """ Verify that the property returns the short_description. """
+        self.assertEqual(self.course.short_description, self.course.course_short_description)
+
+        # Create a published course-run with card_image_url.
+        course_run = factories.CourseRunFactory(course=self.course)
+        factories.CourseRunStateFactory(course_run=course_run, name=CourseRunStateChoices.Published)
+        self.assertEqual(self.course.course_short_description, course_run.short_description_override)
+
 
 class SeatTests(TestCase):
     """ Tests for the publisher `Seat` model. """
