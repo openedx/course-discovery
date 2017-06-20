@@ -1228,32 +1228,6 @@ class CourseRunDetailTests(TestCase):
         # Verify that user cannot see edit button if he has no role for course.
         self.assert_can_edit_permission(can_edit=False)
 
-    def test_create_course_user_roles_if_not_exist(self):
-        """
-        Verify that course user roles created if default roles exist on viewing detail page.
-        """
-        self.user.groups.add(self.organization_extension.group)
-
-        default_roles = [
-            PublisherUserRole.MarketingReviewer, PublisherUserRole.ProjectCoordinator, PublisherUserRole.Publisher
-        ]
-        self.assertEqual(self.course.course_user_roles.filter(role__in=default_roles).count(), 0)
-
-        factories.OrganizationUserRoleFactory(
-            organization=self.organization_extension.organization, role=PublisherUserRole.MarketingReviewer
-        )
-        factories.OrganizationUserRoleFactory(
-            organization=self.organization_extension.organization, role=PublisherUserRole.ProjectCoordinator
-        )
-        factories.OrganizationUserRoleFactory(
-            organization=self.organization_extension.organization, role=PublisherUserRole.Publisher
-        )
-
-        self.client.get(self.page_url)
-
-        expected_count = self.course.course_user_roles.filter(course=self.course, role__in=default_roles).count()
-        self.assertEqual(len(default_roles), expected_count)
-
 
 # pylint: disable=attribute-defined-outside-init
 @ddt.ddt
@@ -2056,32 +2030,6 @@ class CourseDetailViewTests(TestCase):
         post_data['title'] = 'updated title'
 
         self.client.post(reverse('publisher:publisher_courses_edit', args=[self.course.id]), post_data)
-
-    def test_create_course_user_roles_if_not_exist(self):
-        """
-        Verify that course user roles created if default roles exist on viewing detail page.
-        """
-        self._assign_user_permission()
-
-        default_roles = [
-            PublisherUserRole.MarketingReviewer, PublisherUserRole.ProjectCoordinator, PublisherUserRole.Publisher
-        ]
-        self.assertEqual(self.course.course_user_roles.filter(role__in=default_roles).count(), 0)
-
-        factories.OrganizationUserRoleFactory(
-            organization=self.organization_extension.organization, role=PublisherUserRole.MarketingReviewer
-        )
-        factories.OrganizationUserRoleFactory(
-            organization=self.organization_extension.organization, role=PublisherUserRole.ProjectCoordinator
-        )
-        factories.OrganizationUserRoleFactory(
-            organization=self.organization_extension.organization, role=PublisherUserRole.Publisher
-        )
-
-        self.client.get(self.detail_page_url)
-
-        expected_count = self.course.course_user_roles.filter(course=self.course, role__in=default_roles).count()
-        self.assertEqual(len(default_roles), expected_count)
 
 
 @ddt.ddt
@@ -3233,7 +3181,7 @@ class CreateAdminImportCourseTest(TestCase):
         self._make_users_valid(True)
         post_data = {'start_id': 100}
         response = self.client.post(self.page_url, post_data)
-        self.assertContains(response, 'Invalid Course ID')
+        self.assertContains(response, 'Course matching query does not exist.')
 
     def test_import_with_failure(self):
         """ Verify page shows error in case of any error. """
@@ -3241,6 +3189,41 @@ class CreateAdminImportCourseTest(TestCase):
         post_data = {'start_id': self.course.pk}
         response = self.client.post(self.page_url, post_data)
         self.assertContains(response, 'Some error occurred')
+
+    def test_course_user_roles_creation(self):
+        """ Verify course add the course-users roles after importing the course. """
+        # organization should be available for import
+        organization = OrganizationFactory()
+        self.course.authoring_organizations.add(organization)
+        self._add_org_roles(organization)
+        self._make_users_valid(True)
+
+        post_data = {'start_id': self.course.pk}
+        response = self.client.post(self.page_url, post_data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Course Imported')
+
+        default_roles = [
+            PublisherUserRole.MarketingReviewer, PublisherUserRole.ProjectCoordinator, PublisherUserRole.Publisher
+        ]
+        publisher_course = Course.objects.get(course_metadata_pk=self.course.pk)
+        expected_count = publisher_course.course_user_roles.filter(role__in=default_roles).count()
+        self.assertEqual(len(default_roles), expected_count)
+
+    def test_course_user_roles_without_organization_extension(self):
+        """ Verify that course import works fine even without org extension. """
+
+        # organization should be available for import
+        organization = OrganizationFactory()
+        self.course.authoring_organizations.add(organization)
+        self._make_users_valid(True)
+
+        post_data = {'start_id': self.course.pk}
+        response = self.client.post(self.page_url, post_data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Course Imported')
 
     def _make_users_valid(self, switch):
         """ make user eligible for the page."""
@@ -3252,3 +3235,19 @@ class CreateAdminImportCourseTest(TestCase):
 
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         return self.client.get(self.page_url)
+
+    def _add_org_roles(self, organization):
+        """ Create default roles for the organization """
+
+        organization_extension = factories.OrganizationExtensionFactory(organization=organization)
+        self.user.groups.add(organization_extension.group)
+
+        factories.OrganizationUserRoleFactory(
+            organization=organization_extension.organization, role=PublisherUserRole.MarketingReviewer
+        )
+        factories.OrganizationUserRoleFactory(
+            organization=organization_extension.organization, role=PublisherUserRole.ProjectCoordinator
+        )
+        factories.OrganizationUserRoleFactory(
+            organization=organization_extension.organization, role=PublisherUserRole.Publisher
+        )

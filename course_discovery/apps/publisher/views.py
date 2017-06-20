@@ -155,11 +155,6 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
 
         user = self.request.user
         course_run = CourseRunWrapper(self.get_object())
-        course = course_run.course
-        organization = course.organization_extension.organization
-
-        if organization.organization_user_roles.filter(role__in=DEFAULT_ROLES).count() == len(DEFAULT_ROLES):
-            mixins.check_and_create_course_user_roles(course)
 
         context['object'] = course_run
         context['comment_object'] = course_run
@@ -444,10 +439,6 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
 
         user = self.request.user
         course = self.object
-        organization = course.organization_extension.organization
-
-        if organization.organization_user_roles.filter(role__in=DEFAULT_ROLES).count() == len(DEFAULT_ROLES):
-            mixins.check_and_create_course_user_roles(course)
 
         context['can_edit'] = mixins.check_course_organization_permission(
             user, course, OrganizationExtension.EDIT_COURSE
@@ -958,11 +949,22 @@ class AdminImportCourse(mixins.LoginRequiredMixin, TemplateView):
                 publisher_course = Course.objects.filter(course_metadata_pk=start_id)
 
                 if publisher_course.exists():
+                    publisher_course = publisher_course.first()
+                    organization = publisher_course.organizations.first()
+
+                    # if org has default organization then add its roles.
+                    if (
+                        hasattr(organization, 'organization_extension') and
+                        organization.organization_user_roles.filter(
+                            role__in=DEFAULT_ROLES).count() == len(DEFAULT_ROLES)
+                    ):
+                        mixins.check_and_create_course_user_roles(publisher_course)
+
                     messages.success(request, 'Course Imported')
                 else:
                     messages.error(request, 'Some error occurred. Please check authoring organizations of course.')
 
-            except CourseMetaData.DoesNotExist:
-                messages.error(request, 'Invalid Course ID')
+            except Exception as ex:  # pylint: disable=broad-except
+                messages.error(request, str(ex))
 
         return super(AdminImportCourse, self).get(request, args, **kwargs)
