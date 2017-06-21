@@ -46,7 +46,7 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
 
     def test_affiliate_with_supported_seats(self):
         """ Verify that endpoint returns course runs for verified and professional seats only. """
-        with self.assertNumQueries(7):
+        with self.assertNumQueries(8):
             response = self.client.get(self.affiliate_url)
 
         self.assertEqual(response.status_code, 200)
