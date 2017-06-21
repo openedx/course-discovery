@@ -300,6 +300,17 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
             "Short description specific for this run of a course. Leave this value blank to default to "
             "the parent course's short_description attribute."))
 
+    title_override = models.CharField(
+        max_length=255, default=None, null=True, blank=True,
+        help_text=_(
+            "Title specific for this run of a course. Leave this value blank to default to the parent course's title."))
+
+    full_description_override = models.TextField(
+        default=None, null=True, blank=True,
+        help_text=_(
+            "Full description specific for this run of a course. Leave this value blank to default to "
+            "the parent course's full_description attribute."))
+
     history = HistoricalRecords()
 
     def __str__(self):
