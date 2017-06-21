@@ -434,7 +434,7 @@ ELASTICSEARCH_INDEX_SETTINGS = {
 SYNONYMS_MODULE = 'course_discovery.settings.synonyms'
 
 # Haystack configuration (http://django-haystack.readthedocs.io/en/v2.5.0/settings.html)
-HAYSTACK_ITERATOR_LOAD_PER_QUERY = 200
+HAYSTACK_ITERATOR_LOAD_PER_QUERY = 5000
 
 HAYSTACK_CONNECTIONS = {
     'default': {
