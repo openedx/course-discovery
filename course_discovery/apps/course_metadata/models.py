@@ -333,7 +333,7 @@ class Course(TimeStampedModel):
             QuerySet
         """
         query = clean_query(query)
-        results = SearchQuerySet().models(cls).raw_search(query)
+        results = SearchQuerySet().models(cls).raw_search(query).load_all()
         ids = {result.pk for result in results}
 
         if waffle.switch_is_active('log_course_search_queries'):
