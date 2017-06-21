@@ -187,14 +187,28 @@ class OrganizationUserRoleAdminTests(TestCase):
         course3.organizations.add(self.organization)
         factories.CourseUserRoleFactory(course=course3, role=PublisherUserRole.MarketingReviewer, user=user)
 
+        # for course 4 add course roles
+        project_coordinator = UserFactory()
+        course4 = CourseFactory()
+        course4.organizations.add(self.organization)
+        factories.CourseUserRoleFactory(course=course4, role=PublisherUserRole.ProjectCoordinator,
+                                        user=project_coordinator)
+
         test_user = UserFactory()
         post_data = {
             'organization': self.organization.id, 'user': test_user.id, 'role': PublisherUserRole.MarketingReviewer
         }
         self.client.post(self.admin_page_url, data=post_data)
 
-        # for course-3 course-user-role remains there.
-        self.assertTrue(course3.course_user_roles.filter(role=PublisherUserRole.MarketingReviewer, user=user).exists())
+        # for course-4 course-user-role does not change
+        self.assertTrue(
+            course4.course_user_roles.filter(role=PublisherUserRole.ProjectCoordinator,
+                                             user=project_coordinator).exists()
+        )
+
+        # for course-3 course-user-role also changes to test_user
+        self.assertTrue(course3.course_user_roles.filter(role=PublisherUserRole.MarketingReviewer,
+                                                         user=test_user).exists())
 
         self.assertTrue(
             self.course1.course_user_roles.filter(role=PublisherUserRole.MarketingReviewer, user=test_user).exists()
