@@ -1,13 +1,16 @@
 import ddt
 import mock
 from django.core.management import CommandError, call_command
+from django.db import IntegrityError
 from django.test import TestCase
 from testfixtures import LogCapture
 
+from course_discovery.apps.course_metadata.models import CourseRun
 from course_discovery.apps.course_metadata.tests.factories import (CourseFactory, CourseRunFactory, OrganizationFactory,
                                                                    PersonFactory, SeatFactory, SubjectFactory)
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.dataloader.create_courses import logger as dataloader_logger
+from course_discovery.apps.publisher.dataloader.update_course_runs import logger as update_logger
 from course_discovery.apps.publisher.models import Course as Publisher_Course
 from course_discovery.apps.publisher.models import CourseRun as Publisher_CourseRun
 from course_discovery.apps.publisher.tests import factories
@@ -56,7 +59,7 @@ class ImportCoursesTests(TestCase):
         self.course_2 = CourseFactory()
 
         self.command_name = 'import_metadata_courses'
-        self.command_args = ['--start_id={}'.format(self.course.id), '--end_id={}'.format(format(self.course.id))]
+        self.command_args = ['--start_id={}'.format(self.course.id), '--end_id={}'.format(self.course.id)]
 
     @mock.patch('course_discovery.apps.publisher.dataloader.create_courses.process_course')
     def test_query_return_correct_course(self, process_course):
@@ -101,7 +104,7 @@ class CreateCoursesTests(TestCase):
         self.course = CourseFactory(subjects=self.subjects)
 
         self.command_name = 'import_metadata_courses'
-        self.command_args = ['--start_id={}'.format(self.course.id), '--end_id={}'.format(format(self.course.id))]
+        self.command_args = ['--start_id={}'.format(self.course.id), '--end_id={}'.format(self.course.id)]
 
         # create multiple course-runs against course.
         course_runs = CourseRunFactory.create_batch(
@@ -294,3 +297,111 @@ class CreateCoursesTests(TestCase):
             sorted([(seat.type, seat.price, seat.credit_provider, seat.currency) for seat in metadata_seats]),
             sorted([(seat.type, seat.price, seat.credit_provider, seat.currency) for seat in publisher_seats])
         )
+
+
+# pylint: disable=no-member
+@ddt.ddt
+class UpdateCourseRunsTests(TestCase):
+    def setUp(self):
+        super(UpdateCourseRunsTests, self).setUp()
+
+        self.update_command_name = 'update_publisher_course_runs'
+        # create multiple course-runs against course.
+
+        self.metadata_course_runs = []
+        self.publisher_runs = []
+        # add metadata course-runs and add publisher course runs
+        for i in range(1, 3):
+            course_run = CourseRunFactory(
+                short_description_override='short description {}'.format(i),
+                full_description_override='full description {}'.format(i),
+                title_override='title {}'.format(i)
+            )
+
+            self.metadata_course_runs.append(course_run)
+            self.publisher_runs.append(factories.CourseRunFactory(lms_course_id=course_run.key))
+
+        self.command_args = [
+            '--start_id={}'.format(self.publisher_runs[0].id), '--end_id={}'.format(self.publisher_runs[-1].id)
+        ]
+
+    def test_course_run_update_successfully(self):
+        """ Verify that publisher course run updates successfully."""
+        self.assert_publisher_course_runs_before_update()
+        call_command(self.update_command_name, *self.command_args)
+        self.assert_updated_course_runs()
+
+    def test_course_run_does_not_update_if_values_empty(self):
+        """ Verify that publisher course run not updates."""
+        self.assert_publisher_course_runs_before_update()
+
+        for run in self.metadata_course_runs:
+            course_run = CourseRun.objects.filter(key=run.key).first()
+            course_run.short_description_override = None
+            course_run.title_override = None
+            course_run.full_description_override = None
+            course_run.save()
+        call_command(self.update_command_name, *self.command_args)
+
+        # values remains unchanged.
+        self.assert_publisher_course_runs_before_update()
+
+    def test_successfully_log_message(self):
+        """ Verify that script logs the successful message after import."""
+        command_args = [
+            '--start_id={}'.format(self.publisher_runs[0].id), '--end_id={}'.format(self.publisher_runs[0].id)
+        ]
+        with LogCapture(update_logger.name) as log_capture:
+            call_command(self.update_command_name, *command_args)
+            log_capture.check(
+                (
+                    update_logger.name,
+                    'INFO',
+                    'Update course-run import with id [{}], lms_course_id [{}].'.format(
+                        self.publisher_runs[0].id, self.publisher_runs[0].lms_course_id
+                    )
+                )
+            )
+
+    def test_script_logs_error_message(self):
+        """ Verify that script logs the error message if any error occur."""
+        command_args = [
+            '--start_id={}'.format(self.publisher_runs[0].id), '--end_id={}'.format(self.publisher_runs[0].id)
+        ]
+
+        with mock.patch.object(Publisher_CourseRun, "save") as mock_method:
+            mock_method.side_effect = IntegrityError
+            with LogCapture(update_logger.name) as log_capture:
+                call_command(self.update_command_name, *command_args)
+                log_capture.check(
+                    (
+                        update_logger.name,
+                        'ERROR',
+                        'Exception appear in updating course-run-id [{}].'.format(
+                            self.publisher_runs[0].id
+                        )
+                    )
+                )
+
+    def assert_publisher_course_runs_before_update(self):
+        """ Assert method to verify the course runs before updation."""
+        for course_run in self.metadata_course_runs:
+            publisher_course_run = Publisher_CourseRun.objects.filter(lms_course_id=course_run.key).first()
+            self.assertNotEqual(publisher_course_run.short_description_override, course_run.short_description_override)
+            self.assertNotEqual(publisher_course_run.title_override, course_run.title_override)
+            self.assertNotEqual(publisher_course_run.full_description_override, course_run.full_description_override)
+
+    def assert_updated_course_runs(self):
+        """ Assert method to verify the course runs after updation."""
+        for course_run in self.metadata_course_runs:
+            publisher_course_run = Publisher_CourseRun.objects.filter(lms_course_id=course_run.key).first()
+
+            self.assertEqual(
+                publisher_course_run.short_description_override, course_run.short_description_override
+            )
+            self.assertEqual(
+                publisher_course_run.title_override, course_run.title_override
+            )
+            self.assertEqual(
+                publisher_course_run.full_description_override, course_run.full_description_override
+            )
