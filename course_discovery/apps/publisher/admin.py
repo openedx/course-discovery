@@ -53,10 +53,14 @@ class OrganizationUserRoleAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         obj.save()
         publisher_courses = obj.organization.publisher_courses
+
         courses_without_role = publisher_courses.exclude(course_user_roles__role=obj.role)
+
         CourseUserRole.objects.bulk_create(
             [CourseUserRole(course=course, user=obj.user, role=obj.role) for course in courses_without_role]
         )
+
+        CourseUserRole.objects.filter(course__organizations__in=[obj.organization], role=obj.role).update(user=obj.user)
 
         # Assign user a group according to its role.
         group = Group.objects.get(name=self.role_groups_dict.get(obj.role))
