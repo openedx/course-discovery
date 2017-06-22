@@ -12,9 +12,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-14 17:09+0500\n"
-"PO-Revision-Date: 2017-06-16 21:51+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2017-06-21 13:39+0500\n"
+"PO-Revision-Date: 2017-06-21 12:50+0000\n"
+"Last-Translator: YAHAYA MWAVURIZI <translations_1@camara.ie>\n"
 "Language-Team: Swahili (Kenya) (http://www.transifex.com/open-edx/edx-platform/language/sw_KE/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -317,7 +317,7 @@ msgid ""
 "to the parent course's title."
 msgstr ""
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/publisher/models.py
 msgid ""
 "Short description specific for this run of a course. Leave this value blank "
 "to default to the parent course's short_description attribute."
@@ -563,7 +563,7 @@ msgstr "{role_name} imebadilishwa kuwa {course_title}"
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Legal review requested: {title}"
-msgstr ""
+msgstr "Mapitio ya kisheria yameombwa: {title}"
 
 #: apps/publisher/emails.py
 msgid "Course team"
@@ -634,7 +634,7 @@ msgstr "Kiwango"
 
 #: apps/publisher/forms.py templates/publisher/course_detail.html
 msgid "What You Will Learn"
-msgstr ""
+msgstr "Utakayojifunza"
 
 #: apps/publisher/forms.py
 msgid "Learner Testimonial"
@@ -646,11 +646,11 @@ msgstr "Muhtasari"
 
 #: apps/publisher/forms.py
 msgid "This course title already exists"
-msgstr ""
+msgstr "Jina hili la kozi tayari lipo"
 
 #: apps/publisher/forms.py
 msgid "This course number already exists"
-msgstr ""
+msgstr "Namba ya kozi hii tayari ipo"
 
 #: apps/publisher/forms.py
 msgid "Find Course"
@@ -682,7 +682,7 @@ msgstr ""
 
 #: apps/publisher/forms.py templates/publisher/course_run_detail/_drupal.html
 msgid "MicroMasters"
-msgstr ""
+msgstr "MicroMasters"
 
 #: apps/publisher/forms.py
 msgid "Professional Certificate"
@@ -805,15 +805,15 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Level 1"
-msgstr ""
+msgstr "Hatua ya 1"
 
 #: apps/publisher/models.py
 msgid "Level 2"
-msgstr ""
+msgstr "Hatua ya 2"
 
 #: apps/publisher/models.py
 msgid "Level 3"
-msgstr ""
+msgstr "Hatua ya 3"
 
 #: apps/publisher/models.py
 msgid "Level 4"
@@ -825,11 +825,11 @@ msgstr "Daraja la 5"
 
 #: apps/publisher/models.py
 msgid "Content Language"
-msgstr ""
+msgstr "Lugha ya Maudhui ya somo"
 
 #: apps/publisher/models.py
 msgid "Length of course, in number of weeks"
-msgstr ""
+msgstr "Urefu wa kozi, kwa idadi ya wiki"
 
 #: apps/publisher/models.py
 msgid ""
@@ -1342,7 +1342,6 @@ msgstr ""
 
 #: templates/publisher/_render_optional_field.html
 #: templates/publisher/course_detail.html
-#: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_credit_seat.html
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_studio.html
