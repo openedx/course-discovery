@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-14 17:09+0500\n"
+"POT-Creation-Date: 2017-06-21 13:39+0500\n"
 "PO-Revision-Date: 2017-06-16 21:51+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Turkish (Turkey) (http://www.transifex.com/open-edx/edx-platform/language/tr_TR/)\n"
@@ -315,7 +315,7 @@ msgid ""
 "to the parent course's title."
 msgstr ""
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/publisher/models.py
 msgid ""
 "Short description specific for this run of a course. Leave this value blank "
 "to default to the parent course's short_description attribute."
@@ -1340,7 +1340,6 @@ msgstr ""
 
 #: templates/publisher/_render_optional_field.html
 #: templates/publisher/course_detail.html
-#: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_credit_seat.html
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_studio.html
