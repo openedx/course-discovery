@@ -63,7 +63,6 @@ class BaseCourseForm(forms.ModelForm):
                 field_classes = 'field-input input-select'
             if isinstance(field, forms.DateTimeField):
                 field_classes = '{} add-pikaday'.format(field_classes)
-                field.input_formats = ['YYYY-MM-DDTHH:mm:ss']
             if isinstance(field, forms.ModelMultipleChoiceField):
                 field_classes = 'field-input'
 

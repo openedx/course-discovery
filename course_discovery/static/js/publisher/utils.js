@@ -4,11 +4,11 @@ function addDatePicker() {
         if (el.getAttribute('datepicker-initialized') !== 'true') {
             new Pikaday({
                 field: el,
-                format: 'YYYY-MM-DD hh:mm:ss',
+                format: 'YYYY-MM-DD HH:mm:ss',
                 defaultDate: $(el).val(),
                 setDefaultDate: true,
                 showTime: true,
-                use24hour: false,
+                use24hour: true,
                 autoClose: true
             });
             el.setAttribute('datepicker-initialized', 'true');
