@@ -1,5 +1,5 @@
 $(document).on('change', '#id_select_revisions', function (e) {
-    var revisionUrl = $(this.selectedOptions).data('revisionUrl');
+    var revisionUrl = $(this).find(':selected').data('revisionUrl');
     // on changing the revision from drop-down set the href of button.
     $('#id_open_revision').prop("href", this.value);
 
@@ -17,7 +17,7 @@ $(document).on('change', '#id_select_revisions', function (e) {
     //show revert button for any revision except current version.
     if (this.selectedIndex > 0) {
         $('#span_revert_revision').show();
-        btn_edit.prop("href", $(this.selectedOptions).data('revisionId'));
+        btn_edit.prop("href", $(this).find(':selected').data('revisionId'));
         var reversionValue = $('select#id_select_revisions option:selected').data('reversionValue');
 
         //show accept-all button.
