@@ -8,9 +8,8 @@ from course_discovery.apps.publisher.choices import InternalUserRole
 from course_discovery.apps.publisher.constants import (INTERNAL_USER_GROUP_NAME, PARTNER_MANAGER_GROUP_NAME,
                                                        PROJECT_COORDINATOR_GROUP_NAME, PUBLISHER_GROUP_NAME,
                                                        REVIEWER_GROUP_NAME)
-from course_discovery.apps.publisher.forms import (CourseRunAdminForm, CourseUserRoleForm, OrganizationExtensionForm,
-                                                   OrganizationUserRoleForm, PublisherUserCreationForm,
-                                                   UserAttributesAdminForm)
+from course_discovery.apps.publisher.forms import (CourseRunAdminForm, OrganizationExtensionForm,
+                                                   PublisherUserCreationForm, UserAttributesAdminForm)
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
                                                     OrganizationExtension, OrganizationUserRole, PublisherUser, Seat,
                                                     UserAttributes)
@@ -18,8 +17,7 @@ from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRun
 
 @admin.register(CourseUserRole)
 class CourseUserRoleAdmin(admin.ModelAdmin):
-    form = CourseUserRoleForm
-    raw_id_fields = ('changed_by',)
+    raw_id_fields = ('changed_by', 'course', 'user',)
     list_display = ['role', 'course', 'user']
     search_fields = ['course__title']
 
@@ -42,7 +40,7 @@ class UserAttributesAdmin(admin.ModelAdmin):
 
 @admin.register(OrganizationUserRole)
 class OrganizationUserRoleAdmin(admin.ModelAdmin):
-    form = OrganizationUserRoleForm
+    raw_id_fields = ('user', 'organization',)
     list_display = ['role', 'organization', 'user']
     search_fields = ['organization__name']
     role_groups_dict = {
