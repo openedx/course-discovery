@@ -143,7 +143,7 @@ class BaseMarketingSitePublisher:
         response = self.client.api_session.put(node_url, data=node_data)
 
         if response.status_code != 200:
-            raise NodeEditError
+            raise NodeEditError({"response_text": response.text, "response_status": response.status_code})
 
     def delete_node(self, node_id):
         """
