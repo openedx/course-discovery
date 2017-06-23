@@ -10,7 +10,6 @@ from course_discovery.apps.course_metadata.exceptions import (
 from course_discovery.apps.course_metadata.forms import CourseAdminForm, ProgramAdminForm
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 
-
 PUBLICATION_FAILURE_MSG_TPL = _(
     'An error occurred while publishing the {model} to the marketing site. '
     'Please try again. If the error persists, please contact the Engineering Team.'
@@ -136,6 +135,7 @@ class ProgramAdmin(admin.ModelAdmin):
     list_filter = ('partner', 'type', 'status', ProgramEligibilityFilter, 'hidden',)
     ordering = ('uuid', 'title', 'status')
     readonly_fields = ('uuid', 'custom_course_runs_display', 'excluded_course_runs',)
+    raw_id_fields = ('video',)
     search_fields = ('uuid', 'title', 'marketing_slug')
 
     filter_horizontal = ('job_outlook_items', 'expected_learning_items',)
@@ -223,7 +223,6 @@ class FAQAdmin(admin.ModelAdmin):
 
 
 class OrganizationUserRoleInline(admin.TabularInline):
-
     # course-meta-data models are importing in publisher app. So just for safe side
     # to avoid any circular issue importing the publisher model here.
     from course_discovery.apps.publisher.models import OrganizationUserRole
@@ -259,6 +258,12 @@ class PersonAdmin(admin.ModelAdmin):
     search_fields = ('uuid', 'family_name', 'given_name', 'slug',)
 
 
+@admin.register(Video)
+class VideoAdmin(admin.ModelAdmin):
+    list_display = ('src', 'description',)
+    search_fields = ('src', 'description',)
+
+
 class NamedModelAdmin(admin.ModelAdmin):
     list_display = ('name',)
     ordering = ('name',)
@@ -270,6 +275,6 @@ for model in (LevelType, Prerequisite,):
     admin.site.register(model, NamedModelAdmin)
 
 # Register remaining models using basic ModelAdmin classes
-for model in (Image, Video, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, CourseRunSocialNetwork,
-              JobOutlookItem, DataLoaderConfig):
+for model in (Image, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, CourseRunSocialNetwork, JobOutlookItem,
+              DataLoaderConfig):
     admin.site.register(model)

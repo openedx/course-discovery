@@ -54,12 +54,6 @@ class ProgramAdminForm(forms.ModelForm):
                     'class': 'sortable-select',
                 }
             ),
-            'video': autocomplete.ModelSelect2(
-                url='admin_metadata:video-autocomplete',
-                attrs={
-                    'data-minimum-input-length': 3,
-                }
-            ),
         }
 
     def __init__(self, *args, **kwargs):
