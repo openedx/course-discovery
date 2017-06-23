@@ -7,7 +7,8 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from testfixtures import LogCapture
 
-from course_discovery.apps.api.v1.tests.test_views.mixins import PartnerMixin, SerializationMixin
+from course_discovery.apps.api.tests.mixins import SiteMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
 from course_discovery.apps.api.v1.views.people import logger as people_logger
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.models import Person
@@ -19,7 +20,7 @@ User = get_user_model()
 
 
 @ddt.ddt
-class PersonViewSetTests(SerializationMixin, PartnerMixin, APITestCase):
+class PersonViewSetTests(SerializationMixin, SiteMixin, APITestCase):
     """ Tests for the person resource. """
     people_list_url = reverse('api:v1:person-list')
 

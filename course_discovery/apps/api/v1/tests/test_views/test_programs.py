@@ -24,6 +24,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
     def setUp(self):
         super(ProgramViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.request.user = self.user
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
         # Clear the cache between test cases, so they don't interfere with each other.

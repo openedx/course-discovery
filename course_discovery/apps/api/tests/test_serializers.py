@@ -21,7 +21,7 @@ from course_discovery.apps.api.serializers import (
     ProgramSerializer, ProgramTypeSerializer, SeatSerializer, SubjectSerializer, TypeaheadCourseRunSearchSerializer,
     TypeaheadProgramSearchSerializer, VideoSerializer
 )
-from course_discovery.apps.api.tests.mixins import PartnerMixin
+from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
@@ -97,7 +97,7 @@ class CatalogSerializerTests(ElasticsearchTestMixin, TestCase):
         self.assertEqual(User.objects.filter(username=username).count(), 0)  # pylint: disable=no-member
 
 
-class MinimalCourseSerializerTests(PartnerMixin, TestCase):
+class MinimalCourseSerializerTests(SiteMixin, TestCase):
     serializer_class = MinimalCourseSerializer
 
     def get_expected_data(self, course, request):

@@ -155,7 +155,9 @@ class CourseRunSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
         return course_run, response_data
 
     def build_facet_url(self, params):
-        return 'http://testserver{path}?{query}'.format(path=self.faceted_path, query=urllib.parse.urlencode(params))
+        return 'http://testserver.fake{path}?{query}'.format(
+            path=self.faceted_path, query=urllib.parse.urlencode(params)
+        )
 
     def test_invalid_query_facet(self):
         """ Verify the endpoint returns HTTP 400 if an invalid facet is requested. """
