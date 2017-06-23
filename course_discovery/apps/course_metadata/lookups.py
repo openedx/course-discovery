@@ -6,8 +6,7 @@ from django.db.models import Q
 from django.template.loader import render_to_string
 
 from course_discovery.apps.publisher.mixins import get_user_organizations
-
-from .models import Course, CourseRun, Organization, Person, Video
+from .models import Course, CourseRun, Organization, Person
 
 
 class CourseAutocomplete(autocomplete.Select2QuerySetView):
@@ -41,18 +40,6 @@ class OrganizationAutocomplete(autocomplete.Select2QuerySetView):
 
             if self.q:
                 qs = qs.filter(Q(key__icontains=self.q) | Q(name__icontains=self.q))
-
-            return qs
-
-        return []
-
-
-class VideoAutocomplete(autocomplete.Select2QuerySetView):
-    def get_queryset(self):
-        if self.request.user.is_authenticated() and self.request.user.is_staff:
-            qs = Video.objects.all()
-            if self.q:
-                qs = qs.filter(Q(description__icontains=self.q) | Q(src__icontains=self.q))
 
             return qs
 

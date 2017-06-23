@@ -6,8 +6,9 @@ from django.test import TestCase
 from django.urls import reverse
 
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
-from course_discovery.apps.course_metadata.tests.factories import (CourseFactory, CourseRunFactory, OrganizationFactory,
-                                                                   PersonFactory, PositionFactory)
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, PositionFactory
+)
 from course_discovery.apps.publisher.tests import factories
 
 
@@ -106,34 +107,6 @@ class AutocompleteTests(TestCase):
         """ Verify Organization autocomplete returns empty list for un-authorized users. """
         self._make_user_non_staff()
         response = self.client.get(reverse('admin_metadata:organisation-autocomplete'))
-        data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(data['results'], [])
-
-    @ddt.data('dummyurl', 'testing')
-    def test_video_autocomplete(self, search_key):
-        """ Verify video autocomplete returns the data. """
-        response = self.client.get(reverse('admin_metadata:video-autocomplete'))
-        data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(data['results']), 6)
-
-        self.courses[0].video.src = 'http://www.youtube.com/dummyurl'
-        self.courses[0].video.description = 'testing description'
-        self.courses[0].video.save()
-
-        response = self.client.get(
-            reverse('admin_metadata:video-autocomplete') + '?q={key}'.format(
-                key=search_key
-            )
-        )
-        data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(data['results'][0]['text'], str(self.courses[0].video))
-        self.assertEqual(len(data['results']), 1)
-
-    def test_video_autocomplete_un_authorize_user(self):
-        """ Verify video autocomplete returns empty list for un-authorized users. """
-        self._make_user_non_staff()
-        response = self.client.get(reverse('admin_metadata:video-autocomplete'))
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data['results'], [])
 
