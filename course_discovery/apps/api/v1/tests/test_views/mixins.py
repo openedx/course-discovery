@@ -12,7 +12,7 @@ from course_discovery.apps.api.serializers import (
     CourseWithProgramsSerializer, FlattenedCourseRunWithCourseSerializer, MinimalProgramSerializer,
     OrganizationSerializer, PersonSerializer, ProgramSerializer, ProgramTypeSerializer
 )
-from course_discovery.apps.api.tests.mixins import PartnerMixin
+from course_discovery.apps.api.tests.mixins import SiteMixin
 
 
 class SerializationMixin(object):
@@ -92,5 +92,5 @@ class OAuth2Mixin(object):
         )
 
 
-class APITestCase(PartnerMixin, RestAPITestCase):
+class APITestCase(SiteMixin, RestAPITestCase):
     pass

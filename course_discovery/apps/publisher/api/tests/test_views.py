@@ -4,7 +4,6 @@ from urllib.parse import quote
 
 import ddt
 from django.contrib.auth.models import Group
-from django.contrib.sites.models import Site
 from django.core import mail
 from django.db import IntegrityError
 from django.test import TestCase
@@ -14,6 +13,7 @@ from mock import mock, patch
 from opaque_keys.edx.keys import CourseKey
 from testfixtures import LogCapture
 
+from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
@@ -28,7 +28,7 @@ from course_discovery.apps.publisher.tests import JSON_CONTENT_TYPE, factories
 
 
 @ddt.ddt
-class CourseRoleAssignmentViewTests(TestCase):
+class CourseRoleAssignmentViewTests(SiteMixin, TestCase):
 
     def setUp(self):
         super(CourseRoleAssignmentViewTests, self).setUp()
@@ -139,7 +139,7 @@ class CourseRoleAssignmentViewTests(TestCase):
         self.assertEqual(len(mail.outbox), 1)
 
 
-class OrganizationGroupUserViewTests(TestCase):
+class OrganizationGroupUserViewTests(SiteMixin, TestCase):
 
     def setUp(self):
         super(OrganizationGroupUserViewTests, self).setUp()
@@ -189,7 +189,7 @@ class OrganizationGroupUserViewTests(TestCase):
         )
 
 
-class UpdateCourseRunViewTests(TestCase):
+class UpdateCourseRunViewTests(SiteMixin, TestCase):
 
     def setUp(self):
         super(UpdateCourseRunViewTests, self).setUp()
@@ -313,7 +313,7 @@ class UpdateCourseRunViewTests(TestCase):
 
         body = mail.outbox[0].body.strip()
         self.assertIn(expected_body, body)
-        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=object_path)
+        page_url = 'https://{host}{path}'.format(host=self.site.domain.strip('/'), path=object_path)
         self.assertIn(page_url, body)
 
     def test_update_preview_url(self):
@@ -377,7 +377,7 @@ class UpdateCourseRunViewTests(TestCase):
         self.assertEqual(len(mail.outbox), 0)
 
 
-class CourseRevisionDetailViewTests(TestCase):
+class CourseRevisionDetailViewTests(SiteMixin, TestCase):
 
     def setUp(self):
         super(CourseRevisionDetailViewTests, self).setUp()
@@ -431,7 +431,7 @@ class CourseRevisionDetailViewTests(TestCase):
         return self.client.get(path=course_revision_path)
 
 
-class ChangeCourseStateViewTests(TestCase):
+class ChangeCourseStateViewTests(SiteMixin, TestCase):
 
     def setUp(self):
         super(ChangeCourseStateViewTests, self).setUp()
@@ -530,7 +530,7 @@ class ChangeCourseStateViewTests(TestCase):
 
         body = mail.outbox[0].body.strip()
         object_path = reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id})
-        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=object_path)
+        page_url = 'https://{host}{path}'.format(host=self.site.domain.strip('/'), path=object_path)
         self.assertIn(page_url, body)
 
     def test_change_course_state_with_error(self):
@@ -587,7 +587,7 @@ class ChangeCourseStateViewTests(TestCase):
         self._assert_email_sent(course_team_user, subject)
 
 
-class ChangeCourseRunStateViewTests(TestCase):
+class ChangeCourseRunStateViewTests(SiteMixin, TestCase):
 
     def setUp(self):
         super(ChangeCourseRunStateViewTests, self).setUp()
@@ -796,7 +796,7 @@ class ChangeCourseRunStateViewTests(TestCase):
         self.assertIn('has been published', mail.outbox[0].body.strip())
 
 
-class RevertCourseByRevisionTests(TestCase):
+class RevertCourseByRevisionTests(SiteMixin, TestCase):
 
     def setUp(self):
         super(RevertCourseByRevisionTests, self).setUp()
@@ -860,7 +860,7 @@ class RevertCourseByRevisionTests(TestCase):
         return self.client.put(path=course_revision_path)
 
 
-class CoursesAutoCompleteTests(TestCase):
+class CoursesAutoCompleteTests(SiteMixin, TestCase):
     """ Tests for course autocomplete."""
 
     def setUp(self):
@@ -927,7 +927,7 @@ class CoursesAutoCompleteTests(TestCase):
         self.assertEqual(len(data['results']), expected_length)
 
 
-class AcceptAllByRevisionTests(TestCase):
+class AcceptAllByRevisionTests(SiteMixin, TestCase):
 
     def setUp(self):
         super(AcceptAllByRevisionTests, self).setUp()
