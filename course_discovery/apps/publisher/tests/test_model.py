@@ -6,6 +6,7 @@ from django.urls import reverse
 from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import assign_perm
 
+from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
@@ -510,7 +511,7 @@ class GroupOrganizationTests(TestCase):
 
 
 @ddt.ddt
-class CourseStateTests(TestCase):
+class CourseStateTests(SiteMixin, TestCase):
     """ Tests for the publisher `CourseState` model. """
 
     @classmethod
@@ -548,7 +549,7 @@ class CourseStateTests(TestCase):
         """
         self.assertNotEqual(self.course_state.name, state)
 
-        self.course_state.change_state(state=state, user=self.user)
+        self.course_state.change_state(state=state, user=self.user, site=self.site)
 
         self.assertEqual(self.course_state.name, state)
 
@@ -561,7 +562,7 @@ class CourseStateTests(TestCase):
         self.assertEqual(self.course_state.name, CourseStateChoices.Draft)
 
         with self.assertRaises(TransitionNotAllowed):
-            self.course_state.change_state(state=CourseStateChoices.Review, user=self.user)
+            self.course_state.change_state(state=CourseStateChoices.Review, user=self.user, site=self.site)
 
     def test_can_send_for_review(self):
         """
@@ -644,7 +645,7 @@ class CourseStateTests(TestCase):
 
 
 @ddt.ddt
-class CourseRunStateTests(TestCase):
+class CourseRunStateTests(SiteMixin, TestCase):
     """ Tests for the publisher `CourseRunState` model. """
 
     @classmethod
@@ -703,7 +704,7 @@ class CourseRunStateTests(TestCase):
         Verify that we can change course-run state according to workflow.
         """
         self.assertNotEqual(self.course_run_state.name, state)
-        self.course_run_state.change_state(state=state, user=self.user)
+        self.course_run_state.change_state(state=state, user=self.user, site=self.site)
         self.assertEqual(self.course_run_state.name, state)
 
     def test_with_invalid_parent_course_state(self):

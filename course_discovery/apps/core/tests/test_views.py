@@ -9,33 +9,23 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.encoding import force_text
 
+from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.constants import Status
-from course_discovery.apps.core.views import get_database_status
 
 User = get_user_model()
 
 
-class HealthTests(TestCase):
+class HealthTests(SiteMixin, TestCase):
     """Tests of the health endpoint."""
-
-    def test_getting_database_ok_status(self):
-        """Method should return the OK status."""
-        status = get_database_status()
-        self.assertEqual(status, Status.OK)
-
-    def test_getting_database_unavailable_status(self):
-        """Method should return the unavailable status when a DatabaseError occurs."""
-        with mock.patch('django.db.backends.base.base.BaseDatabaseWrapper.cursor', side_effect=DatabaseError):
-            status = get_database_status()
-            self.assertEqual(status, Status.UNAVAILABLE)
 
     def test_all_services_available(self):
         """Test that the endpoint reports when all services are healthy."""
         self._assert_health(200, Status.OK, Status.OK)
 
+    @mock.patch('django.contrib.sites.middleware.get_current_site', mock.Mock(return_value=None))
     def test_database_outage(self):
         """Test that the endpoint reports when the database is unavailable."""
-        with mock.patch('course_discovery.apps.core.views.get_database_status', return_value=Status.UNAVAILABLE):
+        with mock.patch('django.db.backends.base.base.BaseDatabaseWrapper.cursor', side_effect=DatabaseError):
             self._assert_health(503, Status.UNAVAILABLE, Status.UNAVAILABLE)
 
     def _assert_health(self, status_code, overall_status, database_status):
@@ -54,7 +44,7 @@ class HealthTests(TestCase):
         self.assertJSONEqual(force_text(response.content), expected_data)
 
 
-class AutoAuthTests(TestCase):
+class AutoAuthTests(SiteMixin, TestCase):
     """ Auto Auth view tests. """
     AUTO_AUTH_PATH = reverse('auto_auth')
 

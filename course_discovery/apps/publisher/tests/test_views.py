@@ -19,11 +19,13 @@ from opaque_keys.edx.keys import CourseKey
 from pytz import timezone
 from testfixtures import LogCapture
 
+from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory, OrganizationFactory, PersonFactory
+from course_discovery.apps.course_metadata.tests.factories import (CourseFactory, OrganizationFactory, PersonFactory,
+                                                                   SubjectFactory)
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import (CourseRunStateChoices, CourseStateChoices, InternalUserRole,
                                                      PublisherUserRole)
@@ -42,7 +44,7 @@ from course_discovery.apps.publisher_comments.tests.factories import CommentFact
 
 
 @ddt.ddt
-class CreateCourseViewTests(TestCase):
+class CreateCourseViewTests(SiteMixin, TestCase):
     """ Tests for the publisher `CreateCourseView`. """
 
     def setUp(self):
@@ -61,7 +63,6 @@ class CreateCourseViewTests(TestCase):
         self.course = factories.CourseFactory()
 
         self.course.organizations.add(self.organization_extension.organization)
-        self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
         # creating default organizations roles
@@ -269,7 +270,7 @@ class CreateCourseViewTests(TestCase):
         )
 
 
-class CreateCourseRunViewTests(TestCase):
+class CreateCourseRunViewTests(SiteMixin, TestCase):
     """ Tests for the publisher `UpdateCourseRunView`. """
 
     def setUp(self):
@@ -299,7 +300,6 @@ class CreateCourseRunViewTests(TestCase):
         current_datetime = datetime.now(timezone('US/Central'))
         self.course_run_dict['start'] = (current_datetime + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
         self.course_run_dict['end'] = (current_datetime + timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S')
-        self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
     def _pop_valuse_from_dict(self, data_dict, key_list):
@@ -562,7 +562,7 @@ class CreateCourseRunViewTests(TestCase):
 
 
 @ddt.ddt
-class CourseRunDetailTests(TestCase):
+class CourseRunDetailTests(SiteMixin, TestCase):
     """ Tests for the course-run detail view. """
 
     def setUp(self):
@@ -763,9 +763,8 @@ class CourseRunDetailTests(TestCase):
         """
         self.client.logout()
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        site = Site.objects.get(pk=settings.SITE_ID)
 
-        comment = CommentFactory(content_object=self.course_run, user=self.user, site=site)
+        comment = CommentFactory(content_object=self.course_run, user=self.user, site=self.site)
         response = self.client.get(self.page_url)
         self.assertEqual(response.status_code, 200)
         self._assert_credits_seats(response, self.wrapped_course_run.credit_seat)
@@ -779,7 +778,7 @@ class CourseRunDetailTests(TestCase):
         # test decline comment appearing on detail page also.
         decline_comment = CommentFactory(
             content_object=self.course_run,
-            user=self.user, site=site, comment_type=CommentTypeChoices.Decline_Preview
+            user=self.user, site=self.site, comment_type=CommentTypeChoices.Decline_Preview
         )
         response = self.client.get(self.page_url)
         self.assertContains(response, decline_comment.comment)
@@ -1233,12 +1232,12 @@ class CourseRunDetailTests(TestCase):
 
 # pylint: disable=attribute-defined-outside-init
 @ddt.ddt
-class DashboardTests(TestCase):
+class DashboardTests(SiteMixin, TestCase):
     """ Tests for the `Dashboard`. """
 
     def setUp(self):
         super(DashboardTests, self).setUp()
-
+        Site.objects.exclude(id=self.site.id).delete()
         self.group_internal = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
         self.group_project_coordinator = Group.objects.get(name=PROJECT_COORDINATOR_GROUP_NAME)
         self.group_reviewer = Group.objects.get(name=REVIEWER_GROUP_NAME)
@@ -1277,7 +1276,18 @@ class DashboardTests(TestCase):
 
     def _create_course_assign_role(self, state, user, role):
         """ Create course-run-state, course-user-role and return course-run. """
-        course_run_state = factories.CourseRunStateFactory(name=state, owner_role=role)
+        course = factories.CourseFactory(
+            primary_subject=SubjectFactory(partner=self.partner),
+            secondary_subject=SubjectFactory(partner=self.partner),
+            tertiary_subject=SubjectFactory(partner=self.partner)
+        )
+        course_run = factories.CourseRunFactory(course=course)
+        course_run_state = factories.CourseRunStateFactory(
+            name=state,
+            owner_role=role,
+            course_run=course_run
+        )
+
         factories.CourseUserRoleFactory(course=course_run_state.course_run.course, role=role, user=user)
         return course_run_state.course_run
 
@@ -1301,7 +1311,7 @@ class DashboardTests(TestCase):
         self.client.logout()
         self.client.login(username=UserFactory(), password=USER_PASSWORD)
         response = self.assert_dashboard_response(
-            studio_count=0, published_count=0, progress_count=0, preview_count=0, queries_executed=11
+            studio_count=0, published_count=0, progress_count=0, preview_count=0, queries_executed=12
         )
         self._assert_tabs_with_roles(response)
 
@@ -1309,7 +1319,7 @@ class DashboardTests(TestCase):
     def test_with_internal_group(self, tab):
         """ Verify that internal user can see courses assigned to the groups. """
         response = self.assert_dashboard_response(
-            studio_count=2, published_count=1, progress_count=2, preview_count=1, queries_executed=23
+            studio_count=2, published_count=1, progress_count=2, preview_count=1, queries_executed=24
         )
         self.assertContains(response, '<li role="tab" id="tab-{tab}" class="tab"'.format(tab=tab))
 
@@ -1324,7 +1334,7 @@ class DashboardTests(TestCase):
         self.course_run_1.course.organizations.add(self.organization_extension.organization)
 
         response = self.assert_dashboard_response(
-            studio_count=0, published_count=0, progress_count=0, preview_count=0, queries_executed=11
+            studio_count=0, published_count=0, progress_count=0, preview_count=0, queries_executed=12
         )
         self._assert_tabs_with_roles(response)
 
@@ -1349,14 +1359,14 @@ class DashboardTests(TestCase):
         )
 
         response = self.assert_dashboard_response(
-            studio_count=0, published_count=0, progress_count=2, preview_count=1, queries_executed=21
+            studio_count=0, published_count=0, progress_count=2, preview_count=1, queries_executed=22
         )
         self._assert_tabs_with_roles(response)
 
     def test_studio_request_course_runs_as_pc(self):
         """ Verify that PC user can see only those courses on which he is assigned as PC role. """
         response = self.assert_dashboard_response(
-            studio_count=2, published_count=1, progress_count=2, preview_count=1, queries_executed=23
+            studio_count=2, published_count=1, progress_count=2, preview_count=1, queries_executed=24
         )
         self._assert_tabs_with_roles(response)
 
@@ -1364,7 +1374,7 @@ class DashboardTests(TestCase):
         """ Verify that PC user can see only those courses on which he is assigned as PC role. """
         self.user1.groups.remove(self.group_project_coordinator)
         response = self.assert_dashboard_response(
-            studio_count=0, published_count=1, progress_count=2, preview_count=1, queries_executed=20
+            studio_count=0, published_count=1, progress_count=2, preview_count=1, queries_executed=21
         )
         self._assert_tabs_with_roles(response)
 
@@ -1375,7 +1385,7 @@ class DashboardTests(TestCase):
         self.course_run_2.lms_course_id = 'test-2'
         self.course_run_2.save()
         response = self.assert_dashboard_response(
-            studio_count=0, published_count=1, progress_count=2, preview_count=1, queries_executed=21
+            studio_count=0, published_count=1, progress_count=2, preview_count=1, queries_executed=22
         )
         self.assertContains(response, 'No courses are currently ready for a Studio URL.')
 
@@ -1384,7 +1394,7 @@ class DashboardTests(TestCase):
         self.course_run_3.course_run_state.name = CourseRunStateChoices.Draft
         self.course_run_3.course_run_state.save()
         response = self.assert_dashboard_response(
-            studio_count=3, published_count=0, progress_count=3, preview_count=1, queries_executed=24
+            studio_count=3, published_count=0, progress_count=3, preview_count=1, queries_executed=25
         )
         self.assertContains(response, 'No About pages have been published yet')
         self._assert_tabs_with_roles(response)
@@ -1392,7 +1402,7 @@ class DashboardTests(TestCase):
     def test_published_course_runs(self):
         """ Verify that published tab loads course runs list. """
         response = self.assert_dashboard_response(
-            studio_count=2, published_count=1, progress_count=2, preview_count=1, queries_executed=23
+            studio_count=2, published_count=1, progress_count=2, preview_count=1, queries_executed=24
         )
         self.assertContains(response, self.table_class.format(id='published'))
         self.assertContains(response, 'About pages for the following course runs have been published in the')
@@ -1410,7 +1420,7 @@ class DashboardTests(TestCase):
 
         # Verify that user cannot see any published course run
         self.assert_dashboard_response(
-            studio_count=0, published_count=0, progress_count=0, preview_count=0, queries_executed=15
+            studio_count=0, published_count=0, progress_count=0, preview_count=0, queries_executed=16
         )
 
         # assign user course role
@@ -1434,14 +1444,14 @@ class DashboardTests(TestCase):
         publisher_admin.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         self.client.login(username=publisher_admin.username, password=USER_PASSWORD)
         response = self.assert_dashboard_response(
-            studio_count=4, published_count=1, progress_count=3, preview_count=1, queries_executed=20
+            studio_count=4, published_count=1, progress_count=3, preview_count=1, queries_executed=21
         )
         self._assert_tabs_with_roles(response)
 
     def test_with_preview_ready_course_runs(self):
         """ Verify that preview ready tabs loads the course runs list. """
         response = self.assert_dashboard_response(
-            studio_count=2, preview_count=1, progress_count=2, published_count=1, queries_executed=23
+            studio_count=2, preview_count=1, progress_count=2, published_count=1, queries_executed=24
         )
         self.assertContains(response, self.table_class.format(id='preview'))
         self.assertContains(response, 'About page previews for the following course runs are available for course team')
@@ -1453,7 +1463,7 @@ class DashboardTests(TestCase):
         self.course_run_2.course_run_state.name = CourseRunStateChoices.Draft
         self.course_run_2.course_run_state.save()
         response = self.assert_dashboard_response(
-            studio_count=2, preview_count=0, progress_count=3, published_count=1, queries_executed=22
+            studio_count=2, preview_count=0, progress_count=3, published_count=1, queries_executed=23
         )
         self._assert_tabs_with_roles(response)
 
@@ -1462,7 +1472,7 @@ class DashboardTests(TestCase):
         preview url is added or not.
         """
         response = self.assert_dashboard_response(
-            studio_count=2, preview_count=1, progress_count=2, published_count=1, queries_executed=23
+            studio_count=2, preview_count=1, progress_count=2, published_count=1, queries_executed=24
         )
         self._assert_tabs_with_roles(response)
 
@@ -1477,7 +1487,7 @@ class DashboardTests(TestCase):
     def test_with_in_progress_course_runs(self):
         """ Verify that in progress tabs loads the course runs list. """
         response = self.assert_dashboard_response(
-            studio_count=2, preview_count=1, progress_count=2, published_count=1, queries_executed=23
+            studio_count=2, preview_count=1, progress_count=2, published_count=1, queries_executed=24
         )
         self.assertContains(response, self.table_class.format(id='in-progress'))
         self._assert_tabs_with_roles(response)
@@ -1513,7 +1523,7 @@ class DashboardTests(TestCase):
         self.client.logout()
         self.client.login(username=pc_user.username, password=USER_PASSWORD)
 
-        with self.assertNumQueries(11):
+        with self.assertNumQueries(12):
             response = self.client.get(self.page_url)
 
         for tab in ['progress', 'preview', 'studio', 'published']:
@@ -1523,7 +1533,7 @@ class DashboardTests(TestCase):
         """
         Verify that site_name is available in context.
         """
-        with self.assertNumQueries(23):
+        with self.assertNumQueries(24):
             response = self.client.get(self.page_url)
         site = Site.objects.first()
         self.assertEqual(response.context['site_name'], site.name)
@@ -1542,13 +1552,12 @@ class DashboardTests(TestCase):
         course_run.course_run_state.owner_role = PublisherUserRole.CourseTeam
         course_run.course_run_state.save()
 
-        with self.assertNumQueries(25):
+        with self.assertNumQueries(26):
             response = self.client.get(self.page_url)
 
-        site = Site.objects.first()
         self._assert_filter_counts(response, 'All', 3)
         self._assert_filter_counts(response, 'With Course Team', 2)
-        self._assert_filter_counts(response, 'With {site_name}'.format(site_name=site.name), 1)
+        self._assert_filter_counts(response, 'With {site_name}'.format(site_name=self.site.name), 1)
 
     def _assert_filter_counts(self, response, expected_label, count):
         """
@@ -1559,7 +1568,7 @@ class DashboardTests(TestCase):
         self.assertContains(response, expected_count, count=1)
 
 
-class ToggleEmailNotificationTests(TestCase):
+class ToggleEmailNotificationTests(SiteMixin, TestCase):
     """ Tests for `ToggleEmailNotification` view. """
 
     def setUp(self):
@@ -1592,7 +1601,7 @@ class ToggleEmailNotificationTests(TestCase):
         self.assertEqual(is_email_notification_enabled(user), is_enabled)
 
 
-class CourseListViewTests(TestCase):
+class CourseListViewTests(SiteMixin, TestCase):
     """ Tests for `CourseListView` """
 
     def setUp(self):
@@ -1606,12 +1615,12 @@ class CourseListViewTests(TestCase):
 
     def test_courses_with_no_courses(self):
         """ Verify that user cannot see any course on course list page. """
-        self.assert_course_list_page(course_count=0, queries_executed=8)
+        self.assert_course_list_page(course_count=0, queries_executed=9)
 
     def test_courses_with_admin(self):
         """ Verify that admin user can see all courses on course list page. """
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
-        self.assert_course_list_page(course_count=10, queries_executed=31)
+        self.assert_course_list_page(course_count=10, queries_executed=32)
 
     def test_courses_with_course_user_role(self):
         """ Verify that internal user can see course on course list page. """
@@ -1619,7 +1628,7 @@ class CourseListViewTests(TestCase):
         for course in self.courses:
             factories.CourseUserRoleFactory(course=course, user=self.user, role=InternalUserRole.Publisher)
 
-        self.assert_course_list_page(course_count=10, queries_executed=32)
+        self.assert_course_list_page(course_count=10, queries_executed=33)
 
     def test_courses_with_permission(self):
         """ Verify that user can see course with permission on course list page. """
@@ -1630,7 +1639,7 @@ class CourseListViewTests(TestCase):
             course.organizations.add(organization_extension.organization)
 
         assign_perm(OrganizationExtension.VIEW_COURSE, organization_extension.group, organization_extension)
-        self.assert_course_list_page(course_count=10, queries_executed=64)
+        self.assert_course_list_page(course_count=10, queries_executed=65)
 
     def assert_course_list_page(self, course_count, queries_executed):
         """ Dry method to assert course list page content. """
@@ -1676,13 +1685,13 @@ class CourseListViewTests(TestCase):
 
         toggle_switch('publisher_hide_features_for_pilot', False)
 
-        with self.assertNumQueries(21):
+        with self.assertNumQueries(22):
             response = self.client.get(self.courses_url)
 
         self.assertContains(response, 'Edit')
 
 
-class CourseDetailViewTests(TestCase):
+class CourseDetailViewTests(SiteMixin, TestCase):
     """ Tests for the course detail view. """
 
     def setUp(self):
@@ -2114,7 +2123,7 @@ class CourseDetailViewTests(TestCase):
 
 
 @ddt.ddt
-class CourseEditViewTests(TestCase):
+class CourseEditViewTests(SiteMixin, TestCase):
     """ Tests for the course edit view. """
 
     def setUp(self):
@@ -2532,7 +2541,7 @@ class CourseEditViewTests(TestCase):
 
 
 @ddt.ddt
-class CourseRunEditViewTests(TestCase):
+class CourseRunEditViewTests(SiteMixin, TestCase):
     """ Tests for the course run edit view. """
 
     def setUp(self):
@@ -2550,7 +2559,6 @@ class CourseRunEditViewTests(TestCase):
         self.seat = factories.SeatFactory(course_run=self.course_run, type=Seat.VERIFIED, price=2)
 
         self.course.organizations.add(self.organization_extension.organization)
-        self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         current_datetime = datetime.now(timezone('US/Central'))
         self.start_date_time = (current_datetime + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
@@ -2833,7 +2841,7 @@ class CourseRunEditViewTests(TestCase):
 
         body = mail.outbox[0].body.strip()
         self.assertIn(expected_body, body)
-        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=object_path)
+        page_url = 'https://{host}{path}'.format(host=self.site.domain.strip('/'), path=object_path)
         self.assertIn(page_url, body)
 
     def test_studio_instance_with_course_team(self):
@@ -3062,7 +3070,7 @@ class CourseRunEditViewTests(TestCase):
         self.assertEqual(str(mail.outbox[0].subject), expected_subject)
 
 
-class CourseRevisionViewTests(TestCase):
+class CourseRevisionViewTests(SiteMixin, TestCase):
     """ Tests for CourseReview"""
 
     def setUp(self):
@@ -3114,7 +3122,7 @@ class CourseRevisionViewTests(TestCase):
         return self.client.get(path=revision_path)
 
 
-class CreateRunFromDashboardViewTests(TestCase):
+class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
     """ Tests for the publisher `CreateRunFromDashboardView`. """
 
     def setUp(self):
@@ -3214,7 +3222,7 @@ class CreateRunFromDashboardViewTests(TestCase):
         self.assertEqual(str(mail.outbox[0].subject), expected_subject)
 
 
-class CreateAdminImportCourseTest(TestCase):
+class CreateAdminImportCourseTest(SiteMixin, TestCase):
     """ Tests for the publisher `CreateAdminImportCourse`. """
 
     def setUp(self):

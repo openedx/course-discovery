@@ -8,10 +8,9 @@ import pytz
 import responses
 from django.contrib.auth import get_user_model
 from rest_framework.reverse import reverse
-from rest_framework.test import APITestCase
 
 from course_discovery.apps.api.tests.jwt_utils import generate_jwt_header_for_user
-from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin, SerializationMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin, SerializationMixin
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory
@@ -31,6 +30,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
     def setUp(self):
         super(CatalogViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.request.user = self.user
         self.client.force_authenticate(self.user)
         self.catalog = CatalogFactory(query='title:abc*')
         enrollment_end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=30)
