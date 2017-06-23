@@ -11,6 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.wait import WebDriverWait
 
+from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
@@ -23,7 +24,7 @@ from course_discovery.apps.course_metadata.tests import factories
 
 # pylint: disable=no-member
 @ddt.ddt
-class AdminTests(TestCase):
+class AdminTests(SiteMixin, TestCase):
     """ Tests Admin page."""
 
     def setUp(self):
@@ -190,7 +191,7 @@ class AdminTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class ProgramAdminFunctionalTests(LiveServerTestCase):
+class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
     """ Functional Tests for Admin page."""
     # Required for access to initial data loaded in migrations (e.g., LanguageTags).
     serialized_rollback = True
@@ -224,7 +225,6 @@ class ProgramAdminFunctionalTests(LiveServerTestCase):
 
     def setUp(self):
         super().setUp()
-
         # ContentTypeManager uses a cache to speed up ContentType retrieval. This
         # cache persists across tests. This is fine in the context of a regular
         # TestCase which uses a transaction to reset the database between tests.
@@ -237,6 +237,9 @@ class ProgramAdminFunctionalTests(LiveServerTestCase):
         # key constraints (e.g., MySQL). Preemptively clearing the cache prevents
         # stale ContentType objects from being used.
         ContentType.objects.clear_cache()
+
+        self.site.domain = self.live_server_url.strip('http://')
+        self.site.save()
 
         self.course_runs = factories.CourseRunFactory.create_batch(2)
         self.courses = [course_run.course for course_run in self.course_runs]
@@ -354,7 +357,7 @@ class ProgramAdminFunctionalTests(LiveServerTestCase):
         self.assertEqual(self.program.subtitle, subtitle)
 
 
-class ProgramEligibilityFilterTests(TestCase):
+class ProgramEligibilityFilterTests(SiteMixin, TestCase):
     """ Tests for Program Eligibility Filter class. """
     parameter_name = 'eligible_for_one_click_purchase'
 
