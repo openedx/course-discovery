@@ -15,7 +15,9 @@ from course_discovery.apps.course_metadata.exceptions import (
     NodeLookupError
 )
 from course_discovery.apps.course_metadata.publishers import (
-    BaseMarketingSitePublisher, CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
+    BaseMarketingSitePublisher,
+    CourseRunMarketingSitePublisher,
+    ProgramMarketingSitePublisher
 )
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
