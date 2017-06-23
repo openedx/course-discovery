@@ -102,7 +102,7 @@ class BaseMarketingSitePublisher:
         if response.status_code == 200:
             return response.json()['list'][0]['nid']
         else:
-            raise NodeLookupError
+            raise NodeLookupError({'response_text': response.text, 'response_status': response.status_code})
 
     def create_node(self, node_data):
         """
@@ -124,7 +124,7 @@ class BaseMarketingSitePublisher:
         if response.status_code == 201:
             return response.json()['id']
         else:
-            raise NodeCreateError
+            raise NodeCreateError({'response_text': response.text, 'response_status': response.status_code})
 
     def edit_node(self, node_id, node_data):
         """
@@ -143,7 +143,13 @@ class BaseMarketingSitePublisher:
         response = self.client.api_session.put(node_url, data=node_data)
 
         if response.status_code != 200:
-            raise NodeEditError
+            raise NodeEditError(
+                {
+                    'node_id': node_id,
+                    'response_text': response.text,
+                    'response_status': response.status_code
+                }
+            )
 
     def delete_node(self, node_id):
         """
@@ -160,7 +166,13 @@ class BaseMarketingSitePublisher:
         response = self.client.api_session.delete(node_url)
 
         if response.status_code != 200:
-            raise NodeDeleteError
+            raise NodeDeleteError(
+                {
+                    'node_id': node_id,
+                    'response_text': response.text,
+                    'response_status': response.status_code
+                }
+            )
 
 
 class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):
