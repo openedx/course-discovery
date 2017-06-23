@@ -1,14 +1,14 @@
 beautifulsoup4==4.5.1
 boto==2.42.0
 cryptography==1.7.1
-django==1.10.7
+django==1.11.2
 django-autocomplete-light==3.1.8
 django-choices==1.4.3
 django-compressor==2.1.1
 django-contrib-comments==1.7.2
 django-extensions==1.7.8
 django-filter==1.0.4
-django-fsm==2.4.0
+django-fsm==2.6.0
 django-guardian==1.4.8
 django-haystack==2.5.0
 django-libsass==0.7

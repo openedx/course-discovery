@@ -16,10 +16,8 @@ To aid in these goals, the Course Discovery Service collects data from several s
 
 Documentation
 -------------
-.. |ReadtheDocs| image:: https://readthedocs.org/projects/open-edx-course-catalog/badge/?version=latest
-.. _ReadtheDocs: https://open-edx-course-catalog.readthedocs.io/en/latest/
 
-`Documentation <https://open-edx-course-catalog.readthedocs.io/en/latest/>`_ is hosted on Read the Docs. The source is hosted in this repo's `docs <https://github.com/edx/course-discovery/tree/master/docs>`_ directory. To contribute, please open a PR against this repo.
+`Documentation <https://edx-discovery.readthedocs.io/en/latest/>`_ is hosted on Read the Docs. The source is hosted in this repo's `docs <https://github.com/edx/course-discovery/tree/master/docs>`_ directory. To contribute, please open a PR against this repo.
 
 License
 -------
