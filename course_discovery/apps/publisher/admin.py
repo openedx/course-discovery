@@ -80,11 +80,29 @@ class CourseRunStateAdmin(admin.ModelAdmin):
     ordering = ['id']
 
 
+class CourseUserRoleInline(admin.TabularInline):
+    model = CourseUserRole
+    extra = 1
+    raw_id_fields = ('user',)
+    exclude = ['changed_by']
+
+
+class CourseRunInline(admin.TabularInline):
+    model = CourseRun
+    extra = 1
+    exclude = ['changed_by']
+    fields = ('lms_course_id', 'start', 'end', )
+
+    def has_add_permission(self, request):
+        return False
+
+
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     raw_id_fields = ('changed_by',)
     list_display = ['title', 'number']
     search_fields = ['title', 'number']
+    inlines = [CourseUserRoleInline, CourseRunInline, ]
 
 
 @admin.register(CourseRun)
