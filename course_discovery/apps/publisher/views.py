@@ -158,7 +158,7 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
         context['object'] = course_run
         context['comment_object'] = course_run
 
-        # this ulr is used for the comments post back redirection.
+        # this URL is used for the comments post back redirection.
         context['post_back_url'] = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
 
         context['can_edit'] = mixins.check_course_organization_permission(
