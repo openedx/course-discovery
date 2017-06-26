@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Course Discovery Service documentation build configuration file, created by
 # sphinx-quickstart on Sun Feb 17 11:46:20 2013.
 #
@@ -10,7 +8,6 @@
 #
 # All configuration values have a default; values that are commented out
 # serve to show the default.
-
 import datetime
 import os
 import sys
@@ -18,23 +15,10 @@ import sys
 # on_rtd is whether we are on readthedocs.org
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
-if not on_rtd:  # only import and set the theme if we're building docs locally
-    import sphinx_rtd_theme
-    html_theme = 'sphinx_rtd_theme'
-    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 # sys.path.insert(0, os.path.abspath('.'))
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(REPO_ROOT)
-
-# Specify settings module (which will be picked up from the sandbox)
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'course_discovery.settings.docs_settings')
-
-import django
-django.setup()
 
 # -- General configuration -----------------------------------------------------
 
@@ -43,7 +27,9 @@ django.setup()
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon']
+extensions = [
+    'edx_theme',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -58,7 +44,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Course Discovery Service'
+project = u'edX Discovery Service'
 copyright = u'2015-{year}, edX Inc.'.format(year=datetime.date.today().year)
 
 # The version info for the project you're documenting, acts as replacement for
@@ -201,8 +187,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ('index', 'course_discovery.tex', u'Course Discovery Service Documentation',
-     u'edX', 'manual'),
+    ('index', 'course_discovery.tex', 'edX Discovery Service', 'edX', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -231,8 +216,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'Course Discovery Service', u'Course Discovery Service Documentation',
-     [u'edX'], 1)
+    ('index', 'edX Discovery Service', 'edX Discovery Service', ['edX'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -245,10 +229,15 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'Course Discovery Service', u'Course Discovery Service Documentation',
-     u'edX', 'Course Discovery Service', 'Course Discovery Service',
-     'Miscellaneous'
-     ),
+    (
+        'index',
+        'edX Discovery Service',
+        'edX Discovery Service',
+        'edX',
+        'edX Discovery Service',
+        'edX Discovery Service',
+        'Miscellaneous',
+    ),
 ]
 
 
@@ -260,7 +249,6 @@ texinfo_documents = [
 
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 # texinfo_show_urls = 'footnote'
-
 
 def setup(app):
     app.add_stylesheet('theme_overrides.css')
