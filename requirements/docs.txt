@@ -1,2 +1,2 @@
-Sphinx==1.4.5
-sphinx_rtd_theme==0.1.9
+edx-sphinx-theme==1.0.2
+Sphinx==1.5.3
