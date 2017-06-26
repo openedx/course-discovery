@@ -363,7 +363,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
 
     def update_course_run(self, course_run, data):
         validated_data = self.format_course_run_data(data, course_run.course)
-        self._update_instance(course_run, validated_data)
+        self._update_instance(course_run, validated_data, suppress_publication=True)
         self.set_course_run_staff(course_run, data)
         self.set_course_run_transcript_languages(course_run, data)
 
@@ -402,10 +402,10 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
 
         return course
 
-    def _update_instance(self, instance, validated_data):
+    def _update_instance(self, instance, validated_data, **kwargs):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-        instance.save()
+        instance.save(**kwargs)
 
     def format_course_run_data(self, data, course):
         uuid = data['uuid']

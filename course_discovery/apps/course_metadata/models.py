@@ -602,9 +602,12 @@ class CourseRun(TimeStampedModel):
         return '{key}: {title}'.format(key=self.key, title=self.title)
 
     def save(self, *args, **kwargs):
+        suppress_publication = kwargs.pop('suppress_publication', False)
         is_publishable = (
             self.course.partner.has_marketing_site and
-            waffle.switch_is_active('publish_course_runs_to_marketing_site')
+            waffle.switch_is_active('publish_course_runs_to_marketing_site') and
+            # Pop to clean the kwargs for the base class save call below
+            not suppress_publication
         )
 
         if is_publishable:
