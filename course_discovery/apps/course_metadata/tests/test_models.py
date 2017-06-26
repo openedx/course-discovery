@@ -291,6 +291,12 @@ class CourseRunTests(TestCase):
             assert mock_init.call_count == 0
 
         toggle_switch('publish_course_runs_to_marketing_site')
+
+        with mock.patch.object(CourseRunMarketingSitePublisher, '__init__') as mock_init:
+            # Make sure if the save comes from refresh_course_metadata, we don't actually publish
+            self.course_run.save(suppress_publication=True)
+            assert mock_init.call_count == 0
+
         self.course_run.course.partner.marketing_site_url_root = ''
         self.course_run.course.partner.save()
 
