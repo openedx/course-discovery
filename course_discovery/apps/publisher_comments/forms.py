@@ -15,9 +15,9 @@ class CommentsForm(CommentForm):
     def get_comment_model(self):
         return Comments
 
-    def get_comment_create_data(self):
+    def get_comment_create_data(self, site_id=None):
         # Use the data of the superclass, and add in the title field
-        data = super(CommentsForm, self).get_comment_create_data()
+        data = super(CommentsForm, self).get_comment_create_data(site_id=site_id)
         data['modified'] = self.cleaned_data['modified']
         data['comment_type'] = self.cleaned_data['comment_type']
         return data
@@ -37,7 +37,7 @@ class CommentEditForm(forms.ModelForm):
 
 
 class CommentsAdminForm(forms.ModelForm):
-    """ Comment form for admin.It will load only required content types models in drop down. """
+    """ Comment form for admin. It will load only required content types models in drop down. """
 
     class Meta:
         model = Comments
