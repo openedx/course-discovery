@@ -18,9 +18,9 @@ echo '{ "allow_root": true }' > /root/.bowerrc
 
 make requirements
 make requirements.js
+
 # Ensure documentation can be compiled
-cd docs && make html
-cd ..
+make docs
 
 # Check if translation files are up-to-date
 make validate_translations

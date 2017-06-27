@@ -3,7 +3,7 @@ NODE_BIN=./node_modules/.bin
 
 .PHONY: accept clean clean_static compile_translations detect_changed_source_translations dummy_translations extract_translations \
 	fake_translations help html_coverage migrate open-devstack production-requirements pull_translations quality requirements.js \
-	requirements start-devstack static stop-devstack test validate validate_translations
+	requirements start-devstack static stop-devstack test validate validate_translations docs
 
 include .travis/docker.mk
 
@@ -87,3 +87,6 @@ detect_changed_source_translations: ## Check if translation files are up-to-date
 	cd course_discovery && i18n_tool changed
 
 validate_translations: fake_translations detect_changed_source_translations ## Install fake translations and check if translation files are up-to-date
+
+docs:
+	cd docs && make html
