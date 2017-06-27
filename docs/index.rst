@@ -1,15 +1,14 @@
-.. course_discovery documentation master file, created by
-   sphinx-quickstart on Sun Feb 17 11:46:20 2013.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+edX Discovery Service
+=====================
 
-Course Discovery Service
-========================
-A service for serving course discovery and marketing information to partners, mobile, and edX.org
+**Discovery** is a service that provides access to consolidated course and program metadata. It does this primarily through a REST API that supports courses, course runs, programs, catalogs, and search.
+
+This guide begins with some background information on the service, then focuses on what you need to know to run and develop for the service.
 
 .. toctree::
    :maxdepth: 2
 
+   introduction
    getting_started
    api
    catalogs

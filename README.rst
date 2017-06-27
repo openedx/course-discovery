@@ -6,13 +6,7 @@ Course Discovery Service  |Travis|_ |Codecov|_
 .. |Codecov| image:: http://codecov.io/github/edx/course-discovery/coverage.svg?branch=master
 .. _Codecov: http://codecov.io/github/edx/course-discovery?branch=master
 
-The Course Discovery service is a data aggregator with several purposes:
-
-1. Allow external parties to access data about Courses in an OpenEdX installation from a single central location (no matter which the system of record for that data is), in a way that can be secured and will not have operational impact on the running OpenEdX installation.
-2. Allow other services inside an OpenEdX installation to consume a consolidated source of course content for presentation to users (for instance, for the purposes of course marketing and discoverability).
-3. Provide a facility for naming dynamic groups of courses (catalogs) for use by other services in the system (such as coupon fulfillment and external course discovery filtering).
-
-To aid in these goals, the Course Discovery Service collects data from several systems internal to the Open edX installation. These include Otto (the E-Commerce Service), Studio, and in the edX.org implementation, the Drupal marketing site. The data loading framework is designed to make adding additional systems easy.
+Service providing access to consolidated course and program metadata.
 
 Documentation
 -------------
