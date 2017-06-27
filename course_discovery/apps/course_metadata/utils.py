@@ -1,3 +1,6 @@
+import random
+import string
+
 import requests
 from django.utils.functional import cached_property
 from stdimage.models import StdImageFieldFile
@@ -100,20 +103,32 @@ class MarketingSiteAPIClient(object):
         # This is not a RESTful API so checking the status code is not enough
         # We also check that we were redirected to the admin page
         if not (response.status_code == 200 and response.url == admin_url):
-            raise MarketingSiteAPIClientException('Marketing Site Login failed!')
+            raise MarketingSiteAPIClientException(
+                {
+                    'message': 'Marketing Site Login failed!',
+                    'status': response.status_code,
+                    'url': response.url
+                }
+            )
         return session
 
-    @cached_property
+    @property
     def api_session(self):
         self.init_session.headers.update(self.headers)
         return self.init_session
 
-    @cached_property
+    @property
     def csrf_token(self):
-        token_url = '{root}/restws/session/token'.format(root=self.api_url)
+        # We need to make sure we can bypass the Varnish cache.
+        # So adding a random salt into the query string to cache bust
+        random_qs = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
+        token_url = '{root}/restws/session/token?cachebust={qs}'.format(root=self.api_url, qs=random_qs)
         response = self.init_session.get(token_url)
         if not response.status_code == 200:
-            raise MarketingSiteAPIClientException('Failed to retrieve Marketing Site CSRF token!')
+            raise MarketingSiteAPIClientException({
+                'message': 'Failed to retrieve Marketing Site CSRF token!',
+                'status': response.status_code,
+            })
         token = response.content.decode('utf8')
         return token
 
@@ -127,7 +142,7 @@ class MarketingSiteAPIClient(object):
         user_id = response.json()['list'][0]['uid']
         return user_id
 
-    @cached_property
+    @property
     def headers(self):
         return {
             'Content-Type': 'application/json',
