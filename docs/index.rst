@@ -9,13 +9,5 @@ This guide begins with some background information on the service, then focuses 
    :maxdepth: 2
 
    introduction
-   getting_started
-   api
-   catalogs
-   course_metadata
-   elasticsearch
-   testing
-   features
-   internationalization
-   oidc
-   edx_extensions
+   quickstart
+   advanced
