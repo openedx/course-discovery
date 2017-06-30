@@ -491,7 +491,7 @@
                                     </div>
                                 </div>
                                 {% if is_internal_user %}
-                                    <div class="field-title">{{ form.video_link.label|upper }} <span class="required float-right">* Required for announcement</span></div>
+                                    <div class="field-title">{{ form.video_link.label|upper }} <span class="optional float-right">Optional for announcement</span></div>
                                     <div class="row">
                                         <div class="col col-6 help-text">
                                             <div class="row">
@@ -541,7 +541,7 @@
                                             </div>
                                         </div>
                                         <div class="col col-6 help-text">
-                                            <label class="field-label ">{{ form.video_link.label }} <span class="required">*</span></label>
+                                            <label class="field-label ">{{ form.video_link.label }} <span class="optional"></span></label>
                                             {{ form.video_link }}
                                         </div>
                                     </div>
