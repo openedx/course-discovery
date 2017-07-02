@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-21 13:39+0500\n"
-"PO-Revision-Date: 2017-06-23 16:54+0000\n"
+"PO-Revision-Date: 2017-06-29 15:57+0000\n"
 "Last-Translator: Katerina Ligkovanli <kaligova@gmail.com>\n"
 "Language-Team: Greek (http://www.transifex.com/open-edx/edx-platform/language/el/)\n"
 "MIME-Version: 1.0\n"
@@ -124,7 +124,7 @@ msgstr ""
 
 #: apps/core/models.py
 msgid "Full Name"
-msgstr ""
+msgstr "Ονοματεπώνυμο"
 
 #: apps/core/models.py
 msgid "Referral Tracking ID"
@@ -2340,7 +2340,7 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Languages"
-msgstr ""
+msgstr "Γλώσσες"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Video Transcript Languages"
