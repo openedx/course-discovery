@@ -3,14 +3,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-# Katerina Ligkovanli <kaligova@gmail.com>, 2016
+# Katerina Ligkovanli <kaligova@gmail.com>, 2016-2017
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-21 13:39+0500\n"
-"PO-Revision-Date: 2017-06-12 21:25+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"PO-Revision-Date: 2017-06-29 15:59+0000\n"
+"Last-Translator: Katerina Ligkovanli <kaligova@gmail.com>\n"
 "Language-Team: Greek (http://www.transifex.com/open-edx/edx-platform/language/el/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -24,7 +24,7 @@ msgstr "Προεπισκόπηση"
 
 #: static/js/publisher/change-state.js
 msgid "Something went wrong! please try again later."
-msgstr ""
+msgstr "Κάτι δεν πήγε καλά! Παρακαλούμε προσπαθήστε αργότερα."
 
 #: static/js/publisher/comparing-objects.js
 msgid "Hide changes"

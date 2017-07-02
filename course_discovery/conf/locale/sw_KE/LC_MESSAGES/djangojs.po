@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-21 13:39+0500\n"
-"PO-Revision-Date: 2017-06-13 08:13+0000\n"
+"PO-Revision-Date: 2017-06-29 08:20+0000\n"
 "Last-Translator: YAHAYA MWAVURIZI <translations_1@camara.ie>\n"
 "Language-Team: Swahili (Kenya) (http://www.transifex.com/open-edx/edx-platform/language/sw_KE/)\n"
 "MIME-Version: 1.0\n"
@@ -75,17 +75,17 @@ msgstr "hifadhi"
 
 #: static/js/publisher/preview-url.js
 msgid "Please enter a valid URL."
-msgstr ""
+msgstr "Tafadhali ingiza URL halali."
 
 #: static/js/publisher/views/dashboard.js
 msgid ""
 "You have successfully created a Studio URL ({studioLinkTag}) for "
 "{courseRunDetail} with a start date of {startDate}"
-msgstr ""
+msgstr "Umefanikiwa kuunda Studio URL ({studioLinkTag}) kwa ajili ya {courseRunDetail} kuanzia tarehe {startDate}"
 
 #: static/js/publisher/views/dashboard.js
 msgid "There was an error in saving your data."
-msgstr ""
+msgstr "Kulikuwa na tatizo katika kuhifadhi taarifa zako."
 
 #: static/js/publisher/views/navbar.js
 msgid "OFF"
