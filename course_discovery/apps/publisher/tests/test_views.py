@@ -1728,6 +1728,7 @@ class CourseDetailViewTests(TestCase):
         self.assertContains(response, self.course.faq)
         self.assertContains(response, self.course.video_link)
         self.assertContains(response, self.course.syllabus)
+        self.assertEqual(response.context['breadcrumbs'][1]['slug'], self.course.title)
 
     def test_details_page_with_course_runs_lms_id(self):
         """ Test that user can see course runs with lms-id on course detail page. """
@@ -2013,18 +2014,25 @@ class CourseDetailViewTests(TestCase):
         self.assertEqual(response.context['most_recent_revision_id'], current_user_revision)
         self.assertTrue(response.context['accept_all_button'])
 
-    def test_detail_page_with_override_short_description(self):
+    def test_detail_page_with_override_values(self):
         """
-        Test that pages shows the override short description.
+        Test that pages shows the override short description, full description and title.
         """
-        description = 'Testing short description'
+        short_description = 'Testing short description'
+        full_description = 'Testing full description'
+        title = 'Testing title'
+
         self._assign_user_permission()
         course_run = factories.CourseRunFactory(
-            course=self.course, short_description_override=description
+            course=self.course, short_description_override=short_description,
+            full_description_override=full_description, title_override=title
         )
         factories.CourseRunStateFactory(course_run=course_run, name=CourseRunStateChoices.Published)
         response = self.client.get(self.detail_page_url)
-        self.assertContains(response, description)
+        self.assertContains(response, short_description)
+        self.assertContains(response, full_description)
+        self.assertContains(response, title)
+        self.assertEqual(response.context['breadcrumbs'][1]['slug'], title)
 
     def _assign_user_permission(self):
         """ Assign permissions."""

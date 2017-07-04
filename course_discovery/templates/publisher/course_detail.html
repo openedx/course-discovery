@@ -59,7 +59,7 @@
                 <div class="heading">
                     {% trans "Course Title" %}
                 </div>
-                <div class="current title">{{ object.title }}</div>
+                <div class="current title">{{ object.course_title }}</div>
                 <div class="show-diff"></div>
             </div>
 
@@ -88,7 +88,7 @@
                     {% trans "Long Description" %}
                 </div>
                 <div class="current full_description">
-                    {% with  object.full_description as field %}
+                    {% with  object.course_full_description as field %}
                         {% include "publisher/_render_required_field.html" %}
                     {% endwith %}
                 </div>

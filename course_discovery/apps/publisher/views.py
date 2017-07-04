@@ -446,7 +446,7 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
         context['breadcrumbs'] = make_bread_crumbs(
             [
                 (reverse('publisher:publisher_courses'), 'Courses'),
-                (None, course.title),
+                (None, course.course_title),
             ]
         )
         context['comment_object'] = course
