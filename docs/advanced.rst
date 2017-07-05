@@ -63,7 +63,7 @@ You can administer catalogs through the LMS at ``/api-admin/catalogs``. You can 
 Waffle
 ------
 
-Discovery uses `django-waffle`_ to control the release of new features. This allows us to gradually increase traffic to new features and divert traffic quickly if problems are discovered. Please refer to Waffle's `documenation`_ for an overview of the models you may encounter throughout the codebase.
+Discovery uses `django-waffle`_ to control the release of new features. This allows us to gradually increase traffic to new features and divert traffic quickly if problems are discovered. Please refer to Waffle's `documentation`_ for an overview of the models you may encounter throughout the codebase.
 
 .. _django-waffle: https://github.com/jsocol/django-waffle
 .. _documentation: https://waffle.readthedocs.io/en/latest/
@@ -78,7 +78,7 @@ All user-facing strings should be marked for translation. edX runs this applicat
 Updating Translated Strings
 +++++++++++++++++++++++++++
 
-Like most edX projects, Discovery uses `Transifex`_ to translate content. Most of the translation process is automated: Transifex pulls new strings from this repo on a daily basis, and translated strings are merged back into the repo every week.
+Like most edX projects, Discovery uses Transifex to translate content. Most of the translation process is automated. Transifex pulls new strings from this repo on a daily basis. Translated strings are merged back into the repo every week.
 
 If you change or introduce new strings, run ``make fake_translations`` to extract all strings marked for translation, generate fake translations in the Esperanto (eo) language directory, and compile the translations. You can trigger the display of the translations by setting your browser's language to Esperanto (eo), and navigating to a page on the site. Instead of plain English strings, you should see specially-accented English strings that look like this:
 
