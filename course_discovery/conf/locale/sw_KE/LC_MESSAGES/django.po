@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-21 13:39+0500\n"
-"PO-Revision-Date: 2017-06-29 13:51+0000\n"
+"PO-Revision-Date: 2017-07-06 13:42+0000\n"
 "Last-Translator: YAHAYA MWAVURIZI <translations_1@camara.ie>\n"
 "Language-Team: Swahili (Kenya) (http://www.transifex.com/open-edx/edx-platform/language/sw_KE/)\n"
 "MIME-Version: 1.0\n"
@@ -148,7 +148,7 @@ msgstr "Mficho Mfupi"
 msgid ""
 "Convenient code/slug used to identify this Partner (e.g. for management "
 "commands.)"
-msgstr ""
+msgstr "Namba na msimbo rahisi unaotumika kumtambua Mshirika huyu (mfano. kwa ajili ya sheria za utawala.)"
 
 #: apps/core/models.py
 msgid "Courses API URL"
@@ -168,27 +168,27 @@ msgstr "Tovuti ya API ya Programu"
 
 #: apps/core/models.py
 msgid "Marketing Site API URL"
-msgstr ""
+msgstr "URL API ya Tovuti ya Masoko"
 
 #: apps/core/models.py
 msgid "Marketing Site URL"
-msgstr ""
+msgstr "URL ya Tovuti ya Masoko"
 
 #: apps/core/models.py
 msgid "Marketing Site API Username"
-msgstr ""
+msgstr "API ya jina la mtumiaji wa Tovuti ya Masoko"
 
 #: apps/core/models.py
 msgid "Marketing Site API Password"
-msgstr ""
+msgstr "API ya Nenosiri la Tovuti ya Masoko"
 
 #: apps/core/models.py
 msgid "OpenID Connect URL"
-msgstr ""
+msgstr "URL ya OpenID Connect"
 
 #: apps/core/models.py
 msgid "OpenID Connect Key"
-msgstr ""
+msgstr "Sehemu ya OpenID Connect"
 
 #: apps/core/models.py
 msgid "OpenID Connect Secret"
@@ -197,7 +197,7 @@ msgstr ""
 #: apps/core/models.py apps/publisher/forms.py
 #: templates/publisher/course_run_detail/_all.html
 msgid "Studio URL"
-msgstr ""
+msgstr "URL ya Studio"
 
 #: apps/core/models.py
 msgid "Partner"
@@ -1090,27 +1090,27 @@ msgstr "Mwalimu mpya"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "Click here to upload your image"
-msgstr ""
+msgstr "Bofya hapa kupakia picha yako"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "The image dimensions must be less than 110 x 110"
-msgstr ""
+msgstr "Vipimo vya picha lazima viwe chini ya 110 x 110"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "The image size must be less than 256KB"
-msgstr ""
+msgstr "Ukubwa wa picha lazima uwe chini ya 256KB"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "First Name"
-msgstr ""
+msgstr "Jina la Kwanza"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "required"
-msgstr ""
+msgstr "inahitajika"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "Last Name"
-msgstr ""
+msgstr "Jina la Mwisho"
 
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/course_run_detail/_drupal.html
@@ -1126,7 +1126,7 @@ msgstr "Barua pepe"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "Institution email is preferred"
-msgstr ""
+msgstr "Barua pepe ya taasisi inapendekezwa kutumiwa"
 
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/course_run_detail/_drupal.html
@@ -1138,28 +1138,28 @@ msgstr ""
 #: templates/publisher/dashboard/_published.html
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Organization"
-msgstr ""
+msgstr "Taasisi"
 
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Bio"
-msgstr ""
+msgstr "Bio"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "required (1-2 paragraphs)"
-msgstr ""
+msgstr "inahitajika (kurasa 1-2)"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "Facebook URL"
-msgstr ""
+msgstr "URL ya Facebook"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "optional"
-msgstr ""
+msgstr "hiari"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "Twitter URL"
-msgstr ""
+msgstr " URL ya Twitter"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "Blog URL"
@@ -1167,19 +1167,19 @@ msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "Major Works"
-msgstr ""
+msgstr "Majukumu Makuu"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "optional - one per line"
-msgstr ""
+msgstr "hiyari - moja kwa kila mstari"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "Add Staff Member"
-msgstr ""
+msgstr "Andika Jina la Mfanyakazi"
 
 #: templates/publisher/_approval_widget.html
 msgid "REVIEWS"
-msgstr ""
+msgstr "MAREJEO"
 
 #: templates/publisher/_approval_widget.html
 #, python-format
@@ -1188,7 +1188,7 @@ msgid ""
 "can submit this course run for review, you must finalize the information for"
 " %(link_start)s%(course_url)s%(link_middle)s%(course_name)s%(link_end)s with"
 " edX."
-msgstr ""
+msgstr "Kwasasa unaweza kuhariri taarifa kuhusu kozi hii. Hata hivyo, kabla ya kuwasilisha kozi hiikwa ajili ya kupitiwa upya, lazima ukamilishe taarifa kwa ajili ya %(link_start)s%(course_url)s%(link_middle)s%(course_name)s%(link_end)s kwa kutumia edX."
 
 #: templates/publisher/_approval_widget.html
 msgid "Decline"
@@ -1204,11 +1204,11 @@ msgstr "Imekubaliwa"
 
 #: templates/publisher/_approval_widget.html
 msgid "Publish"
-msgstr ""
+msgstr "Chapisha"
 
 #: templates/publisher/_approval_widget.html
 msgid "Submitted for review"
-msgstr ""
+msgstr "Imewasilishwa kwa ajili ya kupitiwa upya"
 
 #: templates/publisher/_approval_widget.html
 #: templates/publisher/course_detail/_edit_warning_popup.html
@@ -1219,19 +1219,19 @@ msgstr "Hariri"
 
 #: templates/publisher/_approval_widget.html
 msgid "ABOUT PAGE PREVIEW"
-msgstr ""
+msgstr "KUHUSU KUANGALIA UKURASA"
 
 #: templates/publisher/_approval_widget.html
 msgid "Preview URL"
-msgstr ""
+msgstr "URL ya mwonekano"
 
 #: templates/publisher/_approval_widget.html
 msgid "View About page preview"
-msgstr ""
+msgstr "Angalia kuhusu mwonekano wa ukurasa"
 
 #: templates/publisher/_approval_widget.html
 msgid "Not available"
-msgstr ""
+msgstr "Haipo"
 
 #: templates/publisher/_approval_widget.html
 msgid "Sent for Review"
@@ -1243,11 +1243,11 @@ msgstr "Imepitiwa upya"
 
 #: templates/publisher/_approval_widget.html
 msgid "day in ownership"
-msgstr ""
+msgstr "siku katika umiliki "
 
 #: templates/publisher/_approval_widget.html
 msgid "days in ownership"
-msgstr ""
+msgstr "siku za kuwa kwenye umuliki"
 
 #: templates/publisher/_approval_widget.html
 msgid "change"
@@ -1267,7 +1267,7 @@ msgstr "Sera Binafsi"
 
 #: templates/publisher/_footer.html
 msgid "Legal"
-msgstr ""
+msgstr "Sheria"
 
 #: templates/publisher/_footer.html
 #, python-format
@@ -1287,11 +1287,11 @@ msgstr "'Akaunti'"
 
 #: templates/publisher/_header.html
 msgid "Account Navigation"
-msgstr ""
+msgstr "Uabiri wa Akaunti"
 
 #: templates/publisher/_header.html
 msgid "Contextual Online Help"
-msgstr ""
+msgstr "Msaada wa Kimazingira Mtandaoni"
 
 #: templates/publisher/_header.html
 msgid "Help"
@@ -1299,7 +1299,7 @@ msgstr "Msaada"
 
 #: templates/publisher/_header.html
 msgid "Email notifications"
-msgstr ""
+msgstr "Taarifa ya Barua pepe"
 
 #: templates/publisher/_header.html
 msgid "ON"
