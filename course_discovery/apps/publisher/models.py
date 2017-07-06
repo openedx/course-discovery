@@ -118,6 +118,19 @@ class Course(TimeStampedModel, ChangedByMixin):
         return user_emails
 
     @property
+    def organization_name(self):
+        """
+        Returns organization name for a course.
+        """
+        organization_name = ''
+        try:
+            organization_name = self.organizations.only('key').first().key
+        except AttributeError:
+            pass
+
+        return organization_name
+
+    @property
     def keywords_data(self):
         keywords = self.keywords.all()
         if keywords:
@@ -131,7 +144,7 @@ class Course(TimeStampedModel, ChangedByMixin):
         Return course project coordinator user.
         """
         try:
-            return self.course_user_roles.get(role=PublisherUserRole.ProjectCoordinator).user
+            return self.course_user_roles.only('user').get(role=PublisherUserRole.ProjectCoordinator).user
         except CourseUserRole.DoesNotExist:
             return None
 

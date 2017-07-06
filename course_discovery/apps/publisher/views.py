@@ -797,10 +797,14 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
+        courses = Course.objects.all().prefetch_related(
+            'organizations', 'course_state', 'publisher_course_runs', 'course_user_roles'
+        )
+
         if is_publisher_admin(user):
-            courses = Course.objects.all()
+            courses = courses
         elif is_internal_user(user):
-            courses = Course.objects.filter(course_user_roles__user=user).distinct()
+            courses = courses.filter(course_user_roles__user=user).distinct()
         else:
             organizations = get_objects_for_user(
                 user,
@@ -809,7 +813,7 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
                 use_groups=True,
                 with_superuser=False
             ).values_list('organization')
-            courses = Course.objects.filter(organizations__in=organizations)
+            courses = courses.filter(organizations__in=organizations)
 
         return courses
 

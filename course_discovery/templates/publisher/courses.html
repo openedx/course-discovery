@@ -50,7 +50,7 @@
                           {% endif %}
                         </td>
                         <td>
-                            {% if course.organizations.first %}{{ course.organizations.first.key }}{% endif %}
+                            {{ course.organization_name }}
                         </td>
                         <td>
                             {{ course.project_coordinator.full_name }}
