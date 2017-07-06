@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 
 import ddt
 import factory
-
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -26,7 +25,8 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory, OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
+from course_discovery.apps.publisher.choices import (CourseRunStateChoices, CourseStateChoices, InternalUserRole,
+                                                     PublisherUserRole)
 from course_discovery.apps.publisher.constants import (ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME,
                                                        PROJECT_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME)
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState,
@@ -1555,7 +1555,8 @@ class CourseListViewTests(TestCase):
 
     def setUp(self):
         super(CourseListViewTests, self).setUp()
-        self.course = factories.CourseFactory()
+        self.courses = [factories.CourseFactory() for _ in range(10)]
+        self.course = self.courses[0]
         self.user = UserFactory()
 
         self.client.login(username=self.user.username, password=USER_PASSWORD)
@@ -1563,35 +1564,37 @@ class CourseListViewTests(TestCase):
 
     def test_courses_with_no_courses(self):
         """ Verify that user cannot see any course on course list page. """
-
-        self.assert_course_list_page(course_count=0)
+        self.assert_course_list_page(course_count=0, queries_executed=8)
 
     def test_courses_with_admin(self):
         """ Verify that admin user can see all courses on course list page. """
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
-
-        self.assert_course_list_page(course_count=1)
+        self.assert_course_list_page(course_count=10, queries_executed=31)
 
     def test_courses_with_course_user_role(self):
         """ Verify that internal user can see course on course list page. """
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-        factories.CourseUserRoleFactory(course=self.course, user=self.user)
+        for course in self.courses:
+            factories.CourseUserRoleFactory(course=course, user=self.user, role=InternalUserRole.Publisher)
 
-        self.assert_course_list_page(course_count=1)
+        self.assert_course_list_page(course_count=10, queries_executed=32)
 
     def test_courses_with_permission(self):
         """ Verify that user can see course with permission on course list page. """
         organization_extension = factories.OrganizationExtensionFactory()
-        self.course.organizations.add(organization_extension.organization)
         self.user.groups.add(organization_extension.group)
 
+        for course in self.courses:
+            course.organizations.add(organization_extension.organization)
+
         assign_perm(OrganizationExtension.VIEW_COURSE, organization_extension.group, organization_extension)
+        self.assert_course_list_page(course_count=10, queries_executed=64)
 
-        self.assert_course_list_page(course_count=1)
-
-    def assert_course_list_page(self, course_count):
+    def assert_course_list_page(self, course_count, queries_executed):
         """ Dry method to assert course list page content. """
-        response = self.client.get(self.courses_url)
+        with self.assertNumQueries(queries_executed):
+            response = self.client.get(self.courses_url)
+
         self.assertContains(response, '{} Courses'.format(course_count))
         self.assertContains(response, 'Create New Course')
         if course_count > 0:
@@ -1601,11 +1604,21 @@ class CourseListViewTests(TestCase):
         """
         Verify that edit button will not be shown if 'publisher_hide_features_for_pilot' activated.
         """
-        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-        factories.CourseUserRoleFactory(course=self.course, user=self.user)
-        toggle_switch('publisher_hide_features_for_pilot', True)
+        factories.CourseUserRoleFactory(course=self.course, user=self.user, role=PublisherUserRole.CourseTeam)
+        organization_extension = factories.OrganizationExtensionFactory()
+        self.course.organizations.add(organization_extension.organization)
+        self.user.groups.add(organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, organization_extension.group, organization_extension)
+        assign_perm(OrganizationExtension.EDIT_COURSE, organization_extension.group, organization_extension)
         response = self.client.get(self.courses_url)
-        self.assertNotIn(response.content.decode('UTF-8'), 'Edit')
+        self.assertContains(response, 'Edit')
+
+        toggle_switch('publisher_hide_features_for_pilot', True)
+
+        with self.assertNumQueries(17):
+            response = self.client.get(self.courses_url)
+
+        self.assertNotContains(response, 'Edit')
 
     def test_page_with_disable_waffle_switch(self):
         """
@@ -1620,7 +1633,10 @@ class CourseListViewTests(TestCase):
         assign_perm(OrganizationExtension.EDIT_COURSE, organization_extension.group, organization_extension)
 
         toggle_switch('publisher_hide_features_for_pilot', False)
-        response = self.client.get(self.courses_url)
+
+        with self.assertNumQueries(21):
+            response = self.client.get(self.courses_url)
+
         self.assertContains(response, 'Edit')
 
 
