@@ -25,12 +25,12 @@ Data Loading
 
 Data about courses and course runs is collected from Studio, the LMS, the Ecommerce service, and, for edx.org, the Drupal marketing site. The data loading pipeline used to collect this data can be run with a management command called ``refresh_course_metadata``. edX runs this command several times a day using a Jenkins job. It can be manually run to populate a local environment with data. The data loading framework is designed to make adding additional systems easy.
 
-API
----
-
-Access to information about courses, course runs, catalogs, programs, and more is provided by a REST API. For more about the API, use your browser to visit the ``/api-docs`` hosted by a running Discovery instance.
-
 Search
 ------
 
 Discovery uses Elasticsearch to index data about courses, course runs, and programs. Indexing can be run at any time with a management command called ``update_index``. The Discovery API can be used to run search queries against the Elasticsearch index.
+
+API
+---
+
+Access to information about courses, course runs, catalogs, programs, and more is provided by a REST API. For more about the API, use your browser to visit ``/api-docs`` hosted by a running Discovery instance.
