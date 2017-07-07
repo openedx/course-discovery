@@ -196,7 +196,7 @@ class Person(TimeStampedModel):
     uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
     partner = models.ForeignKey(Partner, null=True, blank=False)
     given_name = models.CharField(max_length=255)
-    family_name = models.CharField(max_length=255, null=True, blank=True)
+    family_name = models.CharField(max_length=255, null=False, blank=True, default='')
     bio = models.TextField(null=True, blank=True)
     profile_image_url = models.URLField(null=True, blank=True)
     profile_image = StdImageField(
