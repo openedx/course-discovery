@@ -13,7 +13,6 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
     def setUp(self):
         super(OrganizationViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
-        self.request.user = self.user
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
     def test_authentication(self):
@@ -29,14 +28,16 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
         """ Asserts the response data (only) contains the expected organizations. """
         actual = response.data
         serializer_data = self.serialize_organization(organizations, many=many)
+
         if many:
             actual = actual['results']
+            actual = sorted(actual, key=lambda k: k['uuid'])
+            serializer_data = sorted(serializer_data, key=lambda k: k['uuid'])
 
-        self.assertCountEqual(actual, serializer_data)
+        self.assertEqual(actual, serializer_data)
 
     def assert_list_uuid_filter(self, organizations, expected_query_count):
         """ Asserts the list endpoint supports filtering by UUID. """
-        organizations = sorted(organizations, key=lambda o: o.created)
         with self.assertNumQueries(expected_query_count):
             uuids = ','.join([organization.uuid.hex for organization in organizations])
             url = '{root}?uuids={uuids}'.format(root=self.list_path, uuids=uuids)

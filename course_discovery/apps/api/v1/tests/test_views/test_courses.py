@@ -21,7 +21,6 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
     def setUp(self):
         super(CourseViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
-        self.request.user = self.user
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.course = CourseFactory(partner=self.partner)
 
