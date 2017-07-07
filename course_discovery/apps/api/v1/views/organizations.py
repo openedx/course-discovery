@@ -15,15 +15,12 @@ class OrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
     permission_classes = (IsAuthenticated,)
+    queryset = serializers.OrganizationSerializer.prefetch_queryset()
     serializer_class = serializers.OrganizationSerializer
 
     # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
     # versions of this API should only support the system default, PageNumberPagination.
     pagination_class = ProxiedPagination
-
-    def get_queryset(self):
-        partner = self.request.site.partner
-        return serializers.OrganizationSerializer.prefetch_queryset(partner=partner)
 
     def list(self, request, *args, **kwargs):
         """ Retrieve a list of all organizations. """
