@@ -20,13 +20,11 @@ from opaque_keys.edx.keys import CourseKey
 from pytz import timezone
 from testfixtures import LogCapture
 
-from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
-from course_discovery.apps.course_metadata.tests.factories import (CourseFactory, OrganizationFactory, PersonFactory,
-                                                                   SubjectFactory)
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory, OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.constants import (ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME,
@@ -44,7 +42,7 @@ from course_discovery.apps.publisher_comments.tests.factories import CommentFact
 
 
 @ddt.ddt
-class CreateCourseViewTests(SiteMixin, TestCase):
+class CreateCourseViewTests(TestCase):
     """ Tests for the publisher `CreateCourseView`. """
 
     def setUp(self):
@@ -63,6 +61,7 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         self.course = factories.CourseFactory()
 
         self.course.organizations.add(self.organization_extension.organization)
+        self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
         # creating default organizations roles
@@ -270,7 +269,7 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         )
 
 
-class CreateCourseRunViewTests(SiteMixin, TestCase):
+class CreateCourseRunViewTests(TestCase):
     """ Tests for the publisher `UpdateCourseRunView`. """
 
     def setUp(self):
@@ -300,6 +299,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         current_datetime = datetime.now(timezone('US/Central'))
         self.course_run_dict['start'] = (current_datetime + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
         self.course_run_dict['end'] = (current_datetime + timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S')
+        self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
     def _pop_valuse_from_dict(self, data_dict, key_list):
@@ -562,7 +562,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
 
 
 @ddt.ddt
-class CourseRunDetailTests(SiteMixin, TestCase):
+class CourseRunDetailTests(TestCase):
     """ Tests for the course-run detail view. """
 
     def setUp(self):
@@ -763,8 +763,9 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         """
         self.client.logout()
         self.client.login(username=self.user.username, password=USER_PASSWORD)
+        site = Site.objects.get(pk=settings.SITE_ID)
 
-        comment = CommentFactory(content_object=self.course_run, user=self.user, site=self.site)
+        comment = CommentFactory(content_object=self.course_run, user=self.user, site=site)
         response = self.client.get(self.page_url)
         self.assertEqual(response.status_code, 200)
         self._assert_credits_seats(response, self.wrapped_course_run.credit_seat)
@@ -778,7 +779,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         # test decline comment appearing on detail page also.
         decline_comment = CommentFactory(
             content_object=self.course_run,
-            user=self.user, site=self.site, comment_type=CommentTypeChoices.Decline_Preview
+            user=self.user, site=site, comment_type=CommentTypeChoices.Decline_Preview
         )
         response = self.client.get(self.page_url)
         self.assertContains(response, decline_comment.comment)
@@ -1232,12 +1233,12 @@ class CourseRunDetailTests(SiteMixin, TestCase):
 
 # pylint: disable=attribute-defined-outside-init
 @ddt.ddt
-class DashboardTests(SiteMixin, TestCase):
+class DashboardTests(TestCase):
     """ Tests for the `Dashboard`. """
 
     def setUp(self):
         super(DashboardTests, self).setUp()
-        Site.objects.exclude(id=self.site.id).delete()
+
         self.group_internal = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
         self.group_project_coordinator = Group.objects.get(name=PROJECT_COORDINATOR_GROUP_NAME)
         self.group_reviewer = Group.objects.get(name=REVIEWER_GROUP_NAME)
@@ -1276,18 +1277,7 @@ class DashboardTests(SiteMixin, TestCase):
 
     def _create_course_assign_role(self, state, user, role):
         """ Create course-run-state, course-user-role and return course-run. """
-        course = factories.CourseFactory(
-            primary_subject=SubjectFactory(partner=self.partner),
-            secondary_subject=SubjectFactory(partner=self.partner),
-            tertiary_subject=SubjectFactory(partner=self.partner)
-        )
-        course_run = factories.CourseRunFactory(course=course)
-        course_run_state = factories.CourseRunStateFactory(
-            name=state,
-            owner_role=role,
-            course_run=course_run
-        )
-
+        course_run_state = factories.CourseRunStateFactory(name=state, owner_role=role)
         factories.CourseUserRoleFactory(course=course_run_state.course_run.course, role=role, user=user)
         return course_run_state.course_run
 
@@ -1494,7 +1484,8 @@ class DashboardTests(SiteMixin, TestCase):
         Verify that site_name is available in context.
         """
         response = self.client.get(self.page_url)
-        self.assertEqual(response.context['site_name'], self.site.name)
+        site = Site.objects.first()
+        self.assertEqual(response.context['site_name'], site.name)
 
     def test_filters(self):
         """
@@ -1512,9 +1503,10 @@ class DashboardTests(SiteMixin, TestCase):
 
         response = self.client.get(self.page_url)
 
+        site = Site.objects.first()
         self._assert_filter_counts(response, 'All', 3)
         self._assert_filter_counts(response, 'With Course Team', 2)
-        self._assert_filter_counts(response, 'With {site_name}'.format(site_name=self.site.name), 1)
+        self._assert_filter_counts(response, 'With {site_name}'.format(site_name=site.name), 1)
 
     def _assert_filter_counts(self, response, expected_label, count):
         """
@@ -1525,7 +1517,7 @@ class DashboardTests(SiteMixin, TestCase):
         self.assertContains(response, expected_count, count=1)
 
 
-class ToggleEmailNotificationTests(SiteMixin, TestCase):
+class ToggleEmailNotificationTests(TestCase):
     """ Tests for `ToggleEmailNotification` view. """
 
     def setUp(self):
@@ -1558,7 +1550,7 @@ class ToggleEmailNotificationTests(SiteMixin, TestCase):
         self.assertEqual(is_email_notification_enabled(user), is_enabled)
 
 
-class CourseListViewTests(SiteMixin, TestCase):
+class CourseListViewTests(TestCase):
     """ Tests for `CourseListView` """
 
     def setUp(self):
@@ -1632,7 +1624,7 @@ class CourseListViewTests(SiteMixin, TestCase):
         self.assertContains(response, 'Edit')
 
 
-class CourseDetailViewTests(SiteMixin, TestCase):
+class CourseDetailViewTests(TestCase):
     """ Tests for the course detail view. """
 
     def setUp(self):
@@ -2064,7 +2056,7 @@ class CourseDetailViewTests(SiteMixin, TestCase):
 
 
 @ddt.ddt
-class CourseEditViewTests(SiteMixin, TestCase):
+class CourseEditViewTests(TestCase):
     """ Tests for the course edit view. """
 
     def setUp(self):
@@ -2482,7 +2474,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
 
 
 @ddt.ddt
-class CourseRunEditViewTests(SiteMixin, TestCase):
+class CourseRunEditViewTests(TestCase):
     """ Tests for the course run edit view. """
 
     def setUp(self):
@@ -2500,6 +2492,7 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         self.seat = factories.SeatFactory(course_run=self.course_run, type=Seat.VERIFIED, price=2)
 
         self.course.organizations.add(self.organization_extension.organization)
+        self.site = Site.objects.get(pk=settings.SITE_ID)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         current_datetime = datetime.now(timezone('US/Central'))
         self.start_date_time = (current_datetime + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
@@ -2782,7 +2775,7 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
 
         body = mail.outbox[0].body.strip()
         self.assertIn(expected_body, body)
-        page_url = 'https://{host}{path}'.format(host=self.site.domain.strip('/'), path=object_path)
+        page_url = 'https://{host}{path}'.format(host=Site.objects.get_current().domain.strip('/'), path=object_path)
         self.assertIn(page_url, body)
 
     def test_studio_instance_with_course_team(self):
@@ -3011,7 +3004,7 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         self.assertEqual(str(mail.outbox[0].subject), expected_subject)
 
 
-class CourseRevisionViewTests(SiteMixin, TestCase):
+class CourseRevisionViewTests(TestCase):
     """ Tests for CourseReview"""
 
     def setUp(self):
@@ -3063,7 +3056,7 @@ class CourseRevisionViewTests(SiteMixin, TestCase):
         return self.client.get(path=revision_path)
 
 
-class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
+class CreateRunFromDashboardViewTests(TestCase):
     """ Tests for the publisher `CreateRunFromDashboardView`. """
 
     def setUp(self):
@@ -3163,7 +3156,7 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
         self.assertEqual(str(mail.outbox[0].subject), expected_subject)
 
 
-class CreateAdminImportCourseTest(SiteMixin, TestCase):
+class CreateAdminImportCourseTest(TestCase):
     """ Tests for the publisher `CreateAdminImportCourse`. """
 
     def setUp(self):
