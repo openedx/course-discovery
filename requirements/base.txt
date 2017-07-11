@@ -26,6 +26,10 @@ djangorestframework-csv==1.4.1
 djangorestframework-jwt==1.8.0
 djangorestframework-xml==1.3.0
 django-rest-swagger[reST]==0.3.10
+# django-rest-swagger[reST] should install docutils, but doesn't
+# (see https://github.com/pypa/pip/issues/4617), so we force it here.
+docutils>=0.8
+
 drf-extensions==0.3.1
 drf-haystack==1.6.0rc1
 dry-rest-permissions==0.1.6
