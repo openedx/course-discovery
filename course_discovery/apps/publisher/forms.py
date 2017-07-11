@@ -1,6 +1,8 @@
 """
 Course publisher forms.
 """
+import html
+
 from dal import autocomplete
 from django import forms
 from django.core.exceptions import ValidationError
@@ -192,6 +194,13 @@ class CustomCourseForm(CourseForm):
 
         if user and not is_internal_user(user):
             self.fields['video_link'].widget = forms.HiddenInput()
+
+    def clean_title(self):
+        """
+        Convert all named and numeric character references in the string
+        to the corresponding unicode characters
+        """
+        return html.unescape(self.cleaned_data.get("title"))
 
     def clean(self):
         cleaned_data = self.cleaned_data
