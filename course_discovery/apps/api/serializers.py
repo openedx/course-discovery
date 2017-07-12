@@ -1034,7 +1034,7 @@ class QueryFacetFieldSerializer(serializers.Serializer):
 
         path = '{path}?{query}'.format(path=request.path_info, query=query_params.urlencode())
         url = request.build_absolute_uri(path)
-        return serializers.Hyperlink(url, name='narrow-url')
+        return serializers.Hyperlink(url, 'narrow-url')
 
 
 class BaseHaystackFacetSerializer(HaystackFacetSerializer):

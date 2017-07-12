@@ -1,6 +1,6 @@
 from django.db.models.functions import Lower
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
-from rest_framework.filters import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 
 from course_discovery.apps.api import filters, serializers
