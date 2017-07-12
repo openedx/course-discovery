@@ -50,7 +50,7 @@
                         {{ course_run.number }}
                     </td>
                     <td>
-                        {% if course_run.course.organizations.first %}{{ course_run.course.organizations.first.key }}{% endif %}
+                        {{ course_run.course.organization_name }}
                     </td>
                     <td>
                          {{ course_run.start|date:"Y-m-d" }}
