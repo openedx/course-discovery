@@ -32,7 +32,7 @@
                             <a target="_blank" href="{{ course_run.preview_url }}">{{ course_run.preview_url }}</a>
                         </td>
                         <td>
-                        {% if course_run.course.organizations.first %}{{ course_run.course.organizations.first.key }}{% endif %}
+                        {{ course_run.course.organization_name }}
                         </td>
                         <td>
                             {% if course_run.course_run_state.preview_accepted %}
