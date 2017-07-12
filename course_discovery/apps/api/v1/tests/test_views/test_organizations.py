@@ -85,7 +85,7 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
         organizations = OrganizationFactory.create_batch(2)
 
         # If no organizations have been tagged, the endpoint should not return any data
-        self.assert_list_tag_filter([], [tag], expected_query_count=4)
+        self.assert_list_tag_filter([], [tag], expected_query_count=3)
 
         # Tagged organizations should be returned
         organizations[0].tags.add(tag)
