@@ -290,14 +290,9 @@ class ProgramAdminFunctionalTests(LiveServerTestCase):
             'field-min_hours_effort_per_week', 'field-max_hours_effort_per_week', 'field-courses',
             'field-order_courses_by_start_date', 'field-custom_course_runs_display', 'field-excluded_course_runs',
             'field-authoring_organizations', 'field-credit_backing_organizations', 'field-one_click_purchase_enabled',
-            'field-hidden', 'field-job_outlook_items', 'field-expected_learning_items'
+            'field-hidden', 'field-corporate_endorsements', 'field-faq', 'field-individual_endorsements',
+            'field-job_outlook_items', 'field-expected_learning_items',
         ]
-        self.assertEqual(actual, expected)
-
-        # Check the inline fields
-        expected = ['Program_faq-group', 'Program_individual_endorsements-group',
-                    'Program_corporate_endorsements-group']
-        actual = [element.get_attribute('id') for element in self.browser.find_elements_by_class_name('inline-group')]
         self.assertEqual(actual, expected)
 
     def test_program_creation(self):

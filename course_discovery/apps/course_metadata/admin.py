@@ -63,27 +63,6 @@ class PersonSocialNetworkInline(admin.TabularInline):
     extra = 0
 
 
-class FaqsInline(admin.TabularInline):
-    model = Program.faq.through
-    exclude = ('sort_value',)
-    extra = 1
-    verbose_name_plural = 'Faqs'
-
-
-class IndividualEndorsementInline(admin.TabularInline):
-    model = Program.individual_endorsements.through
-    exclude = ('sort_value',)
-    extra = 1
-    verbose_name_plural = 'Individual Endorsement'
-
-
-class CorporateEndorsementsInline(admin.TabularInline):
-    model = Program.corporate_endorsements.through
-    exclude = ('sort_value',)
-    extra = 1
-    verbose_name_plural = 'Corporate Endorsement'
-
-
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     form = CourseAdminForm
@@ -130,7 +109,6 @@ class CourseRunAdmin(admin.ModelAdmin):
 @admin.register(Program)
 class ProgramAdmin(admin.ModelAdmin):
     form = ProgramAdminForm
-    inlines = [FaqsInline, IndividualEndorsementInline, CorporateEndorsementsInline]
     list_display = ('id', 'uuid', 'title', 'type', 'partner', 'status', 'hidden')
     list_filter = ('partner', 'type', 'status', ProgramEligibilityFilter, 'hidden',)
     ordering = ('uuid', 'title', 'status')
@@ -146,7 +124,8 @@ class ProgramAdmin(admin.ModelAdmin):
         'marketing_slug', 'overview', 'credit_redemption_overview', 'video', 'weeks_to_complete',
         'min_hours_effort_per_week', 'max_hours_effort_per_week', 'courses', 'order_courses_by_start_date',
         'custom_course_runs_display', 'excluded_course_runs', 'authoring_organizations',
-        'credit_backing_organizations', 'one_click_purchase_enabled', 'hidden',
+        'credit_backing_organizations', 'one_click_purchase_enabled', 'hidden', 'corporate_endorsements', 'faq',
+        'individual_endorsements',
     )
     fields += filter_horizontal
     save_error = False
