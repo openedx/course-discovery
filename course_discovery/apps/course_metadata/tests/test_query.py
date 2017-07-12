@@ -30,14 +30,24 @@ class CourseQuerySetTests(TestCase):
 
             if state in self.available_states:
                 course = course_run.course
+                # This course is available, so should be returned by the
+                # available() query.
+                assert list(Course.objects.available()) == [course]
 
                 # This run has no seats, but we still expect its parent course
                 # to be included.
                 CourseRunFactory(course=course)
+                assert list(Course.objects.available()) == [course]
 
-                assert set(Course.objects.available()) == {course}
+                # Generate another course run with available seats.
+                # Only one instance of the course should be included in the result.
+                other_course_run = CourseRunFactory(course=course)
+                for function in state:
+                    function(other_course_run)
+                other_course_run.save()
+                assert list(Course.objects.available()) == [course]
             else:
-                assert set(Course.objects.available()) == set()
+                assert list(Course.objects.available()) == []
 
 
 @ddt.ddt

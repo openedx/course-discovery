@@ -50,7 +50,14 @@ class CourseQuerySet(models.QuerySet):
         # runs is published while the other is not. If you used exclude(), the Course
         # would be dropped from the queryset even though it has one run which matches
         # our availability criteria.
-        return self.filter(enrollable & not_ended & marketable)
+        query = self.filter(enrollable & not_ended & marketable)
+
+        # By itself, the query above performs a join across several tables and would return
+        # a copy of the same course multiple times (a separate copy for each available
+        # seat in each available run).
+        # We use distinct() to make sure it only returns a single copy of each available
+        # course.
+        return query.distinct()
 
 
 class CourseRunQuerySet(models.QuerySet):
