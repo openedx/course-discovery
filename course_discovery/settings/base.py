@@ -320,7 +320,6 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.DjangoModelPermissions',
     ),
     'PAGE_SIZE': 20,
-    'VIEW_DESCRIPTION_FUNCTION': 'rest_framework_swagger.views.get_restructuredtext',
     'TEST_REQUEST_RENDERER_CLASSES': (
         'rest_framework.renderers.MultiPartRenderer',
         'rest_framework.renderers.JSONRenderer',
@@ -353,10 +352,7 @@ JWT_AUTH = {
 }
 
 SWAGGER_SETTINGS = {
-    'api_version': 'v1',
-    'doc_expansion': 'list',
-    'is_authenticated': True,
-    'permission_denied_handler': 'course_discovery.apps.api.views.api_docs_permission_denied_handler'
+    'DOC_EXPANSION': 'list',
 }
 
 # Elasticsearch uses index settings to specify available analyzers.
