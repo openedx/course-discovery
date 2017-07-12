@@ -185,7 +185,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
                 # Any course appearing in the response must have at least one serialized run.
                 assert len(response.data['results'][0]['course_runs']) > 0
             else:
-                with self.assertNumQueries(3):
+                with self.assertNumQueries(2):
                     response = self.client.get(url)
 
                 assert response.status_code == 200
