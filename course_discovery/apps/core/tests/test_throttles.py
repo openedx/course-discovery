@@ -1,9 +1,10 @@
+from django.conf import settings
 from django.core.cache import cache
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from course_discovery.apps.core.models import UserThrottleRate
-from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
+from course_discovery.apps.core.tests.factories import USER_PASSWORD, PartnerFactory, UserFactory
 from course_discovery.apps.core.throttles import OverridableUserRateThrottle
 
 
@@ -14,7 +15,10 @@ class RateLimitingTest(APITestCase):
 
     def setUp(self):
         super(RateLimitingTest, self).setUp()
-        self.url = reverse('django.swagger.resources.view')
+
+        PartnerFactory(pk=settings.DEFAULT_PARTNER_ID)
+
+        self.url = reverse('api_docs')
         self.user = UserFactory()
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
@@ -40,7 +44,8 @@ class RateLimitingTest(APITestCase):
     def test_rate_limiting(self):
         """ Verify the API responds with HTTP 429 if a normal user exceeds the rate limit. """
         response = self._make_requests()
-        self.assertEqual(response.status_code, 429)
+
+        assert response.status_code == 429
 
     def test_user_throttle_rate(self):
         """ Verify the UserThrottleRate can be used to override the default rate limit. """
@@ -50,7 +55,8 @@ class RateLimitingTest(APITestCase):
     def assert_rate_limit_successfully_exceeded(self):
         """ Asserts that the throttle's rate limit can be exceeded without encountering an error. """
         response = self._make_requests()
-        self.assertEqual(response.status_code, 200)
+
+        assert response.status_code == 200
 
     def test_superuser_throttling(self):
         """ Verify superusers are not throttled. """

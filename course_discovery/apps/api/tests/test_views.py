@@ -1,11 +1,39 @@
 import ddt
+import pytest
+from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import PermissionDenied
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
 from course_discovery.apps.api.views import api_docs_permission_denied_handler
-from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
+
+
+@pytest.mark.django_db
+class TestApiDocs:
+    """
+    Regression tests introduced following LEARNER-1590.
+    """
+    path = reverse('api_docs')
+
+    def test_api_docs(self, admin_client):
+        """
+        Verify that the API docs are available to authenticated clients.
+        """
+        PartnerFactory(pk=settings.DEFAULT_PARTNER_ID)
+
+        response = admin_client.get(self.path)
+
+        assert response.status_code == 200
+
+    def test_api_docs_redirect(self, client):
+        """
+        Verify that unauthenticated clients are redirected.
+        """
+        response = client.get(self.path)
+
+        assert response.status_code == 302
 
 
 @ddt.ddt
