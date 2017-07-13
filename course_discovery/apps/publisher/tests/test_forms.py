@@ -9,7 +9,7 @@ from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.publisher.forms import CustomCourseForm, CustomCourseRunForm, PublisherUserCreationForm
-from course_discovery.apps.publisher.tests.factories import CourseFactory
+from course_discovery.apps.publisher.tests.factories import CourseFactory, OrganizationExtensionFactory
 
 
 class UserModelChoiceFieldTests(TestCase):
@@ -168,6 +168,23 @@ class PublisherCustomCourseFormTests(TestCase):
         self.organization = OrganizationFactory()
         self.course.organizations.add(self.organization)
 
+    def setup_course(self, **course_kwargs):
+        """
+        Creates the course and add organization and admin to this course.
+
+        Returns:
+            course: a course object
+            course_admin: a user object
+        """
+        course = CourseFactory(**course_kwargs)
+        course_admin = UserFactory(username='course_admin')
+        organization_extension = OrganizationExtensionFactory()
+        organization = organization_extension.organization
+
+        course_admin.groups.add(organization_extension.group)
+        course.organizations.add(organization)
+        return course, course_admin
+
     def test_duplicate_title(self):
         """
         Verify that clean raises 'ValidationError' if the course title is a duplicate of another course title
@@ -193,3 +210,24 @@ class PublisherCustomCourseFormTests(TestCase):
 
         course_form.cleaned_data['number'] = "123a"
         self.assertEqual(course_form.clean(), course_form.cleaned_data)
+
+    def test_course_title_formatting(self):
+        """
+        Verify that course_title is properly escaped and saved in database while
+        updating the course
+        """
+        course, course_admin = self.setup_course(title='test_course')
+        organization = course.organizations.all()[0].id
+        course_from_data = {
+            'title': '&aacute;&ccedil;&atilde;',
+            'number': course.number,
+            'organization': organization,
+            'team_admin': course_admin.id
+        }
+        course_form = CustomCourseForm(
+            **{'data': course_from_data, 'instance': course, 'user': course_admin,
+               'organization': organization}
+        )
+        self.assertTrue(course_form.is_valid())
+        course_updated_data = course_form.save()
+        self.assertTrue(course_updated_data.title, 'áçã')

@@ -262,7 +262,7 @@ class UpdateCourseRunViewTests(TestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(
-            response.data.get('lms_course_id'), ['CourseRun with this lms course id already exists.']
+            response.data.get('lms_course_id'), ['course run with this lms course id already exists.']
         )
 
     def test_update_course_key(self):

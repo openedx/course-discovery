@@ -2,6 +2,43 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import ugettext as _
+from rest_framework.permissions import AllowAny
+from rest_framework.renderers import CoreJSONRenderer
+from rest_framework.response import Response
+from rest_framework.schemas import SchemaGenerator
+from rest_framework.views import APIView
+from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
+
+
+class SwaggerSchemaView(APIView):
+    permission_classes = [AllowAny]
+    renderer_classes = [
+        CoreJSONRenderer,
+        OpenAPIRenderer,
+        SwaggerUIRenderer,
+    ]
+
+    # Added in DRF 3.5.0. Does nothing until we upgrade.
+    exclude_from_schema = True
+
+    def get(self, request):
+        generator = SchemaGenerator(
+            title='Discovery API',
+            # TODO: Remove these kwargs after upgrading to DRF 3.5. exclude_from_schema
+            # will be sufficient at that point.
+            url='/api',
+            urlconf='course_discovery.apps.api.urls',
+        )
+        schema = generator.get_schema(request=request)
+
+        if not schema:
+            # get_schema() uses the same permissions check as the API endpoints.
+            # If we don't get a schema document back, it means the user is not
+            # authenticated or doesn't have permission to access the API.
+            # api_docs_permission_denied_handler() handles both of these cases.
+            return api_docs_permission_denied_handler(request)
+
+        return Response(schema)
 
 
 def api_docs_permission_denied_handler(request):

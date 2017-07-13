@@ -1,18 +1,3 @@
-body {
-    margin: 0;
-}
-
-#header {
-    background-color: #fcfcfc;
-    border-bottom: 4px solid #0079bc;
-    color: #999999;
-}
-
-#django-rest-swagger {
-    background-color: white;
-    color: #999999;
-}
-
-#django-rest-swagger a {
-    color: inherit;
+.footer {
+    display: none;
 }

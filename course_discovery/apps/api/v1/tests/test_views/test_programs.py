@@ -170,7 +170,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         self.assert_list_results(url, [program], 8)
 
         url = self.list_path + '?type=bar'
-        self.assert_list_results(url, [], 4)
+        self.assert_list_results(url, [], 3)
 
     def test_filter_by_types(self):
         """ Verify that the endpoint filters programs to those matching the provided ProgramType slugs. """
@@ -197,7 +197,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         self.assert_list_results(url, expected, 8)
 
     @ddt.data(
-        (ProgramStatus.Unpublished, False, 4),
+        (ProgramStatus.Unpublished, False, 3),
         (ProgramStatus.Active, True, 8),
     )
     @ddt.unpack
