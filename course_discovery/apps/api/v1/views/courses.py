@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
-from course_discovery.apps.api.v1.views import get_query_param
+from course_discovery.apps.api.utils import get_query_param
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX
 from course_discovery.apps.course_metadata.models import Course, CourseRun

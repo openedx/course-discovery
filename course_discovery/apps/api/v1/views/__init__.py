@@ -1,22 +1,11 @@
-import logging
-
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
 from course_discovery.apps.api import serializers
 from course_discovery.apps.api.exceptions import InvalidPartnerError
-from course_discovery.apps.api.utils import cast2int
 from course_discovery.apps.core.models import Partner
 
-logger = logging.getLogger(__name__)
 User = get_user_model()
-
-
-def get_query_param(request, name):
-    """
-    Get a query parameter and cast it to an integer.
-    """
-    return cast2int(request.query_params.get(name), name)
 
 
 def prefetch_related_objects_for_courses(queryset):

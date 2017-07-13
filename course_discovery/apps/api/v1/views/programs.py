@@ -6,7 +6,7 @@ from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
-from course_discovery.apps.api.v1.views import get_query_param
+from course_discovery.apps.api.utils import get_query_param
 from course_discovery.apps.course_metadata.models import Program
 
 

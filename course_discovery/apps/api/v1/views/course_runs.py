@@ -8,7 +8,8 @@ from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
-from course_discovery.apps.api.v1.views import PartnerMixin, get_query_param
+from course_discovery.apps.api.utils import get_query_param
+from course_discovery.apps.api.v1.views import PartnerMixin
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.models import CourseRun
