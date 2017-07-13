@@ -80,7 +80,8 @@ class CourseRunStateAdmin(admin.ModelAdmin):
     raw_id_fields = ('changed_by',)
     list_display = ['id', 'name', 'approved_by_role', 'owner_role',
                     'course_run', 'owner_role_modified', 'preview_accepted']
-    search_fields = ['id', 'name']
+    list_filter = ('name',)
+    search_fields = ['id', 'course_run__course__title']
     ordering = ['id']
 
 
