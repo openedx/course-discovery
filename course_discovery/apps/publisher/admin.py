@@ -71,8 +71,9 @@ class OrganizationUserRoleAdmin(admin.ModelAdmin):
 @admin.register(CourseState)
 class CourseStateAdmin(admin.ModelAdmin):
     raw_id_fields = ('changed_by',)
-    list_display = ['name', 'approved_by_role', 'owner_role', 'course', 'marketing_reviewed']
-    search_fields = ['name']
+    list_display = ['id', 'name', 'approved_by_role', 'owner_role', 'course', 'marketing_reviewed']
+    search_fields = ['id', 'course__title']
+    list_filter = ('name',)
 
 
 @admin.register(CourseRunState)
