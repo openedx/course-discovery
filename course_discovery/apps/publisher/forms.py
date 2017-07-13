@@ -510,13 +510,14 @@ class PublisherUserCreationForm(forms.ModelForm):
         fields = ('username', 'groups',)
 
     def clean(self):
-        groups = self.cleaned_data.get('groups')
+        cleaned_data = super(PublisherUserCreationForm, self).clean()
+        groups = cleaned_data.get('groups')
         if not groups:
             raise forms.ValidationError(
                 {'groups': _('This field is required.')}
             )
 
-        return self.cleaned_data
+        return cleaned_data
 
 
 class CourseRunAdminForm(forms.ModelForm):
