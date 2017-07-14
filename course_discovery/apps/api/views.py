@@ -18,17 +18,10 @@ class SwaggerSchemaView(APIView):
         SwaggerUIRenderer,
     ]
 
-    # Added in DRF 3.5.0. Does nothing until we upgrade.
     exclude_from_schema = True
 
     def get(self, request):
-        generator = SchemaGenerator(
-            title='Discovery API',
-            # TODO: Remove these kwargs after upgrading to DRF 3.5. exclude_from_schema
-            # will be sufficient at that point.
-            url='/api',
-            urlconf='course_discovery.apps.api.urls',
-        )
+        generator = SchemaGenerator(title='Discovery API')
         schema = generator.get_schema(request=request)
 
         if not schema:
