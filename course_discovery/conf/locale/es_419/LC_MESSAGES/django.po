@@ -20,7 +20,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-21 13:39+0500\n"
+"POT-Creation-Date: 2017-07-13 17:02-0400\n"
 "PO-Revision-Date: 2017-06-29 13:46+0000\n"
 "Last-Translator: Poxtic <erandelle@outlook.com>\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
@@ -319,7 +319,7 @@ msgstr "Personas"
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
 msgstr "Formato del número de curso. Ej: CS002x, BIO1.1x, BIO1.2x"
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/publisher/models.py
 msgid ""
 "Title specific for this run of a course. Leave this value blank to default "
 "to the parent course's title."
@@ -331,7 +331,7 @@ msgid ""
 "to default to the parent course's short_description attribute."
 msgstr "Descripción corta para esta versión del curso. Si se deja en blanco, se usará la descripción corta del curso padre."
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/publisher/models.py
 msgid ""
 "Full description specific for this run of a course. Leave this value blank "
 "to default to the parent course's full_description attribute."
