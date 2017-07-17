@@ -9,13 +9,14 @@ from rest_framework.response import Response
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.utils import get_query_param
+from course_discovery.apps.api.v1.views import PartnerMixin
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.models import CourseRun
 
 
 # pylint: disable=no-member
-class CourseRunViewSet(viewsets.ModelViewSet):
+class CourseRunViewSet(PartnerMixin, viewsets.ModelViewSet):
     """ CourseRun resource. """
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     filter_class = filters.CourseRunFilter
@@ -42,7 +43,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
               multiple: false
         """
         q = self.request.query_params.get('q')
-        partner = self.request.site.partner
+        partner = self.get_partner()
 
         if q:
             qs = SearchQuerySetWrapper(CourseRun.search(q).filter(partner=partner.short_code))
@@ -75,6 +76,12 @@ class CourseRunViewSet(viewsets.ModelViewSet):
               multiple: false
             - name: keys
               description: Filter by keys (comma-separated list)
+              required: false
+              type: string
+              paramType: query
+              multiple: false
+            - name: partner
+              description: Filter by partner
               required: false
               type: string
               paramType: query
@@ -159,7 +166,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         """
         query = request.GET.get('query')
         course_run_ids = request.GET.get('course_run_ids')
-        partner = self.request.site.partner
+        partner = self.get_partner()
 
         if query and course_run_ids:
             course_run_ids = course_run_ids.split(',')
