@@ -716,7 +716,7 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
             course_run.pacing_type, course_run.has_valid_staff, course_run.is_valid_micromasters,
             course_run.is_valid_professional_certificate, course_run.is_valid_xseries, course_run.language,
             course_run.transcript_languages.all(), course_run.lms_course_id, course_run.min_effort,
-            course_run.max_effort, course_run.video_language
+            course_run.max_effort, course_run.video_language, course_run.length
 
         ])
 
