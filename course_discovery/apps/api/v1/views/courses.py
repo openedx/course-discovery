@@ -18,6 +18,7 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     filter_class = filters.CourseFilter
     lookup_field = 'key'
     lookup_value_regex = COURSE_ID_REGEX
+    queryset = Course.objects.all()
     permission_classes = (IsAuthenticated,)
     serializer_class = serializers.CourseWithProgramsSerializer
 
@@ -26,17 +27,16 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = ProxiedPagination
 
     def get_queryset(self):
-        partner = self.request.site.partner
         q = self.request.query_params.get('q')
 
         if q:
             queryset = Course.search(q)
-            queryset = self.get_serializer_class().prefetch_queryset(queryset=queryset, partner=partner)
+            queryset = self.get_serializer_class().prefetch_queryset(queryset=queryset)
         else:
             if get_query_param(self.request, 'include_hidden_course_runs'):
-                course_runs = CourseRun.objects.filter(course__partner=partner)
+                course_runs = CourseRun.objects.all()
             else:
-                course_runs = CourseRun.objects.filter(course__partner=partner).exclude(hidden=True)
+                course_runs = CourseRun.objects.exclude(hidden=True)
 
             if get_query_param(self.request, 'marketable_course_runs_only'):
                 course_runs = course_runs.marketable().active()
@@ -49,8 +49,7 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
 
             queryset = self.get_serializer_class().prefetch_queryset(
                 queryset=self.queryset,
-                course_runs=course_runs,
-                partner=partner
+                course_runs=course_runs
             )
 
         return queryset.order_by(Lower('key'))

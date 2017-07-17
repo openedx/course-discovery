@@ -4,16 +4,19 @@ import urllib
 
 import ddt
 import pytz
+from django.conf import settings
 from django.db.models.functions import Lower
 from rest_framework.reverse import reverse
-from rest_framework.test import APIRequestFactory
+from rest_framework.test import APIRequestFactory, APITestCase
 
-from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRun
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory, SeatFactory
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseRunFactory, PartnerFactory, ProgramFactory, SeatFactory
+)
 
 
 @ddt.ddt
@@ -22,6 +25,10 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         super(CourseRunViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.force_authenticate(self.user)
+        # DEFAULT_PARTNER_ID is used explicitly here to avoid issues with differences in
+        # auto-incrementing behavior across databases. Otherwise, it's not safe to assume
+        # that the partner created here will always have id=DEFAULT_PARTNER_ID.
+        self.partner = PartnerFactory(id=settings.DEFAULT_PARTNER_ID)
         self.course_run = CourseRunFactory(course__partner=self.partner)
         self.course_run_2 = CourseRunFactory(course__partner=self.partner)
         self.refresh_index()
@@ -163,6 +170,15 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
                                  key=lambda course_run: course_run['key'])
         self.assertListEqual(actual_sorted, expected_sorted)
 
+    def test_list_query_invalid_partner(self):
+        """ Verify the endpoint returns an 400 BAD_REQUEST if an invalid partner is sent """
+        query = 'title:Some random title'
+        url = '{root}?q={query}&partner={partner}'.format(root=reverse('api:v1:course_run-list'), query=query,
+                                                          partner='foo')
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 400)
+
     def assert_list_results(self, url, expected, extra_context=None):
         expected = sorted(expected, key=lambda course_run: course_run.key.lower())
         response = self.client.get(url)
@@ -251,6 +267,18 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
                 }
             }
         )
+
+    def test_contains_single_course_run_invalid_partner(self):
+        """ Verify that a 400 BAD_REQUEST is thrown when passing an invalid partner """
+        qs = urllib.parse.urlencode({
+            'query': 'id:course*',
+            'course_run_ids': self.course_run.key,
+            'partner': 'foo'
+        })
+        url = '{}?{}'.format(reverse('api:v1:course_run-contains'), qs)
+
+        response = self.client.get(url)
+        assert response.status_code == 400
 
     def test_contains_multiple_course_runs(self):
         qs = urllib.parse.urlencode({
