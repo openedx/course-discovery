@@ -47,6 +47,7 @@ THIRD_PARTY_APPS = [
     'django_fsm',
     'storages',
     'django_comments',
+    'django_sites_extensions',
     'taggit',
     'taggit_autosuggest',
     'taggit_serializer',
@@ -475,6 +476,10 @@ DISTINCT_COUNTS_FACET_PRECISION = 250
 DISTINCT_COUNTS_QUERY_CACHE_WARMING_COUNT = 20
 
 DEFAULT_PARTNER_ID = None
+
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#site-id
+# edx-django-sites-extensions will fallback to this site if we cannot identify the site from the hostname.
+SITE_ID = 1
 
 COMMENTS_APP = 'course_discovery.apps.publisher_comments'
 
