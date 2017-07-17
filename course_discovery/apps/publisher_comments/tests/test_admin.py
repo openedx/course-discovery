@@ -1,19 +1,21 @@
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.test import TestCase
 from django.urls import reverse
 
-from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher_comments.forms import CommentsAdminForm
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
 
 
-class AdminTests(SiteMixin, TestCase):
+class AdminTests(TestCase):
     """ Tests Admin page and customize form."""
     def setUp(self):
         super(AdminTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.site = Site.objects.get(pk=settings.SITE_ID)
         self.course = factories.CourseFactory()
         self.comment = CommentFactory(content_object=self.course, user=self.user, site=self.site)
 
