@@ -4,7 +4,6 @@ from django.test import TestCase
 from django.urls import reverse
 from guardian.shortcuts import get_group_perms
 
-from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.choices import PublisherUserRole
@@ -19,7 +18,7 @@ USER_PASSWORD = 'password'
 
 
 # pylint: disable=no-member
-class AdminTests(SiteMixin, TestCase):
+class AdminTests(TestCase):
     """ Tests Admin page."""
 
     def setUp(self):
@@ -82,7 +81,7 @@ class AdminTests(SiteMixin, TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class OrganizationExtensionAdminTests(SiteMixin, TestCase):
+class OrganizationExtensionAdminTests(TestCase):
     """ Tests for OrganizationExtensionAdmin."""
 
     def setUp(self):
@@ -135,7 +134,7 @@ class OrganizationExtensionAdminTests(SiteMixin, TestCase):
 
 
 @ddt.ddt
-class OrganizationUserRoleAdminTests(SiteMixin, TestCase):
+class OrganizationUserRoleAdminTests(TestCase):
     """ Tests for OrganizationUserRoleAdmin."""
 
     def setUp(self):

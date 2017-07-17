@@ -5,7 +5,6 @@ import ddt
 from django.test import TestCase
 from django.urls import reverse
 
-from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, PositionFactory
@@ -17,7 +16,7 @@ from course_discovery.apps.publisher.tests import factories
 
 
 @ddt.ddt
-class AutocompleteTests(SiteMixin, TestCase):
+class AutocompleteTests(TestCase):
     """ Tests for autocomplete lookups."""
     def setUp(self):
         super(AutocompleteTests, self).setUp()
@@ -119,7 +118,7 @@ class AutocompleteTests(SiteMixin, TestCase):
 
 
 @ddt.ddt
-class AutoCompletePersonTests(SiteMixin, TestCase):
+class AutoCompletePersonTests(TestCase):
     """
     Tests for person autocomplete lookups
     """
