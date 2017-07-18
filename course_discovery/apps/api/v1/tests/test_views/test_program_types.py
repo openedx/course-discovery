@@ -1,6 +1,7 @@
 from django.urls import reverse
+from rest_framework.test import APITestCase
 
-from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.models import ProgramType
 from course_discovery.apps.course_metadata.tests.factories import ProgramTypeFactory
@@ -27,7 +28,7 @@ class ProgramTypeViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of all program types. """
         ProgramTypeFactory.create_batch(4)
         expected = ProgramType.objects.all()
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(5):
             response = self.client.get(self.list_path)
 
         assert response.status_code == 200
@@ -38,7 +39,7 @@ class ProgramTypeViewSetTests(SerializationMixin, APITestCase):
         program_type = ProgramTypeFactory()
         url = reverse('api:v1:program_type-detail', kwargs={'slug': program_type.slug})
 
-        with self.assertNumQueries(5):
+        with self.assertNumQueries(4):
             response = self.client.get(url)
 
         assert response.status_code == 200

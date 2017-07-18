@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from course_discovery.apps.api import filters, serializers
+from course_discovery.apps.api.v1.views import PartnerMixin
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 
@@ -118,7 +119,7 @@ class AggregateSearchViewSet(BaseHaystackViewSet):
     serializer_class = serializers.AggregateSearchSerializer
 
 
-class TypeaheadSearchView(APIView):
+class TypeaheadSearchView(PartnerMixin, APIView):
     """ Typeahead for courses and programs. """
     RESULT_COUNT = 3
     permission_classes = (IsAuthenticated,)
@@ -180,7 +181,7 @@ class TypeaheadSearchView(APIView):
               type: string
         """
         query = request.query_params.get('q')
-        partner = request.site.partner
+        partner = self.get_partner()
         if not query:
             raise ValidationError("The 'q' querystring parameter is required for searching.")
         course_runs, programs = self.get_results(query, partner)

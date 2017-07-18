@@ -8,9 +8,10 @@ import pytz
 import responses
 from django.contrib.auth import get_user_model
 from rest_framework.reverse import reverse
+from rest_framework.test import APITestCase
 
 from course_discovery.apps.api.tests.jwt_utils import generate_jwt_header_for_user
-from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin, SerializationMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin, SerializationMixin
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory
@@ -30,7 +31,6 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
     def setUp(self):
         super(CatalogViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
-        self.request.user = self.user
         self.client.force_authenticate(self.user)
         self.catalog = CatalogFactory(query='title:abc*')
         enrollment_end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=30)
@@ -185,7 +185,8 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
                 # Any course appearing in the response must have at least one serialized run.
                 assert len(response.data['results'][0]['course_runs']) > 0
             else:
-                response = self.client.get(url)
+                with self.assertNumQueries(2):
+                    response = self.client.get(url)
 
                 assert response.status_code == 200
                 assert response.data['results'] == []
@@ -217,7 +218,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
         url = reverse('api:v1:catalog-csv', kwargs={'id': self.catalog.id})
 
-        with self.assertNumQueries(18):
+        with self.assertNumQueries(17):
             response = self.client.get(url)
 
         course_run = self.serialize_catalog_flat_course_run(self.course_run)

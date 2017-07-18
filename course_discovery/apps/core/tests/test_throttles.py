@@ -3,13 +3,12 @@ from django.core.cache import cache
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
-from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import UserThrottleRate
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, PartnerFactory, UserFactory
 from course_discovery.apps.core.throttles import OverridableUserRateThrottle
 
 
-class RateLimitingTest(SiteMixin, APITestCase):
+class RateLimitingTest(APITestCase):
     """
     Testing rate limiting of API calls.
     """

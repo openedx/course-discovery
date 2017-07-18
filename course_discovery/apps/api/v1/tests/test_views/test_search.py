@@ -3,12 +3,13 @@ import json
 import urllib.parse
 
 import ddt
+from django.conf import settings
 from django.urls import reverse
 from haystack.query import SearchQuerySet
+from rest_framework.test import APITestCase
 
 from course_discovery.apps.api.serializers import (CourseRunSearchSerializer, ProgramSearchSerializer,
                                                    TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer)
-from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase
 from course_discovery.apps.api.v1.views.search import TypeaheadSearchView
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, PartnerFactory, UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
@@ -87,8 +88,14 @@ class SynonymTestMixin:
         self.assertDictEqual(response1, response2)
 
 
+class DefaultPartnerMixin:
+    def setUp(self):
+        super(DefaultPartnerMixin, self).setUp()
+        self.partner = PartnerFactory(pk=settings.DEFAULT_PARTNER_ID)
+
+
 @ddt.ddt
-class CourseRunSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchTestMixin,
+class CourseRunSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, LoginMixin, ElasticsearchTestMixin,
                                   APITestCase):
     """ Tests for CourseRunSearchViewSet. """
     faceted_path = reverse('api:v1:search-course_runs-facets')
@@ -155,9 +162,7 @@ class CourseRunSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
         return course_run, response_data
 
     def build_facet_url(self, params):
-        return 'http://testserver.fake{path}?{query}'.format(
-            path=self.faceted_path, query=urllib.parse.urlencode(params)
-        )
+        return 'http://testserver{path}?{query}'.format(path=self.faceted_path, query=urllib.parse.urlencode(params))
 
     def test_invalid_query_facet(self):
         """ Verify the endpoint returns HTTP 400 if an invalid facet is requested. """
@@ -266,7 +271,7 @@ class CourseRunSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
         )
         self.reindex_courses(program)
 
-        with self.assertNumQueries(5):
+        with self.assertNumQueries(4):
             response = self.get_response('software', faceted=False)
 
         self.assertEqual(response.status_code, 200)
@@ -290,7 +295,7 @@ class CourseRunSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
         ProgramFactory(courses=[course_run.course], status=program_status)
         self.reindex_courses(active_program)
 
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(5):
             response = self.get_response('software', faceted=False)
 
             self.assertEqual(response.status_code, 200)
@@ -308,7 +313,7 @@ class CourseRunSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
 
 
 @ddt.ddt
-class AggregateSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchTestMixin,
+class AggregateSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, LoginMixin, ElasticsearchTestMixin,
                                   SynonymTestMixin, APITestCase):
     path = reverse('api:v1:search-all-facets')
 
@@ -433,7 +438,7 @@ class AggregateSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
         assert expected == actual
 
 
-class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, ElasticsearchTestMixin,
+class TypeaheadSearchViewTests(DefaultPartnerMixin, TypeaheadSerializationMixin, LoginMixin, ElasticsearchTestMixin,
                                SynonymTestMixin, APITestCase):
     path = reverse('api:v1:search-typeahead')
 
@@ -615,3 +620,23 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, Elastics
                          self.serialize_program(harvard_program)]
         }
         self.assertDictEqual(response.data, expected)
+
+    def test_typeahead_partner_filter(self):
+        """ Ensure that a partner param limits results to that partner. """
+        course_runs = []
+        programs = []
+
+        for partner in ['edx', 'other']:
+            title = 'Belongs to partner ' + partner
+            partner = PartnerFactory(short_code=partner)
+            course_runs.append(CourseRunFactory(title=title, course=CourseFactory(partner=partner)))
+            programs.append(ProgramFactory(
+                title=title, partner=partner,
+                status=ProgramStatus.Active
+            ))
+        response = self.get_response({'q': 'partner'}, 'edx')
+        self.assertEqual(response.status_code, 200)
+        edx_course_run = course_runs[0]
+        edx_program = programs[0]
+        self.assertDictEqual(response.data, {'course_runs': [self.serialize_course_run(edx_course_run)],
+                                             'programs': [self.serialize_program(edx_program)]})
