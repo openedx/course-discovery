@@ -128,7 +128,7 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
         # Superusers can view all catalogs
         self.client.force_authenticate(superuser)
 
-        with self.assertNumQueries(5):
+        with self.assertNumQueries(4):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
 

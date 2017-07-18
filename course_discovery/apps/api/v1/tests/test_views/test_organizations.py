@@ -59,7 +59,7 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of all organizations. """
         OrganizationFactory.create_batch(3, partner=self.partner)
 
-        with self.assertNumQueries(7):
+        with self.assertNumQueries(5):
             response = self.client.get(self.list_path)
 
         self.assertEqual(response.status_code, 200)
@@ -71,7 +71,7 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
         organizations = OrganizationFactory.create_batch(3, partner=self.partner)
 
         # Test with a single UUID
-        self.assert_list_uuid_filter([organizations[0]], 7)
+        self.assert_list_uuid_filter([organizations[0]], 5)
 
         # Test with multiple UUIDs
         self.assert_list_uuid_filter(organizations, 5)
@@ -83,7 +83,7 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
         organizations = OrganizationFactory.create_batch(2, partner=self.partner)
 
         # If no organizations have been tagged, the endpoint should not return any data
-        self.assert_list_tag_filter([], [tag], expected_query_count=5)
+        self.assert_list_tag_filter([], [tag], expected_query_count=3)
 
         # Tagged organizations should be returned
         organizations[0].tags.add(tag)

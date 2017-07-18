@@ -6,8 +6,7 @@ from django.urls import reverse
 from django_fsm import TransitionNotAllowed
 from guardian.shortcuts import assign_perm
 
-from course_discovery.apps.api.tests.mixins import SiteMixin
-from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -511,7 +510,7 @@ class GroupOrganizationTests(TestCase):
 
 
 @ddt.ddt
-class CourseStateTests(SiteMixin, TestCase):
+class CourseStateTests(TestCase):
     """ Tests for the publisher `CourseState` model. """
 
     @classmethod
@@ -526,6 +525,8 @@ class CourseStateTests(SiteMixin, TestCase):
     def setUp(self):
         super(CourseStateTests, self).setUp()
 
+        self.site = SiteFactory()
+        self.partner = PartnerFactory(site=self.site)
         self.course = self.course_state.course
         self.course.image = make_image_file('test_banner.jpg')
         self.course.save()
@@ -645,7 +646,7 @@ class CourseStateTests(SiteMixin, TestCase):
 
 
 @ddt.ddt
-class CourseRunStateTests(SiteMixin, TestCase):
+class CourseRunStateTests(TestCase):
     """ Tests for the publisher `CourseRunState` model. """
 
     @classmethod
@@ -674,6 +675,9 @@ class CourseRunStateTests(SiteMixin, TestCase):
 
         language_tag = LanguageTag(code='te-st', name='Test Language')
         language_tag.save()
+
+        self.site = SiteFactory()
+        self.partner = PartnerFactory(site=self.site)
         self.course_run.transcript_languages.add(language_tag)
         self.course_run.language = language_tag
         self.course_run.is_micromasters = True
