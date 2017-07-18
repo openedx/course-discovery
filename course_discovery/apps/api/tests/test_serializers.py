@@ -109,6 +109,7 @@ class MinimalCourseSerializerTests(TestCase):
             'course_runs': MinimalCourseRunSerializer(course.course_runs, many=True, context=context).data,
             'owners': MinimalOrganizationSerializer(course.authoring_organizations, many=True, context=context).data,
             'image': ImageField().to_representation(course.card_image_url),
+            'short_description': course.short_description
         }
 
     def test_data(self):
