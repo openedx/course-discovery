@@ -617,7 +617,7 @@ class CourseState(TimeStampedModel, ChangedByMixin):
         # TODO: send email etc.
         pass
 
-    def change_state(self, state, user, site=None):
+    def change_state(self, state, user):
         """
         Change course workflow state and ownership also send emails if required.
         """
@@ -632,12 +632,12 @@ class CourseState(TimeStampedModel, ChangedByMixin):
             elif user_role.role == PublisherUserRole.CourseTeam:
                 self.change_owner_role(PublisherUserRole.MarketingReviewer)
                 if is_notifications_enabled:
-                    emails.send_email_for_seo_review(self.course, site)
+                    emails.send_email_for_seo_review(self.course)
 
             self.review()
 
             if is_notifications_enabled:
-                emails.send_email_for_send_for_review(self.course, user, site)
+                emails.send_email_for_send_for_review(self.course, user)
 
         elif state == CourseStateChoices.Approved:
             user_role = self.course.course_user_roles.get(user=user)
@@ -646,7 +646,7 @@ class CourseState(TimeStampedModel, ChangedByMixin):
             self.approved()
 
             if is_notifications_enabled:
-                emails.send_email_for_mark_as_reviewed(self.course, user, site)
+                emails.send_email_for_mark_as_reviewed(self.course, user)
 
         self.save()
 
@@ -744,10 +744,10 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
         pass
 
     @transition(field=name, source=CourseRunStateChoices.Approved, target=CourseRunStateChoices.Published)
-    def published(self, site):
-        emails.send_course_run_published_email(self.course_run, site)
+    def published(self):
+        emails.send_course_run_published_email(self.course_run)
 
-    def change_state(self, state, user, site=None):
+    def change_state(self, state, user):
         """
         Change course run workflow state and ownership also send emails if required.
         """
@@ -763,7 +763,7 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
             self.review()
 
             if waffle.switch_is_active('enable_publisher_email_notifications'):
-                emails.send_email_for_send_for_review_course_run(self.course_run, user, site)
+                emails.send_email_for_send_for_review_course_run(self.course_run, user)
 
         elif state == CourseRunStateChoices.Approved:
             user_role = self.course_run.course.course_user_roles.get(user=user)
@@ -772,11 +772,11 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
             self.approved()
 
             if waffle.switch_is_active('enable_publisher_email_notifications'):
-                emails.send_email_for_mark_as_reviewed_course_run(self.course_run, user, site)
-                emails.send_email_to_publisher(self.course_run, user, site)
+                emails.send_email_for_mark_as_reviewed_course_run(self.course_run, user)
+                emails.send_email_to_publisher(self.course_run, user)
 
         elif state == CourseRunStateChoices.Published:
-            self.published(site)
+            self.published()
 
         self.save()
 

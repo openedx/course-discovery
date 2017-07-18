@@ -1,5 +1,6 @@
 # pylint: disable=redefined-builtin,no-member
 import ddt
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from mock import mock
@@ -7,20 +8,20 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from testfixtures import LogCapture
 
-from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
 from course_discovery.apps.api.v1.views.people import logger as people_logger
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
 from course_discovery.apps.course_metadata.tests import toggle_switch
-from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory, PositionFactory
+from course_discovery.apps.course_metadata.tests.factories import (OrganizationFactory, PartnerFactory, PersonFactory,
+                                                                   PositionFactory)
 
 User = get_user_model()
 
 
 @ddt.ddt
-class PersonViewSetTests(SerializationMixin, SiteMixin, APITestCase):
+class PersonViewSetTests(SerializationMixin, APITestCase):
     """ Tests for the person resource. """
     people_list_url = reverse('api:v1:person-list')
 
@@ -31,6 +32,10 @@ class PersonViewSetTests(SerializationMixin, SiteMixin, APITestCase):
         self.person = PersonFactory()
         PositionFactory(person=self.person)
         self.organization = OrganizationFactory()
+        # DEFAULT_PARTNER_ID is used explicitly here to avoid issues with differences in
+        # auto-incrementing behavior across databases. Otherwise, it's not safe to assume
+        # that the partner created here will always have id=DEFAULT_PARTNER_ID.
+        self.partner = PartnerFactory(id=settings.DEFAULT_PARTNER_ID)
         toggle_switch('publish_person_to_marketing_site', True)
         self.expected_node = {
             'resource': 'node', ''

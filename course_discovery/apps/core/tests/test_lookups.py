@@ -3,11 +3,10 @@ import json
 from django.test import TestCase
 from django.urls import reverse
 
-from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 
 
-class UserAutocompleteTests(SiteMixin, TestCase):
+class UserAutocompleteTests(TestCase):
     """ Tests for user autocomplete lookups."""
 
     def setUp(self):

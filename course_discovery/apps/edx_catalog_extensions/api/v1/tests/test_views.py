@@ -2,17 +2,17 @@ import datetime
 import urllib.parse
 
 from django.urls import reverse
+from rest_framework.test import APITestCase
 
-from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase
 from course_discovery.apps.api.v1.tests.test_views.test_search import (
-    ElasticsearchTestMixin, LoginMixin, SerializationMixin, SynonymTestMixin
+    DefaultPartnerMixin, ElasticsearchTestMixin, LoginMixin, SerializationMixin, SynonymTestMixin
 )
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory, ProgramFactory
 from course_discovery.apps.edx_catalog_extensions.api.serializers import DistinctCountsAggregateFacetSearchSerializer
 
 
-class DistinctCountsAggregateSearchViewSetTests(SerializationMixin, LoginMixin,
+class DistinctCountsAggregateSearchViewSetTests(DefaultPartnerMixin, SerializationMixin, LoginMixin,
                                                 ElasticsearchTestMixin, SynonymTestMixin, APITestCase):
     path = reverse('extensions:api:v1:search-all-facets')
 

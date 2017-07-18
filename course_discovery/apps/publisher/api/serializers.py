@@ -40,8 +40,7 @@ class CourseUserRoleSerializer(serializers.ModelSerializer):
         former_user = instance.user
         instance = super(CourseUserRoleSerializer, self).update(instance, validated_data)
         if not instance.role == PublisherUserRole.CourseTeam:
-            request = self.context['request']
-            send_change_role_assignment_email(instance, former_user, request.site)
+            send_change_role_assignment_email(instance, former_user)
 
         return instance
 
@@ -105,7 +104,6 @@ class CourseRunSerializer(serializers.ModelSerializer):
         instance = super(CourseRunSerializer, self).update(instance, validated_data)
         preview_url = validated_data.get('preview_url')
         lms_course_id = validated_data.get('lms_course_id')
-        request = self.context['request']
 
         if preview_url:
             # Change ownership to CourseTeam.
@@ -113,10 +111,10 @@ class CourseRunSerializer(serializers.ModelSerializer):
 
         if waffle.switch_is_active('enable_publisher_email_notifications'):
             if preview_url:
-                send_email_preview_page_is_available(instance, site=request.site)
+                send_email_preview_page_is_available(instance)
 
             elif lms_course_id:
-                send_email_for_studio_instance_created(instance, site=request.site)
+                send_email_for_studio_instance_created(instance)
 
         return instance
 
@@ -169,7 +167,7 @@ class CourseStateSerializer(serializers.ModelSerializer):
         state = validated_data.get('name')
         request = self.context.get('request')
         try:
-            instance.change_state(state=state, user=request.user, site=request.site)
+            instance.change_state(state=state, user=request.user)
         except TransitionNotAllowed:
             # pylint: disable=no-member
             raise serializers.ValidationError(
@@ -206,7 +204,7 @@ class CourseRunStateSerializer(serializers.ModelSerializer):
 
         if state:
             try:
-                instance.change_state(state=state, user=request.user, site=request.site)
+                instance.change_state(state=state, user=request.user)
             except TransitionNotAllowed:
                 # pylint: disable=no-member
                 raise serializers.ValidationError(
@@ -225,6 +223,6 @@ class CourseRunStateSerializer(serializers.ModelSerializer):
             instance.save()
 
             if waffle.switch_is_active('enable_publisher_email_notifications'):
-                send_email_preview_accepted(instance.course_run, request.site)
+                send_email_preview_accepted(instance.course_run)
 
         return instance

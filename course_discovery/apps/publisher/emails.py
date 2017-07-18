@@ -1,6 +1,7 @@
 import logging
 
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.mail.message import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.urls import reverse
@@ -15,12 +16,11 @@ from course_discovery.apps.publisher.utils import is_email_notification_enabled
 logger = logging.getLogger(__name__)
 
 
-def send_email_for_studio_instance_created(course_run, site):
+def send_email_for_studio_instance_created(course_run):
     """ Send an email to course team on studio instance creation.
 
         Arguments:
             course_run (CourseRun): CourseRun object
-            site (Site): Current site
     """
     try:
         course_key = CourseKey.from_string(course_run.lms_course_id)
@@ -39,7 +39,7 @@ def send_email_for_studio_instance_created(course_run, site):
         context = {
             'course_run': course_run,
             'course_run_page_url': 'https://{host}{path}'.format(
-                host=site.domain.strip('/'), path=object_path
+                host=Site.objects.get_current().domain.strip('/'), path=object_path
             ),
             'course_name': course_run.course.title,
             'from_address': from_address,
@@ -65,13 +65,12 @@ def send_email_for_studio_instance_created(course_run, site):
         raise Exception(error_message)
 
 
-def send_email_for_course_creation(course, course_run, site):
+def send_email_for_course_creation(course, course_run):
     """ Send the emails for a course creation.
 
         Arguments:
             course (Course): Course object
             course_run (CourseRun): CourseRun object
-            site (Site): Current site
     """
     txt_template = 'publisher/email/course_created.txt'
     html_template = 'publisher/email/course_created.html'
@@ -92,7 +91,7 @@ def send_email_for_course_creation(course, course_run, site):
                 'course_team_name': course_team.get_full_name(),
                 'project_coordinator_name': project_coordinator.get_full_name(),
                 'dashboard_url': 'https://{host}{path}'.format(
-                    host=site.domain.strip('/'), path=reverse('publisher:publisher_dashboard')
+                    host=Site.objects.get_current().domain.strip('/'), path=reverse('publisher:publisher_dashboard')
                 ),
                 'from_address': from_address,
                 'contact_us_email': project_coordinator.email
@@ -114,13 +113,12 @@ def send_email_for_course_creation(course, course_run, site):
             )
 
 
-def send_email_for_send_for_review(course, user, site):
+def send_email_for_send_for_review(course, user):
     """ Send email when course is submitted for review.
 
         Arguments:
             course (Object): Course object
             user (Object): User object
-            site (Site): Current site
     """
     txt_template = 'publisher/email/course/send_for_review.txt'
     html_template = 'publisher/email/course/send_for_review.html'
@@ -137,22 +135,21 @@ def send_email_for_send_for_review(course, user, site):
             'course_name': course.title,
             'sender_team': 'course team' if user_role.role == PublisherUserRole.CourseTeam else 'marketing team',
             'page_url': 'https://{host}{path}'.format(
-                host=site.domain.strip('/'), path=page_path
+                host=Site.objects.get_current().domain.strip('/'), path=page_path
             )
         }
 
-        send_course_workflow_email(course, user, subject, txt_template, html_template, context, recipient_user, site)
+        send_course_workflow_email(course, user, subject, txt_template, html_template, context, recipient_user)
     except Exception:  # pylint: disable=broad-except
         logger.exception('Failed to send email notifications send for review of course %s', course.id)
 
 
-def send_email_for_mark_as_reviewed(course, user, site):
+def send_email_for_mark_as_reviewed(course, user):
     """ Send email when course is marked as reviewed.
 
         Arguments:
             course (Object): Course object
             user (Object): User object
-            site (Site): Current site
     """
     txt_template = 'publisher/email/course/mark_as_reviewed.txt'
     html_template = 'publisher/email/course/mark_as_reviewed.html'
@@ -169,16 +166,16 @@ def send_email_for_mark_as_reviewed(course, user, site):
             'course_name': course.title,
             'sender_team': 'course team' if user_role.role == PublisherUserRole.CourseTeam else 'marketing team',
             'page_url': 'https://{host}{path}'.format(
-                host=site.domain.strip('/'), path=page_path
+                host=Site.objects.get_current().domain.strip('/'), path=page_path
             )
         }
 
-        send_course_workflow_email(course, user, subject, txt_template, html_template, context, recipient_user, site)
+        send_course_workflow_email(course, user, subject, txt_template, html_template, context, recipient_user)
     except Exception:  # pylint: disable=broad-except
         logger.exception('Failed to send email notifications mark as reviewed of course %s', course.id)
 
 
-def send_course_workflow_email(course, user, subject, txt_template, html_template, context, recipient_user, site):
+def send_course_workflow_email(course, user, subject, txt_template, html_template, context, recipient_user):
     """ Send email for course workflow state change.
 
         Arguments:
@@ -189,7 +186,6 @@ def send_course_workflow_email(course, user, subject, txt_template, html_templat
             html_template: (String): Email html template path
             context: (Dict): Email template context
             recipient_user: (Object): User object
-            site (Site): Current site
     """
 
     if is_email_notification_enabled(recipient_user):
@@ -206,7 +202,7 @@ def send_course_workflow_email(course, user, subject, txt_template, html_templat
                 'org_name': course.organizations.all().first().name,
                 'contact_us_email': project_coordinator.email if project_coordinator else '',
                 'course_page_url': 'https://{host}{path}'.format(
-                    host=site.domain.strip('/'), path=course_page_path
+                    host=Site.objects.get_current().domain.strip('/'), path=course_page_path
                 )
             }
         )
@@ -223,13 +219,12 @@ def send_course_workflow_email(course, user, subject, txt_template, html_templat
         email_msg.send()
 
 
-def send_email_for_send_for_review_course_run(course_run, user, site):
+def send_email_for_send_for_review_course_run(course_run, user):
     """ Send email when course-run is submitted for review.
 
         Arguments:
             course-run (Object): CourseRun object
             user (Object): User object
-            site (Site): Current site
     """
     course = course_run.course
     course_key = CourseKey.from_string(course_run.lms_course_id)
@@ -251,23 +246,22 @@ def send_email_for_send_for_review_course_run(course_run, user, site):
             'run_number': course_key.run,
             'sender_team': 'course team' if user_role.role == PublisherUserRole.CourseTeam else 'project coordinators',
             'page_url': 'https://{host}{path}'.format(
-                host=site.domain.strip('/'), path=page_path
+                host=Site.objects.get_current().domain.strip('/'), path=page_path
             ),
             'studio_url': course_run.studio_url
         }
 
-        send_course_workflow_email(course, user, subject, txt_template, html_template, context, recipient_user, site)
+        send_course_workflow_email(course, user, subject, txt_template, html_template, context, recipient_user)
     except Exception:  # pylint: disable=broad-except
         logger.exception('Failed to send email notifications send for review of course-run %s', course_run.id)
 
 
-def send_email_for_mark_as_reviewed_course_run(course_run, user, site):
+def send_email_for_mark_as_reviewed_course_run(course_run, user):
     """ Send email when course-run is marked as reviewed.
 
         Arguments:
             course_run (Object): CourseRun object
             user (Object): User object
-            site (Site): Current site
     """
     txt_template = 'publisher/email/course_run/mark_as_reviewed.txt'
     html_template = 'publisher/email/course_run/mark_as_reviewed.html'
@@ -290,24 +284,21 @@ def send_email_for_mark_as_reviewed_course_run(course_run, user, site):
                 'run_number': course_key.run,
                 'sender_team': 'course team',
                 'page_url': 'https://{host}{path}'.format(
-                    host=site.domain.strip('/'), path=page_path
+                    host=Site.objects.get_current().domain.strip('/'), path=page_path
                 )
             }
 
-            send_course_workflow_email(
-                course, user, subject, txt_template, html_template, context, recipient_user, site
-            )
+            send_course_workflow_email(course, user, subject, txt_template, html_template, context, recipient_user)
     except Exception:  # pylint: disable=broad-except
         logger.exception('Failed to send email notifications for mark as reviewed of course-run %s', course_run.id)
 
 
-def send_email_to_publisher(course_run, user, site):
+def send_email_to_publisher(course_run, user):
     """ Send email to publisher when course-run is marked as reviewed.
 
         Arguments:
             course_run (Object): CourseRun object
             user (Object): User object
-            site (Site): Current site
     """
     txt_template = 'publisher/email/course_run/mark_as_reviewed.txt'
     html_template = 'publisher/email/course_run/mark_as_reviewed.html'
@@ -339,7 +330,7 @@ def send_email_to_publisher(course_run, user, site):
                 'sender_team': sender_team,
                 'contact_us_email': project_coordinator.email if project_coordinator else '',
                 'page_url': 'https://{host}{path}'.format(
-                    host=site.domain.strip('/'), path=page_path
+                    host=Site.objects.get_current().domain.strip('/'), path=page_path
                 )
             }
 
@@ -358,12 +349,11 @@ def send_email_to_publisher(course_run, user, site):
         logger.exception('Failed to send email notifications for mark as reviewed of course-run %s', course_run.id)
 
 
-def send_email_preview_accepted(course_run, site):
+def send_email_preview_accepted(course_run):
     """ Send email for preview approved to publisher and project coordinator.
 
         Arguments:
             course_run (Object): CourseRun object
-            site (Site): Current site
     """
     txt_template = 'publisher/email/course_run/preview_accepted.txt'
     html_template = 'publisher/email/course_run/preview_accepted.html'
@@ -392,10 +382,10 @@ def send_email_preview_accepted(course_run, site):
                 'org_name': course.organizations.all().first().name,
                 'contact_us_email': project_coordinator.email if project_coordinator else '',
                 'page_url': 'https://{host}{path}'.format(
-                    host=site.domain.strip('/'), path=page_path
+                    host=Site.objects.get_current().domain.strip('/'), path=page_path
                 ),
                 'course_page_url': 'https://{host}{path}'.format(
-                    host=site.domain.strip('/'), path=course_page_path
+                    host=Site.objects.get_current().domain.strip('/'), path=course_page_path
                 )
             }
             template = get_template(txt_template)
@@ -416,12 +406,11 @@ def send_email_preview_accepted(course_run, site):
         raise Exception(message)
 
 
-def send_email_preview_page_is_available(course_run, site):
+def send_email_preview_page_is_available(course_run):
     """ Send email for course preview available to course team.
 
         Arguments:
             course_run (Object): CourseRun object
-            site (Site): Current site
     """
     txt_template = 'publisher/email/course_run/preview_available.txt'
     html_template = 'publisher/email/course_run/preview_available.html'
@@ -447,10 +436,10 @@ def send_email_preview_page_is_available(course_run, site):
                 'preview_link': course_run.preview_url,
                 'contact_us_email': project_coordinator.email if project_coordinator else '',
                 'page_url': 'https://{host}{path}'.format(
-                    host=site.domain.strip('/'), path=page_path
+                    host=Site.objects.get_current().domain.strip('/'), path=page_path
                 ),
                 'course_page_url': 'https://{host}{path}'.format(
-                    host=site.domain.strip('/'), path=course_page_path
+                    host=Site.objects.get_current().domain.strip('/'), path=course_page_path
                 ),
                 'platform_name': settings.PLATFORM_NAME
             }
@@ -473,12 +462,11 @@ def send_email_preview_page_is_available(course_run, site):
         raise Exception(error_message)
 
 
-def send_course_run_published_email(course_run, site):
+def send_course_run_published_email(course_run):
     """ Send email when course run is published by publisher.
 
         Arguments:
             course_run (Object): CourseRun object
-            site (Site): Current site
     """
     txt_template = 'publisher/email/course_run/published.txt'
     html_template = 'publisher/email/course_run/published.html'
@@ -504,10 +492,10 @@ def send_course_run_published_email(course_run, site):
                 'recipient_name': course_team_user.get_full_name() or course_team_user.username,
                 'contact_us_email': project_coordinator.email if project_coordinator else '',
                 'page_url': 'https://{host}{path}'.format(
-                    host=site.domain.strip('/'), path=page_path
+                    host=Site.objects.get_current().domain.strip('/'), path=page_path
                 ),
                 'course_page_url': 'https://{host}{path}'.format(
-                    host=site.domain.strip('/'), path=course_page_path
+                    host=Site.objects.get_current().domain.strip('/'), path=course_page_path
                 ),
                 'platform_name': settings.PLATFORM_NAME,
             }
@@ -530,13 +518,12 @@ def send_course_run_published_email(course_run, site):
         raise Exception(error_message)
 
 
-def send_change_role_assignment_email(course_role, former_user, site):
+def send_change_role_assignment_email(course_role, former_user):
     """ Send email for role assignment changed.
 
         Arguments:
             course_role (Object): CourseUserRole object
             former_user (Object): User object
-            site (Site): Current site
     """
     txt_template = 'publisher/email/role_assignment_changed.txt'
     html_template = 'publisher/email/role_assignment_changed.html'
@@ -562,7 +549,7 @@ def send_change_role_assignment_email(course_role, former_user, site):
             'current_user_name': course_role.user.get_full_name() or course_role.user.username,
             'contact_us_email': project_coordinator.email if project_coordinator else '',
             'course_url': 'https://{host}{path}'.format(
-                host=site.domain.strip('/'), path=page_path
+                host=Site.objects.get_current().domain.strip('/'), path=page_path
             ),
             'platform_name': settings.PLATFORM_NAME,
         }
@@ -585,12 +572,11 @@ def send_change_role_assignment_email(course_role, former_user, site):
         raise Exception(error_message)
 
 
-def send_email_for_seo_review(course, site):
+def send_email_for_seo_review(course):
     """ Send email when course is submitted for seo review.
 
         Arguments:
             course (Object): Course object
-            site (Site): Current site
     """
     txt_template = 'publisher/email/course/seo_review.txt'
     html_template = 'publisher/email/course/seo_review.html'
@@ -611,7 +597,7 @@ def send_email_for_seo_review(course, site):
             'org_name': course.organizations.all().first().name,
             'contact_us_email': project_coordinator.email,
             'course_page_url': 'https://{host}{path}'.format(
-                host=site.domain.strip('/'), path=course_page_path
+                host=Site.objects.get_current().domain.strip('/'), path=course_page_path
             )
         }
 
@@ -629,12 +615,11 @@ def send_email_for_seo_review(course, site):
         logger.exception('Failed to send email notifications for legal review requested of course %s', course.id)
 
 
-def send_email_for_published_course_run_editing(course_run, site):
+def send_email_for_published_course_run_editing(course_run):
     """ Send email when published course-run is edited.
 
         Arguments:
             course-run (Object): Course Run object
-            site (Site): Current site
     """
     try:
         course = course_run.course
@@ -659,7 +644,7 @@ def send_email_for_published_course_run_editing(course_run, site):
             'recipient_name': publisher_user.get_full_name() or publisher_user.username,
             'contact_us_email': course.project_coordinator.email,
             'course_run_page_url': 'https://{host}{path}'.format(
-                host=site.domain.strip('/'), path=object_path
+                host=Site.objects.get_current().domain.strip('/'), path=object_path
             ),
             'course_run_number': course_key.run,
         }

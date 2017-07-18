@@ -79,7 +79,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.contrib.sites.middleware.CurrentSiteMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'waffle.middleware.WaffleMiddleware',
@@ -476,6 +475,8 @@ DISTINCT_COUNTS_QUERY_CACHE_WARMING_COUNT = 20
 
 DEFAULT_PARTNER_ID = None
 
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#site-id
+SITE_ID = 1
 COMMENTS_APP = 'course_discovery.apps.publisher_comments'
 
 TAGGIT_CASE_INSENSITIVE = True

@@ -21,7 +21,6 @@ from course_discovery.apps.api.serializers import (
     ProgramSerializer, ProgramTypeSerializer, SeatSerializer, SubjectSerializer, TypeaheadCourseRunSearchSerializer,
     TypeaheadProgramSearchSerializer, VideoSerializer
 )
-from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
@@ -97,7 +96,7 @@ class CatalogSerializerTests(ElasticsearchTestMixin, TestCase):
         self.assertEqual(User.objects.filter(username=username).count(), 0)  # pylint: disable=no-member
 
 
-class MinimalCourseSerializerTests(SiteMixin, TestCase):
+class MinimalCourseSerializerTests(TestCase):
     serializer_class = MinimalCourseSerializer
 
     def get_expected_data(self, course, request):
@@ -114,8 +113,8 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
 
     def test_data(self):
         request = make_request()
-        organizations = OrganizationFactory(partner=self.partner)
-        course = CourseFactory(authoring_organizations=[organizations], partner=self.partner)
+        organizations = OrganizationFactory()
+        course = CourseFactory(authoring_organizations=[organizations])
         CourseRunFactory.create_batch(2, course=course)
         serializer = self.serializer_class(course, context={'request': request})
         expected = self.get_expected_data(course, request)
@@ -178,10 +177,9 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
     def setUp(self):
         super().setUp()
         self.request = make_request()
-        self.course = CourseFactory(partner=self.partner)
+        self.course = CourseFactory()
         self.deleted_program = ProgramFactory(
             courses=[self.course],
-            partner=self.partner,
             status=ProgramStatus.Deleted
         )
 
