@@ -266,7 +266,7 @@ class CourseRunSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
         )
         self.reindex_courses(program)
 
-        with self.assertNumQueries(5):
+        with self.assertNumQueries(4):
             response = self.get_response('software', faceted=False)
 
         self.assertEqual(response.status_code, 200)
@@ -290,7 +290,7 @@ class CourseRunSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
         ProgramFactory(courses=[course_run.course], status=program_status)
         self.reindex_courses(active_program)
 
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(5):
             response = self.get_response('software', faceted=False)
 
             self.assertEqual(response.status_code, 200)
