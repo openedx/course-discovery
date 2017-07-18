@@ -535,7 +535,7 @@ class MinimalCourseSerializer(TimestampModelSerializer):
 
     class Meta:
         model = Course
-        fields = ('key', 'uuid', 'title', 'course_runs', 'owners', 'image',)
+        fields = ('key', 'uuid', 'title', 'course_runs', 'owners', 'image', 'short_description',)
 
 
 class CourseSerializer(MinimalCourseSerializer):
