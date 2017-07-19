@@ -1,9 +1,11 @@
 # pylint: disable=no-member
 import json
+import random
 from datetime import datetime, timedelta
 
 import ddt
 import factory
+import mock
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -14,7 +16,6 @@ from django.forms import model_to_dict
 from django.test import TestCase
 from django.urls import reverse
 from guardian.shortcuts import assign_perm
-from mock import patch
 from opaque_keys.edx.keys import CourseKey
 from pytz import timezone
 from testfixtures import LogCapture
@@ -37,7 +38,8 @@ from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
 from course_discovery.apps.publisher.views import logger as publisher_views_logger
-from course_discovery.apps.publisher.views import CourseRunDetailView, get_course_role_widgets_data
+from course_discovery.apps.publisher.views import (COURSES_ALLOWED_PAGE_SIZES, CourseRunDetailView,
+                                                   get_course_role_widgets_data)
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 from course_discovery.apps.publisher_comments.models import CommentTypeChoices
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
@@ -157,7 +159,7 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         self._assert_records(1)
         data = {'number': 'course_2', 'image': make_image_file('test_banner.jpg')}
         course_dict = self._post_data(data, self.course)
-        with patch.object(Course, "save") as mock_method:
+        with mock.patch.object(Course, "save") as mock_method:
             mock_method.side_effect = IntegrityError
             response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=data['image'])
 
@@ -355,7 +357,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         )
         self.assertEqual(response.status_code, 400)
 
-        with patch('django.forms.models.BaseModelForm.is_valid') as mocked_is_valid:
+        with mock.patch('django.forms.models.BaseModelForm.is_valid') as mocked_is_valid:
             mocked_is_valid.return_value = True
             with LogCapture(publisher_views_logger.name) as log_capture:
                 response = self.client.post(
@@ -792,7 +794,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         """
         non_staff_user, group = create_non_staff_user_and_login(self)   # pylint: disable=unused-variable
         page_url = reverse('publisher:publisher_course_run_detail', args=[self.course_run.id])
-        with patch.object(CourseRunDetailView, 'get_object', return_value=non_staff_user):
+        with mock.patch.object(CourseRunDetailView, 'get_object', return_value=non_staff_user):
             response = self.client.get(page_url)
             self.assertEqual(response.status_code, 403)
 
@@ -1603,7 +1605,41 @@ class ToggleEmailNotificationTests(SiteMixin, TestCase):
         self.assertEqual(is_email_notification_enabled(user), is_enabled)
 
 
-class CourseListViewTests(SiteMixin, TestCase):
+class PaginationMixin(object):
+    """
+    Common methods to be used for Paginated views.
+    """
+
+    def get_courses(self, status_code=200, content_type='application/json', **kwargs):
+        """
+        Make get request with specified params.
+
+        Arguments:
+            status_code (int): used to verify the received response status code
+            content_type (st): content type of get request
+            kwargs (dict): extra kwargs like `query_params` to be used in get request
+
+        Returns:
+            courses (list): list of courses
+        """
+        query_params = kwargs.get('query_params', {})
+
+        # draw query parameter is send by jquery DataTables in all ajax requests
+        # https://datatables.net/manual/server-side
+        draw = 1
+        query_params['draw'] = draw
+
+        response = self.client.get(self.courses_url, query_params, HTTP_ACCEPT=content_type)
+        self.assertEqual(response.status_code, status_code)
+        if content_type == 'application/json':
+            json_response = response.json()
+            self.assertEqual(json_response['draw'], draw)
+            return json_response['courses']
+        else:
+            return json.loads(response.context_data['courses'].decode('utf-8'))
+
+
+class CourseListViewTests(SiteMixin, PaginationMixin, TestCase):
     """ Tests for `CourseListView` """
 
     def setUp(self):
@@ -1611,6 +1647,9 @@ class CourseListViewTests(SiteMixin, TestCase):
         self.courses = [factories.CourseFactory() for _ in range(10)]
         self.course = self.courses[0]
         self.user = UserFactory()
+
+        for course in self.courses:
+            factories.CourseStateFactory(course=course, owner_role=PublisherUserRole.MarketingReviewer)
 
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.courses_url = reverse('publisher:publisher_courses')
@@ -1622,7 +1661,7 @@ class CourseListViewTests(SiteMixin, TestCase):
     def test_courses_with_admin(self):
         """ Verify that admin user can see all courses on course list page. """
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
-        self.assert_course_list_page(course_count=10, queries_executed=32)
+        self.assert_course_list_page(course_count=10, queries_executed=33)
 
     def test_courses_with_course_user_role(self):
         """ Verify that internal user can see course on course list page. """
@@ -1630,7 +1669,7 @@ class CourseListViewTests(SiteMixin, TestCase):
         for course in self.courses:
             factories.CourseUserRoleFactory(course=course, user=self.user, role=InternalUserRole.Publisher)
 
-        self.assert_course_list_page(course_count=10, queries_executed=33)
+        self.assert_course_list_page(course_count=10, queries_executed=34)
 
     def test_courses_with_permission(self):
         """ Verify that user can see course with permission on course list page. """
@@ -1641,7 +1680,7 @@ class CourseListViewTests(SiteMixin, TestCase):
             course.organizations.add(organization_extension.organization)
 
         assign_perm(OrganizationExtension.VIEW_COURSE, organization_extension.group, organization_extension)
-        self.assert_course_list_page(course_count=10, queries_executed=65)
+        self.assert_course_list_page(course_count=10, queries_executed=66)
 
     def assert_course_list_page(self, course_count, queries_executed):
         """ Dry method to assert course list page content. """
@@ -1651,27 +1690,32 @@ class CourseListViewTests(SiteMixin, TestCase):
         self.assertContains(response, '{} Courses'.format(course_count))
         self.assertContains(response, 'Create New Course')
         if course_count > 0:
-            self.assertContains(response, self.course.title)
+            self.assertEqual(response.status_code, 200)
+            courses = json.loads(response.context_data['courses'].decode('utf-8'))
+            self.assertTrue(self.course.title in [course['course_title']['title'] for course in courses])
 
     def test_page_with_enable_waffle_switch(self):
         """
         Verify that edit button will not be shown if 'publisher_hide_features_for_pilot' activated.
         """
+        edit_url = {'title': 'Edit', 'url': reverse('publisher:publisher_courses_edit', args=[self.course.id])}
+
         factories.CourseUserRoleFactory(course=self.course, user=self.user, role=PublisherUserRole.CourseTeam)
         organization_extension = factories.OrganizationExtensionFactory()
         self.course.organizations.add(organization_extension.organization)
         self.user.groups.add(organization_extension.group)
         assign_perm(OrganizationExtension.VIEW_COURSE, organization_extension.group, organization_extension)
         assign_perm(OrganizationExtension.EDIT_COURSE, organization_extension.group, organization_extension)
-        response = self.client.get(self.courses_url)
-        self.assertContains(response, 'Edit')
+        response = self.get_courses()
+        self.assertEqual(response[0]['edit_url'], edit_url)
 
         toggle_switch('publisher_hide_features_for_pilot', True)
 
-        with self.assertNumQueries(18):
-            response = self.client.get(self.courses_url)
+        with self.assertNumQueries(19):
+            response = self.get_courses()
 
-        self.assertNotContains(response, 'Edit')
+        edit_url['url'] = None
+        self.assertEqual(response[0]['edit_url'], edit_url)
 
     def test_page_with_disable_waffle_switch(self):
         """
@@ -1687,13 +1731,233 @@ class CourseListViewTests(SiteMixin, TestCase):
 
         toggle_switch('publisher_hide_features_for_pilot', False)
 
-        with self.assertNumQueries(22):
+        with self.assertNumQueries(23):
             response = self.client.get(self.courses_url)
 
         self.assertContains(response, 'Edit')
 
 
-class CourseDetailViewTests(SiteMixin, TestCase):
+@ddt.ddt
+@mock.patch('course_discovery.apps.publisher.views.COURSES_DEFAULT_PAGE_SIZE', 2)
+@mock.patch('course_discovery.apps.publisher.views.COURSES_ALLOWED_PAGE_SIZES', (2, 3, 4))
+class CourseListViewPaginationTests(PaginationMixin, TestCase):
+    """ Pagination tests for `CourseListView` """
+
+    def setUp(self):
+        super(CourseListViewPaginationTests, self).setUp()
+        self.courses = []
+        self.course_titles = [
+            'course title 16', 'course title 37', 'course title 19', 'course title 37', 'course title 25',
+            'course title 25', 'course title 10', 'course title 13', 'course title 28', 'course title 13'
+        ]
+        self.course_organizations = [
+            'zeroX', 'deepX', 'fuzzyX', 'arkX', 'maX', 'pizzaX', 'maX', 'arkX', 'fuzzyX', 'zeroX',
+        ]
+        self.course_dates = [
+            datetime(2017, 1, 10), datetime(2019, 2, 25), datetime(2017, 3, 20), datetime(2018, 3, 24),
+            datetime(2017, 2, 21), datetime(2015, 1, 22), datetime(2018, 2, 23), datetime(2017, 1, 21),
+            datetime(2019, 1, 24), datetime(2017, 2, 11),
+        ]
+        # create 10 courses with related objects
+        for index in range(10):
+            course = factories.CourseFactory(title=self.course_titles[index])
+            for _ in range(random.randrange(1, 10)):
+                factories.CourseRunFactory(course=course)
+
+            course_state = factories.CourseStateFactory(course=course, owner_role=PublisherUserRole.MarketingReviewer)
+            course_state.owner_role_modified = self.course_dates[index]
+            course_state.save()
+
+            course.organizations.add(OrganizationFactory(key=self.course_organizations[index]))
+
+            self.courses.append(course)
+
+        self.course = self.courses[0]
+        self.user = UserFactory()
+        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.courses_url = reverse('publisher:publisher_courses')
+
+        self.sort_directions = {
+            'asc': False,
+            'desc': True,
+        }
+
+    @ddt.data(
+        {'page_size': '', 'expected': 2},
+        {'page_size': 2, 'expected': 2},
+        {'page_size': 3, 'expected': 3},
+        {'page_size': 4, 'expected': 4},
+        {'page_size': -1, 'expected': 2},
+    )
+    @ddt.unpack
+    def test_page_size(self, page_size, expected):
+        """ Verify that page size is working as expected. """
+        courses = self.get_courses(query_params={'pageSize': page_size})
+        self.assertEqual(len(courses), expected)
+
+    @ddt.data(
+        {'page': '', 'expected': 1},
+        {'page': 2, 'expected': 2},
+        {'page': 10, 'expected': None},
+    )
+    @ddt.unpack
+    def test_page_number(self, page, expected):
+        """
+        Verify that page number is working as expected.
+
+        Note: We have total 3 pages. If page number is invalid than 404 response will be received.
+        """
+        response = self.client.get(self.courses_url, {'pageSize': 4, 'page': page})
+        if response.status_code == 200:
+            self.assertEqual(response.context_data['page_obj'].number, expected)
+        else:
+            self.assertEqual(response.status_code, 404)
+
+    def test_content_type_text_html(self):
+        """
+        Verify that get request with text/html content type is working as expected.
+        """
+        courses = self.get_courses(content_type='text/html')
+        self.assertEqual(len(courses), 2)
+
+    @ddt.data(
+        {'field': 'title', 'column': 0, 'direction': 'asc'},
+        {'field': 'title', 'column': 0, 'direction': 'desc'},
+    )
+    @ddt.unpack
+    def test_ordering_by_title(self, field, column, direction):
+        """ Verify that ordering by title is working as expected. """
+        for page in (1, 2, 3):
+            courses = self.get_courses(
+                query_params={'sortColumn': column, 'sortDirection': direction, 'pageSize': 4, 'page': page}
+            )
+            course_titles = [course['course_title'][field] for course in courses]
+            self.assertEqual(sorted(course_titles, reverse=self.sort_directions[direction]), course_titles)
+
+    @ddt.data(
+        {'field': 'course_team_status', 'column': 4, 'direction': 'asc'},
+        {'field': 'course_team_status', 'column': 4, 'direction': 'desc'},
+        {'field': 'internal_user_status', 'column': 5, 'direction': 'asc'},
+        {'field': 'internal_user_status', 'column': 5, 'direction': 'desc'},
+    )
+    @ddt.unpack
+    def test_ordering_by_date(self, field, column, direction):
+        """ Verify that ordering by date is working as expected. """
+        for page in (1, 2, 3):
+            courses = self.get_courses(
+                query_params={'sortColumn': column, 'sortDirection': direction, 'pageSize': 4, 'page': page}
+            )
+            course_dates = [course[field]['date'] for course in courses]
+            self.assertEqual(
+                sorted(
+                    course_dates,
+                    key=lambda x: datetime.strptime(x, '%m/%d/%y'),
+                    reverse=self.sort_directions[direction]
+                ),
+                course_dates
+            )
+
+    @ddt.data(
+        {'field': 'publisher_course_runs_count', 'column': 3, 'direction': 'asc'},
+        {'field': 'publisher_course_runs_count', 'column': 3, 'direction': 'desc'},
+    )
+    @ddt.unpack
+    def test_ordering_by_course_runs(self, field, column, direction):
+        """ Verify that ordering by course runs is working as expected. """
+        for page in (1, 2, 3):
+            courses = self.get_courses(
+                query_params={'sortColumn': column, 'sortDirection': direction, 'pageSize': 4, 'page': page}
+            )
+            course_runs = [course[field] for course in courses]
+            self.assertEqual(sorted(course_runs, reverse=self.sort_directions[direction]), course_runs)
+
+    @ddt.data(
+        {'query': 'course title', 'results_count': 10},
+        {'query': 'course 13 title ', 'results_count': 2},
+        {'query': 'maX title course', 'results_count': 2},
+        {'query': 'course title arkX', 'results_count': 2},
+        {'query': 'course 03/24/18 title arkX', 'results_count': 1},
+        {'query': 'zeroX 01/10/17 course', 'results_count': 1},
+        {'query': 'blah blah', 'results_count': 0},
+    )
+    @ddt.unpack
+    def test_filtering(self, query, results_count):
+        """ Verify that filtering is working as expected. """
+        with mock.patch('course_discovery.apps.publisher.views.COURSES_ALLOWED_PAGE_SIZES', (10,)):
+            courses = self.get_courses(query_params={'pageSize': 10, 'searchText': query})
+            self.assertEqual(len(courses), results_count)
+
+            for course in courses:
+                title_org_dates = '{} {} {} {}'.format(
+                    course['course_title']['title'], course['organization_name'],
+                    course['course_team_status']['date'], course['internal_user_status']['date'],
+                )
+
+                for token in query.split():
+                    self.assertTrue(token in title_org_dates)
+
+    def test_filtering_with_multiple_dates(self):
+        """ Verify that filtering is working as expected. """
+        query = 'zeroX 01/10/17 course 02/11/17 title'
+        courses = self.get_courses(query_params={'pageSize': 10, 'searchText': query})
+        self.assertEqual(len(courses), 2)
+
+        dates = []
+        for course in courses:
+            dates.extend(
+                [course['course_team_status']['date'], course['internal_user_status']['date']]
+            )
+
+        query_without_dates = query
+        # verify that dates for each course record should be present on query
+        for date in dates:
+            self.assertTrue(date in query)
+            query_without_dates = query_without_dates.replace(date, '')
+
+        # verify that non date query keywords exist in returned courses
+        for course in courses:
+            title_and_org = '{} {}'.format(course['course_title']['title'], course['organization_name'])
+
+            for token in query_without_dates.split():
+                self.assertTrue(token in title_and_org)
+
+    def test_pagination_for_internal_user(self):
+        """ Verify that pagination works for internal user. """
+        with mock.patch('course_discovery.apps.publisher.views.is_publisher_admin', return_value=False):
+            self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+            self.course_team_role = factories.CourseUserRoleFactory(
+                course=self.courses[0], user=self.user, role=PublisherUserRole.CourseTeam
+            )
+            self.course_team_role = factories.CourseUserRoleFactory(
+                course=self.courses[1], user=self.user, role=PublisherUserRole.CourseTeam
+            )
+            courses = self.get_courses()
+            self.assertEqual(len(courses), 2)
+
+    def test_pagination_for_user_organizations(self):
+        """ Verify that pagination works for user organizations. """
+        with mock.patch('course_discovery.apps.publisher.views.is_publisher_admin', return_value=False):
+            with mock.patch('course_discovery.apps.publisher.views.is_internal_user', return_value=False):
+                organization_extension = factories.OrganizationExtensionFactory(
+                    organization=self.courses[0].organizations.all()[0]  # zeroX
+                )
+                self.user.groups.add(organization_extension.group)
+                assign_perm(OrganizationExtension.VIEW_COURSE, organization_extension.group, organization_extension)
+                courses = self.get_courses()
+                self.assertEqual(len(courses), 1)
+
+    def test_context(self):
+        """ Verify that required data is present in context. """
+        with mock.patch('course_discovery.apps.publisher.views.COURSES_ALLOWED_PAGE_SIZES', COURSES_ALLOWED_PAGE_SIZES):
+            response = self.client.get(self.courses_url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context_data['publisher_courses_url'], reverse('publisher:publisher_courses'))
+            self.assertEqual(response.context_data['allowed_page_sizes'], json.dumps(COURSES_ALLOWED_PAGE_SIZES))
+
+
+class CourseDetailViewTests(TestCase):
     """ Tests for the course detail view. """
 
     def setUp(self):
@@ -2676,7 +2940,7 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         """ Verify that in case of any error transactions roll back and no object
         updated in db.
         """
-        with patch.object(CourseRun, "save") as mock_method:
+        with mock.patch.object(CourseRun, "save") as mock_method:
             mock_method.side_effect = IntegrityError
             response = self.client.post(self.edit_page_url, self.updated_dict)
 
@@ -2720,7 +2984,7 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
 
     def test_logging(self):
         """ Verify view logs the errors in case of errors. """
-        with patch('django.forms.models.BaseModelForm.is_valid') as mocked_is_valid:
+        with mock.patch('django.forms.models.BaseModelForm.is_valid') as mocked_is_valid:
             mocked_is_valid.return_value = True
             with LogCapture(publisher_views_logger.name) as log_capture:
                 # pop the
