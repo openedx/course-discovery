@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-13 17:02-0400\n"
+"POT-Creation-Date: 2017-07-21 17:33+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1026,6 +1026,12 @@ msgstr "Ìn Révïéw sïnçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 msgid "n/a"
 msgstr "n/ä Ⱡ'σяєм#"
 
+#: apps/publisher/serializers.py templates/publisher/_approval_widget.html
+#: templates/publisher/course_detail/_edit_warning_popup.html
+#: templates/publisher/course_run_detail/_edit_warning.html
+msgid "Edit"
+msgstr "Édït Ⱡ'σяєм ι#"
+
 #: apps/publisher/validators.py
 #, python-format
 msgid ""
@@ -1399,13 +1405,6 @@ msgstr "Püßlïsh Ⱡ'σяєм ιρѕυм #"
 #: templates/publisher/_approval_widget.html
 msgid "Submitted for review"
 msgstr "Süßmïttéd för révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
-
-#: templates/publisher/_approval_widget.html
-#: templates/publisher/course_detail/_edit_warning_popup.html
-#: templates/publisher/course_run_detail/_edit_warning.html
-#: templates/publisher/courses.html
-msgid "Edit"
-msgstr "Édït Ⱡ'σяєм ι#"
 
 #: templates/publisher/_approval_widget.html
 msgid "ABOUT PAGE PREVIEW"

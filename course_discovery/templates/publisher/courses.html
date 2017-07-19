@@ -1,14 +1,20 @@
 {% extends 'publisher/base.html' %}
 
 {% load i18n %}
-{% load publisher_extras %}
+{% load static %}
+{% load compress %}
 
 {% block title %}
     {% trans "Courses" %}
 {% endblock title %}
 
 {% block page_content %}
-    <h2 class="hd-2 course-count-heading">{{ object_list.count }} Courses</h2>
+    <h2 class="hd-2 course-count-heading"
+        data-publisher-total-courses-count="{{publisher_total_courses_count}}"
+        data-publisher-courses="{{courses}}"
+        data-publisher-courses-url="{{publisher_courses_url}}"
+        data-publisher-courses-allowed-page-sizes="{{allowed_page_sizes}}"
+        >{{publisher_total_courses_count}} Courses</h2>
     <a href="{% url 'publisher:publisher_courses_new' %}" class="btn btn-brand btn-small btn-course-add">
         {% trans "Create New Course" %}
     </a>
@@ -37,56 +43,11 @@
                     <th></th>
                 </tr>
             </thead>
-            <tbody>
-                {% for course in object_list %}
-                    <tr>
-                        <td>
-                          {% if publisher_hide_features_for_pilot %}
-                            {{ course.title }}
-                          {% else %}
-                            <a href="{% url 'publisher:publisher_course_detail' course.id %}">
-                                {{ course.title }}
-                            </a>
-                          {% endif %}
-                        </td>
-                        <td>
-                            {{ course.organization_name }}
-                        </td>
-                        <td>
-                            {{ course.project_coordinator.full_name }}
-                        </td>
-                        <td>
-                             {{ course.publisher_course_runs.count }}
-                        </td>
-                        <td>
-                            {{ course.course_state.course_team_status.status_text }}<br>
-                            {{ course.course_state.course_team_status.date|date:'m/d/y' }}
-                        </td>
-                        <td>
-                            {{ course.course_state.internal_user_status.status_text }}<br>
-                            {{ course.course_state.internal_user_status.date|date:'m/d/y' }}
-                        </td>
-                        <td>
-                            {% if not publisher_hide_features_for_pilot and course|can_edit_course:request.user %}
-                                <a href="{% url 'publisher:publisher_courses_edit' course.id %}" class="btn btn-brand btn-small btn-course-edit">
-                                  {% trans "Edit" %}
-                                </a>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
 {% endblock %}
 
 {% block extra_js %}
-    <script>
-        $(document).ready(function() {
-            $('#dataTableCourse').DataTable({
-                "autoWidth": false,
-                "oLanguage": { "sEmptyTable": gettext("No courses have been created.") }
-            });
-        });
-    </script>
+    <script src="{% static 'js/publisher/views/courses.js' %}"></script>
 {% endblock %}

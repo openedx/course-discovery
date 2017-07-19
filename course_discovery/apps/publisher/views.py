@@ -4,12 +4,15 @@ Course publisher views.
 import json
 import logging
 from datetime import datetime, timedelta
+from functools import reduce
 
 import waffle
 from django.contrib import messages
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from django.db.models import Count, Q
+from django.db.models.functions import Lower
 from django.forms import model_to_dict
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
@@ -22,7 +25,7 @@ from guardian.shortcuts import get_objects_for_user
 from course_discovery.apps.core.models import User
 from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher import emails, mixins
+from course_discovery.apps.publisher import emails, mixins, serializers
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.dataloader.create_courses import process_course
 from course_discovery.apps.publisher.emails import send_email_for_published_course_run_editing
@@ -56,6 +59,9 @@ DEFAULT_ROLES = [
 
 COURSE_ROLES = [PublisherUserRole.CourseTeam]
 COURSE_ROLES.extend(DEFAULT_ROLES)
+
+COURSES_DEFAULT_PAGE_SIZE = 25
+COURSES_ALLOWED_PAGE_SIZES = (25, 50, 100)
 
 
 class Dashboard(mixins.LoginRequiredMixin, ListView):
@@ -796,6 +802,7 @@ class ToggleEmailNotification(mixins.LoginRequiredMixin, View):
 class CourseListView(mixins.LoginRequiredMixin, ListView):
     """ Course List View."""
     template_name = 'publisher/courses.html'
+    paginate_by = COURSES_DEFAULT_PAGE_SIZE
 
     def get_queryset(self):
         user = self.request.user
@@ -817,6 +824,9 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
             ).values_list('organization')
             courses = courses.filter(organizations__in=organizations)
 
+        courses = self.do_ordering(courses)
+        courses = self.do_filtering(courses)
+
         return courses
 
     def get_context_data(self, **kwargs):
@@ -824,7 +834,166 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
         context['publisher_hide_features_for_pilot'] = waffle.switch_is_active('publisher_hide_features_for_pilot')
         site = Site.objects.first()
         context['site_name'] = 'edX' if 'edx' in site.name.lower() else site.name
+        context['publisher_courses_url'] = reverse('publisher:publisher_courses')
+        context['allowed_page_sizes'] = json.dumps(COURSES_ALLOWED_PAGE_SIZES)
         return context
+
+    def get_paginate_by(self, queryset):
+        """
+        Get the number of items to paginate by.
+        """
+        try:
+            page_size = int(self.request.GET.get('pageSize', COURSES_DEFAULT_PAGE_SIZE))
+            page_size = page_size if page_size in COURSES_ALLOWED_PAGE_SIZES else COURSES_DEFAULT_PAGE_SIZE
+        except ValueError:
+            page_size = COURSES_DEFAULT_PAGE_SIZE
+
+        return page_size
+
+    def do_ordering(self, queryset):
+        """
+        Perform ordering on queryset
+        """
+        # commented fields are multi-valued so ordering is not reliable becuase a single
+        # record can be returned multiple times. We are not doing ordering for these fields
+        ordering_fields = {
+            0: 'title',
+            # 1: 'organizations__key',
+            # 2: 'course_user_roles__user__full_name',
+            3: 'course_runs_count',
+            4: 'course_state__owner_role_modified',
+            5: 'course_state__owner_role_modified',
+        }
+
+        try:
+            ordering_field_index = int(self.request.GET.get('sortColumn', 0))
+            if ordering_field_index not in ordering_fields.keys():
+                raise ValueError
+        except ValueError:
+            ordering_field_index = 0
+
+        ordering_direction = self.request.GET.get('sortDirection', 'asc')
+        ordering_field = ordering_fields.get(ordering_field_index)
+
+        if ordering_field == 'course_runs_count':
+            queryset = queryset.annotate(course_runs_count=Count('publisher_course_runs'))
+
+        if ordering_direction == 'asc':
+            queryset = queryset.order_by(Lower(ordering_field).asc())
+        else:
+            queryset = queryset.order_by(Lower(ordering_field).desc())
+
+        return queryset
+
+    def do_filtering(self, queryset):
+        """
+        Perform filtering on queryset
+        """
+        filter_text = self.request.GET.get('searchText', '').strip()
+
+        if not filter_text:
+            return queryset
+
+        keywords, dates = self.extract_keywords_and_dates(filter_text)
+
+        query_filters = []
+        keywords_filter = None
+
+        for keyword in keywords:
+            keyword_filter = Q(title__icontains=keyword) | Q(organizations__key__icontains=keyword)
+            keywords_filter = (keyword_filter & keywords_filter) if bool(keywords_filter) else keyword_filter
+
+        if keywords_filter:
+            query_filters.append(keywords_filter)
+
+        if dates:
+            query_filters.append(
+                Q(reduce(lambda x, y: x | y, [
+                    Q(course_state__owner_role_modified__gte=date['first']) &
+                    Q(course_state__owner_role_modified__lt=date['second'])
+                    for date in dates
+                ]))
+            )
+
+        # Filtering is based on keywords and dates. Providing any one of them or both will filter the results.
+        # if both are provided then filtering happens according to the below algorithm
+        # << select records that contains all the keywords AND the record also contains any of the date >>
+        # if user enters multiple dates then we will fetch all records matching any date provided that
+        # those records contains all the keywords too. See the below sample records and query results
+        #
+        # {'title': 'Ops',     'org': 'arbi', 'date': '07/04/17'},
+        # {'title': 'Ops'",    'org': 'arbi', 'date': '07/04/17'},
+        # {'title': 'Ops',     'org': 'arbi', 'date': '07/10/18'},
+        # {'title': 'Ops',     'org': 'arbi', 'date': '07/04/17'},
+        # {'title': 'awesome', 'org': 'me',   'date': '07/10/18'},
+        #
+        # arbi ops                             << select first 4 records
+        # arbi 07/04/17 ops                    << select 1st, 2nd and 4th record
+        # ops 07/04/17 arbi 07/10/18           << select first 4 records
+        # ops 07/04/17 arbi 07/10/18 nope      << no record matches -- all keywords must be present with any of the date
+        # 07/10/18                             << select 3rd and last record
+        # awesome                              << select last record
+        # awesome 07/04/17                     << no record matches
+
+        # distinct is used here to remove duplicate records in case a course has multiple organizations
+        # Note: currently this will not happen because each course has one organization only
+        return queryset.filter(*query_filters).distinct()
+
+    @staticmethod
+    def extract_keywords_and_dates(filter_text):
+        """
+        Check each keyword in provided list of keywords and parse dates.
+
+        Arguments:
+            filter_text (str): input text entered by user like 'intro to python 07/04/17'
+
+        Returns:
+            tuple: tuple of two lists, first list contains keywords without dates and
+                   second contains list of dicts where each dict has two date objects
+        """
+        dates = []
+        keywords = []
+        tokens = filter_text.split()
+
+        for token in tokens:
+            try:
+                dt = datetime.strptime(token, '%m/%d/%y')
+                dates.append({
+                    'first': dt,
+                    'second': dt + timedelta(days=1),
+                })
+            except ValueError:
+                keywords.append(token)
+
+        return keywords, dates
+
+    def get(self, request):
+        """
+        HTTP GET handler for publisher courses.
+        """
+        self.object_list = self.get_queryset()
+        context = self.get_context_data()
+        context['publisher_total_courses_count'] = self.object_list.count()
+        courses = serializers.CourseSerializer(
+            context['object_list'],
+            many=True,
+            context={
+                'user': request.user,
+                'publisher_hide_features_for_pilot': context['publisher_hide_features_for_pilot'],
+            }
+        ).data
+
+        if 'application/json' in request.META.get('HTTP_ACCEPT', ''):
+            count = self.object_list.count()
+            return JsonResponse({
+                'draw': int(self.request.GET['draw']),
+                'recordsTotal': count,
+                'recordsFiltered': count,
+                'courses': courses,
+            })
+        else:
+            context['courses'] = JsonResponse(courses, safe=False).content
+            return self.render_to_response(context)
 
 
 class CourseRevisionView(mixins.LoginRequiredMixin, DetailView):
