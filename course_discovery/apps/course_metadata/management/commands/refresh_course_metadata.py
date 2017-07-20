@@ -85,7 +85,7 @@ class Command(BaseCommand):
 
         token_type = 'JWT'
         for partner in partners:
-            logger.info('Retrieving access token for partner [{}]'.format(partner_code))
+            logger.info('Retrieving access token for partner [{}]'.format(partner.short_code))
 
             try:
                 access_token, __ = EdxRestApiClient.get_oauth_access_token(
