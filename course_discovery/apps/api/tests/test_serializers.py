@@ -1114,21 +1114,30 @@ class AffiliateWindowSerializerTests(TestCase):
 
         # Verify none of the course run attributes are empty; otherwise, Affiliate Window will report errors.
         # pylint: disable=no-member
-        self.assertTrue(all((course_run.title, course_run.short_description, course_run.marketing_url)))
+        assert all((course_run.title, course_run.short_description, course_run.marketing_url))
 
         expected = {
             'pid': '{}-{}'.format(course_run.key, seat.type),
             'name': course_run.title,
-            'desc': course_run.short_description,
+            'desc': course_run.full_description,
             'purl': course_run.marketing_url,
             'price': {
                 'actualp': seat.price
             },
             'currency': seat.currency.code,
             'imgurl': course_run.card_image_url,
-            'category': 'Other Experiences'
+            'category': 'Other Experiences',
+            'validfrom': course_run.start.strftime('%Y-%m-%d'),
+            'validto': course_run.end.strftime('%Y-%m-%d'),
+            'lang': course_run.language.code.split('-')[0].upper(),
+            'custom1': course_run.pacing_type,
+            'custom2': course_run.level_type.name,
+            'custom3': ','.join(subject.name for subject in course_run.subjects.all()),
+            'custom4': ','.join(org.name for org in course_run.authoring_organizations.all()),
+            'custom5': course_run.short_description,
         }
-        self.assertDictEqual(serializer.data, expected)
+
+        assert serializer.data == expected
 
 
 class CourseSearchSerializerTests(TestCase):

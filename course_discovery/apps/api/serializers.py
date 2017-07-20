@@ -888,18 +888,50 @@ class AffiliateWindowSerializer(serializers.ModelSerializer):
     # We use a hardcoded value since it is determined by Affiliate Window's taxonomy.
     CATEGORY = 'Other Experiences'
 
+    # These field names are dictated by Affiliate Window (AWIN). These fields are
+    # required. They're documented at http://wiki.awin.com/index.php/Product_Feed_File_Structure.
     pid = serializers.SerializerMethodField()
     name = serializers.CharField(source='course_run.title')
-    desc = serializers.CharField(source='course_run.short_description')
+    desc = serializers.CharField(source='course_run.full_description')
     purl = serializers.CharField(source='course_run.marketing_url')
     imgurl = serializers.CharField(source='course_run.card_image_url')
     category = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
 
+    # These fields are optional. They're documented at
+    # http://wiki.awin.com/index.php/Product_Feed_Advanced_File_Structure.
+    lang = serializers.SerializerMethodField()
+    validfrom = serializers.DateTimeField(source='course_run.start', format='%Y-%m-%d')
+    validto = serializers.DateTimeField(source='course_run.end', format='%Y-%m-%d')
+    # These field names are required by AWIN for data that doesn't fit into one
+    # of their default fields.
+    custom1 = serializers.CharField(source='course_run.pacing_type')
+    custom2 = serializers.SlugRelatedField(source='course_run.level_type', read_only=True, slug_field='name')
+    custom3 = serializers.SerializerMethodField()
+    custom4 = serializers.SerializerMethodField()
+    custom5 = serializers.CharField(source='course_run.short_description')
+
     class Meta:
         model = Seat
+        # The order of these fields must match the order in which they appear in
+        # the DTD file! Validation will fail otherwise.
         fields = (
-            'name', 'pid', 'desc', 'category', 'purl', 'imgurl', 'price', 'currency'
+            'name',
+            'pid',
+            'desc',
+            'category',
+            'purl',
+            'imgurl',
+            'price',
+            'lang',
+            'currency',
+            'validfrom',
+            'validto',
+            'custom1',
+            'custom2',
+            'custom3',
+            'custom4',
+            'custom5',
         )
 
     def get_pid(self, obj):
@@ -912,6 +944,17 @@ class AffiliateWindowSerializer(serializers.ModelSerializer):
 
     def get_category(self, obj):  # pylint: disable=unused-argument
         return self.CATEGORY
+
+    def get_lang(self, obj):
+        language = obj.course_run.language
+
+        return language.code.split('-')[0].upper() if language else 'EN'
+
+    def get_custom3(self, obj):
+        return ','.join(subject.name for subject in obj.course_run.subjects.all())
+
+    def get_custom4(self, obj):
+        return ','.join(org.name for org in obj.course_run.authoring_organizations.all())
 
 
 class FlattenedCourseRunWithCourseSerializer(CourseRunSerializer):

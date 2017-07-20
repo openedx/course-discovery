@@ -100,24 +100,24 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
 
     def assert_product_xml(self, content, seat):
         """ Helper method to verify product data in xml format. """
-        self.assertEqual(content.find('pid').text, '{}-{}'.format(self.course_run.key, seat.type))
-        self.assertEqual(content.find('name').text, self.course_run.title)
-        self.assertEqual(content.find('desc').text, self.course_run.short_description)
-        self.assertEqual(content.find('purl').text, self.course_run.marketing_url)
-        self.assertEqual(content.find('imgurl').text, self.course_run.card_image_url)
-        self.assertEqual(content.find('price/actualp').text, str(seat.price))
-        self.assertEqual(content.find('currency').text, seat.currency.code)
-        self.assertEqual(content.find('category').text, AffiliateWindowSerializer.CATEGORY)
+        assert content.find('pid').text == '{}-{}'.format(self.course_run.key, seat.type)
+        assert content.find('name').text == self.course_run.title
+        assert content.find('desc').text == self.course_run.full_description
+        assert content.find('purl').text == self.course_run.marketing_url
+        assert content.find('imgurl').text == self.course_run.card_image_url
+        assert content.find('price/actualp').text == str(seat.price)
+        assert content.find('currency').text == seat.currency.code
+        assert content.find('category').text == AffiliateWindowSerializer.CATEGORY
 
     def test_dtd_with_valid_data(self):
         """ Verify the XML data produced by the endpoint conforms to the DTD file. """
         response = self.client.get(self.affiliate_url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
+
         filename = abspath(join(dirname(dirname(__file__)), 'affiliate_window_product_feed.1.4.dtd'))
         dtd = etree.DTD(open(filename))
-
         root = etree.XML(response.content)
-        self.assertTrue(dtd.validate(root))
+        assert dtd.validate(root)
 
     def test_permissions(self):
         """ Verify only users with the appropriate permissions can access the endpoint. """
