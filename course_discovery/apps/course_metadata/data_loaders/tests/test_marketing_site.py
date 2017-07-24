@@ -335,6 +335,41 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         data = {'field_couse_is_hidden': hidden}
         self.assertEqual(self.loader.get_hidden(data), expected)
 
+    @ddt.data(
+        (None, None, None),
+        ('Browse at your own pace.', None, None),
+        ('1.5 - 3.5 hours/week', None, None),
+        ('8 hours/week', 8, None),
+        ('2.5-5 hours.', 5, None),
+        ('5+ hours per week', 5, None),
+        ('3 horas por semana', 3, None),
+        ('1 - 1.5 hours per week', 1, None),
+        ('6 hours of video/300 multiple choice questions', 6, None),
+        ('6 to 9 hours/week', 6, 9),
+        ('4-6 hours per week', 4, 6),
+        ('About 5-12 hrs/week.', 5, 12),
+        ('4 - 8 hours/week | 小时／周', 4, 8),
+        ('6 horas/semana, 6 hours/week', 6, 6),
+        ('Estimated effort: 4–5 hours per week.', 4, 5),
+        ('4-6 hours per week depending on the background of the student.', 4, 6),
+        ('每周 2-3 小时 | 2-3 hours per week', None, None),
+        ('Part 1: 3 hours; Part 2: 4 hours; Part 3: 2 hours', None, None),
+        ('From 10 - 60 minutes, or as much time as you want.', None, None),
+        ('3-4 hours per unit (recommended pace: 1 unit per week)', None, None),
+        ('5-8 hours/week; 2-3 hours for lectures; 3-5 hours for homework/self-study', None, None),
+    )
+    @ddt.unpack
+    def test_get_min_max_effort_per_week(self, course_effort_string, expected_min_effort, expected_max_effort):
+        """
+        Verify that the method `get_min_max_effort_per_week` correctly parses
+        most of the the effort values which have specific format and maps them
+        to min effort and max effort values.
+        """
+        data = {'field_course_effort': course_effort_string}
+        min_effort, max_effort = self.loader.get_min_max_effort_per_week(data)
+        self.assertEqual(min_effort, expected_min_effort)
+        self.assertEqual(max_effort, expected_max_effort)
+
     def test_get_hidden_missing(self):
         """Verify that the get_hidden method can cope with a missing field."""
         self.assertEqual(self.loader.get_hidden({}), False)
