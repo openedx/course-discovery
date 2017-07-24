@@ -2,6 +2,7 @@ import abc
 import concurrent.futures
 import datetime
 import logging
+import re
 from urllib.parse import parse_qs, urlencode, urlparse
 from uuid import UUID
 
@@ -418,6 +419,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         end = data.get('field_course_end_date')
         end = datetime.datetime.fromtimestamp(int(end), tz=pytz.UTC) if end else None
         weeks_to_complete = data.get('field_course_required_weeks')
+        min_effort, max_effort = self.get_min_max_effort_per_week(data)
 
         defaults = {
             'key': key,
@@ -435,6 +437,8 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'video': course.video,
             'course': course,
             'short_description_override': self.clean_html(data['field_course_sub_title_short']) or None,
+            'min_effort': min_effort,
+            'max_effort': max_effort,
         }
 
         if weeks_to_complete:
@@ -494,6 +498,26 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         # 'couse' [sic]. The field is misspelled on Drupal. ಠ_ಠ
         hidden = data.get('field_couse_is_hidden', False)
         return hidden is True
+
+    def get_min_max_effort_per_week(self, data):
+        """
+        Parse effort value from drupal course data which have specific format.
+        """
+        effort_per_week = data.get('field_course_effort', '')
+        min_effort = None
+        max_effort = None
+        # Ignore effort values in minutes
+        if not effort_per_week or 'minutes' in effort_per_week:
+            return min_effort, max_effort
+
+        effort_values = [int(keyword) for keyword in re.split(r'\s|-|–|,|\+|~', effort_per_week) if keyword.isdigit()]
+        if len(effort_values) == 1:
+            min_effort = effort_values[0]
+        if len(effort_values) == 2:
+            min_effort = effort_values[0]
+            max_effort = effort_values[1]
+
+        return min_effort, max_effort
 
     def _get_objects_by_uuid(self, object_type, raw_objects_data):
         uuids = [_object.get('uuid') for _object in raw_objects_data]
