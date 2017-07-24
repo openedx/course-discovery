@@ -1,5 +1,6 @@
 import random
 import string
+import uuid
 
 import requests
 from django.utils.functional import cached_property
@@ -46,8 +47,9 @@ class UploadToFieldNamePath(UploadTo):
 
     def __call__(self, instance, filename):
         field_value = getattr(instance, self.populate_from)
+        # Update name with Random string of 12 character at the end example '-ba123cd89e97'
         self.kwargs.update({
-            'name': field_value
+            'name': str(field_value) + str(uuid.uuid4())[23:]
         })
         return super(UploadToFieldNamePath, self).__call__(instance, filename)
 
