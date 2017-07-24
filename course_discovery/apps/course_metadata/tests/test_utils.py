@@ -1,4 +1,4 @@
-import os
+import re
 
 import ddt
 import responses
@@ -20,18 +20,18 @@ class UploadToFieldNamePathTests(TestCase):
         self.program = ProgramFactory()
 
     @ddt.data(
-        ('/media/program', 'uuid', '.jpeg'),
-        ('/media/program', 'title', '.jpeg'),
-        ('/media', 'uuid', '.jpeg'),
-        ('/media', 'title', '.txt'),
+        ('/media/program/', 'uuid', '.jpeg'),
+        ('/media/program/', 'title', '.jpeg'),
+        ('/media/', 'uuid', '.jpeg'),
+        ('/media/', 'title', '.txt'),
         ('', 'title', ''),
     )
     @ddt.unpack
     def test_upload_to(self, path, field, ext):
         upload_to = utils.UploadToFieldNamePath(populate_from=field, path=path)
         upload_path = upload_to(self.program, 'name' + ext)
-        expected = os.path.join(path, str(getattr(self.program, field)) + ext)
-        self.assertEqual(upload_path, expected)
+        regex = re.compile(path + str(getattr(self.program, field)) + '-[a-f0-9]{12}' + ext)
+        self.assertTrue(regex.match(upload_path))
 
 
 class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
