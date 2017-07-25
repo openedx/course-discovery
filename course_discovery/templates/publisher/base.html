@@ -6,10 +6,11 @@
 
 {% block css %}
     {{ block.super }}
+  {% compress css %}
     <link rel="stylesheet" href="{% static 'bower_components/font-awesome/css/font-awesome.css' %}" type="text/x-scss">
     <link rel="stylesheet" href="{% static 'bower_components/pikaday/css/pikaday.css' %}" type="text/x-scss">
-    <link rel="stylesheet" href="{% static 'bower_components/datatables/media/css/jquery.dataTables.css' %}"
-          type="text/x-scss">
+    <link rel="stylesheet" href="{% static 'bower_components/datatables/media/css/jquery.dataTables.css' %}" type="text/x-scss">
+  {% endcompress %}
 {% endblock %}
 
 {% block content %}
@@ -34,7 +35,6 @@
                 </ul>
             </nav>
 
-            
 
         {% if request.path == dashboard_url %}
             <main class="layout-col layout-col-b border-left layout-col-container-dashboard">
