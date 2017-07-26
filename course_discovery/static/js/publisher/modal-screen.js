@@ -51,6 +51,9 @@ $(document).ready(function(){
 
 function closeModal(event, modal) {
     event.preventDefault();
+    if (modal.attr('id') == 'addInstructorModal') {
+        resetInstructorModalData();
+    }
     modal.hide();
     $('body').removeClass('stopScroll');
 }
@@ -86,4 +89,15 @@ function resetModalData() {
 function assignData(element, data){
     $(element).attr("href", data);
     $(element + '_copy').html(data);
+}
+
+function resetInstructorModalData() {
+    var imgPath = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
+    selectors = ['#given-name', '#family-name', '#title', '#email', '#bio', '#facebook', '#twitter', '#blog', '#majorWorks'];
+    $('#addInstructorModal div img').attr('src',imgPath);
+    for (var i in selectors) clearData(selectors[i]);
+}
+
+function clearData(selector){
+    $('#addInstructorModal div '+ selector).val('');
 }
