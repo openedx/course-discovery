@@ -223,7 +223,7 @@
             {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
         <div class="copy">
-            {% with  object.prerequisite as field %}
+            {% with  object.course.prerequisites as field %}
                 {% include "publisher/_render_optional_field.html" %}
             {% endwith %}
         </div>
