@@ -716,7 +716,8 @@ class CourseRunDetailTests(SiteMixin, TestCase):
             'Title', 'Number', 'Course ID', 'Price', 'Subtitle', 'Organization', 'Subject', 'XSeries',
             'Start Date (time in UTC)', 'End Date (time in UTC)', 'Self Paced', 'Staff', 'Estimated Effort',
             'Languages', 'Video Transcript Languages', 'Level', 'Full Description', "What You'll Learn",
-            'Keywords', 'Sponsors', 'Enrollment Types', 'Learner Testimonials', 'FAQ', 'Course About Video'
+            'Keywords', 'Sponsors', 'Enrollment Types', 'Learner Testimonials', 'FAQ', 'Course About Video',
+            'Prerequisites'
         ]
         for field in fields:
             self.assertContains(response, field)
@@ -729,7 +730,8 @@ class CourseRunDetailTests(SiteMixin, TestCase):
             self.wrapped_course_run.max_effort, self.wrapped_course_run.language.name,
             self.wrapped_course_run.transcript_languages, self.wrapped_course_run.level_type,
             self.wrapped_course_run.expected_learnings, self.wrapped_course_run.course.learner_testimonial,
-            self.wrapped_course_run.course.faq, self.wrapped_course_run.course.video_link
+            self.wrapped_course_run.course.faq, self.wrapped_course_run.course.video_link,
+            self.wrapped_course_run.course.prerequisites
         ]
         for value in values:
             self.assertContains(response, value)
