@@ -81,7 +81,7 @@ msgstr "S'il vous plaît entrer un URL valide."
 msgid ""
 "You have successfully created a Studio URL ({studioLinkTag}) for "
 "{courseRunDetail} with a start date of {startDate}"
-msgstr ""
+msgstr "Vous avez créé avec un succès une URL Studio ({studioLinkTag}) pour {courseRunDetail} avec une date de début de {startDate}"
 
 #: static/js/publisher/views/dashboard.js
 msgid "There was an error in saving your data."
