@@ -61,14 +61,17 @@ class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-meth
         """
         Returns a dict containing `status` and `date` for course team status.
         """
+        default_status = {
+            'status': '',
+            'date': ''
+        }
+
         try:
             course_team_status = course.course_state.course_team_status
         except ObjectDoesNotExist:
-            return {
-                'status': '',
-                'date': ''
-            }
+            return default_status
 
+        course_team_status = default_status if course_team_status is None else course_team_status
         course_team_status_date = course_team_status.get('date', '')
         return {
             'status': course_team_status.get('status_text', ''),
@@ -79,14 +82,17 @@ class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-meth
         """
         Returns a dict containing `status` and `date` for internal user status.
         """
+        default_status = {
+            'status': '',
+            'date': ''
+        }
+
         try:
             internal_user_status = course.course_state.internal_user_status
         except ObjectDoesNotExist:
-            return {
-                'status': '',
-                'date': ''
-            }
+            return default_status
 
+        internal_user_status = default_status if internal_user_status is None else internal_user_status
         internal_user_status_date = internal_user_status.get('date', '')
         return {
             'status': internal_user_status.get('status_text', ''),
