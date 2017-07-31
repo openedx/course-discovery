@@ -11,6 +11,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core import mail
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.forms import model_to_dict
 from django.test import TestCase
@@ -1955,6 +1956,33 @@ class CourseListViewPaginationTests(PaginationMixin, TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.context_data['publisher_courses_url'], reverse('publisher:publisher_courses'))
             self.assertEqual(response.context_data['allowed_page_sizes'], json.dumps(COURSES_ALLOWED_PAGE_SIZES))
+
+    @mock.patch('course_discovery.apps.publisher.models.CourseState.course_team_status', new_callable=mock.PropertyMock)
+    @mock.patch('course_discovery.apps.publisher.models.CourseState.internal_user_status',
+                new_callable=mock.PropertyMock)
+    def test_course_state_statuses(self, mocked_internal_user_status, mocked_course_team_status):
+        """ Verify that course_state statuses raise no exception. """
+        mocked_internal_user_status.return_value = None
+        mocked_course_team_status.return_value = None
+        courses = self.get_courses()
+        for course in courses:
+            self.assertEqual(course['course_team_status'], {'status': '', 'date': ''})
+            self.assertEqual(course['internal_user_status'], {'status': '', 'date': ''})
+
+    @mock.patch('course_discovery.apps.publisher.models.CourseState.course_team_status', new_callable=mock.PropertyMock)
+    @mock.patch('course_discovery.apps.publisher.models.CourseState.internal_user_status',
+                new_callable=mock.PropertyMock)
+    def test_course_state_exceptions(self, mocked_internal_user_status, mocked_course_team_status):
+        """
+        Verify that course_team_status and internal_user_status return
+        default status when course.course_status does not exist.
+        """
+        mocked_internal_user_status.side_effect = ObjectDoesNotExist
+        mocked_course_team_status.side_effect = ObjectDoesNotExist
+        courses = self.get_courses()
+        for course in courses:
+            self.assertEqual(course['course_team_status'], {'status': '', 'date': ''})
+            self.assertEqual(course['internal_user_status'], {'status': '', 'date': ''})
 
 
 class CourseDetailViewTests(TestCase):
