@@ -162,7 +162,7 @@ class ProgramFilter(FilterSetMixin, filters.FilterSet):
 
     class Meta:
         model = Program
-        fields = ('hidden', 'marketable', 'status', 'type', 'types',)
+        fields = ('hidden', 'marketable', 'marketing_slug', 'status', 'type', 'types',)
 
 
 class OrganizationFilter(filters.FilterSet):

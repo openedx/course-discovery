@@ -247,6 +247,22 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         url = self.list_path + '?hidden=0'
         self.assert_list_results(url, [not_hidden], 10)
 
+    def test_filter_by_marketing_slug(self):
+        """ The endpoint should support filtering programs by marketing slug. """
+        SLUG = 'test-program'
+
+        # This program should not be included in the results below because it never matches the filter.
+        self.create_program()
+
+        url = '{root}?marketing_slug={slug}'.format(root=self.list_path, slug=SLUG)
+        self.assert_list_results(url, [], 5)
+
+        program = self.create_program()
+        program.marketing_slug = SLUG
+        program.save()
+
+        self.assert_list_results(url, [program], 14)
+
     def test_list_exclude_utm(self):
         """ Verify the endpoint returns marketing URLs without UTM parameters. """
         url = self.list_path + '?exclude_utm=1'
