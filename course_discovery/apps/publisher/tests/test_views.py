@@ -2612,6 +2612,40 @@ class CourseEditViewTests(SiteMixin, TestCase):
         course_state = CourseState.objects.get(id=self.course.course_state.id)
         self.assertEqual(course_state.name, CourseStateChoices.Draft)
 
+    def test_edit_course_with_project_coordinator(self):
+        """
+        Verify that on editing the course as project coordinator the ownership and
+        course state does not change.
+        """
+        project_coordinator = UserFactory()
+        project_coordinator.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        project_coordinator.groups.add(Group.objects.get(name=PROJECT_COORDINATOR_GROUP_NAME))
+        factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.ProjectCoordinator,
+                                        user=project_coordinator)
+        self.client.logout()
+        self.client.login(username=project_coordinator.username, password=USER_PASSWORD)
+        self._assign_permissions(self.organization_extension)
+
+        self.course.course_state.name = CourseStateChoices.Review
+        self.course.course_state.owner_role = PublisherUserRole.MarketingReviewer
+        self.course.course_state.save()
+
+        post_data = self._post_data(self.organization_extension)
+        post_data['team_admin'] = self.course_team_role.user.id
+
+        response = self.client.post(self.edit_page_url, data=post_data)
+
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        course_state = CourseState.objects.get(id=self.course.course_state.id)
+        self.assertEqual(course_state.name, CourseStateChoices.Review)
+        self.assertEqual(course_state.owner_role, PublisherUserRole.MarketingReviewer)
+
     def test_edit_course_with_ownership_changed(self):
         """
         Verify that on editing course state changed to `Draft` and ownership changed

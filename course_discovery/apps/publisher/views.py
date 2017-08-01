@@ -213,8 +213,8 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
 
         if context['can_edit']:
             current_owner_role = course_run.course.course_user_roles.get(role=course_run.course_run_state.owner_role)
-            user_role = course_run.course.course_user_roles.get(user=user)
-            if user_role.role != current_owner_role.role:
+            user_role = course_run.course.get_user_role(user=user)
+            if user_role != current_owner_role.role:
                 context['add_warning_popup'] = True
                 context['current_team_name'] = (_('course team')
                                                 if current_owner_role.role == PublisherUserRole.CourseTeam
@@ -402,18 +402,19 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
             # If latest run of this course is published send an email to Publisher and don't change state.
             send_email_for_published_course_run_editing(latest_run, self.request.site)
         else:
-            user_role = self.object.course_user_roles.get(user=user)
+            user_role = self.object.get_user_role(user=user)
             # Change course state to draft if marketing not yet reviewed or
             # if marketing person updating the course.
-            if not self.object.course_state.marketing_reviewed or user_role.role == PublisherUserRole.MarketingReviewer:
-                if self.object.course_state.name != CourseStateChoices.Draft:
+            if not self.object.course_state.marketing_reviewed or user_role == PublisherUserRole.MarketingReviewer:
+                if (self.object.course_state.name != CourseStateChoices.Draft and
+                        user_role != PublisherUserRole.ProjectCoordinator):
                     self.object.course_state.change_state(
                         state=CourseStateChoices.Draft, user=user, site=self.request.site
                     )
 
                 # Change ownership if user role not equal to owner role.
-                if self.object.course_state.owner_role != user_role.role:
-                    self.object.course_state.change_owner_role(user_role.role)
+                if user_role not in (self.object.course_state.owner_role, PublisherUserRole.ProjectCoordinator):
+                    self.object.course_state.change_owner_role(user_role)
 
         team_admin = form.cleaned_data['team_admin']
         if self.object.course_team_admin != team_admin:
@@ -470,8 +471,8 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
         # Add warning popup information if user can edit the course but does not own it.
         if context['can_edit']:
             current_owner_role = course.course_user_roles.get(role=course.course_state.owner_role)
-            user_role = course.course_user_roles.get(user=user)
-            if user_role.role != current_owner_role.role:
+            user_role = course.get_user_role(user=user)
+            if user_role != current_owner_role.role:
                 context['add_warning_popup'] = True
                 context['current_team_name'] = (_('course')
                                                 if current_owner_role.role == PublisherUserRole.CourseTeam
@@ -757,7 +758,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
                     messages.success(request, _('Course run updated successfully.'))
 
                     # after editing course owner role will be changed to current user
-                    user_role = course_run.course.course_user_roles.get(user=user).role
+                    user_role = course_run.course.get_user_role(user=user)
                     if (
                         user_role != course_run_state.owner_role and
                         course_run_state.name != CourseRunStateChoices.Published
