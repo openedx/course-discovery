@@ -241,6 +241,13 @@ class CourseTests(TestCase):
         self.assertIn('abc', self.course.keywords_data)
         self.assertIn('def', self.course.keywords_data)
 
+    def test_get_user_role(self):
+        """
+        Verify that method 'get_user_role' returns the correct role if it exists
+        """
+        self.assertEqual(self.course.get_user_role(user=self.user1), PublisherUserRole.ProjectCoordinator)
+        self.assertEqual(self.course2.get_user_role(user=self.user1), None)
+
     def test_project_coordinator(self):
         """ Verify that the project_coordinator property returns user if exist. """
         self.assertIsNone(self.course2.project_coordinator)

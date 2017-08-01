@@ -117,6 +117,15 @@ class Course(TimeStampedModel, ChangedByMixin):
 
         return user_emails
 
+    def get_user_role(self, user):
+        """
+        Returns the role of a user in the course if it exists
+        """
+        try:
+            return self.course_user_roles.get(user=user).role
+        except CourseUserRole.DoesNotExist:
+            return None
+
     @property
     def organization_name(self):
         """
