@@ -757,7 +757,9 @@ class Program(TimeStampedModel):
                     'Estimated number of weeks needed to complete a course run belonging to this program.'))
     start_date = models.DateField(null=True, blank=True, db_index=True)
     end_date = models.DateField(null=True, blank=True, db_index=True)
-    continuing_education_units = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True, db_index=True)
+    continuing_education_units = models.DecimalField(
+        max_digits=3, decimal_places=1, null=True, blank=True, db_index=True
+    )
     min_hours_effort_per_week = models.PositiveSmallIntegerField(null=True, blank=True)
     max_hours_effort_per_week = models.PositiveSmallIntegerField(null=True, blank=True)
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_programs')
