@@ -125,6 +125,14 @@ class PersonViewSetTests(SerializationMixin, SiteMixin, APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(response.data['results'], self.serialize_person(Person.objects.all(), many=True))
 
+    def test_list_filter_by_slug(self):
+        """ Verify the endpoint allows people to be filtered by slug. """
+        person = PersonFactory()
+        url = '{root}?slug={slug}'.format(root=self.people_list_url, slug=person.slug)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertListEqual(response.data['results'], self.serialize_person([person], many=True))
+
     def test_create_without_waffle_switch(self):
         """ Verify endpoint shows error message if waffle switch is disabled. """
         toggle_switch('publish_person_to_marketing_site', False)
