@@ -1,11 +1,12 @@
 import logging
 
 import waffle
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from course_discovery.apps.api import serializers
+from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import PageNumberPagination
 
 from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException, PersonToMarketingException
@@ -18,6 +19,8 @@ logger = logging.getLogger(__name__)
 class PersonViewSet(viewsets.ModelViewSet):
     """ PersonSerializer resource. """
 
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = filters.PersonFilter
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
     permission_classes = (IsAuthenticated,)

@@ -13,7 +13,7 @@ from rest_framework.exceptions import NotFound, PermissionDenied
 
 from course_discovery.apps.api.utils import cast2int
 from course_discovery.apps.course_metadata.choices import ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Organization, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Organization, Person, Program
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -172,3 +172,9 @@ class OrganizationFilter(filters.FilterSet):
     class Meta:
         model = Organization
         fields = ('tags', 'uuids',)
+
+
+class PersonFilter(filters.FilterSet):
+    class Meta:
+        model = Person
+        fields = ('slug',)
