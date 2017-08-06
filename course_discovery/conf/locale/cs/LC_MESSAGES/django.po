@@ -3,14 +3,15 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# Anna Chromá <anicka.chroma@gmail.com>, 2017
 # Jan Chromý <jan.chromy@gmail.com>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-13 17:02-0400\n"
-"PO-Revision-Date: 2017-07-26 10:45+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2017-07-21 17:33+0500\n"
+"PO-Revision-Date: 2017-08-04 09:56+0000\n"
+"Last-Translator: Anna Chromá <anicka.chroma@gmail.com>\n"
 "Language-Team: Czech (http://www.transifex.com/open-edx/edx-platform/language/cs/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -877,6 +878,12 @@ msgstr ""
 msgid "n/a"
 msgstr ""
 
+#: apps/publisher/serializers.py templates/publisher/_approval_widget.html
+#: templates/publisher/course_detail/_edit_warning_popup.html
+#: templates/publisher/course_run_detail/_edit_warning.html
+msgid "Edit"
+msgstr ""
+
 #: apps/publisher/validators.py
 #, python-format
 msgid ""
@@ -1204,13 +1211,6 @@ msgstr ""
 
 #: templates/publisher/_approval_widget.html
 msgid "Submitted for review"
-msgstr ""
-
-#: templates/publisher/_approval_widget.html
-#: templates/publisher/course_detail/_edit_warning_popup.html
-#: templates/publisher/course_run_detail/_edit_warning.html
-#: templates/publisher/courses.html
-msgid "Edit"
 msgstr ""
 
 #: templates/publisher/_approval_widget.html
