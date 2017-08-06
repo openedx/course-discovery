@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-13 17:02-0400\n"
-"PO-Revision-Date: 2017-06-16 21:51+0000\n"
+"POT-Creation-Date: 2017-07-21 17:33+0500\n"
+"PO-Revision-Date: 2017-08-03 16:01+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Turkish (http://www.transifex.com/open-edx/edx-platform/language/tr/)\n"
 "MIME-Version: 1.0\n"
@@ -876,6 +876,12 @@ msgstr ""
 msgid "n/a"
 msgstr ""
 
+#: apps/publisher/serializers.py templates/publisher/_approval_widget.html
+#: templates/publisher/course_detail/_edit_warning_popup.html
+#: templates/publisher/course_run_detail/_edit_warning.html
+msgid "Edit"
+msgstr ""
+
 #: apps/publisher/validators.py
 #, python-format
 msgid ""
@@ -1203,13 +1209,6 @@ msgstr ""
 
 #: templates/publisher/_approval_widget.html
 msgid "Submitted for review"
-msgstr ""
-
-#: templates/publisher/_approval_widget.html
-#: templates/publisher/course_detail/_edit_warning_popup.html
-#: templates/publisher/course_run_detail/_edit_warning.html
-#: templates/publisher/courses.html
-msgid "Edit"
 msgstr ""
 
 #: templates/publisher/_approval_widget.html
