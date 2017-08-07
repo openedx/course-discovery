@@ -257,9 +257,10 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Course Syllabus" %}
+        {% trans "Course Syllabus" %}
+        {% include "publisher/course_run_detail/_clipboard.html" %}
     </div>
-    <div>
+    <div class="copy">
       {% with  object.syllabus as field %}
         {% include "publisher/_render_optional_field.html" %}
       {% endwith %}
