@@ -91,3 +91,6 @@ docs/_build/
 node_modules/
 course_discovery/static/bundles/
 webpack-stats.json
+
+# Visual Studio Code
+.vscode
