@@ -94,6 +94,8 @@
     <div>
       {% if object.min_effort and object.max_effort %}
         {{ object.min_effort }}-{{ object.max_effort }} {% trans "hours per week" %}
+      {% elif object.min_effort %}
+        {{ object.min_effort }} {% trans "hours per week" %}
       {% else %}
         {% with  object.estimated_effort as field %}
             {% include "publisher/_render_required_field.html" %}

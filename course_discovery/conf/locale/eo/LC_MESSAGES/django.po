@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-21 17:33+0500\n"
+"POT-Creation-Date: 2017-08-11 17:00+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -840,6 +840,16 @@ msgid "Minimum effort cannot be greater than Maximum effort"
 msgstr ""
 "Mïnïmüm éffört çännöt ßé gréätér thän Mäxïmüm éffört Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/publisher/forms.py
+msgid "Minimum effort and Maximum effort can not be same"
+msgstr ""
+"Mïnïmüm éffört änd Mäxïmüm éffört çän nöt ßé sämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/publisher/forms.py
+msgid "Minimum effort can not be empty"
+msgstr "Mïnïmüm éffört çän nöt ßé émptý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: apps/publisher/forms.py
 msgid "Enter XSeries program name"

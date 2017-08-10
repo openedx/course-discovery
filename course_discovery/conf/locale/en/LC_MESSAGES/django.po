@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-21 17:33+0500\n"
+"POT-Creation-Date: 2017-08-11 17:00+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -704,6 +704,14 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Minimum effort cannot be greater than Maximum effort"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Minimum effort and Maximum effort can not be same"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Minimum effort can not be empty"
 msgstr ""
 
 #: apps/publisher/forms.py

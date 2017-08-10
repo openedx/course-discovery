@@ -1025,6 +1025,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         self.course_run.language = language_tag
         self.course_run.is_micromasters = True
         self.course_run.micromasters_name = 'test'
+        self.course_run.max_effort = None
         self.course_run.save()
         self.course_run.staff.add(PersonFactory())
 
