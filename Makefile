@@ -34,7 +34,7 @@ requirements.js: ## Install JS requirements for local development
 	npm install
 	$(NODE_BIN)/bower install
 
-requirements: ## Install Python requirements for local development
+requirements: requirements.js ## Install Python and JS requirements for local development
 	pip install -r requirements/local.txt
 
 production-requirements: ## Install Python and JS requirements for production
