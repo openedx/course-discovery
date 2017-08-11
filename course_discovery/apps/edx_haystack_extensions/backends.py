@@ -74,7 +74,6 @@ class NonClearingSearchBackendMixin(object):
 
 # pylint: disable=abstract-method
 class ConfigurableElasticBackend(ElasticsearchSearchBackend):
-
     def specify_analyzers(self, mapping, field, index_analyzer, search_analyzer):
         """ Specify separate index and search analyzers for the given field.
           Args:
@@ -122,7 +121,12 @@ class ConfigurableElasticBackend(ElasticsearchSearchBackend):
 # pylint: disable=abstract-method
 class EdxElasticsearchSearchBackend(SimpleQuerySearchBackendMixin, NonClearingSearchBackendMixin,
                                     ConfigurableElasticBackend):
-    pass
+    def search(self, query_string, **kwargs):
+        # NOTE (CCB): Haystack by default attempts to read/update the index mapping. Given that our mapping doesn't
+        # frequently change, this is a waste of three API calls. Stop it! We set our mapping when we create the index.
+        self.setup_complete = True
+
+        return super().search(query_string, **kwargs)
 
 
 class EdxElasticsearchSearchEngine(ElasticsearchSearchEngine):
