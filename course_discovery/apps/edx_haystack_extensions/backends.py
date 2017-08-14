@@ -1,13 +1,6 @@
-import logging
-
-import elasticsearch
-from haystack.backends import log_query
 from haystack.backends.elasticsearch_backend import ElasticsearchSearchBackend, ElasticsearchSearchEngine
-from haystack.models import SearchResult
 
 from course_discovery.apps.edx_haystack_extensions.elasticsearch_boost_config import get_elasticsearch_boost_config
-
-logger = logging.getLogger(__name__)
 
 
 class SimpleQuerySearchBackendMixin(object):
@@ -128,54 +121,12 @@ class ConfigurableElasticBackend(ElasticsearchSearchBackend):
 # pylint: disable=abstract-method
 class EdxElasticsearchSearchBackend(SimpleQuerySearchBackendMixin, NonClearingSearchBackendMixin,
                                     ConfigurableElasticBackend):
-    @log_query
     def search(self, query_string, **kwargs):
-        if len(query_string) == 0:
-            return {
-                'results': [],
-                'hits': 0,
-            }
-
         # NOTE (CCB): Haystack by default attempts to read/update the index mapping. Given that our mapping doesn't
         # frequently change, this is a waste of three API calls. Stop it! We set our mapping when we create the index.
         self.setup_complete = True
-        # if not self.setup_complete:
-        #     self.setup()
-        logger.info('DEBUG: Skipped Haystack setup call')
 
-        search_kwargs = self.build_search_kwargs(query_string, **kwargs)
-        search_kwargs['from'] = kwargs.get('start_offset', 0)
-
-        order_fields = set()
-        for order in search_kwargs.get('sort', []):
-            for key in order.keys():
-                order_fields.add(key)
-
-        geo_sort = '_geo_distance' in order_fields
-
-        end_offset = kwargs.get('end_offset')
-        start_offset = kwargs.get('start_offset', 0)
-        if end_offset is not None and end_offset > start_offset:
-            search_kwargs['size'] = end_offset - start_offset
-
-        try:
-            # pylint: disable=unexpected-keyword-arg
-            raw_results = self.conn.search(body=search_kwargs,
-                                           index=self.index_name,
-                                           doc_type='modelresult',
-                                           _source=True)
-        except elasticsearch.TransportError as e:
-            if not self.silently_fail:
-                raise
-
-            self.log.error("Failed to query Elasticsearch using '%s': %s", query_string, e, exc_info=True)
-            raw_results = {}
-
-        return self._process_results(raw_results,
-                                     highlight=kwargs.get('highlight'),
-                                     result_class=kwargs.get('result_class', SearchResult),
-                                     distance_point=kwargs.get('distance_point'),
-                                     geo_sort=geo_sort)
+        return super().search(query_string, **kwargs)
 
 
 class EdxElasticsearchSearchEngine(ElasticsearchSearchEngine):
