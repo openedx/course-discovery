@@ -1,11 +1,6 @@
-import logging
-import traceback
-
 from haystack.backends.elasticsearch_backend import ElasticsearchSearchBackend, ElasticsearchSearchEngine
 
 from course_discovery.apps.edx_haystack_extensions.elasticsearch_boost_config import get_elasticsearch_boost_config
-
-logger = logging.getLogger(__name__)
 
 
 class SimpleQuerySearchBackendMixin(object):
@@ -132,10 +127,6 @@ class EdxElasticsearchSearchBackend(SimpleQuerySearchBackendMixin, NonClearingSe
         self.setup_complete = True
 
         return super().search(query_string, **kwargs)
-
-    def setup(self):
-        logger.info('DEBUG: EdxElasticsearchSearchBackend.setup() called: %s', '\n'.join(traceback.format_stack()))
-        return super().setup()
 
 
 class EdxElasticsearchSearchEngine(ElasticsearchSearchEngine):
