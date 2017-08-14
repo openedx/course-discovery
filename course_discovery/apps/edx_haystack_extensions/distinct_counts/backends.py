@@ -166,8 +166,9 @@ class DistinctCountsElasticsearchBackendWrapper(object):
         if len(query_string) == 0:
             return {'results': [], 'hits': 0, 'distinct_hits': 0}
 
-        if not self.backend.setup_complete:
-            self.backend.setup()
+        # NOTE (CCB): Haystack by default attempts to read/update the index mapping. Given that our mapping doesn't
+        # frequently change, this is a waste of three API calls. Stop it! We set our mapping when we create the index.
+        self.backend.setup_complete = True
 
         search_kwargs = self._build_search_kwargs(query_string, **kwargs)
         search_kwargs['from'] = kwargs.get('start_offset', 0)
