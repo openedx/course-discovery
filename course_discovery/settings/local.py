@@ -1,3 +1,4 @@
+from course_discovery.settings._debug_toolbar import *  # isort:skip
 from course_discovery.settings.base import *
 
 DEBUG = True
