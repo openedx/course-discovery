@@ -359,6 +359,27 @@ class CourseRunWithProgramsSerializerTests(TestCase):
             NestedProgramSerializer([unpublished_program], many=True, context=self.serializer_context).data
         )
 
+    def test_exclude_retired_program(self):
+        """
+        If a program is retired, that program should not be returned on the course run endpoint by default.
+        """
+        ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Retired)
+        serializer = CourseRunWithProgramsSerializer(self.course_run, context=self.serializer_context)
+        self.assertEqual(serializer.data['programs'], [])
+
+    def test_include_retired_programs(self):
+        """
+        If a program is retired, that program should only be returned on the course run endpoint if we are
+        sending the 'include_retired_programs' flag.
+        """
+        retired_program = ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Retired)
+        self.serializer_context['include_retired_programs'] = 1
+        serializer = CourseRunWithProgramsSerializer(self.course_run, context=self.serializer_context)
+        self.assertEqual(
+            serializer.data['programs'],
+            NestedProgramSerializer([retired_program], many=True, context=self.serializer_context).data
+        )
+
 
 class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover
     def serialize_seats(self, course_run):
