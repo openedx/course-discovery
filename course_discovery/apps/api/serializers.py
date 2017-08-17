@@ -502,6 +502,10 @@ class CourseRunWithProgramsSerializer(CourseRunSerializer):
             if not self.context.get('include_unpublished_programs'):
                 programs = [program for program in programs if program.status != ProgramStatus.Unpublished]
 
+            # If flag is not set, remove programs from list that are retired
+            if not self.context.get('include_retired_programs'):
+                programs = [program for program in programs if program.status != ProgramStatus.Retired]
+
         return NestedProgramSerializer(programs, many=True).data
 
     class Meta(CourseRunSerializer.Meta):

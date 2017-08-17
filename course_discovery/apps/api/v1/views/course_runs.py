@@ -59,6 +59,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
             'exclude_utm': get_query_param(self.request, 'exclude_utm'),
             'include_deleted_programs': get_query_param(self.request, 'include_deleted_programs'),
             'include_unpublished_programs': get_query_param(self.request, 'include_unpublished_programs'),
+            'include_retired_programs': get_query_param(self.request, 'include_retired_programs'),
         })
 
         return context
@@ -113,6 +114,12 @@ class CourseRunViewSet(viewsets.ModelViewSet):
               multiple: false
             - name: include_unpublished_programs
               description: Will include unpublished programs in the associated programs array
+              required: false
+              type: integer
+              paramType: query
+              multiple: false
+            - name: include_retired_programs
+              description: Will include retired programs in the associated programs array
               required: false
               type: integer
               paramType: query
