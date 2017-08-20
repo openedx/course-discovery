@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-21 17:33+0500\n"
-"PO-Revision-Date: 2017-08-03 16:01+0000\n"
+"POT-Creation-Date: 2017-08-11 17:00+0500\n"
+"PO-Revision-Date: 2017-08-15 21:24+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Danish (http://www.transifex.com/open-edx/edx-platform/language/da/)\n"
 "MIME-Version: 1.0\n"
@@ -705,6 +705,14 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Minimum effort cannot be greater than Maximum effort"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Minimum effort and Maximum effort can not be same"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Minimum effort can not be empty"
 msgstr ""
 
 #: apps/publisher/forms.py

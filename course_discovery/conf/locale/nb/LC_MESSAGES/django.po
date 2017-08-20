@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-21 17:33+0500\n"
-"PO-Revision-Date: 2017-08-11 11:16+0000\n"
+"POT-Creation-Date: 2017-08-11 17:00+0500\n"
+"PO-Revision-Date: 2017-08-18 07:21+0000\n"
 "Last-Translator: Frode Arntsen <frode.arntsen@bibsys.no>\n"
 "Language-Team: Norwegian Bokmål (http://www.transifex.com/open-edx/edx-platform/language/nb/)\n"
 "MIME-Version: 1.0\n"
@@ -410,7 +410,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "A brief, descriptive subtitle for the Program."
-msgstr ""
+msgstr "En kort, beskrivende undertittel for programmet."
 
 #: apps/course_metadata/models.py
 msgid "The lifecycle status of this Program."
@@ -471,7 +471,7 @@ msgstr "Ugyldig URL format \"{preview_url}\""
 #: apps/publisher/api/serializers.py
 #, python-brace-format
 msgid "Cannot switch from state `{state}` to `{target_state}`"
-msgstr ""
+msgstr "Kan ikke bytte fra status `{state}` til `{target_state}`"
 
 #: apps/publisher/choices.py
 msgid "Partner Manager"
@@ -709,6 +709,14 @@ msgid "Minimum effort cannot be greater than Maximum effort"
 msgstr ""
 
 #: apps/publisher/forms.py
+msgid "Minimum effort and Maximum effort can not be same"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Minimum effort can not be empty"
+msgstr ""
+
+#: apps/publisher/forms.py
 msgid "Enter XSeries program name"
 msgstr ""
 
@@ -875,7 +883,7 @@ msgstr ""
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "n/a"
-msgstr ""
+msgstr "n/a"
 
 #: apps/publisher/serializers.py templates/publisher/_approval_widget.html
 #: templates/publisher/course_detail/_edit_warning_popup.html
@@ -1088,7 +1096,7 @@ msgstr ""
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "New Instructor"
-msgstr ""
+msgstr "Ny instruktør"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "Click here to upload your image"
@@ -1258,7 +1266,7 @@ msgstr "Bruksvilkår for tjenesten"
 
 #: templates/publisher/_footer.html
 msgid "Privacy Policy"
-msgstr ""
+msgstr "Personvernregler"
 
 #: templates/publisher/_footer.html
 msgid "Legal"
@@ -1273,7 +1281,7 @@ msgstr "EdX, Open edX, Publisher, samt edX og Open edX logoene er registrerte va
 
 #: templates/publisher/_footer.html
 msgid "Powered by Open edX"
-msgstr ""
+msgstr "Drevet av Open edX"
 
 #: templates/publisher/_header.html
 #: templates/publisher/course_run_detail/_salesforce.html
@@ -1364,7 +1372,7 @@ msgstr ""
 
 #: templates/publisher/add_course_form.html templates/publisher/courses.html
 msgid "Create New Course"
-msgstr ""
+msgstr "Opprett nytt kurs"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_edit_form.html
@@ -1663,7 +1671,7 @@ msgstr ""
 
 #: templates/publisher/course_edit_form.html
 msgid "Edit Course"
-msgstr ""
+msgstr "Rediger kurs"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
@@ -2524,7 +2532,7 @@ msgstr "Startdato"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "End Date"
-msgstr ""
+msgstr "Sluttdato"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Verified Registration Expiration Date"
@@ -3190,7 +3198,7 @@ msgstr ""
 msgid ""
 "EdX expects your completed %(link_start)sMOOC Development "
 "Checklist%(link_end)s before the course run starts."
-msgstr ""
+msgstr "EdX forventer din %(link_start)sMOOC utviklings-sjekkliste %(link_end)s før kursgjennomføringen starter."
 
 #: templates/publisher/email/studio_instance_created.html
 #, python-format
@@ -3213,7 +3221,7 @@ msgstr ""
 msgid ""
 "EdX expects your completed MOOC Development Checklist before the course run "
 "starts."
-msgstr ""
+msgstr "EdX forventer din ferdigstilte MOOC utviklings-sjekkliste før kursgjennomføringen starter."
 
 #: templates/publisher/email/studio_instance_created.txt
 msgid ""
