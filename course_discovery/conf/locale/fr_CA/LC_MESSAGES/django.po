@@ -66,9 +66,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-21 17:33+0500\n"
-"PO-Revision-Date: 2017-08-10 20:29+0000\n"
-"Last-Translator: Pierre Mailhot <pierre.mailhot@gmail.com>\n"
+"POT-Creation-Date: 2017-08-11 17:00+0500\n"
+"PO-Revision-Date: 2017-08-15 21:24+0000\n"
+"Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: French (Canada) (http://www.transifex.com/open-edx/edx-platform/language/fr_CA/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -765,6 +765,14 @@ msgstr "La date de début ne peut être après la date de fin"
 #: apps/publisher/forms.py
 msgid "Minimum effort cannot be greater than Maximum effort"
 msgstr "L'effort minimum ne peut pas être supérieur à l'effort maximal"
+
+#: apps/publisher/forms.py
+msgid "Minimum effort and Maximum effort can not be same"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Minimum effort can not be empty"
+msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Enter XSeries program name"

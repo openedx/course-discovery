@@ -9,9 +9,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-21 17:33+0500\n"
-"PO-Revision-Date: 2017-08-03 16:01+0000\n"
-"Last-Translator: Fundacja Eduprojekt.org <maciej@eduprojekt.org>\n"
+"POT-Creation-Date: 2017-08-11 17:00+0500\n"
+"PO-Revision-Date: 2017-08-15 21:24+0000\n"
+"Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Polish (http://www.transifex.com/open-edx/edx-platform/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -708,6 +708,14 @@ msgstr "Data rozpoczęcia nie może być późniejsza od daty zakończenia"
 #: apps/publisher/forms.py
 msgid "Minimum effort cannot be greater than Maximum effort"
 msgstr "Szacowana minimalna liczba godzin nie może być większa od maksymalnej"
+
+#: apps/publisher/forms.py
+msgid "Minimum effort and Maximum effort can not be same"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Minimum effort can not be empty"
+msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Enter XSeries program name"

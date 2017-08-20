@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# Diego Rojas <diego.rojas@edunext.co>, 2017
 # Juan Camilo Montoya Franco <juan.montoya@edunext.co>, 2016-2017
 # Laura Silva <lingison@edx.org>, 2016
 # Luis Benites <lbenitesanchez@gmail.com>, 2016
@@ -12,9 +13,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-21 17:33+0500\n"
-"PO-Revision-Date: 2017-08-03 16:02+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2017-08-11 17:00+0500\n"
+"PO-Revision-Date: 2017-08-18 15:34+0000\n"
+"Last-Translator: Juan Camilo Montoya Franco <juan.montoya@edunext.co>\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -40,21 +41,21 @@ msgstr "Mostrar cambios"
 
 #: static/js/publisher/image-validation.js
 msgid "The image file size cannot exceed 1 MB."
-msgstr ""
+msgstr "El tamaño del archivo de imagen no puede ser más de 1 MB."
 
 #: static/js/publisher/instructors.js
 msgid "New Instructor"
-msgstr ""
+msgstr "Nuevo instructor"
 
 #: static/js/publisher/instructors.js
 msgid "Add staff member"
-msgstr ""
+msgstr "Agregar miembro del equipo del curso"
 
 #: static/js/publisher/instructors.js
 msgid ""
 "Please upload a instructor image. File must be smaller than 1 megabyte in "
 "size."
-msgstr ""
+msgstr "Por favor, cargue una imagen de instructor. El archivo debe ser menos de 1 megabyte de tamaño."
 
 #: static/js/publisher/instructors.js static/js/publisher/preview-url.js
 msgid "Something went wrong!"
@@ -66,11 +67,11 @@ msgstr "El archivo debe tener un tamaño menor a 1 MB."
 
 #: static/js/publisher/instructors.js
 msgid "Update staff member"
-msgstr ""
+msgstr "Actualizar miembro del equipo"
 
 #: static/js/publisher/instructors.js
 msgid "Update Instructor"
-msgstr ""
+msgstr "Actualizar Instructor"
 
 #: static/js/publisher/preview-url.js
 msgid "Save"
@@ -82,13 +83,13 @@ msgstr "Por favor, ingrese una URL válida."
 
 #: static/js/publisher/views/courses.js
 msgid "No courses have been created."
-msgstr ""
+msgstr "No se han creado cursos."
 
 #: static/js/publisher/views/dashboard.js
 msgid ""
 "You have successfully created a Studio URL ({studioLinkTag}) for "
 "{courseRunDetail} with a start date of {startDate}"
-msgstr ""
+msgstr "Ud. ha creado exitosamente un URL Studio ({studioLinkTag}) para {courseRunDetail} con fecha de inicio {startDate}"
 
 #: static/js/publisher/views/dashboard.js
 msgid "There was an error in saving your data."
