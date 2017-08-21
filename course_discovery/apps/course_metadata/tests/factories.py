@@ -52,6 +52,7 @@ class SubjectFactory(factory.DjangoModelFactory):
     banner_image_url = FuzzyURL()
     card_image_url = FuzzyURL()
     partner = factory.SubFactory(PartnerFactory)
+    uuid = factory.LazyFunction(uuid4)
 
 
 class LevelTypeFactory(AbstractNamedModelFactory):

@@ -949,6 +949,7 @@ class SubjectSerializerTests(TestCase):
             'card_image_url': subject.card_image_url,
             'subtitle': subject.subtitle,
             'slug': subject.slug,
+            'uuid': str(subject.uuid),
         }
 
         self.assertDictEqual(serializer.data, expected)
