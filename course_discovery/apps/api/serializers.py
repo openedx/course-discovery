@@ -164,9 +164,13 @@ class FAQSerializer(serializers.ModelSerializer):
 class SubjectSerializer(serializers.ModelSerializer):
     """Serializer for the ``Subject`` model."""
 
+    @classmethod
+    def prefetch_queryset(cls):
+        return Subject.objects.filter()
+
     class Meta(object):
         model = Subject
-        fields = ('name', 'subtitle', 'description', 'banner_image_url', 'card_image_url', 'slug',)
+        fields = ('name', 'subtitle', 'description', 'banner_image_url', 'card_image_url', 'slug', 'uuid')
 
 
 class PrerequisiteSerializer(NamedModelSerializer):
