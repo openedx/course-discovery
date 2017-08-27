@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-08-11 17:00+0500\n"
-"PO-Revision-Date: 2017-08-15 21:24+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"PO-Revision-Date: 2017-08-25 16:43+0000\n"
+"Last-Translator: Kyoto University <edxkyotoux@gmail.com>\n"
 "Language-Team: Japanese (Japan) (http://www.transifex.com/open-edx/edx-platform/language/ja_JP/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -28,19 +28,19 @@ msgstr "[{username}]というユーザー名のユーザーは存在しません
 msgid ""
 "Only staff users are permitted to filter by username. Remove the username "
 "parameter."
-msgstr ""
+msgstr "ユーザー名によるフィルタリングはスタッフユーザーにしか許可されていません。ユーザー名パラメータを削除してください。"
 
 #: apps/api/serializers.py
 msgid "Number of courses contained in this catalog"
-msgstr ""
+msgstr "本カタログに掲載されている講座数"
 
 #: apps/api/serializers.py
 msgid "Usernames of users with explicit access to view this catalog"
-msgstr ""
+msgstr "本カタログを閲覧するための明示的アクセス権をもつユーザーのユーザー名"
 
 #: apps/api/serializers.py
 msgid "Language in which the course is administered"
-msgstr ""
+msgstr "講座管理用言語"
 
 #: apps/api/serializers.py
 msgid "Dictionary mapping course run IDs to boolean values"
@@ -52,12 +52,12 @@ msgstr ""
 
 #: apps/api/serializers.py
 msgid "Languages that course runs in this program are offered in."
-msgstr ""
+msgstr "本プログラム内のcourse runに使用されている言語"
 
 #: apps/api/serializers.py
 msgid ""
 "Languages that course runs in this program have available transcripts in."
-msgstr ""
+msgstr "本プログラム内のcourse runで利用できる字幕用言語"
 
 #: apps/api/views.py
 msgid "You are not permitted to access the API documentation."
@@ -69,7 +69,7 @@ msgstr "カタログ名"
 
 #: apps/catalogs/models.py
 msgid "Query to retrieve catalog contents"
-msgstr ""
+msgstr "カタログのコンテンツを復元するための質問"
 
 #: apps/core/admin.py
 msgid "Personal info"
@@ -77,25 +77,25 @@ msgstr "個人情報"
 
 #: apps/core/admin.py
 msgid "Permissions"
-msgstr ""
+msgstr "権限"
 
 #: apps/core/admin.py
 msgid "Important dates"
-msgstr ""
+msgstr "重要な予定"
 
 #: apps/core/admin.py
 msgid "OpenID Connect"
-msgstr ""
+msgstr "オープンID接続"
 
 #: apps/core/admin.py
 msgid ""
 "OpenID Connect is used for front-end authentication as well as getting "
 "access to the APIs."
-msgstr ""
+msgstr "オープンID接続はフロントエンド認証およびAPIへのアクセス権を獲得するために使用されます。"
 
 #: apps/core/admin.py
 msgid "API Configuration"
-msgstr ""
+msgstr "API設定"
 
 #: apps/core/admin.py
 msgid "Configure the APIs that will be used to retrieve data."
@@ -116,11 +116,11 @@ msgstr "データ復元やURL作成に使用するマーケティングサイト
 #: apps/core/forms.py
 #, python-brace-format
 msgid "period must be one of {period_choices}."
-msgstr ""
+msgstr "期間は {period_choices} のいずれかでなければいけません。"
 
 #: apps/core/forms.py
 msgid "'rate' must be in the format defined by DRF, such as '100/hour'."
-msgstr ""
+msgstr "'rate' は '100/時間' のようにDRFで定義されたフォーマットでなければなりません。"
 
 #: apps/core/models.py
 msgid "Full Name"
@@ -135,17 +135,17 @@ msgid ""
 "The rate of requests to limit this user to. The format is specified by "
 "Django Rest Framework (see http://www.django-rest-framework.org/api-"
 "guide/throttling/)."
-msgstr ""
+msgstr "このユーザーを制限するリクエストの割合。フォーマットはDjango Rest Frameworkによって指定されています (http://www.django-rest-framework.org/api-guide/throttling/を見てください)。 "
 
 #: apps/core/models.py
 msgid "Short Code"
-msgstr ""
+msgstr "Short Code"
 
 #: apps/core/models.py
 msgid ""
 "Convenient code/slug used to identify this Partner (e.g. for management "
 "commands.)"
-msgstr ""
+msgstr "このパートナーを特定するのに使用する便利なコード/スラグ (例．管理コマンド用)"
 
 #: apps/core/models.py
 msgid "Courses API URL"
@@ -213,7 +213,7 @@ msgstr "マーケティングサイトへ {model} を公開する際、エラー
 
 #: apps/course_metadata/admin.py
 msgid "eligible for one-click purchase"
-msgstr ""
+msgstr "１クリック購入可能"
 
 #: apps/course_metadata/admin.py apps/publisher/forms.py
 msgid "Yes"
@@ -229,28 +229,28 @@ msgstr ""
 
 #: apps/course_metadata/choices.py apps/publisher/choices.py
 msgid "Published"
-msgstr ""
+msgstr "公開済"
 
 #: apps/course_metadata/choices.py
 msgid "Unpublished"
-msgstr ""
+msgstr "未公開"
 
 #. Translators: Instructor-paced refers to course runs that operate on a
 #. schedule set by the instructor,
 #. similar to a normal university course.
 #: apps/course_metadata/choices.py
 msgid "Instructor-paced"
-msgstr ""
+msgstr "Instructor-paced"
 
 #. Translators: Self-paced refers to course runs that operate on the student's
 #. schedule.
 #: apps/course_metadata/choices.py
 msgid "Self-paced"
-msgstr ""
+msgstr "Self-paced"
 
 #: apps/course_metadata/choices.py
 msgid "Active"
-msgstr ""
+msgstr "アクティブ"
 
 #: apps/course_metadata/choices.py
 msgid "Retired"
@@ -262,7 +262,7 @@ msgstr "削除済"
 
 #: apps/course_metadata/forms.py
 msgid "Programs can only be activated if they have a banner image."
-msgstr ""
+msgstr "バナー画像があれば、プログラムは作動できます。"
 
 #: apps/course_metadata/models.py
 msgid "Facebook"
@@ -286,13 +286,13 @@ msgstr "UUID"
 
 #: apps/course_metadata/models.py
 msgid "Leave this field blank to have the value generated automatically."
-msgstr ""
+msgstr "値が自動的に生成されるよう、この欄を空欄にしてください。"
 
 #: apps/course_metadata/models.py
 msgid ""
 "Logo to be displayed on certificates. If this logo is the same as "
 "logo_image_url, copy and paste the same value to both fields."
-msgstr ""
+msgstr "修了証に表示されるロゴ。このロゴがlogo_image_urlと同じであれば、両方の欄に同じ値をコピーして貼り付けてください。"
 
 #: apps/course_metadata/models.py
 msgid ""
@@ -302,7 +302,7 @@ msgstr "提案されている中からタグを選んでください。新しい
 
 #: apps/course_metadata/models.py
 msgid "People"
-msgstr ""
+msgstr "人々"
 
 #: apps/course_metadata/models.py
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
@@ -312,33 +312,33 @@ msgstr "講座番号形式　例. CS002x, BIO1.1x, BIO1.2x"
 msgid ""
 "Title specific for this run of a course. Leave this value blank to default "
 "to the parent course's title."
-msgstr ""
+msgstr "今回用の講座タイトル。元の講座タイトルをデフォルトにする場合はこの欄を空欄にしてください。"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid ""
 "Short description specific for this run of a course. Leave this value blank "
 "to default to the parent course's short_description attribute."
-msgstr ""
+msgstr "今回用の簡単な講座説明。元の講座説明をデフォルトにする場合はこの欄を空欄にしてください。"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid ""
 "Full description specific for this run of a course. Leave this value blank "
 "to default to the parent course's full_description attribute."
-msgstr ""
+msgstr "今回用の詳しい講座説明。元の講座説明をデフォルトにする場合はこの欄を空欄にしてください。"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid ""
 "Estimated minimum number of hours per week needed to complete a course run."
-msgstr ""
+msgstr "course run完了に必要な週当たりの推定最小時間数"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid ""
 "Estimated maximum number of hours per week needed to complete a course run."
-msgstr ""
+msgstr "course run完了に必要な週当たりの推定最大時間数"
 
 #: apps/course_metadata/models.py
 msgid "Estimated number of weeks needed to complete this course run."
-msgstr ""
+msgstr "course run完了に必要な推定週数"
 
 #: apps/course_metadata/models.py
 msgid "Indicates whether the course relation has been manually overridden."
@@ -371,11 +371,11 @@ msgstr "聴講"
 #: apps/course_metadata/models.py apps/publisher/forms.py
 #: apps/publisher/models.py
 msgid "Verified"
-msgstr ""
+msgstr "認証付き"
 
 #: apps/course_metadata/models.py
 msgid "Professional"
-msgstr ""
+msgstr "専門家"
 
 #: apps/course_metadata/models.py apps/publisher/forms.py
 #: apps/publisher/models.py
@@ -399,7 +399,7 @@ msgid ""
 "completing associated courses, but enrolled in other seat types, will NOT "
 "have their completion of the course counted toward the completion of the "
 "program."
-msgstr ""
+msgstr "このタイプのプログラムの修了資格を与えるseat type。関連講座を修了したが、他のseat typeに受講登録した受講者は、プログラム修了にあたって講座修了をカウントしない。"
 
 #: apps/course_metadata/models.py
 msgid "Please provide an image file with transparent background"
@@ -407,11 +407,11 @@ msgstr "透明な背景の画像ファイルを提出してください。"
 
 #: apps/course_metadata/models.py
 msgid "The user-facing display title for this Program."
-msgstr ""
+msgstr "このプログラムのユーザー用表示タイトル"
 
 #: apps/course_metadata/models.py
 msgid "A brief, descriptive subtitle for the Program."
-msgstr ""
+msgstr "プログラムの簡単な説明サブタイトル"
 
 #: apps/course_metadata/models.py
 msgid "The lifecycle status of this Program."
@@ -419,23 +419,23 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Slug used to generate links to the marketing site"
-msgstr ""
+msgstr "マーケティングサイトへのリンクを生成するために使用するスラグ"
 
 #: apps/course_metadata/models.py
 msgid ""
 "If this box is not checked, courses will be ordered as in the courses select"
 " box above."
-msgstr ""
+msgstr "このボックスにチェックされていなければ、講座は上記の選択ボックス内のように順序付けされます。"
 
 #: apps/course_metadata/models.py
 msgid ""
 "This field is now deprecated (ECOM-6021).Estimated number of weeks needed to"
 " complete a course run belonging to this program."
-msgstr ""
+msgstr "この欄は推奨されていません(ECOM-6021)。このプログラムに含まれるcourse runを完了するために必要な推定週数。"
 
 #: apps/course_metadata/models.py
 msgid "Image used for discovery cards"
-msgstr ""
+msgstr "ディスカバリーカードに使用する画像"
 
 #: apps/course_metadata/models.py
 msgid "The description of credit redemption for courses in program"
@@ -443,21 +443,21 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Allow courses in this program to be purchased in a single transaction"
-msgstr ""
+msgstr "このプログラム内の講座を単一取引で購入できるようにしてください。"
 
 #: apps/course_metadata/models.py
 msgid ""
 "Hide program on marketing site landing and search pages. This program MAY "
 "have a detail page."
-msgstr ""
+msgstr "マーケティングサイトのランディングページおよび検索ページ上のプログラムを非表示にしてください。本プログラムに詳細ページがある可能性があります。"
 
 #: apps/course_metadata/views.py
 msgid "Update excluded course runs"
-msgstr ""
+msgstr "除外されたcourse runをアップロード"
 
 #: apps/course_metadata/views.py
 msgid "The program was changed successfully."
-msgstr ""
+msgstr "プログラムは問題なく変更されました。"
 
 #: apps/publisher/api/serializers.py
 #, python-brace-format
@@ -467,12 +467,12 @@ msgstr "無効な講座キー \"{lms_course_id}\""
 #: apps/publisher/api/serializers.py
 #, python-brace-format
 msgid "Invalid URL format \"{preview_url}\""
-msgstr ""
+msgstr "無効なURLフォーマット \"{preview_url}\""
 
 #: apps/publisher/api/serializers.py
 #, python-brace-format
 msgid "Cannot switch from state `{state}` to `{target_state}`"
-msgstr ""
+msgstr " `{state}` から `{target_state}` への切替はできません"
 
 #: apps/publisher/choices.py
 msgid "Partner Manager"
@@ -493,7 +493,7 @@ msgstr "Publisher"
 #: apps/publisher/choices.py templates/publisher/courses.html
 #: templates/publisher/dashboard/_in_progress.html
 msgid "Course Team"
-msgstr ""
+msgstr "講座チーム"
 
 #: apps/publisher/choices.py
 msgid "Draft"
@@ -501,66 +501,66 @@ msgstr "下書き"
 
 #: apps/publisher/choices.py
 msgid "Review"
-msgstr ""
+msgstr "レビュー"
 
 #: apps/publisher/choices.py
 msgid "Approved"
-msgstr ""
+msgstr "承認済"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Studio URL created: {title} {run_number}"
-msgstr ""
+msgstr "Studio URL作成済：{title} {run_number}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Studio URL requested: {title}"
-msgstr ""
+msgstr "Studio URLリクエスト済：{title}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Review requested: {title}"
-msgstr ""
+msgstr "レビューリクエスト済：{title}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Review complete: {title}"
-msgstr ""
+msgstr "レビュー完了：{title}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Review requested: {title} {run_number}"
-msgstr ""
+msgstr "レビューリクエスト済：{title} {run_number}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Review complete: {course_name} {run_number}"
-msgstr ""
+msgstr "レビュー完了：{course_name} {run_number}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Publication requested: {course_name} {run_number}"
-msgstr ""
+msgstr "公開リクエスト済：{course_name} {run_number}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Review requested: Preview for {course_name} {run_number}"
-msgstr ""
+msgstr "レビューリクエスト済：{course_name} {run_number} のプレビュー"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Publication complete: About page for {course_name} {run_number}"
-msgstr ""
+msgstr "公開完了：{course_name} {run_number} のAbout ページ"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "{role_name} changed for {course_title}"
-msgstr ""
+msgstr " {course_title} の {role_name} 変更"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Legal review requested: {title}"
-msgstr ""
+msgstr "法的レビューリクエスト：{title}"
 
 #: apps/publisher/emails.py
 msgid "Course team"
@@ -568,12 +568,12 @@ msgstr "講座チーム"
 
 #: apps/publisher/emails.py
 msgid "Legal Team"
-msgstr ""
+msgstr "法律チーム"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Changes to published course run: {title} {run_number}"
-msgstr ""
+msgstr "公開中のcourse runへの変更：{title} {run_number}"
 
 #: apps/publisher/forms.py
 msgid "Remove Image"
@@ -599,23 +599,23 @@ msgstr "講座番号"
 #: apps/publisher/forms.py templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 msgid "Short Description"
-msgstr ""
+msgstr "簡潔な説明"
 
 #: apps/publisher/forms.py templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 msgid "Long Description"
-msgstr ""
+msgstr "詳細な説明"
 
 #: apps/publisher/forms.py apps/publisher/models.py
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Prerequisites"
-msgstr ""
+msgstr "履習要件"
 
 #: apps/publisher/forms.py
 msgid "Organization Course Admin"
-msgstr ""
+msgstr "組織講座管理者"
 
 #: apps/publisher/forms.py
 msgid "Primary"
@@ -623,7 +623,7 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Additional Subject (optional)"
-msgstr ""
+msgstr "追加 (オプション)"
 
 #: apps/publisher/forms.py templates/publisher/course_run_detail/_drupal.html
 msgid "Level"
@@ -631,7 +631,7 @@ msgstr "レベル"
 
 #: apps/publisher/forms.py templates/publisher/course_detail.html
 msgid "What You Will Learn"
-msgstr ""
+msgstr "何を学べるか"
 
 #: apps/publisher/forms.py
 msgid "Learner Testimonial"
@@ -671,7 +671,7 @@ msgstr "タイプ"
 
 #: apps/publisher/forms.py
 msgid "Transcript Languages"
-msgstr ""
+msgstr "字幕用言語"
 
 #: apps/publisher/forms.py templates/publisher/course_run_detail/_drupal.html
 msgid "XSeries"
@@ -687,7 +687,7 @@ msgstr "Professional Certificate"
 
 #: apps/publisher/forms.py
 msgid "XSeries Name"
-msgstr ""
+msgstr "XSeries名"
 
 #: apps/publisher/forms.py templates/publisher/course_run_detail/_drupal.html
 msgid "Professional Certificate Name"
@@ -695,27 +695,27 @@ msgstr "Professional Certificate Name"
 
 #: apps/publisher/forms.py
 msgid "MicroMasters Name"
-msgstr ""
+msgstr "MicroMasters名"
 
 #: apps/publisher/forms.py
 msgid "Video Language"
-msgstr ""
+msgstr "動画用言語"
 
 #: apps/publisher/forms.py
 msgid "Start date cannot be after the End date"
-msgstr ""
+msgstr "開始日は終了日以前でなければいけません"
 
 #: apps/publisher/forms.py
 msgid "Minimum effort cannot be greater than Maximum effort"
-msgstr ""
+msgstr "エフォートの最小時間数は最大時間数より多くてはいけません"
 
 #: apps/publisher/forms.py
 msgid "Minimum effort and Maximum effort can not be same"
-msgstr ""
+msgstr "エフォートの最小時間数と最大時間数は同じではいけません"
 
 #: apps/publisher/forms.py
 msgid "Minimum effort can not be empty"
-msgstr ""
+msgstr "エフォート最小時間は空白ではいけません"
 
 #: apps/publisher/forms.py
 msgid "Enter XSeries program name"
@@ -727,27 +727,27 @@ msgstr "Micromasters プログラム名を入力してください。"
 
 #: apps/publisher/forms.py
 msgid "Enter Professional Certificate program name"
-msgstr ""
+msgstr "Professional Certificateプログラム名を入力してください。"
 
 #: apps/publisher/forms.py
 msgid "Only audit seat can be without price."
-msgstr ""
+msgstr "聴講生は無料です。"
 
 #: apps/publisher/forms.py
 msgid "Choose enrollment track"
-msgstr ""
+msgstr "受講登録トラックを選ぶ"
 
 #: apps/publisher/forms.py
 msgid "Audit only"
-msgstr ""
+msgstr "聴講のみ"
 
 #: apps/publisher/forms.py
 msgid "Professional education"
-msgstr ""
+msgstr "専門家教育"
 
 #: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
 msgid "Enrollment Track"
-msgstr ""
+msgstr "受講登録トラック"
 
 #: apps/publisher/forms.py
 msgid "This field is required."
@@ -779,26 +779,26 @@ msgstr "パートナー名"
 
 #: apps/publisher/models.py
 msgid "Level Type"
-msgstr ""
+msgstr "レベル・タイプ"
 
 #: apps/publisher/models.py
 msgid "Expected Learnings"
-msgstr ""
+msgstr "期待される学習知識"
 
 #: apps/publisher/models.py templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Learner Testimonials"
-msgstr ""
+msgstr "受講者証明書"
 
 #: apps/publisher/models.py
 msgid "Verification deadline"
-msgstr ""
+msgstr "認証締切"
 
 #: apps/publisher/models.py
 msgid ""
 "Last date/time on which verification for this product can be submitted."
-msgstr ""
+msgstr "この製品の認証を提出できる最終日時"
 
 #: apps/publisher/models.py
 msgid "Video Link"
@@ -806,7 +806,7 @@ msgstr "動画リンク"
 
 #: apps/publisher/models.py
 msgid "Course Metadata Course PK"
-msgstr ""
+msgstr "Course Metadata Course PK"
 
 #: apps/publisher/models.py
 msgid "Level 1"
@@ -830,57 +830,57 @@ msgstr "レベル5"
 
 #: apps/publisher/models.py
 msgid "Content Language"
-msgstr ""
+msgstr "コンテンツ用言語"
 
 #: apps/publisher/models.py
 msgid "Length of course, in number of weeks"
-msgstr ""
+msgstr "講座の長さ（週数）"
 
 #: apps/publisher/models.py
 msgid ""
 "Please add any additional notes or special instructions for the course About"
 " Page."
-msgstr ""
+msgstr "Aboutページに関する追記や特別な指示を記入してください。"
 
 #: apps/publisher/models.py
 msgid "Comma separated list of edX usernames or emails of admins."
-msgstr ""
+msgstr "カンマで区切られた管理者のメールまたはedXユーザー名のリスト。"
 
 #: apps/publisher/models.py
 msgid "Comma separated list of edX usernames or emails of additional staff."
-msgstr ""
+msgstr "カンマで区切られた追加スタッフのメールまたはedXユーザー名のリスト。"
 
 #: apps/publisher/models.py
 msgid "Professional (with ID verification)"
-msgstr ""
+msgstr "Professional (ID認証あり)"
 
 #: apps/publisher/models.py
 msgid "Professional (no ID verifiation)"
-msgstr ""
+msgstr "Professional (ID認証なし)"
 
 #: apps/publisher/models.py
 msgid "Organization Role"
-msgstr ""
+msgstr "組織内の役割"
 
 #: apps/publisher/models.py
 msgid "Course Role"
-msgstr ""
+msgstr "講座内の役割"
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "In Draft since"
-msgstr ""
+msgstr "下書き日"
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "Submitted on"
-msgstr ""
+msgstr "提出日"
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "Reviewed on"
-msgstr ""
+msgstr "レビュー日"
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "In Review since"
-msgstr ""
+msgstr "レビュー開始日"
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "n/a"
@@ -904,7 +904,7 @@ msgstr "アップロードした画像は解像度が正しくありません。
 msgid ""
 "Ensure this value has at most {allowed_char} characters (it has "
 "{current_char})."
-msgstr ""
+msgstr "この欄を {allowed_char} 文字以下にしてください (現在 {current_char} 文字)。"
 
 #: apps/publisher/views.py
 msgid "PARTNER MANAGER"
@@ -920,7 +920,7 @@ msgstr "MARKETING"
 
 #: apps/publisher/views.py
 msgid "PUBLISHER"
-msgstr ""
+msgstr "PUBLISHER"
 
 #: apps/publisher/views.py
 msgid "COURSE TEAM"
@@ -928,11 +928,11 @@ msgstr "講座チーム"
 
 #: apps/publisher/views.py
 msgid "Send for Review"
-msgstr ""
+msgstr "レビュー用に送信"
 
 #: apps/publisher/views.py
 msgid "Mark as Reviewed"
-msgstr ""
+msgstr "レビュー済とする"
 
 #: apps/publisher/views.py
 msgid "course team"
@@ -947,14 +947,14 @@ msgstr "プロジェクトコーディネーター"
 msgid ""
 "{course_title} has been created successfully. Enter information on this page"
 " to create a course run for this course."
-msgstr ""
+msgstr "{course_title} は問題なく作成されました。course runを作成するには、このページに情報を入力してください。"
 
 #: apps/publisher/views.py
 msgid ""
 "You have successfully created a course. You can edit the course information "
 "or enter information for the course About page at any time before you send "
 "the course to edX marketing for review. "
-msgstr ""
+msgstr "問題なく作成されました。edXマーケティングにレビューのため送信するまではいつでも、情報を編集したりAboutページの情報を入力したりすることができます。"
 
 #: apps/publisher/views.py
 #, python-brace-format
@@ -982,30 +982,30 @@ msgstr "マーケティング"
 #: apps/publisher/views.py
 #, python-brace-format
 msgid "You have successfully created a course run for {course_title}."
-msgstr ""
+msgstr "{course_title}のcourse runは問題なく作成されました。"
 
 #: apps/publisher/views.py
 #, python-brace-format
 msgid "There was an error saving this course run: {error}"
-msgstr ""
+msgstr "course runを保存する際にエラーが発生しました: {error}"
 
 #: apps/publisher/views.py
 msgid ""
 "Your organization does not have default roles to review/approve this course-"
 "run. Please contact your partner manager to create default roles."
-msgstr ""
+msgstr "あなたの組織にはこのcourse-runをレビューまたは承認するデフォルト・ロールがありません。デフォルト・ロールを作成するには、partner managerに連絡してください。"
 
 #: apps/publisher/views.py
 msgid "Course run updated successfully."
-msgstr ""
+msgstr "course runアップデート完了。"
 
 #: apps/publisher_comments/emails.py
 msgid "Comment added:"
-msgstr ""
+msgstr "コメント入力: "
 
 #: apps/publisher_comments/emails.py
 msgid "Comment updated:"
-msgstr ""
+msgstr "コメント更新: "
 
 #. Translators: subject_desc will be choice from ('New comment added',
 #. 'Comment updated'),
@@ -1014,7 +1014,7 @@ msgstr ""
 #: apps/publisher_comments/emails.py
 #, python-brace-format
 msgid "{subject_desc} {title} {start} - {pacing_type}"
-msgstr ""
+msgstr "{subject_desc} {title} {start} - {pacing_type}"
 
 #. Translators: 'subject_desc' will be choice from ('New comment added',
 #. 'Comment updated')
@@ -1022,51 +1022,51 @@ msgstr ""
 #: apps/publisher_comments/emails.py
 #, python-brace-format
 msgid "{subject_desc} {title}"
-msgstr ""
+msgstr "{subject_desc} {title}"
 
 #. Translators: subject_desc will be Preview Decline for course run,
 #. 'title' will be the value of course title.
 #: apps/publisher_comments/emails.py
 #, python-brace-format
 msgid "Preview declined: {course_name}"
-msgstr ""
+msgstr "プレビュー拒否: {course_name}"
 
 #: apps/publisher_comments/models.py
 msgid "Default"
-msgstr ""
+msgstr "デフォルト"
 
 #: apps/publisher_comments/models.py
 msgid "Decline Preview"
-msgstr ""
+msgstr "プレビューを拒否"
 
 #: apps/publisher_comments/models.py
 msgid "modified"
-msgstr ""
+msgstr "修正済"
 
 #: templates/comments/add_auth_comments.html
 msgid "Comment:"
-msgstr ""
+msgstr "コメント: "
 
 #: templates/comments/add_auth_comments.html
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "Submit"
-msgstr ""
+msgstr "提出"
 
 #: templates/comments/add_auth_comments.html
 msgid "Add comment"
-msgstr ""
+msgstr "コメントを書く"
 
 #: templates/comments/comments_list.html
 msgid "Submitted by"
-msgstr ""
+msgstr "提出者"
 
 #: templates/comments/edit_comment.html
 msgid "Course Run Form"
-msgstr ""
+msgstr "course runフォーム"
 
 #: templates/comments/edit_comment.html
 msgid "Edit Comment"
-msgstr ""
+msgstr "コメント編集"
 
 #: templates/comments/edit_comment.html
 #: templates/publisher/_approval_widget.html
@@ -1089,55 +1089,55 @@ msgstr "キャンセル"
 
 #: templates/metadata/admin/course_run.html
 msgid "Back to Program"
-msgstr ""
+msgstr "プログラムへ戻る"
 
 #: templates/metadata/admin/course_run.html
 msgid "Save Course Run"
-msgstr ""
+msgstr "course runを保存"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "New Instructor"
-msgstr ""
+msgstr "新しい講師"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "Click here to upload your image"
-msgstr ""
+msgstr "画像をアップロードするにはここをクリック"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "The image dimensions must be less than 110 x 110"
-msgstr ""
+msgstr "画像の大きさは 110 x 110以下にしてください。"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "The image size must be less than 256KB"
-msgstr ""
+msgstr "画像サイズは256KB以下にしてください"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "First Name"
-msgstr ""
+msgstr "名"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "required"
-msgstr ""
+msgstr "必須"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "Last Name"
-msgstr ""
+msgstr "姓"
 
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_instructor_profile.html
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Title"
-msgstr ""
+msgstr "タイトル"
 
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Email"
-msgstr ""
+msgstr "メール"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "Institution email is preferred"
-msgstr ""
+msgstr "所属機関メールを希望"
 
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/course_run_detail/_drupal.html
@@ -1149,48 +1149,48 @@ msgstr ""
 #: templates/publisher/dashboard/_published.html
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Organization"
-msgstr ""
+msgstr "組織"
 
 #: templates/publisher/_add_instructor_popup.html
 #: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Bio"
-msgstr ""
+msgstr "略歴"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "required (1-2 paragraphs)"
-msgstr ""
+msgstr "必須 (1-2段落)"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "Facebook URL"
-msgstr ""
+msgstr "Facebook URL"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "optional"
-msgstr ""
+msgstr "オプション"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "Twitter URL"
-msgstr ""
+msgstr "Twitter URL"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "Blog URL"
-msgstr ""
+msgstr "Blog URL"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "Major Works"
-msgstr ""
+msgstr "主な作品"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "optional - one per line"
-msgstr ""
+msgstr "オプションー１行あたり１つ"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "Add Staff Member"
-msgstr ""
+msgstr "スタッフ追加"
 
 #: templates/publisher/_approval_widget.html
 msgid "REVIEWS"
-msgstr ""
+msgstr "レビュー"
 
 #: templates/publisher/_approval_widget.html
 #, python-format
@@ -1199,51 +1199,51 @@ msgid ""
 "can submit this course run for review, you must finalize the information for"
 " %(link_start)s%(course_url)s%(link_middle)s%(course_name)s%(link_end)s with"
 " edX."
-msgstr ""
+msgstr "現在はこのcourse runを編集することができますが、レビュー用に提出する前に、 %(link_start)s%(course_url)s%(link_middle)s%(course_name)s%(link_end)s の情報をファイナライズしてください。"
 
 #: templates/publisher/_approval_widget.html
 msgid "Decline"
-msgstr ""
+msgstr "却下"
 
 #: templates/publisher/_approval_widget.html
 msgid "Accept"
-msgstr ""
+msgstr "承認"
 
 #: templates/publisher/_approval_widget.html
 msgid "Accepted"
-msgstr ""
+msgstr "承認済"
 
 #: templates/publisher/_approval_widget.html
 msgid "Publish"
-msgstr ""
+msgstr "公開"
 
 #: templates/publisher/_approval_widget.html
 msgid "Submitted for review"
-msgstr ""
+msgstr "レビュー用に提出済"
 
 #: templates/publisher/_approval_widget.html
 msgid "ABOUT PAGE PREVIEW"
-msgstr ""
+msgstr "Aboutページプレビュー"
 
 #: templates/publisher/_approval_widget.html
 msgid "Preview URL"
-msgstr ""
+msgstr "プレビュー URL"
 
 #: templates/publisher/_approval_widget.html
 msgid "View About page preview"
-msgstr ""
+msgstr "Aboutページのプレビューを見る"
 
 #: templates/publisher/_approval_widget.html
 msgid "Not available"
-msgstr ""
+msgstr "不可"
 
 #: templates/publisher/_approval_widget.html
 msgid "Sent for Review"
-msgstr ""
+msgstr "レビュー用に送信済"
 
 #: templates/publisher/_approval_widget.html
 msgid "Reviewed"
-msgstr ""
+msgstr "レビュー済"
 
 #: templates/publisher/_approval_widget.html
 msgid "day in ownership"
@@ -1259,7 +1259,7 @@ msgstr "変更"
 
 #: templates/publisher/_approval_widget.html
 msgid "CHANGE"
-msgstr ""
+msgstr "変更"
 
 #: templates/publisher/_footer.html
 msgid "Terms of Service"
@@ -1291,7 +1291,7 @@ msgstr "アカウント"
 
 #: templates/publisher/_header.html
 msgid "Account Navigation"
-msgstr ""
+msgstr "アカウント・ナビゲーション"
 
 #: templates/publisher/_header.html
 msgid "Contextual Online Help"
@@ -1319,30 +1319,30 @@ msgstr "サインアウト"
 
 #: templates/publisher/_history_widget.html
 msgid "REVISION HISTORY"
-msgstr ""
+msgstr "変更履歴"
 
 #: templates/publisher/_history_widget.html
 #, python-format
 msgid "%(history_date)s&nbsp;by&nbsp;%(changed_by)s (Latest)"
-msgstr ""
+msgstr "%(history_date)s&nbsp;by&nbsp;%(changed_by)s (最新)"
 
 #: templates/publisher/_history_widget.html
 #, python-format
 msgid "%(history_date)s&nbsp;by&nbsp;%(changed_by)s"
-msgstr ""
+msgstr "%(history_date)s&nbsp;by&nbsp;%(changed_by)s"
 
 #: templates/publisher/_history_widget.html
 #: templates/publisher/_revert_confirmation.html
 msgid "Restore to this version"
-msgstr ""
+msgstr "このバージョンに復元"
 
 #: templates/publisher/_history_widget.html
 msgid "Unable to revert the revision, Please try again later."
-msgstr ""
+msgstr "元に戻すことができません。後ほど再試行してください。"
 
 #: templates/publisher/_history_widget.html
 msgid "Accept All"
-msgstr ""
+msgstr "すべて承認"
 
 #: templates/publisher/_render_optional_field.html
 #: templates/publisher/course_detail.html
@@ -1350,7 +1350,7 @@ msgstr ""
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_studio.html
 msgid "(Optional) Not yet added"
-msgstr ""
+msgstr "(オプション) 未入力"
 
 #: templates/publisher/_render_required_field.html
 #: templates/publisher/course_detail.html
@@ -1359,17 +1359,17 @@ msgstr ""
 #: templates/publisher/course_run_detail/_salesforce.html
 #: templates/publisher/course_run_detail/_seats.html
 msgid "(Required) Not yet added"
-msgstr ""
+msgstr "(必須) 未入力"
 
 #: templates/publisher/_revert_confirmation.html
 #: templates/publisher/course_detail/_edit_warning_popup.html
 #: templates/publisher/course_run_detail/_edit_warning.html
 msgid "CAUTION"
-msgstr ""
+msgstr "注意"
 
 #: templates/publisher/_revert_confirmation.html
 msgid "Are you sure you want to revert all changes to this version ?"
-msgstr ""
+msgstr "このバージョンへのすべての変更を本当に元に戻しますか？"
 
 #: templates/publisher/add_course_form.html templates/publisher/courses.html
 msgid "Create New Course"
@@ -1378,12 +1378,12 @@ msgstr "新しい講座を作成"
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid "COURSE TITLE"
-msgstr ""
+msgstr "講座タイトル"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid "Best Practices"
-msgstr ""
+msgstr "良い例"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_edit_form.html
@@ -1393,74 +1393,74 @@ msgstr "例"
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid "Maximum 70 characters. Recommended 50 or fewer characters."
-msgstr ""
+msgstr "最大70文字。50文字以下を推奨。"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid "An effective course title:"
-msgstr ""
+msgstr "効果的な講座タイトル："
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid "Clearly indicates the course subject matter."
-msgstr ""
+msgstr "講座の内容を分かりやすく説明する。"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid "Follows search engine optimization (SEO) guidelines."
-msgstr ""
+msgstr "検索エンジン最適化 (SEO) のガイドラインに従う。"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid "Targets a global audience."
-msgstr ""
+msgstr "世界中の受講者を対象にする。"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid ""
 "If the course is part of a sequence, include both sequence and course "
 "information as \\"
-msgstr ""
+msgstr "この講座がシリーズの一部である場合、シリーズおよび本講座の情報を含めてください"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid "Single Courses"
-msgstr ""
+msgstr "単独講座"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid "English Grammar and Essay Writing"
-msgstr ""
+msgstr "英文法と作文"
 
 #: templates/publisher/add_course_form.html
 msgid "Sequence Courses"
-msgstr ""
+msgstr "シリーズ講座"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid "Statistics: Inference"
-msgstr ""
+msgstr "統計: 推定"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid "Statistics: Probability"
-msgstr ""
+msgstr "統計: 確率"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid "COURSE NUMBER"
-msgstr ""
+msgstr "講座番号"
 
 #: templates/publisher/add_course_form.html
 msgid "Maximum 50 characters. Characters can be letters, numbers, or periods."
-msgstr ""
+msgstr "最大50文字。英数字またはピリオドが使用可能です。"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_edit_form.html
 msgid ""
 "If a course consists of several modules, the course number can have an "
 "ending such as .1x or .2x."
-msgstr ""
+msgstr "講座がいくつかのモジュールで構成されている場合、講座番号の最後に .1x や.2xのように付けても構いません。"
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_edit_form.html
@@ -1473,18 +1473,18 @@ msgstr "BIO1.1x; BIO1.2x など"
 
 #: templates/publisher/add_course_form.html
 msgid "I want to add a run to this course at this time"
-msgstr ""
+msgstr "今回この講座にrunの追加を希望"
 
 #: templates/publisher/add_courserun_form.html
 msgid "New Course Run"
-msgstr ""
+msgstr "新規Course Run"
 
 #: templates/publisher/add_courserun_form.html
 msgid ""
 "\n"
 "                    When you create a course run, Publisher immediately creates a page for the course run in Publisher, and the edX team creates a Studio URL for the course run. You will receive an email message when edX has created the Studio URL.\n"
 "                "
-msgstr ""
+msgstr "\ncourse run を作成すると、Publisher がすぐにPublisher上にページを作成し、edXチームがStudio URLを作成します。Studio URLが作成されるとメールが届きます。"
 
 #: templates/publisher/add_courserun_form.html
 msgid "FIND COURSE"
@@ -1493,7 +1493,7 @@ msgstr "講座を探す"
 #: templates/publisher/add_courserun_form.html
 msgid ""
 "Enter the name of the course for which you want to create a course run."
-msgstr ""
+msgstr "course runを作成したい講座名を入力してください。"
 
 #: templates/publisher/add_courserun_form.html
 #, python-format
@@ -1501,7 +1501,7 @@ msgid ""
 "\n"
 "                                                If your course cannot be found, make sure the course name is correct, or %(link_start)s%(new_course_url)s%(link_middle)screate a new course%(link_end)s.\n"
 "                                            "
-msgstr ""
+msgstr "\n講座が見つからない場合、講座名が正しいかどうか、または %(link_start)s%(new_course_url)s%(link_middle)sが新しい講座を作成しているかどうか%(link_end)sを確認してください。 "
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/course_run/edit_run_form.html
@@ -1524,18 +1524,18 @@ msgid ""
 "Specify a month, day, and year. If you are unsure of the exact date, specify"
 " a day that is close to the estimated start date. For example, if your "
 "course will start near the end of March, specify March 31."
-msgstr ""
+msgstr "年月日を特定してください。正確な日付が分からない場合は、開始予定日に近い日付を入力してください。たとえば、講座が３月末ごろ開始するなら、3月31日と入力してください。"
 
 #: templates/publisher/add_courserun_form.html
 msgid "PACING TYPE"
-msgstr ""
+msgstr "講座のタイプ"
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/course_run/edit_run_form.html
 msgid ""
 "Instructor-paced courses include individual assignments that have specific "
 "due dates before the course end date."
-msgstr ""
+msgstr "Instructor-pacedの講座は、講座終了日前に課題ごとの締切が設けられます。"
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/course_run/edit_run_form.html
@@ -1543,7 +1543,7 @@ msgid ""
 "Self-paced courses do not have individual assignments that have specific due"
 " dates before the course end date. All assignments are due on the course end"
 " date."
-msgstr ""
+msgstr "Self-pacedの講座は、課題ごとの締切はありません。すべての課題の締切が講座終了日となります。"
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/course_run/edit_run_form.html
@@ -1555,46 +1555,46 @@ msgid ""
 "Specify a month, day, and year. If you are unsure of the exact date, specify"
 " a day that is close to the estimated end date. For example, if your course "
 "will end near the end of March, specify March 31."
-msgstr ""
+msgstr "年月日を特定してください。正確な日付が分からない場合は、終了予定日に近い日付を入力してください。たとえば、講座が３月末ごろ終了するなら、3月31日と入力してください。"
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/course_run/edit_run_form.html
 msgid "CERTIFICATE TYPE AND PRICE"
-msgstr ""
+msgstr "修了証の種類と価格"
 
 #: templates/publisher/add_courserun_form.html
 #: templates/publisher/course_run/edit_run_form.html
 msgid ""
 "If the course offers a verified or professional education certificate, "
 "select the certificate type and enter the price for the certificate."
-msgstr ""
+msgstr "認証付きあるいはprofessional education certificateを発行する講座の場合は、修了証の種類を選択し、価格を入力してください。"
 
 #: templates/publisher/add_courserun_form.html
 msgid "Create New Course Run"
-msgstr ""
+msgstr "新規course runを作成"
 
 #: templates/publisher/admin/add_user_form.html
 msgid ""
 "First, enter a username and select a group. Then, you'll be able to edit "
 "more user options."
-msgstr ""
+msgstr "ユーザー名を入力し、グループを選択してください。すると、より多くのユーザーオプションを編集できるようになります。"
 
 #: templates/publisher/admin/import_course.html
 #: templates/publisher/course_detail.html
 msgid "Course Detail"
-msgstr ""
+msgstr "講座詳細"
 
 #: templates/publisher/admin/import_course.html
 msgid "Import COURSE"
-msgstr ""
+msgstr "COURSEをインポート"
 
 #: templates/publisher/base.html templates/publisher/dashboard.html
 msgid "Dashboard"
-msgstr ""
+msgstr "ダッシュボード"
 
 #: templates/publisher/base.html templates/publisher/courses.html
 msgid "Courses"
-msgstr ""
+msgstr "講座"
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_run_detail/_widgets.html
@@ -1603,19 +1603,19 @@ msgstr "編集"
 
 #: templates/publisher/course_detail.html
 msgid "Course Team Admin"
-msgstr ""
+msgstr "講座チーム管理者"
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Primary Subject"
-msgstr ""
+msgstr "主な分野"
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Additional Subject"
-msgstr ""
+msgstr "追加分野"
 
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_run_detail/_drupal.html
@@ -1631,7 +1631,7 @@ msgstr "講座レベル"
 #: templates/publisher/course_detail.html
 #: templates/publisher/course_revision_history.html
 msgid "About Video Link"
-msgstr ""
+msgstr "講座紹介ビデオのリンク"
 
 #: templates/publisher/course_detail/_edit_warning_popup.html
 #, python-format
@@ -1639,15 +1639,15 @@ msgid ""
 "\n"
 "                The %(current_team_name)s team is currently reviewing this course. If you edit course information, you might overwrite the team’s changes, and you will have to send the course to the %(team_name)s team for review again.\n"
 "            "
-msgstr ""
+msgstr "\n                 %(current_team_name)sチームは現在この講座をレビュー中です。講座情報を編集すると、チームが変更したものに上書きしてしまう可能性があるため、再レビューのため %(team_name)s チームへ送信してください。\n            "
 
 #: templates/publisher/course_detail/_widgets.html
 msgid "COURSE RUNS"
-msgstr ""
+msgstr "COURSE RUNS"
 
 #: templates/publisher/course_detail/_widgets.html
 msgid "CREATE RUN"
-msgstr ""
+msgstr "RUNを作成"
 
 #: templates/publisher/course_detail/_widgets.html
 #, python-format
@@ -1655,7 +1655,7 @@ msgid ""
 "\n"
 "                        Created %(created_date)s at %(created_time)s by %(created_by)s\n"
 "                    "
-msgstr ""
+msgstr "\n                       %(created_by)s によって %(created_date)s  %(created_time)s に作成済\n                    "
 
 #: templates/publisher/course_detail/_widgets.html
 #: templates/publisher/course_run/edit_run_form.html
@@ -1664,11 +1664,11 @@ msgstr "STUDIO URL"
 
 #: templates/publisher/course_detail/_widgets.html
 msgid "To be added by edX"
-msgstr ""
+msgstr "edXが入力"
 
 #: templates/publisher/course_detail/_widgets.html
 msgid "No course runs exist for this course"
-msgstr ""
+msgstr "この講座のcourse runはありません"
 
 #: templates/publisher/course_edit_form.html
 msgid "Edit Course"
@@ -1678,7 +1678,7 @@ msgstr "講座を編集"
 msgid ""
 "All required fields must be complete before this course can be sent to edX "
 "marketing for review."
-msgstr ""
+msgstr "レビューのためedXマーケティングに送信する前に、すべての必須項目を入力してください。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Note:"
@@ -1688,11 +1688,11 @@ msgstr "注："
 msgid ""
 "If you edit course information after edX marketing has reviewed the course, "
 "you have to send the course for review again."
-msgstr ""
+msgstr "edXマーケティングがレビューした後に講座情報を編集した場合、再レビューのため送信しなければなりません。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Sequence Courses:"
-msgstr ""
+msgstr "シリーズ講座: "
 
 #: templates/publisher/course_edit_form.html
 msgid "255 character limit, including spaces."
@@ -1700,71 +1700,71 @@ msgstr "スペースを含め255文字まで。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Maximum 10 characters. Characters can be letters, numbers, or periods."
-msgstr ""
+msgstr "最大10文字。英数字またはピリオドが可能です。"
 
 #: templates/publisher/course_edit_form.html
 msgid "BIO1.1x, BIO1.2x"
-msgstr ""
+msgstr "BIO1.1x、BIO1.2x"
 
 #: templates/publisher/course_edit_form.html
 msgid "SHORT DESCRIPTION"
-msgstr ""
+msgstr "短い説明"
 
 #: templates/publisher/course_edit_form.html
 msgid "An effective short description:"
-msgstr ""
+msgstr "効果的な短い説明: "
 
 #: templates/publisher/course_edit_form.html
 msgid "Contains 25–50 words."
-msgstr ""
+msgstr "25–50語を含む。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Functions as a tagline."
-msgstr ""
+msgstr "タグラインとして機能する。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Conveys compelling reasons to take the course."
-msgstr ""
+msgstr "受講せずにはいられないような理由を伝える。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Follows SEO guidelines."
-msgstr ""
+msgstr "SEOガイドラインに沿う。"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
 "The first MOOC to teach positive psychology. Learn science-based principles "
 "and practices for a happy, meaningful life."
-msgstr ""
+msgstr "ポジティブ心理学を教える初めてのMOOC。幸せで有意義な人生のための科学に基づいた原理と実践を学ぶ。"
 
 #: templates/publisher/course_edit_form.html
 msgid "LONG DESCRIPTION"
-msgstr ""
+msgstr "長い説明"
 
 #: templates/publisher/course_edit_form.html
 msgid "An effective long description:"
-msgstr ""
+msgstr "効果的な長い説明："
 
 #: templates/publisher/course_edit_form.html
 msgid "Contains 150–300 words."
-msgstr ""
+msgstr "150–300語を含む。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Is easy to skim."
-msgstr ""
+msgstr "拾い読みしやすい。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Uses bullet points instead of dense text paragraphs."
-msgstr ""
+msgstr "文章を長々と書かず、箇条書きにする。"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
 "The first four lines are visible when the About page opens. Learners can "
 "select \\"
-msgstr ""
+msgstr "Aboutページを開くとまず、最初の４行が見えます。受講者は選択できます"
 
 #: templates/publisher/course_edit_form.html
 msgid "Content-based example:"
-msgstr ""
+msgstr "内容に即した例: "
 
 #: templates/publisher/course_edit_form.html
 msgid ""
@@ -1772,7 +1772,7 @@ msgid ""
 "course for you! Scratch is the computer programming language that makes it "
 "easy and fun to create interactive stories, games and animations and share "
 "them online."
-msgstr ""
+msgstr "コンピュータプログラミングについて学びたいけど、何から始めていいか分からない？そんなあなたにぴったりの講座です！Scratchは対話型のゲームやストーリー、アニメを簡単に楽しく作成し、それらをオンラインで公開することができるプログラミング言語です。"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
@@ -1781,17 +1781,17 @@ msgid ""
 "Scratch, the course will stretch your mind and challenge you. You will learn"
 " how to create amazing games, animated images and songs in just minutes with"
 " a simple “drag and drop” interface."
-msgstr ""
+msgstr "この講座はMITによって開発されたプログラミング言語Scratchを使ったコンピュータ・サイエンス入門です。Scratchの基礎からスタートし、だんだんと難しいものにも挑戦します。シンプルな「ドラッグ＆ドロップ」の操作であっという間に面白いゲームやアニメーション、歌をつくる方法を学ぶことができます。"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
 "No previous programming knowledge needed. Join us as you start your computer"
 " science journey."
-msgstr ""
+msgstr "プログラミングの事前知識は要りません。一緒にコンピュータ・サイエンスの旅へ出かけましょう。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Skills-based example:"
-msgstr ""
+msgstr "スキル重視の例："
 
 #: templates/publisher/course_edit_form.html
 msgid ""
@@ -1800,7 +1800,7 @@ msgid ""
 "to employment in the M&A field. Additionally, directors and managers who "
 "have transitioned, or hope to transition, to M&A from other areas such as "
 "equities or fixed income can use this course to eliminate skill gaps."
-msgstr ""
+msgstr "このM&A講座はウォール街で数十年の経験をもつ講師によるもので、分析家などはM&A分野での雇用に必要なスキルを身につけることができます。また、株や固定収入などの他の分野からM&Aへ移ってきたマネージャークラスの人たちにもスキル差をなくす役に立つ講座です。"
 
 #: templates/publisher/course_edit_form.html
 msgid "2500 character limit, including spaces."
@@ -1808,45 +1808,45 @@ msgstr "スペースを含め2500文字まで。"
 
 #: templates/publisher/course_edit_form.html
 msgid "WHAT YOU WILL LEARN"
-msgstr ""
+msgstr "学べること"
 
 #: templates/publisher/course_edit_form.html
 msgid "The skills and knowledge learners will acquire in this course."
-msgstr ""
+msgstr "この講座で習得できるスキルや知識。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Format each item as a bullet with four to ten words."
-msgstr ""
+msgstr "4～10語の箇条書きにしてください。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Basic R Programming"
-msgstr ""
+msgstr "Basic R プログラミング"
 
 #: templates/publisher/course_edit_form.html
 msgid "An applied understanding of linear and logistic regression"
-msgstr ""
+msgstr "直線およびロジスティック回帰分析の応用理解"
 
 #: templates/publisher/course_edit_form.html
 msgid "Application of text analytics"
-msgstr ""
+msgstr "テキスト分析の応用"
 
 #: templates/publisher/course_edit_form.html
 msgid "Linear and integer optimization"
-msgstr ""
+msgstr "線形および整数の最適化"
 
 #: templates/publisher/course_edit_form.html
 msgid "SUBJECT FIELD"
-msgstr ""
+msgstr "分野"
 
 #: templates/publisher/course_edit_form.html
 msgid "The subject of the course."
-msgstr ""
+msgstr "講座分野"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
 "You can select up to two subjects in addition to the primary subject. Only "
 "the primary subject appears on the About page."
-msgstr ""
+msgstr "主な分野以外に２つの分野を追加することができます。主な分野のみがAboutページに表示されます。"
 
 #: templates/publisher/course_edit_form.html
 msgid "COURSE IMAGE"
@@ -1855,55 +1855,55 @@ msgstr "講座画像"
 #: templates/publisher/course_edit_form.html
 msgid ""
 "An eye-catching, colorful image that captures the essence of your course."
-msgstr ""
+msgstr "あなたの講座の本質をとらえた目を引くカラフルな画像。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Course Image Guidelines:"
-msgstr ""
+msgstr "講座画像のガイドライン: "
 
 #: templates/publisher/course_edit_form.html
 msgid "The image size must be 2120 x 1192 pixels."
-msgstr ""
+msgstr "画像サイズは 2120 x 1192 ピクセルでなければなりません。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Each course in a sequence must have a unique image."
-msgstr ""
+msgstr "シリーズ内の各講座にはそれぞれ画像が必要です。"
 
 #: templates/publisher/course_edit_form.html
 msgid "The image cannot include text or headlines."
-msgstr ""
+msgstr "画像は文字や見出しを含めることができません。"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
 "You must have permission to use the image. Possible image sources include "
 "Flickr creative commons, Stock Vault, Stock XCHNG, and iStock Photo."
-msgstr ""
+msgstr "画像使用の許可が必要です。使用可能な画像ソースはFlickr creative commons、Stock Vault、Stock XCHNG、iStock Photoなどです。"
 
 #: templates/publisher/course_edit_form.html
 msgid "PREREQUISITES"
-msgstr ""
+msgstr "履習要件"
 
 #: templates/publisher/course_edit_form.html
 msgid "Maximum 200 characters."
-msgstr ""
+msgstr "200文字まで。"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
 "Specific knowledge learners must have to be successful in the course. If the"
 " course has no prerequisites, enter \\"
-msgstr ""
+msgstr "受講する際に必要な知識。特に履習要件がなければ、\\ を入力してください。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Secondary school (high school) algebra; basic mathematics concepts"
-msgstr ""
+msgstr "中等学校(高校)レベルの代数; 基本的な数学的概念"
 
 #: templates/publisher/course_edit_form.html
 msgid "Graduate-level understanding of Keynesian economics"
-msgstr ""
+msgstr "ケインズ経済学の大学院レベルの理解"
 
 #: templates/publisher/course_edit_form.html
 msgid "Basic algebra"
-msgstr ""
+msgstr "基本的な代数"
 
 #: templates/publisher/course_edit_form.html
 msgid "200 character limit, including spaces."
@@ -1916,161 +1916,161 @@ msgstr "シラバス"
 #: templates/publisher/course_edit_form.html
 msgid ""
 "A review of content covered in your course, organized by week or module."
-msgstr ""
+msgstr "週またはモジュールごとに構成された講座コンテンツのレビュー。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Focus on topics and content."
-msgstr ""
+msgstr "トピックおよびコンテンツに焦点をあてる。"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
 "Do not include detailed information about course logistics, such as grading,"
 " communication policies, and reading lists."
-msgstr ""
+msgstr "採点やコミュニケーションポリシー、文献リストなどの詳細に関する細かい説明は含めないでください。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Format items as either paragraphs or a bulleted list."
-msgstr ""
+msgstr "段落や箇条書きなどフォーマット化してください。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Week 1: From Calculator to Computer"
-msgstr ""
+msgstr "第1週：計算機からコンピュータへ"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
 "Introduction to basic programming concepts, such as values and expressions, "
 "as well as making decisions when implementing algorithms and developing "
 "programs."
-msgstr ""
+msgstr "値や表現などのプログラミングの基本概念や、アルゴリズム実行やプログラム開発の際の判断に関する入門。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Week 2: State Transformation"
-msgstr ""
+msgstr "Week 2: State Transformation"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
 "Introduction to state transformation, including representation of data and "
 "programs as well as conditional repetition."
-msgstr ""
+msgstr "データやプログラムの表現を含む状態変換の入門。"
 
 #: templates/publisher/course_edit_form.html
 msgid "LEVEL"
-msgstr ""
+msgstr "レベル"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
 "Introductory - No prerequisites; a learner who has completed some or all "
 "secondary school could complete the course."
-msgstr ""
+msgstr "入門 - 履習要件なし; 高卒以上の受講者であれば修了できるレベル。"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
 "Intermediate - Basic prerequisites; learners need to complete secondary "
 "school or some university courses."
-msgstr ""
+msgstr "中級 - 基礎的な履習要件; 高校または大学卒業レベル。"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
 "Advanced - Significant prerequisites; the course is geared to third or "
 "fourth year university students or master's degree students."
-msgstr ""
+msgstr "上級 - 特別な履習要件; 大学３・4年生または修士課程レベル。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Any frequently asked questions and the answers to those questions."
-msgstr ""
+msgstr "よくある質問とその解答。"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
 "The About video should excite and entice potential students to take your "
 "course. Think of it as a movie trailer or TV show promotion. The video "
 "should be compelling, and exhibit the instructor’s personality."
-msgstr ""
+msgstr "講座紹介ビデオは受講生にぜひあなたの講座を受講してみたいと思わせるようなものでなくてはいけません。映画やテレビ番組の予告編のようなものと思ってください。人を動かすようなもの、かつ講師の人柄が分かるようなものにしましょう。"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
 "The ideal length is 30-90 seconds (learners typically watch an average of 30"
 " seconds)."
-msgstr ""
+msgstr "理想的な長さは30-90秒です (受講者は平均30秒見るようです)。"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
 "The About video should be produced and edited, using elements such as "
 "graphics and stock footage."
-msgstr ""
+msgstr "講座紹介ビデオはタイトル・クレジットや映像などを用いて製作・編集してください。"
 
 #: templates/publisher/course_edit_form.html
 msgid "The About video should answer these key questions."
-msgstr ""
+msgstr "講座紹介ビデオはこれらの疑問に答えるようなものでなくてはいけません。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Why should a learner register?"
-msgstr ""
+msgstr "なぜ受講すべきなのか？"
 
 #: templates/publisher/course_edit_form.html
 msgid "What topics and concepts are covered?"
-msgstr ""
+msgstr "どんなトピックやコンテンツが含まれているのか？"
 
 #: templates/publisher/course_edit_form.html
 msgid "Who is teaching the course?"
-msgstr ""
+msgstr "誰が教えるのか？"
 
 #: templates/publisher/course_edit_form.html
 msgid "What institution is delivering the course?"
-msgstr ""
+msgstr "どの機関が提供している講座なのか？"
 
 #: templates/publisher/course_edit_form.html
 msgid "Naming specifications:"
-msgstr ""
+msgstr "名前の仕様: "
 
 #: templates/publisher/course_edit_form.html
 msgid "Name: InstitutionX_CourseNumber_About.mov"
-msgstr ""
+msgstr "名前: 機関X_講座番号_About.mov"
 
 #: templates/publisher/course_edit_form.html
 msgid "Post to:"
-msgstr ""
+msgstr "投稿先: "
 
 #: templates/publisher/course_edit_form.html
 msgid "Technical specifications:"
-msgstr ""
+msgstr "技術仕様: "
 
 #: templates/publisher/course_edit_form.html
 msgid "Codec: H.264"
-msgstr ""
+msgstr "コーデック: H.264"
 
 #: templates/publisher/course_edit_form.html
 msgid "Container: .mp4"
-msgstr ""
+msgstr "コンテナ: .mp4"
 
 #: templates/publisher/course_edit_form.html
 msgid "Resolution: 1920x1080"
-msgstr ""
+msgstr "解像度: 1920x1080"
 
 #: templates/publisher/course_edit_form.html
 msgid "Frame rate: 29.97 fps"
-msgstr ""
+msgstr "フレームレート: 29.97 fps"
 
 #: templates/publisher/course_edit_form.html
 msgid "Aspect: 1.0"
-msgstr ""
+msgstr "アスペクト: 1.0"
 
 #: templates/publisher/course_edit_form.html
 msgid "Bitrate: 5Mbps VBR"
-msgstr ""
+msgstr "ビットレート: 5Mbps VBR"
 
 #: templates/publisher/course_edit_form.html
 msgid "Audio codec: AAC 44.1KHz/192 Kbps"
-msgstr ""
+msgstr "オーディオコーデック: AAC 44.1KHz/192 Kbps"
 
 #: templates/publisher/course_edit_form.html
 msgid "Visit edX’s YouTube channel for examples of other About videos:"
-msgstr ""
+msgstr "講座紹介ビデオの例を見るには、edXのYouTubeチャンネルを見てください: "
 
 #: templates/publisher/course_edit_form.html
 msgid ""
 "A quote from a learner in the course, demonstrating the value of taking the "
 "course."
-msgstr ""
+msgstr "受講者のことば、講座を受講する価値を説明しています。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Should be no more than 25-50 words in length."
@@ -2081,7 +2081,7 @@ msgid ""
 "“Brilliant course! It's definitely the best introduction to electronics in "
 "the world! Interesting material, clean explanations, well prepared quizzes, "
 "challenging homeworks and fun labs.” – Previous Student"
-msgstr ""
+msgstr "“すばらしい講座！間違いなく世界で一番の電子工学入門！教材もおもしろくて、説明も分かりやすい。小テストもしっかり準備されていて、宿題もやりがいがあるし、実習も楽しい。” – 以前の受講者より"
 
 #: templates/publisher/course_edit_form.html
 msgid "500 character limit, including spaces."
@@ -2089,35 +2089,35 @@ msgstr "スペースを含め500文字まで。"
 
 #: templates/publisher/course_edit_form.html
 msgid "Update Course"
-msgstr ""
+msgstr "講座アップデート"
 
 #: templates/publisher/course_revision_history.html
 msgid "Revision History"
-msgstr ""
+msgstr "変更履歴"
 
 #: templates/publisher/course_revision_history.html
 #, python-format
 msgid "%(date)s by %(name)s"
-msgstr ""
+msgstr " %(name)sにより%(date)s "
 
 #: templates/publisher/course_revision_history.html
 msgid "Show changes"
-msgstr ""
+msgstr "変更を表示"
 
 #: templates/publisher/course_revision_history.html
 msgid "Expected Learning"
-msgstr ""
+msgstr "期待される学習知識"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid "Edit Course Run"
-msgstr ""
+msgstr "course runを編集"
 
 #: templates/publisher/course_run/edit_run_form.html
 #, python-format
 msgid ""
 "%(span_start)s* All required fields must be complete before this course run "
 "can be sent for review.%(span_end)s"
-msgstr ""
+msgstr "%(span_start)s* レビューのため送信する前に、すべての必須項目を入力してください。%(span_end)s"
 
 #: templates/publisher/course_run/edit_run_form.html
 #, python-format
@@ -2125,11 +2125,11 @@ msgid ""
 "%(strong_start)sNote:%(strong_end)s If you edit course information after edX"
 " marketing has reviewed the course, you have to send the course to edX "
 "marketing for review again."
-msgstr ""
+msgstr "%(strong_start)s注：%(strong_end)s edXマーケティングがレビューした後に講座情報を編集した場合、再レビューのため送信してください。"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid "Note that times use UTC."
-msgstr ""
+msgstr "時間はUTCを使用していますのでご注意ください。"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid ""
@@ -2137,19 +2137,19 @@ msgid ""
 "of the exact date, specify a day that is close to the estimated end date. "
 "For example, if your course will end near the end of March, specify March "
 "31."
-msgstr ""
+msgstr "時間はUTCを使用していますのでご注意ください。年月日を特定してください。正確な日付が分からない場合は、終了予定日に近い日付を入力してください。たとえば、講座が３月末ごろ終了するなら、3月31日と入力してください。"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid "COURSE PACING"
-msgstr ""
+msgstr "講座のタイプ"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid "The Studio URL for this course run. The edX PC creates this URL."
-msgstr ""
+msgstr "このcourse runのStudio URL。edXのPCがこのURLを作成します。"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid "Not yet created"
-msgstr ""
+msgstr "未作成"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid "PROGRAM ASSOCIATION"
@@ -2159,7 +2159,7 @@ msgstr ""
 msgid ""
 "If this course is part of a program, select the program type, and then enter"
 " the name of the program."
-msgstr ""
+msgstr "この講座がプログラムの一部である場合、プログラムの種類を選択して、プログラム名を入力してください。"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid "COURSE STAFF"
@@ -2167,72 +2167,72 @@ msgstr "講座スタッフ"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid "The primary instructor or instructors for the course."
-msgstr ""
+msgstr "本講座の主な講師"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid "Add New"
-msgstr ""
+msgstr "新規追加"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid "ESTIMATED EFFORT"
-msgstr ""
+msgstr "エフォート推定時間"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid ""
 "The number of hours per week the learner should expect to spend on the "
 "course. This may be a range."
-msgstr ""
+msgstr "本講座の学習に必要とされる週当たりの時間数。範囲を記入してもよいです。"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid "Min Effort"
-msgstr ""
+msgstr "最小エフォート"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid "Max Effort"
-msgstr ""
+msgstr "最大エフォート"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid "LANGUAGE(S)"
-msgstr ""
+msgstr "言語 (複数の場合あり)"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid ""
 "The languages available for videos, video transcripts, and other course "
 "content."
-msgstr ""
+msgstr "動画や字幕、その他のコンテンツの言語"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid "LENGTH"
-msgstr ""
+msgstr "期間"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid ""
 "The length of the course, in weeks, rounded to the nearest whole number."
-msgstr ""
+msgstr "講座期間、週数、四捨五入して整数で表記。"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid "Update Course Run"
-msgstr ""
+msgstr "course run更新"
 
 #: templates/publisher/course_run_detail/_all.html
 msgid "(Required) To be added by edX"
-msgstr ""
+msgstr "(必須) edXが入力"
 
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_studio.html
 msgid "Start Date (time in UTC)"
-msgstr ""
+msgstr "開始日時(UTC)"
 
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_studio.html
 msgid "End Date (time in UTC)"
-msgstr ""
+msgstr "終了日時(UTC)"
 
 #: templates/publisher/course_run_detail/_all.html
 msgid "Certificate Price"
-msgstr ""
+msgstr "修了証価格"
 
 #: templates/publisher/course_run_detail/_all.html
 msgid "Credit Price"
@@ -2245,34 +2245,34 @@ msgstr "講座スタッフ"
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "New"
-msgstr ""
+msgstr "新規"
 
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Estimated Effort"
-msgstr ""
+msgstr "推定エフォート"
 
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "hours per week"
-msgstr ""
+msgstr "週当たり時間数"
 
 #: templates/publisher/course_run_detail/_all.html
 msgid "Course Content Language"
-msgstr ""
+msgstr "講座コンテンツ用言語"
 
 #: templates/publisher/course_run_detail/_all.html
 msgid "Video Transcript Language"
-msgstr ""
+msgstr "動画字幕用言語"
 
 #: templates/publisher/course_run_detail/_all.html
 msgid "Course Video Language"
-msgstr ""
+msgstr "動画用言語"
 
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Course Length (Weeks)"
-msgstr ""
+msgstr "講座期間(週)"
 
 #: templates/publisher/course_run_detail/_all.html
 msgid "MicroMasters Program Name"
@@ -2284,7 +2284,7 @@ msgstr "XSeries プログラム名"
 
 #: templates/publisher/course_run_detail/_all.html
 msgid "Professional Certificate Program Name"
-msgstr ""
+msgstr "Professional Certificate プログラム名"
 
 #: templates/publisher/course_run_detail/_cat.html
 #: templates/publisher/course_run_detail/_drupal.html
@@ -2294,7 +2294,7 @@ msgstr "講座ID"
 #: templates/publisher/course_run_detail/_cat.html
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Enrollment Types"
-msgstr ""
+msgstr "受講登録のタイプ"
 
 #: templates/publisher/course_run_detail/_credit_seat.html
 msgid "Credit Seats"
@@ -2312,7 +2312,7 @@ msgstr "価格"
 #: templates/publisher/course_run_detail/_credit_seat.html
 #: templates/publisher/course_run_detail/_seats.html
 msgid "Currency"
-msgstr ""
+msgstr "通貨"
 
 #: templates/publisher/course_run_detail/_credit_seat.html
 msgid "Credit Hours"
@@ -2321,21 +2321,21 @@ msgstr ""
 #: templates/publisher/course_run_detail/_credit_seat.html
 #: templates/publisher/course_run_detail/_seats.html
 msgid "Upgrade Deadline (time in UTC)"
-msgstr ""
+msgstr "アップグレードの締切日時 (UTC)"
 
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_salesforce.html
 #: templates/publisher/course_run_detail/_studio.html
 msgid "Number"
-msgstr ""
+msgstr "番号"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Subtitle"
-msgstr ""
+msgstr "サブタイトル"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Self Paced"
-msgstr ""
+msgstr "Self Paced"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Staff"
@@ -2351,11 +2351,11 @@ msgstr "言語"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Video Transcript Languages"
-msgstr ""
+msgstr "動画字幕用言語"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "What You'll Learn"
-msgstr ""
+msgstr "学べるもの"
 
 #: templates/publisher/course_run_detail/_drupal.html
 #: templates/publisher/course_run_detail/_instructor_profile.html
@@ -2368,7 +2368,7 @@ msgstr "キーワード"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Sponsors"
-msgstr ""
+msgstr "スポンサー"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Course Syllabus"
@@ -2376,11 +2376,11 @@ msgstr "講座シラバス"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Course About Video"
-msgstr ""
+msgstr "講座紹介ビデオ"
 
 #: templates/publisher/course_run_detail/_drupal.html
 msgid "Seats"
-msgstr ""
+msgstr "Seats"
 
 #: templates/publisher/course_run_detail/_edit_warning.html
 #, python-format
@@ -2388,7 +2388,7 @@ msgid ""
 "The %(current_team_name)s is currently reviewing this course run. If you "
 "edit course run information, you might overwrite the team’s changes, and you"
 " will have to send the course run to the %(team_name)s for review again."
-msgstr ""
+msgstr "%(current_team_name)s チームは現在course runをレビュー中です。もしcourse run情報を編集した場合、チームの変更を上書きする可能性がありますので、再レビューのため %(team_name)s へ送信しなければなりません。"
 
 #: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Name"
@@ -2412,35 +2412,35 @@ msgstr "ブログ URL "
 
 #: templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Close"
-msgstr ""
+msgstr "閉じる"
 
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Accept About Page Preview"
-msgstr ""
+msgstr "Aboutページプレビューを承認"
 
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid ""
 "By accepting the About page preview, you are confirming that the information"
 " for this course run in Publisher is correct."
-msgstr ""
+msgstr "Aboutページプレビューを承認することにより、Publisher内のcourse runの情報が正しいことを確認したことになります。"
 
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid ""
 "Note that before edX can publish the About page for this course run, the "
 "following information for the course run must be entered in Studio."
-msgstr ""
+msgstr "edXがAboutページを公開する前に、次の情報をStudioで入力しなければいけませんので、ご注意ください。"
 
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "The course run start and end date."
-msgstr ""
+msgstr "course run開始および終了日。"
 
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "The course card image."
-msgstr ""
+msgstr "講座カード画像。"
 
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Names, titles, and signature images for all certificate signatories."
-msgstr ""
+msgstr "修了証の署名欄の名前、タイトル、署名の画像。"
 
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "OK"
@@ -2452,39 +2452,39 @@ msgstr "講座"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Authored in Studio?"
-msgstr ""
+msgstr "Studioで作成済？"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Multiple Partner Course?"
-msgstr ""
+msgstr "複数のパートナー講座？"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Subject Area"
-msgstr ""
+msgstr "分野"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Language: Course Text"
-msgstr ""
+msgstr "言語：講座内テキスト"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Language: Transcripts"
-msgstr ""
+msgstr "言語：字幕"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Language: Video"
-msgstr ""
+msgstr "言語：動画"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Run"
-msgstr ""
+msgstr "Course Run"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "New or Rerun?"
-msgstr ""
+msgstr "新規または再開講？"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Platform"
-msgstr ""
+msgstr "プラットフォーム"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Faculty"
@@ -2492,23 +2492,23 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Run Display Name"
-msgstr ""
+msgstr "Course Run 表示名"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Run Number"
-msgstr ""
+msgstr "Course Run 番号"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "edX Course Run ID"
-msgstr ""
+msgstr "edX Course Run ID"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Certificate Type"
-msgstr ""
+msgstr "修了証の種類"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Course $ (minimum)"
-msgstr ""
+msgstr "講座 $ (最低額)"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Credit $ (minimum)"
@@ -2516,15 +2516,15 @@ msgstr ""
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Self Paced?"
-msgstr ""
+msgstr "Self Paced?"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "MDC Submission Due Date"
-msgstr ""
+msgstr "MDC 提出締切"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Verified Conversion Date"
-msgstr ""
+msgstr "認証付き変換日"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 #: templates/publisher/dashboard/_studio_requests.html
@@ -2537,7 +2537,7 @@ msgstr "終了日"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Verified Registration Expiration Date"
-msgstr ""
+msgstr "認証付き登録有効期限"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Certificate Issued Date"
@@ -2545,7 +2545,7 @@ msgstr "修了証発行日"
 
 #: templates/publisher/course_run_detail/_seats.html
 msgid "Enrollment Type"
-msgstr ""
+msgstr "受講登録タイプ"
 
 #: templates/publisher/course_run_detail/_studio.html
 #: templates/publisher/courses.html
@@ -2558,38 +2558,38 @@ msgstr "講座名"
 
 #: templates/publisher/course_run_detail/_studio.html
 msgid "Enrollment Start Date (time in UTC)"
-msgstr ""
+msgstr "受講登録開始日(UTC)"
 
 #: templates/publisher/course_run_detail/_studio.html
 msgid "Enrollment End Date (time in UTC)"
-msgstr ""
+msgstr "受講登録終了日(UTC)"
 
 #: templates/publisher/course_run_detail/_studio.html
 msgid "Pacing Type"
-msgstr ""
+msgstr "講座の種類"
 
 #: templates/publisher/course_run_detail/_widgets.html
 msgid "Reason for declining preview"
-msgstr ""
+msgstr "プレビュー却下の理由"
 
 #: templates/publisher/course_run_detail/course_run_detail.html
 msgid "Course Run Details"
-msgstr ""
+msgstr "course run 詳細"
 
 #: templates/publisher/course_run_detail/course_run_detail.html
 #, python-format
 msgid ""
 "The About page for this course run was published on %(course_publish_date)s."
-msgstr ""
+msgstr "このcourse runのAboutページは %(course_publish_date)sに公開されました。"
 
 #: templates/publisher/course_run_detail/course_run_detail.html
 msgid "View it on edx.org at"
-msgstr ""
+msgstr "edx.org 上で見る"
 
 #: templates/publisher/course_run_detail/course_run_detail.html
 #: templates/publisher/dashboard/_in_progress.html
 msgid "All"
-msgstr ""
+msgstr "すべて"
 
 #. Translators: Studio is an edX tool for course creation.
 #: templates/publisher/course_run_detail/course_run_detail.html
@@ -2599,67 +2599,67 @@ msgstr "STUDIO"
 #. Translators: CAT is an acronym for Course Administration Tool.
 #: templates/publisher/course_run_detail/course_run_detail.html
 msgid "CAT"
-msgstr ""
+msgstr "CAT"
 
 #. Translators: DRUPAL is an edX marketing site.
 #: templates/publisher/course_run_detail/course_run_detail.html
 msgid "DRUPAL"
-msgstr ""
+msgstr "DRUPAL"
 
 #: templates/publisher/courses.html
 msgid "Runs"
-msgstr ""
+msgstr "Runs"
 
 #: templates/publisher/dashboard.html
 msgid "Course About Pages"
-msgstr ""
+msgstr "Aboutページ"
 
 #: templates/publisher/dashboard.html
 msgid ""
 "EdX Publisher is used to create course About pages. Users enter, review, and"
 " approve content in Publisher. Publisher keeps track of the details and "
 "sends email updates when actions are necessary."
-msgstr ""
+msgstr "EdX Publisher はAboutページを作成する際に使用します。ユーザーはPublisher内でコンテンツを入力、レビュー、承認します。Publisher は詳細を管理し、対応が必要な場合にはメールを送ります。"
 
 #: templates/publisher/dashboard.html
 msgid ""
 "EdX Publisher is a companion to edX Studio. Course teams enter About page "
 "information in Publisher, and course content in Studio."
-msgstr ""
+msgstr "EdX Publisher は edX Studioの仲間です。講座チームはAboutページの情報をPublisherに、講座コンテンツをStudioに入力します。"
 
 #: templates/publisher/dashboard.html
 msgid "Add a New Course"
-msgstr ""
+msgstr "新規講座を入力"
 
 #: templates/publisher/dashboard.html
 msgid "Add a Course Run"
-msgstr ""
+msgstr "course runを入力"
 
 #: templates/publisher/dashboard.html
 msgid "Course runs"
-msgstr ""
+msgstr "Course runs"
 
 #: templates/publisher/dashboard.html
 msgid "In Development"
-msgstr ""
+msgstr "開発中"
 
 #: templates/publisher/dashboard.html
 msgid "In Preview"
-msgstr ""
+msgstr "プレビュー中"
 
 #: templates/publisher/dashboard.html
 msgid "Studio Request"
-msgstr ""
+msgstr "Studio リクエスト"
 
 #: templates/publisher/dashboard.html
 msgid "Published About Pages"
-msgstr ""
+msgstr "Aboutページ公開済"
 
 #: templates/publisher/dashboard/_in_preview.html
 msgid ""
 "No course runs currently have an About page preview available for course "
 "team review."
-msgstr ""
+msgstr "講座チームがレビューできるAboutページプレビューがあるcourse runは現在ありません。"
 
 #: templates/publisher/dashboard/_in_preview.html
 msgid ""
@@ -2667,49 +2667,49 @@ msgid ""
 "team review. After the course team approves the preview, the edX publisher "
 "will publish the About page for the course run on edx.org. The course team "
 "will receive an email message when the About page has been published."
-msgstr ""
+msgstr "以下のcourse runのAboutページのプレビューは講座チームがレビューできる状態です。講座チームがプレビューを承認すると、edX Publisherがedx.org上にAboutページを公開します。Aboutページが公開されると、講座チームにメールが届きます。"
 
 #: templates/publisher/dashboard/_in_preview.html
 msgid "Status"
-msgstr ""
+msgstr "状況"
 
 #: templates/publisher/dashboard/_in_preview.html
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
 msgid "Course start date"
-msgstr ""
+msgstr "講座開始日"
 
 #: templates/publisher/dashboard/_in_preview.html
 msgid "Approved since "
-msgstr ""
+msgstr "承認済"
 
 #: templates/publisher/dashboard/_in_preview.html
 msgid "Declined since "
-msgstr ""
+msgstr "却下済"
 
 #: templates/publisher/dashboard/_in_preview.html
 msgid "Preview Requested since "
-msgstr ""
+msgstr "プレビューリクエスト済"
 
 #: templates/publisher/dashboard/_in_preview.html
 msgid "In Review since "
-msgstr ""
+msgstr "レビュー中"
 
 #: templates/publisher/dashboard/_in_progress.html
 msgid "No About pages for any course runs are currently in development."
-msgstr ""
+msgstr "現在開発中のAboutページはありません。"
 
 #: templates/publisher/dashboard/_in_progress.html
 msgid "Filter by"
-msgstr ""
+msgstr "フィルタリング"
 
 #: templates/publisher/dashboard/_in_progress.html
 msgid "With Course Team"
-msgstr ""
+msgstr "講座チームと"
 
 #: templates/publisher/dashboard/_in_progress.html
 msgid "With"
-msgstr ""
+msgstr "一緒に"
 
 #: templates/publisher/dashboard/_in_progress.html
 #: templates/publisher/dashboard/_published.html
@@ -2723,46 +2723,46 @@ msgstr "終了"
 
 #: templates/publisher/dashboard/_published.html
 msgid "No About pages have been published yet."
-msgstr ""
+msgstr "Aboutページはまだ公開されていません。"
 
 #: templates/publisher/dashboard/_published.html
 #, python-format
 msgid ""
 "About pages for the following course runs have been published in the past "
 "%(default_published_days)s days."
-msgstr ""
+msgstr "以下のAboutページは%(default_published_days)s 日前に公開されました。"
 
 #: templates/publisher/dashboard/_published.html
 msgid "Published Date"
-msgstr ""
+msgstr "公開日"
 
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "The following courses are ready for a Studio URL."
-msgstr ""
+msgstr "次の講座はStudio URLの準備ができています。"
 
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Studio Course Run Key"
-msgstr ""
+msgstr "Studio Course Run キー"
 
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "Add"
-msgstr ""
+msgstr "入力"
 
 #: templates/publisher/dashboard/_studio_requests.html
 msgid "No courses are currently ready for a Studio URL."
-msgstr ""
+msgstr "Studio URLの準備ができている講座はありません。"
 
 #: templates/publisher/email/comment.html
 #, python-format
 msgid ""
 "The %(team_name)s made the following comment on %(course_name)s on %(date)s "
 "at %(time)s"
-msgstr ""
+msgstr "The %(team_name)s は %(date)s  %(time)sに %(course_name)s に関して次のコメントを書きました"
 
 #: templates/publisher/email/comment.html
 #: templates/publisher/email/comment.txt
 msgid "View comment in Publisher"
-msgstr ""
+msgstr "Publisherのコメントを見る"
 
 #: templates/publisher/email/comment.html
 #: templates/publisher/email/comment.txt
@@ -2772,14 +2772,14 @@ msgstr ""
 #: templates/publisher/email/decline_preview.html
 #: templates/publisher/email/decline_preview.txt
 msgid "The edX team"
-msgstr ""
+msgstr "edX チーム"
 
 #: templates/publisher/email/comment.txt
 #, python-format
 msgid ""
 "The %(team_name)s made the following comment on %(course_name)s %(date)s at "
 "%(time)s."
-msgstr ""
+msgstr "The %(team_name)s は %(date)s  %(time)sに %(course_name)s に関して次のコメントを書きました。"
 
 #: templates/publisher/email/course/mark_as_reviewed.html
 #: templates/publisher/email/course/mark_as_reviewed.txt
@@ -2801,7 +2801,7 @@ msgstr ""
 #: templates/publisher/email/decline_preview.txt
 #, python-format
 msgid "Dear %(recipient_name)s,"
-msgstr ""
+msgstr " %(recipient_name)s様、"
 
 #: templates/publisher/email/course/mark_as_reviewed.html
 #: templates/publisher/email/course/mark_as_reviewed.txt
@@ -2810,7 +2810,7 @@ msgid ""
 "The %(sender_team)s has reviewed %(link_start)s%(page_url)s%(link_middle)s "
 "%(course_name)s%(link_end)s and has suggested no changes. The review for "
 "this course is complete."
-msgstr ""
+msgstr " %(sender_team)s が %(link_start)s%(page_url)s%(link_middle)s %(course_name)s%(link_end)s をレビューしたところ、修正点はありませんでした。レビュー完了です。"
 
 #: templates/publisher/email/course/mark_as_reviewed.html
 #: templates/publisher/email/course/mark_as_reviewed.txt
@@ -2821,7 +2821,7 @@ msgid ""
 "and open the page for any course run. On the course run page, add all "
 "required information for that course run, and then submit the course run for"
 " review."
-msgstr ""
+msgstr "レビューのためにcourse runを提出することができます。 %(link_start)s%(page_url)s%(link_middle)s 講座ページに進んで%(link_end)s 、course runページを開いてください。course runページ上で必要な情報をすべて入力し、提出してください。"
 
 #. Translators: It's closing of mail.
 #: templates/publisher/email/course/mark_as_reviewed.html
@@ -2849,7 +2849,7 @@ msgstr ""
 #: templates/publisher/email/studio_instance_needed.html
 #: templates/publisher/email/studio_instance_needed.txt
 msgid "Thanks,"
-msgstr ""
+msgstr "ありがとうございます"
 
 #: templates/publisher/email/course/mark_as_reviewed.html
 #: templates/publisher/email/course/send_for_review.html
@@ -2865,7 +2865,7 @@ msgstr ""
 msgid ""
 "<p>Note: This email address is unable to receive replies. For questions or "
 "comments, contact %(contact_us_email)s.</p>"
-msgstr ""
+msgstr "<p>注：このメールアドレスに返信はできません。質問やコメントは %(contact_us_email)sへお問い合わせください。</p>"
 
 #: templates/publisher/email/course/mark_as_reviewed.txt
 #: templates/publisher/email/course/send_for_review.txt
@@ -2881,7 +2881,7 @@ msgstr ""
 msgid ""
 "Note: This email address is unable to receive replies. For questions or "
 "comments, contact %(contact_us_email)s."
-msgstr ""
+msgstr "注：このメールアドレスに返信はできません。質問やコメントは %(contact_us_email)sへお問い合わせください。"
 
 #: templates/publisher/email/course/send_for_review.html
 #, python-format
@@ -2889,7 +2889,7 @@ msgid ""
 "%(sender_team)s from %(org_name)s has submitted %(course_name)s for review. "
 "%(link_start)s%(page_url)s%(link_middle)s View this course in "
 "Publisher%(link_end)s to mark the course as reviewed or suggest edits."
-msgstr ""
+msgstr " %(org_name)s の%(sender_team)s はレビューのために %(course_name)s を提出しました。レビュー済のマークを付けたり編集を提案したりする場合は、%(link_start)s%(page_url)s%(link_middle)s Publisherで講座を見てください%(link_end)s。"
 
 #: templates/publisher/email/course/send_for_review.txt
 #, python-format
@@ -2897,7 +2897,7 @@ msgid ""
 "%(sender_team)s from %(org_name)s has submitted %(course_name)s for review. "
 "%(page_url)s View this course in Publisher to mark the course as reviewed or"
 " suggest edits."
-msgstr ""
+msgstr " %(org_name)s の%(sender_team)s はレビューのために %(course_name)s を提出しました。レビュー済のマークを付けたり編集を提案したりする場合は、Publisherで講座を見てください。%(page_url)s "
 
 #: templates/publisher/email/course/seo_review.html
 #, python-format
@@ -2905,20 +2905,20 @@ msgid ""
 "%(sender_team)s from %(org_name)s has submitted %(course_name)s for review. "
 "%(link_start)s%(course_page_url)s%(link_middle)sView this course in "
 "Publisher%(link_end)s to determine OFAC status."
-msgstr ""
+msgstr "%(org_name)s の%(sender_team)s はレビューのために %(course_name)s を提出しました。OFAC状況を決定するには%(link_start)s%(course_page_url)s%(link_middle)sPublisherで講座を見てください%(link_end)s。"
 
 #: templates/publisher/email/course/seo_review.txt
 #, python-format
 msgid ""
 "%(sender_team)s from %(org_name)s has submitted %(course_name)s for review. "
 "%(course_page_url)s View this course in Publisher to determine OFAC status."
-msgstr ""
+msgstr "%(org_name)s の%(sender_team)s はレビューのために %(course_name)s を提出しました。OFAC状況を決定するにはPublisherで講座を見てください。 %(course_page_url)s "
 
 #. Translators: project_coordinator_name is a member name.
 #: templates/publisher/email/course_created.html
 #, python-format
 msgid "Dear %(project_coordinator_name)s,"
-msgstr ""
+msgstr " %(project_coordinator_name)s様、"
 
 #: templates/publisher/email/course_created.html
 #, python-format
@@ -2926,25 +2926,25 @@ msgid ""
 "%(course_team_name)s created the "
 "%(link_start)s%(page_url)s%(link_middle)s%(run_number)s course "
 "run%(link_end)s of %(course_title)s in Publisher on %(date)s at %(time)s."
-msgstr ""
+msgstr "%(course_team_name)s は %(date)s  %(time)sにPublisherで %(course_title)s の %(link_start)s%(page_url)s%(link_middle)s%(run_number)s course run%(link_end)s を作成しました。"
 
 #: templates/publisher/email/course_created.html
 #: templates/publisher/email/course_created.txt
 msgid "Please create a Studio URL for this course."
-msgstr ""
+msgstr "この講座のStudio URLを作成してください。"
 
 #: templates/publisher/email/course_created.txt
 #: templates/publisher/email/studio_instance_needed.html
 #: templates/publisher/email/studio_instance_needed.txt
 msgid "Dear"
-msgstr ""
+msgstr "様"
 
 #: templates/publisher/email/course_created.txt
 #, python-format
 msgid ""
 "%(course_team_name)s created the %(course_run)s : %(dashboard_url)s course "
 "run of %(course_title)s in Publisher on %(date)s at %(time)s."
-msgstr ""
+msgstr "%(course_team_name)s チームは %(date)s%(time)sにPublisherで %(course_title)s のcourse run %(course_run)s : %(dashboard_url)s を作成しました。"
 
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #, python-format
@@ -2953,21 +2953,21 @@ msgid ""
 "%(link_start)s%(page_url)s%(link_middle)s%(run_number)s course "
 "run%(link_end)s of %(course_name)s and has not added comments or suggested "
 "edits. The review for this course run is complete."
-msgstr ""
+msgstr "%(sender_team)s チームが %(course_name)s の %(link_start)s%(page_url)s%(link_middle)s%(run_number)s course run%(link_end)s をレビューしたところ、追加コメントや修正点はありませんでした。レビュー完了です。"
 
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
 msgid ""
 "Please create a preview of the About page for this course run and enter the "
 "preview URL in Publisher."
-msgstr ""
+msgstr "このcourse runのAboutページのプレビューを作成し、PublisherにプレビューURLを入力してください。"
 
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
 msgid ""
 "Additionally, please check the comments in Publisher for information about "
 "OFAC blocking."
-msgstr ""
+msgstr "また、OFACブロッキングの情報に関するPublisher内のコメントを確認してください。"
 
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
 #, python-format
@@ -2975,13 +2975,13 @@ msgid ""
 "The %(sender_team)s has reviewed the %(run_number)s %(page_url)s course run "
 "of %(course_name)s and has not added comments or suggested edits. The review"
 " for this course run is complete."
-msgstr ""
+msgstr "%(sender_team)s チームが %(course_name)s のcourse run %(run_number)s %(page_url)sをレビューしたところ、追加コメントや修正点はありませんでした。レビュー完了です。"
 
 #: templates/publisher/email/course_run/preview_accepted.html
 #: templates/publisher/email/course_run/preview_accepted.txt
 #, python-format
 msgid "Dear %(publisher_role_name)s,"
-msgstr ""
+msgstr " %(publisher_role_name)s様、"
 
 #: templates/publisher/email/course_run/preview_accepted.html
 #, python-format
@@ -2990,7 +2990,7 @@ msgid ""
 "%(link_start)s%(page_url)s%(link_middle)s%(run_number)s%(link_end)s course "
 "run of %(course_name)s from %(org_name)s. You can now publish this About "
 "page."
-msgstr ""
+msgstr "%(course_team)s チームは %(org_name)sの %(course_name)s のcourse run %(link_start)s%(page_url)s%(link_middle)s%(run_number)s%(link_end)s のAbout ページのプレビューをレビューしました。Aboutページの公開が可能になりました。"
 
 #: templates/publisher/email/course_run/preview_accepted.txt
 #, python-format
@@ -2998,7 +2998,7 @@ msgid ""
 "%(course_team)s has reviewed the preview of the About page for the "
 "%(run_number)s %(page_url)s course run of %(course_name)s from %(org_name)s."
 " You can now publish this About page."
-msgstr ""
+msgstr "%(course_team)s チームは %(org_name)sの %(course_name)s のcourse run %(run_number)s %(page_url)s のAboutページのプレビューをレビューしました。Aboutページの公開が可能になりました。"
 
 #: templates/publisher/email/course_run/preview_available.html
 #, python-format
@@ -3007,7 +3007,7 @@ msgid ""
 "%(course_name)s. %(link_start)s%(preview_link)s%(link_middle)s View the "
 "course run in Publisher%(link_end)s to access the preview for this About "
 "page and accept or decline the preview."
-msgstr ""
+msgstr "%(course_name)sのcourse run %(course_run_number)s のプレビューが可能になりました。Aboutページのプレビューにアクセスし、承認または却下をするために、%(link_start)s%(preview_link)s%(link_middle)s Publisherでcourse runを見てください%(link_end)s 。"
 
 #: templates/publisher/email/course_run/preview_available.txt
 #, python-format
@@ -3015,7 +3015,7 @@ msgid ""
 "A preview is now available for the %(course_run_number)s course run of "
 "%(course_name)s. View the course run in Publisher %(page_url)s to access the"
 " preview for this About page and accept or decline the preview."
-msgstr ""
+msgstr "%(course_name)sのcourse run %(course_run_number)s のプレビューが可能になりました。Aboutページのプレビューにアクセスし、承認または却下をするために、Publisherでcourse runを見てください %(page_url)s。"
 
 #: templates/publisher/email/course_run/published.html
 #: templates/publisher/email/course_run/published.txt
@@ -3023,36 +3023,36 @@ msgstr ""
 msgid ""
 "The About page for the %(course_run_number)s course run of %(course_name)s "
 "has been published. No further action is necessary."
-msgstr ""
+msgstr "%(course_name)s のcourse run %(course_run_number)s のAboutページが公開されました。手続は以上です。"
 
 #: templates/publisher/email/course_run/published.html
 #, python-format
 msgid ""
 "%(link_start)s%(preview_url)s%(link_middle)sView this About page on "
 "edx.org.%(link_end)s"
-msgstr ""
+msgstr "%(link_start)s%(preview_url)s%(link_middle)sedx.org上でAboutページを見てください。%(link_end)s"
 
 #: templates/publisher/email/course_run/published.txt
 #, python-format
 msgid "View this About page on edx.org. %(preview_url)s"
-msgstr ""
+msgstr "edx.org上でAboutページを見てください。 %(preview_url)s"
 
 #: templates/publisher/email/course_run/published_course_run_editing.html
 #: templates/publisher/email/course_run/published_course_run_editing.txt
 #, python-format
 msgid ""
 "%(course_team)s has made changes to the following published course run."
-msgstr ""
+msgstr "%(course_team)s チームが公開された以下のcourse runを修正しました。"
 
 #: templates/publisher/email/course_run/published_course_run_editing.html
 #: templates/publisher/email/course_run/published_course_run_editing.txt
 msgid "View the course run in Publisher"
-msgstr ""
+msgstr "Publisherでcourse runを見る"
 
 #: templates/publisher/email/course_run/published_course_run_editing.html
 #: templates/publisher/email/course_run/published_course_run_editing.txt
 msgid "to make changes and republish the course run."
-msgstr ""
+msgstr "修正後、course runを再公開する"
 
 #: templates/publisher/email/course_run/send_for_review.html
 #, python-format
@@ -3061,20 +3061,20 @@ msgid ""
 "%(run_number)s course run for review. "
 "%(link_start)s%(page_url)s%(link_middle)s View this course run in "
 "Publisher%(link_end)s to review the changes or suggest edits."
-msgstr ""
+msgstr "%(sender_team)sチームが %(org_name)s のcourse_nameのcourse run %(run_number)s をレビューのため提出しました。修正点を見直したり編集を提案するには、 %(link_start)s%(page_url)s%(link_middle)s Publisherでcourse runを見てください%(link_end)s 。"
 
 #: templates/publisher/email/course_run/send_for_review.html
 #, python-format
 msgid ""
 "This is a good time to %(link_start)s%(studio_url)s%(link_middle)s review "
 "this course run in Studio%(link_end)s."
-msgstr ""
+msgstr " %(link_start)s%(studio_url)s%(link_middle)s Studio内でcourse runを見直す%(link_end)sのにちょうど良い時です。"
 
 #. Translators: It's closing of mail.
 #: templates/publisher/email/course_run/send_for_review.html
 #: templates/publisher/email/course_run/send_for_review.txt
 msgid "Thank you,"
-msgstr ""
+msgstr "ありがとうございます"
 
 #: templates/publisher/email/course_run/send_for_review.txt
 #, python-format
@@ -3082,13 +3082,13 @@ msgid ""
 "%(sender_team)s for %(course_name)s from %(org_name)s has submitted the "
 "%(run_number)s course run for review. %(page_url)s  View this course run in "
 "Publisher to review the changes or suggest edits."
-msgstr ""
+msgstr "%(sender_team)s チームが %(org_name)s の %(course_name)s のcourse run %(run_number)s をレビューのため提出しました。修正点を見直したり編集を提案するにはPublisherでcourse runを見てください%(page_url)s 。"
 
 #: templates/publisher/email/course_run/send_for_review.txt
 #, python-format
 msgid ""
 "This is a good time to %(studio_url)s review this course run in Studio."
-msgstr ""
+msgstr " %(studio_url)s Studio内でcourse runを見直すのにちょうど良い時です。"
 
 #: templates/publisher/email/decline_preview.html
 #, python-format
@@ -3097,12 +3097,12 @@ msgid ""
 "%(run_number)s course run of %(course_name)s. "
 "%(link_start)s%(page_url)s%(link_middle)sView the course run in "
 "Publisher.%(link_end)s"
-msgstr ""
+msgstr "%(team_name)s チームは%(course_name)sのcourse run %(run_number)s のAboutページのプレビューを却下しました。 %(link_start)s%(page_url)s%(link_middle)sPublisherでcourse runを見てください。%(link_end)s"
 
 #: templates/publisher/email/decline_preview.html
 #, python-format
 msgid "%(team_name)s added the following comment."
-msgstr ""
+msgstr "%(team_name)s チームが以下のコメントを書きました。"
 
 #: templates/publisher/email/decline_preview.txt
 #, python-format
@@ -3110,11 +3110,11 @@ msgid ""
 "%(team_name)s has declined the preview of the About page for the "
 "%(run_number)s course run of %(course_name)s. View the course run in "
 "Publisher."
-msgstr ""
+msgstr "%(team_name)s チームが%(course_name)sのcourse run %(run_number)s のAboutページのプレビューを却下しました。Publisherでcourse runを見てください。"
 
 #: templates/publisher/email/decline_preview.txt
 msgid "{{ team_name }} added the following comment."
-msgstr ""
+msgstr "{{ team_name }}が以下のコメントを書きました。"
 
 #: templates/publisher/email/role_assignment_changed.html
 #, python-format
@@ -3122,84 +3122,84 @@ msgid ""
 "The %(role_name)s for "
 "%(link_start)s%(course_url)s%(link_middle)s%(course_title)s%(link_end)s has "
 "changed."
-msgstr ""
+msgstr "%(link_start)s%(course_url)s%(link_middle)s%(course_title)s%(link_end)sの%(role_name)s が変更しました。"
 
 #: templates/publisher/email/role_assignment_changed.html
 #: templates/publisher/email/role_assignment_changed.txt
 #, python-format
 msgid "Former %(role_name)s: %(former_user_name)s"
-msgstr ""
+msgstr "以前の %(role_name)s: %(former_user_name)s"
 
 #: templates/publisher/email/role_assignment_changed.html
 #: templates/publisher/email/role_assignment_changed.txt
 #, python-format
 msgid "Current %(role_name)s: %(current_user_name)s"
-msgstr ""
+msgstr "現在の%(role_name)s: %(current_user_name)s"
 
 #: templates/publisher/email/role_assignment_changed.txt
 #, python-format
 msgid "The %(role_name)s for %(course_title)s: %(course_url)s has changed."
-msgstr ""
+msgstr "%(course_title)s: %(course_url)sの %(role_name)sが変更しました。"
 
 #. Translators: course_team_name is course team member name.
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
 msgid "Dear %(course_team_name)s,"
-msgstr ""
+msgstr "%(course_team_name)s様、"
 
 #: templates/publisher/email/studio_instance_created.html
 #, python-format
 msgid ""
 "%(project_coordinator_name)s has created a Studio URL for the "
 "%(course_run)s. You can now take either of the following actions."
-msgstr ""
+msgstr "%(project_coordinator_name)s は%(course_run)sのStudio URLを作成しました。以下の操作を行うことができるようになりました。"
 
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
 msgid "Enter course run content in Studio."
-msgstr ""
+msgstr "Studioにcourse runのコンテンツを入力する。"
 
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
 msgid ""
 "Continue adding About page information for this course run in Publisher."
-msgstr ""
+msgstr "Publisher内のcourse runのAboutページの情報を追加する。"
 
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
 msgid "Important Notes"
-msgstr ""
+msgstr "重要事項"
 
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
 msgid ""
 "Before edX can publish the About page for this course run, you must also add"
 " the following items for this course run in Studio."
-msgstr ""
+msgstr "edXがこのcourse runのAboutページを公開する前に、Studio内に以下の項目を追加しなければなりません。"
 
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
 msgid "Course end date"
-msgstr ""
+msgstr "受講終了日"
 
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
 msgid "Course image"
-msgstr ""
+msgstr "講座画像"
 
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
 msgid ""
 "Certificate assets (including signatory names, titles, and signature images)"
-msgstr ""
+msgstr "修了証の必要物 (署名欄の名前、タイトル、署名画像)"
 
 #: templates/publisher/email/studio_instance_created.html
 #, python-format
 msgid ""
 "EdX expects your completed %(link_start)sMOOC Development "
 "Checklist%(link_end)s before the course run starts."
-msgstr ""
+msgstr "course runが始まる前に、 %(link_start)sMOOC 開発チェックリスト%(link_end)s を完成させてください。"
 
 #: templates/publisher/email/studio_instance_created.html
 #, python-format
@@ -3208,7 +3208,7 @@ msgid ""
 "video before you submit the course for review in Publisher. For more "
 "information, see %(link_start)sAdd a Course About Video to "
 "edx.org%(link_end)s."
-msgstr ""
+msgstr "これが初回開講の場合、Publisherで提出する前に講座紹介ビデオをアップロードする必要があります。詳しくは、 %(link_start)s講座紹介ビデオをedx.orgに追加する%(link_end)sを見てください。"
 
 #: templates/publisher/email/studio_instance_created.txt
 #, python-format
@@ -3216,20 +3216,20 @@ msgid ""
 "%(project_coordinator_name)s has created a Studio URL for the %(course_run)s"
 " course run of %(course_name)s. You can now take either of the following "
 "actions."
-msgstr ""
+msgstr "%(project_coordinator_name)s は%(course_name)sのcourse run%(course_run)sのStudio URLを作成しました。以下の操作を行うことができるようになりました。"
 
 #: templates/publisher/email/studio_instance_created.txt
 msgid ""
 "EdX expects your completed MOOC Development Checklist before the course run "
 "starts."
-msgstr ""
+msgstr "course runが始まる前にMOOC開発チェックリストを完成させてください。"
 
 #: templates/publisher/email/studio_instance_created.txt
 msgid ""
 "If this is the first run of a course, you should upload the course About "
 "video before you submit the course for review in Publisher. For more "
 "information, see Add a Course About Video to edx.org."
-msgstr ""
+msgstr "これが初回開講の場合、Publisherで提出する前に講座紹介ビデオをアップロードする必要があります。詳しくは、講座紹介ビデオをedx.orgに追加するを見てください。"
 
 #: templates/publisher/email/studio_instance_needed.html
 #: templates/publisher/email/studio_instance_needed.txt
@@ -3237,8 +3237,8 @@ msgid ""
 "Please create a Studio instance for the following course. After you create "
 "the Studio instance, enter the course key for that instance on the course "
 "run page in Publisher."
-msgstr ""
+msgstr "以下の講座のStudio instanceを作成してください。Studio instanceを作成した後、Publisher内のcourse runページ上に講座キーを入力してください。"
 
 #: templates/publisher/seat_form.html
 msgid "Seat Form"
-msgstr ""
+msgstr "Seat Form"
