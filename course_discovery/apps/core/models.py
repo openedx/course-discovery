@@ -79,7 +79,7 @@ class Partner(TimeStampedModel):
     oidc_key = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect Key'))
     oidc_secret = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect Secret'))
     studio_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('Studio URL'))
-    site = models.OneToOneField(Site, null=True, blank=True, on_delete=models.PROTECT)
+    site = models.OneToOneField(Site, on_delete=models.PROTECT)
 
     def __str__(self):
         return self.name
