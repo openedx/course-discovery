@@ -5,31 +5,30 @@ from django.core.management import CommandError, call_command
 from django.test import TestCase
 
 from course_discovery.apps.core.models import Partner
+from course_discovery.apps.core.tests.factories import SiteFactory
 
 
 @ddt
 class CreateOrUpdatePartnerCommandTests(TestCase):
-
     command_name = 'create_or_update_partner'
 
-    def setUp(self):
-        super(CreateOrUpdatePartnerCommandTests, self).setUp()
-
-        self.partner_code = 'abc'
-        self.partner_name = 'ABC Partner'
-        self.courses_api_url = 'https://courses.fake.org/api/v1/courses/'
-        self.ecommerce_api_url = 'https://ecommerce.fake.org/api/v1/courses/'
-        self.organizations_api_url = 'https://orgs.fake.org/api/v1/organizations/'
-        self.programs_api_url = 'https://programs.fake.org/api/v1/programs/'
-        self.marketing_site_api_url = 'https://www.fake.org/api/v1/courses/'
-        self.marketing_site_url_root = 'https://www.fake.org/'
-        self.marketing_site_api_username = 'marketing-username'
-        self.marketing_site_api_password = 'marketing-password'
-        self.oidc_url_root = 'https://oidc.fake.org/'
-        self.oidc_key = 'oidc-key'
-        self.oidc_secret = 'oidc-secret'
+    site_domain = 'test.example.com'
+    partner_code = 'abc'
+    partner_name = 'ABC Partner'
+    courses_api_url = 'https://courses.fake.org/api/v1/courses/'
+    ecommerce_api_url = 'https://ecommerce.fake.org/api/v1/courses/'
+    organizations_api_url = 'https://orgs.fake.org/api/v1/organizations/'
+    programs_api_url = 'https://programs.fake.org/api/v1/programs/'
+    marketing_site_api_url = 'https://www.fake.org/api/v1/courses/'
+    marketing_site_url_root = 'https://www.fake.org/'
+    marketing_site_api_username = 'marketing-username'
+    marketing_site_api_password = 'marketing-password'
+    oidc_url_root = 'https://oidc.fake.org/'
+    oidc_key = 'oidc-key'
+    oidc_secret = 'oidc-secret'
 
     def _check_partner(self, partner):
+        self.assertEqual(partner.site.domain, self.site_domain)
         self.assertEqual(partner.short_code, self.partner_code)
         self.assertEqual(partner.name, self.partner_name)
         self.assertEqual(partner.courses_api_url, self.courses_api_url)
@@ -56,6 +55,8 @@ class CreateOrUpdatePartnerCommandTests(TestCase):
 
         # Optional arguments
         arg_map = {
+            'site_id': 'site-id',
+            'site_domain': 'site-domain',
             'partner_name': 'name',
             'courses_api_url': 'courses-api-url',
             'ecommerce_api_url': 'ecommerce-api-url',
@@ -79,6 +80,7 @@ class CreateOrUpdatePartnerCommandTests(TestCase):
     def _create_partner(self):
         """ Helper method to create a new partner """
         self._call_command(
+            site_domain=self.site_domain,
             partner_code=self.partner_code,
             partner_name=self.partner_name,
             courses_api_url=self.courses_api_url,
@@ -109,6 +111,9 @@ class CreateOrUpdatePartnerCommandTests(TestCase):
         """ Verify the command updates an existing Partner """
         self._create_partner()
 
+        site = SiteFactory()
+        self.site_domain = 'some-other-test.example.org'
+
         self.partner_name = 'Updated Partner'
         self.courses_api_url = 'https://courses.updated.org/api/v1/courses/'
         self.ecommerce_api_url = 'https://ecommerce.updated.org/api/v1/courses/'
@@ -123,6 +128,8 @@ class CreateOrUpdatePartnerCommandTests(TestCase):
         self.oidc_secret = 'updated-secret'
 
         self._call_command(
+            site_id=site.id,
+            site_domain=self.site_domain,
             partner_code=self.partner_code,
             partner_name=self.partner_name,
             courses_api_url=self.courses_api_url,
@@ -140,6 +147,10 @@ class CreateOrUpdatePartnerCommandTests(TestCase):
 
         partner = Partner.objects.get(short_code=self.partner_code)
         self._check_partner(partner)
+
+        site.refresh_from_db()
+        self.assertEqual(site.domain, self.site_domain)
+        self.assertEqual(partner.site, site)
 
     @data(
         [''],
