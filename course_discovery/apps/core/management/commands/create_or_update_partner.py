@@ -2,6 +2,7 @@
 
 import logging
 
+from django.contrib.sites.models import Site
 from django.core.management import BaseCommand
 
 from course_discovery.apps.core.models import Partner
@@ -13,6 +14,17 @@ class Command(BaseCommand):
     help = 'Create a new Partner, or update an existing Partner.'
 
     def add_arguments(self, parser):
+        parser.add_argument('--site-id',
+                            action='store',
+                            dest='site_id',
+                            type=int,
+                            help='ID of the Site to update.')
+        parser.add_argument('--site-domain',
+                            action='store',
+                            dest='site_domain',
+                            type=str,
+                            required=True,
+                            help='Site domain for the Partner')
         parser.add_argument('--code',
                             action='store',
                             dest='partner_code',
@@ -93,13 +105,26 @@ class Command(BaseCommand):
                             help='Key used for Partner OIDC workflows.')
 
     def handle(self, *args, **options):
-        """ Creates or updates a Partner record. """
+        """ Creates or updates Site and Partner records. """
         partner_code = options.get('partner_code')
+        partner_name = options.get('partner_name')
+        site_domain = options.get('site_domain')
+        site_id = options.get('site_id')
+
+        defaults = {'name': partner_name}
+        if site_id:
+            lookup = {'id': site_id}
+            defaults['domain'] = site_domain
+        else:
+            lookup = {'domain': site_domain}
+
+        site, __ = Site.objects.update_or_create(defaults=defaults, **lookup)
 
         __, created = Partner.objects.update_or_create(
             short_code=partner_code,
             defaults={
-                'name': options.get('partner_name'),
+                'site': site,
+                'name': partner_name,
                 'courses_api_url': options.get('courses_api_url'),
                 'ecommerce_api_url': options.get('ecommerce_api_url'),
                 'organizations_api_url': options.get('organizations_api_url'),
