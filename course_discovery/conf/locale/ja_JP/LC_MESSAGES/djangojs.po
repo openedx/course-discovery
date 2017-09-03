@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-08-11 17:00+0500\n"
-"PO-Revision-Date: 2017-08-24 04:02+0000\n"
+"PO-Revision-Date: 2017-09-01 08:37+0000\n"
 "Last-Translator: Kyoto University <edxkyotoux@gmail.com>\n"
 "Language-Team: Japanese (Japan) (http://www.transifex.com/open-edx/edx-platform/language/ja_JP/)\n"
 "MIME-Version: 1.0\n"
@@ -79,7 +79,7 @@ msgstr "正しいURLを入力してください。"
 
 #: static/js/publisher/views/courses.js
 msgid "No courses have been created."
-msgstr "講座が作成されていません。"
+msgstr "コースが作成されていません。"
 
 #: static/js/publisher/views/dashboard.js
 msgid ""
