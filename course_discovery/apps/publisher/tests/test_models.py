@@ -43,27 +43,24 @@ class CourseRunTests(TestCase):
         self.assertIsNone(self.course_run.created_by)
 
         user = UserFactory()
-        history_object = self.course_run.history.first()
+        history_object = self.course_run.history.order_by('history_date').first()
         history_object.history_user = user
         history_object.save()
 
-        self.assertEqual(self.course_run.created_by, user.get_full_name())
+        assert self.course_run.created_by == user.get_full_name()
 
     def test_studio_url(self):
-        """ Verify that property returns studio url. """
-        self.assertFalse(self.course_run.studio_url)
+        assert self.course_run.studio_url is None
 
-        # save the lms course id and save the organization.
         self.course_run.lms_course_id = 'test'
         self.course_run.save()
         organization = OrganizationFactory()
         self.course_run.course.organizations.add(organization)
-        self.assertEqual(self.course_run.course.partner, organization.partner)
+        assert self.course_run.course.partner == organization.partner
 
-        self.assertEqual(
-            '{url}/course/{id}'.format(url=self.course_run.course.partner.studio_url, id='test'),
-            self.course_run.studio_url
-        )
+        actual = '{url}/course/{id}'.format(url=self.course_run.course.partner.studio_url.strip('/'),
+                                            id=self.course_run.lms_course_id)
+        assert actual == self.course_run.studio_url
 
     def test_has_valid_staff(self):
         """ Verify that property returns True if course-run must have a staff member
@@ -331,24 +328,19 @@ class CourseTests(TestCase):
         self.assertEqual(self.user1, self.course2.publisher)
 
     def test_course_image_url(self):
-        """ Verify that the property returns the course image url. """
-        self.assertIsNone(self.course.course_image_url)
+        course = factories.CourseFactory(image=None)
+        assert course.course_image_url is None
 
-        # Create a published course-run with card_image_url.
-        course_run = factories.CourseRunFactory(course=self.course)
+        course_run = factories.CourseRunFactory(course=course)
         factories.CourseRunStateFactory(course_run=course_run, name=CourseRunStateChoices.Published)
         course_run.card_image_url = 'http://example.com/test.jpg'
         course_run.save()
-
-        # Verify that property returns card_image_url of course-run.
-        self.assertEqual(self.course.course_image_url, course_run.card_image_url)
+        assert course.course_image_url == course_run.card_image_url
 
         # Create a course image.
-        self.course.image = make_image_file('test_banner1.jpg')
-        self.course.save()
-
-        # Verify that property returns course image field url.
-        self.assertEqual(self.course.course_image_url, self.course.image.url)
+        course.image = make_image_file('test_banner1.jpg')
+        course.save()
+        assert course.course_image_url == course.image.url
 
     def test_short_description_override(self):
         """ Verify that the property returns the short_description. """

@@ -1,5 +1,6 @@
 """ Tests for core models. """
 import ddt
+import responses
 from django.test import TestCase
 from social_django.models import UserSocialAuth
 
@@ -75,3 +76,21 @@ class PartnerTests(TestCase):
     def test_has_marketing_site(self, marketing_site_url_root, expected):
         partner = PartnerFactory(marketing_site_url_root=marketing_site_url_root)
         self.assertEqual(partner.has_marketing_site, expected)  # pylint: disable=no-member
+
+    @responses.activate
+    def test_access_token(self):
+        """ Verify the property retrieves, and caches, an access token from the OAuth 2.0 provider. """
+        token = 'abc123'
+        partner = PartnerFactory()
+        url = '{root}/access_token'.format(root=partner.oidc_url_root)
+        body = {
+            'access_token': token,
+            'expires_in': 3600,
+        }
+        responses.add(responses.POST, url, json=body, status=200)
+        assert partner.access_token == token
+        assert len(responses.calls) == 1
+
+        # No HTTP calls should be made if the access token is cached.
+        responses.reset()
+        assert partner.access_token == token
