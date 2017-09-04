@@ -246,7 +246,9 @@ class PublisherCustomCourseFormTests(TestCase):
         Verify that course_title is properly escaped and saved in database while
         updating the course
         """
-        course, course_admin = self.setup_course(title='test_course')
+        course, course_admin = self.setup_course(image=None)
+        assert course.title != 'áçã'
+
         organization = course.organizations.first().id
         course_from_data = {
             'title': '&aacute;&ccedil;&atilde;',
@@ -258,6 +260,7 @@ class PublisherCustomCourseFormTests(TestCase):
             **{'data': course_from_data, 'instance': course, 'user': course_admin,
                'organization': organization}
         )
-        self.assertTrue(course_form.is_valid())
-        course_updated_data = course_form.save()
-        self.assertTrue(course_updated_data.title, 'áçã')
+        assert course_form.is_valid()
+        course_form.save()
+        course.refresh_from_db()
+        assert course.title == 'áçã'

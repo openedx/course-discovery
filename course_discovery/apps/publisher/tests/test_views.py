@@ -1973,7 +1973,7 @@ class CourseDetailViewTests(TestCase):
     def setUp(self):
         super(CourseDetailViewTests, self).setUp()
         self.organization_extension = factories.OrganizationExtensionFactory()
-        self.course = factories.CourseFactory(organizations=[self.organization_extension.organization])
+        self.course = factories.CourseFactory(organizations=[self.organization_extension.organization], image=None)
         self.user = UserFactory()
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
@@ -2395,7 +2395,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
     def setUp(self):
         super(CourseEditViewTests, self).setUp()
         self.organization_extension = factories.OrganizationExtensionFactory()
-        self.course = factories.CourseFactory(organizations=[self.organization_extension.organization])
+        self.course = factories.CourseFactory(organizations=[self.organization_extension.organization], image=None)
         self.user = UserFactory()
         self.course_team_user = UserFactory()
         self.client.login(username=self.user.username, password=USER_PASSWORD)

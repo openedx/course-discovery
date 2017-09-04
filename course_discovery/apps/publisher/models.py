@@ -6,6 +6,7 @@ from django.contrib.auth.models import Group
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from django_fsm import FSMField, transition
@@ -16,6 +17,7 @@ from taggit.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, User
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
+from course_discovery.apps.course_metadata.models import Course as DiscoveryCourse
 from course_discovery.apps.course_metadata.models import LevelType, Organization, Person, Subject
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -252,6 +254,11 @@ class Course(TimeStampedModel, ChangedByMixin):
             return course_run.title_override
 
         return self.title
+
+    @cached_property
+    def discovery_counterpart(self):
+        course_key = '{org}+{number}'.format(org=self.organizations.first().key, number=self.number)
+        return DiscoveryCourse.objects.get(partner=self.partner, key=course_key)
 
 
 class CourseRun(TimeStampedModel, ChangedByMixin):

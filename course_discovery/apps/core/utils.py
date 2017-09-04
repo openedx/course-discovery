@@ -8,6 +8,10 @@ from course_discovery.settings.process_synonyms import get_synonyms
 logger = logging.getLogger(__name__)
 
 
+def serialize_datetime(d):
+    return d.strftime('%Y-%m-%dT%H:%M:%SZ') if d else None
+
+
 class ElasticsearchUtils(object):
     @classmethod
     def create_alias_and_index(cls, es_connection, alias):
@@ -84,6 +88,7 @@ class SearchQuerySetWrapper(object):
     """
     Decorates a SearchQuerySet object using a generator for efficient iteration
     """
+
     def __init__(self, qs):
         self.qs = qs
 
