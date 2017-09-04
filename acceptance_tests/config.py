@@ -1,5 +1,9 @@
 import os
 
+API_COURSES_ROOT = os.environ.get('API_COURSES_ROOT')
+if not API_COURSES_ROOT:
+    raise RuntimeError('API_COURSE_ROOT (e.g. https://api.stage.edx.org/) must be supplied!')
+
 API_GATEWAY_CATALOG_ROOT = os.environ.get('API_GATEWAY_CATALOG_ROOT')
 if not API_GATEWAY_CATALOG_ROOT:
     raise RuntimeError('API_GATEWAY_CATALOG_ROOT (e.g. https://api.stage.edx.org/catalog/v1) must be supplied!')
