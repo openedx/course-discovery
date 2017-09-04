@@ -22,6 +22,11 @@ auth_header:
   name: Authorization
   required: true
   type: string
+host_header:
+  in: header
+  name: Host
+  required: true
+  type: string
 endpoints:
   v1:
     catalogById:
@@ -31,6 +36,11 @@ endpoints:
           -
             in: header
             name: Authorization
+            required: true
+            type: string
+          -
+            in: header
+            name: Host
             required: true
             type: string
           -
@@ -60,6 +70,7 @@ endpoints:
           httpMethod: GET
           requestParameters:
             integration.request.header.Authorization: method.request.header.Authorization
+            integration.request.header.X-Forwarded-Host: method.request.header.Host
             integration.request.path.id: method.request.path.id
           responses:
             200:
@@ -88,17 +99,22 @@ endpoints:
             required: true
             type: string
           -
+            in: header
+            name: Host
+            required: true
+            type: string
+          -
             in: path
             name: id
             required: true
             type: number
           -
-            in: querystring
+            in: query
             name: limit
             required: false
             type: number
           -
-            in: querystring
+            in: query
             name: offset
             required: false
             type: number
@@ -124,6 +140,7 @@ endpoints:
           httpMethod: GET
           requestParameters:
             integration.request.header.Authorization: method.request.header.Authorization
+            integration.request.header.X-Forwarded-Host: method.request.header.Host
             integration.request.path.id: method.request.path.id
           responses:
             200:
@@ -152,12 +169,17 @@ endpoints:
             required: true
             type: string
           -
-            in: querystring
+            in: header
+            name: Host
+            required: true
+            type: string
+          -
+            in: query
             name: limit
             required: false
             type: number
           -
-            in: querystring
+            in: query
             name: offset
             required: false
             type: number
@@ -183,6 +205,8 @@ endpoints:
           httpMethod: GET
           requestParameters:
             integration.request.header.Authorization: method.request.header.Authorization
+            integration.request.header.X-Forwarded-Host: method.request.header.Host
+            integration.request.path.id: method.request.path.id
           responses:
             200:
               statusCode: "200"
