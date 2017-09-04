@@ -21,12 +21,9 @@ class CourseRunWrapperTests(TestCase):
 
     def setUp(self):
         super(CourseRunWrapperTests, self).setUp()
-        self.course_run = factories.CourseRunFactory()
-        self.course = self.course_run.course
         organization = OrganizationFactory()
-
-        self.course.organizations.add(organization)
-        self.course.save()
+        self.course_run = factories.CourseRunFactory(course__organizations=[organization])
+        self.course = self.course_run.course
 
         self.wrapped_course_run = CourseRunWrapper(self.course_run)
 
@@ -72,13 +69,8 @@ class CourseRunWrapperTests(TestCase):
 
     def test_organization_key(self):
         """ Verify that the wrapper return the organization key. """
-        course = factories.CourseFactory()
-        course_run = factories.CourseRunFactory(course=course)
-        wrapped_course_run = CourseRunWrapper(course_run)
-        self.assertEqual(wrapped_course_run.organization_key, None)
-
         organization = OrganizationFactory()
-        course.organizations.add(organization)
+        course_run = factories.CourseRunFactory(course__organizations=[organization])
         wrapped_course_run = CourseRunWrapper(course_run)
         self.assertEqual(wrapped_course_run.organization_key, organization.key)
 
@@ -110,13 +102,8 @@ class CourseRunWrapperTests(TestCase):
 
     def test_organization_name(self):
         """ Verify that the wrapper return the organization name. """
-        course = factories.CourseFactory()
-        course_run = factories.CourseRunFactory(course=course)
-        wrapped_course_run = CourseRunWrapper(course_run)
-        self.assertEqual(wrapped_course_run.organization_name, None)
-
         organization = OrganizationFactory()
-        course.organizations.add(organization)
+        course_run = factories.CourseRunFactory(course__organizations=[organization])
         wrapped_course_run = CourseRunWrapper(course_run)
         self.assertEqual(wrapped_course_run.organization_name, organization.name)
 

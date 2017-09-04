@@ -4,8 +4,13 @@ from django.contrib.sites.models import Site
 from course_discovery.apps.core.models import Partner, User
 from course_discovery.apps.core.tests.utils import FuzzyUrlRoot
 
-
 USER_PASSWORD = 'password'
+
+
+def add_m2m_data(m2m_relation, data):
+    """ Helper function to enable factories to easily associate many-to-many data with created objects. """
+    if data:
+        m2m_relation.add(*data)
 
 
 class SiteFactory(factory.DjangoModelFactory):

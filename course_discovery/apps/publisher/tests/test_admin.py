@@ -146,11 +146,8 @@ class OrganizationUserRoleAdminTests(SiteMixin, TestCase):
 
         self.organization = OrganizationFactory()
 
-        self.course1 = CourseFactory()
-        self.course2 = CourseFactory()
-
-        self.course1.organizations.add(self.organization)
-        self.course2.organizations.add(self.organization)
+        self.course1 = CourseFactory(organizations=[self.organization])
+        self.course2 = CourseFactory(organizations=[self.organization])
 
     @ddt.data(
         (PublisherUserRole.MarketingReviewer, REVIEWER_GROUP_NAME),
@@ -184,14 +181,12 @@ class OrganizationUserRoleAdminTests(SiteMixin, TestCase):
         """
         # for course 3 add course roles
         user = UserFactory()
-        course3 = CourseFactory()
-        course3.organizations.add(self.organization)
+        course3 = CourseFactory(organizations=[self.organization])
         factories.CourseUserRoleFactory(course=course3, role=PublisherUserRole.MarketingReviewer, user=user)
 
         # for course 4 add course roles
         project_coordinator = UserFactory()
-        course4 = CourseFactory()
-        course4.organizations.add(self.organization)
+        course4 = CourseFactory(organizations=[self.organization])
         factories.CourseUserRoleFactory(course=course4, role=PublisherUserRole.ProjectCoordinator,
                                         user=project_coordinator)
 
