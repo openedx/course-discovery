@@ -7,7 +7,7 @@ from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger
 from pytz import UTC
 
 from course_discovery.apps.core.models import Currency
-from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.core.tests.factories import UserFactory, add_m2m_data
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -19,21 +19,26 @@ from course_discovery.apps.publisher.models import (
 
 
 class CourseFactory(factory.DjangoModelFactory):
-    title = FuzzyText(prefix="Test çօմɾʂҽ ")
-    short_description = FuzzyText(prefix="Test çօմɾʂҽ short description")
-    full_description = FuzzyText(prefix="Test çօմɾʂҽ FULL description")
+    title = FuzzyText()
+    short_description = FuzzyText()
+    full_description = FuzzyText()
     number = FuzzyText()
-    prerequisites = "prereq 1, prereq 2, prereq 3"
-    expected_learnings = "learning 1, learning 2, learning 3"
-    syllabus = "week 1:  awesomeness"
-    learner_testimonial = "Best course ever!"
+    prerequisites = FuzzyText()
+    expected_learnings = FuzzyText()
+    syllabus = FuzzyText()
+    learner_testimonial = FuzzyText()
     level_type = factory.SubFactory(factories.LevelTypeFactory)
 
     primary_subject = factory.SubFactory(factories.SubjectFactory)
     secondary_subject = factory.SubFactory(factories.SubjectFactory)
     tertiary_subject = factory.SubFactory(factories.SubjectFactory)
-    faq = FuzzyText(prefix='Frequently asked questions')
-    video_link = FuzzyText(prefix='http://video.com/çօմɾʂҽ/')
+    faq = FuzzyText()
+    video_link = factory.Faker('url')
+
+    @factory.post_generation
+    def organizations(self, create, extracted, **kwargs):  # pylint: disable=unused-argument
+        if create:
+            add_m2m_data(self.organizations, extracted)
 
     class Meta:
         model = Course
@@ -49,10 +54,10 @@ class CourseRunFactory(factory.DjangoModelFactory):
     min_effort = FuzzyInteger(1, 10)
     max_effort = FuzzyInteger(10, 20)
     language = factory.Iterator(LanguageTag.objects.all())
-    pacing_type = FuzzyChoice([name for name, __ in CourseRunPacing.choices])
+    pacing_type = FuzzyChoice(CourseRunPacing.values.keys())
     length = FuzzyInteger(1, 10)
-    notes = "Testing notes"
-    preview_url = FuzzyText(prefix='https://example.com/')
+    notes = FuzzyText()
+    preview_url = factory.Faker('url')
     contacted_partner_manager = FuzzyChoice((True, False))
     video_language = factory.Iterator(LanguageTag.objects.all())
     short_description_override = FuzzyText()
@@ -76,7 +81,7 @@ class SeatFactory(factory.DjangoModelFactory):
 
 
 class GroupFactory(factory.DjangoModelFactory):
-    name = FuzzyText(prefix="Test Group ")
+    name = FuzzyText()
 
     class Meta:
         model = Group

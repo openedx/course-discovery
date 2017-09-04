@@ -192,9 +192,8 @@ class PublisherCustomCourseFormTests(TestCase):
     def setUp(self):
         super(PublisherCustomCourseFormTests, self).setUp()
         self.course_form = CustomCourseForm()
-        self.course = CourseFactory(title="Test", number="a123")
         self.organization = OrganizationFactory()
-        self.course.organizations.add(self.organization)
+        self.course = CourseFactory(title='Test', number='a123', organizations=[self.organization])
 
     def setup_course(self, **course_kwargs):
         """
@@ -204,13 +203,16 @@ class PublisherCustomCourseFormTests(TestCase):
             course: a course object
             course_admin: a user object
         """
-        course = CourseFactory(**course_kwargs)
-        course_admin = UserFactory(username='course_admin')
         organization_extension = OrganizationExtensionFactory()
-        organization = organization_extension.organization
+        defaults = {
+            'organizations': [organization_extension.organization],
+        }
+        defaults.update(course_kwargs)
+        course = CourseFactory(**defaults)
 
+        course_admin = UserFactory()
         course_admin.groups.add(organization_extension.group)
-        course.organizations.add(organization)
+
         return course, course_admin
 
     def test_duplicate_title(self):
@@ -245,7 +247,7 @@ class PublisherCustomCourseFormTests(TestCase):
         updating the course
         """
         course, course_admin = self.setup_course(title='test_course')
-        organization = course.organizations.all()[0].id
+        organization = course.organizations.first().id
         course_from_data = {
             'title': '&aacute;&ccedil;&atilde;',
             'number': course.number,

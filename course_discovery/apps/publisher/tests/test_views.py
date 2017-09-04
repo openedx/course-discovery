@@ -62,10 +62,8 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         self.group = self.organization_extension.group
         self.user.groups.add(self.group)
 
-        # create base course object
-        self.course = factories.CourseFactory()
+        self.course = factories.CourseFactory(organizations=[self.organization_extension.organization])
 
-        self.course.organizations.add(self.organization_extension.organization)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
         # creating default organizations roles
@@ -551,9 +549,8 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         """
         Verify that user can create a new course run with credit seat.
         """
-        course = factories.CourseFactory()
         organization_extension = factories.OrganizationExtensionFactory()
-        course.organizations.add(organization_extension.organization)
+        course = factories.CourseFactory(organizations=[organization_extension.organization])
         self.user.groups.add(organization_extension.group)
 
         response = self.client.post(
@@ -570,16 +567,13 @@ class CourseRunDetailTests(SiteMixin, TestCase):
 
     def setUp(self):
         super(CourseRunDetailTests, self).setUp()
-        self.course = factories.CourseFactory()
         self.user = UserFactory()
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
-        self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.course_run = factories.CourseRunFactory(course=self.course)
-        self.course_run.lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
-        self.course_run.save()
-
         self.organization_extension = factories.OrganizationExtensionFactory()
-        self.course.organizations.add(self.organization_extension.organization)
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.course_run = factories.CourseRunFactory(course__organizations=[self.organization_extension.organization],
+                                                     lms_course_id='course-v1:edX+DemoX+Demo_Course')
+        self.course = self.course_run.course
 
         self._generate_seats([Seat.AUDIT, Seat.HONOR, Seat.VERIFIED, Seat.PROFESSIONAL])
         self._generate_credit_seat()
@@ -793,7 +787,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         """ Verify that `PublisherPermissionMixin.get_course` return none
         if `publisher_object` doesn't have `course` attr.
         """
-        non_staff_user, group = create_non_staff_user_and_login(self)   # pylint: disable=unused-variable
+        non_staff_user, group = create_non_staff_user_and_login(self)  # pylint: disable=unused-variable
         page_url = reverse('publisher:publisher_course_run_detail', args=[self.course_run.id])
         with mock.patch.object(CourseRunDetailView, 'get_object', return_value=non_staff_user):
             response = self.client.get(page_url)
@@ -1750,15 +1744,14 @@ class CourseListViewPaginationTests(PaginationMixin, TestCase):
         ]
         # create 10 courses with related objects
         for index in range(10):
-            course = factories.CourseFactory(title=self.course_titles[index])
+            course = factories.CourseFactory(title=self.course_titles[index],
+                                             organizations=[OrganizationFactory(key=self.course_organizations[index])])
             for _ in range(random.randrange(1, 10)):
                 factories.CourseRunFactory(course=course)
 
             course_state = factories.CourseStateFactory(course=course, owner_role=PublisherUserRole.MarketingReviewer)
             course_state.owner_role_modified = self.course_dates[index]
             course_state.save()
-
-            course.organizations.add(OrganizationFactory(key=self.course_organizations[index]))
 
             self.courses.append(course)
 
@@ -1979,12 +1972,10 @@ class CourseDetailViewTests(TestCase):
 
     def setUp(self):
         super(CourseDetailViewTests, self).setUp()
-        self.course = factories.CourseFactory()
+        self.organization_extension = factories.OrganizationExtensionFactory()
+        self.course = factories.CourseFactory(organizations=[self.organization_extension.organization])
         self.user = UserFactory()
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-
-        self.organization_extension = factories.OrganizationExtensionFactory()
-        self.course.organizations.add(self.organization_extension.organization)
 
         # Initialize workflow for Course.
         self.course_state = factories.CourseStateFactory(course=self.course, owner_role=PublisherUserRole.CourseTeam)
@@ -2318,15 +2309,7 @@ class CourseDetailViewTests(TestCase):
         self.user.groups.add(self.organization_extension.group)
         assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
 
-        response = self.client.get(self.detail_page_url)
-
-        # Verify that user cannot see history widget if there is only one history object.
-        self.assertEqual(self.course.history.count(), 1)
-        self.assertNotContains(response, 'REVISION HISTORY')
-
-        # Update course to create multiple history objects.
-        self.course.title = 'Updated Test Title'
-        self.course.save()
+        self.assertGreater(self.course.history.count(), 0)
 
         response = self.client.get(self.detail_page_url)
 
@@ -2411,13 +2394,11 @@ class CourseEditViewTests(SiteMixin, TestCase):
 
     def setUp(self):
         super(CourseEditViewTests, self).setUp()
-        self.course = factories.CourseFactory()
+        self.organization_extension = factories.OrganizationExtensionFactory()
+        self.course = factories.CourseFactory(organizations=[self.organization_extension.organization])
         self.user = UserFactory()
         self.course_team_user = UserFactory()
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-
-        self.organization_extension = factories.OrganizationExtensionFactory()
-        self.course.organizations.add(self.organization_extension.organization)
 
         # Initialize workflow for Course.
         CourseState.objects.create(course=self.course, owner_role=PublisherUserRole.CourseTeam)
@@ -2465,10 +2446,6 @@ class CourseEditViewTests(SiteMixin, TestCase):
         """
         Verify that publisher admin can update an existing course.
         """
-
-        # only 1 history object exists for a course.
-        self.assertEqual(self.course.history.all().count(), 1)
-
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         post_data = self._post_data(self.organization_extension)
 
@@ -2493,9 +2470,6 @@ class CourseEditViewTests(SiteMixin, TestCase):
         self.assertEqual(course.title, updated_course_title)
         self.assertEqual(course.changed_by, self.user)
         self.assertEqual(course.short_description, 'Testing description')
-
-        # After updating 2 history object exists for a course.
-        self.assertEqual(self.course.history.all().count(), 2)
 
     def test_update_course_with_non_internal_user(self):
         """
@@ -2530,7 +2504,6 @@ class CourseEditViewTests(SiteMixin, TestCase):
         )
 
         self.assertEqual(self.course.course_team_admin, self.course_team_user)
-        self.assertEqual(self.course.history.all().count(), 2)
 
     def test_update_course_organization(self):
         """
@@ -2555,7 +2528,6 @@ class CourseEditViewTests(SiteMixin, TestCase):
         )
 
         self.assertEqual(self.course.organizations.first(), organization_extension.organization)
-        self.assertEqual(self.course.history.all().count(), 2)
 
     def _assign_permissions(self, organization_extension):
         """
@@ -2871,11 +2843,10 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
 
         self.group_project_coordinator = Group.objects.get(name=PROJECT_COORDINATOR_GROUP_NAME)
 
-        self.course = factories.CourseFactory()
-        self.course_run = factories.CourseRunFactory(course=self.course)
+        self.course_run = factories.CourseRunFactory(course__organizations=[self.organization_extension.organization])
+        self.course = self.course_run.course
         self.seat = factories.SeatFactory(course_run=self.course_run, type=Seat.VERIFIED, price=2)
 
-        self.course.organizations.add(self.organization_extension.organization)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         current_datetime = datetime.now(timezone('US/Central'))
         self.start_date_time = (current_datetime + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
@@ -3445,7 +3416,8 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
     def setUp(self):
         super(CreateRunFromDashboardViewTests, self).setUp()
         self.user = UserFactory()
-        self.course = factories.CourseFactory()
+        self.organization_extension = factories.OrganizationExtensionFactory()
+        self.course = factories.CourseFactory(organizations=[self.organization_extension.organization])
         factories.CourseStateFactory(course=self.course)
         factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.CourseTeam, user=self.user)
         factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.Publisher, user=UserFactory())
@@ -3456,8 +3428,6 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
             course=self.course, role=PublisherUserRole.MarketingReviewer, user=UserFactory()
         )
 
-        self.organization_extension = factories.OrganizationExtensionFactory()
-        self.course.organizations.add(self.organization_extension.organization)
         self.user.groups.add(self.organization_extension.group)
 
         assign_perm(

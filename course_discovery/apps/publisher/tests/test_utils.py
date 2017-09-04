@@ -28,11 +28,10 @@ class PublisherUtilsTests(TestCase):
     def setUp(self):
         super(PublisherUtilsTests, self).setUp()
         self.user = UserFactory()
-        self.course = factories.CourseFactory()
+        self.organization_extension = factories.OrganizationExtensionFactory()
+        self.course = factories.CourseFactory(organizations=[self.organization_extension.organization])
         self.admin_group = Group.objects.get(name=ADMIN_GROUP_NAME)
         self.internal_user_group = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
-        self.organization_extension = factories.OrganizationExtensionFactory()
-        self.course.organizations.add(self.organization_extension.organization)
 
     def test_email_notification_enabled_by_default(self):
         """ Test email notification is enabled for the user by default."""

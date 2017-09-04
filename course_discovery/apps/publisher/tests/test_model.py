@@ -151,21 +151,18 @@ class CourseTests(TestCase):
 
     def setUp(self):
         super(CourseTests, self).setUp()
-        self.course = factories.CourseFactory()
-        self.course2 = factories.CourseFactory()
+        self.org_extension_1 = factories.OrganizationExtensionFactory()
+        self.org_extension_2 = factories.OrganizationExtensionFactory()
+
+        self.course = factories.CourseFactory(organizations=[self.org_extension_1.organization])
+        self.course2 = factories.CourseFactory(organizations=[self.org_extension_2.organization])
 
         self.user1 = UserFactory()
         self.user2 = UserFactory()
         self.user3 = UserFactory()
 
-        self.org_extension_1 = factories.OrganizationExtensionFactory()
-        self.org_extension_2 = factories.OrganizationExtensionFactory()
-
         self.user1.groups.add(self.org_extension_1.group)
         self.user2.groups.add(self.org_extension_2.group)
-
-        self.course.organizations.add(self.org_extension_1.organization)
-        self.course2.organizations.add(self.org_extension_2.organization)
 
         # add user in course-user-role table
         factories.CourseUserRoleFactory(

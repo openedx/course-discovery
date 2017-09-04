@@ -4,19 +4,13 @@ import factory
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
 from pytz import UTC
 
-from course_discovery.apps.core.tests.factories import PartnerFactory
+from course_discovery.apps.core.tests.factories import PartnerFactory, add_m2m_data
 from course_discovery.apps.core.tests.utils import FuzzyURL
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
 # pylint: disable=no-member, unused-argument
-
-def add_m2m_data(m2m_relation, data):
-    """ Helper function to enable factories to easily associate many-to-many data with created objects. """
-    if data:
-        for datum in data:
-            m2m_relation.add(datum)
 
 
 class AbstractMediaModelFactory(factory.DjangoModelFactory):
