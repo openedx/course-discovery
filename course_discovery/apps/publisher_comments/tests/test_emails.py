@@ -65,7 +65,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
         comment = self.create_comment(content_object=self.course)
         subject = 'Comment added: {title}'.format(title=self.course.title)
         self.assert_comment_email_sent(
-            self.course, comment, reverse('publisher:publisher_courses_edit', args=[self.course.id]),
+            self.course, comment, reverse('publisher:publisher_course_detail', args=[self.course.id]),
             subject
         )
 

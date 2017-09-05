@@ -52,7 +52,7 @@ def send_email_for_comment(comment, created=False):
             )
         else:
             course = publisher_obj
-            object_path = reverse('publisher:publisher_courses_edit', args=[publisher_obj.id])
+            object_path = reverse('publisher:publisher_course_detail', args=[publisher_obj.id])
 
             # Translators: 'subject_desc' will be choice from ('New comment added', 'Comment updated')
             # and 'title' will be the value of course title field.
