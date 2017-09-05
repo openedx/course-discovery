@@ -510,6 +510,7 @@
     text-decoration: underline;
 }
 
+.video-image-heading,
 .course-image-heading {
     margin-bottom: 10px;
 }
@@ -517,6 +518,11 @@
 .course-image {
     width: 480px;
     height: 250px;
+}
+
+.video-preview-image {
+    width: 480px;
+    height: 286px;
 }
 
 .course-image-field {

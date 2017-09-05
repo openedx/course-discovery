@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-11 17:05-0400\n"
+"POT-Creation-Date: 2017-09-13 18:27+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -278,6 +278,10 @@ msgid "Others"
 msgstr ""
 
 #: apps/course_metadata/models.py
+msgid "Please provide an image file that gives a preview of the video"
+msgstr ""
+
+#: apps/course_metadata/models.py
 msgid "UUID"
 msgstr ""
 
@@ -299,6 +303,10 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "People"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Please provide a course preview image"
 msgstr ""
 
 #: apps/course_metadata/models.py
@@ -892,8 +900,8 @@ msgstr ""
 #: apps/publisher/validators.py
 #, python-format
 msgid ""
-"The image you uploaded is of incorrect resolution. Course image files must "
-"be %(with)s x %(height)s pixels in size."
+"The image you uploaded is of incorrect resolution. The image files must be "
+"%(with)s x %(height)s pixels in size."
 msgstr ""
 
 #: apps/publisher/validators.py
@@ -1630,6 +1638,10 @@ msgstr ""
 msgid "About Video Link"
 msgstr ""
 
+#: templates/publisher/course_detail.html
+msgid "Video Preview Image"
+msgstr ""
+
 #: templates/publisher/course_detail/_edit_warning_popup.html
 #, python-format
 msgid ""
@@ -1974,6 +1986,26 @@ msgstr ""
 
 #: templates/publisher/course_edit_form.html
 msgid "Any frequently asked questions and the answers to those questions."
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "VIDEO PREVIEW IMAGE"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "An preview image for the wonderful video created for your course"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "Video Preview Image Guidelines:"
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "The image size must be 1512 x 900 pixels."
+msgstr ""
+
+#: templates/publisher/course_edit_form.html
+msgid "The image content should map to the content of your video"
 msgstr ""
 
 #: templates/publisher/course_edit_form.html

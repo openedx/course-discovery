@@ -104,7 +104,7 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         """
         Verify that without providing required data course cannot be created.
         """
-        course_dict = model_to_dict(self.course)
+        course_dict = model_to_dict(self.course, exclude=['video_preview_image'])
         course_dict['number'] = ''
         course_dict['image'] = ''
         course_dict['lms_course_id'] = ''
@@ -115,7 +115,12 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         """
         Verify that user can create course successfully.
         """
-        data = {'title': 'Test2', 'number': 'testX453', 'image': make_image_file('test_banner.jpg')}
+        data = {
+            'title': 'Test2',
+            'number': 'testX453',
+            'image': make_image_file('test_banner.jpg'),
+            'video_preview_image': make_image_file('test_video_preview.jpg', width=1512, height=900),
+        }
         course_dict = self._post_data(data, self.course)
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
         course = Course.objects.get(number=course_dict['number'])
@@ -142,13 +147,46 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         Verify that a new course with an invalid image shows the proper error.
         """
         image_error = [
-            'The image you uploaded is of incorrect resolution. Course image files must be 2120 x 1192 pixels in size.'
+            'The image you uploaded is of incorrect resolution. The image files must be 2120 x 1192 pixels in size.'
         ]
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         self._assert_records(1)
         course_dict = self._post_data({'image': image}, self.course)
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=image)
         self.assertEqual(response.context['course_form'].errors['image'], image_error)
+        self._assert_records(1)
+
+    @ddt.data(
+        make_image_file('test_banner00.jpg', width=1512, height=899),
+        make_image_file('test_banner01.jpg', width=1512, height=901),
+        make_image_file('test_banner02.jpg', width=1513, height=900),
+        make_image_file('test_banner03.jpg', width=1511, height=900),
+        make_image_file('test_banner04.jpg', width=1516, height=899),
+    )
+    def test_create_course_invalid_video_preview_image(self, video_preview_image):
+        """
+        Verify that a new course with an invalid image shows the proper error.
+        """
+        image_error = [
+            'The image you uploaded is of incorrect resolution. ' +
+            'The image files must be 1512 x 900 pixels in size.'
+        ]
+        course_image = make_image_file('test_course.jpg', width=2120, height=1192)
+        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+        self._assert_records(1)
+        course_dict = self._post_data(
+            {
+                'image': course_image,
+                'video_preview_image': video_preview_image
+            },
+            self.course
+        )
+        response = self.client.post(
+            reverse('publisher:publisher_courses_new'),
+            course_dict,
+            files=[course_image, video_preview_image]
+        )
+        assert response.context['course_form'].errors['video_preview_image'] == image_error
         self._assert_records(1)
 
     def test_create_with_fail_transaction(self):
@@ -229,7 +267,7 @@ class CreateCourseViewTests(SiteMixin, TestCase):
 
     def _post_data(self, data, course):
         """ Returns dict of data to posts to a course endpoint. """
-        course_dict = model_to_dict(course)
+        course_dict = model_to_dict(course, exclude=['video_preview_image'])
         course_dict.update(**data)
         course_dict['team_admin'] = self.user.id
         course_dict['organization'] = self.organization_extension.organization.id
@@ -2379,8 +2417,7 @@ class CourseDetailViewTests(TestCase):
         """
         Generate post data and return.
         """
-        post_data = model_to_dict(self.course)
-        post_data.pop('image')
+        post_data = model_to_dict(self.course, exclude=['image', 'video_preview_image'])
         post_data['team_admin'] = self.user.id
         post_data['organization'] = organization_extension.organization.id
         post_data['title'] = 'updated title'
@@ -2540,8 +2577,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         """
         Generate post data and return.
         """
-        post_data = model_to_dict(self.course)
-        post_data.pop('image')
+        post_data = model_to_dict(self.course, exclude=['image', 'video_preview_image'])
         post_data['team_admin'] = self.course_team_user.id
         post_data['organization'] = organization_extension.organization.id
 
@@ -2891,7 +2927,7 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         toggle_switch('enable_publisher_email_notifications', True)
 
     def _post_data(self, data, course, course_run):
-        course_dict = model_to_dict(course)
+        course_dict = model_to_dict(course, exclude=['video_preview_image'])
         course_dict.update(**data)
         course_dict['team_admin'] = self.user.id
         if course_run:

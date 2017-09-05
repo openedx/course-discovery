@@ -350,6 +350,15 @@ class CourseTests(TestCase):
         # Verify that property returns course image field url.
         self.assertEqual(self.course.course_image_url, self.course.image.url)
 
+    def test_video_preview_image(self):
+        """ Verify the video preview image property returns the right image url after set. """
+        self.course.video_preview_image = make_image_file('test_video_preview_image.jpg')
+        self.course.save()
+
+        # Verify that video_preview_image property returns the image url properly
+        assert self.course.video_preview_image.url is not None
+        assert self.course.number.lower() in self.course.video_preview_image.url
+
     def test_short_description_override(self):
         """ Verify that the property returns the short_description. """
         self.assertEqual(self.course.short_description, self.course.course_short_description)

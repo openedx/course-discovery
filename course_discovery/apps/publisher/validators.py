@@ -14,7 +14,7 @@ class ImageSizeValidator(BaseSizeValidator):
 
     message = _(
         'The image you uploaded is of incorrect resolution. '
-        'Course image files must be %(with)s x %(height)s pixels in size.'
+        'The image files must be %(with)s x %(height)s pixels in size.'
     )
 
 
