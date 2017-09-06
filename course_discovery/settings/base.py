@@ -13,6 +13,8 @@ path.append(root('apps'))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('COURSE_DISCOVERY_SECRET_KEY', 'insecure-secret-key')
 
+OPENEXCHANGERATES_API_KEY = None
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 

@@ -7,6 +7,7 @@ from course_discovery.apps.api.v1.views.affiliates import AffiliateWindowViewSet
 from course_discovery.apps.api.v1.views.catalogs import CatalogViewSet
 from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.api.v1.views.courses import CourseViewSet
+from course_discovery.apps.api.v1.views.currency import CurrencyView
 from course_discovery.apps.api.v1.views.organizations import OrganizationViewSet
 from course_discovery.apps.api.v1.views.people import PersonViewSet
 from course_discovery.apps.api.v1.views.program_types import ProgramTypeViewSet
@@ -18,7 +19,8 @@ partners_router.register(r'affiliate_window/catalogs', AffiliateWindowViewSet, b
 
 urlpatterns = [
     url(r'^partners/', include(partners_router.urls, namespace='partners')),
-    url(r'search/typeahead', search_views.TypeaheadSearchView.as_view(), name='search-typeahead')
+    url(r'search/typeahead', search_views.TypeaheadSearchView.as_view(), name='search-typeahead'),
+    url(r'currency', CurrencyView.as_view(), name='currency')
 ]
 
 router = routers.SimpleRouter()
