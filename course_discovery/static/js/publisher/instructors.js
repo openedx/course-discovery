@@ -227,6 +227,8 @@ $(document).on('click', '.selected-instructor a.edit', function (e) {
             $('#given-name').val(data['given_name']);
             $('#family-name').val(data['family_name']);
             $('#title').val(data['position']['title']);
+            $('#email').val(data['email']);
+            $('#id_organization').val(data['position']['organization_id']);
             $('#bio').val(data['bio']);
             $('#majorWorks').val(data['works'].join('\n'));
             $('#facebook').val(data['urls']['facebook']);

@@ -1117,10 +1117,10 @@ class PositionSerializerTests(TestCase):
     def test_data(self):
         position = PositionFactory()
         serializer = PositionSerializer(position)
-
         expected = {
             'title': str(position.title),
             'organization_name': position.organization_name,
+            'organization_id': position.organization_id,
         }
 
         self.assertDictEqual(serializer.data, expected)

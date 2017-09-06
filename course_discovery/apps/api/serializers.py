@@ -210,7 +210,7 @@ class PositionSerializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = Position
-        fields = ('title', 'organization_name', 'organization')
+        fields = ('title', 'organization_name', 'organization', 'organization_id')
         extra_kwargs = {
             'organization': {'write_only': True}
         }
