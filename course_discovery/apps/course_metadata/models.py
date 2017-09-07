@@ -222,7 +222,10 @@ class Person(TimeStampedModel):
 
     @property
     def full_name(self):
-        return ' '.join((self.given_name, self.family_name,))
+        if self.family_name:
+            return ' '.join((self.given_name, self.family_name,))
+        else:
+            return self.given_name
 
     @property
     def get_profile_image_url(self):

@@ -358,6 +358,12 @@ class PersonTests(TestCase):
         expected = self.person.given_name + ' ' + self.person.family_name
         self.assertEqual(self.person.full_name, expected)
 
+    def test_empty_family_name(self):
+        """ Verify the property returns the person's given name when family name is set None. """
+        self.person.family_name = None
+        expected = self.person.given_name
+        self.assertEqual(self.person.full_name, expected)
+
     def test_get_profile_image_url(self):
         """
         Verify that property returns profile_image_url if profile_image_url
