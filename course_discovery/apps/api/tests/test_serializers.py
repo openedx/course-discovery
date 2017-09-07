@@ -260,6 +260,7 @@ class CourseRunSerializerTests(MinimalCourseRunSerializerTests):
             'transcript_languages': [],
             'min_effort': course_run.min_effort,
             'max_effort': course_run.max_effort,
+            'weeks_to_complete': course_run.weeks_to_complete,
             'instructors': [],
             'staff': [],
             'seats': [],

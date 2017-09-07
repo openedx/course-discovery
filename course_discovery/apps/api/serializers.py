@@ -475,7 +475,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     class Meta(MinimalCourseRunSerializer.Meta):
         fields = MinimalCourseRunSerializer.Meta.fields + (
             'course', 'full_description', 'announcement', 'video', 'seats', 'content_language',
-            'transcript_languages', 'instructors', 'staff', 'min_effort', 'max_effort', 'modified',
+            'transcript_languages', 'instructors', 'staff', 'min_effort', 'max_effort', 'weeks_to_complete', 'modified',
             'level_type', 'availability', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid'
         )
 
