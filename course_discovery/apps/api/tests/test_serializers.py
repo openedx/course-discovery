@@ -884,6 +884,7 @@ class ProgramTypeSerializerTests(TestCase):
             'name': program_type.name,
             'logo_image': image_field.to_representation(program_type.logo_image),
             'applicable_seat_types': [seat_type.slug for seat_type in program_type.applicable_seat_types.all()],
+            'description': program_type.description,
             'slug': program_type.slug,
         }
 

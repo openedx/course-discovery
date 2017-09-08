@@ -887,7 +887,7 @@ class ProgramTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProgramType
-        fields = ('name', 'logo_image', 'applicable_seat_types', 'slug',)
+        fields = ('name', 'logo_image', 'applicable_seat_types', 'description', 'slug',)
 
 
 class AffiliateWindowSerializer(serializers.ModelSerializer):
