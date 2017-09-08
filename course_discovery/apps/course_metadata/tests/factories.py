@@ -188,6 +188,7 @@ class ProgramTypeFactory(factory.django.DjangoModelFactory):
 
     name = FuzzyText()
     logo_image = FuzzyText(prefix='https://example.com/program/logo')
+    description = FuzzyText()
 
     @factory.post_generation
     def applicable_seat_types(self, create, extracted, **kwargs):
