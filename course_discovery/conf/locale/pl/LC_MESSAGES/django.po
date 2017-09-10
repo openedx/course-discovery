@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-08-11 17:00+0500\n"
-"PO-Revision-Date: 2017-08-15 21:24+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"PO-Revision-Date: 2017-09-10 11:15+0000\n"
+"Last-Translator: Fundacja Eduprojekt.org <maciej@eduprojekt.org>\n"
 "Language-Team: Polish (http://www.transifex.com/open-edx/edx-platform/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -691,7 +691,7 @@ msgstr "Nazwa XSerii"
 
 #: apps/publisher/forms.py templates/publisher/course_run_detail/_drupal.html
 msgid "Professional Certificate Name"
-msgstr ""
+msgstr "Nazwa certyfikatu edukacji specjalistycznej"
 
 #: apps/publisher/forms.py
 msgid "MicroMasters Name"
@@ -711,11 +711,11 @@ msgstr "Szacowana minimalna liczba godzin nie może być większa od maksymalnej
 
 #: apps/publisher/forms.py
 msgid "Minimum effort and Maximum effort can not be same"
-msgstr ""
+msgstr "Szacowana minimalna i maksymalna liczba godzin nie mogą być takie same"
 
 #: apps/publisher/forms.py
 msgid "Minimum effort can not be empty"
-msgstr ""
+msgstr "Pole minimalnej liczby godzin nie może być puste"
 
 #: apps/publisher/forms.py
 msgid "Enter XSeries program name"
@@ -727,7 +727,7 @@ msgstr "Podaj nazwę programu Micromasters"
 
 #: apps/publisher/forms.py
 msgid "Enter Professional Certificate program name"
-msgstr ""
+msgstr "Podaj nazwę programu certyfikatu edukacji specjalistycznej"
 
 #: apps/publisher/forms.py
 msgid "Only audit seat can be without price."
@@ -735,19 +735,19 @@ msgstr "Wyłącznie tryb przeglądającego może być pozbawiony ceny."
 
 #: apps/publisher/forms.py
 msgid "Choose enrollment track"
-msgstr ""
+msgstr "Wybierz ścieżkę kursu"
 
 #: apps/publisher/forms.py
 msgid "Audit only"
-msgstr ""
+msgstr "Przeglądający"
 
 #: apps/publisher/forms.py
 msgid "Professional education"
-msgstr ""
+msgstr "Edukacja specjalistyczna"
 
 #: apps/publisher/forms.py templates/publisher/course_run_detail/_all.html
 msgid "Enrollment Track"
-msgstr ""
+msgstr "Ścieżka kursu"
 
 #: apps/publisher/forms.py
 msgid "This field is required."
@@ -954,7 +954,7 @@ msgid ""
 "You have successfully created a course. You can edit the course information "
 "or enter information for the course About page at any time before you send "
 "the course to edX marketing for review. "
-msgstr ""
+msgstr "Kurs został utworzony poprawnie. Możesz teraz dokonać edycji podstawowych danych kursu lub zacząć wprowadzać informacje na stronę promującą, którą zgłosisz później do oceny przez koordynatora."
 
 #: apps/publisher/views.py
 #, python-brace-format
@@ -965,7 +965,7 @@ msgstr "Wystąpił błąd w trakcie zapisywania twoich zmian. {error}"
 msgid ""
 "The page could not be updated. Make sure that all values are correct, then "
 "try again."
-msgstr ""
+msgstr "Nie udało się zaktualizować strony. Upewnij się, że wszystkie wartości są poprawne, a następnie spróbuj ponownie."
 
 #: apps/publisher/views.py
 msgid "Course  updated successfully."
@@ -982,18 +982,18 @@ msgstr "marketing"
 #: apps/publisher/views.py
 #, python-brace-format
 msgid "You have successfully created a course run for {course_title}."
-msgstr ""
+msgstr "Pomyślnie utworzono nową edycję kursu {course_title}."
 
 #: apps/publisher/views.py
 #, python-brace-format
 msgid "There was an error saving this course run: {error}"
-msgstr ""
+msgstr "Wystąpił błąd w trakcie zapisywania tej edycji kursu: {error}"
 
 #: apps/publisher/views.py
 msgid ""
 "Your organization does not have default roles to review/approve this course-"
 "run. Please contact your partner manager to create default roles."
-msgstr ""
+msgstr "Twoja organizacja nie posiada domyślnych ról do sprawdzania / zatwierdzania edycji kursów. Proszę skontaktować się z koordynatorem w celu utworzenia domyślnych ról."
 
 #: apps/publisher/views.py
 msgid "Course run updated successfully."
@@ -1105,11 +1105,11 @@ msgstr "Kliknij tutaj, aby przesłać obrazek"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "The image dimensions must be less than 110 x 110"
-msgstr ""
+msgstr "Rozmiar obrazka nie może przekroczyć 110 x 110 pikseli."
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "The image size must be less than 256KB"
-msgstr ""
+msgstr "Wielkość pliku graficznego nie może przekroczyć 256KB."
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "First Name"
@@ -1158,7 +1158,7 @@ msgstr "Biografia"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "required (1-2 paragraphs)"
-msgstr ""
+msgstr "wymagana (1-2 akapity)"
 
 #: templates/publisher/_add_instructor_popup.html
 msgid "Facebook URL"
@@ -1235,7 +1235,7 @@ msgstr "Wyświetl zapowiedź strony \"O kursie\""
 
 #: templates/publisher/_approval_widget.html
 msgid "Not available"
-msgstr ""
+msgstr "Niedostępny"
 
 #: templates/publisher/_approval_widget.html
 msgid "Sent for Review"
@@ -1453,7 +1453,7 @@ msgstr "NUMER KURSU"
 
 #: templates/publisher/add_course_form.html
 msgid "Maximum 50 characters. Characters can be letters, numbers, or periods."
-msgstr ""
+msgstr "Maksymalnie 50 znaków."
 
 #: templates/publisher/add_course_form.html
 #: templates/publisher/course_edit_form.html
