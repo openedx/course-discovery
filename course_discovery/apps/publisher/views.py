@@ -39,7 +39,6 @@ from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
 logger = logging.getLogger(__name__)
 
-
 ROLE_WIDGET_HEADINGS = {
     PublisherUserRole.PartnerManager: _('PARTNER MANAGER'),
     PublisherUserRole.ProjectCoordinator: _('PROJECT COORDINATOR'),
@@ -1138,3 +1137,45 @@ class AdminImportCourse(mixins.LoginRequiredMixin, TemplateView):
                 messages.error(request, str(ex))
 
         return super(AdminImportCourse, self).get(request, args, **kwargs)
+
+
+class EmailPreviewView(mixins.LoginRequiredMixin, TemplateView):    # pragma: no cover
+    template_name = 'publisher/email_preview.html'
+
+    def get_email_content(self):
+        # NOTE: It is up to you, the developer, to place content here.
+        # The simplest approach is to simply copy the code from publisher.emails
+        # and paste it here.
+        # txt_template = 'publisher/email/course_run/preview_available.txt'
+        # html_template = 'publisher/email/course_run/preview_available.html'
+        # course_run = CourseRun.objects.first()
+        # site = Site.objects.first()
+        # course_key = CourseKey.from_string(course_run.lms_course_id)
+        # context = {
+        #     'sender_role': PublisherUserRole.Publisher,
+        #     'recipient_name': 'DEMO USER',
+        #     'course_run': course_run,
+        #     'course_run_key': course_key,
+        #     'course_run_publisher_url': 'https://{host}{path}'.format(
+        #         host=site.domain.strip('/'), path=course_run.get_absolute_url()),
+        #     'contact_us_email': 'demo@example.com',
+        #     'platform_name': settings.PLATFORM_NAME,
+        # }
+        # template = get_template(txt_template)
+        # plain_content = template.render(context)
+        # template = get_template(html_template)
+        # html_content = template.render(context)
+        #
+        # return plain_content, html_content
+        raise NotImplementedError
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        text_content, html_content = self.get_email_content()
+
+        context.update({
+            'html_content': html_content,
+            'text_content': text_content,
+        })
+        return context
