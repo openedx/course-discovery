@@ -18,8 +18,6 @@ from course_discovery.apps.publisher.tests import factories
 
 @ddt.ddt
 class CourseRunTests(TestCase):
-    """ Tests for the publisher `CourseRun` model. """
-
     @classmethod
     def setUpClass(cls):
         super(CourseRunTests, cls).setUpClass()
@@ -145,10 +143,13 @@ class CourseRunTests(TestCase):
 
         self.assertTrue(self.course_run.has_valid_seats)
 
+    def test_get_absolute_url(self):
+        course_run = factories.CourseRunFactory()
+        expected = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
+        assert course_run.get_absolute_url() == expected
+
 
 class CourseTests(TestCase):
-    """ Tests for the publisher `Course` model. """
-
     def setUp(self):
         super(CourseTests, self).setUp()
         self.org_extension_1 = factories.OrganizationExtensionFactory()

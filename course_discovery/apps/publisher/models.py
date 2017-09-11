@@ -426,6 +426,9 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         seats = self.seats.filter(type__in=[Seat.AUDIT, Seat.VERIFIED, Seat.PROFESSIONAL, Seat.CREDIT])
         return all([seat.is_valid_seat for seat in seats]) if seats else False
 
+    def get_absolute_url(self):
+        return reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.id})
+
 
 class Seat(TimeStampedModel, ChangedByMixin):
     """ Seat model. """

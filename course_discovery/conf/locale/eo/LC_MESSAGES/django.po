@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-11 17:00+0500\n"
+"POT-Creation-Date: 2017-09-11 17:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3335,6 +3335,8 @@ msgstr ""
 "¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтα#"
 
 #. Translators: It's closing of mail.
+#. Translators: This is part of an email signature.
+#. Translators: It's closing of mail.
 #: templates/publisher/email/course/mark_as_reviewed.html
 #: templates/publisher/email/course/mark_as_reviewed.txt
 #: templates/publisher/email/course/send_for_review.html
@@ -3367,7 +3369,6 @@ msgstr "Thänks, Ⱡ'σяєм ιρѕυм #"
 #: templates/publisher/email/course/seo_review.html
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #: templates/publisher/email/course_run/preview_accepted.html
-#: templates/publisher/email/course_run/preview_available.html
 #: templates/publisher/email/course_run/published.html
 #: templates/publisher/email/course_run/published_course_run_editing.html
 #: templates/publisher/email/course_run/send_for_review.html
@@ -3579,39 +3580,57 @@ msgstr ""
 " Ýöü çän nöw püßlïsh thïs Àßöüt pägé. Ⱡ'σяє#"
 
 #: templates/publisher/email/course_run/preview_available.html
-#, python-format
-msgid ""
-"A preview is now available for the %(course_run_number)s course run of "
-"%(course_name)s. %(link_start)s%(preview_link)s%(link_middle)s View the "
-"course run in Publisher%(link_end)s to access the preview for this About "
-"page and accept or decline the preview."
-msgstr ""
-"À prévïéw ïs nöw äväïläßlé för thé %(course_run_number)s çöürsé rün öf "
-"%(course_name)s. %(link_start)s%(preview_link)s%(link_middle)s Vïéw thé "
-"çöürsé rün ïn Püßlïshér%(link_end)s tö äççéss thé prévïéw för thïs Àßöüt "
-"pägé änd äççépt ör déçlïné thé prévïéw. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт "
-"∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση "
-"υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє "
-"∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα"
-" ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт #"
-
 #: templates/publisher/email/course_run/preview_available.txt
 #, python-format
-msgid ""
-"A preview is now available for the %(course_run_number)s course run of "
-"%(course_name)s. View the course run in Publisher %(page_url)s to access the"
-" preview for this About page and accept or decline the preview."
+msgid "A preview is now available for the %(run)s run of %(title)s."
 msgstr ""
-"À prévïéw ïs nöw äväïläßlé för thé %(course_run_number)s çöürsé rün öf "
-"%(course_name)s. Vïéw thé çöürsé rün ïn Püßlïshér %(page_url)s tö äççéss thé"
-" prévïéw för thïs Àßöüt pägé änd äççépt ör déçlïné thé prévïéw. Ⱡ'σяєм ιρѕυм"
-" ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
-"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
-"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
-"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
-"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
-"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι#"
+"À prévïéw ïs nöw äväïläßlé för thé %(run)s rün öf %(title)s. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/preview_available.txt
+msgid "Follow these steps to move forward with publishing the course run."
+msgstr ""
+"Föllöw thésé stéps tö mövé förwärd wïth püßlïshïng thé çöürsé rün. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/preview_available.txt
+msgid ""
+"Please do not share the preview URL publicly or use it in your own "
+"advertising. The finalized public URL will be available after the page is "
+"fully published."
+msgstr ""
+"Pléäsé dö nöt shäré thé prévïéw ÛRL püßlïçlý ör üsé ït ïn ýöür öwn "
+"ädvértïsïng. Thé fïnälïzéd püßlïç ÛRL wïll ßé äväïläßlé äftér thé pägé ïs "
+"füllý püßlïshéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, "
+"ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм "
+"α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ "
+"єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє"
+" νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт "
+"¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт #"
+
+#: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/preview_available.txt
+msgid "Preview the about page"
+msgstr "Prévïéw thé äßöüt pägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/preview_available.txt
+msgid "Submit feedback in Publisher"
+msgstr "Süßmït féédßäçk ïn Püßlïshér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: templates/publisher/email/course_run/preview_available.html
+#, python-format
+msgid ""
+"Note: This email address is unable to receive replies. For questions or "
+"comments, contact <a "
+"href=\"mailto:%(contact_us_email)s\">%(contact_us_email)s</a>."
+msgstr ""
+"Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
+"çömménts, çöntäçt <a "
+"href=\"mailto:%(contact_us_email)s\">%(contact_us_email)s</a>. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт#"
 
 #: templates/publisher/email/course_run/published.html
 #: templates/publisher/email/course_run/published.txt
