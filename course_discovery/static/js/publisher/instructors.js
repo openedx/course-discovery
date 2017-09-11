@@ -142,7 +142,7 @@ $(document).on('click', '.selected-instructor a.delete', function (e) {
 });
 
 function renderSelectedInstructor(id, name, image, uuid) {
-    var instructorHtmlStart = '<div class="instructor"><div><img src="' + image + '"></div><div>',
+    var instructorHtmlStart = '<div class="instructor" id= "instructor_'+ id +'"><div><img src="' + image + '"></div><div>',
         instructorHtmlEnd = '<b>' + name + '</b></div></div>',
         controlOptions = '<a class="delete" id="' + id + '"href="#"><i class="fa fa-trash-o fa-fw"></i></a>';
 
@@ -179,7 +179,8 @@ function loadInstructor(uuid, editMode) {
         id,
         label,
         image_source,
-        name;
+        name,
+        instructor_id;
 
     $.getJSON({
         url: url,
@@ -197,10 +198,14 @@ function loadInstructor(uuid, editMode) {
                 }).attr('selected', 'selected'));
 
                 if (editMode) {
-                    //before loading updated instructor it will remove old one.
-                    $('#' + id).click();
+                    // Updating the existing instructor
+                    instructor_id = $('#instructor_' + id);
+                    instructor_id.find('img').attr('src', image_source);
+                    instructor_id.find('b').text(name);
                 }
-                renderSelectedInstructor(id, name, image_source, uuid);
+                else {
+                    renderSelectedInstructor(id, name, image_source, uuid);
+                }
             }
 
         }
