@@ -437,21 +437,14 @@ def send_email_preview_page_is_available(course_run, site):
             to_addresses = [course_team_user.email]
             from_address = settings.PUBLISHER_FROM_EMAIL
             project_coordinator = course_run.course.project_coordinator
-            page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
-            course_page_path = reverse('publisher:publisher_course_detail', kwargs={'pk': course_run.course.id})
             context = {
                 'sender_role': PublisherUserRole.Publisher,
                 'recipient_name': course_team_user.get_full_name() or course_team_user.username,
-                'course_name': course_run.course.title,
-                'course_run_number': course_key.run,
-                'preview_link': course_run.preview_url,
+                'course_run': course_run,
+                'course_run_key': course_key,
+                'course_run_publisher_url': 'https://{host}{path}'.format(
+                    host=site.domain.strip('/'), path=course_run.get_absolute_url()),
                 'contact_us_email': project_coordinator.email if project_coordinator else '',
-                'page_url': 'https://{host}{path}'.format(
-                    host=site.domain.strip('/'), path=page_path
-                ),
-                'course_page_url': 'https://{host}{path}'.format(
-                    host=site.domain.strip('/'), path=course_page_path
-                ),
                 'platform_name': settings.PLATFORM_NAME
             }
             template = get_template(txt_template)
