@@ -291,6 +291,7 @@ class Course(TimeStampedModel):
     )
     slug = AutoSlugField(populate_from='key', editable=True)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
+    # TODO Remove this field.
     number = models.CharField(
         max_length=50, null=True, blank=True, help_text=_(
             'Course number format e.g CS002x, BIO1.1x, BIO1.2x'
