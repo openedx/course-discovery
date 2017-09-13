@@ -36,6 +36,10 @@ class UserFactory(factory.DjangoModelFactory):
         model = User
 
 
+class StaffUserFactory(UserFactory):
+    is_staff = True
+
+
 class PartnerFactory(factory.DjangoModelFactory):
     name = factory.Sequence(lambda n: 'test-partner-{}'.format(n))  # pylint: disable=unnecessary-lambda
     short_code = factory.Sequence(lambda n: 'test{}'.format(n))  # pylint: disable=unnecessary-lambda

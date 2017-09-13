@@ -79,3 +79,8 @@ class StudioAPI:
     def update_course_run_image_in_studio(self, publisher_course_run):
         files = {'card_image': publisher_course_run.course.image}
         return self._api.course_runs(publisher_course_run.lms_course_id).images.post(files=files)
+
+    def update_course_run_details_in_studio(self, publisher_course_run):
+        data = self.generate_data_for_studio_api(publisher_course_run)
+        # NOTE: We use PATCH to avoid overwriting existing team data that may have been manually input in Studio.
+        return self._api.course_runs(publisher_course_run.lms_course_id).patch(data)

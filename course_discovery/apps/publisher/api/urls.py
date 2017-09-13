@@ -1,5 +1,5 @@
 """ Publisher API URLs. """
-from django.conf.urls import url
+from django.conf.urls import include, url
 
 from course_discovery.apps.publisher.api.views import (AcceptAllRevisionView, ChangeCourseRunStateView,
                                                        ChangeCourseStateView, CourseRevisionDetailView,
@@ -24,4 +24,5 @@ urlpatterns = [
         r'^course/revision/(?P<history_id>\d+)/accept_revision/$',
         AcceptAllRevisionView.as_view(), name='accept_all_revision'
     ),
+    url(r'^v1/', include('course_discovery.apps.publisher.api.v1.urls', namespace='v1')),
 ]
