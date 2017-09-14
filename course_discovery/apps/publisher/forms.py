@@ -166,14 +166,15 @@ class CustomCourseForm(CourseForm):
     class Meta(CourseForm.Meta):
         model = Course
         widgets = {
-            'image': ClearableImageInput(attrs={'accept': 'image/*'})
+            'image': ClearableImageInput(attrs={'accept': 'image/*'}),
+            'video_preview_image': ClearableImageInput(attrs={'accept': 'image/*'}),
         }
         fields = (
             'title', 'number', 'short_description', 'full_description',
             'expected_learnings', 'primary_subject', 'secondary_subject',
-            'tertiary_subject', 'prerequisites', 'image', 'team_admin',
-            'level_type', 'organization', 'is_seo_review', 'syllabus',
-            'learner_testimonial', 'faq', 'video_link',
+            'tertiary_subject', 'prerequisites', 'image', 'video_preview_image',
+            'team_admin', 'level_type', 'organization', 'is_seo_review',
+            'syllabus', 'learner_testimonial', 'faq', 'video_link',
         )
 
     def __init__(self, *args, **kwargs):

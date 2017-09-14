@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-11 17:05-0400\n"
+"POT-Creation-Date: 2017-09-13 18:27+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -329,6 +329,12 @@ msgid "Others"
 msgstr "Öthérs Ⱡ'σяєм ιρѕυ#"
 
 #: apps/course_metadata/models.py
+msgid "Please provide an image file that gives a preview of the video"
+msgstr ""
+"Pléäsé prövïdé än ïmägé fïlé thät gïvés ä prévïéw öf thé vïdéö Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
 msgid "UUID"
 msgstr "ÛÛÌD Ⱡ'σяєм ι#"
 
@@ -357,6 +363,12 @@ msgstr ""
 #: apps/course_metadata/models.py
 msgid "People"
 msgstr "Péöplé Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/models.py
+msgid "Please provide a course preview image"
+msgstr ""
+"Pléäsé prövïdé ä çöürsé prévïéw ïmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
 
 #: apps/course_metadata/models.py
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
@@ -1045,11 +1057,11 @@ msgstr "Édït Ⱡ'σяєм ι#"
 #: apps/publisher/validators.py
 #, python-format
 msgid ""
-"The image you uploaded is of incorrect resolution. Course image files must "
-"be %(with)s x %(height)s pixels in size."
+"The image you uploaded is of incorrect resolution. The image files must be "
+"%(with)s x %(height)s pixels in size."
 msgstr ""
-"Thé ïmägé ýöü üplöädéd ïs öf ïnçörréçt résölütïön. Çöürsé ïmägé fïlés müst "
-"ßé %(with)s x %(height)s pïxéls ïn sïzé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+"Thé ïmägé ýöü üplöädéd ïs öf ïnçörréçt résölütïön. Thé ïmägé fïlés müst ßé "
+"%(with)s x %(height)s pïxéls ïn sïzé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
 #: apps/publisher/validators.py
 #, python-brace-format
@@ -1898,6 +1910,10 @@ msgstr "Çöürsé Lévél Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 msgid "About Video Link"
 msgstr "Àßöüt Vïdéö Lïnk Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
+#: templates/publisher/course_detail.html
+msgid "Video Preview Image"
+msgstr "Vïdéö Prévïéw Ìmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
 #: templates/publisher/course_detail/_edit_warning_popup.html
 #, python-format
 msgid ""
@@ -2348,6 +2364,32 @@ msgid "Any frequently asked questions and the answers to those questions."
 msgstr ""
 "Àný fréqüéntlý äskéd qüéstïöns änd thé änswérs tö thösé qüéstïöns. Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: templates/publisher/course_edit_form.html
+msgid "VIDEO PREVIEW IMAGE"
+msgstr "VÌDÉÖ PRÉVÌÉW ÌMÀGÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: templates/publisher/course_edit_form.html
+msgid "An preview image for the wonderful video created for your course"
+msgstr ""
+"Àn prévïéw ïmägé för thé wöndérfül vïdéö çréätéd för ýöür çöürsé Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: templates/publisher/course_edit_form.html
+msgid "Video Preview Image Guidelines:"
+msgstr "Vïdéö Prévïéw Ìmägé Güïdélïnés: Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: templates/publisher/course_edit_form.html
+msgid "The image size must be 1512 x 900 pixels."
+msgstr ""
+"Thé ïmägé sïzé müst ßé 1512 x 900 pïxéls. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: templates/publisher/course_edit_form.html
+msgid "The image content should map to the content of your video"
+msgstr ""
+"Thé ïmägé çöntént shöüld mäp tö thé çöntént öf ýöür vïdéö Ⱡ'σяєм ιρѕυм ∂σłσя"
+" ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: templates/publisher/course_edit_form.html
 msgid ""

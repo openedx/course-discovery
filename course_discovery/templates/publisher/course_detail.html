@@ -217,6 +217,16 @@
                 {% endwith %}
                 <div class="show-diff"></div>
             </div>
+            <div class="info-item history-field-container">
+                <div class="heading video-image-heading">
+                    {% trans "Video Preview Image" %}
+                </div>
+                {% if object.video_preview_image %}
+                    <img class="video-preview-image" src="{{ object.video_preview_image.url }}" alt="{% trans 'Video Preview Image' %}">
+                {% else %}
+                    {% trans "(Required) Not yet added" %}
+                {% endif %}
+            </div>
         </div>
     </main>
 

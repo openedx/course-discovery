@@ -493,6 +493,34 @@
                                             {% endif %}
                                     </div>
                                 </div>
+
+                                <div class="field-title">{% trans "VIDEO PREVIEW IMAGE" %} <span class="optional float-right">Optional for announcement</span></div>
+                                <div class="row">
+                                    <div class="col col-6 help-text">
+                                        {% trans "An preview image for the wonderful video created for your course" %}
+                                        <br/>
+                                        <strong>{% trans "Video Preview Image Guidelines:" %}</strong>
+                                        <ul>
+                                            <li>{% trans "The image size must be 1512 x 900 pixels." %}</li>
+                                            <li>{% trans "The image content should map to the content of your video" %}</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col col-6">
+                                        <label class="field-label ">{{ form.video_preview_image.label_tag }}</label>
+                                        <div class="video-image-preview-field">
+                                            {{ form.video_preview_image }}
+                                            <div class="image-error has-error hidden"></div>
+                                            {% if form.video_preview_image.errors %}
+                                                <div class="field-message has-error">
+                                                    <span class="field-message-content">
+                                                        {{ form.video_preview_image.errors|escape }}
+                                                    </span>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
                                 {% if is_internal_user %}
                                     <div class="field-title">{{ form.video_link.label|upper }} <span class="optional float-right">Optional for announcement</span></div>
                                     <div class="row">

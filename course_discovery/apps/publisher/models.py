@@ -84,6 +84,16 @@ class Course(TimeStampedModel, ChangedByMixin):
         validators=[ImageSizeValidator(width=2120, height=1192)]
     )
 
+    video_preview_image = StdImageField(
+        upload_to=UploadToFieldNamePath(
+            populate_from='number',
+            path='media/publisher/courses/video_preview_image'
+        ),
+        blank=True,
+        null=True,
+        validators=[ImageSizeValidator(width=1512, height=900)]
+    )
+
     is_seo_review = models.BooleanField(default=False)
     keywords = TaggableManager(blank=True, verbose_name='keywords')
     faq = models.TextField(default=None, null=True, blank=True, verbose_name=_('FAQ'))
