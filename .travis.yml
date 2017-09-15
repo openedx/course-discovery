@@ -44,7 +44,7 @@ install: true
 script:
 # TODO Find a way to make this work without git
 #  - docker-compose exec discovery make validate_translations
-  - docker-compose exec discovery xvfb-run make validate
+  - docker-compose exec discovery env DJANGO_SETTINGS_MODULE=course_discovery.settings.devstack_test xvfb-run make validate
 
 after_success:
   - pip install --upgrade codecov
