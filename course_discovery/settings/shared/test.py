@@ -1,5 +1,7 @@
 import os
 
+ALLOWED_HOSTS = ['*']
+
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'course_discovery.apps.edx_haystack_extensions.backends.EdxElasticsearchSearchEngine',
@@ -24,3 +26,9 @@ COMPRESS_ENABLED = True
 COMPRESS_OFFLINE = True
 
 SOLO_CACHE = None
+
+PUBLISHER_FROM_EMAIL = 'test@example.com'
+
+# Set to 0 to disable edx-django-sites-extensions to retrieve
+# the site from cache and risk working with outdated information.
+SITE_CACHE_TTL = 0
