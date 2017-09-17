@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-11 17:00+0500\n"
-"PO-Revision-Date: 2017-08-15 21:24+0000\n"
+"POT-Creation-Date: 2017-09-15 15:30+0000\n"
+"PO-Revision-Date: 2017-09-15 20:15+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Bengali (India) (http://www.transifex.com/open-edx/edx-platform/language/bn_IN/)\n"
 "MIME-Version: 1.0\n"
@@ -300,6 +300,10 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "People"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Please provide a course preview image"
 msgstr ""
 
 #: apps/course_metadata/models.py
@@ -2822,6 +2826,8 @@ msgid ""
 msgstr ""
 
 #. Translators: It's closing of mail.
+#. Translators: This is part of an email signature.
+#. Translators: It's closing of mail.
 #: templates/publisher/email/course/mark_as_reviewed.html
 #: templates/publisher/email/course/mark_as_reviewed.txt
 #: templates/publisher/email/course/send_for_review.html
@@ -2854,7 +2860,6 @@ msgstr ""
 #: templates/publisher/email/course/seo_review.html
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #: templates/publisher/email/course_run/preview_accepted.html
-#: templates/publisher/email/course_run/preview_available.html
 #: templates/publisher/email/course_run/published.html
 #: templates/publisher/email/course_run/published_course_run_editing.html
 #: templates/publisher/email/course_run/send_for_review.html
@@ -2999,20 +3004,40 @@ msgid ""
 msgstr ""
 
 #: templates/publisher/email/course_run/preview_available.html
-#, python-format
-msgid ""
-"A preview is now available for the %(course_run_number)s course run of "
-"%(course_name)s. %(link_start)s%(preview_link)s%(link_middle)s View the "
-"course run in Publisher%(link_end)s to access the preview for this About "
-"page and accept or decline the preview."
-msgstr ""
-
 #: templates/publisher/email/course_run/preview_available.txt
 #, python-format
+msgid "A preview is now available for the %(run)s run of %(title)s."
+msgstr ""
+
+#: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/preview_available.txt
+msgid "Follow these steps to move forward with publishing the course run."
+msgstr ""
+
+#: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/preview_available.txt
 msgid ""
-"A preview is now available for the %(course_run_number)s course run of "
-"%(course_name)s. View the course run in Publisher %(page_url)s to access the"
-" preview for this About page and accept or decline the preview."
+"Please do not share the preview URL publicly or use it in your own "
+"advertising. The finalized public URL will be available after the page is "
+"fully published."
+msgstr ""
+
+#: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/preview_available.txt
+msgid "Preview the about page"
+msgstr ""
+
+#: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/preview_available.txt
+msgid "Submit feedback in Publisher"
+msgstr ""
+
+#: templates/publisher/email/course_run/preview_available.html
+#, python-format
+msgid ""
+"Note: This email address is unable to receive replies. For questions or "
+"comments, contact <a "
+"href=\"mailto:%(contact_us_email)s\">%(contact_us_email)s</a>."
 msgstr ""
 
 #: templates/publisher/email/course_run/published.html
@@ -3239,4 +3264,8 @@ msgstr ""
 
 #: templates/publisher/seat_form.html
 msgid "Seat Form"
+msgstr ""
+
+#: urls.py
+msgid "Discovery Service Administration"
 msgstr ""
