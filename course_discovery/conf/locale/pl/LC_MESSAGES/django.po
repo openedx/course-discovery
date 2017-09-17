@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-11 17:00+0500\n"
-"PO-Revision-Date: 2017-09-10 11:15+0000\n"
+"POT-Creation-Date: 2017-09-15 15:30+0000\n"
+"PO-Revision-Date: 2017-09-17 15:55+0000\n"
 "Last-Translator: Fundacja Eduprojekt.org <maciej@eduprojekt.org>\n"
 "Language-Team: Polish (http://www.transifex.com/open-edx/edx-platform/language/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -305,6 +305,10 @@ msgid "People"
 msgstr "Ludzie"
 
 #: apps/course_metadata/models.py
+msgid "Please provide a course preview image"
+msgstr "Proszę załadować obrazek karty kursu"
+
+#: apps/course_metadata/models.py
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
 msgstr "Format numeru kursu, np. INF002x, BIO1.1x, BIO1.2x"
 
@@ -550,7 +554,7 @@ msgstr "Zażądano oceny: zapowiedź kursu {course_name} {run_number}"
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Publication complete: About page for {course_name} {run_number}"
-msgstr "Opublikowano pomyślnie: Strona \"O kursie\" dla kursu {course_name} {run_number}"
+msgstr "Opublikowano pomyślnie: Karta kursu dla kursu {course_name} {run_number}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
@@ -840,7 +844,7 @@ msgstr "Czas trwania kursu wyrażony w tygodniach"
 msgid ""
 "Please add any additional notes or special instructions for the course About"
 " Page."
-msgstr "Proszę wprowadzić dodatkowe uwagi lub instrukcje na stronę \"O kursie\"."
+msgstr "Proszę wprowadzić dodatkowe uwagi lub instrukcje dla karty kursu."
 
 #: apps/publisher/models.py
 msgid "Comma separated list of edX usernames or emails of admins."
@@ -1223,7 +1227,7 @@ msgstr "Zgłoszony do oceny"
 
 #: templates/publisher/_approval_widget.html
 msgid "ABOUT PAGE PREVIEW"
-msgstr "PODGLĄD STRONY \"O KURSIE\""
+msgstr "PODGLĄD KARTY KURSU"
 
 #: templates/publisher/_approval_widget.html
 msgid "Preview URL"
@@ -1231,7 +1235,7 @@ msgstr "Adres URL zapowiedzi"
 
 #: templates/publisher/_approval_widget.html
 msgid "View About page preview"
-msgstr "Wyświetl zapowiedź strony \"O kursie\""
+msgstr "Wyświetl podgląd karty kursu"
 
 #: templates/publisher/_approval_widget.html
 msgid "Not available"
@@ -1647,7 +1651,7 @@ msgstr "EDYCJE KURSU"
 
 #: templates/publisher/course_detail/_widgets.html
 msgid "CREATE RUN"
-msgstr ""
+msgstr "UTWÓRZ EDYCJĘ"
 
 #: templates/publisher/course_detail/_widgets.html
 #, python-format
@@ -1664,7 +1668,7 @@ msgstr "ADRES URL STUDIO"
 
 #: templates/publisher/course_detail/_widgets.html
 msgid "To be added by edX"
-msgstr ""
+msgstr "Do uzupełnienia przez koordynatora"
 
 #: templates/publisher/course_detail/_widgets.html
 msgid "No course runs exist for this course"
@@ -1678,17 +1682,17 @@ msgstr "Edytuj kurs"
 msgid ""
 "All required fields must be complete before this course can be sent to edX "
 "marketing for review."
-msgstr ""
+msgstr "Wszystkie wymagane pola muszą zostać wypełnione zanim będzie można zgłosić kurs do zatwierdzenia przez koordynatora."
 
 #: templates/publisher/course_edit_form.html
 msgid "Note:"
-msgstr ""
+msgstr "Uwaga:"
 
 #: templates/publisher/course_edit_form.html
 msgid ""
 "If you edit course information after edX marketing has reviewed the course, "
 "you have to send the course for review again."
-msgstr ""
+msgstr "Jeśli dokonasz edycji danych kursu po zatwierdzeniu kursu przez koordynatora platformy, konieczne będzie ponowne zgłoszenie kursu do oceny. "
 
 #: templates/publisher/course_edit_form.html
 msgid "Sequence Courses:"
@@ -1760,7 +1764,7 @@ msgstr "Wykorzystuje wypunktowanie, nie opiera się wyłącznie na ciągu tekstu
 msgid ""
 "The first four lines are visible when the About page opens. Learners can "
 "select \\"
-msgstr "Pierwsze cztery linijki są widoczne bezpośrednio po otwarciu strony \"O kursie\"."
+msgstr "Pierwsze cztery linijki są widoczne bezpośrednio po otwarciu karty kursu."
 
 #: templates/publisher/course_edit_form.html
 msgid "Content-based example:"
@@ -1846,7 +1850,7 @@ msgstr "Przedmiot twojego kursu."
 msgid ""
 "You can select up to two subjects in addition to the primary subject. Only "
 "the primary subject appears on the About page."
-msgstr "Poza głównym przedmiotem kursu możesz wybrać dwie dodatkowe grupy tematyczne. Wyłącznie główny przedmiot kursu wyświetli się na stronie \"O kursie\"."
+msgstr "Poza głównym przedmiotem kursu możesz wybrać dwie dodatkowe grupy tematyczne. Wyłącznie główny przedmiot kursu wyświetli się na stronie karty kursu."
 
 #: templates/publisher/course_edit_form.html
 msgid "COURSE IMAGE"
@@ -2089,7 +2093,7 @@ msgstr "Limit 500 znaków w tym spacje."
 
 #: templates/publisher/course_edit_form.html
 msgid "Update Course"
-msgstr ""
+msgstr "Aktualizuj kurs"
 
 #: templates/publisher/course_revision_history.html
 msgid "Revision History"
@@ -2117,7 +2121,7 @@ msgstr "Edytuj edycję kursu"
 msgid ""
 "%(span_start)s* All required fields must be complete before this course run "
 "can be sent for review.%(span_end)s"
-msgstr ""
+msgstr "%(span_start)s* Wszystkie wymagane pola muszą zostać wypełnione zanim będzie można zgłosić edycję kursu do zatwierdzenia przez koordynatora. %(span_end)s"
 
 #: templates/publisher/course_run/edit_run_form.html
 #, python-format
@@ -2145,7 +2149,7 @@ msgstr "FORMA TEMPA KURSU"
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid "The Studio URL for this course run. The edX PC creates this URL."
-msgstr ""
+msgstr "Adres URL do Studio dla tej edycji kursu. Adres wygenerowany przez koordynatora."
 
 #: templates/publisher/course_run/edit_run_form.html
 msgid "Not yet created"
@@ -2216,7 +2220,7 @@ msgstr "Zaktualizuj edycję kursu"
 
 #: templates/publisher/course_run_detail/_all.html
 msgid "(Required) To be added by edX"
-msgstr ""
+msgstr "(Wymagany/a) Do uzupełnienia przez koordynatora"
 
 #: templates/publisher/course_run_detail/_all.html
 #: templates/publisher/course_run_detail/_drupal.html
@@ -2276,15 +2280,15 @@ msgstr "Długość kursu (w tygodniach)"
 
 #: templates/publisher/course_run_detail/_all.html
 msgid "MicroMasters Program Name"
-msgstr ""
+msgstr "Nazwa programu MicroMasters"
 
 #: templates/publisher/course_run_detail/_all.html
 msgid "XSeries Program Name"
-msgstr ""
+msgstr "Nazwa programu XSerii"
 
 #: templates/publisher/course_run_detail/_all.html
 msgid "Professional Certificate Program Name"
-msgstr ""
+msgstr "Nazwa programu edukacji specjalistycznej"
 
 #: templates/publisher/course_run_detail/_cat.html
 #: templates/publisher/course_run_detail/_drupal.html
@@ -2416,19 +2420,19 @@ msgstr "Zamknij"
 
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Accept About Page Preview"
-msgstr ""
+msgstr "Zaakceptuj wygląd karty kursu."
 
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid ""
 "By accepting the About page preview, you are confirming that the information"
 " for this course run in Publisher is correct."
-msgstr ""
+msgstr "Akceptując wygląd karty kursu potwierdzasz, że informacje w Publisherze dla tej edycji kursu są poprawne."
 
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid ""
 "Note that before edX can publish the About page for this course run, the "
 "following information for the course run must be entered in Studio."
-msgstr ""
+msgstr "Weź pod uwagę, że zanim koordynator opublikuje kartę kursu dla tej edycji kursu, następujące informacje o edycji kursu muszą zostać wprowadzone do Studio."
 
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "The course run start and end date."
@@ -2444,7 +2448,7 @@ msgstr "Nazwiska, stopnie naukowe i zdjęcia podpisów wszystkich sygnatariuszy 
 
 #: templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: templates/publisher/course_run_detail/_salesforce.html
 msgid "Course"
@@ -2580,7 +2584,7 @@ msgstr "Szczegóły edycji kursu"
 #, python-format
 msgid ""
 "The About page for this course run was published on %(course_publish_date)s."
-msgstr "Strona \"O kursie\" dla tej edycji kursu została opublikowana dn. %(course_publish_date)s."
+msgstr "Karta kursu dla tej edycji kursu została opublikowana dn. %(course_publish_date)s."
 
 #: templates/publisher/course_run_detail/course_run_detail.html
 msgid "View it on edx.org at"
@@ -2612,20 +2616,20 @@ msgstr "Edycje"
 
 #: templates/publisher/dashboard.html
 msgid "Course About Pages"
-msgstr ""
+msgstr "Karty kursów"
 
 #: templates/publisher/dashboard.html
 msgid ""
 "EdX Publisher is used to create course About pages. Users enter, review, and"
 " approve content in Publisher. Publisher keeps track of the details and "
 "sends email updates when actions are necessary."
-msgstr "Publisher jest wykorzystywany do tworzenia stron \"O kursie\". Użytkownicy wprowadzają, weryfikują i zatwierdzają treści w Publisherze, który śledzi wszystkie zmiany i wysyła powiadomienia e-mail, gdy niezbędne jest podjęcie określonych czynności."
+msgstr "Publisher jest wykorzystywany do tworzenia kart kursów. Użytkownicy wprowadzają, weryfikują i zatwierdzają treści w Publisherze, który śledzi wszystkie zmiany i wysyła powiadomienia e-mail gdy niezbędne jest podjęcie określonych czynności."
 
 #: templates/publisher/dashboard.html
 msgid ""
 "EdX Publisher is a companion to edX Studio. Course teams enter About page "
 "information in Publisher, and course content in Studio."
-msgstr "Publisher jest uzupełnieniem systemu Studio. Kadry kursów wprowadzają informacje \"O kursie\" w Publisherze, a treści kursu w Studio."
+msgstr "Publisher jest uzupełnieniem systemu Studio. Kadry kursów wprowadzają informacje na kartę kursu w Publisherze, a treści kursu w Studio."
 
 #: templates/publisher/dashboard.html
 msgid "Add a New Course"
@@ -2641,25 +2645,25 @@ msgstr "Edycje kursu"
 
 #: templates/publisher/dashboard.html
 msgid "In Development"
-msgstr ""
+msgstr "W trakcie tworzenia"
 
 #: templates/publisher/dashboard.html
 msgid "In Preview"
-msgstr ""
+msgstr "W trakcie oceny"
 
 #: templates/publisher/dashboard.html
 msgid "Studio Request"
-msgstr ""
+msgstr "Żądanie Studio"
 
 #: templates/publisher/dashboard.html
 msgid "Published About Pages"
-msgstr ""
+msgstr "Opublikowane karty kursów"
 
 #: templates/publisher/dashboard/_in_preview.html
 msgid ""
 "No course runs currently have an About page preview available for course "
 "team review."
-msgstr "Żadne edycje kursu nie mają dostępnych projektów strony \"O kursie\" dostępnych do oceny przez kadrę kursu."
+msgstr "Żadne edycje kursu nie posiadają dostępnych podglądów karty kursu możliwych do oceny przez kadrę kursu."
 
 #: templates/publisher/dashboard/_in_preview.html
 msgid ""
@@ -2667,7 +2671,7 @@ msgid ""
 "team review. After the course team approves the preview, the edX publisher "
 "will publish the About page for the course run on edx.org. The course team "
 "will receive an email message when the About page has been published."
-msgstr ""
+msgstr "Następujące podglądy karty kursu są dostępne do zatwierdzenia przez kadrę kursu. Po zatwierdzeniu karty przez kadrę, koordynator z ramienia platformy opublikuje ją na stronie platformy. Po opublikowaniu karty kursu, członkowie kadry otrzymają wiadomość e-mail potwierdzającą ten fakt."
 
 #: templates/publisher/dashboard/_in_preview.html
 msgid "Status"
@@ -2681,23 +2685,23 @@ msgstr "Data rozpoczęcia kursu"
 
 #: templates/publisher/dashboard/_in_preview.html
 msgid "Approved since "
-msgstr ""
+msgstr "Zatwierdzona dn."
 
 #: templates/publisher/dashboard/_in_preview.html
 msgid "Declined since "
-msgstr ""
+msgstr "Odrzucona dn."
 
 #: templates/publisher/dashboard/_in_preview.html
 msgid "Preview Requested since "
-msgstr ""
+msgstr "Zażądano oceny dn."
 
 #: templates/publisher/dashboard/_in_preview.html
 msgid "In Review since "
-msgstr ""
+msgstr "W trakcie oceny od"
 
 #: templates/publisher/dashboard/_in_progress.html
 msgid "No About pages for any course runs are currently in development."
-msgstr "Żadne strony \"O kursie\" nie znajdują się obecnie w trakcie tworzenia."
+msgstr "Żadne karty kursów nie znajdują się obecnie w trakcie tworzenia."
 
 #: templates/publisher/dashboard/_in_progress.html
 msgid "Filter by"
@@ -2723,14 +2727,14 @@ msgstr "Koniec"
 
 #: templates/publisher/dashboard/_published.html
 msgid "No About pages have been published yet."
-msgstr "Jeszcze nie opublikowano żadnych stron \"O kursie\"."
+msgstr "Jeszcze nie opublikowano żadnych kart kursów."
 
 #: templates/publisher/dashboard/_published.html
 #, python-format
 msgid ""
 "About pages for the following course runs have been published in the past "
 "%(default_published_days)s days."
-msgstr "Strony \"O kursie\" dla następujących edycji kursów zostały opublikowane w ciągu ostatnich %(default_published_days)s dni."
+msgstr "Karty kursów dla następujących edycji kursów zostały opublikowane w ciągu ostatnich %(default_published_days)s dni."
 
 #: templates/publisher/dashboard/_published.html
 msgid "Published Date"
@@ -2824,6 +2828,8 @@ msgid ""
 msgstr "Teraz możesz zgłosić edycję kursu do oceny. Aby tego dokonać, %(link_start)s%(page_url)s%(link_middle)s przejdź na stronę kursu%(link_end)s i otwórz stronę odpowiedniej edycji kursu. Wypełnij wszystkie wymagane informacje dotyczące edycji kursu, a następnie prześlij edycję do oceny."
 
 #. Translators: It's closing of mail.
+#. Translators: This is part of an email signature.
+#. Translators: It's closing of mail.
 #: templates/publisher/email/course/mark_as_reviewed.html
 #: templates/publisher/email/course/mark_as_reviewed.txt
 #: templates/publisher/email/course/send_for_review.html
@@ -2856,7 +2862,6 @@ msgstr "Dziękujemy,"
 #: templates/publisher/email/course/seo_review.html
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #: templates/publisher/email/course_run/preview_accepted.html
-#: templates/publisher/email/course_run/preview_available.html
 #: templates/publisher/email/course_run/published.html
 #: templates/publisher/email/course_run/published_course_run_editing.html
 #: templates/publisher/email/course_run/send_for_review.html
@@ -2960,7 +2965,7 @@ msgstr "%(sender_team)s dokonał/a oceny strony %(link_start)s%(page_url)s%(link
 msgid ""
 "Please create a preview of the About page for this course run and enter the "
 "preview URL in Publisher."
-msgstr "Proszę stworzyć zapowiedź strony \"O kursie\" dla tej edycji kursu i wprowadzić adres URL zapowiedzi w Publisherze."
+msgstr "Proszę stworzyć podgląd karty kursu dla tej edycji kursu i wprowadzić adres URL podglądu w Publisherze."
 
 #: templates/publisher/email/course_run/mark_as_reviewed.html
 #: templates/publisher/email/course_run/mark_as_reviewed.txt
@@ -2990,7 +2995,7 @@ msgid ""
 "%(link_start)s%(page_url)s%(link_middle)s%(run_number)s%(link_end)s course "
 "run of %(course_name)s from %(org_name)s. You can now publish this About "
 "page."
-msgstr "%(course_team)s dokonał/a sprawdzenia strony \"O kursie\" dla %(link_start)s%(page_url)s%(link_middle)s%(run_number)s%(link_end)s, edycji kursu %(course_name)s oferowanej przez %(org_name)s. Edycja kursu jest teraz gotowa do opublikowania."
+msgstr "%(course_team)s dokonał/a sprawdzenia karty kursu %(link_start)s%(page_url)s%(link_middle)s%(run_number)s%(link_end)s, edycji kursu %(course_name)s oferowanej przez %(org_name)s. Karta kursu jest teraz gotowa do opublikowania."
 
 #: templates/publisher/email/course_run/preview_accepted.txt
 #, python-format
@@ -2998,24 +3003,44 @@ msgid ""
 "%(course_team)s has reviewed the preview of the About page for the "
 "%(run_number)s %(page_url)s course run of %(course_name)s from %(org_name)s."
 " You can now publish this About page."
-msgstr "%(course_team)s dokonał/a sprawdzenia strony \"O kursie\" dla %(run_number)s %(page_url)s edycji kursu %(course_name)s oferowanej przez %(org_name)s. Edycja kursu jest teraz gotowa do opublikowania."
+msgstr "%(course_team)s dokonał/a sprawdzenia karty kursu %(run_number)s %(page_url)s będącego edycją kursu %(course_name)s oferowanego przez %(org_name)s. Karta kursu jest teraz gotowa do opublikowania."
+
+#: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/preview_available.txt
+#, python-format
+msgid "A preview is now available for the %(run)s run of %(title)s."
+msgstr "Został udostępniony podgląd dla edycji %(run)skursu %(title)s."
+
+#: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/preview_available.txt
+msgid "Follow these steps to move forward with publishing the course run."
+msgstr "Wykonaj następujące kroki w celu przygotowania kursu do publikacji."
+
+#: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/preview_available.txt
+msgid ""
+"Please do not share the preview URL publicly or use it in your own "
+"advertising. The finalized public URL will be available after the page is "
+"fully published."
+msgstr "Proszę nie udostępniać publicznie adresu podglądu i nie wykorzystywać go do celów promocyjnych. Finalny adres URL karty kursu zostanie udostępniony po zatwierdzeniu wszystkich jej elementów."
+
+#: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/preview_available.txt
+msgid "Preview the about page"
+msgstr "Przejrzyj kartę kursu"
+
+#: templates/publisher/email/course_run/preview_available.html
+#: templates/publisher/email/course_run/preview_available.txt
+msgid "Submit feedback in Publisher"
+msgstr "Dodaj opinię w Publisherze"
 
 #: templates/publisher/email/course_run/preview_available.html
 #, python-format
 msgid ""
-"A preview is now available for the %(course_run_number)s course run of "
-"%(course_name)s. %(link_start)s%(preview_link)s%(link_middle)s View the "
-"course run in Publisher%(link_end)s to access the preview for this About "
-"page and accept or decline the preview."
-msgstr "Została udostępniona zapowiedź %(course_run_number)s edycji kursu %(course_name)s. %(link_start)s%(preview_link)s%(link_middle)s Przejrzyj edycję kursu w Publisherze%(link_end)s w celu sprawdzenia proponowanej strony \"O kursie\" i jej zatwierdzenia bądź odrzucenia."
-
-#: templates/publisher/email/course_run/preview_available.txt
-#, python-format
-msgid ""
-"A preview is now available for the %(course_run_number)s course run of "
-"%(course_name)s. View the course run in Publisher %(page_url)s to access the"
-" preview for this About page and accept or decline the preview."
-msgstr "Została udostępniona zapowiedź %(course_run_number)s edycji kursu %(course_name)s. Przejrzyj edycję kursu w Publisherze %(page_url)s w celu sprawdzenia proponowanej strony \"O kursie\" i jej zatwierdzenia bądź odrzucenia."
+"Note: This email address is unable to receive replies. For questions or "
+"comments, contact <a "
+"href=\"mailto:%(contact_us_email)s\">%(contact_us_email)s</a>."
+msgstr "Uwaga: Ten adres e-mail służy wyłącznie do wysyłki automatycznych wiadomości. W przypadku pytań lub komentarzy skontaktuj się z nami na <a href=\"mailto:%(contact_us_email)s\">%(contact_us_email)s</a>."
 
 #: templates/publisher/email/course_run/published.html
 #: templates/publisher/email/course_run/published.txt
@@ -3023,36 +3048,36 @@ msgstr "Została udostępniona zapowiedź %(course_run_number)s edycji kursu %(c
 msgid ""
 "The About page for the %(course_run_number)s course run of %(course_name)s "
 "has been published. No further action is necessary."
-msgstr "Strona \"O kursie\" dla %(course_run_number)s edycji kursu %(course_name)s została opublikowana. Nie jest konieczna żadna dodatkowa czynność."
+msgstr "Karta kursu dla %(course_run_number)s edycji kursu %(course_name)s została opublikowana. Nie jest konieczna żadna dodatkowa czynność."
 
 #: templates/publisher/email/course_run/published.html
 #, python-format
 msgid ""
 "%(link_start)s%(preview_url)s%(link_middle)sView this About page on "
 "edx.org.%(link_end)s"
-msgstr "%(link_start)s%(preview_url)s%(link_middle)sZobacz kartę \"O kursie\" na stronie platformy.%(link_end)s"
+msgstr "%(link_start)s%(preview_url)s%(link_middle)sZobacz kartę kursu na stronie platformy.%(link_end)s"
 
 #: templates/publisher/email/course_run/published.txt
 #, python-format
 msgid "View this About page on edx.org. %(preview_url)s"
-msgstr "Zobacz kartę \"O kursie\" na stronie głównej platformy. %(preview_url)s"
+msgstr "Zobacz kartę kursu na stronie platformy. %(preview_url)s"
 
 #: templates/publisher/email/course_run/published_course_run_editing.html
 #: templates/publisher/email/course_run/published_course_run_editing.txt
 #, python-format
 msgid ""
 "%(course_team)s has made changes to the following published course run."
-msgstr ""
+msgstr "Zespół %(course_team)s dokonał zmian w następującej opublikowanej edycji kursu."
 
 #: templates/publisher/email/course_run/published_course_run_editing.html
 #: templates/publisher/email/course_run/published_course_run_editing.txt
 msgid "View the course run in Publisher"
-msgstr ""
+msgstr "Wyświetl edycję kursu w Publisherze"
 
 #: templates/publisher/email/course_run/published_course_run_editing.html
 #: templates/publisher/email/course_run/published_course_run_editing.txt
 msgid "to make changes and republish the course run."
-msgstr ""
+msgstr "w celu naniesienia zmian i ponownej publikacji edycji kursu."
 
 #: templates/publisher/email/course_run/send_for_review.html
 #, python-format
@@ -3097,7 +3122,7 @@ msgid ""
 "%(run_number)s course run of %(course_name)s. "
 "%(link_start)s%(page_url)s%(link_middle)sView the course run in "
 "Publisher.%(link_end)s"
-msgstr "%(team_name)s odrzucił/a zapowiedź strony \"O kursie\" dla %(run_number)s, edycji kursu %(course_name)s. %(link_start)s%(page_url)s%(link_middle)sWyświetl tę edycję kursu w Publisherze.%(link_end)s"
+msgstr "%(team_name)s odrzucił/a podgląd karty kursu %(run_number)s, edycji kursu %(course_name)s. %(link_start)s%(page_url)s%(link_middle)sWyświetl tę edycję kursu w Publisherze.%(link_end)s"
 
 #: templates/publisher/email/decline_preview.html
 #, python-format
@@ -3110,7 +3135,7 @@ msgid ""
 "%(team_name)s has declined the preview of the About page for the "
 "%(run_number)s course run of %(course_name)s. View the course run in "
 "Publisher."
-msgstr "%(team_name)s odrzucił/a zapowiedź strony \"O kursie\" dla %(run_number)s, edycji kursu %(course_name)s. Wyświetl tę edycję kursu w Publisherze."
+msgstr "%(team_name)s odrzucił/a kartę kursu %(run_number)s, edycji kursu %(course_name)s. Wyświetl tę edycję kursu w Publisherze."
 
 #: templates/publisher/email/decline_preview.txt
 msgid "{{ team_name }} added the following comment."
@@ -3153,7 +3178,7 @@ msgstr "Szanowny/a %(course_team_name)s,"
 msgid ""
 "%(project_coordinator_name)s has created a Studio URL for the "
 "%(course_run)s. You can now take either of the following actions."
-msgstr ""
+msgstr "%(project_coordinator_name)s utworzył/a pozycję kursu w Studio dla kursu %(course_run)s. Możesz teraz przystąpić do jednej z następujących czynności. "
 
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
@@ -3164,7 +3189,7 @@ msgstr "Pracuj nad treścią edycji kursu w Studio."
 #: templates/publisher/email/studio_instance_created.txt
 msgid ""
 "Continue adding About page information for this course run in Publisher."
-msgstr "Kontynuuj dodawanie w Publisherze informacji na stronę \"O kursie\" dla tej edycji kursu."
+msgstr "Kontynuuj dodawanie w Publisherze informacji na kartę kursu dla tej edycji kursu."
 
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
@@ -3176,7 +3201,7 @@ msgstr "Ważne uwagi"
 msgid ""
 "Before edX can publish the About page for this course run, you must also add"
 " the following items for this course run in Studio."
-msgstr "Zanim będzie można opublikować stronę \"O kursie\" tej edycji kursu, w Studio muszą zostać wprowadzone następujące informacje dotyczące edycji kursu."
+msgstr "Zanim będzie można opublikować kartę kursu tej edycji kursu, w Studio muszą zostać wprowadzone następujące informacje."
 
 #: templates/publisher/email/studio_instance_created.html
 #: templates/publisher/email/studio_instance_created.txt
@@ -3242,3 +3267,7 @@ msgstr "Proszę utworzyć pozycję w Studio dla poniższego kursu. Po utworzeniu
 #: templates/publisher/seat_form.html
 msgid "Seat Form"
 msgstr "Forma miejsca"
+
+#: urls.py
+msgid "Discovery Service Administration"
+msgstr "Zarządzanie centrum kart kursowych"
