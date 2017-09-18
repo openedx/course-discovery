@@ -19,21 +19,24 @@ logger = logging.getLogger(__name__)
 
 class CourseRunViewSet(viewsets.GenericViewSet):
     authentication_classes = (JwtAuthentication, SessionAuthentication,)
-    lookup_url_kwarg = 'pk'
     queryset = CourseRun.objects.all()
     # NOTE: We intentionally use a basic serializer here since there is nothing, yet, to return.
     serializer_class = serializers.Serializer
     permission_classes = (permissions.IsAdminUser,)
+
+    PUBLICATION_SUCCESS_STATUS = 'SUCCESS'
 
     @detail_route(methods=['post'])
     def publish(self, request, pk=None):
         course_run = self.get_object()
         partner = request.site.partner
 
+        publication_status = {}
+
         try:
-            self.publish_to_studio(partner, course_run)
-            self.publish_to_ecommerce(partner, course_run)
-            self.publish_to_discovery(partner, course_run)
+            publication_status['studio'] = self.publish_to_studio(partner, course_run)
+            publication_status['ecommerce'] = self.publish_to_ecommerce(partner, course_run)
+            publication_status['discovery'] = self.publish_to_discovery(partner, course_run)
         except SlumberBaseException as ex:
             logger.exception('Failed to publish course run [%s]!', pk)
             content = getattr(ex, 'content', None)
@@ -41,12 +44,28 @@ class CourseRunViewSet(viewsets.GenericViewSet):
                 logger.error(content)
             raise
 
-        return Response({}, status=status.HTTP_200_OK)
+        status_code = status.HTTP_200_OK
+        for _status in publication_status.values():
+            if not _status.startswith(self.PUBLICATION_SUCCESS_STATUS):
+                status_code = status.HTTP_502_BAD_GATEWAY
+                break
+
+        return Response(publication_status, status=status_code)
 
     def publish_to_studio(self, partner, course_run):
         api = StudioAPI(partner.studio_api_client)
-        api.update_course_run_details_in_studio(course_run)
-        api.update_course_run_image_in_studio(course_run)
+
+        try:
+            api.update_course_run_details_in_studio(course_run)
+            api.update_course_run_image_in_studio(course_run)
+            return self.PUBLICATION_SUCCESS_STATUS
+        except SlumberBaseException as ex:
+            content = ex.content.decode('utf8')
+            logger.exception('Failed to publish course run [%d] to Studio! Error was: [%s]', course_run.pk, content)
+            return 'FAILED: ' + content
+        except Exception as ex:  # pylint: disable=broad-except
+            logger.exception('Failed to publish course run [%d] to Studio!', course_run.pk)
+            return 'FAILED: ' + str(ex)
 
     def publish_to_ecommerce(self, partner, course_run):
         api = EdxRestApiClient(partner.ecommerce_api_url, jwt=partner.access_token)
@@ -73,7 +92,14 @@ class CourseRunViewSet(viewsets.GenericViewSet):
                 } for seat in course_run.seats.all()
             ]
         }
-        api.publication.post(data)
+
+        try:
+            api.publication.post(data)
+            return self.PUBLICATION_SUCCESS_STATUS
+        except SlumberBaseException as ex:
+            content = ex.content.decode('utf8')
+            logger.exception('Failed to publish course run [%d] to E-Commerce! Error was: [%s]', course_run.pk, content)
+            return 'FAILED: ' + content
 
     def publish_to_discovery(self, partner, course_run):
         publisher_course = course_run.course
@@ -124,3 +150,5 @@ class CourseRunViewSet(viewsets.GenericViewSet):
         if created:
             discovery_course.canonical_course_run = discovery_course_run
             discovery_course.save()
+
+        return self.PUBLICATION_SUCCESS_STATUS
