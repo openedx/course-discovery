@@ -146,7 +146,7 @@ class SeatFactory(factory.DjangoModelFactory):
 
 class OrganizationFactory(factory.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
-    key = FuzzyText(prefix='Org.fake/')
+    key = FuzzyText()
     name = FuzzyText()
     description = FuzzyText()
     homepage_url = FuzzyURL()

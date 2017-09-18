@@ -1,10 +1,14 @@
 """ Core models. """
+import datetime
 
 from django.contrib.auth.models import AbstractUser
 from django.contrib.sites.models import Site
+from django.core.cache import cache
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
+from edx_rest_api_client.client import EdxRestApiClient
 from guardian.mixins import GuardianUserMixin
 
 
@@ -91,3 +95,32 @@ class Partner(TimeStampedModel):
     @property
     def has_marketing_site(self):
         return bool(self.marketing_site_url_root)
+
+    @property
+    def access_token(self):
+        """ Returns an access token for this site's service user.
+
+        Returns:
+            str: JWT access token
+        """
+        key = 'partner_access_token_{}'.format(self.id)
+        access_token = cache.get(key)
+
+        if not access_token:
+            url = '{root}/access_token'.format(root=self.oidc_url_root)
+            access_token, expiration_datetime = EdxRestApiClient.get_oauth_access_token(
+                url,
+                self.oidc_key,
+                self.oidc_secret,
+                token_type='jwt'
+            )
+
+            expires = (expiration_datetime - datetime.datetime.utcnow()).seconds
+            cache.set(key, access_token, expires)
+
+        return access_token
+
+    @cached_property
+    def studio_api_client(self):
+        studio_api_url = '{root}/api/v1/'.format(root=self.studio_url.strip('/'))
+        return EdxRestApiClient(studio_api_url, jwt=self.access_token)

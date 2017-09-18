@@ -40,18 +40,18 @@ class PartnerFactory(factory.DjangoModelFactory):
     name = factory.Sequence(lambda n: 'test-partner-{}'.format(n))  # pylint: disable=unnecessary-lambda
     short_code = factory.Sequence(lambda n: 'test{}'.format(n))  # pylint: disable=unnecessary-lambda
     courses_api_url = '{root}/api/courses/v1/'.format(root=FuzzyUrlRoot().fuzz())
-    ecommerce_api_url = '{root}/api/courses/v1/'.format(root=FuzzyUrlRoot().fuzz())
+    ecommerce_api_url = '{root}/api/v2/'.format(root=FuzzyUrlRoot().fuzz())
     organizations_api_url = '{root}/api/organizations/v1/'.format(root=FuzzyUrlRoot().fuzz())
     programs_api_url = '{root}/api/programs/v1/'.format(root=FuzzyUrlRoot().fuzz())
     marketing_site_api_url = '{root}/api/courses/v1/'.format(root=FuzzyUrlRoot().fuzz())
-    marketing_site_url_root = '{root}/'.format(root=FuzzyUrlRoot().fuzz())
+    marketing_site_url_root = factory.Faker('url')
     marketing_site_api_username = factory.Faker('user_name')
     marketing_site_api_password = factory.Faker('password')
-    oidc_url_root = '{root}'.format(root=FuzzyUrlRoot().fuzz())
+    oidc_url_root = factory.Faker('url')
     oidc_key = factory.Faker('sha256')
     oidc_secret = factory.Faker('sha256')
     site = factory.SubFactory(SiteFactory)
-    studio_url = FuzzyUrlRoot().fuzz()
+    studio_url = factory.Faker('url')
 
     class Meta(object):
         model = Partner

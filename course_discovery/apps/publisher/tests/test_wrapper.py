@@ -162,13 +162,14 @@ class CourseRunWrapperTests(TestCase):
         self.assertEqual(self.wrapped_course_run.course_team_admin, self.course.course_team_admin)
 
     def test_course_image_url(self):
-        """ Verify that the wrapper return the course image url. """
-        self.assertIsNone(self.wrapped_course_run.course_image_url)
+        course_run = factories.CourseRunFactory(course__image=None)
+        wrapped_course_run = CourseRunWrapper(course_run)
+        assert wrapped_course_run.course_image_url is None
 
-        self.course.image = make_image_file('test_banner1.jpg')
-        self.course.save()
-
-        self.assertEqual(self.wrapped_course_run.course_image_url, self.course.image.url)
+        course = course_run.course
+        course.image = make_image_file('test_banner1.jpg')
+        course.save()
+        assert wrapped_course_run.course_image_url == course.image.url
 
     def test_course_staff(self):
         """Verify that the wrapper return staff list."""

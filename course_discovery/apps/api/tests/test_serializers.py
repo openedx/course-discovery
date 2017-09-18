@@ -48,7 +48,9 @@ def make_request():
     return request
 
 
-def serialize_datetime(d):
+def serialize_datetime_without_timezone(d):
+    # TODO: Remove this function, and replace usage of it with serialize_datetime, after
+    # https://github.com/encode/django-rest-framework/issues/3732 is released.
     return d.strftime('%Y-%m-%dT%H:%M:%S') if d else None
 
 
@@ -1200,10 +1202,10 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
             'max_effort': course_run.max_effort,
             'weeks_to_complete': course_run.weeks_to_complete,
             'short_description': course_run.short_description,
-            'start': serialize_datetime(course_run.start),
-            'end': serialize_datetime(course_run.end),
-            'enrollment_start': serialize_datetime(course_run.enrollment_start),
-            'enrollment_end': serialize_datetime(course_run.enrollment_end),
+            'start': serialize_datetime_without_timezone(course_run.start),
+            'end': serialize_datetime_without_timezone(course_run.end),
+            'enrollment_start': serialize_datetime_without_timezone(course_run.enrollment_start),
+            'enrollment_end': serialize_datetime_without_timezone(course_run.enrollment_end),
             'key': course_run.key,
             'marketing_url': course_run.marketing_url,
             'pacing_type': course_run.pacing_type,
