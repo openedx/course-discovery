@@ -49,6 +49,17 @@
                 </h2>
             </div>
 
+          <button class="btn btn-primary" onclick="publish('{% url 'publisher:api:v1:course_run-publish' pk=object.pk %}');">{% trans "Publish" %}</button>
+
+          <div class="alert hidden" role="alert" aria-labelledby="alertTitle" tabindex="-1" id="alertContainer" style="margin:15px 0;">
+            <span class="icon alert-icon fa" aria-hidden="true"></span>
+
+            <div class="alert-message-with-action">
+              <h3 class="sr-only alert-title" id="alertTitle"></h3>
+              <p class="alert-copy"></p>
+            </div>
+          </div>
+
             {% include 'alert_messages.html' %}
 
             <div id="stateChangeAlert" class="alert-messages hidden">
@@ -107,10 +118,48 @@
     <script src="{% static 'js/publisher/change-state.js' %}"></script>
     <script src="{% static 'js/publisher/modal-screen.js' %}"></script>
     <script>
+        'use strict';
+
         new Clipboard(".btn-copy", {
             text: function(trigger) {
                 return $(trigger).parent().next('.copy').html().trim();
             }
         });
+
+        function updateAlert(msg, isError) {
+            var $alertContainer = $('#alertContainer'),
+                alertClassToAdd = isError ? 'alert-error' : 'alert-success',
+                alertClassToRemove = isError ? 'alert-success' : 'alert-error',
+                iconClassToAdd = isError ? 'fa-warning' : 'fa-check',
+                iconClassToRemove = isError ? 'fa-check' : 'fa-warning';
+
+            $alertContainer.removeClass('hidden').removeClass(alertClassToRemove).addClass(alertClassToAdd);
+            $('.alert-icon', $alertContainer).removeClass(iconClassToRemove).addClass(iconClassToAdd);
+            $('.alert-title', $alertContainer).text(msg);
+            $('.alert-copy', $alertContainer).text(msg);
+        }
+
+        function showSuccessAlert(msg) {
+            updateAlert(msg, false);
+        }
+
+        function showFailureAlert(msg) {
+            updateAlert(msg, true);
+        }
+
+        function publish(url) {
+            $.ajax({
+                type: 'POST',
+                url: url,
+                contentType: 'application/json'
+            })
+                .done(function(data, textStatus, jqXHR) {
+                    showSuccessAlert('{% trans 'Successfully published to Studio, E-Commerce, and Discovery.' %}');
+                })
+                .fail(function(jqXHR, textStatus, errorThrown) {
+                    debugger;
+                    showFailureAlert('{% trans 'Publication failed.' %}');
+                });
+        }
     </script>
 {% endblock %}

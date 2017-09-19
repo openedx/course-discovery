@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-19 01:02-0400\n"
+"POT-Creation-Date: 2017-09-19 01:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1218,6 +1218,7 @@ msgid "Accepted"
 msgstr "Àççéptéd Ⱡ'σяєм ιρѕυм ∂#"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "Publish"
 msgstr "Püßlïsh Ⱡ'σяєм ιρѕυм #"
 
@@ -2906,6 +2907,16 @@ msgstr "ÇÀT Ⱡ'σяєм#"
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "DRUPAL"
 msgstr "DRÛPÀL Ⱡ'σяєм ιρѕυ#"
+
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
+msgid "Successfully published to Studio, E-Commerce, and Discovery."
+msgstr ""
+"Süççéssfüllý püßlïshéd tö Stüdïö, É-Çömmérçé, änd Dïsçövérý. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
+msgid "Publication failed."
+msgstr "Püßlïçätïön fäïléd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
 #: apps/publisher/templates/publisher/courses.html
 msgid "Runs"
