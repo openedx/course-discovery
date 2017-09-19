@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-19 00:59-0400\n"
+"POT-Creation-Date: 2017-09-19 01:01-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1059,7 +1059,6 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 #: apps/publisher/templates/publisher/seat_form.html
-#: templates/comments/edit_comment.html
 msgid "Save"
 msgstr ""
 
@@ -3275,14 +3274,6 @@ msgstr ""
 
 #: templates/comments/comments_list.html
 msgid "Submitted by"
-msgstr ""
-
-#: templates/comments/edit_comment.html
-msgid "Course Run Form"
-msgstr ""
-
-#: templates/comments/edit_comment.html
-msgid "Edit Comment"
 msgstr ""
 
 #: urls.py
