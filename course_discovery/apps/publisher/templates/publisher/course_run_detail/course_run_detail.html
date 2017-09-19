@@ -49,7 +49,7 @@
                 </h2>
             </div>
 
-        {% if request.user.is_staff %}
+        {% if request.user.is_staff and object.lms_course_id %}
           <button class="btn btn-primary" onclick="publish('{% url 'publisher:api:v1:course_run-publish' pk=object.pk %}');">{% trans "Publish" %}</button>
         {% endif %}
 
