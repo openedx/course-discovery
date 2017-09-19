@@ -55,6 +55,7 @@ THIRD_PARTY_APPS = [
     'taggit_serializer',
     'solo',
     'webpack_loader',
+    'parler',
 ]
 
 PROJECT_APPS = [
@@ -110,9 +111,21 @@ DATABASES = {
 }
 
 # Internationalization
-# https://docs.djangoproject.com/en/dev/topics/i18n/
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#language-code
+# http://www.i18nguy.com/unicode/language-identifiers.html
+LANGUAGE_CODE = 'en'
 
-LANGUAGE_CODE = 'en-us'
+PARLER_DEFAULT_LANGUAGE_CODE = LANGUAGE_CODE
+
+PARLER_LANGUAGES = {
+    1: (
+        {'code': LANGUAGE_CODE, },
+    ),
+    'default': {
+         'fallbacks': [PARLER_DEFAULT_LANGUAGE_CODE],
+         'hide_untranslated': False,
+     }
+ }
 
 TIME_ZONE = 'UTC'
 

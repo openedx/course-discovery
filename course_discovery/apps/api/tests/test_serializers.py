@@ -949,11 +949,11 @@ class SubjectSerializerTests(TestCase):
         serializer = SubjectSerializer(subject)
 
         expected = {
-            'name': subject.name,
-            'description': subject.description,
+            'name': subject.name_t,
+            'description': subject.description_t,
             'banner_image_url': subject.banner_image_url,
             'card_image_url': subject.card_image_url,
-            'subtitle': subject.subtitle,
+            'subtitle': subject.subtitle_t,
             'slug': subject.slug,
             'uuid': str(subject.uuid),
         }

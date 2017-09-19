@@ -3,7 +3,7 @@ import pytest
 from django.apps import apps
 from factory import DjangoModelFactory
 
-from course_discovery.apps.course_metadata.models import DataLoaderConfig
+from course_discovery.apps.course_metadata.models import DataLoaderConfig, SubjectTranslation
 from course_discovery.apps.course_metadata.tests import factories
 
 
@@ -25,7 +25,7 @@ class TestCacheInvalidation:
         # connecting to. We want to test each of them.
         for model in apps.get_app_config('course_metadata').get_models():
             # Ignore models that aren't exposed by the API or are only used for testing.
-            if model == DataLoaderConfig or 'abstract' in model.__name__.lower():
+            if model in [DataLoaderConfig, SubjectTranslation] or 'abstract' in model.__name__.lower():
                 continue
 
             factory = factory_map.get(model)

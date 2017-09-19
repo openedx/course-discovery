@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from parler.admin import TranslatableAdmin
 
 from course_discovery.apps.course_metadata.exceptions import (
     MarketingSiteAPIClientException, MarketingSitePublisherException
@@ -220,11 +221,13 @@ class OrganizationAdmin(admin.ModelAdmin):
 
 
 @admin.register(Subject)
-class SubjectAdmin(admin.ModelAdmin):
-    list_display = ('uuid', 'name', 'slug',)
+class SubjectAdmin(TranslatableAdmin):
+    # These fields are excluded here because they will be removed in favor of the translated fields.
+    exclude = ('name', 'subtitle', 'description')
+    list_display = ('uuid', 'name_t', 'slug',)
     list_filter = ('partner',)
     readonly_fields = ('uuid',)
-    search_fields = ('uuid', 'name', 'slug',)
+    search_fields = ('uuid', 'name_t', 'slug',)
 
 
 @admin.register(Person)

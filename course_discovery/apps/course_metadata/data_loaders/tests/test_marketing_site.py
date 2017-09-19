@@ -146,9 +146,9 @@ class SubjectMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMix
         subject = Subject.objects.get(slug=slug, partner=self.partner)
         expected_values = {
             'uuid': UUID(data['uuid']),
-            'name': data['title'],
-            'description': self.loader.clean_html(data['body']['value']),
-            'subtitle': self.loader.clean_html(data['field_subject_subtitle']['value']),
+            'name_t': data['title'],
+            'description_t': self.loader.clean_html(data['body']['value']),
+            'subtitle_t': self.loader.clean_html(data['field_subject_subtitle']['value']),
             'card_image_url': data['field_subject_card_image']['url'],
             'banner_image_url': data['field_xseries_banner_image']['url'],
         }
@@ -160,6 +160,28 @@ class SubjectMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMix
     def test_ingest(self):
         self.mock_login_response()
         api_data = self.mock_api()
+
+        self.loader.ingest()
+
+        for datum in api_data:
+            self.assert_subject_loaded(datum)
+
+    @responses.activate
+    def test_ingest2(self):
+        self.mock_login_response()
+        api_data = self.mock_api()
+        for data in api_data:
+            subject_data = {
+                'uuid': UUID(data['uuid']),
+                'name_t': data['title'],
+                'description_t': self.loader.clean_html(data['body']['value']),
+                'subtitle_t': self.loader.clean_html(data['field_subject_subtitle']['value']),
+                'card_image_url': data['field_subject_card_image']['url'],
+                'banner_image_url': data['field_xseries_banner_image']['url'],
+            }
+            slug = data['field_subject_url_slug']
+
+            Subject.objects.create(slug=slug, partner=self.partner, **subject_data)
 
         self.loader.ingest()
 

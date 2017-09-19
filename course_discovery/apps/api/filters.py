@@ -181,7 +181,11 @@ class PersonFilter(filters.FilterSet):
 
 
 class SubjectFilter(filters.FilterSet):
+    language_code = filters.CharFilter(method='_set_language')
+
+    def _set_language(self, queryset, _, language_code):
+        return queryset.language(language_code)
 
     class Meta:
         model = Subject
-        fields = ('slug', )
+        fields = ('slug', 'language_code')
