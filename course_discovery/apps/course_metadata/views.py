@@ -20,7 +20,7 @@ class SearchDemoView(TemplateView):
 class CourseRunSelectionAdmin(UpdateView):
     """ Create Course View."""
     model = Program
-    template_name = 'metadata/admin/course_run.html'
+    template_name = 'admin/course_metadata/course_run.html'
     form_class = CourseRunSelectionForm
 
     def get_context_data(self, **kwargs):

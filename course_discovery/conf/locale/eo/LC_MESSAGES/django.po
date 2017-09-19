@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-19 00:57-0400\n"
+"POT-Creation-Date: 2017-09-19 00:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -567,6 +567,27 @@ msgid ""
 msgstr ""
 "Hïdé prögräm ön märkétïng sïté ländïng änd séärçh pägés. Thïs prögräm MÀÝ "
 "hävé ä détäïl pägé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: apps/course_metadata/templates/admin/course_metadata/course_run.html
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+#: apps/publisher/templates/publisher/_revert_confirmation.html
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/add_courserun_form.html
+#: apps/publisher/templates/publisher/course_detail/_edit_warning_popup.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+#: apps/publisher/templates/publisher/course_run_detail/_edit_warning.html
+#: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
+msgid "Cancel"
+msgstr "Çänçél Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/templates/admin/course_metadata/course_run.html
+msgid "Back to Program"
+msgstr "Bäçk tö Prögräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/course_metadata/templates/admin/course_metadata/course_run.html
+msgid "Save Course Run"
+msgstr "Sävé Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: apps/course_metadata/views.py
 msgid "Update excluded course runs"
@@ -1157,19 +1178,6 @@ msgstr "Mäjör Wörks Ⱡ'σяєм ιρѕυм ∂σłσя #"
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "optional - one per line"
 msgstr "öptïönäl - öné pér lïné Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
-
-#: apps/publisher/templates/publisher/_add_instructor_popup.html
-#: apps/publisher/templates/publisher/_revert_confirmation.html
-#: apps/publisher/templates/publisher/add_course_form.html
-#: apps/publisher/templates/publisher/add_courserun_form.html
-#: apps/publisher/templates/publisher/course_detail/_edit_warning_popup.html
-#: apps/publisher/templates/publisher/course_edit_form.html
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html
-#: apps/publisher/templates/publisher/course_run_detail/_edit_warning.html
-#: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
-#: templates/metadata/admin/course_run.html
-msgid "Cancel"
-msgstr "Çänçél Ⱡ'σяєм ιρѕυ#"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Add Staff Member"
@@ -3971,14 +3979,6 @@ msgstr "Çöürsé Rün Förm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 #: templates/comments/edit_comment.html
 msgid "Edit Comment"
 msgstr "Édït Çömmént Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
-
-#: templates/metadata/admin/course_run.html
-msgid "Back to Program"
-msgstr "Bäçk tö Prögräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
-
-#: templates/metadata/admin/course_run.html
-msgid "Save Course Run"
-msgstr "Sävé Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: urls.py
 msgid "Discovery Service Administration"
