@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-19 00:59-0400\n"
+"POT-Creation-Date: 2017-09-19 01:01-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1227,7 +1227,6 @@ msgstr "Süßmïttéd för révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт 
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 #: apps/publisher/templates/publisher/seat_form.html
-#: templates/comments/edit_comment.html
 msgid "Save"
 msgstr "Sävé Ⱡ'σяєм ι#"
 
@@ -3971,14 +3970,6 @@ msgstr "Àdd çömmént Ⱡ'σяєм ιρѕυм ∂σłσя #"
 #: templates/comments/comments_list.html
 msgid "Submitted by"
 msgstr "Süßmïttéd ßý Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
-
-#: templates/comments/edit_comment.html
-msgid "Course Run Form"
-msgstr "Çöürsé Rün Förm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
-
-#: templates/comments/edit_comment.html
-msgid "Edit Comment"
-msgstr "Édït Çömmént Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: urls.py
 msgid "Discovery Service Administration"
