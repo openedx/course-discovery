@@ -157,8 +157,7 @@
                     showSuccessAlert('{% trans 'Successfully published to Studio, E-Commerce, and Discovery.' %}');
                 })
                 .fail(function(jqXHR, textStatus, errorThrown) {
-                    debugger;
-                    showFailureAlert('{% trans 'Publication failed.' %}');
+                    showFailureAlert('{% trans 'Publication failed.' %} \n' + jqXHR.responseText);
                 });
         }
     </script>
