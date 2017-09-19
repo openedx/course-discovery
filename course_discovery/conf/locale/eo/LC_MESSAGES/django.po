@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-19 01:01-0400\n"
+"POT-Creation-Date: 2017-09-19 01:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1678,6 +1678,23 @@ msgstr "Däshßöärd Ⱡ'σяєм ιρѕυм ∂σł#"
 msgid "Courses"
 msgstr "Çöürsés Ⱡ'σяєм ιρѕυм #"
 
+#: apps/publisher/templates/publisher/comments/add_auth_comments.html
+msgid "Comment:"
+msgstr "Çömmént: Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/publisher/templates/publisher/comments/add_auth_comments.html
+#: apps/publisher/templates/publisher/course_run_detail/_widgets.html
+msgid "Submit"
+msgstr "Süßmït Ⱡ'σяєм ιρѕυ#"
+
+#: apps/publisher/templates/publisher/comments/add_auth_comments.html
+msgid "Add comment"
+msgstr "Àdd çömmént Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: apps/publisher/templates/publisher/comments/comments_list.html
+msgid "Submitted by"
+msgstr "Süßmïttéd ßý Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_widgets.html
 msgid "EDIT"
@@ -2854,11 +2871,6 @@ msgstr "Päçïng Týpé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 msgid "Reason for declining preview"
 msgstr "Réäsön för déçlïnïng prévïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
-#: apps/publisher/templates/publisher/course_run_detail/_widgets.html
-#: templates/comments/add_auth_comments.html
-msgid "Submit"
-msgstr "Süßmït Ⱡ'σяєм ιρѕυ#"
-
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "Course Run Details"
 msgstr "Çöürsé Rün Détäïls Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
@@ -3958,18 +3970,6 @@ msgstr "Déçlïné Prévïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 #: apps/publisher_comments/models.py
 msgid "modified"
 msgstr "mödïfïéd Ⱡ'σяєм ιρѕυм ∂#"
-
-#: templates/comments/add_auth_comments.html
-msgid "Comment:"
-msgstr "Çömmént: Ⱡ'σяєм ιρѕυм ∂#"
-
-#: templates/comments/add_auth_comments.html
-msgid "Add comment"
-msgstr "Àdd çömmént Ⱡ'σяєм ιρѕυм ∂σłσя #"
-
-#: templates/comments/comments_list.html
-msgid "Submitted by"
-msgstr "Süßmïttéd ßý Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: urls.py
 msgid "Discovery Service Administration"
