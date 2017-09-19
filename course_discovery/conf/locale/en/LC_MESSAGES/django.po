@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-19 01:01-0400\n"
+"POT-Creation-Date: 2017-09-19 01:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1440,6 +1440,23 @@ msgstr ""
 msgid "Courses"
 msgstr ""
 
+#: apps/publisher/templates/publisher/comments/add_auth_comments.html
+msgid "Comment:"
+msgstr ""
+
+#: apps/publisher/templates/publisher/comments/add_auth_comments.html
+#: apps/publisher/templates/publisher/course_run_detail/_widgets.html
+msgid "Submit"
+msgstr ""
+
+#: apps/publisher/templates/publisher/comments/add_auth_comments.html
+msgid "Add comment"
+msgstr ""
+
+#: apps/publisher/templates/publisher/comments/comments_list.html
+msgid "Submitted by"
+msgstr ""
+
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_widgets.html
 msgid "EDIT"
@@ -2416,11 +2433,6 @@ msgstr ""
 msgid "Reason for declining preview"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_widgets.html
-#: templates/comments/add_auth_comments.html
-msgid "Submit"
-msgstr ""
-
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "Course Run Details"
 msgstr ""
@@ -3262,18 +3274,6 @@ msgstr ""
 
 #: apps/publisher_comments/models.py
 msgid "modified"
-msgstr ""
-
-#: templates/comments/add_auth_comments.html
-msgid "Comment:"
-msgstr ""
-
-#: templates/comments/add_auth_comments.html
-msgid "Add comment"
-msgstr ""
-
-#: templates/comments/comments_list.html
-msgid "Submitted by"
 msgstr ""
 
 #: urls.py

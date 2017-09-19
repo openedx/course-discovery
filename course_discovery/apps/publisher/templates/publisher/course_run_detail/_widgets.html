@@ -14,7 +14,7 @@
         <div id="decline-comment" class="hidden clearfix">
             {% trans 'Reason for declining preview' as decline_reason %}
             {% trans 'Submit' as submit %}
-            {% include 'comments/add_auth_comments.html' with comment_type='decline_preview' box_label=decline_reason btn_label=submit %}
+            {% include 'publisher/comments/add_auth_comments.html' with comment_type='decline_preview' box_label=decline_reason btn_label=submit %}
         </div>
         {% include 'publisher/course_run_detail/_preview_accept_popup.html' %}
 
