@@ -8,7 +8,7 @@ from rest_framework.test import APITestCase
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import StaffUserFactory, UserFactory
 from course_discovery.apps.course_metadata.models import CourseRun, Video
-from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
+from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api.v1.views import CourseRunViewSet
 from course_discovery.apps.publisher.tests.factories import CourseRunFactory
@@ -35,7 +35,8 @@ class CourseRunViewSetTests(APITestCase):
             course__organizations=[organization],
             course__tertiary_subject=None,
             lms_course_id='a/b/c',
-            transcript_languages=transcript_languages
+            transcript_languages=transcript_languages,
+            staff=PersonFactory.create_batch(2)
         )
 
     def _set_test_client_domain_and_login(self, partner):
@@ -85,6 +86,10 @@ class CourseRunViewSetTests(APITestCase):
         assert response.data == expected
 
         discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
+        publisher_course = publisher_course_run.course
+        discovery_course = discovery_course_run.course
+
+        # pylint: disable=no-member
         assert discovery_course_run.title_override == publisher_course_run.title_override
         assert discovery_course_run.short_description_override is None
         assert discovery_course_run.full_description_override is None
@@ -96,11 +101,13 @@ class CourseRunViewSetTests(APITestCase):
         assert discovery_course_run.min_effort == publisher_course_run.min_effort
         assert discovery_course_run.max_effort == publisher_course_run.max_effort
         assert discovery_course_run.language == publisher_course_run.language
-        expected = set(publisher_course_run.transcript_languages.all())  # pylint: disable=no-member
+        assert discovery_course_run.weeks_to_complete == publisher_course_run.length
+        assert discovery_course_run.learner_testimonials == publisher_course.learner_testimonial
+        expected = set(publisher_course_run.transcript_languages.all())
         assert set(discovery_course_run.transcript_languages.all()) == expected
+        assert set(discovery_course_run.video_translation_languages.all()) == {publisher_course_run.video_language}
+        assert set(discovery_course_run.staff.all()) == set(publisher_course_run.staff.all())
 
-        publisher_course = publisher_course_run.course
-        discovery_course = discovery_course_run.course
         assert discovery_course.canonical_course_run == discovery_course_run
         assert discovery_course.partner == partner
         assert discovery_course.title == publisher_course.title
@@ -108,6 +115,8 @@ class CourseRunViewSetTests(APITestCase):
         assert discovery_course.full_description == publisher_course.full_description
         assert discovery_course.level_type == publisher_course.level_type
         assert discovery_course.video == Video.objects.get(src=publisher_course.video_link)
+        assert discovery_course.image == publisher_course.image
+        assert discovery_course.outcome == publisher_course.expected_learnings
         expected = list(publisher_course_run.course.organizations.all())
         assert list(discovery_course.authoring_organizations.all()) == expected
         expected = {publisher_course.primary_subject, publisher_course.secondary_subject}

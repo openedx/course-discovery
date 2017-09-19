@@ -66,6 +66,11 @@ class CourseRunFactory(factory.DjangoModelFactory):
     full_description_override = FuzzyText()
 
     @factory.post_generation
+    def staff(self, create, extracted, **kwargs):  # pylint: disable=unused-argument
+        if create:
+            add_m2m_data(self.staff, extracted)
+
+    @factory.post_generation
     def transcript_languages(self, create, extracted, **kwargs):  # pylint: disable=unused-argument
         if create:
             add_m2m_data(self.transcript_languages, extracted)
