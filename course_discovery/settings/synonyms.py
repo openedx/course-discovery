@@ -6,6 +6,7 @@ SYNONYMS = [
 
     ['ACCA', 'ACCA', 'ACCAx'],
     ['ACLU', 'American Civil Liberties Union'],
+    ['ASU', 'ASUx', 'Arizona State', 'Arizona State University'],
     ['Berkeley', 'UC BerkeleyX', 'UCBerkeleyX'],
     ['Georgia Institute of Technology', 'Georgia Tech', 'GTx'],
     ['Instituto Tecnologico y De Estudios Superiores De Monterrey', 'Monterrey', 'TecdeMonterreyX'],
@@ -16,6 +17,7 @@ SYNONYMS = [
     ['The University of Texas System', 'UTx'],
     ['The University of California San Diego', 'UC San DiegoX', 'UCSanDiegoX'],
     ['The Disque Foundation', 'Save A LifeX', 'SaveALifeX'],
+    ['UC3M', 'UC3Mx', 'Charles III University of Madrid'],
     ['University of Pennsylvania', 'PennX', 'UPennX', 'UPenn'],
     ['Universitat Politècnica de València', 'València', 'Valencia'],
     ['Wharton', 'WhartonX'],
