@@ -143,15 +143,27 @@ class SubjectMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         slug = data['field_subject_url_slug']
         defaults = {
             'uuid': data['uuid'],
-            'name': data['title'],
-            'description': self.clean_html(data['body']['value']),
-            'subtitle': self.clean_html(data['field_subject_subtitle']['value']),
+            'name_t': data['title'],
+            'description_t': self.clean_html(data['body']['value']),
+            'subtitle_t': self.clean_html(data['field_subject_subtitle']['value']),
             'card_image_url': self._get_nested_url(data.get('field_subject_card_image')),
             # NOTE (CCB): This is not a typo. Yes, the banner image for subjects is in a field with xseries in the name.
             'banner_image_url': self._get_nested_url(data.get('field_xseries_banner_image'))
 
         }
-        subject, __ = Subject.objects.update_or_create(slug=slug, partner=self.partner, defaults=defaults)
+
+        # There is a bug with django-parler when using django's update_or_create() so we manually update or create.
+        try:
+            subject = Subject.objects.get(slug=slug, partner=self.partner)
+            for key, value in defaults.items():
+                setattr(subject, key, value)
+            subject.save()
+        except Subject.DoesNotExist:
+            new_values = {'slug': slug, 'partner': self.partner}
+            new_values.update(defaults)
+            subject = Subject(**new_values)
+            subject.save()
+
         logger.info('Processed subject with slug [%s].', slug)
         return subject
 

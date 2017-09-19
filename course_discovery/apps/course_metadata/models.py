@@ -7,6 +7,7 @@ from uuid import uuid4
 
 import pytz
 import waffle
+from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models.query_utils import Q
 from django.utils.functional import cached_property
@@ -15,6 +16,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
 from haystack.query import SearchQuerySet
+from parler.models import TranslatableModel, TranslatedFieldsModel
 from solo.models import SingletonModel
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
@@ -111,7 +113,7 @@ class LevelType(AbstractNamedModel):
     pass
 
 
-class Subject(TimeStampedModel):
+class Subject(TranslatableModel, TimeStampedModel):
     """ Subject model. """
     uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
     name = models.CharField(max_length=255, blank=False, null=False)
@@ -119,7 +121,7 @@ class Subject(TimeStampedModel):
     description = models.TextField(blank=True, null=True)
     banner_image_url = models.URLField(blank=True, null=True)
     card_image_url = models.URLField(blank=True, null=True)
-    slug = AutoSlugField(populate_from='name', editable=True, blank=True,
+    slug = AutoSlugField(populate_from='name_t', editable=True, blank=True,
                          help_text=_('Leave this field blank to have the value generated automatically.'))
     partner = models.ForeignKey(Partner)
 
@@ -128,10 +130,30 @@ class Subject(TimeStampedModel):
 
     class Meta:
         unique_together = (
-            ('partner', 'name'),
             ('partner', 'slug'),
             ('partner', 'uuid'),
         )
+
+    def validate_unique(self, *args, **kwargs):
+        super(Subject, self).validate_unique(*args, **kwargs)
+        qs = Subject.objects.filter(partner=self.partner_id)
+        if qs.filter(translations__name_t=self.name_t).exists():
+            raise ValidationError({'name_t': ['Subject with this Name and Partner already exists', ]})
+
+
+class SubjectTranslation(TranslatedFieldsModel):
+    master = models.ForeignKey(Subject, related_name='translations', null=True)
+
+    name_t = models.CharField(max_length=255, blank=False, null=False)
+    subtitle_t = models.CharField(max_length=255, blank=True, null=True)
+    description_t = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name_t
+
+    class Meta:
+        unique_together = ('language_code', 'master')
+        verbose_name = _('Subject model translations')
 
 
 class Prerequisite(AbstractNamedModel):

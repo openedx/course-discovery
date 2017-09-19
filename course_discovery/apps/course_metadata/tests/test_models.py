@@ -6,11 +6,13 @@ import ddt
 import mock
 from dateutil.parser import parse
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.db.models.functions import Lower
 from django.test import TestCase
 from freezegun import freeze_time
 
+from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
@@ -18,8 +20,7 @@ from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractMediaModel, AbstractNamedModel, AbstractValueModel, CorporateEndorsement, Course, CourseRun,
-    Endorsement, Seat, SeatType
-)
+    Endorsement, Seat, SeatType, Subject)
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
@@ -487,8 +488,8 @@ class ProgramTests(TestCase):
         return factories.ProgramFactory(type=program_type, courses=[course_run.course])
 
     def assert_one_click_purchase_ineligible_program(
-        self, end=None, enrollment_start=None, enrollment_end=None, seat_type=Seat.VERIFIED,
-        upgrade_deadline=None, one_click_purchase_enabled=True, excluded_course_runs=None, program_type=None
+            self, end=None, enrollment_start=None, enrollment_end=None, seat_type=Seat.VERIFIED,
+            upgrade_deadline=None, one_click_purchase_enabled=True, excluded_course_runs=None, program_type=None
     ):
         course_run = factories.CourseRunFactory(
             end=end, enrollment_start=enrollment_start, enrollment_end=enrollment_end
@@ -1009,3 +1010,29 @@ class FAQTests(TestCase):
         question = 'test question'
         faq = FAQ.objects.create(question=question, answer='test')
         self.assertEqual(str(faq), question)
+
+
+class SubjectTests(SiteMixin, TestCase):
+    """ Tests of the Multilingual Subject model. """
+
+    def test_partner_name_t_uniqueness(self):
+        dummy_url = "http://www.example.com"
+        Subject.objects.create(
+            name="name1",
+            name_t="aaa",
+            partner_id=self.partner.id,
+            banner_image_url=dummy_url,
+            card_image_url=dummy_url)
+
+        invalid_subject = Subject(
+            name="name2",
+            name_t="aaa",
+            partner_id=self.partner.id,
+            banner_image_url=dummy_url,
+            card_image_url=dummy_url)
+
+        with self.assertRaises(ValidationError) as validation_error:
+            invalid_subject.full_clean()
+        self.assertEqual(
+            str(validation_error.exception),
+            "{'name_t': ['Subject with this Name and Partner already exists']}")
