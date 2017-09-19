@@ -110,13 +110,14 @@ class CourseRunViewSet(viewsets.GenericViewSet):
         if publisher_course.video_link:
             video, __ = Video.objects.get_or_create(src=publisher_course.video_link)
 
-        # TODO Host card images from the Discovery Service CDN
         defaults = {
             'title': publisher_course.title,
             'short_description': publisher_course.short_description,
             'full_description': publisher_course.full_description,
             'level_type': publisher_course.level_type,
             'video': video,
+            'image': publisher_course.image,
+            'outcome': publisher_course.expected_learnings,
         }
         discovery_course, created = Course.objects.update_or_create(partner=partner, key=course_key, defaults=defaults)
         discovery_course.authoring_organizations.add(*publisher_course.organizations.all())
@@ -138,7 +139,8 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             'min_effort': course_run.min_effort,
             'max_effort': course_run.max_effort,
             'language': course_run.language,
-
+            'weeks_to_complete': course_run.length,
+            'learner_testimonials': publisher_course.learner_testimonial,
         }
         discovery_course_run, __ = DiscoveryCourseRun.objects.update_or_create(
             course=discovery_course,
@@ -146,6 +148,8 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             defaults=defaults
         )
         discovery_course_run.transcript_languages.add(*course_run.transcript_languages.all())
+        discovery_course_run.staff.add(*course_run.staff.all())
+        discovery_course_run.video_translation_languages.add(course_run.video_language)
 
         if created:
             discovery_course.canonical_course_run = discovery_course_run
