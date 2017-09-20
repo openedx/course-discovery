@@ -286,6 +286,7 @@ class CourseRunForm(BaseForm):
             'length', 'transcript_languages', 'language', 'min_effort', 'max_effort', 'target_content', 'pacing_type',
             'video_language', 'staff', 'start', 'end', 'is_xseries', 'xseries_name', 'is_professional_certificate',
             'professional_certificate_name', 'is_micromasters', 'micromasters_name', 'lms_course_id',
+            'enrollment_start', 'enrollment_end',
         )
 
     def save(self, commit=True, course=None, changed_by=None):  # pylint: disable=arguments-differ
@@ -323,30 +324,48 @@ class CourseRunForm(BaseForm):
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        min_effort = cleaned_data.get("min_effort")
-        max_effort = cleaned_data.get("max_effort")
-        start = cleaned_data.get("start")
-        end = cleaned_data.get("end")
-        is_xseries = cleaned_data.get("is_xseries")
-        xseries_name = cleaned_data.get("xseries_name")
-        is_micromasters = cleaned_data.get("is_micromasters")
-        micromasters_name = cleaned_data.get("micromasters_name")
-        is_professional_certificate = cleaned_data.get("is_professional_certificate")
-        professional_certificate_name = cleaned_data.get("professional_certificate_name")
-        if start and end and start > end:
-            raise ValidationError({'start': _('Start date cannot be after the End date')})
-        if min_effort and max_effort and min_effort > max_effort:
-            raise ValidationError({'min_effort': _('Minimum effort cannot be greater than Maximum effort')})
-        if min_effort and max_effort and min_effort == max_effort:
-            raise ValidationError({'min_effort': _('Minimum effort and Maximum effort can not be same')})
-        if not min_effort and max_effort:
-            raise ValidationError({'min_effort': _('Minimum effort can not be empty')})
+        min_effort = cleaned_data.get('min_effort')
+        max_effort = cleaned_data.get('max_effort')
+        start = cleaned_data.get('start')
+        end = cleaned_data.get('end')
+        is_xseries = cleaned_data.get('is_xseries')
+        xseries_name = cleaned_data.get('xseries_name')
+        is_micromasters = cleaned_data.get('is_micromasters')
+        micromasters_name = cleaned_data.get('micromasters_name')
+        is_professional_certificate = cleaned_data.get('is_professional_certificate')
+        professional_certificate_name = cleaned_data.get('professional_certificate_name')
+
+        if start and end and start >= end:
+            self.add_error('start', _('The start date must occur before the end date.'))
+
+        if min_effort and max_effort and min_effort >= max_effort:
+            self.add_error('min_effort', _('Minimum effort must be less than maximum effort.'))
+
         if is_xseries and not xseries_name:
-            raise ValidationError({'xseries_name': _('Enter XSeries program name')})
+            self.add_error('xseries_name', _('Please provide the name of the associated XSeries.'))
+
         if is_micromasters and not micromasters_name:
-            raise ValidationError({'micromasters_name': _('Enter Micromasters program name')})
+            self.add_error('micromasters_name', _('Please provide the name of the associated MicroMasters.'))
+
         if is_professional_certificate and not professional_certificate_name:
-            raise ValidationError({'professional_certificate_name': _('Enter Professional Certificate program name')})
+            self.add_error('professional_certificate_name',
+                           _('Please provide the name of the associated Professional Certificate program.'))
+
+        enrollment_start = cleaned_data.get('enrollment_start')
+        if enrollment_start:
+            if start and enrollment_start > start:
+                self.add_error('enrollment_start',
+                               _('The enrollment start date must occur on or before the course start date.'))
+        else:
+            cleaned_data['enrollment_start'] = start
+
+        enrollment_end = cleaned_data.get('enrollment_end')
+        if enrollment_end:
+            if end and enrollment_end > end:
+                self.add_error('enrollment_end',
+                               _('The enrollment end date must occur on or after the course end date.'))
+        else:
+            cleaned_data['enrollment_end'] = end
 
         return cleaned_data
 
@@ -413,18 +432,18 @@ class SeatForm(BaseForm):
         credit_price = self.cleaned_data.get('credit_price')
         seat_type = self.cleaned_data.get('type')
 
-        if seat_type in [Seat.PROFESSIONAL, Seat.VERIFIED, Seat.CREDIT] and not price:
-            self.add_error('price', _('Only audit seat can be without price.'))
+        if seat_type and seat_type != Seat.AUDIT and not price:
+            self.add_error('price', _('Please specify a price.'))
 
         if seat_type == Seat.CREDIT and not credit_price:
-            self.add_error('credit_price', _('Only audit seat can be without price.'))
+            self.add_error('credit_price', _('Please specify a price for credit.'))
 
         return self.cleaned_data
 
     def reset_credit_to_default(self, seat):
         seat.credit_provider = ''
         seat.credit_hours = None
-        seat.credit_price = 0.00
+        seat.credit_price = 0
 
 
 class BaseUserAdminForm(forms.ModelForm):

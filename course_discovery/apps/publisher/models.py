@@ -275,8 +275,8 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
 
     start = models.DateTimeField(null=True, blank=True)
     end = models.DateTimeField(null=True, blank=True)
-    enrollment_start = models.DateTimeField(null=True, blank=True)
-    enrollment_end = models.DateTimeField(null=True, blank=True)
+    enrollment_start = models.DateTimeField(null=True, blank=True, verbose_name=_('Enrollment Start Date'))
+    enrollment_end = models.DateTimeField(null=True, blank=True, verbose_name=_('Enrollment End Date'))
     certificate_generation = models.DateTimeField(null=True, blank=True)
     pacing_type = models.CharField(
         max_length=255, db_index=True, null=True, blank=True, choices=CourseRunPacing.choices,

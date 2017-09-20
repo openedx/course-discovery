@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 
+import pytz
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from pytz import timezone
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
@@ -84,111 +84,125 @@ class PublisherUserCreationFormTests(TestCase):
 
 
 class PublisherCourseRunEditFormTests(TestCase):
-    """
-    Tests for the publisher 'CourseRunForm'.
-    """
+    def assert_field_valid(self, data, field_name):
+        form = CourseRunForm(data=data)
+        form.is_valid()
+        assert field_name not in form.errors
 
     def test_minimum_effort(self):
-        """
-        Verify that 'clean' raises 'ValidationError' error if Minimum effort is greater
-        than Maximum effort.
-        """
-        run_form = CourseRunForm()
-        run_form.cleaned_data = {'min_effort': 4, 'max_effort': 2}
-        with self.assertRaises(ValidationError):
-            run_form.clean()
+        form = CourseRunForm(data={'min_effort': 1, 'max_effort': 1})
+        assert not form.is_valid()
+        assert form.errors['min_effort'] == ['Minimum effort must be less than maximum effort.']
 
-        run_form.cleaned_data['min_effort'] = 1
-        self.assertEqual(run_form.clean(), run_form.cleaned_data)
+        form = CourseRunForm(data={'min_effort': 2, 'max_effort': 1})
+        assert not form.is_valid()
+        assert form.errors['min_effort'] == ['Minimum effort must be less than maximum effort.']
 
-    def test_minimum_maximum_effort_equality(self):
-        """
-        Verify that 'clean' raises 'ValidationError' error if Minimum effort and
-        Maximum effort are equal.
-        """
-        run_form = CourseRunForm()
-        run_form.cleaned_data = {'min_effort': 4, 'max_effort': 4}
-        with self.assertRaises(ValidationError) as err:
-            run_form.clean()
+        self.assert_field_valid({'min_effort': 1, 'max_effort': 2}, 'min_effort')
 
-        self.assertEqual(str(err.exception), "{'min_effort': ['Minimum effort and Maximum effort can not be same']}")
-        run_form.cleaned_data['min_effort'] = 2
-        self.assertEqual(run_form.clean(), run_form.cleaned_data)
+    def test_start(self):
+        now = datetime.utcnow()
+        form = CourseRunForm(data={'start': now, 'end': now - timedelta(days=1)})
+        assert not form.is_valid()
+        assert form.errors['start'] == ['The start date must occur before the end date.']
 
-    def test_minimum__effort_is_not_empty(self):
-        """
-        Verify that 'clean' raises 'ValidationError' error if Minimum effort is
-        empty.
-        """
-        run_form = CourseRunForm()
-        run_form.cleaned_data = {'max_effort': 4}
-        with self.assertRaises(ValidationError) as err:
-            run_form.clean()
+        form = CourseRunForm(data={'start': now, 'end': now})
+        assert not form.is_valid()
+        assert form.errors['start'] == ['The start date must occur before the end date.']
 
-        self.assertEqual(str(err.exception), "{'min_effort': ['Minimum effort can not be empty']}")
-        run_form.cleaned_data['min_effort'] = 1
-        self.assertEqual(run_form.clean(), run_form.cleaned_data)
+        self.assert_field_valid({'start': now, 'end': now + timedelta(days=1)}, 'start')
 
-    def test_course_run_dates(self):
-        """
-        Verify that 'clean' raises 'ValidationError' if the Start date is in the past
-        Or if the Start date is after the End date
-        """
-        run_form = CourseRunForm()
-        current_datetime = datetime.now(timezone('US/Central'))
-        run_form.cleaned_data = {'start': current_datetime + timedelta(days=3),
-                                 'end': current_datetime + timedelta(days=1)}
-        with self.assertRaises(ValidationError):
-            run_form.clean()
+    def test_xseries_name(self):
+        form = CourseRunForm(data={'is_xseries': True, 'xseries_name': ''})
+        assert not form.is_valid()
+        assert form.errors['xseries_name'] == ['Please provide the name of the associated XSeries.']
 
-        run_form.cleaned_data['start'] = current_datetime + timedelta(days=1)
-        run_form.cleaned_data['end'] = current_datetime + timedelta(days=3)
-        self.assertEqual(run_form.clean(), run_form.cleaned_data)
+        self.assert_field_valid({'is_xseries': True, 'xseries_name': 'abc'}, 'xseries_name')
 
-    def test_course_run_xseries(self):
-        """
-        Verify that 'clean' raises 'ValidationError' if the is_xseries is checked
-         but no xseries_name has been entered
-        """
-        run_form = CourseRunForm()
-        run_form.cleaned_data = {'is_xseries': True, 'xseries_name': ''}
-        with self.assertRaises(ValidationError):
-            run_form.clean()
+    def test_micromasters_name(self):
+        form = CourseRunForm(data={'is_micromasters': True, 'micromasters_name': ''})
+        assert not form.is_valid()
+        assert form.errors['micromasters_name'] == ['Please provide the name of the associated MicroMasters.']
 
-        run_form.cleaned_data['xseries_name'] = "Test Name"
-        self.assertEqual(run_form.clean(), run_form.cleaned_data)
+        self.assert_field_valid({'is_micromasters': True, 'micromasters_name': 'abc'}, 'micromasters_name')
 
-    def test_course_run_micromasters(self):
-        """
-         Verify that 'clean' raises 'ValidationError' if the is_micromasters is checked
-         but no micromasters_name has been entered
-        """
-        run_form = CourseRunForm()
-        run_form.cleaned_data = {'is_micromasters': True, 'micromasters_name': ''}
-        with self.assertRaises(ValidationError):
-            run_form.clean()
+    def test_professional_certificate_name(self):
+        form = CourseRunForm(data={'is_professional_certificate': True, 'professional_certificate_name': ''})
+        assert not form.is_valid()
+        assert form.errors['professional_certificate_name'] == [
+            'Please provide the name of the associated Professional Certificate program.']
 
-        run_form.cleaned_data['micromasters_name'] = "Test Name"
-        self.assertEqual(run_form.clean(), run_form.cleaned_data)
+        self.assert_field_valid({'is_professional_certificate': True, 'professional_certificate_name': 'abc'},
+                                'professional_certificate_name')
 
-    def test_course_run_professional_certificate(self):
-        """
-         Verify that 'clean' raises 'ValidationError' if the is_professional_certificate is checked
-         but no professional_certificate_name has been entered
-        """
-        run_form = CourseRunForm()
-        run_form.cleaned_data = {'is_professional_certificate': True, 'professional_certificate_name': ''}
-        with self.assertRaises(ValidationError):
-            run_form.clean()
+    def test_enrollment_start_validation(self):
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
+        data = {
+            'enrollment_start': now + timedelta(days=1),
+            'start': now,
+        }
+        form = CourseRunForm(data=data)
+        assert not form.is_valid()
+        expected = ['The enrollment start date must occur on or before the course start date.']
+        assert form.errors['enrollment_start'] == expected
 
-        run_form.cleaned_data['professional_certificate_name'] = "Test Name"
-        self.assertEqual(run_form.clean(), run_form.cleaned_data)
+        data = {
+            'enrollment_start': now,
+            'start': now,
+        }
+        self.assert_field_valid(data, 'enrollment_start')
+
+        data = {
+            'enrollment_start': now - timedelta(days=1),
+            'start': now,
+        }
+        self.assert_field_valid(data, 'enrollment_start')
+
+    def test_enrollment_start_default(self):
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
+        data = {
+            'enrollment_start': None,
+            'start': now,
+        }
+        form = CourseRunForm(data=data)
+        form.is_valid()
+        assert form.cleaned_data['enrollment_start'] == now
+
+    def test_enrollment_end_validation(self):
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
+        data = {
+            'enrollment_end': now + timedelta(days=1),
+            'end': now,
+        }
+        form = CourseRunForm(data=data)
+        assert not form.is_valid()
+        expected = ['The enrollment end date must occur on or after the course end date.']
+        assert form.errors['enrollment_end'] == expected
+
+        data = {
+            'enrollment_end': now,
+            'end': now,
+        }
+        self.assert_field_valid(data, 'enrollment_end')
+
+        data = {
+            'enrollment_end': now - timedelta(days=1),
+            'end': now,
+        }
+        self.assert_field_valid(data, 'enrollment_end')
+
+    def test_enrollment_end_default(self):
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
+        data = {
+            'enrollment_end': None,
+            'end': now,
+        }
+        form = CourseRunForm(data=data)
+        form.is_valid()
+        assert form.cleaned_data['enrollment_end'] == now
 
 
 class PublisherCustomCourseFormTests(TestCase):
-    """
-    Tests for publisher 'CourseForm'
-    """
     def setUp(self):
         super(PublisherCustomCourseFormTests, self).setUp()
         self.course_form = CourseForm()

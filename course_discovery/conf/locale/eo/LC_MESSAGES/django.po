@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-20 15:36-0400\n"
+"POT-Creation-Date: 2017-09-25 14:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -870,40 +870,48 @@ msgid "Video Language"
 msgstr "Vïdéö Längüägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: apps/publisher/forms.py
-msgid "Start date cannot be after the End date"
+msgid "The start date must occur before the end date."
 msgstr ""
-"Stärt däté çännöt ßé äftér thé Énd däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя#"
+"Thé stärt däté müst öççür ßéföré thé énd däté. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/forms.py
-msgid "Minimum effort cannot be greater than Maximum effort"
+msgid "Minimum effort must be less than maximum effort."
 msgstr ""
-"Mïnïmüm éffört çännöt ßé gréätér thän Mäxïmüm éffört Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"Mïnïmüm éffört müst ßé léss thän mäxïmüm éffört. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/forms.py
-msgid "Minimum effort and Maximum effort can not be same"
+msgid "Please provide the name of the associated XSeries."
 msgstr ""
-"Mïnïmüm éffört änd Mäxïmüm éffört çän nöt ßé sämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"Pléäsé prövïdé thé nämé öf thé ässöçïätéd XSérïés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/forms.py
-msgid "Minimum effort can not be empty"
-msgstr "Mïnïmüm éffört çän nöt ßé émptý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
-
-#: apps/publisher/forms.py
-msgid "Enter XSeries program name"
-msgstr "Éntér XSérïés prögräm nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
-
-#: apps/publisher/forms.py
-msgid "Enter Micromasters program name"
-msgstr "Éntér Mïçrömästérs prögräm nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
-
-#: apps/publisher/forms.py
-msgid "Enter Professional Certificate program name"
+msgid "Please provide the name of the associated MicroMasters."
 msgstr ""
-"Éntér Pröféssïönäl Çértïfïçäté prögräm nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя #"
+"Pléäsé prövïdé thé nämé öf thé ässöçïätéd MïçröMästérs. Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/publisher/forms.py
+msgid ""
+"Please provide the name of the associated Professional Certificate program."
+msgstr ""
+"Pléäsé prövïdé thé nämé öf thé ässöçïätéd Pröféssïönäl Çértïfïçäté prögräm. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/publisher/forms.py
+msgid ""
+"The enrollment start date must occur on or before the course start date."
+msgstr ""
+"Thé énröllmént stärt däté müst öççür ön ör ßéföré thé çöürsé stärt däté. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
+
+#: apps/publisher/forms.py
+msgid "The enrollment end date must occur on or after the course end date."
+msgstr ""
+"Thé énröllmént énd däté müst öççür ön ör äftér thé çöürsé énd däté. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: apps/publisher/forms.py
 msgid "Choose enrollment track"
@@ -923,10 +931,13 @@ msgid "Enrollment Track"
 msgstr "Énröllmént Träçk Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: apps/publisher/forms.py
-msgid "Only audit seat can be without price."
+msgid "Please specify a price."
+msgstr "Pléäsé spéçïfý ä prïçé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: apps/publisher/forms.py
+msgid "Please specify a price for credit."
 msgstr ""
-"Önlý äüdït séät çän ßé wïthöüt prïçé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυ#"
+"Pléäsé spéçïfý ä prïçé för çrédït. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
 
 #: apps/publisher/forms.py
 msgid "This field is required."
@@ -999,6 +1010,14 @@ msgstr "Lévél 4 Ⱡ'σяєм ιρѕυм #"
 #: apps/publisher/models.py
 msgid "Level 5"
 msgstr "Lévél 5 Ⱡ'σяєм ιρѕυм #"
+
+#: apps/publisher/models.py
+msgid "Enrollment Start Date"
+msgstr "Énröllmént Stärt Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/publisher/models.py
+msgid "Enrollment End Date"
+msgstr "Énröllmént Énd Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
 #: apps/publisher/models.py
 msgid "Content Language"
@@ -2473,6 +2492,40 @@ msgstr ""
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "Enrollment Dates"
+msgstr "Énröllmént Dätés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid ""
+"The date on which the course opens for enrollment. This date must occur on "
+"or before the course start date. Leaving this field empty will result in the"
+" default value, the course start date, being used."
+msgstr ""
+"Thé däté ön whïçh thé çöürsé öpéns för énröllmént. Thïs däté müst öççür ön "
+"ör ßéföré thé çöürsé stärt däté. Léävïng thïs fïéld émptý wïll résült ïn thé"
+" défäült välüé, thé çöürsé stärt däté, ßéïng üséd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт "
+"łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ "
+"єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ "
+"αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ "
+"ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢α#"
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid ""
+"The date on which course enrollment is closed. This date must occur after "
+"the course start date, but before the course end date. Leaving this field "
+"empty will result in the default value, the course end date, being used."
+msgstr ""
+"Thé däté ön whïçh çöürsé énröllmént ïs çlöséd. Thïs däté müst öççür äftér "
+"thé çöürsé stärt däté, ßüt ßéföré thé çöürsé énd däté. Léävïng thïs fïéld "
+"émptý wïll résült ïn thé défäült välüé, thé çöürsé énd däté, ßéïng üséd. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ "
+"тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм,"
+" qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ρ#"
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "Update Course Run"
 msgstr "Ûpdäté Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
@@ -3081,11 +3134,11 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/comment.html
 #, python-format
 msgid ""
-"The %(team_name)s made the following comment on %(course_name)s on %(date)s "
-"at %(time)s"
+"%(user_name)s made the following comment on %(course_name)s on %(date)s at "
+"%(time)s"
 msgstr ""
-"Thé %(team_name)s mädé thé föllöwïng çömmént ön %(course_name)s ön %(date)s "
-"ät %(time)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+"%(user_name)s mädé thé föllöwïng çömmént ön %(course_name)s ön %(date)s ät "
+"%(time)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/templates/publisher/email/comment.html
 #: apps/publisher/templates/publisher/email/comment.txt
@@ -3105,10 +3158,10 @@ msgstr "Thé édX téäm Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 #: apps/publisher/templates/publisher/email/comment.txt
 #, python-format
 msgid ""
-"The %(team_name)s made the following comment on %(course_name)s %(date)s at "
+"%(user_name)s made the following comment on %(course_name)s %(date)s at "
 "%(time)s."
 msgstr ""
-"Thé %(team_name)s mädé thé föllöwïng çömmént ön %(course_name)s %(date)s ät "
+"%(user_name)s mädé thé föllöwïng çömmént ön %(course_name)s %(date)s ät "
 "%(time)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/templates/publisher/email/course/mark_as_reviewed.html

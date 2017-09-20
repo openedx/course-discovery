@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-20 15:36-0400\n"
+"POT-Creation-Date: 2017-09-25 14:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -737,31 +737,33 @@ msgid "Video Language"
 msgstr ""
 
 #: apps/publisher/forms.py
-msgid "Start date cannot be after the End date"
+msgid "The start date must occur before the end date."
 msgstr ""
 
 #: apps/publisher/forms.py
-msgid "Minimum effort cannot be greater than Maximum effort"
+msgid "Minimum effort must be less than maximum effort."
 msgstr ""
 
 #: apps/publisher/forms.py
-msgid "Minimum effort and Maximum effort can not be same"
+msgid "Please provide the name of the associated XSeries."
 msgstr ""
 
 #: apps/publisher/forms.py
-msgid "Minimum effort can not be empty"
+msgid "Please provide the name of the associated MicroMasters."
 msgstr ""
 
 #: apps/publisher/forms.py
-msgid "Enter XSeries program name"
+msgid ""
+"Please provide the name of the associated Professional Certificate program."
 msgstr ""
 
 #: apps/publisher/forms.py
-msgid "Enter Micromasters program name"
+msgid ""
+"The enrollment start date must occur on or before the course start date."
 msgstr ""
 
 #: apps/publisher/forms.py
-msgid "Enter Professional Certificate program name"
+msgid "The enrollment end date must occur on or after the course end date."
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -782,7 +784,11 @@ msgid "Enrollment Track"
 msgstr ""
 
 #: apps/publisher/forms.py
-msgid "Only audit seat can be without price."
+msgid "Please specify a price."
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Please specify a price for credit."
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -855,6 +861,14 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Level 5"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Enrollment Start Date"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Enrollment End Date"
 msgstr ""
 
 #: apps/publisher/models.py
@@ -2064,6 +2078,24 @@ msgid ""
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "Enrollment Dates"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid ""
+"The date on which the course opens for enrollment. This date must occur on "
+"or before the course start date. Leaving this field empty will result in the"
+" default value, the course start date, being used."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid ""
+"The date on which course enrollment is closed. This date must occur after "
+"the course start date, but before the course end date. Leaving this field "
+"empty will result in the default value, the course end date, being used."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "Update Course Run"
 msgstr ""
 
@@ -2612,8 +2644,8 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/comment.html
 #, python-format
 msgid ""
-"The %(team_name)s made the following comment on %(course_name)s on %(date)s "
-"at %(time)s"
+"%(user_name)s made the following comment on %(course_name)s on %(date)s at "
+"%(time)s"
 msgstr ""
 
 #: apps/publisher/templates/publisher/email/comment.html
@@ -2634,7 +2666,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/comment.txt
 #, python-format
 msgid ""
-"The %(team_name)s made the following comment on %(course_name)s %(date)s at "
+"%(user_name)s made the following comment on %(course_name)s %(date)s at "
 "%(time)s."
 msgstr ""
 
