@@ -1,6 +1,3 @@
-"""
-Course publisher forms.
-"""
 import html
 
 from dal import autocomplete
@@ -49,12 +46,10 @@ class ClearableImageInput(forms.ClearableFileInput):
     template_with_clear = render_to_string('publisher/_clearImageLink.html')
 
 
-class BaseCourseForm(forms.ModelForm):
-    """ Base Course Form. """
-
+class BaseForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('label_suffix', '')
-        super(BaseCourseForm, self).__init__(*args, **kwargs)
+        super(BaseForm, self).__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field_classes = 'field-input input-text'
             if isinstance(field, forms.Textarea):
@@ -74,19 +69,7 @@ class BaseCourseForm(forms.ModelForm):
             field.widget.attrs['class'] = field_classes
 
 
-class CourseForm(BaseCourseForm):
-    """ Course Form. """
-
-    short_description = forms.CharField(widget=forms.Textarea, max_length=255, required=False)
-
-    class Meta:
-        model = Course
-        fields = '__all__'
-        exclude = ('changed_by',)
-
-
-class CustomCourseForm(CourseForm):
-    """ Course Form. """
+class CourseForm(BaseForm):
     organization = forms.ModelChoiceField(
         queryset=Organization.objects.filter(
             organization_extension__organization_id__isnull=False
@@ -163,7 +146,7 @@ class CustomCourseForm(CourseForm):
 
     add_new_run = forms.BooleanField(required=False)
 
-    class Meta(CourseForm.Meta):
+    class Meta:
         model = Course
         widgets = {
             'image': ClearableImageInput(attrs={'accept': 'image/*'})
@@ -190,7 +173,7 @@ class CustomCourseForm(CourseForm):
             self.declared_fields['organization'].queryset = get_user_organizations(user)
             self.declared_fields['team_admin'].widget.attrs = {'data-user': user.id}
 
-        super(CustomCourseForm, self).__init__(*args, **kwargs)
+        super(CourseForm, self).__init__(*args, **kwargs)
 
         if user and not is_internal_user(user):
             self.fields['video_link'].widget = forms.HiddenInput()
@@ -231,17 +214,7 @@ class CourseSearchForm(forms.Form):
     )
 
 
-class CourseRunForm(BaseCourseForm):
-    """ Course Run Form. """
-
-    class Meta:
-        model = CourseRun
-        fields = '__all__'
-        exclude = ('state', 'changed_by',)
-
-
-class CustomCourseRunForm(CourseRunForm):
-    """ Course Run Form. """
+class CourseRunForm(BaseForm):
     start = forms.DateTimeField(label=_('Course Start Date'), required=True)
     end = forms.DateTimeField(label=_('Course End Date'), required=True)
     staff = PersonModelMultipleChoice(
@@ -307,16 +280,16 @@ class CustomCourseRunForm(CourseRunForm):
         required=False
     )
 
-    class Meta(CourseRunForm.Meta):
+    class Meta:
+        model = CourseRun
         fields = (
-            'length', 'transcript_languages', 'language', 'min_effort', 'max_effort',
-            'target_content', 'pacing_type', 'video_language',
-            'staff', 'start', 'end', 'is_xseries', 'xseries_name', 'is_professional_certificate',
+            'length', 'transcript_languages', 'language', 'min_effort', 'max_effort', 'target_content', 'pacing_type',
+            'video_language', 'staff', 'start', 'end', 'is_xseries', 'xseries_name', 'is_professional_certificate',
             'professional_certificate_name', 'is_micromasters', 'micromasters_name', 'lms_course_id',
         )
 
     def save(self, commit=True, course=None, changed_by=None):  # pylint: disable=arguments-differ
-        course_run = super(CustomCourseRunForm, self).save(commit=False)
+        course_run = super(CourseRunForm, self).save(commit=False)
 
         if course:
             course_run.course = course
@@ -363,7 +336,7 @@ class CustomCourseRunForm(CourseRunForm):
         if start and end and start > end:
             raise ValidationError({'start': _('Start date cannot be after the End date')})
         if min_effort and max_effort and min_effort > max_effort:
-                raise ValidationError({'min_effort': _('Minimum effort cannot be greater than Maximum effort')})
+            raise ValidationError({'min_effort': _('Minimum effort cannot be greater than Maximum effort')})
         if min_effort and max_effort and min_effort == max_effort:
             raise ValidationError({'min_effort': _('Minimum effort and Maximum effort can not be same')})
         if not min_effort and max_effort:
@@ -379,18 +352,37 @@ class CustomCourseRunForm(CourseRunForm):
 
     def __init__(self, *args, **kwargs):
         self.is_project_coordinator = kwargs.pop('is_project_coordinator', None)
-        super(CustomCourseRunForm, self).__init__(*args, **kwargs)
+        super(CourseRunForm, self).__init__(*args, **kwargs)
         if not self.is_project_coordinator:
             self.fields['lms_course_id'].widget = forms.HiddenInput()
 
 
-class SeatForm(BaseCourseForm):
-    """ Course Seat Form. """
+class SeatForm(BaseForm):
+    def __init__(self, *args, **kwargs):
+        super(SeatForm, self).__init__(*args, **kwargs)
+
+        field_classes = 'field-input input-select'
+
+        if 'type' in self.errors:
+            field_classes = '{} has-error'.format(field_classes)
+
+        self.fields['type'].widget.attrs = {'class': field_classes}
+
+    TYPE_CHOICES = [
+        ('', _('Choose enrollment track')),
+        (Seat.AUDIT, _('Audit only')),
+        (Seat.VERIFIED, _('Verified')),
+        (Seat.PROFESSIONAL, _('Professional education')),
+        (Seat.CREDIT, _('Credit')),
+    ]
+
+    type = forms.ChoiceField(choices=TYPE_CHOICES, required=False, label=_('Enrollment Track'))
+    price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
+    credit_price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
 
     class Meta:
+        fields = ('price', 'type', 'credit_price')
         model = Seat
-        fields = '__all__'
-        exclude = ('currency', 'changed_by',)
 
     def save(self, commit=True, course_run=None, changed_by=None):  # pylint: disable=arguments-differ
         # When seat is save make sure its prices and others fields updated accordingly.
@@ -435,37 +427,9 @@ class SeatForm(BaseCourseForm):
         seat.credit_price = 0.00
 
 
-class CustomSeatForm(SeatForm):
-    """ Course Seat Form. """
-
-    def __init__(self, *args, **kwargs):
-        super(CustomSeatForm, self).__init__(*args, **kwargs)
-
-        field_classes = 'field-input input-select'
-
-        if 'type' in self.errors:
-            field_classes = '{} has-error'.format(field_classes)
-
-        self.fields['type'].widget.attrs = {'class': field_classes}
-
-    TYPE_CHOICES = [
-        ('', _('Choose enrollment track')),
-        (Seat.AUDIT, _('Audit only')),
-        (Seat.VERIFIED, _('Verified')),
-        (Seat.PROFESSIONAL, _('Professional education')),
-        (Seat.CREDIT, _('Credit')),
-    ]
-
-    type = forms.ChoiceField(choices=TYPE_CHOICES, required=False, label=_('Enrollment Track'))
-    price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
-    credit_price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
-
-    class Meta(SeatForm.Meta):
-        fields = ('price', 'type', 'credit_price')
-
-
 class BaseUserAdminForm(forms.ModelForm):
     """This form will be use for type ahead search in django-admin."""
+
     class Meta:
         fields = '__all__'
         widgets = {
@@ -525,7 +489,6 @@ class PublisherUserCreationForm(forms.ModelForm):
 
 
 class CourseRunAdminForm(forms.ModelForm):
-
     class Meta:
         model = CourseRun
         fields = '__all__'

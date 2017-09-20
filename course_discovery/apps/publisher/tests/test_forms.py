@@ -8,7 +8,7 @@ from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
-from course_discovery.apps.publisher.forms import CustomCourseForm, CustomCourseRunForm, PublisherUserCreationForm
+from course_discovery.apps.publisher.forms import CourseForm, CourseRunForm, PublisherUserCreationForm
 from course_discovery.apps.publisher.tests.factories import CourseFactory, OrganizationExtensionFactory
 
 
@@ -19,7 +19,7 @@ class UserModelChoiceFieldTests(TestCase):
 
     def setUp(self):
         super(UserModelChoiceFieldTests, self).setUp()
-        self.course_form = CustomCourseForm()
+        self.course_form = CourseForm()
 
     def test_course_form(self):
         """
@@ -50,7 +50,7 @@ class PersonModelMultipleChoiceTests(TestCase):
         """
         Verify that PersonModelMultipleChoice returns `full_name` and `profile_image_url` as choice label.
         """
-        course_form = CustomCourseRunForm()
+        course_form = CourseRunForm()
         course_form.fields['staff'].empty_label = None
 
         person = PersonFactory()
@@ -85,7 +85,7 @@ class PublisherUserCreationFormTests(TestCase):
 
 class PublisherCourseRunEditFormTests(TestCase):
     """
-    Tests for the publisher 'CustomCourseRunForm'.
+    Tests for the publisher 'CourseRunForm'.
     """
 
     def test_minimum_effort(self):
@@ -93,7 +93,7 @@ class PublisherCourseRunEditFormTests(TestCase):
         Verify that 'clean' raises 'ValidationError' error if Minimum effort is greater
         than Maximum effort.
         """
-        run_form = CustomCourseRunForm()
+        run_form = CourseRunForm()
         run_form.cleaned_data = {'min_effort': 4, 'max_effort': 2}
         with self.assertRaises(ValidationError):
             run_form.clean()
@@ -106,7 +106,7 @@ class PublisherCourseRunEditFormTests(TestCase):
         Verify that 'clean' raises 'ValidationError' error if Minimum effort and
         Maximum effort are equal.
         """
-        run_form = CustomCourseRunForm()
+        run_form = CourseRunForm()
         run_form.cleaned_data = {'min_effort': 4, 'max_effort': 4}
         with self.assertRaises(ValidationError) as err:
             run_form.clean()
@@ -120,7 +120,7 @@ class PublisherCourseRunEditFormTests(TestCase):
         Verify that 'clean' raises 'ValidationError' error if Minimum effort is
         empty.
         """
-        run_form = CustomCourseRunForm()
+        run_form = CourseRunForm()
         run_form.cleaned_data = {'max_effort': 4}
         with self.assertRaises(ValidationError) as err:
             run_form.clean()
@@ -134,7 +134,7 @@ class PublisherCourseRunEditFormTests(TestCase):
         Verify that 'clean' raises 'ValidationError' if the Start date is in the past
         Or if the Start date is after the End date
         """
-        run_form = CustomCourseRunForm()
+        run_form = CourseRunForm()
         current_datetime = datetime.now(timezone('US/Central'))
         run_form.cleaned_data = {'start': current_datetime + timedelta(days=3),
                                  'end': current_datetime + timedelta(days=1)}
@@ -150,7 +150,7 @@ class PublisherCourseRunEditFormTests(TestCase):
         Verify that 'clean' raises 'ValidationError' if the is_xseries is checked
          but no xseries_name has been entered
         """
-        run_form = CustomCourseRunForm()
+        run_form = CourseRunForm()
         run_form.cleaned_data = {'is_xseries': True, 'xseries_name': ''}
         with self.assertRaises(ValidationError):
             run_form.clean()
@@ -163,7 +163,7 @@ class PublisherCourseRunEditFormTests(TestCase):
          Verify that 'clean' raises 'ValidationError' if the is_micromasters is checked
          but no micromasters_name has been entered
         """
-        run_form = CustomCourseRunForm()
+        run_form = CourseRunForm()
         run_form.cleaned_data = {'is_micromasters': True, 'micromasters_name': ''}
         with self.assertRaises(ValidationError):
             run_form.clean()
@@ -176,7 +176,7 @@ class PublisherCourseRunEditFormTests(TestCase):
          Verify that 'clean' raises 'ValidationError' if the is_professional_certificate is checked
          but no professional_certificate_name has been entered
         """
-        run_form = CustomCourseRunForm()
+        run_form = CourseRunForm()
         run_form.cleaned_data = {'is_professional_certificate': True, 'professional_certificate_name': ''}
         with self.assertRaises(ValidationError):
             run_form.clean()
@@ -187,11 +187,11 @@ class PublisherCourseRunEditFormTests(TestCase):
 
 class PublisherCustomCourseFormTests(TestCase):
     """
-    Tests for publisher 'CustomCourseForm'
+    Tests for publisher 'CourseForm'
     """
     def setUp(self):
         super(PublisherCustomCourseFormTests, self).setUp()
-        self.course_form = CustomCourseForm()
+        self.course_form = CourseForm()
         self.organization = OrganizationFactory()
         self.course = CourseFactory(title='Test', number='a123', organizations=[self.organization])
 
@@ -220,7 +220,7 @@ class PublisherCustomCourseFormTests(TestCase):
         Verify that clean raises 'ValidationError' if the course title is a duplicate of another course title
         within the same organization
         """
-        course_form = CustomCourseForm()
+        course_form = CourseForm()
         course_form.cleaned_data = {'title': 'Test', 'number': '123a', 'organization': self.organization}
         with self.assertRaises(ValidationError):
             course_form.clean()
@@ -233,7 +233,7 @@ class PublisherCustomCourseFormTests(TestCase):
         Verify that clean raises 'ValidationError' if the course number is a duplicate of another course number
         within the same organization
         """
-        course_form = CustomCourseForm()
+        course_form = CourseForm()
         course_form.cleaned_data = {'title': 'Test2', 'number': 'a123', 'organization': self.organization}
         with self.assertRaises(ValidationError):
             course_form.clean()
@@ -256,7 +256,7 @@ class PublisherCustomCourseFormTests(TestCase):
             'organization': organization,
             'team_admin': course_admin.id
         }
-        course_form = CustomCourseForm(
+        course_form = CourseForm(
             **{'data': course_from_data, 'instance': course, 'user': course_admin,
                'organization': organization}
         )
