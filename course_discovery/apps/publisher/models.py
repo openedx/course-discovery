@@ -56,13 +56,6 @@ class Course(TimeStampedModel, ChangedByMixin):
     syllabus = models.TextField(default=None, null=True, blank=True)
     prerequisites = models.TextField(default=None, null=True, blank=True, verbose_name=_('Prerequisites'))
     learner_testimonial = models.TextField(default=None, null=True, blank=True, verbose_name=_('Learner Testimonials'))
-    verification_deadline = models.DateTimeField(
-        null=True,
-        blank=True,
-        verbose_name=_("Verification deadline"),
-        help_text=_('Last date/time on which verification for this product can be submitted.')
-    )
-
     primary_subject = models.ForeignKey(
         Subject, default=None, null=True, blank=True, related_name='publisher_courses_primary'
     )

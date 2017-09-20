@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-20 14:16-0400\n"
+"POT-Creation-Date: 2017-09-20 15:36-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -971,17 +971,6 @@ msgstr "Éxpéçtéd Léärnïngs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α�
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Learner Testimonials"
 msgstr "Léärnér Téstïmönïäls Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
-
-#: apps/publisher/models.py
-msgid "Verification deadline"
-msgstr "Vérïfïçätïön déädlïné Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
-
-#: apps/publisher/models.py
-msgid ""
-"Last date/time on which verification for this product can be submitted."
-msgstr ""
-"Läst däté/tïmé ön whïçh vérïfïçätïön för thïs prödüçt çän ßé süßmïttéd. "
-"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
 #: apps/publisher/models.py
 msgid "Video Link"
@@ -2817,10 +2806,6 @@ msgstr "Sélf Päçéd? Ⱡ'σяєм ιρѕυм ∂σłσя #"
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "MDC Submission Due Date"
 msgstr "MDÇ Süßmïssïön Düé Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
-
-#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
-msgid "Verified Conversion Date"
-msgstr "Vérïfïéd Çönvérsïön Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
