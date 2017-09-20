@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-
 OLD_ROLE_NAME = 'partner_coordinator'
 NEW_ROLE_NAME = 'project_coordinator'
 USER_ROLE_MODELS = [

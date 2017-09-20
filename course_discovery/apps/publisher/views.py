@@ -29,8 +29,8 @@ from course_discovery.apps.publisher import emails, mixins, serializers
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.dataloader.create_courses import process_course
 from course_discovery.apps.publisher.emails import send_email_for_published_course_run_editing
-from course_discovery.apps.publisher.forms import (AdminImportCourseForm, CourseSearchForm, CustomCourseForm,
-                                                   CustomCourseRunForm, CustomSeatForm)
+from course_discovery.apps.publisher.forms import (AdminImportCourseForm, CourseForm, CourseRunForm, CourseSearchForm,
+                                                   SeatForm)
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
                                                     OrganizationExtension, Seat, UserAttributes)
 from course_discovery.apps.publisher.utils import (get_internal_users, has_role_for_course, is_internal_user,
@@ -229,7 +229,7 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
 class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMixin, CreateView):
     """ Create Course View."""
     model = Course
-    course_form = CustomCourseForm
+    course_form = CourseForm
     template_name = 'publisher/add_course_form.html'
     success_url = 'publisher:publisher_course_detail'
 
@@ -253,7 +253,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
         ctx = self.get_context_data()
         add_new_run = request.POST.get('add_new_run')
 
-        # pass selected organization to CustomCourseForm to populate related
+        # pass selected organization to CourseForm to populate related
         # choices into institution admin field
         user = self.request.user
         organization = self.request.POST.get('organization')
@@ -328,7 +328,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
 class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
     """ Course Edit View."""
     model = Course
-    form_class = CustomCourseForm
+    form_class = CourseForm
     permission = OrganizationExtension.EDIT_COURSE
     template_name = 'publisher/course_edit_form.html'
     success_url = 'publisher:publisher_course_detail'
@@ -502,8 +502,8 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
 class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
     """ Create Course Run View."""
     model = CourseRun
-    run_form = CustomCourseRunForm
-    seat_form = CustomSeatForm
+    run_form = CourseRunForm
+    seat_form = SeatForm
     template_name = 'publisher/add_courserun_form.html'
     success_url = 'publisher:publisher_course_run_detail'
     parent_course = None
@@ -676,11 +676,11 @@ class CreateRunFromDashboardView(CreateCourseRunView):
 class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, UpdateView):
     """ Course Run Edit View."""
     model = CourseRun
-    run_form = CustomCourseRunForm
-    seat_form = CustomSeatForm
+    run_form = CourseRunForm
+    seat_form = SeatForm
     template_name = 'publisher/course_run/edit_run_form.html'
     success_url = 'publisher:publisher_course_run_detail'
-    form_class = CustomCourseRunForm
+    form_class = CourseRunForm
     permission = OrganizationExtension.EDIT_COURSE_RUN
 
     def get_success_url(self):  # pylint: disable=arguments-differ

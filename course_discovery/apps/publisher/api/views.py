@@ -16,7 +16,7 @@ from course_discovery.apps.publisher.api.permissions import (CanViewAssociatedCo
 from course_discovery.apps.publisher.api.serializers import (CourseRevisionSerializer, CourseRunSerializer,
                                                              CourseRunStateSerializer, CourseStateSerializer,
                                                              CourseUserRoleSerializer, GroupUserSerializer)
-from course_discovery.apps.publisher.forms import CustomCourseForm
+from course_discovery.apps.publisher.forms import CourseForm
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
                                                     OrganizationExtension)
 from course_discovery.apps.publisher.utils import is_internal_user, is_publisher_admin
@@ -82,7 +82,7 @@ class RevertCourseRevisionView(APIView):
         history_object = get_object_or_404(historicalcourse, pk=history_id)
         course = get_object_or_404(Course, id=history_object.id)
         try:
-            for field in CustomCourseForm().fields:
+            for field in CourseForm().fields:
                 if field not in ['team_admin', 'organization', 'add_new_run']:
                     setattr(course, field, getattr(history_object, field))
 
