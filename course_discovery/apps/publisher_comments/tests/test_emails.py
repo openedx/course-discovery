@@ -135,7 +135,8 @@ class CommentsEmailTests(SiteMixin, TestCase):
         else:
             course_name = content_object.title
 
-        expected = 'The marketing team made the following comment on {course_name}'.format(course_name=course_name)
+        expected = '{username} made the following comment on {course_name}'.format(username=comment.user.username,
+                                                                                   course_name=course_name)
         self.assertIn(expected, body)
         page_url = 'https://{host}{path}'.format(host=comment.site.domain.strip('/'), path=object_path)
         self.assertIn(comment.comment, body)

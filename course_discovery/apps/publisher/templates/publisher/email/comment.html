@@ -4,7 +4,7 @@
 <!-- Message Body -->
         <p>
             {% blocktrans with date=comment_date|date:'m/d/y' time=comment_date.time trimmed %}
-                The {{ team_name }} made the following comment on {{ course_name }} on {{ date }} at {{ time }}
+                {{ user_name }} made the following comment on {{ course_name }} on {{ date }} at {{ time }}
             {% endblocktrans %}
         </p>
         <p style="font-style: italic;">
