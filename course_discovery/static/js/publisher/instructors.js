@@ -9,6 +9,16 @@ $(document).ready(function(){
         renderSelectedInstructor(id, name, image_source, uuid);
     });
 
+    $("#id_staff").on("select2:select", function(e) {
+        var $instructorSelector = e.params.data,
+            id = $instructorSelector.id, 
+            selectedInstructorData = $.parseHTML($instructorSelector.text)[0],
+            image_source = $(selectedInstructorData).find('img').attr('src'), 
+            name = $(selectedInstructorData).find('b').text();
+        renderSelectedInstructor(id, name, image_source);
+
+    });
+
     $('#add-new-instructor').click(function(e){
         clearModalError();
         var btnInstructor = $('#add-instructor-btn');
@@ -111,21 +121,6 @@ function loadSelectedImage(input) {
         }
     }
 }
-
-$(document).on('change', '#id_staff', function (e) {
-
-    var $instructorSelector = $('.instructor-select'),
-        $instructor = $instructorSelector.find('.select2-selection__choice'),
-        id = $instructor.find('.instructor-option').last().prop("id"),
-        image_source,
-        name;
-    $instructorSelector.find('.select2-selection__clear').remove();
-    image_source = $instructor.find('img').last().attr('src');
-    name = $instructor.find('b').last().text();
-    renderSelectedInstructor(id, name, image_source);
-    $instructor.remove();
-});
-
 
 $(document).on('click', '.selected-instructor a.delete', function (e) {
     e.preventDefault();
