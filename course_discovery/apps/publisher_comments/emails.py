@@ -72,7 +72,7 @@ def send_email_for_comment(comment, created=False):
 
         context = {
             'comment_message': comment.comment,
-            'team_name': 'course team' if comment.user == course.course_team_admin else 'marketing team',
+            'user_name': comment.user.username,
             'course_name': course_name,
             'comment_date': comment_date,
             'page_url': 'https://{host}{path}'.format(host=comment.site.domain.strip('/'), path=object_path)
