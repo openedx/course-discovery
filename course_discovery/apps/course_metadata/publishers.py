@@ -201,6 +201,11 @@ class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):
             node_data = self.serialize_obj(obj)
 
             self.edit_node(node_id, node_data)
+        elif not previous_obj:
+            # This is a brand new course_run object
+            # let's create it on the marketing site
+            node_data = self.serialize_obj(obj)
+            self.create_node(node_data)
 
     def serialize_obj(self, obj):
         """
@@ -217,6 +222,10 @@ class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):
         return {
             **data,
             'status': 1 if obj.status == CourseRunStatus.Published else 0,
+            'field_course_uuid': str(obj.uuid),
+            'title': obj.title,
+            'field_course_id': obj.key,
+            'type': 'course',
         }
 
 
