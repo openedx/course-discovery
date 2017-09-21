@@ -199,16 +199,19 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
 
         self.obj = CourseRunFactory()
 
+    @mock.patch.object(CourseRunMarketingSitePublisher, 'serialize_obj', return_value='data')
+    @mock.patch.object(CourseRunMarketingSitePublisher, 'create_node')
+    def test_publish_obj_create(self, mock_create_node, *args):  # pylint: disable=unused-argument
+        self.publisher.publish_obj(self.obj)
+        mock_create_node.assert_called_with('data')
+
     @mock.patch.object(CourseRunMarketingSitePublisher, 'node_id', return_value='node_id')
     @mock.patch.object(CourseRunMarketingSitePublisher, 'serialize_obj', return_value='data')
     @mock.patch.object(CourseRunMarketingSitePublisher, 'edit_node', return_value=None)
-    def test_publish_obj(self, mock_edit_node, *args):  # pylint: disable=unused-argument
+    def test_publish_obj_edit(self, mock_edit_node, *args):  # pylint: disable=unused-argument
         """
         Verify that the publisher attempts to publish when course run status changes.
         """
-        # No previous object. No editing should occur.
-        self.publisher.publish_obj(self.obj)
-        assert not mock_edit_node.called
 
         # A previous object is provided, but the status hasn't changed.
         # No editing should occur.
@@ -231,8 +234,11 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         actual = self.publisher.serialize_obj(self.obj)
         expected = {
             'field_course_id': self.obj.key,
+            'field_course_uuid': str(self.obj.uuid),
+            'title': self.obj.title,
             'author': {'id': self.user_id},
             'status': 1,
+            'type': 'course',
         }
 
         assert actual == expected
