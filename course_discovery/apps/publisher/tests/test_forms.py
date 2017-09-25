@@ -8,8 +8,9 @@ from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
-from course_discovery.apps.publisher.forms import CourseForm, CourseRunForm, PublisherUserCreationForm
-from course_discovery.apps.publisher.tests.factories import CourseFactory, OrganizationExtensionFactory
+from course_discovery.apps.publisher.forms import CourseForm, CourseRunForm, PublisherUserCreationForm, SeatForm
+from course_discovery.apps.publisher.models import Seat
+from course_discovery.apps.publisher.tests.factories import CourseFactory, OrganizationExtensionFactory, SeatFactory
 
 
 class UserModelChoiceFieldTests(TestCase):
@@ -278,3 +279,18 @@ class PublisherCustomCourseFormTests(TestCase):
         course_form.save()
         course.refresh_from_db()
         assert course.title == 'áçã'
+
+
+class SeatFormTests(TestCase):
+    def test_upgrade_deadline(self):
+        seat = SeatFactory()
+        data = {
+            'price': 100,
+            'type': Seat.VERIFIED,
+            'course_run': seat.course_run.pk,
+            'upgrade_deadline': None,
+        }
+        form = SeatForm(instance=seat, data=data)
+
+        assert form.is_valid()
+        assert form.cleaned_data['upgrade_deadline'] == seat.course_run.end - timedelta(days=10)

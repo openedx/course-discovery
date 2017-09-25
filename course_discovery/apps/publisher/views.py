@@ -730,7 +730,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
         run_form = self.run_form(
             request.POST, instance=course_run, is_project_coordinator=context.get('is_project_coordinator')
         )
-        seat_form = self.seat_form(request.POST, instance=course_run.seats.first())
+        seat_form = self.seat_form(request.POST, instance=course_run.seats.first(), initial={'changed_by': user,})
         if run_form.is_valid() and seat_form.is_valid():
             try:
                 with transaction.atomic():
@@ -741,7 +741,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
 
                     # If price-type comes with request then save the seat object.
                     if request.POST.get('type'):
-                        seat_form.save(changed_by=user, course_run=course_run)
+                        seat_form.save()
 
                     # in case of any updating move the course-run state to draft except draft and published state.
                     immutable_states = [CourseRunStateChoices.Draft, CourseRunStateChoices.Published]

@@ -1,3 +1,4 @@
+import datetime
 import html
 
 from dal import autocomplete
@@ -396,14 +397,16 @@ class SeatForm(BaseForm):
     ]
 
     type = forms.ChoiceField(choices=TYPE_CHOICES, required=False, label=_('Enrollment Track'))
-    price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
     credit_price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
 
     class Meta:
-        fields = ('price', 'type', 'credit_price')
+        fields = ('price', 'type', 'credit_price', 'course_run', 'upgrade_deadline',)
         model = Seat
+        widgets = {
+            'course_run': forms.HiddenInput(),
+        }
 
-    def save(self, commit=True, course_run=None, changed_by=None):  # pylint: disable=arguments-differ
+    def save(self, commit=True):
         # When seat is save make sure its prices and others fields updated accordingly.
         seat = super(SeatForm, self).save(commit=False)
         if seat.type in [Seat.HONOR, Seat.AUDIT]:
@@ -416,21 +419,16 @@ class SeatForm(BaseForm):
             seat.upgrade_deadline = None
             self.reset_credit_to_default(seat)
 
-        if course_run:
-            seat.course_run = course_run
-
-        if changed_by:
-            seat.changed_by = changed_by
-
         if commit:
             seat.save()
 
         return seat
 
     def clean(self):
-        price = self.cleaned_data.get('price')
-        credit_price = self.cleaned_data.get('credit_price')
-        seat_type = self.cleaned_data.get('type')
+        cleaned_data = super().clean()
+        price = cleaned_data.get('price')
+        credit_price = cleaned_data.get('credit_price')
+        seat_type = cleaned_data.get('type')
 
         if seat_type and seat_type != Seat.AUDIT and not price:
             self.add_error('price', _('Please specify a price.'))
@@ -438,7 +436,13 @@ class SeatForm(BaseForm):
         if seat_type == Seat.CREDIT and not credit_price:
             self.add_error('credit_price', _('Please specify a price for credit.'))
 
-        return self.cleaned_data
+        if not cleaned_data.get('upgrade_deadline'):
+            course_run = cleaned_data.get('course_run')
+
+            if course_run:
+                cleaned_data['upgrade_deadline'] = course_run.end - datetime.timedelta(days=10)
+
+        return cleaned_data
 
     def reset_credit_to_default(self, seat):
         seat.credit_provider = ''
