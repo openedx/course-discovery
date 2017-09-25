@@ -58,8 +58,9 @@ class PersonModelMultipleChoiceTests(TestCase):
 
         # we need to loop through choices because it is a ModelChoiceIterator
         for __, choice_label in course_form.fields['staff'].choices:
-            expected = '<img src="{url}"/><span>{full_name}</span>'.format(
+            expected = '<img src="{url}"/><span data-uuid="{uuid}" >{full_name}</span>'.format(
                 full_name=person.full_name,
+                uuid=person.uuid,
                 url=person.get_profile_image_url
             )
             self.assertEqual(choice_label.strip(), expected)

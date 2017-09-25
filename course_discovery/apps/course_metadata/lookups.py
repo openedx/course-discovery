@@ -71,7 +71,9 @@ class PersonAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
                 'uuid': result.uuid,
                 'profile_image': result.get_profile_image_url,
                 'full_name': result.full_name,
-                'position': result.position if hasattr(result, 'position') else None
+                'position': result.position if hasattr(result, 'position') else None,
+                'organization_id': result.position.organization_id if hasattr(result, 'position') else None
+
             }
 
             return render_to_string('publisher/_personLookup.html', context=context)
