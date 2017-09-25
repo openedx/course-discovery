@@ -10,6 +10,7 @@ import waffle
 from django.db import models, transaction
 from django.db.models.query_utils import Q
 from django.utils.functional import cached_property
+from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
@@ -631,6 +632,11 @@ class CourseRun(TimeStampedModel):
         if is_publishable:
             publisher = CourseRunMarketingSitePublisher(self.course.partner)
             previous_obj = CourseRun.objects.get(id=self.id) if self.id else None
+
+            if not self.slug:
+                # If we are publishing this object to marketing site,
+                # let's make sure slug is defined
+                self.slug = slugify(self.title)
 
             with transaction.atomic():
                 super(CourseRun, self).save(*args, **kwargs)
