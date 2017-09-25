@@ -9,6 +9,7 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus, Progr
 from course_discovery.apps.course_metadata.exceptions import (
     AliasCreateError,
     AliasDeleteError,
+    FormRetrievalError,
     NodeCreateError,
     NodeDeleteError,
     NodeEditError,
@@ -107,6 +108,12 @@ class BaseMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         with pytest.raises(NodeLookupError):
             self.publisher.node_id(self.obj)
 
+        responses.reset()
+        self.mock_api_client()
+        self.mock_node_retrieval(self.publisher.node_lookup_field, lookup_value, exists=False)
+        node_id = self.publisher.node_id(self.obj)
+        assert node_id is None
+
     @responses.activate
     def test_create_node(self):
         """
@@ -200,10 +207,34 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.obj = CourseRunFactory()
 
     @mock.patch.object(CourseRunMarketingSitePublisher, 'serialize_obj', return_value='data')
-    @mock.patch.object(CourseRunMarketingSitePublisher, 'create_node')
-    def test_publish_obj_create(self, mock_create_node, *args):  # pylint: disable=unused-argument
+    @mock.patch.object(CourseRunMarketingSitePublisher, 'node_id', return_value=None)
+    @mock.patch.object(CourseRunMarketingSitePublisher, 'create_node', return_value='node_id')
+    @mock.patch.object(CourseRunMarketingSitePublisher, 'update_node_alias')
+    def test_publish_obj_create_successful(
+        self,
+        mock_update_node_alias,
+        mock_create_node,
+        *args
+    ):  # pylint: disable=unused-argument
         self.publisher.publish_obj(self.obj)
         mock_create_node.assert_called_with('data')
+        mock_update_node_alias.assert_called_with(self.obj, 'node_id', None)
+
+    @mock.patch.object(CourseRunMarketingSitePublisher, 'serialize_obj', return_value='data')
+    @mock.patch.object(CourseRunMarketingSitePublisher, 'node_id', return_value='node_id')
+    @mock.patch.object(CourseRunMarketingSitePublisher, 'create_node')
+    @mock.patch.object(CourseRunMarketingSitePublisher, 'update_node_alias')
+    def test_publish_obj_not_create_if_exists(
+        self,
+        mock_update_node_alias,
+        mock_create_node,
+        mock_node_id,
+        *args
+    ):  # pylint: disable=unused-argument
+        self.publisher.publish_obj(self.obj)
+        mock_node_id.assert_called_with(self.obj)
+        assert not mock_create_node.called
+        assert not mock_update_node_alias.called
 
     @mock.patch.object(CourseRunMarketingSitePublisher, 'node_id', return_value='node_id')
     @mock.patch.object(CourseRunMarketingSitePublisher, 'serialize_obj', return_value='data')
@@ -247,6 +278,59 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
 
         actual = self.publisher.serialize_obj(self.obj)
         expected['status'] = 0
+
+        assert actual == expected
+
+    @responses.activate
+    def test_update_node_alias(self):
+        """
+        Verify that the publisher attempts to create a new alias associated with the new course_run,
+        and that appropriate exceptions are raised for non-200 status codes.
+        """
+        # No previous object is provided. Create a new node and make sure
+        # title alias created, by default, based on the title is deleted
+        # and a new alias based on marketing slug is created.
+        self.mock_api_client()
+        self.mock_get_alias_form()
+        self.mock_get_delete_form(self.obj.slug)
+        self.mock_delete_alias()
+        self.mock_get_delete_form(self.obj.slug)
+        self.mock_add_alias()
+
+        self.publisher.update_node_alias(self.obj, self.node_id, None)
+
+        assert responses.calls[-1].request.url == '{}/add'.format(self.publisher.alias_api_base)
+
+        responses.reset()
+
+        # Same scenario, but this time a non-200 status code is returned during
+        # alias creation. An exception should be raised.
+        self.mock_api_client()
+        self.mock_get_alias_form()
+        self.mock_get_delete_form(self.obj.slug)
+        self.mock_delete_alias()
+        self.mock_get_delete_form(self.obj.slug)
+        self.mock_add_alias(status=500)
+
+        with pytest.raises(AliasCreateError):
+            self.publisher.update_node_alias(self.obj, self.node_id, None)
+
+        responses.reset()
+
+        # In this case, similate the fact that alias form retrival returned error
+        # FormRetrievalError should be raised
+        self.mock_api_client()
+        self.mock_get_delete_form(self.obj.slug)
+        self.mock_get_alias_form(status=500)
+        with pytest.raises(FormRetrievalError):
+            self.publisher.update_node_alias(self.obj, self.node_id, None)
+
+    def test_alias(self):
+        """
+        Verify that aliases are constructed correctly.
+        """
+        actual = self.publisher.alias(self.obj)
+        expected = 'course/{slug}'.format(slug=self.obj.slug)
 
         assert actual == expected
 
