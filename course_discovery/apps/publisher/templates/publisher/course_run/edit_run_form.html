@@ -1,6 +1,7 @@
 {% extends 'publisher/base.html' %}
 {% load i18n %}
 {% load static %}
+{% load waffle_tags %}
 
 {% block title %}
     {% trans "Edit Course Run" %}
@@ -58,8 +59,12 @@
                         <label class="field-label ">{{ run_form.start.label_tag }}  <span class="required">*</span></label>
                         {{ run_form.start }}
                         {% if run_form.start.errors %}
-                            <div class="field-message-content">
-                            {{ run_form.start.errors|escape }}
+                            <div class="field-message has-error">
+                                <div class="field-message-content">
+                                    {% for error in run_form.start.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
                             </div>
                         {% endif %}
                     </div>
@@ -127,14 +132,16 @@
                             <div class="col col-7 {% if run_form.micromasters_name %} hidden {% endif %}" id="micromasters_name_group">
                                 <label class="field-label ">{{ run_form.micromasters_name.label_tag }}</label>
                                 {{ run_form.micromasters_name }}
+                                {% if run_form.micromasters_name.errors %}
+                                    <div class="field-message has-error">
+                                        <div class="field-message-content">
+                                            {% for error in run_form.micromasters_name.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
                             </div>
-                            {% if run_form.micromasters_name.errors %}
-                            <div class="field-message-error">
-                                <span>
-                            {{ run_form.micromasters_name.errors|escape }}
-                                </span>
-                            </div>
-                            {% endif %}
                         </div>
                         <div class="row">
                             <div class="col col-5">
@@ -144,14 +151,16 @@
                             <div class="col col-7 {% if run_form.professional_certificate_name %} hidden {% endif %}" id="professional_certificate_group">
                                 <label class="field-label ">{{ run_form.professional_certificate_name.label_tag }}</label>
                                 {{ run_form.professional_certificate_name }}
+                                {% if run_form.professional_certificate_name.errors %}
+                                    <div class="field-message has-error">
+                                        <div class="field-message-content">
+                                            {% for error in run_form.professional_certificate_name.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
                             </div>
-                            {% if run_form.professional_certificate_name.errors %}
-                            <div class="field-message-error">
-                                <span>
-                            {{ run_form.professional_certificate_name.errors|escape }}
-                                </span>
-                            </div>
-                            {% endif %}
                         </div>
                         <div class="row">
                             <div class="col col-5">
@@ -161,14 +170,16 @@
                             <div class="col col-7 {% if run_form.xseries_name %} hidden {% endif %}" id="xseries_name_group">
                                 <label class="field-label ">{{ run_form.xseries_name.label_tag }}</label>
                                 {{ run_form.xseries_name}}
+                                {% if run_form.xseries_name.errors %}
+                                    <div class="field-message has-error">
+                                        <div class="field-message-content">
+                                            {% for error in run_form.xseries_name.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
                             </div>
-                            {% if run_form.xseries_name.errors %}
-                            <div class="field-messag-error">
-                                <span class="field-message-content">
-                                    {{ run_form.xseries_name.errors|escape }}
-                                </span>
-                            </div>
-                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -187,19 +198,30 @@
                             <div id="SeatPriceBlock" class="col col-6 {% if seat_form.type.value == 'audit' or not seat_form.price.value %}hidden{% endif %}">
                                 <label class="field-label ">{{ seat_form.price.label_tag }}</label>
                                 {{ seat_form.price }}
+                                {% if seat_form.price.errors %}
+                                    <div class="field-message has-error">
+                                        <div class="field-message-content">
+                                            {% for error in seat_form.price.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
                                 <div class="{% if seat_form.type.value != 'credit' or not seat_form.credit_price.value %}hidden{% endif %}" id="creditPrice">
                                     <label class="field-label">{{ seat_form.credit_price.label }}</label>
                                     {{ seat_form.credit_price }}
+                                    {% if seat_form.credit_price.errors %}
+                                    <div class="field-message has-error">
+                                        <div class="field-message-content">
+                                            {% for error in seat_form.credit_price.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
                                 </div>
                             </div>
                         </div>
-                        {% if seat_form.price.errors %}
-                            <div class="field-message has-error">
-                                <span class="field-message-content">
-                                    {{ seat_form.price.errors|escape }}
-                                </span>
-                            </div>
-                        {% endif %}
                     </div>
                 </div>
 
@@ -230,7 +252,13 @@
                                 <label class="field-label ">{% trans "Min Effort" %}</label>
                                 {{ run_form.min_effort }}
                                 {% if run_form.min_effort.errors %}
-                                    {{ run_form.min_effort.errors|escape }}
+                                    <div class="field-message has-error">
+                                        <div class="field-message-content">
+                                            {% for error in run_form.min_effort.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
                                 {% endif %}
                             </div>
                             <div class="col col-6">
@@ -269,6 +297,53 @@
                     </div>
                 </div>
 
+            {% switch "display_enrollment_dates_on_publisher_form" %}
+                <div class="field-title">{% trans "Enrollment Dates" %}</div>
+                <div class="row">
+                    <div class="col col-6 help-text">
+                        {% blocktrans trimmed %}
+                            The date on which the course opens for enrollment. This date must occur on or before
+                            the course start date. Leaving this field empty will result in the default value,
+                            the course start date, being used.
+                        {% endblocktrans %}
+                    </div>
+                    <div class="col col-6">
+                        <label class="field-label ">{{ run_form.enrollment_start.label_tag }}</label>
+                        {{ run_form.enrollment_start }}
+                        {% if run_form.enrollment_start.errors %}
+                            <div class="field-message has-error">
+                                <div class="field-message-content">
+                                    {% for error in run_form.enrollment_start.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col col-6 help-text">
+                        {% blocktrans trimmed %}
+                            The date on which course enrollment is closed. This date must occur after the course start
+                            date, but before the course end date. Leaving this field empty will result in the default value,
+                            the course end date, being used.
+                        {% endblocktrans %}
+                    </div>
+                    <div class="col col-6">
+                        <label class="field-label ">{{ run_form.enrollment_end.label_tag }}</label>
+                        {{ run_form.enrollment_end }}
+                        {% if run_form.enrollment_end.errors %}
+                            <div class="field-message has-error">
+                                <div class="field-message-content">
+                                    {% for error in run_form.enrollment_end.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endswitch %}
             </fieldset>
         </div>
     </div>

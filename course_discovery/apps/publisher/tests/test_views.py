@@ -18,7 +18,6 @@ from django.test import TestCase
 from django.urls import reverse
 from guardian.shortcuts import assign_perm
 from opaque_keys.edx.keys import CourseKey
-from pytz import timezone
 from testfixtures import LogCapture
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
@@ -298,9 +297,9 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
             self.course_run_dict,
             ['end', 'enrollment_start', 'enrollment_end', 'priority', 'certificate_generation', 'id']
         )
-        current_datetime = datetime.now(timezone('US/Central'))
-        self.course_run_dict['start'] = (current_datetime + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
-        self.course_run_dict['end'] = (current_datetime + timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S')
+        now = datetime.utcnow()
+        self.course_run_dict['start'] = (now + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
+        self.course_run_dict['end'] = (now + timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S')
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
     def _pop_valuse_from_dict(self, data_dict, key_list):
@@ -445,7 +444,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
             post_data
         )
 
-        self.assertContains(response, 'Only audit seat can be without price.', status_code=400)
+        self.assertContains(response, 'Please specify a price.', status_code=400)
 
         post_data['price'] = 450
 
@@ -2848,9 +2847,6 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         self.seat = factories.SeatFactory(course_run=self.course_run, type=Seat.VERIFIED, price=2)
 
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        current_datetime = datetime.now(timezone('US/Central'))
-        self.start_date_time = (current_datetime + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
-        self.end_date_time = (current_datetime + timedelta(days=60)).strftime('%Y-%m-%d %H:%M:%S')
 
         # creating default organizations roles
         factories.OrganizationUserRoleFactory(
@@ -2875,7 +2871,7 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         assign_perm(OrganizationExtension.EDIT_COURSE_RUN, self.group, self.organization_extension)
         assign_perm(OrganizationExtension.VIEW_COURSE_RUN, self.group, self.organization_extension)
 
-        # assert edit page is loading sucesfully.
+        # assert edit page is loading successfully.
         self.edit_page_url = reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.new_course_run.id})
         response = self.client.get(self.edit_page_url)
         self.assertEqual(response.status_code, 200)
@@ -2895,14 +2891,19 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         course_dict.update(**data)
         course_dict['team_admin'] = self.user.id
         if course_run:
+            now = datetime.utcnow()
+            start = now.strftime('%Y-%m-%d %H:%M:%S')
+            end = (now + timedelta(days=60)).strftime('%Y-%m-%d %H:%M:%S')
+
             course_dict.update(**model_to_dict(course_run))
             course_dict.pop('video_language')
-            course_dict.pop('end')
             course_dict.pop('priority')
             course_dict['lms_course_id'] = ''
-            course_dict['start'] = self.start_date_time
-            course_dict['end'] = self.end_date_time
+            course_dict['start'] = start
+            course_dict['end'] = end
             course_dict['organization'] = self.organization_extension.organization.id
+            course_dict['enrollment_start'] = start
+            course_dict['enrollment_end'] = end
 
         course_dict.pop('id')
         return course_dict
@@ -3460,7 +3461,7 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
         self.assertEqual(response.status_code, 200)
 
     def _post_data(self):
-        current_datetime = datetime.now(timezone('US/Central'))
+        current_datetime = datetime.utcnow()
         return {
             'course': self.course.id,
             'start': (current_datetime + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S'),

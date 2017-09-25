@@ -14,11 +14,6 @@
             @include float(left);
             @include padding(20px, 20px, 20px, 20px);
         }
-
-        .layout-col {
-
-            
-        }
     }
 
     .layout, .layout-flush {
@@ -209,6 +204,7 @@
     -webkit-box-shadow: 0 -8px 6px -6px rgba(0,0,0,0.05);
     -moz-box-shadow: 0 -8px 6px -6px rgba(0,0,0,0.05);
     box-shadow: 0 -8px 6px -6px rgba(0,0,0,0.05);
+    text-transform: uppercase;
   }
   .field-label {
       font-weight: bold;
@@ -373,7 +369,7 @@
 
 
 .approval-widget, .course-widgets, .edit-history-widget {
-  
+
     .btn-course-edit, .btn-courserun-edit, .btn-change-state, .btn-preview, .btn-save-preview-url, .btn-edit-preview-url {
         @include padding(2px, 20px, 3px, 20px);
         @include float(right);
