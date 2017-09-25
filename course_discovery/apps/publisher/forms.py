@@ -29,7 +29,8 @@ class PersonModelMultipleChoice(forms.ModelMultipleChoiceField):
         context = {
             'profile_image': obj.get_profile_image_url,
             'full_name': obj.full_name,
-            'uuid': obj.uuid if not obj.profile_image_url else None
+            'uuid': obj.uuid,
+            'organization_id': obj.position.organization_id if hasattr(obj, 'position') else None
         }
         return str(render_to_string('publisher/_personFieldLabel.html', context=context))
 

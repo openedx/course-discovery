@@ -4,9 +4,10 @@ $(document).ready(function(){
         var id = this.value,
             label = $.parseHTML(this.label),
             image_source = $(label[0]).attr('src'),
-            name = $(label[1]).text();
-            uuid = $(label[1]).data('uuid');
-        renderSelectedInstructor(id, name, image_source, uuid);
+            name = $(label[1]).text(),
+            uuid = $(label[1]).data('uuid'),
+            organization_id = $(label[2]).text();
+        renderSelectedInstructor(id, name, image_source, uuid, organization_id);
     });
 
     $("#id_staff").on("select2:select", function(e) {
@@ -14,8 +15,10 @@ $(document).ready(function(){
             id = $instructorSelector.id, 
             selectedInstructorData = $.parseHTML($instructorSelector.text)[0],
             image_source = $(selectedInstructorData).find('img').attr('src'), 
-            name = $(selectedInstructorData).find('b').text();
-        renderSelectedInstructor(id, name, image_source);
+            name = $(selectedInstructorData).find('b').text(),
+            uuid = $(selectedInstructorData)[0].id,
+            organization_id = $(selectedInstructorData).find('span').text();
+        renderSelectedInstructor(id, name, image_source, uuid, organization_id);
 
     });
 
@@ -136,15 +139,19 @@ $(document).on('click', '.selected-instructor a.delete', function (e) {
     $('.instructor-select').find('.select2-selection__choice').remove();
 });
 
-function renderSelectedInstructor(id, name, image, uuid) {
-    var instructorHtmlStart = '<div class="instructor" id= "instructor_'+ id +'"><div><img src="' + image + '"></div><div>',
+function renderSelectedInstructor(id, name, image, uuid, organization_id) {
+    var user_organizations_ids = $('#user_organizations_ids').text(),
+        course_user_role = $('#course_user_role').text(),
+        instructorHtmlStart = '<div class="instructor" id= "instructor_'+ id +'"><div><img src="' + image + '"></div><div>',
         instructorHtmlEnd = '<b>' + name + '</b></div></div>',
         controlOptions = '<a class="delete" id="' + id + '"href="#"><i class="fa fa-trash-o fa-fw"></i></a>';
 
-    if (uuid) {
-        controlOptions += '<a class="edit" id="' + uuid + '"href="#"><i class="fa fa-pencil-square-o fa-fw"></i></a>';
-    }
 
+    if (course_user_role == "course_team") {
+            if ($.inArray(parseInt(organization_id), JSON.parse(user_organizations_ids)) > -1 && uuid) {
+                controlOptions += '<a class="edit" id="' + uuid + '"href="#"><i class="fa fa-pencil-square-o fa-fw"></i></a>';
+            }
+    }
     $('.selected-instructor').append(instructorHtmlStart + controlOptions + instructorHtmlEnd);
 }
 
@@ -191,6 +198,7 @@ function loadInstructor(uuid, editMode) {
                     value: id,
                     text: name
                 }).attr('selected', 'selected'));
+                organization_id = $(label).find('span').text()
 
                 if (editMode) {
                     // Updating the existing instructor
@@ -199,7 +207,7 @@ function loadInstructor(uuid, editMode) {
                     instructor_id.find('b').text(name);
                 }
                 else {
-                    renderSelectedInstructor(id, name, image_source, uuid);
+                    renderSelectedInstructor(id, name, image_source, uuid, organization_id);
                 }
             }
 
@@ -223,7 +231,12 @@ $(document).on('click', '.selected-instructor a.edit', function (e) {
     $.getJSON({
         url: btnInstructor.data('url') + uuid,
         success: function (data) {
-            $('.select-image').attr('src', data['profile_image']['medium']['url']);
+            if ($.isEmptyObject(data['profile_image'])) {
+                $('.select-image').attr('src', data['profile_image_url']);
+            }
+            else {
+                $('.select-image').attr('src', data['profile_image']['medium']['url']);
+            }
             $('#given-name').val(data['given_name']);
             $('#family-name').val(data['family_name']);
             $('#title').val(data['position']['title']);
