@@ -31,15 +31,13 @@ def create_course_run_in_studio_receiver(sender, instance, created, **kwargs):  
         logger.info('Publishing course run [%d] to Studio...', instance.id)
         api = StudioAPI(instance.course.partner.studio_api_client)
 
-        # TODO How to handle the fact that Publisher does not expose enrollment date fields?
-        instance.enrollment_start = instance.enrollment_start or instance.start
-        instance.enrollment_end = instance.enrollment_end or instance.end
-
         try:
             try:
                 discovery_course_run = get_related_discovery_course_run(instance)
+                logger.info('Creating a re-run of [%s]...', discovery_course_run.key)
                 response = api.create_course_rerun_in_studio(instance, discovery_course_run)
             except ObjectDoesNotExist:
+                logger.info('Creating a new run of [%s]...', instance.course.key)
                 response = api.create_course_run_in_studio(instance)
 
             instance.lms_course_id = response['id']
@@ -54,5 +52,7 @@ def create_course_run_in_studio_receiver(sender, instance, created, **kwargs):  
             logger.exception(
                 'Failed to update Studio image for course run [%s]: %s', instance.lms_course_id, ex.content
             )
+        except:  # pylint: disable=bare-except
+            logger.exception('Failed to update Studio image for course run [%s]', instance.lms_course_id)
 
         logger.info('Completed creation of course run [%s] on Studio.', instance.lms_course_id)

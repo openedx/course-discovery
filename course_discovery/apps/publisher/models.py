@@ -250,8 +250,11 @@ class Course(TimeStampedModel, ChangedByMixin):
 
     @cached_property
     def discovery_counterpart(self):
-        course_key = '{org}+{number}'.format(org=self.organizations.first().key, number=self.number)
-        return DiscoveryCourse.objects.get(partner=self.partner, key=course_key)
+        return DiscoveryCourse.objects.get(partner=self.partner, key=self.key)
+
+    @cached_property
+    def key(self):
+        return '{org}+{number}'.format(org=self.organizations.first().key, number=self.number)
 
 
 class CourseRun(TimeStampedModel, ChangedByMixin):
