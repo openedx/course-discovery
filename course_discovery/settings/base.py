@@ -501,6 +501,10 @@ SOLO_CACHE_TIMEOUT = 3600
 
 PUBLISHER_FROM_EMAIL = None
 
+# If no upgrade deadline is specified for a course run seat, when the course is published the deadline will default to
+# the course run end date minus the specified number of days.
+PUBLISHER_UPGRADE_DEADLINE_DAYS = 10
+
 # Django Debug Toolbar settings
 # http://django-debug-toolbar.readthedocs.org/en/latest/installation.html
 if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):

@@ -7,11 +7,14 @@ from rest_framework.test import APITestCase
 
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import StaffUserFactory, UserFactory
+from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.models import CourseRun, Video
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from course_discovery.apps.publisher.api.utils import serialize_seat_for_ecommerce_api
 from course_discovery.apps.publisher.api.v1.views import CourseRunViewSet
-from course_discovery.apps.publisher.tests.factories import CourseRunFactory
+from course_discovery.apps.publisher.models import Seat
+from course_discovery.apps.publisher.tests.factories import CourseRunFactory, SeatFactory
 
 
 class CourseRunViewSetTests(APITestCase):
@@ -64,10 +67,32 @@ class CourseRunViewSetTests(APITestCase):
         url = '{root}publication/'.format(root=partner.ecommerce_api_url)
         responses.add(responses.POST, url, json=body, status=status)
 
+    def serialize_seat_for_ecommerce_api(self, seat):
+        return {
+            'expires': serialize_datetime(seat.upgrade_deadline or seat.course_run.end),
+            'price': str(seat.price),
+            'product_class': 'Seat',
+            'attribute_values': [
+                {
+                    'name': 'certificate_type',
+                    'value': None if seat.type is Seat.AUDIT else seat.type,
+                },
+                {
+                    'name': 'id_verification_required',
+                    'value': seat.type in (Seat.VERIFIED, Seat.PROFESSIONAL),
+                }
+            ]
+        }
+
     @responses.activate
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_publish(self, mock_access_token):  # pylint: disable=unused-argument
+    def test_publish(self, mock_access_token):  # pylint: disable=unused-argument,too-many-statements
         publisher_course_run = self._create_course_run_for_publication()
+
+        audit_seat = SeatFactory(course_run=publisher_course_run, type=Seat.AUDIT, upgrade_deadline=None)
+        professional_seat = SeatFactory(course_run=publisher_course_run, type=Seat.PROFESSIONAL)
+        verified_seat = SeatFactory(course_run=publisher_course_run, type=Seat.VERIFIED)
+
         partner = publisher_course_run.course.organizations.first().partner
         self._set_test_client_domain_and_login(partner)
 
@@ -84,6 +109,16 @@ class CourseRunViewSetTests(APITestCase):
             'studio': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
         }
         assert response.data == expected
+
+        # Verify the correct deadlines were sent to the E-Commerce API
+        ecommerce_body = json.loads(responses.calls[2].request.body)
+        expected = [
+            serialize_seat_for_ecommerce_api(audit_seat),
+            serialize_seat_for_ecommerce_api(professional_seat),
+            serialize_seat_for_ecommerce_api(verified_seat),
+        ]
+        assert ecommerce_body['products'] == expected
+        assert ecommerce_body['verification_deadline'] == serialize_datetime(publisher_course_run.end)
 
         discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
         publisher_course = publisher_course_run.course
