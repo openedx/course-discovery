@@ -4,6 +4,7 @@ import json
 import mock
 import pytest
 import responses
+from freezegun import freeze_time
 from slumber.exceptions import HttpServerError
 from waffle.testutils import override_switch
 
@@ -14,6 +15,7 @@ from course_discovery.apps.publisher.studio_api_utils import StudioAPI
 from course_discovery.apps.publisher.tests.factories import CourseRunFactory
 
 
+@freeze_time('2017-01-01T00:00:00Z')
 @pytest.mark.django_db
 class TestSignals:
     @override_switch('enable_publisher_create_course_run_in_studio', active=True)
@@ -34,10 +36,8 @@ class TestSignals:
     def test_create_course_run_in_studio(self, mock_access_token):  # pylint: disable=unused-argument
         organization = OrganizationFactory()
         partner = organization.partner
-
         start = datetime.datetime.utcnow()
-        run = StudioAPI.calculate_course_run_key_run_value(CourseRunFactory.build(start=start))
-        course_run_key = 'course-v1:TestX+Testing101x+' + run
+        course_run_key = 'course-v1:TestX+Testing101x+1T2017'
 
         body = {'id': course_run_key}
         studio_url_root = partner.studio_url.strip('/')
@@ -68,10 +68,8 @@ class TestSignals:
         partner = organization.partner
         course_key = '{org}+{number}'.format(org=organization.key, number=number)
         discovery_course_run = DiscoveryCourseRunFactory(course__partner=partner, course__key=course_key)
-
         start = datetime.datetime.utcnow()
-        run = StudioAPI.calculate_course_run_key_run_value(CourseRunFactory.build(start=start))
-        course_run_key = 'course-v1:TestX+Testing101x+' + run
+        course_run_key = 'course-v1:TestX+Testing101x+1T2017'
 
         body = {'id': course_run_key}
         studio_url_root = partner.studio_url.strip('/')
@@ -103,14 +101,40 @@ class TestSignals:
 
     @responses.activate
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
+    @mock.patch.object(StudioAPI, 'update_course_run_image_in_studio', side_effect=Exception)
     @override_switch('enable_publisher_create_course_run_in_studio', active=True)
-    def test_create_course_run_in_studio_with_image_failure(self, mock_access_token):  # pylint: disable=unused-argument
+    def test_create_course_run_in_studio_with_image_failure(self, __, ___):  # pylint: disable=unused-argument
         organization = OrganizationFactory()
         partner = organization.partner
-
         start = datetime.datetime.utcnow()
-        run = StudioAPI.calculate_course_run_key_run_value(CourseRunFactory.build(start=start))
-        course_run_key = 'course-v1:TestX+Testing101x+' + run
+        course_run_key = 'course-v1:TestX+Testing101x+1T2017'
+
+        body = {'id': course_run_key}
+        studio_url_root = partner.studio_url.strip('/')
+        url = '{}/api/v1/course_runs/'.format(studio_url_root)
+        responses.add(responses.POST, url, json=body, status=200)
+
+        with mock.patch('course_discovery.apps.publisher.signals.logger.exception') as mock_logger:
+            publisher_course_run = CourseRunFactory(
+                start=start,
+                lms_course_id=None,
+                course__organizations=[organization]
+            )
+
+        assert len(responses.calls) == 1
+        assert publisher_course_run.lms_course_id == course_run_key
+
+        mock_logger.assert_called_with('Failed to update Studio image for course run [%s]', course_run_key)
+
+    # pylint: disable=unused-argument
+    @responses.activate
+    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
+    @override_switch('enable_publisher_create_course_run_in_studio', active=True)
+    def test_create_course_run_in_studio_with_image_api_failure(self, mock_access_token):
+        organization = OrganizationFactory()
+        partner = organization.partner
+        start = datetime.datetime.utcnow()
+        course_run_key = 'course-v1:TestX+Testing101x+1T2017'
 
         body = {'id': course_run_key}
         studio_url_root = partner.studio_url.strip('/')
