@@ -21,6 +21,22 @@ def get_related_discovery_course_run(publisher_course_run):
 def create_course_run_in_studio_receiver(sender, instance, created, **kwargs):  # pylint: disable=unused-argument
     if created and waffle.switch_is_active('enable_publisher_create_course_run_in_studio'):
         course = instance.course
+        for organization in course.organizations.all():
+            try:
+                if not organization.organization_extension.auto_create_in_studio:
+                    logger.warning(
+                        ('Course run [%d] will not be automatically created in studio.'
+                            'Organization [%s] has opted out of this feature.'),
+                        course.id,
+                        organization.key,
+                    )
+                    return
+            except ObjectDoesNotExist:
+                logger.exception(
+                    'Organization [%s] does not have an associated OrganizationExtension',
+                    organization.key,
+                )
+
         partner = course.partner
 
         if not partner:

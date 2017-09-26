@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-20 15:36-0400\n"
+"POT-Creation-Date: 2017-09-27 18:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -893,6 +893,16 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Course Role"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Automatically create a run in Studio"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid ""
+"When this flag is enabled, creation of a new course run in Publisher will "
+"also create a corresponding course run in Studio."
 msgstr ""
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
@@ -2612,8 +2622,8 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/comment.html
 #, python-format
 msgid ""
-"The %(team_name)s made the following comment on %(course_name)s on %(date)s "
-"at %(time)s"
+"%(user_name)s made the following comment on %(course_name)s on %(date)s at "
+"%(time)s"
 msgstr ""
 
 #: apps/publisher/templates/publisher/email/comment.html
@@ -2634,7 +2644,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/comment.txt
 #, python-format
 msgid ""
-"The %(team_name)s made the following comment on %(course_name)s %(date)s at "
+"%(user_name)s made the following comment on %(course_name)s %(date)s at "
 "%(time)s."
 msgstr ""
 

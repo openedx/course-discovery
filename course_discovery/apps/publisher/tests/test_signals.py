@@ -12,7 +12,7 @@ from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI
-from course_discovery.apps.publisher.tests.factories import CourseRunFactory
+from course_discovery.apps.publisher.tests.factories import CourseRunFactory, OrganizationExtensionFactory
 
 
 @freeze_time('2017-01-01T00:00:00Z')
@@ -28,6 +28,23 @@ class TestSignals:
                 'Failed to publish course run [%d] to Studio. Related course [%d] has no associated Partner.',
                 publisher_course_run.id,
                 publisher_course_run.course.id
+            )
+
+    @override_switch('enable_publisher_create_course_run_in_studio', active=True)
+    def test_create_course_run_in_studio_with_organization_opt_out(self):
+        with mock.patch('course_discovery.apps.publisher.signals.logger.warning') as mock_logger:
+            course_organization = OrganizationFactory()
+            OrganizationExtensionFactory(
+                organization=course_organization,
+                auto_create_in_studio=False
+            )
+            publisher_course_run = CourseRunFactory(course__organizations=[course_organization])
+
+            mock_logger.assert_called_with(
+                ('Course run [%d] will not be automatically created in studio.'
+                    'Organization [%s] has opted out of this feature.'),
+                publisher_course_run.course.id,
+                course_organization.key,
             )
 
     @responses.activate
@@ -50,14 +67,22 @@ class TestSignals:
             course_run_key=course_run_key
         )
         responses.add(responses.POST, url, json=body, status=200)
+        with mock.patch('course_discovery.apps.publisher.signals.logger.exception') as mock_logger:
+            publisher_course_run = CourseRunFactory(
+                start=start,
+                lms_course_id=None,
+                course__organizations=[organization]
+            )
 
-        publisher_course_run = CourseRunFactory(start=start, lms_course_id=None, course__organizations=[organization])
+            # We refresh because the signal should update the instance with the course run key from Studio
+            publisher_course_run.refresh_from_db()
 
-        # We refresh because the signal should update the instance with the course run key from Studio
-        publisher_course_run.refresh_from_db()
-
-        assert len(responses.calls) == 2
-        assert publisher_course_run.lms_course_id == course_run_key
+            assert len(responses.calls) == 2
+            assert publisher_course_run.lms_course_id == course_run_key
+            mock_logger.assert_called_with(
+                'Organization [%s] does not have an associated OrganizationExtension',
+                organization.key,
+            )
 
     @responses.activate
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')

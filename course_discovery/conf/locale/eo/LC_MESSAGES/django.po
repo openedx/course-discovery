@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-20 15:36-0400\n"
+"POT-Creation-Date: 2017-09-27 18:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1047,6 +1047,20 @@ msgstr "Örgänïzätïön Rölé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α�
 #: apps/publisher/models.py
 msgid "Course Role"
 msgstr "Çöürsé Rölé Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: apps/publisher/models.py
+msgid "Automatically create a run in Studio"
+msgstr ""
+"Àütömätïçällý çréäté ä rün ïn Stüdïö Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
+
+#: apps/publisher/models.py
+msgid ""
+"When this flag is enabled, creation of a new course run in Publisher will "
+"also create a corresponding course run in Studio."
+msgstr ""
+"Whén thïs fläg ïs énäßléd, çréätïön öf ä néw çöürsé rün ïn Püßlïshér wïll "
+"älsö çréäté ä çörréspöndïng çöürsé rün ïn Stüdïö. Ⱡ'σяєм ιρ#"
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "In Draft since"
@@ -3081,11 +3095,11 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/comment.html
 #, python-format
 msgid ""
-"The %(team_name)s made the following comment on %(course_name)s on %(date)s "
-"at %(time)s"
+"%(user_name)s made the following comment on %(course_name)s on %(date)s at "
+"%(time)s"
 msgstr ""
-"Thé %(team_name)s mädé thé föllöwïng çömmént ön %(course_name)s ön %(date)s "
-"ät %(time)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+"%(user_name)s mädé thé föllöwïng çömmént ön %(course_name)s ön %(date)s ät "
+"%(time)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/templates/publisher/email/comment.html
 #: apps/publisher/templates/publisher/email/comment.txt
@@ -3105,10 +3119,10 @@ msgstr "Thé édX téäm Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 #: apps/publisher/templates/publisher/email/comment.txt
 #, python-format
 msgid ""
-"The %(team_name)s made the following comment on %(course_name)s %(date)s at "
+"%(user_name)s made the following comment on %(course_name)s %(date)s at "
 "%(time)s."
 msgstr ""
-"Thé %(team_name)s mädé thé föllöwïng çömmént ön %(course_name)s %(date)s ät "
+"%(user_name)s mädé thé föllöwïng çömmént ön %(course_name)s %(date)s ät "
 "%(time)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/templates/publisher/email/course/mark_as_reviewed.html
