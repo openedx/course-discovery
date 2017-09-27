@@ -214,13 +214,6 @@ class CourseRunWrapperTests(TestCase):
 
         self.assertEqual(self.wrapped_course_run.course_staff, expected)
 
-    def _assert_course_run_status(self, actual_status, expected_status_text, expected_date):
-        """
-        Assert course run statuses.
-        """
-        expected_status = {'status_text': expected_status_text, 'date': expected_date}
-        self.assertEqual(actual_status, expected_status)
-
     def _change_state_and_owner(self, course_run_state):
         """
         Change course run state to review and ownership to project coordinator.
@@ -235,19 +228,13 @@ class CourseRunWrapperTests(TestCase):
         course_run_state = factories.CourseRunStateFactory(
             course_run=self.course_run, owner_role=PublisherUserRole.CourseTeam
         )
-        self._assert_course_run_status(
-            self.wrapped_course_run.course_team_status, 'In Draft since', self.wrapped_course_run.owner_role_modified
-        )
+        assert self.wrapped_course_run.course_team_status == 'Draft'
 
         self._change_state_and_owner(course_run_state)
-        self._assert_course_run_status(
-            self.wrapped_course_run.course_team_status, 'Submitted on', self.wrapped_course_run.owner_role_modified
-        )
+        assert self.wrapped_course_run.course_team_status == 'Submitted for Project Coordinator Review'
 
         course_run_state.change_owner_role(PublisherUserRole.CourseTeam)
-        self._assert_course_run_status(
-            self.wrapped_course_run.course_team_status, 'In Review since', self.wrapped_course_run.owner_role_modified
-        )
+        assert self.wrapped_course_run.course_team_status == 'Awaiting Course Team Review'
 
     def test_internal_user_status(self):
         """
@@ -256,17 +243,13 @@ class CourseRunWrapperTests(TestCase):
         course_run_state = factories.CourseRunStateFactory(
             course_run=self.course_run, owner_role=PublisherUserRole.CourseTeam
         )
-        self._assert_course_run_status(self.wrapped_course_run.internal_user_status, 'n/a', '')
+        assert self.wrapped_course_run.internal_user_status == 'N/A'
 
         self._change_state_and_owner(course_run_state)
-        self._assert_course_run_status(
-            self.wrapped_course_run.internal_user_status, 'In Review since', self.wrapped_course_run.owner_role_modified
-        )
+        assert self.wrapped_course_run.internal_user_status == 'Awaiting Project Coordinator Review'
 
         course_run_state.change_owner_role(PublisherUserRole.CourseTeam)
-        self._assert_course_run_status(
-            self.wrapped_course_run.internal_user_status, 'Reviewed on', self.wrapped_course_run.owner_role_modified
-        )
+        assert self.wrapped_course_run.internal_user_status == 'Approved by Project Coordinator'
 
     def test_preview_declined(self):
         """

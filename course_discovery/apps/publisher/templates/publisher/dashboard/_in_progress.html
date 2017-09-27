@@ -36,6 +36,9 @@
                     {% trans "Course Team" %}
                 </th>
                 <th role="button">
+                    {% trans "Last Handoff" %}
+                </th>
+                <th role="button">
                     {{ site_name }}
                 </th>
             </tr>
@@ -44,28 +47,17 @@
             {% for course_run in in_progress_course_runs %}
                 <tr>
                     <td>
-                        <a href="{% url 'publisher:publisher_course_run_detail' course_run.id %}">{{ course_run.title }}</a>
+                        <a href="{% url 'publisher:publisher_course_run_detail' course_run.id %}">
+                            {{ course_run.title }}
+                        </a>
                     </td>
-                    <td>
-                        {{ course_run.number }}
-                    </td>
-                    <td>
-                        {{ course_run.course.organization_name }}
-                    </td>
-                    <td>
-                         {{ course_run.start|date:"Y-m-d" }}
-                    </td>
-                    <td>
-                        {{ course_run.end|date:"Y-m-d" }}
-                    </td>
-                    <td>
-                        {{ course_run.course_team_status.status_text }}<br>
-                        {{ course_run.course_team_status.date|date:'m/d/y' }}
-                    </td>
-                    <td>
-                        {{ course_run.internal_user_status.status_text }}<br>
-                        {{ course_run.internal_user_status.date|date:'m/d/y' }}
-                    </td>
+                    <td>{{ course_run.number }}</td>
+                    <td>{{ course_run.course.organization_name }}</td>
+                    <td>{{ course_run.start|date:"Y-m-d" }}</td>
+                    <td>{{ course_run.end|date:"Y-m-d" }}</td>
+                    <td>{{ course_run.course_team_status }}</td>
+                    <td>{{ course_run.internal_user_status }}</td>
+                    <td>{{ course_run.owner_role_last_modified }}</td>
                 </tr>
             {% endfor %}
         </tbody>

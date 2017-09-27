@@ -1232,11 +1232,9 @@ class CourseRunDetailTests(SiteMixin, TestCase):
 
 # pylint: disable=attribute-defined-outside-init
 @ddt.ddt
-class DashboardTests(SiteMixin, TestCase):
-    """ Tests for the `Dashboard`. """
-
+class CourseRunListViewTests(SiteMixin, TestCase):
     def setUp(self):
-        super(DashboardTests, self).setUp()
+        super(CourseRunListViewTests, self).setUp()
         Site.objects.exclude(id=self.site.id).delete()
         self.group_internal = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
         self.group_project_coordinator = Group.objects.get(name=PROJECT_COORDINATOR_GROUP_NAME)

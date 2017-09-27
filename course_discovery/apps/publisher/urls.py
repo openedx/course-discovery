@@ -3,7 +3,7 @@ from django.conf.urls import include, url
 from course_discovery.apps.publisher import views
 
 urlpatterns = [
-    url(r'^$', views.Dashboard.as_view(), name='publisher_dashboard'),
+    url(r'^$', views.CourseRunListView.as_view(), name='publisher_dashboard'),
     url(r'^admin/importcourses/$', views.AdminImportCourse.as_view(), name='publisher_admin_import_course'),
     url(r'^api/', include('course_discovery.apps.publisher.api.urls', namespace='api')),
     url(r'^courses/$', views.CourseListView.as_view(), name='publisher_courses'),

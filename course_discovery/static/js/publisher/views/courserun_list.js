@@ -1,4 +1,3 @@
-
 $(document).ready(function() {
     var data_table_studio = $('.data-table-studio').DataTable({
         "autoWidth": false
