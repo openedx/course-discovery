@@ -12,7 +12,7 @@ django-fsm==2.6.0
 django-guardian==1.4.8
 django-haystack==2.5.0
 django-libsass==0.7
-django-simple-history==1.8.1
+django-simple-history==1.9.0
 django-solo==1.1.2
 django-sortedm2m==1.4.0
 django-stdimage==2.4.1

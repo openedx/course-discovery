@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
-from guardian.admin import GuardedModelAdmin
+from guardian.admin import GuardedModelAdminMixin
+from simple_history.admin import SimpleHistoryAdmin
 
 from course_discovery.apps.publisher.assign_permissions import assign_permissions
 from course_discovery.apps.publisher.choices import InternalUserRole
@@ -16,14 +17,14 @@ from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRun
 
 
 @admin.register(CourseUserRole)
-class CourseUserRoleAdmin(admin.ModelAdmin):
+class CourseUserRoleAdmin(SimpleHistoryAdmin):
     raw_id_fields = ('changed_by', 'course', 'user',)
     list_display = ['role', 'course', 'user']
     search_fields = ['course__title']
 
 
 @admin.register(OrganizationExtension)
-class OrganizationExtensionAdmin(GuardedModelAdmin):
+class OrganizationExtensionAdmin(GuardedModelAdminMixin, SimpleHistoryAdmin):
     form = OrganizationExtensionForm
     list_display = ['organization', 'group']
     search_fields = ['organization__name', 'group__name']
@@ -39,7 +40,7 @@ class UserAttributesAdmin(admin.ModelAdmin):
 
 
 @admin.register(OrganizationUserRole)
-class OrganizationUserRoleAdmin(admin.ModelAdmin):
+class OrganizationUserRoleAdmin(SimpleHistoryAdmin):
     raw_id_fields = ('user', 'organization',)
     list_display = ['role', 'organization', 'user']
     search_fields = ['organization__name']
@@ -69,7 +70,7 @@ class OrganizationUserRoleAdmin(admin.ModelAdmin):
 
 
 @admin.register(CourseState)
-class CourseStateAdmin(admin.ModelAdmin):
+class CourseStateAdmin(SimpleHistoryAdmin):
     raw_id_fields = ('changed_by',)
     list_display = ['id', 'name', 'approved_by_role', 'owner_role', 'course', 'marketing_reviewed']
     search_fields = ['id', 'course__title']
@@ -77,7 +78,7 @@ class CourseStateAdmin(admin.ModelAdmin):
 
 
 @admin.register(CourseRunState)
-class CourseRunStateAdmin(admin.ModelAdmin):
+class CourseRunStateAdmin(SimpleHistoryAdmin):
     raw_id_fields = ('changed_by',)
     list_display = ['id', 'name', 'approved_by_role', 'owner_role',
                     'course_run', 'owner_role_modified', 'preview_accepted']
@@ -87,14 +88,14 @@ class CourseRunStateAdmin(admin.ModelAdmin):
 
 
 @admin.register(Course)
-class CourseAdmin(admin.ModelAdmin):
+class CourseAdmin(SimpleHistoryAdmin):
     raw_id_fields = ('changed_by',)
     list_display = ['title', 'number']
     search_fields = ['title', 'number']
 
 
 @admin.register(CourseRun)
-class CourseRunAdmin(admin.ModelAdmin):
+class CourseRunAdmin(SimpleHistoryAdmin):
     form = CourseRunAdminForm
     raw_id_fields = ('changed_by',)
     list_display = ['course_name', 'lms_course_id', 'start', 'end']
@@ -105,7 +106,7 @@ class CourseRunAdmin(admin.ModelAdmin):
 
 
 @admin.register(Seat)
-class SeatAdmin(admin.ModelAdmin):
+class SeatAdmin(SimpleHistoryAdmin):
     raw_id_fields = ('changed_by',)
     list_display = ['course_run', 'type']
     search_fields = ['course_run__course__title', 'type']
