@@ -222,23 +222,23 @@ class CourseRunWrapper(BaseWrapper):
     def course_team_status(self):
         course_run_state = self.wrapped_obj.course_run_state
         if course_run_state.is_draft and course_run_state.owner_role == PublisherUserRole.CourseTeam:
-            return {'status_text': _('In Draft since'), 'date': self.owner_role_modified}
+            return _('Draft')
         elif (course_run_state.owner_role == PublisherUserRole.ProjectCoordinator and
               (course_run_state.is_in_review or course_run_state.is_draft)):
-            return {'status_text': _('Submitted on'), 'date': self.owner_role_modified}
+            return _('Submitted for Project Coordinator Review')
         elif course_run_state.is_in_review and course_run_state.owner_role == PublisherUserRole.CourseTeam:
-            return {'status_text': _('In Review since'), 'date': self.owner_role_modified}
+            return _('Awaiting Course Team Review')
 
     @property
     def internal_user_status(self):
         course_run_state = self.wrapped_obj.course_run_state
         if course_run_state.is_draft and course_run_state.owner_role == PublisherUserRole.CourseTeam:
-            return {'status_text': _('n/a'), 'date': ''}
+            return _('N/A')
         elif (course_run_state.owner_role == PublisherUserRole.ProjectCoordinator and
               (course_run_state.is_in_review or course_run_state.is_draft)):
-            return {'status_text': _('In Review since'), 'date': self.owner_role_modified}
+            return _('Awaiting Project Coordinator Review')
         elif course_run_state.is_in_review and course_run_state.owner_role == PublisherUserRole.CourseTeam:
-            return {'status_text': _('Reviewed on'), 'date': self.owner_role_modified}
+            return _('Approved by Project Coordinator')
 
     @property
     def owner_role_modified(self):

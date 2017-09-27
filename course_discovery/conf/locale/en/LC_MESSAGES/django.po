@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-28 00:11-0400\n"
+"POT-Creation-Date: 2017-09-28 00:13-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -520,6 +520,7 @@ msgid "Course Team"
 msgstr ""
 
 #: apps/publisher/choices.py apps/publisher/models.py
+#: apps/publisher/wrappers.py
 msgid "Draft"
 msgstr ""
 
@@ -915,11 +916,11 @@ msgstr ""
 msgid "Approved by Course Team"
 msgstr ""
 
-#: apps/publisher/models.py
+#: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "Awaiting Course Team Review"
 msgstr ""
 
-#: apps/publisher/models.py
+#: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "N/A"
 msgstr ""
 
@@ -1439,7 +1440,7 @@ msgid "Import COURSE"
 msgstr ""
 
 #: apps/publisher/templates/publisher/base.html
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Dashboard"
 msgstr ""
 
@@ -1983,6 +1984,7 @@ msgid "%(site_name)s Status"
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_list.html
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "Last Handoff"
 msgstr ""
 
@@ -2496,48 +2498,48 @@ msgstr ""
 msgid "Publication failed."
 msgstr ""
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Course About Pages"
 msgstr ""
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid ""
 "EdX Publisher is used to create course About pages. Users enter, review, and"
 " approve content in Publisher. Publisher keeps track of the details and "
 "sends email updates when actions are necessary."
 msgstr ""
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid ""
 "EdX Publisher is a companion to edX Studio. Course teams enter About page "
 "information in Publisher, and course content in Studio."
 msgstr ""
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Add a New Course"
 msgstr ""
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Add a Course Run"
 msgstr ""
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Course runs"
 msgstr ""
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "In Development"
 msgstr ""
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "In Preview"
 msgstr ""
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Studio Request"
 msgstr ""
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Published About Pages"
 msgstr ""
 
@@ -3258,23 +3260,15 @@ msgid "Course run updated successfully."
 msgstr ""
 
 #: apps/publisher/wrappers.py
-msgid "In Draft since"
+msgid "Submitted for Project Coordinator Review"
 msgstr ""
 
 #: apps/publisher/wrappers.py
-msgid "Submitted on"
+msgid "Awaiting Project Coordinator Review"
 msgstr ""
 
 #: apps/publisher/wrappers.py
-msgid "In Review since"
-msgstr ""
-
-#: apps/publisher/wrappers.py
-msgid "n/a"
-msgstr ""
-
-#: apps/publisher/wrappers.py
-msgid "Reviewed on"
+msgid "Approved by Project Coordinator"
 msgstr ""
 
 #: apps/publisher_comments/emails.py

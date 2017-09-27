@@ -63,9 +63,7 @@ COURSES_DEFAULT_PAGE_SIZE = 25
 COURSES_ALLOWED_PAGE_SIZES = (25, 50, 100)
 
 
-class Dashboard(mixins.LoginRequiredMixin, ListView):
-    """ Create Course View."""
-    template_name = 'publisher/dashboard.html'
+class CourseRunListView(mixins.LoginRequiredMixin, ListView):
     default_published_days = 30
 
     def get_queryset(self):
@@ -96,7 +94,7 @@ class Dashboard(mixins.LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         """ Courses lists are further divided into different categories."""
-        context = super(Dashboard, self).get_context_data(**kwargs)
+        context = super(CourseRunListView, self).get_context_data(**kwargs)
         course_runs = context.get('object_list')
         published_course_runs = course_runs.filter(
             course_run_state__name=CourseRunStateChoices.Published,

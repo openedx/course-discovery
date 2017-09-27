@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-28 00:11-0400\n"
+"POT-Creation-Date: 2017-09-28 00:13-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -639,6 +639,7 @@ msgid "Course Team"
 msgstr "Çöürsé Téäm Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: apps/publisher/choices.py apps/publisher/models.py
+#: apps/publisher/wrappers.py
 msgid "Draft"
 msgstr "Dräft Ⱡ'σяєм ιρѕ#"
 
@@ -1072,11 +1073,11 @@ msgstr "Süßmïttéd för Märkétïng Révïéw Ⱡ'σяєм ιρѕυм ∂σ�
 msgid "Approved by Course Team"
 msgstr "Àpprövéd ßý Çöürsé Téäm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
-#: apps/publisher/models.py
+#: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "Awaiting Course Team Review"
 msgstr "Àwäïtïng Çöürsé Téäm Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
 
-#: apps/publisher/models.py
+#: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "N/A"
 msgstr "N/À Ⱡ'σяєм#"
 
@@ -1679,7 +1680,7 @@ msgid "Import COURSE"
 msgstr "Ìmpört ÇÖÛRSÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: apps/publisher/templates/publisher/base.html
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Dashboard"
 msgstr "Däshßöärd Ⱡ'σяєм ιρѕυм ∂σł#"
 
@@ -2365,6 +2366,7 @@ msgid "%(site_name)s Status"
 msgstr "%(site_name)s Stätüs Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: apps/publisher/templates/publisher/course_list.html
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "Last Handoff"
 msgstr "Läst Händöff Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
@@ -2940,11 +2942,11 @@ msgstr ""
 msgid "Publication failed."
 msgstr "Püßlïçätïön fäïléd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Course About Pages"
 msgstr "Çöürsé Àßöüt Pägés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid ""
 "EdX Publisher is used to create course About pages. Users enter, review, and"
 " approve content in Publisher. Publisher keeps track of the details and "
@@ -2959,7 +2961,7 @@ msgstr ""
 "∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα"
 " ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αт#"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid ""
 "EdX Publisher is a companion to edX Studio. Course teams enter About page "
 "information in Publisher, and course content in Studio."
@@ -2967,31 +2969,31 @@ msgstr ""
 "ÉdX Püßlïshér ïs ä çömpänïön tö édX Stüdïö. Çöürsé téäms éntér Àßöüt pägé "
 "ïnförmätïön ïn Püßlïshér, änd çöürsé çöntént ïn Stüdïö. Ⱡ'σ#"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Add a New Course"
 msgstr "Àdd ä Néw Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Add a Course Run"
 msgstr "Àdd ä Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Course runs"
 msgstr "Çöürsé rüns Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "In Development"
 msgstr "Ìn Dévélöpmént Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "In Preview"
 msgstr "Ìn Prévïéw Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Studio Request"
 msgstr "Stüdïö Réqüést Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Published About Pages"
 msgstr "Püßlïshéd Àßöüt Pägés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
@@ -3956,24 +3958,19 @@ msgstr ""
 "Çöürsé rün üpdätéd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
 #: apps/publisher/wrappers.py
-msgid "In Draft since"
-msgstr "Ìn Dräft sïnçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+msgid "Submitted for Project Coordinator Review"
+msgstr ""
+"Süßmïttéd för Pröjéçt Çöördïnätör Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
 
 #: apps/publisher/wrappers.py
-msgid "Submitted on"
-msgstr "Süßmïttéd ön Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+msgid "Awaiting Project Coordinator Review"
+msgstr ""
+"Àwäïtïng Pröjéçt Çöördïnätör Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
 
 #: apps/publisher/wrappers.py
-msgid "In Review since"
-msgstr "Ìn Révïéw sïnçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
-
-#: apps/publisher/wrappers.py
-msgid "n/a"
-msgstr "n/ä Ⱡ'σяєм#"
-
-#: apps/publisher/wrappers.py
-msgid "Reviewed on"
-msgstr "Révïéwéd ön Ⱡ'σяєм ιρѕυм ∂σłσя #"
+msgid "Approved by Project Coordinator"
+msgstr "Àpprövéd ßý Pröjéçt Çöördïnätör Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: apps/publisher_comments/emails.py
 msgid "Comment added:"
