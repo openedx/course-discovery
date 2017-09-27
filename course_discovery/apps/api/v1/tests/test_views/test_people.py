@@ -1,6 +1,7 @@
 # pylint: disable=redefined-builtin,no-member
 import ddt
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.db import IntegrityError
 from mock import mock
 from rest_framework.reverse import reverse
@@ -15,6 +16,8 @@ from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory, PositionFactory
+from course_discovery.apps.publisher.constants import INTERNAL_USER_GROUP_NAME
+from course_discovery.apps.publisher.permissions import logger as permission_logger
 
 User = get_user_model()
 
@@ -27,6 +30,7 @@ class PersonViewSetTests(SerializationMixin, SiteMixin, APITestCase):
     def setUp(self):
         super(PersonViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         self.client.force_authenticate(self.user)
         self.person = PersonFactory(partner=self.partner)
         self.organization = OrganizationFactory(partner=self.partner)
@@ -110,6 +114,23 @@ class PersonViewSetTests(SerializationMixin, SiteMixin, APITestCase):
         response = self.client.post(self.people_list_url, {}, format='json')
         self.assertEqual(response.status_code, 403)
         self.assertEqual(Person.objects.count(), 0)
+
+    def test_create_without_group(self):
+        """ Verify group is required when creating a person. """
+        self.user.groups.remove(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        current_people_count = Person.objects.count()
+
+        with LogCapture(permission_logger.name) as log_capture:
+            response = self.client.post(self.people_list_url, {}, format='json')
+            self.assertEqual(response.status_code, 403)
+            self.assertEqual(Person.objects.count(), current_people_count)
+            log_capture.check(
+                (
+                    permission_logger.name,
+                    'INFO',
+                    'Permission denied. User [{}] has no groups'.format(self.user.username),
+                )
+            )
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single person. """
