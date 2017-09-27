@@ -20,6 +20,7 @@ from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher,
     ProgramMarketingSitePublisher
 )
+from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 
@@ -206,6 +207,11 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
 
         self.obj = CourseRunFactory()
 
+    @mock.patch.object(CourseRunMarketingSitePublisher, 'node_id')
+    def test_publish_obj_create_disabled(self, mock_node_id):
+        self.publisher.publish_obj(self.obj)
+        assert not mock_node_id.called
+
     @mock.patch.object(CourseRunMarketingSitePublisher, 'serialize_obj', return_value='data')
     @mock.patch.object(CourseRunMarketingSitePublisher, 'node_id', return_value=None)
     @mock.patch.object(CourseRunMarketingSitePublisher, 'create_node', return_value='node_id')
@@ -216,6 +222,7 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         mock_create_node,
         *args
     ):  # pylint: disable=unused-argument
+        toggle_switch('auto_course_about_page_creation', True)
         self.publisher.publish_obj(self.obj)
         mock_create_node.assert_called_with('data')
         mock_update_node_alias.assert_called_with(self.obj, 'node_id', None)
@@ -231,6 +238,7 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         mock_node_id,
         *args
     ):  # pylint: disable=unused-argument
+        toggle_switch('auto_course_about_page_creation', True)
         self.publisher.publish_obj(self.obj)
         mock_node_id.assert_called_with(self.obj)
         assert not mock_create_node.called
