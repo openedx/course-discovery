@@ -54,20 +54,21 @@ $(document).ready(function() {
             },
             {
                 "targets": 5,
-                "data": "course_team_status",
-                "render": function ( data, type, full, meta ) {
-                    return data.status + '<br>' + data.date;
-                }
+                "data": "course_team_status"
             },
             {
                 "targets": 6,
-                "data": "internal_user_status",
-                "render": function ( data, type, full, meta ) {
-                    return  data.status + '<br>' + data.date;
-                }
+                "data": "internal_user_status"
             },
             {
                 "targets": 7,
+                "data": "last_state_change",
+                "render": function(data){
+                  return moment(data).startOf('hour').fromNow();
+                }
+            },
+            {
+                "targets": 8,
                 "data": "edit_url",
                 "sortable": false,
                 "render": function ( data, type, full, meta ) {

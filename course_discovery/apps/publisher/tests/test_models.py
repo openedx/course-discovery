@@ -583,13 +583,6 @@ class CourseStateTests(TestCase):
         self.course_state.change_owner_role(role)
         self.assertEqual(self.course_state.owner_role, role)
 
-    def _assert_course_run_status(self, actual_status, expected_status_text, expected_date):
-        """
-        Assert course statuses.
-        """
-        expected_status = {'status_text': expected_status_text, 'date': expected_date}
-        self.assertEqual(actual_status, expected_status)
-
     def _change_state_and_owner(self, course_state):
         """
         Change course state to review and ownership to marketing.
@@ -598,48 +591,30 @@ class CourseStateTests(TestCase):
         course_state.change_owner_role(PublisherUserRole.MarketingReviewer)
 
     def test_course_team_status(self):
-        """
-        Verify that course_team_status returns right statuses.
-        """
         course_state = factories.CourseStateFactory(owner_role=PublisherUserRole.CourseTeam)
-        self._assert_course_run_status(
-            course_state.course_team_status, 'In Draft since', course_state.owner_role_modified
-        )
+        assert course_state.course_team_status == 'Draft'
 
         self._change_state_and_owner(course_state)
-        self._assert_course_run_status(
-            course_state.course_team_status, 'Submitted on', course_state.owner_role_modified
-        )
+        assert course_state.course_team_status == 'Submitted for Marketing Review'
 
         course_state.marketing_reviewed = True
         course_state.change_owner_role(PublisherUserRole.CourseTeam)
-        self._assert_course_run_status(
-            course_state.course_team_status, 'In Review since', course_state.owner_role_modified
-        )
+        assert course_state.course_team_status == 'Awaiting Course Team Review'
 
         course_state.approved()
         course_state.save()
-        self._assert_course_run_status(
-            course_state.course_team_status, 'Reviewed on', course_state.owner_role_modified
-        )
+        assert course_state.course_team_status == 'Approved by Course Team'
 
     def test_internal_user_status(self):
-        """
-        Verify that internal_user_status returns right statuses.
-        """
         course_state = factories.CourseStateFactory(owner_role=PublisherUserRole.CourseTeam)
-        self._assert_course_run_status(course_state.internal_user_status, 'n/a', '')
+        assert course_state.internal_user_status == 'N/A'
 
         self._change_state_and_owner(course_state)
-        self._assert_course_run_status(
-            course_state.internal_user_status, 'In Review since', course_state.owner_role_modified
-        )
+        assert course_state.internal_user_status == 'Awaiting Marketing Review'
 
         course_state.marketing_reviewed = True
         course_state.change_owner_role(PublisherUserRole.CourseTeam)
-        self._assert_course_run_status(
-            course_state.internal_user_status, 'Reviewed on', course_state.owner_role_modified
-        )
+        assert course_state.internal_user_status == 'Approved by Marketing'
 
 
 @ddt.ddt

@@ -1820,29 +1820,6 @@ class CourseListViewPaginationTests(PaginationMixin, TestCase):
             self.assertEqual(sorted(course_titles, reverse=self.sort_directions[direction]), course_titles)
 
     @ddt.data(
-        {'field': 'course_team_status', 'column': 4, 'direction': 'asc'},
-        {'field': 'course_team_status', 'column': 4, 'direction': 'desc'},
-        {'field': 'internal_user_status', 'column': 5, 'direction': 'asc'},
-        {'field': 'internal_user_status', 'column': 5, 'direction': 'desc'},
-    )
-    @ddt.unpack
-    def test_ordering_by_date(self, field, column, direction):
-        """ Verify that ordering by date is working as expected. """
-        for page in (1, 2, 3):
-            courses = self.get_courses(
-                query_params={'sortColumn': column, 'sortDirection': direction, 'pageSize': 4, 'page': page}
-            )
-            course_dates = [course[field]['date'] for course in courses]
-            self.assertEqual(
-                sorted(
-                    course_dates,
-                    key=lambda x: datetime.strptime(x, '%m/%d/%y'),
-                    reverse=self.sort_directions[direction]
-                ),
-                course_dates
-            )
-
-    @ddt.data(
         {'field': 'publisher_course_runs_count', 'column': 3, 'direction': 'asc'},
         {'field': 'publisher_course_runs_count', 'column': 3, 'direction': 'desc'},
     )
@@ -1855,56 +1832,6 @@ class CourseListViewPaginationTests(PaginationMixin, TestCase):
             )
             course_runs = [course[field] for course in courses]
             self.assertEqual(sorted(course_runs, reverse=self.sort_directions[direction]), course_runs)
-
-    @ddt.data(
-        {'query': 'course title', 'results_count': 10},
-        {'query': 'course 13 title ', 'results_count': 2},
-        {'query': 'maX title course', 'results_count': 2},
-        {'query': 'course title arkX', 'results_count': 2},
-        {'query': 'course 03/24/18 title arkX', 'results_count': 1},
-        {'query': 'zeroX 01/10/17 course', 'results_count': 1},
-        {'query': 'blah blah', 'results_count': 0},
-    )
-    @ddt.unpack
-    def test_filtering(self, query, results_count):
-        """ Verify that filtering is working as expected. """
-        with mock.patch('course_discovery.apps.publisher.views.COURSES_ALLOWED_PAGE_SIZES', (10,)):
-            courses = self.get_courses(query_params={'pageSize': 10, 'searchText': query})
-            self.assertEqual(len(courses), results_count)
-
-            for course in courses:
-                title_org_dates = '{} {} {} {}'.format(
-                    course['course_title']['title'], course['organization_name'],
-                    course['course_team_status']['date'], course['internal_user_status']['date'],
-                )
-
-                for token in query.split():
-                    self.assertTrue(token in title_org_dates)
-
-    def test_filtering_with_multiple_dates(self):
-        """ Verify that filtering is working as expected. """
-        query = 'zeroX 01/10/17 course 02/11/17 title'
-        courses = self.get_courses(query_params={'pageSize': 10, 'searchText': query})
-        self.assertEqual(len(courses), 2)
-
-        dates = []
-        for course in courses:
-            dates.extend(
-                [course['course_team_status']['date'], course['internal_user_status']['date']]
-            )
-
-        query_without_dates = query
-        # verify that dates for each course record should be present on query
-        for date in dates:
-            self.assertTrue(date in query)
-            query_without_dates = query_without_dates.replace(date, '')
-
-        # verify that non date query keywords exist in returned courses
-        for course in courses:
-            title_and_org = '{} {}'.format(course['course_title']['title'], course['organization_name'])
-
-            for token in query_without_dates.split():
-                self.assertTrue(token in title_and_org)
 
     def test_pagination_for_internal_user(self):
         """ Verify that pagination works for internal user. """
@@ -1942,18 +1869,6 @@ class CourseListViewPaginationTests(PaginationMixin, TestCase):
     @mock.patch('course_discovery.apps.publisher.models.CourseState.course_team_status', new_callable=mock.PropertyMock)
     @mock.patch('course_discovery.apps.publisher.models.CourseState.internal_user_status',
                 new_callable=mock.PropertyMock)
-    def test_course_state_statuses(self, mocked_internal_user_status, mocked_course_team_status):
-        """ Verify that course_state statuses raise no exception. """
-        mocked_internal_user_status.return_value = None
-        mocked_course_team_status.return_value = None
-        courses = self.get_courses()
-        for course in courses:
-            self.assertEqual(course['course_team_status'], {'status': '', 'date': ''})
-            self.assertEqual(course['internal_user_status'], {'status': '', 'date': ''})
-
-    @mock.patch('course_discovery.apps.publisher.models.CourseState.course_team_status', new_callable=mock.PropertyMock)
-    @mock.patch('course_discovery.apps.publisher.models.CourseState.internal_user_status',
-                new_callable=mock.PropertyMock)
     def test_course_state_exceptions(self, mocked_internal_user_status, mocked_course_team_status):
         """
         Verify that course_team_status and internal_user_status return
@@ -1963,8 +1878,8 @@ class CourseListViewPaginationTests(PaginationMixin, TestCase):
         mocked_course_team_status.side_effect = ObjectDoesNotExist
         courses = self.get_courses()
         for course in courses:
-            self.assertEqual(course['course_team_status'], {'status': '', 'date': ''})
-            self.assertEqual(course['internal_user_status'], {'status': '', 'date': ''})
+            assert course['course_team_status'] == ''
+            assert course['internal_user_status'] == ''
 
 
 class CourseDetailViewTests(TestCase):

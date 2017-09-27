@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-28 00:07-0400\n"
+"POT-Creation-Date: 2017-09-28 00:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -515,12 +515,11 @@ msgid "Publisher"
 msgstr ""
 
 #: apps/publisher/choices.py
-#: apps/publisher/templates/publisher/course_list.html
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "Course Team"
 msgstr ""
 
-#: apps/publisher/choices.py
+#: apps/publisher/choices.py apps/publisher/models.py
 msgid "Draft"
 msgstr ""
 
@@ -908,24 +907,28 @@ msgid ""
 "also create a corresponding course run in Studio."
 msgstr ""
 
-#: apps/publisher/models.py apps/publisher/wrappers.py
-msgid "In Draft since"
+#: apps/publisher/models.py
+msgid "Submitted for Marketing Review"
 msgstr ""
 
-#: apps/publisher/models.py apps/publisher/wrappers.py
-msgid "Submitted on"
+#: apps/publisher/models.py
+msgid "Approved by Course Team"
 msgstr ""
 
-#: apps/publisher/models.py apps/publisher/wrappers.py
-msgid "Reviewed on"
+#: apps/publisher/models.py
+msgid "Awaiting Course Team Review"
 msgstr ""
 
-#: apps/publisher/models.py apps/publisher/wrappers.py
-msgid "In Review since"
+#: apps/publisher/models.py
+msgid "N/A"
 msgstr ""
 
-#: apps/publisher/models.py apps/publisher/wrappers.py
-msgid "n/a"
+#: apps/publisher/models.py
+msgid "Awaiting Marketing Review"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Approved by Marketing"
 msgstr ""
 
 #: apps/publisher/serializers.py
@@ -1968,6 +1971,19 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_list.html
 msgid "Runs"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_list.html
+msgid "Course Team Status"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_list.html
+#, python-format
+msgid "%(site_name)s Status"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_list.html
+msgid "Last Handoff"
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_revision_history.html
@@ -3239,6 +3255,26 @@ msgstr ""
 
 #: apps/publisher/views.py
 msgid "Course run updated successfully."
+msgstr ""
+
+#: apps/publisher/wrappers.py
+msgid "In Draft since"
+msgstr ""
+
+#: apps/publisher/wrappers.py
+msgid "Submitted on"
+msgstr ""
+
+#: apps/publisher/wrappers.py
+msgid "In Review since"
+msgstr ""
+
+#: apps/publisher/wrappers.py
+msgid "n/a"
+msgstr ""
+
+#: apps/publisher/wrappers.py
+msgid "Reviewed on"
 msgstr ""
 
 #: apps/publisher_comments/emails.py

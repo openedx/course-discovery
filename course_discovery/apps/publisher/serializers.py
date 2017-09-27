@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext as _
 from rest_framework import serializers
 
+from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.publisher.mixins import check_course_organization_permission
 from course_discovery.apps.publisher.models import OrganizationExtension
 from course_discovery.apps.publisher.utils import has_role_for_course
@@ -20,6 +21,7 @@ class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-meth
     course_team_status = serializers.SerializerMethodField()
     internal_user_status = serializers.SerializerMethodField()
     edit_url = serializers.SerializerMethodField()
+    last_state_change = serializers.SerializerMethodField()
 
     def get_number(self, course):
         return course.number
@@ -47,40 +49,19 @@ class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-meth
             return 0
 
     def get_course_team_status(self, course):
-        default_status = {
-            'status': '',
-            'date': ''
-        }
-
         try:
-            course_team_status = course.course_state.course_team_status
+            return course.course_state.course_team_status
         except ObjectDoesNotExist:
-            return default_status
-
-        course_team_status = default_status if course_team_status is None else course_team_status
-        course_team_status_date = course_team_status.get('date', '')
-        return {
-            'status': course_team_status.get('status_text', ''),
-            'date': course_team_status_date and course_team_status_date.strftime('%m/%d/%y')
-        }
+            return ''
 
     def get_internal_user_status(self, course):
-        default_status = {
-            'status': '',
-            'date': ''
-        }
-
         try:
-            internal_user_status = course.course_state.internal_user_status
+            return course.course_state.internal_user_status
         except ObjectDoesNotExist:
-            return default_status
+            return ''
 
-        internal_user_status = default_status if internal_user_status is None else internal_user_status
-        internal_user_status_date = internal_user_status.get('date', '')
-        return {
-            'status': internal_user_status.get('status_text', ''),
-            'date': internal_user_status_date and internal_user_status_date.strftime('%m/%d/%y')
-        }
+    def get_last_state_change(self, course):
+        return serialize_datetime(course.course_state.owner_role_modified)
 
     def get_edit_url(self, course):
         courses_edit_url = None
