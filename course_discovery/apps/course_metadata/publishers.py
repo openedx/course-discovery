@@ -1,6 +1,7 @@
 import json
 from urllib.parse import urljoin
 
+import waffle
 from bs4 import BeautifulSoup
 from django.utils.text import slugify
 
@@ -331,7 +332,7 @@ class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):
             node_data = self.serialize_obj(obj)
             self.edit_node(node_id, node_data)
 
-        elif not previous_obj:
+        elif not previous_obj and waffle.switch_is_active('auto_course_about_page_creation'):
             # This is a brand new course_run object
             # let's check if it exists on the marketing site
             node_id = self.node_id(obj)
