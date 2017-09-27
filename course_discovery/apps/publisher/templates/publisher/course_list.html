@@ -38,10 +38,13 @@
                         {% trans "Runs" %}
                     </th>
                     <th role="button">
-                        {% trans "Course Team" %}
+                        {% trans "Course Team Status" %}
                     </th>
                     <th role="button">
-                        {{ site_name }}
+                        {% blocktrans with site_name=site_name trimmed %}{{ site_name }} Status{% endblocktrans %}
+                    </th>
+                    <th role="button">
+                        {% trans "Last Handoff" %}
                     </th>
                     <th></th>
                 </tr>

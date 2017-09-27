@@ -700,22 +700,22 @@ class CourseState(TimeStampedModel, ChangedByMixin):
     @property
     def course_team_status(self):
         if self.is_draft and self.owner_role == PublisherUserRole.CourseTeam and not self.marketing_reviewed:
-            return {'status_text': _('In Draft since'), 'date': self.owner_role_modified}
+            return _('Draft')
         elif self.owner_role == PublisherUserRole.MarketingReviewer:
-            return {'status_text': _('Submitted on'), 'date': self.owner_role_modified}
+            return _('Submitted for Marketing Review')
         elif self.owner_role == PublisherUserRole.CourseTeam and self.is_approved:
-            return {'status_text': _('Reviewed on'), 'date': self.owner_role_modified}
+            return _('Approved by Course Team')
         elif self.marketing_reviewed and self.owner_role == PublisherUserRole.CourseTeam:
-            return {'status_text': _('In Review since'), 'date': self.owner_role_modified}
+            return _('Awaiting Course Team Review')
 
     @property
     def internal_user_status(self):
         if self.is_draft and self.owner_role == PublisherUserRole.CourseTeam:
-            return {'status_text': _('n/a'), 'date': ''}
+            return _('N/A')
         elif self.owner_role == PublisherUserRole.MarketingReviewer and (self.is_in_review or self.is_draft):
-            return {'status_text': _('In Review since'), 'date': self.owner_role_modified}
+            return _('Awaiting Marketing Review')
         elif self.marketing_reviewed:
-            return {'status_text': _('Reviewed on'), 'date': self.owner_role_modified}
+            return _('Approved by Marketing')
 
 
 class CourseRunState(TimeStampedModel, ChangedByMixin):

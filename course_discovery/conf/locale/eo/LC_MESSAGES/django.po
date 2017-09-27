@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-28 00:07-0400\n"
+"POT-Creation-Date: 2017-09-28 00:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -634,12 +634,11 @@ msgid "Publisher"
 msgstr "Püßlïshér Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: apps/publisher/choices.py
-#: apps/publisher/templates/publisher/course_list.html
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "Course Team"
 msgstr "Çöürsé Téäm Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
-#: apps/publisher/choices.py
+#: apps/publisher/choices.py apps/publisher/models.py
 msgid "Draft"
 msgstr "Dräft Ⱡ'σяєм ιρѕ#"
 
@@ -1065,25 +1064,29 @@ msgstr ""
 "Whén thïs fläg ïs énäßléd, çréätïön öf ä néw çöürsé rün ïn Püßlïshér wïll "
 "älsö çréäté ä çörréspöndïng çöürsé rün ïn Stüdïö. Ⱡ'σяєм ιρ#"
 
-#: apps/publisher/models.py apps/publisher/wrappers.py
-msgid "In Draft since"
-msgstr "Ìn Dräft sïnçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+#: apps/publisher/models.py
+msgid "Submitted for Marketing Review"
+msgstr "Süßmïttéd för Märkétïng Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
-#: apps/publisher/models.py apps/publisher/wrappers.py
-msgid "Submitted on"
-msgstr "Süßmïttéd ön Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+#: apps/publisher/models.py
+msgid "Approved by Course Team"
+msgstr "Àpprövéd ßý Çöürsé Téäm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
-#: apps/publisher/models.py apps/publisher/wrappers.py
-msgid "Reviewed on"
-msgstr "Révïéwéd ön Ⱡ'σяєм ιρѕυм ∂σłσя #"
+#: apps/publisher/models.py
+msgid "Awaiting Course Team Review"
+msgstr "Àwäïtïng Çöürsé Téäm Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
 
-#: apps/publisher/models.py apps/publisher/wrappers.py
-msgid "In Review since"
-msgstr "Ìn Révïéw sïnçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+#: apps/publisher/models.py
+msgid "N/A"
+msgstr "N/À Ⱡ'σяєм#"
 
-#: apps/publisher/models.py apps/publisher/wrappers.py
-msgid "n/a"
-msgstr "n/ä Ⱡ'σяєм#"
+#: apps/publisher/models.py
+msgid "Awaiting Marketing Review"
+msgstr "Àwäïtïng Märkétïng Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/publisher/models.py
+msgid "Approved by Marketing"
+msgstr "Àpprövéd ßý Märkétïng Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: apps/publisher/serializers.py
 #: apps/publisher/templates/publisher/_approval_widget.html
@@ -2351,6 +2354,19 @@ msgstr "Çöürsé Nämé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 #: apps/publisher/templates/publisher/course_list.html
 msgid "Runs"
 msgstr "Rüns Ⱡ'σяєм ι#"
+
+#: apps/publisher/templates/publisher/course_list.html
+msgid "Course Team Status"
+msgstr "Çöürsé Téäm Stätüs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: apps/publisher/templates/publisher/course_list.html
+#, python-format
+msgid "%(site_name)s Status"
+msgstr "%(site_name)s Stätüs Ⱡ'σяєм ιρѕυм ∂σłσ#"
+
+#: apps/publisher/templates/publisher/course_list.html
+msgid "Last Handoff"
+msgstr "Läst Händöff Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Revision History"
@@ -3938,6 +3954,26 @@ msgstr ""
 msgid "Course run updated successfully."
 msgstr ""
 "Çöürsé rün üpdätéd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: apps/publisher/wrappers.py
+msgid "In Draft since"
+msgstr "Ìn Dräft sïnçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#: apps/publisher/wrappers.py
+msgid "Submitted on"
+msgstr "Süßmïttéd ön Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/publisher/wrappers.py
+msgid "In Review since"
+msgstr "Ìn Révïéw sïnçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/publisher/wrappers.py
+msgid "n/a"
+msgstr "n/ä Ⱡ'σяєм#"
+
+#: apps/publisher/wrappers.py
+msgid "Reviewed on"
+msgstr "Révïéwéd ön Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: apps/publisher_comments/emails.py
 msgid "Comment added:"
