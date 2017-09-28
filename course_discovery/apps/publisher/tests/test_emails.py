@@ -499,10 +499,6 @@ class CourseRunPreviewEmailTests(SiteMixin, TestCase):
 
 
 class CourseRunPublishedEmailTests(SiteMixin, TestCase):
-    """
-    Tests for course run published email functionality.
-    """
-
     def setUp(self):
         super(CourseRunPublishedEmailTests, self).setUp()
         self.user = UserFactory()
@@ -511,13 +507,8 @@ class CourseRunPublishedEmailTests(SiteMixin, TestCase):
         self.course_run = self.run_state.course_run
         self.course = self.course_run.course
 
-        # add users in CourseUserRole table
-        factories.CourseUserRoleFactory(
-            course=self.course, role=PublisherUserRole.CourseTeam, user=self.user
-        )
-        factories.CourseUserRoleFactory(
-            course=self.course, role=PublisherUserRole.Publisher, user=UserFactory()
-        )
+        factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.CourseTeam, user=self.user)
+        factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.Publisher, user=UserFactory())
 
         toggle_switch('enable_publisher_email_notifications', True)
 
@@ -525,6 +516,9 @@ class CourseRunPublishedEmailTests(SiteMixin, TestCase):
         """
         Verify that course published email functionality works fine.
         """
+        project_coordinator = UserFactory()
+        factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.ProjectCoordinator,
+                                        user=project_coordinator)
         self.course_run.lms_course_id = 'course-v1:testX+test45+2017T2'
         self.course_run.save()
         emails.send_course_run_published_email(self.course_run, self.site)
@@ -534,8 +528,12 @@ class CourseRunPublishedEmailTests(SiteMixin, TestCase):
             course_name=self.course_run.course.title,
             run_number=course_key.run
         )
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual([self.course.course_team_admin.email], mail.outbox[0].to)
+        assert len(mail.outbox) == 1
+
+        message = mail.outbox[0]
+        assert message.to == [self.user.email]
+        assert message.cc == [project_coordinator.email]
+
         self.assertEqual(str(mail.outbox[0].subject), subject)
         body = mail.outbox[0].body.strip()
         self.assertIn(self.course_run.preview_url, body)

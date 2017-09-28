@@ -484,7 +484,6 @@ def send_course_run_published_email(course_run, site):
                 course_name=course_run.course.title,
                 run_number=course_key.run
             )
-            to_addresses = [course_team_user.email]
             from_address = settings.PUBLISHER_FROM_EMAIL
             project_coordinator = course_run.course.project_coordinator
             page_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
@@ -509,9 +508,11 @@ def send_course_run_published_email(course_run, site):
             template = get_template(html_template)
             html_content = template.render(context)
 
-            email_msg = EmailMultiAlternatives(
-                subject, plain_content, from_address, to=to_addresses
-            )
+            email_kwargs = {
+                'cc': [project_coordinator.email] if project_coordinator else [],
+            }
+            email_msg = EmailMultiAlternatives(subject, plain_content, from_address, to=[course_team_user.email],
+                                               **email_kwargs)
             email_msg.attach_alternative(html_content, 'text/html')
             email_msg.send()
 
