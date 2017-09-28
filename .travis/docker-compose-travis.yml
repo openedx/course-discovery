@@ -17,14 +17,14 @@ services:
   memcached:
     image: memcached:1.4.24
     container_name: memcached
-  course-discovery:
+  discovery:
     # Uncomment this line to use the official course-discovery base image
     image: edxops/discovery:latest
 
     # Uncomment the next two lines to build from a local configuration repo
     # build: ../configuration/docker/build/discovery/
 
-    container_name: course-discovery
+    container_name: discovery
     volumes:
       - ..:/edx/app/discovery/discovery
       - ../course_discovery/media:/edx/var/discovery/media
