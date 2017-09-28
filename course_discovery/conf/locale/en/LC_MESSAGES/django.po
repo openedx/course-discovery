@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-28 12:02-0400\n"
+"POT-Creation-Date: 2017-09-28 12:30-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2731,8 +2731,6 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/decline_preview.txt
 #: apps/publisher/templates/publisher/email/studio_instance_created.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.txt
-#: apps/publisher/templates/publisher/email/studio_instance_needed.html
-#: apps/publisher/templates/publisher/email/studio_instance_needed.txt
 msgid "Thanks,"
 msgstr ""
 
@@ -2818,8 +2816,6 @@ msgid "Please create a Studio URL for this course."
 msgstr ""
 
 #: apps/publisher/templates/publisher/email/course_created.txt
-#: apps/publisher/templates/publisher/email/studio_instance_needed.html
-#: apps/publisher/templates/publisher/email/studio_instance_needed.txt
 msgid "Dear"
 msgstr ""
 
@@ -3133,14 +3129,6 @@ msgid ""
 "If this is the first run of a course, you should upload the course About "
 "video before you submit the course for review in Publisher. For more "
 "information, see Add a Course About Video to edx.org."
-msgstr ""
-
-#: apps/publisher/templates/publisher/email/studio_instance_needed.html
-#: apps/publisher/templates/publisher/email/studio_instance_needed.txt
-msgid ""
-"Please create a Studio instance for the following course. After you create "
-"the Studio instance, enter the course key for that instance on the course "
-"run page in Publisher."
 msgstr ""
 
 #: apps/publisher/templates/publisher/seat_form.html

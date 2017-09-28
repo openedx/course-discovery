@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-28 12:02-0400\n"
+"POT-Creation-Date: 2017-09-28 12:30-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3219,8 +3219,6 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/decline_preview.txt
 #: apps/publisher/templates/publisher/email/studio_instance_created.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.txt
-#: apps/publisher/templates/publisher/email/studio_instance_needed.html
-#: apps/publisher/templates/publisher/email/studio_instance_needed.txt
 msgid "Thanks,"
 msgstr "Thänks, Ⱡ'σяєм ιρѕυм #"
 
@@ -3334,8 +3332,6 @@ msgstr ""
 "¢σηѕє¢тєтυя #"
 
 #: apps/publisher/templates/publisher/email/course_created.txt
-#: apps/publisher/templates/publisher/email/studio_instance_needed.html
-#: apps/publisher/templates/publisher/email/studio_instance_needed.txt
 msgid "Dear"
 msgstr "Déär Ⱡ'σяєм ι#"
 
@@ -3793,22 +3789,6 @@ msgstr ""
 "єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ "
 "αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ "
 "ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αт#"
-
-#: apps/publisher/templates/publisher/email/studio_instance_needed.html
-#: apps/publisher/templates/publisher/email/studio_instance_needed.txt
-msgid ""
-"Please create a Studio instance for the following course. After you create "
-"the Studio instance, enter the course key for that instance on the course "
-"run page in Publisher."
-msgstr ""
-"Pléäsé çréäté ä Stüdïö ïnstänçé för thé föllöwïng çöürsé. Àftér ýöü çréäté "
-"thé Stüdïö ïnstänçé, éntér thé çöürsé kéý för thät ïnstänçé ön thé çöürsé "
-"rün pägé ïn Püßlïshér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg "
-"єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт "
-"єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт "
-"αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη "
-"νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт "
-"σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι#"
 
 #: apps/publisher/templates/publisher/seat_form.html
 msgid "Seat Form"
