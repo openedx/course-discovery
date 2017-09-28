@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-27 18:21+0000\n"
+"POT-Creation-Date: 2017-09-28 00:07-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -620,7 +620,8 @@ msgstr ""
 msgid "Partner Manager"
 msgstr "Pärtnér Mänägér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
-#: apps/publisher/choices.py apps/publisher/templates/publisher/courses.html
+#: apps/publisher/choices.py
+#: apps/publisher/templates/publisher/course_list.html
 msgid "Project Coordinator"
 msgstr "Pröjéçt Çöördïnätör Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
@@ -632,7 +633,8 @@ msgstr "Märkétïng Révïéwér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α�
 msgid "Publisher"
 msgstr "Püßlïshér Ⱡ'σяєм ιρѕυм ∂σł#"
 
-#: apps/publisher/choices.py apps/publisher/templates/publisher/courses.html
+#: apps/publisher/choices.py
+#: apps/publisher/templates/publisher/course_list.html
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "Course Team"
 msgstr "Çöürsé Téäm Ⱡ'σяєм ιρѕυм ∂σłσя #"
@@ -746,6 +748,7 @@ msgstr "Çöürsé Tïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_list.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 #: apps/publisher/templates/publisher/dashboard/_published.html
@@ -1138,10 +1141,10 @@ msgid "Institution email is preferred"
 msgstr "Ìnstïtütïön émäïl ïs préférréd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
+#: apps/publisher/templates/publisher/course_list.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
-#: apps/publisher/templates/publisher/courses.html
 #: apps/publisher/templates/publisher/dashboard/_in_preview.html
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 #: apps/publisher/templates/publisher/dashboard/_published.html
@@ -1394,7 +1397,7 @@ msgstr ""
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/templates/publisher/add_course_form.html
-#: apps/publisher/templates/publisher/courses.html
+#: apps/publisher/templates/publisher/course_list.html
 msgid "Create New Course"
 msgstr "Çréäté Néw Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
@@ -1678,7 +1681,7 @@ msgid "Dashboard"
 msgstr "Däshßöärd Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: apps/publisher/templates/publisher/base.html
-#: apps/publisher/templates/publisher/courses.html
+#: apps/publisher/templates/publisher/course_list.html
 msgid "Courses"
 msgstr "Çöürsés Ⱡ'σяєм ιρѕυм #"
 
@@ -2336,6 +2339,19 @@ msgstr ""
 msgid "Update Course"
 msgstr "Ûpdäté Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
+#: apps/publisher/templates/publisher/course_list.html
+#: apps/publisher/templates/publisher/course_run_detail/_studio.html
+#: apps/publisher/templates/publisher/dashboard/_in_preview.html
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
+#: apps/publisher/templates/publisher/dashboard/_published.html
+#: apps/publisher/templates/publisher/dashboard/_studio_requests.html
+msgid "Course Name"
+msgstr "Çöürsé Nämé Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: apps/publisher/templates/publisher/course_list.html
+msgid "Runs"
+msgstr "Rüns Ⱡ'σяєм ι#"
+
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Revision History"
 msgstr "Révïsïön Hïstörý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
@@ -2845,15 +2861,6 @@ msgid "Enrollment Type"
 msgstr "Énröllmént Týpé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
-#: apps/publisher/templates/publisher/courses.html
-#: apps/publisher/templates/publisher/dashboard/_in_preview.html
-#: apps/publisher/templates/publisher/dashboard/_in_progress.html
-#: apps/publisher/templates/publisher/dashboard/_published.html
-#: apps/publisher/templates/publisher/dashboard/_studio_requests.html
-msgid "Course Name"
-msgstr "Çöürsé Nämé Ⱡ'σяєм ιρѕυм ∂σłσя #"
-
-#: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "Enrollment Start Date (time in UTC)"
 msgstr ""
 "Énröllmént Stärt Däté (tïmé ïn ÛTÇ) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
@@ -2916,10 +2923,6 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "Publication failed."
 msgstr "Püßlïçätïön fäïléd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
-
-#: apps/publisher/templates/publisher/courses.html
-msgid "Runs"
-msgstr "Rüns Ⱡ'σяєм ι#"
 
 #: apps/publisher/templates/publisher/dashboard.html
 msgid "Course About Pages"
