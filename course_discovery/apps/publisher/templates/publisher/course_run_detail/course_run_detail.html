@@ -5,7 +5,7 @@
 {% load static %}
 
 {% block title %}
-    {% trans "Course Run Details" %}
+    {{ object.course.number }} - {{ object.start|date:'M Y' }}
 {% endblock title %}
 
 {% block page_content %}

@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-28 00:13-0400\n"
+"POT-Creation-Date: 2017-09-28 12:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -1671,7 +1671,6 @@ msgstr ""
 "möré üsér öptïöns. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: apps/publisher/templates/publisher/admin/import_course.html
-#: apps/publisher/templates/publisher/course_detail.html
 msgid "Course Detail"
 msgstr "Çöürsé Détäïl Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
@@ -1685,7 +1684,7 @@ msgid "Dashboard"
 msgstr "Däshßöärd Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: apps/publisher/templates/publisher/base.html
-#: apps/publisher/templates/publisher/course_list.html
+#: apps/publisher/templates/publisher/course_list.html apps/publisher/views.py
 msgid "Courses"
 msgstr "Çöürsés Ⱡ'σяєм ιρѕυм #"
 
@@ -2895,10 +2894,6 @@ msgstr "Päçïng Týpé Ⱡ'σяєм ιρѕυм ∂σłσя #"
 #: apps/publisher/templates/publisher/course_run_detail/_widgets.html
 msgid "Reason for declining preview"
 msgstr "Réäsön för déçlïnïng prévïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
-
-#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
-msgid "Course Run Details"
-msgstr "Çöürsé Rün Détäïls Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 #, python-format

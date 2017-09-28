@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-28 00:13-0400\n"
+"POT-Creation-Date: 2017-09-28 12:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -1431,7 +1431,6 @@ msgid ""
 msgstr ""
 
 #: apps/publisher/templates/publisher/admin/import_course.html
-#: apps/publisher/templates/publisher/course_detail.html
 msgid "Course Detail"
 msgstr ""
 
@@ -1445,7 +1444,7 @@ msgid "Dashboard"
 msgstr ""
 
 #: apps/publisher/templates/publisher/base.html
-#: apps/publisher/templates/publisher/course_list.html
+#: apps/publisher/templates/publisher/course_list.html apps/publisher/views.py
 msgid "Courses"
 msgstr ""
 
@@ -2454,10 +2453,6 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_widgets.html
 msgid "Reason for declining preview"
-msgstr ""
-
-#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
-msgid "Course Run Details"
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
