@@ -12,10 +12,8 @@ from course_discovery.apps.publisher.utils import has_role_for_course
 
 
 class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-method
-    """
-    Publisher courses list serializer.
-    """
     course_title = serializers.SerializerMethodField()
+    number = serializers.SerializerMethodField()
     organization_name = serializers.SerializerMethodField()
     project_coordinator_name = serializers.SerializerMethodField()
     publisher_course_runs_count = serializers.SerializerMethodField()
@@ -23,10 +21,10 @@ class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-meth
     internal_user_status = serializers.SerializerMethodField()
     edit_url = serializers.SerializerMethodField()
 
+    def get_number(self, course):
+        return course.number
+
     def get_course_title(self, course):
-        """
-        Returns a dict containing course `title` and `url`.
-        """
         publisher_hide_features_for_pilot = self.context['publisher_hide_features_for_pilot']
         return {
             'title': course.title,
@@ -36,31 +34,19 @@ class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-meth
         }
 
     def get_organization_name(self, course):
-        """
-        Returns course organization name.
-        """
         return course.organization_name
 
     def get_project_coordinator_name(self, course):
-        """
-        Returns course project coordinator name.
-        """
         project_coordinator = course.project_coordinator
         return project_coordinator.full_name if project_coordinator else ''
 
     def get_publisher_course_runs_count(self, course):
-        """
-        Returns count of course runs for a course.
-        """
         try:
             return course.publisher_course_runs.count()
         except ObjectDoesNotExist:
             return 0
 
     def get_course_team_status(self, course):
-        """
-        Returns a dict containing `status` and `date` for course team status.
-        """
         default_status = {
             'status': '',
             'date': ''
@@ -79,9 +65,6 @@ class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-meth
         }
 
     def get_internal_user_status(self, course):
-        """
-        Returns a dict containing `status` and `date` for internal user status.
-        """
         default_status = {
             'status': '',
             'date': ''
@@ -100,9 +83,6 @@ class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-meth
         }
 
     def get_edit_url(self, course):
-        """
-        Returns a dict containing `title` and `url` to edit a course.
-        """
         courses_edit_url = None
         publisher_hide_features_for_pilot = self.context['publisher_hide_features_for_pilot']
         if not publisher_hide_features_for_pilot and self.can_edit_course(course, self.context['user']):
@@ -115,16 +95,6 @@ class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-meth
 
     @classmethod
     def can_edit_course(cls, course, user):
-        """
-        Check if user has permissions on course.
-
-        Arguments:
-            course: course instance to be serialized
-            user: currently logedin user
-
-        Returns:
-            bool: Whether the logedin user has permission or not.
-        """
         try:
             return check_course_organization_permission(
                 user, course, OrganizationExtension.EDIT_COURSE

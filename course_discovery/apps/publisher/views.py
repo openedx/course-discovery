@@ -801,8 +801,6 @@ class ToggleEmailNotification(mixins.LoginRequiredMixin, View):
 
 
 class CourseListView(mixins.LoginRequiredMixin, ListView):
-    """ Course List View."""
-    template_name = 'publisher/courses.html'
     paginate_by = COURSES_DEFAULT_PAGE_SIZE
 
     def get_queryset(self):
@@ -825,8 +823,8 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
             ).values_list('organization')
             courses = courses.filter(organizations__in=organizations)
 
-        courses = self.do_ordering(courses)
-        courses = self.do_filtering(courses)
+        courses = self.sort_queryset(courses)
+        courses = self.filter_queryset(courses)
 
         return courses
 
@@ -840,9 +838,6 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
         return context
 
     def get_paginate_by(self, queryset):
-        """
-        Get the number of items to paginate by.
-        """
         try:
             page_size = int(self.request.GET.get('pageSize', COURSES_DEFAULT_PAGE_SIZE))
             page_size = page_size if page_size in COURSES_ALLOWED_PAGE_SIZES else COURSES_DEFAULT_PAGE_SIZE
@@ -851,10 +846,7 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
 
         return page_size
 
-    def do_ordering(self, queryset):
-        """
-        Perform ordering on queryset
-        """
+    def sort_queryset(self, queryset):
         # commented fields are multi-valued so ordering is not reliable becuase a single
         # record can be returned multiple times. We are not doing ordering for these fields
         ordering_fields = {
@@ -886,10 +878,7 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
 
         return queryset
 
-    def do_filtering(self, queryset):
-        """
-        Perform filtering on queryset
-        """
+    def filter_queryset(self, queryset):
         filter_text = self.request.GET.get('searchText', '').strip()
 
         if not filter_text:
@@ -901,7 +890,8 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
         keywords_filter = None
 
         for keyword in keywords:
-            keyword_filter = Q(title__icontains=keyword) | Q(organizations__key__icontains=keyword)
+            keyword_filter = Q(title__icontains=keyword) | Q(organizations__key__icontains=keyword) | Q(
+                number__icontains=keyword)
             keywords_filter = (keyword_filter & keywords_filter) if bool(keywords_filter) else keyword_filter
 
         if keywords_filter:
@@ -968,10 +958,7 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
 
         return keywords, dates
 
-    def get(self, request):
-        """
-        HTTP GET handler for publisher courses.
-        """
+    def get(self, request, **kwargs):   # pylint: disable=unused-argument
         self.object_list = self.get_queryset()
         context = self.get_context_data()
         context['publisher_total_courses_count'] = self.object_list.count()

@@ -1,4 +1,3 @@
-
 $(document).ready(function() {
     var data = $('.course-count-heading').data();
     var $coursesTable = $('#dataTableCourse').DataTable({
@@ -37,34 +36,38 @@ $(document).ready(function() {
             },
             {
                 "targets": 1,
+                "data": "number"
+            },
+            {
+                "targets": 2,
                 "data": "organization_name",
                 "sortable": false
             },
             {
-                "targets": 2,
+                "targets": 3,
                 "data": "project_coordinator_name",
                 "sortable": false
             },
             {
-                "targets": 3,
+                "targets": 4,
                 "data": "publisher_course_runs_count"
             },
             {
-                "targets": 4,
+                "targets": 5,
                 "data": "course_team_status",
                 "render": function ( data, type, full, meta ) {
                     return data.status + '<br>' + data.date;
                 }
             },
             {
-                "targets": 5,
+                "targets": 6,
                 "data": "internal_user_status",
                 "render": function ( data, type, full, meta ) {
                     return  data.status + '<br>' + data.date;
                 }
             },
             {
-                "targets": 6,
+                "targets": 7,
                 "data": "edit_url",
                 "sortable": false,
                 "render": function ( data, type, full, meta ) {
