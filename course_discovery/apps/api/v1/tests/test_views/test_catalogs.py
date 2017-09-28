@@ -7,6 +7,7 @@ import pytest
 import pytz
 import responses
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from rest_framework.reverse import reverse
 
 from course_discovery.apps.api.tests.jwt_utils import generate_jwt_header_for_user
@@ -17,8 +18,11 @@ from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.models import Course
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, SeatFactory
+from course_discovery.conftest import get_course_run_states
 
 User = get_user_model()
+
+STATES, AVAILABLE_STATES = get_course_run_states()
 
 
 @ddt.ddt
@@ -42,6 +46,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         )
         self.course = self.course_run.course
         self.refresh_index()
+        cache.clear()
 
     def assert_catalog_created(self, **headers):
         name = 'The Kitchen Sink'
@@ -148,7 +153,10 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.assertEqual(response.status_code, 400)
         self.assertEqual(User.objects.count(), original_user_count)
 
-    def test_courses(self):
+    @ddt.data(
+        *STATES()
+    )
+    def test_courses(self, state):
         """
         Verify the endpoint returns the list of available courses contained in
         the catalog, and that courses appearing in the response always have at
@@ -156,39 +164,38 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         """
         url = reverse('api:v1:catalog-courses', kwargs={'id': self.catalog.id})
 
-        for state in self.states():
-            Course.objects.all().delete()
+        Course.objects.all().delete()
 
-            course_run = CourseRunFactory(course__title='ABC Test Course')
-            for function in state:
-                function(course_run)
+        course_run = CourseRunFactory(course__title='ABC Test Course')
+        for function in state:
+            function(course_run)
 
-            course_run.save()
+        course_run.save()
 
-            if state in self.available_states:
-                course = course_run.course
+        if state in AVAILABLE_STATES:
+            course = course_run.course
 
-                # This run has no seats, but we still expect its parent course
-                # to be included.
-                filtered_course_run = CourseRunFactory(course=course)
+            # This run has no seats, but we still expect its parent course
+            # to be included.
+            filtered_course_run = CourseRunFactory(course=course)
 
-                with self.assertNumQueries(18):
-                    response = self.client.get(url)
-
-                assert response.status_code == 200
-
-                # Emulate prefetching behavior.
-                filtered_course_run.delete()
-
-                assert response.data['results'] == self.serialize_catalog_course([course], many=True)
-
-                # Any course appearing in the response must have at least one serialized run.
-                assert len(response.data['results'][0]['course_runs']) > 0
-            else:
+            with self.assertNumQueries(20):
                 response = self.client.get(url)
 
-                assert response.status_code == 200
-                assert response.data['results'] == []
+            assert response.status_code == 200
+
+            # Emulate prefetching behavior.
+            filtered_course_run.delete()
+
+            assert response.data['results'] == self.serialize_catalog_course([course], many=True)
+
+            # Any course appearing in the response must have at least one serialized run.
+            assert len(response.data['results'][0]['course_runs']) > 0
+        else:
+            response = self.client.get(url)
+
+            assert response.status_code == 200
+            assert response.data['results'] == []
 
     def test_contains_for_course_key(self):
         """
@@ -217,7 +224,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
         url = reverse('api:v1:catalog-csv', kwargs={'id': self.catalog.id})
 
-        with self.assertNumQueries(18):
+        with self.assertNumQueries(20):
             response = self.client.get(url)
 
         course_run = self.serialize_catalog_flat_course_run(self.course_run)

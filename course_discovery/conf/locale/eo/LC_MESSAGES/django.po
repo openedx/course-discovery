@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-06 17:23+0000\n"
+"POT-Creation-Date: 2017-10-12 11:27+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -233,6 +233,10 @@ msgstr "ÖpénÌD Çönnéçt Séçrét Ⱡ'σяєм ιρѕυм ∂σłσя ѕι
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Studio URL"
 msgstr "Stüdïö ÛRL Ⱡ'σяєм ιρѕυм ∂σłσ#"
+
+#: apps/core/models.py
+msgid "LMS URL"
+msgstr "LMS ÛRL Ⱡ'σяєм ιρѕυм #"
 
 #: apps/core/models.py
 msgid "Partner"

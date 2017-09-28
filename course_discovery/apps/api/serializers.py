@@ -4,9 +4,11 @@ import json
 from urllib.parse import urlencode
 
 import pytz
+import waffle
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models.query import Prefetch
+from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from drf_haystack.serializers import HaystackFacetSerializer, HaystackSerializer
 from rest_framework import serializers
@@ -15,6 +17,7 @@ from taggit_serializer.serializers import TaggitSerializer, TagListSerializerFie
 
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.catalogs.models import Catalog
+from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (FAQ, CorporateEndorsement, Course, CourseRun, Endorsement,
                                                           Image, Organization, Person, PersonSocialNetwork, PersonWork,
@@ -114,11 +117,12 @@ SELECT_RELATED_FIELDS = {
 }
 
 
-def get_marketing_url_for_user(user, marketing_url, exclude_utm=False):
+def get_marketing_url_for_user(partner, user, marketing_url, exclude_utm=False):
     """
     Return the given marketing URL with affiliate query parameters for the user.
 
     Arguments:
+        partner (Partner): Partner instance containing information.
         user (User): Used to construct UTM query parameters.
         marketing_url (str | None): Base URL to which UTM parameters may be appended.
 
@@ -134,10 +138,34 @@ def get_marketing_url_for_user(user, marketing_url, exclude_utm=False):
         return marketing_url
     else:
         params = urlencode({
-            'utm_source': user.username,
+            'utm_source': get_utm_source_for_user(partner, user),
             'utm_medium': user.referral_tracking_id,
         })
         return '{url}?{params}'.format(url=marketing_url, params=params)
+
+
+def get_utm_source_for_user(partner, user):
+    """
+    Return the utm source for the user.
+
+    Arguments:
+        partner (Partner): Partner instance containing information.
+        user (User): Used to construct UTM query parameters.
+
+    Returns:
+        str: username and company name slugified and combined together.
+    """
+    utm_source = user.username
+    # If use_company_name_as_utm_source_value is enabled and lms_url value is set then
+    # use company name from API Access Request as utm_source.
+    if waffle.switch_is_active('use_company_name_as_utm_source_value') and partner.lms_url:
+        lms = LMSAPIClient(partner.site, user)
+        api_access_request = lms.get_api_access_request(user)
+
+        if api_access_request:
+            utm_source = '{} {}'.format(utm_source, api_access_request['company_name'])
+
+    return slugify(utm_source)
 
 
 class TimestampModelSerializer(serializers.ModelSerializer):
@@ -444,6 +472,7 @@ class MinimalCourseRunSerializer(TimestampModelSerializer):
 
     def get_marketing_url(self, obj):
         return get_marketing_url_for_user(
+            obj.course.partner,
             self.context['request'].user,
             obj.marketing_url,
             exclude_utm=self.context.get('exclude_utm')
@@ -585,6 +614,7 @@ class CourseSerializer(MinimalCourseSerializer):
 
     def get_marketing_url(self, obj):
         return get_marketing_url_for_user(
+            obj.partner,
             self.context['request'].user,
             obj.marketing_url,
             exclude_utm=self.context.get('exclude_utm')

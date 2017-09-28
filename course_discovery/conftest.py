@@ -15,6 +15,14 @@ def course_run_states(request):
     pytest fixture for providing test classes with attributes necessary to create
     and test CourseRuns in all states affecting availability.
     """
+    # Set class attributes on the invoking test context.
+    request.cls.states, request.cls.available_states = get_course_run_states()
+
+
+def get_course_run_states():
+    """
+    Utility method to get course_run_states and available_states.
+    """
     now = datetime.datetime.now(pytz.UTC)
     past = now - datetime.timedelta(days=30)
     future = now + datetime.timedelta(days=30)
@@ -126,6 +134,4 @@ def course_run_states(request):
         ]
     ]
 
-    # Set class attributes on the invoking test context.
-    request.cls.states = partial(product, *states)
-    request.cls.available_states = list(product(*available_states))
+    return partial(product, *states), list(product(*available_states))
