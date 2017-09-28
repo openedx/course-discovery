@@ -186,10 +186,10 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
         start_date = course_run.start.strftime("%B %d, %Y") if course_run.start else None
         context['breadcrumbs'] = make_bread_crumbs(
             [
-                (reverse('publisher:publisher_courses'), 'Courses'),
+                (reverse('publisher:publisher_courses'), _('Courses')),
                 (
                     reverse('publisher:publisher_course_detail', kwargs={'pk': course_run.course.id}),
-                    course_run.course.title
+                    '{number}: {title}'.format(number=course_run.course.number, title=course_run.course.title)
                 ),
                 (None, '{type}: {start}'.format(
                     type=course_run.get_pacing_type_display(), start=start_date
@@ -451,8 +451,8 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
 
         context['breadcrumbs'] = make_bread_crumbs(
             [
-                (reverse('publisher:publisher_courses'), 'Courses'),
-                (None, course.course_title),
+                (reverse('publisher:publisher_courses'), _('Courses')),
+                (None, '{number}: {title}'.format(number=course.number, title=course.course_title)),
             ]
         )
         context['comment_object'] = course

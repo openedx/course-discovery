@@ -878,7 +878,13 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         self.assertContains(response, '<li class="breadcrumb-item ">')
         self.assertContains(response, '<a href="/publisher/courses/">Courses</a>')
         page_url = reverse('publisher:publisher_course_detail', kwargs={'pk': course_run.course.id})
-        self.assertContains(response, '<a href="{url}">{slug}</a>'.format(url=page_url, slug=course_run.course.title))
+        self.assertContains(
+            response,
+            '<a href="{url}">{number}: {title}</a>'.format(
+                url=page_url,
+                number=course_run.course.number,
+                title=course_run.course.title)
+        )
         self.assertContains(response, '<li class="breadcrumb-item active">')
         self.assertContains(
             response, '{type}: {start}'.format(
@@ -1982,7 +1988,9 @@ class CourseDetailViewTests(TestCase):
         self.assertContains(response, self.course.faq)
         self.assertContains(response, self.course.video_link)
         self.assertContains(response, self.course.syllabus)
-        self.assertEqual(response.context['breadcrumbs'][1]['slug'], self.course.title)
+        assert response.context['breadcrumbs'][1]['slug'] == '{number}: {title}'.format(
+            number=self.course.number,
+            title=self.course.course_title)
 
     def test_details_page_with_course_runs_lms_id(self):
         """ Test that user can see course runs with lms-id on course detail page. """
@@ -2278,7 +2286,6 @@ class CourseDetailViewTests(TestCase):
         self.assertContains(response, short_description)
         self.assertContains(response, full_description)
         self.assertContains(response, title)
-        self.assertEqual(response.context['breadcrumbs'][1]['slug'], title)
 
     def _assign_user_permission(self):
         """ Assign permissions."""
