@@ -1,6 +1,7 @@
 import urllib.parse
 
 import pytest
+from django.core.cache import cache
 from django.test import RequestFactory
 from django.urls import reverse
 
@@ -41,6 +42,7 @@ class TestProgramViewSet(SerializationMixin):
         self.django_assert_num_queries = django_assert_num_queries
         self.partner = partner
         self.request = request
+        cache.clear()
 
     def create_program(self):
         organizations = [OrganizationFactory(partner=self.partner)]
@@ -86,7 +88,7 @@ class TestProgramViewSet(SerializationMixin):
     def test_retrieve(self, django_assert_num_queries):
         """ Verify the endpoint returns the details for a single program. """
         program = self.create_program()
-        with django_assert_num_queries(39):
+        with django_assert_num_queries(40):
             response = self.assert_retrieve_success(program)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
@@ -112,7 +114,7 @@ class TestProgramViewSet(SerializationMixin):
             partner=self.partner)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
-        with django_assert_num_queries(28):
+        with django_assert_num_queries(29):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
         assert course_list == list(program.courses.all())  # pylint: disable=no-member
@@ -148,7 +150,7 @@ class TestProgramViewSet(SerializationMixin):
         """ Verify the endpoint returns a list of all programs. """
         expected = [self.create_program() for __ in range(3)]
         expected.reverse()
-        self.assert_list_results(self.list_path, expected, 14)
+        self.assert_list_results(self.list_path, expected, 15)
 
         # Verify that repeated list requests use the cache.
         self.assert_list_results(self.list_path, expected, 4)
@@ -272,7 +274,7 @@ class TestProgramViewSet(SerializationMixin):
         program.marketing_slug = SLUG
         program.save()
 
-        self.assert_list_results(url, [program], 14)
+        self.assert_list_results(url, [program], 15)
 
     def test_list_exclude_utm(self):
         """ Verify the endpoint returns marketing URLs without UTM parameters. """

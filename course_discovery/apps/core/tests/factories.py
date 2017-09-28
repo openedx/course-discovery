@@ -56,6 +56,7 @@ class PartnerFactory(factory.DjangoModelFactory):
     oidc_secret = factory.Faker('sha256')
     site = factory.SubFactory(SiteFactory)
     studio_url = factory.Faker('url')
+    lms_url = factory.Faker('url')
 
     class Meta(object):
         model = Partner

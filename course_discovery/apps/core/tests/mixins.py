@@ -1,6 +1,9 @@
+import json
 import logging
 
 import pytest
+import responses
+
 from django.conf import settings
 from haystack import connections as haystack_connections
 
@@ -36,3 +39,59 @@ class ElasticsearchTestMixin(object):
         for course in program.courses.all():
             index.update_object(course)
             self.reindex_course_runs(course)
+
+
+class LMSAPIClientMixin(object):
+    def mock_api_access_request(self, lms_url, status=200, api_access_request_overrides=None):
+        """
+        Mock the api access requests endpoint response of the LMS.
+        """
+        data = {
+            'count': 2,
+            'num_pages': 1,
+            'current_page': 1,
+            'results':
+                [
+                    dict(
+                        {
+                            'id': 1,
+                            'created': '2017-09-25T08:37:05.872566Z',
+                            'modified': '2017-09-25T08:37:47.412496Z',
+                            'user': 1,
+                            'status': 'approved',
+                            'website': 'https://example.com/',
+                            'reason': 'Example Reason',
+                            'company_name': 'Test Company',
+                            'company_address': 'Example Address',
+                            'site': 1,
+                            'contacted': True
+                        },
+                        **(api_access_request_overrides or {})
+                    )
+                ],
+            'next': None,
+            'start': 0,
+            'previous': None
+        }
+
+        responses.add(
+            responses.GET,
+            lms_url.rstrip('/') + '/api-admin/api/v1/api_access_request/',
+            body=json.dumps(data),
+            content_type='application/json',
+            status=status
+        )
+
+    def mock_api_access_request_with_invalid_data(self, lms_url, status=200, response_overrides=None):
+        """
+        Mock the api access requests endpoint response of the LMS.
+        """
+        data = response_overrides or {}
+
+        responses.add(
+            responses.GET,
+            lms_url.rstrip('/') + '/api-admin/api/v1/api_access_request/',
+            body=json.dumps(data),
+            content_type='application/json',
+            status=status
+        )

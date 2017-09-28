@@ -6,35 +6,46 @@ from urllib.parse import urlencode
 import ddt
 import pytest
 import pytz
+import responses
 from django.test import TestCase
+from django.utils.text import slugify
 from haystack.query import SearchQuerySet
 from opaque_keys.edx.keys import CourseKey
 from rest_framework.test import APIRequestFactory
+from waffle.models import Switch
+from waffle.testutils import override_switch
 
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
-from course_discovery.apps.api.serializers import (
-    AffiliateWindowSerializer, CatalogSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer,
-    CorporateEndorsementSerializer, CourseRunSearchSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer,
-    CourseSearchSerializer, CourseSerializer, CourseWithProgramsSerializer, EndorsementSerializer, FAQSerializer,
-    FlattenedCourseRunWithCourseSerializer, ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer,
-    MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
-    OrganizationSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer, ProgramSearchSerializer,
-    ProgramSerializer, ProgramTypeSerializer, SeatSerializer, SubjectSerializer, TypeaheadCourseRunSearchSerializer,
-    TypeaheadProgramSearchSerializer, VideoSerializer
-)
+from course_discovery.apps.api.serializers import (AffiliateWindowSerializer, CatalogSerializer,
+                                                   ContainedCourseRunsSerializer, ContainedCoursesSerializer,
+                                                   CorporateEndorsementSerializer, CourseRunSearchSerializer,
+                                                   CourseRunSerializer, CourseRunWithProgramsSerializer,
+                                                   CourseSearchSerializer, CourseSerializer,
+                                                   CourseWithProgramsSerializer, EndorsementSerializer, FAQSerializer,
+                                                   FlattenedCourseRunWithCourseSerializer, ImageSerializer,
+                                                   MinimalCourseRunSerializer, MinimalCourseSerializer,
+                                                   MinimalOrganizationSerializer, MinimalProgramCourseSerializer,
+                                                   MinimalProgramSerializer, NestedProgramSerializer,
+                                                   OrganizationSerializer, PersonSerializer, PositionSerializer,
+                                                   PrerequisiteSerializer, ProgramSearchSerializer, ProgramSerializer,
+                                                   ProgramTypeSerializer, SeatSerializer, SubjectSerializer,
+                                                   TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer,
+                                                   VideoSerializer, get_utm_source_for_user)
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import User
-from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
-from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
+from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSAPIClientMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
-from course_discovery.apps.course_metadata.tests.factories import (
-    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, EndorsementFactory, ExpectedLearningItemFactory,
-    ImageFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, PositionFactory, PrerequisiteFactory,
-    ProgramFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory, SubjectFactory, VideoFactory
-)
+from course_discovery.apps.course_metadata.tests.factories import (CorporateEndorsementFactory, CourseFactory,
+                                                                   CourseRunFactory, EndorsementFactory,
+                                                                   ExpectedLearningItemFactory, ImageFactory,
+                                                                   JobOutlookItemFactory, OrganizationFactory,
+                                                                   PersonFactory, PositionFactory, PrerequisiteFactory,
+                                                                   ProgramFactory, ProgramTypeFactory, SeatFactory,
+                                                                   SeatTypeFactory, SubjectFactory, VideoFactory)
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
@@ -1384,3 +1395,57 @@ class TestTypeaheadProgramSearchSerializer:
         result = SearchQuerySet().models(Program).filter(uuid=program.uuid)[0]
         serializer = TypeaheadProgramSearchSerializer(result)
         return serializer
+
+
+class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
+
+    def setUp(self):
+        super(TestGetUTMSourceForUser, self).setUp()
+
+        self.switch, __ = Switch.objects.update_or_create(
+            name='use_company_name_as_utm_source_value', defaults={'active': True}
+        )
+        self.user = UserFactory.create()
+        self.partner = PartnerFactory.create()
+
+    @override_switch('use_company_name_as_utm_source_value', active=False)
+    def test_with_waffle_switch_turned_off(self):
+        """
+        Verify that `get_utm_source_for_user` returns User's username when waffle switch
+        `use_company_name_as_utm_source_value` is turned off.
+        """
+
+        assert get_utm_source_for_user(self.partner, self.user) == self.user.username
+
+    def test_with_missing_lms_url(self):
+        """
+        Verify that `get_utm_source_for_user` returns default value if
+        `Partner.lms_url` is not set in the database.
+        """
+        # Remove lms_url from partner.
+        self.partner.lms_url = ''
+        self.partner.save()
+
+        assert get_utm_source_for_user(self.partner, self.user) == self.user.username
+
+    @responses.activate
+    def test_when_api_response_is_not_valid(self):
+        """
+        Verify that `get_utm_source_for_user` returns default value if
+        LMS API does not return a valid response.
+        """
+        self.mock_api_access_request(self.partner.lms_url, status=400)
+        assert get_utm_source_for_user(self.partner, self.user) == self.user.username
+
+    @responses.activate
+    def test_get_utm_source_for_user(self):
+        """
+        Verify that `get_utm_source_for_user` returns correct value.
+        """
+        company_name = 'Test Company'
+        expected_utm_source = slugify('{} {}'.format(self.user.username, company_name))
+
+        self.mock_api_access_request(
+            self.partner.lms_url, api_access_request_overrides={'company_name': company_name},
+        )
+        assert get_utm_source_for_user(self.partner, self.user) == expected_utm_source
