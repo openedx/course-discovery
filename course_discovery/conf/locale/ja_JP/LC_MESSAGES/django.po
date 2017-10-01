@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-20 15:36-0400\n"
-"PO-Revision-Date: 2017-09-23 22:32+0000\n"
+"POT-Creation-Date: 2017-09-28 12:52-0400\n"
+"PO-Revision-Date: 2017-09-28 21:03+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Japanese (Japan) (http://www.transifex.com/open-edx/edx-platform/language/ja_JP/)\n"
 "MIME-Version: 1.0\n"
@@ -504,7 +504,8 @@ msgstr " `{state}` から `{target_state}` への切替はできません"
 msgid "Partner Manager"
 msgstr "Partner Manager"
 
-#: apps/publisher/choices.py apps/publisher/templates/publisher/courses.html
+#: apps/publisher/choices.py
+#: apps/publisher/templates/publisher/course_list.html
 msgid "Project Coordinator"
 msgstr "Project Coordinator"
 
@@ -516,12 +517,13 @@ msgstr "Marketing Reviewer"
 msgid "Publisher"
 msgstr "Publisher"
 
-#: apps/publisher/choices.py apps/publisher/templates/publisher/courses.html
+#: apps/publisher/choices.py
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "Course Team"
 msgstr "講座チーム"
 
-#: apps/publisher/choices.py
+#: apps/publisher/choices.py apps/publisher/models.py
+#: apps/publisher/wrappers.py
 msgid "Draft"
 msgstr "ドラフト"
 
@@ -618,6 +620,7 @@ msgstr "講座タイトル"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_list.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 #: apps/publisher/templates/publisher/dashboard/_published.html
@@ -898,25 +901,39 @@ msgstr "組織内権限"
 msgid "Course Role"
 msgstr "講座内権限"
 
-#: apps/publisher/models.py apps/publisher/wrappers.py
-msgid "In Draft since"
-msgstr "ドラフト作成日"
+#: apps/publisher/models.py
+msgid "Automatically create a run in Studio"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid ""
+"When this flag is enabled, creation of a new course run in Publisher will "
+"also create a corresponding course run in Studio."
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Submitted for Marketing Review"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Approved by Course Team"
+msgstr ""
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
-msgid "Submitted on"
-msgstr "提出日"
+msgid "Awaiting Course Team Review"
+msgstr ""
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
-msgid "Reviewed on"
-msgstr "レビュー日"
+msgid "N/A"
+msgstr ""
 
-#: apps/publisher/models.py apps/publisher/wrappers.py
-msgid "In Review since"
-msgstr "レビュー開始日"
+#: apps/publisher/models.py
+msgid "Awaiting Marketing Review"
+msgstr ""
 
-#: apps/publisher/models.py apps/publisher/wrappers.py
-msgid "n/a"
-msgstr "なし"
+#: apps/publisher/models.py
+msgid "Approved by Marketing"
+msgstr ""
 
 #: apps/publisher/serializers.py
 #: apps/publisher/templates/publisher/_approval_widget.html
@@ -970,10 +987,10 @@ msgid "Institution email is preferred"
 msgstr "所属機関メールを希望"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
+#: apps/publisher/templates/publisher/course_list.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
-#: apps/publisher/templates/publisher/courses.html
 #: apps/publisher/templates/publisher/dashboard/_in_preview.html
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 #: apps/publisher/templates/publisher/dashboard/_published.html
@@ -1208,7 +1225,7 @@ msgid "Are you sure you want to revert all changes to this version ?"
 msgstr "このバージョンへのすべての変更を本当に元に戻しますか？"
 
 #: apps/publisher/templates/publisher/add_course_form.html
-#: apps/publisher/templates/publisher/courses.html
+#: apps/publisher/templates/publisher/course_list.html
 msgid "Create New Course"
 msgstr "新規講座を作成"
 
@@ -1417,7 +1434,6 @@ msgid ""
 msgstr "ユーザー名を入力し、グループを選択してください。すると、より多くのユーザーオプションを編集できるようになります。"
 
 #: apps/publisher/templates/publisher/admin/import_course.html
-#: apps/publisher/templates/publisher/course_detail.html
 msgid "Course Detail"
 msgstr "講座詳細"
 
@@ -1426,12 +1442,12 @@ msgid "Import COURSE"
 msgstr "COURSEをインポート"
 
 #: apps/publisher/templates/publisher/base.html
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Dashboard"
 msgstr "ダッシュボード"
 
 #: apps/publisher/templates/publisher/base.html
-#: apps/publisher/templates/publisher/courses.html
+#: apps/publisher/templates/publisher/course_list.html apps/publisher/views.py
 msgid "Courses"
 msgstr "講座"
 
@@ -1947,6 +1963,33 @@ msgstr "スペースを含め500文字まで。"
 msgid "Update Course"
 msgstr "講座アップデート"
 
+#: apps/publisher/templates/publisher/course_list.html
+#: apps/publisher/templates/publisher/course_run_detail/_studio.html
+#: apps/publisher/templates/publisher/dashboard/_in_preview.html
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
+#: apps/publisher/templates/publisher/dashboard/_published.html
+#: apps/publisher/templates/publisher/dashboard/_studio_requests.html
+msgid "Course Name"
+msgstr "講座名"
+
+#: apps/publisher/templates/publisher/course_list.html
+msgid "Runs"
+msgstr "Runs"
+
+#: apps/publisher/templates/publisher/course_list.html
+msgid "Course Team Status"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_list.html
+#, python-format
+msgid "%(site_name)s Status"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_list.html
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
+msgid "Last Handoff"
+msgstr ""
+
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Revision History"
 msgstr "変更履歴"
@@ -2400,15 +2443,6 @@ msgid "Enrollment Type"
 msgstr "受講登録タイプ"
 
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
-#: apps/publisher/templates/publisher/courses.html
-#: apps/publisher/templates/publisher/dashboard/_in_preview.html
-#: apps/publisher/templates/publisher/dashboard/_in_progress.html
-#: apps/publisher/templates/publisher/dashboard/_published.html
-#: apps/publisher/templates/publisher/dashboard/_studio_requests.html
-msgid "Course Name"
-msgstr "講座名"
-
-#: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "Enrollment Start Date (time in UTC)"
 msgstr "受講登録開始日(UTC)"
 
@@ -2423,10 +2457,6 @@ msgstr "講座の種類"
 #: apps/publisher/templates/publisher/course_run_detail/_widgets.html
 msgid "Reason for declining preview"
 msgstr "プレビュー却下の理由"
-
-#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
-msgid "Course Run Details"
-msgstr "course run 詳細"
 
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 #, python-format
@@ -2466,52 +2496,48 @@ msgstr ""
 msgid "Publication failed."
 msgstr ""
 
-#: apps/publisher/templates/publisher/courses.html
-msgid "Runs"
-msgstr "Runs"
-
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Course About Pages"
 msgstr "Aboutページ"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid ""
 "EdX Publisher is used to create course About pages. Users enter, review, and"
 " approve content in Publisher. Publisher keeps track of the details and "
 "sends email updates when actions are necessary."
 msgstr "EdX Publisher はAboutページを作成する際に使用します。ユーザーはPublisher内でコンテンツを入力、レビュー、承認します。Publisher は詳細を管理し、対応が必要な場合にはメールを送ります。"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid ""
 "EdX Publisher is a companion to edX Studio. Course teams enter About page "
 "information in Publisher, and course content in Studio."
 msgstr "EdX Publisher は edX Studioの仲間です。講座チームはAboutページの情報をPublisherに、講座コンテンツをStudioに入力します。"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Add a New Course"
 msgstr "新規講座を入力"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Add a Course Run"
 msgstr "course runを入力"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Course runs"
 msgstr "Course runs"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "In Development"
 msgstr "開発中"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "In Preview"
 msgstr "プレビュー中"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Studio Request"
 msgstr "Studio リクエスト"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Published About Pages"
 msgstr "Aboutページ公開済"
 
@@ -2615,9 +2641,9 @@ msgstr "Studio URLの準備ができている講座はありません。"
 #: apps/publisher/templates/publisher/email/comment.html
 #, python-format
 msgid ""
-"The %(team_name)s made the following comment on %(course_name)s on %(date)s "
-"at %(time)s"
-msgstr "The %(team_name)s は %(date)s  %(time)sに %(course_name)s に関して次のコメントを書きました"
+"%(user_name)s made the following comment on %(course_name)s on %(date)s at "
+"%(time)s"
+msgstr ""
 
 #: apps/publisher/templates/publisher/email/comment.html
 #: apps/publisher/templates/publisher/email/comment.txt
@@ -2637,9 +2663,9 @@ msgstr "edX チーム"
 #: apps/publisher/templates/publisher/email/comment.txt
 #, python-format
 msgid ""
-"The %(team_name)s made the following comment on %(course_name)s %(date)s at "
+"%(user_name)s made the following comment on %(course_name)s %(date)s at "
 "%(time)s."
-msgstr "The %(team_name)s は %(date)s  %(time)sに %(course_name)s に関して次のコメントを書きました。"
+msgstr ""
 
 #: apps/publisher/templates/publisher/email/course/mark_as_reviewed.html
 #: apps/publisher/templates/publisher/email/course/mark_as_reviewed.txt
@@ -2651,7 +2677,6 @@ msgstr "The %(team_name)s は %(date)s  %(time)sに %(course_name)s に関し�
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
 #: apps/publisher/templates/publisher/email/course_run/preview_available.html
 #: apps/publisher/templates/publisher/email/course_run/preview_available.txt
-#: apps/publisher/templates/publisher/email/course_run/published.html
 #: apps/publisher/templates/publisher/email/course_run/published.txt
 #: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.html
 #: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.txt
@@ -2708,8 +2733,6 @@ msgstr "レビュー用にcourse runを提出することができます。 %(li
 #: apps/publisher/templates/publisher/email/decline_preview.txt
 #: apps/publisher/templates/publisher/email/studio_instance_created.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.txt
-#: apps/publisher/templates/publisher/email/studio_instance_needed.html
-#: apps/publisher/templates/publisher/email/studio_instance_needed.txt
 msgid "Thanks,"
 msgstr "ありがとうございます。"
 
@@ -2795,8 +2818,6 @@ msgid "Please create a Studio URL for this course."
 msgstr "この講座のStudio URLを作成してください。"
 
 #: apps/publisher/templates/publisher/email/course_created.txt
-#: apps/publisher/templates/publisher/email/studio_instance_needed.html
-#: apps/publisher/templates/publisher/email/studio_instance_needed.txt
 msgid "Dear"
 msgstr "様"
 
@@ -3112,14 +3133,6 @@ msgid ""
 "information, see Add a Course About Video to edx.org."
 msgstr "これが初回開講の場合、Publisherで提出する前に講座紹介ビデオをアップロードする必要があります。詳しくは、講座紹介ビデオをedx.orgに追加するを見てください。"
 
-#: apps/publisher/templates/publisher/email/studio_instance_needed.html
-#: apps/publisher/templates/publisher/email/studio_instance_needed.txt
-msgid ""
-"Please create a Studio instance for the following course. After you create "
-"the Studio instance, enter the course key for that instance on the course "
-"run page in Publisher."
-msgstr "以下の講座のStudio instanceを作成してください。Studio instanceを作成した後、Publisher内のcourse runページ上に講座キーを入力してください。"
-
 #: apps/publisher/templates/publisher/seat_form.html
 msgid "Seat Form"
 msgstr "Seat Form"
@@ -3230,6 +3243,18 @@ msgstr "あなたの組織にはこのcourse-runをレビューまたは承認�
 #: apps/publisher/views.py
 msgid "Course run updated successfully."
 msgstr "course runアップデート完了。"
+
+#: apps/publisher/wrappers.py
+msgid "Submitted for Project Coordinator Review"
+msgstr ""
+
+#: apps/publisher/wrappers.py
+msgid "Awaiting Project Coordinator Review"
+msgstr ""
+
+#: apps/publisher/wrappers.py
+msgid "Approved by Project Coordinator"
+msgstr ""
 
 #: apps/publisher_comments/emails.py
 msgid "Comment added:"

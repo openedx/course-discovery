@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-15 15:30+0000\n"
+"POT-Creation-Date: 2017-09-28 12:52-0400\n"
 "PO-Revision-Date: 2017-09-23 22:32+0000\n"
 "Last-Translator: Fundacja Eduprojekt.org <maciej@eduprojekt.org>\n"
 "Language-Team: Polish (http://www.transifex.com/open-edx/edx-platform/language/pl/)\n"
@@ -77,19 +77,19 @@ msgstr "Zapisz"
 msgid "Please enter a valid URL."
 msgstr "Proszę podać poprawny adres URL."
 
-#: static/js/publisher/views/courses.js
-msgid "No courses have been created."
-msgstr "Nie utworzono żadnych kursów."
-
-#: static/js/publisher/views/dashboard.js
+#: static/js/publisher/views/courserun_list.js
 msgid ""
 "You have successfully created a Studio URL ({studioLinkTag}) for "
 "{courseRunDetail} with a start date of {startDate}"
 msgstr "Z powodzeniem utworzyłeś odnośnik w Studio ({studioLinkTag}) dla potrzeb kursu {courseRunDetail} o dacie rozpoczęcia {startDate}"
 
-#: static/js/publisher/views/dashboard.js
+#: static/js/publisher/views/courserun_list.js
 msgid "There was an error in saving your data."
 msgstr "Wystąpił błąd w trakcie zapisywania twoich danych."
+
+#: static/js/publisher/views/courses.js
+msgid "No courses have been created."
+msgstr "Nie utworzono żadnych kursów."
 
 #: static/js/publisher/views/navbar.js
 msgid "OFF"

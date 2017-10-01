@@ -9,9 +9,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-20 15:36-0400\n"
-"PO-Revision-Date: 2017-09-20 21:30+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2017-09-28 12:52-0400\n"
+"PO-Revision-Date: 2017-10-01 11:51+0000\n"
+"Last-Translator: Fundacja Eduprojekt.org <maciej@eduprojekt.org>\n"
 "Language-Team: Polish (http://www.transifex.com/open-edx/edx-platform/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -504,7 +504,8 @@ msgstr "Nie udało się przełączyć ze stanu `{state}` do stanu `{target_state
 msgid "Partner Manager"
 msgstr "Opiekun Partnera"
 
-#: apps/publisher/choices.py apps/publisher/templates/publisher/courses.html
+#: apps/publisher/choices.py
+#: apps/publisher/templates/publisher/course_list.html
 msgid "Project Coordinator"
 msgstr "Koordynator Projektu"
 
@@ -516,12 +517,13 @@ msgstr "Weryfikator Promocji"
 msgid "Publisher"
 msgstr "Publisher"
 
-#: apps/publisher/choices.py apps/publisher/templates/publisher/courses.html
+#: apps/publisher/choices.py
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "Course Team"
 msgstr "Kadra kursu"
 
-#: apps/publisher/choices.py
+#: apps/publisher/choices.py apps/publisher/models.py
+#: apps/publisher/wrappers.py
 msgid "Draft"
 msgstr "Szkic"
 
@@ -618,6 +620,7 @@ msgstr "Nazwa kursu"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_list.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 #: apps/publisher/templates/publisher/dashboard/_published.html
@@ -898,25 +901,39 @@ msgstr "Rola w organizacji"
 msgid "Course Role"
 msgstr "Rola w kursie"
 
-#: apps/publisher/models.py apps/publisher/wrappers.py
-msgid "In Draft since"
-msgstr "Jako szkic od"
+#: apps/publisher/models.py
+msgid "Automatically create a run in Studio"
+msgstr "Automatycznie utwórz edycję w Studio"
+
+#: apps/publisher/models.py
+msgid ""
+"When this flag is enabled, creation of a new course run in Publisher will "
+"also create a corresponding course run in Studio."
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Submitted for Marketing Review"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Approved by Course Team"
+msgstr ""
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
-msgid "Submitted on"
-msgstr "Przesłany"
+msgid "Awaiting Course Team Review"
+msgstr ""
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
-msgid "Reviewed on"
-msgstr "Oceniony"
+msgid "N/A"
+msgstr ""
 
-#: apps/publisher/models.py apps/publisher/wrappers.py
-msgid "In Review since"
-msgstr "W trakcie oceny od"
+#: apps/publisher/models.py
+msgid "Awaiting Marketing Review"
+msgstr ""
 
-#: apps/publisher/models.py apps/publisher/wrappers.py
-msgid "n/a"
-msgstr "n/d"
+#: apps/publisher/models.py
+msgid "Approved by Marketing"
+msgstr ""
 
 #: apps/publisher/serializers.py
 #: apps/publisher/templates/publisher/_approval_widget.html
@@ -970,10 +987,10 @@ msgid "Institution email is preferred"
 msgstr "Preferowany jest adres e-mail w służbowej domenie"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
+#: apps/publisher/templates/publisher/course_list.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
-#: apps/publisher/templates/publisher/courses.html
 #: apps/publisher/templates/publisher/dashboard/_in_preview.html
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 #: apps/publisher/templates/publisher/dashboard/_published.html
@@ -1208,7 +1225,7 @@ msgid "Are you sure you want to revert all changes to this version ?"
 msgstr "Czy na pewno chcesz cofnąć wszystkie zmiany i wrócić do tej wersji?"
 
 #: apps/publisher/templates/publisher/add_course_form.html
-#: apps/publisher/templates/publisher/courses.html
+#: apps/publisher/templates/publisher/course_list.html
 msgid "Create New Course"
 msgstr "Utwórz nowy kurs"
 
@@ -1417,7 +1434,6 @@ msgid ""
 msgstr "Najpierw wprowadź nazwę użytkownika i wybierz grupę. Następnie będziesz mógł wyedytować więcej opcji użytkownika."
 
 #: apps/publisher/templates/publisher/admin/import_course.html
-#: apps/publisher/templates/publisher/course_detail.html
 msgid "Course Detail"
 msgstr "Szczegóły kursu"
 
@@ -1426,12 +1442,12 @@ msgid "Import COURSE"
 msgstr "Importuj KURS"
 
 #: apps/publisher/templates/publisher/base.html
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Dashboard"
 msgstr "Pulpit"
 
 #: apps/publisher/templates/publisher/base.html
-#: apps/publisher/templates/publisher/courses.html
+#: apps/publisher/templates/publisher/course_list.html apps/publisher/views.py
 msgid "Courses"
 msgstr "Kursy"
 
@@ -1947,6 +1963,33 @@ msgstr "Limit 500 znaków w tym spacje."
 msgid "Update Course"
 msgstr "Aktualizuj kurs"
 
+#: apps/publisher/templates/publisher/course_list.html
+#: apps/publisher/templates/publisher/course_run_detail/_studio.html
+#: apps/publisher/templates/publisher/dashboard/_in_preview.html
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
+#: apps/publisher/templates/publisher/dashboard/_published.html
+#: apps/publisher/templates/publisher/dashboard/_studio_requests.html
+msgid "Course Name"
+msgstr "Nazwa kursu"
+
+#: apps/publisher/templates/publisher/course_list.html
+msgid "Runs"
+msgstr "Edycje"
+
+#: apps/publisher/templates/publisher/course_list.html
+msgid "Course Team Status"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_list.html
+#, python-format
+msgid "%(site_name)s Status"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_list.html
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
+msgid "Last Handoff"
+msgstr ""
+
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Revision History"
 msgstr "Historia zmian"
@@ -2400,15 +2443,6 @@ msgid "Enrollment Type"
 msgstr "Forma uczestnictwa"
 
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
-#: apps/publisher/templates/publisher/courses.html
-#: apps/publisher/templates/publisher/dashboard/_in_preview.html
-#: apps/publisher/templates/publisher/dashboard/_in_progress.html
-#: apps/publisher/templates/publisher/dashboard/_published.html
-#: apps/publisher/templates/publisher/dashboard/_studio_requests.html
-msgid "Course Name"
-msgstr "Nazwa kursu"
-
-#: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "Enrollment Start Date (time in UTC)"
 msgstr "Data rozpoczęcia naboru (czas w UTC)"
 
@@ -2423,10 +2457,6 @@ msgstr "Typ formuły"
 #: apps/publisher/templates/publisher/course_run_detail/_widgets.html
 msgid "Reason for declining preview"
 msgstr "Powód odrzucenia zapowiedzi"
-
-#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
-msgid "Course Run Details"
-msgstr "Szczegóły edycji kursu"
 
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 #, python-format
@@ -2466,52 +2496,48 @@ msgstr "Opublikowano pomyślnie"
 msgid "Publication failed."
 msgstr "Opublikowanie nieudane"
 
-#: apps/publisher/templates/publisher/courses.html
-msgid "Runs"
-msgstr "Edycje"
-
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Course About Pages"
 msgstr "Karty kursów"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid ""
 "EdX Publisher is used to create course About pages. Users enter, review, and"
 " approve content in Publisher. Publisher keeps track of the details and "
 "sends email updates when actions are necessary."
 msgstr "Publisher jest wykorzystywany do tworzenia kart kursów. Użytkownicy wprowadzają, weryfikują i zatwierdzają treści w Publisherze, który śledzi wszystkie zmiany i wysyła powiadomienia e-mail gdy niezbędne jest podjęcie określonych czynności."
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid ""
 "EdX Publisher is a companion to edX Studio. Course teams enter About page "
 "information in Publisher, and course content in Studio."
 msgstr "Publisher jest uzupełnieniem systemu Studio. Kadry kursów wprowadzają informacje na kartę kursu w Publisherze, a treści kursu w Studio."
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Add a New Course"
 msgstr "Dodaj nowy kurs"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Add a Course Run"
 msgstr "Dodaj edycję kursu"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Course runs"
 msgstr "Edycje kursu"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "In Development"
 msgstr "W trakcie tworzenia"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "In Preview"
 msgstr "W trakcie oceny"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Studio Request"
 msgstr "Żądanie Studio"
 
-#: apps/publisher/templates/publisher/dashboard.html
+#: apps/publisher/templates/publisher/courserun_list.html
 msgid "Published About Pages"
 msgstr "Opublikowane karty kursów"
 
@@ -2615,9 +2641,9 @@ msgstr "Żadne kursy nie oczekują obecnie na adresy do Studio."
 #: apps/publisher/templates/publisher/email/comment.html
 #, python-format
 msgid ""
-"The %(team_name)s made the following comment on %(course_name)s on %(date)s "
-"at %(time)s"
-msgstr "%(team_name)s dodał następujący komentarz na temat kursu %(course_name)s dn. %(date)s o %(time)s."
+"%(user_name)s made the following comment on %(course_name)s on %(date)s at "
+"%(time)s"
+msgstr ""
 
 #: apps/publisher/templates/publisher/email/comment.html
 #: apps/publisher/templates/publisher/email/comment.txt
@@ -2637,9 +2663,9 @@ msgstr "Zespół Platformy"
 #: apps/publisher/templates/publisher/email/comment.txt
 #, python-format
 msgid ""
-"The %(team_name)s made the following comment on %(course_name)s %(date)s at "
+"%(user_name)s made the following comment on %(course_name)s %(date)s at "
 "%(time)s."
-msgstr "%(team_name)s dodał następujący komentarz na temat kursu %(course_name)s dn. %(date)s o %(time)s."
+msgstr ""
 
 #: apps/publisher/templates/publisher/email/course/mark_as_reviewed.html
 #: apps/publisher/templates/publisher/email/course/mark_as_reviewed.txt
@@ -2651,7 +2677,6 @@ msgstr "%(team_name)s dodał następujący komentarz na temat kursu %(course_nam
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
 #: apps/publisher/templates/publisher/email/course_run/preview_available.html
 #: apps/publisher/templates/publisher/email/course_run/preview_available.txt
-#: apps/publisher/templates/publisher/email/course_run/published.html
 #: apps/publisher/templates/publisher/email/course_run/published.txt
 #: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.html
 #: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.txt
@@ -2708,8 +2733,6 @@ msgstr "Teraz możesz zgłosić edycję kursu do oceny. Aby tego dokonać, %(lin
 #: apps/publisher/templates/publisher/email/decline_preview.txt
 #: apps/publisher/templates/publisher/email/studio_instance_created.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.txt
-#: apps/publisher/templates/publisher/email/studio_instance_needed.html
-#: apps/publisher/templates/publisher/email/studio_instance_needed.txt
 msgid "Thanks,"
 msgstr "Dziękujemy,"
 
@@ -2795,8 +2818,6 @@ msgid "Please create a Studio URL for this course."
 msgstr "Proszę stworzyć pozycję tego kursu w Studio."
 
 #: apps/publisher/templates/publisher/email/course_created.txt
-#: apps/publisher/templates/publisher/email/studio_instance_needed.html
-#: apps/publisher/templates/publisher/email/studio_instance_needed.txt
 msgid "Dear"
 msgstr "Szanowny"
 
@@ -3112,14 +3133,6 @@ msgid ""
 "information, see Add a Course About Video to edx.org."
 msgstr "Jeśli jest to pierwsza edycja twojego kursu, zalecamy przesłanie filmu promującego kurs przed zgłoszeniem w Publisherze kursu do oceny. W celu uzyskania dodatkowych informacji proszę zapoznać się z dokumentacją."
 
-#: apps/publisher/templates/publisher/email/studio_instance_needed.html
-#: apps/publisher/templates/publisher/email/studio_instance_needed.txt
-msgid ""
-"Please create a Studio instance for the following course. After you create "
-"the Studio instance, enter the course key for that instance on the course "
-"run page in Publisher."
-msgstr "Proszę utworzyć pozycję w Studio dla poniższego kursu. Po utworzeniu pozycji w Studio, wprowadź klucz kursu dla tej pozycji na stronie edycji kursu w Publisherze."
-
 #: apps/publisher/templates/publisher/seat_form.html
 msgid "Seat Form"
 msgstr "Forma miejsca"
@@ -3230,6 +3243,18 @@ msgstr "Twoja organizacja nie posiada domyślnych ról do sprawdzania / zatwierd
 #: apps/publisher/views.py
 msgid "Course run updated successfully."
 msgstr "Edycja kursu zaktualizowana pomyślnie."
+
+#: apps/publisher/wrappers.py
+msgid "Submitted for Project Coordinator Review"
+msgstr ""
+
+#: apps/publisher/wrappers.py
+msgid "Awaiting Project Coordinator Review"
+msgstr ""
+
+#: apps/publisher/wrappers.py
+msgid "Approved by Project Coordinator"
+msgstr ""
 
 #: apps/publisher_comments/emails.py
 msgid "Comment added:"
