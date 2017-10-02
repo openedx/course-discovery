@@ -279,6 +279,8 @@ class Course(TimeStampedModel):
     level_type = models.ForeignKey(LevelType, default=None, null=True, blank=True)
     expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
     outcome = models.TextField(blank=True, null=True)
+    prerequisites_raw = models.TextField(blank=True, null=True)
+    syllabus_raw = models.TextField(blank=True, null=True)
     card_image_url = models.URLField(null=True, blank=True)
     image = StdImageField(
         upload_to=UploadToAutoSlug(populate_from='uuid', path='media/course/image'),
