@@ -463,6 +463,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'short_description': self.clean_html(data['field_course_sub_title_short']),
             'level_type': self.get_level_type(data['field_course_level']),
             'card_image_url': self._get_nested_url(data.get('field_course_image_promoted')),
+            'outcome': (data.get('field_course_what_u_will_learn', {}) or {}).get('value'),
         }
 
         return defaults
