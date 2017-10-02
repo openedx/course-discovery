@@ -1456,7 +1456,9 @@ UNIQUE_MARKETING_SITE_API_COURSE_BODIES = [
         'field_course_enrollment_mobile': None,
         'field_course_part_of_products': [],
         'field_course_level': None,
-        'field_course_what_u_will_learn': [],
+        'field_course_what_u_will_learn': {
+            'value': 'This is fake data for testing!'
+        },
         'field_course_video_locale_lang': [],
         'field_course_languages': [],
         'field_couse_is_hidden': None,

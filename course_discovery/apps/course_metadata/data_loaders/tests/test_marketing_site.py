@@ -443,6 +443,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
             'short_description': self.loader.clean_html(data['field_course_sub_title_short']),
             'level_type': self.loader.get_level_type(data['field_course_level']),
             'card_image_url': (data.get('field_course_image_promoted') or {}).get('url'),
+            'outcome': (data.get('field_course_what_u_will_learn', {}) or {}).get('value'),
         }
 
         for field, value in expected_values.items():
