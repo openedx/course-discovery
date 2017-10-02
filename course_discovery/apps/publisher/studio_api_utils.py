@@ -53,6 +53,9 @@ class StudioAPI:
                     'role': 'instructor',
                 },
             ]
+        else:
+            logger.warning('No course team admin specified for course [%s]. This may result in a Studio '
+                           'course run being created without a course team.', course.number)
 
         return {
             'title': publisher_course_run.title_override or course.title,
