@@ -90,6 +90,8 @@ class CourseRunViewSetTests(APITestCase):
         publisher_course_run = self._create_course_run_for_publication()
 
         audit_seat = SeatFactory(course_run=publisher_course_run, type=Seat.AUDIT, upgrade_deadline=None)
+        # The credit seat should NOT be published.
+        SeatFactory(course_run=publisher_course_run, type=Seat.CREDIT)
         professional_seat = SeatFactory(course_run=publisher_course_run, type=Seat.PROFESSIONAL)
         verified_seat = SeatFactory(course_run=publisher_course_run, type=Seat.VERIFIED)
 

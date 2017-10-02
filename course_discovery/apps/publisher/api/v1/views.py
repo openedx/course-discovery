@@ -12,7 +12,7 @@ from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.models import CourseRun as DiscoveryCourseRun
 from course_discovery.apps.course_metadata.models import Course, Video
 from course_discovery.apps.publisher.api.utils import serialize_seat_for_ecommerce_api
-from course_discovery.apps.publisher.models import CourseRun
+from course_discovery.apps.publisher.models import CourseRun, Seat
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI
 
 logger = logging.getLogger(__name__)
@@ -76,7 +76,8 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             'verification_deadline': serialize_datetime(course_run.end),
             'create_or_activate_enrollment_code': False,
             # NOTE (CCB): We only order here to aid testing. The E-Commerce API does NOT care about ordering.
-            'products': [serialize_seat_for_ecommerce_api(seat) for seat in course_run.seats.all().order_by('created')],
+            'products': [serialize_seat_for_ecommerce_api(seat) for seat in
+                         course_run.seats.exclude(type=Seat.CREDIT).order_by('created')],
         }
 
         try:
