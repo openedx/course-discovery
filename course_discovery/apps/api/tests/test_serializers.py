@@ -151,6 +151,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'owners': OrganizationSerializer(course.authoring_organizations, many=True).data,
             'prerequisites_raw': course.prerequisites_raw,
             'syllabus_raw': course.syllabus_raw,
+            'outcome': course.outcome,
         })
 
         return expected
@@ -257,6 +258,7 @@ class CourseRunSerializerTests(MinimalCourseRunSerializerTests):
             'full_description': course_run.full_description,  # pylint: disable=no-member
             'announcement': json_date_format(course_run.announcement),
             'video': VideoSerializer(course_run.video).data,
+            'video_translation_languages': [],
             'mobile_available': course_run.mobile_available,
             'eligible_for_financial_aid': course_run.eligible_for_financial_aid,
             'hidden': course_run.hidden,
