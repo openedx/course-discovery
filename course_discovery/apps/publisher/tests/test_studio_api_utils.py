@@ -1,6 +1,7 @@
 import datetime
 from itertools import product
 
+import mock
 import pytest
 
 from course_discovery.apps.core.utils import serialize_datetime
@@ -42,22 +43,8 @@ def test_calculate_course_run_key_run_value_with_multiple_runs_per_trimester():
     assert StudioAPI.calculate_course_run_key_run_value(course_run) == '1T2017b'
 
 
-@pytest.mark.django_db
-@pytest.mark.parametrize('with_team', (True, False,))
-def test_generate_data_for_studio_api(with_team):
-    course_run = CourseRunFactory(course__organizations=[OrganizationFactory()])
+def assert_data_generated_correctly(course_run, expected_team_data):
     course = course_run.course
-    team = []
-
-    if with_team:
-        role = CourseUserRoleFactory(course=course, role=PublisherUserRole.CourseTeam)
-        team = [
-            {
-                'user': role.user.username,
-                'role': 'instructor',
-            },
-        ]
-
     expected = {
         'title': course_run.title_override or course.title,
         'org': course.organizations.first().key,
@@ -69,6 +56,33 @@ def test_generate_data_for_studio_api(with_team):
             'enrollment_start': serialize_datetime(course_run.enrollment_start),
             'enrollment_end': serialize_datetime(course_run.enrollment_end),
         },
-        'team': team,
+        'team': expected_team_data,
     }
     assert StudioAPI.generate_data_for_studio_api(course_run) == expected
+
+
+@pytest.mark.django_db
+def test_generate_data_for_studio_api():
+    course_run = CourseRunFactory(course__organizations=[OrganizationFactory()])
+    course = course_run.course
+    role = CourseUserRoleFactory(course=course, role=PublisherUserRole.CourseTeam)
+    team = [
+        {
+            'user': role.user.username,
+            'role': 'instructor',
+        },
+    ]
+    assert_data_generated_correctly(course_run, team)
+
+
+@pytest.mark.django_db
+def test_generate_data_for_studio_api_without_team():
+    course_run = CourseRunFactory(course__organizations=[OrganizationFactory()])
+
+    with mock.patch('course_discovery.apps.publisher.studio_api_utils.logger.warning') as mock_logger:
+        assert_data_generated_correctly(course_run, [])
+        mock_logger.assert_called_with(
+            'No course team admin specified for course [%s]. This may result in a Studio course run '
+            'being created without a course team.',
+            course_run.course.number
+        )
