@@ -581,7 +581,7 @@ class CourseSerializer(MinimalCourseSerializer):
         model = Course
         fields = MinimalCourseSerializer.Meta.fields + (
             'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites', 'prerequisites_raw',
-            'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url', 'syllabus_raw',
+            'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url', 'syllabus_raw', 'outcome',
         )
 
     def get_marketing_url(self, obj):
