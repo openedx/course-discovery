@@ -71,6 +71,7 @@ class CourseFactory(factory.DjangoModelFactory):
     partner = factory.SubFactory(PartnerFactory)
     prerequisites_raw = FuzzyText()
     syllabus_raw = FuzzyText()
+    outcome = FuzzyText()
 
     class Meta:
         model = Course
@@ -127,6 +128,11 @@ class CourseRunFactory(factory.DjangoModelFactory):
     def transcript_languages(self, create, extracted, **kwargs):
         if create:  # pragma: no cover
             add_m2m_data(self.transcript_languages, extracted)
+
+    @factory.post_generation
+    def video_translation_languages(self, create, extracted, **kwargs):
+        if create:  # progma: no cover
+            add_m2m_data(self.video_translation_languages, extracted)
 
     @factory.post_generation
     def authoring_organizations(self, create, extracted, **kwargs):
