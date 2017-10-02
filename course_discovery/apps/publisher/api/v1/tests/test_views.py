@@ -152,6 +152,8 @@ class CourseRunViewSetTests(APITestCase):
         assert discovery_course.video == Video.objects.get(src=publisher_course.video_link)
         assert discovery_course.image == publisher_course.image
         assert discovery_course.outcome == publisher_course.expected_learnings
+        assert discovery_course.prerequisites_raw == publisher_course.prerequisites
+        assert discovery_course.syllabus_raw == publisher_course.syllabus
         expected = list(publisher_course_run.course.organizations.all())
         assert list(discovery_course.authoring_organizations.all()) == expected
         expected = {publisher_course.primary_subject, publisher_course.secondary_subject}

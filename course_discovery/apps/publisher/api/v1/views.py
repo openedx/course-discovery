@@ -104,6 +104,8 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             'video': video,
             'image': publisher_course.image,
             'outcome': publisher_course.expected_learnings,
+            'prerequisites_raw': publisher_course.prerequisites,
+            'syllabus_raw': publisher_course.syllabus,
         }
         discovery_course, created = Course.objects.update_or_create(partner=partner, key=course_key, defaults=defaults)
         discovery_course.authoring_organizations.add(*publisher_course.organizations.all())
