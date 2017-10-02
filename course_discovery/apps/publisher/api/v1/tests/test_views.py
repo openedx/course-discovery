@@ -5,9 +5,10 @@ import responses
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
-from course_discovery.apps.core.models import Partner
+from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.core.tests.factories import StaffUserFactory, UserFactory
 from course_discovery.apps.core.utils import serialize_datetime
+from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
 from course_discovery.apps.course_metadata.models import CourseRun, Video
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -89,11 +90,16 @@ class CourseRunViewSetTests(APITestCase):
     def test_publish(self, mock_access_token):  # pylint: disable=unused-argument,too-many-statements
         publisher_course_run = self._create_course_run_for_publication()
 
-        audit_seat = SeatFactory(course_run=publisher_course_run, type=Seat.AUDIT, upgrade_deadline=None)
+        currency = Currency.objects.get(code='USD')
+        common_seat_kwargs = {
+            'course_run': publisher_course_run,
+            'currency': currency,
+        }
+        audit_seat = SeatFactory(type=Seat.AUDIT, upgrade_deadline=None, **common_seat_kwargs)
         # The credit seat should NOT be published.
-        SeatFactory(course_run=publisher_course_run, type=Seat.CREDIT)
-        professional_seat = SeatFactory(course_run=publisher_course_run, type=Seat.PROFESSIONAL)
-        verified_seat = SeatFactory(course_run=publisher_course_run, type=Seat.VERIFIED)
+        SeatFactory(type=Seat.CREDIT, **common_seat_kwargs)
+        professional_seat = SeatFactory(type=Seat.PROFESSIONAL, **common_seat_kwargs)
+        verified_seat = SeatFactory(type=Seat.VERIFIED, **common_seat_kwargs)
 
         partner = publisher_course_run.course.organizations.first().partner
         self._set_test_client_domain_and_login(partner)
@@ -160,6 +166,17 @@ class CourseRunViewSetTests(APITestCase):
         assert list(discovery_course.authoring_organizations.all()) == expected
         expected = {publisher_course.primary_subject, publisher_course.secondary_subject}
         assert set(discovery_course.subjects.all()) == expected
+
+        common_seat_kwargs = {
+            'course_run': discovery_course_run,
+            'currency': currency,
+        }
+        DiscoverySeat.objects.get(type=DiscoverySeat.AUDIT, upgrade_deadline__isnull=True, **common_seat_kwargs)
+        DiscoverySeat.objects.get(type=DiscoverySeat.PROFESSIONAL, upgrade_deadline=professional_seat.upgrade_deadline,
+                                  price=professional_seat.price,
+                                  **common_seat_kwargs)
+        DiscoverySeat.objects.get(type=DiscoverySeat.VERIFIED, upgrade_deadline=verified_seat.upgrade_deadline,
+                                  price=verified_seat.price, **common_seat_kwargs)
 
     def test_publish_missing_course_run(self):
         self.client.force_login(StaffUserFactory())
