@@ -69,6 +69,8 @@ class CourseFactory(factory.DjangoModelFactory):
     card_image_url = FuzzyURL()
     video = factory.SubFactory(VideoFactory)
     partner = factory.SubFactory(PartnerFactory)
+    prerequisites_raw = FuzzyText()
+    syllabus_raw = FuzzyText()
 
     class Meta:
         model = Course

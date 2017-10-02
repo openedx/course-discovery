@@ -149,6 +149,8 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             ),
             'course_runs': CourseRunSerializer(course.course_runs, many=True, context={'request': request}).data,
             'owners': OrganizationSerializer(course.authoring_organizations, many=True).data,
+            'prerequisites_raw': course.prerequisites_raw,
+            'syllabus_raw': course.syllabus_raw,
         })
 
         return expected
