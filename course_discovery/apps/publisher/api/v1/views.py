@@ -10,6 +10,7 @@ from slumber.exceptions import SlumberBaseException
 
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.models import CourseRun as DiscoveryCourseRun
+from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
 from course_discovery.apps.course_metadata.models import Course, Video
 from course_discovery.apps.publisher.api.utils import serialize_seat_for_ecommerce_api
 from course_discovery.apps.publisher.models import CourseRun, Seat
@@ -139,6 +140,17 @@ class CourseRunViewSet(viewsets.GenericViewSet):
         discovery_course_run.transcript_languages.add(*course_run.transcript_languages.all())
         discovery_course_run.staff.add(*course_run.staff.all())
         discovery_course_run.video_translation_languages.add(course_run.video_language)
+
+        for seat in course_run.seats.exclude(type=Seat.CREDIT):
+            DiscoverySeat.objects.update_or_create(
+                course_run=discovery_course_run,
+                type=seat.type,
+                currency=seat.currency,
+                defaults={
+                    'price': seat.price,
+                    'upgrade_deadline': seat.upgrade_deadline,
+                }
+            )
 
         if created:
             discovery_course.canonical_course_run = discovery_course_run
