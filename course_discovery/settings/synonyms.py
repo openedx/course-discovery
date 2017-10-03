@@ -9,6 +9,7 @@ SYNONYMS = [
     ['ASU', 'ASUx', 'Arizona State', 'Arizona State University'],
     ['Berkeley', 'UC BerkeleyX', 'UCBerkeleyX'],
     ['Georgia Institute of Technology', 'Georgia Tech', 'GTx'],
+    ['GFA', 'Global Freshman Academy'],
     ['Instituto Tecnologico y De Estudios Superiores De Monterrey', 'Monterrey', 'TecdeMonterreyX'],
     ['Microsoft', 'MicrosoftX', 'msft'],
     ['MIT', 'MITx'],
