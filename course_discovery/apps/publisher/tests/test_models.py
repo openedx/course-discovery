@@ -327,21 +327,6 @@ class CourseTests(TestCase):
 
         self.assertEqual(self.user1, self.course2.publisher)
 
-    def test_course_image_url(self):
-        course = factories.CourseFactory(image=None)
-        assert course.course_image_url is None
-
-        course_run = factories.CourseRunFactory(course=course)
-        factories.CourseRunStateFactory(course_run=course_run, name=CourseRunStateChoices.Published)
-        course_run.card_image_url = 'http://example.com/test.jpg'
-        course_run.save()
-        assert course.course_image_url == course_run.card_image_url
-
-        # Create a course image.
-        course.image = make_image_file('test_banner1.jpg')
-        course.save()
-        assert course.course_image_url == course.image.url
-
     def test_short_description_override(self):
         """ Verify that the property returns the short_description. """
         self.assertEqual(self.course.short_description, self.course.course_short_description)
@@ -355,6 +340,7 @@ class CourseTests(TestCase):
         self.assertEqual(self.course.full_description, self.course.course_full_description)
 
         course_run = factories.CourseRunFactory(course=self.course)
+
         factories.CourseRunStateFactory(course_run=course_run, name=CourseRunStateChoices.Published)
         self.assertEqual(self.course.course_full_description, course_run.full_description_override)
 
