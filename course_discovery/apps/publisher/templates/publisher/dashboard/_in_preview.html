@@ -34,7 +34,7 @@
                         <td>
                         {{ course_run.course.organization_name }}
                         </td>
-                        <td>
+                        <td data-order="{{ course_run.owner_role_modified|date:"Y-m-d" }}" >
                             {% if course_run.course_run_state.preview_accepted %}
                                 {% trans "Approved since " %}
                             {% elif course_run.preview_declined and not course_run.preview_url %}
