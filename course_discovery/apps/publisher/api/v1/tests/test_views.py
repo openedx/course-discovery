@@ -153,7 +153,6 @@ class CourseRunViewSetTests(APITestCase):
         assert discovery_course_run.learner_testimonials == publisher_course.learner_testimonial
         expected = set(publisher_course_run.transcript_languages.all())
         assert set(discovery_course_run.transcript_languages.all()) == expected
-        assert set(discovery_course_run.video_translation_languages.all()) == {publisher_course_run.video_language}
         assert set(discovery_course_run.staff.all()) == set(publisher_course_run.staff.all())
 
         assert discovery_course.canonical_course_run == discovery_course_run
