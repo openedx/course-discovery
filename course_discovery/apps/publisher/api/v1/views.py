@@ -139,7 +139,6 @@ class CourseRunViewSet(viewsets.GenericViewSet):
         )
         discovery_course_run.transcript_languages.add(*course_run.transcript_languages.all())
         discovery_course_run.staff.add(*course_run.staff.all())
-        discovery_course_run.video_translation_languages.add(course_run.video_language)
 
         for seat in course_run.seats.exclude(type=Seat.CREDIT):
             DiscoverySeat.objects.update_or_create(
