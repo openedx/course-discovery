@@ -151,6 +151,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'owners': OrganizationSerializer(course.authoring_organizations, many=True).data,
             'prerequisites_raw': course.prerequisites_raw,
             'syllabus_raw': course.syllabus_raw,
+            'outcome': course.outcome,
         })
 
         return expected

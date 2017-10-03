@@ -71,6 +71,7 @@ class CourseFactory(factory.DjangoModelFactory):
     partner = factory.SubFactory(PartnerFactory)
     prerequisites_raw = FuzzyText()
     syllabus_raw = FuzzyText()
+    outcome = FuzzyText()
 
     class Meta:
         model = Course
