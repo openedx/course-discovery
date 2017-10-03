@@ -80,8 +80,18 @@ class StudioAPI:
         return self._api.course_runs.post(data)
 
     def update_course_run_image_in_studio(self, publisher_course_run):
-        files = {'card_image': publisher_course_run.course.image}
-        return self._api.course_runs(publisher_course_run.lms_course_id).images.post(files=files)
+        course = publisher_course_run.course
+        image = course.image
+
+        if image:
+            files = {'card_image': image}
+            return self._api.course_runs(publisher_course_run.lms_course_id).images.post(files=files)
+        else:
+            logger.warning(
+                'Card image for course run [%d] cannot be updated. The related course [%d] has no image defined.',
+                publisher_course_run.id,
+                course.id
+            )
 
     def update_course_run_details_in_studio(self, publisher_course_run):
         data = self.generate_data_for_studio_api(publisher_course_run)

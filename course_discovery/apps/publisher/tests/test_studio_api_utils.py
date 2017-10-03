@@ -12,8 +12,11 @@ from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI
 from course_discovery.apps.publisher.tests.factories import CourseRunFactory, CourseUserRoleFactory
 
-test_data = list(product(range(1, 5), ['1T2017'])) + list(product(range(5, 8), ['2T2017'])) + \
+test_data = (
+    list(product(range(1, 5), ['1T2017'])) +
+    list(product(range(5, 8), ['2T2017'])) +
     list(product(range(9, 13), ['3T2017']))
+)
 
 
 @pytest.mark.django_db
@@ -85,4 +88,18 @@ def test_generate_data_for_studio_api_without_team():
             'No course team admin specified for course [%s]. This may result in a Studio course run '
             'being created without a course team.',
             course_run.course.number
+        )
+
+
+@pytest.mark.django_db
+def test_update_course_run_image_in_studio_without_course_image():
+    publisher_course_run = CourseRunFactory(course__image=None)
+    api = StudioAPI(None)
+
+    with mock.patch('course_discovery.apps.publisher.studio_api_utils.logger') as mock_logger:
+        api.update_course_run_image_in_studio(publisher_course_run)
+        mock_logger.warning.assert_called_with(
+            'Card image for course run [%d] cannot be updated. The related course [%d] has no image defined.',
+            publisher_course_run.id,
+            publisher_course_run.course.id
         )
