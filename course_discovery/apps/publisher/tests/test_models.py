@@ -1,5 +1,9 @@
 # pylint: disable=no-member
+import datetime
+import random
+
 import ddt
+import pytest
 from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
@@ -353,21 +357,28 @@ class CourseTests(TestCase):
         self.assertEqual(self.course.course_title, course_run.title_override)
 
 
-class SeatTests(TestCase):
-    """ Tests for the publisher `Seat` model. """
-
-    def setUp(self):
-        super(SeatTests, self).setUp()
-        self.seat = factories.SeatFactory()
-
+@pytest.mark.django_db
+class TestSeatModel:
     def test_str(self):
-        """ Verify casting an instance to a string returns a string containing the course title and seat type. """
-        self.assertEqual(
-            str(self.seat),
-            '{course}: {type}'.format(
-                course=self.seat.course_run.course.title, type=self.seat.type
-            )
-        )
+        seat = factories.SeatFactory()
+        assert str(seat) == '{course}: {type}'.format(course=seat.course_run.course.title, type=seat.type)
+
+    @pytest.mark.parametrize(
+        'seat_type', [choice[0] for choice in Seat.SEAT_TYPE_CHOICES if choice[0] != Seat.VERIFIED])
+    def test_calculated_upgrade_deadline_with_nonverified_seat(self, seat_type):
+        seat = factories.SeatFactory(type=seat_type)
+        assert seat.calculated_upgrade_deadline is None
+
+    def test_calculated_upgrade_deadline_with_verified_seat(self, settings):
+        settings.PUBLISHER_UPGRADE_DEADLINE_DAYS = random.randint(1, 21)
+        now = datetime.datetime.utcnow()
+        seat = factories.SeatFactory(type=Seat.VERIFIED, upgrade_deadline=None, course_run__end=now)
+        expected = now - datetime.timedelta(days=settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
+        assert seat.calculated_upgrade_deadline == expected
+
+        seat = factories.SeatFactory(type=Seat.VERIFIED)
+        assert seat.calculated_upgrade_deadline is not None
+        assert seat.calculated_upgrade_deadline == seat.upgrade_deadline
 
 
 class UserAttributeTests(TestCase):

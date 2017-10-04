@@ -1,6 +1,3 @@
-import datetime
-import random
-
 import pytest
 
 from course_discovery.apps.core.utils import serialize_datetime
@@ -21,7 +18,7 @@ class TestSerializeSeatForEcommerceApi:
         seat = SeatFactory(type=Seat.AUDIT)
         actual = serialize_seat_for_ecommerce_api(seat)
         expected = {
-            'expires': serialize_datetime(seat.upgrade_deadline),
+            'expires': serialize_datetime(seat.calculated_upgrade_deadline),
             'price': str(seat.price),
             'product_class': 'Seat',
             'attribute_values': [
@@ -37,14 +34,6 @@ class TestSerializeSeatForEcommerceApi:
         }
 
         assert actual == expected
-
-    def test_serialize_seat_for_ecommerce_api_without_upgrade_deadline(self, settings):
-        settings.PUBLISHER_UPGRADE_DEADLINE_DAYS = random.randint(1, 21)
-        now = datetime.datetime.utcnow()
-        seat = SeatFactory(upgrade_deadline=None, course_run__end=now)
-        actual = serialize_seat_for_ecommerce_api(seat)
-        assert actual['expires'] == serialize_datetime(
-            now - datetime.timedelta(days=settings.PUBLISHER_UPGRADE_DEADLINE_DAYS))
 
     @pytest.mark.parametrize('seat_type', (Seat.VERIFIED, Seat.PROFESSIONAL))
     def test_serialize_seat_for_ecommerce_api_with_id_verification(self, seat_type):

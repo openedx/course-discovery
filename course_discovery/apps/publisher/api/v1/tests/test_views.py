@@ -1,7 +1,10 @@
+import datetime
 import json
+import random
 
 import mock
 import responses
+from django.test import override_settings
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
@@ -16,6 +19,8 @@ from course_discovery.apps.publisher.api.utils import serialize_seat_for_ecommer
 from course_discovery.apps.publisher.api.v1.views import CourseRunViewSet
 from course_discovery.apps.publisher.models import Seat
 from course_discovery.apps.publisher.tests.factories import CourseRunFactory, SeatFactory
+
+PUBLISHER_UPGRADE_DEADLINE_DAYS = random.randint(1, 21)
 
 
 class CourseRunViewSetTests(APITestCase):
@@ -172,11 +177,44 @@ class CourseRunViewSetTests(APITestCase):
             'currency': currency,
         }
         DiscoverySeat.objects.get(type=DiscoverySeat.AUDIT, upgrade_deadline__isnull=True, **common_seat_kwargs)
-        DiscoverySeat.objects.get(type=DiscoverySeat.PROFESSIONAL, upgrade_deadline=professional_seat.upgrade_deadline,
-                                  price=professional_seat.price,
-                                  **common_seat_kwargs)
-        DiscoverySeat.objects.get(type=DiscoverySeat.VERIFIED, upgrade_deadline=verified_seat.upgrade_deadline,
-                                  price=verified_seat.price, **common_seat_kwargs)
+        DiscoverySeat.objects.get(
+            type=DiscoverySeat.PROFESSIONAL,
+            upgrade_deadline__isnull=True,
+            price=professional_seat.price,
+            **common_seat_kwargs
+        )
+        DiscoverySeat.objects.get(
+            type=DiscoverySeat.VERIFIED,
+            upgrade_deadline=verified_seat.upgrade_deadline,
+            price=verified_seat.price,
+            **common_seat_kwargs
+        )
+
+    # pylint: disable=unused-argument,too-many-statements
+    @responses.activate
+    @override_settings(PUBLISHER_UPGRADE_DEADLINE_DAYS=PUBLISHER_UPGRADE_DEADLINE_DAYS)
+    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
+    def test_publish_seat_without_upgrade_deadline(self, mock_access_token):
+        publisher_course_run = self._create_course_run_for_publication()
+        verified_seat = SeatFactory(type=Seat.VERIFIED, course_run=publisher_course_run, upgrade_deadline=None)
+
+        partner = publisher_course_run.course.organizations.first().partner
+        self._set_test_client_domain_and_login(partner)
+
+        self._mock_studio_api_success(publisher_course_run)
+        self._mock_ecommerce_api(publisher_course_run)
+
+        url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
+        response = self.client.post(url, {})
+        assert response.status_code == 200
+
+        discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
+        DiscoverySeat.objects.get(
+            type=DiscoverySeat.VERIFIED,
+            upgrade_deadline=publisher_course_run.end - datetime.timedelta(days=PUBLISHER_UPGRADE_DEADLINE_DAYS),
+            price=verified_seat.price,
+            course_run=discovery_course_run
+        )
 
     def test_publish_missing_course_run(self):
         self.client.force_login(StaffUserFactory())

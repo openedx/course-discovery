@@ -148,7 +148,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
                 currency=seat.currency,
                 defaults={
                     'price': seat.price,
-                    'upgrade_deadline': seat.upgrade_deadline,
+                    'upgrade_deadline': seat.calculated_upgrade_deadline,
                 }
             )
 
