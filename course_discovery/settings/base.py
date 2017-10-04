@@ -100,12 +100,21 @@ WSGI_APPLICATION = 'course_discovery.wsgi.application'
 # Set this value in the environment-specific files (e.g. local.py, production.py, test.py)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.',
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',  # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': '',  # Set to empty string for default.
+        'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': os.environ.get('DB_NAME', ':memory:'),
+        'USER': os.environ.get('DB_USER', ''),
+        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+        'HOST': os.environ.get('DB_HOST', ''),
+        'PORT': os.environ.get('DB_PORT', ''),
+        'CONN_MAX_AGE': int(os.environ.get('CONN_MAX_AGE', 0)),
+        'ATOMIC_REQUESTS': False,
+    },
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': os.environ.get('CACHE_BACKEND', 'django.core.cache.backends.locmem.LocMemCache'),
+        'LOCATION': os.environ.get('CACHE_LOCATION', ''),
     }
 }
 
@@ -447,7 +456,7 @@ HAYSTACK_ITERATOR_LOAD_PER_QUERY = 5000
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'course_discovery.apps.edx_haystack_extensions.backends.EdxElasticsearchSearchEngine',
-        'URL': 'http://localhost:9200/',
+        'URL': os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/'),
         'INDEX_NAME': 'catalog',
     },
 }

@@ -42,7 +42,7 @@ Once you've loaded data into your Discovery instance, you may want to run Elasti
 
 Once indexing completes, you can run search queries against the newly created index through the API. For more on this, visit ``/api-docs``.
 
-Tests
+TODO: Tests
 -----
 
 Use Docker Compose to run tests just like Travis does. The ``.travis.yml`` file is a good reference if you want to run the entire test suite. You'll notice that a Docker Compose file hosted in this repo is used to run tests instead of the Compose files in the devstack repo. This Compose file defines special test settings and has yet to be consolidated with the Compose files in the devstack repo.

@@ -21,29 +21,30 @@ DICT_UPDATE_KEYS = ('JWT_AUTH',)
 # This may be overridden by the YAML in DISCOVERY_CFG, but it should be here as a default.
 MEDIA_STORAGE_BACKEND = {}
 
-# TODO Drop the try-except block once https://github.com/edx/configuration/pull/3549 is merged and we are using the
-# common play for this service.
-try:
-    CONFIG_FILE = environ['DISCOVERY_CFG']
-except KeyError:
-    CONFIG_FILE = environ['COURSE_DISCOVERY_CFG']
+CONFIG_FILE = environ.get('DISCOVERY_CFG')
 
-with open(CONFIG_FILE) as f:
-    config_from_yaml = yaml.load(f)
+ELASTICSEARCH_INDEX_NAME = None
+ELASTICSEARCH_URL = None
 
-    # Remove the items that should be used to update dicts, and apply them separately rather
-    # than pumping them into the local vars.
-    dict_updates = {key: config_from_yaml.pop(key, None) for key in DICT_UPDATE_KEYS}
+if CONFIG_FILE:
+    with open(CONFIG_FILE) as f:
+        config_from_yaml = yaml.load(f)
 
-    for key, value in dict_updates.items():
-        if value:
-            vars()[key].update(value)
+        # Remove the items that should be used to update dicts, and apply them separately rather
+        # than pumping them into the local vars.
+        dict_updates = {key: config_from_yaml.pop(key, None) for key in DICT_UPDATE_KEYS}
 
-    vars().update(config_from_yaml)
+        for key, value in dict_updates.items():
+            if value:
+                vars()[key].update(value)
 
-    # Unpack media storage settings.
-    # It's important we unpack here because of https://github.com/edx/configuration/pull/3307
-    vars().update(MEDIA_STORAGE_BACKEND)
+        vars().update(config_from_yaml)
+
+        # Unpack media storage settings.
+        # It's important we unpack here because of https://github.com/edx/configuration/pull/3307
+        vars().update(MEDIA_STORAGE_BACKEND)
+else:
+    vars().update(environ)
 
 if 'EXTRA_APPS' in locals():
     INSTALLED_APPS += EXTRA_APPS
