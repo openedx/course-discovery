@@ -72,6 +72,7 @@ class CourseFactory(factory.DjangoModelFactory):
     prerequisites_raw = FuzzyText()
     syllabus_raw = FuzzyText()
     outcome = FuzzyText()
+    image = factory.django.ImageField()
 
     class Meta:
         model = Course
