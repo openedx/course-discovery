@@ -1,7 +1,9 @@
+import datetime
 import logging
 from urllib.parse import urljoin
 
 import waffle
+from django.conf import settings
 from django.contrib.auth.models import Group
 from django.db import models
 from django.urls import reverse
@@ -350,7 +352,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
 
     @property
     def created_by(self):
-        history_user = self.history.order_by('history_date').first().history_user     # pylint: disable=no-member
+        history_user = self.history.order_by('history_date').first().history_user  # pylint: disable=no-member
         if history_user:
             return history_user.get_full_name() or history_user.username
 
@@ -419,7 +421,6 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
 
 
 class Seat(TimeStampedModel, ChangedByMixin):
-    """ Seat model. """
     HONOR = 'honor'
     AUDIT = 'audit'
     VERIFIED = 'verified'
@@ -432,7 +433,7 @@ class Seat(TimeStampedModel, ChangedByMixin):
         (AUDIT, _('Audit')),
         (VERIFIED, _('Verified')),
         (PROFESSIONAL, _('Professional (with ID verification)')),
-        (NO_ID_PROFESSIONAL, _('Professional (no ID verifiation)')),
+        (NO_ID_PROFESSIONAL, _('Professional (no ID verification)')),
         (CREDIT, _('Credit')),
     )
 
@@ -466,6 +467,19 @@ class Seat(TimeStampedModel, ChangedByMixin):
             (self.type in [self.VERIFIED, self.PROFESSIONAL] and self.price > 0) or
             (self.type == self.CREDIT and self.credit_price > 0 and self.price > 0)
         )
+
+    @property
+    def calculated_upgrade_deadline(self):
+        """ Returns upgraded deadline calculated using edX business logic.
+
+        Only verified seats have upgrade deadlines. If the instance does not have an upgrade deadline set, the value
+        will be calculated based on the related course run's end date.
+        """
+        if self.type == self.VERIFIED:
+            return self.upgrade_deadline or (
+                self.course_run.end - datetime.timedelta(days=settings.PUBLISHER_UPGRADE_DEADLINE_DAYS))
+
+        return None
 
 
 class UserAttributes(TimeStampedModel):
