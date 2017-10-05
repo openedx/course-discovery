@@ -208,7 +208,7 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
             for staff in course_run.course_staff
         })
 
-        if context['can_edit']:
+        if context['can_edit'] and not waffle.switch_is_active('disable_publisher_permissions'):
             current_owner_role = course_run.course.course_user_roles.get(role=course_run.course_run_state.owner_role)
             user_role = course_run.course.get_user_role(user=user)
             if user_role != current_owner_role.role:
@@ -466,7 +466,7 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
         )
 
         # Add warning popup information if user can edit the course but does not own it.
-        if context['can_edit']:
+        if context['can_edit'] and not waffle.switch_is_active('disable_publisher_permissions'):
             current_owner_role = course.course_user_roles.get(role=course.course_state.owner_role)
             user_role = course.get_user_role(user=user)
             if user_role != current_owner_role.role:
@@ -588,7 +588,8 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
         run_form = self.run_form(request.POST)
         seat_form = self.seat_form(request.POST)
 
-        if parent_course.course_user_roles.filter(role__in=COURSE_ROLES).count() == len(COURSE_ROLES):
+        if parent_course.course_user_roles.filter(role__in=COURSE_ROLES).count() == len(COURSE_ROLES) or \
+                waffle.switch_is_active('disable_publisher_permissions'):
 
             if run_form.is_valid() and seat_form.is_valid():
                 try:
