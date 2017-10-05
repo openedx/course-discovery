@@ -114,9 +114,9 @@ class CourseRunListView(mixins.LoginRequiredMixin, ListView):
         else:
             studio_request_courses = []
 
-        context['studio_request_courses'] = [CourseRunWrapper(course_run) for course_run in studio_request_courses]
-        context['unpublished_course_runs'] = [CourseRunWrapper(course_run) for course_run in unpublished_course_runs]
-        context['published_course_runs'] = [CourseRunWrapper(course_run) for course_run in published_course_runs]
+        context['studio_request_courses'] = CourseRunWrapper.get_course_run_wrappers(studio_request_courses)
+        context['unpublished_course_runs'] = CourseRunWrapper.get_course_run_wrappers(unpublished_course_runs)
+        context['published_course_runs'] = CourseRunWrapper.get_course_run_wrappers(published_course_runs)
         context['default_published_days'] = self.default_published_days
 
         in_progress_course_runs = course_runs.filter(
@@ -127,8 +127,8 @@ class CourseRunListView(mixins.LoginRequiredMixin, ListView):
             course_run_state__name=CourseRunStateChoices.Approved,
         ).order_by('-course_run_state__modified')
 
-        context['in_progress_course_runs'] = [CourseRunWrapper(course_run) for course_run in in_progress_course_runs]
-        context['preview_course_runs'] = [CourseRunWrapper(course_run) for course_run in preview_course_runs]
+        context['in_progress_course_runs'] = CourseRunWrapper.get_course_run_wrappers(in_progress_course_runs)
+        context['preview_course_runs'] = CourseRunWrapper.get_course_run_wrappers(preview_course_runs)
 
         # shows 'studio request' tab only to project coordinators
         context['is_project_coordinator'] = is_project_coordinator_user(self.request.user)
@@ -136,9 +136,14 @@ class CourseRunListView(mixins.LoginRequiredMixin, ListView):
         site = Site.objects.first()
         context['site_name'] = 'edX' if 'edx' in site.name.lower() else site.name
 
+        context['course_team_status'] = '{}|{}'.format(
+            CourseRunWrapper.Draft, CourseRunWrapper.AwaitingCourseTeamReview
+        )
         context['course_team_count'] = in_progress_course_runs.filter(
             course_run_state__owner_role=PublisherUserRole.CourseTeam
         ).count()
+
+        context['internal_user_status'] = CourseRunWrapper.AwaitingProjectCoordinatorReview
         context['internal_user_count'] = in_progress_course_runs.exclude(
             course_run_state__owner_role=PublisherUserRole.CourseTeam
         ).count()

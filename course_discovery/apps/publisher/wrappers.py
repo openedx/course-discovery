@@ -26,6 +26,17 @@ class BaseWrapper(object):
 
 class CourseRunWrapper(BaseWrapper):
     """Decorator for the ``CourseRun`` model."""
+
+    # course team status
+    Draft = _('Draft')
+    SubmittedForProjectCoordinatorReview = _('Submitted for Project Coordinator Review')
+    AwaitingCourseTeamReview = _('Awaiting Course Team Review')
+
+    # internal user status
+    NotAvailable = _('N/A')
+    AwaitingProjectCoordinatorReview = _('Awaiting Project Coordinator Review')
+    ApprovedByProjectCoordinator = _('Approved by Project Coordinator')
+
     @property
     def title(self):
         return self.wrapped_obj.course.title
@@ -218,23 +229,23 @@ class CourseRunWrapper(BaseWrapper):
     def course_team_status(self):
         course_run_state = self.wrapped_obj.course_run_state
         if course_run_state.is_draft and course_run_state.owner_role == PublisherUserRole.CourseTeam:
-            return _('Draft')
+            return self.Draft
         elif (course_run_state.owner_role == PublisherUserRole.ProjectCoordinator and
               (course_run_state.is_in_review or course_run_state.is_draft)):
-            return _('Submitted for Project Coordinator Review')
+            return self.SubmittedForProjectCoordinatorReview
         elif course_run_state.is_in_review and course_run_state.owner_role == PublisherUserRole.CourseTeam:
-            return _('Awaiting Course Team Review')
+            return self.AwaitingCourseTeamReview
 
     @property
     def internal_user_status(self):
         course_run_state = self.wrapped_obj.course_run_state
         if course_run_state.is_draft and course_run_state.owner_role == PublisherUserRole.CourseTeam:
-            return _('N/A')
+            return self.NotAvailable
         elif (course_run_state.owner_role == PublisherUserRole.ProjectCoordinator and
               (course_run_state.is_in_review or course_run_state.is_draft)):
-            return _('Awaiting Project Coordinator Review')
+            return self.AwaitingProjectCoordinatorReview
         elif course_run_state.is_in_review and course_run_state.owner_role == PublisherUserRole.CourseTeam:
-            return _('Approved by Project Coordinator')
+            return self.ApprovedByProjectCoordinator
 
     @property
     def owner_role_modified(self):
@@ -247,3 +258,13 @@ class CourseRunWrapper(BaseWrapper):
             object_pk=self.wrapped_obj.id,
             comment_type=CommentTypeChoices.Decline_Preview
         ).exists()
+
+    @classmethod
+    def get_course_run_wrappers(cls, course_runs):
+        """
+        Args:
+            course_runs
+        Returns:
+            returns the wrappers of the course runs
+        """
+        return [cls(course_run) for course_run in course_runs]

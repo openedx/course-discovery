@@ -65,14 +65,17 @@ $(document).ready(function() {
      });
 
     var inProgressTable = $('.data-table-in-progress').DataTable({
-        "autoWidth": false
+        "autoWidth": false,
+        "search": {
+        "regex": true
+    }
     });
 
     $('.btn-filter').click( function (e) {
-        var searchValue = 'In Review|In Draft',
+        e.preventDefault();
+        var searchValue = $(this).data('search-value'),
             currentFilterColumn = $(this).data('filter-column'),
             oldFilterColumn = $('.btn-filter.active').data('filter-column');
-        e.preventDefault();
         $('.btn-filter').removeClass('active');
         $(this).addClass('active');
 
