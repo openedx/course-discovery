@@ -111,7 +111,7 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
             'title': course.title,
             'course_runs': MinimalCourseRunSerializer(course.course_runs, many=True, context=context).data,
             'owners': MinimalOrganizationSerializer(course.authoring_organizations, many=True, context=context).data,
-            'image': ImageField().to_representation(course.card_image_url),
+            'image': ImageField().to_representation(course.image_url),
             'short_description': course.short_description
         }
 
@@ -220,7 +220,7 @@ class MinimalCourseRunSerializerTests(TestCase):
             'uuid': str(course_run.uuid),
             'title': course_run.title,
             'short_description': course_run.short_description,
-            'image': ImageField().to_representation(course_run.card_image_url),
+            'image': ImageField().to_representation(course_run.image_url),
             'marketing_url': '{url}?{params}'.format(
                 url=course_run.marketing_url,
                 params=urlencode({
