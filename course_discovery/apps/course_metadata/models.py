@@ -658,6 +658,7 @@ class CourseRun(TimeStampedModel):
                 super(CourseRun, self).save(*args, **kwargs)
                 publisher.publish_obj(self, previous_obj=previous_obj)
         else:
+            logger.info('Course run [%s] is not publishable.', self.key)
             super(CourseRun, self).save(*args, **kwargs)
 
 
