@@ -143,7 +143,6 @@ class CourseCreatedEmailTests(SiteMixin, TestCase):
         body = mail.outbox[0].body.strip()
         self.assertIn('{name} created the'.format(name=self.course_team.full_name), body)
         self.assertIn('{dashboard_url}'.format(dashboard_url=reverse('publisher:publisher_dashboard')), body)
-        self.assertIn('Please create a Studio URL for this course.', body)
         self.assertIn('Thanks', body)
 
     def test_email_not_sent_with_notification_disabled(self):
