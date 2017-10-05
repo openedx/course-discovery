@@ -294,6 +294,7 @@ class Course(TimeStampedModel):
     )
     slug = AutoSlugField(populate_from='key', editable=True)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
+
     # TODO Remove this field.
     number = models.CharField(
         max_length=50, null=True, blank=True, help_text=_(
@@ -311,6 +312,13 @@ class Course(TimeStampedModel):
 
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
+
+    @property
+    def image_url(self):
+        if self.image:
+            return self.image.url
+
+        return self.card_image_url
 
     @property
     def marketing_url(self):
@@ -404,6 +412,8 @@ class CourseRun(TimeStampedModel):
     pacing_type = models.CharField(max_length=255, db_index=True, null=True, blank=True,
                                    choices=CourseRunPacing.choices, validators=[CourseRunPacing.validator])
     syllabus = models.ForeignKey(SyllabusItem, default=None, null=True, blank=True)
+
+    # TODO Ditch this, and fallback to the course
     card_image_url = models.URLField(null=True, blank=True)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     video_translation_languages = models.ManyToManyField(
@@ -494,6 +504,10 @@ class CourseRun(TimeStampedModel):
                 enrollable_seats.append(seat)
 
         return enrollable_seats
+
+    @property
+    def image_url(self):
+        return self.course.image_url
 
     @property
     def program_types(self):

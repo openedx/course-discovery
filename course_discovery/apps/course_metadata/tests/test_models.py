@@ -59,6 +59,13 @@ class CourseTests(ElasticsearchTestMixin, TestCase):
 
         self.assertEqual(actual, courses)
 
+    def test_image_url(self):
+        course = factories.CourseFactory()
+        assert course.image_url == course.image.url
+
+        course.image = None
+        assert course.image_url == course.card_image_url
+
 
 @ddt.ddt
 class CourseRunTests(TestCase):
@@ -320,6 +327,9 @@ class CourseRunTests(TestCase):
             self.course_run.delete()
             # We don't want to delete course run nodes when CourseRuns are deleted.
             assert not mock_delete_obj.called
+
+    def test_image_url(self):
+        assert self.course_run.image_url == self.course_run.course.image_url
 
 
 class OrganizationTests(TestCase):
