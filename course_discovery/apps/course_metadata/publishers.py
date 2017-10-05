@@ -1,4 +1,5 @@
 import json
+import logging
 from urllib.parse import urljoin
 
 import waffle
@@ -16,6 +17,8 @@ from course_discovery.apps.course_metadata.exceptions import (
     NodeLookupError
 )
 from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
+
+logger = logging.getLogger(__name__)
 
 
 class BaseMarketingSitePublisher:
@@ -327,18 +330,29 @@ class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):
                 determine if publication is necessary. May not exist if the course run
                 is being saved for the first time.
         """
-        if previous_obj and obj.status != previous_obj.status:
-            node_id = self.node_id(obj)
-            node_data = self.serialize_obj(obj)
-            self.edit_node(node_id, node_data)
+        logger.info('Publishing course run [%s] to marketing site...', obj.key)
+
+        if previous_obj:
+            if obj.status == previous_obj.status:
+                logger.info(
+                    'The status of course run [%s] has not changed. It will NOT be published to the marketing site.',
+                    obj.key)
+            else:
+                node_id = self.node_id(obj)
+                node_data = self.serialize_obj(obj)
+                self.edit_node(node_id, node_data)
 
         elif not previous_obj and waffle.switch_is_active('auto_course_about_page_creation'):
             # This is a brand new course_run object
             # let's check if it exists on the marketing site
             node_id = self.node_id(obj)
-            if not node_id:
+
+            if node_id:
+                logger.info('Marketing site node [%s] already exists for course run [%s].', node_id, obj.key)
+            else:
                 node_data = self.serialize_obj(obj)
                 node_id = self.create_node(node_data)
+                logger.info('Created new marketing site node [%s] for course run [%s].', node_id, obj.key)
                 self.update_node_alias(obj, node_id, None)
 
     def serialize_obj(self, obj):
