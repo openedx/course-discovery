@@ -42,21 +42,25 @@ class Command(BaseCommand):
 
         for course in courses:
             logger.info('Retrieving image for course [%s] from [%s]...', course.key, course.card_image_url)
-            response = requests.get(course.card_image_url)
 
-            if response.status_code == requests.codes.ok:  # pylint: disable=no-member
-                content_type = response.headers['Content-Type'].lower()
-                extension = IMAGE_TYPES.get(content_type)
+            try:
+                response = requests.get(course.card_image_url)
 
-                if extension:
-                    filename = '{uuid}.{extension}'.format(uuid=str(course.uuid), extension=extension)
-                    course.image.save(filename, ContentFile(response.content))
-                    logger.info('Image for course [%s] successfully updated.', course.key)
+                if response.status_code == requests.codes.ok:  # pylint: disable=no-member
+                    content_type = response.headers['Content-Type'].lower()
+                    extension = IMAGE_TYPES.get(content_type)
+
+                    if extension:
+                        filename = '{uuid}.{extension}'.format(uuid=str(course.uuid), extension=extension)
+                        course.image.save(filename, ContentFile(response.content))
+                        logger.info('Image for course [%s] successfully updated.', course.key)
+                    else:
+                        # pylint: disable=line-too-long
+                        msg = 'Image retrieved for course [%s] from [%s] has an unknown content type [%s] and will not be saved.'
+                        logger.error(msg, course.key, course.card_image_url, content_type)
+
                 else:
-                    # pylint: disable=line-too-long
-                    msg = 'Image retrieved for course [%s] from [%s] has an unknown content type [%s] and will not be saved.'
-                    logger.error(msg, course.key, course.card_image_url, content_type)
-
-            else:
-                msg = 'Failed to download image for course [%s] from [%s]! Response was [%d]:\n%s'
-                logger.error(msg, course.key, course.card_image_url, response.status_code, response.content)
+                    msg = 'Failed to download image for course [%s] from [%s]! Response was [%d]:\n%s'
+                    logger.error(msg, course.key, course.card_image_url, response.status_code, response.content)
+            except Exception:  # pylint: disable=broad-except
+                logger.exception('An unknown exception occurred while downloading image for course [%s]', course.key)
