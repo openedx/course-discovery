@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-04 01:21-0400\n"
+"POT-Creation-Date: 2017-10-06 12:30+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -3322,13 +3322,6 @@ msgstr ""
 "%(link_start)s%(page_url)s%(link_middle)s%(run_number)s çöürsé "
 "rün%(link_end)s öf %(course_title)s ïn Püßlïshér ön %(date)s ät %(time)s. "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
-
-#: apps/publisher/templates/publisher/email/course_created.html
-#: apps/publisher/templates/publisher/email/course_created.txt
-msgid "Please create a Studio URL for this course."
-msgstr ""
-"Pléäsé çréäté ä Stüdïö ÛRL för thïs çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя #"
 
 #: apps/publisher/templates/publisher/email/course_created.txt
 msgid "Dear"
