@@ -196,6 +196,9 @@ class CoursesApiDataLoader(AbstractDataLoader):
             'hidden': body.get('hidden', False),
         }
 
+        # NOTE: The license field is non-nullable.
+        defaults['license'] = body.get('license') or ''
+
         # When using a marketing site, only dates (excluding start) should come from the Course API.
         if not self.partner.has_marketing_site:
             defaults.update({

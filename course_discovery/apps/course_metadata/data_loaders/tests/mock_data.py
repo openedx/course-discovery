@@ -40,6 +40,7 @@ COURSES_API_BODIES = [
         'pacing': 'self',
         'mobile_available': True,
         'hidden': False,
+        'license': '',
     },
     {
         'effort': None,
@@ -63,6 +64,7 @@ COURSES_API_BODIES = [
         'pacing': 'instructor,',
         'mobile_available': False,
         'hidden': False,
+        'license': 'all-rights-reserved',
     },
     {
         # Add a second run of KyotoUx+000x (3T2016) to test merging data across
