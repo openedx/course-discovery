@@ -25,6 +25,10 @@ class TestDownloadCourseImages:
         )
         return image_url, body
 
+    def assert_course_has_no_image(self, course):
+        course.refresh_from_db()
+        assert not bool(course.image)
+
     @responses.activate
     def test_download(self):
         image_url, image_content = self.mock_image_response()
@@ -66,9 +70,7 @@ class TestDownloadCourseImages:
             )
 
         assert len(responses.calls) == 1
-
-        course.refresh_from_db()
-        assert not bool(course.image)
+        self.assert_course_has_no_image(course)
 
     @responses.activate
     def test_download_with_invalid_status_code(self):
@@ -88,11 +90,27 @@ class TestDownloadCourseImages:
             )
 
         assert len(responses.calls) == 1
-
-        course.refresh_from_db()
-        assert not bool(course.image)
+        self.assert_course_has_no_image(course)
 
     def test_download_without_courses(self):
         with mock.patch(self.LOGGER_PATH) as mock_logger:
             call_command('download_course_images')
             mock_logger.info.assert_called_with('All courses are up to date.')
+
+    @responses.activate
+    def test_download_with_unexpected_error(self):
+        image_url, __ = self.mock_image_response()
+        course = CourseFactory(card_image_url=image_url, image=None)
+
+        with mock.patch('stdimage.models.StdImageFieldFile.save', side_effect=Exception) as mock_save:
+            with mock.patch(self.LOGGER_PATH) as mock_logger:
+                call_command('download_course_images')
+                mock_logger.exception.assert_called_once_with(
+                    'An unknown exception occurred while downloading image for course [%s]',
+                    course.key
+                )
+
+            mock_save.assert_called_once()
+
+        assert len(responses.calls) == 1
+        self.assert_course_has_no_image(course)
