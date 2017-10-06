@@ -22,6 +22,17 @@ DEFAULT_PARTNER_ID = 1
 COMPRESS_OFFLINE = False
 COMPRESS_ENABLED = False
 
+PARLER_LANGUAGES = {
+    1: (
+        {'code': LANGUAGE_CODE, },
+        {'code': 'es', },
+    ),
+    'default': {
+         'fallbacks': [PARLER_DEFAULT_LANGUAGE_CODE],
+         'hide_untranslated': False,
+     }
+ }
+
 #####################################################################
 # Lastly, see if the developer has any local overrides.
 if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):

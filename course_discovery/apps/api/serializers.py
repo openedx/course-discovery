@@ -191,9 +191,6 @@ class FAQSerializer(serializers.ModelSerializer):
 
 class SubjectSerializer(serializers.ModelSerializer):
     """Serializer for the ``Subject`` model."""
-    name = serializers.CharField(source='name_t')
-    subtitle = serializers.CharField(source='subtitle_t')
-    description = serializers.CharField(source='description_t')
 
     @classmethod
     def prefetch_queryset(cls):

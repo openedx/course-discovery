@@ -31,7 +31,7 @@ def backwards_func(apps, schema_editor):
 
     for subject in Subject.objects.all():
         try:
-            translation = SubjectTranslation.objects.filter(master_id=subject.pk)
+            translation = SubjectTranslation.objects.get(master_id=subject.pk, language_code=settings.LANGUAGE_CODE)
             subject.name = translation.name_t
             subject.subtitle = translation.subtitle_t
             subject.description = translation.description_t
@@ -39,7 +39,6 @@ def backwards_func(apps, schema_editor):
         except ObjectDoesNotExist:
             # nothing to migrate
             logger.exception('Migrating data from SubjectTranslation for master_id={} DoesNotExist'.format(subject.pk))
-
 
 class Migration(migrations.Migration):
     dependencies = [

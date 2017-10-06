@@ -41,8 +41,8 @@ class SubjectFactory(factory.DjangoModelFactory):
     class Meta:
         model = Subject
 
-    name_t = FuzzyText()  # TODO Switch to 'name' when 'name_t' is renamed.
-    description_t = FuzzyText()
+    name = FuzzyText()
+    description = FuzzyText()
     banner_image_url = FuzzyURL()
     card_image_url = FuzzyURL()
     partner = factory.SubFactory(PartnerFactory)
