@@ -143,9 +143,9 @@ class SubjectMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         slug = data['field_subject_url_slug']
         defaults = {
             'uuid': data['uuid'],
-            'name_t': data['title'],
-            'description_t': self.clean_html(data['body']['value']),
-            'subtitle_t': self.clean_html(data['field_subject_subtitle']['value']),
+            'name': data['title'],
+            'description': self.clean_html(data['body']['value']),
+            'subtitle': self.clean_html(data['field_subject_subtitle']['value']),
             'card_image_url': self._get_nested_url(data.get('field_subject_card_image')),
             # NOTE (CCB): This is not a typo. Yes, the banner image for subjects is in a field with xseries in the name.
             'banner_image_url': self._get_nested_url(data.get('field_xseries_banner_image'))

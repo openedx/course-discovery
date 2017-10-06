@@ -996,26 +996,24 @@ class FAQTests(TestCase):
 
 
 class SubjectTests(SiteMixin, TestCase):
-    """ Tests of the Multilingual Subject model. """
+    """ Tests of the Multilingual Subject (and SubjectTranslation) model. """
 
-    def test_partner_name_t_uniqueness(self):
-        dummy_url = "http://www.example.com"
-        Subject.objects.create(
+    def test_validate_unique(self):
+        subject = Subject.objects.create(
             name="name1",
-            name_t="aaa",
             partner_id=self.partner.id,
-            banner_image_url=dummy_url,
-            card_image_url=dummy_url)
+            banner_image_url="http://www.example.com",
+            card_image_url="http://www.example.com")
+        self.assertIsNone(subject.full_clean())
 
-        invalid_subject = Subject(
-            name="name2",
-            name_t="aaa",
+        duplicate_subject = Subject(
+            name="name1",
             partner_id=self.partner.id,
-            banner_image_url=dummy_url,
-            card_image_url=dummy_url)
+            banner_image_url="http://www.example.com",
+            card_image_url="http://www.example.com")
 
         with self.assertRaises(ValidationError) as validation_error:
-            invalid_subject.full_clean()
+            duplicate_subject.full_clean()
         self.assertEqual(
             str(validation_error.exception),
-            "{'name_t': ['Subject with this Name and Partner already exists']}")
+            "{'name': ['Subject with this Name and Partner already exists']}")

@@ -7,7 +7,7 @@ travis_start: ## Start containers stopped by `travis_stop`
 	docker-compose -f .travis/docker-compose-travis.yml start
 
 travis_test: ## Run tests on Docker containers, as on Travis CI
-	docker exec -it course-discovery env TERM=$(TERM) /edx/app/discovery/discovery/.travis/run_tests.sh
+	docker exec -it discovery env TERM=$(TERM) /edx/app/discovery/discovery/.travis/run_tests.sh
 
 travis_stop: ## Stop running containers created by `travis_up` without removing them
 	docker-compose -f .travis/docker-compose-travis.yml stop

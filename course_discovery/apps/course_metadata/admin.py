@@ -224,12 +224,11 @@ class OrganizationAdmin(admin.ModelAdmin):
 
 @admin.register(Subject)
 class SubjectAdmin(TranslatableAdmin):
-    # These fields are excluded here because they will be removed in favor of the translated fields.
-    exclude = ('name', 'subtitle', 'description')
-    list_display = ('uuid', 'name_t', 'slug',)
+    exclude = ('name_t', 'subtitle_t', 'description_t')  # TODO Remove in the clean up phase LEARNER-2617
+    list_display = ('uuid', 'name', 'slug',)
     list_filter = ('partner',)
     readonly_fields = ('uuid',)
-    search_fields = ('uuid', 'name_t', 'slug',)
+    search_fields = ('uuid', 'name', 'slug',)
 
 
 @admin.register(Person)

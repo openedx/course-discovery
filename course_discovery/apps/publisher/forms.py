@@ -103,7 +103,7 @@ class CourseForm(BaseForm):
         label=_('Organization Course Admin'),
     )
 
-    subjects = Subject.objects.all().order_by('name')
+    subjects = Subject.objects.all().order_by("translations__name")
     primary_subject = forms.ModelChoiceField(
         queryset=subjects,
         label=_('Primary'),
