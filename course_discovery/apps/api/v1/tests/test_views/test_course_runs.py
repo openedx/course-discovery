@@ -228,6 +228,14 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         url = reverse('api:v1:course_run-list') + '?active=1'
         self.assert_list_results(url, expected)
 
+    def test_filter_by_license(self):
+        CourseRun.objects.all().delete()
+        course_runs_cc = CourseRunFactory.create_batch(3, course__partner=self.partner, license='cc-by-sa')
+        CourseRunFactory.create_batch(3, course__partner=self.partner, license='')
+
+        url = reverse('api:v1:course_run-list') + '?license=cc-by-sa'
+        self.assert_list_results(url, course_runs_cc)
+
     def test_list_exclude_utm(self):
         """ Verify the endpoint returns marketing URLs without UTM parameters. """
         url = reverse('api:v1:course_run-list') + '?exclude_utm=1'

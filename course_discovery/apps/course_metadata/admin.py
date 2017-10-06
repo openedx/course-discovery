@@ -83,8 +83,10 @@ class CourseRunAdmin(admin.ModelAdmin):
         'hidden',
         ('language', admin.RelatedOnlyFieldListFilter,),
         'status',
+        'license',
     )
     ordering = ('key',)
+    raw_id_fields = ('course',)
     readonly_fields = ('uuid',)
     search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug',)
     save_error = False

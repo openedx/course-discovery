@@ -450,6 +450,7 @@ class CourseRun(TimeStampedModel):
     )
     reporting_type = models.CharField(max_length=255, choices=ReportingType.choices, default=ReportingType.mooc)
     eligible_for_financial_aid = models.BooleanField(default=True)
+    license = models.CharField(max_length=255, blank=True, db_index=True)
 
     tags = TaggableManager(
         blank=True,

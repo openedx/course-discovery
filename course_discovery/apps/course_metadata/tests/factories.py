@@ -116,6 +116,7 @@ class CourseRunFactory(factory.DjangoModelFactory):
     slug = FuzzyText()
     hidden = False
     weeks_to_complete = FuzzyInteger(1)
+    license = 'all-rights-reserved'
 
     @factory.post_generation
     def staff(self, create, extracted, **kwargs):

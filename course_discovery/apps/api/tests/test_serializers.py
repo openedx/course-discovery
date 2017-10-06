@@ -274,6 +274,7 @@ class CourseRunSerializerTests(MinimalCourseRunSerializerTests):
             'availability': course_run.availability,
             'reporting_type': course_run.reporting_type,
             'status': course_run.status,
+            'license': course_run.license,
         })
 
         return expected
