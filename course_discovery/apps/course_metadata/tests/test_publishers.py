@@ -207,10 +207,12 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
 
         self.obj = CourseRunFactory()
 
-    @mock.patch.object(CourseRunMarketingSitePublisher, 'node_id')
-    def test_publish_obj_create_disabled(self, mock_node_id):
+    @mock.patch.object(CourseRunMarketingSitePublisher, 'node_id', return_value=None)
+    @mock.patch.object(CourseRunMarketingSitePublisher, 'create_node')
+    def test_publish_obj_create_disabled(self, mock_create_node, mock_node_id):
         self.publisher.publish_obj(self.obj)
-        assert not mock_node_id.called
+        mock_node_id.assert_called_with(self.obj)
+        assert not mock_create_node.called
 
     @mock.patch.object(CourseRunMarketingSitePublisher, 'serialize_obj', return_value='data')
     @mock.patch.object(CourseRunMarketingSitePublisher, 'node_id', return_value=None)
@@ -227,22 +229,24 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         mock_create_node.assert_called_with('data')
         mock_update_node_alias.assert_called_with(self.obj, 'node_id', None)
 
+    @mock.patch.object(CourseRunMarketingSitePublisher, 'node_id', return_value=None)
     @mock.patch.object(CourseRunMarketingSitePublisher, 'serialize_obj', return_value='data')
-    @mock.patch.object(CourseRunMarketingSitePublisher, 'node_id', return_value='node_id')
-    @mock.patch.object(CourseRunMarketingSitePublisher, 'create_node')
+    @mock.patch.object(CourseRunMarketingSitePublisher, 'create_node', return_value='node1')
     @mock.patch.object(CourseRunMarketingSitePublisher, 'update_node_alias')
-    def test_publish_obj_not_create_if_exists(
+    def test_publish_obj_create_if_exists_on_discovery(
         self,
         mock_update_node_alias,
         mock_create_node,
+        mock_serialize_obj,
         mock_node_id,
         *args
     ):  # pylint: disable=unused-argument
         toggle_switch('auto_course_about_page_creation', True)
-        self.publisher.publish_obj(self.obj)
+        self.publisher.publish_obj(self.obj, previous_obj=self.obj)
         mock_node_id.assert_called_with(self.obj)
-        assert not mock_create_node.called
-        assert not mock_update_node_alias.called
+        mock_serialize_obj.assert_called_with(self.obj)
+        mock_create_node.assert_called_with('data')
+        mock_update_node_alias.assert_called_with(self.obj, 'node1', self.obj)
 
     @mock.patch.object(CourseRunMarketingSitePublisher, 'node_id', return_value='node_id')
     @mock.patch.object(CourseRunMarketingSitePublisher, 'serialize_obj', return_value='data')
