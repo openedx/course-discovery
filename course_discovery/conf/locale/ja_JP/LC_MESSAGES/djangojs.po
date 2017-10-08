@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-15 15:30+0000\n"
+"POT-Creation-Date: 2017-10-06 17:23+0000\n"
 "PO-Revision-Date: 2017-09-23 22:32+0000\n"
 "Last-Translator: Kyoto University <edxkyotoux@gmail.com>\n"
 "Language-Team: Japanese (Japan) (http://www.transifex.com/open-edx/edx-platform/language/ja_JP/)\n"
@@ -77,19 +77,19 @@ msgstr "保存"
 msgid "Please enter a valid URL."
 msgstr "正しいURLを入力してください。"
 
-#: static/js/publisher/views/courses.js
-msgid "No courses have been created."
-msgstr "コースが作成されていません。"
-
-#: static/js/publisher/views/dashboard.js
+#: static/js/publisher/views/courserun_list.js
 msgid ""
 "You have successfully created a Studio URL ({studioLinkTag}) for "
 "{courseRunDetail} with a start date of {startDate}"
 msgstr "{startDate} 開始の{courseRunDetail} のStudio URL ({studioLinkTag}) が作成されました"
 
-#: static/js/publisher/views/dashboard.js
+#: static/js/publisher/views/courserun_list.js
 msgid "There was an error in saving your data."
 msgstr "データ保存の際、エラーが発生しました。"
+
+#: static/js/publisher/views/courses.js
+msgid "No courses have been created."
+msgstr "コースが作成されていません。"
 
 #: static/js/publisher/views/navbar.js
 msgid "OFF"
