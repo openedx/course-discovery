@@ -2,12 +2,10 @@ import datetime
 
 import mock
 import pytest
-from django.test import TestCase
 from haystack.backends import SQ
 from haystack.backends.elasticsearch_backend import ElasticsearchSearchQuery
 from haystack.query import SearchQuerySet
 
-from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.models import CourseRun
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory
 from course_discovery.apps.edx_haystack_extensions.distinct_counts.backends import (
@@ -16,7 +14,9 @@ from course_discovery.apps.edx_haystack_extensions.distinct_counts.backends impo
 
 
 # pylint: disable=protected-access
-class DistinctCountsSearchQueryTests(ElasticsearchTestMixin, TestCase):
+@pytest.mark.django_db
+@pytest.mark.usefixtures('haystack_default_connection')
+class TestDistinctCountsSearchQuery:
     def test_clone(self):
         """ Verify that clone copies all fields, including the aggregation_key and distinct_hit_count."""
         query = DistinctCountsSearchQuery()
@@ -234,7 +234,9 @@ class DistinctCountsSearchQueryTests(ElasticsearchTestMixin, TestCase):
         assert query.facets['pacing_type_exact']['size'] == 5
 
 
-class DistinctCountsElasticsearchBackendWrapperTests(ElasticsearchTestMixin, TestCase):
+@pytest.mark.django_db
+@pytest.mark.usefixtures('haystack_default_connection')
+class TestDistinctCountsElasticsearchBackendWrapper:
     def test_search_raises_when_called_with_date_facet(self):
         now = datetime.datetime.now()
         one_day = datetime.timedelta(days=1)

@@ -15,7 +15,7 @@ from course_discovery.apps.api.serializers import (
 from course_discovery.apps.api.tests.mixins import SiteMixin
 
 
-class SerializationMixin(object):
+class SerializationMixin:
     def _get_request(self, format=None):
         if getattr(self, 'request', None):
             return self.request

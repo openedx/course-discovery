@@ -4,23 +4,23 @@ from decimal import Decimal
 
 import ddt
 import mock
+import pytest
 from dateutil.parser import parse
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-from django.db.models.functions import Lower
 from django.test import TestCase
 from freezegun import freeze_time
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.helpers import make_image_file
-from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractMediaModel, AbstractNamedModel, AbstractValueModel, CorporateEndorsement, Course, CourseRun,
-    Endorsement, Seat, SeatType, Subject)
+    Endorsement, Seat, SeatType, Subject
+)
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
@@ -31,34 +31,17 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 # pylint: disable=no-member
 
-
-class CourseTests(ElasticsearchTestMixin, TestCase):
-    """ Tests for the `Course` model. """
-
-    def setUp(self):
-        super(CourseTests, self).setUp()
-        self.course = factories.CourseFactory()
-
+@pytest.mark.django_db
+class TestCourse:
     def test_str(self):
-        """ Verify casting an instance to a string returns a string containing the key and title. """
-        self.assertEqual(str(self.course), '{key}: {title}'.format(key=self.course.key, title=self.course.title))
+        course = factories.CourseFactory()
+        assert str(course), '{key}: {title}'.format(key=course.key, title=course.title)
 
-    def test_search(self):
-        """ Verify the method returns a filtered queryset of courses. """
-        toggle_switch('log_course_search_queries', active=True)
+    def test_search(self, haystack_default_connection):  # pylint: disable=unused-argument
         title = 'Some random title'
-        courses = factories.CourseFactory.create_batch(3, title=title)
-        # Sort lowercase keys to prevent different sort orders due to casing.
-        # For example, sorted(['a', 'Z']) gives ['Z', 'a'], but an ordered
-        # queryset containing the same values may give ['a', 'Z'] depending
-        # on the database backend in use.
-        courses = sorted(courses, key=lambda course: course.key.lower())
-
+        expected = set(factories.CourseFactory.create_batch(3, title=title))
         query = 'title:' + title
-        # Use Lower() to force a case-insensitive sort.
-        actual = list(Course.search(query).order_by(Lower('key')))
-
-        self.assertEqual(actual, courses)
+        assert set(Course.search(query)) == expected
 
     def test_image_url(self):
         course = factories.CourseFactory()

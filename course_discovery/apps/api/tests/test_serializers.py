@@ -4,6 +4,7 @@ import itertools
 from urllib.parse import urlencode
 
 import ddt
+import pytest
 import pytz
 from django.test import TestCase
 from haystack.query import SearchQuerySet
@@ -1249,7 +1250,9 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
         assert serializer.data['level_type'] is None
 
 
-class ProgramSearchSerializerTests(TestCase):
+@pytest.mark.django_db
+@pytest.mark.usefixtures('haystack_default_connection')
+class TestProgramSearchSerializer:
     def _create_expected_data(self, program):
         return {
             'uuid': str(program.uuid),
@@ -1327,7 +1330,9 @@ class ProgramSearchSerializerTests(TestCase):
         assert {'English', 'Chinese - Mandarin'} == {*expected['language']}
 
 
-class TypeaheadCourseRunSearchSerializerTests(TestCase):
+@pytest.mark.django_db
+@pytest.mark.usefixtures('haystack_default_connection')
+class TestTypeaheadCourseRunSearchSerializer:
     def test_data(self):
         authoring_organization = OrganizationFactory()
         course_run = CourseRunFactory(authoring_organizations=[authoring_organization])
@@ -1348,7 +1353,9 @@ class TypeaheadCourseRunSearchSerializerTests(TestCase):
         return serializer
 
 
-class TypeaheadProgramSearchSerializerTests(TestCase):
+@pytest.mark.django_db
+@pytest.mark.usefixtures('haystack_default_connection')
+class TestTypeaheadProgramSearchSerializer:
     def _create_expected_data(self, program):
         return {
             'uuid': str(program.uuid),

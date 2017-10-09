@@ -53,6 +53,24 @@ class ElasticsearchUtils(object):
         logger.info('...index [%s] created.', index_name)
         return index_name
 
+    @classmethod
+    def delete_index(cls, es_connection, index):
+        logger.info('Deleting index [%s]...', index)
+        es_connection.indices.delete(index=index, ignore=404)  # pylint: disable=unexpected-keyword-arg
+        logger.info('...index deleted.')
+
+    @classmethod
+    def refresh_index(cls, es_connection, index):
+        """
+        Refreshes the index.
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-refresh.html
+        """
+        logger.info('Refreshing index [%s]...', index)
+        es_connection.indices.refresh(index=index)
+        es_connection.cluster.health(index=index, wait_for_status='yellow', request_timeout=1)
+        logger.info('...index refreshed.')
+
 
 def get_all_related_field_names(model):
     """

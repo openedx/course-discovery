@@ -1,18 +1,18 @@
 import datetime
-import mock
 
+import mock
 import pytest
-from django.test import TestCase
 from haystack.query import SearchQuerySet
 
-from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.models import CourseRun
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory
 from course_discovery.apps.edx_haystack_extensions.distinct_counts.backends import DistinctCountsSearchQuery
 from course_discovery.apps.edx_haystack_extensions.distinct_counts.query import DistinctCountsSearchQuerySet
 
 
-class DistinctCountsSearchQuerySetTests(ElasticsearchTestMixin, TestCase):
+@pytest.mark.django_db
+@pytest.mark.usefixtures('haystack_default_connection')
+class TestDistinctCountsSearchQuerySet:
     def test_from_queryset(self):
         """ Verify that a DistinctCountsSearchQuerySet can be built from an existing SearchQuerySet."""
         course_1 = CourseFactory()

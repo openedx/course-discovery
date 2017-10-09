@@ -1,11 +1,11 @@
 import urllib.parse
 
-import ddt
-from django.core.cache import cache
+import pytest
+from django.test import RequestFactory
 from django.urls import reverse
 
 from course_discovery.apps.api.serializers import MinimalProgramSerializer
-from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
 from course_discovery.apps.api.v1.views.programs import ProgramViewSet
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
@@ -17,18 +17,30 @@ from course_discovery.apps.course_metadata.tests.factories import (
 )
 
 
-@ddt.ddt
-class ProgramViewSetTests(SerializationMixin, APITestCase):
+@pytest.mark.django_db
+@pytest.mark.usefixtures('django_cache')
+class TestProgramViewSet(SerializationMixin):
+    client = None
+    django_assert_num_queries = None
     list_path = reverse('api:v1:program-list')
+    partner = None
+    request = None
 
-    def setUp(self):
-        super(ProgramViewSetTests, self).setUp()
-        self.user = UserFactory(is_staff=True, is_superuser=True)
-        self.request.user = self.user
-        self.client.login(username=self.user.username, password=USER_PASSWORD)
+    @pytest.fixture(autouse=True)
+    def setup(self, client, django_assert_num_queries, partner):
+        user = UserFactory(is_staff=True, is_superuser=True)
 
-        # Clear the cache between test cases, so they don't interfere with each other.
-        cache.clear()
+        client.login(username=user.username, password=USER_PASSWORD)
+
+        site = partner.site
+        request = RequestFactory(SERVER_NAME=site.domain).get('')
+        request.site = site
+        request.user = user
+
+        self.client = client
+        self.django_assert_num_queries = django_assert_num_queries
+        self.partner = partner
+        self.request = request
 
     def create_program(self):
         organizations = [OrganizationFactory(partner=self.partner)]
@@ -59,37 +71,37 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
             url += '?' + urllib.parse.urlencode(querystring)
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         return response
 
     def test_authentication(self):
         """ Verify the endpoint requires the user to be authenticated. """
         response = self.client.get(self.list_path)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
         self.client.logout()
         response = self.client.get(self.list_path)
-        self.assertEqual(response.status_code, 403)
+        assert response.status_code == 403
 
-    def test_retrieve(self):
+    def test_retrieve(self, django_assert_num_queries):
         """ Verify the endpoint returns the details for a single program. """
         program = self.create_program()
-        with self.assertNumQueries(39):
+        with django_assert_num_queries(39):
             response = self.assert_retrieve_success(program)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
         assert response.data == self.serialize_program(program)
 
         # Verify that repeated retrieve requests use the cache.
-        with self.assertNumQueries(4):
+        with django_assert_num_queries(4):
             self.assert_retrieve_success(program)
 
         # Verify that requests including querystring parameters are cached separately.
         response = self.assert_retrieve_success(program, querystring={'use_full_course_serializer': 1})
         assert response.data == self.serialize_program(program, extra_context={'use_full_course_serializer': 1})
 
-    @ddt.data(True, False)
-    def test_retrieve_with_sorting_flag(self, order_courses_by_start_date):
+    @pytest.mark.parametrize('order_courses_by_start_date', (True, False,))
+    def test_retrieve_with_sorting_flag(self, order_courses_by_start_date, django_assert_num_queries):
         """ Verify the number of queries is the same with sorting flag set to true. """
         course_list = CourseFactory.create_batch(3, partner=self.partner)
         for course in course_list:
@@ -100,16 +112,16 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
             partner=self.partner)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
-        with self.assertNumQueries(28):
+        with django_assert_num_queries(28):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
-        self.assertEqual(course_list, list(program.courses.all()))  # pylint: disable=no-member
+        assert course_list == list(program.courses.all())  # pylint: disable=no-member
 
-    def test_retrieve_without_course_runs(self):
+    def test_retrieve_without_course_runs(self, django_assert_num_queries):
         """ Verify the endpoint returns data for a program even if the program's courses have no course runs. """
         course = CourseFactory(partner=self.partner)
         program = ProgramFactory(courses=[course], partner=self.partner)
-        with self.assertNumQueries(22):
+        with django_assert_num_queries(22):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
 
@@ -127,13 +139,10 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         Returns:
             None
         """
-        with self.assertNumQueries(expected_query_count):
+        with self.django_assert_num_queries(expected_query_count):
             response = self.client.get(url)
 
-        self.assertEqual(
-            response.data['results'],
-            self.serialize_program(expected, many=True, extra_context=extra_context)
-        )
+        assert response.data['results'] == self.serialize_program(expected, many=True, extra_context=extra_context)
 
     def test_list(self):
         """ Verify the endpoint returns a list of all programs. """
@@ -200,11 +209,13 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
 
         self.assert_list_results(url, expected, 10)
 
-    @ddt.data(
-        (ProgramStatus.Unpublished, False, 5),
-        (ProgramStatus.Active, True, 10),
+    @pytest.mark.parametrize(
+        'status,is_marketable,expected_query_count',
+        (
+            (ProgramStatus.Unpublished, False, 5),
+            (ProgramStatus.Active, True, 10),
+        )
     )
-    @ddt.unpack
     def test_filter_by_marketable(self, status, is_marketable, expected_query_count):
         """ Verify the endpoint filters programs to those that are marketable. """
         url = self.list_path + '?marketable=1'
@@ -213,7 +224,7 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
         programs.reverse()
 
         expected = programs if is_marketable else []
-        self.assertEqual(list(Program.objects.marketable()), expected)
+        assert list(Program.objects.marketable()) == expected
         self.assert_list_results(url, expected, expected_query_count)
 
     def test_filter_by_status(self):
@@ -271,4 +282,4 @@ class ProgramViewSetTests(SerializationMixin, APITestCase):
 
     def test_minimal_serializer_use(self):
         """ Verify that the list view uses the minimal serializer. """
-        self.assertEqual(ProgramViewSet(action='list').get_serializer_class(), MinimalProgramSerializer)
+        assert ProgramViewSet(action='list').get_serializer_class() == MinimalProgramSerializer
