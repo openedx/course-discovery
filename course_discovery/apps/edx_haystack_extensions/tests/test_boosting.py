@@ -1,18 +1,17 @@
 import datetime
 
-import ddt
+import pytest
 import pytz
-from django.test import TestCase
 from haystack.query import SearchQuerySet
 from mock import patch
 
-from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.models import CourseRun, Program, ProgramType
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory
 
 
-@ddt.ddt
-class TestSearchBoosting(ElasticsearchTestMixin, TestCase):
+@pytest.mark.django_db
+@pytest.mark.usefixtures('haystack_default_connection')
+class TestSearchBoosting:
     def build_normalized_course_run(self, **kwargs):
         """Builds a CourseRun with fields set to normalize boosting behavior."""
         defaults = {
@@ -35,7 +34,7 @@ class TestSearchBoosting(ElasticsearchTestMixin, TestCase):
         assert search_results[0].score > search_results[1].score
         assert test_record.pacing_type == search_results[0].pacing_type
 
-    @ddt.data('MicroMasters', 'Professional Certificate')
+    @pytest.mark.parametrize('program_type', ['MicroMasters', 'Professional Certificate'])
     def test_program_type_boosting(self, program_type):
         """Verify MicroMasters and Professional Certificate are boosted over XSeries."""
         ProgramFactory(type=ProgramType.objects.get(name='XSeries'))
@@ -55,20 +54,23 @@ class TestSearchBoosting(ElasticsearchTestMixin, TestCase):
         search_results = SearchQuerySet().models(CourseRun).all()
         assert len(search_results) == 2
         assert search_results[0].score > search_results[1].score
-        assert int(test_record.start.timestamp()) == int(search_results[0].start.timestamp())  # pylint: disable=no-member
+        # pylint: disable=no-member
+        assert int(test_record.start.timestamp()) == int(search_results[0].start.timestamp())
 
-    @ddt.data(
-        # Should not get boost if has_enrollable_paid_seats is False, has_enrollable_paid_seats
-        # is None, or paid_seat_enrollment_end is in the past.
-        (False, None, False),
-        (None, None, False),
-        (True, datetime.datetime.now(pytz.timezone('utc')) - datetime.timedelta(days=15), False),
-        # Should get boost if has_enrollable_paid_seats is True and paid_seat_enrollment_end
-        # is None or in the future.
-        (True, None, True),
-        (True, datetime.datetime.now(pytz.timezone('utc')) + datetime.timedelta(days=15), True),
+    @pytest.mark.parametrize(
+        'has_enrollable_paid_seats,paid_seat_enrollment_end,expects_boost',
+        [
+            # Should not get boost if has_enrollable_paid_seats is False, has_enrollable_paid_seats
+            # is None, or paid_seat_enrollment_end is in the past.
+            (False, None, False),
+            (None, None, False),
+            (True, datetime.datetime.now(pytz.timezone('utc')) - datetime.timedelta(days=15), False),
+            # Should get boost if has_enrollable_paid_seats is True and paid_seat_enrollment_end
+            # is None or in the future.
+            (True, None, True),
+            (True, datetime.datetime.now(pytz.timezone('utc')) + datetime.timedelta(days=15), True),
+        ]
     )
-    @ddt.unpack
     def test_enrollable_paid_seat_boosting(self, has_enrollable_paid_seats, paid_seat_enrollment_end, expects_boost):
         """
         Verify that CourseRuns for which an unenrolled user may enroll and
@@ -123,25 +125,27 @@ class TestSearchBoosting(ElasticsearchTestMixin, TestCase):
         # negative relevance score.
         assert 0 > search_results[1].score
 
-    @ddt.data(
-        # Should get boost if enrollment_start and enrollment_end unspecified.
-        (None, None, True),
-        # Should get boost if enrollment_start unspecified and enrollment_end in future.
-        (None, datetime.datetime.now(pytz.timezone('utc')) + datetime.timedelta(days=15), True),
-        # Should get boost if enrollment_start in past and enrollment_end unspecified.
-        (datetime.datetime.now(pytz.timezone('utc')) - datetime.timedelta(days=15), None, True),
-        # Should get boost if enrollment_start in past and enrollment_end in future.
-        (
-            datetime.datetime.now(pytz.timezone('utc')) - datetime.timedelta(days=15),
-            datetime.datetime.now(pytz.timezone('utc')) + datetime.timedelta(days=15),
-            True
-        ),
-        # Should not get boost if enrollment_start in future.
-        (datetime.datetime.now(pytz.timezone('utc')) + datetime.timedelta(days=15), None, False),
-        # Should not get boost if enrollment_end in past.
-        (None, datetime.datetime.now(pytz.timezone('utc')) - datetime.timedelta(days=15), False),
+    @pytest.mark.parametrize(
+        'enrollment_start,enrollment_end,expects_boost',
+        [
+            # Should get boost if enrollment_start and enrollment_end unspecified.
+            (None, None, True),
+            # Should get boost if enrollment_start unspecified and enrollment_end in future.
+            (None, datetime.datetime.now(pytz.timezone('utc')) + datetime.timedelta(days=15), True),
+            # Should get boost if enrollment_start in past and enrollment_end unspecified.
+            (datetime.datetime.now(pytz.timezone('utc')) - datetime.timedelta(days=15), None, True),
+            # Should get boost if enrollment_start in past and enrollment_end in future.
+            (
+                datetime.datetime.now(pytz.timezone('utc')) - datetime.timedelta(days=15),
+                datetime.datetime.now(pytz.timezone('utc')) + datetime.timedelta(days=15),
+                True
+            ),
+            # Should not get boost if enrollment_start in future.
+            (datetime.datetime.now(pytz.timezone('utc')) + datetime.timedelta(days=15), None, False),
+            # Should not get boost if enrollment_end in past.
+            (None, datetime.datetime.now(pytz.timezone('utc')) - datetime.timedelta(days=15), False),
+        ]
     )
-    @ddt.unpack
     def test_enrollable_course_run_boosting(self, enrollment_start, enrollment_end, expects_boost):
         """Verify that enrollable CourseRuns are boosted."""
 

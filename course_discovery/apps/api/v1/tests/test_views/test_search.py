@@ -323,8 +323,9 @@ class AggregateSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
 
     def process_response(self, response):
         response = self.get_response(response).json()
-        self.assertTrue(response['objects']['count'])
-        return response['objects']
+        objects = response['objects']
+        assert objects['count'] > 0
+        return objects
 
     def test_results_only_include_published_objects(self):
         """ Verify the search results only include items with status set to 'Published'. """

@@ -1,7 +1,7 @@
 import json
 from urllib.parse import quote
 
-import ddt
+import pytest
 from django.test import TestCase
 from django.urls import reverse
 
@@ -16,128 +16,93 @@ from course_discovery.apps.publisher.tests import factories
 # pylint: disable=no-member
 
 
-@ddt.ddt
-class AutocompleteTests(SiteMixin, TestCase):
-    """ Tests for autocomplete lookups."""
-    def setUp(self):
-        super(AutocompleteTests, self).setUp()
-        self.user = UserFactory(is_staff=True)
-        self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.courses = CourseFactory.create_batch(3, title='Some random course title')
-        for course in self.courses:
-            CourseRunFactory(course=course)
-        self.organizations = OrganizationFactory.create_batch(3)
-        first_instructor = PersonFactory(given_name="First Instructor")
-        second_instructor = PersonFactory(given_name="Second Instructor")
-        self.instructors = [first_instructor, second_instructor]
+@pytest.mark.django_db
+class TestAutocomplete:
+    def assert_valid_query_result(self, client, path, query, expected_result):
+        """ Asserts a query made against the given endpoint returns the expected result. """
+        response = client.get(path + '?q={q}'.format(q=query))
+        data = json.loads(response.content.decode('utf-8'))
+        assert len(data['results']) == 1
+        assert data['results'][0]['text'] == str(expected_result)
 
-    @ddt.data('dum', 'ing')
-    def test_course_autocomplete(self, search_key):
+    def test_course_autocomplete(self, admin_client):
         """ Verify course autocomplete returns the data. """
-        response = self.client.get(reverse('admin_metadata:course-autocomplete'))
+        courses = CourseFactory.create_batch(3)
+        path = reverse('admin_metadata:course-autocomplete')
+        response = admin_client.get(path)
         data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(data['results']), 3)
-        # update the first course title
-        self.courses[0].key = 'edx/dummy/key'
-        self.courses[0].title = 'this is some thing new'
-        self.courses[0].save()
-        response = self.client.get(
-            reverse('admin_metadata:course-autocomplete') + '?q={title}'.format(title=search_key)
-        )
-        data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(data['results'][0]['text'], str(self.courses[0]))
+        assert response.status_code == 200
+        assert len(data['results']) == 3
 
-    def test_course_autocomplete_un_authorize_user(self):
-        """ Verify course autocomplete returns empty list for un-authorized users. """
-        self._make_user_non_staff()
-        response = self.client.get(reverse('admin_metadata:course-autocomplete'))
-        data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(data['results'], [])
+        # Search for substrings of course keys and titles
+        course = courses[0]
+        self.assert_valid_query_result(admin_client, path, course.key[12:], course)
+        self.assert_valid_query_result(admin_client, path, course.title[12:], course)
 
-    @ddt.data('ing', 'dum')
-    def test_course_run_autocomplete(self, search_key):
-        """ Verify course run autocomplete returns the data. """
-        response = self.client.get(reverse('admin_metadata:course-run-autocomplete'))
+    def test_course_run_autocomplete(self, admin_client):
+        course_runs = CourseRunFactory.create_batch(3)
+        path = reverse('admin_metadata:course-run-autocomplete')
+        response = admin_client.get(path)
         data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(data['results']), 3)
-        # update the first course title
-        course = self.courses[0]
-        course.title = 'this is some thing new'
-        course.save()
-        course_run = self.courses[0].course_runs.first()
-        course_run.key = 'edx/dummy/testrun'
-        course_run.save()
+        assert response.status_code == 200
+        assert len(data['results']) == 3
 
-        response = self.client.get(
-            reverse('admin_metadata:course-run-autocomplete') + '?q={q}'.format(q=search_key)
-        )
-        data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(data['results'][0]['text'], str(course_run))
+        # Search for substrings of course run keys and titles
+        course_run = course_runs[0]
+        self.assert_valid_query_result(admin_client, path, course_run.key[14:], course_run)
+        self.assert_valid_query_result(admin_client, path, course_run.title[12:], course_run)
 
-    def test_course_run_autocomplete_un_authorize_user(self):
-        """ Verify course run autocomplete returns empty list for un-authorized users. """
-        self._make_user_non_staff()
-        response = self.client.get(reverse('admin_metadata:course-run-autocomplete'))
-        data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(data['results'], [])
-
-    @ddt.data('irc', 'ing')
-    def test_organization_autocomplete(self, search_key):
+    def test_organization_autocomplete(self, admin_client):
         """ Verify Organization autocomplete returns the data. """
-        response = self.client.get(reverse('admin_metadata:organisation-autocomplete'))
+        organizations = OrganizationFactory.create_batch(3)
+        path = reverse('admin_metadata:organisation-autocomplete')
+        response = admin_client.get(path)
         data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(data['results']), 3)
+        assert response.status_code == 200
+        assert len(data['results']) == 3
 
-        self.organizations[0].key = 'Mirco'
-        self.organizations[0].name = 'testing name'
-        self.organizations[0].save()
+        # Search for substrings of organization keys and names
+        organization = organizations[0]
+        self.assert_valid_query_result(admin_client, path, organization.key[:3], organization)
+        self.assert_valid_query_result(admin_client, path, organization.name[:5], organization)
 
-        response = self.client.get(
-            reverse('admin_metadata:organisation-autocomplete') + '?q={key}'.format(
-                key=search_key
-            )
-        )
+    @pytest.mark.parametrize('view_prefix', ['organisation', 'course', 'course-run'])
+    def test_autocomplete_requires_staff_permission(self, view_prefix, client):
+        """ Verify autocomplete returns empty list for non-staff users. """
+
+        user = UserFactory(is_staff=False)
+        client.login(username=user.username, password=USER_PASSWORD)
+        response = client.get(reverse('admin_metadata:{}-autocomplete'.format(view_prefix)))
         data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(data['results'][0]['text'], str(self.organizations[0]))
-        self.assertEqual(len(data['results']), 1)
-
-    def test_organization_autocomplete_un_authorize_user(self):
-        """ Verify Organization autocomplete returns empty list for un-authorized users. """
-        self._make_user_non_staff()
-        response = self.client.get(reverse('admin_metadata:organisation-autocomplete'))
-        data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(data['results'], [])
-
-    def _make_user_non_staff(self):
-        self.client.logout()
-        self.user = UserFactory(is_staff=False)
-        self.user.save()
-        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        assert response.status_code == 200
+        assert data['results'] == []
 
 
-@ddt.ddt
 class AutoCompletePersonTests(SiteMixin, TestCase):
     """
     Tests for person autocomplete lookups
     """
+
     def setUp(self):
         super(AutoCompletePersonTests, self).setUp()
         self.user = UserFactory(is_staff=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.courses = factories.CourseFactory.create_batch(3, title='Some random course title')
+
         for course in self.courses:
             factories.CourseRunFactory(course=course)
+
         self.organizations = OrganizationFactory.create_batch(3)
         self.organization_extensions = []
+
         for organization in self.organizations:
             self.organization_extensions.append(factories.OrganizationExtensionFactory(organization=organization))
+
         self.user.groups.add(self.organization_extensions[0].group)
         first_instructor = PersonFactory(given_name="First Instructor")
         second_instructor = PersonFactory(given_name="Second Instructor")
         self.instructors = [first_instructor, second_instructor]
+
         for instructor in self.instructors:
             PositionFactory(organization=self.organizations[0], title="professor", person=instructor)
 
@@ -185,9 +150,9 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
 
     def _assert_response(self, response, expected_length):
         """ Assert autocomplete response. """
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(len(data['results']), expected_length)
+        assert len(data['results']) == expected_length
 
     def test_instructor_autocomplete_with_uuid(self):
         """ Verify instructor autocomplete returns the data with valid uuid. """
@@ -243,10 +208,10 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
             reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q='ins'),
             HTTP_REFERER=reverse('admin:publisher_courserun_add')
         )
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         data = json.loads(response.content.decode('utf-8'))
         expected_results = [{'id': instructor.id, 'text': str(instructor)} for instructor in self.instructors]
-        self.assertEqual(data.get('results'), expected_results)
+        assert data.get('results') == expected_results
 
     def _make_user_non_staff(self):
         self.client.logout()
