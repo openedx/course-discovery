@@ -7,40 +7,45 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_extensions.cache.decorators import cache_response
 
+logger = logging.getLogger(__name__)
+
 
 class CurrencyView(views.APIView):
     permission_classes = (IsAuthenticated,)
+    EXTERNAL_API_URL = 'https://openexchangerates.org/api/latest.json'
 
     def get_rates(self):
-        try:
-            app_id = settings.OPENEXCHANGERATES_API_KEY
-            if app_id:
-                url = 'https://openexchangerates.org/api/latest.json'
-                response = requests.get(url, params={'app_id': app_id}, timeout=2)
-                response_json = response.json()
-                result = response_json['rates']
-                return result
-            else:
-                logging.warning('No app id available for openexchangerates')
-                return {}
-        except Exception as e:  # pylint: disable=broad-except
-            response_text = '' if not isinstance(response, object) else response.text
-            message = 'Exception Type {}. Message {}. Response {}.'.format(
-                type(e).__name__, e, response_text
-            )
-            logging.error('Could not retrieve rates from openexchangerates. ' + message)
+        app_id = settings.OPENEXCHANGERATES_API_KEY
+
+        if not app_id:
+            logger.warning('Unable to retrieve exchange rate data. No API key is set.')
             return {}
+
+        try:
+            response = requests.get(self.EXTERNAL_API_URL, params={'app_id': app_id}, timeout=2)
+
+            if response.status_code == requests.codes.ok:  # pylint: disable=no-member
+                response_json = response.json()
+                return response_json['rates']
+            else:
+                logger.error(
+                    'Failed to retrieve exchange rates from [%s]. Status: [%d], Body: %s',
+                    self.EXTERNAL_API_URL, response.status_code, response.content)
+        except Exception:  # pylint: disable=broad-except
+            logger.exception('An error occurred while requesting exchange rates from [%s]', self.EXTERNAL_API_URL)
+
+        return {}
 
     def get_data(self):
         rates = self.get_rates()
         # ISO 3166-1 alpha-3 codes
         currencies = {
-            'IND': {'code': 'INR', 'symbol': u'₹'},
+            'IND': {'code': 'INR', 'symbol': '₹'},
             'BRA': {'code': 'BRL', 'symbol': 'R$'},
             'MEX': {'code': 'MXN', 'symbol': '$'},
-            'GBR': {'code': 'GBP', 'symbol': u'£'},
+            'GBR': {'code': 'GBP', 'symbol': '£'},
             'AUS': {'code': 'AUD', 'symbol': '$'},
-            'CHN': {'code': 'CNY', 'symbol': u'¥'},
+            'CHN': {'code': 'CNY', 'symbol': '¥'},
             'COL': {'code': 'COP', 'symbol': '$'},
             'PER': {'code': 'PEN', 'symbol': 'S/.'},
             'CAN': {'code': 'CAD', 'symbol': '$'}
