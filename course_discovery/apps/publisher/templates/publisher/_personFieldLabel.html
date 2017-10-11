@@ -1,1 +1,1 @@
-<img src="{{ profile_image }}"/><span{% if uuid %} data-uuid="{{ uuid }}" {% endif %}>{{ full_name }}</span>{% if organization_id %}<span>{{ organization_id }}</span>{% endif %}
+<img src="{{ profile_image }}"/><span{% if can_edit_instructor %}  data-can-edit="{{ can_edit_instructor }}" {% endif %} data-uuid="{{ uuid }}" >{{ full_name }}</span>{% if organization_id %}<span>{{ organization_id }}</span>{% endif %}

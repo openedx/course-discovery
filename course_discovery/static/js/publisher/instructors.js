@@ -6,8 +6,9 @@ $(document).ready(function(){
             image_source = $(label[0]).attr('src'),
             name = $(label[1]).text(),
             uuid = $(label[1]).data('uuid'),
-            organization_id = $(label[2]).text();
-        renderSelectedInstructor(id, name, image_source, uuid, organization_id);
+            organization_id = $(label[2]).text(),
+            edit_instructor = $(label[1]).data('can-edit');
+        renderSelectedInstructor(id, name, image_source, uuid, organization_id, edit_instructor);
     });
 
     $("#id_staff").on("select2:select", function(e) {
@@ -17,8 +18,9 @@ $(document).ready(function(){
             image_source = $(selectedInstructorData).find('img').attr('src'), 
             name = $(selectedInstructorData).find('b').text(),
             uuid = $(selectedInstructorData)[0].id,
-            organization_id = $(selectedInstructorData).find('span').text();
-        renderSelectedInstructor(id, name, image_source, uuid, organization_id);
+            organization_id = $(selectedInstructorData).find('span').text(),
+            edit_instructor = $(selectedInstructorData).data('can-edit');
+        renderSelectedInstructor(id, name, image_source, uuid, organization_id, edit_instructor);
 
     });
 
@@ -139,7 +141,7 @@ $(document).on('click', '.selected-instructor a.delete', function (e) {
     $('.instructor-select').find('.select2-selection__choice').remove();
 });
 
-function renderSelectedInstructor(id, name, image, uuid, organization_id) {
+function renderSelectedInstructor(id, name, image, uuid, organization_id, edit_instructor) {
     var user_organizations_ids = $('#user_organizations_ids').text(),
         course_user_role = $('#course_user_role').text(),
         instructorHtmlStart = '<div class="instructor" id= "instructor_'+ id +'"><div><img src="' + image + '"></div><div>',
@@ -151,6 +153,11 @@ function renderSelectedInstructor(id, name, image, uuid, organization_id) {
             if ($.inArray(parseInt(organization_id), JSON.parse(user_organizations_ids)) > -1 && uuid) {
                 controlOptions += '<a class="edit" id="' + uuid + '"href="#"><i class="fa fa-pencil-square-o fa-fw"></i></a>';
             }
+    }
+    else {
+        if (edit_instructor){
+            controlOptions += '<a class="edit" id="' + uuid + '"href="#"><i class="fa fa-pencil-square-o fa-fw"></i></a>';
+        }
     }
     $('.selected-instructor').append(instructorHtmlStart + controlOptions + instructorHtmlEnd);
 }
@@ -182,7 +189,9 @@ function loadInstructor(uuid, editMode) {
         label,
         image_source,
         name,
-        instructor_id;
+        instructor_id,
+        organization_id,
+        edit_instructor;
 
     $.getJSON({
         url: url,
@@ -198,7 +207,8 @@ function loadInstructor(uuid, editMode) {
                     value: id,
                     text: name
                 }).attr('selected', 'selected'));
-                organization_id = $(label).find('span').text()
+                organization_id = $(label).find('span').text();
+                edit_instructor = $(label).data('can-edit');
 
                 if (editMode) {
                     // Updating the existing instructor
@@ -207,7 +217,7 @@ function loadInstructor(uuid, editMode) {
                     instructor_id.find('b').text(name);
                 }
                 else {
-                    renderSelectedInstructor(id, name, image_source, uuid, organization_id);
+                    renderSelectedInstructor(id, name, image_source, uuid, organization_id, edit_instructor);
                 }
             }
 
