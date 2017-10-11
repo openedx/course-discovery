@@ -1,11 +1,11 @@
 # Packages required in a production environment
 -r base.txt
 
-certifi==2016.9.26
-django-ses==0.8.1
-gevent==1.1.2
-gunicorn==19.6.0
-mysqlclient==1.3.9
-newrelic==2.88.1.73
+certifi==2017.7.27.1
+django-ses==0.8.3.1
+gevent==1.2.2
+gunicorn==19.7.1
+mysqlclient==1.3.12
+newrelic==2.94.0.79
 python-memcached==1.58
 PyYAML==3.12
