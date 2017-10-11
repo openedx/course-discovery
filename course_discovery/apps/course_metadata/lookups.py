@@ -72,7 +72,8 @@ class PersonAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
                 'profile_image': result.get_profile_image_url,
                 'full_name': result.full_name,
                 'position': result.position if hasattr(result, 'position') else None,
-                'organization_id': result.position.organization_id if hasattr(result, 'position') else None
+                'organization_id': result.position.organization_id if hasattr(result, 'position') else None,
+                'can_edit_instructor': not result.profile_image_url,
 
             }
 

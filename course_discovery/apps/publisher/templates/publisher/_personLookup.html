@@ -1,4 +1,4 @@
-<table class="instructor-option" id="{{ uuid }}">
+<table class="instructor-option" id="{{ uuid }}" {% if can_edit_instructor %}  data-can-edit="{{ can_edit_instructor }}" {% endif %}>
   <tr>
     <td><img src="{{ profile_image }}" alt="profile image"/></td>
     <td>
