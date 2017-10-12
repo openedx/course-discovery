@@ -42,7 +42,7 @@ class ElasticsearchTestMixin(object):
 
 
 class LMSAPIClientMixin(object):
-    def mock_api_access_request(self, lms_url, status=200, api_access_request_overrides=None):
+    def mock_api_access_request(self, lms_url, user, status=200, api_access_request_overrides=None):
         """
         Mock the api access requests endpoint response of the LMS.
         """
@@ -76,13 +76,13 @@ class LMSAPIClientMixin(object):
 
         responses.add(
             responses.GET,
-            lms_url.rstrip('/') + '/api-admin/api/v1/api_access_request/',
+            lms_url.rstrip('/') + '/api-admin/api/v1/api_access_request/?user__username={}'.format(user.username),
             body=json.dumps(data),
             content_type='application/json',
             status=status
         )
 
-    def mock_api_access_request_with_invalid_data(self, lms_url, status=200, response_overrides=None):
+    def mock_api_access_request_with_invalid_data(self, lms_url, user, status=200, response_overrides=None):
         """
         Mock the api access requests endpoint response of the LMS.
         """
@@ -90,7 +90,7 @@ class LMSAPIClientMixin(object):
 
         responses.add(
             responses.GET,
-            lms_url.rstrip('/') + '/api-admin/api/v1/api_access_request/',
+            lms_url.rstrip('/') + '/api-admin/api/v1/api_access_request/?user__username={}'.format(user.username),
             body=json.dumps(data),
             content_type='application/json',
             status=status

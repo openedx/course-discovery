@@ -18,10 +18,8 @@ class LMSAPIClient(object):
     API Client for communication between discovery and LMS.
     """
 
-    def __init__(self, site, user):
-        self.site = site
-        self.user = user
-        self.client = EdxRestApiClient(self.site.partner.lms_url, oauth_access_token=user.access_token)
+    def __init__(self, site):
+        self.client = EdxRestApiClient(site.partner.lms_url, jwt=site.partner.access_token)
 
     def get_api_access_request(self, user):
         """
@@ -51,14 +49,9 @@ class LMSAPIClient(object):
             }
         """
         resource = 'api-admin/api/v1/api_access_request/'
-        query_parameters = {}
-
-        # Since Staff user has access to all API Access Requests and we want to limit the response.
-        # So, we will filter by username for staff users.
-        if user.is_staff:
-            query_parameters = {
-                'user__username': user.username
-            }
+        query_parameters = {
+            'user__username': user.username
+        }
 
         cache_key = get_cache_key(username=user.username, resource=resource)
         api_access_request = cache.get(cache_key)
@@ -78,7 +71,6 @@ class LMSAPIClient(object):
             except (SlumberBaseException, ConnectionError, Timeout):
                 logger.exception('Failed to fetch API Access Request from LMS for user "%s".', user.username)
             except (IndexError, KeyError):
-                # This should not happen as user must always have at-least one api-access-request.
-                logger.exception('APIAccessRequest model not found for user [%s].', user.username)
+                logger.info('APIAccessRequest model not found for user [%s].', user.username)
 
         return api_access_request
