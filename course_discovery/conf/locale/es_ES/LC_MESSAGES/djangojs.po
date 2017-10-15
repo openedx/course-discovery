@@ -4,13 +4,14 @@
 # 
 # Translators:
 # Miguel Angel Cordova <miguel.angel.cordova.uned@gmail.com>, 2017
+# URJConline <online.mooc@urjc.es>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-06 17:23+0000\n"
-"PO-Revision-Date: 2017-09-22 23:40+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2017-10-12 11:27+0500\n"
+"PO-Revision-Date: 2017-10-10 11:21+0000\n"
+"Last-Translator: URJConline <online.mooc@urjc.es>\n"
 "Language-Team: Spanish (Spain) (http://www.transifex.com/open-edx/edx-platform/language/es_ES/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"

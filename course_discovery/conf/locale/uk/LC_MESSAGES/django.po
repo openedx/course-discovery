@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# Irene Korotkova <irca.gav@gmail.com>, 2017
 # Natalia Vynogradenko <tannaha@gmail.com>, 2017
 # Olga Filipova <chudaol@gmail.com>, 2017
 # Xenia Korshunova <ksuhakorshunova57@gmail.com>, 2016
@@ -10,9 +11,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-06 17:23+0000\n"
-"PO-Revision-Date: 2017-10-06 21:20+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2017-10-12 11:27+0500\n"
+"PO-Revision-Date: 2017-10-14 11:44+0000\n"
+"Last-Translator: Natalia Vynogradenko <tannaha@gmail.com>\n"
 "Language-Team: Ukrainian (http://www.transifex.com/open-edx/edx-platform/language/uk/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -23,17 +24,17 @@ msgstr ""
 #: apps/api/filters.py
 #, python-brace-format
 msgid "No user with the username [{username}] exists."
-msgstr ""
+msgstr "Не існує користувача з ім'ям  [{username}]"
 
 #: apps/api/filters.py
 msgid ""
 "Only staff users are permitted to filter by username. Remove the username "
 "parameter."
-msgstr ""
+msgstr "Тільки персоналу дозволено сортувати за іменем користувача. Видалити параметр ім'я користувача."
 
 #: apps/api/serializers.py
 msgid "Number of courses contained in this catalog"
-msgstr ""
+msgstr "Кількість курсів в даному каталозі."
 
 #: apps/api/serializers.py
 msgid "Usernames of users with explicit access to view this catalog"
@@ -41,11 +42,11 @@ msgstr ""
 
 #: apps/api/serializers.py
 msgid "Language in which the course is administered"
-msgstr ""
+msgstr "Мова, якою ведеться курс"
 
 #: apps/api/serializers.py
 msgid "Dictionary mapping course run IDs to boolean values"
-msgstr ""
+msgstr "Словник термінів ідентифікаторів курсу до булевих значень"
 
 #: apps/api/serializers.py
 msgid "Dictionary mapping course IDs to boolean values"
@@ -66,7 +67,7 @@ msgstr ""
 
 #: apps/catalogs/models.py
 msgid "Catalog name"
-msgstr ""
+msgstr "Ім'я каталогу"
 
 #: apps/catalogs/models.py
 msgid "Query to retrieve catalog contents"
@@ -74,15 +75,15 @@ msgstr ""
 
 #: apps/core/admin.py
 msgid "Personal info"
-msgstr ""
+msgstr "Особиста інформація"
 
 #: apps/core/admin.py
 msgid "Permissions"
-msgstr ""
+msgstr "Дозволи"
 
 #: apps/core/admin.py
 msgid "Important dates"
-msgstr ""
+msgstr "Важливі дати"
 
 #: apps/core/admin.py
 msgid "OpenID Connect"
@@ -125,7 +126,7 @@ msgstr ""
 
 #: apps/core/models.py
 msgid "Full Name"
-msgstr ""
+msgstr "Ім'я та прізвище"
 
 #: apps/core/models.py
 msgid "Referral Tracking ID"
@@ -198,6 +199,10 @@ msgid "Studio URL"
 msgstr ""
 
 #: apps/core/models.py
+msgid "LMS URL"
+msgstr ""
+
+#: apps/core/models.py
 msgid "Partner"
 msgstr ""
 
@@ -230,11 +235,11 @@ msgstr ""
 
 #: apps/course_metadata/choices.py apps/publisher/choices.py
 msgid "Published"
-msgstr ""
+msgstr "Опубліковане"
 
 #: apps/course_metadata/choices.py
 msgid "Unpublished"
-msgstr ""
+msgstr "Неопубліковане"
 
 #. Translators: Instructor-paced refers to course runs that operate on a
 #. schedule set by the instructor,
@@ -343,7 +348,7 @@ msgstr ""
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid ""
 "Estimated maximum number of hours per week needed to complete a course run."
-msgstr ""
+msgstr "Очікувана максимальна кількість годин на тиждень, необхідна для закінчення курсу."
 
 #: apps/course_metadata/models.py
 msgid "Estimated number of weeks needed to complete this course run."
@@ -371,7 +376,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Honor"
-msgstr ""
+msgstr "Безкоштовний сертифікат честі"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Audit"
@@ -472,7 +477,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_edit_warning.html
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Cancel"
-msgstr ""
+msgstr "Відмінити"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html
 msgid "Back to Program"
@@ -697,11 +702,11 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Course Start Date"
-msgstr ""
+msgstr "Дата початку курсу"
 
 #: apps/publisher/forms.py
 msgid "Course End Date"
-msgstr ""
+msgstr "Дата завершення курсу"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
@@ -945,7 +950,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_detail/_edit_warning_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_edit_warning.html
 msgid "Edit"
-msgstr ""
+msgstr "Редагувати"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "New Instructor"
@@ -973,7 +978,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Last Name"
-msgstr ""
+msgstr "Прізвище"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
@@ -985,7 +990,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Email"
-msgstr ""
+msgstr "Електронна пошта"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Institution email is preferred"
@@ -1068,7 +1073,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/_approval_widget.html
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "Publish"
-msgstr ""
+msgstr "Опублікувати"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Submitted for review"
@@ -1077,7 +1082,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/_approval_widget.html
 #: apps/publisher/templates/publisher/seat_form.html
 msgid "Save"
-msgstr ""
+msgstr "Зберегти"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "ABOUT PAGE PREVIEW"
@@ -1085,7 +1090,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Preview URL"
-msgstr ""
+msgstr "Попередній перегляд URL"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "View About page preview"
@@ -1145,7 +1150,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/_header.html
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Account"
-msgstr ""
+msgstr "Обліковий запис"
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Account Navigation"
@@ -1157,7 +1162,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Help"
-msgstr ""
+msgstr "Допомога"
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Email notifications"
@@ -1173,7 +1178,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Sign Out"
-msgstr ""
+msgstr "Вийти"
 
 #: apps/publisher/templates/publisher/_history_widget.html
 msgid "REVISION HISTORY"
@@ -1365,7 +1370,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "COURSE START DATE"
-msgstr ""
+msgstr "ДАТА ПОЧАТКУ КУРСУ"
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
@@ -1407,7 +1412,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "COURSE END DATE"
-msgstr ""
+msgstr "ДАТА ЗАВЕРШЕННЯ КУРСУ"
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid ""
@@ -1476,7 +1481,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_widgets.html
 msgid "EDIT"
-msgstr ""
+msgstr "РЕДАГУВАТИ"
 
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "Course Team Admin"
@@ -2067,7 +2072,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "COURSE STAFF"
-msgstr ""
+msgstr "ПЕРСОНАЛ КУРСУ"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "The primary instructor or instructors for the course."
@@ -2144,7 +2149,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Course Staff"
-msgstr ""
+msgstr "Персонал курсу"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
@@ -2296,7 +2301,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Name"
-msgstr ""
+msgstr "Ім'я "
 
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Profile URL "
@@ -2380,7 +2385,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Run"
-msgstr ""
+msgstr "Запуск курсу"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "New or Rerun?"
@@ -2481,7 +2486,7 @@ msgstr ""
 #. Translators: Studio is an edX tool for course creation.
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "STUDIO"
-msgstr ""
+msgstr "СТУДІЯ РОЗРОБКИ"
 
 #. Translators: CAT is an acronym for Course Administration Tool.
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
@@ -2568,7 +2573,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/studio_instance_created.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.txt
 msgid "Course start date"
-msgstr ""
+msgstr "Дата початку курсу"
 
 #: apps/publisher/templates/publisher/dashboard/_in_preview.html
 msgid "Approved since "
@@ -3083,7 +3088,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/studio_instance_created.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.txt
 msgid "Course end date"
-msgstr ""
+msgstr "Дата завершення курсу"
 
 #: apps/publisher/templates/publisher/email/studio_instance_created.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.txt

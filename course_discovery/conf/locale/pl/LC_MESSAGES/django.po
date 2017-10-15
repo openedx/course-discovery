@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-06 17:23+0000\n"
-"PO-Revision-Date: 2017-10-06 21:20+0000\n"
+"POT-Creation-Date: 2017-10-12 11:27+0500\n"
+"PO-Revision-Date: 2017-10-12 09:46+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Polish (http://www.transifex.com/open-edx/edx-platform/language/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -195,6 +195,10 @@ msgstr "Hasło OpenID Connect"
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Studio URL"
 msgstr "Adres URL Studio"
+
+#: apps/core/models.py
+msgid "LMS URL"
+msgstr ""
 
 #: apps/core/models.py
 msgid "Partner"
@@ -895,7 +899,7 @@ msgstr "Specjalistyczny (z weryfikacją tożsamości)"
 
 #: apps/publisher/models.py
 msgid "Professional (no ID verification)"
-msgstr ""
+msgstr "Specjalistyczny (bez weryfikacji tożsamości)"
 
 #: apps/publisher/models.py
 msgid "Organization Role"
@@ -929,11 +933,11 @@ msgstr ""
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "N/A"
-msgstr ""
+msgstr "N/D"
 
 #: apps/publisher/models.py
 msgid "Awaiting Marketing Review"
-msgstr ""
+msgstr "Oczekuje na ocenę zespołu marketingowego"
 
 #: apps/publisher/models.py
 msgid "Approved by Marketing"
@@ -3245,15 +3249,15 @@ msgstr "Edycja kursu zaktualizowana pomyślnie."
 
 #: apps/publisher/wrappers.py
 msgid "Submitted for Project Coordinator Review"
-msgstr ""
+msgstr "Zgłoszona do oceny Koordynatora Projektu"
 
 #: apps/publisher/wrappers.py
 msgid "Awaiting Project Coordinator Review"
-msgstr ""
+msgstr "Oczekuje na ocenę Koordynatora Projektu"
 
 #: apps/publisher/wrappers.py
 msgid "Approved by Project Coordinator"
-msgstr ""
+msgstr "Zatwierdzona przez Koordynatora Projektu"
 
 #: apps/publisher_comments/emails.py
 msgid "Comment added:"

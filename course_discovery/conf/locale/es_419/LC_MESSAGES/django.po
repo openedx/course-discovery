@@ -9,6 +9,7 @@
 # Christopher Lee <clee@edx.org>, 2017
 # Diego Rojas <diego.rojas@edunext.co>, 2017
 # Poxtic <erandelle@outlook.com>, 2017
+# José Miguel Henao <josem.henao@gmail.com>, 2017
 # Juan Camilo Montoya Franco <juan.montoya@edunext.co>, 2016-2017
 # Laura Silva <lingison@edx.org>, 2016
 # luisa rivero zambrano <luisarz11@hotmail.com>, 2016
@@ -22,9 +23,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-06 17:23+0000\n"
-"PO-Revision-Date: 2017-10-06 21:20+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2017-10-12 11:27+0500\n"
+"PO-Revision-Date: 2017-10-13 22:56+0000\n"
+"Last-Translator: José Miguel Henao <josem.henao@gmail.com>\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -208,6 +209,10 @@ msgstr "Secreto de OpenID Connect"
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Studio URL"
 msgstr "URL de Studio"
+
+#: apps/core/models.py
+msgid "LMS URL"
+msgstr ""
 
 #: apps/core/models.py
 msgid "Partner"

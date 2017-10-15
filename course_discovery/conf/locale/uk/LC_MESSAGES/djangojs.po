@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# Irene Korotkova <irca.gav@gmail.com>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-06 17:23+0000\n"
-"PO-Revision-Date: 2017-09-22 23:40+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2017-10-12 11:27+0500\n"
+"PO-Revision-Date: 2017-10-09 20:49+0000\n"
+"Last-Translator: Irene Korotkova <irca.gav@gmail.com>\n"
 "Language-Team: Ukrainian (http://www.transifex.com/open-edx/edx-platform/language/uk/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -19,7 +20,7 @@ msgstr ""
 
 #: static/js/catalogs-change-form.js
 msgid "Preview"
-msgstr ""
+msgstr "Попередній перегляд"
 
 #: static/js/publisher/change-state.js
 msgid "Something went wrong! please try again later."
@@ -69,7 +70,7 @@ msgstr ""
 
 #: static/js/publisher/preview-url.js
 msgid "Save"
-msgstr ""
+msgstr "Зберегти"
 
 #: static/js/publisher/preview-url.js
 msgid "Please enter a valid URL."
