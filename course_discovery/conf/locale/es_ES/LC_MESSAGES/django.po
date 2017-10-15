@@ -6,12 +6,13 @@
 # Julia Abajo <carakdraug@gmail.com>, 2016
 # Laia Richart <wu_wei86@hotmail.com>, 2016
 # Miguel Angel Cordova <miguel.angel.cordova.uned@gmail.com>, 2017
+# URJConline <online.mooc@urjc.es>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-06 17:23+0000\n"
-"PO-Revision-Date: 2017-10-06 21:20+0000\n"
+"POT-Creation-Date: 2017-10-12 11:27+0500\n"
+"PO-Revision-Date: 2017-10-12 09:46+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Spanish (Spain) (http://www.transifex.com/open-edx/edx-platform/language/es_ES/)\n"
 "MIME-Version: 1.0\n"
@@ -195,6 +196,10 @@ msgstr ""
 #: apps/core/models.py apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Studio URL"
+msgstr ""
+
+#: apps/core/models.py
+msgid "LMS URL"
 msgstr ""
 
 #: apps/core/models.py
