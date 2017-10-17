@@ -224,7 +224,6 @@ class OrganizationAdmin(admin.ModelAdmin):
 
 @admin.register(Subject)
 class SubjectAdmin(TranslatableAdmin):
-    exclude = ('name_t', 'subtitle_t', 'description_t')  # TODO Remove in the clean up phase LEARNER-2617
     list_display = ('uuid', 'name', 'slug',)
     list_filter = ('partner',)
     readonly_fields = ('uuid',)

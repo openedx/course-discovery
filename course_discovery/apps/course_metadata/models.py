@@ -146,10 +146,6 @@ class SubjectTranslation(TranslatedFieldsModel):
     subtitle = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
 
-    name_t = models.CharField(max_length=255, blank=False, null=False)
-    subtitle_t = models.CharField(max_length=255, blank=True, null=True)
-    description_t = models.TextField(blank=True, null=True)
-
     class Meta:
         unique_together = ('language_code', 'master')
         verbose_name = _('Subject model translations')
