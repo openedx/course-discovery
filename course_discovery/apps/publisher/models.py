@@ -606,6 +606,17 @@ class CourseState(TimeStampedModel, ChangedByMixin):
 
     history = HistoricalRecords()
 
+    # course team status
+    Draft = _('Draft')
+    SubmittedForMarketingReview = _('Submitted for Marketing Review')
+    ApprovedByCourseTeam = _('Approved by Course Team')
+    AwaitingCourseTeamReview = _('Awaiting Course Team Review')
+
+    # internal user status
+    NotAvailable = _('N/A')
+    AwaitingMarketingReview = _('Awaiting Marketing Review')
+    ApprovedByMarketing = _('Approved by Marketing')
+
     def __str__(self):
         return self.get_name_display()
 
@@ -699,22 +710,22 @@ class CourseState(TimeStampedModel, ChangedByMixin):
     @property
     def course_team_status(self):
         if self.is_draft and self.owner_role == PublisherUserRole.CourseTeam and not self.marketing_reviewed:
-            return _('Draft')
+            return self.Draft
         elif self.owner_role == PublisherUserRole.MarketingReviewer:
-            return _('Submitted for Marketing Review')
+            return self.SubmittedForMarketingReview
         elif self.owner_role == PublisherUserRole.CourseTeam and self.is_approved:
-            return _('Approved by Course Team')
+            return self.ApprovedByCourseTeam
         elif self.marketing_reviewed and self.owner_role == PublisherUserRole.CourseTeam:
-            return _('Awaiting Course Team Review')
+            return self.AwaitingCourseTeamReview
 
     @property
     def internal_user_status(self):
         if self.is_draft and self.owner_role == PublisherUserRole.CourseTeam:
-            return _('N/A')
+            return self.NotAvailable
         elif self.owner_role == PublisherUserRole.MarketingReviewer and (self.is_in_review or self.is_draft):
-            return _('Awaiting Marketing Review')
+            return self.AwaitingMarketingReview
         elif self.marketing_reviewed:
-            return _('Approved by Marketing')
+            return self.ApprovedByMarketing
 
 
 class CourseRunState(TimeStampedModel, ChangedByMixin):

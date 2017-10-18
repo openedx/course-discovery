@@ -897,10 +897,23 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
 
         query_filters = []
         keywords_filter = None
+        internal_user_status_query = Q()
 
         for keyword in keywords:
+            keyword_lower = keyword.lower()
+            if keyword_lower in str(CourseState.ApprovedByMarketing).lower():
+                internal_user_status_query = internal_user_status_query | Q(course_state__marketing_reviewed=True)
+            if keyword_lower in str(CourseState.AwaitingMarketingReview).lower():
+                internal_user_status_query = internal_user_status_query | (Q(
+                    course_state__owner_role=PublisherUserRole.MarketingReviewer) & (
+                    Q(course_state__name=CourseStateChoices.Review) | Q(course_state__name=CourseStateChoices.Draft)))
+            elif keyword_lower == str(CourseState.NotAvailable).lower():
+                internal_user_status_query = internal_user_status_query | (Q(
+                    course_state__name=CourseStateChoices.Draft) & Q(
+                    course_state__owner_role=PublisherUserRole.CourseTeam))
+
             keyword_filter = Q(title__icontains=keyword) | Q(organizations__key__icontains=keyword) | Q(
-                number__icontains=keyword)
+                number__icontains=keyword) | internal_user_status_query
             keywords_filter = (keyword_filter & keywords_filter) if bool(keywords_filter) else keyword_filter
 
         if keywords_filter:
