@@ -809,6 +809,10 @@ class Program(TimeStampedModel):
     excluded_course_runs = models.ManyToManyField(CourseRun, blank=True)
     partner = models.ForeignKey(Partner, null=True, blank=False)
     overview = models.TextField(null=True, blank=True)
+    total_hours_of_effort = models.PositiveSmallIntegerField(
+        null=True, blank=True,
+        help_text='Total estimated time needed to complete all courses belonging to this program. This field is '
+                  'intended for display on program certificates.')
     # The weeks_to_complete field is now deprecated
     weeks_to_complete = models.PositiveSmallIntegerField(
         null=True, blank=True,

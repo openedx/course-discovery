@@ -685,6 +685,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'job_outlook_items': [item.value for item in program.job_outlook_items.all()],
             'languages': [serialize_language_to_code(l) for l in program.languages],
             'weeks_to_complete': program.weeks_to_complete,
+            'total_hours_of_effort': program.total_hours_of_effort,
             'weeks_to_complete_min': program.weeks_to_complete_min,
             'weeks_to_complete_max': program.weeks_to_complete_max,
             'max_hours_effort_per_week': program.max_hours_effort_per_week,
