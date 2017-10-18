@@ -1633,6 +1633,7 @@ class PaginationMixin(object):
             return json.loads(response.context_data['courses'].decode('utf-8'))
 
 
+@ddt.ddt
 class CourseListViewTests(SiteMixin, PaginationMixin, TestCase):
     """ Tests for `CourseListView` """
 
@@ -1723,6 +1724,29 @@ class CourseListViewTests(SiteMixin, PaginationMixin, TestCase):
         toggle_switch('publisher_hide_features_for_pilot', False)
         response = self.client.get(self.courses_url)
         self.assertContains(response, 'Edit')
+
+    @ddt.data(
+        {'search_text': 'N/A', 'expected': 1, 'owner_role': PublisherUserRole.CourseTeam},
+        {'search_text': 'awaiting', 'expected': 11, 'owner_role': PublisherUserRole.MarketingReviewer},
+        {'search_text': 'approved', 'expected': 1, 'owner_role': PublisherUserRole.CourseTeam,
+         'marketing_reviewed': True},
+    )
+    @ddt.unpack
+    def test_search_with_internal_user_status(self, search_text, expected, owner_role, marketing_reviewed=False):
+        """
+        Verify that search returns the correct data on course list page
+        """
+        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+        self.course_state = factories.CourseStateFactory(owner_role=owner_role)
+        self.course_state.marketing_reviewed = marketing_reviewed
+        self.course_state.save()
+
+        # Total number of courses without search
+        self.assert_course_list_page(course_count=11)
+
+        response = self.client.get(self.courses_url, {'searchText': search_text})
+        courses = json.loads(response.context_data['courses'].decode('utf-8'))
+        self.assertEqual(len(courses), expected)
 
 
 @ddt.ddt
