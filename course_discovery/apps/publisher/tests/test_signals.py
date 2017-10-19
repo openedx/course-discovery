@@ -17,7 +17,7 @@ from course_discovery.apps.publisher.tests.factories import CourseRunFactory, Or
 
 @freeze_time('2017-01-01T00:00:00Z')
 @pytest.mark.django_db
-class TestSignals:
+class TestCreateCourseRunInStudio:
     @override_switch('enable_publisher_create_course_run_in_studio', active=True)
     def test_create_course_run_in_studio_without_partner(self):
         with mock.patch('course_discovery.apps.publisher.signals.logger.error') as mock_logger:

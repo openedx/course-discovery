@@ -1,5 +1,7 @@
 import html
+import logging
 
+import waffle
 from dal import autocomplete
 from django import forms
 from django.core.exceptions import ValidationError
@@ -17,6 +19,8 @@ from course_discovery.apps.publisher.models import (Course, CourseRun, CourseUse
                                                     OrganizationUserRole, PublisherUser, Seat, User)
 from course_discovery.apps.publisher.utils import is_internal_user
 from course_discovery.apps.publisher.validators import validate_text_count
+
+logger = logging.getLogger(__name__)
 
 
 class UserModelChoiceField(forms.ModelChoiceField):
@@ -407,6 +411,21 @@ class SeatForm(BaseForm):
 
         if commit:
             seat.save()
+
+            if waffle.switch_is_active('publisher_create_audit_seats_for_verified_course_runs'):
+                course_run = seat.course_run
+                audit_seats = course_run.seats.filter(type=Seat.AUDIT)
+
+                # Ensure that course runs with a verified seat always have an audit seat
+                if seat.type in (Seat.CREDIT, Seat.VERIFIED,):
+                    if not audit_seats.exists():
+                        course_run.seats.create(type=Seat.AUDIT, price=0, upgrade_deadline=None)
+                        logger.info('Created audit seat for course run [%d]', course_run.id)
+                elif seat.type != Seat.AUDIT:
+                    # Ensure that professional course runs do NOT have an audit seat
+                    count = audit_seats.count()
+                    audit_seats.delete()
+                    logger.info('Removed [%d] audit seat for course run [%d]', count, course_run.id)
 
         return seat
 
