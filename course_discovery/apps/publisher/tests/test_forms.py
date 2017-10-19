@@ -1,15 +1,18 @@
 from datetime import datetime, timedelta
 
+import pytest
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from pytz import timezone
+from waffle.testutils import override_switch
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
-from course_discovery.apps.publisher.forms import CourseForm, CourseRunForm, PublisherUserCreationForm
-from course_discovery.apps.publisher.tests.factories import CourseFactory, OrganizationExtensionFactory
+from course_discovery.apps.publisher.forms import CourseForm, CourseRunForm, PublisherUserCreationForm, SeatForm
+from course_discovery.apps.publisher.models import Seat
+from course_discovery.apps.publisher.tests.factories import CourseFactory, OrganizationExtensionFactory, SeatFactory
 
 
 class UserModelChoiceFieldTests(TestCase):
@@ -190,6 +193,7 @@ class PublisherCustomCourseFormTests(TestCase):
     """
     Tests for publisher 'CourseForm'
     """
+
     def setUp(self):
         super(PublisherCustomCourseFormTests, self).setUp()
         self.course_form = CourseForm()
@@ -265,3 +269,32 @@ class PublisherCustomCourseFormTests(TestCase):
         course_form.save()
         course.refresh_from_db()
         assert course.title == 'áçã'
+
+
+@pytest.mark.django_db
+class TestSeatForm:
+    @override_switch('publisher_create_audit_seats_for_verified_course_runs', active=True)
+    @pytest.mark.parametrize('seat_type', (Seat.NO_ID_PROFESSIONAL, Seat.PROFESSIONAL,))
+    def test_remove_audit_seat_for_professional_course_runs(self, seat_type):
+        seat = SeatFactory(type=seat_type)
+        audit_seat = SeatFactory(type=Seat.AUDIT, course_run=seat.course_run)
+        form = SeatForm(instance=seat)
+        form.save()
+        assert list(seat.course_run.seats.all()) == [seat]
+        assert not Seat.objects.filter(pk=audit_seat.pk).exists()
+
+    @override_switch('publisher_create_audit_seats_for_verified_course_runs', active=True)
+    def test_audit_only_seat_not_modified(self):
+        seat = SeatFactory(type=Seat.AUDIT)
+        form = SeatForm(instance=seat)
+        form.save()
+        assert list(seat.course_run.seats.all()) == [seat]
+
+    @override_switch('publisher_create_audit_seats_for_verified_course_runs', active=True)
+    @pytest.mark.parametrize('seat_type', (Seat.CREDIT, Seat.VERIFIED,))
+    def test_create_audit_seat_for_credit_and_verified_course_runs(self, seat_type):
+        seat = SeatFactory(type=seat_type)
+        form = SeatForm(instance=seat)
+        form.save()
+        assert seat.course_run.seats.count() == 2
+        assert seat.course_run.seats.filter(type=Seat.AUDIT, price=0).exists()
