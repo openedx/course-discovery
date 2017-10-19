@@ -24,6 +24,9 @@ class Command(HaystackCommand):
         return conn.count(index_name).get('count')
 
     def handle(self, *items, **options):
+        from django.utils import translation
+        translation.activate(settings.LANGUAGE_CODE)
+
         self.backends = options.get('using')
         if not self.backends:
             self.backends = list(haystack_connections.connections_info.keys())
