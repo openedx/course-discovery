@@ -24,7 +24,7 @@ class TestSerializeSeatForEcommerceApi:
             'attribute_values': [
                 {
                     'name': 'certificate_type',
-                    'value': None,
+                    'value': '',
                 },
                 {
                     'name': 'id_verification_required',
