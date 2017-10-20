@@ -33,6 +33,8 @@ PARLER_LANGUAGES = {
      }
  }
 
+SOCIAL_AUTH_GOODGRID_KEY = 'XXXX'
+
 #####################################################################
 # Lastly, see if the developer has any local overrides.
 if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):

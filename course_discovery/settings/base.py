@@ -231,6 +231,7 @@ AUTHENTICATION_BACKENDS = (
     'auth_backends.backends.EdXOpenIdConnect',
     'django.contrib.auth.backends.ModelBackend',
     'guardian.backends.ObjectPermissionBackend',
+    'course_discovery.apps.core.backends.GoodGridOAuth2',
 )
 
 # Guardian settings
