@@ -10,7 +10,7 @@ def serialize_seat_for_ecommerce_api(seat):
         'attribute_values': [
             {
                 'name': 'certificate_type',
-                'value': None if seat.type == Seat.AUDIT else seat.type,
+                'value': '' if seat.type == Seat.AUDIT else seat.type,
             },
             {
                 'name': 'id_verification_required',
