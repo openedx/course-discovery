@@ -9,9 +9,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-12 11:27+0500\n"
-"PO-Revision-Date: 2017-10-12 09:46+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2017-10-16 17:29+0000\n"
+"PO-Revision-Date: 2017-10-16 15:19+0000\n"
+"Last-Translator: Fundacja Eduprojekt.org <maciej@eduprojekt.org>\n"
 "Language-Team: Polish (http://www.transifex.com/open-edx/edx-platform/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -198,7 +198,7 @@ msgstr "Adres URL Studio"
 
 #: apps/core/models.py
 msgid "LMS URL"
-msgstr ""
+msgstr "Adres URL LMS"
 
 #: apps/core/models.py
 msgid "Partner"
@@ -294,7 +294,7 @@ msgstr "Pozostaw pole puste, aby wartość została wygenerowana automatycznie."
 
 #: apps/course_metadata/models.py
 msgid "Subject model translations"
-msgstr ""
+msgstr "Tłumaczenia modeli tematycznych"
 
 #: apps/course_metadata/models.py
 msgid ""
@@ -917,19 +917,19 @@ msgstr "Automatycznie utwórz edycję w Studio"
 msgid ""
 "When this flag is enabled, creation of a new course run in Publisher will "
 "also create a corresponding course run in Studio."
-msgstr ""
+msgstr "Jeśli ta opcja jest włączona, stworzenie nowej edycji kursu w Publisherze spowoduje równoczesne utworzenie odpowiadającej jej edycji kursu w Studio."
 
 #: apps/publisher/models.py
 msgid "Submitted for Marketing Review"
-msgstr ""
+msgstr "Przesłany do oceny marketingowej"
 
 #: apps/publisher/models.py
 msgid "Approved by Course Team"
-msgstr ""
+msgstr "Zatwierdzony przez kadrę kursu"
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "Awaiting Course Team Review"
-msgstr ""
+msgstr "Oczekuje na ocenę kadry kursu"
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "N/A"
@@ -941,7 +941,7 @@ msgstr "Oczekuje na ocenę zespołu marketingowego"
 
 #: apps/publisher/models.py
 msgid "Approved by Marketing"
-msgstr ""
+msgstr "Zatwierdzony w ocenie marketingowej"
 
 #: apps/publisher/serializers.py
 #: apps/publisher/templates/publisher/_approval_widget.html
@@ -1986,17 +1986,17 @@ msgstr "Edycje"
 
 #: apps/publisher/templates/publisher/course_list.html
 msgid "Course Team Status"
-msgstr ""
+msgstr "Stan kadry kursu"
 
 #: apps/publisher/templates/publisher/course_list.html
 #, python-format
 msgid "%(site_name)s Status"
-msgstr ""
+msgstr "Stan %(site_name)s"
 
 #: apps/publisher/templates/publisher/course_list.html
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "Last Handoff"
-msgstr ""
+msgstr "Ostatnie przekazanie"
 
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Revision History"
@@ -2651,7 +2651,7 @@ msgstr "Żadne kursy nie oczekują obecnie na adresy do Studio."
 msgid ""
 "%(user_name)s made the following comment on %(course_name)s on %(date)s at "
 "%(time)s"
-msgstr ""
+msgstr "%(user_name)s dodał/a następujący komentarz na temat kursu %(course_name)s dn. %(date)s o godz. %(time)s."
 
 #: apps/publisher/templates/publisher/email/comment.html
 #: apps/publisher/templates/publisher/email/comment.txt
@@ -2673,7 +2673,7 @@ msgstr "Zespół Platformy"
 msgid ""
 "%(user_name)s made the following comment on %(course_name)s %(date)s at "
 "%(time)s."
-msgstr ""
+msgstr "%(user_name)s dodał/a następujący komentarz na temat kursu %(course_name)s dn. %(date)s o godz. %(time)s."
 
 #: apps/publisher/templates/publisher/email/course/mark_as_reviewed.html
 #: apps/publisher/templates/publisher/email/course/mark_as_reviewed.txt
