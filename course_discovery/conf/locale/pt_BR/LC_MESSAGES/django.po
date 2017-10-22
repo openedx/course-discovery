@@ -11,6 +11,7 @@
 # Lucas Oliveira Silva <lucas_sem@hotmail.com>, 2017
 # Matheus Gomes Correia, 2017
 # Patricia Moura <pkmoura@gmail.com>, 2017
+# Paulo Romano <pauloromanocarvalho@gmail.com>, 2017
 # Pedro Manoel de Oliveira Heringer Dias <pedropote@gmail.com>, 2017
 # Renzo Lucioni <rlucioni@edx.org>, 2016
 # Rodrigo Mozelli <romozelli@outlook.com>, 2016
@@ -19,9 +20,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-12 11:27+0500\n"
-"PO-Revision-Date: 2017-10-12 09:46+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2017-10-16 17:29+0000\n"
+"PO-Revision-Date: 2017-10-19 16:38+0000\n"
+"Last-Translator: Paulo Romano <pauloromanocarvalho@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/open-edx/edx-platform/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"

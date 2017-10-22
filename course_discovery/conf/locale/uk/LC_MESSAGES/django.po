@@ -11,9 +11,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-12 11:27+0500\n"
-"PO-Revision-Date: 2017-10-14 11:44+0000\n"
-"Last-Translator: Natalia Vynogradenko <tannaha@gmail.com>\n"
+"POT-Creation-Date: 2017-10-16 17:29+0000\n"
+"PO-Revision-Date: 2017-10-22 19:42+0000\n"
+"Last-Translator: Irene Korotkova <irca.gav@gmail.com>\n"
 "Language-Team: Ukrainian (http://www.transifex.com/open-edx/edx-platform/language/uk/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -159,7 +159,7 @@ msgstr ""
 
 #: apps/core/models.py
 msgid "Organizations API URL"
-msgstr ""
+msgstr "API URL Організації"
 
 #: apps/core/models.py
 msgid "Programs API URL"
@@ -376,11 +376,11 @@ msgstr ""
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Honor"
-msgstr "Безкоштовний сертифікат честі"
+msgstr "Честь"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Audit"
-msgstr ""
+msgstr "Безкоштовне прослуховування"
 
 #: apps/course_metadata/models.py apps/publisher/forms.py
 #: apps/publisher/models.py
@@ -389,7 +389,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Professional"
-msgstr ""
+msgstr "Професійний"
 
 #: apps/course_metadata/models.py apps/publisher/forms.py
 #: apps/publisher/models.py
@@ -530,7 +530,7 @@ msgstr ""
 #: apps/publisher/choices.py
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "Course Team"
-msgstr ""
+msgstr "Команда курсу"
 
 #: apps/publisher/choices.py apps/publisher/models.py
 #: apps/publisher/wrappers.py
@@ -602,7 +602,7 @@ msgstr ""
 
 #: apps/publisher/emails.py
 msgid "Course team"
-msgstr ""
+msgstr "Команда курсу"
 
 #: apps/publisher/emails.py
 msgid "Legal Team"
@@ -620,13 +620,13 @@ msgstr ""
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "Organization Name"
-msgstr ""
+msgstr "Ім'я організації"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Course Title"
-msgstr ""
+msgstr "Назва курсу"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
@@ -636,7 +636,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/dashboard/_published.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Course Number"
-msgstr ""
+msgstr "Номер курсу"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
@@ -690,7 +690,7 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "This course title already exists"
-msgstr ""
+msgstr "Ця назва курсу вже існує"
 
 #: apps/publisher/forms.py
 msgid "This course number already exists"
@@ -711,7 +711,7 @@ msgstr "Дата завершення курсу"
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "Instructor"
-msgstr ""
+msgstr "Викладач"
 
 #: apps/publisher/forms.py
 msgid "Pacing"
@@ -733,7 +733,7 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Professional Certificate"
-msgstr ""
+msgstr "Професійний сертифікат"
 
 #: apps/publisher/forms.py
 msgid "XSeries Name"
@@ -742,7 +742,7 @@ msgstr ""
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Professional Certificate Name"
-msgstr ""
+msgstr "Назва професійного сертифікату"
 
 #: apps/publisher/forms.py
 msgid "MicroMasters Name"
@@ -786,7 +786,7 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Audit only"
-msgstr ""
+msgstr "Тільки безкоштовне прослуховування"
 
 #: apps/publisher/forms.py
 msgid "Professional education"
@@ -811,11 +811,11 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Course title"
-msgstr ""
+msgstr "Назва курсу"
 
 #: apps/publisher/models.py
 msgid "Course number"
-msgstr ""
+msgstr "Номер курсу"
 
 #: apps/publisher/models.py
 msgid "Brief Description"
@@ -905,7 +905,7 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Organization Role"
-msgstr ""
+msgstr "Роль організації"
 
 #: apps/publisher/models.py
 msgid "Course Role"
@@ -927,11 +927,11 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Approved by Course Team"
-msgstr ""
+msgstr "Затверджено командою курсу"
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "Awaiting Course Team Review"
-msgstr ""
+msgstr "Очікує перевірки командою курсу"
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "N/A"
@@ -954,7 +954,7 @@ msgstr "Редагувати"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "New Instructor"
-msgstr ""
+msgstr "Новий викладач"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Click here to upload your image"
@@ -985,7 +985,7 @@ msgstr "Прізвище"
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Title"
-msgstr ""
+msgstr "Назва"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
@@ -1006,7 +1006,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/dashboard/_published.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Organization"
-msgstr ""
+msgstr "Організація"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
@@ -1228,7 +1228,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_detail/_edit_warning_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_edit_warning.html
 msgid "CAUTION"
-msgstr ""
+msgstr "ОБЕРЕЖНО! "
 
 #: apps/publisher/templates/publisher/_revert_confirmation.html
 msgid "Are you sure you want to revert all changes to this version ?"
@@ -1237,12 +1237,12 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_list.html
 msgid "Create New Course"
-msgstr ""
+msgstr "Створити новий курс"
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "COURSE TITLE"
-msgstr ""
+msgstr "НАЗВА КУРСУ"
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
@@ -1313,7 +1313,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "COURSE NUMBER"
-msgstr ""
+msgstr "НОМЕР КУРСУ"
 
 #: apps/publisher/templates/publisher/add_course_form.html
 msgid "Maximum 50 characters. Characters can be letters, numbers, or periods."
@@ -1341,7 +1341,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid "New Course Run"
-msgstr ""
+msgstr "Новий запуск курсу"
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid ""
@@ -1424,7 +1424,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "CERTIFICATE TYPE AND PRICE"
-msgstr ""
+msgstr "ТИП СЕРТИФІКАТУ ТА ЦІНА"
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
@@ -1435,7 +1435,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid "Create New Course Run"
-msgstr ""
+msgstr "Створити новий запуск курсу"
 
 #: apps/publisher/templates/publisher/admin/add_user_form.html
 msgid ""
@@ -1449,17 +1449,17 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/admin/import_course.html
 msgid "Import COURSE"
-msgstr ""
+msgstr "Імпорт КУРСУ"
 
 #: apps/publisher/templates/publisher/base.html
 #: apps/publisher/templates/publisher/courserun_list.html
 msgid "Dashboard"
-msgstr ""
+msgstr "Панель управління"
 
 #: apps/publisher/templates/publisher/base.html
 #: apps/publisher/templates/publisher/course_list.html apps/publisher/views.py
 msgid "Courses"
-msgstr ""
+msgstr "Курси"
 
 #: apps/publisher/templates/publisher/comments/add_auth_comments.html
 msgid "Comment:"
@@ -1468,11 +1468,11 @@ msgstr ""
 #: apps/publisher/templates/publisher/comments/add_auth_comments.html
 #: apps/publisher/templates/publisher/course_run_detail/_widgets.html
 msgid "Submit"
-msgstr ""
+msgstr "Надіслати"
 
 #: apps/publisher/templates/publisher/comments/add_auth_comments.html
 msgid "Add comment"
-msgstr ""
+msgstr "Додати коментар"
 
 #: apps/publisher/templates/publisher/comments/comments_list.html
 msgid "Submitted by"
@@ -1485,7 +1485,7 @@ msgstr "РЕДАГУВАТИ"
 
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "Course Team Admin"
-msgstr ""
+msgstr "Адміністратор команди курсу"
 
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
@@ -1502,7 +1502,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Course Image"
-msgstr ""
+msgstr "Зображення курсу"
 
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
@@ -1732,7 +1732,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "COURSE IMAGE"
-msgstr ""
+msgstr "ЗОБРАЖЕННЯ КУРСУ"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
@@ -1988,7 +1988,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_list.html
 msgid "Course Team Status"
-msgstr ""
+msgstr "Статус команди курсу"
 
 #: apps/publisher/templates/publisher/course_list.html
 #, python-format
@@ -2121,7 +2121,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "Update Course Run"
-msgstr ""
+msgstr "Оновити запуск курсу"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "(Required) To be added by edX"
@@ -2168,7 +2168,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Course Content Language"
-msgstr ""
+msgstr "Мова контенту на курсі"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Video Transcript Language"
@@ -2305,7 +2305,7 @@ msgstr "Ім'я "
 
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Profile URL "
-msgstr ""
+msgstr "Профіль URL"
 
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Facebook URL "
@@ -2349,7 +2349,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Names, titles, and signature images for all certificate signatories."
-msgstr ""
+msgstr "Ім'я, титули або зображення підписів усіх підписантів сертифікатів."
 
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "OK"
@@ -2373,7 +2373,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Language: Course Text"
-msgstr ""
+msgstr "Мова: текст курсу"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Language: Transcripts"
@@ -2405,7 +2405,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Run Number"
-msgstr ""
+msgstr "Номер курсу у запуску"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "edX Course Run ID"
@@ -2413,7 +2413,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Certificate Type"
-msgstr ""
+msgstr "Тип сертифікату"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Course $ (minimum)"
@@ -2454,11 +2454,11 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "Enrollment Start Date (time in UTC)"
-msgstr ""
+msgstr "Дата початку запису на курс (час у форматі UTC)"
 
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "Enrollment End Date (time in UTC)"
-msgstr ""
+msgstr "Дата завершення запису на курс (час у форматі UTC)"
 
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "Pacing Type"
@@ -2525,7 +2525,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/courserun_list.html
 msgid "Add a New Course"
-msgstr ""
+msgstr "Додати новий курс"
 
 #: apps/publisher/templates/publisher/courserun_list.html
 msgid "Add a Course Run"
@@ -2601,7 +2601,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "With Course Team"
-msgstr ""
+msgstr "З командою курсу"
 
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "With"
@@ -3093,7 +3093,7 @@ msgstr "Дата завершення курсу"
 #: apps/publisher/templates/publisher/email/studio_instance_created.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.txt
 msgid "Course image"
-msgstr ""
+msgstr "Зображення курсу"
 
 #: apps/publisher/templates/publisher/email/studio_instance_created.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.txt
@@ -3174,7 +3174,7 @@ msgstr ""
 
 #: apps/publisher/views.py
 msgid "COURSE TEAM"
-msgstr ""
+msgstr "КОМАНДА КУРСУ"
 
 #: apps/publisher/views.py
 msgid "Send for Review"
@@ -3186,7 +3186,7 @@ msgstr ""
 
 #: apps/publisher/views.py
 msgid "course team"
-msgstr ""
+msgstr "команда курсу"
 
 #: apps/publisher/views.py
 msgid "project coordinator"
