@@ -174,20 +174,36 @@ class SchoolMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         return 'school'
 
     def process_node(self, data):
-        key = data['title']
+        # NOTE: Some titles in Drupal have the form "UC BerkeleyX" however, course keys (for which we use the
+        # organization key) cannot contain spaces.
+        key = data['title'].replace(' ', '')
+        uuid = UUID(data['uuid'])
+
         defaults = {
-            'uuid': data['uuid'],
             'name': data['field_school_name'],
             'description': self.clean_html(data['field_school_description']['value']),
             'logo_image_url': self._get_nested_url(data.get('field_school_image_logo')),
             'banner_image_url': self._get_nested_url(data.get('field_school_image_banner')),
             'marketing_url_path': 'school/' + data['field_school_url_slug'],
+            'partner': self.partner,
         }
-        school, __ = Organization.objects.update_or_create(key=key, partner=self.partner, defaults=defaults)
+
+        try:
+            school = Organization.objects.get(uuid=uuid, partner=self.partner)
+            Organization.objects.filter(pk=school.pk).update(**defaults)
+            logger.info('Updated school with key [%s].', school.key)
+        except Organization.DoesNotExist:
+            # NOTE: Some organizations' keys do not match the title. For example, "UC BerkeleyX" courses use
+            # BerkeleyX as the key. Those fixes will be made manually after initial import, and we don't want to
+            # override them with subsequent imports. Thus, we only set the key when creating a new organization.
+            defaults['key'] = key
+            defaults['uuid'] = uuid
+            school = Organization.objects.create(**defaults)
+            logger.info('Created school with key [%s].', school.key)
 
         self.set_tags(school, data)
 
-        logger.info('Processed school with key [%s].', key)
+        logger.info('Processed school with key [%s].', school.key)
         return school
 
     def set_tags(self, school, data):
