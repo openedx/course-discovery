@@ -128,10 +128,11 @@ class FilterSetMixin:
 
 class CourseFilter(filters.FilterSet):
     keys = CharListFilter(name='key', lookup_expr='in')
+    uuids = UUIDListFilter()
 
     class Meta:
         model = Course
-        fields = ['keys']
+        fields = ('keys', 'uuids',)
 
 
 class CourseRunFilter(FilterSetMixin, filters.FilterSet):

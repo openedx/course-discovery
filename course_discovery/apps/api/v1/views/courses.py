@@ -1,4 +1,7 @@
+import re
+
 from django.db.models.functions import Lower
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -7,7 +10,7 @@ from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.utils import get_query_param
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
-from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX
+from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_UUID_REGEX
 from course_discovery.apps.course_metadata.models import Course, CourseRun
 
 
@@ -17,13 +20,34 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = filters.CourseFilter
     lookup_field = 'key'
-    lookup_value_regex = COURSE_ID_REGEX
+    lookup_value_regex = COURSE_ID_REGEX + '|' + COURSE_UUID_REGEX
     permission_classes = (IsAuthenticated,)
     serializer_class = serializers.CourseWithProgramsSerializer
+
+    course_key_regex = re.compile(COURSE_ID_REGEX)
+    course_uuid_regex = re.compile(COURSE_UUID_REGEX)
 
     # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
     # versions of this API should only support the system default, PageNumberPagination.
     pagination_class = ProxiedPagination
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        key = self.kwargs['key']
+
+        if self.course_key_regex.match(key):
+            filter_key = 'key'
+        elif self.course_uuid_regex.match(key):
+            filter_key = 'uuid'
+
+        filter_kwargs = {filter_key: key}
+        obj = get_object_or_404(queryset, **filter_kwargs)
+
+        # May raise a permission denied
+        self.check_object_permissions(self.request, obj)
+
+        return obj
 
     def get_queryset(self):
         partner = self.request.site.partner
