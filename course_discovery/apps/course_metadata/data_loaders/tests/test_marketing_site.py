@@ -194,10 +194,9 @@ class SchoolMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
     mocked_data = mock_data.MARKETING_SITE_API_SCHOOL_BODIES
 
     def assert_school_loaded(self, data):
-        key = data['title']
-        school = Organization.objects.get(key=key, partner=self.partner)
+        school = Organization.objects.get(uuid=UUID(data['uuid']), partner=self.partner)
         expected_values = {
-            'uuid': UUID(data['uuid']),
+            'key': data['title'],
             'name': data['field_school_name'],
             'description': self.loader.clean_html(data['field_school_description']['value']),
             'logo_image_url': data['field_school_image_logo']['url'],
@@ -219,6 +218,21 @@ class SchoolMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
 
         for school in schools:
             self.assert_school_loaded(school)
+
+        # If the key of an organization changes, the data loader should continue updating the
+        # organization by matching on the UUID.
+        school = Organization.objects.get(key='MITx', partner=self.partner)
+        # NOTE (CCB): As an MIT alum, this makes me feel dirty. IHTFT(est)!
+        modified_key = 'MassTechX'
+        school.key = modified_key
+        school.save()
+
+        count = Organization.objects.count()
+        self.loader.ingest()
+        school.refresh_from_db()
+
+        assert Organization.objects.count() == count
+        assert school.key == modified_key
 
 
 class SponsorMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
