@@ -1,5 +1,6 @@
 import html
 import logging
+import re
 
 import waffle
 from dal import autocomplete
@@ -190,6 +191,15 @@ class CourseForm(BaseForm):
         to the corresponding unicode characters
         """
         return html.unescape(self.cleaned_data.get("title"))
+
+    def clean_number(self):
+        """
+        Validate that number doesn't consist of any special characters
+        """
+        number = self.cleaned_data.get("number")
+        if not re.match("^[a-zA-Z0-9_.]*$", number):
+            raise ValidationError(_('Please do not use any spaces or special characters.'))
+        return number
 
     def clean(self):
         cleaned_data = self.cleaned_data

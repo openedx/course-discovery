@@ -246,6 +246,22 @@ class PublisherCustomCourseFormTests(TestCase):
         course_form.cleaned_data['number'] = "123a"
         self.assertEqual(course_form.clean(), course_form.cleaned_data)
 
+    def test_invalid_number(self):
+        """
+        Verify that clean_number raises 'ValidationError' if the course number consists of special characters
+        or spaces
+        """
+        course_form = CourseForm()
+        course_form.cleaned_data = {'number': '123 a'}
+        with self.assertRaises(ValidationError):
+            course_form.clean_number()
+
+        course_form.cleaned_data['number'] = "123.a"
+        self.assertEqual(course_form.clean_number(), "123.a")
+
+        course_form.cleaned_data['number'] = "123a"
+        self.assertEqual(course_form.clean_number(), "123a")
+
     def test_course_title_formatting(self):
         """
         Verify that course_title is properly escaped and saved in database while
