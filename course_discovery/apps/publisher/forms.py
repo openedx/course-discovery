@@ -29,18 +29,6 @@ class UserModelChoiceField(forms.ModelChoiceField):
         return obj.get_full_name() or obj.username
 
 
-class PersonModelMultipleChoice(forms.ModelMultipleChoiceField):
-    def label_from_instance(self, obj):
-        context = {
-            'profile_image': obj.get_profile_image_url,
-            'full_name': obj.full_name,
-            'can_edit_instructor': not obj.profile_image_url,
-            'uuid': obj.uuid,
-            'organization_id': obj.position.organization_id if hasattr(obj, 'position') else None
-        }
-        return str(render_to_string('publisher/_personFieldLabel.html', context=context))
-
-
 class ClearableImageInput(forms.ClearableFileInput):
     """
     ClearableFileInput render the saved image as link.
@@ -233,16 +221,9 @@ class CourseSearchForm(forms.Form):
 class CourseRunForm(BaseForm):
     start = forms.DateTimeField(label=_('Course Start Date'), required=True)
     end = forms.DateTimeField(label=_('Course End Date'), required=True)
-    staff = PersonModelMultipleChoice(
+    staff = forms.ModelMultipleChoiceField(
         label=_('Instructor'),
         queryset=Person.objects.all(),
-        widget=autocomplete.ModelSelect2Multiple(
-            url='admin_metadata:person-autocomplete',
-            attrs={
-                'data-minimum-input-length': 2,
-                'data-html': 'true',
-            }
-        ),
         required=False,
     )
     target_content = forms.BooleanField(

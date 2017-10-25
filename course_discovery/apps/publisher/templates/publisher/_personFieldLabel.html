@@ -1,1 +1,18 @@
-<img src="{{ profile_image }}"/><span{% if can_edit_instructor %}  data-can-edit="{{ can_edit_instructor }}" {% endif %} data-uuid="{{ uuid }}" >{{ full_name }}</span>{% if organization_id %}<span>{{ organization_id }}</span>{% endif %}
+<div class="instructor" id="instructor_{{ staff.id }}">
+    <input type="hidden" id="staff_{{ staff.id }}" name="staff" value="{{ staff.id }}">
+    <div><img src="{% if staff.profile_image_url %}{{ staff.profile_image_url }}{% else %}{{ staff.profile_image.url }}{% endif %}"></div>
+    <div><a class="delete" id="{{ staff.id }}" href="#"><i class="fa fa-trash-o fa-fw"></i></a>
+        {% if course_user_role == 'course_team' %}
+            {% if staff.position %}
+                {% if staff.position.organization_id in organizations_ids and staff.uuid %}
+                    <a class="edit" id="{{ staff.uuid }}" href="#"><i class="fa fa-pencil-square-o fa-fw"></i></a>
+                {% endif %}
+            {% endif %}
+        {% else %}
+            {% if not staff.profile_image_url %}
+                <a class="edit" id="{{ staff.uuid }}" href="#"><i class="fa fa-pencil-square-o fa-fw"></i></a>
+            {% endif %}
+        {% endif %}
+        <b>{{ staff.full_name }}</b>
+    </div>
+</div>

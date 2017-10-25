@@ -212,11 +212,23 @@
                     <div id="course_user_role" class="hidden">{{ course_user_role }}</div>
                     <div class="col col-6 instructor-select">
                         <label class="field-label ">{{ run_form.staff.label_tag }} <span class="required">*</span></label>
-                        {{ run_form.staff }}
+                        <select name="staff" data-autocomplete-light-function="select2"
+                                multiple="multiple" data-minimum-input-length="2"
+                                data-autocomplete-light-url="/admin/course_metadata/person-autocomplete/"
+                                id="id_staff" data-html="true" class="field-input">
+                        </select>
+
+
                         <div class="selected-instructor">
-                          {% if publisher_add_instructor_feature %}
-                            <button type="button" id="add-new-instructor">{% trans "Add New" %}<br>{% trans "Instructor" %}</button>
-                          {% endif %}
+                            {% if publisher_add_instructor_feature %}
+                                <button type="button"
+                                        id="add-new-instructor">{% trans "Add New" %}<br>{% trans "Instructor" %}
+                                </button>
+                            {% endif %}
+                            {% for staff in run_form.instance.staff.all %}
+                                {% include "publisher/_personFieldLabel.html" %}
+                            {% endfor %}
+
                         </div>
                     </div>
                 </div>

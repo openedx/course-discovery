@@ -1,21 +1,10 @@
-$(document).ready(function(){
+$(document).ready(function () {
 
-    $("#id_staff").find('option:selected').each(function(){
-        var id = this.value,
-            label = $.parseHTML(this.label),
-            image_source = $(label[0]).attr('src'),
-            name = $(label[1]).text(),
-            uuid = $(label[1]).data('uuid'),
-            organization_id = $(label[2]).text(),
-            edit_instructor = $(label[1]).data('can-edit');
-        renderSelectedInstructor(id, name, image_source, uuid, organization_id, edit_instructor);
-    });
-
-    $("#id_staff").on("select2:select", function(e) {
+    $("#id_staff").on("select2:select", function (e) {
         var $instructorSelector = e.params.data,
-            id = $instructorSelector.id, 
+            id = $instructorSelector.id,
             selectedInstructorData = $.parseHTML($instructorSelector.text)[0],
-            image_source = $(selectedInstructorData).find('img').attr('src'), 
+            image_source = $(selectedInstructorData).find('img').attr('src'),
             name = $(selectedInstructorData).find('b').text(),
             uuid = $(selectedInstructorData)[0].id,
             organization_id = $(selectedInstructorData).find('span').text(),
@@ -24,7 +13,7 @@ $(document).ready(function(){
 
     });
 
-    $('#add-new-instructor').click(function(e){
+    $('#add-new-instructor').click(function (e) {
         clearModalError();
         var btnInstructor = $('#add-instructor-btn');
         $('#addInstructorModal').show();
@@ -41,7 +30,7 @@ $(document).ready(function(){
             url = $(this).data('url'),
             uuid = $('#addInstructorModal').data('uuid');
 
-        if (!editMode && $('#staffImageSelect').get(0).files.length === 0){
+        if (!editMode && $('#staffImageSelect').get(0).files.length === 0) {
             addModalError(gettext("Please upload a instructor image. File must be smaller than 1 megabyte in size."));
             return false;
         }
@@ -137,6 +126,7 @@ $(document).on('click', '.selected-instructor a.delete', function (e) {
         option = $staff.find('option:contains("' + id + '")');
     }
     option.remove();
+    $('#staff_' + id).remove();
     this.closest('.selected-instructor, .instructor').remove();
     $('.instructor-select').find('.select2-selection__choice').remove();
 });
@@ -144,22 +134,23 @@ $(document).on('click', '.selected-instructor a.delete', function (e) {
 function renderSelectedInstructor(id, name, image, uuid, organization_id, edit_instructor) {
     var user_organizations_ids = $('#user_organizations_ids').text(),
         course_user_role = $('#course_user_role').text(),
-        instructorHtmlStart = '<div class="instructor" id= "instructor_'+ id +'"><div><img src="' + image + '"></div><div>',
+        staff = '<input type="hidden" id="staff_' + id +  '"name="staff" value="' + id + '">',
+        instructorHtmlStart = '<div class="instructor" id= "instructor_' + id + '"><div><img src="' + image + '"></div><div>',
         instructorHtmlEnd = '<b>' + name + '</b></div></div>',
         controlOptions = '<a class="delete" id="' + id + '"href="#"><i class="fa fa-trash-o fa-fw"></i></a>';
 
 
     if (course_user_role == "course_team") {
-            if ($.inArray(parseInt(organization_id), JSON.parse(user_organizations_ids)) > -1 && uuid) {
-                controlOptions += '<a class="edit" id="' + uuid + '"href="#"><i class="fa fa-pencil-square-o fa-fw"></i></a>';
-            }
-    }
-    else {
-        if (edit_instructor){
+        if ($.inArray(parseInt(organization_id), JSON.parse(user_organizations_ids)) > -1 && uuid) {
             controlOptions += '<a class="edit" id="' + uuid + '"href="#"><i class="fa fa-pencil-square-o fa-fw"></i></a>';
         }
     }
-    $('.selected-instructor').append(instructorHtmlStart + controlOptions + instructorHtmlEnd);
+    else {
+        if (edit_instructor) {
+            controlOptions += '<a class="edit" id="' + uuid + '"href="#"><i class="fa fa-pencil-square-o fa-fw"></i></a>';
+        }
+    }
+    $('.selected-instructor').append(staff + instructorHtmlStart + controlOptions + instructorHtmlEnd);
 }
 
 $(document).on('click', '.btn-save-preview-url', function (e) {
