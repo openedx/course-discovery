@@ -8,8 +8,7 @@ from waffle.testutils import override_switch
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
-from course_discovery.apps.course_metadata.models import Person
-from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
+from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.forms import CourseForm, CourseRunForm, PublisherUserCreationForm, SeatForm
 from course_discovery.apps.publisher.models import Seat
 from course_discovery.apps.publisher.tests.factories import CourseFactory, OrganizationExtensionFactory, SeatFactory
@@ -45,28 +44,6 @@ class UserModelChoiceFieldTests(TestCase):
         # we need to loop through choices because it is a ModelChoiceIterator
         for __, choice_label in self.course_form.fields['team_admin'].choices:
             self.assertEqual(choice_label, expected_name)
-
-
-class PersonModelMultipleChoiceTests(TestCase):
-
-    def test_person_multiple_choice(self):
-        """
-        Verify that PersonModelMultipleChoice returns `full_name` and `profile_image_url` as choice label.
-        """
-        course_form = CourseRunForm()
-        course_form.fields['staff'].empty_label = None
-
-        person = PersonFactory()
-        course_form.fields['staff'].queryset = Person.objects.all()
-
-        # we need to loop through choices because it is a ModelChoiceIterator
-        for __, choice_label in course_form.fields['staff'].choices:
-            expected = '<img src="{url}"/><span data-uuid="{uuid}" >{full_name}</span>'.format(
-                full_name=person.full_name,
-                uuid=person.uuid,
-                url=person.get_profile_image_url
-            )
-            self.assertEqual(choice_label.strip(), expected)
 
 
 class PublisherUserCreationFormTests(TestCase):
