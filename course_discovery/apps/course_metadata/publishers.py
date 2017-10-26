@@ -288,7 +288,7 @@ class BaseMarketingSitePublisher:
 
         if new_alias != previous_alias or not new_alias_delete_path:
             # Delete old alias before saving the new one.
-            if previous_obj and previous_obj.marketing_slug != obj.marketing_slug:
+            if previous_obj and self.get_marketing_slug(previous_obj) != self.get_marketing_slug(obj):
                 self.get_and_delete_alias(self.get_marketing_slug(previous_obj))
 
             headers = {

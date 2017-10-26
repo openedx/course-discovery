@@ -329,6 +329,15 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
 
         responses.reset()
 
+        # A previous object is provided, but the marketing slug hasn't changed.
+        # Neither alias creation nor alias deletion should occur.
+        self.mock_api_client()
+        self.mock_get_delete_form(self.obj.slug)
+
+        self.publisher.update_node_alias(self.obj, self.node_id, self.obj)
+
+        responses.reset()
+
         # In this case, similate the fact that alias form retrival returned error
         # FormRetrievalError should be raised
         self.mock_api_client()
