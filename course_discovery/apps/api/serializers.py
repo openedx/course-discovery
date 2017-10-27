@@ -56,7 +56,7 @@ COURSE_RUN_SEARCH_FIELDS = (
     'enrollment_end', 'pacing_type', 'language', 'transcript_languages', 'marketing_url', 'content_type', 'org',
     'number', 'seat_types', 'image_url', 'type', 'level_type', 'availability', 'published', 'partner', 'program_types',
     'authoring_organization_uuids', 'subject_uuids', 'staff_uuids', 'mobile_available', 'logo_image_urls',
-    'aggregation_key', 'min_effort', 'max_effort', 'weeks_to_complete',
+    'aggregation_key', 'min_effort', 'max_effort', 'weeks_to_complete', 'has_enrollable_seats',
 )
 
 PROGRAM_FACET_FIELD_OPTIONS = {

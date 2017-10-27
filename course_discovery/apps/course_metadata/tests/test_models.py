@@ -5,6 +5,7 @@ from decimal import Decimal
 import ddt
 import mock
 import pytest
+import pytz
 from dateutil.parser import parse
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -71,19 +72,26 @@ class CourseRunTests(TestCase):
         course_run = factories.CourseRunFactory(start=None, end=None, enrollment_start=None, enrollment_end=None)
         verified_seat = factories.SeatFactory(course_run=course_run, type=Seat.VERIFIED, upgrade_deadline=None)
         professional_seat = factories.SeatFactory(course_run=course_run, type=Seat.PROFESSIONAL, upgrade_deadline=None)
-        factories.SeatFactory(course_run=course_run, type=Seat.HONOR, upgrade_deadline=None)
-        self.assertEqual(
-            course_run.enrollable_seats([Seat.VERIFIED, Seat.PROFESSIONAL]),
-            [verified_seat, professional_seat]
-        )
+        honor_seat = factories.SeatFactory(course_run=course_run, type=Seat.HONOR, upgrade_deadline=None)
+        assert course_run.enrollable_seats([Seat.VERIFIED, Seat.PROFESSIONAL]) == [verified_seat, professional_seat]
 
         # The method should not care about the course run's start date.
-        course_run.start = datetime.datetime.utcnow() + datetime.timedelta(days=1)
+        course_run.start = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
         course_run.save()
-        self.assertEqual(
-            course_run.enrollable_seats([Seat.VERIFIED, Seat.PROFESSIONAL]),
-            [verified_seat, professional_seat]
-        )
+        assert course_run.enrollable_seats([Seat.VERIFIED, Seat.PROFESSIONAL]) == [verified_seat, professional_seat]
+
+        # Enrollable seats of any type should be returned when no type parameter is specified.
+        assert course_run.enrollable_seats() == [verified_seat, professional_seat, honor_seat]
+
+    def test_has_enrollable_seats(self):
+        """ Verify the expected value of has_enrollable_seats is returned. """
+        course_run = factories.CourseRunFactory(start=None, end=None, enrollment_start=None, enrollment_end=None)
+        factories.SeatFactory(course_run=course_run, type=Seat.VERIFIED, upgrade_deadline=None)
+        assert course_run.has_enrollable_seats is True
+
+        course_run.end = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1)
+        course_run.save()
+        assert course_run.has_enrollable_seats is False
 
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the key and title. """
@@ -564,8 +572,8 @@ class ProgramTests(TestCase):
 
     def test_one_click_purchase_ineligible(self):
         """ Verify that program is one click purchase ineligible. """
-        yesterday = datetime.datetime.utcnow() - datetime.timedelta(days=1)
-        tomorrow = datetime.datetime.utcnow() + datetime.timedelta(days=1)
+        yesterday = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1)
+        tomorrow = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
         verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
 
@@ -786,7 +794,7 @@ class ProgramTests(TestCase):
             course_run.course.save()
 
         day_separation = 1
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(pytz.UTC)
 
         for course_run in course_runs_same_course:
             if set_all_dates or day_separation < 2:

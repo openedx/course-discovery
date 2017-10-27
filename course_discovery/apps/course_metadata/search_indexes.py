@@ -170,6 +170,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     has_enrollable_paid_seats = indexes.BooleanField(null=False)
     paid_seat_enrollment_end = indexes.DateTimeField(null=True)
     license = indexes.MultiValueField(model_attr='license', faceted=True)
+    has_enrollable_seats = indexes.BooleanField(model_attr='has_enrollable_seats', null=False)
 
     def prepare_aggregation_key(self, obj):
         # Aggregate CourseRuns by Course key since that is how we plan to dedup CourseRuns on the marketing site.
