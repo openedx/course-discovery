@@ -45,10 +45,17 @@ class TestCourse:
 
     def test_image_url(self):
         course = factories.CourseFactory()
-        assert course.image_url == course.image.url
+        assert course.image_url == course.image.small.url
 
         course.image = None
         assert course.image_url == course.card_image_url
+
+    def test_original_image_url(self):
+        course = factories.CourseFactory()
+        assert course.original_image_url == course.image.url
+
+        course.image = None
+        assert course.original_image_url is None
 
 
 @ddt.ddt

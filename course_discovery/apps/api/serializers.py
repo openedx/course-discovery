@@ -586,6 +586,7 @@ class CourseSerializer(MinimalCourseSerializer):
     sponsors = OrganizationSerializer(many=True, source='sponsoring_organizations')
     course_runs = CourseRunSerializer(many=True)
     marketing_url = serializers.SerializerMethodField()
+    original_image = ImageField(read_only=True, source='original_image_url')
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, course_runs=None):
@@ -607,6 +608,7 @@ class CourseSerializer(MinimalCourseSerializer):
         fields = MinimalCourseSerializer.Meta.fields + (
             'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites', 'prerequisites_raw',
             'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url', 'syllabus_raw', 'outcome',
+            'original_image',
         )
 
     def get_marketing_url(self, obj):

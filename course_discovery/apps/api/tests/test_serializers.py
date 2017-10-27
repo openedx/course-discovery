@@ -165,6 +165,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'prerequisites_raw': course.prerequisites_raw,
             'syllabus_raw': course.syllabus_raw,
             'outcome': course.outcome,
+            'original_image': ImageField().to_representation(course.original_image_url),
         })
 
         return expected
