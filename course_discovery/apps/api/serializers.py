@@ -73,7 +73,7 @@ BASE_PROGRAM_FIELDS = (
 PROGRAM_SEARCH_FIELDS = BASE_PROGRAM_FIELDS + (
     'aggregation_key', 'authoring_organizations', 'authoring_organization_uuids', 'subject_uuids', 'staff_uuids',
     'weeks_to_complete_min', 'weeks_to_complete_max', 'min_hours_effort_per_week', 'max_hours_effort_per_week',
-    'hidden',
+    'hidden', 'is_program_eligible_for_one_click_purchase',
 )
 
 PROGRAM_FACET_FIELDS = BASE_PROGRAM_FIELDS + ('organizations',)
