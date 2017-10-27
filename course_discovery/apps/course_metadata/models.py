@@ -305,7 +305,7 @@ class Course(TimeStampedModel):
         null=True,
         variations={
             'original': (2120, 1192),
-            'small': (318, 210)
+            'small': (318, 178)
         },
         help_text=_('Please provide a course preview image')
     )
@@ -333,9 +333,15 @@ class Course(TimeStampedModel):
     @property
     def image_url(self):
         if self.image:
-            return self.image.url
+            return self.image.small.url
 
         return self.card_image_url
+
+    @property
+    def original_image_url(self):
+        if self.image:
+            return self.image.url
+        return None
 
     @property
     def marketing_url(self):
