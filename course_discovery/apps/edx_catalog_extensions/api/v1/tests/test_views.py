@@ -1,6 +1,7 @@
 import datetime
 import urllib.parse
 
+import pytz
 from django.urls import reverse
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase
@@ -78,7 +79,7 @@ class DistinctCountsAggregateSearchViewSetTests(SerializationMixin, LoginMixin,
 
     def test_query_facet_response(self):
         """ Verify that query facets are included in the response and that they are properly formatted."""
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(pytz.UTC)
         current = (now - datetime.timedelta(days=1), now + datetime.timedelta(days=1))
         starting_soon = (now + datetime.timedelta(days=1), now + datetime.timedelta(days=2))
         upcoming = (now + datetime.timedelta(days=61), now + datetime.timedelta(days=62))
@@ -130,7 +131,7 @@ class DistinctCountsAggregateSearchViewSetTests(SerializationMixin, LoginMixin,
 
     def test_response_with_search_query(self):
         """ Verify that the response is accurate when a search query is passed."""
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(pytz.UTC)
         current = (now - datetime.timedelta(days=1), now + datetime.timedelta(days=1))
 
         course = CourseFactory(partner=self.partner)
@@ -189,7 +190,7 @@ class DistinctCountsAggregateSearchViewSetTests(SerializationMixin, LoginMixin,
 
     def test_selected_field_facet(self):
         """ Verify that the response is accurate when a field facet is selected."""
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(pytz.UTC)
         current = (now - datetime.timedelta(days=1), now + datetime.timedelta(days=1))
         archived = (now - datetime.timedelta(days=2), now - datetime.timedelta(days=1))
 
@@ -226,7 +227,7 @@ class DistinctCountsAggregateSearchViewSetTests(SerializationMixin, LoginMixin,
 
     def test_selected_query_facet(self):
         """ Verify that the response is accurate when a query facet is selected."""
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(pytz.UTC)
         current = (now - datetime.timedelta(days=1), now + datetime.timedelta(days=1))
         archived = (now - datetime.timedelta(days=2), now - datetime.timedelta(days=1))
 

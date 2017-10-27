@@ -501,7 +501,7 @@ class CourseRun(TimeStampedModel):
 
         return deadline
 
-    def enrollable_seats(self, types):
+    def enrollable_seats(self, types=None):
         """
         Returns seats, of the given type(s), that can be enrolled in/purchased.
 
@@ -523,11 +523,19 @@ class CourseRun(TimeStampedModel):
         if self.enrollment_end and now > self.enrollment_end:
             return enrollable_seats
 
+        types = types or Seat.SEAT_TYPES
         for seat in self.seats.all():
             if seat.type in types and (not seat.upgrade_deadline or now < seat.upgrade_deadline):
                 enrollable_seats.append(seat)
 
         return enrollable_seats
+
+    @property
+    def has_enrollable_seats(self):
+        """
+        Return a boolean indicating whether or not enrollable Seats are available for this CourseRun.
+        """
+        return len(self.enrollable_seats()) > 0
 
     @property
     def image_url(self):
@@ -701,6 +709,8 @@ class Seat(TimeStampedModel):
     VERIFIED = 'verified'
     PROFESSIONAL = 'professional'
     CREDIT = 'credit'
+
+    SEAT_TYPES = [HONOR, AUDIT, VERIFIED, PROFESSIONAL, CREDIT]
 
     # Seat types that may not be purchased without first purchasing another Seat type.
     # EX: 'credit' seats may not be purchased without first purchasing a 'verified' Seat.

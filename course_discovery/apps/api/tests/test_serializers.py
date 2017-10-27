@@ -611,7 +611,7 @@ class MinimalProgramSerializerTests(TestCase):
 
         courses = CourseFactory.create_batch(3)
         for course in courses:
-            CourseRunFactory.create_batch(2, course=course, staff=[person], start=datetime.datetime.now())
+            CourseRunFactory.create_batch(2, course=course, staff=[person], start=datetime.datetime.now(pytz.UTC))
 
         return ProgramFactory(
             courses=courses,
@@ -1248,6 +1248,7 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
             'subject_uuids': get_uuids(course_run.subjects.all()),
             'staff_uuids': get_uuids(course_run.staff.all()),
             'aggregation_key': 'courserun:{}'.format(course_run.course.key),
+            'has_enrollable_seats': course_run.has_enrollable_seats,
         }
         assert serializer.data == expected
 

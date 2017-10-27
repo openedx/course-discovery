@@ -3,6 +3,7 @@ import json
 import urllib.parse
 
 import ddt
+import pytz
 from django.urls import reverse
 from haystack.query import SearchQuerySet
 
@@ -173,7 +174,7 @@ class CourseRunSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
 
     def test_availability_faceting(self):
         """ Verify the endpoint returns availability facets with the results. """
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(pytz.UTC)
         archived = CourseRunFactory(course__partner=self.partner, start=now - datetime.timedelta(weeks=2),
                                     end=now - datetime.timedelta(weeks=1), status=CourseRunStatus.Published)
         current = CourseRunFactory(course__partner=self.partner, start=now - datetime.timedelta(weeks=2),
@@ -401,7 +402,7 @@ class AggregateSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
     @ddt.data('start', '-start')
     def test_results_ordered_by_start_date(self, ordering):
         """ Verify the search results can be ordered by start date """
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(pytz.UTC)
         archived = CourseRunFactory(course__partner=self.partner, start=now - datetime.timedelta(weeks=2))
         current = CourseRunFactory(course__partner=self.partner, start=now - datetime.timedelta(weeks=1))
         starting_soon = CourseRunFactory(course__partner=self.partner, start=now + datetime.timedelta(weeks=3))
