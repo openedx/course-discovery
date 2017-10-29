@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-16 17:29+0000\n"
-"PO-Revision-Date: 2017-10-19 10:57+0000\n"
+"POT-Creation-Date: 2017-10-25 06:07+0000\n"
+"PO-Revision-Date: 2017-10-27 10:12+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Portuguese (Portugal) (http://www.transifex.com/open-edx/edx-platform/language/pt_PT/)\n"
 "MIME-Version: 1.0\n"
@@ -684,6 +684,10 @@ msgstr ""
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "Syllabus"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Please do not use any spaces or special characters."
 msgstr ""
 
 #: apps/publisher/forms.py

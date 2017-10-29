@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-16 17:29+0000\n"
-"PO-Revision-Date: 2017-10-16 15:19+0000\n"
+"POT-Creation-Date: 2017-10-25 06:07+0000\n"
+"PO-Revision-Date: 2017-10-27 12:22+0000\n"
 "Last-Translator: Fundacja Eduprojekt.org <maciej@eduprojekt.org>\n"
 "Language-Team: Polish (http://www.transifex.com/open-edx/edx-platform/language/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -685,6 +685,10 @@ msgstr "Opinia studenta"
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "Syllabus"
 msgstr "Konspekt"
+
+#: apps/publisher/forms.py
+msgid "Please do not use any spaces or special characters."
+msgstr "Proszę nie używać spacji ani znaków specjalnych."
 
 #: apps/publisher/forms.py
 msgid "This course title already exists"
