@@ -1,0 +1,3310 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: edx-platform\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-10-25 06:07+0000\n"
+"PO-Revision-Date: 2017-10-26 21:54+0000\n"
+"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"Language-Team: Chinese Simplified (http://www.transifex.com/open-edx/edx-platform/language/zh-Hans/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh-Hans\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: apps/api/filters.py
+#, python-brace-format
+msgid "No user with the username [{username}] exists."
+msgstr ""
+
+#: apps/api/filters.py
+msgid ""
+"Only staff users are permitted to filter by username. Remove the username "
+"parameter."
+msgstr ""
+
+#: apps/api/serializers.py
+msgid "Number of courses contained in this catalog"
+msgstr ""
+
+#: apps/api/serializers.py
+msgid "Usernames of users with explicit access to view this catalog"
+msgstr ""
+
+#: apps/api/serializers.py
+msgid "Language in which the course is administered"
+msgstr ""
+
+#: apps/api/serializers.py
+msgid "Dictionary mapping course run IDs to boolean values"
+msgstr ""
+
+#: apps/api/serializers.py
+msgid "Dictionary mapping course IDs to boolean values"
+msgstr ""
+
+#: apps/api/serializers.py
+msgid "Languages that course runs in this program are offered in."
+msgstr ""
+
+#: apps/api/serializers.py
+msgid ""
+"Languages that course runs in this program have available transcripts in."
+msgstr ""
+
+#: apps/api/views.py
+msgid "You are not permitted to access the API documentation."
+msgstr ""
+
+#: apps/catalogs/models.py
+msgid "Catalog name"
+msgstr ""
+
+#: apps/catalogs/models.py
+msgid "Query to retrieve catalog contents"
+msgstr ""
+
+#: apps/core/admin.py
+msgid "Personal info"
+msgstr ""
+
+#: apps/core/admin.py
+msgid "Permissions"
+msgstr ""
+
+#: apps/core/admin.py
+msgid "Important dates"
+msgstr ""
+
+#: apps/core/admin.py
+msgid "OpenID Connect"
+msgstr ""
+
+#: apps/core/admin.py
+msgid ""
+"OpenID Connect is used for front-end authentication as well as getting "
+"access to the APIs."
+msgstr ""
+
+#: apps/core/admin.py
+msgid "API Configuration"
+msgstr ""
+
+#: apps/core/admin.py
+msgid "Configure the APIs that will be used to retrieve data."
+msgstr ""
+
+#: apps/core/admin.py
+msgid "Marketing Site Configuration"
+msgstr ""
+
+#: apps/core/admin.py
+msgid ""
+"Configure the marketing site URLs that will be used to retrieve data and "
+"create URLs."
+msgstr ""
+
+#. Translators: 'period_choices' is a list of possible values, like ('second',
+#. 'minute', 'hour')
+#: apps/core/forms.py
+#, python-brace-format
+msgid "period must be one of {period_choices}."
+msgstr ""
+
+#: apps/core/forms.py
+msgid "'rate' must be in the format defined by DRF, such as '100/hour'."
+msgstr ""
+
+#: apps/core/models.py
+msgid "Full Name"
+msgstr ""
+
+#: apps/core/models.py
+msgid "Referral Tracking ID"
+msgstr ""
+
+#: apps/core/models.py
+msgid ""
+"The rate of requests to limit this user to. The format is specified by "
+"Django Rest Framework (see http://www.django-rest-framework.org/api-"
+"guide/throttling/)."
+msgstr ""
+
+#: apps/core/models.py
+msgid "Short Code"
+msgstr ""
+
+#: apps/core/models.py
+msgid ""
+"Convenient code/slug used to identify this Partner (e.g. for management "
+"commands.)"
+msgstr ""
+
+#: apps/core/models.py
+msgid "Courses API URL"
+msgstr ""
+
+#: apps/core/models.py
+msgid "E-Commerce API URL"
+msgstr ""
+
+#: apps/core/models.py
+msgid "Organizations API URL"
+msgstr ""
+
+#: apps/core/models.py
+msgid "Programs API URL"
+msgstr ""
+
+#: apps/core/models.py
+msgid "Marketing Site API URL"
+msgstr ""
+
+#: apps/core/models.py
+msgid "Marketing Site URL"
+msgstr ""
+
+#: apps/core/models.py
+msgid "Marketing Site API Username"
+msgstr ""
+
+#: apps/core/models.py
+msgid "Marketing Site API Password"
+msgstr ""
+
+#: apps/core/models.py
+msgid "OpenID Connect URL"
+msgstr ""
+
+#: apps/core/models.py
+msgid "OpenID Connect Key"
+msgstr ""
+
+#: apps/core/models.py
+msgid "OpenID Connect Secret"
+msgstr ""
+
+#: apps/core/models.py apps/publisher/forms.py
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+msgid "Studio URL"
+msgstr ""
+
+#: apps/core/models.py
+msgid "LMS URL"
+msgstr ""
+
+#: apps/core/models.py
+msgid "Partner"
+msgstr ""
+
+#: apps/core/models.py
+msgid "Partners"
+msgstr ""
+
+#: apps/course_metadata/admin.py
+#, python-brace-format
+msgid ""
+"An error occurred while publishing the {model} to the marketing site. Please"
+" try again. If the error persists, please contact the Engineering Team."
+msgstr ""
+
+#: apps/course_metadata/admin.py
+msgid "eligible for one-click purchase"
+msgstr ""
+
+#: apps/course_metadata/admin.py apps/publisher/forms.py
+msgid "Yes"
+msgstr ""
+
+#: apps/course_metadata/admin.py apps/publisher/forms.py
+msgid "No"
+msgstr ""
+
+#: apps/course_metadata/admin.py
+msgid "Included course runs"
+msgstr ""
+
+#: apps/course_metadata/choices.py apps/publisher/choices.py
+msgid "Published"
+msgstr ""
+
+#: apps/course_metadata/choices.py
+msgid "Unpublished"
+msgstr ""
+
+#. Translators: Instructor-paced refers to course runs that operate on a
+#. schedule set by the instructor,
+#. similar to a normal university course.
+#: apps/course_metadata/choices.py
+msgid "Instructor-paced"
+msgstr ""
+
+#. Translators: Self-paced refers to course runs that operate on the student's
+#. schedule.
+#: apps/course_metadata/choices.py
+msgid "Self-paced"
+msgstr ""
+
+#: apps/course_metadata/choices.py
+msgid "Active"
+msgstr ""
+
+#: apps/course_metadata/choices.py
+msgid "Retired"
+msgstr ""
+
+#: apps/course_metadata/choices.py
+msgid "Deleted"
+msgstr ""
+
+#: apps/course_metadata/forms.py
+msgid "Programs can only be activated if they have a banner image."
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Facebook"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Twitter"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Blog"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Others"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "UUID"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Leave this field blank to have the value generated automatically."
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Subject model translations"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid ""
+"Logo to be displayed on certificates. If this logo is the same as "
+"logo_image_url, copy and paste the same value to both fields."
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid ""
+"Pick a tag from the suggestions. To make a new tag, add a comma after the "
+"tag name."
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "People"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Please provide a course preview image"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
+msgstr ""
+
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid ""
+"Title specific for this run of a course. Leave this value blank to default "
+"to the parent course's title."
+msgstr ""
+
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid ""
+"Short description specific for this run of a course. Leave this value blank "
+"to default to the parent course's short_description attribute."
+msgstr ""
+
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid ""
+"Full description specific for this run of a course. Leave this value blank "
+"to default to the parent course's full_description attribute."
+msgstr ""
+
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid ""
+"Estimated minimum number of hours per week needed to complete a course run."
+msgstr ""
+
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid ""
+"Estimated maximum number of hours per week needed to complete a course run."
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Estimated number of weeks needed to complete this course run."
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Indicates whether the course relation has been manually overridden."
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Archived"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Current"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Starting Soon"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Upcoming"
+msgstr ""
+
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid "Honor"
+msgstr ""
+
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid "Audit"
+msgstr ""
+
+#: apps/course_metadata/models.py apps/publisher/forms.py
+#: apps/publisher/models.py
+msgid "Verified"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Professional"
+msgstr ""
+
+#: apps/course_metadata/models.py apps/publisher/forms.py
+#: apps/publisher/models.py
+msgid "Credit"
+msgstr ""
+
+#: apps/course_metadata/models.py apps/publisher/forms.py
+#: apps/publisher/models.py
+#: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_revision_history.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "FAQ"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "FAQs"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid ""
+"Seat types that qualify for completion of programs of this type. Learners "
+"completing associated courses, but enrolled in other seat types, will NOT "
+"have their completion of the course counted toward the completion of the "
+"program."
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Please provide an image file with transparent background"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "The user-facing display title for this Program."
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "A brief, descriptive subtitle for the Program."
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "The lifecycle status of this Program."
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Slug used to generate links to the marketing site"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid ""
+"If this box is not checked, courses will be ordered as in the courses select"
+" box above."
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid ""
+"This field is now deprecated (ECOM-6021).Estimated number of weeks needed to"
+" complete a course run belonging to this program."
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Image used for discovery cards"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "The description of credit redemption for courses in program"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid "Allow courses in this program to be purchased in a single transaction"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid ""
+"Hide program on marketing site landing and search pages. This program MAY "
+"have a detail page."
+msgstr ""
+
+#: apps/course_metadata/templates/admin/course_metadata/course_run.html
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+#: apps/publisher/templates/publisher/_revert_confirmation.html
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/add_courserun_form.html
+#: apps/publisher/templates/publisher/course_detail/_edit_warning_popup.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+#: apps/publisher/templates/publisher/course_run_detail/_edit_warning.html
+#: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
+msgid "Cancel"
+msgstr ""
+
+#: apps/course_metadata/templates/admin/course_metadata/course_run.html
+msgid "Back to Program"
+msgstr ""
+
+#: apps/course_metadata/templates/admin/course_metadata/course_run.html
+msgid "Save Course Run"
+msgstr ""
+
+#: apps/course_metadata/views.py
+msgid "Update excluded course runs"
+msgstr ""
+
+#: apps/course_metadata/views.py
+msgid "The program was changed successfully."
+msgstr ""
+
+#: apps/publisher/api/serializers.py
+#, python-brace-format
+msgid "Invalid course key \"{lms_course_id}\""
+msgstr ""
+
+#: apps/publisher/api/serializers.py
+#, python-brace-format
+msgid "Invalid URL format \"{preview_url}\""
+msgstr ""
+
+#: apps/publisher/api/serializers.py
+#, python-brace-format
+msgid "Cannot switch from state `{state}` to `{target_state}`"
+msgstr ""
+
+#: apps/publisher/choices.py
+msgid "Partner Manager"
+msgstr ""
+
+#: apps/publisher/choices.py
+#: apps/publisher/templates/publisher/course_list.html
+msgid "Project Coordinator"
+msgstr ""
+
+#: apps/publisher/choices.py
+msgid "Marketing Reviewer"
+msgstr ""
+
+#: apps/publisher/choices.py
+msgid "Publisher"
+msgstr ""
+
+#: apps/publisher/choices.py
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
+msgid "Course Team"
+msgstr ""
+
+#: apps/publisher/choices.py apps/publisher/models.py
+#: apps/publisher/wrappers.py
+msgid "Draft"
+msgstr ""
+
+#: apps/publisher/choices.py
+msgid "Review"
+msgstr ""
+
+#: apps/publisher/choices.py
+msgid "Approved"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Studio URL created: {title} {run_number}"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Studio URL requested: {title}"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Review requested: {title}"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Review complete: {title}"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Review requested: {title} {run_number}"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Review complete: {course_name} {run_number}"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Publication requested: {course_name} {run_number}"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Review requested: Preview for {course_name} {run_number}"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Publication complete: About page for {course_name} {run_number}"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "{role_name} changed for {course_title}"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Legal review requested: {title}"
+msgstr ""
+
+#: apps/publisher/emails.py
+msgid "Course team"
+msgstr ""
+
+#: apps/publisher/emails.py
+msgid "Legal Team"
+msgstr ""
+
+#: apps/publisher/emails.py
+#, python-brace-format
+msgid "Changes to published course run: {title} {run_number}"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Remove Image"
+msgstr ""
+
+#: apps/publisher/forms.py
+#: apps/publisher/templates/publisher/course_detail.html
+msgid "Organization Name"
+msgstr ""
+
+#: apps/publisher/forms.py
+#: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_revision_history.html
+msgid "Course Title"
+msgstr ""
+
+#: apps/publisher/forms.py
+#: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_list.html
+#: apps/publisher/templates/publisher/course_revision_history.html
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
+#: apps/publisher/templates/publisher/dashboard/_published.html
+#: apps/publisher/templates/publisher/dashboard/_studio_requests.html
+msgid "Course Number"
+msgstr ""
+
+#: apps/publisher/forms.py
+#: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_revision_history.html
+msgid "Short Description"
+msgstr ""
+
+#: apps/publisher/forms.py
+#: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_revision_history.html
+msgid "Long Description"
+msgstr ""
+
+#: apps/publisher/forms.py apps/publisher/models.py
+#: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_revision_history.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Prerequisites"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Organization Course Admin"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Primary"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Additional Subject (optional)"
+msgstr ""
+
+#: apps/publisher/forms.py
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Level"
+msgstr ""
+
+#: apps/publisher/forms.py
+#: apps/publisher/templates/publisher/course_detail.html
+msgid "What You Will Learn"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Learner Testimonial"
+msgstr ""
+
+#: apps/publisher/forms.py
+#: apps/publisher/templates/publisher/course_detail.html
+msgid "Syllabus"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Please do not use any spaces or special characters."
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "This course title already exists"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "This course number already exists"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Find Course"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Course Start Date"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Course End Date"
+msgstr ""
+
+#: apps/publisher/forms.py
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "Instructor"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Pacing"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Transcript Languages"
+msgstr ""
+
+#: apps/publisher/forms.py
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "XSeries"
+msgstr ""
+
+#: apps/publisher/forms.py
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "MicroMasters"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Professional Certificate"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "XSeries Name"
+msgstr ""
+
+#: apps/publisher/forms.py
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Professional Certificate Name"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "MicroMasters Name"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Video Language"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Start date cannot be after the End date"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Minimum effort cannot be greater than Maximum effort"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Minimum effort and Maximum effort can not be same"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Minimum effort can not be empty"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Enter XSeries program name"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Enter Micromasters program name"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Enter Professional Certificate program name"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Choose enrollment track"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Audit only"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Professional education"
+msgstr ""
+
+#: apps/publisher/forms.py
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+msgid "Enrollment Track"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Only audit seat can be without price."
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "This field is required."
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Invalid course key."
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Course title"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Course number"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Brief Description"
+msgstr ""
+
+#: apps/publisher/models.py
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Full Description"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Partner Name"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Level Type"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Expected Learnings"
+msgstr ""
+
+#: apps/publisher/models.py
+#: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_revision_history.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Learner Testimonials"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Video Link"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Course Metadata Course PK"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Level 1"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Level 2"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Level 3"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Level 4"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Level 5"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Content Language"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Length of course, in number of weeks"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid ""
+"Please add any additional notes or special instructions for the course About"
+" Page."
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Comma separated list of edX usernames or emails of admins."
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Comma separated list of edX usernames or emails of additional staff."
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Professional (with ID verification)"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Professional (no ID verification)"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Organization Role"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Course Role"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Automatically create a run in Studio"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid ""
+"When this flag is enabled, creation of a new course run in Publisher will "
+"also create a corresponding course run in Studio."
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Submitted for Marketing Review"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Approved by Course Team"
+msgstr ""
+
+#: apps/publisher/models.py apps/publisher/wrappers.py
+msgid "Awaiting Course Team Review"
+msgstr ""
+
+#: apps/publisher/models.py apps/publisher/wrappers.py
+msgid "N/A"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Awaiting Marketing Review"
+msgstr ""
+
+#: apps/publisher/models.py
+msgid "Approved by Marketing"
+msgstr ""
+
+#: apps/publisher/serializers.py
+#: apps/publisher/templates/publisher/_approval_widget.html
+#: apps/publisher/templates/publisher/course_detail/_edit_warning_popup.html
+#: apps/publisher/templates/publisher/course_run_detail/_edit_warning.html
+msgid "Edit"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "New Instructor"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "Click here to upload your image"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "The image dimensions must be less than 110 x 110"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "The image size must be less than 256KB"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "First Name"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "required"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "Last Name"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Title"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Email"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "Institution email is preferred"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+#: apps/publisher/templates/publisher/course_list.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
+#: apps/publisher/templates/publisher/course_run_detail/_studio.html
+#: apps/publisher/templates/publisher/dashboard/_in_preview.html
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
+#: apps/publisher/templates/publisher/dashboard/_published.html
+#: apps/publisher/templates/publisher/dashboard/_studio_requests.html
+msgid "Organization"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Bio"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "required (1-2 paragraphs)"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "Facebook URL"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "optional"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "Twitter URL"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "Blog URL"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "Major Works"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "optional - one per line"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "Add Staff Member"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+msgid "REVIEWS"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+#, python-format
+msgid ""
+"You can currently edit information for this course run. However, before you "
+"can submit this course run for review, you must finalize the information for"
+" %(link_start)s%(course_url)s%(link_middle)s%(course_name)s%(link_end)s with"
+" edX."
+msgstr ""
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+msgid "Decline"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+msgid "Accept"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+msgid "Accepted"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
+msgid "Publish"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+msgid "Submitted for review"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+#: apps/publisher/templates/publisher/seat_form.html
+msgid "Save"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+msgid "ABOUT PAGE PREVIEW"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+msgid "Preview URL"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+msgid "View About page preview"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+msgid "Not available"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+msgid "Sent for Review"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+msgid "Reviewed"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+msgid "day in ownership"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+msgid "days in ownership"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+msgid "change"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+msgid "CHANGE"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_footer.html
+msgid "Terms of Service"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_footer.html
+msgid "Privacy Policy"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_footer.html
+msgid "Legal"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_footer.html
+#, python-format
+msgid ""
+"EdX, Open edX, Publisher, and the edX and Open edX logos are registered "
+"trademarks or trademarks of %(link_start)sedX Inc.%(link_end)s"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_footer.html
+msgid "Powered by Open edX"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_header.html
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Account"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_header.html
+msgid "Account Navigation"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_header.html
+msgid "Contextual Online Help"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_header.html
+msgid "Help"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_header.html
+msgid "Email notifications"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_header.html
+msgid "ON"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_header.html
+msgid "OFF"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_header.html
+msgid "Sign Out"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_history_widget.html
+msgid "REVISION HISTORY"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_history_widget.html
+#, python-format
+msgid "%(history_date)s&nbsp;by&nbsp;%(changed_by)s (Latest)"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_history_widget.html
+#, python-format
+msgid "%(history_date)s&nbsp;by&nbsp;%(changed_by)s"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_history_widget.html
+#: apps/publisher/templates/publisher/_revert_confirmation.html
+msgid "Restore to this version"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_history_widget.html
+msgid "Unable to revert the revision, Please try again later."
+msgstr ""
+
+#: apps/publisher/templates/publisher/_history_widget.html
+msgid "Accept All"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_render_optional_field.html
+#: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+#: apps/publisher/templates/publisher/course_run_detail/_studio.html
+msgid "(Optional) Not yet added"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_render_required_field.html
+#: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+#: apps/publisher/templates/publisher/course_run_detail/_seats.html
+msgid "(Required) Not yet added"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_revert_confirmation.html
+#: apps/publisher/templates/publisher/course_detail/_edit_warning_popup.html
+#: apps/publisher/templates/publisher/course_run_detail/_edit_warning.html
+msgid "CAUTION"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_revert_confirmation.html
+msgid "Are you sure you want to revert all changes to this version ?"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_list.html
+msgid "Create New Course"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "COURSE TITLE"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Best Practices"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Examples"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Maximum 70 characters. Recommended 50 or fewer characters."
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "An effective course title:"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Clearly indicates the course subject matter."
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Follows search engine optimization (SEO) guidelines."
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Targets a global audience."
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"If the course is part of a sequence, include both sequence and course "
+"information as \\"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Single Courses"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "English Grammar and Essay Writing"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+msgid "Sequence Courses"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Statistics: Inference"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Statistics: Probability"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "COURSE NUMBER"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+msgid "Maximum 50 characters. Characters can be letters, numbers, or periods."
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"If a course consists of several modules, the course number can have an "
+"ending such as .1x or .2x."
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "CS002x"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+msgid "BIO1.1x; BIO1.2x etc."
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_course_form.html
+msgid "I want to add a run to this course at this time"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_courserun_form.html
+msgid "New Course Run"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_courserun_form.html
+msgid ""
+"\n"
+"                    When you create a course run, Publisher immediately creates a page for the course run in Publisher, and the edX team creates a Studio URL for the course run. You will receive an email message when edX has created the Studio URL.\n"
+"                "
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_courserun_form.html
+msgid "FIND COURSE"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_courserun_form.html
+msgid ""
+"Enter the name of the course for which you want to create a course run."
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_courserun_form.html
+#, python-format
+msgid ""
+"\n"
+"                                                If your course cannot be found, make sure the course name is correct, or %(link_start)s%(new_course_url)s%(link_middle)screate a new course%(link_end)s.\n"
+"                                            "
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_courserun_form.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "COURSE START DATE"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_courserun_form.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "Start on a Tuesday, Wednesday, or Thursday."
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_courserun_form.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "Avoid major U.S. holidays."
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_courserun_form.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid ""
+"Specify a month, day, and year. If you are unsure of the exact date, specify"
+" a day that is close to the estimated start date. For example, if your "
+"course will start near the end of March, specify March 31."
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_courserun_form.html
+msgid "PACING TYPE"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_courserun_form.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid ""
+"Instructor-paced courses include individual assignments that have specific "
+"due dates before the course end date."
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_courserun_form.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid ""
+"Self-paced courses do not have individual assignments that have specific due"
+" dates before the course end date. All assignments are due on the course end"
+" date."
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_courserun_form.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "COURSE END DATE"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_courserun_form.html
+msgid ""
+"Specify a month, day, and year. If you are unsure of the exact date, specify"
+" a day that is close to the estimated end date. For example, if your course "
+"will end near the end of March, specify March 31."
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_courserun_form.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "CERTIFICATE TYPE AND PRICE"
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_courserun_form.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid ""
+"If the course offers a verified or professional education certificate, "
+"select the certificate type and enter the price for the certificate."
+msgstr ""
+
+#: apps/publisher/templates/publisher/add_courserun_form.html
+msgid "Create New Course Run"
+msgstr ""
+
+#: apps/publisher/templates/publisher/admin/add_user_form.html
+msgid ""
+"First, enter a username and select a group. Then, you'll be able to edit "
+"more user options."
+msgstr ""
+
+#: apps/publisher/templates/publisher/admin/import_course.html
+msgid "Course Detail"
+msgstr ""
+
+#: apps/publisher/templates/publisher/admin/import_course.html
+msgid "Import COURSE"
+msgstr ""
+
+#: apps/publisher/templates/publisher/base.html
+#: apps/publisher/templates/publisher/courserun_list.html
+msgid "Dashboard"
+msgstr ""
+
+#: apps/publisher/templates/publisher/base.html
+#: apps/publisher/templates/publisher/course_list.html apps/publisher/views.py
+msgid "Courses"
+msgstr ""
+
+#: apps/publisher/templates/publisher/comments/add_auth_comments.html
+msgid "Comment:"
+msgstr ""
+
+#: apps/publisher/templates/publisher/comments/add_auth_comments.html
+#: apps/publisher/templates/publisher/course_run_detail/_widgets.html
+msgid "Submit"
+msgstr ""
+
+#: apps/publisher/templates/publisher/comments/add_auth_comments.html
+msgid "Add comment"
+msgstr ""
+
+#: apps/publisher/templates/publisher/comments/comments_list.html
+msgid "Submitted by"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_run_detail/_widgets.html
+msgid "EDIT"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_detail.html
+msgid "Course Team Admin"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_revision_history.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Primary Subject"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_revision_history.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Additional Subject"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Course Image"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_revision_history.html
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Course Level"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_revision_history.html
+msgid "About Video Link"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_detail/_edit_warning_popup.html
+#, python-format
+msgid ""
+"\n"
+"                The %(current_team_name)s team is currently reviewing this course. If you edit course information, you might overwrite the team’s changes, and you will have to send the course to the %(team_name)s team for review again.\n"
+"            "
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_detail/_widgets.html
+msgid "COURSE RUNS"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_detail/_widgets.html
+msgid "CREATE RUN"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_detail/_widgets.html
+#, python-format
+msgid ""
+"\n"
+"                        Created %(created_date)s at %(created_time)s by %(created_by)s\n"
+"                    "
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_detail/_widgets.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "STUDIO URL"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_detail/_widgets.html
+msgid "To be added by edX"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_detail/_widgets.html
+msgid "No course runs exist for this course"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Edit Course"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"All required fields must be complete before this course can be sent to edX "
+"marketing for review."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Note:"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"If you edit course information after edX marketing has reviewed the course, "
+"you have to send the course for review again."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Sequence Courses:"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "255 character limit, including spaces."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Maximum 10 characters. Characters can be letters, numbers, or periods."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "BIO1.1x, BIO1.2x"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "SHORT DESCRIPTION"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "An effective short description:"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Contains 25–50 words."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Functions as a tagline."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Conveys compelling reasons to take the course."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Follows SEO guidelines."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"The first MOOC to teach positive psychology. Learn science-based principles "
+"and practices for a happy, meaningful life."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "LONG DESCRIPTION"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "An effective long description:"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Contains 150–300 words."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Is easy to skim."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Uses bullet points instead of dense text paragraphs."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"The first four lines are visible when the About page opens. Learners can "
+"select \\"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Content-based example:"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"Want to learn computer programming, but unsure where to begin? This is the "
+"course for you! Scratch is the computer programming language that makes it "
+"easy and fun to create interactive stories, games and animations and share "
+"them online."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"This course is an introduction to computer science using the programming "
+"language Scratch, developed by MIT. Starting with the basics of using "
+"Scratch, the course will stretch your mind and challenge you. You will learn"
+" how to create amazing games, animated images and songs in just minutes with"
+" a simple “drag and drop” interface."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"No previous programming knowledge needed. Join us as you start your computer"
+" science journey."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Skills-based example:"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"Taught by instructors with decades of experience on Wall Street, this M&A "
+"course will equip analysts and associates with the skills they need to rise "
+"to employment in the M&A field. Additionally, directors and managers who "
+"have transitioned, or hope to transition, to M&A from other areas such as "
+"equities or fixed income can use this course to eliminate skill gaps."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "2500 character limit, including spaces."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "WHAT YOU WILL LEARN"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "The skills and knowledge learners will acquire in this course."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Format each item as a bullet with four to ten words."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Basic R Programming"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "An applied understanding of linear and logistic regression"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Application of text analytics"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Linear and integer optimization"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "SUBJECT FIELD"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "The subject of the course."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"You can select up to two subjects in addition to the primary subject. Only "
+"the primary subject appears on the About page."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "COURSE IMAGE"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"An eye-catching, colorful image that captures the essence of your course."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Course Image Guidelines:"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "The image size must be 2120 x 1192 pixels."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Each course in a sequence must have a unique image."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "The image cannot include text or headlines."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"You must have permission to use the image. Possible image sources include "
+"Flickr creative commons, Stock Vault, Stock XCHNG, and iStock Photo."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "PREREQUISITES"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Maximum 200 characters."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"Specific knowledge learners must have to be successful in the course. If the"
+" course has no prerequisites, enter \\"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Secondary school (high school) algebra; basic mathematics concepts"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Graduate-level understanding of Keynesian economics"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Basic algebra"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "200 character limit, including spaces."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "SYLLABUS"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"A review of content covered in your course, organized by week or module."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Focus on topics and content."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"Do not include detailed information about course logistics, such as grading,"
+" communication policies, and reading lists."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Format items as either paragraphs or a bulleted list."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Week 1: From Calculator to Computer"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"Introduction to basic programming concepts, such as values and expressions, "
+"as well as making decisions when implementing algorithms and developing "
+"programs."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Week 2: State Transformation"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"Introduction to state transformation, including representation of data and "
+"programs as well as conditional repetition."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "LEVEL"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"Introductory - No prerequisites; a learner who has completed some or all "
+"secondary school could complete the course."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"Intermediate - Basic prerequisites; learners need to complete secondary "
+"school or some university courses."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"Advanced - Significant prerequisites; the course is geared to third or "
+"fourth year university students or master's degree students."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Any frequently asked questions and the answers to those questions."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"The About video should excite and entice potential students to take your "
+"course. Think of it as a movie trailer or TV show promotion. The video "
+"should be compelling, and exhibit the instructor’s personality."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"The ideal length is 30-90 seconds (learners typically watch an average of 30"
+" seconds)."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"The About video should be produced and edited, using elements such as "
+"graphics and stock footage."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "The About video should answer these key questions."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Why should a learner register?"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "What topics and concepts are covered?"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Who is teaching the course?"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "What institution is delivering the course?"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Naming specifications:"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Name: InstitutionX_CourseNumber_About.mov"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Post to:"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Technical specifications:"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Codec: H.264"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Container: .mp4"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Resolution: 1920x1080"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Frame rate: 29.97 fps"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Aspect: 1.0"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Bitrate: 5Mbps VBR"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Audio codec: AAC 44.1KHz/192 Kbps"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Visit edX’s YouTube channel for examples of other About videos:"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"A quote from a learner in the course, demonstrating the value of taking the "
+"course."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Should be no more than 25-50 words in length."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"“Brilliant course! It's definitely the best introduction to electronics in "
+"the world! Interesting material, clean explanations, well prepared quizzes, "
+"challenging homeworks and fun labs.” – Previous Student"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "500 character limit, including spaces."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Update Course"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_list.html
+#: apps/publisher/templates/publisher/course_run_detail/_studio.html
+#: apps/publisher/templates/publisher/dashboard/_in_preview.html
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
+#: apps/publisher/templates/publisher/dashboard/_published.html
+#: apps/publisher/templates/publisher/dashboard/_studio_requests.html
+msgid "Course Name"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_list.html
+msgid "Runs"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_list.html
+msgid "Course Team Status"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_list.html
+#, python-format
+msgid "%(site_name)s Status"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_list.html
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
+msgid "Last Handoff"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_revision_history.html
+msgid "Revision History"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_revision_history.html
+#, python-format
+msgid "%(date)s by %(name)s"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_revision_history.html
+msgid "Show changes"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_revision_history.html
+msgid "Expected Learning"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "Edit Course Run"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+#, python-format
+msgid ""
+"%(span_start)s* All required fields must be complete before this course run "
+"can be sent for review.%(span_end)s"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+#, python-format
+msgid ""
+"%(strong_start)sNote:%(strong_end)s If you edit course information after edX"
+" marketing has reviewed the course, you have to send the course to edX "
+"marketing for review again."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "Note that times use UTC."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid ""
+"Note that times use UTC. Specify a month, day, and year. If you are unsure "
+"of the exact date, specify a day that is close to the estimated end date. "
+"For example, if your course will end near the end of March, specify March "
+"31."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "COURSE PACING"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "The Studio URL for this course run. The edX PC creates this URL."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "Not yet created"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "PROGRAM ASSOCIATION"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid ""
+"If this course is part of a program, select the program type, and then enter"
+" the name of the program."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "COURSE STAFF"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "The primary instructor or instructors for the course."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "Add New"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "ESTIMATED EFFORT"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid ""
+"The number of hours per week the learner should expect to spend on the "
+"course. This may be a range."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "Min Effort"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "Max Effort"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "LANGUAGE(S)"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid ""
+"The languages available for videos, video transcripts, and other course "
+"content."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "LENGTH"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid ""
+"The length of the course, in weeks, rounded to the nearest whole number."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "Update Course Run"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+msgid "(Required) To be added by edX"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+#: apps/publisher/templates/publisher/course_run_detail/_studio.html
+msgid "Start Date (time in UTC)"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+#: apps/publisher/templates/publisher/course_run_detail/_studio.html
+msgid "End Date (time in UTC)"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+msgid "Certificate Price"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+msgid "Credit Price"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+msgid "Course Staff"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "New"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Estimated Effort"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "hours per week"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+msgid "Course Content Language"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+msgid "Video Transcript Language"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+msgid "Course Video Language"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Course Length (Weeks)"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+msgid "MicroMasters Program Name"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+msgid "XSeries Program Name"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+msgid "Professional Certificate Program Name"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_cat.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Course ID"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_cat.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Enrollment Types"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
+msgid "Credit Seats"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
+msgid "Credit Provider"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
+#: apps/publisher/templates/publisher/course_run_detail/_seats.html
+msgid "Price"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
+#: apps/publisher/templates/publisher/course_run_detail/_seats.html
+msgid "Currency"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
+msgid "Credit Hours"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
+#: apps/publisher/templates/publisher/course_run_detail/_seats.html
+msgid "Upgrade Deadline (time in UTC)"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+#: apps/publisher/templates/publisher/course_run_detail/_studio.html
+msgid "Number"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Subtitle"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Self Paced"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Staff"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "to"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Languages"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Video Transcript Languages"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "What You'll Learn"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Download"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Keywords"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Sponsors"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Course Syllabus"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Course About Video"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "Seats"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_edit_warning.html
+#, python-format
+msgid ""
+"The %(current_team_name)s is currently reviewing this course run. If you "
+"edit course run information, you might overwrite the team’s changes, and you"
+" will have to send the course run to the %(team_name)s for review again."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Name"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Profile URL "
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Facebook URL "
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Twitter URL "
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Blog URL "
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Close"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
+msgid "Accept About Page Preview"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
+msgid ""
+"By accepting the About page preview, you are confirming that the information"
+" for this course run in Publisher is correct."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
+msgid ""
+"Note that before edX can publish the About page for this course run, the "
+"following information for the course run must be entered in Studio."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
+msgid "The course run start and end date."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
+msgid "The course card image."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
+msgid "Names, titles, and signature images for all certificate signatories."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
+msgid "OK"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Course"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Authored in Studio?"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Multiple Partner Course?"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Subject Area"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Language: Course Text"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Language: Transcripts"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Language: Video"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Course Run"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "New or Rerun?"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Platform"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Faculty"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Course Run Display Name"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Course Run Number"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "edX Course Run ID"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Certificate Type"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Course $ (minimum)"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Credit $ (minimum)"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Self Paced?"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "MDC Submission Due Date"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+#: apps/publisher/templates/publisher/dashboard/_studio_requests.html
+msgid "Start Date"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "End Date"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Verified Registration Expiration Date"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Certificate Issued Date"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_seats.html
+msgid "Enrollment Type"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_studio.html
+msgid "Enrollment Start Date (time in UTC)"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_studio.html
+msgid "Enrollment End Date (time in UTC)"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_studio.html
+msgid "Pacing Type"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_widgets.html
+msgid "Reason for declining preview"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
+#, python-format
+msgid ""
+"The About page for this course run was published on %(course_publish_date)s."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
+msgid "View it on edx.org at"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
+msgid "All"
+msgstr ""
+
+#. Translators: Studio is an edX tool for course creation.
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
+msgid "STUDIO"
+msgstr ""
+
+#. Translators: CAT is an acronym for Course Administration Tool.
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
+msgid "CAT"
+msgstr ""
+
+#. Translators: DRUPAL is an edX marketing site.
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
+msgid "DRUPAL"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
+msgid "Successfully published to Studio, E-Commerce, and Discovery."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
+msgid "Publication failed."
+msgstr ""
+
+#: apps/publisher/templates/publisher/courserun_list.html
+msgid "Course About Pages"
+msgstr ""
+
+#: apps/publisher/templates/publisher/courserun_list.html
+msgid ""
+"EdX Publisher is used to create course About pages. Users enter, review, and"
+" approve content in Publisher. Publisher keeps track of the details and "
+"sends email updates when actions are necessary."
+msgstr ""
+
+#: apps/publisher/templates/publisher/courserun_list.html
+msgid ""
+"EdX Publisher is a companion to edX Studio. Course teams enter About page "
+"information in Publisher, and course content in Studio."
+msgstr ""
+
+#: apps/publisher/templates/publisher/courserun_list.html
+msgid "Add a New Course"
+msgstr ""
+
+#: apps/publisher/templates/publisher/courserun_list.html
+msgid "Add a Course Run"
+msgstr ""
+
+#: apps/publisher/templates/publisher/courserun_list.html
+msgid "Course runs"
+msgstr ""
+
+#: apps/publisher/templates/publisher/courserun_list.html
+msgid "In Development"
+msgstr ""
+
+#: apps/publisher/templates/publisher/courserun_list.html
+msgid "In Preview"
+msgstr ""
+
+#: apps/publisher/templates/publisher/courserun_list.html
+msgid "Studio Request"
+msgstr ""
+
+#: apps/publisher/templates/publisher/courserun_list.html
+msgid "Published About Pages"
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_in_preview.html
+msgid ""
+"No course runs currently have an About page preview available for course "
+"team review."
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_in_preview.html
+msgid ""
+"About page previews for the following course runs are available for course "
+"team review. After the course team approves the preview, the edX publisher "
+"will publish the About page for the course run on edx.org. The course team "
+"will receive an email message when the About page has been published."
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_in_preview.html
+msgid "Status"
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_in_preview.html
+#: apps/publisher/templates/publisher/email/studio_instance_created.html
+#: apps/publisher/templates/publisher/email/studio_instance_created.txt
+msgid "Course start date"
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_in_preview.html
+msgid "Approved since "
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_in_preview.html
+msgid "Declined since "
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_in_preview.html
+msgid "Preview Requested since "
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_in_preview.html
+msgid "In Review since "
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
+msgid "No About pages for any course runs are currently in development."
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
+msgid "Filter by"
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
+msgid "With Course Team"
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
+msgid "With"
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
+#: apps/publisher/templates/publisher/dashboard/_published.html
+msgid "Start"
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
+#: apps/publisher/templates/publisher/dashboard/_published.html
+msgid "End"
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_published.html
+msgid "No About pages have been published yet."
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_published.html
+#, python-format
+msgid ""
+"About pages for the following course runs have been published in the past "
+"%(default_published_days)s days."
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_published.html
+msgid "Published Date"
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_studio_requests.html
+msgid "The following courses are ready for a Studio URL."
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_studio_requests.html
+msgid "Studio Course Run Key"
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_studio_requests.html
+msgid "Add"
+msgstr ""
+
+#: apps/publisher/templates/publisher/dashboard/_studio_requests.html
+msgid "No courses are currently ready for a Studio URL."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/comment.html
+#, python-format
+msgid ""
+"%(user_name)s made the following comment on %(course_name)s on %(date)s at "
+"%(time)s"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/comment.html
+#: apps/publisher/templates/publisher/email/comment.txt
+msgid "View comment in Publisher"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/comment.html
+#: apps/publisher/templates/publisher/email/comment.txt
+#: apps/publisher/templates/publisher/email/course/send_for_review.txt
+#: apps/publisher/templates/publisher/email/course_created.html
+#: apps/publisher/templates/publisher/email/course_created.txt
+#: apps/publisher/templates/publisher/email/decline_preview.html
+#: apps/publisher/templates/publisher/email/decline_preview.txt
+msgid "The edX team"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/comment.txt
+#, python-format
+msgid ""
+"%(user_name)s made the following comment on %(course_name)s %(date)s at "
+"%(time)s."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course/mark_as_reviewed.html
+#: apps/publisher/templates/publisher/email/course/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course/send_for_review.html
+#: apps/publisher/templates/publisher/email/course/send_for_review.txt
+#: apps/publisher/templates/publisher/email/course/seo_review.html
+#: apps/publisher/templates/publisher/email/course/seo_review.txt
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course_run/preview_available.html
+#: apps/publisher/templates/publisher/email/course_run/preview_available.txt
+#: apps/publisher/templates/publisher/email/course_run/published.txt
+#: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.html
+#: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.txt
+#: apps/publisher/templates/publisher/email/course_run/send_for_review.html
+#: apps/publisher/templates/publisher/email/course_run/send_for_review.txt
+#: apps/publisher/templates/publisher/email/decline_preview.html
+#: apps/publisher/templates/publisher/email/decline_preview.txt
+#, python-format
+msgid "Dear %(recipient_name)s,"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course/mark_as_reviewed.html
+#: apps/publisher/templates/publisher/email/course/mark_as_reviewed.txt
+#, python-format
+msgid ""
+"The %(sender_team)s has reviewed %(link_start)s%(page_url)s%(link_middle)s "
+"%(course_name)s%(link_end)s and has suggested no changes. The review for "
+"this course is complete."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course/mark_as_reviewed.html
+#: apps/publisher/templates/publisher/email/course/mark_as_reviewed.txt
+#, python-format
+msgid ""
+"You can now submit a course run for review. To do this, "
+"%(link_start)s%(page_url)s%(link_middle)s go to the course page%(link_end)s "
+"and open the page for any course run. On the course run page, add all "
+"required information for that course run, and then submit the course run for"
+" review."
+msgstr ""
+
+#. Translators: It's closing of mail.
+#. Translators: This is part of an email signature.
+#. Translators: It's closing of mail.
+#: apps/publisher/templates/publisher/email/course/mark_as_reviewed.html
+#: apps/publisher/templates/publisher/email/course/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course/send_for_review.html
+#: apps/publisher/templates/publisher/email/course/send_for_review.txt
+#: apps/publisher/templates/publisher/email/course/seo_review.html
+#: apps/publisher/templates/publisher/email/course/seo_review.txt
+#: apps/publisher/templates/publisher/email/course_created.html
+#: apps/publisher/templates/publisher/email/course_created.txt
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course_run/preview_accepted.html
+#: apps/publisher/templates/publisher/email/course_run/preview_accepted.txt
+#: apps/publisher/templates/publisher/email/course_run/preview_available.html
+#: apps/publisher/templates/publisher/email/course_run/preview_available.txt
+#: apps/publisher/templates/publisher/email/course_run/published.html
+#: apps/publisher/templates/publisher/email/course_run/published.txt
+#: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.html
+#: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.txt
+#: apps/publisher/templates/publisher/email/decline_preview.html
+#: apps/publisher/templates/publisher/email/decline_preview.txt
+#: apps/publisher/templates/publisher/email/studio_instance_created.html
+#: apps/publisher/templates/publisher/email/studio_instance_created.txt
+msgid "Thanks,"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course/mark_as_reviewed.html
+#: apps/publisher/templates/publisher/email/course/send_for_review.html
+#: apps/publisher/templates/publisher/email/course/seo_review.html
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
+#: apps/publisher/templates/publisher/email/course_run/preview_accepted.html
+#: apps/publisher/templates/publisher/email/course_run/published.html
+#: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.html
+#: apps/publisher/templates/publisher/email/course_run/send_for_review.html
+#: apps/publisher/templates/publisher/email/studio_instance_created.html
+#, python-format
+msgid ""
+"<p>Note: This email address is unable to receive replies. For questions or "
+"comments, contact %(contact_us_email)s.</p>"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course/send_for_review.txt
+#: apps/publisher/templates/publisher/email/course/seo_review.txt
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course_run/preview_accepted.txt
+#: apps/publisher/templates/publisher/email/course_run/preview_available.txt
+#: apps/publisher/templates/publisher/email/course_run/published.txt
+#: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.txt
+#: apps/publisher/templates/publisher/email/course_run/send_for_review.txt
+#: apps/publisher/templates/publisher/email/studio_instance_created.txt
+#, python-format
+msgid ""
+"Note: This email address is unable to receive replies. For questions or "
+"comments, contact %(contact_us_email)s."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course/send_for_review.html
+#, python-format
+msgid ""
+"%(sender_team)s from %(org_name)s has submitted %(course_name)s for review. "
+"%(link_start)s%(page_url)s%(link_middle)s View this course in "
+"Publisher%(link_end)s to mark the course as reviewed or suggest edits."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course/send_for_review.txt
+#, python-format
+msgid ""
+"%(sender_team)s from %(org_name)s has submitted %(course_name)s for review. "
+"%(page_url)s View this course in Publisher to mark the course as reviewed or"
+" suggest edits."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course/seo_review.html
+#, python-format
+msgid ""
+"%(sender_team)s from %(org_name)s has submitted %(course_name)s for review. "
+"%(link_start)s%(course_page_url)s%(link_middle)sView this course in "
+"Publisher%(link_end)s to determine OFAC status."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course/seo_review.txt
+#, python-format
+msgid ""
+"%(sender_team)s from %(org_name)s has submitted %(course_name)s for review. "
+"%(course_page_url)s View this course in Publisher to determine OFAC status."
+msgstr ""
+
+#. Translators: project_coordinator_name is a member name.
+#: apps/publisher/templates/publisher/email/course_created.html
+#, python-format
+msgid "Dear %(project_coordinator_name)s,"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_created.html
+#, python-format
+msgid ""
+"%(course_team_name)s created the "
+"%(link_start)s%(page_url)s%(link_middle)s%(run_number)s course "
+"run%(link_end)s of %(course_title)s in Publisher on %(date)s at %(time)s."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_created.txt
+msgid "Dear"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_created.txt
+#, python-format
+msgid ""
+"%(course_team_name)s created the %(course_run)s : %(dashboard_url)s course "
+"run of %(course_title)s in Publisher on %(date)s at %(time)s."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
+#, python-format
+msgid ""
+"%(sender_team)s has reviewed the "
+"%(link_start)s%(page_url)s%(link_middle)s%(run_number)s course "
+"run%(link_end)s of %(course_name)s and has not added comments or suggested "
+"edits. The review for this course run is complete."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+msgid ""
+"Please create a preview of the About page for this course run and enter the "
+"preview URL in Publisher."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+msgid ""
+"Additionally, please check the comments in Publisher for information about "
+"OFAC blocking."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+#, python-format
+msgid ""
+"The %(sender_team)s has reviewed the %(run_number)s %(page_url)s course run "
+"of %(course_name)s and has not added comments or suggested edits. The review"
+" for this course run is complete."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/preview_accepted.html
+#: apps/publisher/templates/publisher/email/course_run/preview_accepted.txt
+#, python-format
+msgid "Dear %(publisher_role_name)s,"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/preview_accepted.html
+#, python-format
+msgid ""
+"%(course_team)s has reviewed the preview of the About page for the "
+"%(link_start)s%(page_url)s%(link_middle)s%(run_number)s%(link_end)s course "
+"run of %(course_name)s from %(org_name)s. You can now publish this About "
+"page."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/preview_accepted.txt
+#, python-format
+msgid ""
+"%(course_team)s has reviewed the preview of the About page for the "
+"%(run_number)s %(page_url)s course run of %(course_name)s from %(org_name)s."
+" You can now publish this About page."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/preview_available.html
+#: apps/publisher/templates/publisher/email/course_run/preview_available.txt
+#, python-format
+msgid "A preview is now available for the %(run)s run of %(title)s."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/preview_available.html
+#: apps/publisher/templates/publisher/email/course_run/preview_available.txt
+msgid "Follow these steps to move forward with publishing the course run."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/preview_available.html
+#: apps/publisher/templates/publisher/email/course_run/preview_available.txt
+msgid ""
+"Please do not share the preview URL publicly or use it in your own "
+"advertising. The finalized public URL will be available after the page is "
+"fully published."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/preview_available.html
+#: apps/publisher/templates/publisher/email/course_run/preview_available.txt
+msgid "Preview the about page"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/preview_available.html
+#: apps/publisher/templates/publisher/email/course_run/preview_available.txt
+msgid "Submit feedback in Publisher"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/preview_available.html
+#, python-format
+msgid ""
+"Note: This email address is unable to receive replies. For questions or "
+"comments, contact <a "
+"href=\"mailto:%(contact_us_email)s\">%(contact_us_email)s</a>."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/published.html
+#: apps/publisher/templates/publisher/email/course_run/published.txt
+#, python-format
+msgid ""
+"The About page for the %(course_run_number)s course run of %(course_name)s "
+"has been published. No further action is necessary."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/published.html
+#, python-format
+msgid ""
+"%(link_start)s%(preview_url)s%(link_middle)sView this About page on "
+"edx.org.%(link_end)s"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/published.txt
+#, python-format
+msgid "View this About page on edx.org. %(preview_url)s"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.html
+#: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.txt
+#, python-format
+msgid ""
+"%(course_team)s has made changes to the following published course run."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.html
+#: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.txt
+msgid "View the course run in Publisher"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.html
+#: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.txt
+msgid "to make changes and republish the course run."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/send_for_review.html
+#, python-format
+msgid ""
+"%(sender_team)s for course_name from %(org_name)s has submitted the "
+"%(run_number)s course run for review. "
+"%(link_start)s%(page_url)s%(link_middle)s View this course run in "
+"Publisher%(link_end)s to review the changes or suggest edits."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/send_for_review.html
+#, python-format
+msgid ""
+"This is a good time to %(link_start)s%(studio_url)s%(link_middle)s review "
+"this course run in Studio%(link_end)s."
+msgstr ""
+
+#. Translators: It's closing of mail.
+#: apps/publisher/templates/publisher/email/course_run/send_for_review.html
+#: apps/publisher/templates/publisher/email/course_run/send_for_review.txt
+msgid "Thank you,"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/send_for_review.txt
+#, python-format
+msgid ""
+"%(sender_team)s for %(course_name)s from %(org_name)s has submitted the "
+"%(run_number)s course run for review. %(page_url)s  View this course run in "
+"Publisher to review the changes or suggest edits."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course_run/send_for_review.txt
+#, python-format
+msgid ""
+"This is a good time to %(studio_url)s review this course run in Studio."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/decline_preview.html
+#, python-format
+msgid ""
+"%(team_name)s has declined the preview of the About page for the "
+"%(run_number)s course run of %(course_name)s. "
+"%(link_start)s%(page_url)s%(link_middle)sView the course run in "
+"Publisher.%(link_end)s"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/decline_preview.html
+#, python-format
+msgid "%(team_name)s added the following comment."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/decline_preview.txt
+#, python-format
+msgid ""
+"%(team_name)s has declined the preview of the About page for the "
+"%(run_number)s course run of %(course_name)s. View the course run in "
+"Publisher."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/decline_preview.txt
+msgid "{{ team_name }} added the following comment."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/role_assignment_changed.html
+#, python-format
+msgid ""
+"The %(role_name)s for "
+"%(link_start)s%(course_url)s%(link_middle)s%(course_title)s%(link_end)s has "
+"changed."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/role_assignment_changed.html
+#: apps/publisher/templates/publisher/email/role_assignment_changed.txt
+#, python-format
+msgid "Former %(role_name)s: %(former_user_name)s"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/role_assignment_changed.html
+#: apps/publisher/templates/publisher/email/role_assignment_changed.txt
+#, python-format
+msgid "Current %(role_name)s: %(current_user_name)s"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/role_assignment_changed.txt
+#, python-format
+msgid "The %(role_name)s for %(course_title)s: %(course_url)s has changed."
+msgstr ""
+
+#. Translators: course_team_name is course team member name.
+#: apps/publisher/templates/publisher/email/studio_instance_created.html
+#: apps/publisher/templates/publisher/email/studio_instance_created.txt
+#, python-format
+msgid "Dear %(course_team_name)s,"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/studio_instance_created.html
+#, python-format
+msgid ""
+"%(project_coordinator_name)s has created a Studio URL for the "
+"%(course_run)s. You can now take either of the following actions."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/studio_instance_created.html
+#: apps/publisher/templates/publisher/email/studio_instance_created.txt
+msgid "Enter course run content in Studio."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/studio_instance_created.html
+#: apps/publisher/templates/publisher/email/studio_instance_created.txt
+msgid ""
+"Continue adding About page information for this course run in Publisher."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/studio_instance_created.html
+#: apps/publisher/templates/publisher/email/studio_instance_created.txt
+msgid "Important Notes"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/studio_instance_created.html
+#: apps/publisher/templates/publisher/email/studio_instance_created.txt
+msgid ""
+"Before edX can publish the About page for this course run, you must also add"
+" the following items for this course run in Studio."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/studio_instance_created.html
+#: apps/publisher/templates/publisher/email/studio_instance_created.txt
+msgid "Course end date"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/studio_instance_created.html
+#: apps/publisher/templates/publisher/email/studio_instance_created.txt
+msgid "Course image"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/studio_instance_created.html
+#: apps/publisher/templates/publisher/email/studio_instance_created.txt
+msgid ""
+"Certificate assets (including signatory names, titles, and signature images)"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/studio_instance_created.html
+#, python-format
+msgid ""
+"EdX expects your completed %(link_start)sMOOC Development "
+"Checklist%(link_end)s before the course run starts."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/studio_instance_created.html
+#, python-format
+msgid ""
+"If this is the first run of a course, you should upload the course About "
+"video before you submit the course for review in Publisher. For more "
+"information, see %(link_start)sAdd a Course About Video to "
+"edx.org%(link_end)s."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/studio_instance_created.txt
+#, python-format
+msgid ""
+"%(project_coordinator_name)s has created a Studio URL for the %(course_run)s"
+" course run of %(course_name)s. You can now take either of the following "
+"actions."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/studio_instance_created.txt
+msgid ""
+"EdX expects your completed MOOC Development Checklist before the course run "
+"starts."
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/studio_instance_created.txt
+msgid ""
+"If this is the first run of a course, you should upload the course About "
+"video before you submit the course for review in Publisher. For more "
+"information, see Add a Course About Video to edx.org."
+msgstr ""
+
+#: apps/publisher/templates/publisher/seat_form.html
+msgid "Seat Form"
+msgstr ""
+
+#: apps/publisher/validators.py
+#, python-format
+msgid ""
+"The image you uploaded is of incorrect resolution. Course image files must "
+"be %(with)s x %(height)s pixels in size."
+msgstr ""
+
+#: apps/publisher/validators.py
+#, python-brace-format
+msgid ""
+"Ensure this value has at most {allowed_char} characters (it has "
+"{current_char})."
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "PARTNER MANAGER"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "PROJECT COORDINATOR"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "MARKETING"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "PUBLISHER"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "COURSE TEAM"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "Send for Review"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "Mark as Reviewed"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "course team"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "project coordinator"
+msgstr ""
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid ""
+"{course_title} has been created successfully. Enter information on this page"
+" to create a course run for this course."
+msgstr ""
+
+#: apps/publisher/views.py
+msgid ""
+"You have successfully created a course. You can edit the course information "
+"or enter information for the course About page at any time before you send "
+"the course to edX marketing for review. "
+msgstr ""
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid "An error occurred while saving your changes. {error}"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid ""
+"The page could not be updated. Make sure that all values are correct, then "
+"try again."
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "Course  updated successfully."
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "course"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "marketing"
+msgstr ""
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid "You have successfully created a course run for {course_title}."
+msgstr ""
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid "There was an error saving this course run: {error}"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid ""
+"Your organization does not have default roles to review/approve this course-"
+"run. Please contact your partner manager to create default roles."
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "Course run updated successfully."
+msgstr ""
+
+#: apps/publisher/wrappers.py
+msgid "Submitted for Project Coordinator Review"
+msgstr ""
+
+#: apps/publisher/wrappers.py
+msgid "Awaiting Project Coordinator Review"
+msgstr ""
+
+#: apps/publisher/wrappers.py
+msgid "Approved by Project Coordinator"
+msgstr ""
+
+#: apps/publisher_comments/emails.py
+msgid "Comment added:"
+msgstr ""
+
+#: apps/publisher_comments/emails.py
+msgid "Comment updated:"
+msgstr ""
+
+#. Translators: subject_desc will be choice from ('New comment added',
+#. 'Comment updated'),
+#. 'pacing_type' will be choice from ('instructor-paced', 'self-paced'),
+#. 'title' and 'start' will be the value of course title & start date fields.
+#: apps/publisher_comments/emails.py
+#, python-brace-format
+msgid "{subject_desc} {title} {start} - {pacing_type}"
+msgstr ""
+
+#. Translators: 'subject_desc' will be choice from ('New comment added',
+#. 'Comment updated')
+#. and 'title' will be the value of course title field.
+#: apps/publisher_comments/emails.py
+#, python-brace-format
+msgid "{subject_desc} {title}"
+msgstr ""
+
+#. Translators: subject_desc will be Preview Decline for course run,
+#. 'title' will be the value of course title.
+#: apps/publisher_comments/emails.py
+#, python-brace-format
+msgid "Preview declined: {course_name}"
+msgstr ""
+
+#: apps/publisher_comments/models.py
+msgid "Default"
+msgstr ""
+
+#: apps/publisher_comments/models.py
+msgid "Decline Preview"
+msgstr ""
+
+#: apps/publisher_comments/models.py
+msgid "modified"
+msgstr ""
+
+#: urls.py
+msgid "Discovery Service Administration"
+msgstr ""

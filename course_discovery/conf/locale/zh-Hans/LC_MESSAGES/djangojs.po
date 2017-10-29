@@ -1,0 +1,98 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: edx-platform\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-10-25 06:08+0000\n"
+"PO-Revision-Date: 2016-05-25 15:41+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Chinese Simplified (http://www.transifex.com/open-edx/edx-platform/language/zh-Hans/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh-Hans\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: static/js/catalogs-change-form.js
+msgid "Preview"
+msgstr ""
+
+#: static/js/publisher/change-state.js
+msgid "Something went wrong! please try again later."
+msgstr ""
+
+#: static/js/publisher/comparing-objects.js
+msgid "Hide changes"
+msgstr ""
+
+#: static/js/publisher/comparing-objects.js
+msgid "Show changes"
+msgstr ""
+
+#: static/js/publisher/image-validation.js
+msgid "The image file size cannot exceed 1 MB."
+msgstr ""
+
+#: static/js/publisher/instructors.js
+msgid "New Instructor"
+msgstr ""
+
+#: static/js/publisher/instructors.js
+msgid "Add staff member"
+msgstr ""
+
+#: static/js/publisher/instructors.js
+msgid ""
+"Please upload a instructor image. File must be smaller than 1 megabyte in "
+"size."
+msgstr ""
+
+#: static/js/publisher/instructors.js static/js/publisher/preview-url.js
+msgid "Something went wrong!"
+msgstr ""
+
+#: static/js/publisher/instructors.js
+msgid "File must be smaller than 1 megabyte in size."
+msgstr ""
+
+#: static/js/publisher/instructors.js
+msgid "Update staff member"
+msgstr ""
+
+#: static/js/publisher/instructors.js
+msgid "Update Instructor"
+msgstr ""
+
+#: static/js/publisher/preview-url.js
+msgid "Save"
+msgstr ""
+
+#: static/js/publisher/preview-url.js
+msgid "Please enter a valid URL."
+msgstr ""
+
+#: static/js/publisher/views/courserun_list.js
+msgid ""
+"You have successfully created a Studio URL ({studioLinkTag}) for "
+"{courseRunDetail} with a start date of {startDate}"
+msgstr ""
+
+#: static/js/publisher/views/courserun_list.js
+msgid "There was an error in saving your data."
+msgstr ""
+
+#: static/js/publisher/views/courses.js
+msgid "No courses have been created."
+msgstr ""
+
+#: static/js/publisher/views/navbar.js
+msgid "OFF"
+msgstr ""
+
+#: static/js/publisher/views/navbar.js
+msgid "ON"
+msgstr ""
