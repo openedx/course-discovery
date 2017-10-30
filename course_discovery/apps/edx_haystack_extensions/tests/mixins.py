@@ -1,3 +1,4 @@
+import pytest
 from django.conf import settings
 from elasticsearch.helpers import bulk
 from haystack import connections as haystack_connections
@@ -26,6 +27,7 @@ class SearchBackendTestMixin(ElasticsearchTestMixin):
         return self.backend.conn.count(index=self.backend.index_name)['count']
 
 
+@pytest.mark.usefixtures('haystack_default_connection')
 class SearchIndexTestMixin(object):
     backend = None
     index_prefix = None  # The backend.index_name is manipulated during operation, so we snapshot prefix during setUp
