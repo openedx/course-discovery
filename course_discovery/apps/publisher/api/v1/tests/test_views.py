@@ -1,4 +1,3 @@
-import datetime
 import json
 import random
 
@@ -210,7 +209,7 @@ class CourseRunViewSetTests(APITestCase):
         discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
         DiscoverySeat.objects.get(
             type=DiscoverySeat.VERIFIED,
-            upgrade_deadline=publisher_course_run.end - datetime.timedelta(days=PUBLISHER_UPGRADE_DEADLINE_DAYS),
+            upgrade_deadline=verified_seat.calculated_upgrade_deadline,
             price=verified_seat.price,
             course_run=discovery_course_run
         )
