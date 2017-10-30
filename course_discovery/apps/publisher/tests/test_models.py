@@ -374,6 +374,7 @@ class TestSeatModel:
         now = datetime.datetime.utcnow()
         seat = factories.SeatFactory(type=Seat.VERIFIED, upgrade_deadline=None, course_run__end=now)
         expected = now - datetime.timedelta(days=settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
+        expected = expected.replace(hour=23, minute=59, second=59, microsecond=99999)
         assert seat.calculated_upgrade_deadline == expected
 
         seat = factories.SeatFactory(type=Seat.VERIFIED)

@@ -476,8 +476,12 @@ class Seat(TimeStampedModel, ChangedByMixin):
         will be calculated based on the related course run's end date.
         """
         if self.type == self.VERIFIED:
-            return self.upgrade_deadline or (
-                self.course_run.end - datetime.timedelta(days=settings.PUBLISHER_UPGRADE_DEADLINE_DAYS))
+            if self.upgrade_deadline:
+                return self.upgrade_deadline
+
+            deadline = self.course_run.end - datetime.timedelta(days=settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
+            deadline = deadline.replace(hour=23, minute=59, second=59, microsecond=99999)
+            return deadline
 
         return None
 
