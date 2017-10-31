@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-25 06:08+0000\n"
+"POT-Creation-Date: 2017-11-01 07:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,9 +45,7 @@ msgid "Add staff member"
 msgstr ""
 
 #: static/js/publisher/instructors.js
-msgid ""
-"Please upload a instructor image. File must be smaller than 1 megabyte in "
-"size."
+msgid "Please upload a instructor image."
 msgstr ""
 
 #: static/js/publisher/instructors.js static/js/publisher/preview-url.js
@@ -55,7 +53,15 @@ msgid "Something went wrong!"
 msgstr ""
 
 #: static/js/publisher/instructors.js
-msgid "File must be smaller than 1 megabyte in size."
+msgid "The image size must be smaller than 256kb"
+msgstr ""
+
+#: static/js/publisher/instructors.js
+msgid "The image dimensions must be less than 110 x 110"
+msgstr ""
+
+#: static/js/publisher/instructors.js
+msgid " Unsupported Image extension"
 msgstr ""
 
 #: static/js/publisher/instructors.js
