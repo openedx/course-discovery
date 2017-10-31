@@ -14,7 +14,9 @@ from course_discovery.apps.course_metadata.data_loaders.api import (
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JPEG, JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import ApiClientTestMixin, DataLoaderTestMixin
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Organization, Program, ProgramType, Seat
+from course_discovery.apps.course_metadata.models import (
+    Course, CourseEntitlement, CourseRun, Organization, Program, ProgramType, Seat, SeatType
+)
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, ImageFactory, OrganizationFactory, SeatFactory, VideoFactory
 )
@@ -329,7 +331,7 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
     def api_url(self):
         return self.partner.ecommerce_api_url
 
-    def mock_api(self):
+    def mock_courses_api(self):
         # Create existing seats to be removed by ingest
         audit_run = CourseRunFactory(title_override='audit', key='audit/course/run')
         verified_run = CourseRunFactory(title_override='verified', key='verified/course/run')
@@ -343,6 +345,45 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
 
         bodies = mock_data.ECOMMERCE_API_BODIES
         url = self.api_url + 'courses/'
+        responses.add_callback(
+            responses.GET,
+            url,
+            callback=mock_api_callback(url, bodies),
+            content_type=JSON
+        )
+        return bodies
+
+    def mock_products_api(self, alt_course=None, alt_currency=None, alt_mode=None):
+        """ Return a new Course Entitlement to be added by ingest """
+        course = CourseFactory()
+
+        bodies = [
+            {
+                "structure": "child",
+                "product_class": "Course Entitlement",
+                "price": "10.00",
+                "expires": None,
+                "attribute_values": [
+                    {
+                        "name": "certificate_type",
+                        "value": alt_mode if alt_mode else "verified",
+                    },
+                    {
+                        "name": "UUID",
+                        "value": alt_course if alt_course else str(course.uuid),
+                    }
+                ],
+                "is_available_to_buy": True,
+                "stockrecords": [
+                    {
+                        "price_currency": alt_currency if alt_currency else "USD",
+                        "price_excl_tax": "10.00",
+                        "partner_sku": "sku132",
+                    }
+                ]
+            }
+        ]
+        url = '{url}products/'.format(url=self.api_url)
         responses.add_callback(
             responses.GET,
             url,
@@ -393,12 +434,36 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
             self.assertEqual(seat.upgrade_deadline, upgrade_deadline)
             self.assertEqual(seat.sku, sku)
 
+    def assert_entitlements_loaded(self, body):
+        """ Assert a Course Entitlement was loaded into the database for each entry in the specified data body. """
+        self.assertEqual(CourseEntitlement.objects.count(), len(body))
+        for datum in body:
+            attributes = {attribute['name']: attribute['value'] for attribute in datum['attribute_values']}
+            course = Course.objects.get(uuid=attributes['UUID'])
+            stock_record = datum['stockrecords'][0]
+            price_currency = stock_record['price_currency']
+            price = Decimal(stock_record['price_excl_tax'])
+            sku = stock_record['partner_sku']
+
+            mode_name = attributes['certificate_type']
+            mode = SeatType.objects.get(name=mode_name)
+
+            entitlement = course.entitlements.get(mode=mode)
+
+            self.assertEqual(entitlement.course, course)
+            self.assertEqual(entitlement.mode, mode)
+            self.assertEqual(entitlement.price, price)
+            self.assertEqual(entitlement.currency.code, price_currency)
+            self.assertEqual(entitlement.sku, sku)
+
     @responses.activate
     def test_ingest(self):
         """ Verify the method ingests data from the E-Commerce API. """
-        api_data = self.mock_api()
-        loaded_course_run_data = api_data[:-1]
-        loaded_seat_data = api_data[:-2]
+        courses_api_data = self.mock_courses_api()
+        loaded_course_run_data = courses_api_data[:-1]
+        loaded_seat_data = courses_api_data[:-2]
+
+        products_api_data = self.mock_products_api()
 
         self.assertEqual(CourseRun.objects.count(), len(loaded_course_run_data))
 
@@ -409,13 +474,37 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
         self.loader.ingest()
 
         # Verify the API was called with the correct authorization header
-        self.assert_api_called(1)
+        self.assert_api_called(2)
 
         for datum in loaded_seat_data:
             self.assert_seats_loaded(datum)
 
+        self.assert_entitlements_loaded(products_api_data)
+
         # Verify multiple calls to ingest data do NOT result in data integrity errors.
         self.loader.ingest()
+
+    @responses.activate
+    @ddt.data(
+        ('a01354b1-c0de-4a6b-c5de-ab5c6d869e76', None, None),
+        (None, "NRC", None),
+        (None, None, "notamode")
+    )
+    @ddt.unpack
+    def test_ingest_fails(self, alt_course, alt_currency, alt_mode):
+        """ Verify the proper warnings are logged when data objects are not present. """
+        self.mock_courses_api()
+        self.mock_products_api(alt_course=alt_course, alt_currency=alt_currency, alt_mode=alt_mode)
+        with mock.patch(LOGGER_PATH) as mock_logger:
+            self.loader.ingest()
+            msg = 'Could not find '
+            if alt_course:
+                msg += 'course ' + alt_course
+            elif alt_currency:
+                msg += 'currency ' + alt_currency
+            else:
+                msg += 'course entitlement mode ' + alt_mode
+            mock_logger.warning.assert_called_with(msg)
 
     @ddt.unpack
     @ddt.data(

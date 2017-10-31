@@ -348,3 +348,14 @@ class PersonWorkFactory(factory.django.DjangoModelFactory):
         model = PersonWork
 
     person = factory.SubFactory(PersonFactory)
+
+
+class CourseEntitlementFactory(factory.DjangoModelFactory):
+    mode = factory.SubFactory(SeatTypeFactory)
+    price = FuzzyDecimal(0.0, 650.0)
+    currency = factory.Iterator(Currency.objects.all())
+    sku = FuzzyText(length=8)
+    course = factory.SubFactory(CourseFactory)
+
+    class Meta:
+        model = CourseEntitlement
