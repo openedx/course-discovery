@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-25 06:08+0000\n"
+"POT-Creation-Date: 2017-11-01 07:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,22 +50,29 @@ msgid "Add staff member"
 msgstr "Àdd stäff mémßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: static/js/publisher/instructors.js
-msgid ""
-"Please upload a instructor image. File must be smaller than 1 megabyte in "
-"size."
+msgid "Please upload a instructor image."
 msgstr ""
-"Pléäsé üplöäd ä ïnstrüçtör ïmägé. Fïlé müst ßé smällér thän 1 mégäßýté ïn "
-"sïzé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+"Pléäsé üplöäd ä ïnstrüçtör ïmägé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
 #: static/js/publisher/instructors.js static/js/publisher/preview-url.js
 msgid "Something went wrong!"
 msgstr "Söméthïng wént wröng! Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: static/js/publisher/instructors.js
-msgid "File must be smaller than 1 megabyte in size."
+msgid "The image size must be smaller than 256kb"
 msgstr ""
-"Fïlé müst ßé smällér thän 1 mégäßýté ïn sïzé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"Thé ïmägé sïzé müst ßé smällér thän 256kß Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
+
+#: static/js/publisher/instructors.js
+msgid "The image dimensions must be less than 110 x 110"
+msgstr ""
+"Thé ïmägé dïménsïöns müst ßé léss thän 110 x 110 Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: static/js/publisher/instructors.js
+msgid " Unsupported Image extension"
+msgstr " Ûnsüppörtéd Ìmägé éxténsïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
 #: static/js/publisher/instructors.js
 msgid "Update staff member"

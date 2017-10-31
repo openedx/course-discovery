@@ -30,9 +30,9 @@ $(document).ready(function () {
             url = $(this).data('url'),
             uuid = $('#addInstructorModal').data('uuid');
 
-        if (!editMode && $('#staffImageSelect').get(0).files.length === 0) {
-            addModalError(gettext("Please upload a instructor image. File must be smaller than 1 megabyte in size."));
-            return false;
+        if (!editMode && $('#staffImageSelect').get(0).files.length === 0 ) {
+            addModalError(gettext("Please upload a instructor image."));
+            return;
         }
         personData = {
             'given_name': $('#given-name').val(),
@@ -96,22 +96,37 @@ $(document).ready(function () {
     });
 });
 
-function loadSelectedImage(input) {
-    // 1mb in bytes
-    var maxFileSize = 1000000;
+function loadSelectedImage (input) {
+    var maxFileSize = 256, // Size in KB's
+        imageFile = input.files[0],
+        imageDimension = 110,
+        imgPath = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+    if (imageFile) {
+        if ( (/\.(png|jpeg|jpg|gif)$/i).test(imageFile.name) ) {
+            if (imageFile.size / 1024 > maxFileSize) {
+                addModalError(gettext("The image size must be smaller than 256kb"));
+            }
+            else {
+                var reader = new FileReader();
+                clearModalError();
 
-    if (input.files && input.files[0]) {
-        if (input.files[0].size > maxFileSize) {
-            addModalError(gettext("File must be smaller than 1 megabyte in size."));
-        } else {
-            var reader = new FileReader();
-
-            clearModalError();
-            reader.onload = function (e) {
-                $('.select-image').attr('src', e.target.result).addClass('image-updated');
-            };
-
-            reader.readAsDataURL(input.files[0]);
+                reader.addEventListener("load", function (e) {
+                    var image = new Image();
+                    image.addEventListener("load", function () {
+                        if (image.width > imageDimension && image.height > imageDimension) {
+                            addModalError(gettext("The image dimensions must be less than 110 x 110"));
+                            $('.select-image').attr('src', imgPath).removeClass('image-updated');
+                            $('#staffImageSelect').val('');
+                        }
+                    });
+                    $('.select-image').attr('src', e.target.result).addClass('image-updated');
+                    image.src = reader.result;
+                });
+                reader.readAsDataURL(imageFile);
+            }
+        }
+        else{
+            addModalError(gettext(imageFile.name +" Unsupported Image extension" ));
         }
     }
 }
