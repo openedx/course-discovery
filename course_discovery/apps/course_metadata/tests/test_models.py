@@ -995,6 +995,23 @@ class ProgramTypeTests(TestCase):
         self.assertEqual(str(program_type), program_type.name)
 
 
+class CourseEntitlementTests(TestCase):
+    """ Tests of the CourseEntitlement model. """
+
+    def setUp(self):
+        super(CourseEntitlementTests, self).setUp()
+        self.course = factories.CourseFactory()
+        self.mode = factories.SeatTypeFactory()
+
+    def test_unique_constraint(self):
+        """
+        Verify that a CourseEntitlement does not allow multiple skus or prices for the same course and mode.
+        """
+        factories.CourseEntitlementFactory(course=self.course, mode=self.mode)
+        with self.assertRaises(IntegrityError):
+            factories.CourseEntitlementFactory(course=self.course, mode=self.mode)
+
+
 class EndorsementTests(TestCase):
     """ Tests of the Endorsement model. """
 

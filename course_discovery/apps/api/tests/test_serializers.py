@@ -19,10 +19,11 @@ from waffle.testutils import override_switch
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.api.serializers import (AffiliateWindowSerializer, CatalogSerializer,
                                                    ContainedCourseRunsSerializer, ContainedCoursesSerializer,
-                                                   CorporateEndorsementSerializer, CourseRunSearchSerializer,
-                                                   CourseRunSerializer, CourseRunWithProgramsSerializer,
-                                                   CourseSearchSerializer, CourseSerializer,
-                                                   CourseWithProgramsSerializer, EndorsementSerializer, FAQSerializer,
+                                                   CorporateEndorsementSerializer, CourseEntitlementSerializer,
+                                                   CourseRunSearchSerializer, CourseRunSerializer,
+                                                   CourseRunWithProgramsSerializer, CourseSearchSerializer,
+                                                   CourseSerializer, CourseWithProgramsSerializer,
+                                                   EndorsementSerializer, FAQSerializer,
                                                    FlattenedCourseRunWithCourseSerializer, ImageSerializer,
                                                    MinimalCourseRunSerializer, MinimalCourseSerializer,
                                                    MinimalOrganizationSerializer, MinimalProgramCourseSerializer,
@@ -123,6 +124,7 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
             'uuid': str(course.uuid),
             'title': course.title,
             'course_runs': MinimalCourseRunSerializer(course.course_runs, many=True, context=context).data,
+            'entitlements': [],
             'owners': MinimalOrganizationSerializer(course.authoring_organizations, many=True, context=context).data,
             'image': ImageField().to_representation(course.image_url),
             'short_description': course.short_description
@@ -161,6 +163,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
                 })
             ),
             'course_runs': CourseRunSerializer(course.course_runs, many=True, context={'request': request}).data,
+            'entitlements': CourseEntitlementSerializer(many=True).data,
             'owners': OrganizationSerializer(course.authoring_organizations, many=True).data,
             'prerequisites_raw': course.prerequisites_raw,
             'syllabus_raw': course.syllabus_raw,

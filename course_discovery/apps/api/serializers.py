@@ -19,10 +19,10 @@ from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import (FAQ, CorporateEndorsement, Course, CourseRun, Endorsement,
-                                                          Image, Organization, Person, PersonSocialNetwork, PersonWork,
-                                                          Position, Prerequisite, Program, ProgramType, Seat, Subject,
-                                                          Video)
+from course_discovery.apps.course_metadata.models import (FAQ, CorporateEndorsement, Course, CourseEntitlement,
+                                                          CourseRun, Endorsement, Image, Organization, Person,
+                                                          PersonSocialNetwork, PersonWork, Position, Prerequisite,
+                                                          Program, ProgramType, Seat, SeatType, Subject, Video)
 from course_discovery.apps.course_metadata.search_indexes import CourseIndex, CourseRunIndex, ProgramIndex
 
 User = get_user_model()
@@ -390,6 +390,25 @@ class SeatSerializer(serializers.ModelSerializer):
         fields = ('type', 'price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours', 'sku',)
 
 
+class CourseEntitlementSerializer(serializers.ModelSerializer):
+    """Serializer for the ``CourseEntitlement`` model."""
+    price = serializers.DecimalField(
+        decimal_places=CourseEntitlement.PRICE_FIELD_CONFIG['decimal_places'],
+        max_digits=CourseEntitlement.PRICE_FIELD_CONFIG['max_digits']
+    )
+    currency = serializers.SlugRelatedField(read_only=True, slug_field='code')
+    sku = serializers.CharField()
+    mode = serializers.SlugRelatedField(slug_field='name', queryset=SeatType.objects.all())
+
+    @classmethod
+    def prefetch_queryset(cls):
+        return CourseEntitlement.objects.all().select_related('currency', 'mode')
+
+    class Meta(object):
+        model = CourseEntitlement
+        fields = ('mode', 'price', 'currency', 'sku',)
+
+
 class MinimalOrganizationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organization
@@ -556,6 +575,7 @@ class ContainedCourseRunsSerializer(serializers.Serializer):
 
 class MinimalCourseSerializer(TimestampModelSerializer):
     course_runs = MinimalCourseRunSerializer(many=True)
+    entitlements = CourseEntitlementSerializer(many=True)
     owners = MinimalOrganizationSerializer(many=True, source='authoring_organizations')
     image = ImageField(read_only=True, source='image_url')
 
@@ -567,12 +587,13 @@ class MinimalCourseSerializer(TimestampModelSerializer):
 
         return queryset.select_related('partner').prefetch_related(
             'authoring_organizations',
+            'entitlements',
             Prefetch('course_runs', queryset=MinimalCourseRunSerializer.prefetch_queryset(queryset=course_runs)),
         )
 
     class Meta:
         model = Course
-        fields = ('key', 'uuid', 'title', 'course_runs', 'owners', 'image', 'short_description',)
+        fields = ('key', 'uuid', 'title', 'course_runs', 'entitlements', 'owners', 'image', 'short_description',)
 
 
 class CourseSerializer(MinimalCourseSerializer):
@@ -598,6 +619,7 @@ class CourseSerializer(MinimalCourseSerializer):
             'expected_learning_items',
             'prerequisites',
             'subjects',
+            'entitlements',
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),

@@ -766,6 +766,26 @@ class Seat(TimeStampedModel):
         )
 
 
+class CourseEntitlement(TimeStampedModel):
+    """ Model storing product metadata for a Course. """
+    PRICE_FIELD_CONFIG = {
+        'decimal_places': 2,
+        'max_digits': 10,
+        'null': False,
+        'default': 0.00,
+    }
+    course = models.ForeignKey(Course, related_name='entitlements')
+    mode = models.ForeignKey(SeatType)
+    price = models.DecimalField(**PRICE_FIELD_CONFIG)
+    currency = models.ForeignKey(Currency)
+    sku = models.CharField(max_length=128, null=True, blank=True)
+
+    class Meta(object):
+        unique_together = (
+            ('course', 'mode')
+        )
+
+
 class Endorsement(TimeStampedModel):
     endorser = models.ForeignKey(Person, blank=False, null=False)
     quote = models.TextField(blank=False, null=False)

@@ -12,7 +12,7 @@ from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Organization, Program, ProgramType, Seat, Video
+    Course, CourseEntitlement, CourseRun, Organization, Program, ProgramType, Seat, SeatType, Video
 )
 
 logger = logging.getLogger(__name__)
@@ -248,16 +248,18 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
 
 class EcommerceApiDataLoader(AbstractDataLoader):
-    """ Loads course seats from the E-Commerce API. """
+    """ Loads course seats and entitlements from the E-Commerce API. """
 
     def ingest(self):
         logger.info('Refreshing course seats from %s...', self.partner.ecommerce_api_url)
 
         initial_page = 1
-        response = self._make_request(initial_page)
-        count = response['count']
+        course_runs = self._request_course_runs(initial_page)
+        entitlements = self._request_entitlments(initial_page)
+        count = course_runs['count'] + entitlements['count']
         pages = math.ceil(count / self.PAGE_SIZE)
-        self._process_response(response)
+        self._process_course_runs(course_runs)
+        self._process_entitlements(entitlements)
 
         pagerange = range(initial_page + 1, pages + 1)
 
@@ -266,29 +268,48 @@ class EcommerceApiDataLoader(AbstractDataLoader):
                 for page in pagerange:
                     executor.submit(self._load_data, page)
             else:
-                for future in [executor.submit(self._make_request, page) for page in pagerange]:
+                for future in [executor.submit(self._request_course_runs, page) for page in pagerange]:
                     response = future.result()
-                    self._process_response(response)
+                    self._process_course_runs(response)
+                for future in [executor.submit(self._request_entitlments, page) for page in pagerange]:
+                    response = future.result()
+                    self._process_entitlements(response)
 
-        logger.info('Retrieved %d course seats from %s.', count, self.partner.ecommerce_api_url)
+        logger.info('Retrieved %d course seats and %d course entitlements from %s.', course_runs['count'],
+                    entitlements['count'], self.partner.ecommerce_api_url)
 
         self.delete_orphans()
 
     def _load_data(self, page):  # pragma: no cover
         """Make a request for the given page and process the response."""
-        response = self._make_request(page)
-        self._process_response(response)
+        course_runs = self._request_course_runs(page)
+        self._process_course_runs(course_runs)
+        entitlements = self._request_entitlments(page)
+        self._process_entitlements(entitlements)
 
-    def _make_request(self, page):
+    def _request_course_runs(self, page):
         return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE, include_products=True)
 
-    def _process_response(self, response):
+    def _request_entitlments(self, page):
+        return self.api_client.products().get(page=page, page_size=self.PAGE_SIZE, product_class='Course Entitlement')
+
+    def _process_course_runs(self, response):
         results = response['results']
         logger.info('Retrieved %d course seats...', len(results))
 
         for body in results:
             body = self.clean_strings(body)
             self.update_seats(body)
+
+    def _process_entitlements(self, response):
+        results = response['results']
+        logger.info('Retrieved %d course entitlements...', len(results))
+
+        skus = []
+        for body in results:
+            body = self.clean_strings(body)
+            skus.append(self.update_entitlement(body))
+        CourseEntitlement.objects.exclude(sku__in=skus).delete()
 
     def update_seats(self, body):
         course_run_key = body['id']
@@ -339,6 +360,44 @@ class EcommerceApiDataLoader(AbstractDataLoader):
 
         course_run.seats.update_or_create(type=seat_type, credit_provider=credit_provider, currency=currency,
                                           defaults=defaults)
+
+    def update_entitlement(self, body):
+        attributes = {attribute['name']: attribute['value'] for attribute in body['attribute_values']}
+        course_uuid = attributes.get('UUID')
+        try:
+            course = Course.objects.get(uuid=course_uuid)
+        except Course.DoesNotExist:
+            msg = 'Could not find course {uuid}'.format(uuid=course_uuid)
+            logger.warning(msg)
+            return None
+
+        stock_record = body['stockrecords'][0]
+        currency_code = stock_record['price_currency']
+        price = Decimal(stock_record['price_excl_tax'])
+        sku = stock_record['partner_sku']
+
+        try:
+            currency = Currency.objects.get(code=currency_code)
+        except Currency.DoesNotExist:
+            msg = 'Could not find currency {code}'.format(code=currency_code)
+            logger.warning(msg)
+            return None
+
+        mode_name = attributes.get('certificate_type')
+        try:
+            mode = SeatType.objects.get(name=mode_name)
+        except SeatType.DoesNotExist:
+            msg = 'Could not find course entitlement mode {mode}'.format(mode=mode_name)
+            logger.warning(msg)
+            return None
+
+        defaults = {
+            'price': price,
+            'currency': currency,
+            'sku': sku
+        }
+        course.entitlements.update_or_create(mode=mode, defaults=defaults)
+        return sku
 
     def get_certificate_type(self, product):
         return next(
