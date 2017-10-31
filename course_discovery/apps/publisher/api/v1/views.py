@@ -104,12 +104,12 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             'full_description': publisher_course.full_description,
             'level_type': publisher_course.level_type,
             'video': video,
-            'image': publisher_course.image,
             'outcome': publisher_course.expected_learnings,
             'prerequisites_raw': publisher_course.prerequisites,
             'syllabus_raw': publisher_course.syllabus,
         }
         discovery_course, created = Course.objects.update_or_create(partner=partner, key=course_key, defaults=defaults)
+        discovery_course.image.save(publisher_course.image.name, publisher_course.image)
         discovery_course.authoring_organizations.add(*publisher_course.organizations.all())
 
         subjects = [subject for subject in set([
