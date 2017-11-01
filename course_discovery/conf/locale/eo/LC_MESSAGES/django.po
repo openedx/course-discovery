@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-01 07:46+0000\n"
+"POT-Creation-Date: 2017-11-02 12:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -843,7 +843,6 @@ msgid "Course End Date"
 msgstr "Çöürsé Énd Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: apps/publisher/forms.py
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "Instructor"
 msgstr "Ìnstrüçtör Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
@@ -2487,8 +2486,24 @@ msgstr ""
 " αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
-msgid "Add New"
-msgstr "Àdd Néw Ⱡ'σяєм ιρѕυм #"
+msgid ""
+"Make sure that you search for an instructor before you create a new "
+"instructor."
+msgstr ""
+"Mäké süré thät ýöü séärçh för än ïnstrüçtör ßéföré ýöü çréäté ä néw "
+"ïnstrüçtör. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "Search for Instructor:"
+msgstr "Séärçh för Ìnstrüçtör: Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "Create new"
+msgstr "Çréäté néw Ⱡ'σяєм ιρѕυм ∂σłσ#"
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "instructor"
+msgstr "ïnstrüçtör Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "ESTIMATED EFFORT"
