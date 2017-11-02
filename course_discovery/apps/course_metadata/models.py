@@ -1,6 +1,7 @@
 import datetime
 import itertools
 import logging
+import re
 from collections import defaultdict
 from urllib.parse import urljoin
 from uuid import uuid4
@@ -175,7 +176,7 @@ class Organization(TimeStampedModel):
     """ Organization model. """
     partner = models.ForeignKey(Partner, null=True, blank=False)
     uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
-    key = models.CharField(max_length=255)
+    key = models.CharField(max_length=255, help_text=_('Only ascii characters allowed (a-zA-Z0-9)'))
     name = models.CharField(max_length=255)
     marketing_url_path = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
@@ -191,6 +192,10 @@ class Organization(TimeStampedModel):
         blank=True,
         help_text=_('Pick a tag from the suggestions. To make a new tag, add a comma after the tag name.'),
     )
+
+    def clean(self):
+        if not re.match("^[a-zA-Z0-9_-]*$", self.key):
+            raise ValidationError(_('Please do not use any spaces or special characters in the key field'))
 
     class Meta:
         unique_together = (

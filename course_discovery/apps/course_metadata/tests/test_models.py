@@ -331,12 +331,37 @@ class CourseRunTests(TestCase):
         assert self.course_run.image_url == self.course_run.course.image_url
 
 
+@ddt.ddt
 class OrganizationTests(TestCase):
     """ Tests for the `Organization` model. """
 
     def setUp(self):
         super(OrganizationTests, self).setUp()
         self.organization = factories.OrganizationFactory()
+
+    @ddt.data(
+        "key with space",
+        "key[with,special",
+        "keyó"
+    )
+    def test_clean_error(self, key):
+        """
+        Verify that the clean method raises validation error if key consists of special characters
+        """
+        self.organization.key = key
+        self.assertRaises(ValidationError, self.organization.clean)
+
+    @ddt.data(
+        "keywithoutspace",
+        "correctkey",
+        "correct_key"
+    )
+    def test_clean_success(self, key):
+        """
+        Verify that the clean method returns None if key is valid
+        """
+        self.organization.key = key
+        self.assertEqual(self.organization.clean(), None)
 
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the key and name. """
