@@ -347,6 +347,12 @@ msgid "Subject model translations"
 msgstr "Süßjéçt mödél tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: apps/course_metadata/models.py
+msgid "Only ascii characters allowed (a-zA-Z0-9)"
+msgstr ""
+"Önlý äsçïï çhäräçtérs ällöwéd (ä-zÀ-Z0-9) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
 msgid ""
 "Logo to be displayed on certificates. If this logo is the same as "
 "logo_image_url, copy and paste the same value to both fields."
@@ -361,6 +367,12 @@ msgid ""
 msgstr ""
 "Pïçk ä täg fröm thé süggéstïöns. Tö mäké ä néw täg, ädd ä çömmä äftér thé "
 "täg nämé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/course_metadata/models.py
+msgid "Please do not use any spaces or special characters in the key field"
+msgstr ""
+"Pléäsé dö nöt üsé äný späçés ör spéçïäl çhäräçtérs ïn thé kéý fïéld Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: apps/course_metadata/models.py
 msgid "People"
