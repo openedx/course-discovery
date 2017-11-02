@@ -1104,35 +1104,38 @@ class SeatSerializerTests(TestCase):
 
 
 class PersonSerializerTests(TestCase):
-    def test_data(self):
+    def setUp(self):
         request = make_request()
-        context = {'request': request}
-        image_field = StdImageSerializerField()
-        image_field._context = context  # pylint: disable=protected-access
+        self.context = {'request': request}
 
         position = PositionFactory()
-        person = position.person
-        serializer = PersonSerializer(person, context=context)
-
-        expected = {
-            'uuid': str(person.uuid),
-            'given_name': person.given_name,
-            'family_name': person.family_name,
-            'bio': person.bio,
-            'profile_image_url': person.profile_image_url,
-            'profile_image': image_field.to_representation(person.profile_image),
+        self.person = position.person
+        self.expected = {
+            'uuid': str(self.person.uuid),
+            'given_name': self.person.given_name,
+            'family_name': self.person.family_name,
+            'bio': self.person.bio,
+            'profile_image': self.person.profile_image_url,
             'position': PositionSerializer(position).data,
-            'works': [work.value for work in person.person_works.all()],
+            'works': [work.value for work in self.person.person_works.all()],
             'urls': {
                 'facebook': None,
                 'twitter': None,
                 'blog': None
             },
-            'slug': person.slug,
-            'email': person.email,
+            'slug': self.person.slug,
+            'email': self.person.email,
         }
 
-        self.assertDictEqual(serializer.data, expected)
+    def test_data(self):
+        serializer = PersonSerializer(self.person, context=self.context)
+        self.assertDictEqual(serializer.data, self.expected)
+
+    def test_profile_image_url_override(self):
+        self.person.profile_image_url = None
+        self.expected['profile_image'] = self.person.profile_image.url
+        serializer = PersonSerializer(self.person, context=self.context)
+        self.assertDictEqual(serializer.data, self.expected)
 
 
 class PositionSerializerTests(TestCase):
