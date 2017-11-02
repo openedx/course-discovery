@@ -247,7 +247,7 @@ class PositionSerializer(serializers.ModelSerializer):
 class PersonSerializer(serializers.ModelSerializer):
     """Serializer for the ``Person`` model."""
     position = PositionSerializer(required=False)
-    profile_image = StdImageSerializerField(required=False)
+    profile_image = serializers.CharField(read_only=True, source='get_profile_image_url')
     works = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value', source='person_works')
     urls = serializers.SerializerMethodField()
     email = serializers.EmailField(required=True)
@@ -261,7 +261,7 @@ class PersonSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = Person
         fields = (
-            'uuid', 'given_name', 'family_name', 'bio', 'profile_image_url', 'slug', 'position', 'profile_image',
+            'uuid', 'given_name', 'family_name', 'bio', 'slug', 'position', 'profile_image',
             'partner', 'works', 'urls', 'email'
         )
         extra_kwargs = {
