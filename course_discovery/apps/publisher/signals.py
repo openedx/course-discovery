@@ -1,12 +1,13 @@
 import logging
 
 import waffle
+from django.contrib.auth.models import Permission
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from slumber.exceptions import SlumberBaseException
 
-from course_discovery.apps.publisher.models import CourseRun
+from course_discovery.apps.publisher.models import CourseRun, OrganizationExtension
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI
 
 logger = logging.getLogger(__name__)
@@ -72,3 +73,12 @@ def create_course_run_in_studio_receiver(sender, instance, created, **kwargs):  
             logger.exception('Failed to update Studio image for course run [%s]', instance.lms_course_id)
 
         logger.info('Completed creation of course run [%s] on Studio.', instance.lms_course_id)
+
+
+@receiver(post_save, sender=OrganizationExtension)
+def add_permissions_to_organization_group(sender, instance, created, **kwargs):  # pylint: disable=unused-argument
+    if created:
+        target_permissions = Permission.objects.filter(
+            codename__in=['add_person', 'change_person', 'delete_person']
+        )
+        instance.group.permissions.add(*target_permissions)

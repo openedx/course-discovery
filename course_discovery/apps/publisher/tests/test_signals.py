@@ -4,6 +4,7 @@ import json
 import mock
 import pytest
 import responses
+from django.contrib.auth.models import Permission
 from freezegun import freeze_time
 from slumber.exceptions import HttpServerError
 from waffle.testutils import override_switch
@@ -211,3 +212,15 @@ class TestCreateCourseRunInStudio:
                     publisher_course_run.id,
                     json.dumps(body).encode('utf8')
                 )
+
+
+@pytest.mark.django_db
+class TestCreateOrganizations:
+    def test_create_organizations_added_permissions(self):
+        # Make sure created organization automatically have people permissions
+        organization = OrganizationExtensionFactory()
+        target_permissions = Permission.objects.filter(
+            codename__in=['add_person', 'change_person', 'delete_person']
+        )
+        for permission in target_permissions:
+            assert organization.group.permissions.filter(codename=permission.codename).exists()
