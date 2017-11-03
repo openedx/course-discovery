@@ -1,37 +1,36 @@
 # pylint: disable=redefined-builtin,no-member
-import ddt
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 from django.db import IntegrityError
 from mock import mock
 from rest_framework.reverse import reverse
-from rest_framework.test import APITestCase
 from testfixtures import LogCapture
 
-from course_discovery.apps.api.tests.mixins import SiteMixin
-from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
 from course_discovery.apps.api.v1.views.people import logger as people_logger
-from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory, PositionFactory
-from course_discovery.apps.publisher.constants import INTERNAL_USER_GROUP_NAME
-from course_discovery.apps.publisher.permissions import logger as permission_logger
 
 User = get_user_model()
 
 
-@ddt.ddt
-class PersonViewSetTests(SerializationMixin, SiteMixin, APITestCase):
+class PersonViewSetTests(SerializationMixin, APITestCase):
     """ Tests for the person resource. """
     people_list_url = reverse('api:v1:person-list')
 
     def setUp(self):
         super(PersonViewSetTests, self).setUp()
-        self.user = UserFactory(is_staff=True, is_superuser=True)
-        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-        self.client.force_authenticate(self.user)
+        self.user = UserFactory()
+        self.target_permissions = Permission.objects.filter(
+            codename__in=['add_person', 'change_person', 'delete_person']
+        )
+        internal_test_group = Group.objects.create(name='internal-test')
+        internal_test_group.permissions.add(*self.target_permissions)
+        self.user.groups.add(internal_test_group)
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.person = PersonFactory(partner=self.partner)
         self.organization = OrganizationFactory(partner=self.partner)
         PositionFactory(person=self.person, organization=self.organization)
@@ -111,26 +110,20 @@ class PersonViewSetTests(SerializationMixin, SiteMixin, APITestCase):
         self.client.logout()
         Person.objects.all().delete()
 
-        response = self.client.post(self.people_list_url, {}, format='json')
-        self.assertEqual(response.status_code, 403)
-        self.assertEqual(Person.objects.count(), 0)
+        response = self.client.post(self.people_list_url)
+        assert response.status_code == 403
+        assert Person.objects.count() == 0
 
-    def test_create_without_group(self):
+    def test_create_without_permission(self):
         """ Verify group is required when creating a person. """
-        self.user.groups.remove(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        self.client.logout()
+        new_user = UserFactory()
+        new_user.groups.clear()
+        self.client.login(username=new_user.username, password=USER_PASSWORD)
         current_people_count = Person.objects.count()
-
-        with LogCapture(permission_logger.name) as log_capture:
-            response = self.client.post(self.people_list_url, {}, format='json')
-            self.assertEqual(response.status_code, 403)
-            self.assertEqual(Person.objects.count(), current_people_count)
-            log_capture.check(
-                (
-                    permission_logger.name,
-                    'INFO',
-                    'Permission denied. User [{}] has no groups'.format(self.user.username),
-                )
-            )
+        response = self.client.post(self.people_list_url)
+        assert response.status_code == 403
+        assert Person.objects.count() == current_people_count
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single person. """
@@ -139,6 +132,13 @@ class PersonViewSetTests(SerializationMixin, SiteMixin, APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, self.serialize_person(self.person))
+
+    def test_get_without_authentication(self):
+        """ Verify the endpoint shows auth error when the details for a single person unauthenticated """
+        self.client.logout()
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
 
     def test_list(self):
         """ Verify the endpoint returns a list of all people. """
