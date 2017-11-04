@@ -476,7 +476,7 @@ class MinimalCourseRunSerializer(TimestampModelSerializer):
         )
 
 
-class CourseRunSerializer(MinimalCourseRunSerializer):
+class CourseRunSerializer(TaggitSerializer, MinimalCourseRunSerializer):
     """Serializer for the ``CourseRun`` model."""
     course = serializers.SlugRelatedField(read_only=True, slug_field='key')
     content_language = serializers.SlugRelatedField(
@@ -489,6 +489,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     instructors = serializers.SerializerMethodField(help_text='This field is deprecated. Use staff.')
     staff = PersonSerializer(many=True)
     level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
+    tags = TagListSerializerField()
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -506,6 +507,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'course', 'full_description', 'announcement', 'video', 'seats', 'content_language', 'license',
             'transcript_languages', 'instructors', 'staff', 'min_effort', 'max_effort', 'weeks_to_complete', 'modified',
             'level_type', 'availability', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
+            'tags',
         )
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
