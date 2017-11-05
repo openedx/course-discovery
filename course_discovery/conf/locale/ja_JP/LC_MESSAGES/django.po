@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-25 06:07+0000\n"
-"PO-Revision-Date: 2017-10-26 21:54+0000\n"
+"POT-Creation-Date: 2017-11-02 12:00+0000\n"
+"PO-Revision-Date: 2017-11-02 20:15+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Japanese (Japan) (http://www.transifex.com/open-edx/edx-platform/language/ja_JP/)\n"
 "MIME-Version: 1.0\n"
@@ -711,7 +711,6 @@ msgid "Course End Date"
 msgstr "講座終了日"
 
 #: apps/publisher/forms.py
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "Instructor"
 msgstr "講師"
 
@@ -2081,8 +2080,22 @@ msgid "The primary instructor or instructors for the course."
 msgstr "本講座の主な講師"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
-msgid "Add New"
-msgstr "新規追加"
+msgid ""
+"Make sure that you search for an instructor before you create a new "
+"instructor."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "Search for Instructor:"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "Create new"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "instructor"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "ESTIMATED EFFORT"
