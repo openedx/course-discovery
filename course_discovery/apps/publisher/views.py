@@ -865,6 +865,7 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
             3: 'course_runs_count',
             4: 'course_state__owner_role_modified',
             5: 'course_state__owner_role_modified',
+            7: 'course_state__owner_role_modified',
         }
 
         try:
@@ -886,6 +887,26 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
             queryset = queryset.order_by(Lower(ordering_field).desc())
 
         return queryset
+
+    def sort_internal_user_status(self, query_set, context):
+        """
+         Ordering by internal user status
+        Args:
+            query_set:
+            context:
+        """
+        ordering_field_index = int(self.request.GET.get('sortColumn', 0))
+        ordering_direction = self.request.GET.get('sortDirection', 'asc')
+        if ordering_field_index == 6:
+            course_states = [CourseState.ApprovedByMarketing,
+                             CourseState.AwaitingMarketingReview,
+                             CourseState.NotAvailable]
+            if ordering_direction == 'asc':
+                context['object_list'] = sorted(query_set, key=lambda state: course_states.index(
+                    str(state.course_state.internal_user_status)))
+            else:
+                context['object_list'] = sorted(query_set, key=lambda state: course_states.index(
+                    str(state.course_state.internal_user_status)), reverse=True)
 
     def filter_queryset(self, queryset):
         filter_text = self.request.GET.get('searchText', '').strip()
@@ -984,6 +1005,7 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
         self.object_list = self.get_queryset()
         context = self.get_context_data()
         context['publisher_total_courses_count'] = self.object_list.count()
+        self.sort_internal_user_status(self.object_list, context)
         courses = serializers.CourseSerializer(
             context['object_list'],
             many=True,
