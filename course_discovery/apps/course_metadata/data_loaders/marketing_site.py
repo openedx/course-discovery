@@ -467,6 +467,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'short_description_override': self.clean_html(data['field_course_sub_title_short']) or None,
             'min_effort': min_effort,
             'max_effort': max_effort,
+            'outcome': (data.get('field_course_what_u_will_learn', {}) or {}).get('value')
         }
 
         if weeks_to_complete:

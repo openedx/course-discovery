@@ -457,6 +457,11 @@ class CourseRun(TimeStampedModel):
     reporting_type = models.CharField(max_length=255, choices=ReportingType.choices, default=ReportingType.mooc)
     eligible_for_financial_aid = models.BooleanField(default=True)
     license = models.CharField(max_length=255, blank=True, db_index=True)
+    outcome_override = models.TextField(
+        default=None, blank=True, null=True,
+        help_text=_(
+            "'What You Will Learn' description for this particular course run. Leave this value blank to default "
+            "to the parent course's Outcome attribute."))
 
     tags = TaggableManager(
         blank=True,
@@ -596,6 +601,16 @@ class CourseRun(TimeStampedModel):
         # Treat empty strings as NULL
         value = value or None
         self.full_description_override = value
+
+    @property
+    def outcome(self):
+        return self.outcome_override or self.course.outcome
+
+    @outcome.setter
+    def outcome(self, value):
+        # Treat empty strings as NULL
+        value = value or None
+        self.outcome_override = value
 
     @property
     def subjects(self):
