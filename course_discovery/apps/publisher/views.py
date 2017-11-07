@@ -900,13 +900,14 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
         if ordering_field_index == 6:
             course_states = [CourseState.ApprovedByMarketing,
                              CourseState.AwaitingMarketingReview,
-                             CourseState.NotAvailable]
+                             CourseState.NotAvailable, '']
             if ordering_direction == 'asc':
                 context['object_list'] = sorted(query_set, key=lambda state: course_states.index(
-                    str(state.course_state.internal_user_status)))
+                    str(state.course_state.internal_user_status if state.course_state.internal_user_status else '')))
             else:
                 context['object_list'] = sorted(query_set, key=lambda state: course_states.index(
-                    str(state.course_state.internal_user_status)), reverse=True)
+                    str(state.course_state.internal_user_status if state.course_state.internal_user_status else '')),
+                    reverse=True)
 
     def filter_queryset(self, queryset):
         filter_text = self.request.GET.get('searchText', '').strip()
