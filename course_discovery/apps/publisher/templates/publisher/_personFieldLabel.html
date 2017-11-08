@@ -1,6 +1,6 @@
 <div class="instructor" id="instructor_{{ staff.id }}">
     <input type="hidden" id="staff_{{ staff.id }}" name="staff" value="{{ staff.id }}">
-    <div><img src="{% if staff.profile_image_url %}{{ staff.profile_image_url }}{% else %}{{ staff.profile_image.url }}{% endif %}"></div>
+    <div><img src="{{ staff.get_profile_image_url }}"></div>
     <div><a class="delete" id="{{ staff.id }}" href="#"><i class="fa fa-trash-o fa-fw"></i></a>
         {% if course_user_role == 'course_team' %}
             {% if staff.position %}
