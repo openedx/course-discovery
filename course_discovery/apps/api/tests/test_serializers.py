@@ -1111,6 +1111,8 @@ class PersonSerializerTests(TestCase):
     def setUp(self):
         request = make_request()
         self.context = {'request': request}
+        image_field = StdImageSerializerField()
+        image_field._context = self.context  # pylint: disable=protected-access
 
         position = PositionFactory()
         self.person = position.person
@@ -1119,7 +1121,8 @@ class PersonSerializerTests(TestCase):
             'given_name': self.person.given_name,
             'family_name': self.person.family_name,
             'bio': self.person.bio,
-            'profile_image': self.person.profile_image_url,
+            'profile_image': image_field.to_representation(self.person.profile_image),
+            'profile_image_url': self.person.profile_image_url,
             'position': PositionSerializer(position).data,
             'works': [work.value for work in self.person.person_works.all()],
             'urls': {
@@ -1137,7 +1140,7 @@ class PersonSerializerTests(TestCase):
 
     def test_profile_image_url_override(self):
         self.person.profile_image_url = None
-        self.expected['profile_image'] = self.person.profile_image.url
+        self.expected['profile_image_url'] = self.person.profile_image.url
         serializer = PersonSerializer(self.person, context=self.context)
         self.assertDictEqual(serializer.data, self.expected)
 
