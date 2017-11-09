@@ -247,7 +247,7 @@ $(document).on('click', '.selected-instructor a.edit', function (e) {
     $.getJSON({
         url: btnInstructor.data('url') + uuid,
         success: function (data) {
-            $('.select-image').attr('src', data['profile_image']);
+            $('.select-image').attr('src', data['profile_image_url']);
             $('#given-name').val(data['given_name']);
             $('#family-name').val(data['family_name']);
             $('#title').val(data['position']['title']);
