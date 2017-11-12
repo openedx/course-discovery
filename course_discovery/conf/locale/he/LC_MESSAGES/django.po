@@ -6,14 +6,15 @@
 # e2f_HE c1 <e2f_HE_c1@outlook.com>, 2016-2017
 # e2f he_r1 <e2f_he_r1@outlook.com>, 2016
 # ido nahmias <inahmias@gmail.com>, 2016
+# Mary <mary@hasadna.org.il>, 2017
 # qualityalltext <quality@alltext.co.il>, 2016-2017
 # Yoav Caspin <yoavc@pmo.gov.il>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-02 12:00+0000\n"
-"PO-Revision-Date: 2017-11-02 20:15+0000\n"
+"POT-Creation-Date: 2017-11-08 16:04+0000\n"
+"PO-Revision-Date: 2017-11-08 20:52+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Hebrew (http://www.transifex.com/open-edx/edx-platform/language/he/)\n"
 "MIME-Version: 1.0\n"
@@ -300,6 +301,10 @@ msgid "Subject model translations"
 msgstr ""
 
 #: apps/course_metadata/models.py
+msgid "Only ascii characters allowed (a-zA-Z0-9)"
+msgstr ""
+
+#: apps/course_metadata/models.py
 msgid ""
 "Logo to be displayed on certificates. If this logo is the same as "
 "logo_image_url, copy and paste the same value to both fields."
@@ -310,6 +315,10 @@ msgid ""
 "Pick a tag from the suggestions. To make a new tag, add a comma after the "
 "tag name."
 msgstr "בחר תגית מהאפשרויות. על מנת ליצור תגית חדשה, הוסף פסיק לאחר שם התגית."
+
+#: apps/course_metadata/models.py
+msgid "Please do not use any spaces or special characters in the key field"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "People"
@@ -358,6 +367,12 @@ msgstr "הערכת מספר השבועות הנדרש לצורך השלמת הק
 #: apps/course_metadata/models.py
 msgid "Indicates whether the course relation has been manually overridden."
 msgstr "מציין האם הקשר לקורס נעקף באופן ידני."
+
+#: apps/course_metadata/models.py
+msgid ""
+"'What You Will Learn' description for this particular course run. Leave this"
+" value blank to default to the parent course's Outcome attribute."
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Archived"
