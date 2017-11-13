@@ -542,7 +542,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
 
         effort_values = [int(keyword) for keyword in re.split(r'\s|-|–|,|\+|~', effort_per_week) if keyword.isdigit()]
         if len(effort_values) == 1:
-            min_effort = effort_values[0]
+            max_effort = effort_values[0]
         if len(effort_values) == 2:
             min_effort = effort_values[0]
             max_effort = effort_values[1]
