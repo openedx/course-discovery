@@ -79,6 +79,20 @@ def get_elasticsearch_boost_config():
                     'weight': 5.0
                 },
 
+                # Reward course runs that are currently running and still upgradeable
+                {
+                    'filter': {
+                        'bool': {
+                            'must': {
+                                'term': {
+                                    'is_current_and_still_upgradeable': True
+                                }
+                            }
+                        }
+                    },
+                    'weight': 10.0
+                },
+
                 # Reward course runs with enrollable, paid seats.
                 {
                     'filter': {

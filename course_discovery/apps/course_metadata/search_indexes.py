@@ -171,6 +171,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     paid_seat_enrollment_end = indexes.DateTimeField(null=True)
     license = indexes.MultiValueField(model_attr='license', faceted=True)
     has_enrollable_seats = indexes.BooleanField(model_attr='has_enrollable_seats', null=False)
+    is_current_and_still_upgradeable = indexes.BooleanField(null=False)
 
     def prepare_aggregation_key(self, obj):
         # Aggregate CourseRuns by Course key since that is how we plan to dedup CourseRuns on the marketing site.
@@ -178,6 +179,9 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
 
     def prepare_has_enrollable_paid_seats(self, obj):
         return obj.has_enrollable_paid_seats()
+
+    def prepare_is_current_and_still_upgradeable(self, obj):
+        return obj.is_current_and_still_upgradeable()
 
     def prepare_paid_seat_enrollment_end(self, obj):
         return obj.get_paid_seat_enrollment_end()
