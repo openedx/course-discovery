@@ -62,6 +62,9 @@ COURSE_ROLES.extend(DEFAULT_ROLES)
 COURSES_DEFAULT_PAGE_SIZE = 25
 COURSES_ALLOWED_PAGE_SIZES = (25, 50, 100)
 
+EDX_STATUS_COLUMN_INDEX = 6
+COURSE_RUNS_COUNT_INDEX = 3
+
 
 class CourseRunListView(mixins.LoginRequiredMixin, ListView):
     default_published_days = 30
@@ -832,10 +835,10 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
             ).values_list('organization')
             courses = courses.filter(organizations__in=organizations)
 
-        courses = self.sort_queryset(courses)
         courses = self.filter_queryset(courses)
+        courses = self.sort_queryset(courses)
 
-        return courses
+        return courses, len(courses)
 
     def get_context_data(self, **kwargs):
         context = super(CourseListView, self).get_context_data(**kwargs)
@@ -865,6 +868,7 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
             3: 'course_runs_count',
             4: 'course_state__owner_role_modified',
             5: 'course_state__owner_role_modified',
+            6: 'edx_status_column',
             7: 'course_state__owner_role_modified',
         }
 
@@ -878,36 +882,28 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
         ordering_direction = self.request.GET.get('sortDirection', 'asc')
         ordering_field = ordering_fields.get(ordering_field_index)
 
-        if ordering_field == 'course_runs_count':
+        if ordering_field_index == COURSE_RUNS_COUNT_INDEX:
             queryset = queryset.annotate(course_runs_count=Count('publisher_course_runs'))
 
-        if ordering_direction == 'asc':
-            queryset = queryset.order_by(Lower(ordering_field).asc())
-        else:
-            queryset = queryset.order_by(Lower(ordering_field).desc())
-
-        return queryset
-
-    def sort_internal_user_status(self, query_set, context):
-        """
-         Ordering by internal user status
-        Args:
-            query_set:
-            context:
-        """
-        ordering_field_index = int(self.request.GET.get('sortColumn', 0))
-        ordering_direction = self.request.GET.get('sortDirection', 'asc')
-        if ordering_field_index == 6:
+        # ordering by property *internal user status* of course state
+        if ordering_field_index == EDX_STATUS_COLUMN_INDEX:
             course_states = [CourseState.ApprovedByMarketing,
                              CourseState.AwaitingMarketingReview,
                              CourseState.NotAvailable, '']
             if ordering_direction == 'asc':
-                context['object_list'] = sorted(query_set, key=lambda state: course_states.index(
+                queryset = sorted(queryset, key=lambda state: course_states.index(
                     str(state.course_state.internal_user_status if state.course_state.internal_user_status else '')))
             else:
-                context['object_list'] = sorted(query_set, key=lambda state: course_states.index(
+                queryset = sorted(queryset, key=lambda state: course_states.index(
                     str(state.course_state.internal_user_status if state.course_state.internal_user_status else '')),
                     reverse=True)
+        else:
+            if ordering_direction == 'asc':
+                queryset = queryset.order_by(Lower(ordering_field).asc())
+            else:
+                queryset = queryset.order_by(Lower(ordering_field).desc())
+
+        return queryset
 
     def filter_queryset(self, queryset):
         filter_text = self.request.GET.get('searchText', '').strip()
@@ -1003,10 +999,9 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
         return keywords, dates
 
     def get(self, request, **kwargs):   # pylint: disable=unused-argument
-        self.object_list = self.get_queryset()
+        self.object_list, publisher_total_courses_count = self.get_queryset()
         context = self.get_context_data()
-        context['publisher_total_courses_count'] = self.object_list.count()
-        self.sort_internal_user_status(self.object_list, context)
+        context['publisher_total_courses_count'] = publisher_total_courses_count
         courses = serializers.CourseSerializer(
             context['object_list'],
             many=True,
@@ -1017,7 +1012,7 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
         ).data
 
         if 'application/json' in request.META.get('HTTP_ACCEPT', ''):
-            count = self.object_list.count()
+            count = publisher_total_courses_count
             return JsonResponse({
                 'draw': int(self.request.GET['draw']),
                 'recordsTotal': count,
