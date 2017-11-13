@@ -2,6 +2,7 @@ import datetime
 
 import pytest
 import pytz
+from dateutil.relativedelta import relativedelta
 from haystack.query import SearchQuerySet
 from mock import patch
 
@@ -167,3 +168,72 @@ class TestSearchBoosting:
             assert test_record.title == search_results[0].title
         else:
             assert search_results[0].score == search_results[1].score
+
+    now = datetime.datetime.now(pytz.timezone('utc'))
+    one_day = relativedelta(days=1)
+    one_month = relativedelta(months=1)
+    two_months = relativedelta(months=2)
+    three_months = relativedelta(months=3)
+    six_months = relativedelta(months=6)
+    one_week = relativedelta(days=7)
+    two_weeks = relativedelta(days=14)
+    one_year = relativedelta(year=1)
+    thirteen_months = relativedelta(months=13)
+
+    @pytest.mark.parametrize(
+        'runadates, runbdates, pacing_type, boosted',
+        [
+            # Current Self Paced Course (A) vs Future Self Paced Course (B)
+            ((now - one_month, now + one_month), (now + one_month, now + two_months), 'self_paced', 'a'),
+            # Further Start Current Self Paced Course (A)
+            # vs Closer Start Current Self Paced Course (B)
+            ((now - two_months, now + one_month), (now - one_month, now + two_months), 'self_paced', 'b'),
+            # Closer Start Future Self Paced Course (A)
+            # vs Further Start Future Self Paced Course (B)
+            ((now + one_month, now + one_year), (now + two_months, now + thirteen_months), 'self_paced', 'a'),
+            # Current Self Paced Course (A) that ends in two weeks
+            # vs Future Self Paced Course that starts in two weeks (B)
+            ((now - six_months, now + two_weeks), (now + two_weeks, now + six_months), 'self_paced', 'a'),
+            # Current Instructor Paced Course that ends in one week (A)
+            # vs Future Instructor Paced Course that starts in one day (B)
+            ((now - six_months, now + one_week), (now + one_day, now + six_months), 'instructor_paced', 'b'),
+            # Current Instructor Paced Course that ends in two weeks (A)
+            # vs Future Instructor Paced Course that starts in one week (B)
+            ((now - six_months, now + two_weeks), (now + one_week, now + six_months), 'instructor_paced', 'a'),
+            # Future Instructor Paced Course that starts tomorrow (A)
+            # vs Current Instructor Paced Course that is 2/3rds of the way done (B)
+            ((now + one_day, now + six_months), (now - six_months, now + three_months), 'instructor_paced', 'b'),
+        ]
+    )
+    def test_current_run_boosting(self, runadates, runbdates, pacing_type, boosted):
+        """Verify that "current" CourseRuns are boosted.
+        See the is_current_and_still_upgradeable CourseRun property to understand what this means."""
+
+        (starta, enda) = runadates
+        (startb, endb) = runbdates
+
+        now = datetime.datetime.now(pytz.timezone('utc'))
+        upgrade_deadline_tomorrow = now + relativedelta(days=1)
+
+        with patch.object(CourseRun, 'get_paid_seat_enrollment_end', return_value=upgrade_deadline_tomorrow):
+            runa = self.build_normalized_course_run(
+                title='test1',
+                start=starta,
+                end=enda,
+                pacing_type=pacing_type
+            )
+            runb = self.build_normalized_course_run(
+                title='test2',
+                start=startb,
+                end=endb,
+                pacing_type=pacing_type
+            )
+            search_results = SearchQuerySet().models(CourseRun).all()
+
+        assert len(search_results) == 2
+        if boosted == 'a':
+            assert search_results[0].score > search_results[1].score
+            assert runa.title == search_results[0].title
+        else:
+            assert search_results[0].score > search_results[1].score
+            assert runb.title == search_results[0].title

@@ -7,6 +7,7 @@ import mock
 import pytest
 import pytz
 from dateutil.parser import parse
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -283,6 +284,31 @@ class CourseRunTests(TestCase):
 
         expected_result = parse(expected_result) if expected_result else None
         self.assertEqual(course_run.get_paid_seat_enrollment_end(), expected_result)
+
+    now = datetime.datetime.now(pytz.timezone('utc'))
+    one_month = relativedelta(months=1)
+    two_weeks = relativedelta(days=14)
+
+    @ddt.data(
+        (None, None, None, False),
+        (now - one_month, None, None, False),
+        (now - one_month, now + one_month, None, True),
+        (now - one_month, now - one_month, now - two_weeks, False),
+        (now - one_month, now + one_month, now - two_weeks, False),
+        (now - one_month, now + one_month, now + two_weeks, True),
+        (now + one_month, now + one_month, now + two_weeks, False),
+    )
+    @ddt.unpack
+    def test_is_current_and_still_upgradeable(self, start, end, deadline, is_current):
+        """
+        Verify that is_current_and_still_upgradeable returns true if
+        1. Today is after the run start (or start is none) and two weeks from the run end (or end is none)
+        2. The run has a seat that is still enrollable and upgradeable
+        and false otherwise
+        """
+        course_run = factories.CourseRunFactory.create(start=start, end=end, enrollment_end=end)
+        factories.SeatFactory.create(course_run=course_run, upgrade_deadline=deadline, type='verified', price=1)
+        assert course_run.is_current_and_still_upgradeable() == is_current
 
     def test_publication_disabled(self):
         """

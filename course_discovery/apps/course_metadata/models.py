@@ -484,6 +484,23 @@ class CourseRun(TimeStampedModel):
         """
         return len(self._enrollable_paid_seats()[:1]) > 0
 
+    def is_current_and_still_upgradeable(self):
+        """
+        Return true if
+        1. Today is after the run start (or start is none) and two weeks from the run end (or end is none)
+        2. The run has a seat that is still enrollable and upgradeable
+        and false otherwise
+        """
+        now = datetime.datetime.now(pytz.UTC)
+        two_weeks = datetime.timedelta(days=14)
+        after_start = (not self.start) or (self.start and self.start < now)
+        ends_in_more_than_two_weeks = (not self.end) or (self.end.date() and now.date() <= self.end.date() - two_weeks)
+        if after_start and ends_in_more_than_two_weeks:
+            paid_seat_enrollment_end = self.get_paid_seat_enrollment_end()
+            if paid_seat_enrollment_end and now < paid_seat_enrollment_end:
+                return True
+        return False
+
     def get_paid_seat_enrollment_end(self):
         """
         Return the final date for which an unenrolled user may enroll and purchase a paid Seat for this CourseRun, or

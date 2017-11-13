@@ -6,33 +6,28 @@ from urllib.parse import urlencode
 import ddt
 import mock
 import pytest
-import pytz
 import responses
 from django.test import TestCase
 from django.utils.text import slugify
 from haystack.query import SearchQuerySet
 from opaque_keys.edx.keys import CourseKey
+from pytz import UTC
 from rest_framework.test import APIRequestFactory
 from waffle.models import Switch
 from waffle.testutils import override_switch
 
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
-from course_discovery.apps.api.serializers import (AffiliateWindowSerializer, CatalogSerializer,
-                                                   ContainedCourseRunsSerializer, ContainedCoursesSerializer,
-                                                   CorporateEndorsementSerializer, CourseEntitlementSerializer,
-                                                   CourseRunSearchSerializer, CourseRunSerializer,
-                                                   CourseRunWithProgramsSerializer, CourseSearchSerializer,
-                                                   CourseSerializer, CourseWithProgramsSerializer,
-                                                   EndorsementSerializer, FAQSerializer,
-                                                   FlattenedCourseRunWithCourseSerializer, ImageSerializer,
-                                                   MinimalCourseRunSerializer, MinimalCourseSerializer,
-                                                   MinimalOrganizationSerializer, MinimalProgramCourseSerializer,
-                                                   MinimalProgramSerializer, NestedProgramSerializer,
-                                                   OrganizationSerializer, PersonSerializer, PositionSerializer,
-                                                   PrerequisiteSerializer, ProgramSearchSerializer, ProgramSerializer,
-                                                   ProgramTypeSerializer, SeatSerializer, SubjectSerializer,
-                                                   TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer,
-                                                   VideoSerializer, get_utm_source_for_user)
+from course_discovery.apps.api.serializers import (
+    AffiliateWindowSerializer, CatalogSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer,
+    CorporateEndorsementSerializer, CourseEntitlementSerializer, CourseRunSearchSerializer, CourseRunSerializer,
+    CourseRunWithProgramsSerializer, CourseSearchSerializer, CourseSerializer, CourseWithProgramsSerializer,
+    EndorsementSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer, ImageSerializer,
+    MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalProgramCourseSerializer,
+    MinimalProgramSerializer, NestedProgramSerializer, OrganizationSerializer, PersonSerializer, PositionSerializer,
+    PrerequisiteSerializer, ProgramSearchSerializer, ProgramSerializer, ProgramTypeSerializer, SeatSerializer,
+    SubjectSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
+    get_utm_source_for_user
+)
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import Partner, User
@@ -41,13 +36,11 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSAPIClientMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
-from course_discovery.apps.course_metadata.tests.factories import (CorporateEndorsementFactory, CourseFactory,
-                                                                   CourseRunFactory, EndorsementFactory,
-                                                                   ExpectedLearningItemFactory, ImageFactory,
-                                                                   JobOutlookItemFactory, OrganizationFactory,
-                                                                   PersonFactory, PositionFactory, PrerequisiteFactory,
-                                                                   ProgramFactory, ProgramTypeFactory, SeatFactory,
-                                                                   SeatTypeFactory, SubjectFactory, VideoFactory)
+from course_discovery.apps.course_metadata.tests.factories import (
+    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, EndorsementFactory, ExpectedLearningItemFactory,
+    ImageFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, PositionFactory, PrerequisiteFactory,
+    ProgramFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory, SubjectFactory, VideoFactory
+)
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
@@ -615,7 +608,7 @@ class MinimalProgramSerializerTests(TestCase):
 
         courses = CourseFactory.create_batch(3)
         for course in courses:
-            CourseRunFactory.create_batch(2, course=course, staff=[person], start=datetime.datetime.now(pytz.UTC))
+            CourseRunFactory.create_batch(2, course=course, staff=[person], start=datetime.datetime.now(UTC))
 
         return ProgramFactory(
             courses=courses,
@@ -730,21 +723,21 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         CourseRunFactory(
             course=course_list[2],
             enrollment_start=None,
-            start=datetime.datetime(2014, 2, 1),
+            start=datetime.datetime(2014, 2, 1, tzinfo=UTC),
         )
 
         # Create a second run with matching start, but later enrollment_start.
         CourseRunFactory(
             course=course_list[1],
             enrollment_start=datetime.datetime(2014, 1, 2),
-            start=datetime.datetime(2014, 2, 1),
+            start=datetime.datetime(2014, 2, 1, tzinfo=UTC),
         )
 
         # Create a third run with later start and enrollment_start.
         CourseRunFactory(
             course=course_list[0],
-            enrollment_start=datetime.datetime(2014, 2, 1),
-            start=datetime.datetime(2014, 3, 1),
+            enrollment_start=datetime.datetime(2014, 2, 1, tzinfo=UTC),
+            start=datetime.datetime(2014, 3, 1, tzinfo=UTC),
         )
 
         program = ProgramFactory(courses=course_list)
@@ -772,28 +765,28 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         excluded_run = CourseRunFactory(
             course=course_list[0],
             enrollment_start=None,
-            start=datetime.datetime(2014, 1, 1),
+            start=datetime.datetime(2014, 1, 1, tzinfo=UTC),
         )
 
         # Create a run with later start and empty enrollment_start.
         CourseRunFactory(
             course=course_list[2],
             enrollment_start=None,
-            start=datetime.datetime(2014, 2, 1),
+            start=datetime.datetime(2014, 2, 1, tzinfo=UTC),
         )
 
         # Create a run with matching start, but later enrollment_start.
         CourseRunFactory(
             course=course_list[1],
             enrollment_start=datetime.datetime(2014, 1, 2),
-            start=datetime.datetime(2014, 2, 1),
+            start=datetime.datetime(2014, 2, 1, tzinfo=UTC),
         )
 
         # Create a run with later start and enrollment_start.
         CourseRunFactory(
             course=course_list[0],
-            enrollment_start=datetime.datetime(2014, 2, 1),
-            start=datetime.datetime(2014, 3, 1),
+            enrollment_start=datetime.datetime(2014, 2, 1, tzinfo=UTC),
+            start=datetime.datetime(2014, 3, 1, tzinfo=UTC),
         )
 
         program = ProgramFactory(courses=course_list, excluded_course_runs=[excluded_run])
@@ -819,14 +812,14 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         CourseRunFactory(
             course=course_list[2],
             enrollment_start=None,
-            start=datetime.datetime(2014, 2, 1),
+            start=datetime.datetime(2014, 2, 1, tzinfo=UTC),
         )
 
         # Create a second run with matching start, but later enrollment_start.
         CourseRunFactory(
             course=course_list[1],
             enrollment_start=datetime.datetime(2014, 1, 2),
-            start=datetime.datetime(2014, 2, 1),
+            start=datetime.datetime(2014, 2, 1, tzinfo=UTC),
         )
 
         # Create a third run with empty start and enrollment_start.
@@ -867,7 +860,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         CourseRunFactory(status=CourseRunStatus.Unpublished, course=course)
         marketable_enrollable_run = CourseRunFactory(
             status=CourseRunStatus.Published,
-            end=datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10),
+            end=datetime.datetime.now(UTC) + datetime.timedelta(days=10),
             enrollment_start=None,
             enrollment_end=None,
             course=course
