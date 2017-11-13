@@ -1196,6 +1196,10 @@ msgid "Organization"
 msgstr "Örgänïzätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "Enter a different organization"
+msgstr "Éntér ä dïfférént örgänïzätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Bio"
 msgstr "Bïö Ⱡ'σяєм#"

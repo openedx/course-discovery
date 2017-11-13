@@ -9,82 +9,93 @@
             <fieldset class="form-group">
                 <div class="staff-image-icon">
                     <span>{% trans "Click here to upload your image" %}</span>
-                    <img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" class="select-image" />
+                    <img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" class="select-image"/>
                     <input name="staff-image" id="staffImageSelect" type="file" accept="image/*" onchange="loadSelectedImage(this);">
                 </div>
                 <ul>
-                <li><span class="required"> {% trans "The image dimensions must be less than 110 x 110" %}</span></li>
-                <li><span class="required"> {% trans "The image size must be less than 256KB" %}</span></li>
+                    <li><span class="required"> {% trans "The image dimensions must be less than 110 x 110" %}</span>
+                    </li>
+                    <li><span class="required"> {% trans "The image size must be less than 256KB" %}</span></li>
                 </ul>
                 <label class="field-label" for="given-name">{% trans "First Name" %}
                     <span class="required">* {% trans "required" %}</span>
                 </label>
-                <input class="field-input input-text" type="text" id="given-name" name="given-name" />
+                <input class="field-input input-text" type="text" id="given-name" name="given-name"/>
 
                 <label class="field-label" for="family-name">{% trans "Last Name" %}
                     <span class="required">* {% trans "required" %}</span>
                 </label>
-                <input class="field-input input-text" type="text" id="family-name" name="family-name" />
+                <input class="field-input input-text" type="text" id="family-name" name="family-name"/>
 
                 <label class="field-label" for="title">{% trans "Title" %}
                     <span class="required">* {% trans "required" %}</span>
                 </label>
-                <input class="field-input input-text" type="text" id="title" name="title" />
+                <input class="field-input input-text" type="text" id="title" name="title"/>
 
                 <label class="field-label" for="email">{% trans "Email" %}
                     <span class="required">* {% trans "required" %}</span>
                 </label>
                 <div class="email-field">
-                    <input class="field-input input-text" aria-describedby="email-hint" type="email" id="email" name="email" />
+                    <input class="field-input input-text" aria-describedby="email-hint" type="email" id="email"
+                           name="email"/>
                     <span id="email-hint">{% trans "Institution email is preferred" %}</span>
                 </div>
 
                 <label class="field-label">{% trans "Organization" %}
                     <span class="required">* {% trans "required" %}</span>
                 </label>
+                <div id="org_container">
+                    {% if organizations.count > 1 %}
+                        <select class="field-input input-select" id="id_organization" name="organization">
+                            <option value="------">-----</option>
+                            {% for organization in organizations %}
+                                <option value="{{ organization.id }}">{{ organization.name }}</option>
+                            {% endfor %}
+                        </select>
+                    {% else %}
+                        {% with organizations|first as organization %}
+                            <span class="read-only-field">{{ organization.name }}</span>
+                            <input id="id_organization" name="organization" type="hidden" value="{{ organization.id }}">
+                        {% endwith %}
+                    {% endif %}
+                </div>
+                <div id="org_override_container">
+                    <input class="field-input input-text" type="text" id="organization_override" name="organization_override"/>
+                </div>
+                <span id="override_toggle" class="read-only-field"> <a>{% trans "Enter a different organization" %}</a></span>
 
-                {% if organizations.count > 1 %}
-                    <select class="field-input input-select" id="id_organization" name="organization">
-                        <option value="------">-----</option>
-                        {% for organization in organizations %}
-                            <option value="{{ organization.id }}">{{ organization.name }}</option>
-                        {% endfor%}
-                    </select>
-                {% else %}
-                    {% with organizations|first as organization %}
-                        <span class="read-only-field">{{ organization.name }}</span>
-                        <input id="id_organization" name="organization" type="hidden" value="{{ organization.id }}">
-                    {% endwith %}
-                {% endif %}
 
                 <label class="field-label" for="bio">{% trans "Bio" %}
                     <span class="required">* {% trans "required (1-2 paragraphs)" %}</span>
                 </label>
-                <textarea class="field-textarea input-textarea textarea-medium textarea-block" id="bio" name="bio"></textarea>
+                <textarea class="field-textarea input-textarea textarea-medium textarea-block" id="bio"
+                          name="bio"></textarea>
 
                 <label class="field-label" for="facebook">{% trans "Facebook URL" %}
                     <span class="optional"> {% trans "optional" %}</span>
                 </label>
-                <input class="field-input input-text" type="text" id="facebook" name="facebook" />
+                <input class="field-input input-text" type="text" id="facebook" name="facebook"/>
 
                 <label class="field-label" for="twitter">{% trans "Twitter URL" %}
                     <span class="optional"> {% trans "optional" %}</span>
                 </label>
-                <input class="field-input input-text" type="text" id="twitter" name="twitter" />
+                <input class="field-input input-text" type="text" id="twitter" name="twitter"/>
 
                 <label class="field-label" for="blog">{% trans "Blog URL" %}
                     <span class="optional"> {% trans "optional" %}</span>
                 </label>
-                <input class="field-input input-text" type="text" id="blog" name="blog" />
+                <input class="field-input input-text" type="text" id="blog" name="blog"/>
 
                 <label class="field-label" for="majorWorks">{% trans "Major Works" %}
                     <span class="optional">({% trans "optional - one per line" %} )</span>
                 </label>
-                <textarea class="field-textarea input-textarea textarea-medium textarea-block" id="majorWorks" name="major-works"></textarea>
+                <textarea class="field-textarea input-textarea textarea-medium textarea-block" id="majorWorks"
+                          name="major-works"></textarea>
             </fieldset>
             <div class="actions">
                 <a class="btn-cancel closeModal" href="#">{% trans "Cancel" %}</a>
-                <button class="btn-brand btn-base btn-save" type="button" data-url="{% url 'api:v1:person-list' %}" id="add-instructor-btn">{% trans "Add Staff Member" %}</button>
+                <button class="btn-brand btn-base btn-save" type="button" data-url="{% url 'api:v1:person-list' %}"
+                        id="add-instructor-btn">{% trans "Add Staff Member" %}</button>
             </div>
         </form>
     </div>

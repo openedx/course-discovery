@@ -13,9 +13,16 @@ $(document).ready(function () {
 
     });
 
+    $("#override_toggle").click(function (e) {
+        $('#org_override_container').toggle();
+        $('#org_container').toggle();
+    });
+
     $('#add-new-instructor').click(function (e) {
         clearModalError();
         var btnInstructor = $('#add-instructor-btn');
+        $('#org_container').show();
+        $('#org_override_container').hide();
         $('#addInstructorModal').show();
         $('body').addClass('stopScroll');
         $('.new-instructor-heading').text(gettext('New Instructor'));
@@ -34,16 +41,15 @@ $(document).ready(function () {
             addModalError(gettext("Please upload a instructor image."));
             return;
         }
+        var position = getFormInstructorPosition()
+
         personData = {
             'given_name': $('#given-name').val(),
             'family_name': $('#family-name').val(),
             'bio': $('#bio').val(),
             'email': $('#email').val(),
             'profile_image': $('.select-image').attr('src'),
-            'position': {
-                title: $('#title').val(),
-                organization: parseInt($('#id_organization').val())
-            },
+            'position': position,
             'works': $('#majorWorks').val().split('\n'),
             'urls': {
                 facebook: $('#facebook').val(),
@@ -95,6 +101,21 @@ $(document).ready(function () {
         });
     });
 });
+
+function getFormInstructorPosition () {
+    if ($('#organization_override').val()) {
+        return {
+            title: $('#title').val(),
+            organization_override: $('#organization_override').val(),
+            organization: null
+        };
+    }
+    return {
+        title: $('#title').val(),
+        organization_override: null,
+        organization: parseInt($('#id_organization').val())
+    };
+}
 
 function loadSelectedImage (input) {
     var maxFileSize = 256, // Size in KB's
@@ -149,21 +170,19 @@ $(document).on('click', '.selected-instructor a.delete', function (e) {
 function renderSelectedInstructor(id, name, image, uuid, organization_id, edit_instructor) {
     var user_organizations_ids = $('#user_organizations_ids').text(),
         course_user_role = $('#course_user_role').text(),
+        is_internal_user = $('#is_internal_user').text(),
         staff = '<input type="hidden" id="staff_' + id +  '"name="staff" value="' + id + '">',
         instructorHtmlStart = '<div class="instructor" id= "instructor_' + id + '"><div><img src="' + image + '"></div><div>',
         instructorHtmlEnd = '<b>' + name + '</b></div></div>',
         controlOptions = '<a class="delete" id="' + id + '"href="#"><i class="fa fa-trash-o fa-fw"></i></a>';
 
 
-    if (course_user_role == "course_team") {
-        if ($.inArray(parseInt(organization_id), JSON.parse(user_organizations_ids)) > -1 && uuid) {
-            controlOptions += '<a class="edit" id="' + uuid + '"href="#"><i class="fa fa-pencil-square-o fa-fw"></i></a>';
-        }
-    }
-    else {
-        if (edit_instructor) {
-            controlOptions += '<a class="edit" id="' + uuid + '"href="#"><i class="fa fa-pencil-square-o fa-fw"></i></a>';
-        }
+    var user_is_course_team = course_user_role === "course_team";
+    var user_is_in_similar_org_as_instructor = $.inArray(parseInt(organization_id), JSON.parse(user_organizations_ids)) > -1;
+    var org_is_none = organization_id === "None";
+
+    if ((user_is_course_team && (user_is_in_similar_org_as_instructor && uuid || org_is_none)) || is_internal_user || edit_instructor) {
+        controlOptions += '<a class="edit" id="' + uuid + '"href="#"><i class="fa fa-pencil-square-o fa-fw"></i></a>';
     }
     $('.selected-instructor').append(staff + instructorHtmlStart + controlOptions + instructorHtmlEnd);
 }

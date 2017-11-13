@@ -238,7 +238,7 @@ class PositionSerializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = Position
-        fields = ('title', 'organization_name', 'organization', 'organization_id')
+        fields = ('title', 'organization_name', 'organization', 'organization_id', 'organization_override')
         extra_kwargs = {
             'organization': {'write_only': True}
         }
@@ -301,7 +301,8 @@ class PersonSerializer(serializers.ModelSerializer):
         urls_data = validated_data.pop('urls', {})
 
         instance.position.title = position_data['title']
-        instance.position.organization = position_data['organization']
+        instance.position.organization = position_data.get('organization')
+        instance.position.organization_override = position_data.get('organization_override')
         instance.position.save()
 
         for url_type in [PersonSocialNetwork.FACEBOOK, PersonSocialNetwork.TWITTER, PersonSocialNetwork.BLOG]:
