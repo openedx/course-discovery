@@ -2,12 +2,10 @@
     <input type="hidden" id="staff_{{ staff.id }}" name="staff" value="{{ staff.id }}">
     <div><img src="{{ staff.get_profile_image_url }}"></div>
     <div><a class="delete" id="{{ staff.id }}" href="#"><i class="fa fa-trash-o fa-fw"></i></a>
-        {% if course_user_role == 'course_team' %}
-            {% if staff.position %}
-                {% if staff.position.organization_id in organizations_ids and staff.uuid %}
-                    <a class="edit" id="{{ staff.uuid }}" href="#"><i class="fa fa-pencil-square-o fa-fw"></i></a>
-                {% endif %}
-            {% endif %}
+        {% if (course_user_role == 'course_team' and (staff.position and staff.uuid and
+         staff.position.organization_id in organizations_ids or staff.position.organization_id is None)) or is_internal_user  %}
+            <a class="edit" id="{{ staff.uuid }}" href="#"><i class="fa fa-pencil-square-o fa-fw"></i></a>
+        {% endif %}
         {% else %}
             {% if not staff.profile_image_url %}
                 <a class="edit" id="{{ staff.uuid }}" href="#"><i class="fa fa-pencil-square-o fa-fw"></i></a>

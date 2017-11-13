@@ -240,6 +240,11 @@ class PersonAdmin(admin.ModelAdmin):
     search_fields = ('uuid', 'family_name', 'given_name', 'slug',)
 
 
+@admin.register(Position)
+class PositionAdmin(admin.ModelAdmin):
+    list_display = ('person', 'organization', 'organization_override',)
+
+
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
     list_display = ('src', 'description',)

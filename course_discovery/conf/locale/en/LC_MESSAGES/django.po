@@ -1021,6 +1021,10 @@ msgid "Organization"
 msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "Enter a different organization"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Bio"
 msgstr ""

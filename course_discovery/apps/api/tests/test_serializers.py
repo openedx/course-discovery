@@ -1153,6 +1153,7 @@ class PositionSerializerTests(TestCase):
             'title': str(position.title),
             'organization_name': position.organization_name,
             'organization_id': position.organization_id,
+            'organization_override': position.organization_override
         }
 
         self.assertDictEqual(serializer.data, expected)
