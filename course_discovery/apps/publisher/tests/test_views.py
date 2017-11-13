@@ -1910,22 +1910,21 @@ class CourseListViewPaginationTests(PaginationMixin, TestCase):
             assert course['internal_user_status'] == ''
 
     @ddt.data(
-        {'column': 6, 'direction': 'asc'},
-        {'column': 6, 'direction': 'desc'},
+        {'direction': 'asc'},
+        {'direction': 'desc'},
     )
     @ddt.unpack
-    def test_ordering_with_internal_user_status(self, column, direction):
+    def test_ordering_with_edx_status_column(self, direction):
         """
-        Verify that ordering by internal user status is working as expected.
+        Verify that ordering by edx status column is working as expected.
         """
-
         self.course_state = factories.CourseStateFactory(owner_role=PublisherUserRole.CourseTeam)
         self.course_state.marketing_reviewed = True
         self.course_state.save()
 
         for page in (1, 2, 3):
             courses = self.get_courses(
-                query_params={'sortColumn': column, 'sortDirection': direction, 'pageSize': 4, 'page': page}
+                query_params={'sortColumn': 6, 'sortDirection': direction, 'pageSize': 4, 'page': page}
             )
             internal_users_statuses = [course['internal_user_status'] for course in courses]
             self.assertEqual(sorted(internal_users_statuses,
