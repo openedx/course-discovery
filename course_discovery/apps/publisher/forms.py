@@ -336,8 +336,8 @@ class CourseRunForm(BaseForm):
             raise ValidationError({'min_effort': _('Minimum effort cannot be greater than Maximum effort')})
         if min_effort and max_effort and min_effort == max_effort:
             raise ValidationError({'min_effort': _('Minimum effort and Maximum effort can not be same')})
-        if not min_effort and max_effort:
-            raise ValidationError({'min_effort': _('Minimum effort can not be empty')})
+        if not max_effort and min_effort:
+            raise ValidationError({'max_effort': _('Maximum effort can not be empty')})
         if is_xseries and not xseries_name:
             raise ValidationError({'xseries_name': _('Enter XSeries program name')})
         if is_micromasters and not micromasters_name:
