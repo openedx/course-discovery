@@ -1,4 +1,8 @@
+import io
 import logging
+
+import requests
+from django.core.files import File
 
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.models import Course, CourseRun, CourseRunState, CourseState, Seat
@@ -33,7 +37,7 @@ def process_course(meta_data_course):
         create_or_update_course(meta_data_course, available_organization)
 
     except:  # pylint: disable=bare-except
-        logger.error('Exception appear for course-id [%s].', meta_data_course.uuid)
+        logger.exception('Exception appear for course-id [%s].', meta_data_course.uuid)
 
 
 def create_or_update_course(meta_data_course, available_organization):
@@ -57,13 +61,18 @@ def create_or_update_course(meta_data_course, available_organization):
         'level_type': meta_data_course.level_type,
         'primary_subject': primary_subject, 'secondary_subject': secondary_subject,
         'tertiary_subject': tertiary_subject,
-        'video_link': meta_data_course.video.src if meta_data_course.video else None
+        'video_link': meta_data_course.video.src if meta_data_course.video else None,
+        'expected_learnings': meta_data_course.outcome,
+        'prerequisites': meta_data_course.prerequisites_raw,
+        'syllabus': meta_data_course.syllabus_raw,
     }
 
     publisher_course, created = Course.objects.update_or_create(
         course_metadata_pk=meta_data_course.id,
         defaults=defaults
     )
+
+    transfer_course_image(meta_data_course, publisher_course)
 
     if created:
         if available_organization:
@@ -82,6 +91,28 @@ def create_or_update_course(meta_data_course, available_organization):
 
     # create canonical course-run against the course.
     create_course_runs(meta_data_course, publisher_course)
+
+
+def transfer_course_image(meta_data_course, publisher_course):
+    if meta_data_course.image:
+        publisher_course.image.save(
+            meta_data_course.image.name,
+            meta_data_course.image.file
+        )
+    elif meta_data_course.card_image_url:
+        response = requests.get(meta_data_course.card_image_url)
+        if response.status_code == 200:
+            img_name = meta_data_course.card_image_url.split('/')[-1]
+            with io.BytesIO() as fp:
+                fp.write(response.content)
+                publisher_course.image.save(img_name, File(fp))
+        else:
+            logger.error(
+                'Failed to download image for course [%s] from [%s]. Server responded with status [%d].',
+                meta_data_course.uuid,
+                meta_data_course.card_image_url,
+                response.status_code
+            )
 
 
 def create_course_runs(meta_data_course, publisher_course):
