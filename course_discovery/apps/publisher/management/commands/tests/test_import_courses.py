@@ -1,13 +1,18 @@
+import logging
+
 import ddt
 import mock
+import responses
 from django.core.management import CommandError, call_command
 from django.db import IntegrityError
 from django.test import TestCase
 from testfixtures import LogCapture
 
+from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.models import CourseRun
-from course_discovery.apps.course_metadata.tests.factories import (CourseFactory, CourseRunFactory, OrganizationFactory,
-                                                                   PersonFactory, SeatFactory, SubjectFactory)
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, SeatFactory, SubjectFactory
+)
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.dataloader.create_courses import logger as dataloader_logger
 from course_discovery.apps.publisher.dataloader.update_course_runs import logger as update_logger
@@ -101,7 +106,11 @@ class CreateCoursesTests(TestCase):
 
         transcript_languages = LanguageTag.objects.all()[:2]
         self.subjects = SubjectFactory.create_batch(3)
-        self.course = CourseFactory(subjects=self.subjects)
+        self.test_image = make_image_file('testimage.jpg')
+        self.course = CourseFactory(
+            subjects=self.subjects,
+            image__from_file=self.test_image
+        )
 
         self.command_name = 'import_metadata_courses'
         self.command_args = ['--start_id={}'.format(self.course.id), '--end_id={}'.format(self.course.id)]
@@ -204,6 +213,54 @@ class CreateCoursesTests(TestCase):
                 ),
             )
 
+    @responses.activate
+    def test_course_with_card_image_url(self):
+        self.course.image.delete()
+        self.test_image.open()
+        responses.add(
+            responses.GET,
+            self.course.card_image_url,
+            body=self.test_image.read(),
+            content_type='image/jpeg'
+        )
+        call_command(self.command_name, *self.command_args)
+        self.test_image.close()
+        publisher_course = Publisher_Course.objects.all().first()
+        self._assert_course(publisher_course)
+
+    @responses.activate
+    def test_course_with_non_existent_card_image_url(self):
+        self.course.image.delete()
+        request_status_code = 404
+        responses.add(
+            responses.GET,
+            self.course.card_image_url,
+            body=None,
+            content_type='image/jpeg',
+            status=request_status_code
+        )
+        with LogCapture(dataloader_logger.name, level=logging.ERROR) as log_capture:
+            call_command(self.command_name, *self.command_args)
+            log_capture.check(
+                (
+                    dataloader_logger.name,
+                    'ERROR',
+                    'Failed to download image for course [{}] from [{}]. Server responded with status [{}].'.format(
+                        self.course.uuid,
+                        self.course.card_image_url,
+                        request_status_code
+                    )
+                )
+            )
+
+    def test_course_without_image(self):
+        self.course.image.delete()
+        self.course.card_image_url = None
+        self.course.save()
+        call_command(self.command_name, *self.command_args)
+        publisher_course = Publisher_Course.objects.all().first()
+        self._assert_course(publisher_course)
+
     def test_course_run_without_seats(self):
         """ Verify that import works fine even if course-run has no seats."""
         self.course.canonical_course_run.seats.all().delete()
@@ -234,6 +291,12 @@ class CreateCoursesTests(TestCase):
                 ),
             )
 
+    def _assert_course_image(self, publisher_course):
+        if self.course.image or self.course.card_image_url:
+            assert publisher_course.image.url is not None
+        else:
+            assert bool(publisher_course.image) is False
+
     def _assert_course(self, publisher_course):
         """ Verify that publisher course  and metadata course has correct values."""
 
@@ -257,6 +320,11 @@ class CreateCoursesTests(TestCase):
             self.assertEqual(publisher_course.video_link, self.course.video.src)
         else:
             self.assertFalse(publisher_course.video_link)
+
+        assert publisher_course.prerequisites == self.course.prerequisites_raw
+        assert publisher_course.syllabus == self.course.syllabus_raw
+        assert publisher_course.expected_learnings == self.course.outcome
+        self._assert_course_image(publisher_course)
 
     def _assert_course_run(self, publisher_course_run, metadata_course_run):
         """ Verify that publisher course-run and metadata course run has correct values."""
