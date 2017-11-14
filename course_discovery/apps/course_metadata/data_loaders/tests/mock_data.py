@@ -1333,7 +1333,10 @@ UNIQUE_MARKETING_SITE_API_COURSE_BODIES = [
         'field_course_status': 'past',
         'field_course_start_override': None,
         'field_course_email': None,
-        'field_course_syllabus': [],
+        'field_course_syllabus': {
+            'value': 'Module 1: Introducing Azure Data Catalog \n Module 2:',
+            'format': 'basic_html'
+        },
         'field_course_prerequisites': {
             'value': '<p>None. CS50x is designed for students with or without prior programming experience.</p>',
             'format': 'standard_html'
