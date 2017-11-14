@@ -98,16 +98,16 @@ class PublisherCourseRunEditFormTests(TestCase):
 
     def test_minimum__effort_is_not_empty(self):
         """
-        Verify that 'clean' raises 'ValidationError' error if Minimum effort is
+        Verify that 'clean' raises 'ValidationError' error if Maximum effort is
         empty.
         """
         run_form = CourseRunForm()
-        run_form.cleaned_data = {'max_effort': 4}
+        run_form.cleaned_data = {'min_effort': 4}
         with self.assertRaises(ValidationError) as err:
             run_form.clean()
 
-        self.assertEqual(str(err.exception), "{'min_effort': ['Minimum effort can not be empty']}")
-        run_form.cleaned_data['min_effort'] = 1
+        self.assertEqual(str(err.exception), "{'max_effort': ['Maximum effort can not be empty']}")
+        run_form.cleaned_data['max_effort'] = 5
         self.assertEqual(run_form.clean(), run_form.cleaned_data)
 
     def test_course_run_dates(self):
