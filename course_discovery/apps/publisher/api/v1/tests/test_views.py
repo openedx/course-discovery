@@ -9,6 +9,7 @@ from rest_framework.test import APITestCase
 
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.core.tests.factories import StaffUserFactory, UserFactory
+from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
 from course_discovery.apps.course_metadata.models import CourseRun, Video
@@ -23,6 +24,7 @@ PUBLISHER_UPGRADE_DEADLINE_DAYS = random.randint(1, 21)
 
 
 class CourseRunViewSetTests(APITestCase):
+
     def test_without_authentication(self):
         self.client.logout()
         url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': 1})
@@ -39,9 +41,11 @@ class CourseRunViewSetTests(APITestCase):
     def _create_course_run_for_publication(self):
         organization = OrganizationFactory()
         transcript_languages = [LanguageTag.objects.first()]
+        mock_image_file = make_image_file('test_image.jpg')
         return CourseRunFactory(
             course__organizations=[organization],
             course__tertiary_subject=None,
+            course__image__from_file=mock_image_file,
             lms_course_id='a/b/c',
             transcript_languages=transcript_languages,
             staff=PersonFactory.create_batch(2)
@@ -163,6 +167,9 @@ class CourseRunViewSetTests(APITestCase):
         assert discovery_course.video == Video.objects.get(src=publisher_course.video_link)
         assert discovery_course.image.name is not None
         assert discovery_course.image.url is not None
+        assert discovery_course.image.file is not None
+        assert discovery_course.image.small.url is not None
+        assert discovery_course.image.small.file is not None
         assert discovery_course.outcome == publisher_course.expected_learnings
         assert discovery_course.prerequisites_raw == publisher_course.prerequisites
         assert discovery_course.syllabus_raw == publisher_course.syllabus

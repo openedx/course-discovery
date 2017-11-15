@@ -109,7 +109,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             'syllabus_raw': publisher_course.syllabus,
         }
         discovery_course, created = Course.objects.update_or_create(partner=partner, key=course_key, defaults=defaults)
-        discovery_course.image.save(publisher_course.image.name, publisher_course.image)
+        discovery_course.image.save(publisher_course.image.name, publisher_course.image.file)
         discovery_course.authoring_organizations.add(*publisher_course.organizations.all())
 
         subjects = [subject for subject in set([
