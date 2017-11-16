@@ -779,6 +779,7 @@ class CourseEntitlement(TimeStampedModel):
     price = models.DecimalField(**PRICE_FIELD_CONFIG)
     currency = models.ForeignKey(Currency)
     sku = models.CharField(max_length=128, null=True, blank=True)
+    expires = models.DateTimeField(null=True, blank=True)
 
     class Meta(object):
         unique_together = (
@@ -934,6 +935,11 @@ class Program(TimeStampedModel):
         applicable_seat_types = [seat_type.name.lower() for seat_type in self.type.applicable_seat_types.all()]
 
         for course in self.courses.all():
+            entitlement_products = set(course.entitlements.filter(mode__name__in=applicable_seat_types).exclude(
+                expires__lte=datetime.datetime.now(pytz.UTC)))
+            if len(entitlement_products) == 1:
+                continue
+
             course_runs = set(course.course_runs.filter(status=CourseRunStatus.Published)) - excluded_course_runs
 
             if len(course_runs) != 1:
