@@ -401,6 +401,7 @@ class CourseEntitlementSerializer(serializers.ModelSerializer):
     currency = serializers.SlugRelatedField(read_only=True, slug_field='code')
     sku = serializers.CharField()
     mode = serializers.SlugRelatedField(slug_field='name', queryset=SeatType.objects.all())
+    expires = serializers.DateTimeField()
 
     @classmethod
     def prefetch_queryset(cls):
@@ -408,7 +409,7 @@ class CourseEntitlementSerializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = CourseEntitlement
-        fields = ('mode', 'price', 'currency', 'sku',)
+        fields = ('mode', 'price', 'currency', 'sku', 'expires')
 
 
 class MinimalOrganizationSerializer(serializers.ModelSerializer):

@@ -510,6 +510,30 @@ class ProgramTests(TestCase):
 
         return factories.ProgramFactory(type=program_type, courses=[course_run.course])
 
+    def create_program_with_entitlements_and_seats(self):
+        verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
+        program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
+        courses = []
+        for __ in range(3):
+            entitlement = factories.CourseEntitlementFactory(mode=verified_seat_type, expires=None)
+            for __ in range(3):
+                factories.SeatFactory(
+                    course_run=factories.CourseRunFactory(
+                        end=None,
+                        enrollment_end=None,
+                        course=entitlement.course
+                    ),
+                    type=Seat.VERIFIED, upgrade_deadline=None
+                )
+            courses.append(entitlement.course)
+
+        program = factories.ProgramFactory(
+            courses=courses,
+            one_click_purchase_enabled=True,
+            type=program_type,
+        )
+        return program, courses
+
     def assert_one_click_purchase_ineligible_program(
             self, end=None, enrollment_start=None, enrollment_end=None, seat_type=Seat.VERIFIED,
             upgrade_deadline=None, one_click_purchase_enabled=True, excluded_course_runs=None, program_type=None
@@ -569,6 +593,69 @@ class ProgramTests(TestCase):
             type=program_type,
         )
         self.assertTrue(program.is_program_eligible_for_one_click_purchase)
+
+    def test_one_click_purchase_eligible_with_entitlements(self):
+        """ Verify that program is one click purchase eligible when its courses have unexpired entitlement products. """
+        # Program has one_click_purchase_enabled set to True,
+        # all courses have a verified mode entitlement product and multiple course runs.
+        program, __ = self.create_program_with_entitlements_and_seats()
+        self.assertTrue(program.is_program_eligible_for_one_click_purchase)
+
+    def test_one_click_purchase_ineligible_expired_entitlement(self):
+        """ Verify that program is not one click purchase eligible if course entitlement product is expired. """
+        program, courses = self.create_program_with_entitlements_and_seats()
+        expired_entitlement = courses[2].entitlements.first()
+        expired_entitlement.expires = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=7)
+        expired_entitlement.save()
+        self.assertFalse(program.is_program_eligible_for_one_click_purchase)
+
+    def test_one_click_purchase_eligible_expired_entitlement_one_run(self):
+        """
+        Verify that program is one click purchase eligible if there is only one
+        published course run for the course whose entitlement product is expired.
+        """
+        program, courses = self.create_program_with_entitlements_and_seats()
+        expired_entitlement = courses[2].entitlements.first()
+        expired_entitlement.expires = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=7)
+        expired_entitlement.save()
+        CourseRun.objects.filter(course=courses[2]).delete()
+        factories.SeatFactory(
+            course_run=factories.CourseRunFactory(
+                end=None,
+                enrollment_end=None,
+                course=courses[2]
+            ),
+            type=Seat.VERIFIED, upgrade_deadline=None
+        )
+        self.assertTrue(program.is_program_eligible_for_one_click_purchase)
+
+    def test_one_click_purchase_eligible_future_expires(self):
+        """ Verify that program is one click purchase eligible if course entitlement product expires in the future. """
+        program, courses = self.create_program_with_entitlements_and_seats()
+        future_expiring_entitlement = courses[1].entitlements.first()
+        future_expiring_entitlement.expires = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=7)
+        future_expiring_entitlement.save()
+        self.assertTrue(program.is_program_eligible_for_one_click_purchase)
+
+    def test_one_click_purchase_ineligible_wrong_mode(self):
+        """ Verify that program is not one click purchase eligible if course entitlement product has the wrong mode. """
+        program, courses = self.create_program_with_entitlements_and_seats()
+        honor_seat_type, __ = SeatType.objects.get_or_create(name=Seat.HONOR)
+        honor_mode_entitlement = courses[0].entitlements.first()
+        honor_mode_entitlement.mode = honor_seat_type
+        honor_mode_entitlement.save()
+        self.assertFalse(program.is_program_eligible_for_one_click_purchase)
+
+    def test_one_click_purchase_ineligible_multiple_entitlements(self):
+        """
+        Verify that program is not one click purchase eligible if course has
+        multiple entitlement products with correct modes.
+        """
+        program, courses = self.create_program_with_entitlements_and_seats()
+        credit_seat_type, __ = SeatType.objects.get_or_create(name=Seat.CREDIT)
+        program.type.applicable_seat_types.add(credit_seat_type)
+        factories.CourseEntitlementFactory(mode=credit_seat_type, expires=None, course=courses[0])
+        self.assertFalse(program.is_program_eligible_for_one_click_purchase)
 
     def test_one_click_purchase_eligible_with_unpublished_runs(self):
         """ Verify that program with unpublished course runs is one click purchase eligible. """

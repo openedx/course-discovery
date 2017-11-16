@@ -394,7 +394,8 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         defaults = {
             'price': price,
             'currency': currency,
-            'sku': sku
+            'sku': sku,
+            'expires': self.parse_date(body['expires'])
         }
         course.entitlements.update_or_create(mode=mode, defaults=defaults)
         return sku

@@ -438,6 +438,7 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
         """ Assert a Course Entitlement was loaded into the database for each entry in the specified data body. """
         self.assertEqual(CourseEntitlement.objects.count(), len(body))
         for datum in body:
+            expires = datum['expires']
             attributes = {attribute['name']: attribute['value'] for attribute in datum['attribute_values']}
             course = Course.objects.get(uuid=attributes['UUID'])
             stock_record = datum['stockrecords'][0]
@@ -450,6 +451,7 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
 
             entitlement = course.entitlements.get(mode=mode)
 
+            self.assertEqual(entitlement.expires, expires)
             self.assertEqual(entitlement.course, course)
             self.assertEqual(entitlement.mode, mode)
             self.assertEqual(entitlement.price, price)
