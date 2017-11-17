@@ -854,6 +854,21 @@ class ProgramTests(TestCase):
 
         self.assertEqual(set(course.canonical_course_run.seats.all()), set(program.canonical_seats))
 
+    def test_entitlements(self):
+        """ Test entitlements returns only applicable course entitlements. """
+        course = factories.CourseFactory()
+        verified_mode = SeatType.objects.get(name='verified')
+        credit_mode = SeatType.objects.get(name='credit')
+        professional_mode = SeatType.objects.get(name='professional')
+        for mode in [verified_mode, credit_mode, professional_mode]:
+            factories.CourseEntitlementFactory(course=course, mode=mode)
+        applicable_seat_types = SeatType.objects.filter(name__in=['verified', 'professional'])
+        program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
+
+        program = factories.ProgramFactory(type=program_type, courses=[course])
+
+        assert set(course.entitlements.filter(mode__in=applicable_seat_types)) == set(program.entitlements)
+
     def test_languages(self):
         expected_languages = set([course_run.language for course_run in self.course_runs])
         actual_languages = self.program.languages
@@ -911,6 +926,30 @@ class ProgramTests(TestCase):
             course_run.course.save()
 
         applicable_seat_types = SeatType.objects.filter(slug__in=['verified'])
+        program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
+
+        self.program.type = program_type
+
+        expected_price_ranges = [{'currency': 'USD', 'min': Decimal(100), 'max': Decimal(300), 'total': Decimal(600)}]
+        self.assertEqual(self.program.price_ranges, expected_price_ranges)
+
+    @ddt.data(True, False)
+    def test_price_ranges_with_entitlements(self, create_seats):
+        """ Verifies the price_range property of a program with course entitlement products """
+        currency = Currency.objects.get(code='USD')
+        test_price = 100
+        verified_mode = SeatType.objects.get(name='verified')
+        for course_run in self.course_runs:
+            factories.CourseEntitlementFactory(
+                currency=currency, course=course_run.course, price=test_price, mode=verified_mode
+            )
+            if create_seats:
+                factories.SeatFactory(type='verified', currency=currency, price=test_price, course_run=course_run)
+            course_run.course.canonical_course_run = course_run
+            course_run.course.save()
+            test_price += 100
+
+        applicable_seat_types = SeatType.objects.filter(name__in=['verified'])
         program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
 
         self.program.type = program_type
