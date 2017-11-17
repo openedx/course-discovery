@@ -1087,6 +1087,11 @@ class Program(TimeStampedModel):
                     yield seat
 
     @property
+    def entitlements(self):
+        applicable_seat_types = set(seat_type.name for seat_type in self.type.applicable_seat_types.all())
+        return CourseEntitlement.objects.filter(mode__name__in=applicable_seat_types, course__in=self.courses.all())
+
+    @property
     def seat_types(self):
         return set(seat.type for seat in self.seats)
 
@@ -1124,7 +1129,7 @@ class Program(TimeStampedModel):
             # And use the price of the seat to represent the price of the course
             selected_seats = course_map.get(course_uuid)
             if not selected_seats:
-                # if we do not have this course yet, create the seats array
+                # If we do not have this course yet, create the seats array
                 course_map[course_uuid] = [seat]
             else:
                 add_seat = False
@@ -1153,12 +1158,26 @@ class Program(TimeStampedModel):
                     # Now remove the seats that should not be counted for calculation for program total
                     course_map[course_uuid].remove(seat)
 
+        for entitlement in self.entitlements:
+            course_uuid = entitlement.course.uuid
+            selected_seats = course_map.get(course_uuid)
+            if not selected_seats:
+                course_map[course_uuid] = [entitlement]
+            else:
+                for selected_seat in selected_seats:
+                    if entitlement.currency == selected_seat.currency:
+                        # If the seat in the array has the same currency as the entitlement,
+                        # dont consider it for pricing by remove it from the course_map
+                        course_map[course_uuid].remove(selected_seat)
+                # Entitlement should be considered for pricing instead of removed seat.
+                course_map[course_uuid].append(entitlement)
+
         # Now calculate the total price of the program indexed by currency
-        for course_seats in course_map.values():
-            for seat in course_seats:
-                current_total = currencies_with_total.get(seat.currency, 0)
-                current_total += seat.price
-                currencies_with_total[seat.currency] = current_total
+        for course_products in course_map.values():
+            for product in course_products:
+                current_total = currencies_with_total.get(product.currency, 0)
+                current_total += product.price
+                currencies_with_total[product.currency] = current_total
 
         return currencies_with_total
 
@@ -1167,6 +1186,8 @@ class Program(TimeStampedModel):
         currencies = defaultdict(list)
         for seat in self.canonical_seats:
             currencies[seat.currency].append(seat.price)
+        for entitlement in self.entitlements:
+            currencies[entitlement.currency].append(entitlement.price)
 
         total_by_currency = self._get_total_price_by_currency()
 
