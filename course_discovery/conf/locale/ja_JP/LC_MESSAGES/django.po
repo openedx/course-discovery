@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-08 16:04+0000\n"
-"PO-Revision-Date: 2017-11-08 20:52+0000\n"
+"POT-Creation-Date: 2017-11-15 14:00+0000\n"
+"PO-Revision-Date: 2017-11-15 20:29+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Japanese (Japan) (http://www.transifex.com/open-edx/edx-platform/language/ja_JP/)\n"
 "MIME-Version: 1.0\n"
@@ -780,8 +780,8 @@ msgid "Minimum effort and Maximum effort can not be same"
 msgstr "エフォートの最小時間数と最大時間数は同じではいけません"
 
 #: apps/publisher/forms.py
-msgid "Minimum effort can not be empty"
-msgstr "エフォート最小時間は空白ではいけません"
+msgid "Maximum effort can not be empty"
+msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Enter XSeries program name"
