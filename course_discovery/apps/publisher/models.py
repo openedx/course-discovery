@@ -31,6 +31,8 @@ from course_discovery.apps.publisher.validators import ImageSizeValidator
 
 logger = logging.getLogger(__name__)
 
+PAID_SEATS = ['verified', 'professional']
+
 
 class ChangedByMixin(models.Model):
     changed_by = models.ForeignKey(User, null=True, blank=True)
