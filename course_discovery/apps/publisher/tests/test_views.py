@@ -2837,6 +2837,17 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
 
         toggle_switch('enable_publisher_email_notifications', True)
 
+    def test_edit_page_with_two_seats(self):
+        """
+        Verify that if a course run has both audit and verified seats, Verified seat is displayed
+        on the course run edit page
+        """
+        factories.SeatFactory(course_run=self.course_run, type=Seat.AUDIT)
+        self.edit_page_url = reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id})
+        response = self.client.get(self.edit_page_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, '<div id="SeatPriceBlock" class="col col-6 hidden" style="display: block;">')
+
     def _post_data(self, data, course, course_run):
         course_dict = model_to_dict(course)
         course_dict.update(**data)
