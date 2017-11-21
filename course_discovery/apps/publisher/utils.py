@@ -1,9 +1,12 @@
 """ Publisher Utils."""
+import re
 from dateutil import parser
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.constants import (ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME,
                                                        PROJECT_COORDINATOR_GROUP_NAME)
+
+VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY = re.compile(r'^[a-zA-Z0-9._-]*$')
 
 
 def is_email_notification_enabled(user):

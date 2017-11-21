@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+import ddt
 import pytest
 from django.core.exceptions import ValidationError
 from django.test import TestCase
@@ -166,6 +167,7 @@ class PublisherCourseRunEditFormTests(TestCase):
         self.assertEqual(run_form.clean(), run_form.cleaned_data)
 
 
+@ddt.ddt
 class PublisherCustomCourseFormTests(TestCase):
     """
     Tests for publisher 'CourseForm'
@@ -210,7 +212,7 @@ class PublisherCustomCourseFormTests(TestCase):
         course_form.cleaned_data['title'] = "Test2"
         self.assertEqual(course_form.clean(), course_form.cleaned_data)
 
-    def test_duplicate_number(self):
+    def test_duplicate_course_number(self):
         """
         Verify that clean raises 'ValidationError' if the course number is a duplicate of another course number
         within the same organization
@@ -223,21 +225,32 @@ class PublisherCustomCourseFormTests(TestCase):
         course_form.cleaned_data['number'] = "123a"
         self.assertEqual(course_form.clean(), course_form.cleaned_data)
 
-    def test_invalid_number(self):
+    @ddt.data(
+        [" ", ",", "@", "(", "!", "#", "$", "%", "^", "&", "*", "+", "=", "{", "[", "ó"]
+    )
+    def test_invalid_course_number(self, invalid_char_list):
         """
         Verify that clean_number raises 'ValidationError' if the course number consists of special characters
-        or spaces
+        or spaces other than underscore,hyphen or period
         """
         course_form = CourseForm()
-        course_form.cleaned_data = {'number': '123 a'}
-        with self.assertRaises(ValidationError):
-            course_form.clean_number()
+        for invalid_char in invalid_char_list:
+            course_form.cleaned_data = {'number': 'course_num{}'.format(invalid_char)}
+            with self.assertRaises(ValidationError):
+                course_form.clean_number()
 
-        course_form.cleaned_data['number'] = "123.a"
-        self.assertEqual(course_form.clean_number(), "123.a")
-
-        course_form.cleaned_data['number'] = "123a"
-        self.assertEqual(course_form.clean_number(), "123a")
+    @ddt.data(
+        ["123a", "123_a", "123.a", "123-a", "XYZ123"]
+    )
+    def test_valid_course_number(self, valid_number_list):
+        """
+        Verify that clean_number allows alphanumeric(a-zA-Z0-9) characters, period, underscore and hyphen
+        in course number
+        """
+        course_form = CourseForm()
+        for valid_number in valid_number_list:
+            course_form.cleaned_data = {'number': valid_number}
+            self.assertEqual(course_form.clean_number(), valid_number)
 
     def test_course_title_formatting(self):
         """

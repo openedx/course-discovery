@@ -1,7 +1,6 @@
 import datetime
 import itertools
 import logging
-import re
 from collections import defaultdict
 from urllib.parse import urljoin
 from uuid import uuid4
@@ -33,6 +32,8 @@ from course_discovery.apps.course_metadata.publishers import (
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath, clean_query, custom_render_variations
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
+
 
 logger = logging.getLogger(__name__)
 
@@ -176,7 +177,9 @@ class Organization(TimeStampedModel):
     """ Organization model. """
     partner = models.ForeignKey(Partner, null=True, blank=False)
     uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
-    key = models.CharField(max_length=255, help_text=_('Only ascii characters allowed (a-zA-Z0-9)'))
+    key = models.CharField(max_length=255, help_text=_('Please do not use any spaces or special characters other '
+                                                       'than period, underscore or hyphen. This key will be used '
+                                                       'in the course\'s course key.'))
     name = models.CharField(max_length=255)
     marketing_url_path = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
@@ -194,8 +197,9 @@ class Organization(TimeStampedModel):
     )
 
     def clean(self):
-        if not re.match("^[a-zA-Z0-9_-]*$", self.key):
-            raise ValidationError(_('Please do not use any spaces or special characters in the key field'))
+        if not VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY.match(self.key):
+            raise ValidationError(_('Please do not use any spaces or special characters other than period, '
+                                    'underscore or hyphen in the key field.'))
 
     class Meta:
         unique_together = (

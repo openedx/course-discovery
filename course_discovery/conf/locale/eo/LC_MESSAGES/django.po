@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-15 14:00+0000\n"
+"POT-Creation-Date: 2017-11-28 09:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -347,10 +347,18 @@ msgid "Subject model translations"
 msgstr "Süßjéçt mödél tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: apps/course_metadata/models.py
-msgid "Only ascii characters allowed (a-zA-Z0-9)"
+msgid ""
+"Please do not use any spaces or special characters other than period, "
+"underscore or hyphen. This key will be used in the course's course key."
 msgstr ""
-"Önlý äsçïï çhäräçtérs ällöwéd (ä-zÀ-Z0-9) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя #"
+"Pléäsé dö nöt üsé äný späçés ör spéçïäl çhäräçtérs öthér thän pérïöd, "
+"ündérsçöré ör hýphén. Thïs kéý wïll ßé üséd ïn thé çöürsé's çöürsé kéý. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ "
+"тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм,"
+" qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
+"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт #"
 
 #: apps/course_metadata/models.py
 msgid ""
@@ -369,10 +377,12 @@ msgstr ""
 "täg nämé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: apps/course_metadata/models.py
-msgid "Please do not use any spaces or special characters in the key field"
+msgid ""
+"Please do not use any spaces or special characters other than period, "
+"underscore or hyphen in the key field."
 msgstr ""
-"Pléäsé dö nöt üsé äný späçés ör spéçïäl çhäräçtérs ïn thé kéý fïéld Ⱡ'σяєм "
-"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+"Pléäsé dö nöt üsé äný späçés ör spéçïäl çhäräçtérs öthér thän pérïöd, "
+"ündérsçöré ör hýphén ïn thé kéý fïéld. Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: apps/course_metadata/models.py
 msgid "People"
@@ -841,10 +851,12 @@ msgid "Syllabus"
 msgstr "Sýlläßüs Ⱡ'σяєм ιρѕυм ∂#"
 
 #: apps/publisher/forms.py
-msgid "Please do not use any spaces or special characters."
+msgid ""
+"Please do not use any spaces or special characters other than period, "
+"underscore or hyphen."
 msgstr ""
-"Pléäsé dö nöt üsé äný späçés ör spéçïäl çhäräçtérs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
-"αмєт, ¢σηѕє¢тєтυя α#"
+"Pléäsé dö nöt üsé äný späçés ör spéçïäl çhäräçtérs öthér thän pérïöd, "
+"ündérsçöré ör hýphén. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: apps/publisher/forms.py
 msgid "This course title already exists"
@@ -1534,10 +1546,13 @@ msgid "COURSE NUMBER"
 msgstr "ÇÖÛRSÉ NÛMBÉR Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: apps/publisher/templates/publisher/add_course_form.html
-msgid "Maximum 50 characters. Characters can be letters, numbers, or periods."
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"Maximum 50 characters. Characters can be letters, numbers, periods, "
+"underscores or hyphens."
 msgstr ""
-"Mäxïmüm 50 çhäräçtérs. Çhäräçtérs çän ßé léttérs, nümßérs, ör pérïöds. "
-"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+"Mäxïmüm 50 çhäräçtérs. Çhäräçtérs çän ßé léttérs, nümßérs, pérïöds, "
+"ündérsçörés ör hýphéns. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
@@ -1863,12 +1878,6 @@ msgid "255 character limit, including spaces."
 msgstr ""
 "255 çhäräçtér lïmït, ïnçlüdïng späçés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя#"
-
-#: apps/publisher/templates/publisher/course_edit_form.html
-msgid "Maximum 10 characters. Characters can be letters, numbers, or periods."
-msgstr ""
-"Mäxïmüm 10 çhäräçtérs. Çhäräçtérs çän ßé léttérs, nümßérs, ör pérïöds. "
-"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "BIO1.1x, BIO1.2x"

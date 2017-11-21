@@ -366,28 +366,26 @@ class OrganizationTests(TestCase):
         self.organization = factories.OrganizationFactory()
 
     @ddt.data(
-        "key with space",
-        "key[with,special",
-        "keyó"
+        [" ", ",", "@", "(", "!", "#", "$", "%", "^", "&", "*", "+", "=", "{", "[", "ó"]
     )
-    def test_clean_error(self, key):
+    def test_clean_error(self, invalid_char_list):
         """
         Verify that the clean method raises validation error if key consists of special characters
         """
-        self.organization.key = key
-        self.assertRaises(ValidationError, self.organization.clean)
+        for char in invalid_char_list:
+            self.organization.key = 'key{}'.format(char)
+            self.assertRaises(ValidationError, self.organization.clean)
 
     @ddt.data(
-        "keywithoutspace",
-        "correctkey",
-        "correct_key"
+        ["keywithoutspace", "correct-key", "correct_key", "correct.key"]
     )
-    def test_clean_success(self, key):
+    def test_clean_success(self, valid_key_list):
         """
         Verify that the clean method returns None if key is valid
         """
-        self.organization.key = key
-        self.assertEqual(self.organization.clean(), None)
+        for valid_key in valid_key_list:
+            self.organization.key = valid_key
+            self.assertEqual(self.organization.clean(), None)
 
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the key and name. """

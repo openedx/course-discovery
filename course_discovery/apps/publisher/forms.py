@@ -1,6 +1,5 @@
 import html
 import logging
-import re
 
 import waffle
 from dal import autocomplete
@@ -16,9 +15,10 @@ from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import LevelType, Organization, Person, Subject
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.mixins import LanguageModelSelect2Multiple, get_user_organizations
-from course_discovery.apps.publisher.models import (Course, CourseRun, CourseUserRole, OrganizationExtension,
-                                                    OrganizationUserRole, PublisherUser, Seat, User)
-from course_discovery.apps.publisher.utils import is_internal_user
+from course_discovery.apps.publisher.models import (
+    Course, CourseRun, CourseUserRole, OrganizationExtension, OrganizationUserRole, PublisherUser, Seat, User
+)
+from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY, is_internal_user
 from course_discovery.apps.publisher.validators import validate_text_count
 
 logger = logging.getLogger(__name__)
@@ -96,7 +96,7 @@ class CourseForm(BaseForm):
         label=_('Organization Course Admin'),
     )
 
-    subjects = Subject.objects.all().order_by("translations__name")
+    subjects = Subject.objects.all().order_by('translations__name')
     primary_subject = forms.ModelChoiceField(
         queryset=subjects,
         label=_('Primary'),
@@ -178,22 +178,23 @@ class CourseForm(BaseForm):
         Convert all named and numeric character references in the string
         to the corresponding unicode characters
         """
-        return html.unescape(self.cleaned_data.get("title"))
+        return html.unescape(self.cleaned_data.get('title'))
 
     def clean_number(self):
         """
-        Validate that number doesn't consist of any special characters
+        Validate that number doesn't consist of any special characters other than period, underscore or hyphen
         """
-        number = self.cleaned_data.get("number")
-        if not re.match("^[a-zA-Z0-9_.]*$", number):
-            raise ValidationError(_('Please do not use any spaces or special characters.'))
+        number = self.cleaned_data.get('number')
+        if not VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY.match(number):
+            raise ValidationError(_('Please do not use any spaces or special characters other than period, '
+                                    'underscore or hyphen.'))
         return number
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        organization = cleaned_data.get("organization")
-        title = cleaned_data.get("title")
-        number = cleaned_data.get("number")
+        organization = cleaned_data.get('organization')
+        title = cleaned_data.get('title')
+        number = cleaned_data.get('number')
         instance = getattr(self, 'instance', None)
         if not instance.pk:
             if Course.objects.filter(title=title, organizations__in=[organization]).exists():
@@ -306,7 +307,7 @@ class CourseRunForm(BaseForm):
             try:
                 CourseKey.from_string(lms_course_id)
             except InvalidKeyError:
-                raise ValidationError("Invalid course key.")
+                raise ValidationError('Invalid course key.')
 
             return lms_course_id
 
@@ -320,16 +321,16 @@ class CourseRunForm(BaseForm):
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        min_effort = cleaned_data.get("min_effort")
-        max_effort = cleaned_data.get("max_effort")
-        start = cleaned_data.get("start")
-        end = cleaned_data.get("end")
-        is_xseries = cleaned_data.get("is_xseries")
-        xseries_name = cleaned_data.get("xseries_name")
-        is_micromasters = cleaned_data.get("is_micromasters")
-        micromasters_name = cleaned_data.get("micromasters_name")
-        is_professional_certificate = cleaned_data.get("is_professional_certificate")
-        professional_certificate_name = cleaned_data.get("professional_certificate_name")
+        min_effort = cleaned_data.get('min_effort')
+        max_effort = cleaned_data.get('max_effort')
+        start = cleaned_data.get('start')
+        end = cleaned_data.get('end')
+        is_xseries = cleaned_data.get('is_xseries')
+        xseries_name = cleaned_data.get('xseries_name')
+        is_micromasters = cleaned_data.get('is_micromasters')
+        micromasters_name = cleaned_data.get('micromasters_name')
+        is_professional_certificate = cleaned_data.get('is_professional_certificate')
+        professional_certificate_name = cleaned_data.get('professional_certificate_name')
         if start and end and start > end:
             raise ValidationError({'start': _('Start date cannot be after the End date')})
         if min_effort and max_effort and min_effort > max_effort:
@@ -521,7 +522,7 @@ class CourseRunAdminForm(forms.ModelForm):
             try:
                 CourseKey.from_string(lms_course_id)
             except InvalidKeyError:
-                raise ValidationError(_("Invalid course key."))
+                raise ValidationError(_('Invalid course key.'))
 
             return lms_course_id
 
