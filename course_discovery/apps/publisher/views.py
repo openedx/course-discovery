@@ -505,7 +505,7 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
         return context
 
 
-class CreateCourseRunView(mixins.LoginRequiredMixin, CreateView):
+class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMixin, CreateView):
     """ Create Course Run View."""
     model = CourseRun
     run_form = CourseRunForm

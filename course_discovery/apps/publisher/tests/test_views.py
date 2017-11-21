@@ -272,7 +272,7 @@ class CreateCourseViewTests(SiteMixin, TestCase):
 
 
 class CreateCourseRunViewTests(SiteMixin, TestCase):
-    """ Tests for the publisher `UpdateCourseRunView`. """
+    """ Tests for the publisher `CreateCourseRunView`. """
 
     def setUp(self):
         super(CreateCourseRunViewTests, self).setUp()
@@ -302,6 +302,10 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         self.course_run_dict['start'] = (current_datetime + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
         self.course_run_dict['end'] = (current_datetime + timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S')
         self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.create_course_run_url_new = reverse(
+            'publisher:publisher_course_runs_new',
+            kwargs={'parent_course_id': self.course.id}
+        )
 
     def _pop_valuse_from_dict(self, data_dict, key_list):
         for key in key_list:
@@ -309,24 +313,20 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
 
     def test_courserun_form_with_login(self):
         """ Verify that user can access new course run form page when logged in. """
-        response = self.client.get(
-            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id})
-        )
+        response = self.client.get(self.create_course_run_url_new)
 
         self.assertEqual(response.status_code, 200)
 
     def test_courserun_form_without_login(self):
         """ Verify that user can't access new course run form page when not logged in. """
         self.client.logout()
-        response = self.client.get(
-            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id})
-        )
+        response = self.client.get(self.create_course_run_url_new)
 
         self.assertRedirects(
             response,
             expected_url='{url}?next={next}'.format(
                 url=reverse('login'),
-                next=reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id})
+                next=self.create_course_run_url_new
             ),
             status_code=302,
             target_status_code=302
@@ -334,11 +334,19 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
 
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
-        response = self.client.get(
-            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id})
-        )
-
+        response = self.client.get(self.create_course_run_url_new)
         self.assertEqual(response.status_code, 200)
+
+    def test_create_course_run_without_permission(self):
+        """
+        Verify that a course run create page shows the proper error when non-publisher user tries to
+        access it.
+        """
+        create_non_staff_user_and_login(self)  # pylint: disable=unused-variable
+        response = self.client.get(self.create_course_run_url_new)
+        self.assertContains(
+            response, "Must be Publisher user to perform this action.", status_code=403
+        )
 
     def test_create_course_run_and_seat_with_errors(self):
         """ Verify that without providing required data course run cannot be
@@ -350,20 +358,13 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
             post_data, ['upgrade_deadline', 'start']
         )
 
-        response = self.client.post(
-            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
-            post_data
-        )
+        response = self.client.post(self.create_course_run_url_new, post_data)
         self.assertEqual(response.status_code, 400)
 
         with mock.patch('django.forms.models.BaseModelForm.is_valid') as mocked_is_valid:
             mocked_is_valid.return_value = True
             with LogCapture(publisher_views_logger.name) as log_capture:
-                response = self.client.post(
-                    reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
-                    post_data
-                )
-
+                response = self.client.post(self.create_course_run_url_new, post_data)
                 self.assertEqual(response.status_code, 400)
                 log_capture.check(
                     (
@@ -394,10 +395,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         assign_perm(
             OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
         )
-        response = self.client.post(
-            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
-            post_data
-        )
+        response = self.client.post(self.create_course_run_url_new, post_data)
 
         new_seat = Seat.objects.get(type=post_data['type'], price=post_data['price'])
         self.assertRedirects(
@@ -440,20 +438,12 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         assign_perm(
             OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
         )
-        response = self.client.post(
-            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
-            post_data
-        )
-
+        response = self.client.post(self.create_course_run_url_new, post_data)
         self.assertContains(response, 'Only audit seat can be without price.', status_code=400)
 
         post_data['price'] = 450
 
-        response = self.client.post(
-            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
-            post_data
-        )
-
+        response = self.client.post(self.create_course_run_url_new, post_data)
         new_seat = Seat.objects.get(type=post_data['type'], price=post_data['price'])
         self.assertRedirects(
             response,
@@ -469,9 +459,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         latest_run = self.course.course_runs.latest('created')
         factories.SeatFactory(course_run=latest_run, type=Seat.VERIFIED, price=550.0)
         latest_seat = latest_run.seats.latest('created')
-        response = self.client.get(
-            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id})
-        )
+        response = self.client.get(self.create_course_run_url_new)
         response_content = BeautifulSoup(response.content)
 
         pacing_type_attribute = response_content.find(
@@ -502,11 +490,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         assign_perm(
             OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
         )
-        response = self.client.post(
-            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
-            post_data
-        )
-
+        response = self.client.post(self.create_course_run_url_new, post_data)
         self.assertEqual(response.status_code, 400)
 
     def test_create_course_run_with_credit_seat(self):
@@ -527,10 +511,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         assign_perm(
             OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
         )
-        response = self.client.post(
-            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id}),
-            post_data
-        )
+        response = self.client.post(self.create_course_run_url_new, post_data)
 
         new_seat = Seat.objects.get(type=post_data['type'])
         self.assertRedirects(
@@ -545,7 +526,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         self.assertEqual(new_seat.price, price)
         self.assertEqual(new_seat.credit_price, credit_price)
 
-    def test_canot_create_course_run_without_roles(self):
+    def test_cannot_create_course_run_without_roles(self):
         """
         Verify that user can create a new course run with credit seat.
         """
