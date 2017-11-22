@@ -19,10 +19,11 @@ from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import (FAQ, CorporateEndorsement, Course, CourseEntitlement,
-                                                          CourseRun, Endorsement, Image, Organization, Person,
-                                                          PersonSocialNetwork, PersonWork, Position, Prerequisite,
-                                                          Program, ProgramType, Seat, SeatType, Subject, Video)
+from course_discovery.apps.course_metadata.models import (
+    FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, Endorsement, Image, Organization, Person,
+    PersonSocialNetwork, PersonWork, Position, Prerequisite, Program, ProgramType, Seat, SeatType, Subject, Topic,
+    Video
+)
 from course_discovery.apps.course_metadata.search_indexes import CourseIndex, CourseRunIndex, ProgramIndex
 
 User = get_user_model()
@@ -1299,3 +1300,15 @@ class AggregateFacetSearchSerializer(BaseHaystackFacetSerializer):
             CourseIndex: CourseFacetSerializer,
             ProgramIndex: ProgramFacetSerializer,
         }
+
+
+class TopicSerializer(serializers.ModelSerializer):
+    """Serializer for the ``Topic`` model."""
+
+    @classmethod
+    def prefetch_queryset(cls):
+        return Topic.objects.filter()
+
+    class Meta(object):
+        model = Topic
+        fields = ('name', 'subtitle', 'description', 'long_description', 'banner_image_url', 'slug', 'uuid')

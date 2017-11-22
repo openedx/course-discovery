@@ -49,6 +49,18 @@ class SubjectFactory(factory.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
 
 
+class TopicFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Topic
+
+    name = FuzzyText()
+    description = FuzzyText()
+    long_description = FuzzyText()
+    banner_image_url = FuzzyURL()
+    partner = factory.SubFactory(PartnerFactory)
+    uuid = factory.LazyFunction(uuid4)
+
+
 class LevelTypeFactory(AbstractNamedModelFactory):
     class Meta:
         model = LevelType

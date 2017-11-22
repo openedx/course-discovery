@@ -153,6 +153,44 @@ class SubjectTranslation(TranslatedFieldsModel):
         verbose_name = _('Subject model translations')
 
 
+class Topic(TranslatableModel, TimeStampedModel):
+    """ Topic model. """
+    uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
+    banner_image_url = models.URLField(blank=True, null=True)
+    slug = AutoSlugField(populate_from='name', editable=True, blank=True,
+                         help_text=_('Leave this field blank to have the value generated automatically.'))
+
+    partner = models.ForeignKey(Partner)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        unique_together = (
+            ('partner', 'slug'),
+            ('partner', 'uuid'),
+        )
+
+    def validate_unique(self, *args, **kwargs):
+        super(Topic, self).validate_unique(*args, **kwargs)
+        qs = Topic.objects.filter(partner=self.partner_id)
+        if qs.filter(translations__name=self.name).exclude(pk=self.pk).exists():
+            raise ValidationError({'name': ['Topic with this Name and Partner already exists', ]})
+
+
+class TopicTranslation(TranslatedFieldsModel):
+    master = models.ForeignKey(Topic, related_name='translations', null=True)
+
+    name = models.CharField(max_length=255, blank=False, null=False)
+    subtitle = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    long_description = models.TextField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ('language_code', 'master')
+        verbose_name = _('Topic model translations')
+
+
 class Prerequisite(AbstractNamedModel):
     """ Prerequisite model. """
     pass
