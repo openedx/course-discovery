@@ -178,7 +178,12 @@ function renderSelectedInstructor(id, name, image, uuid, organization_id, edit_i
 
 
     var user_is_course_team = course_user_role === "course_team";
-    var user_is_in_similar_org_as_instructor = $.inArray(parseInt(organization_id), JSON.parse(user_organizations_ids)) > -1;
+    if (organization_id != "None" && user_organizations_ids != "[]"){
+        var user_is_in_similar_org_as_instructor = $.inArray(parseInt(organization_id), JSON.parse(user_organizations_ids)) > -1;
+    }
+    else {
+        var user_is_in_similar_org_as_instructor = false;
+    }
     var org_is_none = organization_id === "None";
 
     if ((user_is_course_team && (user_is_in_similar_org_as_instructor && uuid || org_is_none)) || is_internal_user || edit_instructor) {
