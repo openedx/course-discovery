@@ -21,7 +21,7 @@ from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractMediaModel, AbstractNamedModel, AbstractValueModel, CorporateEndorsement, Course, CourseRun,
-    Endorsement, Seat, SeatType, Subject
+    Endorsement, Seat, SeatType, Subject, Topic
 )
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -1185,3 +1185,32 @@ class SubjectTests(SiteMixin, TestCase):
         self.assertEqual(
             str(validation_error.exception),
             "{'name': ['Subject with this Name and Partner already exists']}")
+
+
+class TopicTests(SiteMixin, TestCase):
+    """ Tests of the Multilingual Topic (and TopicTranslation) model. """
+
+    def test_validate_unique(self):
+        topic = Topic.objects.create(
+            name="name1",
+            partner_id=self.partner.id,
+            banner_image_url="http://www.example.com",
+        )
+        self.assertIsNone(topic.full_clean())
+
+        duplicate_topic = Topic(
+            name="name1",
+            partner_id=self.partner.id,
+            banner_image_url="http://www.example.com",
+        )
+
+        with self.assertRaises(ValidationError) as validation_error:
+            duplicate_topic.full_clean()
+        self.assertEqual(
+            str(validation_error.exception),
+            "{'name': ['Topic with this Name and Partner already exists']}")
+
+    def test_str(self):
+        name = "name"
+        topic = Topic.objects.create(name=name, partner_id=self.partner.id)
+        self.assertEqual(topic.__str__(), name)

@@ -230,6 +230,14 @@ class SubjectAdmin(TranslatableAdmin):
     search_fields = ('uuid', 'name', 'slug',)
 
 
+@admin.register(Topic)
+class TopicAdmin(TranslatableAdmin):
+    list_display = ('uuid', 'name', 'slug',)
+    list_filter = ('partner',)
+    readonly_fields = ('uuid',)
+    search_fields = ('uuid', 'name', 'slug',)
+
+
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
     inlines = (PositionInline, PersonWorkInline, PersonSocialNetworkInline)

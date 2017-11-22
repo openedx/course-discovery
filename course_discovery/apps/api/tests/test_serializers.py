@@ -25,8 +25,8 @@ from course_discovery.apps.api.serializers import (
     MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalProgramCourseSerializer,
     MinimalProgramSerializer, NestedProgramSerializer, OrganizationSerializer, PersonSerializer, PositionSerializer,
     PrerequisiteSerializer, ProgramSearchSerializer, ProgramSerializer, ProgramTypeSerializer, SeatSerializer,
-    SubjectSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
-    get_utm_source_for_user
+    SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer,
+    VideoSerializer, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
@@ -39,7 +39,7 @@ from course_discovery.apps.course_metadata.models import Course, CourseRun, Prog
 from course_discovery.apps.course_metadata.tests.factories import (
     CorporateEndorsementFactory, CourseFactory, CourseRunFactory, EndorsementFactory, ExpectedLearningItemFactory,
     ImageFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, PositionFactory, PrerequisiteFactory,
-    ProgramFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory, SubjectFactory, VideoFactory
+    ProgramFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -969,6 +969,24 @@ class SubjectSerializerTests(TestCase):
             'subtitle': subject.subtitle,
             'slug': subject.slug,
             'uuid': str(subject.uuid),
+        }
+
+        self.assertDictEqual(serializer.data, expected)
+
+
+class TopicSerializerTests(TestCase):
+    def test_data(self):
+        topic = TopicFactory()
+        serializer = TopicSerializer(topic)
+
+        expected = {
+            'name': topic.name,
+            'description': topic.description,
+            'long_description': topic.long_description,
+            'banner_image_url': topic.banner_image_url,
+            'subtitle': topic.subtitle,
+            'slug': topic.slug,
+            'uuid': str(topic.uuid),
         }
 
         self.assertDictEqual(serializer.data, expected)
