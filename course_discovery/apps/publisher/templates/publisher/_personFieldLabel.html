@@ -6,7 +6,7 @@
             {% if staff.position and staff.uuid and staff.position.organization_id in organizations_ids or staff.position.organization_id is None %}
                 <a class="edit" id="{{ staff.uuid }}" href="#"><i class="fa fa-pencil-square-o fa-fw"></i></a>
             {% endif %}
-        {% elif not staff.profile_image_url %}
+        {% elif is_internal_user %}
             <a class="edit" id="{{ staff.uuid }}" href="#"><i class="fa fa-pencil-square-o fa-fw"></i></a>
         {% endif %}
         <b>{{ staff.full_name }}</b>
