@@ -271,12 +271,19 @@ $(document).on('click', '.selected-instructor a.edit', function (e) {
     $.getJSON({
         url: btnInstructor.data('url') + uuid,
         success: function (data) {
+            if (data['position']['organization_id'] == null){
+                $('#organization_override').val(data['position']['organization_override']);
+                $('#org_container').hide();
+            }
+            else {
+                $('#id_organization').val(data['position']['organization_id']);
+                $('#org_override_container').hide()
+            }
             $('.select-image').attr('src', data['profile_image_url']);
             $('#given-name').val(data['given_name']);
             $('#family-name').val(data['family_name']);
             $('#title').val(data['position']['title']);
             $('#email').val(data['email']);
-            $('#id_organization').val(data['position']['organization_id']);
             $('#bio').val(data['bio']);
             $('#majorWorks').val(data['works'].join('\n'));
             $('#facebook').val(data['urls']['facebook']);
