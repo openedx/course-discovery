@@ -14,6 +14,7 @@ from opaque_keys.edx.keys import CourseKey
 from testfixtures import LogCapture
 
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
+from course_discovery.apps.course_metadata.data_loaders.marketing_site import logger as marketing_site_logger
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
     CourseMarketingSiteDataLoader, PersonMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
     SponsorMarketingSiteDataLoader, SubjectMarketingSiteDataLoader
@@ -458,11 +459,11 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         {'field_course_id': 'Bio Course ID'}
     )
     def test_process_node(self, data):
-        with LogCapture() as l:
+        with LogCapture(marketing_site_logger.name) as lc:
             self.loader.process_node(data)
-            l.check(
+            lc.check(
                 (
-                    'course_discovery.apps.course_metadata.data_loaders.marketing_site',
+                    marketing_site_logger.name,
                     'ERROR',
                     'Invalid course key [{}].'.format(data['field_course_id'])
                 )
@@ -576,7 +577,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
             self.assert_course_loaded(datum)
 
     @responses.activate
-    def test_canonical(self):
+    def test_course_run_creation(self):
         self.mocked_data = [
             mock_data.ORIGINAL_MARKETING_SITE_API_COURSE_BODY,
             mock_data.NEW_RUN_MARKETING_SITE_API_COURSE_BODY,
@@ -598,3 +599,52 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         self.assertNotEqual(course.title, new_run_title)
         with self.assertRaises(AttributeError):
             course_run.canonical_for_course  # pylint: disable=pointless-statement
+
+    @responses.activate
+    def test_discovery_created_course_run(self):
+        self.mocked_data = [
+            mock_data.DISCOVERY_CREATED_MARKETING_SITE_API_COURSE_BODY
+        ]
+
+        self.mock_login_response()
+        self.mock_api()
+
+        with LogCapture(marketing_site_logger.name) as lc:
+            self.loader.ingest()
+            lc.check(
+                (
+                    marketing_site_logger.name,
+                    'INFO',
+                    'Course_run [{}] has uuid [{}] already on course about page. No need to ingest'.format(
+                        mock_data.DISCOVERY_CREATED_MARKETING_SITE_API_COURSE_BODY['field_course_id'],
+                        mock_data.DISCOVERY_CREATED_MARKETING_SITE_API_COURSE_BODY['field_course_uuid'])
+                )
+            )
+
+    @responses.activate
+    def test_discovery_unpublished_course_run(self):
+        self.mocked_data = [
+            mock_data.UPDATED_MARKETING_SITE_API_COURSE_BODY,
+            mock_data.ORIGINAL_MARKETING_SITE_API_COURSE_BODY
+        ]
+
+        self.mock_login_response()
+        self.mock_api()
+
+        with LogCapture(marketing_site_logger.name) as lc:
+            self.loader.ingest()
+            lc.check(
+                (
+                    marketing_site_logger.name,
+                    'INFO',
+                    'Processed course run with UUID [{}].'.format(
+                        mock_data.UPDATED_MARKETING_SITE_API_COURSE_BODY['uuid'])
+                ),
+                (
+                    marketing_site_logger.name,
+                    'INFO',
+                    'Course_run [{}] is unpublished, so the course [{}] related is not updated.'.format(
+                        mock_data.ORIGINAL_MARKETING_SITE_API_COURSE_BODY['field_course_id'],
+                        mock_data.ORIGINAL_MARKETING_SITE_API_COURSE_BODY['field_course_code'])
+                )
+            )
