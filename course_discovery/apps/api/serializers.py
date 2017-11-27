@@ -400,7 +400,7 @@ class CourseEntitlementSerializer(serializers.ModelSerializer):
     )
     currency = serializers.SlugRelatedField(read_only=True, slug_field='code')
     sku = serializers.CharField()
-    mode = serializers.SlugRelatedField(slug_field='name', queryset=SeatType.objects.all())
+    mode = serializers.SlugRelatedField(slug_field='slug', queryset=SeatType.objects.all())
     expires = serializers.DateTimeField()
 
     @classmethod
