@@ -464,7 +464,8 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'mobile_available': data.get('field_course_enrollment_mobile') or False,
             'video': course.video,
             'course': course,
-            'short_description_override': self.clean_html(data['field_course_sub_title_short']) or None,
+            # We want to consume the same value for the override here to stay consistent with the marketing site
+            'short_description_override': self.clean_html(data['field_course_sub_title_long']['value']) or None,
             'min_effort': min_effort,
             'max_effort': max_effort,
             'outcome': (data.get('field_course_what_u_will_learn', {}) or {}).get('value')
@@ -489,7 +490,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'number': data['field_course_code'],
             'full_description': self.get_description(data),
             'video': self.get_video(data),
-            'short_description': self.clean_html(data['field_course_sub_title_short']),
+            'short_description': self.clean_html(data['field_course_sub_title_long']['value']),
             'level_type': self.get_level_type(data['field_course_level']),
             'card_image_url': self._get_nested_url(data.get('field_course_image_promoted')),
             'outcome': (data.get('field_course_what_u_will_learn', {}) or {}).get('value'),
