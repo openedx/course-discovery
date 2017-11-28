@@ -476,7 +476,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
             'number': data['field_course_code'],
             'full_description': self.loader.get_description(data),
             'video': self.loader.get_video(data),
-            'short_description': self.loader.clean_html(data['field_course_sub_title_short']),
+            'short_description': self.loader.clean_html(data['field_course_sub_title_long']['value']),
             'level_type': self.loader.get_level_type(data['field_course_level']),
             'card_image_url': (data.get('field_course_image_promoted') or {}).get('url'),
             'outcome': (data.get('field_course_what_u_will_learn', {}) or {}).get('value'),
@@ -537,7 +537,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
             'pacing_type': self.loader.get_pacing_type(data),
             'hidden': self.loader.get_hidden(data),
             'mobile_available': data['field_course_enrollment_mobile'] or False,
-            'short_description_override': self.loader.clean_html(data['field_course_sub_title_short']) or None,
+            'short_description_override': self.loader.clean_html(data['field_course_sub_title_long']['value']) or None,
             'outcome': (data.get('field_course_what_u_will_learn', {}) or {}).get('value'),
         }
 
