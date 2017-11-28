@@ -945,6 +945,7 @@ MARKETING_SITE_API_SUBJECT_BODIES = [
         'field_subject_card_image': {
             'url': 'https://www.edx.org/sites/default/files/subject/image/card/math.jpg',
         },
+        'language': 'en',  # language is intentionally added to only one of these.
         'type': 'subject',
         'title': 'Math',
         'url': 'https://www.edx.org/course/subject/math',
