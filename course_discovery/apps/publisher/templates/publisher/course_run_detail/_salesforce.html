@@ -8,33 +8,33 @@
                 {% trans "Title" %}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
-            <div class="copy">{{ object.title }}</div>
+            <div class="copy">{{ course_run.title }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
                 {% trans "Number" %}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
-            <div class="copy">{{ object.number }}</div>
+            <div class="copy">{{ course_run.number }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
                 {% trans "Account" %}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
-            <div class="copy">{{ object.organization_name }}</div>
+            <div class="copy">{{ course_run.organization_name }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
                 {% trans "Authored in Studio?" %}
             </div>
-            <div class="copy">{{ object.is_authored_in_studio }}</div>
+            <div class="copy">{{ course_run.is_authored_in_studio }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
                 {% trans "Multiple Partner Course?" %}
             </div>
-            <div class="copy">{{ object.is_multiple_partner_course }}</div>
+            <div class="copy">{{ course_run.is_multiple_partner_course }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
@@ -42,7 +42,7 @@
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
-              {% with  object.level_type as field %}
+              {% with  course_run.level_type as field %}
                 {% include "publisher/_render_required_field.html" %}
               {% endwith %}
             </div>
@@ -53,7 +53,7 @@
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
-              {% with  object.course.primary_subject.name as field %}
+              {% with  course_run.course.primary_subject.name as field %}
                 {% include "publisher/_render_required_field.html" %}
               {% endwith %}
             </div>
@@ -64,7 +64,7 @@
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
-              {% with  object.language.name as field %}
+              {% with  course_run.language.name as field %}
                 {% include "publisher/_render_required_field.html" %}
               {% endwith %}
             </div>
@@ -75,7 +75,7 @@
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
-                {% with  object.transcript_languages as field %}
+                {% with  course_run.transcript_languages as field %}
                     {% include "publisher/_render_required_field.html" %}
                 {% endwith %}
             </div>
@@ -86,7 +86,7 @@
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
-                {% with  object.video_language as field %}
+                {% with  course_run.video_language as field %}
                     {% include "publisher/_render_required_field.html" %}
                 {% endwith %}
             </div>
@@ -99,7 +99,7 @@
             <div class="heading">
                 {% trans "New or Rerun?" %}
             </div>
-            <div class="copy">{{ object.is_re_run }}</div>
+            <div class="copy">{{ course_run.is_re_run }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
@@ -114,10 +114,10 @@
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
-                {% if not object.course_staff %}
+                {% if not course_run.course_staff %}
                     {% trans "(Required) Not yet added" %}
                 {% else %}
-                    {% for obj in object.course_staff %}
+                    {% for obj in course_run.course_staff %}
                       <div class="course-staff">
                         <img src="{{ obj.image_url }}" alt=""/>
 
@@ -143,14 +143,14 @@
                 {% trans "Course Run Display Name" %}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
-            <div class="copy">{{ object.title }}</div>
+            <div class="copy">{{ course_run.title }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
                 {% trans "Course Run Number" %}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
-            <div class="copy">{{ object.number }}</div>
+            <div class="copy">{{ course_run.number }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
@@ -158,7 +158,7 @@
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
-              {% with  object.lms_course_id as field %}
+              {% with  course_run.lms_course_id as field %}
                 {% include "publisher/_render_required_field.html" %}
               {% endwith %}
             </div>
@@ -168,7 +168,7 @@
                 {% trans "Certificate Type" %}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
-            <div class="copy">{{ object.course_type }}</div>
+            <div class="copy">{{ course_run.course_type }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
@@ -176,7 +176,7 @@
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
-                {% with  object.seat_price as field %}
+                {% with  course_run.seat_price as field %}
                     {% include "publisher/_render_optional_field.html" %}
                 {% endwith %}
             </div>
@@ -187,7 +187,7 @@
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
-                {% with  object.credit_seat_price as field %}
+                {% with  course_run.credit_seat_price as field %}
                     {% include "publisher/_render_optional_field.html" %}
                 {% endwith %}
             </div>
@@ -196,7 +196,7 @@
             <div class="heading">
                 {% trans "Self Paced?" %}
             </div>
-            <div class="copy">{{ object.is_self_paced }}</div>
+            <div class="copy">{{ course_run.is_self_paced }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
@@ -204,7 +204,7 @@
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
-                {% with  object.mdc_submission_due_date as field %}
+                {% with  course_run.mdc_submission_due_date as field %}
                     {% include "publisher/_render_optional_field.html" %}
                 {% endwith %}
             </div>
@@ -214,14 +214,14 @@
                 {% trans "Start Date" %}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
-            <div class="copy">{{ object.start }}</div>
+            <div class="copy">{{ course_run.start }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
                 {% trans "End Date" %}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
-            <div class="copy">{{ object.end }}</div>
+            <div class="copy">{{ course_run.end }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
@@ -229,7 +229,7 @@
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
-                {% with  object.verified_seat_expiry as field %}
+                {% with  course_run.verified_seat_expiry as field %}
                     {% include "publisher/_render_optional_field.html" %}
                 {% endwith %}
             </div>
@@ -240,7 +240,7 @@
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
-                {% with  object.certificate_generation as field %}
+                {% with  course_run.certificate_generation as field %}
                     {% include "publisher/_render_optional_field.html" %}
                 {% endwith %}
             </div>

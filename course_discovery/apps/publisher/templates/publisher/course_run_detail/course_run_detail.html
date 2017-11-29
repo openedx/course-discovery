@@ -5,25 +5,25 @@
 {% load static %}
 
 {% block title %}
-    {{ object.course.number }} - {{ object.start|date:'M Y' }}
+    {{ course_run.course.number }} - {{ course_run.start|date:'M Y' }}
 {% endblock title %}
 
 {% block page_content %}
 <div class="layout-1t2t layout-flush publisher-container course-detail">
     <main class="layout-col layout-col-b layout-col-b-custom">
-        {% if object.course_run_state.is_published %}
+        {% if course_run.course_run_state.is_published %}
             <div class="depth depth-0 published-status">
                 <strong>
 <!-- Is it possible to make "View it on edx.org" into a link? If so, make it into a link, add a period at the end, and delete "at". If not, keep "at", but remove the colon and add a period after the link. -->
                     {% blocktrans with publish_date|date:'m/d/y' as course_publish_date trimmed %}
                         The About page for this course run was published on {{ course_publish_date }}.
                     {% endblocktrans %}
-                    {% if object.preview_url %}
+                    {% if course_run.preview_url %}
                         {% trans "View it on edx.org at" %}
                     {% endif %}
                 </strong>
-                {% if object.preview_url %}
-                    <a href="{{ object.preview_url }}" target="_blank">{{ object.preview_url }}</a>
+                {% if course_run.preview_url %}
+                    <a href="{{ course_run.preview_url }}" target="_blank">{{ course_run.preview_url }}</a>
                 {% endif %}
             </div>
         {% endif %}
@@ -45,12 +45,12 @@
         <div id="app">
             <div class="page-header">
                 <h2 class="hd-2 emphasized">
-                    <span class="course-name">{{ object.title }}</span>
+                    <span class="course-name">{{ course_run.title }}</span>
                 </h2>
             </div>
 
-        {% if request.user.is_staff and object.lms_course_id %}
-          <button class="btn btn-primary" onclick="publish('{% url 'publisher:api:v1:course_run-publish' pk=object.pk %}');">{% trans "Publish" %}</button>
+        {% if request.user.is_staff and course_run.lms_course_id %}
+          <button class="btn btn-primary" onclick="publish('{% url 'publisher:api:v1:course_run-publish' pk=course_run.pk %}');">{% trans "Publish" %}</button>
         {% endif %}
 
           <div class="alert hidden" role="alert" aria-labelledby="alertTitle" tabindex="-1" id="alertContainer" style="margin:15px 0;">

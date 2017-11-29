@@ -17,7 +17,7 @@
         </ul>
         <div class="actions">
             <a class="btn-cancel closeModal" href="#">{% trans "Cancel" %}</a>
-            <button class="btn-brand btn-base btn-accept" type="button" data-url="{% url 'publisher:api:change_course_run_state' object.course_run_state.id %}">{% trans "OK" %}</button>
+            <button class="btn-brand btn-base btn-accept" type="button" data-url="{% url 'publisher:api:change_course_run_state' course_run.course_run_state.id %}">{% trans "OK" %}</button>
         </div>
     </div>
 </div>

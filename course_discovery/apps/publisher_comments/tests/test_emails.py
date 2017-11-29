@@ -224,7 +224,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
         )
         self.assertIn(body, str(mail.outbox[0].body.strip()))
         self.assertEqual(comment.comment_type, CommentTypeChoices.Decline_Preview)
-        self.assertFalse(CourseRun.objects.get(id=self.course_run.id).preview_url)
+        self.assertTrue(CourseRun.objects.get(id=self.course_run.id).preview_url)
 
     def test_decline_preview_comment_with_role_back(self):
         """ Verify that in case of any error transaction will roll back all changes."""

@@ -8,7 +8,7 @@
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
-              {% with  object.lms_course_id as field %}
+              {% with  course_run.lms_course_id as field %}
                 {% include "publisher/_render_required_field.html" %}
               {% endwith %}
             </div>
@@ -18,7 +18,7 @@
                 {% trans "Enrollment Types" %}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
-            <div class="copy">{{ object.course_type|capfirst }}</div>
+            <div class="copy">{{ course_run.course_type|capfirst }}</div>
         </div>
     </div>
 

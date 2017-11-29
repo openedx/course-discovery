@@ -143,6 +143,14 @@ class CourseRunWrapper(BaseWrapper):
         return Seat.AUDIT
 
     @property
+    def is_in_preview_review(self):
+        return (
+            self.wrapped_obj.course_run_state.is_approved and not
+            self.wrapped_obj.course_run_state.is_preview_accepted and
+            self.wrapped_obj.course_run_state.owner_role == 'course_team'
+        )
+
+    @property
     def organization_key(self):
         organization = self.wrapped_obj.course.organizations.first()
         if not organization:
