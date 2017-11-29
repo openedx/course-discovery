@@ -33,7 +33,11 @@ class Command(BaseCommand):
         start_id = options.get('start_id')
         end_id = options.get('end_id')
 
-        publisher_courses = PublisherCourse.objects.filter(id__range=(start_id, end_id), image__isnull=False)
+        publisher_courses = PublisherCourse.objects.filter(
+            id__range=(start_id, end_id),
+            image__isnull=False
+        ).exclude(image='')
+
         for publisher_course in publisher_courses:
             discovery_course = None
             try:
