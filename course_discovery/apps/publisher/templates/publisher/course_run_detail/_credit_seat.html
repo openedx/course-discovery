@@ -1,6 +1,6 @@
 {% load i18n %}
 <h3 class="hd-6 seat-set-hd">{% trans "Credit Seats" %}</h3>
-{% if object.credit_seat %}
+{% if course_run.credit_seat %}
 <div class="seat-set">
 <table class="table">
     <tr>
@@ -11,11 +11,11 @@
         <th scope="col">{% trans "Upgrade Deadline (time in UTC)" %}</th>
     </tr>
     <tr>
-        <td>{{ object.credit_seat.credit_provider}}</td>
-        <td>{{ object.credit_seat.price}}</td>
-        <td>{{ object.credit_seat.currency.name}}</td>
-        <td>{{ object.credit_seat.credit_hours }}</td>
-        <td>{{ object.credit_seat.upgrade_deadline }}</td>
+        <td>{{ course_run.credit_seat.credit_provider}}</td>
+        <td>{{ course_run.credit_seat.price}}</td>
+        <td>{{ course_run.credit_seat.currency.name}}</td>
+        <td>{{ course_run.credit_seat.credit_hours }}</td>
+        <td>{{ course_run.credit_seat.upgrade_deadline }}</td>
     </tr>
 
 </table>

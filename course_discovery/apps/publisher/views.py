@@ -166,7 +166,7 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
         user = self.request.user
         course_run = CourseRunWrapper(self.get_object())
 
-        context['object'] = course_run
+        context['course_run'] = course_run
         context['comment_object'] = course_run
 
         # this URL is used for the comments post back redirection.
@@ -227,6 +227,7 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
                 context['team_name'] = (_('course team')
                                         if current_owner_role.role == PublisherUserRole.ProjectCoordinator
                                         else _('project coordinator'))
+        context['is_in_preview_review'] = course_run.is_in_preview_review
 
         return context
 

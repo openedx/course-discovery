@@ -2,11 +2,11 @@
 
 <div class="approval-widget">
     <h5 class="hd-5 emphasized approvals-heading">{% trans "REVIEWS" %}</h5>
-    {% if is_course_run and not object.course.course_state.is_approved %}
+    {% if is_course_run and not course_run.course.course_state.is_approved %}
         <div class="parent-course-approval">
-            {% url 'publisher:publisher_course_detail' object.course.id as course_url %}
+            {% url 'publisher:publisher_course_detail' course_run.course.id as course_url %}
             {% with link_start='<a href="' link_middle='">' link_end='</a>' %}
-            {% blocktrans with course_name=object.course.title trimmed %}
+            {% blocktrans with course_name=course_run.course.title trimmed %}
                 You can currently edit information for this course run. However, before you can submit this course run for review, you must finalize the information for {{ link_start }}{{ course_url }}{{ link_middle }}{{ course_name }}{{ link_end }} with edX.
             {% endblocktrans %}
             {% endwith %}
@@ -19,8 +19,8 @@
             <div class="preview-container">
                 <div class="layout-1q3q layout-reversed">
                     <div class="layout-col layout-col-a">
-                    {% if object.preview_url %}
-                        {% if object.preview_url and object.course.course_team_admin == request.user and object.course_run_state.is_approved and not object.course_run_state.is_preview_accepted %}
+                    {% if course_run.preview_url %}
+                        {% if is_in_preview_review and course_run.course.course_team_admin == request.user %}
                             <button class="btn btn-neutral btn-preview btn-preview-decline" type="button">
                                 {% trans "Decline" %}
                             </button>
@@ -33,17 +33,21 @@
                                 {% trans "Accepted" %}<br>
                                 {{ preview_accepted_date|date:'m/d/y H:i a' }}
                             </span>
-                            {% if object.course_run_state.is_ready_to_publish and object.course.publisher == request.user %}
-                                <button class="btn-brand btn-base btn-publish" data-change-state-url="{% url 'publisher:api:change_course_run_state' object.course_run_state.id %}" data-state-name="{{ publish_state_name }}" type="button">
+                            {% if course_run.course_run_state.is_ready_to_publish and course_run.course.publisher == request.user %}
+                                <button class="btn-brand btn-base btn-publish" data-change-state-url="{% url 'publisher:api:change_course_run_state' course_run.course_run_state.id %}" data-state-name="{{ publish_state_name }}" type="button">
                                     {% trans "Publish" %}
                                 </button>
                             {% endif %}
-                        {% elif object.course.publisher == request.user %}
-                            <span class="preview-status">{% trans "Submitted for review" %}</span>
-                                <button data-url="{% url 'publisher:api:update_course_run' object.id %}" class="btn btn-neutral btn-edit-preview-url">{% trans "Edit" %}</button>
+                        {% elif course_run.course.publisher == request.user %}
+                            {% if course_run.course_run_state.owner_role == 'course_team' %}
+                                <span class="preview-status">{% trans "Submitted for review" %}</span>
+                            {% else %}
+                                <span class="preview-status">{% trans "Preview Declined" %}</span>
+                            {% endif %}
+                                <button data-url="{% url 'publisher:api:update_course_run' course_run.id %}" class="btn btn-neutral btn-edit-preview-url">{% trans "Edit" %}</button>
                         {% endif %}
-                    {% elif object.course.publisher == request.user %}
-                        <button data-url="{% url 'publisher:api:update_course_run' object.id %}" class="btn btn-neutral btn-save-preview-url">{% trans "Save" %}</button>
+                    {% elif course_run.course.publisher == request.user %}
+                        <button data-url="{% url 'publisher:api:update_course_run' course_run.id %}" class="btn btn-neutral btn-save-preview-url">{% trans "Save" %}</button>
                     {% endif %}
                     </div>
                     <div class="layout-col layout-col-b">
@@ -51,11 +55,11 @@
                             <strong>{% trans "ABOUT PAGE PREVIEW" %}</strong>
                         </span>
                         <div class="preview-url">
-                            {% if object.preview_url %}
+                            {% if course_run.preview_url %}
                                 <span class="preview-url-heading">{% trans "Preview URL" %} - </span>
-                                <a href="{{ object.preview_url }}" target="_blank">{% trans "View About page preview" %}</a>
+                                <a href="{{ course_run.preview_url }}" target="_blank">{% trans "View About page preview" %}</a>
                             {% else %}
-                                {% if object.course.publisher == request.user %}
+                                {% if course_run.course.publisher == request.user %}
                                     <input id="id-review-url" type="text">
                                     <span class="error-message"></span>
                                 {% else %}

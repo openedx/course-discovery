@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-28 18:49+0000\n"
+"POT-Creation-Date: 2017-11-30 13:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1294,6 +1294,10 @@ msgstr "Püßlïsh Ⱡ'σяєм ιρѕυм #"
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Submitted for review"
 msgstr "Süßmïttéd för révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+msgid "Preview Declined"
+msgstr "Prévïéw Déçlïnéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 #: apps/publisher/templates/publisher/seat_form.html

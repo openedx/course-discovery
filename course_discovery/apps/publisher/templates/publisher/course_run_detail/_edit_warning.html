@@ -8,13 +8,13 @@
         <span class="sr-only">CAUTION</span>
         <p>
 <!-- Is "tasawer" in line 12 correct? -->
-            {% blocktrans trimmed with owner=object.course_run_state.owner_role reviewer_user='tasawer'%}
+            {% blocktrans trimmed with owner=course_run.course_run_state.owner_role reviewer_user='tasawer'%}
                 The {{ current_team_name }} is currently reviewing this course run. If you edit course run information, you might overwrite the team’s changes, and you will have to send the course run to the {{ team_name }} for review again.
             {% endblocktrans %}
         </p>
         <div class="actions">
             <a class="btn-cancel closeModal" href="#">{% trans "Cancel" %}</a>
-            <a class="btn-brand btn-base btn-accept" type="button" href="{% url 'publisher:publisher_course_runs_edit' object.id %}">{% trans "Edit" %}</a>
+            <a class="btn-brand btn-base btn-accept" type="button" href="{% url 'publisher:publisher_course_runs_edit' course_run.id %}">{% trans "Edit" %}</a>
         </div>
     </div>
 </div>

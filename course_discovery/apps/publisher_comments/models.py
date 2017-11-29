@@ -47,15 +47,9 @@ class Comments(CommentAbstractModel):
 @transaction.atomic
 def mark_preview_url_as_decline(instance):
     course_run = instance.content_type.get_object_for_this_type(pk=instance.object_pk)
-
-    # remove the preview url
-    preview_url = course_run.preview_url
-    course_run.preview_url = None
-    course_run.save()
-
     # assign course back to publisher
     course_run.course_run_state.change_owner_role(PublisherUserRole.Publisher)
 
     # send email for decline preview to publisher
     if waffle.switch_is_active('enable_publisher_email_notifications'):
-        send_email_decline_preview(instance, course_run, preview_url)
+        send_email_decline_preview(instance, course_run, course_run.preview_url)
