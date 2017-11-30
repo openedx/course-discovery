@@ -59,6 +59,7 @@ class TestProgramViewSet(SerializationMixin):
             individual_endorsements=EndorsementFactory.create_batch(1),
             expected_learning_items=ExpectedLearningItemFactory.create_batch(1),
             job_outlook_items=JobOutlookItemFactory.create_batch(1),
+            instructors=PersonFactory.create_batch(1),
             banner_image=make_image_file('test_banner.jpg'),
             video=VideoFactory(),
             partner=self.partner
@@ -88,7 +89,7 @@ class TestProgramViewSet(SerializationMixin):
     def test_retrieve(self, django_assert_num_queries):
         """ Verify the endpoint returns the details for a single program. """
         program = self.create_program()
-        with django_assert_num_queries(41):
+        with django_assert_num_queries(47):
             response = self.assert_retrieve_success(program)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
@@ -114,7 +115,7 @@ class TestProgramViewSet(SerializationMixin):
             partner=self.partner)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
-        with django_assert_num_queries(30):
+        with django_assert_num_queries(31):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
         assert course_list == list(program.courses.all())  # pylint: disable=no-member
@@ -123,7 +124,7 @@ class TestProgramViewSet(SerializationMixin):
         """ Verify the endpoint returns data for a program even if the program's courses have no course runs. """
         course = CourseFactory(partner=self.partner)
         program = ProgramFactory(courses=[course], partner=self.partner)
-        with django_assert_num_queries(23):
+        with django_assert_num_queries(24):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
 

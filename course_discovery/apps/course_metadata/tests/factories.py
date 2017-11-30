@@ -323,6 +323,11 @@ class ProgramFactory(factory.django.DjangoModelFactory):
         if create:  # pragma: no cover
             add_m2m_data(self.job_outlook_items, extracted)
 
+    @factory.post_generation
+    def instructors(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.instructors, extracted)
+
 
 class AbstractSocialNetworkModelFactory(factory.DjangoModelFactory):
     type = FuzzyChoice([name for name, __ in AbstractSocialNetworkModel.SOCIAL_NETWORK_CHOICES])

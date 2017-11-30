@@ -6,7 +6,7 @@ from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.models import Program
 from course_discovery.apps.course_metadata.tests.factories import (
     CorporateEndorsementFactory, CourseFactory, CourseRunFactory, EndorsementFactory, ExpectedLearningItemFactory,
-    FAQFactory, JobOutlookItemFactory, OrganizationFactory, ProgramFactory
+    FAQFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, ProgramFactory
 )
 
 logger = logging.getLogger(__name__)
@@ -47,5 +47,6 @@ class Command(BaseCommand):
             individual_endorsements=[EndorsementFactory(endorser__partner=partner)],
             expected_learning_items=[ExpectedLearningItemFactory()],
             faq=[FAQFactory()],
-            job_outlook_items=[JobOutlookItemFactory()]
+            job_outlook_items=[JobOutlookItemFactory()],
+            instructors=[PersonFactory()],
         )
