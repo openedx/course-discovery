@@ -39,7 +39,7 @@
     {{ subject.name }}
 {% endfor %}
 
-{% for instructor in object.instructors %}
+{% for instructor in object.instructors.all %}
     {{ instructor.full_name }}
 {% endfor %}
 

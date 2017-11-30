@@ -959,6 +959,11 @@ class Program(TimeStampedModel):
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
     faq = SortedManyToManyField(FAQ, blank=True)
+    instructors = SortedManyToManyField(
+        Person,
+        blank=True,
+        help_text='Used to organize the instructors on the program about page.'
+    )
 
     credit_backing_organizations = SortedManyToManyField(
         Organization, blank=True, related_name='credit_backed_programs'
