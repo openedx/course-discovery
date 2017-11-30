@@ -2943,3 +2943,275 @@ NEW_RUN_MARKETING_SITE_API_COURSE_BODY = {
     'uuid': '6b8b779f-f567-4e98-aa41-a265d6fa073a',
     'vuuid': 'e0f8c80a-b377-4546-b247-1c94ab3a218a'
 }
+
+
+DISCOVERY_CREATED_MARKETING_SITE_API_COURSE_BODY = {
+    'field_course_uuid': 'f0f8c80a-b377-4546-b547-1c94ab3a218a',
+    'field_course_code': 'CB22x',
+    'field_course_course_title': {
+        'value': 'The Ancient Greek Hero DISCOVERY_CREATED',
+        'format': 'basic_html'
+    },
+    'field_course_description': {
+        'value': 'DISCOVERY_CREATED <p><b>NOTE ABOUT OUR START DATE:</b> Although the course was launched,'
+                 'it\u0027s not too late to start participating! New participants will be joining the course until '
+                 '<strong>registration closes on July 11</strong>. We offer everyone a flexible schedule and '
+                 'multiple paths for participation. You can work through the course videos and readings at your '
+                 'own pace to complete the associated exercises <strong>by August 26</strong>, the official course '
+                 'end date. Or, you may choose to \u0022audit\u0022 the course by exploring just the particular '
+                 'videos and readings that seem most suited to your interests. You are free to do as much or as '
+                 'little as you would like!</p>\n<h3>\n\tOverview</h3>\n<p>What is it to be human, and how can '
+                 'ancient concepts of the heroic and anti-heroic inform our understanding of the human condition? '
+                 'That question is at the core of The Ancient Greek Hero, which introduces (or reintroduces) '
+                 'students to the great texts of classical Greek culture by focusing on concepts of the Hero in an '
+                 'engaging, highly comparative way.</p>\n<p>The classical Greeks\u0027 concepts of Heroes and the '
+                 '\u0022heroic\u0022 were very different from the way we understand the term today. In this '
+                 'course, students analyze Greek heroes and anti-heroes in their own historical contexts, in order '
+                 'to gain an understanding of these concepts as they were originally understood while also '
+                 'learning how they can inform our understanding of the human condition in general.</p>\n<p>In '
+                 'Greek tradition, a hero was a human, male or female, of the remote past, who was endowed with '
+                 'superhuman abilities by virtue of being descended from an immortal god. Rather than being '
+                 'paragons of virtue, as heroes are viewed in many modern cultures, ancient Greek heroes had all '
+                 'of the qualities and faults of their fellow humans, but on a much larger scale. Further, despite '
+                 'their mortality, heroes, like the gods, were objects of cult worship \u2013 a dimension which is '
+                 'also explored in depth in the course.</p>\n<p>The original sources studied in this course include'
+                 ' the Homeric Iliad and Odyssey; tragedies of Aeschylus, Sophocles, and Euripides; songs of Sappho'
+                 ' and Pindar; dialogues of Plato; historical texts of Herodotus; and more, including the '
+                 'intriguing but rarely studied dialogue \u0022On Heroes\u0022 by Philostratus. All works are '
+                 'presented in English translation, with attention to the subtleties of the original Greek. These '
+                 'original sources are frequently supplemented both by ancient art and by modern comparanda, '
+                 'including opera and cinema (from Jacques Offenbach\u0027s opera Tales of Hoffman to Ridley '
+                 'Scott\u0027s science fiction classic Blade Runner).</p>',
+        'format': 'standard_html'
+    },
+    'field_course_start_date': '1363147200',
+    'field_course_effort': '4-6 hours / week',
+    'field_course_school_node': [
+        {
+            'uri': 'https://www.edx.org/node/242',
+            'id': '242',
+            'resource': 'node',
+            'uuid': '44022f13-20df-4666-9111-cede3e5dc5b6'
+        }
+    ],
+    'field_course_end_date': '1376971200',
+    'field_course_video': [],
+    'field_course_resources': [],
+    'field_course_sub_title_long': {
+        'value': '<p>A survey of ancient Greek literature focusing on classical concepts of the hero and how they '
+                 'can inform our understanding of the human condition.</p>\n',
+        'format': 'plain_text'
+    },
+    'field_course_subject': [
+        {
+            'uri': 'https://www.edx.org/node/652',
+            'id': '652',
+            'resource': 'node',
+            'uuid': 'c8579e1c-99f2-4a95-988c-3542909f055e'
+        },
+        {
+            'uri': 'https://www.edx.org/node/653',
+            'id': '653',
+            'resource': 'node',
+            'uuid': '00e5d5e0-ce45-4114-84a1-50a5be706da5'
+        },
+        {
+            'uri': 'https://www.edx.org/node/655',
+            'id': '655',
+            'resource': 'node',
+            'uuid': '74b6ed2a-3ba0-49be-adc9-53f7256a12e1'
+        }
+    ],
+    'field_course_statement_title': None,
+    'field_course_statement_body': [],
+    'field_course_status': 'past',
+    'field_course_start_override': None,
+    'field_course_email': None,
+    'field_course_syllabus': [],
+    'field_course_staff': [
+        {
+            'uri': 'https://www.edx.org/node/564',
+            'id': '564',
+            'resource': 'node',
+            'uuid': 'ae56688a-f2b6-4981-9aa7-5c66b68cb13e'
+        },
+        {
+            'uri': 'https://www.edx.org/node/565',
+            'id': '565',
+            'resource': 'node',
+            'uuid': '56d13e72-353f-48fd-9be7-6f20ef467bb7'
+        },
+        {
+            'uri': 'https://www.edx.org/node/566',
+            'id': '566',
+            'resource': 'node',
+            'uuid': '69a415db-3db7-436a-8d02-e571c4c4c75a'
+        },
+        {
+            'uri': 'https://www.edx.org/node/567',
+            'id': '567',
+            'resource': 'node',
+            'uuid': '1639460f-598c-45b7-90c2-bbdbf87cdd54'
+        },
+        {
+            'uri': 'https://www.edx.org/node/568',
+            'id': '568',
+            'resource': 'node',
+            'uuid': '09154d2c-7f31-477c-9d3c-d8cba9af846e'
+        },
+        {
+            'uri': 'https://www.edx.org/node/820',
+            'id': '820',
+            'resource': 'node',
+            'uuid': '05b7ab45-de9a-49d6-8010-04c68fc9fd55'
+        },
+        {
+            'uri': 'https://www.edx.org/node/821',
+            'id': '821',
+            'resource': 'node',
+            'uuid': '8a8d68c4-ab5b-40c5-b897-2d44aed2194d'
+        },
+        {
+            'uri': 'https://www.edx.org/node/822',
+            'id': '822',
+            'resource': 'node',
+            'uuid': 'c3e16519-a23f-4f21-908b-463375b492df'
+        }
+    ],
+    'field_course_staff_override': 'G. Nagy, L. Muellner...',
+    'field_course_image_promoted': {
+        'fid': '32381',
+        'name': 'tombstone_courses.jpg',
+        'mime': 'image/jpeg',
+        'size': '34861',
+        'url': 'https://www.edx.org/sites/default/files/course/image/promoted/tombstone_courses_NEW_RUN.jpg',
+        'timestamp': '1384348699',
+        'owner': {
+            'uri': 'https://www.edx.org/user/1',
+            'id': '1',
+            'resource': 'user',
+            'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
+        },
+        'uuid': '1471888c-a451-4f97-9bb2-ad20c9a43c2d'
+    },
+    'field_course_image_banner': {
+        'fid': '32285',
+        'name': 'cb22x_608x211.jpg',
+        'mime': 'image/jpeg',
+        'size': '25909',
+        'url': 'https://www.edx.org/sites/default/files/course/image/banner/cb22x_608x211.jpg',
+        'timestamp': '1384348498',
+        'owner': {
+            'uri': 'https://www.edx.org/user/1',
+            'id': '1',
+            'resource': 'user',
+            'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
+        },
+        'uuid': '15022bf7-e367-4a5c-b115-3755016de286'
+    },
+    'field_course_image_tile': {
+        'fid': '32475',
+        'name': 'cb22x-listing-banner.jpg',
+        'mime': 'image/jpeg',
+        'size': '47678',
+        'url': 'https://www.edx.org/sites/default/files/course/image/tile/cb22x-listing-banner.jpg',
+        'timestamp': '1384348906',
+        'owner': {
+            'uri': 'https://www.edx.org/user/1',
+            'id': '1',
+            'resource': 'user',
+            'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
+        },
+        'uuid': '71735cc4-7ac3-4065-ad92-6f18f979eb0e'
+    },
+    'field_course_image_video': {
+        'fid': '32573',
+        'name': 'h_no_video_320x211_1_0.jpg',
+        'mime': 'image/jpeg',
+        'size': '2829',
+        'url': 'https://www.edx.org/sites/default/files/course/image/video/h_no_video_320x211_1_0.jpg',
+        'timestamp': '1384349121',
+        'owner': {
+            'uri': 'https://www.edx.org/user/1',
+            'id': '1',
+            'resource': 'user',
+            'uuid': '434dea4f-7b93-4cba-9965-fe4856062a4f'
+        },
+        'uuid': '4d18789f-0909-4289-9d58-2292e5d03aee'
+    },
+    'field_course_id': 'HarvardX/CB22x/2016_Spring',
+    'field_course_image_sample_cert': [],
+    'field_course_image_sample_thumb': [],
+    'field_course_enrollment_audit': True,
+    'field_course_enrollment_honor': False,
+    'field_course_enrollment_verified': False,
+    'field_course_xseries_enable': False,
+    'field_course_statement_image': [],
+    'field_course_image_card': [],
+    'field_course_image_featured_card': [],
+    'field_course_code_override': None,
+    'field_course_video_link_mp4': [],
+    'field_course_video_duration': None,
+    'field_course_self_paced': True,
+    'field_course_new': None,
+    'field_course_registration_dates': {
+        'value': '1384348442',
+        'value2': None,
+        'duration': None
+    },
+    'field_course_enrollment_prof_ed': None,
+    'field_course_enrollment_ap_found': None,
+    'field_cource_price': None,
+    'field_course_additional_keywords': 'Free,',
+    'field_course_enrollment_mobile': None,
+    'field_course_part_of_products': [],
+    'field_course_level': None,
+    'field_course_what_u_will_learn': [],
+    'field_course_video_locale_lang': [],
+    'field_course_languages': [],
+    'field_couse_is_hidden': None,
+    'field_xseries_display_override': [],
+    'field_course_extra_description': [],
+    'field_course_extra_desc_title': None,
+    'field_course_body': [],
+    'field_course_enrollment_no_id': None,
+    'field_course_has_prerequisites': True,
+    'field_course_enrollment_credit': None,
+    'field_course_is_disabled': None,
+    'field_course_tags': [],
+    'field_course_sub_title_short': 'NEW_RUN A survey of ancient Greek literature focusing on classical concepts of'
+                                    ' the hero and how they can inform our understanding of the human condition.',
+    'field_course_length_weeks': '23 weeks',
+    'field_course_start_date_style': None,
+    'field_course_head_prom_bkg_color': None,
+    'field_course_head_promo_image': [],
+    'field_course_head_promo_text': [],
+    'field_course_outcome': None,
+    'field_course_required_weeks': None,
+    'field_course_required_days': None,
+    'field_course_required_hours': None,
+    'node_id': '563',
+    'vid': '8080',
+    'is_new': False,
+    'type': 'course',
+    'title': 'HarvardX: CB22x: The Ancient Greek Hero',
+    'language': 'und',
+    'url': 'https://www.edx.org/course/ancient-greek-hero-harvardx-cb22x',
+    'edit_url': 'https://www.edx.org/node/563/edit',
+    'status': '1',
+    'promote': '0',
+    'sticky': '0',
+    'created': '1384348442',
+    'changed': '1443028625',
+    'author': {
+        'uri': 'https://www.edx.org/user/143',
+        'id': '143',
+        'resource': 'user',
+        'uuid': '8ed4adee-6f84-4bec-8b64-20f9bfe7af0c'
+    },
+    'log': 'Updated by FeedsNodeProcessor',
+    'revision': None,
+    'body': [],
+    'uuid': '6b8b779f-f567-4e98-aa41-a265d6fa073a',
+    'vuuid': 'e0f8c80a-b377-4546-b247-1c94ab3a218a'
+}

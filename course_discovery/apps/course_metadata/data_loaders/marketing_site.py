@@ -360,28 +360,46 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         return kwargs
 
     def process_node(self, data):
-        course_run = self.get_course_run(data)
 
-        if course_run:
-            self.update_course_run(course_run, data)
-            try:
-                course = self.update_course(course_run.canonical_for_course, data)
-                self.set_subjects(course, data)
-                self.set_authoring_organizations(course, data)
-                logger.info('Processed course with key [%s].', course.key)
-            except AttributeError:
-                pass
+        if not data.get('field_course_uuid'):
+            course_run = self.get_course_run(data)
+
+            if course_run:
+                self.update_course_run(course_run, data)
+                if self.get_course_run_status(data) == CourseRunStatus.Published:
+                    # Only update the course object with published course about page
+                    try:
+                        course = self.update_course(course_run.course, data)
+                        self.set_subjects(course, data)
+                        self.set_authoring_organizations(course, data)
+                        logger.info('Processed course with key [%s].', course.key)
+                    except AttributeError:
+                        pass
+                else:
+                    logger.info(
+                        'Course_run [%s] is unpublished, so the course [%s] related is not updated.',
+                        data['field_course_id'],
+                        course_run.course.number
+                    )
+            else:
+                created = False
+                # If the page is not generated from discovery service
+                # Do shall then attempt to create a course out of it
+                try:
+                    course, created = self.get_or_create_course(data)
+                    course_run = self.create_course_run(course, data)
+                except InvalidKeyError:
+                    logger.error('Invalid course key [%s].', data['field_course_id'])
+
+                if created:
+                    course.canonical_course_run = course_run
+                    course.save()
         else:
-            created = False
-            try:
-                course, created = self.get_or_create_course(data)
-                course_run = self.create_course_run(course, data)
-            except InvalidKeyError:
-                logger.error('Invalid course key [%s].', data['field_course_id'])
-
-            if created:
-                course.canonical_course_run = course_run
-                course.save()
+            logger.info(
+                'Course_run [%s] has uuid [%s] already on course about page. No need to ingest',
+                data['field_course_id'],
+                data['field_course_uuid']
+            )
 
     def get_course_run(self, data):
         course_run_key = data['field_course_id']
@@ -423,11 +441,6 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
     def update_course(self, course, data):
         validated_data = self.format_course_data(data)
         self._update_instance(course, validated_data)
-
-        if self.get_course_run_status(data) != CourseRunStatus.Published:
-            logger.warning(
-                'Updating course [%s] with data from unpublished course_run [%s].', course.uuid, data['field_course_id']
-            )
 
         return course
 
