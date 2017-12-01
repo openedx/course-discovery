@@ -112,11 +112,13 @@ class CoursesApiDataLoader(AbstractDataLoader):
             try:
                 body = self.clean_strings(body)
                 course_run = self.get_course_run(body)
-
                 if course_run:
                     self.update_course_run(course_run, body)
                     course = getattr(course_run, 'canonical_for_course', False)
-                    if course:
+                    if course and not self.partner.has_marketing_site:
+                        # If the partner have marketing site,
+                        # we should only update the course information from the marketing site.
+                        # Therefore, we don't need to do the statements below
                         course = self.update_course(course, body)
                         logger.info('Processed course with key [%s].', course.key)
                 else:

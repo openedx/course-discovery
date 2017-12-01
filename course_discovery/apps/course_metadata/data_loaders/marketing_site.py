@@ -372,7 +372,11 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
                         course = self.update_course(course_run.course, data)
                         self.set_subjects(course, data)
                         self.set_authoring_organizations(course, data)
-                        logger.info('Processed course with key [%s].', course.key)
+                        logger.info(
+                            'Processed course with key [%s] based on the data from courserun [%s]',
+                            course.key,
+                            course_run.key
+                        )
                     except AttributeError:
                         pass
                 else:

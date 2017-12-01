@@ -251,7 +251,8 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
                 mock_logger.exception.assert_called_with(msg)
 
     @responses.activate
-    def test_ingest_canonical(self):
+    @ddt.data(True, False)
+    def test_ingest_canonical(self, partner_has_marketing_site):
         """ Verify the method ingests data from the Courses API. """
         self.assertEqual(Course.objects.count(), 0)
         self.assertEqual(CourseRun.objects.count(), 0)
@@ -261,6 +262,11 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
             mock_data.COURSES_API_BODY_SECOND,
             mock_data.COURSES_API_BODY_UPDATED,
         ])
+
+        if not partner_has_marketing_site:
+            self.partner.marketing_site_url_root = None
+            self.partner.save()  # pylint: disable=no-member
+
         self.loader.ingest()
 
         # Verify the CourseRun was created correctly by no errors raised
@@ -278,8 +284,12 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
 
         # Verify second course not used to update course
         self.assertNotEqual(mock_data.COURSES_API_BODY_SECOND['name'], course.title)
-        # Verify udpated canonical course used to update course
-        self.assertEqual(mock_data.COURSES_API_BODY_UPDATED['name'], course.title)
+        if partner_has_marketing_site:
+            # Verify the course remains unchanged by api update if we have marketing site
+            self.assertEqual(mock_data.COURSES_API_BODY_ORIGINAL['name'], course.title)
+        else:
+            # Verify updated canonical course used to update course
+            self.assertEqual(mock_data.COURSES_API_BODY_UPDATED['name'], course.title)
         # Verify the updated course run updated the original course run
         self.assertEqual(mock_data.COURSES_API_BODY_UPDATED['hidden'], course_run_orig.hidden)
 
@@ -466,7 +476,6 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
         loaded_seat_data = courses_api_data[:-2]
 
         products_api_data = self.mock_products_api()
-
         self.assertEqual(CourseRun.objects.count(), len(loaded_course_run_data))
 
         # Verify a seat exists on all courses already
