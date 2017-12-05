@@ -1258,7 +1258,7 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
             'org': course_run_key.org,
             'number': course_run_key.course,
             'seat_types': course_run.seat_types,
-            'image_url': course_run.card_image_url,
+            'image_url': course_run.image_url,
             'type': course_run.type,
             'level_type': course_run.level_type.name,
             'availability': course_run.availability,
