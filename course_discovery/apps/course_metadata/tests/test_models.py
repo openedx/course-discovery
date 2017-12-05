@@ -356,6 +356,12 @@ class CourseRunTests(TestCase):
     def test_image_url(self):
         assert self.course_run.image_url == self.course_run.course.image_url
 
+    def test_get_video(self):
+        assert self.course_run.get_video == self.course_run.video
+        self.course_run.video = None
+        self.course_run.save()
+        assert self.course_run.get_video == self.course_run.course.video
+
 
 @ddt.ddt
 class OrganizationTests(TestCase):
