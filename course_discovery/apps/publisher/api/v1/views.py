@@ -129,6 +129,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             'min_effort': course_run.min_effort,
             'max_effort': course_run.max_effort,
             'language': course_run.language,
+            'video': video,
             'weeks_to_complete': course_run.length,
             'learner_testimonials': publisher_course.learner_testimonial,
         }
