@@ -139,6 +139,7 @@ class CourseRunViewSetTests(APITestCase):
         discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
         publisher_course = publisher_course_run.course
         discovery_course = discovery_course_run.course
+        publisher_course_video = Video.objects.get(src=publisher_course.video_link)
 
         # pylint: disable=no-member
         assert discovery_course_run.title_override == publisher_course_run.title_override
@@ -154,6 +155,7 @@ class CourseRunViewSetTests(APITestCase):
         assert discovery_course_run.language == publisher_course_run.language
         assert discovery_course_run.weeks_to_complete == publisher_course_run.length
         assert discovery_course_run.learner_testimonials == publisher_course.learner_testimonial
+        assert discovery_course_run.video == publisher_course_video
         expected = set(publisher_course_run.transcript_languages.all())
         assert set(discovery_course_run.transcript_languages.all()) == expected
         assert set(discovery_course_run.staff.all()) == set(publisher_course_run.staff.all())
@@ -164,7 +166,7 @@ class CourseRunViewSetTests(APITestCase):
         assert discovery_course.short_description == publisher_course.short_description
         assert discovery_course.full_description == publisher_course.full_description
         assert discovery_course.level_type == publisher_course.level_type
-        assert discovery_course.video == Video.objects.get(src=publisher_course.video_link)
+        assert discovery_course.video == publisher_course_video
         assert discovery_course.image.name is not None
         assert discovery_course.image.url is not None
         assert discovery_course.image.file is not None
