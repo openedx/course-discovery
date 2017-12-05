@@ -507,7 +507,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         help_text=_('Language in which the course is administered')
     )
     transcript_languages = serializers.SlugRelatedField(many=True, read_only=True, slug_field='code')
-    video = VideoSerializer()
+    video = VideoSerializer(source='get_video')
     seats = SeatSerializer(many=True)
     instructors = serializers.SerializerMethodField(help_text='This field is deprecated. Use staff.')
     staff = PersonSerializer(many=True)

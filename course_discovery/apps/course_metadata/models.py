@@ -731,6 +731,10 @@ class CourseRun(TimeStampedModel):
         else:
             return _('Upcoming')
 
+    @property
+    def get_video(self):
+        return self.video or self.course.video
+
     @classmethod
     def search(cls, query):
         """ Queries the search index.
