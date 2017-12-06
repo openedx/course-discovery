@@ -269,8 +269,8 @@ def send_email_for_mark_as_reviewed_course_run(course_run, user, site):
             user (Object): User object
             site (Site): Current site
     """
-    txt_template = 'publisher/email/course_run/mark_as_reviewed.txt'
-    html_template = 'publisher/email/course_run/mark_as_reviewed.html'
+    txt_template = 'publisher/email/course_run/mark_as_reviewed_pc.txt'
+    html_template = 'publisher/email/course_run/mark_as_reviewed_pc.html'
     course = course_run.course
     course_key = CourseKey.from_string(course_run.lms_course_id)
     subject = _('Review complete: {course_name} {run_number}').format(  # pylint: disable=no-member
