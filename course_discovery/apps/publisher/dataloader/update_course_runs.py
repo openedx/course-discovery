@@ -29,7 +29,7 @@ def update_course_run(publisher_course_run):
                 publisher_course_run.full_description_override = course_run_metadata.full_description_override
                 publisher_course_run.title_override = course_run_metadata.title_override
 
-                publisher_course_run.save()
+                publisher_course_run.save(update_modified=False)
                 logger.info(
                     'Update course-run import with id [%s], lms_course_id [%s].',
                     publisher_course_run.id, publisher_course_run.lms_course_id

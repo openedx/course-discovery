@@ -1,4 +1,5 @@
 import logging
+import time
 
 import ddt
 import mock
@@ -290,6 +291,18 @@ class CreateCoursesTests(TestCase):
                     )
                 ),
             )
+
+    def test_course_without_modified_updated(self):
+        call_command(self.command_name, *self.command_args)
+        publisher_course = Publisher_Course.objects.all().first()
+        modified_timestamp = publisher_course.modified
+        assert modified_timestamp != self.course.modified
+        self.course.short_description = 'random'
+        self.course.save()
+        call_command(self.command_name, *self.command_args)
+        publisher_course = Publisher_Course.objects.all().first()
+        assert publisher_course.short_description == 'random'
+        assert publisher_course.modified == modified_timestamp
 
     def _assert_course_image(self, publisher_course):
         if self.course.image or self.course.card_image_url:
