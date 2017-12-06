@@ -67,12 +67,10 @@ def create_or_update_course(meta_data_course, available_organization):
         'syllabus': meta_data_course.syllabus_raw,
     }
 
-    publisher_course, created = Course.objects.update_or_create(
+    publisher_course, created = Course.objects.get_or_create(
         course_metadata_pk=meta_data_course.id,
         defaults=defaults
     )
-
-    transfer_course_image(meta_data_course, publisher_course)
 
     if created:
         if available_organization:
@@ -88,7 +86,12 @@ def create_or_update_course(meta_data_course, available_organization):
             state.save()
 
         logger.info('Import course with id [%s], number [%s].', publisher_course.id, publisher_course.number)
+    else:
+        for k, v in defaults.items():
+            setattr(publisher_course, k, v)
+        publisher_course.save(update_modified=False)
 
+    transfer_course_image(meta_data_course, publisher_course)
     # create canonical course-run against the course.
     create_course_runs(meta_data_course, publisher_course)
 
@@ -133,14 +136,9 @@ def create_course_runs(meta_data_course, publisher_course):
                 'short_description_override': canonical_course_run.short_description_override
             }
 
-            publisher_course_run, created = CourseRun.objects.update_or_create(
+            publisher_course_run, created = CourseRun.objects.get_or_create(
                 lms_course_id=canonical_course_run.key, defaults=defaults
             )
-
-            # add many to many fields.
-            publisher_course_run.transcript_languages.add(*canonical_course_run.transcript_languages.all())
-            publisher_course_run.staff.add(*canonical_course_run.staff.all())
-            publisher_course_run.language = canonical_course_run.language
 
             # Initialize workflow for Course-run.
             if created:
@@ -156,6 +154,16 @@ def create_course_runs(meta_data_course, publisher_course):
                     'Import course-run with id [%s], lms_course_id [%s].',
                     publisher_course_run.id, publisher_course_run.lms_course_id
                 )
+
+            else:
+                for k, v in defaults.items():
+                    setattr(publisher_course_run, k, v)
+                publisher_course_run.save(update_modified=False)
+
+            # add many to many fields.
+            publisher_course_run.transcript_languages.add(*canonical_course_run.transcript_languages.all())
+            publisher_course_run.staff.add(*canonical_course_run.staff.all())
+            publisher_course_run.language = canonical_course_run.language
 
             # create seat against the course-run.
             create_seats(canonical_course_run, publisher_course_run)
