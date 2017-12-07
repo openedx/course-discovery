@@ -18,7 +18,8 @@ from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, Organization, Program, ProgramType, Seat, SeatType
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, ImageFactory, OrganizationFactory, SeatFactory, VideoFactory
+    CourseEntitlementFactory, CourseFactory, CourseRunFactory, ImageFactory, OrganizationFactory, SeatFactory,
+    VideoFactory
 )
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.api.logger'
@@ -371,6 +372,7 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
             {
                 "structure": "child",
                 "product_class": "Course Entitlement",
+                "title": "Course Intro to Everything",
                 "price": "10.00",
                 "expires": None,
                 "attribute_values": [
@@ -386,9 +388,9 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
                 "is_available_to_buy": True,
                 "stockrecords": [
                     {
+                        "partner_sku": "sku132",
                         "price_currency": alt_currency if alt_currency else "USD",
                         "price_excl_tax": "10.00",
-                        "partner_sku": "sku132",
                     }
                 ]
             }
@@ -401,6 +403,17 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
             content_type=JSON
         )
         return bodies
+
+    def compose_warning_log(self, alt_course, alt_currency, alt_mode):
+        msg = 'Could not find '
+        if alt_course:
+            msg += 'course ' + alt_course
+        elif alt_currency:
+            msg += 'currency ' + alt_currency
+        elif alt_mode:
+            msg += 'mode ' + alt_mode
+        msg += ' while loading entitlement Course Intro to Everything with sku sku132'
+        return msg
 
     def assert_seats_loaded(self, body):
         """ Assert a Seat corresponding to the specified data body was properly loaded into the database. """
@@ -463,7 +476,6 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
 
             self.assertEqual(entitlement.expires, expires)
             self.assertEqual(entitlement.course, course)
-            self.assertEqual(entitlement.mode, mode)
             self.assertEqual(entitlement.price, price)
             self.assertEqual(entitlement.currency.code, price_currency)
             self.assertEqual(entitlement.sku, sku)
@@ -474,9 +486,9 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
         courses_api_data = self.mock_courses_api()
         loaded_course_run_data = courses_api_data[:-1]
         loaded_seat_data = courses_api_data[:-2]
+        self.assertEqual(CourseRun.objects.count(), len(loaded_course_run_data))
 
         products_api_data = self.mock_products_api()
-        self.assertEqual(CourseRun.objects.count(), len(loaded_course_run_data))
 
         # Verify a seat exists on all courses already
         for course_run in CourseRun.objects.all():
@@ -496,10 +508,27 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
         self.loader.ingest()
 
     @responses.activate
+    @mock.patch(LOGGER_PATH)
+    def test_ingest_deletes(self, mock_logger):
+        """ Verifiy the method deletes stale data. """
+        self.mock_courses_api()
+        products_api_data = self.mock_products_api()
+        entitlement = CourseEntitlementFactory(partner=self.partner)
+
+        self.loader.ingest()
+        # Ensure that only entitlements retrieved from the Ecommerce API remain in Discovery,
+        # and that the sku and partner of the deleted entitlement are logged
+        self.assert_entitlements_loaded(products_api_data)
+        msg = 'Deleting entitlement with sku {sku} for partner {partner}'.format(
+            sku=entitlement.sku, partner=entitlement.partner
+        )
+        mock_logger.info.assert_any_call(msg)
+
+    @responses.activate
     @ddt.data(
         ('a01354b1-c0de-4a6b-c5de-ab5c6d869e76', None, None),
         (None, "NRC", None),
-        (None, None, "notamode")
+        (None, None, "notamode"),
     )
     @ddt.unpack
     def test_ingest_fails(self, alt_course, alt_currency, alt_mode):
@@ -508,13 +537,7 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
         self.mock_products_api(alt_course=alt_course, alt_currency=alt_currency, alt_mode=alt_mode)
         with mock.patch(LOGGER_PATH) as mock_logger:
             self.loader.ingest()
-            msg = 'Could not find '
-            if alt_course:
-                msg += 'course ' + alt_course
-            elif alt_currency:
-                msg += 'currency ' + alt_currency
-            else:
-                msg += 'course entitlement mode ' + alt_mode
+            msg = self.compose_warning_log(alt_course, alt_currency, alt_mode)
             mock_logger.warning.assert_called_with(msg)
 
     @ddt.unpack

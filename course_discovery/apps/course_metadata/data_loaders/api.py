@@ -311,7 +311,13 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         for body in results:
             body = self.clean_strings(body)
             skus.append(self.update_entitlement(body))
-        CourseEntitlement.objects.exclude(sku__in=skus).delete()
+        entitlements_to_delete = CourseEntitlement.objects.filter(partner=self.partner).exclude(sku__in=skus)
+        for entitlement in entitlements_to_delete:
+            msg = 'Deleting entitlement with sku {sku} for partner {partner}'.format(
+                sku=entitlement.sku, partner=entitlement.partner
+            )
+            logger.info(msg)
+        entitlements_to_delete.delete()
 
     def update_seats(self, body):
         course_run_key = body['id']
@@ -366,12 +372,6 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     def update_entitlement(self, body):
         attributes = {attribute['name']: attribute['value'] for attribute in body['attribute_values']}
         course_uuid = attributes.get('UUID')
-        try:
-            course = Course.objects.get(uuid=course_uuid)
-        except Course.DoesNotExist:
-            msg = 'Could not find course {uuid}'.format(uuid=course_uuid)
-            logger.warning(msg)
-            return None
 
         stock_record = body['stockrecords'][0]
         currency_code = stock_record['price_currency']
@@ -379,26 +379,44 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         sku = stock_record['partner_sku']
 
         try:
+            course = Course.objects.get(uuid=course_uuid)
+        except Course.DoesNotExist:
+            msg = 'Could not find course {uuid} while loading entitlement {entitlement} with sku {sku}'.format(
+                uuid=course_uuid, entitlement=body['title'], sku=sku
+            )
+            logger.warning(msg)
+            return None
+
+        try:
             currency = Currency.objects.get(code=currency_code)
         except Currency.DoesNotExist:
-            msg = 'Could not find currency {code}'.format(code=currency_code)
+            msg = 'Could not find currency {code} while loading entitlement {entitlement} with sku {sku}'.format(
+                code=currency_code, entitlement=body['title'], sku=sku
+            )
             logger.warning(msg)
             return None
 
         mode_name = attributes.get('certificate_type')
         try:
-            mode = SeatType.objects.get(name=mode_name)
+            mode = SeatType.objects.get(slug=mode_name)
         except SeatType.DoesNotExist:
-            msg = 'Could not find course entitlement mode {mode}'.format(mode=mode_name)
+            msg = 'Could not find mode {mode} while loading entitlement {entitlement} with sku {sku}'.format(
+                mode=mode_name, entitlement=body['title'], sku=sku
+            )
             logger.warning(msg)
             return None
 
         defaults = {
+            'partner': self.partner,
             'price': price,
             'currency': currency,
             'sku': sku,
             'expires': self.parse_date(body['expires'])
         }
+        msg = 'Creating entitlement {entitlement} with sku {sku} for partner {partner}'.format(
+            entitlement=body['title'], sku=sku, partner=self.partner
+        )
+        logger.info(msg)
         course.entitlements.update_or_create(mode=mode, defaults=defaults)
         return sku
 
