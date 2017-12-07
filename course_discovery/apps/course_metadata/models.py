@@ -1092,7 +1092,7 @@ class Program(TimeStampedModel):
 
     @property
     def entitlements(self):
-        applicable_seat_types = set(seat_type.name for seat_type in self.type.applicable_seat_types.all())
+        applicable_seat_types = set(seat_type.slug for seat_type in self.type.applicable_seat_types.all())
         return CourseEntitlement.objects.filter(mode__name__in=applicable_seat_types, course__in=self.courses.all())
 
     @property
