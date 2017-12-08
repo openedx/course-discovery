@@ -9,9 +9,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-15 14:00+0000\n"
-"PO-Revision-Date: 2017-11-19 12:56+0000\n"
-"Last-Translator: Fundacja Eduprojekt.org <maciej@eduprojekt.org>\n"
+"POT-Creation-Date: 2017-11-30 13:11+0000\n"
+"PO-Revision-Date: 2017-12-06 20:13+0000\n"
+"Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Polish (http://www.transifex.com/open-edx/edx-platform/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -297,8 +297,14 @@ msgid "Subject model translations"
 msgstr "Tłumaczenia modeli tematycznych"
 
 #: apps/course_metadata/models.py
-msgid "Only ascii characters allowed (a-zA-Z0-9)"
-msgstr "Dozwolone są jedynie litery i cyfry (a-z A-Z 0-9)"
+msgid "Topic model translations"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid ""
+"Please do not use any spaces or special characters other than period, "
+"underscore or hyphen. This key will be used in the course's course key."
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid ""
@@ -313,8 +319,10 @@ msgid ""
 msgstr "Wybierz tag spośród propozycji. Aby utworzyć nowy tag, umieść przecinek po nazwie tagu."
 
 #: apps/course_metadata/models.py
-msgid "Please do not use any spaces or special characters in the key field"
-msgstr "Proszę nie używać w tym polu żadnych spacji lub znaków specjalnych"
+msgid ""
+"Please do not use any spaces or special characters other than period, "
+"underscore or hyphen in the key field."
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "People"
@@ -701,8 +709,10 @@ msgid "Syllabus"
 msgstr "Konspekt"
 
 #: apps/publisher/forms.py
-msgid "Please do not use any spaces or special characters."
-msgstr "Proszę nie używać spacji ani znaków specjalnych."
+msgid ""
+"Please do not use any spaces or special characters other than period, "
+"underscore or hyphen."
+msgstr ""
 
 #: apps/publisher/forms.py
 msgid "This course title already exists"
@@ -1024,6 +1034,10 @@ msgid "Organization"
 msgstr "Organizacja"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "Enter a different organization"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Bio"
 msgstr "Biografia"
@@ -1093,6 +1107,10 @@ msgstr "Opublikuj"
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Submitted for review"
 msgstr "Zgłoszony do oceny"
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+msgid "Preview Declined"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 #: apps/publisher/templates/publisher/seat_form.html
@@ -1331,8 +1349,11 @@ msgid "COURSE NUMBER"
 msgstr "NUMER KURSU"
 
 #: apps/publisher/templates/publisher/add_course_form.html
-msgid "Maximum 50 characters. Characters can be letters, numbers, or periods."
-msgstr "Maksymalnie 50 znaków."
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"Maximum 50 characters. Characters can be letters, numbers, periods, "
+"underscores or hyphens."
+msgstr ""
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
@@ -1594,10 +1615,6 @@ msgstr "Kursy będące cyklem:"
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "255 character limit, including spaces."
 msgstr "Limit 255 znaków w tym spacje."
-
-#: apps/publisher/templates/publisher/course_edit_form.html
-msgid "Maximum 10 characters. Characters can be letters, numbers, or periods."
-msgstr "Maksymalnie 10 znaków."
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "BIO1.1x, BIO1.2x"
