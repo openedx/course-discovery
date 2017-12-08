@@ -17,8 +17,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-15 14:00+0000\n"
-"PO-Revision-Date: 2017-11-15 20:29+0000\n"
+"POT-Creation-Date: 2017-11-30 13:11+0000\n"
+"PO-Revision-Date: 2017-12-06 20:13+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: French (http://www.transifex.com/open-edx/edx-platform/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -305,7 +305,13 @@ msgid "Subject model translations"
 msgstr ""
 
 #: apps/course_metadata/models.py
-msgid "Only ascii characters allowed (a-zA-Z0-9)"
+msgid "Topic model translations"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid ""
+"Please do not use any spaces or special characters other than period, "
+"underscore or hyphen. This key will be used in the course's course key."
 msgstr ""
 
 #: apps/course_metadata/models.py
@@ -321,7 +327,9 @@ msgid ""
 msgstr ""
 
 #: apps/course_metadata/models.py
-msgid "Please do not use any spaces or special characters in the key field"
+msgid ""
+"Please do not use any spaces or special characters other than period, "
+"underscore or hyphen in the key field."
 msgstr ""
 
 #: apps/course_metadata/models.py
@@ -709,7 +717,9 @@ msgid "Syllabus"
 msgstr "Syllabus"
 
 #: apps/publisher/forms.py
-msgid "Please do not use any spaces or special characters."
+msgid ""
+"Please do not use any spaces or special characters other than period, "
+"underscore or hyphen."
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -1032,6 +1042,10 @@ msgid "Organization"
 msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "Enter a different organization"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Bio"
 msgstr ""
@@ -1100,6 +1114,10 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Submitted for review"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_approval_widget.html
+msgid "Preview Declined"
 msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
@@ -1339,7 +1357,10 @@ msgid "COURSE NUMBER"
 msgstr ""
 
 #: apps/publisher/templates/publisher/add_course_form.html
-msgid "Maximum 50 characters. Characters can be letters, numbers, or periods."
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"Maximum 50 characters. Characters can be letters, numbers, periods, "
+"underscores or hyphens."
 msgstr ""
 
 #: apps/publisher/templates/publisher/add_course_form.html
@@ -1601,10 +1622,6 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "255 character limit, including spaces."
-msgstr ""
-
-#: apps/publisher/templates/publisher/course_edit_form.html
-msgid "Maximum 10 characters. Characters can be letters, numbers, or periods."
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
