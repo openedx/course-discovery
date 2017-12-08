@@ -265,7 +265,7 @@ class Person(TimeStampedModel):
     bio = models.TextField(null=True, blank=True)
     profile_image_url = models.URLField(null=True, blank=True)
     profile_image = StdImageField(
-        upload_to=UploadToAutoSlug(populate_from='uuid', path='media/people/profile_images'),
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/people/profile_images'),
         blank=True,
         null=True,
         variations={
@@ -347,7 +347,7 @@ class Course(TimeStampedModel):
     syllabus_raw = models.TextField(blank=True, null=True)
     card_image_url = models.URLField(null=True, blank=True)
     image = StdImageField(
-        upload_to=UploadToAutoSlug(populate_from='uuid', path='media/course/image'),
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/course/image'),
         blank=True,
         null=True,
         variations={
