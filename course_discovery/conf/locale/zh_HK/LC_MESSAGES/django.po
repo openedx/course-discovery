@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-15 14:00+0000\n"
-"PO-Revision-Date: 2017-11-15 20:29+0000\n"
+"PO-Revision-Date: 2017-11-20 21:02+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Chinese (Hong Kong) (http://www.transifex.com/open-edx/edx-platform/language/zh_HK/)\n"
 "MIME-Version: 1.0\n"
@@ -1019,6 +1019,10 @@ msgstr ""
 #: apps/publisher/templates/publisher/dashboard/_published.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Organization"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "Enter a different organization"
 msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
