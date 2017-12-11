@@ -16,7 +16,7 @@ Documentation
 License
 -------
 
-The code in this repository is licensed under version 3 of the AGPL unless otherwise noted. Please see the LICENSE_ file for details.
+The code in this repository is licensed under version 3 of the AGPL unless otherwise noted. Please see the LICENSE_ file for details. 
 
 .. _LICENSE: https://github.com/edx/course-discovery/blob/master/LICENSE
 
