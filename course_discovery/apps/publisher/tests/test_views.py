@@ -111,22 +111,25 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
         self.assertEqual(response.status_code, 400)
 
-    def test_create_course(self):
+    @ddt.data(
+        make_image_file('test_cover00.jpg', width=2120, height=1192),
+        make_image_file('test_cover01.jpg', width=1134, height=675),
+        make_image_file('test_cover02.jpg', width=378, height=225),
+    )
+    def test_create_course_valid_image(self, image):
         """
-        Verify that user can create course successfully.
+        Verify a new course with valid image of acceptable image sizes can be saved properly
         """
-        data = {'title': 'Test2', 'number': 'testX453', 'image': make_image_file('test_banner.jpg')}
+        data = {'title': 'Test valid', 'number': 'testX453', 'image': image}
         course_dict = self._post_data(data, self.course)
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
         course = Course.objects.get(number=course_dict['number'])
-
         self.assertRedirects(
             response,
             expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': course.id}),
             status_code=302,
             target_status_code=200
         )
-
         self.assertEqual(course.number, data['number'])
         self._assert_image(course)
 
@@ -136,13 +139,17 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         make_image_file('test_banner02.jpg', width=2119, height=1192),
         make_image_file('test_banner03.jpg', width=2121, height=1192),
         make_image_file('test_banner04.jpg', width=2121, height=1191),
+        make_image_file('test_cover01.jpg', width=1600, height=1100),
+        make_image_file('test_cover01.jpg', width=300, height=220),
     )
     def test_create_course_invalid_image(self, image):
         """
         Verify that a new course with an invalid image shows the proper error.
         """
         image_error = [
-            'The image you uploaded is of incorrect resolution. Course image files must be 2120 x 1192 pixels in size.'
+            'The image you uploaded is of incorrect resolution. ' +
+            'Course image files must be in one of the following sizes in pixels: ' +
+            '(2120 X 1192), (1134 X 675), (378 X 225)',
         ]
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         self._assert_records(1)

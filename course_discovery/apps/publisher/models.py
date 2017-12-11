@@ -27,7 +27,7 @@ from course_discovery.apps.publisher import emails
 from course_discovery.apps.publisher.choices import (CourseRunStateChoices, CourseStateChoices, InternalUserRole,
                                                      PublisherUserRole)
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
-from course_discovery.apps.publisher.validators import ImageSizeValidator
+from course_discovery.apps.publisher.validators import ImageMultiSizeValidator
 
 logger = logging.getLogger(__name__)
 
@@ -77,10 +77,7 @@ class Course(TimeStampedModel, ChangedByMixin):
         ),
         blank=True,
         null=True,
-        variations={
-            'thumbnail': (100, 100, True),
-        },
-        validators=[ImageSizeValidator(width=2120, height=1192)]
+        validators=[ImageMultiSizeValidator([(2120, 1192), (1134, 675), (378, 225)])]
     )
 
     is_seo_review = models.BooleanField(default=False)
