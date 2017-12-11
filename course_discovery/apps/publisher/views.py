@@ -1140,12 +1140,13 @@ class AdminImportCourse(mixins.LoginRequiredMixin, TemplateView):
         if form.is_valid():
 
             start_id = self.request.POST.get('start_id')
+            create_course_run = self.request.POST.get('create_course_run')
 
             try:
                 course = CourseMetaData.objects.select_related('canonical_course_run', 'level_type', 'video').get(
                     id=start_id
                 )
-                process_course(course)
+                process_course(course, create_course_run)
 
                 # check publisher db that course is available now.
                 publisher_course = Course.objects.filter(course_metadata_pk=start_id)

@@ -70,7 +70,15 @@ class ImportCoursesTests(TestCase):
     def test_query_return_correct_course(self, process_course):
         """ Verify that query return correct courses using start and end ids. """
         call_command(self.command_name, *self.command_args)
-        call_list = [mock.call(self.course), ]
+        call_list = [mock.call(self.course, False), ]
+        self.assertEqual(call_list, process_course.call_args_list)
+
+    @mock.patch('course_discovery.apps.publisher.dataloader.create_courses.process_course')
+    def test_query_return_correct_course_with_run(self, process_course):
+        """ Verify that query return correct courses using start and end ids. """
+        self.command_args.append('--create_run={}'.format(True))
+        call_command(self.command_name, *self.command_args)
+        call_list = [mock.call(self.course, True), ]
         self.assertEqual(call_list, process_course.call_args_list)
 
     @mock.patch('course_discovery.apps.publisher.dataloader.create_courses.process_course')
@@ -78,7 +86,7 @@ class ImportCoursesTests(TestCase):
         """ Verify that query return correct courses using start and end ids. """
         course_3 = CourseFactory()
         call_command(self.command_name, *['--start_id={}'.format(self.course_2.id), '--end_id={}'.format(course_3.id)])
-        call_list = [mock.call(self.course_2), mock.call(course_3), ]
+        call_list = [mock.call(self.course_2, False), mock.call(course_3, False), ]
         self.assertEqual(call_list, process_course.call_args_list)
 
     @mock.patch('course_discovery.apps.publisher.dataloader.create_courses.create_or_update_course')
@@ -137,8 +145,10 @@ class CreateCoursesTests(TestCase):
         self.organization = self.forganization_extension.organization
         self.course.authoring_organizations.add(self.organization)
 
-    def test_course_create_successfully(self):
-        """ Verify that publisher course successfully."""
+    def test_course_run_created_successfully(self):
+        """ Verify that publisher course and course_runs successfully."""
+        self.command_args.append('--create_run={}'.format(True))
+
         call_command(self.command_name, *self.command_args)
         course = Publisher_Course.objects.all().first()
 
@@ -146,10 +156,18 @@ class CreateCoursesTests(TestCase):
         self._assert_course_run(course.course_runs.first(), self.course.canonical_course_run)
         self._assert_seats(course.course_runs.first(), self.course.canonical_course_run)
 
+    def test_course_create_successfully(self):
+        """ Verify that publisher course successfully."""
+        call_command(self.command_name, *self.command_args)
+        course = Publisher_Course.objects.all().first()
+
+        self._assert_course(course)
+
     def test_course_create_without_video(self):
         """ Verify that publisher course successfully."""
         self.course.video = None
         self.course.save()
+        self.command_args.append('--create_run={}'.format(True))
 
         call_command(self.command_name, *self.command_args)
         course = Publisher_Course.objects.all().first()
@@ -176,6 +194,7 @@ class CreateCoursesTests(TestCase):
         """ Verify that course does not create two course with same title and number.
             Just update.
         """
+        self.command_args.append('--create_run={}'.format(True))
         call_command(self.command_name, *self.command_args)
         self.assertEqual(Publisher_Course.objects.all().count(), 1)
         course = Publisher_Course.objects.all().first()
@@ -194,6 +213,7 @@ class CreateCoursesTests(TestCase):
 
     def test_course_without_canonical_course_run(self):
         """ Verify that import works fine even if course has no canonical-course-run."""
+        self.command_args.append('--create_run={}'.format(True))
         self.course.canonical_course_run = None
         self.course.save()
 
@@ -264,6 +284,7 @@ class CreateCoursesTests(TestCase):
     def test_course_run_without_seats(self):
         """ Verify that import works fine even if course-run has no seats."""
         self.course.canonical_course_run.seats.all().delete()
+        self.command_args.append('--create_run={}'.format(True))
 
         with LogCapture(dataloader_logger.name) as log_capture:
             call_command(self.command_name, *self.command_args)
@@ -309,8 +330,6 @@ class CreateCoursesTests(TestCase):
         self.assertEqual(publisher_course.full_description, self.course.full_description)
         self.assertEqual(publisher_course.level_type, self.course.level_type)
 
-        # each course will have only 1 course-run
-        self.assertEqual(publisher_course.course_runs.all().count(), 1)
         self.assertEqual(publisher_course.course_metadata_pk, self.course.pk)
         self.assertEqual(publisher_course.primary_subject, self.subjects[0])
         self.assertEqual(publisher_course.secondary_subject, self.subjects[1])

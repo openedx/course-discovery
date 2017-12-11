@@ -10,7 +10,7 @@ from course_discovery.apps.publisher.models import Course, CourseRun, CourseRunS
 logger = logging.getLogger(__name__)
 
 
-def execute_query(start_id, end_id):
+def execute_query(start_id, end_id, create_course_run):
     """ Execute query according to the range."""
 
     from course_discovery.apps.course_metadata.models import Course as CourseMetaData
@@ -18,10 +18,10 @@ def execute_query(start_id, end_id):
     for course in CourseMetaData.objects.select_related('canonical_course_run', 'level_type', 'video').filter(
             id__range=(start_id, end_id)):
 
-        process_course(course)
+        process_course(course, create_course_run)
 
 
-def process_course(meta_data_course):
+def process_course(meta_data_course, create_course_run):
     """ Create or update the course."""
 
     # if course has more than 1 organization don't import that course. Just log the entry.
@@ -34,13 +34,13 @@ def process_course(meta_data_course):
         if not available_organization:
             return
 
-        create_or_update_course(meta_data_course, available_organization)
+        create_or_update_course(meta_data_course, available_organization, create_course_run)
 
     except:  # pylint: disable=bare-except
         logger.exception('Exception appear for course-id [%s].', meta_data_course.uuid)
 
 
-def create_or_update_course(meta_data_course, available_organization):
+def create_or_update_course(meta_data_course, available_organization, create_course_run):
 
     primary_subject = None
     secondary_subject = None
@@ -89,8 +89,9 @@ def create_or_update_course(meta_data_course, available_organization):
 
         logger.info('Import course with id [%s], number [%s].', publisher_course.id, publisher_course.number)
 
-    # create canonical course-run against the course.
-    create_course_runs(meta_data_course, publisher_course)
+    if create_course_run:
+        # create canonical course-run against the course.
+        create_course_runs(meta_data_course, publisher_course)
 
 
 def transfer_course_image(meta_data_course, publisher_course):
