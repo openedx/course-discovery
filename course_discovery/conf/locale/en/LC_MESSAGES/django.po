@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-11 20:22+0000\n"
+"POT-Creation-Date: 2017-12-12 16:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1777,7 +1777,7 @@ msgid "Course Image Guidelines:"
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
-msgid "The image size must be 2120 x 1192 pixels."
+msgid "The image size must be of size 1134 X 675 pixels."
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
@@ -3204,6 +3204,13 @@ msgstr ""
 msgid ""
 "The image you uploaded is of incorrect resolution. Course image files must "
 "be %(with)s x %(height)s pixels in size."
+msgstr ""
+
+#: apps/publisher/validators.py
+#, python-format
+msgid ""
+"The image you uploaded is of incorrect resolution. Course image files must "
+"be in one of the following sizes in pixels: %(sizes)s"
 msgstr ""
 
 #: apps/publisher/validators.py

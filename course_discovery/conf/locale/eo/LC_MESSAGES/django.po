@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-11 20:22+0000\n"
+"POT-Creation-Date: 2017-12-12 16:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2094,10 +2094,10 @@ msgid "Course Image Guidelines:"
 msgstr "Çöürsé Ìmägé Güïdélïnés: Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
-msgid "The image size must be 2120 x 1192 pixels."
+msgid "The image size must be of size 1134 X 675 pixels."
 msgstr ""
-"Thé ïmägé sïzé müst ßé 2120 x 1192 pïxéls. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя #"
+"Thé ïmägé sïzé müst ßé öf sïzé 1134 X 675 pïxéls. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Each course in a sequence must have a unique image."
@@ -3885,6 +3885,15 @@ msgid ""
 msgstr ""
 "Thé ïmägé ýöü üplöädéd ïs öf ïnçörréçt résölütïön. Çöürsé ïmägé fïlés müst "
 "ßé %(with)s x %(height)s pïxéls ïn sïzé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: apps/publisher/validators.py
+#, python-format
+msgid ""
+"The image you uploaded is of incorrect resolution. Course image files must "
+"be in one of the following sizes in pixels: %(sizes)s"
+msgstr ""
+"Thé ïmägé ýöü üplöädéd ïs öf ïnçörréçt résölütïön. Çöürsé ïmägé fïlés müst "
+"ßé ïn öné öf thé föllöwïng sïzés ïn pïxéls: %(sizes)s Ⱡ'σяєм ιρѕ#"
 
 #: apps/publisher/validators.py
 #, python-brace-format
