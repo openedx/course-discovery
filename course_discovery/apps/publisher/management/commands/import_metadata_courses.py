@@ -30,9 +30,19 @@ class Command(BaseCommand):
             help='To this id courses will be imported.'
         )
 
+        parser.add_argument(
+            '--create_run',
+            action='store',
+            dest='create_course_run',
+            default=False,
+            required=False,
+            help='Whether this script should create the initial course run'
+        )
+
     def handle(self, *args, **options):
         """ Import the course according to the given range."""
         start_id = options.get('start_id')
         end_id = options.get('end_id')
+        create_course_run = bool(options.get('create_course_run'))
 
-        execute_query(start_id, end_id)
+        execute_query(start_id, end_id, create_course_run)

@@ -531,6 +531,11 @@ class CourseRunAdminForm(forms.ModelForm):
 
 class AdminImportCourseForm(forms.Form):
     start_id = forms.IntegerField(min_value=1, label='This course id will import.')
+    create_course_run = forms.BooleanField(
+        label=_('Create initial run for the course'),
+        widget=forms.CheckboxInput,
+        required=False
+    )
 
     class Meta:
         fields = ('start_id',)
