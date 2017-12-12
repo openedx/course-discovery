@@ -711,9 +711,11 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
         course_run = context.get('course_run')
         course = course_run.course
         course_user_role = course.get_user_role(user=self.request.user)
+        context['organizations_ids'] = []
         if course_user_role == PublisherUserRole.CourseTeam:
-            context['organizations_ids'] = list(mixins.get_user_organizations(self.request.user).
-                                                values_list('id', flat=True))
+            context['organizations_ids'] = list(
+                mixins.get_user_organizations(self.request.user).values_list('id', flat=True)
+            )
 
         context['course_user_role'] = course_user_role
         context['run_form'] = self.run_form(

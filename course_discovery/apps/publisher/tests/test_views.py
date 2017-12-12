@@ -2848,6 +2848,25 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, '<div id="SeatPriceBlock" class="col col-6 hidden" style="display: block;">')
 
+    def test_get_context_data_with_pc(self):
+        """
+        Verify that the get function returns empty list of organization_ids in the context
+        if the logged in user is project coordinator
+        """
+        pc_user = UserFactory()
+        pc_user.groups.add(self.group_project_coordinator)
+        pc_user.groups.add(self.organization_extension.group)
+
+        assign_perm(
+            OrganizationExtension.EDIT_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+        self.client.logout()
+        self.client.login(username=pc_user.username, password=USER_PASSWORD)
+        self.edit_page_url = reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id})
+        response = self.client.get(self.edit_page_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['organizations_ids'], [])
+
     def _post_data(self, data, course, course_run):
         course_dict = model_to_dict(course)
         course_dict.update(**data)
