@@ -724,7 +724,7 @@ class CourseRun(TimeStampedModel):
 
         if self.end and self.end <= now:
             return _('Archived')
-        elif self.start and self.end and (self.start <= now < self.end):
+        elif self.start and (self.start <= now):
             return _('Current')
         elif self.start and (now < self.start < upcoming_cutoff):
             return _('Starting Soon')
