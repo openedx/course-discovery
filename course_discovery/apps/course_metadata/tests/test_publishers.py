@@ -214,7 +214,7 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         mock_node_id.assert_called_with(self.obj)
         assert not mock_create_node.called
 
-    @mock.patch.object(CourseRunMarketingSitePublisher, 'serialize_obj', return_value='data')
+    @mock.patch.object(CourseRunMarketingSitePublisher, 'serialize_obj', return_value={'data': 'test'})
     @mock.patch.object(CourseRunMarketingSitePublisher, 'node_id', return_value=None)
     @mock.patch.object(CourseRunMarketingSitePublisher, 'create_node', return_value='node_id')
     @mock.patch.object(CourseRunMarketingSitePublisher, 'update_node_alias')
@@ -226,11 +226,11 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
     ):  # pylint: disable=unused-argument
         toggle_switch('auto_course_about_page_creation', True)
         self.publisher.publish_obj(self.obj)
-        mock_create_node.assert_called_with('data')
+        mock_create_node.assert_called_with({'data': 'test', 'field_course_uuid': str(self.obj.uuid)})
         mock_update_node_alias.assert_called_with(self.obj, 'node_id', None)
 
     @mock.patch.object(CourseRunMarketingSitePublisher, 'node_id', return_value=None)
-    @mock.patch.object(CourseRunMarketingSitePublisher, 'serialize_obj', return_value='data')
+    @mock.patch.object(CourseRunMarketingSitePublisher, 'serialize_obj', return_value={'data': 'test'})
     @mock.patch.object(CourseRunMarketingSitePublisher, 'create_node', return_value='node1')
     @mock.patch.object(CourseRunMarketingSitePublisher, 'update_node_alias')
     def test_publish_obj_create_if_exists_on_discovery(
@@ -245,7 +245,7 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.publisher.publish_obj(self.obj, previous_obj=self.obj)
         mock_node_id.assert_called_with(self.obj)
         mock_serialize_obj.assert_called_with(self.obj)
-        mock_create_node.assert_called_with('data')
+        mock_create_node.assert_called_with({'data': 'test', 'field_course_uuid': str(self.obj.uuid)})
         mock_update_node_alias.assert_called_with(self.obj, 'node1', self.obj)
 
     @mock.patch.object(CourseRunMarketingSitePublisher, 'node_id', return_value='node_id')
@@ -277,7 +277,6 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         actual = self.publisher.serialize_obj(self.obj)
         expected = {
             'field_course_id': self.obj.key,
-            'field_course_uuid': str(self.obj.uuid),
             'title': self.obj.title,
             'author': {'id': self.user_id},
             'status': 1,

@@ -346,6 +346,9 @@ class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):
                 self.edit_node(node_id, node_data)
         elif waffle.switch_is_active('auto_course_about_page_creation'):
             node_data = self.serialize_obj(obj)
+            # We also want to push the course uuid during creation so the node is sourcing
+            # course about data from discovery
+            node_data.update({'field_course_uuid': str(obj.uuid)})
             node_id = self.create_node(node_data)
             logger.info('Created new marketing site node [%s] for course run [%s].', node_id, obj.key)
             self.update_node_alias(obj, node_id, previous_obj)
@@ -365,7 +368,6 @@ class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):
         return {
             **data,
             'status': 1 if obj.status == CourseRunStatus.Published else 0,
-            'field_course_uuid': str(obj.uuid),
             'title': obj.title,
             'field_course_id': obj.key,
             'type': 'course',
