@@ -87,7 +87,7 @@ class CourseForm(BaseForm):
     )
     prerequisites = forms.CharField(
         label=_('Prerequisites'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=200)]
+        validators=[validate_text_count(max_length=1000)]
     )
 
     # users will be loaded through AJAX call based on organization
