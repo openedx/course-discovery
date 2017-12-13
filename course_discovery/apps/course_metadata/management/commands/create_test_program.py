@@ -48,5 +48,5 @@ class Command(BaseCommand):
             expected_learning_items=[ExpectedLearningItemFactory()],
             faq=[FAQFactory()],
             job_outlook_items=[JobOutlookItemFactory()],
-            instructors=[PersonFactory()],
+            instructor_ordering=[PersonFactory()],
         )

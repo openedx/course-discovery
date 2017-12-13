@@ -680,7 +680,11 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
                 program.individual_endorsements, many=True, context={'request': request}
             ).data,
             'staff': PersonSerializer(program.staff, many=True, context={'request': request}).data,
-            'instructors': PersonSerializer(program.instructors, many=True, context={'request': request}).data,
+            'instructor_ordering': PersonSerializer(
+                program.instructor_ordering,
+                many=True,
+                context={'request': request}
+            ).data,
             'job_outlook_items': [item.value for item in program.job_outlook_items.all()],
             'languages': [serialize_language_to_code(l) for l in program.languages],
             'weeks_to_complete': program.weeks_to_complete,

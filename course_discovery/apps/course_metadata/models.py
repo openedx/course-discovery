@@ -959,10 +959,12 @@ class Program(TimeStampedModel):
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
     faq = SortedManyToManyField(FAQ, blank=True)
-    instructors = SortedManyToManyField(
+    instructor_ordering = SortedManyToManyField(
         Person,
         blank=True,
-        help_text='Used to organize the instructors on the program about page.'
+        help_text=_('This field can be used by API clients to determine the order in which instructors will be '
+                    'displayed on program pages. Instructors in this list should appear before all others associated '
+                    'with this programs courses runs.')
     )
 
     credit_backing_organizations = SortedManyToManyField(

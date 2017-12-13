@@ -119,7 +119,7 @@ class ProgramAdmin(admin.ModelAdmin):
     raw_id_fields = ('video',)
     search_fields = ('uuid', 'title', 'marketing_slug')
 
-    filter_horizontal = ('job_outlook_items', 'expected_learning_items', 'instructors')
+    filter_horizontal = ('job_outlook_items', 'expected_learning_items', 'instructor_ordering')
 
     # ordering the field display on admin page.
     fields = (

@@ -59,7 +59,7 @@ class TestProgramViewSet(SerializationMixin):
             individual_endorsements=EndorsementFactory.create_batch(1),
             expected_learning_items=ExpectedLearningItemFactory.create_batch(1),
             job_outlook_items=JobOutlookItemFactory.create_batch(1),
-            instructors=PersonFactory.create_batch(1),
+            instructor_ordering=PersonFactory.create_batch(1),
             banner_image=make_image_file('test_banner.jpg'),
             video=VideoFactory(),
             partner=self.partner

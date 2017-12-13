@@ -891,7 +891,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     )
     subjects = SubjectSerializer(many=True)
     staff = PersonSerializer(many=True)
-    instructors = PersonSerializer(many=True)
+    instructor_ordering = PersonSerializer(many=True)
     applicable_seat_types = serializers.SerializerMethodField()
 
     @classmethod
@@ -908,7 +908,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'expected_learning_items',
             'faq',
             'job_outlook_items',
-            'instructors',
+            'instructor_ordering',
             # `type` is serialized by a third-party serializer. Providing this field name allows us to
             # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
             # `ProgramType` on `Program`.
@@ -932,7 +932,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'min_hours_effort_per_week', 'max_hours_effort_per_week', 'video', 'expected_learning_items',
             'faq', 'credit_backing_organizations', 'corporate_endorsements', 'job_outlook_items',
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
-            'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructors'
+            'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering'
         )
 
 
