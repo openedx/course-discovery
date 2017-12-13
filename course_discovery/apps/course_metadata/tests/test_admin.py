@@ -294,7 +294,7 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
             'field-excluded_course_runs', 'field-authoring_organizations', 'field-credit_backing_organizations',
             'field-one_click_purchase_enabled', 'field-hidden', 'field-corporate_endorsements', 'field-faq',
             'field-individual_endorsements', 'field-job_outlook_items', 'field-expected_learning_items',
-            'field-instructors',
+            'field-instructor_ordering',
         ]
         self.assertEqual(actual, expected)
 

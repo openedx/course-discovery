@@ -324,9 +324,9 @@ class ProgramFactory(factory.django.DjangoModelFactory):
             add_m2m_data(self.job_outlook_items, extracted)
 
     @factory.post_generation
-    def instructors(self, create, extracted, **kwargs):
+    def instructor_ordering(self, create, extracted, **kwargs):
         if create:  # pragma: no cover
-            add_m2m_data(self.instructors, extracted)
+            add_m2m_data(self.instructor_ordering, extracted)
 
 
 class AbstractSocialNetworkModelFactory(factory.DjangoModelFactory):
