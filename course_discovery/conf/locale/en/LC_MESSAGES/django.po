@@ -839,6 +839,10 @@ msgid "Invalid course key."
 msgstr ""
 
 #: apps/publisher/forms.py
+msgid "Owner role can not be publisher if the state is draft or review"
+msgstr ""
+
+#: apps/publisher/forms.py
 msgid "Create initial run for the course"
 msgstr ""
 

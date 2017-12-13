@@ -1010,6 +1010,12 @@ msgid "Invalid course key."
 msgstr "Ìnvälïd çöürsé kéý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
 #: apps/publisher/forms.py
+msgid "Owner role can not be publisher if the state is draft or review"
+msgstr ""
+"Öwnér rölé çän nöt ßé püßlïshér ïf thé stäté ïs dräft ör révïéw Ⱡ'σяєм ιρѕυм"
+" ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/publisher/forms.py
 msgid "Create initial run for the course"
 msgstr ""
 "Çréäté ïnïtïäl rün för thé çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"

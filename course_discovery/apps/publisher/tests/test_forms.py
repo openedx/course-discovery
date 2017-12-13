@@ -10,7 +10,10 @@ from waffle.testutils import override_switch
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
-from course_discovery.apps.publisher.forms import CourseForm, CourseRunForm, PublisherUserCreationForm, SeatForm
+from course_discovery.apps.publisher.choices import CourseRunStateChoices, PublisherUserRole
+from course_discovery.apps.publisher.forms import (
+    CourseForm, CourseRunForm, CourseRunStateAdminForm, PublisherUserCreationForm, SeatForm
+)
 from course_discovery.apps.publisher.models import Seat
 from course_discovery.apps.publisher.tests.factories import CourseFactory, OrganizationExtensionFactory, SeatFactory
 
@@ -63,6 +66,37 @@ class PublisherUserCreationFormTests(TestCase):
 
         user_form.cleaned_data['groups'] = ['test_group']
         self.assertEqual(user_form.clean(), user_form.cleaned_data)
+
+
+@ddt.ddt
+class CourseRunStateAdminFormTests(TestCase):
+    """
+    Tests for the publisher 'CourseRunStateAdminForm'.
+    """
+
+    @ddt.data(
+        CourseRunStateChoices.Draft,
+        CourseRunStateChoices.Review,
+    )
+    def test_clean_with_validation_error(self, course_run_state):
+        """
+        Verify that 'clean' raises 'ValidationError' for invalid course run state
+        """
+        run_state_form = CourseRunStateAdminForm()
+        run_state_form.cleaned_data = {'name': course_run_state, 'owner_role': PublisherUserRole.Publisher}
+        with self.assertRaises(ValidationError):
+            run_state_form.clean()
+
+    def test_clean_without_validation_error(self):
+        """
+        Verify that 'clean' does not raise 'ValidationError' for valid course run state
+        """
+        run_state_form = CourseRunStateAdminForm()
+        run_state_form.cleaned_data = {
+            'name': CourseRunStateChoices.Approved,
+            'owner_role': PublisherUserRole.Publisher
+        }
+        self.assertEqual(run_state_form.clean(), run_state_form.cleaned_data)
 
 
 class PublisherCourseRunEditFormTests(TestCase):

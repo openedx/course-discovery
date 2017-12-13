@@ -14,9 +14,11 @@ from opaque_keys.edx.keys import CourseKey
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import LevelType, Organization, Person, Subject
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from course_discovery.apps.publisher.choices import CourseRunStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.mixins import LanguageModelSelect2Multiple, get_user_organizations
 from course_discovery.apps.publisher.models import (
-    Course, CourseRun, CourseUserRole, OrganizationExtension, OrganizationUserRole, PublisherUser, Seat, User
+    Course, CourseRun, CourseRunState, CourseUserRole, OrganizationExtension, OrganizationUserRole, PublisherUser,
+    Seat, User
 )
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY, is_internal_user
 from course_discovery.apps.publisher.validators import validate_text_count
@@ -527,6 +529,21 @@ class CourseRunAdminForm(forms.ModelForm):
             return lms_course_id
 
         return None
+
+
+class CourseRunStateAdminForm(forms.ModelForm):
+    class Meta:
+        model = CourseRunState
+        fields = '__all__'
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        owner_role = cleaned_data.get('owner_role')
+        course_run_state = cleaned_data.get('name')
+        if owner_role == PublisherUserRole.Publisher and course_run_state in (CourseRunStateChoices.Draft,
+                                                                              CourseRunStateChoices.Review):
+            raise forms.ValidationError(_('Owner role can not be publisher if the state is draft or review'))
+        return cleaned_data
 
 
 class AdminImportCourseForm(forms.Form):
