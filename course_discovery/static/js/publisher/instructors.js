@@ -41,15 +41,13 @@ $(document).ready(function () {
             addModalError(gettext("Please upload a instructor image."));
             return;
         }
-        var position = getFormInstructorPosition()
-
         personData = {
             'given_name': $('#given-name').val(),
             'family_name': $('#family-name').val(),
             'bio': $('#bio').val(),
             'email': $('#email').val(),
             'profile_image': $('.select-image').attr('src'),
-            'position': position,
+            'position': getFormInstructorPosition(),
             'works': $('#majorWorks').val().split('\n'),
             'urls': {
                 facebook: $('#facebook').val(),
@@ -103,15 +101,18 @@ $(document).ready(function () {
 });
 
 function getFormInstructorPosition () {
-    if ($('#organization_override').val()) {
+    var org_override_element_value = $('#organization_override').val(),
+        instructor_position = $('#title').val();
+
+    if (org_override_element_value && ($('#org_override_container').is(':visible'))) {
         return {
-            title: $('#title').val(),
-            organization_override: $('#organization_override').val(),
+            title: instructor_position,
+            organization_override: org_override_element_value,
             organization: null
         };
     }
     return {
-        title: $('#title').val(),
+        title: instructor_position,
         organization_override: null,
         organization: parseInt($('#id_organization').val())
     };
@@ -274,10 +275,12 @@ $(document).on('click', '.selected-instructor a.edit', function (e) {
             if (data['position']['organization_id'] == null){
                 $('#organization_override').val(data['position']['organization_override']);
                 $('#org_container').hide();
+                $('#org_override_container').show();
             }
             else {
                 $('#id_organization').val(data['position']['organization_id']);
-                $('#org_override_container').hide()
+                $('#org_override_container').hide();
+                $('#org_container').show();
             }
             $('.select-image').attr('src', data['profile_image_url']);
             $('#given-name').val(data['given_name']);
