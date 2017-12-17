@@ -9,9 +9,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-30 13:11+0000\n"
-"PO-Revision-Date: 2017-12-06 20:13+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2017-12-13 16:39+0000\n"
+"PO-Revision-Date: 2017-12-17 13:22+0000\n"
+"Last-Translator: Fundacja Eduprojekt.org <maciej@eduprojekt.org>\n"
 "Language-Team: Polish (http://www.transifex.com/open-edx/edx-platform/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -298,13 +298,13 @@ msgstr "Tłumaczenia modeli tematycznych"
 
 #: apps/course_metadata/models.py
 msgid "Topic model translations"
-msgstr ""
+msgstr "Tłumaczenia modeli treści"
 
 #: apps/course_metadata/models.py
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen. This key will be used in the course's course key."
-msgstr ""
+msgstr "Proszę nie umieszczać w tym polu żadnych spacji lub znaków specjalnych innych niż kropki, podkreślenia i myślniki. Ten klucz zostanie wykorzystany do wygenerowania klucza tego kursu."
 
 #: apps/course_metadata/models.py
 msgid ""
@@ -322,7 +322,7 @@ msgstr "Wybierz tag spośród propozycji. Aby utworzyć nowy tag, umieść przec
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen in the key field."
-msgstr ""
+msgstr "Proszę nie umieszczać w polu klucza żadnych spacji lub znaków specjalnych innych niż kropki, podkreślenia i myślniki."
 
 #: apps/course_metadata/models.py
 msgid "People"
@@ -471,6 +471,13 @@ msgstr "To pole jest niekatualne. (ECOM-6021) Szacowana liczba tygodni potrzebny
 #: apps/course_metadata/models.py
 msgid "Image used for discovery cards"
 msgstr "Obrazek dla potrzeb kart informacyjnych"
+
+#: apps/course_metadata/models.py
+msgid ""
+"This field can be used by API clients to determine the order in which "
+"instructors will be displayed on program pages. Instructors in this list "
+"should appear before all others associated with this programs courses runs."
+msgstr "To pole może zostać użyte przez klientów API w celu określenia kolejności w jakiej prowadzący zostaną wyświetleni na stronach programów. Prowadzący z tej listy powinni zostać wyświetleni przed innymi powiązanymi z edycjami kursów tego programu."
 
 #: apps/course_metadata/models.py
 msgid "The description of credit redemption for courses in program"
@@ -712,7 +719,7 @@ msgstr "Konspekt"
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen."
-msgstr ""
+msgstr "Proszę nie umieszczać w tym polu żadnych spacji lub znaków specjalnych innych niż kropki, podkreślenia i myślniki."
 
 #: apps/publisher/forms.py
 msgid "This course title already exists"
@@ -833,6 +840,14 @@ msgstr "To pole jest wymagane."
 #: apps/publisher/forms.py
 msgid "Invalid course key."
 msgstr "Nieprawidłowy klucz kursu."
+
+#: apps/publisher/forms.py
+msgid "Owner role can not be publisher if the state is draft or review"
+msgstr "Roli kierownika nie można uruchomić jeśli stan znajduje się w szkicu lub w ocenie."
+
+#: apps/publisher/forms.py
+msgid "Create initial run for the course"
+msgstr "Utwórz pierwszą edycję tego kursu"
 
 #: apps/publisher/models.py
 msgid "Course title"
@@ -1035,7 +1050,7 @@ msgstr "Organizacja"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Enter a different organization"
-msgstr ""
+msgstr "Wprowadź inną organizację"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
@@ -1110,7 +1125,7 @@ msgstr "Zgłoszony do oceny"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Preview Declined"
-msgstr ""
+msgstr "Podgląd odrzucony"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 #: apps/publisher/templates/publisher/seat_form.html
@@ -1353,7 +1368,7 @@ msgstr "NUMER KURSU"
 msgid ""
 "Maximum 50 characters. Characters can be letters, numbers, periods, "
 "underscores or hyphens."
-msgstr ""
+msgstr "Maksymalnie 50 znaków. Litery, cyfry, kropki, podkreślenia lub myślniki."
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
@@ -1776,8 +1791,8 @@ msgid "Course Image Guidelines:"
 msgstr "Wskazówki dotyczące obrazka:"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
-msgid "The image size must be 2120 x 1192 pixels."
-msgstr "Obrazek musi mieć wielkość 2120 x 1192 piksele."
+msgid "The image size must be of size 1134 X 675 pixels."
+msgstr "Obrazek musi mieć wielkość 1134 x 675 pikseli. "
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Each course in a sequence must have a unique image."
@@ -2731,6 +2746,8 @@ msgstr "%(user_name)s dodał/a następujący komentarz na temat kursu %(course_n
 #: apps/publisher/templates/publisher/email/course/seo_review.txt
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.html
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.txt
 #: apps/publisher/templates/publisher/email/course_run/preview_available.html
 #: apps/publisher/templates/publisher/email/course_run/preview_available.txt
 #: apps/publisher/templates/publisher/email/course_run/published.txt
@@ -2777,6 +2794,8 @@ msgstr "Teraz możesz zgłosić edycję kursu do oceny. Aby tego dokonać, %(lin
 #: apps/publisher/templates/publisher/email/course_created.txt
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.html
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.txt
 #: apps/publisher/templates/publisher/email/course_run/preview_accepted.html
 #: apps/publisher/templates/publisher/email/course_run/preview_accepted.txt
 #: apps/publisher/templates/publisher/email/course_run/preview_available.html
@@ -2796,6 +2815,7 @@ msgstr "Dziękujemy,"
 #: apps/publisher/templates/publisher/email/course/send_for_review.html
 #: apps/publisher/templates/publisher/email/course/seo_review.html
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.html
 #: apps/publisher/templates/publisher/email/course_run/preview_accepted.html
 #: apps/publisher/templates/publisher/email/course_run/published.html
 #: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.html
@@ -2811,6 +2831,7 @@ msgstr "<p>Uwaga: Ten adres e-mail służy wyłącznie do wysyłki automatycznyc
 #: apps/publisher/templates/publisher/email/course/send_for_review.txt
 #: apps/publisher/templates/publisher/email/course/seo_review.txt
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.txt
 #: apps/publisher/templates/publisher/email/course_run/preview_accepted.txt
 #: apps/publisher/templates/publisher/email/course_run/preview_available.txt
 #: apps/publisher/templates/publisher/email/course_run/published.txt
@@ -2880,6 +2901,7 @@ msgid ""
 msgstr "%(course_team_name)s utworzył/a w Publisherze nową edycję kursu %(course_run)s : %(dashboard_url)s %(course_title)s dn. %(date)s o %(time)s."
 
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.html
 #, python-format
 msgid ""
 "%(sender_team)s has reviewed the "
@@ -2897,12 +2919,15 @@ msgstr "Proszę stworzyć podgląd karty kursu dla tej edycji kursu i wprowadzi�
 
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.html
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.txt
 msgid ""
 "Additionally, please check the comments in Publisher for information about "
 "OFAC blocking."
 msgstr "Proszę również zwrócić uwagę na komentarze w Publisherze dotyczące OFAC."
 
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.txt
 #, python-format
 msgid ""
 "The %(sender_team)s has reviewed the %(run_number)s %(page_url)s course run "
@@ -3194,6 +3219,13 @@ msgid ""
 "The image you uploaded is of incorrect resolution. Course image files must "
 "be %(with)s x %(height)s pixels in size."
 msgstr "Przesłany przez ciebie obrazek posiada nieprawidłową rozdzielczość. Wymiary obrazka muszą wynosić %(with)s x %(height)s pikseli."
+
+#: apps/publisher/validators.py
+#, python-format
+msgid ""
+"The image you uploaded is of incorrect resolution. Course image files must "
+"be in one of the following sizes in pixels: %(sizes)s"
+msgstr "Wgrany przez ciebie plik graficzny posiada nieprawidłową rozdzielczość. Grafiki kursu mogą mieć jedną z następujących rozdzielczości w pikselach: %(sizes)s"
 
 #: apps/publisher/validators.py
 #, python-brace-format
