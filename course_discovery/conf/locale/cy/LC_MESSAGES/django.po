@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-30 13:11+0000\n"
-"PO-Revision-Date: 2017-12-06 20:13+0000\n"
+"POT-Creation-Date: 2017-12-13 16:39+0000\n"
+"PO-Revision-Date: 2017-12-14 20:34+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Welsh (http://www.transifex.com/open-edx/edx-platform/language/cy/)\n"
 "MIME-Version: 1.0\n"
@@ -471,6 +471,13 @@ msgid "Image used for discovery cards"
 msgstr ""
 
 #: apps/course_metadata/models.py
+msgid ""
+"This field can be used by API clients to determine the order in which "
+"instructors will be displayed on program pages. Instructors in this list "
+"should appear before all others associated with this programs courses runs."
+msgstr ""
+
+#: apps/course_metadata/models.py
 msgid "The description of credit redemption for courses in program"
 msgstr ""
 
@@ -830,6 +837,14 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Invalid course key."
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Owner role can not be publisher if the state is draft or review"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Create initial run for the course"
 msgstr ""
 
 #: apps/publisher/models.py
@@ -1774,7 +1789,7 @@ msgid "Course Image Guidelines:"
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
-msgid "The image size must be 2120 x 1192 pixels."
+msgid "The image size must be of size 1134 X 675 pixels."
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
@@ -2729,6 +2744,8 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/course/seo_review.txt
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.html
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.txt
 #: apps/publisher/templates/publisher/email/course_run/preview_available.html
 #: apps/publisher/templates/publisher/email/course_run/preview_available.txt
 #: apps/publisher/templates/publisher/email/course_run/published.txt
@@ -2775,6 +2792,8 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/course_created.txt
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.html
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.txt
 #: apps/publisher/templates/publisher/email/course_run/preview_accepted.html
 #: apps/publisher/templates/publisher/email/course_run/preview_accepted.txt
 #: apps/publisher/templates/publisher/email/course_run/preview_available.html
@@ -2794,6 +2813,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/course/send_for_review.html
 #: apps/publisher/templates/publisher/email/course/seo_review.html
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.html
 #: apps/publisher/templates/publisher/email/course_run/preview_accepted.html
 #: apps/publisher/templates/publisher/email/course_run/published.html
 #: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.html
@@ -2809,6 +2829,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/course/send_for_review.txt
 #: apps/publisher/templates/publisher/email/course/seo_review.txt
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.txt
 #: apps/publisher/templates/publisher/email/course_run/preview_accepted.txt
 #: apps/publisher/templates/publisher/email/course_run/preview_available.txt
 #: apps/publisher/templates/publisher/email/course_run/published.txt
@@ -2878,6 +2899,7 @@ msgid ""
 msgstr ""
 
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.html
 #, python-format
 msgid ""
 "%(sender_team)s has reviewed the "
@@ -2895,12 +2917,15 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.html
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.txt
 msgid ""
 "Additionally, please check the comments in Publisher for information about "
 "OFAC blocking."
 msgstr ""
 
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.txt
 #, python-format
 msgid ""
 "The %(sender_team)s has reviewed the %(run_number)s %(page_url)s course run "
@@ -3191,6 +3216,13 @@ msgstr ""
 msgid ""
 "The image you uploaded is of incorrect resolution. Course image files must "
 "be %(with)s x %(height)s pixels in size."
+msgstr ""
+
+#: apps/publisher/validators.py
+#, python-format
+msgid ""
+"The image you uploaded is of incorrect resolution. Course image files must "
+"be in one of the following sizes in pixels: %(sizes)s"
 msgstr ""
 
 #: apps/publisher/validators.py
