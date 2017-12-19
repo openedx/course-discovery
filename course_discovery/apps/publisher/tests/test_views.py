@@ -152,9 +152,9 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         Verify that a new course with an invalid image shows the proper error.
         """
         image_error = [
-            'The image you uploaded is of incorrect resolution. ' +
-            'Course image files must be in one of the following sizes in pixels: ' +
-            '(2120 X 1192), (1134 X 675), (378 X 225)',
+            'Invalid image size. The recommended image size is 1134 X 675 pixels. ' +
+            'Older courses also support image sizes of ' +
+            '2120 X 1192 px or 378 X 225 px.',
         ]
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         self._assert_records(1)

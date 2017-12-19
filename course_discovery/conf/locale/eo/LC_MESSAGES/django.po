@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-13 16:37+0000\n"
+"POT-Creation-Date: 2017-12-20 20:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -393,10 +393,8 @@ msgid "People"
 msgstr "Péöplé Ⱡ'σяєм ιρѕυ#"
 
 #: apps/course_metadata/models.py
-msgid "Please provide a course preview image"
-msgstr ""
-"Pléäsé prövïdé ä çöürsé prévïéw ïmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυ#"
+msgid "Add the course image"
+msgstr "Àdd thé çöürsé ïmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: apps/course_metadata/models.py
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
@@ -2115,10 +2113,14 @@ msgid "Course Image Guidelines:"
 msgstr "Çöürsé Ìmägé Güïdélïnés: Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
-msgid "The image size must be of size 1134 X 675 pixels."
+msgid "New course images must be 1134 X 675 pixels in size. "
 msgstr ""
-"Thé ïmägé sïzé müst ßé öf sïzé 1134 X 675 pïxéls. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
-"αмєт, ¢σηѕє¢тєтυя α#"
+"Néw çöürsé ïmägés müst ßé 1134 X 675 pïxéls ïn sïzé.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
+" αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Learn more."
+msgstr "Léärn möré. Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Each course in a sequence must have a unique image."
@@ -3910,11 +3912,12 @@ msgstr ""
 #: apps/publisher/validators.py
 #, python-format
 msgid ""
-"The image you uploaded is of incorrect resolution. Course image files must "
-"be in one of the following sizes in pixels: %(sizes)s"
+"Invalid image size. The recommended image size is %(preferred)s. Older "
+"courses also support image sizes of %(supported)s."
 msgstr ""
-"Thé ïmägé ýöü üplöädéd ïs öf ïnçörréçt résölütïön. Çöürsé ïmägé fïlés müst "
-"ßé ïn öné öf thé föllöwïng sïzés ïn pïxéls: %(sizes)s Ⱡ'σяєм ιρѕ#"
+"Ìnvälïd ïmägé sïzé. Thé réçömméndéd ïmägé sïzé ïs %(preferred)s. Öldér "
+"çöürsés älsö süppört ïmägé sïzés öf %(supported)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмє#"
 
 #: apps/publisher/validators.py
 #, python-brace-format
