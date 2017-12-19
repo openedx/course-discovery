@@ -77,7 +77,7 @@ class Course(TimeStampedModel, ChangedByMixin):
         ),
         blank=True,
         null=True,
-        validators=[ImageMultiSizeValidator([(2120, 1192), (1134, 675), (378, 225)])]
+        validators=[ImageMultiSizeValidator([(2120, 1192), (378, 225)], preferred_size=(1134, 675))]
     )
 
     is_seo_review = models.BooleanField(default=False)

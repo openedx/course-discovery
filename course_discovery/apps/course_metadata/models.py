@@ -354,7 +354,7 @@ class Course(TimeStampedModel):
             'original': (2120, 1192),
             'small': (318, 178)
         },
-        help_text=_('Please provide a course preview image')
+        help_text=_('Add the course image')
     )
     slug = AutoSlugField(populate_from='key', editable=True)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)

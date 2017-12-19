@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-13 16:39+0000\n"
+"POT-Creation-Date: 2017-12-20 20:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -326,7 +326,7 @@ msgid "People"
 msgstr ""
 
 #: apps/course_metadata/models.py
-msgid "Please provide a course preview image"
+msgid "Add the course image"
 msgstr ""
 
 #: apps/course_metadata/models.py
@@ -1788,7 +1788,11 @@ msgid "Course Image Guidelines:"
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
-msgid "The image size must be of size 1134 X 675 pixels."
+msgid "New course images must be 1134 X 675 pixels in size. "
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Learn more."
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
@@ -3220,8 +3224,8 @@ msgstr ""
 #: apps/publisher/validators.py
 #, python-format
 msgid ""
-"The image you uploaded is of incorrect resolution. Course image files must "
-"be in one of the following sizes in pixels: %(sizes)s"
+"Invalid image size. The recommended image size is %(preferred)s. Older "
+"courses also support image sizes of %(supported)s."
 msgstr ""
 
 #: apps/publisher/validators.py

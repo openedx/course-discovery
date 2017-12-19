@@ -25,29 +25,35 @@ class ImageMultiSizeValidator(ImageSizeValidator):
     ImageField Size validator that takes in a list of sizes to validate
     Will pass validation if the image is of one of the specified size
     """
-    def __init__(self, limit_sizes):  # pylint: disable=super-init-not-called
-        self.limit_value = limit_sizes
+    def __init__(self, supported_sizes, **kwargs):  # pylint: disable=super-init-not-called
+        self.supported_sizes = supported_sizes
+        self.preferred_size = kwargs.get('preferred_size')
+        if not self.preferred_size:
+            self.preferred_size = self.supported_sizes.pop()
 
     def __call__(self, value):
         cleaned = self.clean(value)
         validated = False
-        for limit_size in self.limit_value:
+        limit_sizes = [self.preferred_size]
+        limit_sizes.extend(self.supported_sizes)
+        for limit_size in limit_sizes:
             if not self.compare(cleaned, limit_size):
                 validated = True
         if not validated:
-            size_message_array = []
-            for limit_size in self.limit_value:
-                size_message_array.append(
-                    '({} X {})'.format(limit_size[0], limit_size[1])
+            supported_sizes_message_array = []
+            for size in self.supported_sizes:
+                supported_sizes_message_array.append(
+                    '{} X {} px'.format(size[0], size[1])
                 )
             params = {
-                'sizes': ', '.join(size_message_array)
+                'preferred': '{} X {} pixels'.format(self.preferred_size[0], self.preferred_size[1]),
+                'supported': ' or '.join(supported_sizes_message_array)
             }
             raise ValidationError(self.message, code=self.code, params=params)
 
     message = _(
-        'The image you uploaded is of incorrect resolution. '
-        'Course image files must be in one of the following sizes in pixels: %(sizes)s'
+        'Invalid image size. The recommended image size is %(preferred)s. '
+        'Older courses also support image sizes of %(supported)s.'
     )
 
 

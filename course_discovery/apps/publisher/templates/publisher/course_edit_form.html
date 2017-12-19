@@ -340,7 +340,12 @@
                                         <br/>
                                         <strong>{% trans "Course Image Guidelines:" %}</strong>
                                         <ul>
-                                            <li>{% trans "The image size must be of size 1134 X 675 pixels." %}</li>
+                                            <li>
+                                                {% trans "New course images must be 1134 X 675 pixels in size. " %}
+                                                <a href='http://edx.readthedocs.io/projects/edx-partner-course-staff/en/latest/set_up_course/planning_course_information/image_guidelines.html#course-image-size'>
+                                                    {% trans "Learn more." %}
+                                                </a>
+                                            </li>
                                             <li>{% trans "Each course in a sequence must have a unique image." %}</li>
                                             <li>{% trans "The image cannot include text or headlines." %}</li>
                                             <li>{% trans "You must have permission to use the image. Possible image sources include Flickr creative commons, Stock Vault, Stock XCHNG, and iStock Photo." %}</li>
