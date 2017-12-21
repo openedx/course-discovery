@@ -26,21 +26,26 @@ from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
-from course_discovery.apps.course_metadata.tests.factories import (CourseFactory, OrganizationFactory, PersonFactory,
-                                                                   SubjectFactory)
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseFactory, OrganizationFactory, PersonFactory, SubjectFactory
+)
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.choices import (CourseRunStateChoices, CourseStateChoices, InternalUserRole,
-                                                     PublisherUserRole)
-from course_discovery.apps.publisher.constants import (ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME,
-                                                       PROJECT_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME)
-from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState,
-                                                    OrganizationExtension, Seat)
+from course_discovery.apps.publisher.choices import (
+    CourseRunStateChoices, CourseStateChoices, InternalUserRole, PublisherUserRole
+)
+from course_discovery.apps.publisher.constants import (
+    ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME
+)
+from course_discovery.apps.publisher.models import (
+    Course, CourseRun, CourseRunState, CourseState, OrganizationExtension, Seat
+)
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
 from course_discovery.apps.publisher.views import logger as publisher_views_logger
-from course_discovery.apps.publisher.views import (COURSES_ALLOWED_PAGE_SIZES, CourseRunDetailView,
-                                                   get_course_role_widgets_data)
+from course_discovery.apps.publisher.views import (
+    COURSE_ROLES, COURSES_ALLOWED_PAGE_SIZES, CourseRunDetailView, get_course_role_widgets_data
+)
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 from course_discovery.apps.publisher_comments.models import CommentTypeChoices
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
@@ -535,18 +540,27 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
 
     def test_cannot_create_course_run_without_roles(self):
         """
-        Verify that user can create a new course run with credit seat.
+        Verify that user can not create a new course run if the course user roles are not complete.
         """
         organization_extension = factories.OrganizationExtensionFactory()
         course = factories.CourseFactory(organizations=[organization_extension.organization])
         self.user.groups.add(organization_extension.group)
-
-        response = self.client.post(
-            reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': course.id}),
-            {}
-        )
-
-        self.assertContains(response, 'Your organization does not have default roles', status_code=400)
+        create_course_run_url = reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': course.id})
+        course_user_roles = course.course_user_roles.filter(role__in=COURSE_ROLES)
+        with LogCapture(publisher_views_logger.name) as log_capture:
+            response = self.client.post(create_course_run_url, {})
+            self.assertContains(response, 'Your organization does not have default roles', status_code=400)
+            log_capture.check(
+                (
+                    publisher_views_logger.name,
+                    'ERROR',
+                    'Course [{}] is missing default course roles. Current roles [{}], required roles [{}]'.format(
+                        course.id,
+                        course_user_roles.count(),
+                        len(COURSE_ROLES)
+                    )
+                )
+            )
 
 
 @ddt.ddt
