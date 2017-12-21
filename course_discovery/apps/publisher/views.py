@@ -596,10 +596,9 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
 
         run_form = self.run_form(request.POST)
         seat_form = self.seat_form(request.POST)
+        course_user_roles = parent_course.course_user_roles.filter(role__in=COURSE_ROLES)
 
-        if parent_course.course_user_roles.filter(role__in=COURSE_ROLES).count() == len(COURSE_ROLES) or \
-                waffle.switch_is_active('disable_publisher_permissions'):
-
+        if course_user_roles.count() == len(COURSE_ROLES) or waffle.switch_is_active('disable_publisher_permissions'):
             if run_form.is_valid() and seat_form.is_valid():
                 try:
                     with transaction.atomic():
@@ -628,6 +627,12 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
                     request, _('The page could not be updated. Make sure that all values are correct, then try again.')
                 )
         else:
+            logger.error(
+                'Course [%s] is missing default course roles. Current roles [%s], required roles [%s]',
+                parent_course.id,
+                course_user_roles.count(),
+                len(COURSE_ROLES),
+            )
             messages.error(
                 request,
                 _(
