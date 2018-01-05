@@ -476,15 +476,22 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
 
         # Add warning popup information if user can edit the course but does not own it.
         if context['can_edit'] and not waffle.switch_is_active('disable_publisher_permissions'):
-            current_owner_role = course.course_user_roles.get(role=course.course_state.owner_role)
+            current_owner_role = None
+            current_owner_user = None
+
+            current_owner = course.course_user_roles.filter(role=course.course_state.owner_role).first()
+            if current_owner:
+                current_owner_role = current_owner.role
+                current_owner_user = current_owner.user
+
             user_role = course.get_user_role(user=user)
-            if user_role != current_owner_role.role:
+            if user_role != current_owner_role:
                 context['add_warning_popup'] = True
                 context['current_team_name'] = (_('course')
-                                                if current_owner_role.role == PublisherUserRole.CourseTeam
+                                                if current_owner_role == PublisherUserRole.CourseTeam
                                                 else _('marketing'))
                 context['team_name'] = (_('course')
-                                        if current_owner_role.role == PublisherUserRole.MarketingReviewer
+                                        if current_owner_role == PublisherUserRole.MarketingReviewer
                                         else _('marketing'))
 
             history_list = self.object.history.all().order_by('history_id')
@@ -499,8 +506,8 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
 
                     if history_list.latest().history_id > logged_in_user_history.history_id:
                         context['accept_all_button'] = (
-                            current_owner_role.role == PublisherUserRole.CourseTeam and
-                            current_owner_role.user == self.request.user
+                            current_owner_role == PublisherUserRole.CourseTeam and
+                            current_owner_user == self.request.user
                         )
 
         return context
