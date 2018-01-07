@@ -3,7 +3,7 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-# Ahmed Essam ElDin <ahmed3oss46@gmail.com>, 2016
+# Ahmed Gad <ahmed3oss46@gmail.com>, 2016
 # AR C2 <e2f458fd4s512@outlook.com>, 2016
 # e2f_ar r3 <e2f_ar_r3@outlook.com>, 2017
 # e2f_ar t3 <e2f_ar_t3@outlook.com>, 2016
@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-30 13:11+0000\n"
+"POT-Creation-Date: 2017-12-20 20:28+0000\n"
 "PO-Revision-Date: 2017-11-02 21:35+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Arabic (http://www.transifex.com/open-edx/edx-platform/language/ar/)\n"
