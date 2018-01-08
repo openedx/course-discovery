@@ -177,7 +177,7 @@ class TestSearchBoosting:
     six_months = relativedelta(months=6)
     one_week = relativedelta(days=7)
     two_weeks = relativedelta(days=14)
-    one_year = relativedelta(year=1)
+    one_year = relativedelta(years=1)
     thirteen_months = relativedelta(months=13)
 
     @pytest.mark.parametrize(
