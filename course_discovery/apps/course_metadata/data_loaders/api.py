@@ -252,6 +252,13 @@ class CoursesApiDataLoader(AbstractDataLoader):
 class EcommerceApiDataLoader(AbstractDataLoader):
     """ Loads course seats and entitlements from the E-Commerce API. """
 
+    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None,
+                 is_threadsafe=False, **kwargs):
+        super(EcommerceApiDataLoader, self).__init__(
+            partner, api_url, access_token, token_type, max_workers, is_threadsafe, **kwargs
+        )
+        self.entitlement_skus = []
+
     def ingest(self):
         logger.info('Refreshing course seats from %s...', self.partner.ecommerce_api_url)
 
@@ -260,6 +267,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         entitlements = self._request_entitlments(initial_page)
         count = course_runs['count'] + entitlements['count']
         pages = math.ceil(count / self.PAGE_SIZE)
+        self.entitlement_skus = []
         self._process_course_runs(course_runs)
         self._process_entitlements(entitlements)
 
@@ -281,6 +289,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
                     entitlements['count'], self.partner.ecommerce_api_url)
 
         self.delete_orphans()
+        self._delete_entitlements()
 
     def _load_data(self, page):  # pragma: no cover
         """Make a request for the given page and process the response."""
@@ -307,11 +316,15 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         results = response['results']
         logger.info('Retrieved %d course entitlements...', len(results))
 
-        skus = []
         for body in results:
             body = self.clean_strings(body)
-            skus.append(self.update_entitlement(body))
-        entitlements_to_delete = CourseEntitlement.objects.filter(partner=self.partner).exclude(sku__in=skus)
+            self.entitlement_skus.append(self.update_entitlement(body))
+
+    def _delete_entitlements(self):
+        entitlements_to_delete = CourseEntitlement.objects.filter(
+            partner=self.partner
+        ).exclude(sku__in=self.entitlement_skus)
+
         for entitlement in entitlements_to_delete:
             msg = 'Deleting entitlement with sku {sku} for partner {partner}'.format(
                 sku=entitlement.sku, partner=entitlement.partner
