@@ -351,8 +351,8 @@ class Course(TimeStampedModel):
         blank=True,
         null=True,
         variations={
-            'original': (2120, 1192),
-            'small': (318, 178)
+            'original': (1134, 675),
+            'small': (378, 225)
         },
         help_text=_('Add the course image')
     )
