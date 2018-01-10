@@ -17,6 +17,6 @@ def make_image_stream(width, height):
     return bio
 
 
-def make_image_file(name, width=2120, height=1192):
+def make_image_file(name, width=1134, height=675):
     image_stream = make_image_stream(width, height)
     return SimpleUploadedFile(name, image_stream.getvalue(), content_type='image/jpeg')
