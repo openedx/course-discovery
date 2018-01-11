@@ -17,8 +17,8 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.mixins import LanguageModelSelect2Multiple, get_user_organizations
 from course_discovery.apps.publisher.models import (
-    Course, CourseRun, CourseRunState, CourseUserRole, OrganizationExtension, OrganizationUserRole, PublisherUser,
-    Seat, User
+    Course, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension, OrganizationUserRole,
+    PublisherUser, Seat, User
 )
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY, is_internal_user
 from course_discovery.apps.publisher.validators import validate_text_count
@@ -543,6 +543,22 @@ class CourseRunStateAdminForm(forms.ModelForm):
         if owner_role == PublisherUserRole.Publisher and course_run_state in (CourseRunStateChoices.Draft,
                                                                               CourseRunStateChoices.Review):
             raise forms.ValidationError(_('Owner role can not be publisher if the state is draft or review'))
+        return cleaned_data
+
+
+class CourseStateAdminForm(forms.ModelForm):
+    class Meta:
+        model = CourseState
+        fields = '__all__'
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        owner_role = cleaned_data.get('owner_role')
+        course = cleaned_data.get('course')
+        if not CourseUserRole.objects.filter(course=course, role=owner_role):
+            raise forms.ValidationError(
+                _('Please create {} course user role before assigning it owner role'.format(owner_role))
+            )
         return cleaned_data
 
 

@@ -12,10 +12,12 @@ from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.forms import (
-    CourseForm, CourseRunForm, CourseRunStateAdminForm, PublisherUserCreationForm, SeatForm
+    CourseForm, CourseRunForm, CourseRunStateAdminForm, CourseStateAdminForm, PublisherUserCreationForm, SeatForm
 )
 from course_discovery.apps.publisher.models import Seat
-from course_discovery.apps.publisher.tests.factories import CourseFactory, OrganizationExtensionFactory, SeatFactory
+from course_discovery.apps.publisher.tests.factories import (
+    CourseFactory, CourseUserRoleFactory, OrganizationExtensionFactory, SeatFactory
+)
 
 
 class UserModelChoiceFieldTests(TestCase):
@@ -97,6 +99,37 @@ class CourseRunStateAdminFormTests(TestCase):
             'owner_role': PublisherUserRole.Publisher
         }
         self.assertEqual(run_state_form.clean(), run_state_form.cleaned_data)
+
+
+class CourseStateAdminFormTests(TestCase):
+    """
+    Tests for the publisher "CourseStateAdminForm".
+    """
+
+    def test_clean_with_invalid_owner_role(self):
+        """
+        Test that 'clean' raises 'ValidationError' if the user role that has been assigned owner does not exist
+        """
+        course_state_form = CourseStateAdminForm()
+        course_state_form.cleaned_data = {
+            'owner_role': PublisherUserRole.CourseTeam
+        }
+        with self.assertRaises(ValidationError):
+            course_state_form.clean()
+
+    def test_clean_with_valid_owner_role(self):
+        """
+        Test that 'clean' does not raise 'ValidationError' if the user role that has been assigned owner does exist
+        """
+        course = CourseFactory()
+        user = UserFactory()
+        CourseUserRoleFactory(course=course, user=user, role=PublisherUserRole.CourseTeam)
+        course_state_form = CourseStateAdminForm()
+        course_state_form.cleaned_data = {
+            'owner_role': PublisherUserRole.CourseTeam,
+            'course': course
+        }
+        self.assertEqual(course_state_form.clean(), course_state_form.cleaned_data)
 
 
 class PublisherCourseRunEditFormTests(TestCase):

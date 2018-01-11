@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-20 20:28+0000\n"
+"POT-Creation-Date: 2018-01-12 11:58+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1012,6 +1012,12 @@ msgid "Owner role can not be publisher if the state is draft or review"
 msgstr ""
 "Öwnér rölé çän nöt ßé püßlïshér ïf thé stäté ïs dräft ör révïéw Ⱡ'σяєм ιρѕυм"
 " ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/publisher/forms.py
+msgid "Please create {} course user role before assigning it owner role"
+msgstr ""
+"Pléäsé çréäté {} çöürsé üsér rölé ßéföré ässïgnïng ït öwnér rölé Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/forms.py
 msgid "Create initial run for the course"
