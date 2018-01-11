@@ -10,7 +10,7 @@ from course_discovery.apps.publisher.constants import (INTERNAL_USER_GROUP_NAME,
                                                        PROJECT_COORDINATOR_GROUP_NAME, PUBLISHER_GROUP_NAME,
                                                        REVIEWER_GROUP_NAME)
 from course_discovery.apps.publisher.forms import (
-    CourseRunAdminForm, CourseRunStateAdminForm, OrganizationExtensionForm,
+    CourseRunAdminForm, CourseRunStateAdminForm, CourseStateAdminForm, OrganizationExtensionForm,
     PublisherUserCreationForm, UserAttributesAdminForm
 )
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
@@ -73,6 +73,7 @@ class OrganizationUserRoleAdmin(SimpleHistoryAdmin):
 
 @admin.register(CourseState)
 class CourseStateAdmin(SimpleHistoryAdmin):
+    form = CourseStateAdminForm
     raw_id_fields = ('changed_by',)
     list_display = ['id', 'name', 'approved_by_role', 'owner_role', 'course', 'marketing_reviewed']
     search_fields = ['id', 'course__title']
