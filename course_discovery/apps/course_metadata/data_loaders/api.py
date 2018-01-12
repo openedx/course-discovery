@@ -383,19 +383,39 @@ class EcommerceApiDataLoader(AbstractDataLoader):
                                           defaults=defaults)
 
     def update_entitlement(self, body):
+        """
+        Argument:
+            body (dict): entitlement product data from ecommerce
+        Returns:
+            entitlement product sku if no exceptions, else None
+        """
         attributes = {attribute['name']: attribute['value'] for attribute in body['attribute_values']}
         course_uuid = attributes.get('UUID')
+        title = body['title']
 
-        stock_record = body['stockrecords'][0]
-        currency_code = stock_record['price_currency']
-        price = Decimal(stock_record['price_excl_tax'])
-        sku = stock_record['partner_sku']
+        if body['stockrecords']:
+            stock_record = body['stockrecords'][0]
+        else:
+            msg = 'Entitlement product {entitlement} has no stockrecords'.format(entitlement=title)
+            logger.warning(msg)
+            return None
+
+        try:
+            currency_code = stock_record['price_currency']
+            price = Decimal(stock_record['price_excl_tax'])
+            sku = stock_record['partner_sku']
+        except (KeyError, ValueError):
+            msg = 'A necessary stockrecord field is missing or incorrectly set for entitlement {entitlement}'.format(
+                entitlement=title
+            )
+            logger.warning(msg)
+            return None
 
         try:
             course = Course.objects.get(uuid=course_uuid)
         except Course.DoesNotExist:
             msg = 'Could not find course {uuid} while loading entitlement {entitlement} with sku {sku}'.format(
-                uuid=course_uuid, entitlement=body['title'], sku=sku
+                uuid=course_uuid, entitlement=title, sku=sku
             )
             logger.warning(msg)
             return None
@@ -404,7 +424,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             currency = Currency.objects.get(code=currency_code)
         except Currency.DoesNotExist:
             msg = 'Could not find currency {code} while loading entitlement {entitlement} with sku {sku}'.format(
-                code=currency_code, entitlement=body['title'], sku=sku
+                code=currency_code, entitlement=title, sku=sku
             )
             logger.warning(msg)
             return None
@@ -414,7 +434,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             mode = SeatType.objects.get(slug=mode_name)
         except SeatType.DoesNotExist:
             msg = 'Could not find mode {mode} while loading entitlement {entitlement} with sku {sku}'.format(
-                mode=mode_name, entitlement=body['title'], sku=sku
+                mode=mode_name, entitlement=title, sku=sku
             )
             logger.warning(msg)
             return None
@@ -427,7 +447,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             'expires': self.parse_date(body['expires'])
         }
         msg = 'Creating entitlement {entitlement} with sku {sku} for partner {partner}'.format(
-            entitlement=body['title'], sku=sku, partner=self.partner
+            entitlement=title, sku=sku, partner=self.partner
         )
         logger.info(msg)
         course.entitlements.update_or_create(mode=mode, defaults=defaults)

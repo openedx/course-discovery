@@ -364,7 +364,8 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
         )
         return bodies
 
-    def mock_products_api(self, alt_course=None, alt_currency=None, alt_mode=None):
+    def mock_products_api(self, alt_course=None, alt_currency=None, alt_mode=None, has_stockrecord=True,
+                          valid_stockrecord=True):
         """ Return a new Course Entitlement to be added by ingest """
         course = CourseFactory()
 
@@ -386,15 +387,18 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
                     }
                 ],
                 "is_available_to_buy": True,
-                "stockrecords": [
-                    {
-                        "partner_sku": "sku132",
-                        "price_currency": alt_currency if alt_currency else "USD",
-                        "price_excl_tax": "10.00",
-                    }
-                ]
+                "stockrecords": []
             }
         ]
+        stockrecord = {
+            "price_currency": alt_currency if alt_currency else "USD",
+            "price_excl_tax": "10.00",
+        }
+        if valid_stockrecord:
+            stockrecord.update({"partner_sku": "sku132"})
+        if has_stockrecord:
+            bodies[0]["stockrecords"].append(stockrecord)
+
         url = '{url}products/'.format(url=self.api_url)
         responses.add_callback(
             responses.GET,
@@ -523,6 +527,26 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
             sku=entitlement.sku, partner=entitlement.partner
         )
         mock_logger.info.assert_any_call(msg)
+
+    @responses.activate
+    @mock.patch(LOGGER_PATH)
+    def test_no_stockrecord(self, mock_logger):
+        self.mock_courses_api()
+        products = self.mock_products_api(has_stockrecord=False)
+        self.loader.ingest()
+        msg = 'Entitlement product {entitlement} has no stockrecords'.format(entitlement=products[0]['title'])
+        mock_logger.warning.assert_called_with(msg)
+
+    @responses.activate
+    @mock.patch(LOGGER_PATH)
+    def test_invalid_stockrecord(self, mock_logger):
+        self.mock_courses_api()
+        products = self.mock_products_api(valid_stockrecord=False)
+        self.loader.ingest()
+        msg = 'A necessary stockrecord field is missing or incorrectly set for entitlement {entitlement}'.format(
+            entitlement=products[0]['title']
+        )
+        mock_logger.warning.assert_called_with(msg)
 
     @responses.activate
     @ddt.data(
