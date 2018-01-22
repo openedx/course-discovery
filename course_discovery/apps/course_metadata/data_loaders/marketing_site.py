@@ -274,6 +274,16 @@ class PersonMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         # NOTE (CCB): The AutoSlug field kicks in at creation time. We need to apply overrides in a separate
         # operation.
         if created:
+            person_given_name = data['field_person_first_middle_name']
+            person_family_name = data['field_person_last_name']
+
+            logger.info(
+                u'Person created in marketing data loader, %s %s with uuid: %s and slug: %s',
+                person_family_name,
+                person_given_name,
+                uuid,
+                slug
+            )
             person.slug = slug
             person.save()
 
