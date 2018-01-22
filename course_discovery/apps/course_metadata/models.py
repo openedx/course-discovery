@@ -285,6 +285,10 @@ class Person(TimeStampedModel):
     def __str__(self):
         return self.full_name
 
+    def save(self, *args, **kwargs):
+        logger.info('Person saved UUID: %s', self.uuid, exc_info=True)
+        super(Person, self).save(*args, **kwargs)
+
     @property
     def full_name(self):
         if self.family_name:
