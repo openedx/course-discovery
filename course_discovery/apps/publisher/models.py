@@ -31,7 +31,34 @@ from course_discovery.apps.publisher.validators import ImageMultiSizeValidator
 
 logger = logging.getLogger(__name__)
 
-PAID_SEATS = ['verified', 'professional']
+
+class CourseMode:
+    HONOR = 'honor'
+    AUDIT = 'audit'
+    VERIFIED = 'verified'
+    PROFESSIONAL = 'professional'
+    NO_ID_PROFESSIONAL = 'no-id-professional'
+    CREDIT = 'credit'
+
+    FREE_MODES = frozenset([HONOR, AUDIT])
+    PAID_MODES = frozenset([VERIFIED, PROFESSIONAL, NO_ID_PROFESSIONAL, CREDIT])
+
+
+SEAT_TYPE_CHOICES = (
+    (CourseMode.HONOR, _('Honor')),
+    (CourseMode.AUDIT, _('Audit')),
+    (CourseMode.VERIFIED, _('Verified')),
+    (CourseMode.PROFESSIONAL, _('Professional (with ID verification)')),
+    (CourseMode.NO_ID_PROFESSIONAL, _('Professional (no ID verification)')),
+    (CourseMode.CREDIT, _('Credit')),
+)
+
+PRICE_FIELD_CONFIG = {
+    'decimal_places': 2,
+    'max_digits': 10,
+    'null': False,
+    'default': 0.00,
+}
 
 
 class ChangedByMixin(models.Model):
@@ -90,6 +117,9 @@ class Course(TimeStampedModel, ChangedByMixin):
 
     history = HistoricalRecords()
 
+    type = models.CharField(max_length=63, choices=SEAT_TYPE_CHOICES, verbose_name=_('Course type'))
+    price = models.DecimalField(**PRICE_FIELD_CONFIG)
+
     def __str__(self):
         return self.title
 
@@ -100,6 +130,16 @@ class Course(TimeStampedModel, ChangedByMixin):
     class Meta(TimeStampedModel.Meta):
         permissions = (
             ('view_course', 'Can view course'),
+        )
+
+    @property
+    def is_valid_course(self):
+        """
+        Check that course is valid or not.
+        """
+        return (
+            self.type == CourseMode.AUDIT or
+            (self.type in CourseMode.PAID_MODES and self.price > 0)
         )
 
     def get_course_users_emails(self):
@@ -412,7 +452,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         """
         Validate course-run has a  valid seats.
         """
-        seats = self.seats.filter(type__in=[Seat.AUDIT, Seat.VERIFIED, Seat.PROFESSIONAL, Seat.CREDIT])
+        seats = self.seats.filter(type__in=[CourseMode.AUDIT, CourseMode.VERIFIED, CourseMode.PROFESSIONAL, CourseMode.CREDIT])
         return all([seat.is_valid_seat for seat in seats]) if seats else False
 
     def get_absolute_url(self):
@@ -420,28 +460,6 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
 
 
 class Seat(TimeStampedModel, ChangedByMixin):
-    HONOR = 'honor'
-    AUDIT = 'audit'
-    VERIFIED = 'verified'
-    PROFESSIONAL = 'professional'
-    NO_ID_PROFESSIONAL = 'no-id-professional'
-    CREDIT = 'credit'
-
-    SEAT_TYPE_CHOICES = (
-        (HONOR, _('Honor')),
-        (AUDIT, _('Audit')),
-        (VERIFIED, _('Verified')),
-        (PROFESSIONAL, _('Professional (with ID verification)')),
-        (NO_ID_PROFESSIONAL, _('Professional (no ID verification)')),
-        (CREDIT, _('Credit')),
-    )
-
-    PRICE_FIELD_CONFIG = {
-        'decimal_places': 2,
-        'max_digits': 10,
-        'null': False,
-        'default': 0.00,
-    }
     course_run = models.ForeignKey(CourseRun, related_name='seats')
     type = models.CharField(max_length=63, choices=SEAT_TYPE_CHOICES, verbose_name='Seat type')
     price = models.DecimalField(**PRICE_FIELD_CONFIG)
@@ -462,9 +480,9 @@ class Seat(TimeStampedModel, ChangedByMixin):
         Check that seat is valid or not.
         """
         return (
-            self.type == self.AUDIT or
-            (self.type in [self.VERIFIED, self.PROFESSIONAL] and self.price > 0) or
-            (self.type == self.CREDIT and self.credit_price > 0 and self.price > 0)
+            self.type == CourseMode.AUDIT or
+            (self.type in [CourseMode.VERIFIED, CourseMode.PROFESSIONAL] and self.price > 0) or
+            (self.type == CourseMode.CREDIT and self.credit_price > 0 and self.price > 0)
         )
 
     @property

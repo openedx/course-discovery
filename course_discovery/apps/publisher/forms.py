@@ -17,13 +17,21 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.mixins import LanguageModelSelect2Multiple, get_user_organizations
 from course_discovery.apps.publisher.models import (
-    Course, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension, OrganizationUserRole,
-    PublisherUser, Seat, User
+    Course, CourseMode, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension,
+    OrganizationUserRole, PublisherUser, Seat, User
 )
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY, is_internal_user
 from course_discovery.apps.publisher.validators import validate_text_count
 
 logger = logging.getLogger(__name__)
+
+SEAT_TYPE_CHOICES = [
+    ('', _('Choose enrollment track')),
+    (CourseMode.AUDIT, _('Audit only')),
+    (CourseMode.VERIFIED, _('Verified')),
+    (CourseMode.PROFESSIONAL, _('Professional education')),
+    (CourseMode.CREDIT, _('Credit')),
+]
 
 
 class UserModelChoiceField(forms.ModelChoiceField):
@@ -143,6 +151,9 @@ class CourseForm(BaseForm):
 
     add_new_run = forms.BooleanField(required=False)
 
+    type = forms.ChoiceField(choices=SEAT_TYPE_CHOICES, required=True, label=_('Enrollment Track'))
+    price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
+
     class Meta:
         model = Course
         widgets = {
@@ -153,7 +164,7 @@ class CourseForm(BaseForm):
             'expected_learnings', 'primary_subject', 'secondary_subject',
             'tertiary_subject', 'prerequisites', 'image', 'team_admin',
             'level_type', 'organization', 'is_seo_review', 'syllabus',
-            'learner_testimonial', 'faq', 'video_link',
+            'learner_testimonial', 'faq', 'video_link', 'type', 'price',
         )
 
     def __init__(self, *args, **kwargs):
@@ -174,6 +185,18 @@ class CourseForm(BaseForm):
 
         if user and not is_internal_user(user):
             self.fields['video_link'].widget = forms.HiddenInput()
+
+    def save(self, commit=True):
+        # When course is saved, make sure its prices and other fields are updated accordingly.
+        course = super(CourseForm, self).save(commit=False)
+
+        if course.type in CourseMode.FREE_MODES:
+            course.price = 0.00
+
+        if commit:
+            course.save()
+
+        return course
 
     def clean_title(self):
         """
@@ -197,12 +220,19 @@ class CourseForm(BaseForm):
         organization = cleaned_data.get('organization')
         title = cleaned_data.get('title')
         number = cleaned_data.get('number')
+        course_type = cleaned_data.get('type')
+        price = cleaned_data.get('price')
+
         instance = getattr(self, 'instance', None)
         if not instance.pk:
             if Course.objects.filter(title=title, organizations__in=[organization]).exists():
                 raise ValidationError({'title': _('This course title already exists')})
             if Course.objects.filter(number=number, organizations__in=[organization]).exists():
                 raise ValidationError({'number': _('This course number already exists')})
+
+        if course_type in CourseMode.PAID_MODES and (price is None or price <= 0):
+            self.add_error('price', _('Only audit seat can be without price.'))
+
         return cleaned_data
 
 
@@ -368,15 +398,7 @@ class SeatForm(BaseForm):
 
         self.fields['type'].widget.attrs = {'class': field_classes}
 
-    TYPE_CHOICES = [
-        ('', _('Choose enrollment track')),
-        (Seat.AUDIT, _('Audit only')),
-        (Seat.VERIFIED, _('Verified')),
-        (Seat.PROFESSIONAL, _('Professional education')),
-        (Seat.CREDIT, _('Credit')),
-    ]
-
-    type = forms.ChoiceField(choices=TYPE_CHOICES, required=False, label=_('Enrollment Track'))
+    type = forms.ChoiceField(choices=SEAT_TYPE_CHOICES, required=False, label=_('Enrollment Track'))
     price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
     credit_price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
 
@@ -387,13 +409,13 @@ class SeatForm(BaseForm):
     def save(self, commit=True, course_run=None, changed_by=None):  # pylint: disable=arguments-differ
         # When seat is save make sure its prices and others fields updated accordingly.
         seat = super(SeatForm, self).save(commit=False)
-        if seat.type in [Seat.HONOR, Seat.AUDIT]:
+        if seat.type in CourseMode.FREE_MODES:
             seat.price = 0.00
             seat.upgrade_deadline = None
             self.reset_credit_to_default(seat)
-        if seat.type == Seat.VERIFIED:
+        if seat.type == CourseMode.VERIFIED:
             self.reset_credit_to_default(seat)
-        if seat.type in [Seat.PROFESSIONAL, Seat.NO_ID_PROFESSIONAL]:
+        if seat.type in [CourseMode.PROFESSIONAL, CourseMode.NO_ID_PROFESSIONAL]:
             seat.upgrade_deadline = None
             self.reset_credit_to_default(seat)
 
@@ -408,14 +430,14 @@ class SeatForm(BaseForm):
 
             if waffle.switch_is_active('publisher_create_audit_seats_for_verified_course_runs'):
                 course_run = seat.course_run
-                audit_seats = course_run.seats.filter(type=Seat.AUDIT)
+                audit_seats = course_run.seats.filter(type=CourseMode.AUDIT)
 
                 # Ensure that course runs with a verified seat always have an audit seat
-                if seat.type in (Seat.CREDIT, Seat.VERIFIED,):
+                if seat.type in (CourseMode.CREDIT, CourseMode.VERIFIED,):
                     if not audit_seats.exists():
-                        course_run.seats.create(type=Seat.AUDIT, price=0, upgrade_deadline=None)
+                        course_run.seats.create(type=CourseMode.AUDIT, price=0, upgrade_deadline=None)
                         logger.info('Created audit seat for course run [%d]', course_run.id)
-                elif seat.type != Seat.AUDIT:
+                elif seat.type != CourseMode.AUDIT:
                     # Ensure that professional course runs do NOT have an audit seat
                     count = audit_seats.count()
                     audit_seats.delete()
@@ -428,10 +450,10 @@ class SeatForm(BaseForm):
         credit_price = self.cleaned_data.get('credit_price')
         seat_type = self.cleaned_data.get('type')
 
-        if seat_type in [Seat.PROFESSIONAL, Seat.VERIFIED, Seat.CREDIT] and not price:
+        if seat_type in CourseMode.PAID_MODES and not price:
             self.add_error('price', _('Only audit seat can be without price.'))
 
-        if seat_type == Seat.CREDIT and not credit_price:
+        if seat_type == CourseMode.CREDIT and not credit_price:
             self.add_error('credit_price', _('Only audit seat can be without price.'))
 
         return self.cleaned_data

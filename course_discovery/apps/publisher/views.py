@@ -31,7 +31,7 @@ from course_discovery.apps.publisher.dataloader.create_courses import process_co
 from course_discovery.apps.publisher.emails import send_email_for_published_course_run_editing
 from course_discovery.apps.publisher.forms import (AdminImportCourseForm, CourseForm, CourseRunForm, CourseSearchForm,
                                                    SeatForm)
-from course_discovery.apps.publisher.models import (PAID_SEATS, Course, CourseRun, CourseRunState, CourseState,
+from course_discovery.apps.publisher.models import (Course, CourseMode, CourseRun, CourseRunState, CourseState,
                                                     CourseUserRole, OrganizationExtension, Seat, UserAttributes)
 from course_discovery.apps.publisher.utils import (get_internal_users, has_role_for_course, is_internal_user,
                                                    is_project_coordinator_user, is_publisher_admin, make_bread_crumbs)
@@ -726,7 +726,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
         context['run_form'] = self.run_form(
             instance=course_run, is_project_coordinator=context.get('is_project_coordinator')
         )
-        course_run_paid_seat = course_run.seats.filter(type__in=PAID_SEATS).first()
+        course_run_paid_seat = course_run.seats.filter(type__in=CourseMode.PAID_MODES).first()
         if course_run_paid_seat:
             context['seat_form'] = self.seat_form(instance=course_run_paid_seat)
         else:
