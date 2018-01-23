@@ -13,9 +13,9 @@ from course_discovery.apps.publisher.forms import (
     CourseRunAdminForm, CourseRunStateAdminForm, CourseStateAdminForm, OrganizationExtensionForm,
     PublisherUserCreationForm, UserAttributesAdminForm
 )
-from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
-                                                    OrganizationExtension, OrganizationUserRole, PublisherUser, Seat,
-                                                    UserAttributes)
+from course_discovery.apps.publisher.models import (Course, CourseEntitlement, CourseRun, CourseRunState, CourseState,
+                                                    CourseUserRole, OrganizationExtension, OrganizationUserRole,
+                                                    PublisherUser, Seat, UserAttributes)
 
 
 @admin.register(CourseUserRole)
@@ -114,6 +114,12 @@ class SeatAdmin(SimpleHistoryAdmin):
     raw_id_fields = ('changed_by',)
     list_display = ['course_run', 'type']
     search_fields = ['course_run__course__title', 'type']
+
+
+@admin.register(CourseEntitlement)
+class CourseEntitlementAdmin(SimpleHistoryAdmin):
+    list_display = ['course', 'mode']
+    raw_id_fields = ['course']
 
 
 @admin.register(PublisherUser)

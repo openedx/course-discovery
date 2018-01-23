@@ -644,7 +644,7 @@ class SEOReviewEmailTests(SiteMixin, TestCase):
 
         self.assertEqual(len(mail.outbox), 1)
         legal_team_users = User.objects.filter(groups__name=LEGAL_TEAM_GROUP_NAME)
-        expected_addresses = [user.email for user in legal_team_users]
+        expected_addresses = [user.email for user in legal_team_users]  # pylint: disable=not-an-iterable
         self.assertEqual(expected_addresses, mail.outbox[0].to)
         self.assertEqual(str(mail.outbox[0].subject), expected_subject)
         body = mail.outbox[0].body.strip()

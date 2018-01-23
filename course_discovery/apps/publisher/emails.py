@@ -593,7 +593,7 @@ def send_email_for_seo_review(course, site):
     try:
         legal_team_users = User.objects.filter(groups__name=LEGAL_TEAM_GROUP_NAME)
         project_coordinator = course.project_coordinator
-        to_addresses = [user.email for user in legal_team_users]
+        to_addresses = [user.email for user in legal_team_users]  # pylint: disable=not-an-iterable
         from_address = settings.PUBLISHER_FROM_EMAIL
 
         course_page_path = reverse('publisher:publisher_course_detail', kwargs={'pk': course.id})

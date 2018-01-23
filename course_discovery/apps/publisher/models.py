@@ -44,6 +44,12 @@ class ChangedByMixin(models.Model):
 class Course(TimeStampedModel, ChangedByMixin):
     """ Publisher Course model. It contains fields related to the course intake form."""
 
+    # Versions for code paths in publisher Course and Course Run Create/Edit
+    # Is the original version for courses without Entitlements (No mode/price set at Course level)
+    SEAT_VERSION = 0
+    # Is the version for Courses that have a mode and price set (a CourseEntitlement), where all course runs must match
+    ENTITLEMENT_VERSION = 1
+
     title = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_('Course title'))
     number = models.CharField(max_length=50, null=True, blank=True, verbose_name=_('Course number'))
     short_description = models.TextField(
@@ -84,6 +90,7 @@ class Course(TimeStampedModel, ChangedByMixin):
     keywords = TaggableManager(blank=True, verbose_name='keywords')
     faq = models.TextField(default=None, null=True, blank=True, verbose_name=_('FAQ'))
     video_link = models.URLField(default=None, null=True, blank=True, verbose_name=_('Video Link'))
+    version = models.IntegerField(default=SEAT_VERSION, verbose_name='Workflow Version')
 
     # temp fields for data migrations only.
     course_metadata_pk = models.PositiveIntegerField(null=True, blank=True, verbose_name=_('Course Metadata Course PK'))
@@ -483,6 +490,33 @@ class Seat(TimeStampedModel, ChangedByMixin):
             return deadline
 
         return None
+
+
+class CourseEntitlement(TimeStampedModel):
+    VERIFIED = 'verified'
+    PROFESSIONAL = 'professional'
+
+    COURSE_MODE_CHOICES = (
+        (VERIFIED, _('Verified')),
+        (PROFESSIONAL, _('Professional'))
+    )
+
+    PRICE_FIELD_CONFIG = {
+        'decimal_places': 2,
+        'max_digits': 10,
+        'null': False,
+        'default': 0.00,
+    }
+
+    course = models.ForeignKey(Course, related_name='entitlements')
+    mode = models.CharField(max_length=63, choices=COURSE_MODE_CHOICES, verbose_name='Course mode')
+    price = models.DecimalField(**PRICE_FIELD_CONFIG)
+    currency = models.ForeignKey(Currency, default='USD', related_name='publisher_entitlements')
+
+    class Meta(object):
+        unique_together = (
+            ('course', 'mode')
+        )
 
 
 class UserAttributes(TimeStampedModel):
