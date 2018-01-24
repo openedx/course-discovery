@@ -44,7 +44,7 @@ production-requirements: ## Install Python and JS requirements for production
 
 test: clean ## Run tests and generate coverage report
 	## The node_modules .bin directory is added to ensure we have access to Geckodriver.
-	PATH="$(NODE_BIN):$(PATH)" coverage run -m pytest --durations=25
+	PATH="$(NODE_BIN):$(PATH)" coverage run -m pytest --ds=course_discovery.settings.test --durations=25
 	coverage combine
 	coverage report
 
