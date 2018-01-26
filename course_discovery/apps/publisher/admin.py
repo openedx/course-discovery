@@ -20,6 +20,7 @@ from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRun
 
 @admin.register(CourseUserRole)
 class CourseUserRoleAdmin(SimpleHistoryAdmin):
+    # Comment change
     raw_id_fields = ('changed_by', 'course', 'user',)
     list_display = ['role', 'course', 'user']
     search_fields = ['course__title']
