@@ -340,7 +340,7 @@ class Course(TimeStampedModel):
     full_description = models.TextField(default=None, null=True, blank=True)
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_courses')
     sponsoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='sponsored_courses')
-    subjects = models.ManyToManyField(Subject, blank=True)
+    subjects = SortedManyToManyField(Subject, blank=True)
     prerequisites = models.ManyToManyField(Prerequisite, blank=True)
     level_type = models.ForeignKey(LevelType, default=None, null=True, blank=True)
     expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)

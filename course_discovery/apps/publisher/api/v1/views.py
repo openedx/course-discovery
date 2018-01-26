@@ -1,5 +1,6 @@
 import logging
 
+from collections import OrderedDict
 from edx_rest_api_client.client import EdxRestApiClient
 from edx_rest_framework_extensions.authentication import JwtAuthentication
 from rest_framework import permissions, serializers, status, viewsets
@@ -112,11 +113,12 @@ class CourseRunViewSet(viewsets.GenericViewSet):
         discovery_course.image.save(publisher_course.image.name, publisher_course.image.file)
         discovery_course.authoring_organizations.add(*publisher_course.organizations.all())
 
-        subjects = [subject for subject in set([
+        subjects = [subject for subject in [
             publisher_course.primary_subject,
             publisher_course.secondary_subject,
             publisher_course.tertiary_subject
-        ]) if subject]
+        ] if subject]
+        subjects = list(OrderedDict.fromkeys(subjects))
         discovery_course.subjects.add(*subjects)
 
         defaults = {
