@@ -595,7 +595,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
     def set_subjects(self, course, data):
         subjects = self._get_objects_by_uuid(Subject, data['field_course_subject'])
         course.subjects.clear()
-        course.subjects.add(*subjects)
+        course.subjects.add(*subjects)  # pylint: disable=not-an-iterable
 
     def set_course_run_staff(self, course_run, data):
         staff = self._get_objects_by_uuid(Person, data['field_course_staff'])

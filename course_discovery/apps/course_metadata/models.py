@@ -553,7 +553,7 @@ class CourseRun(TimeStampedModel):
         None if the date is unknown or enrollable paid Seats are not available.
         """
         seats = list(self._enrollable_paid_seats().order_by('-upgrade_deadline'))
-        if len(seats) == 0:
+        if not seats:
             # Enrollable paid seats are not available for this CourseRun.
             return None
 
