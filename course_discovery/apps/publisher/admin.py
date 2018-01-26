@@ -17,6 +17,7 @@ from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRun
                                                     OrganizationExtension, OrganizationUserRole, PublisherUser, Seat,
                                                     UserAttributes)
 
+# Comment change
 
 @admin.register(CourseUserRole)
 class CourseUserRoleAdmin(SimpleHistoryAdmin):
