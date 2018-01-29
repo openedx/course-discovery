@@ -29,8 +29,8 @@ from course_discovery.apps.publisher import emails, mixins, serializers
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.dataloader.create_courses import process_course
 from course_discovery.apps.publisher.emails import send_email_for_published_course_run_editing
-from course_discovery.apps.publisher.forms import (AdminImportCourseForm, CourseForm, CourseRunForm, CourseSearchForm,
-                                                   SeatForm)
+from course_discovery.apps.publisher.forms import (AdminImportCourseForm, CourseEntitlementForm, CourseForm,
+                                                   CourseRunForm, CourseSearchForm, SeatForm)
 from course_discovery.apps.publisher.models import (PAID_SEATS, Course, CourseRun, CourseRunState, CourseState,
                                                     CourseUserRole, OrganizationExtension, Seat, UserAttributes)
 from course_discovery.apps.publisher.utils import (get_internal_users, has_role_for_course, is_internal_user,
@@ -237,6 +237,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
     """ Create Course View."""
     model = Course
     course_form = CourseForm
+    entitlement_form = CourseEntitlementForm
     template_name = 'publisher/add_course_form.html'
     success_url = 'publisher:publisher_course_detail'
 
@@ -249,6 +250,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
     def get_context_data(self):
         return {
             'course_form': self.course_form(user=self.request.user),
+            'entitlement_form': self.entitlement_form(),
             'publisher_hide_features_for_pilot': waffle.switch_is_active('publisher_hide_features_for_pilot'),
             'publisher_add_instructor_feature': waffle.switch_is_active('publisher_add_instructor_feature'),
         }
@@ -268,14 +270,25 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
         course_form = self.course_form(
             request.POST, request.FILES, user=user, organization=organization
         )
-        if course_form.is_valid():
+        entitlement_form = self.entitlement_form(request.POST)
+        if course_form.is_valid() and entitlement_form.is_valid():
             try:
                 with transaction.atomic():
                     course = course_form.save(commit=False)
+                    if entitlement_form['mode'].value():
+                        course.version = Course.ENTITLEMENT_VERSION
+                    else:
+                        course.version = Course.SEAT_VERSION
                     course.changed_by = user
                     course.save()
                     # commit false does not save m2m object. Keyword field is m2m.
                     course_form.save_m2m()
+
+                    # Now create entitlement if we need to
+                    if course.version == Course.ENTITLEMENT_VERSION:
+                        entitlement = entitlement_form.save(commit=False)
+                        entitlement.course = course
+                        entitlement.save()
 
                     organization_extension = get_object_or_404(
                         OrganizationExtension, organization=course_form.data['organization']
@@ -327,6 +340,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
         ctx.update(
             {
                 'course_form': course_form,
+                'entitlement_form': entitlement_form,
             }
         )
         return render(request, self.template_name, ctx, status=400)
