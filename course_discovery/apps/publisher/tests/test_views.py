@@ -37,7 +37,7 @@ from course_discovery.apps.publisher.constants import (
     ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME
 )
 from course_discovery.apps.publisher.models import (
-    Course, CourseRun, CourseRunState, CourseState, OrganizationExtension, Seat
+    Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, OrganizationExtension, Seat
 )
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
@@ -281,6 +281,57 @@ class CreateCourseViewTests(SiteMixin, TestCase):
             status_code=302,
             target_status_code=200
         )
+
+    def _make_course(self, data=None):
+        initial_data = {'title': 'Test Course', 'number': 'test1', 'image': ''}
+        if data:
+            initial_data.update(**data)
+        course_dict = self._post_data(initial_data, self.course)
+        response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': Course.objects.first().id}),
+            status_code=302,
+            target_status_code=200
+        )
+        return Course.objects.get(number=course_dict['number'])
+
+    @ddt.data(CourseEntitlement.VERIFIED, CourseEntitlement.PROFESSIONAL)
+    def test_create_entitlement(self, mode):
+        """
+        Verify that we create an entitlement for appropriate types (happy path)
+        """
+        data = {'mode': mode, 'price': 50}
+        course = self._make_course(data)
+
+        self.assertEqual(1, CourseEntitlement.objects.all().count())
+        self.assertEqual(1, course.entitlements.all().count())
+        self.assertEqual(Course.ENTITLEMENT_VERSION, course.version)
+
+        entitlement = course.entitlements.first()
+        self.assertEqual(course, entitlement.course)
+        self.assertEqual(mode, entitlement.mode)
+        self.assertEqual(50, entitlement.price)
+
+    def test_seat_version(self):
+        """
+        Verify that when we create a normal seat, we set version
+        """
+        course = self._make_course()
+        self.assertEqual(0, CourseEntitlement.objects.all().count())
+        self.assertEqual(Course.SEAT_VERSION, course.version)
+
+    @ddt.data(0, -1, None)
+    def test_invalid_entitlement_price(self, price):
+        """
+        Verify that when we check price validity when making an entitlement
+        """
+        data = {'title': 'Test2', 'number': 'testX234', 'mode': CourseEntitlement.VERIFIED}
+        if price is not None:
+            data['price'] = price
+        course_dict = self._post_data(data, self.course)
+        response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
+        self.assertEqual(response.status_code, 400)
 
 
 class CreateCourseRunViewTests(SiteMixin, TestCase):
