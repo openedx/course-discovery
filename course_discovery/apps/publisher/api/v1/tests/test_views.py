@@ -11,14 +11,17 @@ from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.core.tests.factories import StaffUserFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import serialize_datetime
+from course_discovery.apps.course_metadata.models import CourseEntitlement as DiscoveryCourseEntitlement
 from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
-from course_discovery.apps.course_metadata.models import CourseRun, Video
+from course_discovery.apps.course_metadata.models import CourseRun, SeatType, Video
+from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.api.utils import serialize_seat_for_ecommerce_api
+from course_discovery.apps.publisher.api.utils import (serialize_entitlement_for_ecommerce_api,
+                                                       serialize_seat_for_ecommerce_api)
 from course_discovery.apps.publisher.api.v1.views import CourseRunViewSet
-from course_discovery.apps.publisher.models import Seat
-from course_discovery.apps.publisher.tests.factories import CourseRunFactory, SeatFactory
+from course_discovery.apps.publisher.models import CourseEntitlement, Seat
+from course_discovery.apps.publisher.tests.factories import CourseEntitlementFactory, CourseRunFactory, SeatFactory
 
 PUBLISHER_UPGRADE_DEADLINE_DAYS = random.randint(1, 21)
 
@@ -76,29 +79,23 @@ class CourseRunViewSetTests(APITestCase):
         url = '{root}publication/'.format(root=partner.ecommerce_api_url)
         responses.add(responses.POST, url, json=body, status=status)
 
-    def serialize_seat_for_ecommerce_api(self, seat):
-        return {
-            'expires': serialize_datetime(seat.upgrade_deadline or seat.course_run.end),
-            'price': str(seat.price),
-            'product_class': 'Seat',
-            'attribute_values': [
-                {
-                    'name': 'certificate_type',
-                    'value': None if seat.type is Seat.AUDIT else seat.type,
-                },
-                {
-                    'name': 'id_verification_required',
-                    'value': seat.type in (Seat.VERIFIED, Seat.PROFESSIONAL),
-                }
-            ]
-        }
-
     @responses.activate
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
     def test_publish(self, mock_access_token):  # pylint: disable=unused-argument,too-many-statements
-        publisher_course_run = self._create_course_run_for_publication()
+        toggle_switch('publisher_entitlements', True)
 
+        publisher_course_run = self._create_course_run_for_publication()
         currency = Currency.objects.get(code='USD')
+
+        common_entitlement_kwargs = {
+            'course': publisher_course_run.course,
+            'currency': currency,
+        }
+        professional_entitlement = CourseEntitlementFactory(mode=CourseEntitlement.PROFESSIONAL,
+                                                            **common_entitlement_kwargs)
+        verified_entitlement = CourseEntitlementFactory(mode=CourseEntitlement.VERIFIED,
+                                                        **common_entitlement_kwargs)
+
         common_seat_kwargs = {
             'course_run': publisher_course_run,
             'currency': currency,
@@ -132,6 +129,8 @@ class CourseRunViewSetTests(APITestCase):
             serialize_seat_for_ecommerce_api(audit_seat),
             serialize_seat_for_ecommerce_api(professional_seat),
             serialize_seat_for_ecommerce_api(verified_seat),
+            serialize_entitlement_for_ecommerce_api(professional_entitlement),
+            serialize_entitlement_for_ecommerce_api(verified_entitlement),
         ]
         assert ecommerce_body['products'] == expected
         assert ecommerce_body['verification_deadline'] == serialize_datetime(publisher_course_run.end)
@@ -177,6 +176,22 @@ class CourseRunViewSetTests(APITestCase):
         assert list(discovery_course.authoring_organizations.all()) == expected
         expected = {publisher_course.primary_subject, publisher_course.secondary_subject}
         assert set(discovery_course.subjects.all()) == expected
+
+        common_entitlement_kwargs = {
+            'course': discovery_course,
+            'currency': currency,
+        }
+        self.assertEqual(2, DiscoveryCourseEntitlement.objects.all().count())
+        DiscoveryCourseEntitlement.objects.get(
+            mode=SeatType.objects.get(slug=DiscoverySeat.PROFESSIONAL),
+            price=professional_entitlement.price,
+            **common_entitlement_kwargs
+        )
+        DiscoveryCourseEntitlement.objects.get(
+            mode=SeatType.objects.get(slug=DiscoverySeat.VERIFIED),
+            price=verified_entitlement.price,
+            **common_entitlement_kwargs
+        )
 
         common_seat_kwargs = {
             'course_run': discovery_course_run,
