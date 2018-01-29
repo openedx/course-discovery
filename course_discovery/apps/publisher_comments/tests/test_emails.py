@@ -181,7 +181,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
         self.assertIn(comment.comment, str(mail.outbox[0].body.strip()))
 
         comment.comment = 'update the comment'
-        comment.save()  # pylint: disable=no-member
+        comment.save()
         subject = 'Comment updated: {title}'.format(title=self.course.title)
         self.assertEqual(str(mail.outbox[1].subject), subject)
         self.assertIn(comment.comment, str(mail.outbox[1].body.strip()), 'update the comment')
@@ -195,7 +195,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
         )
         comment = self.create_comment(content_object=self.course_run)
         comment.comment = 'Update the comment'
-        comment.save()  # pylint: disable=no-member
+        comment.save()
 
         subject = 'Comment updated: {title} {start} - {pacing_type}'.format(
             title=self.course_run.course.title,

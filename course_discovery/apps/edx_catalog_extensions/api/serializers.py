@@ -46,7 +46,7 @@ class DistinctCountsAggregateFacetSearchSerializer(AggregateFacetSearchSerialize
         # data and extract the distinct counts.
         # https://github.com/edx/course-discovery/blob/master/course_discovery/apps/api/serializers.py#L966
         query_data = {}
-        for field, options in getattr(self.Meta, 'field_queries', {}).items():  # pylint: disable=no-member
+        for field, options in getattr(self.Meta, 'field_queries', {}).items():
             # The query facet data is expected to be formatted as a dictionary with fields mapping to a two-tuple
             # containing count and distinct count.
             count, distinct_count = query_facet_counts.get(field, (0, 0))

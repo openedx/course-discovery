@@ -12,7 +12,7 @@ API_TIMESTAMP_KEY = 'api_timestamp'
 
 
 class ApiTimestampKeyBit(KeyBitBase):
-    def get_data(self, **kwargs):
+    def get_data(self, **kwargs):  # pylint: disable=arguments-differ
         return cache.get_or_set(API_TIMESTAMP_KEY, time.time, None)
 
 

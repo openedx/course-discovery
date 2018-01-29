@@ -116,7 +116,7 @@ class CourseRunSerializerTests(TestCase):
     def test_validate_lms_course_id(self):
         """ Verify that serializer raises error if 'lms_course_id' has invalid format. """
         self.course_run.lms_course_id = 'invalid-course-id'
-        self.course_run.save()  # pylint: disable=no-member
+        self.course_run.save()
         serializer = self.serializer_class(self.course_run)
         with self.assertRaises(ValidationError):
             serializer.validate_lms_course_id(self.course_run.lms_course_id)
@@ -124,7 +124,7 @@ class CourseRunSerializerTests(TestCase):
     def test_validate_preview_url(self):
         """ Verify that serializer raises error if 'preview_url' has invalid format. """
         self.course_run.preview_url = 'invalid-preview-url'
-        self.course_run.save()  # pylint: disable=no-member
+        self.course_run.save()
         serializer = self.serializer_class(self.course_run)
         with self.assertRaises(ValidationError):
             serializer.validate_preview_url(self.course_run.preview_url)

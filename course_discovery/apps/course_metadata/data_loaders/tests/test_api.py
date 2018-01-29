@@ -57,7 +57,7 @@ class AbstractDataLoaderTest(TestCase):
         AbstractDataLoader.delete_orphans()
 
         for instance in instances:
-            self.assertFalse(instance.__class__.objects.filter(pk=instance.pk).exists())  # pylint: disable=no-member
+            self.assertFalse(instance.__class__.objects.filter(pk=instance.pk).exists())
 
     def test_clean_html(self):
         """ Verify the method removes unnecessary HTML attributes. """
@@ -107,7 +107,7 @@ class OrganizationsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, T
         api_data = self.mock_api()
         if not partner_has_marketing_site:
             self.partner.marketing_site_url_root = None
-            self.partner.save()  # pylint: disable=no-member
+            self.partner.save()
 
         self.assertEqual(Organization.objects.count(), 0)
 
@@ -216,7 +216,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         api_data = self.mock_api()
         if not partner_has_marketing_site:
             self.partner.marketing_site_url_root = None
-            self.partner.save()  # pylint: disable=no-member
+            self.partner.save()
 
         self.assertEqual(Course.objects.count(), 0)
         self.assertEqual(CourseRun.objects.count(), 0)
@@ -266,7 +266,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
 
         if not partner_has_marketing_site:
             self.partner.marketing_site_url_root = None
-            self.partner.save()  # pylint: disable=no-member
+            self.partner.save()
 
         self.loader.ingest()
 

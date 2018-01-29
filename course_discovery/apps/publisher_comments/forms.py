@@ -5,7 +5,6 @@ from django_comments.forms import CommentForm
 from course_discovery.apps.publisher_comments.models import Comments, CommentTypeChoices
 
 
-# pylint: disable=no-member
 class CommentsForm(CommentForm):
     modified = forms.DateTimeField(required=False, widget=forms.HiddenInput)
     comment_type = forms.ChoiceField(

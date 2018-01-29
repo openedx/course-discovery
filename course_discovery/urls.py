@@ -66,6 +66,6 @@ if settings.DEBUG:  # pragma: no cover
     # https://docs.djangoproject.com/en/1.10/howto/static-files/#serving-files-uploaded-by-a-user-during-development
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
-        import debug_toolbar  # pylint: disable=wrong-import-order,wrong-import-position,import-error
+        import debug_toolbar
 
         urlpatterns.append(url(r'^__debug__/', include(debug_toolbar.urls)))
