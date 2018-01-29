@@ -163,7 +163,7 @@ class DistinctCountsElasticsearchBackendWrapper(object):
         Re-implements ElasticsearchSearchBackend.search from:
         https://github.com/django-haystack/django-haystack/blob/v2.5.0/haystack/backends/elasticsearch_backend.py#L495
         """
-        if len(query_string) == 0:
+        if not query_string:
             return {'results': [], 'hits': 0, 'distinct_hits': 0}
 
         # NOTE (CCB): Haystack by default attempts to read/update the index mapping. Given that our mapping doesn't
