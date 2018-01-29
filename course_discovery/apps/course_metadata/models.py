@@ -134,7 +134,7 @@ class Subject(TranslatableModel, TimeStampedModel):
             ('partner', 'uuid'),
         )
 
-    def validate_unique(self, *args, **kwargs):
+    def validate_unique(self, *args, **kwargs):  # pylint: disable=arguments-differ
         super(Subject, self).validate_unique(*args, **kwargs)
         qs = Subject.objects.filter(partner=self.partner_id)
         if qs.filter(translations__name=self.name).exclude(pk=self.pk).exists():
@@ -171,7 +171,7 @@ class Topic(TranslatableModel, TimeStampedModel):
             ('partner', 'uuid'),
         )
 
-    def validate_unique(self, *args, **kwargs):
+    def validate_unique(self, *args, **kwargs):  # pylint: disable=arguments-differ
         super(Topic, self).validate_unique(*args, **kwargs)
         qs = Topic.objects.filter(partner=self.partner_id)
         if qs.filter(translations__name=self.name).exclude(pk=self.pk).exists():
@@ -285,7 +285,7 @@ class Person(TimeStampedModel):
     def __str__(self):
         return self.full_name
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         logger.info('Person saved UUID: %s', self.uuid, exc_info=True)
         super(Person, self).save(*args, **kwargs)
 
@@ -553,7 +553,7 @@ class CourseRun(TimeStampedModel):
         None if the date is unknown or enrollable paid Seats are not available.
         """
         seats = list(self._enrollable_paid_seats().order_by('-upgrade_deadline'))
-        if len(seats) == 0:
+        if not seats:
             # Enrollable paid seats are not available for this CourseRun.
             return None
 
@@ -693,7 +693,7 @@ class CourseRun(TimeStampedModel):
 
     @property
     def programs(self):
-        return self.course.programs  # pylint: disable=no-member
+        return self.course.programs
 
     @property
     def seat_types(self):
@@ -755,7 +755,7 @@ class CourseRun(TimeStampedModel):
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         suppress_publication = kwargs.pop('suppress_publication', False)
         is_publishable = (
             self.course.partner.has_marketing_site and
@@ -1170,9 +1170,9 @@ class Program(TimeStampedModel):
 
                 if add_seat:
                     course_map[course_uuid].append(seat)
-                for seat in seats_to_remove:
+                for removable_seat in seats_to_remove:
                     # Now remove the seats that should not be counted for calculation for program total
-                    course_map[course_uuid].remove(seat)
+                    course_map[course_uuid].remove(removable_seat)
 
         for entitlement in self.entitlements:
             course_uuid = entitlement.course.uuid
@@ -1239,7 +1239,7 @@ class Program(TimeStampedModel):
     def is_active(self):
         return self.status == ProgramStatus.Active
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         is_publishable = (
             self.partner.has_marketing_site and
             waffle.switch_is_active('publish_program_to_marketing_site')

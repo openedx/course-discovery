@@ -13,9 +13,6 @@ from course_discovery.apps.course_metadata.tests.factories import (
 from course_discovery.apps.publisher.tests import factories
 
 
-# pylint: disable=no-member
-
-
 @pytest.mark.django_db
 class TestAutocomplete:
     def assert_valid_query_result(self, client, path, query, expected_result):

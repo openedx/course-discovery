@@ -142,7 +142,7 @@ def send_email_decline_preview(comment, course_run, preview_url):
             )
             email_msg.attach_alternative(html_content, 'text/html')
             email_msg.send()
-    except Exception:  # pylint: disable=broad-except
+    except Exception:
         message = 'Failed to send email notifications for preview decline for course run [{id}].'.format(
             id=course_run.id
         )

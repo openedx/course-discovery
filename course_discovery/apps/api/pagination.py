@@ -42,7 +42,7 @@ class ProxiedCall:
 
             # If a request is available, look for the presence of a query parameter
             # indicating that we should use this paginator.
-            is_query_param_present = request and request.query_params.get(query_param)  # pylint: disable=no-member
+            is_query_param_present = request and request.query_params.get(query_param)
 
             if is_request_stored or is_query_param_present:
                 return paginator

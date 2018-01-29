@@ -50,7 +50,6 @@ class ImportCoursesCommandTests(TestCase):
             call_command(self.command_name, *command_args)
 
 
-# pylint: disable=no-member
 @ddt.ddt
 class ImportCoursesTests(TestCase):
     def setUp(self):
@@ -386,7 +385,6 @@ class CreateCoursesTests(TestCase):
         )
 
 
-# pylint: disable=no-member
 @ddt.ddt
 class UpdateCourseRunsTests(TestCase):
     def setUp(self):

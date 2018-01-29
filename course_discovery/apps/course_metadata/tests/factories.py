@@ -10,7 +10,7 @@ from course_discovery.apps.course_metadata.models import *  # pylint: disable=wi
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
-# pylint: disable=no-member, unused-argument
+# pylint: disable=unused-argument
 
 
 class AbstractMediaModelFactory(factory.DjangoModelFactory):

@@ -196,7 +196,7 @@ class CourseRunViewSetTests(APITestCase):
             **common_seat_kwargs
         )
 
-    # pylint: disable=unused-argument,too-many-statements
+    # pylint: disable=unused-argument
     @responses.activate
     @override_settings(PUBLISHER_UPGRADE_DEADLINE_DAYS=PUBLISHER_UPGRADE_DEADLINE_DAYS)
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')

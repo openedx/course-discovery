@@ -31,7 +31,7 @@ def django_cache_add_xdist_key_prefix(request):
 
 
 @pytest.fixture
-def django_cache(django_cache_add_xdist_key_prefix):  # pylint: disable=unused-argument
+def django_cache(django_cache_add_xdist_key_prefix):  # pylint: disable=redefined-outer-name,unused-argument
     skip_if_no_django()
     cache.clear()
 
@@ -56,7 +56,7 @@ def haystack_add_xdist_suffix_to_index_name(request):
 
 
 @pytest.fixture
-def haystack_default_connection(haystack_add_xdist_suffix_to_index_name):  # pylint: disable=unused-argument
+def haystack_default_connection(haystack_add_xdist_suffix_to_index_name):  # pylint: disable=redefined-outer-name,unused-argument
     skip_if_no_django()
 
     backend = haystack_connections['default'].get_backend()
@@ -86,7 +86,7 @@ def site(db):  # pylint: disable=unused-argument
 
 
 @pytest.fixture
-def partner(db, site):  # pylint: disable=unused-argument
+def partner(db, site):  # pylint: disable=redefined-outer-name,unused-argument
     skip_if_no_django()
     return PartnerFactory(site=site)
 

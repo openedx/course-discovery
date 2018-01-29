@@ -19,7 +19,6 @@ class AdminTests(SiteMixin, TestCase):
 
     def test_comment_detail_form(self):
         """ Verify in admin panel comment detail form contain the custom modified field. """
-        # pylint: disable=no-member
         resp = self.client.get(reverse('admin:publisher_comments_comments_change', args=(self.comment.id,)))
         self.assertContains(resp, 'modified')
 

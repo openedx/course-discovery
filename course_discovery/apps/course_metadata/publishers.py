@@ -107,7 +107,7 @@ class BaseMarketingSitePublisher:
 
         if response.status_code == 200:
             response_json = response.json()
-            if len(response_json['list']) > 0:
+            if response_json['list']:
                 return response.json()['list'][0]['nid']
             else:
                 return None

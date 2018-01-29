@@ -60,7 +60,7 @@ class CatalogTests(ElasticsearchTestMixin, TestCase):
     def test_get_viewers(self):
         """ Verify the method returns a QuerySet of individuals with explicit permission to view a Catalog. """
         catalog = self.catalog
-        self.assertFalse(catalog.viewers.exists())  # pylint:disable=no-member
+        self.assertFalse(catalog.viewers.exists())
 
         user = UserFactory()
         user.add_obj_perm(Catalog.VIEW_PERMISSION, catalog)
