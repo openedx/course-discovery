@@ -1,6 +1,7 @@
 import logging
-
 from collections import OrderedDict
+
+import waffle
 from edx_rest_api_client.client import EdxRestApiClient
 from edx_rest_framework_extensions.authentication import JwtAuthentication
 from rest_framework import permissions, serializers, status, viewsets
@@ -10,10 +11,13 @@ from rest_framework.response import Response
 from slumber.exceptions import SlumberBaseException
 
 from course_discovery.apps.core.utils import serialize_datetime
+from course_discovery.apps.course_metadata.models import CourseEntitlement as DiscoveryCourseEntitlement
 from course_discovery.apps.course_metadata.models import CourseRun as DiscoveryCourseRun
 from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
-from course_discovery.apps.course_metadata.models import Course, Video
-from course_discovery.apps.publisher.api.utils import serialize_seat_for_ecommerce_api
+from course_discovery.apps.course_metadata.models import Course, SeatType, Video
+from course_discovery.apps.publisher.api.utils import (
+    serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api
+)
 from course_discovery.apps.publisher.models import CourseRun, Seat
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI
 
@@ -77,10 +81,15 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             'name': course_run.title_override or course_run.course.title,
             'verification_deadline': serialize_datetime(course_run.end),
             'create_or_activate_enrollment_code': False,
-            # NOTE (CCB): We only order here to aid testing. The E-Commerce API does NOT care about ordering.
-            'products': [serialize_seat_for_ecommerce_api(seat) for seat in
-                         course_run.seats.exclude(type=Seat.CREDIT).order_by('created')],
         }
+
+        # NOTE: We only order here to aid testing. The E-Commerce API does NOT care about ordering.
+        products = [serialize_seat_for_ecommerce_api(seat) for seat in
+                    course_run.seats.exclude(type=Seat.CREDIT).order_by('created')]
+        if waffle.switch_is_active('publisher_entitlements'):
+            products.extend([serialize_entitlement_for_ecommerce_api(entitlement) for entitlement in
+                             course_run.course.entitlements.order_by('created')])
+        data['products'] = products
 
         try:
             api.publication.post(data)
@@ -141,6 +150,18 @@ class CourseRunViewSet(viewsets.GenericViewSet):
         )
         discovery_course_run.transcript_languages.add(*course_run.transcript_languages.all())
         discovery_course_run.staff.add(*course_run.staff.all())
+
+        if waffle.switch_is_active('publisher_entitlements'):
+            for entitlement in publisher_course.entitlements.all():
+                DiscoveryCourseEntitlement.objects.update_or_create(
+                    course=discovery_course,
+                    mode=SeatType.objects.get(slug=entitlement.mode),
+                    defaults={
+                        'partner': partner,
+                        'price': entitlement.price,
+                        'currency': entitlement.currency,
+                    }
+                )
 
         for seat in course_run.seats.exclude(type=Seat.CREDIT):
             DiscoverySeat.objects.update_or_create(
