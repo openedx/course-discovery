@@ -73,6 +73,30 @@
 
             <div class="info-item history-field-container">
                 <div class="heading">
+                    {% trans "Enrollment Track" %}
+                </div>
+                <div class="current type">
+                    {% with object.entitlements.first.mode as field %}
+                        {% include "publisher/_render_optional_field.html" %}
+                    {% endwith %}
+                </div>
+                <div class="show-diff"></div>
+            </div>
+
+            <div class="info-item history-field-container">
+                <div class="heading">
+                    {% trans "Certificate Price" %}
+                </div>
+                <div class="current price">
+                    {% with object.entitlements.first.price as field %}
+                        {% include "publisher/_render_optional_field.html" %}
+                    {% endwith %}
+                </div>
+                <div class="show-diff"></div>
+            </div>
+
+            <div class="info-item history-field-container">
+                <div class="heading">
                     {% trans "Short Description" %}
                 </div>
                 <div class="current short_description">
