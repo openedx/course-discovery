@@ -517,15 +517,14 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
     last_run = None
     fields = ()
 
-    def get_parent_course(self):
+    def _get_parent_course(self):
         if not self.parent_course:
             self.parent_course = get_object_or_404(Course, pk=self.kwargs.get('parent_course_id'))
 
         return self.parent_course
 
-    def get_last_run(self):
+    def _get_last_run(self, parent_course):
         if not self.last_run:
-            parent_course = self.get_parent_course()
             try:
                 self.last_run = parent_course.course_runs.latest('created')
             except CourseRun.DoesNotExist:
@@ -533,8 +532,8 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
 
         return self.last_run
 
-    def set_last_run_data(self, new_run):
-        last_run = self.get_last_run()
+    def _set_last_run_data(self, new_run):
+        last_run = self._get_last_run(new_run.course)
         if last_run:
             last_run_data = model_to_dict(last_run)
             # Delete all those fields which cannot be copied from previous run
@@ -561,22 +560,19 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
 
         new_run.save()
 
-    def get_seat_initial_data(self):
+    def _initialize_seat_form(self, last_run=None):
         initial_seat_data = {}
-        last_run = self.get_last_run()
-        if not last_run:
-            return initial_seat_data
+        if last_run:
+            try:
+                latest_seat = last_run.seats.latest('created')
+                initial_seat_data = model_to_dict(latest_seat)
+                del initial_seat_data['id'], initial_seat_data['course_run'], initial_seat_data['changed_by']
+            except Seat.DoesNotExist:
+                pass
 
-        try:
-            latest_seat = last_run.seats.latest('created')
-            initial_seat_data = model_to_dict(latest_seat)
-            del initial_seat_data['id'], initial_seat_data['course_run'], initial_seat_data['changed_by']
-        except Seat.DoesNotExist:
-            initial_seat_data = {}
+        return self.seat_form(initial=initial_seat_data)
 
-        return initial_seat_data
-
-    def _handle_exception(self, exception):
+    def _format_post_exception_message(self, exception):
         error_msg = _('There was an error saving this course run:')
         default_message = u'{msg} {ex}'.format(msg=error_msg, ex=exception)
         try:
@@ -586,41 +582,25 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
         except:  # pylint: disable=bare-except
             return default_message
 
-    def get_context_data(self, **kwargs):
-        parent_course = self.get_parent_course()
-        last_run = self.get_last_run()
+    def _initialize_run_form(self, last_run=None):
         run_initial_data = {}
         if last_run:
             run_initial_data = {'pacing_type': last_run.pacing_type}
+        return self.run_form(initial=run_initial_data)
 
-        context = {
-            'parent_course': parent_course,
-            'run_form': self.run_form(initial=run_initial_data),
-            'seat_form': self.seat_form(initial=self.get_seat_initial_data())
-        }
-        return context
-
-    def render_bad_response(self, run_form, seat_form):
+    def _render_post_error(self, request, ctx_overrides=None, status=400):
         context = self.get_context_data()
-        context.update(
-            {
-                'run_form': run_form,
-                'seat_form': seat_form
-            }
-        )
+        if ctx_overrides:
+            context.update(ctx_overrides)
+        return render(request, self.template_name, context, status=status)
 
-        return render(self.request, self.template_name, context, status=400)
-
-    def post(self, request, *args, **kwargs):
+    def _process_post_request(self, request, parent_course, run_form, seat_form, ctx_overrides=None):
         user = request.user
-        parent_course = self.get_parent_course()
 
-        run_form = self.run_form(request.POST)
-        seat_form = self.seat_form(request.POST)
         course_user_roles = parent_course.course_user_roles.filter(role__in=COURSE_ROLES)
-        publisher_permission_flag_enabled = waffle.switch_is_active('disable_publisher_permissions')
+        has_default_course_user_roles = course_user_roles.count() == len(COURSE_ROLES)
 
-        if not (course_user_roles.count() == len(COURSE_ROLES) or publisher_permission_flag_enabled):
+        if not (has_default_course_user_roles or waffle.switch_is_active('disable_publisher_permissions')):
             logger.error(
                 'Course [%s] is missing default course roles. Current roles [%s], required roles [%s]',
                 parent_course.id,
@@ -634,18 +614,18 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
                     'Please contact your partner manager to create default roles.'
                 )
             )
-            return self.render_bad_response(run_form, seat_form)
+            return self._render_post_error(request, ctx_overrides=ctx_overrides)
 
         if not (run_form.is_valid() and seat_form.is_valid()):
             messages.error(
                 request, _('The page could not be updated. Make sure that all values are correct, then try again.')
             )
-            return self.render_bad_response(run_form, seat_form)
+            return self._render_post_error(request, ctx_overrides=ctx_overrides)
 
         try:
             with transaction.atomic():
                 course_run = run_form.save(commit=False, course=parent_course, changed_by=user)
-                self.set_last_run_data(course_run)
+                self._set_last_run_data(course_run)
                 seat_form.save(course_run=course_run, changed_by=user)
 
                 # Initialize workflow for Course-run.
@@ -661,20 +641,44 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
                 return HttpResponseRedirect(reverse(self.success_url, kwargs={'pk': course_run.id}))
         except Exception as ex:  # pylint: disable=broad-except
             # pylint: disable=no-member
-            error_msg = self._handle_exception(ex)
+            error_msg = self._format_post_exception_message(ex)
             messages.error(request, error_msg)
             logger.exception('Unable to create course run and seat for course [%s].', parent_course.id)
+            return self._render_post_error(request, ctx_overrides=ctx_overrides)
 
-        return self.render_bad_response(run_form, seat_form)
+    def get_context_data(self, **kwargs):
+        parent_course = self._get_parent_course()
+        last_run = self._get_last_run(parent_course)
+        run_form = self._initialize_run_form(last_run)
+        seat_form = self._initialize_seat_form(last_run)
+
+        context = {
+            'cancel_url': reverse('publisher:publisher_course_detail', kwargs={'pk': parent_course.pk}),
+            'run_form': run_form,
+            'seat_form': seat_form
+        }
+        return context
+
+    def post(self, request, *args, **kwargs):
+        parent_course = self._get_parent_course()
+        run_form = self.run_form(request.POST)
+        seat_form = self.seat_form(request.POST)
+        return self._process_post_request(request, parent_course, run_form, seat_form, ctx_overrides={
+            'run_form': run_form,
+            'seat_form': seat_form
+        })
 
 
 class CreateRunFromDashboardView(CreateCourseRunView):
     """ Create Course Run From Dashboard With Type ahead Search For Parent Course."""
     course_form = CourseSearchForm
 
+    def _get_parent_course(self):
+        return self.parent_course
+
     def get_context_data(self, **kwargs):
         context = {
-            'from_dashboard': True,
+            'cancel_url': reverse('publisher:publisher_dashboard'),
             'course_form': self.course_form(),
             'run_form': self.run_form(),
             'seat_form': self.seat_form()
@@ -685,22 +689,23 @@ class CreateRunFromDashboardView(CreateCourseRunView):
         course_form = self.course_form(request.POST)
         run_form = self.run_form(request.POST)
         seat_form = self.seat_form(request.POST)
-        if course_form.is_valid() and run_form.is_valid() and seat_form.is_valid():
-            self.parent_course = course_form.cleaned_data.get('course')
-            return super(CreateRunFromDashboardView, self).post(request, *args, **kwargs)
+        ctx_overrides = {
+            'course_form': course_form,
+            'run_form': run_form,
+            'seat_form': seat_form,
+        }
 
-        messages.error(
-            request, _('The page could not be updated. Make sure that all values are correct, then try again.')
+        if not course_form.is_valid():
+            messages.error(
+                request, _('The page could not be updated. Make sure that all values are correct, then try again.')
+            )
+            return self._render_post_error(request, ctx_overrides=ctx_overrides)
+
+        self.parent_course = course_form.cleaned_data.get('course')
+
+        return self._process_post_request(
+            request, self.parent_course, run_form, seat_form, ctx_overrides=ctx_overrides
         )
-        context = self.get_context_data()
-        context.update(
-            {
-                'course_form': course_form,
-                'run_form': run_form,
-                'seat_form': seat_form,
-            }
-        )
-        return render(request, self.template_name, context, status=400)
 
 
 class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, UpdateView):
