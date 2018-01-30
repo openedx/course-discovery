@@ -52,7 +52,7 @@
                 <div class="heading">
                     {% trans "Course Team Admin" %}
                 </div>
-                <div>{{ object.course_team_admin.full_name }}</div>
+                <div>{% firstof  object.course_team_admin.full_name object.course_team_admin.username %}</div>
             </div>
 
             <div class="info-item history-field-container">

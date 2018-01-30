@@ -14,8 +14,11 @@ logger = logging.getLogger(__name__)
 
 
 def get_related_discovery_course_run(publisher_course_run):
-    discovery_course = publisher_course_run.course.discovery_counterpart
-    return discovery_course.course_runs.latest('start')
+    try:
+        discovery_course = publisher_course_run.course.discovery_counterpart
+        return discovery_course.course_runs.latest('start')
+    except ObjectDoesNotExist:
+        return
 
 
 @receiver(post_save, sender=CourseRun)
@@ -27,7 +30,7 @@ def create_course_run_in_studio_receiver(sender, instance, created, **kwargs):  
                 if not organization.organization_extension.auto_create_in_studio:
                     logger.warning(
                         ('Course run [%d] will not be automatically created in studio.'
-                            'Organization [%s] has opted out of this feature.'),
+                         'Organization [%s] has opted out of this feature.'),
                         course.id,
                         organization.key,
                     )
@@ -41,27 +44,38 @@ def create_course_run_in_studio_receiver(sender, instance, created, **kwargs):  
         partner = course.partner
 
         if not partner:
-            logger.error('Failed to publish course run [%d] to Studio. Related course [%d] has no associated Partner.',
-                         instance.id, course.id)
+            logger.error(
+                'Failed to publish course run [%d] to Studio. Related course [%d] has no associated Partner.',
+                instance.id, course.id
+            )
             return
 
         logger.info('Publishing course run [%d] to Studio...', instance.id)
         api = StudioAPI(instance.course.partner.studio_api_client)
 
-        try:
+        discovery_course_run = get_related_discovery_course_run(instance)
+
+        if discovery_course_run:
             try:
-                discovery_course_run = get_related_discovery_course_run(instance)
                 logger.info('Creating a re-run of [%s]...', discovery_course_run.key)
                 response = api.create_course_rerun_in_studio(instance, discovery_course_run)
-            except ObjectDoesNotExist:
+            except SlumberBaseException as ex:
+                logger.exception(
+                    'Failed to create course re-run [%s] on Studio: %s',
+                    discovery_course_run.key,
+                    ex.content
+                )
+                raise
+        else:
+            try:
                 logger.info('Creating a new run of [%s]...', instance.course.key)
                 response = api.create_course_run_in_studio(instance)
+            except SlumberBaseException as ex:
+                logger.exception('Failed to create course run [%s] on Studio: %s', instance.id, ex.content)
+                raise
 
-            instance.lms_course_id = response['id']
-            instance.save()
-        except SlumberBaseException as ex:
-            logger.exception('Failed to create course run [%d] on Studio: %s', instance.id, ex.content)
-            raise
+        instance.lms_course_id = response['id']
+        instance.save()
 
         try:
             api.update_course_run_image_in_studio(instance)
