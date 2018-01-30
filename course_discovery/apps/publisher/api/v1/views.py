@@ -67,7 +67,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             return 'FAILED: ' + content
         except Exception as ex:  # pylint: disable=broad-except
             logger.exception('Failed to publish course run [%d] to Studio!', course_run.pk)
-            return 'FAILED: ' + str(ex)
+            return 'FAILED: ' + ex.content
 
     def publish_to_ecommerce(self, partner, course_run):
         api = EdxRestApiClient(partner.ecommerce_api_url, jwt=partner.access_token)
