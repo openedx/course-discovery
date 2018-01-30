@@ -576,6 +576,16 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
 
         return initial_seat_data
 
+    def _handle_exception(self, exception):
+        error_msg = _('There was an error saving this course run:')
+        default_message = u'{msg} {ex}'.format(msg=error_msg, ex=exception)
+        try:
+            json_response = exception.response.json()
+            error_fields = ','.join(json_response.keys())
+            return u'{default}. Error fields: {error_fields}'.format(default=default_message, error_fields=error_fields)
+        except:  # pylint: disable=bare-except
+            return default_message
+
     def get_context_data(self, **kwargs):
         parent_course = self.get_parent_course()
         last_run = self.get_last_run()
@@ -590,6 +600,17 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
         }
         return context
 
+    def render_bad_response(self, run_form, seat_form):
+        context = self.get_context_data()
+        context.update(
+            {
+                'run_form': run_form,
+                'seat_form': seat_form
+            }
+        )
+
+        return render(self.request, self.template_name, context, status=400)
+
     def post(self, request, *args, **kwargs):
         user = request.user
         parent_course = self.get_parent_course()
@@ -597,36 +618,9 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
         run_form = self.run_form(request.POST)
         seat_form = self.seat_form(request.POST)
         course_user_roles = parent_course.course_user_roles.filter(role__in=COURSE_ROLES)
+        publisher_permission_flag_enabled = waffle.switch_is_active('disable_publisher_permissions')
 
-        if course_user_roles.count() == len(COURSE_ROLES) or waffle.switch_is_active('disable_publisher_permissions'):
-            if run_form.is_valid() and seat_form.is_valid():
-                try:
-                    with transaction.atomic():
-                        course_run = run_form.save(commit=False, course=parent_course, changed_by=user)
-                        self.set_last_run_data(course_run)
-                        seat_form.save(course_run=course_run, changed_by=user)
-
-                        # Initialize workflow for Course-run.
-                        CourseRunState.objects.create(course_run=course_run, owner_role=PublisherUserRole.CourseTeam)
-
-                        # pylint: disable=no-member
-                        success_msg = _('You have successfully created a course run for {course_title}.').format(
-                            course_title=parent_course.title
-                        )
-                        messages.success(request, success_msg)
-
-                        emails.send_email_for_course_creation(parent_course, course_run, request.site)
-                        return HttpResponseRedirect(reverse(self.success_url, kwargs={'pk': course_run.id}))
-                except Exception as error:  # pylint: disable=broad-except
-                    # pylint: disable=no-member
-                    error_msg = _('There was an error saving this course run: {error}').format(error=error)
-                    messages.error(request, error_msg)
-                    logger.exception('Unable to create course run and seat for course [%s].', parent_course.id)
-            else:
-                messages.error(
-                    request, _('The page could not be updated. Make sure that all values are correct, then try again.')
-                )
-        else:
+        if not (course_user_roles.count() == len(COURSE_ROLES) or publisher_permission_flag_enabled):
             logger.error(
                 'Course [%s] is missing default course roles. Current roles [%s], required roles [%s]',
                 parent_course.id,
@@ -636,20 +630,42 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
             messages.error(
                 request,
                 _(
-                    "Your organization does not have default roles to review/approve this course-run. "
-                    "Please contact your partner manager to create default roles."
+                    'Your organization does not have default roles to review/approve this course-run. '
+                    'Please contact your partner manager to create default roles.'
                 )
             )
+            return self.render_bad_response(run_form, seat_form)
 
-        context = self.get_context_data()
-        context.update(
-            {
-                'run_form': run_form,
-                'seat_form': seat_form
-            }
-        )
+        if not (run_form.is_valid() and seat_form.is_valid()):
+            messages.error(
+                request, _('The page could not be updated. Make sure that all values are correct, then try again.')
+            )
+            return self.render_bad_response(run_form, seat_form)
 
-        return render(request, self.template_name, context, status=400)
+        try:
+            with transaction.atomic():
+                course_run = run_form.save(commit=False, course=parent_course, changed_by=user)
+                self.set_last_run_data(course_run)
+                seat_form.save(course_run=course_run, changed_by=user)
+
+                # Initialize workflow for Course-run.
+                CourseRunState.objects.create(course_run=course_run, owner_role=PublisherUserRole.CourseTeam)
+
+                # pylint: disable=no-member
+                success_msg = _('You have successfully created a course run for {course_title}.').format(
+                    course_title=parent_course.title
+                )
+                messages.success(request, success_msg)
+
+                emails.send_email_for_course_creation(parent_course, course_run, request.site)
+                return HttpResponseRedirect(reverse(self.success_url, kwargs={'pk': course_run.id}))
+        except Exception as ex:  # pylint: disable=broad-except
+            # pylint: disable=no-member
+            error_msg = self._handle_exception(ex)
+            messages.error(request, error_msg)
+            logger.exception('Unable to create course run and seat for course [%s].', parent_course.id)
+
+        return self.render_bad_response(run_form, seat_form)
 
 
 class CreateRunFromDashboardView(CreateCourseRunView):

@@ -213,6 +213,39 @@ class TestCreateCourseRunInStudio:
                     json.dumps(body).encode('utf8')
                 )
 
+    @responses.activate
+    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
+    @override_switch('enable_publisher_create_course_run_in_studio', active=True)
+    def test_create_course_run_error_with_discovery_run(self, mock_access_token):  # pylint: disable=unused-argument
+        """
+        Tests that course run creations raises exception and logs expected exception message
+        """
+        number = 'TestX'
+        organization = OrganizationFactory()
+        partner = organization.partner
+        course_key = '{org}+{number}'.format(org=organization.key, number=number)
+        discovery_course_run = DiscoveryCourseRunFactory(course__partner=partner, course__key=course_key)
+
+        body = {'error': 'Server error'}
+        studio_url_root = partner.studio_url.strip('/')
+
+        url = '{root}/api/v1/course_runs/{course_run_key}/rerun/'.format(
+            root=studio_url_root,
+            course_run_key=discovery_course_run.key
+        )
+        responses.add(responses.POST, url, json=body, status=500)
+
+        with mock.patch('course_discovery.apps.publisher.signals.logger.exception') as mock_logger:
+            with pytest.raises(HttpServerError):
+                CourseRunFactory(lms_course_id=None, course__organizations=[organization], course__number=number)
+
+            assert len(responses.calls) == 1
+            mock_logger.assert_called_with(
+                'Failed to create course re-run [%s] on Studio: %s',
+                discovery_course_run.key,
+                json.dumps(body).encode('utf8')
+            )
+
 
 @pytest.mark.django_db
 class TestCreateOrganizations:
