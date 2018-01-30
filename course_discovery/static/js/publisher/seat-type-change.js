@@ -1,4 +1,4 @@
-$(document).on('change', '#id_type, #id_mode', function (e) {
+$(document).on('change', '#id_type', function (e) {
     var $seatBlock = $("#SeatPriceBlock"),
         $creditPrice = $("#creditPrice"),
         selectedSeatType = this.value;

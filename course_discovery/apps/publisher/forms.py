@@ -17,8 +17,8 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.mixins import LanguageModelSelect2Multiple, get_user_organizations
 from course_discovery.apps.publisher.models import (
-    Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension,
-    OrganizationUserRole, PublisherUser, Seat, User
+    Course, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension, OrganizationUserRole,
+    PublisherUser, Seat, User
 )
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY, is_internal_user
 from course_discovery.apps.publisher.validators import validate_text_count
@@ -440,31 +440,6 @@ class SeatForm(BaseForm):
         seat.credit_provider = ''
         seat.credit_hours = None
         seat.credit_price = 0.00
-
-
-class CourseEntitlementForm(BaseForm):
-    MODE_CHOICES = [
-        ('', _('Audit or credit track')),
-        (CourseEntitlement.VERIFIED, _('Verified')),
-        (CourseEntitlement.PROFESSIONAL, _('Professional education')),
-    ]
-
-    mode = forms.ChoiceField(choices=MODE_CHOICES, required=False, label=_('Enrollment Track'))
-    price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
-
-    class Meta:
-        fields = ('mode', 'price')
-        model = CourseEntitlement
-
-    def clean(self):
-        cleaned_data = super().clean()
-        mode = cleaned_data.get('mode')
-        price = cleaned_data.get('price')
-
-        if mode and (price is None or price <= 0):
-            raise ValidationError({'price': ''})  # mimics required field behavior (red border only, no error string)
-
-        return cleaned_data
 
 
 class BaseUserAdminForm(forms.ModelForm):

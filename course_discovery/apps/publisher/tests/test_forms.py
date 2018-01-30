@@ -12,10 +12,9 @@ from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.forms import (
-    CourseEntitlementForm, CourseForm, CourseRunForm, CourseRunStateAdminForm, CourseStateAdminForm,
-    PublisherUserCreationForm, SeatForm
+    CourseForm, CourseRunForm, CourseRunStateAdminForm, CourseStateAdminForm, PublisherUserCreationForm, SeatForm
 )
-from course_discovery.apps.publisher.models import CourseEntitlement, Seat
+from course_discovery.apps.publisher.models import Seat
 from course_discovery.apps.publisher.tests.factories import (
     CourseFactory, CourseUserRoleFactory, OrganizationExtensionFactory, SeatFactory
 )
@@ -343,49 +342,6 @@ class PublisherCustomCourseFormTests(TestCase):
         course_form.save()
         course.refresh_from_db()
         assert course.title == 'áçã'
-
-
-@ddt.ddt
-class PublisherCourseEntitlementFormTests(TestCase):
-    @ddt.data(
-        (CourseEntitlement.VERIFIED, None),
-        (CourseEntitlement.PROFESSIONAL, None),
-        (CourseEntitlement.PROFESSIONAL, 0),
-        (CourseEntitlement.PROFESSIONAL, -1),
-    )
-    @ddt.unpack
-    def test_invalid_price(self, mode, price):
-        """
-        Verify that clean raises an error if the price is invalid for the course type
-        """
-        entitlement_form = CourseEntitlementForm()
-        entitlement_form.cleaned_data = {'mode': mode}
-        if price is not None:
-            entitlement_form.cleaned_data['price'] = price
-
-        with self.assertRaises(ValidationError):
-            entitlement_form.clean()
-
-    @ddt.data(
-        (None, None),
-        (None, 0),
-        (None, 50),
-        (CourseEntitlement.VERIFIED, 50),
-        (CourseEntitlement.PROFESSIONAL, 50),
-    )
-    @ddt.unpack
-    def test_valid_price(self, mode, price):
-        """
-        Verify that clean works fine for valid price/type combos
-        """
-        entitlement_form = CourseEntitlementForm()
-        entitlement_form.cleaned_data = {}
-        if mode is not None:
-            entitlement_form.cleaned_data['mode'] = mode
-        if price is not None:
-            entitlement_form.cleaned_data['price'] = price
-
-        self.assertEqual(entitlement_form.clean(), entitlement_form.cleaned_data)
 
 
 @pytest.mark.django_db
