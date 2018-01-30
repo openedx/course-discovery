@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-29 14:45+0000\n"
+"POT-Creation-Date: 2018-01-30 16:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1000,10 +1000,6 @@ msgstr ""
 "¢σηѕє¢тєтυ#"
 
 #: apps/publisher/forms.py
-msgid "Audit or credit track"
-msgstr "Àüdït ör çrédït träçk Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
-
-#: apps/publisher/forms.py
 msgid "This field is required."
 msgstr "Thïs fïéld ïs réqüïréd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
@@ -1615,28 +1611,6 @@ msgid "BIO1.1x; BIO1.2x etc."
 msgstr "BÌÖ1.1x; BÌÖ1.2x étç. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: apps/publisher/templates/publisher/add_course_form.html
-#: apps/publisher/templates/publisher/add_courserun_form.html
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html
-msgid "CERTIFICATE TYPE AND PRICE"
-msgstr "ÇÉRTÌFÌÇÀTÉ TÝPÉ ÀND PRÌÇÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
-
-#: apps/publisher/templates/publisher/add_course_form.html
-#: apps/publisher/templates/publisher/add_courserun_form.html
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html
-msgid ""
-"If the course offers a verified or professional education certificate, "
-"select the certificate type and enter the price for the certificate."
-msgstr ""
-"Ìf thé çöürsé öfférs ä vérïfïéd ör pröféssïönäl édüçätïön çértïfïçäté, "
-"séléçt thé çértïfïçäté týpé änd éntér thé prïçé för thé çértïfïçäté. Ⱡ'σяєм "
-"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
-"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
-"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
-"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
-"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
-"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łα#"
-
-#: apps/publisher/templates/publisher/add_course_form.html
 msgid "I want to add a run to this course at this time"
 msgstr ""
 "Ì wänt tö ädd ä rün tö thïs çöürsé ät thïs tïmé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
@@ -1759,6 +1733,26 @@ msgstr ""
 "єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ "
 "αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ "
 "ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢α#"
+
+#: apps/publisher/templates/publisher/add_courserun_form.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "CERTIFICATE TYPE AND PRICE"
+msgstr "ÇÉRTÌFÌÇÀTÉ TÝPÉ ÀND PRÌÇÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/publisher/templates/publisher/add_courserun_form.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid ""
+"If the course offers a verified or professional education certificate, "
+"select the certificate type and enter the price for the certificate."
+msgstr ""
+"Ìf thé çöürsé öfférs ä vérïfïéd ör pröféssïönäl édüçätïön çértïfïçäté, "
+"séléçt thé çértïfïçäté týpé änd éntér thé prïçé för thé çértïfïçäté. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
+"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
+"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
+"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łα#"
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid "Create New Course Run"
