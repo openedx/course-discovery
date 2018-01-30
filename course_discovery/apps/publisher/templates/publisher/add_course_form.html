@@ -128,6 +128,27 @@
                         {% endif %}
                     </div>
                 </div>
+
+                {% if entitlement_form %}
+                <div class="field-title">{% trans "CERTIFICATE TYPE AND PRICE" %}</span></div>
+                <div class="row">
+                    <div class="col col-6 help-text">
+                        {% trans "If the course offers a verified or professional education certificate, select the certificate type and enter the price for the certificate." %}
+                    </div>
+                    <div class="col col-6">
+                        <div class="row">
+                            <div class="col col-6">
+                                <label class="field-label ">{{ entitlement_form.mode.label_tag }}</label>
+                                {{ entitlement_form.mode }}
+                            </div>
+                            <div id="seatPriceBlock" class="col col-6 {% if not entitlement_form.mode.value %}hidden{% endif %}">
+                                <label class="field-label ">{{ entitlement_form.price.label_tag }} <span class="required">*</span></label>
+                                {{ entitlement_form.price }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </fieldset>
         </div>
     </div>
