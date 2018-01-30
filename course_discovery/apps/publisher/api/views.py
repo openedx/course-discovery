@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from course_discovery.apps.core.models import User
+from course_discovery.apps.publisher.api.paginations import LargeResultsSetPagination
 from course_discovery.apps.publisher.api.permissions import (CanViewAssociatedCourse, InternalUserPermission,
                                                              PublisherUserPermission)
 from course_discovery.apps.publisher.api.serializers import (CourseRevisionSerializer, CourseRunSerializer,
@@ -37,6 +38,7 @@ class OrganizationGroupUserView(ListAPIView):
     """ List view for Users filtered by group """
     serializer_class = GroupUserSerializer
     permission_classes = (IsAuthenticated,)
+    pagination_class = LargeResultsSetPagination
 
     def get_queryset(self):
         org_extension = get_object_or_404(OrganizationExtension, organization=self.kwargs.get('pk'))
