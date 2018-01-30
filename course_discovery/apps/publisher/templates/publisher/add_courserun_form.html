@@ -126,7 +126,7 @@
                                             <label class="field-label ">{{ seat_form.type.label_tag }}
                                             </label> {{ seat_form.type }}
                                         </div>
-                                        <div id="SeatPriceBlock" class="col col-6 {% if seat_form.type.value == 'audit' or not seat_form.price.value %}hidden{% endif %}">
+                                        <div id="seatPriceBlock" class="col col-6 {% if seat_form.type.value == 'audit' or not seat_form.price.value %}hidden{% endif %}">
                                             <label class="field-label ">{{ seat_form.price.label_tag }}</label>
                                             {{ seat_form.price }}
                                             <div class="{% if seat_form.type.value != 'credit' or not seat_form.credit_price.value %}hidden{% endif %}" id="creditPrice">

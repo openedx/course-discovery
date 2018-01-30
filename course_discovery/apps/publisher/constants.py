@@ -14,3 +14,6 @@ PARTNER_SUPPORT_GROUP_NAME = 'Partner Support Members'
 
 # Being used in old migration `0019_create_user_groups`.
 PARTNER_COORDINATOR_GROUP_NAME = 'Partner Coordinators'
+
+# Waffle flags
+PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH = 'publisher_entitlements'
