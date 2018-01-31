@@ -29,34 +29,36 @@
     <div>{{ course_run.end }}</div>
   </div>
 
-  <div class="info-item">
-    <div class="heading">
-      {% trans "Enrollment Track" %}
+  {% if is_seat_version %}
+    <div class="info-item">
+      <div class="heading">
+        {% trans "Enrollment Track" %}
+      </div>
+      <div>{{ course_run.course_type }}</div>
     </div>
-    <div>{{ course_run.course_type }}</div>
-  </div>
 
-    {% if course_run.seat_price %}
-      <div class="info-item">
-        <div class="heading">
-          {% trans "Certificate Price" %}
+      {% if course_run.seat_price %}
+        <div class="info-item">
+          <div class="heading">
+            {% trans "Certificate Price" %}
+          </div>
+          <div>
+              ${{ course_run.seat_price }}
+          </div>
         </div>
-        <div>
-            ${{ course_run.seat_price }}
-        </div>
-      </div>
-    {% endif %}
+      {% endif %}
 
-    {% if course_run.credit_seat_price %}
-      <div class="info-item">
-        <div class="heading">
-          {% trans "Credit Price" %}
+      {% if course_run.credit_seat_price %}
+        <div class="info-item">
+          <div class="heading">
+            {% trans "Credit Price" %}
+          </div>
+          <div>
+              ${{ course_run.credit_seat_price }}
+          </div>
         </div>
-        <div>
-            ${{ course_run.credit_seat_price }}
-        </div>
-      </div>
-    {% endif %}
+      {% endif %}
+  {% endif %}
 
   <div class="info-item">
     <div class="heading">

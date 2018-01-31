@@ -824,6 +824,28 @@ class CourseRunDetailTests(SiteMixin, TestCase):
                       self.course_run.enrollment_end]:
             self.assertContains(response, value.strftime(self.date_format))
 
+    def test_course_run_with_version(self):
+        """
+        Verify that a SEAT_VERSION course still shows enrollment
+        track data, and an ENTITLEMENT_VERSION course does not
+        """
+        self.client.logout()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+        # For SEAT_VERSION Enrollment Track should be shown
+        self.course.version = Course.SEAT_VERSION
+        self.course.save()
+        response = self.client.get(self.page_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Enrollment Track')
+
+        # For ENTITLEMENT_VERSION no Enrollment Track should be show
+        self.course.version = Course.ENTITLEMENT_VERSION
+        self.course.save()
+        response = self.client.get(self.page_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Enrollment Track')
+
     def test_detail_page_with_comments(self):
         """ Verify that detail page contains all the data along with comments
         for course.
