@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.publisher.choices import PublisherUserRole
-from course_discovery.apps.publisher.models import Seat
+from course_discovery.apps.publisher.models import Course, Seat
 from course_discovery.apps.publisher_comments.models import Comments, CommentTypeChoices
 
 
@@ -149,6 +149,17 @@ class CourseRunWrapper(BaseWrapper):
             self.wrapped_obj.course_run_state.is_preview_accepted and
             self.wrapped_obj.course_run_state.owner_role == 'course_team'
         )
+
+    @property
+    def is_seat_version(self):
+        print("Wrapped obj is")
+        print(self.wrapped_obj)
+        return self.wrapped_obj
+        # return self.wrapped_obj.course.version == Course.SEAT_VERSION
+
+    @property
+    def is_entitlement_version(self):
+        return self.wrapped_obj.course.version == Course.ENTITLEMENT_VERSION
 
     @property
     def organization_key(self):

@@ -228,6 +228,8 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
                                         if current_owner_role.role == PublisherUserRole.ProjectCoordinator
                                         else _('project coordinator'))
         context['is_in_preview_review'] = course_run.is_in_preview_review
+        context['is_seat_version'] = course_run.is_seat_version
+        context['is_entitlement_version'] = course_run.is_entitlement_version
 
         return context
 
