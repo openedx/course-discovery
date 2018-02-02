@@ -158,7 +158,7 @@ class CourseRunWrapper(BaseWrapper):
         # return self.wrapped_obj.course.version == Course.SEAT_VERSION
 
     @property
-    def is_seat_version(self):
+    def is_entitlement_version(self):
         return self.wrapped_obj.course.version == Course.ENTITLEMENT_VERSION
 
     @property

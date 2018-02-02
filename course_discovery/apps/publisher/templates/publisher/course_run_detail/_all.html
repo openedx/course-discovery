@@ -29,12 +29,7 @@
     <div>{{ course_run.end }}</div>
   </div>
 
-  {{ 'Here!' }}
-  {{ 'Course_run.is_seat_version: '}} {{ course_run.is_seat_version }}
-  {{ 'course_run.course.version: '}} {{ course_run.course.version }}
-
-  {{ 'Get wrapped object '}} {{ course_run.is_seat_version }}
-  {% if course_run.is_seat_version %}
+  {% if is_seat_version %}
     <div class="info-item">
       <div class="heading">
         {% trans "Enrollment Track" %}
