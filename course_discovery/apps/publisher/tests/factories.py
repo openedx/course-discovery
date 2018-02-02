@@ -27,6 +27,7 @@ class CourseFactory(factory.DjangoModelFactory):
     learner_testimonial = FuzzyText()
     level_type = factory.SubFactory(factories.LevelTypeFactory)
     image = factory.django.ImageField()
+    version = FuzzyInteger(0, 1)
 
     primary_subject = factory.SubFactory(factories.SubjectFactory)
     secondary_subject = factory.SubFactory(factories.SubjectFactory)
