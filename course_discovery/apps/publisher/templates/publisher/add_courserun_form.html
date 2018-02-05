@@ -56,7 +56,7 @@
                 </div>
             {% endif %}
 
-            <div class="layout-full layout">
+            <div class="layout-full layout js-courserun-form">
                 <div class="course-form">
                     <div class="course-information">
                         <fieldset class="form-group grid-container grid-manual">
@@ -111,7 +111,7 @@
             </div>
 
             {% if seat_form %}
-                <div class="layout-full layout">
+                <div class="layout-full layout js-seat-form {% if hide_seat_form %}hidden{% endif %}">
                     <div class="course-form">
                         <div class="course-information">
                             <fieldset class="form-group grid-container grid-manual">
@@ -168,6 +168,9 @@
     <script src="{% static 'js/publisher/course-tabs.js' %}"></script>
     {% if seat_form %}
         <script src="{% static 'js/publisher/seat-type-change.js' %}"></script>
+    {% endif %}
+    {% if seat_form and course_form %}
+        <script src="{% static 'js/publisher/show-hide-seat-form.js' %}"></script>
     {% endif %}
 {% endblock %}
 
