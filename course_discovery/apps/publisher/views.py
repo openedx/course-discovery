@@ -714,14 +714,14 @@ class CreateRunFromDashboardView(CreateCourseRunView):
     def get_context_data(self, **kwargs):
         context = {
             'cancel_url': reverse('publisher:publisher_dashboard'),
-            'course_form': self.course_form(),
+            'course_form': self.course_form(queryset=Course.objects.none()),
             'run_form': self.run_form(),
             'seat_form': self.seat_form()
         }
         return context
 
     def post(self, request, *args, **kwargs):
-        course_form = self.course_form(request.POST)
+        course_form = self.course_form(request.POST, queryset=Course.objects.all())
         run_form = self.run_form(request.POST)
         ctx_overrides = {'run_form': run_form}
 
