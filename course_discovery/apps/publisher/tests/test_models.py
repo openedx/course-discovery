@@ -179,6 +179,14 @@ class CourseTests(TestCase):
             course=self.course, role=PublisherUserRole.Publisher, user=self.user3
         )
 
+    def test_uses_entitlements(self):
+        """ Verify that uses_entitlements is True when version is set to ENTITLEMENT_VERSION, and False otherwise. """
+        self.course.version = Course.SEAT_VERSION
+        assert not self.course.uses_entitlements()
+
+        self.course.version = Course.ENTITLEMENT_VERSION
+        assert self.course.uses_entitlements()
+
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the course title. """
         self.assertEqual(str(self.course), self.course.title)
