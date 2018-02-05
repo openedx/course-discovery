@@ -723,12 +723,7 @@ class CreateRunFromDashboardView(CreateCourseRunView):
     def post(self, request, *args, **kwargs):
         course_form = self.course_form(request.POST)
         run_form = self.run_form(request.POST)
-        seat_form = self.seat_form(request.POST)
-        ctx_overrides = {
-            'course_form': course_form,
-            'run_form': run_form,
-            'seat_form': seat_form,
-        }
+        ctx_overrides = {'run_form': run_form}
 
         if not course_form.is_valid():
             messages.error(
@@ -736,7 +731,21 @@ class CreateRunFromDashboardView(CreateCourseRunView):
             )
             return self._render_post_error(request, ctx_overrides=ctx_overrides)
 
+        ctx_overrides['course_form'] = course_form
         self.parent_course = course_form.cleaned_data.get('course')
+        if self.parent_course.uses_entitlements():
+            ctx_overrides['hide_seat_form'] = True
+            try:
+                seat_form = self._bind_seat_form_from_entitlement(self.parent_course)
+            except (CourseEntitlement.DoesNotExist, CourseEntitlement.MultipleObjectsReturned):
+                messages.error(
+                    request,
+                    _('The certificate configuration for this course is incorrect. Please fix it and try again.')
+                )
+                return self._render_post_error(request, ctx_overrides=ctx_overrides)
+        else:
+            seat_form = self.seat_form(request.POST)
+            ctx_overrides['seat_form'] = seat_form
 
         return self._process_post_request(
             request, self.parent_course, run_form, seat_form, ctx_overrides=ctx_overrides
