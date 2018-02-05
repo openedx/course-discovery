@@ -668,14 +668,14 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
     def get_context_data(self, **kwargs):
         parent_course = self._get_parent_course()
         last_run = self._get_last_run(parent_course)
-        run_form = self._initialize_run_form(last_run)
-        seat_form = self._initialize_seat_form(last_run)
-
         context = {
             'cancel_url': reverse('publisher:publisher_course_detail', kwargs={'pk': parent_course.pk}),
-            'run_form': run_form,
-            'seat_form': seat_form
+            'run_form': self._initialize_run_form(last_run)
         }
+
+        if not parent_course.uses_entitlements():
+            context['seat_form'] = self._initialize_seat_form(last_run)
+
         return context
 
     def post(self, request, *args, **kwargs):
