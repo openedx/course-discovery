@@ -22,7 +22,7 @@ from pytz import timezone
 from testfixtures import LogCapture
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
-from course_discovery.apps.core.models import User
+from course_discovery.apps.core.models import Currency, User
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
@@ -349,6 +349,7 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         self.assertEqual(response.status_code, 400)
 
 
+@ddt.ddt
 class CreateCourseRunViewTests(SiteMixin, TestCase):
     """ Tests for the publisher `CreateCourseRunView`. """
 
@@ -356,7 +357,11 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         super(CreateCourseRunViewTests, self).setUp()
         self.user = UserFactory()
         self.course_run = factories.CourseRunFactory()
+
         self.course = self.course_run.course
+        self.course.version = Course.SEAT_VERSION
+        self.course.save()
+
         factories.CourseStateFactory(course=self.course)
         factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.CourseTeam, user=self.user)
         factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.Publisher, user=UserFactory())
@@ -414,6 +419,22 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
 
         response = self.client.get(self.create_course_run_url_new)
         self.assertEqual(response.status_code, 200)
+
+    def test_courserun_form_for_course_with_entitlements(self):
+        """ Verify that the Seat fields are hidden for Courses that use entitlements. """
+        self.course.version = Course.ENTITLEMENT_VERSION
+        self.course.save()
+
+        response = self.client.get(self.create_course_run_url_new)
+        self.assertContains(response, '<div class="layout-full layout js-seat-form hidden">', status_code=200)
+
+    def test_courserun_form_for_course_without_entitlements(self):
+        """ Verify that the Seat fields are visible for Courses that do not use entitlements. """
+        self.course.version = Course.SEAT_VERSION
+        self.course.save()
+
+        response = self.client.get(self.create_course_run_url_new)
+        self.assertContains(response, '<div class="layout-full layout js-seat-form">', status_code=200)
 
     def test_create_course_run_without_permission(self):
         """
@@ -627,6 +648,126 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
                     )
                 )
             )
+
+    @ddt.data(
+        (CourseEntitlement.PROFESSIONAL, 1, [{'type': Seat.PROFESSIONAL, 'price': 1}]),
+        (CourseEntitlement.VERIFIED, 1, [{'type': Seat.VERIFIED, 'price': 1}, {'type': Seat.AUDIT, 'price': 0}]),
+    )
+    @ddt.unpack
+    def test_create_run_for_entitlement_course(self, entitlement_mode, entitlement_price, expected_seats):
+        """
+        Verify that when creating a run for a Course that uses entitlements, Seats are created from the
+        entitlement data associated with the parent course.
+        """
+        self.course.version = Course.ENTITLEMENT_VERSION
+        self.course.save()
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+        toggle_switch('publisher_create_audit_seats_for_verified_course_runs', True)
+
+        self.course.entitlements.create(mode=entitlement_mode, price=entitlement_price)
+        post_data = {'start': '2018-02-01 00:00:00', 'end': '2018-02-28 00:00:00', 'pacing_type': 'instructor_paced'}
+
+        num_courseruns_before = self.course.course_runs.count()
+        response = self.client.post(self.create_course_run_url_new, post_data)
+        num_courseruns_after = self.course.course_runs.count()
+        self.assertTrue(num_courseruns_after > num_courseruns_before)
+
+        new_courserun = self.course.course_runs.latest('created')
+        self.assertEqual(new_courserun.start.strftime('%Y-%m-%d %H:%M:%S'), post_data['start'])
+        self.assertEqual(new_courserun.end.strftime('%Y-%m-%d %H:%M:%S'), post_data['end'])
+        self.assertEqual(new_courserun.pacing_type, post_data['pacing_type'])
+
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': new_courserun.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        self.assertEqual(new_courserun.seats.count(), len(expected_seats))
+        for expected_seat in expected_seats:
+            actual_seat = new_courserun.seats.get(type=expected_seat['type'])
+            self.assertEqual(expected_seat['type'], actual_seat.type)
+            self.assertEqual(expected_seat['price'], actual_seat.price)
+
+    def test_create_run_for_misconfigured_entitlement_course(self):
+        """
+        Verify that a user cannot create a new course run for a Course that has been configured to use entitlements
+        but does not have exactly one entitlement.
+        """
+        self.course.version = Course.ENTITLEMENT_VERSION
+        self.course.save()
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+        post_data = {'start': '2018-02-01 00:00:00', 'end': '2018-02-28 00:00:00', 'pacing_type': 'instructor_paced'}
+
+        self.assertEqual(self.course.entitlements.count(), 0)
+        num_courseruns_before = self.course.course_runs.count()
+
+        response = self.client.post(self.create_course_run_url_new, post_data)
+        num_courseruns_after = self.course.course_runs.count()
+        self.assertEqual(num_courseruns_before, num_courseruns_after)
+        self.assertContains(response, 'The certificate configuration for this course is incorrect', status_code=400)
+
+        self.course.entitlements.create(mode=CourseEntitlement.VERIFIED, price=1)
+        self.course.entitlements.create(mode=CourseEntitlement.PROFESSIONAL, price=1)
+        self.assertEqual(self.course.entitlements.count(), 2)
+
+        response = self.client.post(self.create_course_run_url_new, post_data)
+        num_courseruns_after = self.course.course_runs.count()
+        self.assertEqual(num_courseruns_before, num_courseruns_after)
+        self.assertContains(response, 'The certificate configuration for this course is incorrect', status_code=400)
+
+    def test_create_run_for_non_usd_entitlement_course(self):
+        """
+        Verify that a user cannot create a new course run for a Course that has been configured to use entitlements
+        with a currency other than USD.
+        """
+        self.course.version = Course.ENTITLEMENT_VERSION
+        self.course.save()
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+        post_data = {'start': '2018-02-01 00:00:00', 'end': '2018-02-28 00:00:00', 'pacing_type': 'instructor_paced'}
+        self.course.entitlements.create(
+            mode=CourseEntitlement.VERIFIED,
+            price=100,
+            currency=Currency.objects.get(code='JPY')
+        )
+        num_courseruns_before = self.course.course_runs.count()
+
+        response = self.client.post(self.create_course_run_url_new, post_data)
+        num_courseruns_after = self.course.course_runs.count()
+        self.assertEqual(num_courseruns_before, num_courseruns_after)
+        self.assertContains(response, 'The certificate configuration for this course is incorrect', status_code=400)
+
+    def test_create_run_for_entitlement_course_with_seat_data_in_form(self):
+        """
+        Verify that a user cannot submit Seat data with the form when creating a new course run for a Course that has
+        been configured to use entitlements.
+        """
+        self.course.version = Course.ENTITLEMENT_VERSION
+        self.course.save()
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+        post_data = {
+            'start': '2018-02-01 00:00:00',
+            'end': '2018-02-28 00:00:00',
+            'pacing_type': 'instructor_paced',
+            'type': Seat.VERIFIED,
+            'price': 2
+        }
+
+        self.course.entitlements.create(mode=CourseEntitlement.PROFESSIONAL, price=1)
+        num_courseruns_before = self.course.course_runs.count()
+        response = self.client.post(self.create_course_run_url_new, post_data)
+        num_courseruns_after = self.course.course_runs.count()
+        self.assertEqual(num_courseruns_before, num_courseruns_after)
+        self.assertContains(response, 'The page could not be updated.', status_code=400)
 
 
 @ddt.ddt
@@ -3496,6 +3637,7 @@ class CourseRevisionViewTests(SiteMixin, TestCase):
         return self.client.get(path=revision_path)
 
 
+@ddt.ddt
 class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
     """ Tests for the publisher `CreateRunFromDashboardView`. """
 
@@ -3503,7 +3645,11 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
         super(CreateRunFromDashboardViewTests, self).setUp()
         self.user = UserFactory()
         self.organization_extension = factories.OrganizationExtensionFactory()
+
         self.course = factories.CourseFactory(organizations=[self.organization_extension.organization])
+        self.course.version = Course.SEAT_VERSION
+        self.course.save()
+
         factories.CourseStateFactory(course=self.course)
         factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.CourseTeam, user=self.user)
         factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.Publisher, user=UserFactory())
@@ -3593,6 +3739,160 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
         self.assertEqual([self.course.project_coordinator.email], mail.outbox[0].to)
         expected_subject = 'Studio URL requested: {title}'.format(title=self.course.title)
         self.assertEqual(str(mail.outbox[0].subject), expected_subject)
+
+    def test_courserun_form_includes_seat_fields_on_error_for_non_entitlement_course(self):
+        """ Verify that the Seat fields are visible when error occurs for Courses that do not use entitlements. """
+        self.course.version = Course.SEAT_VERSION
+        self.course.save()
+
+        post_data = {'course': self.course.id}
+        response = self.client.post(self.create_course_run_url, post_data)
+        self.assertContains(response, '<div class="layout-full layout js-seat-form">', status_code=400)
+
+    def test_courserun_form_does_not_include_seat_fields_on_error_for_entitlement_course(self):
+        """ Verify that the Seat fields are hidden when error occurs for Courses that use entitlements. """
+        self.course.version = Course.ENTITLEMENT_VERSION
+        self.course.save()
+
+        post_data = {'course': self.course.id}
+        response = self.client.post(self.create_course_run_url, post_data)
+        self.assertContains(response, '<div class="layout-full layout js-seat-form hidden">', status_code=400)
+
+    @ddt.data(
+        (CourseEntitlement.PROFESSIONAL, 1, [{'type': Seat.PROFESSIONAL, 'price': 1}]),
+        (CourseEntitlement.VERIFIED, 1, [{'type': Seat.VERIFIED, 'price': 1}, {'type': Seat.AUDIT, 'price': 0}]),
+    )
+    @ddt.unpack
+    def test_create_run_for_entitlement_course(self, entitlement_mode, entitlement_price, expected_seats):
+        """
+        Verify that when creating a run for a Course that uses entitlements, Seats are created from the
+        entitlement data associated with the parent course.
+        """
+        self.course.version = Course.ENTITLEMENT_VERSION
+        self.course.save()
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+        toggle_switch('publisher_create_audit_seats_for_verified_course_runs', True)
+
+        self.course.entitlements.create(mode=entitlement_mode, price=entitlement_price)
+        post_data = {
+            'start': '2018-02-01 00:00:00',
+            'end': '2018-02-28 00:00:00',
+            'pacing_type': 'instructor_paced',
+            'course': self.course.id
+        }
+
+        num_courseruns_before = self.course.course_runs.count()
+        response = self.client.post(self.create_course_run_url, post_data)
+        num_courseruns_after = self.course.course_runs.count()
+        self.assertTrue(num_courseruns_after > num_courseruns_before)
+
+        new_courserun = self.course.course_runs.latest('created')
+        self.assertEqual(new_courserun.start.strftime('%Y-%m-%d %H:%M:%S'), post_data['start'])
+        self.assertEqual(new_courserun.end.strftime('%Y-%m-%d %H:%M:%S'), post_data['end'])
+        self.assertEqual(new_courserun.pacing_type, post_data['pacing_type'])
+
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': new_courserun.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        self.assertEqual(new_courserun.seats.count(), len(expected_seats))
+        for expected_seat in expected_seats:
+            actual_seat = new_courserun.seats.get(type=expected_seat['type'])
+            self.assertEqual(expected_seat['type'], actual_seat.type)
+            self.assertEqual(expected_seat['price'], actual_seat.price)
+
+    def test_create_run_for_misconfigured_entitlement_course(self):
+        """
+        Verify that a user cannot create a new course run for a Course that has been configured to use entitlements
+        but does not have exactly one entitlement.
+        """
+        self.course.version = Course.ENTITLEMENT_VERSION
+        self.course.save()
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+        post_data = {
+            'start': '2018-02-01 00:00:00',
+            'end': '2018-02-28 00:00:00',
+            'pacing_type': 'instructor_paced',
+            'course': self.course.id
+        }
+
+        self.assertEqual(self.course.entitlements.count(), 0)
+        num_courseruns_before = self.course.course_runs.count()
+
+        response = self.client.post(self.create_course_run_url, post_data)
+        num_courseruns_after = self.course.course_runs.count()
+        self.assertEqual(num_courseruns_before, num_courseruns_after)
+        self.assertContains(response, 'The certificate configuration for this course is incorrect', status_code=400)
+
+        self.course.entitlements.create(mode=CourseEntitlement.VERIFIED, price=1)
+        self.course.entitlements.create(mode=CourseEntitlement.PROFESSIONAL, price=1)
+        self.assertEqual(self.course.entitlements.count(), 2)
+
+        response = self.client.post(self.create_course_run_url, post_data)
+        num_courseruns_after = self.course.course_runs.count()
+        self.assertEqual(num_courseruns_before, num_courseruns_after)
+        self.assertContains(response, 'The certificate configuration for this course is incorrect', status_code=400)
+
+    def test_create_run_for_non_usd_entitlement_course(self):
+        """
+        Verify that a user cannot create a new course run for a Course that has been configured to use entitlements
+        with a currency other than USD.
+        """
+        self.course.version = Course.ENTITLEMENT_VERSION
+        self.course.save()
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+        post_data = {
+            'start': '2018-02-01 00:00:00',
+            'end': '2018-02-28 00:00:00',
+            'pacing_type': 'instructor_paced',
+            'course': self.course.id
+        }
+        self.course.entitlements.create(
+            mode=CourseEntitlement.VERIFIED,
+            price=100,
+            currency=Currency.objects.get(code='JPY')
+        )
+        num_courseruns_before = self.course.course_runs.count()
+
+        response = self.client.post(self.create_course_run_url, post_data)
+        num_courseruns_after = self.course.course_runs.count()
+        self.assertEqual(num_courseruns_before, num_courseruns_after)
+        self.assertContains(response, 'The certificate configuration for this course is incorrect', status_code=400)
+
+    def test_create_run_for_entitlement_course_with_seat_data_in_form(self):
+        """
+        Verify that a user cannot submit Seat data with the form when creating a new course run for a Course that has
+        been configured to use entitlements.
+        """
+        self.course.version = Course.ENTITLEMENT_VERSION
+        self.course.save()
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+        post_data = {
+            'start': '2018-02-01 00:00:00',
+            'end': '2018-02-28 00:00:00',
+            'pacing_type': 'instructor_paced',
+            'course': self.course.id,
+            'type': Seat.VERIFIED,
+            'price': 2
+        }
+
+        self.course.entitlements.create(mode=CourseEntitlement.PROFESSIONAL, price=1)
+        num_courseruns_before = self.course.course_runs.count()
+        response = self.client.post(self.create_course_run_url, post_data)
+        num_courseruns_after = self.course.course_runs.count()
+        self.assertEqual(num_courseruns_before, num_courseruns_after)
+        self.assertContains(response, 'The page could not be updated.', status_code=400)
 
 
 class CreateAdminImportCourseTest(SiteMixin, TestCase):

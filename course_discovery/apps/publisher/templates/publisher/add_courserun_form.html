@@ -56,7 +56,7 @@
                 </div>
             {% endif %}
 
-            <div class="layout-full layout">
+            <div class="layout-full layout js-courserun-form">
                 <div class="course-form">
                     <div class="course-information">
                         <fieldset class="form-group grid-container grid-manual">
@@ -110,7 +110,7 @@
                 </div>
             </div>
 
-            <div class="layout-full layout">
+            <div class="layout-full layout js-seat-form{% if hide_seat_form %} hidden{% endif %}">
                 <div class="course-form">
                     <div class="course-information">
                         <fieldset class="form-group grid-container grid-manual">
@@ -136,7 +136,7 @@
                                         </div>
                                     </div>
                                     {% if seat_form.price.errors %}
-                                        <div class="field-message has-error">
+                                        <div class="field-message has-error js-seat-form-errors">
                                                     <span class="field-message-content">
                                                         {{ seat_form.price.errors|escape }}
                                                     </span>
@@ -165,6 +165,7 @@
 {% block extra_js %}
     <script src="{% static 'js/publisher/course-tabs.js' %}"></script>
     <script src="{% static 'js/publisher/seat-type-change.js' %}"></script>
+    <script src="{% static 'js/publisher/toggle-seat-form.js' %}"></script>
 {% endblock %}
 
 {% block js_without_compress %}

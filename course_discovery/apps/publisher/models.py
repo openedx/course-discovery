@@ -101,6 +101,13 @@ class Course(TimeStampedModel, ChangedByMixin):
         return self.title
 
     @property
+    def uses_entitlements(self):
+        """
+        Returns a bool indicating whether or not this Course has been configured to use entitlement products.
+        """
+        return self.version == self.ENTITLEMENT_VERSION
+
+    @property
     def post_back_url(self):
         return reverse('publisher:publisher_courses_edit', kwargs={'pk': self.id})
 
@@ -506,6 +513,11 @@ class CourseEntitlement(TimeStampedModel):
         'max_digits': 10,
         'null': False,
         'default': 0.00,
+    }
+
+    MODE_TO_SEAT_TYPE_MAPPING = {
+        VERIFIED: Seat.VERIFIED,
+        PROFESSIONAL: Seat.PROFESSIONAL
     }
 
     course = models.ForeignKey(Course, related_name='entitlements')

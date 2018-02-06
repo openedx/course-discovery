@@ -100,6 +100,21 @@ class RevertCourseRevisionView(APIView):
 class CoursesAutoComplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     """ Course Autocomplete. """
 
+    def get_results(self, context):
+        """
+        Format the result set so that it can be returned as a JSON object.
+
+        Overridden from https://github.com/yourlabs/django-autocomplete-light/blob/3.1.8/src/dal_select2/views.py#L14
+        to include information about whether or not the suggested Course(s) use entitlements.
+        """
+        return [
+            {
+                'id': self.get_result_value(course),
+                'text': self.get_result_label(course),
+                'uses_entitlements': course.uses_entitlements
+            } for course in context['object_list']
+        ]
+
     def get_queryset(self):
         if self.q:
             user = self.request.user
