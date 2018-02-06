@@ -920,6 +920,26 @@ class CoursesAutoCompleteTests(SiteMixin, TestCase):
         response = self.client.get(self.course_autocomplete_url.format(title='test'))
         self._assert_response(response, 1)
 
+    def test_course_autocomplete_entitlement_info(self):
+        """ Verify that the response from CourseAutoComplete includes info about whether or not the courses
+        use entitlements. """
+        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+
+        self.course.version = Course.SEAT_VERSION
+        self.course.save()
+
+        self.course2.version = Course.ENTITLEMENT_VERSION
+        self.course2.save()
+
+        response = self.client.get(self.course_autocomplete_url.format(title='test'))
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(len(data['results']), 2)
+
+        results_by_id = {record['id']: record for record in data['results']}
+        self.assertFalse(results_by_id[self.course.id]['uses_entitlements'])
+        self.assertTrue(results_by_id[self.course2.id]['uses_entitlements'])
+
     def _assert_response(self, response, expected_length):
         """ Assert autocomplete response. """
         self.assertEqual(response.status_code, 200)

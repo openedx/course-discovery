@@ -16,7 +16,8 @@ from course_discovery.apps.course_metadata.tests.factories import OrganizationFa
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.mixins import check_course_organization_permission
-from course_discovery.apps.publisher.models import CourseUserRole, OrganizationExtension, OrganizationUserRole, Seat
+from course_discovery.apps.publisher.models import (Course, CourseUserRole, OrganizationExtension,
+                                                    OrganizationUserRole, Seat)
 from course_discovery.apps.publisher.tests import factories
 
 
@@ -178,6 +179,14 @@ class CourseTests(TestCase):
         factories.CourseUserRoleFactory(
             course=self.course, role=PublisherUserRole.Publisher, user=self.user3
         )
+
+    def test_uses_entitlements(self):
+        """ Verify that uses_entitlements is True when version is set to ENTITLEMENT_VERSION, and False otherwise. """
+        self.course.version = Course.SEAT_VERSION
+        assert not self.course.uses_entitlements
+
+        self.course.version = Course.ENTITLEMENT_VERSION
+        assert self.course.uses_entitlements
 
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the course title. """

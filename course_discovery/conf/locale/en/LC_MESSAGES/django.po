@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-06 14:34+0000\n"
+"POT-Creation-Date: 2018-02-12 17:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3322,6 +3322,12 @@ msgstr ""
 
 #: apps/publisher/views.py
 msgid "There was an error saving this course run:"
+msgstr ""
+
+#: apps/publisher/views.py
+msgid ""
+"The certificate configuration for this Course is incorrect. Please fix it, "
+"then try again."
 msgstr ""
 
 #: apps/publisher/views.py

@@ -220,6 +220,13 @@ class CourseSearchForm(forms.Form):
         required=True,
     )
 
+    def __init__(self, *args, **kwargs):
+        qs = kwargs.pop('queryset', None)
+        super(CourseSearchForm, self).__init__(*args, **kwargs)
+
+        if qs is not None:
+            self.fields['course'].queryset = qs
+
 
 class CourseRunForm(BaseForm):
     start = forms.DateTimeField(label=_('Course Start Date'), required=True)
