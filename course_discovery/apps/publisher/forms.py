@@ -210,7 +210,7 @@ class CourseSearchForm(forms.Form):
     """ Course Type ahead Search Form. """
     course = forms.ModelChoiceField(
         label=_('Find Course'),
-        queryset=Course.objects.all(),
+        queryset=Course.objects.none(),
         widget=autocomplete.ModelSelect2(
             url='publisher:api:course-autocomplete',
             attrs={
@@ -219,6 +219,14 @@ class CourseSearchForm(forms.Form):
         ),
         required=True,
     )
+
+    def __init__(self, *args, **kwargs):
+        qs = kwargs.pop('queryset')
+        super(CourseSearchForm, self).__init__(*args, **kwargs)
+
+        if qs:
+            self.fields['course'].queryset = qs
+
 
 
 class CourseRunForm(BaseForm):

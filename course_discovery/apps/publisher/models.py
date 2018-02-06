@@ -100,6 +100,12 @@ class Course(TimeStampedModel, ChangedByMixin):
     def __str__(self):
         return self.title
 
+    def uses_entitlements(self):
+        """
+        Returns a bool indicating whether or not this Course has been configured to use entitlement products.
+        """
+        return self.version == self.ENTITLEMENT_VERSION
+
     @property
     def post_back_url(self):
         return reverse('publisher:publisher_courses_edit', kwargs={'pk': self.id})

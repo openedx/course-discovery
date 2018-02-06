@@ -32,8 +32,9 @@ from course_discovery.apps.publisher.dataloader.create_courses import process_co
 from course_discovery.apps.publisher.emails import send_email_for_published_course_run_editing
 from course_discovery.apps.publisher.forms import (AdminImportCourseForm, CourseEntitlementForm, CourseForm,
                                                    CourseRunForm, CourseSearchForm, SeatForm)
-from course_discovery.apps.publisher.models import (PAID_SEATS, Course, CourseRun, CourseRunState, CourseState,
-                                                    CourseUserRole, OrganizationExtension, Seat, UserAttributes)
+from course_discovery.apps.publisher.models import (PAID_SEATS, Course, CourseEntitlement, CourseRun, CourseRunState,
+                                                    CourseState, CourseUserRole, OrganizationExtension, Seat,
+                                                    UserAttributes)
 from course_discovery.apps.publisher.utils import (get_internal_users, has_role_for_course, is_internal_user,
                                                    is_project_coordinator_user, is_publisher_admin, make_bread_crumbs)
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
@@ -667,27 +668,42 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
             logger.exception('Unable to create course run and seat for course [%s].', parent_course.id)
             return self._render_post_error(request, ctx_overrides=ctx_overrides)
 
+    def _bind_seat_form_from_entitlement(self, parent_course):
+        entitlement = parent_course.entitlements.get()
+        return self.seat_form({'type': entitlement.mode, 'price': entitlement.price})
+
     def get_context_data(self, **kwargs):
         parent_course = self._get_parent_course()
         last_run = self._get_last_run(parent_course)
-        run_form = self._initialize_run_form(last_run)
-        seat_form = self._initialize_seat_form(last_run)
-
         context = {
             'cancel_url': reverse('publisher:publisher_course_detail', kwargs={'pk': parent_course.pk}),
-            'run_form': run_form,
-            'seat_form': seat_form
+            'run_form': self._initialize_run_form(last_run)
         }
+
+        if not parent_course.uses_entitlements():
+            context['seat_form'] = self._initialize_seat_form(last_run)
+
         return context
 
     def post(self, request, *args, **kwargs):
         parent_course = self._get_parent_course()
         run_form = self.run_form(request.POST)
-        seat_form = self.seat_form(request.POST)
-        return self._process_post_request(request, parent_course, run_form, seat_form, ctx_overrides={
-            'run_form': run_form,
-            'seat_form': seat_form
-        })
+        ctx_overrides = {'run_form': run_form}
+
+        if parent_course.uses_entitlements():
+            try:
+                seat_form = self._bind_seat_form_from_entitlement(parent_course)
+            except (CourseEntitlement.DoesNotExist, CourseEntitlement.MultipleObjectsReturned):
+                messages.error(
+                    request,
+                    _('The certificate configuration for this course is incorrect. Please fix it and try again.')
+                )
+                return self._render_post_error(request, ctx_overrides=ctx_overrides)
+        else:
+            seat_form = self.seat_form(request.POST)
+            ctx_overrides['seat_form'] = seat_form
+
+        return self._process_post_request(request, parent_course, run_form, seat_form, ctx_overrides=ctx_overrides)
 
 
 class CreateRunFromDashboardView(CreateCourseRunView):
@@ -700,21 +716,16 @@ class CreateRunFromDashboardView(CreateCourseRunView):
     def get_context_data(self, **kwargs):
         context = {
             'cancel_url': reverse('publisher:publisher_dashboard'),
-            'course_form': self.course_form(),
+            'course_form': self.course_form(queryset=Course.objects.none()),
             'run_form': self.run_form(),
             'seat_form': self.seat_form()
         }
         return context
 
     def post(self, request, *args, **kwargs):
-        course_form = self.course_form(request.POST)
+        course_form = self.course_form(request.POST, queryset=Course.objects.all())
         run_form = self.run_form(request.POST)
-        seat_form = self.seat_form(request.POST)
-        ctx_overrides = {
-            'course_form': course_form,
-            'run_form': run_form,
-            'seat_form': seat_form,
-        }
+        ctx_overrides = {'run_form': run_form}
 
         if not course_form.is_valid():
             messages.error(
@@ -722,7 +733,21 @@ class CreateRunFromDashboardView(CreateCourseRunView):
             )
             return self._render_post_error(request, ctx_overrides=ctx_overrides)
 
+        ctx_overrides['course_form'] = course_form
         self.parent_course = course_form.cleaned_data.get('course')
+        if self.parent_course.uses_entitlements():
+            ctx_overrides['hide_seat_form'] = True
+            try:
+                seat_form = self._bind_seat_form_from_entitlement(self.parent_course)
+            except (CourseEntitlement.DoesNotExist, CourseEntitlement.MultipleObjectsReturned):
+                messages.error(
+                    request,
+                    _('The certificate configuration for this course is incorrect. Please fix it and try again.')
+                )
+                return self._render_post_error(request, ctx_overrides=ctx_overrides)
+        else:
+            seat_form = self.seat_form(request.POST)
+            ctx_overrides['seat_form'] = seat_form
 
         return self._process_post_request(
             request, self.parent_course, run_form, seat_form, ctx_overrides=ctx_overrides
