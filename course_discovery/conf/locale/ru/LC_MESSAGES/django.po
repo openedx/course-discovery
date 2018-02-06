@@ -8,14 +8,15 @@
 # SpaceOyster, 2016
 # Liubov Fomicheva <liubov.nelapa@gmail.com>, 2016-2017
 # Madina Kanlybaeva <madika.kanlybaeva@mail.ru>, 2016
+# Maxim Alexeev <ma1exe@yandex.com>, 2018
 # Svetlana Ugaine <locovilly@yahoo.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-30 13:11+0000\n"
-"PO-Revision-Date: 2017-12-06 20:13+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2018-01-12 11:58+0000\n"
+"PO-Revision-Date: 2018-02-05 11:26+0000\n"
+"Last-Translator: Maxim Alexeev <ma1exe@yandex.com>\n"
 "Language-Team: Russian (http://www.transifex.com/open-edx/edx-platform/language/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -333,7 +334,7 @@ msgid "People"
 msgstr ""
 
 #: apps/course_metadata/models.py
-msgid "Please provide a course preview image"
+msgid "Add the course image"
 msgstr ""
 
 #: apps/course_metadata/models.py
@@ -474,6 +475,13 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Image used for discovery cards"
+msgstr ""
+
+#: apps/course_metadata/models.py
+msgid ""
+"This field can be used by API clients to determine the order in which "
+"instructors will be displayed on program pages. Instructors in this list "
+"should appear before all others associated with this programs courses runs."
 msgstr ""
 
 #: apps/course_metadata/models.py
@@ -836,6 +844,18 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Invalid course key."
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Owner role can not be publisher if the state is draft or review"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Please create {} course user role before assigning it owner role"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Create initial run for the course"
 msgstr ""
 
 #: apps/publisher/models.py
@@ -1780,7 +1800,11 @@ msgid "Course Image Guidelines:"
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
-msgid "The image size must be 2120 x 1192 pixels."
+msgid "New course images must be 1134 X 675 pixels in size. "
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "Learn more."
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
@@ -2735,6 +2759,8 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/course/seo_review.txt
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.html
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.txt
 #: apps/publisher/templates/publisher/email/course_run/preview_available.html
 #: apps/publisher/templates/publisher/email/course_run/preview_available.txt
 #: apps/publisher/templates/publisher/email/course_run/published.txt
@@ -2781,6 +2807,8 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/course_created.txt
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.html
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.txt
 #: apps/publisher/templates/publisher/email/course_run/preview_accepted.html
 #: apps/publisher/templates/publisher/email/course_run/preview_accepted.txt
 #: apps/publisher/templates/publisher/email/course_run/preview_available.html
@@ -2800,6 +2828,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/course/send_for_review.html
 #: apps/publisher/templates/publisher/email/course/seo_review.html
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.html
 #: apps/publisher/templates/publisher/email/course_run/preview_accepted.html
 #: apps/publisher/templates/publisher/email/course_run/published.html
 #: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.html
@@ -2815,6 +2844,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/course/send_for_review.txt
 #: apps/publisher/templates/publisher/email/course/seo_review.txt
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.txt
 #: apps/publisher/templates/publisher/email/course_run/preview_accepted.txt
 #: apps/publisher/templates/publisher/email/course_run/preview_available.txt
 #: apps/publisher/templates/publisher/email/course_run/published.txt
@@ -2884,6 +2914,7 @@ msgid ""
 msgstr ""
 
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.html
 #, python-format
 msgid ""
 "%(sender_team)s has reviewed the "
@@ -2901,12 +2932,15 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.html
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.html
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.txt
 msgid ""
 "Additionally, please check the comments in Publisher for information about "
 "OFAC blocking."
 msgstr ""
 
 #: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.txt
 #, python-format
 msgid ""
 "The %(sender_team)s has reviewed the %(run_number)s %(page_url)s course run "
@@ -3197,6 +3231,13 @@ msgstr ""
 msgid ""
 "The image you uploaded is of incorrect resolution. Course image files must "
 "be %(with)s x %(height)s pixels in size."
+msgstr ""
+
+#: apps/publisher/validators.py
+#, python-format
+msgid ""
+"Invalid image size. The recommended image size is %(preferred)s. Older "
+"courses also support image sizes of %(supported)s."
 msgstr ""
 
 #: apps/publisher/validators.py

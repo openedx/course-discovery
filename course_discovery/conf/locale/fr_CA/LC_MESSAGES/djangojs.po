@@ -4,14 +4,14 @@
 # 
 # Translators:
 # Keivan Farzaneh <keivan.farzaneh@edulib.org>, 2017
-# Pierre Mailhot <pierre.mailhot@gmail.com>, 2016-2017
+# Pierre Mailhot <pierre.mailhot@gmail.com>, 2016-2018
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-30 13:11+0000\n"
-"PO-Revision-Date: 2017-11-02 21:35+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2018-02-05 18:37+0000\n"
+"PO-Revision-Date: 2018-01-25 20:52+0000\n"
+"Last-Translator: Pierre Mailhot <pierre.mailhot@gmail.com>\n"
 "Language-Team: French (Canada) (http://www.transifex.com/open-edx/edx-platform/language/fr_CA/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -49,7 +49,7 @@ msgstr "Ajouter un membre d'équipe pédagogique"
 
 #: static/js/publisher/instructors.js
 msgid "Please upload a instructor image."
-msgstr ""
+msgstr "S'il vous plaît, téléversez une image de l'enseignant."
 
 #: static/js/publisher/instructors.js static/js/publisher/preview-url.js
 msgid "Something went wrong!"
@@ -57,15 +57,15 @@ msgstr "Quelque chose s'est mal passé!"
 
 #: static/js/publisher/instructors.js
 msgid "The image size must be smaller than 256kb"
-msgstr ""
+msgstr "La taille de l'image doit être inférieure à 256 Ko"
 
 #: static/js/publisher/instructors.js
 msgid "The image dimensions must be less than 110 x 110"
-msgstr ""
+msgstr "Les dimensions de l'image doivent être de moins de 110 x 110"
 
 #: static/js/publisher/instructors.js
 msgid " Unsupported Image extension"
-msgstr ""
+msgstr "Type d'image non supporté"
 
 #: static/js/publisher/instructors.js
 msgid "Update staff member"
