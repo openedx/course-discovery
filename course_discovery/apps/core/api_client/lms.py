@@ -12,6 +12,10 @@ from course_discovery.apps.api.utils import get_cache_key
 
 logger = logging.getLogger(__name__)
 
+SENTINEL_NO_RESULT = ()
+ONE_HOUR = 60 * 60
+ONE_MINUTE = 60
+
 
 class LMSAPIClient(object):
     """
@@ -23,13 +27,13 @@ class LMSAPIClient(object):
 
     def get_api_access_request(self, user):
         """
-        Get API Access Requests made by the given user.
+        Get ApiAccessRequests made by the given user.
 
         Arguments:
             user (User): Django User.
 
         Returns:
-            (dict): API Access requests made by the given user.
+            (dict): ApiAccessRequests for the given user.
 
         Examples:
             >> user = User.objects.get(username='staff')
@@ -54,23 +58,32 @@ class LMSAPIClient(object):
         }
 
         cache_key = get_cache_key(username=user.username, resource=resource)
-        api_access_request = cache.get(cache_key)
+        cached_api_access_request = cache.get(cache_key)
 
-        if not api_access_request:
-            try:
-                results = getattr(self.client, resource).get(**query_parameters)['results']
+        if cached_api_access_request is SENTINEL_NO_RESULT:
+            return None
 
+        if cached_api_access_request:
+            return cached_api_access_request
+
+        api_access_request = None
+        try:
+            results = getattr(self.client, resource).get(**query_parameters)['results']
+            if results:
                 if len(results) > 1:
                     logger.warning(
-                        'Multiple APIAccessRequest models returned from LMS API for user [%s].',
+                        'Multiple ApiAccessRequest models returned from LMS API for user [%s].',
                         user.username,
                     )
-
                 api_access_request = results[0]
-                cache.set(cache_key, api_access_request, 60 * 60)
-            except (SlumberBaseException, ConnectionError, Timeout):
-                logger.exception('Failed to fetch API Access Request from LMS for user "%s".', user.username)
-            except (IndexError, KeyError):
-                logger.info('APIAccessRequest model not found for user [%s].', user.username)
+                cache.set(cache_key, api_access_request, ONE_HOUR)
+            else:
+                cache.set(cache_key, SENTINEL_NO_RESULT, ONE_HOUR)
+                logger.info('No results for ApiAccessRequest for user [%s].', user.username)
+
+        except (SlumberBaseException, ConnectionError, Timeout, KeyError) as exception:
+            cache.set(cache_key, SENTINEL_NO_RESULT, ONE_MINUTE)
+            logger.exception('%s: Failed to fetch ApiAccessRequest from LMS for user [%s].',
+                             exception.__class__.__name__, user.username)
 
         return api_access_request

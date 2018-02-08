@@ -161,6 +161,9 @@ def get_utm_source_for_user(partner, user):
     # use company name from API Access Request as utm_source.
     if waffle.switch_is_active('use_company_name_as_utm_source_value') and partner.lms_url:
         lms = LMSAPIClient(partner.site)
+
+        # This result is not being used to determine access. It is only being
+        # used to create an alternative UTM code parsed from the result.
         api_access_request = lms.get_api_access_request(user)
 
         if api_access_request:
