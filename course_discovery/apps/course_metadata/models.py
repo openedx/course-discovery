@@ -298,12 +298,10 @@ class Person(TimeStampedModel):
 
     @property
     def get_profile_image_url(self):
-        url = self.profile_image_url
-        if not url:
-            if self.profile_image and hasattr(self.profile_image, 'url'):
-                url = self.profile_image.url
-
-        return url
+        if self.profile_image and hasattr(self.profile_image, 'url'):
+            return self.profile_image.url
+        else:
+            return self.profile_image_url
 
 
 class Position(TimeStampedModel):

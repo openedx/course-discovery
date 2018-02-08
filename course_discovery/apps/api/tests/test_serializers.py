@@ -1138,7 +1138,7 @@ class PersonSerializerTests(TestCase):
             'family_name': self.person.family_name,
             'bio': self.person.bio,
             'profile_image': image_field.to_representation(self.person.profile_image),
-            'profile_image_url': self.person.profile_image_url,
+            'profile_image_url': self.person.profile_image.url,
             'position': PositionSerializer(position).data,
             'works': [work.value for work in self.person.person_works.all()],
             'urls': {
