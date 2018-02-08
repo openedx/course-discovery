@@ -2,6 +2,7 @@ import logging
 
 import mock
 import responses
+from django.core.cache import cache
 from django.test import TestCase
 
 from course_discovery.apps.core.api_client import lms
@@ -12,7 +13,6 @@ from course_discovery.apps.core.tests.utils import MockLoggingHandler
 
 
 class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
-
     @classmethod
     def setUpClass(cls):
         super(TestLMSAPIClient, cls).setUpClass()
@@ -24,7 +24,6 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
     def setUp(self, mock_access_token):  # pylint: disable=unused-argument
         super(TestLMSAPIClient, self).setUp()
-
         # Reset mock logger for each test.
         self.log_handler.reset()
 
@@ -44,6 +43,7 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
             'site': 1,
             'contacted': True
         }
+        cache.clear()
 
     @responses.activate
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
@@ -63,12 +63,9 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
         Verify that `get_api_access_request` returns None when api_access_request
         API endpoint is not available.
         """
-        self.mock_api_access_request(
-            self.partner.lms_url, self.user, status=404
-        )
+        self.mock_api_access_request(self.partner.lms_url, self.user, status=404)
         assert self.lms.get_api_access_request(self.user) is None
-        assert 'Failed to fetch API Access Request from LMS for user "%s".' % self.user.username in \
-               self.log_messages['error']
+        assert 'HttpNotFoundError' in self.log_messages['error'][0]
 
     @responses.activate
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
@@ -81,15 +78,14 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
             self.partner.lms_url, self.user
         )
         assert self.lms.get_api_access_request(self.user) is None
-        assert 'APIAccessRequest model not found for user [%s].' % self.user.username in \
-               self.log_messages['info']
+        assert 'KeyError' in self.log_messages['error'][0]
 
     @responses.activate
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
     def test_get_api_access_request_with_invalid_response(self, mock_access_token):  # pylint: disable=unused-argument
         """
         Verify that `get_api_access_request` returns None when api_access_request
-        API endpoint is not available.
+        returns an invalid response.
         """
         # API response without proper paginated structure.
         # Following is an invalid response.
@@ -111,8 +107,53 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
             self.partner.lms_url, self.user, response_overrides=sample_invalid_response
         )
         assert self.lms.get_api_access_request(self.user) is None
-        assert 'APIAccessRequest model not found for user [%s].' % self.user.username in \
-               self.log_messages['info']
+        assert 'KeyError' in self.log_messages['error'][0]
+
+    @responses.activate
+    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
+    def test_get_api_access_request_with_no_results(self, mock_access_token):  # pylint: disable=unused-argument
+        """
+        Verify that `get_api_access_request` returns None when api_access_request
+        API returns no results.
+        """
+        self.mock_api_access_request_with_configurable_results(
+            self.partner.lms_url, self.user, results=[]
+        )
+        assert self.lms.get_api_access_request(self.user) is None
+        assert 'No results for ApiAccessRequest for user [%s].' % self.user.username in self.log_messages['info']
+
+    @responses.activate
+    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
+    def test_get_api_access_request_cache_for_user_with_no_results(self,
+                                                                   mock_access_token):  # pylint: disable=unused-argument
+        """
+        Verify that `get_api_access_request` returns None when api_access_request
+        API returns no results and returns the cached result on another call with
+        the same user.
+        """
+        self.mock_api_access_request_with_configurable_results(
+            self.partner.lms_url, self.user, results=[]
+        )
+        assert self.lms.get_api_access_request(self.user) is None
+        assert 'No results for ApiAccessRequest for user [%s].' % self.user.username in self.log_messages['info']
+
+        assert self.lms.get_api_access_request(self.user) is None
+        assert len(responses.calls) == 1
+
+    @responses.activate
+    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
+    def test_get_api_access_request_cache_hit(self,
+                                              mock_access_token):  # pylint: disable=unused-argument
+        """
+        Verify that `get_api_access_request` returns the correct value and then
+        returns the cached results on another call with the same user.
+        """
+        self.mock_api_access_request(
+            self.partner.lms_url, self.user, api_access_request_overrides=self.response
+        )
+        assert self.lms.get_api_access_request(self.user) == self.response
+        assert self.lms.get_api_access_request(self.user) == self.response
+        assert len(responses.calls) == 1
 
     @responses.activate
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
@@ -121,50 +162,39 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
         Verify that `get_api_access_request` logs a warning message and returns the first result
         if endpoint returns multiple api-access-requests for a user.
         """
-        # API response without proper paginated structure.
-        # Following is an invalid response.
-        sample_response_with_multiple_users = {
-            'count': 2,
-            'num_pages': 1,
-            'current_page': 1,
-            'results':
-                [
-                    {
-                        'id': 1,
-                        'created': '2017-09-25T08:37:05.872566Z',
-                        'modified': '2017-09-25T08:37:47.412496Z',
-                        'user': 1,
-                        'status': 'declined',
-                        'website': 'https://example.com/',
-                        'reason': 'Example Reason',
-                        'company_name': 'Test Company',
-                        'company_address': 'Example Address',
-                        'site': 1,
-                        'contacted': True
-                    },
-                    {
-                        'id': 2,
-                        'created': '2017-10-25T08:37:05.872566Z',
-                        'modified': '2017-10-25T08:37:47.412496Z',
-                        'user': 1,
-                        'status': 'approved',
-                        'website': 'https://example.com/',
-                        'reason': 'Example Reason',
-                        'company_name': 'Test Company',
-                        'company_address': 'Example Address',
-                        'site': 1,
-                        'contacted': True
-                    },
-                ],
-            'next': None,
-            'start': 0,
-            'previous': None
-        }
+        results = [
+            {
+                'id': 1,
+                'created': '2017-09-25T08:37:05.872566Z',
+                'modified': '2017-09-25T08:37:47.412496Z',
+                'user': 1,
+                'status': 'declined',
+                'website': 'https://example.com/',
+                'reason': 'Example Reason',
+                'company_name': 'Test Company',
+                'company_address': 'Example Address',
+                'site': 1,
+                'contacted': True
+            },
+            {
+                'id': 2,
+                'created': '2017-10-25T08:37:05.872566Z',
+                'modified': '2017-10-25T08:37:47.412496Z',
+                'user': 1,
+                'status': 'approved',
+                'website': 'https://example.com/',
+                'reason': 'Example Reason',
+                'company_name': 'Test Company',
+                'company_address': 'Example Address',
+                'site': 1,
+                'contacted': True
+            },
+        ]
 
-        self.mock_api_access_request_with_invalid_data(
-            self.partner.lms_url, self.user, response_overrides=sample_response_with_multiple_users
+        self.mock_api_access_request_with_configurable_results(
+            self.partner.lms_url, self.user, results=results
         )
 
         assert self.lms.get_api_access_request(self.user)['company_name'] == 'Test Company'
-        assert 'Multiple APIAccessRequest models returned from LMS API for user [%s].' % self.user.username in \
+        assert 'Multiple ApiAccessRequest models returned from LMS API for user [%s].' % self.user.username in \
                self.log_messages['warning']
