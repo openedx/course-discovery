@@ -3,15 +3,16 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# Dmytro Halko <dgalko@edpro.com.ua>, 2018
 # Irene Korotkova <irca.gav@gmail.com>, 2017
-# Natalia Vynogradenko <tannaha@gmail.com>, 2017
+# Natalia Vynogradenko <tannaha@gmail.com>, 2017-2018
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-30 13:11+0000\n"
-"PO-Revision-Date: 2017-11-02 21:35+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2018-02-06 14:34+0000\n"
+"PO-Revision-Date: 2018-01-26 11:56+0000\n"
+"Last-Translator: Dmytro Halko <dgalko@edpro.com.ua>\n"
 "Language-Team: Ukrainian (http://www.transifex.com/open-edx/edx-platform/language/uk/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -29,11 +30,11 @@ msgstr ""
 
 #: static/js/publisher/comparing-objects.js
 msgid "Hide changes"
-msgstr ""
+msgstr "Сховати зміни"
 
 #: static/js/publisher/comparing-objects.js
 msgid "Show changes"
-msgstr ""
+msgstr "Показати зміни"
 
 #: static/js/publisher/image-validation.js
 msgid "The image file size cannot exceed 1 MB."
@@ -45,7 +46,7 @@ msgstr "Новий викладач"
 
 #: static/js/publisher/instructors.js
 msgid "Add staff member"
-msgstr ""
+msgstr "Додати члена персоналу"
 
 #: static/js/publisher/instructors.js
 msgid "Please upload a instructor image."
