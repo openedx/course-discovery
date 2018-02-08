@@ -27,6 +27,7 @@ services:
     container_name: discovery
     volumes:
       - ..:/edx/app/discovery/discovery
+      - /edx/app/discovery/discovery/node_modules
       - ../course_discovery/media:/edx/var/discovery/media
       - ../course_discovery/assets:/edx/var/discovery/staticfiles
     command: tail -f /dev/null
