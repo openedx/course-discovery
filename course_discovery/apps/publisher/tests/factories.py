@@ -12,9 +12,8 @@ from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import PublisherUserRole
-from course_discovery.apps.publisher.models import (Course, CourseEntitlement, CourseRun, CourseRunState, CourseState,
-                                                    CourseUserRole, OrganizationExtension, OrganizationUserRole, Seat,
-                                                    UserAttributes)
+from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
+                                                    OrganizationExtension, OrganizationUserRole, Seat, UserAttributes)
 
 
 class CourseFactory(factory.DjangoModelFactory):
@@ -89,16 +88,6 @@ class SeatFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = Seat
-
-
-class CourseEntitlementFactory(factory.DjangoModelFactory):
-    mode = FuzzyChoice([name for name, __ in CourseEntitlement.COURSE_MODE_CHOICES])
-    price = FuzzyDecimal(1.0, 650.0)
-    currency = factory.Iterator(Currency.objects.all())
-    course = factory.SubFactory(CourseFactory)
-
-    class Meta:
-        model = CourseEntitlement
 
 
 class GroupFactory(factory.DjangoModelFactory):
