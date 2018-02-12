@@ -3,7 +3,6 @@ import logging
 from dal import autocomplete
 from django.apps import apps
 from django.contrib.auth.mixins import LoginRequiredMixin
-from guardian.shortcuts import get_objects_for_user
 from rest_framework import status
 from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -19,8 +18,7 @@ from course_discovery.apps.publisher.api.serializers import (CourseRevisionSeria
                                                              CourseUserRoleSerializer, GroupUserSerializer)
 from course_discovery.apps.publisher.forms import CourseForm
 from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
-                                                    OrganizationExtension)
-from course_discovery.apps.publisher.utils import is_internal_user, is_publisher_admin
+                                                    OrganizationExtension, PublisherUser)
 
 logger = logging.getLogger(__name__)
 
@@ -117,22 +115,8 @@ class CoursesAutoComplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
 
     def get_queryset(self):
         if self.q:
-            user = self.request.user
-            if is_publisher_admin(user):
-                qs = Course.objects.filter(title__icontains=self.q)
-            elif is_internal_user(user):
-                qs = Course.objects.filter(title__icontains=self.q, course_user_roles__user=user).distinct()
-            else:
-                organizations = get_objects_for_user(
-                    user,
-                    OrganizationExtension.VIEW_COURSE,
-                    OrganizationExtension,
-                    use_groups=True,
-                    with_superuser=False
-                ).values_list('organization')
-                qs = Course.objects.filter(title__icontains=self.q, organizations__in=organizations)
-
-            return qs
+            qs = PublisherUser.get_courses(self.request.user)
+            return qs.filter(title__icontains=self.q)
 
         return []
 

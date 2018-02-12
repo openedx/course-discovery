@@ -33,8 +33,8 @@ from course_discovery.apps.publisher.emails import send_email_for_published_cour
 from course_discovery.apps.publisher.forms import (AdminImportCourseForm, CourseEntitlementForm, CourseForm,
                                                    CourseRunForm, CourseSearchForm, SeatForm)
 from course_discovery.apps.publisher.models import (PAID_SEATS, Course, CourseEntitlement, CourseRun, CourseRunState,
-                                                    CourseState, CourseUserRole, OrganizationExtension, Seat,
-                                                    UserAttributes)
+                                                    CourseState, CourseUserRole, OrganizationExtension, PublisherUser,
+                                                    Seat, UserAttributes)
 from course_discovery.apps.publisher.utils import (get_internal_users, has_role_for_course, is_internal_user,
                                                    is_project_coordinator_user, is_publisher_admin, make_bread_crumbs)
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
@@ -744,7 +744,7 @@ class CreateRunFromDashboardView(CreateCourseRunView):
     def get_context_data(self, **kwargs):
         context = {
             'cancel_url': reverse('publisher:publisher_dashboard'),
-            'course_form': self.course_form(queryset=Course.objects.none()),
+            'course_form': self.course_form(),
             'run_form': self.run_form(),
             'seat_form': self.seat_form(),
             'hide_seat_form': False
@@ -752,7 +752,7 @@ class CreateRunFromDashboardView(CreateCourseRunView):
         return context
 
     def post(self, request, *args, **kwargs):
-        course_form = self.course_form(request.POST)
+        course_form = self.course_form(request.POST, user=request.user)
         if not course_form.is_valid():
             messages.error(
                 request, _('The page could not be updated. Make sure that all values are correct, then try again.')
@@ -909,20 +909,7 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
             'organizations', 'course_state', 'publisher_course_runs', 'course_user_roles'
         )
 
-        if is_publisher_admin(user):
-            courses = courses
-        elif is_internal_user(user):
-            courses = courses.filter(course_user_roles__user=user).distinct()
-        else:
-            organizations = get_objects_for_user(
-                user,
-                OrganizationExtension.VIEW_COURSE,
-                OrganizationExtension,
-                use_groups=True,
-                with_superuser=False
-            ).values_list('organization')
-            courses = courses.filter(organizations__in=organizations)
-
+        courses = PublisherUser.get_courses(user, queryset=courses)
         courses = self.filter_queryset(courses)
         courses = self.sort_queryset(courses)
 

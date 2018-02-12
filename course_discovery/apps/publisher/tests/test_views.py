@@ -2094,7 +2094,7 @@ class CourseListViewPaginationTests(PaginationMixin, TestCase):
 
     def test_pagination_for_internal_user(self):
         """ Verify that pagination works for internal user. """
-        with mock.patch('course_discovery.apps.publisher.views.is_publisher_admin', return_value=False):
+        with mock.patch('course_discovery.apps.publisher.models.is_publisher_admin', return_value=False):
             self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
             self.course_team_role = factories.CourseUserRoleFactory(
                 course=self.courses[0], user=self.user, role=PublisherUserRole.CourseTeam
@@ -2107,8 +2107,8 @@ class CourseListViewPaginationTests(PaginationMixin, TestCase):
 
     def test_pagination_for_user_organizations(self):
         """ Verify that pagination works for user organizations. """
-        with mock.patch('course_discovery.apps.publisher.views.is_publisher_admin', return_value=False):
-            with mock.patch('course_discovery.apps.publisher.views.is_internal_user', return_value=False):
+        with mock.patch('course_discovery.apps.publisher.models.is_publisher_admin', return_value=False):
+            with mock.patch('course_discovery.apps.publisher.models.is_internal_user', return_value=False):
                 organization_extension = factories.OrganizationExtensionFactory(
                     organization=self.courses[0].organizations.all()[0]  # zeroX
                 )
@@ -3665,6 +3665,7 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
         assign_perm(
             OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
         )
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
 
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
@@ -3707,6 +3708,15 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
         """
         post_data = self._post_data()
         post_data.pop('course')
+        response = self.client.post(self.create_course_run_url, post_data)
+        self.assertContains(response, 'The page could not be updated. Make', status_code=400)
+
+    def test_create_course_run_without_access_to_course(self):
+        """ Verify that user cannot create course run for a course they don't have access to.
+        """
+        self.course.organizations = []  # user will no longer be associated with course
+        self.course.save()
+        post_data = self._post_data()
         response = self.client.post(self.create_course_run_url, post_data)
         self.assertContains(response, 'The page could not be updated. Make', status_code=400)
 

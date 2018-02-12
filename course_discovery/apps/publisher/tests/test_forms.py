@@ -4,6 +4,7 @@ import ddt
 import pytest
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from guardian.shortcuts import assign_perm
 from pytz import timezone
 from waffle.testutils import override_switch
 
@@ -11,11 +12,12 @@ from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, PublisherUserRole
+from course_discovery.apps.publisher.constants import ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME
 from course_discovery.apps.publisher.forms import (
-    CourseEntitlementForm, CourseForm, CourseRunForm, CourseRunStateAdminForm, CourseStateAdminForm,
+    CourseEntitlementForm, CourseForm, CourseRunForm, CourseRunStateAdminForm, CourseSearchForm, CourseStateAdminForm,
     PublisherUserCreationForm, SeatForm
 )
-from course_discovery.apps.publisher.models import CourseEntitlement, Seat
+from course_discovery.apps.publisher.models import CourseEntitlement, Group, OrganizationExtension, Seat
 from course_discovery.apps.publisher.tests.factories import (
     CourseFactory, CourseUserRoleFactory, OrganizationExtensionFactory, SeatFactory
 )
@@ -417,3 +419,57 @@ class TestSeatForm:
         form.save()
         assert seat.course_run.seats.count() == 2
         assert seat.course_run.seats.filter(type=Seat.AUDIT, price=0).exists()
+
+
+@ddt.ddt
+class CourseSearchFormTests(TestCase):
+    """
+    Tests for publisher 'CourseSearchForm'
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.organization = OrganizationFactory()
+        self.organization_extension = OrganizationExtensionFactory()
+        self.user = UserFactory()
+        self.user.groups.add(self.organization_extension.group)
+        self.course = CourseFactory(title='Test course')
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension
+        )
+
+    def test_no_user(self):
+        course_form = CourseSearchForm()
+        course_form.full_clean()
+        self.assertFalse(course_form.is_valid())
+        self.assertEqual(0, course_form.fields['course'].queryset.count())
+
+    def _check_form(self):
+        course_form = CourseSearchForm(user=self.user, data={'course': self.course.id})
+        course_form.full_clean()
+        return course_form.is_valid()
+
+    def test_unrelated_course(self):
+        """ Verify course search doesn't allow courses unrelated to the user. """
+        self.assertFalse(self._check_form())
+
+    def test_with_course_team(self):
+        """ Verify course search allows courses in the user's organizations. """
+        self.course.organizations.add(self.organization_extension.organization)  # pylint: disable=no-member
+        self.assertTrue(self._check_form())
+
+    def test_with_admin_user(self):
+        """ Verify course search lets an admin access courses they aren't associated with. """
+        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+        self.assertTrue(self._check_form())
+
+    def test_with_internal_user(self):
+        """ Verify course search only lets an internal user access courses with a role for them. """
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+
+        # Confirm that internal users aren't granted blanket access
+        self.assertFalse(self._check_form())
+
+        # But it *will* work if we add a role for this user
+        CourseUserRoleFactory(course=self.course, user=self.user, role=PublisherUserRole.MarketingReviewer)
+        self.assertTrue(self._check_form())
