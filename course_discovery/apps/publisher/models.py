@@ -12,6 +12,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from django_fsm import FSMField, transition
+from guardian.shortcuts import get_objects_for_user
 from simple_history.models import HistoricalRecords
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
@@ -26,7 +27,7 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher import emails
 from course_discovery.apps.publisher.choices import (CourseRunStateChoices, CourseStateChoices, InternalUserRole,
                                                      PublisherUserRole)
-from course_discovery.apps.publisher.utils import is_email_notification_enabled
+from course_discovery.apps.publisher.utils import is_email_notification_enabled, is_internal_user, is_publisher_admin
 from course_discovery.apps.publisher.validators import ImageMultiSizeValidator
 
 logger = logging.getLogger(__name__)
@@ -907,3 +908,22 @@ class PublisherUser(User):
 
     class Meta:
         proxy = True
+
+    @staticmethod
+    def get_courses(user, queryset=None):
+        if queryset is None:
+            queryset = Course.objects.all()
+
+        if is_publisher_admin(user):
+            return queryset
+        elif is_internal_user(user):
+            return queryset.filter(course_user_roles__user=user).distinct()
+        else:
+            organizations = get_objects_for_user(
+                user,
+                OrganizationExtension.VIEW_COURSE,
+                OrganizationExtension,
+                use_groups=True,
+                with_superuser=False
+            ).values_list('organization')
+            return queryset.filter(organizations__in=organizations)
