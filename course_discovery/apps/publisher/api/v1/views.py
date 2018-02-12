@@ -42,8 +42,9 @@ class CourseRunViewSet(viewsets.GenericViewSet):
 
         try:
             publication_status['studio'] = self.publish_to_studio(partner, course_run)
-            publication_status['ecommerce'] = self.publish_to_ecommerce(partner, course_run)
             publication_status['discovery'] = self.publish_to_discovery(partner, course_run)
+            # ecommerce is going to want to ask discovery about the course's UUID, so we do this last
+            publication_status['ecommerce'] = self.publish_to_ecommerce(partner, course_run)
         except SlumberBaseException as ex:
             logger.exception('Failed to publish course run [%s]!', pk)
             content = getattr(ex, 'content', None)
