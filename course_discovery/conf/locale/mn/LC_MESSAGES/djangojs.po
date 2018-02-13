@@ -5,13 +5,14 @@
 # Translators:
 # Mooc num <moocatnum@gmail.com>, 2017
 # Oyunmaa Khorloo <oyunmaax@gmail.com>, 2017
+# zzz deb <zolboo.deb@gmail.com>, 2018
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-30 13:11+0000\n"
-"PO-Revision-Date: 2017-11-02 21:35+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2018-02-05 18:37+0000\n"
+"PO-Revision-Date: 2018-01-07 02:19+0000\n"
+"Last-Translator: zzz deb <zolboo.deb@gmail.com>\n"
 "Language-Team: Mongolian (http://www.transifex.com/open-edx/edx-platform/language/mn/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
