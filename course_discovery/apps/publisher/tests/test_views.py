@@ -3087,6 +3087,24 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
 
         toggle_switch('enable_publisher_email_notifications', True)
 
+    def test_courserun_edit_form_for_course_with_entitlements(self):
+        """ Verify that the edit form does not include Seat fields for courses that use entitlements. """
+        self.course_run.course.version = Course.ENTITLEMENT_VERSION
+        self.course_run.course.save()
+
+        url = reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id})
+        response = self.client.get(url)
+        self.assertNotContains(response, 'CERTIFICATE TYPE AND PRICE', status_code=200)
+
+    def test_courserun_edit_form_for_course_without_entitlements(self):
+        """ Verify that the edit form includes Seat fields for courses that do not use entitlements. """
+        self.course_run.course.version = Course.SEAT_VERSION
+        self.course_run.course.save()
+
+        url = reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id})
+        response = self.client.get(url)
+        self.assertContains(response, 'CERTIFICATE TYPE AND PRICE', status_code=200)
+
     def test_edit_page_with_two_seats(self):
         """
         Verify that if a course run has both audit and verified seats, Verified seat is displayed
@@ -3230,6 +3248,45 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         self.assertEqual(course_run.seats.first().price, 10)
 
         self.assertEqual(course_run.seats.first().history.all().count(), 1)
+
+    def test_update_course_run_for_course_that_uses_entitlements(self):
+        """ Verify that a user cannot change Seat data when editing courseruns for courses that use entitlements. """
+        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+
+        self.new_course.version = Course.ENTITLEMENT_VERSION
+        self.new_course.save()
+
+        post_data = self._post_data({}, self.new_course, self.new_course_run)
+        post_data.update({'image': '', 'max_effort': 123, 'type': Seat.PROFESSIONAL, 'price': 10.00})
+
+        # Create a Seat so we can verify that it does not get modified.
+        before_seat = self.new_course_run.seats.create(type=Seat.VERIFIED, price=5)
+        self.assertNotEqual(before_seat.type, post_data['type'])
+        self.assertNotEqual(before_seat.price, post_data['price'])
+        self.assertNotEqual(self.new_course_run.max_effort, post_data['max_effort'])
+
+        # This request should fail since it includes Seat data
+        response = self.client.post(self.edit_page_url, post_data)
+        self.assertContains(response, 'The page could not be updated.', status_code=400)
+
+        del post_data['type']
+        del post_data['price']
+
+        # Now that the Seat data has been removed, the request should succeed.
+        response = self.client.post(self.edit_page_url, post_data)
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.new_course_run.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        # Make sure that max_effort was updated, but the Seat data was not.
+        course_run = CourseRun.objects.get(id=self.new_course_run.id)
+        self.assertEqual(post_data['max_effort'], course_run.max_effort)
+        after_seat = course_run.seats.latest('created')
+        self.assertEqual(before_seat.type, after_seat.type)
+        self.assertEqual(before_seat.price, after_seat.price)
 
     def test_logging(self):
         """ Verify view logs the errors in case of errors. """

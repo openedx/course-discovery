@@ -173,35 +173,37 @@
                     </div>
                 </div>
 
-                <div class="field-title">{% trans "CERTIFICATE TYPE AND PRICE" %} <span class="required float-right">* Required for review</span></div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        {% trans "If the course offers a verified or professional education certificate, select the certificate type and enter the price for the certificate." %}
-                    </div>
-                    <div class="col col-6">
-                        <div class="row">
-                            <div class="col col-6">
-                                <label class="field-label ">{{ seat_form.type.label_tag }}
-                                </label> {{ seat_form.type }}
-                            </div>
-                            <div id="seatPriceBlock" class="col col-6 {% if seat_form.type.value == 'audit' or not seat_form.price.value %}hidden{% endif %}">
-                                <label class="field-label ">{{ seat_form.price.label_tag }}</label>
-                                {{ seat_form.price }}
-                                <div class="{% if seat_form.type.value != 'credit' or not seat_form.credit_price.value %}hidden{% endif %}" id="creditPrice">
-                                    <label class="field-label">{{ seat_form.credit_price.label }}</label>
-                                    {{ seat_form.credit_price }}
+                {% if seat_form %}
+                    <div class="field-title">{% trans "CERTIFICATE TYPE AND PRICE" %} <span class="required float-right">* Required for review</span></div>
+                    <div class="row">
+                        <div class="col col-6 help-text">
+                            {% trans "If the course offers a verified or professional education certificate, select the certificate type and enter the price for the certificate." %}
+                        </div>
+                        <div class="col col-6">
+                            <div class="row">
+                                <div class="col col-6">
+                                    <label class="field-label ">{{ seat_form.type.label_tag }}
+                                    </label> {{ seat_form.type }}
+                                </div>
+                                <div id="seatPriceBlock" class="col col-6 {% if seat_form.type.value == 'audit' or not seat_form.price.value %}hidden{% endif %}">
+                                    <label class="field-label ">{{ seat_form.price.label_tag }}</label>
+                                    {{ seat_form.price }}
+                                    <div class="{% if seat_form.type.value != 'credit' or not seat_form.credit_price.value %}hidden{% endif %}" id="creditPrice">
+                                        <label class="field-label">{{ seat_form.credit_price.label }}</label>
+                                        {{ seat_form.credit_price }}
+                                    </div>
                                 </div>
                             </div>
+                            {% if seat_form.price.errors %}
+                                <div class="field-message has-error">
+                                    <span class="field-message-content">
+                                        {{ seat_form.price.errors|escape }}
+                                    </span>
+                                </div>
+                            {% endif %}
                         </div>
-                        {% if seat_form.price.errors %}
-                            <div class="field-message has-error">
-                                <span class="field-message-content">
-                                    {{ seat_form.price.errors|escape }}
-                                </span>
-                            </div>
-                        {% endif %}
                     </div>
-                </div>
+                {% endif %}
 
                 <div class="field-title">{% trans "COURSE STAFF" %} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
@@ -313,7 +315,6 @@
      <script src="{% static 'js/publisher/course-tabs.js' %}"></script>
      <script src="{% static 'js/publisher/organizations.js' %}"></script>
      <script src="{% static 'js/publisher/instructors.js' %}"></script>
-     <script src="{% static 'js/publisher/seat-type-change.js' %}"></script>
      <script src="{% static 'js/publisher/image-validation.js' %}"></script>
      <script src="{% static 'js/publisher/program-types.js' %}"></script>
      <script src="{% static 'js/publisher/modal-screen.js' %}"></script>
@@ -321,4 +322,7 @@
 
 {% block js_without_compress %}
     {{ run_form.media }}
+    {% if seat_form %}
+        <script src="{% static 'js/publisher/seat-type-change.js' %}"></script>
+    {% endif %}
 {% endblock %}

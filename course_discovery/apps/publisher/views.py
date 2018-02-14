@@ -802,11 +802,13 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
         context['run_form'] = self.run_form(
             instance=course_run, is_project_coordinator=context.get('is_project_coordinator')
         )
-        course_run_paid_seat = course_run.seats.filter(type__in=PAID_SEATS).first()
-        if course_run_paid_seat:
-            context['seat_form'] = self.seat_form(instance=course_run_paid_seat)
-        else:
-            context['seat_form'] = self.seat_form(instance=course_run.seats.first())
+
+        if not course.uses_entitlements:
+            course_run_paid_seat = course_run.seats.filter(type__in=PAID_SEATS).first()
+            if course_run_paid_seat:
+                context['seat_form'] = self.seat_form(instance=course_run_paid_seat)
+            else:
+                context['seat_form'] = self.seat_form(instance=course_run.seats.first())
 
         start_date = course_run.start.strftime("%B %d, %Y") if course_run.start else None
         context['breadcrumbs'] = make_bread_crumbs(
@@ -831,8 +833,19 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
         run_form = self.run_form(
             request.POST, instance=course_run, is_project_coordinator=context.get('is_project_coordinator')
         )
-        seat_form = self.seat_form(request.POST, instance=course_run.seats.first())
-        if run_form.is_valid() and seat_form.is_valid():
+        context['run_form'] = run_form
+        form_data_is_valid = run_form.is_valid()
+
+        if course_run.course.uses_entitlements:
+            seat_data_in_form = any([key for key in self.seat_form.declared_fields.keys() if key in request.POST])
+            form_data_is_valid = form_data_is_valid and not seat_data_in_form
+            seat_form = None
+        else:
+            seat_form = self.seat_form(request.POST, instance=course_run.seats.first())
+            form_data_is_valid = form_data_is_valid and seat_form.is_valid()
+            context['seat_form'] = seat_form
+
+        if form_data_is_valid:
             try:
                 with transaction.atomic():
 
@@ -841,7 +854,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
                     run_form.save_m2m()
 
                     # If price-type comes with request then save the seat object.
-                    if request.POST.get('type'):
+                    if seat_form and request.POST.get('type'):
                         seat_form.save(changed_by=user, course_run=course_run)
 
                     # in case of any updating move the course-run state to draft except draft and published state.
@@ -879,12 +892,6 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
             messages.error(
                 request, _('The page could not be updated. Make sure that all values are correct, then try again.')
             )
-        context.update(
-            {
-                'run_form': run_form,
-                'seat_form': seat_form
-            }
-        )
         return render(request, self.template_name, context, status=400)
 
 
