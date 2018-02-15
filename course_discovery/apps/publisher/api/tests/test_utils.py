@@ -1,9 +1,10 @@
 import pytest
 
 from course_discovery.apps.core.utils import serialize_datetime
-from course_discovery.apps.publisher.api.utils import serialize_seat_for_ecommerce_api
+from course_discovery.apps.publisher.api.utils import (serialize_entitlement_for_ecommerce_api,
+                                                       serialize_seat_for_ecommerce_api)
 from course_discovery.apps.publisher.models import Seat
-from course_discovery.apps.publisher.tests.factories import SeatFactory
+from course_discovery.apps.publisher.tests.factories import CourseEntitlementFactory, SeatFactory
 
 
 @pytest.mark.django_db
@@ -50,3 +51,22 @@ class TestSerializeSeatForEcommerceApi:
             }
         ]
         assert actual['attribute_values'] == expected_attribute_values
+
+
+@pytest.mark.django_db
+class TestSerializeEntitlementForEcommerceApi:
+    def test_serialize_entitlement_for_ecommerce_api(self):
+        entitlement = CourseEntitlementFactory()
+        actual = serialize_entitlement_for_ecommerce_api(entitlement)
+        expected = {
+            'price': str(entitlement.price),
+            'product_class': 'Course Entitlement',
+            'attribute_values': [
+                {
+                    'name': 'certificate_type',
+                    'value': entitlement.mode,
+                },
+            ]
+        }
+
+        assert actual == expected
