@@ -129,6 +129,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             publisher_course.tertiary_subject
         ] if subject]
         subjects = list(OrderedDict.fromkeys(subjects))
+        discovery_course.subjects.clear()
         discovery_course.subjects.add(*subjects)
 
         defaults = {
