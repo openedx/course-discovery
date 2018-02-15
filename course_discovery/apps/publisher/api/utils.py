@@ -18,3 +18,16 @@ def serialize_seat_for_ecommerce_api(seat):
             }
         ]
     }
+
+
+def serialize_entitlement_for_ecommerce_api(entitlement):
+    return {
+        'price': str(entitlement.price),
+        'product_class': 'Course Entitlement',
+        'attribute_values': [
+            {
+                'name': 'certificate_type',
+                'value': entitlement.mode,
+            },
+        ],
+    }
