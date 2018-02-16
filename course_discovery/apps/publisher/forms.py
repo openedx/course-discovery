@@ -505,6 +505,10 @@ class CourseEntitlementForm(BaseForm):
         mode = cleaned_data.get('mode')
         price = cleaned_data.get('price')
 
+        # If there's no mode there should also be no price
+        if not mode:
+            cleaned_data['price'] = None
+
         if mode in [CourseEntitlement.VERIFIED, CourseEntitlement.PROFESSIONAL] and price and price < 0.01:
             self.add_error('price', _('Price must be greater than or equal to 0.01'))
         if mode in [CourseEntitlement.VERIFIED, CourseEntitlement.PROFESSIONAL] and not price:

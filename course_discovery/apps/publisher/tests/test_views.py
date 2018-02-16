@@ -2991,6 +2991,109 @@ class CourseEditViewTests(SiteMixin, TestCase):
         response = self.client.get(self.edit_page_url + '?history_id={}'.format(100))
         self.assertIsNone(response.context['history_object'])
 
+    def test_seat_version_course_edit_page(self):
+        """
+        Verify that a SEAT_VERSION Course that has course runs associated with it can be updated without changing
+        the version, and can change the version as long as the Course Run Seat prices and types match the Course
+        """
+        toggle_switch(PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH, True)
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        self.course.version = Course.SEAT_VERSION
+        self.course.save()
+        post_data = self._post_data(self.organization_extension)
+        post_data['team_admin'] = self.course_team_role.user.id
+        post_data['mode'] = ''
+
+        course_run = factories.CourseRunFactory.create(
+            course=self.course, lms_course_id='course-v1:edxTest+Test342+2016Q1', end=datetime.now() + timedelta(days=1)
+        )
+
+        factories.CourseRunStateFactory(course_run=course_run, name=CourseRunStateChoices.Published)
+        factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.Publisher)
+        factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.ProjectCoordinator)
+        seat = factories.SeatFactory.create(course_run=course_run, type=Seat.VERIFIED, price=2)
+
+        response = self.client.post(self.edit_page_url, data=post_data)
+        # Assert that this saves for a SEAT_VERSION
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        # Modify the Course to try and create CourseEntitlements differing from the CourseRun and Seat type
+        post_data['mode'] = Seat.PROFESSIONAL
+        post_data['price'] = 2  # just a number different than what is used in the SeatFactory constructor
+
+        response = self.client.post(self.edit_page_url, data=post_data)
+        self.assertEqual(response.status_code, 400)
+
+        # Modify the Course to try and create CourseEntitlements differing from the CourseRun and Seat price
+        post_data['mode'] = Seat.VERIFIED
+        post_data['price'] = 1  # just a number different than what is used in the SeatFactory constructor
+
+        response = self.client.post(self.edit_page_url, data=post_data)
+        self.assertEqual(response.status_code, 400)
+
+        # Modify the Course to try and create CourseEntitlement the same as the Course Run and Seat type and price
+        post_data['mode'] = seat.type
+        post_data['price'] = seat.price  # just a number different than what is used in the SeatFactory constructor
+        response = self.client.post(self.edit_page_url, data=post_data)
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+    def test_entitlement_version_course_edit_page(self):
+        """
+        Verify that an ENTITLEMENT_VERSION Course cannot be reverted to a SEAT_RUN Course, but a Course can be updated
+        """
+        toggle_switch(PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH, True)
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        self.course.version = Course.SEAT_VERSION
+        self.course.save()
+        post_data = self._post_data(self.organization_extension)
+        post_data['team_admin'] = self.course_team_role.user.id
+        post_data['mode'] = Seat.VERIFIED
+        post_data['price'] = 150
+
+        response = self.client.post(self.edit_page_url, data=post_data)
+        # Assert that this saves for an ENTITLEMENT_VERSION
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        # Assert that trying to switch to Audit/Credit Course (and thus allowing Course Run Seat configuration) fails
+        post_data['mode'] = ''
+        post_data['price'] = ''
+        response = self.client.post(self.edit_page_url, data=post_data)
+        self.assertEqual(response.status_code, 400)
+
+        # Assert that not setting a price for a verified course fails
+        post_data['mode'] = Seat.VERIFIED
+        post_data['price'] = ''
+        response = self.client.post(self.edit_page_url, data=post_data)
+        self.assertEqual(response.status_code, 400)
+
+        # Assert that changing the price for a course with a Verified Entitlement is allowed
+        new_course = factories.CourseFactory()
+        factories.CourseEntitlementFactory(course=new_course, mode=Seat.VERIFIED)
+        post_data['mode'] = Seat.VERIFIED
+        post_data['price'] = 1
+        response = self.client.post(self.edit_page_url, data=post_data)
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
     def test_course_with_published_course_run(self):
         """
         Verify that editing course with published course run does not changed state
