@@ -34,8 +34,8 @@ from course_discovery.apps.publisher.forms import (
     AdminImportCourseForm, CourseEntitlementForm, CourseForm, CourseRunForm, CourseSearchForm, SeatForm
 )
 from course_discovery.apps.publisher.models import (
-    Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension,
-    PublisherUser, Seat, UserAttributes
+    Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole,
+    OrganizationExtension, PublisherUser, Seat, UserAttributes
 )
 from course_discovery.apps.publisher.utils import (
     get_internal_users, has_role_for_course, is_internal_user, is_project_coordinator_user, is_publisher_admin,
@@ -362,12 +362,39 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
     """ Course Edit View."""
     model = Course
     form_class = CourseForm
+    entitlement_form = CourseEntitlementForm
     permission = OrganizationExtension.EDIT_COURSE
     template_name = 'publisher/course_edit_form.html'
     success_url = 'publisher:publisher_course_detail'
 
     def get_success_url(self):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
+
+    def get_context_data(self, **kwargs):
+        context = super(CourseEditView, self).get_context_data(**kwargs)
+        history_id = self.request.GET.get('history_id', None)
+        self.object = self.get_object()
+
+        try:
+            history_object = self.object.history.get(history_id=history_id) if history_id else None
+        except Exception:  # pylint: disable=broad-except
+            history_object = None
+
+        context.update(
+            {
+                'course': self.get_object(),
+                'is_internal_user': is_internal_user(self.request.user),
+                'history_object': history_object
+            }
+        )
+
+        if waffle.switch_is_active(PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH):
+            if self.object.version == Course.ENTITLEMENT_VERSION:
+                context['entitlement_form'] = self.entitlement_form(instance=self.object.entitlements.first())
+            else:
+                context['entitlement_form'] = self.entitlement_form({'mode': ''})
+
+        return context
 
     def get_form_kwargs(self):
         """
@@ -393,33 +420,140 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
 
         return kwargs
 
-    def get_context_data(self, **kwargs):
-        context = super(CourseEditView, self).get_context_data(**kwargs)
-        history_id = self.request.GET.get('history_id', None)
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data()
 
-        try:
-            history_object = self.object.history.get(history_id=history_id) if history_id else None
-        except:  # pylint: disable=bare-except
-            history_object = None
+        return render(request, self.template_name, context)
 
-        context.update(
-            {
-                'is_internal_user': is_internal_user(self.request.user),
-                'history_object': history_object
-            }
-        )
-        return context
+    def _get_misconfigured_couse_runs(self, course, price, mode):
+        misconfigured_seat_type_runs = set()
+        misconfigured_price_runs = set()
+        for course_run in course.publisher_course_runs.filter(end__gt=datetime.now()):
+            for seat in course_run.seats.all():
+                if seat.type != mode:
+                    misconfigured_seat_type_runs.add('{type} - {start}'.format(
+                        type=seat.course_run.get_pacing_type_display(),
+                        start=seat.course_run.start.strftime("%B %d, %Y")
+                    ))
+                if seat.price != price:
+                    misconfigured_price_runs.add('{type} - {start}'.format(
+                        type=seat.course_run.get_pacing_type_display(),
+                        start=seat.course_run.start.strftime("%B %d, %Y")
+                    ))
+        return misconfigured_price_runs, misconfigured_seat_type_runs
 
-    def form_valid(self, form):
-        """
-        If the form is valid, update organization and team_admin.
-        """
+    def _create_or_update_course_entitlement(self, course, entitlement_form):
+        entitlement = course.entitlements.first()
+        if entitlement:
+            entitlement.price = entitlement_form.cleaned_data.get('price')
+            entitlement.mode = entitlement_form.cleaned_data.get('mode')
+            entitlement.save()
+        else:
+            entitlement_form.save(course=course)
+
+    def _render_post_error(self, request, ctx_overrides=None, status=400):
+        context = self.get_context_data()
+        if ctx_overrides:
+            context.update(ctx_overrides)
+        return render(request, self.template_name, context, status=status)
+
+    def _update_course(self, course_form, user, course_version):
+        course = course_form.save(commit=False)
+        course.changed_by = user
+        course.version = course_version
+        course.save()
+        return course
+
+    def _handle_entitlement_update(self, user, request, course_form):
+        entitlement_form = self.entitlement_form(request.POST)
+
+        entitlement_mode = entitlement_form.cleaned_data.get('mode')
+        entitlement_price = entitlement_form.cleaned_data.get('price')
+
+        if not entitlement_form.is_valid():
+            messages.error(
+                self.request,
+                _('The page could not be updated. Make sure that all values are correct, then try again.')
+            )
+            return self._render_post_error(request, ctx_overrides={
+                'course_form': course_form,
+                'entitlement_form': entitlement_form
+            })
+
+        # If the course is originally a SEAT_VERSION and it's now
+        # using entitlements check that there are no misconfigured runs
+        if self.object.version == Course.SEAT_VERSION:
+            if entitlement_mode:
+                type_misconfigurations, seat_misconfigurations = self._get_misconfigured_couse_runs(
+                    self.object, entitlement_price, entitlement_mode
+                )
+                if type_misconfigurations:
+                    # pylint: disable=no-member
+                    error_message = _(
+                        'The entered price does not match the price for the following course run(s): '
+                        '{course_runs}. The price that you enter must match the price of all active '
+                        'and future course runs.'
+                    ).format(course_runs=', '.join(
+                        str(course_run_start) for course_run_start in type_misconfigurations
+                    ))
+                    messages.error(request, error_message)
+                if seat_misconfigurations:
+                    # pylint: disable=no-member
+                    error_message = _(
+                        'The entered seat type does not match the seat type for the following course '
+                        'run(s): {course_runs}. The seat type that you enter must match the seat '
+                        'type of all active and future course runs.'
+                    ).format(course_runs=', '.join(
+                        str(course_run_start) for course_run_start in seat_misconfigurations
+                    ))
+                    messages.error(request, error_message)
+                if seat_misconfigurations or type_misconfigurations:
+                    return self._render_post_error(request, ctx_overrides={
+                        'course_form': course_form,
+                        'entitlement_form': entitlement_form
+                    })
+                else:
+                    with transaction.atomic():
+                        course = self._update_course(course_form, user, Course.ENTITLEMENT_VERSION)
+                        self._create_or_update_course_entitlement(course, entitlement_form)
+            else:
+                self._update_course(course_form, user, Course.SEAT_VERSION)
+        elif self.object.version == Course.ENTITLEMENT_VERSION:
+            if entitlement_mode:
+                with transaction.atomic():
+                    course = self._update_course(course_form, user, Course.ENTITLEMENT_VERSION)
+                    self._create_or_update_course_entitlement(course, entitlement_form)
+            else:
+                messages.error(request, _(
+                    "Courses with a previously set Type and Price cannot be "
+                    "changed to an Audit/Credit Course"
+                ))
+                return self._render_post_error(request, ctx_overrides={
+                    'course_form': course_form,
+                    'entitlement_form': entitlement_form
+                })
+
+    def post(self, request, *args, **kwargs):
         user = self.request.user
-        self.object = form.save(commit=False)
-        self.object.changed_by = user
-        self.object.save()
+        self.object = self.get_object()
+        course_form = self.get_form(self.form_class)
 
-        organization = form.cleaned_data['organization']
+        if not course_form.is_valid():
+            messages.error(
+                self.request, _('The page could not be updated. Make sure that all values are correct, then try again.')
+            )
+            return self.render_to_response(self.get_context_data(form=course_form))
+
+        # If the switch is active handle the different Course versions, otherwise just save the form like normal
+        if waffle.switch_is_active(PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH):
+            error_response = self._handle_entitlement_update(user, request, course_form)
+            if error_response:
+                return error_response
+        else:
+            self._update_course(course_form, user, Course.SEAT_VERSION)
+
+        organization = course_form.cleaned_data['organization']
         if self.object.organizations.first() != organization:
             organization_extension = get_object_or_404(OrganizationExtension, organization=organization)
             self.object.organizations.remove(self.object.organizations.first())
@@ -448,7 +582,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
                 if user_role not in (self.object.course_state.owner_role, PublisherUserRole.ProjectCoordinator):
                     self.object.course_state.change_owner_role(user_role)
 
-        team_admin = form.cleaned_data['team_admin']
+        team_admin = course_form.cleaned_data['team_admin']
         if self.object.course_team_admin != team_admin:
             course_admin_role = get_object_or_404(
                 CourseUserRole, course=self.object, role=PublisherUserRole.CourseTeam
@@ -457,15 +591,8 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
             course_admin_role.user = team_admin
             course_admin_role.save()
 
-        messages.success(self.request, _('Course  updated successfully.'))
+        messages.success(self.request, _('Course updated successfully.'))
         return HttpResponseRedirect(self.get_success_url())
-
-    def form_invalid(self, form):
-        # pylint: disable=no-member
-        messages.error(
-            self.request, _('The page could not be updated. Make sure that all values are correct, then try again.')
-        )
-        return self.render_to_response(self.get_context_data(form=form))
 
 
 class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixin, DetailView):
