@@ -25,14 +25,14 @@ from course_discovery.apps.course_metadata.models import LevelType, Organization
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher import emails
-from course_discovery.apps.publisher.choices import (CourseRunStateChoices, CourseStateChoices, InternalUserRole,
-                                                     PublisherUserRole)
+from course_discovery.apps.publisher.choices import (
+    CourseRunStateChoices, CourseStateChoices, InternalUserRole, PublisherUserRole
+)
 from course_discovery.apps.publisher.utils import is_email_notification_enabled, is_internal_user, is_publisher_admin
+
 from course_discovery.apps.publisher.validators import ImageMultiSizeValidator
 
 logger = logging.getLogger(__name__)
-
-PAID_SEATS = ['verified', 'professional']
 
 
 class ChangedByMixin(models.Model):
@@ -430,6 +430,11 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         seats = self.seats.filter(type__in=[Seat.AUDIT, Seat.VERIFIED, Seat.PROFESSIONAL, Seat.CREDIT])
         return all([seat.is_valid_seat for seat in seats]) if seats else False
 
+    @property
+    def paid_seats(self):
+        """ Return course run paid seats """
+        return self.seats.filter(type__in=Seat.PAID_SEATS)
+
     def get_absolute_url(self):
         return reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.id})
 
@@ -441,6 +446,8 @@ class Seat(TimeStampedModel, ChangedByMixin):
     PROFESSIONAL = 'professional'
     NO_ID_PROFESSIONAL = 'no-id-professional'
     CREDIT = 'credit'
+    PAID_SEATS = [VERIFIED, PROFESSIONAL, CREDIT]
+    PAID_AND_AUDIT_APPLICABLE_SEATS = [CREDIT, VERIFIED]
 
     SEAT_TYPE_CHOICES = (
         (HONOR, _('Honor')),

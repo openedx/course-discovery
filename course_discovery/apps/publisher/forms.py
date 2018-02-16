@@ -15,6 +15,7 @@ from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import LevelType, Organization, Person, Subject
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, PublisherUserRole
+from course_discovery.apps.publisher.constants import PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS
 from course_discovery.apps.publisher.mixins import LanguageModelSelect2Multiple, get_user_organizations
 from course_discovery.apps.publisher.models import (
     Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension,
@@ -392,6 +393,10 @@ class SeatForm(BaseForm):
         model = Seat
 
     def save(self, commit=True, course_run=None, changed_by=None):  # pylint: disable=arguments-differ
+        """Saves the seat for a particular course run."""
+        # Background -- EDUCATOR-2337 (Should be removed once the data is consistent)
+        self.validate_and_remove_seats(course_run)
+
         # When seat is save make sure its prices and others fields updated accordingly.
         seat = super(SeatForm, self).save(commit=False)
         if seat.type in [Seat.HONOR, Seat.AUDIT]:
@@ -413,12 +418,12 @@ class SeatForm(BaseForm):
         if commit:
             seat.save()
 
-            if waffle.switch_is_active('publisher_create_audit_seats_for_verified_course_runs'):
+            if waffle.switch_is_active(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS):
                 course_run = seat.course_run
                 audit_seats = course_run.seats.filter(type=Seat.AUDIT)
 
                 # Ensure that course runs with a verified seat always have an audit seat
-                if seat.type in (Seat.CREDIT, Seat.VERIFIED,):
+                if seat.type in Seat.PAID_AND_AUDIT_APPLICABLE_SEATS:
                     if not audit_seats.exists():
                         course_run.seats.create(type=Seat.AUDIT, price=0, upgrade_deadline=None)
                         logger.info('Created audit seat for course run [%d]', course_run.id)
@@ -447,6 +452,22 @@ class SeatForm(BaseForm):
         seat.credit_provider = ''
         seat.credit_hours = None
         seat.credit_price = 0.00
+
+    def validate_and_remove_seats(self, course_run):
+        """
+        Remove course run seats if the data is bogus
+
+        Temporary call to remove the duplicate course run seats -- EDUCATOR-2337
+        Background: There was a bug in the system, where course run seats being duplicated,
+        in order to cleanup, remove all the existing seats.
+        """
+        if not course_run:
+            return
+        all_course_run_seats = course_run.seats.all()
+        seats_data_is_bogus = all_course_run_seats.count() > 2
+        if seats_data_is_bogus:
+            logger.info('Removing bogus course run [%d] seats [%d]', course_run.id, all_course_run_seats.count())
+            all_course_run_seats.delete()
 
 
 class CourseEntitlementForm(BaseForm):

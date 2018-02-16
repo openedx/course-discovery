@@ -34,8 +34,8 @@ from course_discovery.apps.publisher.choices import (
     CourseRunStateChoices, CourseStateChoices, InternalUserRole, PublisherUserRole
 )
 from course_discovery.apps.publisher.constants import (
-    ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME, PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH,
-    REVIEWER_GROUP_NAME
+    ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME,
+    PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH, REVIEWER_GROUP_NAME
 )
 from course_discovery.apps.publisher.models import (
     Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, OrganizationExtension, Seat
@@ -554,25 +554,36 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
     def test_existing_run_and_seat_data_auto_populated(self):
         """
         Verify that existing course run and seat data auto populated on new course run form.
+
+        Create a course run with a verified seat (for a verified and credit seat, audit seat
+        is automatically created), then try to create a new run of the same course and verify
+        the previous course run's seats and pacing is automatically populated.
         """
+        verified_seat_price = 550.0
         latest_run = self.course.course_runs.latest('created')
-        factories.SeatFactory(course_run=latest_run, type=Seat.VERIFIED, price=550.0)
-        latest_seat = latest_run.seats.latest('created')
+        factories.SeatFactory(course_run=latest_run, type=Seat.VERIFIED, price=verified_seat_price)
+        factories.SeatFactory(course_run=latest_run, type=Seat.AUDIT)
+
+        # Verified seat should be preselected
+        verified_seat = latest_run.seats.get(type=Seat.VERIFIED)
         response = self.client.get(self.create_course_run_url_new)
         response_content = BeautifulSoup(response.content)
 
         pacing_type_attribute = response_content.find(
             "input", {"value": latest_run.pacing_type, "type": "radio", "name": "pacing_type"}
         )
-        seat_type_attribute = response_content.find("option", {"value": latest_seat.type})
+        seat_type_attribute = response_content.find("option", {"value": verified_seat.type})
         price_attribute = response_content.find(
-            "input", {"value": latest_seat.price, "id": "id_price", "step": "0.01", "type": "number"}
+            "input", {"value": verified_seat.price, "id": "id_price", "step": "0.01", "type": "number"}
         )
 
         # Verify that existing course run and seat values auto populated on form.
-        assert pacing_type_attribute is not None
-        assert seat_type_attribute is not None
-        assert price_attribute is not None
+        self.assertIsNotNone(pacing_type_attribute)
+        self.assertIn('checked=""', str(pacing_type_attribute))
+        self.assertIsNotNone(seat_type_attribute)
+        self.assertIn('selected=""', str(seat_type_attribute))
+        self.assertIsNotNone(price_attribute)
+        self.assertIn(str(verified_seat_price), str(price_attribute))
 
     def test_credit_type_without_price(self):
         """ Verify that without credit price course-run cannot be created with credit seat type. """
@@ -664,7 +675,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         assign_perm(
             OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
         )
-        toggle_switch('publisher_create_audit_seats_for_verified_course_runs', True)
+        toggle_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True)
 
         self.course.entitlements.create(mode=entitlement_mode, price=entitlement_price)
         post_data = {'start': '2018-02-01 00:00:00', 'end': '2018-02-28 00:00:00', 'pacing_type': 'instructor_paced'}
@@ -3072,7 +3083,7 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         assign_perm(OrganizationExtension.EDIT_COURSE_RUN, self.group, self.organization_extension)
         assign_perm(OrganizationExtension.VIEW_COURSE_RUN, self.group, self.organization_extension)
 
-        # assert edit page is loading sucesfully.
+        # assert edit page is loading successfully.
         self.edit_page_url = reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.new_course_run.id})
         response = self.client.get(self.edit_page_url)
         self.assertEqual(response.status_code, 200)
@@ -3104,6 +3115,19 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         url = reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id})
         response = self.client.get(url)
         self.assertContains(response, 'CERTIFICATE TYPE AND PRICE', status_code=200)
+
+    def login_with_course_user_role(self, course_run, role=PublisherUserRole.CourseTeam):
+        self.client.logout()
+        user = course_run.course.course_user_roles.get(role=role).user
+        self.client.login(username=user.username, password=USER_PASSWORD)
+        return user
+
+    def assert_seats(self, course_run, expected_seat_count, expected_seats):
+        """Helper method to assert expected course run seats"""
+        course_run_seats = Seat.objects.filter(course_run=course_run).order_by('type')
+        self.assertEqual(course_run_seats.count(), expected_seat_count)
+        seat_types = [seat.type for seat in course_run_seats]
+        self.assertEqual(seat_types, expected_seats)
 
     def test_edit_page_with_two_seats(self):
         """
@@ -3220,16 +3244,12 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
 
     def test_update_course_run_with_seat(self):
         """ Verify that course run edit page create seat object also if not exists previously."""
-
-        self.client.logout()
-        user = self.new_course_run.course.course_user_roles.get(role=PublisherUserRole.CourseTeam).user
-        self.client.login(username=user.username, password=USER_PASSWORD)
+        user = self.login_with_course_user_role(self.new_course_run)
         self.assertNotEqual(self.course_run.changed_by, user)
 
         # post data without seat
         data = {'image': ''}
         updated_dict = self._post_data(data, self.new_course, self.new_course_run)
-
         updated_dict['type'] = Seat.PROFESSIONAL
         updated_dict['price'] = 10.00
 
@@ -3242,12 +3262,52 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
             target_status_code=200
         )
 
-        course_run = CourseRun.objects.get(id=self.new_course_run.id)
+        self.assert_seats(self.new_course_run, 1, [Seat.PROFESSIONAL])
+        self.assertEqual(self.new_course_run.seats.first().price, 10)
+        self.assertEqual(self.new_course_run.seats.first().history.all().count(), 1)
 
-        self.assertEqual(course_run.seats.first().type, Seat.PROFESSIONAL)
-        self.assertEqual(course_run.seats.first().price, 10)
+    def test_update_course_run_create_duplicate_seats(self):
+        """
+        Tests that course run seats are not duplicated when editing.
+        Course run seats should remain consistent when updating seats.
+        """
+        self.login_with_course_user_role(self.new_course_run)
+        data = {'image': '', 'type': Seat.VERIFIED, 'price': 10.00}
+        toggle_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True)
+        post_data = self._post_data(data, self.new_course, self.new_course_run)
 
-        self.assertEqual(course_run.seats.first().history.all().count(), 1)
+        self.client.post(self.edit_page_url, post_data)
+        self.assert_seats(self.new_course_run, 2, [Seat.AUDIT, Seat.VERIFIED])
+
+        post_data['price'] = 20.00
+        self.client.post(self.edit_page_url, post_data)
+        self.assert_seats(self.new_course_run, 2, [Seat.AUDIT, Seat.VERIFIED])
+        self.assertEqual(self.new_course_run.paid_seats.first().price, 20.00)
+
+    @ddt.data(Seat.VERIFIED, Seat.CREDIT)
+    def test_cleanup_course_run_seats_bogus_data(self, seat_type):
+        """
+        Test that bogus course run seat data is corrected upon saving the
+        course run.
+
+        Some data in publisher has duplicate course seats, this tests that we are able
+        to correct the data upon course run save.
+        """
+        # Login and verify the course run has no seats.
+        self.login_with_course_user_role(self.new_course_run)
+        self.assert_seats(self.new_course_run, 0, [])
+
+        # create some bogus seats for the course run & verify the seats exists
+        __ = [self.new_course_run.seats.create(type=seat_type) for _ in range(10)]
+        self.assert_seats(self.new_course_run, 10, [seat_type] * 10)
+
+        # Make course run save post request and verify the correct course seats.
+        toggle_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True)
+        data = {'image': '', 'type': Seat.VERIFIED, 'price': 100.00}
+        post_data = self._post_data(data, self.new_course, self.new_course_run)
+        self.client.post(self.edit_page_url, post_data)
+        self.assert_seats(self.new_course_run, 2, [Seat.AUDIT, Seat.VERIFIED])
+        self.assertEqual(self.new_course_run.paid_seats.first().price, 100.00)
 
     def test_update_course_run_for_course_that_uses_entitlements(self):
         """ Verify that a user cannot change Seat data when editing courseruns for courses that use entitlements. """
@@ -3840,7 +3900,7 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
         assign_perm(
             OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
         )
-        toggle_switch('publisher_create_audit_seats_for_verified_course_runs', True)
+        toggle_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True)
 
         self.course.entitlements.create(mode=entitlement_mode, price=entitlement_price)
         post_data = {
