@@ -30,13 +30,17 @@ from course_discovery.apps.publisher.choices import CourseRunStateChoices, Cours
 from course_discovery.apps.publisher.constants import PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH
 from course_discovery.apps.publisher.dataloader.create_courses import process_course
 from course_discovery.apps.publisher.emails import send_email_for_published_course_run_editing
-from course_discovery.apps.publisher.forms import (AdminImportCourseForm, CourseEntitlementForm, CourseForm,
-                                                   CourseRunForm, CourseSearchForm, SeatForm)
-from course_discovery.apps.publisher.models import (PAID_SEATS, Course, CourseEntitlement, CourseRun, CourseRunState,
-                                                    CourseState, CourseUserRole, OrganizationExtension, PublisherUser,
-                                                    Seat, UserAttributes)
-from course_discovery.apps.publisher.utils import (get_internal_users, has_role_for_course, is_internal_user,
-                                                   is_project_coordinator_user, is_publisher_admin, make_bread_crumbs)
+from course_discovery.apps.publisher.forms import (
+    AdminImportCourseForm, CourseEntitlementForm, CourseForm, CourseRunForm, CourseSearchForm, SeatForm
+)
+from course_discovery.apps.publisher.models import (
+    Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension,
+    PublisherUser, Seat, UserAttributes
+)
+from course_discovery.apps.publisher.utils import (
+    get_internal_users, has_role_for_course, is_internal_user, is_project_coordinator_user, is_publisher_admin,
+    make_bread_crumbs
+)
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
 logger = logging.getLogger(__name__)
@@ -582,15 +586,23 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
 
         new_run.save()
 
-    def _initialize_seat_form(self, last_run=None):
+    def _initialize_seat_form(self, last_run):
         initial_seat_data = {}
-        if last_run:
-            try:
-                latest_seat = last_run.seats.latest('created')
-                initial_seat_data = model_to_dict(latest_seat)
-                del initial_seat_data['id'], initial_seat_data['course_run'], initial_seat_data['changed_by']
-            except Seat.DoesNotExist:
-                pass
+        if not last_run:
+            return self.seat_form(initial=initial_seat_data)
+
+        def _get_latest_seat():
+            """Returns latest course run seat. Paid seats are Preferred"""
+            if last_run.paid_seats:
+                return last_run.paid_seats.latest()
+            return last_run.seats.latest()
+
+        try:
+            latest_seat = _get_latest_seat()
+            initial_seat_data = model_to_dict(latest_seat)
+            del initial_seat_data['id'], initial_seat_data['course_run'], initial_seat_data['changed_by']
+        except Seat.DoesNotExist:
+            pass
 
         return self.seat_form(initial=initial_seat_data)
 
@@ -787,6 +799,11 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
             'organizations': mixins.get_user_organizations(user)
         }
 
+    def get_latest_course_run_seat(self, course_run):
+        if course_run.paid_seats:
+            return course_run.paid_seats.first()
+        return course_run.seats.first()
+
     def get(self, request, *args, **kwargs):
         context = self.get_context_data()
         course_run = context.get('course_run')
@@ -804,11 +821,8 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
         )
 
         if not course.uses_entitlements:
-            course_run_paid_seat = course_run.seats.filter(type__in=PAID_SEATS).first()
-            if course_run_paid_seat:
-                context['seat_form'] = self.seat_form(instance=course_run_paid_seat)
-            else:
-                context['seat_form'] = self.seat_form(instance=course_run.seats.first())
+            course_run_seat = self.get_latest_course_run_seat(course_run)
+            context['seat_form'] = self.seat_form(instance=course_run_seat)
 
         start_date = course_run.start.strftime("%B %d, %Y") if course_run.start else None
         context['breadcrumbs'] = make_bread_crumbs(
@@ -841,16 +855,14 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
             form_data_is_valid = form_data_is_valid and not seat_data_in_form
             seat_form = None
         else:
-            seat_form = self.seat_form(request.POST, instance=course_run.seats.first())
+            seat_form = self.seat_form(request.POST, instance=self.get_latest_course_run_seat(course_run))
             form_data_is_valid = form_data_is_valid and seat_form.is_valid()
             context['seat_form'] = seat_form
 
         if form_data_is_valid:
             try:
                 with transaction.atomic():
-
                     course_run = run_form.save(changed_by=user)
-
                     run_form.save_m2m()
 
                     # If price-type comes with request then save the seat object.
