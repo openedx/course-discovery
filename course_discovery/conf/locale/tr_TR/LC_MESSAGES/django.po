@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-01-12 11:58+0000\n"
-"PO-Revision-Date: 2018-02-08 15:59+0000\n"
+"PO-Revision-Date: 2018-02-13 18:04+0000\n"
 "Last-Translator: Ali Işıngör <ali@artistanbul.io>\n"
 "Language-Team: Turkish (Turkey) (http://www.transifex.com/open-edx/edx-platform/language/tr_TR/)\n"
 "MIME-Version: 1.0\n"
@@ -42,7 +42,7 @@ msgstr "Bu kataloğu görüntülemeye erişim hakkı olan kullanıcıların kull
 
 #: apps/api/serializers.py
 msgid "Language in which the course is administered"
-msgstr "Ders olarak uygulanan diller"
+msgstr "Dersin yönetildiği dil"
 
 #: apps/api/serializers.py
 msgid "Dictionary mapping course run IDs to boolean values"
@@ -219,7 +219,7 @@ msgstr ""
 
 #: apps/course_metadata/admin.py
 msgid "eligible for one-click purchase"
-msgstr ""
+msgstr "tek-tıkla satın almaya uygun"
 
 #: apps/course_metadata/admin.py apps/publisher/forms.py
 msgid "Yes"
@@ -288,7 +288,7 @@ msgstr "Diğerleri"
 
 #: apps/course_metadata/models.py
 msgid "UUID"
-msgstr ""
+msgstr "UUID"
 
 #: apps/course_metadata/models.py
 msgid "Leave this field blank to have the value generated automatically."
@@ -448,7 +448,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "A brief, descriptive subtitle for the Program."
-msgstr ""
+msgstr "Program için kısa, açıklayıcı bir altbaşlık."
 
 #: apps/course_metadata/models.py
 msgid "The lifecycle status of this Program."
@@ -532,7 +532,7 @@ msgstr ""
 #: apps/publisher/api/serializers.py
 #, python-brace-format
 msgid "Invalid URL format \"{preview_url}\""
-msgstr ""
+msgstr "Geçersiz URL biçimi \"{preview_url}\""
 
 #: apps/publisher/api/serializers.py
 #, python-brace-format
@@ -568,7 +568,7 @@ msgstr "Taslak"
 
 #: apps/publisher/choices.py
 msgid "Review"
-msgstr ""
+msgstr "İnceleme"
 
 #: apps/publisher/choices.py
 msgid "Approved"
@@ -587,12 +587,12 @@ msgstr ""
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Review requested: {title}"
-msgstr ""
+msgstr "İnceleme istendi: {title}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Review complete: {title}"
-msgstr ""
+msgstr "İnceleme tamamlandı: {title}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
@@ -812,7 +812,7 @@ msgstr "MicroMaster program ismini girin"
 
 #: apps/publisher/forms.py
 msgid "Enter Professional Certificate program name"
-msgstr ""
+msgstr "Profesyonel Sertifika programı adını girin"
 
 #: apps/publisher/forms.py
 msgid "Choose enrollment track"
@@ -1093,11 +1093,11 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Add Staff Member"
-msgstr ""
+msgstr "Personel Ekle"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "REVIEWS"
-msgstr ""
+msgstr "İNCELEMELER"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 #, python-format
@@ -1127,7 +1127,7 @@ msgstr "Yayınla"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Submitted for review"
-msgstr ""
+msgstr "İncelemeye gönderildi"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Preview Declined"
@@ -1156,11 +1156,11 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Sent for Review"
-msgstr ""
+msgstr "İncelemeye Gönder"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Reviewed"
-msgstr ""
+msgstr "İncelendi"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "day in ownership"
@@ -1267,7 +1267,7 @@ msgstr "Hepsini Kabul Et"
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "(Optional) Not yet added"
-msgstr ""
+msgstr "(İsteğe bağlı) Henüz eklenmedi"
 
 #: apps/publisher/templates/publisher/_render_required_field.html
 #: apps/publisher/templates/publisher/course_detail.html
@@ -1276,7 +1276,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 #: apps/publisher/templates/publisher/course_run_detail/_seats.html
 msgid "(Required) Not yet added"
-msgstr ""
+msgstr "(Gerekli) Henüz eklenmedi"
 
 #: apps/publisher/templates/publisher/_revert_confirmation.html
 #: apps/publisher/templates/publisher/course_detail/_edit_warning_popup.html
@@ -1409,7 +1409,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid "FIND COURSE"
-msgstr ""
+msgstr "DERS BUL"
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid ""
