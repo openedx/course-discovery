@@ -384,7 +384,7 @@ class SeatForm(BaseForm):
     ]
 
     type = forms.ChoiceField(choices=TYPE_CHOICES, required=False, label=_('Enrollment Track'))
-    price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
+    price = forms.DecimalField(max_digits=6, min_value=0.01, decimal_places=2, required=False, initial=0.00)
     credit_price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
 
     class Meta:
@@ -458,7 +458,7 @@ class CourseEntitlementForm(BaseForm):
 
     mode = forms.ChoiceField(choices=MODE_CHOICES, required=False, label=_('Enrollment Track'),
                              initial=CourseEntitlement.VERIFIED)
-    price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
+    price = forms.DecimalField(max_digits=6, min_value=0.01, decimal_places=2, required=False, initial=0.00)
 
     class Meta:
         fields = ('mode', 'price')

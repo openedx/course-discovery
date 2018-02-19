@@ -391,6 +391,17 @@ class PublisherCourseEntitlementFormTests(TestCase):
 
         self.assertEqual(entitlement_form.clean(), entitlement_form.cleaned_data)
 
+    def test_negative_price(self):
+        """
+        Verify that form raises an error when price is in -ive
+        """
+        form_data = {'mode': CourseEntitlement.VERIFIED, 'price': -0.05}
+        entitlement_form = CourseEntitlementForm(data=form_data)
+        self.assertFalse(entitlement_form.is_valid())
+        self.assertEqual(entitlement_form.errors,
+                         {'price': ['Ensure this value is greater than or equal to 0.01.', '']}
+                         )
+
 
 @pytest.mark.django_db
 class TestSeatForm:
