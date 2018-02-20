@@ -349,27 +349,24 @@ class PublisherCustomCourseFormTests(TestCase):
 
 @ddt.ddt
 class PublisherCourseEntitlementFormTests(TestCase):
+    without_price_error = 'Only audit seat can be without price.'
+    negative_price_error = 'Price must be greater than or equal to 0.01'
+
     @ddt.data(
-        (None, 50),
-        (CourseEntitlement.VERIFIED, None),
-        (CourseEntitlement.PROFESSIONAL, None),
-        (CourseEntitlement.PROFESSIONAL, 0),
-        (CourseEntitlement.PROFESSIONAL, -1),
+        (CourseEntitlement.VERIFIED, None, without_price_error),
+        (CourseEntitlement.PROFESSIONAL, None, without_price_error),
+        (CourseEntitlement.VERIFIED, -0.05, negative_price_error),
+        (CourseEntitlement.PROFESSIONAL, -0.05, negative_price_error),
     )
     @ddt.unpack
-    def test_invalid_price(self, mode, price):
+    def test_invalid_price(self, mode, price, error_message):
         """
-        Verify that clean raises an error if the price is invalid for the course type
+        Verify that form raises an error if the price is None or in -ive format
         """
-        entitlement_form = CourseEntitlementForm()
-        entitlement_form.cleaned_data = {}
-        if mode is not None:
-            entitlement_form.cleaned_data['mode'] = mode
-        if price is not None:
-            entitlement_form.cleaned_data['price'] = price
-
-        with self.assertRaises(ValidationError):
-            entitlement_form.clean()
+        form_data = {'mode': mode, 'price': price}
+        entitlement_form = CourseEntitlementForm(data=form_data)
+        self.assertFalse(entitlement_form.is_valid())
+        self.assertEqual(entitlement_form.errors, {'price': [error_message]})
 
     @ddt.data(
         (None, None),
@@ -473,3 +470,17 @@ class CourseSearchFormTests(TestCase):
         # But it *will* work if we add a role for this user
         CourseUserRoleFactory(course=self.course, user=self.user, role=PublisherUserRole.MarketingReviewer)
         self.assertTrue(self._check_form())
+
+
+class SeatFormTests(TestCase):
+    """
+    Tests for Seat Form
+    """
+    def test_negative_price(self):
+        """
+        Verify that form raises an error when price is in -ive format
+        """
+        form_data = {'type': Seat.VERIFIED, 'price': -0.05}
+        seat_form = SeatForm(data=form_data)
+        self.assertFalse(seat_form.is_valid())
+        self.assertEqual(seat_form.errors, {'price': ['Price must be greater than or equal to 0.01']})
