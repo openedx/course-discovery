@@ -33,6 +33,10 @@ class CourseRunViewSet(viewsets.GenericViewSet):
 
     PUBLICATION_SUCCESS_STATUS = 'SUCCESS'
 
+    def get_course_key(self, publisher_course):
+        return '{org}+{number}'.format(org=publisher_course.organizations.first().key,
+                                       number=publisher_course.number)
+
     @detail_route(methods=['post'])
     def publish(self, request, pk=None):
         course_run = self.get_object()
@@ -43,7 +47,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
         try:
             publication_status['studio'] = self.publish_to_studio(partner, course_run)
             publication_status['discovery'] = self.publish_to_discovery(partner, course_run)
-            # ecommerce is going to want to ask discovery about the course's UUID, so we do this last
+            # Publish to ecommerce last because it needs the just-created UUID from discovery
             publication_status['ecommerce'] = self.publish_to_ecommerce(partner, course_run)
         except SlumberBaseException as ex:
             logger.exception('Failed to publish course run [%s]!', pk)
@@ -76,9 +80,13 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             return 'FAILED: ' + str(ex)
 
     def publish_to_ecommerce(self, partner, course_run):
+        course_key = self.get_course_key(course_run.course)
+        discovery_course = Course.objects.get(partner=partner, key=course_key)
+
         api = EdxRestApiClient(partner.ecommerce_api_url, jwt=partner.access_token)
         data = {
             'id': course_run.lms_course_id,
+            'uuid': str(discovery_course.uuid),
             'name': course_run.title_override or course_run.course.title,
             'verification_deadline': serialize_datetime(course_run.end),
             'create_or_activate_enrollment_code': False,
@@ -102,8 +110,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
 
     def publish_to_discovery(self, partner, course_run):
         publisher_course = course_run.course
-        course_key = '{org}+{number}'.format(org=publisher_course.organizations.first().key,
-                                             number=publisher_course.number)
+        course_key = self.get_course_key(publisher_course)
 
         video = None
         if publisher_course.video_link:

@@ -139,6 +139,9 @@ class CourseRunViewSetTests(APITestCase):
         publisher_course = publisher_course_run.course
         discovery_course = discovery_course_run.course
 
+        assert ecommerce_body['id'] == publisher_course_run.lms_course_id
+        assert ecommerce_body['uuid'] == str(discovery_course.uuid)
+
         # pylint: disable=no-member
         assert discovery_course_run.title_override == publisher_course_run.title_override
         assert discovery_course_run.short_description_override is None
