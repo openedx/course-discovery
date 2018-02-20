@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-12 17:50+0000\n"
+"POT-Creation-Date: 2018-02-21 06:07+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -825,6 +825,10 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Enrollment Track"
+msgstr ""
+
+#: apps/publisher/forms.py
+msgid "Price must be greater than or equal to 0.01"
 msgstr ""
 
 #: apps/publisher/forms.py
@@ -3326,7 +3330,7 @@ msgstr ""
 
 #: apps/publisher/views.py
 msgid ""
-"The certificate configuration for this Course is incorrect. Please fix it, "
+"The certificate configuration for this course is incorrect. Please fix it, "
 "then try again."
 msgstr ""
 
