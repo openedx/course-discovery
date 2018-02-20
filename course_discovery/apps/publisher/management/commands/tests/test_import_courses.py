@@ -349,12 +349,6 @@ class CreateCoursesTests(TestCase):
 
         self.assertEqual(publisher_course_run.start, metadata_course_run.start)
         self.assertEqual(publisher_course_run.end, metadata_course_run.end)
-        self.assertEqual(
-            publisher_course_run.enrollment_start, metadata_course_run.enrollment_start
-        )
-        self.assertEqual(
-            publisher_course_run.enrollment_end, metadata_course_run.enrollment_end
-        )
 
         self.assertEqual(publisher_course_run.min_effort, metadata_course_run.min_effort)
         self.assertEqual(publisher_course_run.max_effort, metadata_course_run.max_effort)

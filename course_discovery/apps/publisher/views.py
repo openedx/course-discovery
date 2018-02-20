@@ -565,8 +565,7 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
             # Delete all those fields which cannot be copied from previous run
             del (last_run_data['id'], last_run_data['start'], last_run_data['end'], last_run_data['pacing_type'],
                  last_run_data['preview_url'], last_run_data['lms_course_id'], last_run_data['changed_by'],
-                 last_run_data['course'], last_run_data['sponsor'], last_run_data['enrollment_start'],
-                 last_run_data['enrollment_end'])
+                 last_run_data['course'], last_run_data['sponsor'])
 
             staff = Person.objects.filter(id__in=last_run_data.pop('staff'))
             transcript_languages = LanguageTag.objects.filter(code__in=last_run_data.pop('transcript_languages'))
