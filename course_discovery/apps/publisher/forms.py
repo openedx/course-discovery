@@ -464,10 +464,11 @@ class SeatForm(BaseForm):
         if not course_run:
             return
         all_course_run_seats = course_run.seats.all()
-        seats_data_is_bogus = all_course_run_seats.count() > 2
+        all_course_run_seats_count = all_course_run_seats.count()
+        seats_data_is_bogus = all_course_run_seats_count > 2
         if seats_data_is_bogus:
-            logger.info('Removing bogus course run [%d] seats [%d]', course_run.id, all_course_run_seats.count())
             all_course_run_seats.delete()
+            logger.info('Removed bogus course run [%d] seats [%d]', course_run.id, all_course_run_seats_count)
 
 
 class CourseEntitlementForm(BaseForm):

@@ -3117,7 +3117,6 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         self.assertContains(response, 'CERTIFICATE TYPE AND PRICE', status_code=200)
 
     def login_with_course_user_role(self, course_run, role=PublisherUserRole.CourseTeam):
-        self.client.logout()
         user = course_run.course.course_user_roles.get(role=role).user
         self.client.login(username=user.username, password=USER_PASSWORD)
         return user
