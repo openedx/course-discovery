@@ -165,7 +165,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
                     }
                 )
 
-        for seat in course_run.seats.exclude(type=Seat.CREDIT):
+        for seat in course_run.seats.exclude(type=Seat.CREDIT).order_by('created'):
             DiscoverySeat.objects.update_or_create(
                 course_run=discovery_course_run,
                 type=seat.type,
