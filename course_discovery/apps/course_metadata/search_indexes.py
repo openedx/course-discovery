@@ -118,6 +118,7 @@ class BaseCourseIndex(OrganizationsMixin, BaseIndex):
 class CourseIndex(BaseCourseIndex, indexes.Indexable):
     model = Course
 
+    uuid = indexes.CharField(model_attr='uuid')
     course_runs = indexes.MultiValueField()
     expected_learning_items = indexes.MultiValueField()
 
