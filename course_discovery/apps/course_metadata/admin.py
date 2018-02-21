@@ -183,6 +183,11 @@ class ProgramTypeAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug',)
 
 
+@admin.register(Seat)
+class SeatAdmin(admin.ModelAdmin):
+    list_display = ('course_run', 'type')
+
+
 @admin.register(SeatType)
 class SeatTypeAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug',)
