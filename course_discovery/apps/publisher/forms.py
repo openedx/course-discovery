@@ -440,7 +440,7 @@ class SeatForm(BaseForm):
         credit_price = self.cleaned_data.get('credit_price')
         seat_type = self.cleaned_data.get('type')
 
-        if seat_type != Seat.AUDIT and price is not None and price < 0.01:
+        if seat_type != Seat.AUDIT and price and price < 0.01:
             self.add_error('price', _('Price must be greater than or equal to 0.01'))
 
         if seat_type in [Seat.PROFESSIONAL, Seat.VERIFIED, Seat.CREDIT] and not price:
@@ -505,7 +505,7 @@ class CourseEntitlementForm(BaseForm):
         mode = cleaned_data.get('mode')
         price = cleaned_data.get('price')
 
-        if mode in [CourseEntitlement.VERIFIED, CourseEntitlement.PROFESSIONAL] and price is not None and price < 0.01:
+        if mode in [CourseEntitlement.VERIFIED, CourseEntitlement.PROFESSIONAL] and price and price < 0.01:
             self.add_error('price', _('Price must be greater than or equal to 0.01'))
         if mode in [CourseEntitlement.VERIFIED, CourseEntitlement.PROFESSIONAL] and not price:
             self.add_error('price', _('Only audit seat can be without price.'))
