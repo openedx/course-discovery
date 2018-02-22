@@ -65,6 +65,8 @@ class StudioAPI:
             'schedule': {
                 'start': serialize_datetime(publisher_course_run.start),
                 'end': serialize_datetime(publisher_course_run.end),
+                'enrollment_start': serialize_datetime(publisher_course_run.enrollment_start),
+                'enrollment_end': serialize_datetime(publisher_course_run.enrollment_end),
             },
             'team': team,
             'pacing_type': publisher_course_run.pacing_type,
