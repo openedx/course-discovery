@@ -2,7 +2,9 @@ import itertools
 
 import ddt
 from bs4 import BeautifulSoup
+from django.contrib.admin.sites import AdminSite
 from django.contrib.contenttypes.models import ContentType
+from django.http import HttpRequest
 from django.test import LiveServerTestCase, TestCase
 from django.urls import reverse
 from selenium import webdriver
@@ -15,10 +17,10 @@ from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
-from course_discovery.apps.course_metadata.admin import ProgramEligibilityFilter
+from course_discovery.apps.course_metadata.admin import PositionAdmin, ProgramEligibilityFilter
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.forms import ProgramAdminForm
-from course_discovery.apps.course_metadata.models import Program, ProgramType, Seat, SeatType
+from course_discovery.apps.course_metadata.models import Person, Position, Program, ProgramType, Seat, SeatType
 from course_discovery.apps.course_metadata.tests import factories
 
 
@@ -402,3 +404,26 @@ class ProgramEligibilityFilterTests(SiteMixin, TestCase):
                 list(program_filter.queryset({}, Program.objects.all())),
                 [one_click_purchase_ineligible_program]
             )
+
+
+class PersonPositionAdminTest(TestCase):
+    """Tests for person position admin."""
+
+    def setUp(self):
+        super(PersonPositionAdminTest, self).setUp()
+        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.person = Person.objects.create()
+        self.person_position = Position.objects.create(person=self.person, title='foo')
+        self.person_position_admin = PositionAdmin(self.person_position, AdminSite())
+        self.request = HttpRequest()
+        self.request.user = self.user
+
+    def test_delete_permission(self):
+        """
+        Tests that users cannot delete entries
+        """
+        self.assertFalse(self.person_position_admin.has_delete_permission(self.request))
+
+    def test_delete_action(self):
+        """Tests that user can not have delete action"""
+        self.assertNotIn('delete_selected', self.person_position_admin.get_actions(self.request))
