@@ -142,6 +142,8 @@ class CourseRunViewSet(viewsets.GenericViewSet):
         defaults = {
             'start': course_run.start,
             'end': course_run.end,
+            'enrollment_start': course_run.enrollment_start,
+            'enrollment_end': course_run.enrollment_end,
             'pacing_type': course_run.pacing_type,
             'title_override': course_run.title_override,
             'min_effort': course_run.min_effort,

@@ -56,6 +56,8 @@ def assert_data_generated_correctly(course_run, expected_team_data):
         'schedule': {
             'start': serialize_datetime(course_run.start),
             'end': serialize_datetime(course_run.end),
+            'enrollment_start': serialize_datetime(course_run.enrollment_start),
+            'enrollment_end': serialize_datetime(course_run.enrollment_end),
         },
         'team': expected_team_data,
         'pacing_type': course_run.pacing_type,

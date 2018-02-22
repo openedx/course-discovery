@@ -379,7 +379,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         self.course_run_dict.update({'is_self_paced': True})
         self._pop_valuse_from_dict(
             self.course_run_dict,
-            ['end', 'priority', 'certificate_generation', 'id']
+            ['end', 'enrollment_start', 'enrollment_end', 'priority', 'certificate_generation', 'id']
         )
         current_datetime = datetime.now(timezone('US/Central'))
         self.course_run_dict['start'] = (current_datetime + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
@@ -971,7 +971,9 @@ class CourseRunDetailTests(SiteMixin, TestCase):
     def _assert_dates(self, response):
         """ Helper method to test all dates. """
         for value in [self.course_run.start,
-                      self.course_run.end]:
+                      self.course_run.end,
+                      self.course_run.enrollment_start,
+                      self.course_run.enrollment_end]:
             self.assertContains(response, value.strftime(self.date_format))
 
     def test_course_run_with_version(self):
