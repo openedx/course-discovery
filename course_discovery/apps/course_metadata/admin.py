@@ -256,6 +256,16 @@ class PersonAdmin(admin.ModelAdmin):
 @admin.register(Position)
 class PositionAdmin(admin.ModelAdmin):
     list_display = ('person', 'organization', 'organization_override',)
+    search_fields = ('person__given_name',)
+
+    def has_delete_permission(self, request, obj=None):
+        """Don't allow deletes"""
+        return False
+
+    def get_actions(self, request):
+        actions = super(PositionAdmin, self).get_actions(request)
+        actions.pop('delete_selected', None)
+        return actions
 
 
 @admin.register(Video)
