@@ -3090,7 +3090,7 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
 
         # Update the data for course
         data = {'full_description': 'This is testing description.', 'image': ''}
-        self.updated_dict = self._post_data(data, self.new_course, self.new_course_run)
+        self.updated_dict = self._post_data(data, self.new_course, self.new_course_run, self.seat)
 
         # Update the data for course-run
         self.updated_dict['is_xseries'] = True
@@ -3158,7 +3158,7 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['organizations_ids'], [])
 
-    def _post_data(self, data, course, course_run):
+    def _post_data(self, data, course, course_run, seat=None):
         course_dict = model_to_dict(course)
         course_dict.update(**data)
         course_dict['team_admin'] = self.user.id
@@ -3171,6 +3171,8 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
             course_dict['start'] = self.start_date_time
             course_dict['end'] = self.end_date_time
             course_dict['organization'] = self.organization_extension.organization.id
+            if seat:
+                course_dict.update(**model_to_dict(seat))
 
         course_dict.pop('id')
         return course_dict
@@ -3633,7 +3635,7 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         user = self.new_course.course_team_admin
         self.client.login(username=user.username, password=USER_PASSWORD)
 
-        post_data = self._post_data({'image': ''}, self.new_course, self.new_course_run)
+        post_data = self._post_data({'image': ''}, self.new_course, self.new_course_run, self.seat)
         lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
         self.new_course_run.lms_course_id = lms_course_id
         self.new_course_run.save()

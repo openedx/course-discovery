@@ -484,3 +484,14 @@ class SeatFormTests(TestCase):
         seat_form = SeatForm(data=form_data)
         self.assertFalse(seat_form.is_valid())
         self.assertEqual(seat_form.errors, {'price': ['Price must be greater than or equal to 0.01']})
+
+    def test_type_is_required(self):
+        """
+        Verify that form raises an error when type is not given
+        """
+        seat_form = SeatForm(data={})
+        self.assertFalse(seat_form.is_valid())
+        self.assertEqual(seat_form.errors, {'type': ['This field is required.']})
+
+        seat_form_with_type = SeatForm(data={'type': Seat.AUDIT})
+        self.assertTrue(seat_form_with_type.is_valid())
