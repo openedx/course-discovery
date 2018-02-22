@@ -384,7 +384,7 @@ class SeatForm(BaseForm):
         (Seat.CREDIT, _('Credit')),
     ]
 
-    type = forms.ChoiceField(choices=TYPE_CHOICES, required=False, label=_('Enrollment Track'))
+    type = forms.ChoiceField(choices=TYPE_CHOICES, required=True, label=_('Enrollment Track'))
     price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
     credit_price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
 
