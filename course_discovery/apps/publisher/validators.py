@@ -62,8 +62,7 @@ def validate_text_count(max_length):
     Custom validator to count the text area characters without html tags.
     """
     def innerfn(raw_html):
-        cleantext = BeautifulSoup(raw_html, 'html.parser').text.strip()
-
+        cleantext = BeautifulSoup(raw_html, 'html.parser').get_text(strip=True)
         if len(cleantext) > max_length:
             # pylint: disable=no-member
             raise forms.ValidationError(
