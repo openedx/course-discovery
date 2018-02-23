@@ -505,6 +505,7 @@ class MinimalCourseRunSerializer(TimestampModelSerializer):
 class CourseRunSerializer(MinimalCourseRunSerializer):
     """Serializer for the ``CourseRun`` model."""
     course = serializers.SlugRelatedField(read_only=True, slug_field='key')
+    course_uuid = serializers.SerializerMethodField()
     content_language = serializers.SlugRelatedField(
         read_only=True, slug_field='code', source='language',
         help_text=_('Language in which the course is administered')
@@ -515,6 +516,9 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     instructors = serializers.SerializerMethodField(help_text='This field is deprecated. Use staff.')
     staff = PersonSerializer(many=True)
     level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
+
+    def get_course_uuid(self, obj):
+        return obj.course.uuid
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -529,7 +533,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
 
     class Meta(MinimalCourseRunSerializer.Meta):
         fields = MinimalCourseRunSerializer.Meta.fields + (
-            'course', 'full_description', 'announcement', 'video', 'seats', 'content_language', 'license', 'outcome',
+            'course', 'course_uuid', 'full_description', 'announcement', 'video', 'seats', 'content_language', 'license', 'outcome',
             'transcript_languages', 'instructors', 'staff', 'min_effort', 'max_effort', 'weeks_to_complete', 'modified',
             'level_type', 'availability', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
         )
