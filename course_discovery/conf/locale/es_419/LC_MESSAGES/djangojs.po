@@ -15,9 +15,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-06 14:34+0000\n"
-"PO-Revision-Date: 2018-01-17 20:04+0000\n"
-"Last-Translator: Albeiro Gonzalez <albeiro.gonzalez@edunext.co>\n"
+"POT-Creation-Date: 2018-02-21 20:02+0000\n"
+"PO-Revision-Date: 2018-02-16 22:21+0000\n"
+"Last-Translator: Juan Camilo Montoya Franco <juan.montoya@edunext.co>\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -55,7 +55,7 @@ msgstr "Agregar miembro del equipo del curso"
 
 #: static/js/publisher/instructors.js
 msgid "Please upload a instructor image."
-msgstr ""
+msgstr "Por favor cargue una imagen del instructor"
 
 #: static/js/publisher/instructors.js static/js/publisher/preview-url.js
 msgid "Something went wrong!"
@@ -63,15 +63,15 @@ msgstr "Algo falló!"
 
 #: static/js/publisher/instructors.js
 msgid "The image size must be smaller than 256kb"
-msgstr ""
+msgstr "El tamaño de la imagen debe ser inferior a 256 kb"
 
 #: static/js/publisher/instructors.js
 msgid "The image dimensions must be less than 110 x 110"
-msgstr ""
+msgstr "Las dimensiones de la imagen deben ser inferiores a 110 x 110"
 
 #: static/js/publisher/instructors.js
 msgid " Unsupported Image extension"
-msgstr ""
+msgstr "Extensión de imagen no admitida"
 
 #: static/js/publisher/instructors.js
 msgid "Update staff member"
