@@ -19,6 +19,7 @@ class Command(BaseCommand):
     """
     dns_name = None
     theme_path = None
+    configuration_filename = None
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -33,6 +34,12 @@ class Command(BaseCommand):
             type=str,
             help="Enter theme directory path",
             required=True
+        )
+
+        parser.add_argument(
+            "--devstack",
+            action='store_true',
+            help="Use devstack config, otherwise sandbox config is assumed",
         )
 
     def find(self, pattern, path):
@@ -51,7 +58,7 @@ class Command(BaseCommand):
         Reads the json files from theme directory and returns the site partner data in JSON format.
         """
         site_data = {}
-        for config_file in self.find('sandbox_configuration.json', self.theme_path):
+        for config_file in self.find(self.configuration_filename, self.theme_path):
             logger.info("Reading file from {file_name}".format(file_name=config_file))
             configuration_data = json.loads(
                 json.dumps(
@@ -71,9 +78,16 @@ class Command(BaseCommand):
         """
         Creates sites and partners.
         """
+        if options['devstack']:
+            configuration_prefix = 'devstack'
+        else:
+            configuration_prefix = 'sandbox'
+
+        self.configuration_filename = '{}_configuration.json'.format(configuration_prefix)
         self.dns_name = options['dns_name']
         self.theme_path = options['theme_path']
 
+        logger.info("Using %s configuration...", configuration_prefix)
         logger.info("DNS name: '{dns_name}'".format(dns_name=self.dns_name))
         logger.info("Theme path: '{theme_path}'".format(theme_path=self.theme_path))
 
