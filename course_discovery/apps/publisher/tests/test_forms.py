@@ -353,40 +353,48 @@ class PublisherCourseEntitlementFormTests(TestCase):
     negative_price_error = 'Price must be greater than or equal to 0.01'
 
     @ddt.data(
-        (CourseEntitlement.VERIFIED, None, without_price_error),
-        (CourseEntitlement.PROFESSIONAL, None, without_price_error),
-        (CourseEntitlement.VERIFIED, -0.05, negative_price_error),
-        (CourseEntitlement.PROFESSIONAL, -0.05, negative_price_error),
+        (None, without_price_error),
+        (-0.05, negative_price_error),
     )
     @ddt.unpack
-    def test_invalid_price(self, mode, price, error_message):
+    def test_invalid_price(self, price, error_message):
         """
-        Verify that form raises an error if the price is None or in -ive format
+        Verify that form raises an error if mode is paid and the price is None or in -ive format
         """
-        form_data = {'mode': mode, 'price': price}
-        entitlement_form = CourseEntitlementForm(data=form_data)
-        self.assertFalse(entitlement_form.is_valid())
-        self.assertEqual(entitlement_form.errors, {'price': [error_message]})
+        for mode in CourseEntitlementForm.PAID_MODES:
+            entitlement_form = CourseEntitlementForm({'mode': mode, 'price': price})
+            self.assertFalse(entitlement_form.is_valid())
+            self.assertEqual(entitlement_form.errors, {'price': [error_message]})
 
     @ddt.data(
         (None, None),
         (None, 0),
-        (CourseEntitlement.VERIFIED, 50),
-        (CourseEntitlement.PROFESSIONAL, 50),
+        (CourseEntitlementForm.AUDIT, None),
+        (CourseEntitlementForm.AUDIT, 0),
+        (CourseEntitlementForm.VERIFIED, 50),
+        (CourseEntitlementForm.PROFESSIONAL, 50),
     )
     @ddt.unpack
-    def test_valid_price(self, mode, price):
+    def test_valid_data(self, mode, price):
         """
-        Verify that clean works fine for valid price/type combos
+        Verify that no error is raised for valid mode/price combos
         """
-        entitlement_form = CourseEntitlementForm()
-        entitlement_form.cleaned_data = {}
-        if mode is not None:
-            entitlement_form.cleaned_data['mode'] = mode
-        if price is not None:
-            entitlement_form.cleaned_data['price'] = price
+        entitlement_form = CourseEntitlementForm({'mode': mode, 'price': price})
+        self.assertTrue(entitlement_form.is_valid())
 
-        self.assertEqual(entitlement_form.clean(), entitlement_form.cleaned_data)
+    @ddt.data(
+        # AUDIT is a valid form choice, but we replace it with None during cleaning to prevent us from saving
+        # an entitlement for it.
+        (CourseEntitlementForm.AUDIT, 0, None),
+        (CourseEntitlementForm.VERIFIED, 1, CourseEntitlementForm.VERIFIED),
+        (CourseEntitlementForm.PROFESSIONAL, 1, CourseEntitlementForm.PROFESSIONAL)
+    )
+    @ddt.unpack
+    def test_clean_mode(self, raw_mode, raw_price, cleaned_mode):
+        """ Verify that mode is properly cleaned. """
+        entitlement_form = CourseEntitlementForm({'mode': raw_mode, 'price': raw_price})
+        self.assertTrue(entitlement_form.is_valid())
+        self.assertEqual(cleaned_mode, entitlement_form.cleaned_data['mode'])
 
 
 @pytest.mark.django_db

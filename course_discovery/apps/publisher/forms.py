@@ -475,10 +475,20 @@ class SeatForm(BaseForm):
 
 
 class CourseEntitlementForm(BaseForm):
+    AUDIT = 'audit'
+    VERIFIED = CourseEntitlement.VERIFIED
+    PROFESSIONAL = CourseEntitlement.PROFESSIONAL
+
+    PAID_MODES = [
+        VERIFIED,
+        PROFESSIONAL
+    ]
+
     MODE_CHOICES = [
-        ('', _('Audit only or credit')),
-        (CourseEntitlement.VERIFIED, _('Verified')),
-        (CourseEntitlement.PROFESSIONAL, _('Professional education')),
+        ('', _('Choose enrollment track')),
+        (AUDIT, _('Audit only')),
+        (VERIFIED, _('Verified')),
+        (PROFESSIONAL, _('Professional education'))
     ]
 
     mode = forms.ChoiceField(choices=MODE_CHOICES, required=False, label=_('Enrollment Track'),
@@ -500,6 +510,13 @@ class CourseEntitlementForm(BaseForm):
 
         return entitlement
 
+    def clean_mode(self):
+        # Support 'audit' as a valid choice for this form, but do not save an entitlement for it.
+        if self.cleaned_data['mode'] == self.AUDIT:
+            return None
+        else:
+            return self.cleaned_data['mode']
+
     def clean(self):
         cleaned_data = super().clean()
         mode = cleaned_data.get('mode')
@@ -509,9 +526,9 @@ class CourseEntitlementForm(BaseForm):
         if not mode:
             cleaned_data['price'] = None
 
-        if mode in [CourseEntitlement.VERIFIED, CourseEntitlement.PROFESSIONAL] and price and price < 0.01:
+        if mode in self.PAID_MODES and price and price < 0.01:
             self.add_error('price', _('Price must be greater than or equal to 0.01'))
-        if mode in [CourseEntitlement.VERIFIED, CourseEntitlement.PROFESSIONAL] and not price:
+        if mode in self.PAID_MODES and not price:
             self.add_error('price', _('Only audit seat can be without price.'))
 
         return cleaned_data

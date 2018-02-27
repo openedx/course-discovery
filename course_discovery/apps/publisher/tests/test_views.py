@@ -37,6 +37,7 @@ from course_discovery.apps.publisher.constants import (
     ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME,
     PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH, REVIEWER_GROUP_NAME
 )
+from course_discovery.apps.publisher.forms import CourseEntitlementForm
 from course_discovery.apps.publisher.models import (
     Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, OrganizationExtension, Seat
 )
@@ -316,6 +317,19 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         self.assertEqual(mode, entitlement.mode)
         self.assertEqual(50, entitlement.price)
 
+    def test_audit_mode(self):
+        """
+        Verify that version is set to ENTITLEMENT_VERSION but no entitlements are created when mode is set to AUDIT.
+        """
+        toggle_switch(PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH, True)
+
+        data = {'mode': CourseEntitlementForm.AUDIT, 'price': '0.00'}
+        course = self._create_course_with_post(data)
+
+        self.assertEqual(0, CourseEntitlement.objects.all().count())
+        self.assertEqual(0, course.entitlements.all().count())
+        self.assertEqual(Course.ENTITLEMENT_VERSION, course.version)
+
     def test_no_entitlement_created_without_switch(self):
         """
         Verify that when we create a verified seat without the entitlement waffle switch enabled, we set version right
@@ -341,9 +355,20 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         Verify that we check price validity when making an entitlement
         """
         toggle_switch(PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH, True)
-        data = {'title': 'Test2', 'number': 'testX234', 'mode': CourseEntitlement.VERIFIED}
+        data = {'title': 'Test2', 'number': 'testX234', 'image': '', 'mode': CourseEntitlement.VERIFIED}
         if price is not None:
             data['price'] = price
+        course_dict = self._post_data(data, self.course)
+        response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
+        self.assertEqual(response.status_code, 400)
+
+    def test_invalid_entitlement_mode(self):
+        """
+        Verify that validation fails when mode is invalid.
+        """
+        toggle_switch(PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH, True)
+
+        data = {'title': 'Test2', 'number': 'testX234', 'image': '', 'mode': 'foo', 'price': '1'}
         course_dict = self._post_data(data, self.course)
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
         self.assertEqual(response.status_code, 400)
@@ -2279,6 +2304,29 @@ class CourseDetailViewTests(TestCase):
         assert response.context['breadcrumbs'][1]['slug'] == '{number}: {title}'.format(
             number=self.course.number,
             title=self.course.course_title)
+
+    def test_details_page_with_enrollment_track_data(self):
+        """
+        Verify that the details page includes correct data for Enrollment track and Certificate price when Course
+        version is ENTITLEMENT VERSION.
+        """
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
+
+        self.course.version = Course.ENTITLEMENT_VERSION
+        self.course.save()
+
+        # ENTITLEMENT_VERSION course with no entitlements should show 'audit' for Enrollment Track and should not
+        # show a certificate price.
+        response = self.client.get(self.detail_page_url)
+        self.assertContains(response, 'audit')
+        self.assertNotContains(response, 'Certificate Price')
+
+        entitlement = self.course.entitlements.create(mode=CourseEntitlement.VERIFIED, price=1)
+        response = self.client.get(self.detail_page_url)
+        self.assertNotContains(response, 'audit')
+        self.assertContains(response, entitlement.mode)
+        self.assertContains(response, 'Certificate Price')
 
     def test_details_page_with_course_runs_lms_id(self):
         """ Test that user can see course runs with lms-id on course detail page. """

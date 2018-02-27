@@ -16,7 +16,7 @@ from course_discovery.apps.course_metadata.tests.factories import OrganizationFa
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.mixins import check_course_organization_permission
-from course_discovery.apps.publisher.models import (Course, CourseUserRole, OrganizationExtension,
+from course_discovery.apps.publisher.models import (Course, CourseEntitlement, CourseUserRole, OrganizationExtension,
                                                     OrganizationUserRole, Seat)
 from course_discovery.apps.publisher.tests import factories
 
@@ -187,6 +187,36 @@ class CourseTests(TestCase):
 
         self.course.version = Course.ENTITLEMENT_VERSION
         assert self.course.uses_entitlements
+
+    def test_enrollment_track_for_seat_version_course(self):
+        """ Verify that enrollment_track returns None for SEAT_VERSION course. """
+        self.course.version = Course.SEAT_VERSION
+        assert self.course.enrollment_track is None
+
+    def test_enrollment_track_for_entitlement_version_course(self):
+        """ Verify that enrollment_track returns correct value for ENTITLEMENT_VERSION course. """
+        self.course.version = Course.ENTITLEMENT_VERSION
+        assert self.course.entitlements.count() == 0
+        assert self.course.enrollment_track == 'audit'
+
+        entitlement = self.course.entitlements.create(mode=CourseEntitlement.VERIFIED, price=1)
+        assert self.course.entitlements.count() == 1
+        assert self.course.enrollment_track == entitlement.mode
+
+    def test_certificate_price_for_seat_version_course(self):
+        """ Verify that certificate_price returns None for SEAT_VERSION course. """
+        self.course.version = Course.SEAT_VERSION
+        assert self.course.certificate_price is None
+
+    def test_certificate_price_for_entitlement_version_course(self):
+        """ Verify that certificate_price is correct for ENTITLEMENT_VERSION course. """
+        self.course.version = Course.ENTITLEMENT_VERSION
+        assert self.course.enrollment_track == 'audit'
+        assert self.course.certificate_price is None
+
+        entitlement = self.course.entitlements.create(mode=CourseEntitlement.VERIFIED, price=1)
+        assert self.course.enrollment_track == entitlement.mode
+        assert self.course.certificate_price == entitlement.price
 
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the course title. """

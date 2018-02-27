@@ -141,7 +141,7 @@
                                 <label class="field-label ">{{ entitlement_form.mode.label_tag }}</label>
                                 {{ entitlement_form.mode }}
                             </div>
-                            <div id="seatPriceBlock" class="col col-6 {% if not entitlement_form.mode.value %}hidden{% endif %}">
+                            <div id="seatPriceBlock" class="col col-6 {% if entitlement_form.mode.value not in entitlement_form.PAID_MODES %}hidden{% endif %}">
                                 <label class="field-label ">{{ entitlement_form.price.label_tag }} <span class="required">*</span></label>
                                 {{ entitlement_form.price }}
                             </div>

@@ -109,6 +109,34 @@ class Course(TimeStampedModel, ChangedByMixin):
         return self.version == self.ENTITLEMENT_VERSION
 
     @property
+    def enrollment_track(self):
+        """
+        Returns the name of the enrollment track supported by this Course, or None if enrollment_track is configured
+        at the run-level.
+        """
+        if self.uses_entitlements:
+            try:
+                entitlement = self.entitlements.get()
+                return entitlement.mode
+            except CourseEntitlement.DoesNotExist:
+                return 'audit'
+        return None
+
+    @property
+    def certificate_price(self):
+        """
+        Returns the price of the certificate offered by this Course, or None if the Course doesn't offer a certificate,
+        or if the certificate is configured at the run-level.
+        """
+        if self.uses_entitlements:
+            try:
+                entitlement = self.entitlements.get()
+                return entitlement.price
+            except CourseEntitlement.DoesNotExist:
+                pass
+        return None
+
+    @property
     def post_back_url(self):
         return reverse('publisher:publisher_courses_edit', kwargs={'pk': self.id})
 
