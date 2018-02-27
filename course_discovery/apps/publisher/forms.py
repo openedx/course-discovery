@@ -476,7 +476,7 @@ class SeatForm(BaseForm):
 
 class CourseEntitlementForm(BaseForm):
     MODE_CHOICES = [
-        ('', _('Audit only or credit')),
+        ('', _('Audit only or credit')),  # This value will be an empty string until we add in Credit as it's own option
         (CourseEntitlement.VERIFIED, _('Verified')),
         (CourseEntitlement.PROFESSIONAL, _('Professional education')),
     ]
