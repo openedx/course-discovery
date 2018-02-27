@@ -297,7 +297,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
                     course_form.save_m2m()
 
                     # Now create entitlement if we need to
-                    if course.version == Course.ENTITLEMENT_VERSION:
+                    if course.version == Course.ENTITLEMENT_VERSION and entitlement_form.cleaned_data['mode']:
                         entitlement_form.save(course=course)
 
                     organization_extension = get_object_or_404(
