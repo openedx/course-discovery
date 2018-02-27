@@ -1,14 +1,14 @@
 language: python
 
-python:
-    - "3.5"
-
 matrix:
   include:
     - services:
       - docker
 
       sudo: required
+
+      python:
+        - "3.5"
 
       cache:
         - directories:
