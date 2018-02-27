@@ -2,6 +2,7 @@ language: python
 
 python:
   - "3.5"
+
 matrix:
   include:
     # Default test suite
@@ -50,7 +51,7 @@ matrix:
       install:
         - docker exec -t discovery bash -c 'apt update && apt install -y xvfb firefox gettext wget'
         - docker exec -t discovery bash -c 'sed -i "s/course_discovery.settings.devstack/course_discovery.settings.test/" /edx/app/discovery/discovery_env'
-        - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && test-make requirements'
+        - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && test make-requirements'
 
       script:
           - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make docs'
