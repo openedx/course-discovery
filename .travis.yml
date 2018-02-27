@@ -1,5 +1,7 @@
 language: python
 
+python:
+  - "3.5"
 matrix:
   include:
     # Default test suite
@@ -7,9 +9,6 @@ matrix:
       - docker
 
       sudo: required
-
-      python:
-        - "3.5"
 
       cache:
         - directories:
@@ -40,9 +39,6 @@ matrix:
 
       sudo: required
 
-      python:
-        - "3.5"
-
       cache:
         - directories:
           - node_modules
@@ -66,8 +62,7 @@ matrix:
 
       sudo: required
 
-      python:
-        - "3.5"
+
 
       cache:
         - directories:
