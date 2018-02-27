@@ -2305,6 +2305,29 @@ class CourseDetailViewTests(TestCase):
             number=self.course.number,
             title=self.course.course_title)
 
+    def test_details_page_with_enrollment_track_data(self):
+        """
+        Verify that the details page includes correct data for Enrollment track and Certificate price when Course
+        version is ENTITLEMENT VERSION.
+        """
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension)
+
+        self.course.version = Course.ENTITLEMENT_VERSION
+        self.course.save()
+
+        # ENTITLEMENT_VERSION course with no entitlements should show 'audit' for Enrollment Track and should not
+        # show a certificate price.
+        response = self.client.get(self.detail_page_url)
+        self.assertContains(response, 'audit')
+        self.assertNotContains(response, 'Certificate Price')
+
+        entitlement = self.course.entitlements.create(mode=CourseEntitlement.VERIFIED, price=1)
+        response = self.client.get(self.detail_page_url)
+        self.assertNotContains(response, 'audit')
+        self.assertContains(response, entitlement.mode)
+        self.assertContains(response, 'Certificate Price')
+
     def test_details_page_with_course_runs_lms_id(self):
         """ Test that user can see course runs with lms-id on course detail page. """
         self.user.groups.add(self.organization_extension.group)
