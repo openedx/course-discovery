@@ -3011,8 +3011,27 @@ class CourseEditViewTests(SiteMixin, TestCase):
         factories.CourseRunStateFactory(course_run=course_run, name=CourseRunStateChoices.Published)
         factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.Publisher)
         factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.ProjectCoordinator)
-        seat = factories.SeatFactory.create(course_run=course_run, type=Seat.VERIFIED, price=2)
 
+        # Test that this saves without seats after resetting this to Seat version
+        self.course.version = Course.SEAT_VERSION
+        self.course.save()
+        post_data['mode'] = Seat.PROFESSIONAL
+        post_data['price'] = 1
+        response = self.client.post(self.edit_page_url, data=post_data)
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        verified_seat = factories.SeatFactory.create(course_run=course_run, type=Seat.VERIFIED, price=2)
+        factories.SeatFactory(course_run=course_run, type=Seat.AUDIT, price=0)  # Create a seat, do not need to access
+
+        self.course.version = Course.SEAT_VERSION
+        self.course.save()
+        post_data['mode'] = ''
+        post_data['price'] = ''
         response = self.client.post(self.edit_page_url, data=post_data)
         # Assert that this saves for a SEAT_VERSION
         self.assertRedirects(
@@ -3037,8 +3056,8 @@ class CourseEditViewTests(SiteMixin, TestCase):
         self.assertEqual(response.status_code, 400)
 
         # Modify the Course to try and create CourseEntitlement the same as the Course Run and Seat type and price
-        post_data['mode'] = seat.type
-        post_data['price'] = seat.price  # just a number different than what is used in the SeatFactory constructor
+        post_data['mode'] = verified_seat.type
+        post_data['price'] = verified_seat.price
         response = self.client.post(self.edit_page_url, data=post_data)
         self.assertRedirects(
             response,
