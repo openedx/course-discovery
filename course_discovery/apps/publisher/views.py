@@ -426,21 +426,36 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
 
         return render(request, self.template_name, context)
 
-    def _get_misconfigured_couse_runs(self, course, price, mode):
+    def _get_misconfigured_course_runs(self, course, price, mode):
         misconfigured_seat_type_runs = set()
         misconfigured_price_runs = set()
         for course_run in course.publisher_course_runs.filter(end__gt=datetime.now()):
-            for seat in course_run.seats.all():
-                if seat.type != mode:
-                    misconfigured_seat_type_runs.add('{type} - {start}'.format(
-                        type=seat.course_run.get_pacing_type_display(),
-                        start=seat.course_run.start.strftime("%B %d, %Y")
-                    ))
-                if seat.price != price:
-                    misconfigured_price_runs.add('{type} - {start}'.format(
-                        type=seat.course_run.get_pacing_type_display(),
-                        start=seat.course_run.start.strftime("%B %d, %Y")
-                    ))
+            seats = course_run.seats.all()
+            type_is_valid = True
+            price_is_valid = True
+
+            if seats:
+                if mode == Seat.VERIFIED:
+                    # There should be exactly two seats, one verified and one audit
+                    type_is_valid = {Seat.AUDIT, Seat.VERIFIED} == set(seat.type for seat in seats)
+                    verified_seat = seats.filter(type=Seat.VERIFIED).first()
+                    if verified_seat:
+                        price_is_valid = verified_seat.price == price
+                else:
+                    # There should be exactly one matching seat with the same type/price
+                    type_is_valid = len(seats) == 1 and seats[0].type == mode
+                    price_is_valid = seats[0].price == price
+
+            if not type_is_valid:
+                misconfigured_seat_type_runs.add('{type} - {start}'.format(
+                    type=course_run.get_pacing_type_display(),
+                    start=course_run.start.strftime("%B %d, %Y")
+                ))
+            if not price_is_valid:
+                misconfigured_price_runs.add('{type} - {start}'.format(
+                    type=course_run.get_pacing_type_display(),
+                    start=course_run.start.strftime("%B %d, %Y")
+                ))
         return misconfigured_price_runs, misconfigured_seat_type_runs
 
     def _create_or_update_course_entitlement(self, course, entitlement_form):
@@ -485,7 +500,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
         # using entitlements check that there are no misconfigured runs
         if self.object.version == Course.SEAT_VERSION:
             if entitlement_mode:
-                type_misconfigurations, seat_misconfigurations = self._get_misconfigured_couse_runs(
+                type_misconfigurations, seat_misconfigurations = self._get_misconfigured_course_runs(
                     self.object, entitlement_price, entitlement_mode
                 )
                 if type_misconfigurations:
