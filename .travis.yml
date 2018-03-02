@@ -15,6 +15,7 @@ cache:
 
 before_install:
     - make travis_up
+    - python .travis/check_master_build.py --commit $TRAVIS_COMMIT --github_status_token $GITHUB_STATUS_TOKEN --travis_api_token $TRAVIS_API_TOKEN &
 
 install:
   - docker exec -t discovery bash -c 'apt update && apt install -y xvfb firefox gettext wget'
