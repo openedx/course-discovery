@@ -12,14 +12,14 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-01-12 11:58+0000\n"
-"PO-Revision-Date: 2018-02-08 15:59+0000\n"
+"PO-Revision-Date: 2018-03-02 19:36+0000\n"
 "Last-Translator: Ali Işıngör <ali@artistanbul.io>\n"
 "Language-Team: Turkish (Turkey) (http://www.transifex.com/open-edx/edx-platform/language/tr_TR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: tr_TR\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: apps/api/filters.py
 #, python-brace-format
@@ -42,7 +42,7 @@ msgstr "Bu kataloğu görüntülemeye erişim hakkı olan kullanıcıların kull
 
 #: apps/api/serializers.py
 msgid "Language in which the course is administered"
-msgstr "Ders olarak uygulanan diller"
+msgstr "Dersin yönetildiği dil"
 
 #: apps/api/serializers.py
 msgid "Dictionary mapping course run IDs to boolean values"
@@ -105,7 +105,7 @@ msgstr "Veri çekmede kullanılacak API'leri yapılandır."
 
 #: apps/core/admin.py
 msgid "Marketing Site Configuration"
-msgstr ""
+msgstr "Pazarlama Sitesi Yapılandırması"
 
 #: apps/core/admin.py
 msgid ""
@@ -167,19 +167,19 @@ msgstr "Programlar API URL"
 
 #: apps/core/models.py
 msgid "Marketing Site API URL"
-msgstr ""
+msgstr "Pazarlama Sitesi API URL"
 
 #: apps/core/models.py
 msgid "Marketing Site URL"
-msgstr ""
+msgstr "Pazarlama Sitesi URL"
 
 #: apps/core/models.py
 msgid "Marketing Site API Username"
-msgstr ""
+msgstr "Pazarlama Sitesi API Kullanıcı adı"
 
 #: apps/core/models.py
 msgid "Marketing Site API Password"
-msgstr ""
+msgstr "Pazarlama Sitesi API Parolası"
 
 #: apps/core/models.py
 msgid "OpenID Connect URL"
@@ -219,7 +219,7 @@ msgstr ""
 
 #: apps/course_metadata/admin.py
 msgid "eligible for one-click purchase"
-msgstr ""
+msgstr "tek-tıkla satın almaya uygun"
 
 #: apps/course_metadata/admin.py apps/publisher/forms.py
 msgid "Yes"
@@ -288,7 +288,7 @@ msgstr "Diğerleri"
 
 #: apps/course_metadata/models.py
 msgid "UUID"
-msgstr ""
+msgstr "UUID"
 
 #: apps/course_metadata/models.py
 msgid "Leave this field blank to have the value generated automatically."
@@ -328,7 +328,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "People"
-msgstr ""
+msgstr "Kişiler"
 
 #: apps/course_metadata/models.py
 msgid "Add the course image"
@@ -368,7 +368,7 @@ msgstr "Bu dersi tamamlamak için gereken maksimum tahmini haftalık çalışma 
 
 #: apps/course_metadata/models.py
 msgid "Estimated number of weeks needed to complete this course run."
-msgstr ""
+msgstr "Bu dersi tamamlamak için gereken tahmini hafta sayısı."
 
 #: apps/course_metadata/models.py
 msgid "Indicates whether the course relation has been manually overridden."
@@ -378,7 +378,7 @@ msgstr ""
 msgid ""
 "'What You Will Learn' description for this particular course run. Leave this"
 " value blank to default to the parent course's Outcome attribute."
-msgstr ""
+msgstr "Bu eğitim yayını için 'Ne Öğreneceksiniz' açıklaması. Bu değeri boş bırakmanız, ana eğitimin çıktılarını ekleyecektir."
 
 #: apps/course_metadata/models.py
 msgid "Archived"
@@ -448,15 +448,15 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "A brief, descriptive subtitle for the Program."
-msgstr ""
+msgstr "Program için kısa, açıklayıcı bir altbaşlık."
 
 #: apps/course_metadata/models.py
 msgid "The lifecycle status of this Program."
-msgstr ""
+msgstr "Bu Program'ın hayat döngüsü durumu."
 
 #: apps/course_metadata/models.py
 msgid "Slug used to generate links to the marketing site"
-msgstr ""
+msgstr "Pazarlama sitesine bağlantılar oluşturmada kullanılacak slug/kısaisim"
 
 #: apps/course_metadata/models.py
 msgid ""
@@ -522,17 +522,17 @@ msgstr ""
 
 #: apps/course_metadata/views.py
 msgid "The program was changed successfully."
-msgstr ""
+msgstr "Program başarıyla değiştirildi."
 
 #: apps/publisher/api/serializers.py
 #, python-brace-format
 msgid "Invalid course key \"{lms_course_id}\""
-msgstr ""
+msgstr "Geçersiz ders anahtarı \"{lms_course_id}\""
 
 #: apps/publisher/api/serializers.py
 #, python-brace-format
 msgid "Invalid URL format \"{preview_url}\""
-msgstr ""
+msgstr "Geçersiz URL biçimi \"{preview_url}\""
 
 #: apps/publisher/api/serializers.py
 #, python-brace-format
@@ -550,7 +550,7 @@ msgstr "Proje Koordinatörü"
 
 #: apps/publisher/choices.py
 msgid "Marketing Reviewer"
-msgstr ""
+msgstr "Pazarlama Denetimcisi"
 
 #: apps/publisher/choices.py
 msgid "Publisher"
@@ -568,7 +568,7 @@ msgstr "Taslak"
 
 #: apps/publisher/choices.py
 msgid "Review"
-msgstr ""
+msgstr "İnceleme"
 
 #: apps/publisher/choices.py
 msgid "Approved"
@@ -577,32 +577,32 @@ msgstr "Onaylanmış"
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Studio URL created: {title} {run_number}"
-msgstr ""
+msgstr "Studio URL oluşturuldu: {title} {run_number}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Studio URL requested: {title}"
-msgstr ""
+msgstr "Studio URL talep edildi: {title}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Review requested: {title}"
-msgstr ""
+msgstr "İnceleme istendi: {title}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Review complete: {title}"
-msgstr ""
+msgstr "İnceleme tamamlandı: {title}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Review requested: {title} {run_number}"
-msgstr ""
+msgstr "İnceleme istendi: {title} {run_number}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Review complete: {course_name} {run_number}"
-msgstr ""
+msgstr "İnceleme tamamlandı: {course_name} {run_number}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
@@ -622,12 +622,12 @@ msgstr ""
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "{role_name} changed for {course_title}"
-msgstr ""
+msgstr "{course_title}için {role_name} değişti"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Legal review requested: {title}"
-msgstr ""
+msgstr "Hukuki görüş talep edildi: {title}"
 
 #: apps/publisher/emails.py
 msgid "Course team"
@@ -758,7 +758,7 @@ msgstr "Altyazı Dilleri"
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "XSeries"
-msgstr ""
+msgstr "XSeries"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
@@ -771,12 +771,12 @@ msgstr "Profesyonel Sertifika"
 
 #: apps/publisher/forms.py
 msgid "XSeries Name"
-msgstr ""
+msgstr "XSeries Adı"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Professional Certificate Name"
-msgstr ""
+msgstr "Profesyonel Sertifika İsmi"
 
 #: apps/publisher/forms.py
 msgid "MicroMasters Name"
@@ -792,15 +792,15 @@ msgstr "Başlangıç tarihi Bitiş tarihinden sonra olamaz"
 
 #: apps/publisher/forms.py
 msgid "Minimum effort cannot be greater than Maximum effort"
-msgstr ""
+msgstr "Minimum çaba maksimum çabadan büyük olamaz"
 
 #: apps/publisher/forms.py
 msgid "Minimum effort and Maximum effort can not be same"
-msgstr ""
+msgstr "Minimum çaba ve maksimum çaba aynı olamaz"
 
 #: apps/publisher/forms.py
 msgid "Maximum effort can not be empty"
-msgstr ""
+msgstr "Maksimum çaba boş bırakılamaz"
 
 #: apps/publisher/forms.py
 msgid "Enter XSeries program name"
@@ -812,7 +812,7 @@ msgstr "MicroMaster program ismini girin"
 
 #: apps/publisher/forms.py
 msgid "Enter Professional Certificate program name"
-msgstr ""
+msgstr "Profesyonel Sertifika programı adını girin"
 
 #: apps/publisher/forms.py
 msgid "Choose enrollment track"
@@ -824,7 +824,7 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Professional education"
-msgstr ""
+msgstr "Profesyonel eğitim"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
@@ -931,15 +931,15 @@ msgstr "Ders uzunluğu, hafta sayısı olarak"
 msgid ""
 "Please add any additional notes or special instructions for the course About"
 " Page."
-msgstr ""
+msgstr "Hakkında Sayfası için derse ait ek not ve özel bilgileri lütfen ekleyin."
 
 #: apps/publisher/models.py
 msgid "Comma separated list of edX usernames or emails of admins."
-msgstr ""
+msgstr "Yöneticilerin virgüllerle ayrılmış edX kullanıcı adları ya da e-posta adresleri listesi."
 
 #: apps/publisher/models.py
 msgid "Comma separated list of edX usernames or emails of additional staff."
-msgstr ""
+msgstr "Ek personelin virgüllerle ayrılmış edX kullanıcı adları ya da e-posta adresleri listesi."
 
 #: apps/publisher/models.py
 msgid "Professional (with ID verification)"
@@ -955,7 +955,7 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Course Role"
-msgstr ""
+msgstr "Ders Rolü"
 
 #: apps/publisher/models.py
 msgid "Automatically create a run in Studio"
@@ -969,15 +969,15 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Submitted for Marketing Review"
-msgstr ""
+msgstr "Pazarlama Denetimine Gönderildi"
 
 #: apps/publisher/models.py
 msgid "Approved by Course Team"
-msgstr ""
+msgstr "Ders Ekibi Tarafından Onaylanmış"
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "Awaiting Course Team Review"
-msgstr ""
+msgstr "Ders Ekibinin İncelemesi Bekleniyor"
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "N/A"
@@ -985,11 +985,11 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Awaiting Marketing Review"
-msgstr ""
+msgstr "Pazarlamanın İncelemesi Bekleniyor"
 
 #: apps/publisher/models.py
 msgid "Approved by Marketing"
-msgstr ""
+msgstr "Pazarlama Tarafından Onaylandı"
 
 #: apps/publisher/serializers.py
 #: apps/publisher/templates/publisher/_approval_widget.html
@@ -1089,15 +1089,15 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "optional - one per line"
-msgstr ""
+msgstr "isteğe bağlı - her satırda bir tane"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Add Staff Member"
-msgstr ""
+msgstr "Personel Ekle"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "REVIEWS"
-msgstr ""
+msgstr "İNCELEMELER"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 #, python-format
@@ -1127,7 +1127,7 @@ msgstr "Yayınla"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Submitted for review"
-msgstr ""
+msgstr "İncelemeye gönderildi"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Preview Declined"
@@ -1152,15 +1152,15 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Not available"
-msgstr ""
+msgstr "Kullanılabilir değil"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Sent for Review"
-msgstr ""
+msgstr "İncelemeye Gönder"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Reviewed"
-msgstr ""
+msgstr "İncelendi"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "day in ownership"
@@ -1172,11 +1172,11 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "change"
-msgstr ""
+msgstr "değiştir"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "CHANGE"
-msgstr ""
+msgstr "DEĞİŞTİR"
 
 #: apps/publisher/templates/publisher/_footer.html
 msgid "Terms of Service"
@@ -1267,7 +1267,7 @@ msgstr "Hepsini Kabul Et"
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "(Optional) Not yet added"
-msgstr ""
+msgstr "(İsteğe bağlı) Henüz eklenmedi"
 
 #: apps/publisher/templates/publisher/_render_required_field.html
 #: apps/publisher/templates/publisher/course_detail.html
@@ -1276,7 +1276,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 #: apps/publisher/templates/publisher/course_run_detail/_seats.html
 msgid "(Required) Not yet added"
-msgstr ""
+msgstr "(Gerekli) Henüz eklenmedi"
 
 #: apps/publisher/templates/publisher/_revert_confirmation.html
 #: apps/publisher/templates/publisher/course_detail/_edit_warning_popup.html
@@ -1331,7 +1331,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Targets a global audience."
-msgstr ""
+msgstr "Genel kitleyi hedefliyor."
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
@@ -1409,7 +1409,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid "FIND COURSE"
-msgstr ""
+msgstr "DERS BUL"
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid ""
@@ -1427,17 +1427,17 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "COURSE START DATE"
-msgstr ""
+msgstr "DERS BAŞLAMA TARİHİ"
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "Start on a Tuesday, Wednesday, or Thursday."
-msgstr ""
+msgstr "Salı, Çarşamba veya Perşembe başlar."
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "Avoid major U.S. holidays."
-msgstr ""
+msgstr "Başlıca ABD tatillerine denk getirme."
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
@@ -1449,7 +1449,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid "PACING TYPE"
-msgstr ""
+msgstr "ÖĞRENİM TÜRÜ"
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
@@ -1469,7 +1469,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "COURSE END DATE"
-msgstr ""
+msgstr "DERS BİTİŞ TARİHİ"
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid ""
@@ -1481,7 +1481,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "CERTIFICATE TYPE AND PRICE"
-msgstr ""
+msgstr "SERTİFİKA TÜRÜ VE ÜCRETİ"
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
@@ -1492,7 +1492,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid "Create New Course Run"
-msgstr ""
+msgstr "Yeni Yayın Tarihi Oluştur"
 
 #: apps/publisher/templates/publisher/admin/add_user_form.html
 msgid ""
@@ -1502,16 +1502,16 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/admin/import_course.html
 msgid "Course Detail"
-msgstr ""
+msgstr "Ders Ayrıntısı"
 
 #: apps/publisher/templates/publisher/admin/import_course.html
 msgid "Import COURSE"
-msgstr ""
+msgstr "DERSİ İçeri Aktar"
 
 #: apps/publisher/templates/publisher/base.html
 #: apps/publisher/templates/publisher/courserun_list.html
 msgid "Dashboard"
-msgstr ""
+msgstr "Ana panel"
 
 #: apps/publisher/templates/publisher/base.html
 #: apps/publisher/templates/publisher/course_list.html apps/publisher/views.py
@@ -1559,7 +1559,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Course Image"
-msgstr ""
+msgstr "Ders Görseli"
 
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
@@ -1599,11 +1599,11 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_detail/_widgets.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "STUDIO URL"
-msgstr ""
+msgstr "STUDIO URL"
 
 #: apps/publisher/templates/publisher/course_detail/_widgets.html
 msgid "To be added by edX"
-msgstr ""
+msgstr "edX tarafından eklenecek"
 
 #: apps/publisher/templates/publisher/course_detail/_widgets.html
 msgid "No course runs exist for this course"
@@ -1635,7 +1635,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "255 character limit, including spaces."
-msgstr ""
+msgstr "Boşluklar dâhil, 255 karakter sınırı."
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "BIO1.1x, BIO1.2x"
@@ -1643,7 +1643,7 @@ msgstr "BIO1.1x, BIO1.2x"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "SHORT DESCRIPTION"
-msgstr ""
+msgstr "KISA AÇIKLAMA"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "An effective short description:"
@@ -1651,7 +1651,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Contains 25–50 words."
-msgstr ""
+msgstr "25–50 kelime içerir."
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Functions as a tagline."
@@ -1673,7 +1673,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "LONG DESCRIPTION"
-msgstr ""
+msgstr "UZUN AÇIKLAMA"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "An effective long description:"
@@ -1681,7 +1681,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Contains 150–300 words."
-msgstr ""
+msgstr "150–300 kelime içerir."
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Is easy to skim."
@@ -1689,7 +1689,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Uses bullet points instead of dense text paragraphs."
-msgstr ""
+msgstr "Yoğun metin paragrafları yerine noktalı madde işaretleri kullan."
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
@@ -1699,7 +1699,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Content-based example:"
-msgstr ""
+msgstr "İçerik-tabanlı örnek:"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
@@ -1726,7 +1726,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Skills-based example:"
-msgstr ""
+msgstr "Yetenek-tabanlı örnek:"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
@@ -1739,15 +1739,15 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "2500 character limit, including spaces."
-msgstr ""
+msgstr "Boşluklar dâhil, 2500 karakter sınırı."
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "WHAT YOU WILL LEARN"
-msgstr ""
+msgstr "NE ÖĞRENECEKSİNİZ"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "The skills and knowledge learners will acquire in this course."
-msgstr ""
+msgstr "Bu derste öğrencinin edineceği bilgi ve yetenekler."
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Format each item as a bullet with four to ten words."
@@ -1755,7 +1755,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Basic R Programming"
-msgstr ""
+msgstr "Temel R Programlama"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "An applied understanding of linear and logistic regression"
@@ -1771,11 +1771,11 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "SUBJECT FIELD"
-msgstr ""
+msgstr "KONU ALANI"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "The subject of the course."
-msgstr ""
+msgstr "Eğitimin konusu."
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
@@ -1785,7 +1785,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "COURSE IMAGE"
-msgstr ""
+msgstr "DERS GÖRSELİ"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
@@ -1794,11 +1794,11 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Course Image Guidelines:"
-msgstr ""
+msgstr "Ders Görsel Kullanım Kılavuzu"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "New course images must be 1134 X 675 pixels in size. "
-msgstr ""
+msgstr "Yeni eğitim görselleri 1134 X 675 piksel boyutunda olmalı."
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Learn more."
@@ -1810,7 +1810,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "The image cannot include text or headlines."
-msgstr ""
+msgstr "Bu görsel metin ya da başlık içeremez."
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
@@ -1820,7 +1820,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "PREREQUISITES"
-msgstr ""
+msgstr "ÖNKOŞULLAR"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Maximum 200 characters."
@@ -1873,7 +1873,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Week 1: From Calculator to Computer"
-msgstr ""
+msgstr "Hafta 1: Hesap Makinesinden Bilgisayara"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
@@ -1943,7 +1943,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Why should a learner register?"
-msgstr ""
+msgstr "Öğrenci neden kayıt olmalı?"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "What topics and concepts are covered?"
@@ -1951,7 +1951,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Who is teaching the course?"
-msgstr ""
+msgstr "Eğitimi hangi öğretmen veriyor?"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "What institution is delivering the course?"
@@ -1975,7 +1975,7 @@ msgstr "Teknik özellikler:"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Codec: H.264"
-msgstr ""
+msgstr "Codec: H.264"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Container: .mp4"
@@ -2115,7 +2115,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "Not yet created"
-msgstr ""
+msgstr "Henüz oluşturulmamış"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "PROGRAM ASSOCIATION"
@@ -2147,7 +2147,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "Create new"
-msgstr ""
+msgstr "Yeni oluştur"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "instructor"
@@ -2701,7 +2701,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/dashboard/_published.html
 msgid "Published Date"
-msgstr ""
+msgstr "Yayınlanma Tarihi"
 
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "The following courses are ready for a Studio URL."
@@ -3250,35 +3250,35 @@ msgstr ""
 
 #: apps/publisher/views.py
 msgid "PROJECT COORDINATOR"
-msgstr ""
+msgstr "PROJE KOORDİNATÖRÜ"
 
 #: apps/publisher/views.py
 msgid "MARKETING"
-msgstr ""
+msgstr "PAZARLAMA"
 
 #: apps/publisher/views.py
 msgid "PUBLISHER"
-msgstr ""
+msgstr "YAYINCI"
 
 #: apps/publisher/views.py
 msgid "COURSE TEAM"
-msgstr ""
+msgstr "DERS TAKIMI"
 
 #: apps/publisher/views.py
 msgid "Send for Review"
-msgstr ""
+msgstr "İncelemeye Gönder"
 
 #: apps/publisher/views.py
 msgid "Mark as Reviewed"
-msgstr ""
+msgstr "İncelendi olarak İşaretle"
 
 #: apps/publisher/views.py
 msgid "course team"
-msgstr ""
+msgstr "ders takımı"
 
 #: apps/publisher/views.py
 msgid "project coordinator"
-msgstr ""
+msgstr "proje koordinatörü"
 
 #: apps/publisher/views.py
 #, python-brace-format
@@ -3297,25 +3297,25 @@ msgstr ""
 #: apps/publisher/views.py
 #, python-brace-format
 msgid "An error occurred while saving your changes. {error}"
-msgstr ""
+msgstr "Değişikliklerinizi kaydederken bir hata gerçekleşti. {error}"
 
 #: apps/publisher/views.py
 msgid ""
 "The page could not be updated. Make sure that all values are correct, then "
 "try again."
-msgstr ""
+msgstr "Sayfa güncellenemedi. Tüm değerlerin doğru olduğuna emin olun, ardından tekrar deneyin."
 
 #: apps/publisher/views.py
 msgid "Course  updated successfully."
-msgstr ""
+msgstr "Ders başarıyla güncellendi."
 
 #: apps/publisher/views.py
 msgid "course"
-msgstr ""
+msgstr "ders"
 
 #: apps/publisher/views.py
 msgid "marketing"
-msgstr ""
+msgstr "pazarlama"
 
 #: apps/publisher/views.py
 #, python-brace-format
