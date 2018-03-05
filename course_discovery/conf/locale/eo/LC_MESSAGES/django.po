@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-21 20:02+0000\n"
+"POT-Creation-Date: 2018-03-06 21:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1007,8 +1007,8 @@ msgstr ""
 "¢σηѕє¢тєтυ#"
 
 #: apps/publisher/forms.py
-msgid "Audit only or credit"
-msgstr "Àüdït önlý ör çrédït Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+msgid "Price is required."
+msgstr "Prïçé ïs réqüïréd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
 #: apps/publisher/forms.py
 msgid "This field is required."
@@ -4059,11 +4059,11 @@ msgstr ""
 
 #: apps/publisher/views.py
 msgid ""
-"Courses with a previously set Type and Price cannot be changed to an "
-"Audit/Credit Course"
+"Enrollment track cannot be unset or changed from verified or professional to"
+" audit or credit."
 msgstr ""
-"Çöürsés wïth ä prévïöüslý sét Týpé änd Prïçé çännöt ßé çhängéd tö än "
-"Àüdït/Çrédït Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+"Énröllmént träçk çännöt ßé ünsét ör çhängéd fröm vérïfïéd ör pröféssïönäl tö"
+" äüdït ör çrédït. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
 #: apps/publisher/views.py
 msgid "Course updated successfully."

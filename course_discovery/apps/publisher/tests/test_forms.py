@@ -17,7 +17,7 @@ from course_discovery.apps.publisher.forms import (
     CourseEntitlementForm, CourseForm, CourseRunForm, CourseRunStateAdminForm, CourseSearchForm, CourseStateAdminForm,
     PublisherUserCreationForm, SeatForm
 )
-from course_discovery.apps.publisher.models import CourseEntitlement, Group, OrganizationExtension, Seat
+from course_discovery.apps.publisher.models import Group, OrganizationExtension, Seat
 from course_discovery.apps.publisher.tests.factories import (
     CourseFactory, CourseUserRoleFactory, OrganizationExtensionFactory, SeatFactory
 )
@@ -349,14 +349,14 @@ class PublisherCustomCourseFormTests(TestCase):
 
 @ddt.ddt
 class PublisherCourseEntitlementFormTests(TestCase):
-    without_price_error = 'Only audit seat can be without price.'
+    without_price_error = 'Price is required.'
     negative_price_error = 'Price must be greater than or equal to 0.01'
 
     @ddt.data(
-        (CourseEntitlement.VERIFIED, None, without_price_error),
-        (CourseEntitlement.PROFESSIONAL, None, without_price_error),
-        (CourseEntitlement.VERIFIED, -0.05, negative_price_error),
-        (CourseEntitlement.PROFESSIONAL, -0.05, negative_price_error),
+        (CourseEntitlementForm.VERIFIED_MODE, None, without_price_error),
+        (CourseEntitlementForm.PROFESSIONAL_MODE, None, without_price_error),
+        (CourseEntitlementForm.VERIFIED_MODE, -0.05, negative_price_error),
+        (CourseEntitlementForm.PROFESSIONAL_MODE, -0.05, negative_price_error),
     )
     @ddt.unpack
     def test_invalid_price(self, mode, price, error_message):
@@ -371,22 +371,43 @@ class PublisherCourseEntitlementFormTests(TestCase):
     @ddt.data(
         (None, None),
         (None, 0),
-        (CourseEntitlement.VERIFIED, 50),
-        (CourseEntitlement.PROFESSIONAL, 50),
+        (CourseEntitlementForm.AUDIT_MODE, None),
+        (CourseEntitlementForm.AUDIT_MODE, 0),
+        (CourseEntitlementForm.VERIFIED_MODE, 50),
+        (CourseEntitlementForm.PROFESSIONAL_MODE, 50),
+        (CourseEntitlementForm.CREDIT_MODE, None),
+        (CourseEntitlementForm.CREDIT_MODE, 0),
     )
     @ddt.unpack
-    def test_valid_price(self, mode, price):
+    def test_valid_data(self, mode, price):
         """
-        Verify that clean works fine for valid price/type combos
+        Verify that is_valid returns True for valid mode/price combos
         """
-        entitlement_form = CourseEntitlementForm()
-        entitlement_form.cleaned_data = {}
-        if mode is not None:
-            entitlement_form.cleaned_data['mode'] = mode
-        if price is not None:
-            entitlement_form.cleaned_data['price'] = price
+        entitlement_form = CourseEntitlementForm({'mode': mode, 'price': price})
+        self.assertTrue(entitlement_form.is_valid())
 
-        self.assertEqual(entitlement_form.clean(), entitlement_form.cleaned_data)
+    @ddt.data(
+        (CourseEntitlementForm.AUDIT_MODE, 0, None),
+        (CourseEntitlementForm.VERIFIED_MODE, 50, CourseEntitlementForm.VERIFIED_MODE),
+        (CourseEntitlementForm.PROFESSIONAL_MODE, 50, CourseEntitlementForm.PROFESSIONAL_MODE),
+        (CourseEntitlementForm.CREDIT_MODE, 0, None),
+    )
+    @ddt.unpack
+    def test_clean_mode(self, raw_mode, raw_price, cleaned_mode):
+        """
+        Verify that mode is cleaned properly and that NOOP_MODES are set to None.
+        """
+        entitlement_form = CourseEntitlementForm({'mode': raw_mode, 'price': raw_price})
+        self.assertTrue(entitlement_form.is_valid())
+        self.assertEqual(entitlement_form.cleaned_data['mode'], cleaned_mode)
+
+    def test_include_blank_mode(self):
+        """
+        Verify that when the include_blank_mode option is passed to the constructor, the mode field includes
+        a blank option.
+        """
+        entitlement_form = CourseEntitlementForm(include_blank_mode=True)
+        self.assertEqual([('', '')] + CourseEntitlementForm.MODE_CHOICES, entitlement_form.fields['mode'].choices)
 
 
 @pytest.mark.django_db

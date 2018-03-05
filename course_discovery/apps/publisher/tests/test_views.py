@@ -37,6 +37,7 @@ from course_discovery.apps.publisher.constants import (
     ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME,
     PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, REVIEWER_GROUP_NAME
 )
+from course_discovery.apps.publisher.forms import CourseEntitlementForm
 from course_discovery.apps.publisher.models import (
     Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, OrganizationExtension, Seat
 )
@@ -297,7 +298,7 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         )
         return Course.objects.get(number=course_dict['number'])
 
-    @ddt.data(CourseEntitlement.VERIFIED, CourseEntitlement.PROFESSIONAL)
+    @ddt.data(CourseEntitlementForm.VERIFIED_MODE, CourseEntitlementForm.PROFESSIONAL_MODE)
     def test_create_entitlement(self, mode):
         """
         Verify that we create an entitlement for appropriate types (happy path)
@@ -314,11 +315,17 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         self.assertEqual(mode, entitlement.mode)
         self.assertEqual(50, entitlement.price)
 
-    def test_seat_version(self):
+    @ddt.data(
+        {},
+        {'mode': CourseEntitlementForm.AUDIT_MODE, 'price': 0},
+        {'mode': CourseEntitlementForm.CREDIT_MODE, 'price': 0}
+    )
+    def test_seat_version(self, entitlement_form_data):
         """
-        Verify that when we create a seat product without an entitlement, we set version correctly
+        Verify that when we create a course without a mode, or with a mode that doesn't support entitlements,
+        we set version correctly
         """
-        course = self._create_course_with_post()
+        course = self._create_course_with_post(entitlement_form_data)
         self.assertEqual(0, CourseEntitlement.objects.all().count())
         self.assertEqual(Course.SEAT_VERSION, course.version)
 
@@ -327,7 +334,7 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         """
         Verify that we check price validity when making an entitlement
         """
-        data = {'title': 'Test2', 'number': 'testX234', 'mode': CourseEntitlement.VERIFIED}
+        data = {'title': 'Test2', 'number': 'testX234', 'mode': CourseEntitlementForm.VERIFIED_MODE}
         if price is not None:
             data['price'] = price
         course_dict = self._post_data(data, self.course)
@@ -3000,7 +3007,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         # Test that this saves without seats after resetting this to Seat version
         self.course.version = Course.SEAT_VERSION
         self.course.save()
-        post_data['mode'] = Seat.PROFESSIONAL
+        post_data['mode'] = CourseEntitlementForm.PROFESSIONAL_MODE
         post_data['price'] = 1
         response = self.client.post(self.edit_page_url, data=post_data)
         self.assertRedirects(
@@ -3015,26 +3022,28 @@ class CourseEditViewTests(SiteMixin, TestCase):
 
         self.course.version = Course.SEAT_VERSION
         self.course.save()
-        post_data['mode'] = ''
-        post_data['price'] = ''
-        response = self.client.post(self.edit_page_url, data=post_data)
-        # Assert that this saves for a SEAT_VERSION
-        self.assertRedirects(
-            response,
-            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
-            status_code=302,
-            target_status_code=200
-        )
+
+        # Verify that we can switch between NOOP_MODES
+        for noop_mode in [''] + CourseEntitlementForm.NOOP_MODES:
+            post_data['mode'] = noop_mode
+            post_data['price'] = 0
+            response = self.client.post(self.edit_page_url, data=post_data)
+            self.assertRedirects(
+                response,
+                expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
+                status_code=302,
+                target_status_code=200
+            )
 
         # Modify the Course to try and create CourseEntitlements differing from the CourseRun and Seat type
-        post_data['mode'] = Seat.PROFESSIONAL
+        post_data['mode'] = CourseEntitlementForm.PROFESSIONAL_MODE
         post_data['price'] = 2  # just a number different than what is used in the SeatFactory constructor
 
         response = self.client.post(self.edit_page_url, data=post_data)
         self.assertEqual(response.status_code, 400)
 
         # Modify the Course to try and create CourseEntitlements differing from the CourseRun and Seat price
-        post_data['mode'] = Seat.VERIFIED
+        post_data['mode'] = CourseEntitlementForm.VERIFIED_MODE
         post_data['price'] = 1  # just a number different than what is used in the SeatFactory constructor
 
         response = self.client.post(self.edit_page_url, data=post_data)
@@ -3060,7 +3069,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         self.course.save()
         post_data = self._post_data(self.organization_extension)
         post_data['team_admin'] = self.course_team_role.user.id
-        post_data['mode'] = CourseEntitlement.VERIFIED
+        post_data['mode'] = CourseEntitlementForm.VERIFIED_MODE
         post_data['price'] = 150
 
         response = self.client.post(self.edit_page_url, data=post_data)
@@ -3073,13 +3082,14 @@ class CourseEditViewTests(SiteMixin, TestCase):
         )
 
         # Assert that trying to switch to Audit/Credit Course (and thus allowing Course Run Seat configuration) fails
-        post_data['mode'] = ''
-        post_data['price'] = ''
-        response = self.client.post(self.edit_page_url, data=post_data)
-        self.assertEqual(response.status_code, 400)
+        for noop_mode in [''] + CourseEntitlementForm.NOOP_MODES:
+            post_data['mode'] = noop_mode
+            post_data['price'] = 0
+            response = self.client.post(self.edit_page_url, data=post_data)
+            self.assertEqual(response.status_code, 400)
 
         # Assert that not setting a price for a verified course fails
-        post_data['mode'] = CourseEntitlement.VERIFIED
+        post_data['mode'] = CourseEntitlementForm.VERIFIED_MODE
         post_data['price'] = ''
         response = self.client.post(self.edit_page_url, data=post_data)
         self.assertEqual(response.status_code, 400)
@@ -3087,7 +3097,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         # Assert that changing the price for a course with a Verified Entitlement is allowed
         new_course = factories.CourseFactory()
         factories.CourseEntitlementFactory(course=new_course, mode=CourseEntitlement.VERIFIED)
-        post_data['mode'] = CourseEntitlement.VERIFIED
+        post_data['mode'] = CourseEntitlementForm.VERIFIED_MODE
         post_data['price'] = 1
         response = self.client.post(self.edit_page_url, data=post_data)
         self.assertRedirects(
