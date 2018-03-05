@@ -27,7 +27,6 @@ from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher import emails, mixins, serializers
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
-from course_discovery.apps.publisher.constants import PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH
 from course_discovery.apps.publisher.dataloader.create_courses import process_course
 from course_discovery.apps.publisher.emails import send_email_for_published_course_run_editing
 from course_discovery.apps.publisher.forms import (
@@ -256,14 +255,12 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
         return success_url
 
     def get_context_data(self):
-        data = {
+        return {
             'course_form': self.course_form(user=self.request.user),
+            'entitlement_form': self.entitlement_form(),
             'publisher_hide_features_for_pilot': waffle.switch_is_active('publisher_hide_features_for_pilot'),
             'publisher_add_instructor_feature': waffle.switch_is_active('publisher_add_instructor_feature'),
         }
-        if waffle.switch_is_active(PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH):
-            data['entitlement_form'] = self.entitlement_form()
-        return data
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name, self.get_context_data())
@@ -271,8 +268,6 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
     def post(self, request, *args, **kwargs):
         ctx = self.get_context_data()
         add_new_run = request.POST.get('add_new_run')
-
-        support_entitlements = waffle.switch_is_active(PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH)
 
         # pass selected organization to CourseForm to populate related
         # choices into institution admin field
@@ -287,7 +282,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
             try:
                 with transaction.atomic():
                     course = course_form.save(commit=False)
-                    if entitlement_form['mode'].value() and support_entitlements:
+                    if entitlement_form['mode'].value():
                         course.version = Course.ENTITLEMENT_VERSION
                     else:
                         course.version = Course.SEAT_VERSION
@@ -297,7 +292,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
                     course_form.save_m2m()
 
                     # Now create entitlement if we need to
-                    if course.version == Course.ENTITLEMENT_VERSION:
+                    if course.uses_entitlements:
                         entitlement_form.save(course=course)
 
                     organization_extension = get_object_or_404(
@@ -350,10 +345,9 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
         ctx.update(
             {
                 'course_form': course_form,
+                'entitlement_form': entitlement_form,
             }
         )
-        if support_entitlements:
-            ctx['entitlement_form'] = entitlement_form
 
         return render(request, self.template_name, ctx, status=400)
 
@@ -388,11 +382,10 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
             }
         )
 
-        if waffle.switch_is_active(PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH):
-            if self.object.version == Course.ENTITLEMENT_VERSION:
-                context['entitlement_form'] = self.entitlement_form(instance=self.object.entitlements.first())
-            else:
-                context['entitlement_form'] = self.entitlement_form({'mode': ''})
+        if self.object.uses_entitlements:
+            context['entitlement_form'] = self.entitlement_form(instance=self.object.entitlements.first())
+        else:
+            context['entitlement_form'] = self.entitlement_form({'mode': ''})
 
         return context
 
@@ -560,13 +553,9 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
             )
             return self.render_to_response(self.get_context_data(form=course_form))
 
-        # If the switch is active handle the different Course versions, otherwise just save the form like normal
-        if waffle.switch_is_active(PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH):
-            error_response = self._handle_entitlement_update(user, request, course_form)
-            if error_response:
-                return error_response
-        else:
-            self._update_course(course_form, user, Course.SEAT_VERSION)
+        error_response = self._handle_entitlement_update(user, request, course_form)
+        if error_response:
+            return error_response
 
         organization = course_form.cleaned_data['organization']
         if self.object.organizations.first() != organization:

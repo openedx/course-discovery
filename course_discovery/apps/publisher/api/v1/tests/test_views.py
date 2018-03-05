@@ -14,7 +14,6 @@ from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.models import CourseEntitlement as DiscoveryCourseEntitlement
 from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
 from course_discovery.apps.course_metadata.models import CourseRun, SeatType, Video
-from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api.utils import (serialize_entitlement_for_ecommerce_api,
@@ -82,8 +81,6 @@ class CourseRunViewSetTests(APITestCase):
     @responses.activate
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
     def test_publish(self, mock_access_token):  # pylint: disable=unused-argument,too-many-statements
-        toggle_switch('publisher_entitlements', True)
-
         publisher_course_run = self._create_course_run_for_publication()
         currency = Currency.objects.get(code='USD')
 
