@@ -16,5 +16,4 @@ PARTNER_SUPPORT_GROUP_NAME = 'Partner Support Members'
 PARTNER_COORDINATOR_GROUP_NAME = 'Partner Coordinators'
 
 # Waffle flags
-PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH = 'publisher_entitlements'
 PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS = 'publisher_create_audit_seats_for_verified_course_runs'

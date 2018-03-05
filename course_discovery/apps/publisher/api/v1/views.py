@@ -1,7 +1,6 @@
 import logging
 from collections import OrderedDict
 
-import waffle
 from edx_rest_api_client.client import EdxRestApiClient
 from edx_rest_framework_extensions.authentication import JwtAuthentication
 from rest_framework import permissions, serializers, status, viewsets
@@ -95,9 +94,8 @@ class CourseRunViewSet(viewsets.GenericViewSet):
         # NOTE: We only order here to aid testing. The E-Commerce API does NOT care about ordering.
         products = [serialize_seat_for_ecommerce_api(seat) for seat in
                     course_run.seats.exclude(type=Seat.CREDIT).order_by('created')]
-        if waffle.switch_is_active('publisher_entitlements'):
-            products.extend([serialize_entitlement_for_ecommerce_api(entitlement) for entitlement in
-                             course_run.course.entitlements.order_by('created')])
+        products.extend([serialize_entitlement_for_ecommerce_api(entitlement) for entitlement in
+                         course_run.course.entitlements.order_by('created')])
         data['products'] = products
 
         try:
@@ -160,17 +158,16 @@ class CourseRunViewSet(viewsets.GenericViewSet):
         discovery_course_run.transcript_languages.add(*course_run.transcript_languages.all())
         discovery_course_run.staff.add(*course_run.staff.all())
 
-        if waffle.switch_is_active('publisher_entitlements'):
-            for entitlement in publisher_course.entitlements.all():
-                DiscoveryCourseEntitlement.objects.update_or_create(
-                    course=discovery_course,
-                    mode=SeatType.objects.get(slug=entitlement.mode),
-                    defaults={
-                        'partner': partner,
-                        'price': entitlement.price,
-                        'currency': entitlement.currency,
-                    }
-                )
+        for entitlement in publisher_course.entitlements.all():
+            DiscoveryCourseEntitlement.objects.update_or_create(
+                course=discovery_course,
+                mode=SeatType.objects.get(slug=entitlement.mode),
+                defaults={
+                    'partner': partner,
+                    'price': entitlement.price,
+                    'currency': entitlement.currency,
+                }
+            )
 
         for seat in course_run.seats.exclude(type=Seat.CREDIT).order_by('created'):
             DiscoverySeat.objects.update_or_create(

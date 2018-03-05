@@ -35,7 +35,7 @@ from course_discovery.apps.publisher.choices import (
 )
 from course_discovery.apps.publisher.constants import (
     ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME,
-    PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH, REVIEWER_GROUP_NAME
+    PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, REVIEWER_GROUP_NAME
 )
 from course_discovery.apps.publisher.models import (
     Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, OrganizationExtension, Seat
@@ -302,8 +302,6 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         """
         Verify that we create an entitlement for appropriate types (happy path)
         """
-        toggle_switch(PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH, True)
-
         data = {'mode': mode, 'price': 50}
         course = self._create_course_with_post(data)
 
@@ -316,21 +314,10 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         self.assertEqual(mode, entitlement.mode)
         self.assertEqual(50, entitlement.price)
 
-    def test_no_entitlement_created_without_switch(self):
-        """
-        Verify that when we create a verified seat without the entitlement waffle switch enabled, we set version right
-        """
-        toggle_switch(PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH, False)
-        data = {'mode': CourseEntitlement.VERIFIED, 'price': 50}
-        course = self._create_course_with_post(data)
-        self.assertEqual(0, CourseEntitlement.objects.all().count())
-        self.assertEqual(Course.SEAT_VERSION, course.version)
-
     def test_seat_version(self):
         """
         Verify that when we create a seat product without an entitlement, we set version correctly
         """
-        toggle_switch(PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH, True)
         course = self._create_course_with_post()
         self.assertEqual(0, CourseEntitlement.objects.all().count())
         self.assertEqual(Course.SEAT_VERSION, course.version)
@@ -340,7 +327,6 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         """
         Verify that we check price validity when making an entitlement
         """
-        toggle_switch(PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH, True)
         data = {'title': 'Test2', 'number': 'testX234', 'mode': CourseEntitlement.VERIFIED}
         if price is not None:
             data['price'] = price
@@ -2996,7 +2982,6 @@ class CourseEditViewTests(SiteMixin, TestCase):
         Verify that a SEAT_VERSION Course that has course runs associated with it can be updated without changing
         the version, and can change the version as long as the Course Run Seat prices and types match the Course
         """
-        toggle_switch(PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH, True)
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         self.course.version = Course.SEAT_VERSION
         self.course.save()
@@ -3070,7 +3055,6 @@ class CourseEditViewTests(SiteMixin, TestCase):
         """
         Verify that an ENTITLEMENT_VERSION Course cannot be reverted to a SEAT_RUN Course, but a Course can be updated
         """
-        toggle_switch(PUBLISHER_ENTITLEMENTS_WAFFLE_SWITCH, True)
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         self.course.version = Course.SEAT_VERSION
         self.course.save()
