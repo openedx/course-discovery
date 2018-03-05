@@ -419,10 +419,13 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
 
         return render(request, self.template_name, context)
 
+    def _get_active_course_runs(self, course):
+        return course.course_runs.filter(end__gt=datetime.now())
+
     def _get_misconfigured_course_runs(self, course, price, mode):
         misconfigured_seat_type_runs = set()
         misconfigured_price_runs = set()
-        for course_run in course.publisher_course_runs.filter(end__gt=datetime.now()):
+        for course_run in self._get_active_course_runs(course):
             seats = course_run.seats.all()
             type_is_valid = True
             price_is_valid = True
@@ -459,6 +462,18 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
             entitlement.save()
         else:
             entitlement_form.save(course=course)
+        return entitlement
+
+    @transaction.atomic
+    def _update_seats_from_entitlement(self, course, entitlement):
+        for run in self._get_active_course_runs(course):
+            for seat in run.seats.all():
+                # First make sure this seat is on the "entitlement side of things" (i.e. not an audit seat or similar)
+                if seat.type in CourseEntitlement.MODE_TO_SEAT_TYPE_MAPPING.values():
+                    seat.type = CourseEntitlement.MODE_TO_SEAT_TYPE_MAPPING[entitlement.mode]
+                    seat.price = entitlement.price
+                    seat.currency = entitlement.currency
+                    seat.save()
 
     def _render_post_error(self, request, ctx_overrides=None, status=400):
         context = self.get_context_data()
@@ -466,11 +481,17 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
             context.update(ctx_overrides)
         return render(request, self.template_name, context, status=status)
 
-    def _update_course(self, course_form, user, course_version):
+    @transaction.atomic
+    def _update_course(self, course_form, entitlement_form, user, course_version):
         course = course_form.save(commit=False)
         course.changed_by = user
         course.version = course_version
         course.save()
+
+        if course.uses_entitlements:
+            entitlement = self._create_or_update_course_entitlement(course, entitlement_form)
+            self._update_seats_from_entitlement(course, entitlement)
+
         return course
 
     def _handle_entitlement_update(self, user, request, course_form):
@@ -491,56 +512,47 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
 
         # If the course is originally a SEAT_VERSION and it's now
         # using entitlements check that there are no misconfigured runs
-        if self.object.version == Course.SEAT_VERSION:
-            if entitlement_mode:
-                type_misconfigurations, seat_misconfigurations = self._get_misconfigured_course_runs(
-                    self.object, entitlement_price, entitlement_mode
-                )
-                if type_misconfigurations:
-                    # pylint: disable=no-member
-                    error_message = _(
-                        'The entered price does not match the price for the following course run(s): '
-                        '{course_runs}. The price that you enter must match the price of all active '
-                        'and future course runs.'
-                    ).format(course_runs=', '.join(
-                        str(course_run_start) for course_run_start in type_misconfigurations
-                    ))
-                    messages.error(request, error_message)
-                if seat_misconfigurations:
-                    # pylint: disable=no-member
-                    error_message = _(
-                        'The entered seat type does not match the seat type for the following course '
-                        'run(s): {course_runs}. The seat type that you enter must match the seat '
-                        'type of all active and future course runs.'
-                    ).format(course_runs=', '.join(
-                        str(course_run_start) for course_run_start in seat_misconfigurations
-                    ))
-                    messages.error(request, error_message)
-                if seat_misconfigurations or type_misconfigurations:
-                    return self._render_post_error(request, ctx_overrides={
-                        'course_form': course_form,
-                        'entitlement_form': entitlement_form
-                    })
-                else:
-                    with transaction.atomic():
-                        course = self._update_course(course_form, user, Course.ENTITLEMENT_VERSION)
-                        self._create_or_update_course_entitlement(course, entitlement_form)
-            else:
-                self._update_course(course_form, user, Course.SEAT_VERSION)
-        elif self.object.version == Course.ENTITLEMENT_VERSION:
-            if entitlement_mode:
-                with transaction.atomic():
-                    course = self._update_course(course_form, user, Course.ENTITLEMENT_VERSION)
-                    self._create_or_update_course_entitlement(course, entitlement_form)
-            else:
-                messages.error(request, _(
-                    "Courses with a previously set Type and Price cannot be "
-                    "changed to an Audit/Credit Course"
+        if not self.object.uses_entitlements and entitlement_mode:
+            type_misconfigurations, seat_misconfigurations = self._get_misconfigured_course_runs(
+                self.object, entitlement_price, entitlement_mode
+            )
+            if type_misconfigurations:
+                # pylint: disable=no-member
+                error_message = _(
+                    'The entered price does not match the price for the following course run(s): '
+                    '{course_runs}. The price that you enter must match the price of all active '
+                    'and future course runs.'
+                ).format(course_runs=', '.join(
+                    str(course_run_start) for course_run_start in type_misconfigurations
                 ))
+                messages.error(request, error_message)
+            if seat_misconfigurations:
+                # pylint: disable=no-member
+                error_message = _(
+                    'The entered seat type does not match the seat type for the following course '
+                    'run(s): {course_runs}. The seat type that you enter must match the seat '
+                    'type of all active and future course runs.'
+                ).format(course_runs=', '.join(
+                    str(course_run_start) for course_run_start in seat_misconfigurations
+                ))
+                messages.error(request, error_message)
+            if seat_misconfigurations or type_misconfigurations:
                 return self._render_post_error(request, ctx_overrides={
                     'course_form': course_form,
                     'entitlement_form': entitlement_form
                 })
+        elif self.object.uses_entitlements and not entitlement_mode:
+            messages.error(request, _(
+                "Courses with a previously set Type and Price cannot be "
+                "changed to an Audit/Credit Course"
+            ))
+            return self._render_post_error(request, ctx_overrides={
+                'course_form': course_form,
+                'entitlement_form': entitlement_form
+            })
+
+        version = Course.ENTITLEMENT_VERSION if entitlement_mode else Course.SEAT_VERSION
+        self._update_course(course_form, entitlement_form, user, version)
 
     def post(self, request, *args, **kwargs):
         user = self.request.user
