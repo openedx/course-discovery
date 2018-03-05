@@ -475,19 +475,38 @@ class SeatForm(BaseForm):
 
 
 class CourseEntitlementForm(BaseForm):
+    AUDIT_MODE = 'audit'
+    VERIFIED_MODE = CourseEntitlement.VERIFIED
+    PROFESSIONAL_MODE = CourseEntitlement.PROFESSIONAL
+    CREDIT_MODE = 'credit'
+
+    # Modes for which we should not create entitlements.
+    NOOP_MODES = [AUDIT_MODE, CREDIT_MODE]
+
+    # Modes for which we should create an entitlement.
+    PAID_MODES = [VERIFIED_MODE, PROFESSIONAL_MODE]
+
     MODE_CHOICES = [
-        ('', _('Audit only or credit')),
-        (CourseEntitlement.VERIFIED, _('Verified')),
-        (CourseEntitlement.PROFESSIONAL, _('Professional education')),
+        (AUDIT_MODE, _('Audit only')),
+        (VERIFIED_MODE, _('Verified')),
+        (PROFESSIONAL_MODE, _('Professional education')),
+        (CREDIT_MODE, _('Credit')),
     ]
 
     mode = forms.ChoiceField(choices=MODE_CHOICES, required=False, label=_('Enrollment Track'),
-                             initial=CourseEntitlement.VERIFIED)
+                             initial=VERIFIED_MODE)
     price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
 
     class Meta:
         fields = ('mode', 'price')
         model = CourseEntitlement
+
+    def __init__(self, *args, **kwargs):
+        include_blank_mode = kwargs.pop('include_blank_mode', False)
+        super(CourseEntitlementForm, self).__init__(*args, **kwargs)
+
+        if include_blank_mode:
+            self.fields['mode'].choices = [('', '')] + self.MODE_CHOICES
 
     def save(self, commit=True, course=None):  # pylint: disable=arguments-differ
         entitlement = super(CourseEntitlementForm, self).save(commit=False)
@@ -500,6 +519,14 @@ class CourseEntitlementForm(BaseForm):
 
         return entitlement
 
+    def clean_mode(self):
+        mode = self.cleaned_data['mode']
+        if mode in self.NOOP_MODES:
+            # Allow 'audit'/'credit' to be submitted as valid modes, but don't save an entitlement for them.
+            return None
+        else:
+            return mode
+
     def clean(self):
         cleaned_data = super().clean()
         mode = cleaned_data.get('mode')
@@ -509,10 +536,10 @@ class CourseEntitlementForm(BaseForm):
         if not mode:
             cleaned_data['price'] = None
 
-        if mode in [CourseEntitlement.VERIFIED, CourseEntitlement.PROFESSIONAL] and price and price < 0.01:
+        if mode in self.PAID_MODES and price and price < 0.01:
             self.add_error('price', _('Price must be greater than or equal to 0.01'))
-        if mode in [CourseEntitlement.VERIFIED, CourseEntitlement.PROFESSIONAL] and not price:
-            self.add_error('price', _('Only audit seat can be without price.'))
+        if mode in self.PAID_MODES and not price:
+            self.add_error('price', _('Price is required.'))
 
         return cleaned_data
 

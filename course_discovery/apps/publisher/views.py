@@ -282,7 +282,9 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
             try:
                 with transaction.atomic():
                     course = course_form.save(commit=False)
-                    if entitlement_form['mode'].value():
+                    # Check for mode in cleaned_data, as mode will be set to None during validation for modes that
+                    # do not support entitlements.
+                    if entitlement_form.cleaned_data.get('mode', None):
                         course.version = Course.ENTITLEMENT_VERSION
                     else:
                         course.version = Course.SEAT_VERSION
@@ -383,9 +385,12 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
         )
 
         if self.object.uses_entitlements:
-            context['entitlement_form'] = self.entitlement_form(instance=self.object.entitlements.first())
+            context['entitlement_form'] = self.entitlement_form(
+                instance=self.object.entitlements.first(),
+                include_blank_mode=True
+            )
         else:
-            context['entitlement_form'] = self.entitlement_form({'mode': ''})
+            context['entitlement_form'] = self.entitlement_form({'mode': ''}, include_blank_mode=True)
 
         return context
 
@@ -461,7 +466,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
             entitlement.mode = entitlement_form.cleaned_data.get('mode')
             entitlement.save()
         else:
-            entitlement_form.save(course=course)
+            entitlement = entitlement_form.save(course=course)
         return entitlement
 
     @transaction.atomic
@@ -495,8 +500,10 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
         return course
 
     def _handle_entitlement_update(self, user, request, course_form):
-        entitlement_form = self.entitlement_form(request.POST)
+        entitlement_form = self.entitlement_form(request.POST, include_blank_mode=True)
 
+        # Make sure to extract these values from cleaned_data, as the validation process will set mode to None
+        # if a mode that doesn't support entitlements was selected.
         entitlement_mode = entitlement_form.cleaned_data.get('mode')
         entitlement_price = entitlement_form.cleaned_data.get('price')
 
@@ -543,8 +550,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
                 })
         elif self.object.uses_entitlements and not entitlement_mode:
             messages.error(request, _(
-                "Courses with a previously set Type and Price cannot be "
-                "changed to an Audit/Credit Course"
+                "Enrollment track cannot be unset or changed from verified or professional to audit or credit."
             ))
             return self._render_post_error(request, ctx_overrides={
                 'course_form': course_form,
