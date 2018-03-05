@@ -3060,7 +3060,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         self.course.save()
         post_data = self._post_data(self.organization_extension)
         post_data['team_admin'] = self.course_team_role.user.id
-        post_data['mode'] = Seat.VERIFIED
+        post_data['mode'] = CourseEntitlement.VERIFIED
         post_data['price'] = 150
 
         response = self.client.post(self.edit_page_url, data=post_data)
@@ -3079,15 +3079,15 @@ class CourseEditViewTests(SiteMixin, TestCase):
         self.assertEqual(response.status_code, 400)
 
         # Assert that not setting a price for a verified course fails
-        post_data['mode'] = Seat.VERIFIED
+        post_data['mode'] = CourseEntitlement.VERIFIED
         post_data['price'] = ''
         response = self.client.post(self.edit_page_url, data=post_data)
         self.assertEqual(response.status_code, 400)
 
         # Assert that changing the price for a course with a Verified Entitlement is allowed
         new_course = factories.CourseFactory()
-        factories.CourseEntitlementFactory(course=new_course, mode=Seat.VERIFIED)
-        post_data['mode'] = Seat.VERIFIED
+        factories.CourseEntitlementFactory(course=new_course, mode=CourseEntitlement.VERIFIED)
+        post_data['mode'] = CourseEntitlement.VERIFIED
         post_data['price'] = 1
         response = self.client.post(self.edit_page_url, data=post_data)
         self.assertRedirects(
@@ -3096,6 +3096,65 @@ class CourseEditViewTests(SiteMixin, TestCase):
             status_code=302,
             target_status_code=200
         )
+
+    def test_entitlement_changes(self):
+        """
+        Verify that an entitlement course's type or price changes take effect correctly
+        """
+        toggle_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True)
+        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
+        factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.Publisher)
+        factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.ProjectCoordinator)
+        factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.MarketingReviewer)
+
+        # Initial course values via form
+        course_data = self._post_data(self.organization_extension)
+        course_data['team_admin'] = self.user.id
+        course_data['mode'] = CourseEntitlement.VERIFIED
+        course_data['price'] = 150
+        response = self.client.post(self.edit_page_url, data=course_data)
+        self.assertEqual(response.status_code, 302)
+
+        # New course run via form
+        new_run_url = reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id})
+        current_datetime = datetime.now(timezone('US/Central'))
+        run_data = {
+            'pacing_type': 'self_paced',
+            'start': (current_datetime + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S'),
+            'end': (current_datetime + timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S'),
+        }
+        response = self.client.post(new_run_url, run_data)
+        self.assertEqual(response.status_code, 302)
+
+        # Sanity check that we have the expected entitlement & seats
+        self.assertEqual(CourseEntitlement.objects.count(), 1)
+        entitlement = CourseEntitlement.objects.get(mode=CourseEntitlement.VERIFIED, price=150)
+        self.assertEqual(Seat.objects.count(), 2)
+        paid_seat = Seat.objects.get(type=Seat.VERIFIED, price=150)
+        audit_seat = Seat.objects.get(type=Seat.AUDIT, price=0)
+
+        def refresh_from_db():
+            entitlement.refresh_from_db()
+            paid_seat.refresh_from_db()
+            audit_seat.refresh_from_db()
+
+        # Test price change
+        course_data['price'] = 99
+        response = self.client.post(self.edit_page_url, data=course_data)
+        self.assertEqual(response.status_code, 302)
+        refresh_from_db()
+        self.assertEqual(entitlement.price, 99)
+        self.assertEqual(paid_seat.price, 99)
+        self.assertEqual(audit_seat.price, 0)
+
+        # Test mode change
+        course_data['mode'] = CourseEntitlement.PROFESSIONAL
+        response = self.client.post(self.edit_page_url, data=course_data)
+        self.assertEqual(response.status_code, 302)
+        refresh_from_db()
+        self.assertEqual(entitlement.mode, CourseEntitlement.PROFESSIONAL)
+        self.assertEqual(paid_seat.type, Seat.PROFESSIONAL)
+        self.assertEqual(audit_seat.type, Seat.AUDIT)
 
     def test_course_with_published_course_run(self):
         """
