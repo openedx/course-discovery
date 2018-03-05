@@ -917,6 +917,28 @@ class ProgramType(TimeStampedModel):
         return self.name
 
 
+class DigitalBookBundle(TimeStampedModel):
+    # TODO: is this an okay assumption to make?
+    # assumes 1 course and 1 book
+    uuid = models.UUIDField(
+        blank=True,
+        default=uuid4,
+        editable=False,
+        unique=True,
+        verbose_name=_('UUID')
+    )
+    title = models.CharField(
+        help_text=_('The user-facing display title for this Digital Book Bundle'),
+        max_length=255,
+        unique=True
+    )
+    #TODO: replace with foreign key
+    book_key = models.CharField(max_length=255)
+    #TODO: we may one day want to make this a many to many relationship
+    #TODO: should it be a course or a course run?
+    course = models.ForeignKey(Course)
+
+
 class Program(TimeStampedModel):
     uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     title = models.CharField(
