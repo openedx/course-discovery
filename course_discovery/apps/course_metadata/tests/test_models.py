@@ -232,6 +232,14 @@ class CourseRunTests(TestCase):
             factories.SeatFactory.create(course_run=course_run, type=seat_type, price=price)
         self.assertEqual(course_run.has_enrollable_paid_seats(), expected_result)
 
+    def test_first_enrollable_paid_seat_sku(self):
+        """
+        Verify that first_enrollable_paid_seat_sku returns sku of first paid seat.
+        """
+        course_run = factories.CourseRunFactory.create()
+        factories.SeatFactory.create(course_run=course_run, type='verified', price=10, sku='ABCDEF')
+        self.assertEqual(course_run.first_enrollable_paid_seat_sku(), 'ABCDEF')
+
     @ddt.data(
         # Case 1: Return None when there are no enrollable paid Seats.
         ([('audit', 0, None)], '2016-12-31 00:00:00Z', '2016-08-31 00:00:00Z', None),
