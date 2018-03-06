@@ -21,7 +21,7 @@ from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, Endorsement, Image, Organization, Person,
-    PersonSocialNetwork, PersonWork, Position, Prerequisite, Program, ProgramType, Seat, SeatType, Subject, Topic,
+    PersonSocialNetwork, PersonWork, Position, Prerequisite, Program, ProgramType, DigitalBookBundle, Seat, SeatType, Subject, Topic,
     Video
 )
 from course_discovery.apps.course_metadata.search_indexes import CourseIndex, CourseRunIndex, ProgramIndex
@@ -952,6 +952,26 @@ class ProgramTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProgramType
         fields = ('name', 'logo_image', 'applicable_seat_types', 'slug',)
+
+
+class MinimalDigitalBookBundleSerializer(serializers.ModelSerializer):
+
+    @classmethod
+    def prefetch_queryset(cls):
+        return DigitalBookBundle.objects.all()
+
+    class Meta:
+        model = DigitalBookBundle
+        fields = (
+            'uuid',
+            'title',
+            'book_key',
+            'course' #TODO: return actual course not course id
+        )
+
+    def get_course(self, digital_book_bundle):
+        import pdb; pdb.set_trace()
+        pass
 
 
 class AffiliateWindowSerializer(serializers.ModelSerializer):
