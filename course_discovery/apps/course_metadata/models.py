@@ -521,6 +521,14 @@ class CourseRun(TimeStampedModel):
         """
         return self.seats.exclude(type__in=Seat.SEATS_WITH_PREREQUISITES).filter(price__gt=0.0)
 
+    def first_enrollable_paid_seat_sku(self):
+        seats = list(self._enrollable_paid_seats().order_by('upgrade_deadline'))
+        if not seats:
+            # Enrollable paid seats are not available for this CourseRun.
+            return None
+        first_enrollable_paid_seat_sku = seats[0].sku
+        return first_enrollable_paid_seat_sku
+
     def has_enrollable_paid_seats(self):
         """
         Return a boolean indicating whether or not enrollable paid Seats (Seats with price > 0 and no prerequisites)

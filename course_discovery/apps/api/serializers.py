@@ -58,6 +58,7 @@ COURSE_RUN_SEARCH_FIELDS = (
     'number', 'seat_types', 'image_url', 'type', 'level_type', 'availability', 'published', 'partner', 'program_types',
     'authoring_organization_uuids', 'subject_uuids', 'staff_uuids', 'mobile_available', 'logo_image_urls',
     'aggregation_key', 'min_effort', 'max_effort', 'weeks_to_complete', 'has_enrollable_seats',
+    'first_enrollable_paid_seat_sku'
 )
 
 PROGRAM_FACET_FIELD_OPTIONS = {

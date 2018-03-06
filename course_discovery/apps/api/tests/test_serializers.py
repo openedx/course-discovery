@@ -1237,6 +1237,7 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
     def test_data(self):
         course_run = CourseRunFactory(transcript_languages=LanguageTag.objects.filter(code__in=['en-us', 'zh-cn']),
                                       authoring_organizations=[OrganizationFactory()])
+        SeatFactory.create(course_run=course_run, type='verified', price=10, sku='ABCDEF')
         program = ProgramFactory(courses=[course_run.course])
         self.reindex_courses(program)
         serializer = self.serialize_course_run(course_run)
@@ -1276,6 +1277,7 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
             'staff_uuids': get_uuids(course_run.staff.all()),
             'aggregation_key': 'courserun:{}'.format(course_run.course.key),
             'has_enrollable_seats': course_run.has_enrollable_seats,
+            'first_enrollable_paid_seat_sku': course_run.first_enrollable_paid_seat_sku(),
         }
         assert serializer.data == expected
 
