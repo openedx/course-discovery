@@ -145,8 +145,8 @@ class CourseRunViewSetTests(APITestCase):
         assert discovery_course_run.full_description_override is None
         assert discovery_course_run.start == publisher_course_run.start
         assert discovery_course_run.end == publisher_course_run.end
-        assert discovery_course_run.enrollment_start == publisher_course_run.enrollment_start
-        assert discovery_course_run.enrollment_end == publisher_course_run.enrollment_end
+        assert discovery_course_run.enrollment_start is None
+        assert discovery_course_run.enrollment_end is None
         assert discovery_course_run.pacing_type == publisher_course_run.pacing_type
         assert discovery_course_run.min_effort == publisher_course_run.min_effort
         assert discovery_course_run.max_effort == publisher_course_run.max_effort

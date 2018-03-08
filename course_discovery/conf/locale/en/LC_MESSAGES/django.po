@@ -1269,7 +1269,6 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
-#: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "(Optional) Not yet added"
 msgstr ""
 
@@ -2538,14 +2537,6 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_seats.html
 msgid "Enrollment Type"
-msgstr ""
-
-#: apps/publisher/templates/publisher/course_run_detail/_studio.html
-msgid "Enrollment Start Date (time in UTC)"
-msgstr ""
-
-#: apps/publisher/templates/publisher/course_run_detail/_studio.html
-msgid "Enrollment End Date (time in UTC)"
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
