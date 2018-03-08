@@ -23,7 +23,7 @@ urlpatterns = [
     url(r'^partners/', include(partners_router.urls, namespace='partners')),
     url(r'search/typeahead', search_views.TypeaheadSearchView.as_view(), name='search-typeahead'),
     url(r'currency', CurrencyView.as_view(), name='currency'),
-    url(r'^catalog/query-contains/?', CatalogQueryContainsViewSet.as_view(), name='catalog-query_contains')
+    url(r'^catalog/query_contains/?', CatalogQueryContainsViewSet.as_view(), name='catalog-query_contains')
 ]
 
 router = routers.SimpleRouter()
