@@ -26,6 +26,9 @@ from course_discovery.apps.course_metadata.models import (
 )
 from course_discovery.apps.course_metadata.search_indexes import CourseIndex, CourseRunIndex, ProgramIndex
 
+import logging
+logger = logging.getLogger(__name__)
+
 User = get_user_model()
 
 COMMON_IGNORED_FIELDS = ('text',)
@@ -955,10 +958,14 @@ class ProgramTypeSerializer(serializers.ModelSerializer):
 
 
 class MinimalDigitalBookBundleSerializer(serializers.ModelSerializer):
+    courses = MinimalCourseSerializer(many=True, read_only=True)
 
     @classmethod
     def prefetch_queryset(cls):
-        return DigitalBookBundle.objects.all()
+        #TODO: optimize this
+        return DigitalBookBundle.objects.prefetch_related(
+            Prefetch('courses', queryset=MinimalCourseSerializer.prefetch_queryset())
+        )
 
     class Meta:
         model = DigitalBookBundle
@@ -966,13 +973,16 @@ class MinimalDigitalBookBundleSerializer(serializers.ModelSerializer):
             'uuid',
             'title',
             'book_key',
-            'course' #TODO: return actual course not course id
+            'courses'
         )
+
 
     def get_course(self, digital_book_bundle):
         import pdb; pdb.set_trace()
-        pass
+        course_runs = list(digital_book_bundle.course_runs)
+        logger.info(">>> course_runs: %s", course_runs)
 
+        return MinimalCourseSerializer()
 
 class AffiliateWindowSerializer(serializers.ModelSerializer):
     """ Serializer for Affiliate Window product feeds. """

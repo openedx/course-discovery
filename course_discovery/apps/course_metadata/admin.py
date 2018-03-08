@@ -115,10 +115,9 @@ class DigitalBookBundleAdmin(admin.ModelAdmin):
         'id',
         'uuid',
         'title',
-        'book_key',
-        'course'
+        'book_key'
     )
-    raw_id_fields = ('course',)
+    raw_id_fields = ('courses',)
 
 
 @admin.register(Program)

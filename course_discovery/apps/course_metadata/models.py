@@ -934,9 +934,7 @@ class DigitalBookBundle(TimeStampedModel):
     )
     #TODO: replace with foreign key
     book_key = models.CharField(max_length=255)
-    #TODO: we may one day want to make this a many to many relationship
-    #TODO: should it be a course or a course run?
-    course = models.ForeignKey(Course)
+    courses = models.ManyToManyField(Course, blank=True)
 
 
 class Program(TimeStampedModel):
