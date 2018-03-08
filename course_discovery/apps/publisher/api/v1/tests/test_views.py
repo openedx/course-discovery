@@ -31,14 +31,14 @@ class CourseRunViewSetTests(APITestCase):
         self.client.logout()
         url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': 1})
         response = self.client.post(url, {})
-        self.assertEqual(response.status_code, 401)
+        assert response.status_code == 401
 
     def test_without_authorization(self):
         user = UserFactory()
         self.client.force_login(user)
         url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': 1})
         response = self.client.post(url, {})
-        self.assertEqual(response.status_code, 403)
+        assert response.status_code == 403
 
     def _create_course_run_for_publication(self):
         organization = OrganizationFactory()
@@ -111,14 +111,14 @@ class CourseRunViewSetTests(APITestCase):
 
         url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
         response = self.client.post(url, {})
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(responses.calls), 3)
+        assert response.status_code == 200
+        assert len(responses.calls) == 3
         expected = {
             'discovery': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
             'ecommerce': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
             'studio': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
         }
-        self.assertEqual(response.data, expected)
+        assert response.data == expected
 
         # Verify the correct deadlines were sent to the E-Commerce API
         ecommerce_body = json.loads(responses.calls[2].request.body)
@@ -129,53 +129,53 @@ class CourseRunViewSetTests(APITestCase):
             serialize_entitlement_for_ecommerce_api(professional_entitlement),
             serialize_entitlement_for_ecommerce_api(verified_entitlement),
         ]
-        self.assertEqual(ecommerce_body['products'], expected)
-        self.assertEqual(ecommerce_body['verification_deadline'], serialize_datetime(publisher_course_run.end))
+        assert ecommerce_body['products'] == expected
+        assert ecommerce_body['verification_deadline'] == serialize_datetime(publisher_course_run.end)
 
         discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
         publisher_course = publisher_course_run.course
         discovery_course = discovery_course_run.course
 
-        self.assertEqual(ecommerce_body['id'], publisher_course_run.lms_course_id)
-        self.assertEqual(ecommerce_body['uuid'], str(discovery_course.uuid))
+        assert ecommerce_body['id'] == publisher_course_run.lms_course_id
+        assert ecommerce_body['uuid'] == str(discovery_course.uuid)
 
         # pylint: disable=no-member
-        self.assertEqual(discovery_course_run.title_override, publisher_course_run.title_override)
-        self.assertEqual(discovery_course_run.short_description_override, None)
-        self.assertEqual(discovery_course_run.full_description_override, None)
-        self.assertEqual(discovery_course_run.start, publisher_course_run.start)
-        self.assertEqual(discovery_course_run.end, publisher_course_run.end)
-        self.assertEqual(discovery_course_run.enrollment_start, None)
-        self.assertEqual(discovery_course_run.enrollment_end, None)
-        self.assertEqual(discovery_course_run.pacing_type, publisher_course_run.pacing_type)
-        self.assertEqual(discovery_course_run.min_effort, publisher_course_run.min_effort)
-        self.assertEqual(discovery_course_run.max_effort, publisher_course_run.max_effort)
-        self.assertEqual(discovery_course_run.language, publisher_course_run.language)
-        self.assertEqual(discovery_course_run.weeks_to_complete, publisher_course_run.length)
-        self.assertEqual(discovery_course_run.learner_testimonials, publisher_course.learner_testimonial)
+        assert discovery_course_run.title_override == publisher_course_run.title_override
+        assert discovery_course_run.short_description_override is None
+        assert discovery_course_run.full_description_override is None
+        assert discovery_course_run.start == publisher_course_run.start
+        assert discovery_course_run.end == publisher_course_run.end
+        assert discovery_course_run.enrollment_start is None
+        assert discovery_course_run.enrollment_end is None
+        assert discovery_course_run.pacing_type == publisher_course_run.pacing_type
+        assert discovery_course_run.min_effort == publisher_course_run.min_effort
+        assert discovery_course_run.max_effort == publisher_course_run.max_effort
+        assert discovery_course_run.language == publisher_course_run.language
+        assert discovery_course_run.weeks_to_complete == publisher_course_run.length
+        assert discovery_course_run.learner_testimonials == publisher_course.learner_testimonial
         expected = set(publisher_course_run.transcript_languages.all())
-        self.assertEqual(set(discovery_course_run.transcript_languages.all()), expected)
-        self.assertEqual(set(discovery_course_run.staff.all()), set(publisher_course_run.staff.all()))
+        assert set(discovery_course_run.transcript_languages.all()) == expected
+        assert set(discovery_course_run.staff.all()) == set(publisher_course_run.staff.all())
 
-        self.assertEqual(discovery_course.canonical_course_run, discovery_course_run)
-        self.assertEqual(discovery_course.partner, partner)
-        self.assertEqual(discovery_course.title, publisher_course.title)
-        self.assertEqual(discovery_course.short_description, publisher_course.short_description)
-        self.assertEqual(discovery_course.full_description, publisher_course.full_description)
-        self.assertEqual(discovery_course.level_type, publisher_course.level_type)
-        self.assertEqual(discovery_course.video, Video.objects.get(src=publisher_course.video_link))
+        assert discovery_course.canonical_course_run == discovery_course_run
+        assert discovery_course.partner == partner
+        assert discovery_course.title == publisher_course.title
+        assert discovery_course.short_description == publisher_course.short_description
+        assert discovery_course.full_description == publisher_course.full_description
+        assert discovery_course.level_type == publisher_course.level_type
+        assert discovery_course.video == Video.objects.get(src=publisher_course.video_link)
         assert discovery_course.image.name is not None
         assert discovery_course.image.url is not None
         assert discovery_course.image.file is not None
         assert discovery_course.image.small.url is not None
         assert discovery_course.image.small.file is not None
-        self.assertEqual(discovery_course.outcome, publisher_course.expected_learnings)
-        self.assertEqual(discovery_course.prerequisites_raw, publisher_course.prerequisites)
-        self.assertEqual(discovery_course.syllabus_raw, publisher_course.syllabus)
+        assert discovery_course.outcome == publisher_course.expected_learnings
+        assert discovery_course.prerequisites_raw == publisher_course.prerequisites
+        assert discovery_course.syllabus_raw == publisher_course.syllabus
         expected = list(publisher_course_run.course.organizations.all())
-        self.assertEqual(list(discovery_course.authoring_organizations.all()), expected)
+        assert list(discovery_course.authoring_organizations.all()) == expected
         expected = {publisher_course.primary_subject, publisher_course.secondary_subject}
-        self.assertEqual(set(discovery_course.subjects.all()), expected)
+        assert set(discovery_course.subjects.all()) == expected
 
         common_entitlement_kwargs = {
             'course': discovery_course,
@@ -227,7 +227,7 @@ class CourseRunViewSetTests(APITestCase):
 
         url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
         response = self.client.post(url, {})
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
         discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
         DiscoverySeat.objects.get(
@@ -241,7 +241,7 @@ class CourseRunViewSetTests(APITestCase):
         self.client.force_login(StaffUserFactory())
         url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': 1})
         response = self.client.post(url, {})
-        self.assertEqual(response.status_code, 404)
+        assert response.status_code == 404
 
     @responses.activate
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
@@ -260,14 +260,14 @@ class CourseRunViewSetTests(APITestCase):
 
         url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
         response = self.client.post(url, {})
-        self.assertEqual(response.status_code, 502)
-        self.assertEqual(len(responses.calls), 2)
+        assert response.status_code == 502
+        assert len(responses.calls) == 2
         expected = {
             'discovery': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
             'ecommerce': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
             'studio': 'FAILED: ' + json.dumps(expected_error),
         }
-        self.assertEqual(response.data, expected)
+        assert response.data == expected
 
     @responses.activate
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
@@ -282,11 +282,11 @@ class CourseRunViewSetTests(APITestCase):
 
         url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
         response = self.client.post(url, {})
-        self.assertEqual(response.status_code, 502)
-        self.assertEqual(len(responses.calls), 3)
+        assert response.status_code == 502
+        assert len(responses.calls) == 3
         expected = {
             'discovery': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
             'ecommerce': 'FAILED: ' + json.dumps(expected_error),
             'studio': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
         }
-        self.assertEqual(response.data, expected)
+        assert response.data == expected
