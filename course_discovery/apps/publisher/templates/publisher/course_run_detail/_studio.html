@@ -40,32 +40,6 @@
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Enrollment Start Date (time in UTC)" %}
-                {% include "publisher/course_run_detail/_clipboard.html" %}
-            </div>
-            <div class="copy">
-                {% if course_run.enrollment_start %}
-                    {{ course_run.enrollment_start|date:"M d, Y, H:i:s A" }}
-                {% else %}
-                    {% trans "(Optional) Not yet added" %}
-                {% endif %}
-            </div>
-        </div>
-        <div class="info-item">
-            <div class="heading">
-                {% trans "Enrollment End Date (time in UTC)" %}
-                {% include "publisher/course_run_detail/_clipboard.html" %}
-            </div>
-            <div class="copy">
-                {% if course_run.enrollment_end %}
-                    {{ course_run.enrollment_end|date:"M d, Y, H:i:s A" }}
-                {% else %}
-                    {% trans "(Optional) Not yet added" %}
-                {% endif %}
-            </div>
-        </div>
-        <div class="info-item">
-            <div class="heading">
                 {% trans "Pacing Type" %}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>

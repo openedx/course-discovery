@@ -49,8 +49,6 @@ class CourseRunFactory(factory.DjangoModelFactory):
     course = factory.SubFactory(CourseFactory)
     start = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
     end = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC)).end_dt
-    enrollment_start = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
-    enrollment_end = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC)).end_dt
     certificate_generation = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
     min_effort = FuzzyInteger(1, 10)
     max_effort = FuzzyInteger(10, 20)
