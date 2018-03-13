@@ -1,4 +1,5 @@
 import datetime
+import json
 from decimal import Decimal
 
 import ddt
@@ -365,31 +366,75 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
         return bodies
 
     def mock_products_api(self, alt_course=None, alt_currency=None, alt_mode=None, has_stockrecord=True,
-                          valid_stockrecord=True):
-        """ Return a new Course Entitlement to be added by ingest """
+                          valid_stockrecord=True, product_class=None):
+        """ Return a new Course Entitlement and Enrollment Code to be added by ingest """
         course = CourseFactory()
 
-        bodies = [
-            {
-                "structure": "child",
-                "product_class": "Course Entitlement",
-                "title": "Course Intro to Everything",
-                "price": "10.00",
-                "expires": None,
-                "attribute_values": [
+        # If product_class is given, make sure it's either entitlement or enrollment_code
+        if product_class:
+            self.assertIn(product_class, ['entitlement', 'enrollment_code'])
+
+        data = {
+            "entitlement": {
+                "count": 1,
+                "num_pages": 1,
+                "current_page": 1,
+                "results": [
                     {
-                        "name": "certificate_type",
-                        "value": alt_mode if alt_mode else "verified",
+                        "structure": "child",
+                        "product_class": "Course Entitlement",
+                        "title": "Course Intro to Everything",
+                        "price": "10.00",
+                        "expires": None,
+                        "attribute_values": [
+                            {
+                                "name": "certificate_type",
+                                "value": alt_mode if alt_mode else "verified"
+                            },
+                            {
+                                "name": "UUID",
+                                "value": alt_course if alt_course else str(course.uuid)
+                            }
+                        ],
+                        "is_available_to_buy": True,
+                        "stockrecords": []
                     },
+                ],
+                "next": None,
+                "start": 0,
+                "previous": None
+            },
+            "enrollment_code": {
+                "count": 1,
+                "num_pages": 1,
+                "current_page": 1,
+                "results": [
                     {
-                        "name": "UUID",
-                        "value": alt_course if alt_course else str(course.uuid),
+                        "structure": "standalone",
+                        "product_class": "Enrollment Code",
+                        "title": "Course Intro to Everything",
+                        "price": "10.00",
+                        "expires": None,
+                        "attribute_values": [
+                            {
+                                "code": "seat_type",
+                                "value": alt_mode if alt_mode else "verified"
+                            },
+                            {
+                                "code": "course_key",
+                                "value": alt_course if alt_course else 'verified/course/run'
+                            }
+                        ],
+                        "is_available_to_buy": True,
+                        "stockrecords": []
                     }
                 ],
-                "is_available_to_buy": True,
-                "stockrecords": []
+                "next": None,
+                "start": 0,
+                "previous": None
             }
-        ]
+        }
+
         stockrecord = {
             "price_currency": alt_currency if alt_currency else "USD",
             "price_excl_tax": "10.00",
@@ -397,29 +442,75 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
         if valid_stockrecord:
             stockrecord.update({"partner_sku": "sku132"})
         if has_stockrecord:
-            bodies[0]["stockrecords"].append(stockrecord)
+            data['entitlement']['results'][0]["stockrecords"].append(stockrecord)
+            data['enrollment_code']['results'][0]["stockrecords"].append(stockrecord)
 
         url = '{url}products/'.format(url=self.api_url)
-        responses.add_callback(
-            responses.GET,
-            url,
-            callback=mock_api_callback(url, bodies),
-            content_type=JSON
-        )
-        return bodies
 
-    def compose_warning_log(self, alt_course, alt_currency, alt_mode):
+        responses.add(
+            responses.GET,
+            '{url}?product_class={product}&page=1&page_size=50'.format(url=url, product='Course Entitlement'),
+            body=json.dumps(data['entitlement']),
+            content_type='application/json',
+            status=200,
+            match_querystring=True
+        )
+
+        responses.add(
+            responses.GET,
+            '{url}?product_class={product}&page=1&page_size=50'.format(url=url, product='Enrollment Code'),
+            body=json.dumps(data['enrollment_code']),
+            content_type='application/json',
+            status=200,
+            match_querystring=True
+        )
+
+        all_products = data['entitlement']['results'] + data['enrollment_code']['results']
+        return all_products if product_class is None else data[product_class]['results']
+
+    def compose_warning_log(self, alt_course, alt_currency, alt_mode, product_class):
+        products = {
+            "entitlement": {
+                "label": "entitlement",
+                "alt_course": "course",
+                "alt_mode": "mode"
+            },
+            "enrollment_code": {
+                "label": "enrollment code",
+                "alt_course": "course run",
+                "alt_mode": "seat type"
+            }
+        }
+
         msg = 'Could not find '
         if alt_course:
-            msg += 'course ' + alt_course
+            msg += '{label} {alt_course}'.format(
+                label=products[product_class]["alt_course"],
+                alt_course=alt_course
+            )
         elif alt_currency:
             msg += 'currency ' + alt_currency
         elif alt_mode:
-            msg += 'mode ' + alt_mode
-        msg += ' while loading entitlement Course Intro to Everything with sku sku132'
+            msg += '{label} {alt_mode}'.format(
+                label=products[product_class]["alt_mode"],
+                alt_mode=alt_mode
+            )
+        msg += ' while loading {product_class}'.format(product_class=products[product_class]["label"])
+        msg += ' Course Intro to Everything with sku sku132'
         return msg
 
-    def assert_seats_loaded(self, body):
+    def get_product_bulk_sku(self, seat_type, course_run, products):
+        products = [p for p in products if p['structure'] == 'standalone']
+        course_key = course_run.key
+        for product in products:
+            attributes = {attribute['code']: attribute['value'] for attribute in product['attribute_values']}
+            if attributes['seat_type'] == seat_type and attributes['course_key'] == course_key:
+                stock_record = product['stockrecords'][0]
+                return stock_record['partner_sku']
+
+        return None
+
+    def assert_seats_loaded(self, body, mock_products):
         """ Assert a Seat corresponding to the specified data body was properly loaded into the database. """
         course_run = CourseRun.objects.get(key=body['id'])
         products = [p for p in body['products'] if p['structure'] == 'child']
@@ -450,6 +541,7 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
                 elif att['name'] == 'credit_hours':
                     credit_hours = att['value']
 
+            bulk_sku = self.get_product_bulk_sku(certificate_type, course_run, mock_products)
             seat = course_run.seats.get(type=certificate_type, credit_provider=credit_provider, currency=price_currency)
 
             self.assertEqual(seat.course_run, course_run)
@@ -460,9 +552,11 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
             self.assertEqual(seat.credit_hours, credit_hours)
             self.assertEqual(seat.upgrade_deadline, upgrade_deadline)
             self.assertEqual(seat.sku, sku)
+            self.assertEqual(seat.bulk_sku, bulk_sku)
 
     def assert_entitlements_loaded(self, body):
         """ Assert a Course Entitlement was loaded into the database for each entry in the specified data body. """
+        body = [d for d in body if d['product_class'] == 'Course Entitlement']
         self.assertEqual(CourseEntitlement.objects.count(), len(body))
         for datum in body:
             expires = datum['expires']
@@ -474,7 +568,7 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
             sku = stock_record['partner_sku']
 
             mode_name = attributes['certificate_type']
-            mode = SeatType.objects.get(name=mode_name)
+            mode = SeatType.objects.get(slug=mode_name)
 
             entitlement = course.entitlements.get(mode=mode)
 
@@ -483,6 +577,21 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
             self.assertEqual(entitlement.price, price)
             self.assertEqual(entitlement.currency.code, price_currency)
             self.assertEqual(entitlement.sku, sku)
+
+    def assert_enrollment_codes_loaded(self, body):
+        """ Assert a Course Enrollment Code was loaded into the database for each entry in the specified data body. """
+        body = [d for d in body if d['product_class'] == 'Enrollment Code']
+        for datum in body:
+            attributes = {attribute['code']: attribute['value'] for attribute in datum['attribute_values']}
+            course_run = CourseRun.objects.get(key=attributes['course_key'])
+            stock_record = datum['stockrecords'][0]
+            bulk_sku = stock_record['partner_sku']
+
+            mode_name = attributes['seat_type']
+            seat = course_run.seats.get(type=mode_name)
+
+            self.assertEqual(seat.course_run, course_run)
+            self.assertEqual(seat.bulk_sku, bulk_sku)
 
     @responses.activate
     def test_ingest(self):
@@ -501,12 +610,13 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
         self.loader.ingest()
 
         # Verify the API was called with the correct authorization header
-        self.assert_api_called(2)
+        self.assert_api_called(3)
 
         for datum in loaded_seat_data:
-            self.assert_seats_loaded(datum)
+            self.assert_seats_loaded(datum, products_api_data)
 
         self.assert_entitlements_loaded(products_api_data)
+        self.assert_enrollment_codes_loaded(products_api_data)
 
         # Verify multiple calls to ingest data do NOT result in data integrity errors.
         self.loader.ingest()
@@ -535,34 +645,50 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
         products = self.mock_products_api(has_stockrecord=False)
         self.loader.ingest()
         msg = 'Entitlement product {entitlement} has no stockrecords'.format(entitlement=products[0]['title'])
-        mock_logger.warning.assert_called_with(msg)
-
-    @responses.activate
-    @mock.patch(LOGGER_PATH)
-    def test_invalid_stockrecord(self, mock_logger):
-        self.mock_courses_api()
-        products = self.mock_products_api(valid_stockrecord=False)
-        self.loader.ingest()
-        msg = 'A necessary stockrecord field is missing or incorrectly set for entitlement {entitlement}'.format(
-            entitlement=products[0]['title']
-        )
-        mock_logger.warning.assert_called_with(msg)
+        mock_logger.warning.assert_any_call(msg)
 
     @responses.activate
     @ddt.data(
-        ('a01354b1-c0de-4a6b-c5de-ab5c6d869e76', None, None),
-        (None, "NRC", None),
-        (None, None, "notamode"),
+        ('entitlement'),
+        ('enrollment_code')
     )
-    @ddt.unpack
-    def test_ingest_fails(self, alt_course, alt_currency, alt_mode):
-        """ Verify the proper warnings are logged when data objects are not present. """
+    def test_invalid_stockrecord(self, product_class):
+        product_classes = {
+            "entitlement": "entitlement",
+            "enrollment_code": "enrollment code"
+        }
         self.mock_courses_api()
-        self.mock_products_api(alt_course=alt_course, alt_currency=alt_currency, alt_mode=alt_mode)
+        products = self.mock_products_api(valid_stockrecord=False, product_class=product_class)
         with mock.patch(LOGGER_PATH) as mock_logger:
             self.loader.ingest()
-            msg = self.compose_warning_log(alt_course, alt_currency, alt_mode)
-            mock_logger.warning.assert_called_with(msg)
+            msg = 'A necessary stockrecord field is missing or incorrectly set for {product_class} {title}'.format(
+                product_class=product_classes[product_class],
+                title=products[0]['title']
+            )
+            mock_logger.warning.assert_any_call(msg)
+
+    @responses.activate
+    @ddt.data(
+        ('a01354b1-c0de-4a6b-c5de-ab5c6d869e76', None, None, 'entitlement'),
+        ('a01354b1-c0de-4a6b-c5de-ab5c6d869e76', None, None, 'enrollment_code'),
+        (None, "NRC", None, 'enrollment_code'),
+        (None, None, "notamode", 'entitlement'),
+        (None, None, "notamode", 'enrollment_code')
+    )
+    @ddt.unpack
+    def test_ingest_fails(self, alt_course, alt_currency, alt_mode, product_class):
+        """ Verify the proper warnings are logged when data objects are not present. """
+        self.mock_courses_api()
+        self.mock_products_api(
+            alt_course=alt_course,
+            alt_currency=alt_currency,
+            alt_mode=alt_mode,
+            product_class=product_class
+        )
+        with mock.patch(LOGGER_PATH) as mock_logger:
+            self.loader.ingest()
+            msg = self.compose_warning_log(alt_course, alt_currency, alt_mode, product_class)
+            mock_logger.warning.assert_any_call(msg)
 
     @ddt.unpack
     @ddt.data(

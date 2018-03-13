@@ -250,59 +250,93 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
 
 class EcommerceApiDataLoader(AbstractDataLoader):
-    """ Loads course seats and entitlements from the E-Commerce API. """
+    """ Loads course seats, entitlements, and enrollment codes from the E-Commerce API. """
 
     def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None,
                  is_threadsafe=False, **kwargs):
         super(EcommerceApiDataLoader, self).__init__(
             partner, api_url, access_token, token_type, max_workers, is_threadsafe, **kwargs
         )
+        self.initial_page = 1
+        self.enrollment_skus = []
         self.entitlement_skus = []
 
     def ingest(self):
         logger.info('Refreshing course seats from %s...', self.partner.ecommerce_api_url)
-
-        initial_page = 1
-        course_runs = self._request_course_runs(initial_page)
-        entitlements = self._request_entitlments(initial_page)
-        count = course_runs['count'] + entitlements['count']
-        pages = math.ceil(count / self.PAGE_SIZE)
+        course_runs = self._request_course_runs(self.initial_page)
+        entitlements = self._request_entitlments(self.initial_page)
+        enrollment_codes = self._request_enrollment_codes(self.initial_page)
         self.entitlement_skus = []
+        self.enrollment_skus = []
         self._process_course_runs(course_runs)
         self._process_entitlements(entitlements)
-
-        pagerange = range(initial_page + 1, pages + 1)
+        self._process_enrollment_codes(enrollment_codes)
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:  # pragma: no cover
+            # Create pageranges to iterate over all existing pages for each product type
+            pageranges = {
+                'course_runs': self._pagerange(course_runs['count']),
+                'entitlements': self._pagerange(entitlements['count']),
+                'enrollment_codes': self._pagerange(enrollment_codes['count'])
+            }
+
             if self.is_threadsafe:
-                for page in pagerange:
-                    executor.submit(self._load_data, page)
+                for page in pageranges['course_runs']:
+                    executor.submit(self._load_course_runs_data, page)
+                for page in pageranges['entitlements']:
+                    executor.submit(self._load_entitlements_data, page)
+                for page in pageranges['enrollment_codes']:
+                    executor.submit(self._load_enrollment_codes_data, page)
             else:
+                pagerange = pageranges['course_runs']
                 for future in [executor.submit(self._request_course_runs, page) for page in pagerange]:
                     response = future.result()
                     self._process_course_runs(response)
+
+                pagerange = pageranges['entitlements']
                 for future in [executor.submit(self._request_entitlments, page) for page in pagerange]:
                     response = future.result()
                     self._process_entitlements(response)
 
-        logger.info('Retrieved %d course seats and %d course entitlements from %s.', course_runs['count'],
-                    entitlements['count'], self.partner.ecommerce_api_url)
+                pagerange = pageranges['enrollment_codes']
+                for future in [executor.submit(self._request_enrollment_codes, page) for page in pagerange]:
+                    response = future.result()
+                    self._process_enrollment_codes(response)
+
+        logger.info('Retrieved %d course seats, %d course entitlements, and %d course enrollment codes from %s.',
+                    course_runs['count'], entitlements['count'],
+                    enrollment_codes['count'], self.partner.ecommerce_api_url)
 
         self.delete_orphans()
         self._delete_entitlements()
 
-    def _load_data(self, page):  # pragma: no cover
+    def _pagerange(self, count):
+        pages = math.ceil(count / self.PAGE_SIZE)
+        return range(self.initial_page + 1, pages + 1)
+
+    def _load_course_runs_data(self, page):  # pragma: no cover
         """Make a request for the given page and process the response."""
         course_runs = self._request_course_runs(page)
         self._process_course_runs(course_runs)
+
+    def _load_entitlements_data(self, page):  # pragma: no cover
+        """Make a request for the given page and process the response."""
         entitlements = self._request_entitlments(page)
         self._process_entitlements(entitlements)
+
+    def _load_enrollment_codes_data(self, page):  # pragma: no cover
+        """Make a request for the given page and process the response."""
+        enrollment_codes = self._request_enrollment_codes(page)
+        self._process_enrollment_codes(enrollment_codes)
 
     def _request_course_runs(self, page):
         return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE, include_products=True)
 
     def _request_entitlments(self, page):
         return self.api_client.products().get(page=page, page_size=self.PAGE_SIZE, product_class='Course Entitlement')
+
+    def _request_enrollment_codes(self, page):
+        return self.api_client.products().get(page=page, page_size=self.PAGE_SIZE, product_class='Enrollment Code')
 
     def _process_course_runs(self, response):
         results = response['results']
@@ -319,6 +353,14 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         for body in results:
             body = self.clean_strings(body)
             self.entitlement_skus.append(self.update_entitlement(body))
+
+    def _process_enrollment_codes(self, response):
+        results = response['results']
+        logger.info('Retrieved %d course enrollment codes...', len(results))
+
+        for body in results:
+            body = self.clean_strings(body)
+            self.enrollment_skus.append(self.update_enrollment_code(body))
 
     def _delete_entitlements(self):
         entitlements_to_delete = CourseEntitlement.objects.filter(
@@ -379,8 +421,74 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             'credit_hours': credit_hours,
         }
 
-        course_run.seats.update_or_create(type=seat_type, credit_provider=credit_provider, currency=currency,
-                                          defaults=defaults)
+        course_run.seats.update_or_create(
+            type=seat_type,
+            credit_provider=credit_provider,
+            currency=currency,
+            defaults=defaults
+        )
+
+    def validate_stockrecord(self, stockrecords, title, product_class):
+        """
+        Argument:
+            body (dict): product data from ecommerce, either entitlement or enrollment code
+        Returns:
+            product sku if no exceptions, else None
+        """
+        # Map product_class keys with how they should be displayed in the exception messages.
+        product_classes = {
+            'entitlement': {
+                'name': 'entitlement',
+                'value': 'entitlement',
+            },
+            'enrollment_code': {
+                'name': 'enrollment_code',
+                'value': 'enrollment code'
+            }
+        }
+
+        try:
+            product_class = product_classes[product_class]
+        except (KeyError, ValueError):
+            msg = 'Invalid product class of {product}. Must be entitlement or enrollment_code'.format(
+                product=product_class['name']
+            )
+            logger.warning(msg)
+            return None
+
+        if stockrecords:
+            stock_record = stockrecords[0]
+        else:
+            msg = '{product} product {title} has no stockrecords'.format(
+                product=product_class['value'].capitalize(),
+                title=title
+            )
+            logger.warning(msg)
+            return None
+
+        try:
+            currency_code = stock_record['price_currency']
+            Decimal(stock_record['price_excl_tax'])
+            sku = stock_record['partner_sku']
+        except (KeyError, ValueError):
+            msg = 'A necessary stockrecord field is missing or incorrectly set for {product} {title}'.format(
+                product=product_class['value'],
+                title=title
+            )
+            logger.warning(msg)
+            return None
+
+        try:
+            Currency.objects.get(code=currency_code)
+        except Currency.DoesNotExist:
+            msg = 'Could not find currency {code} while loading {product} {title} with sku {sku}'.format(
+                product=product_class['value'], code=currency_code, title=title, sku=sku
+            )
+            logger.warning(msg)
+            return None
+
+        # All validation checks passed!
+        return True
 
     def update_entitlement(self, body):
         """
@@ -392,30 +500,21 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         attributes = {attribute['name']: attribute['value'] for attribute in body['attribute_values']}
         course_uuid = attributes.get('UUID')
         title = body['title']
+        stockrecords = body['stockrecords']
 
-        if body['stockrecords']:
-            stock_record = body['stockrecords'][0]
-        else:
-            msg = 'Entitlement product {entitlement} has no stockrecords'.format(entitlement=title)
-            logger.warning(msg)
+        if not self.validate_stockrecord(stockrecords, title, 'entitlement'):
             return None
 
-        try:
-            currency_code = stock_record['price_currency']
-            price = Decimal(stock_record['price_excl_tax'])
-            sku = stock_record['partner_sku']
-        except (KeyError, ValueError):
-            msg = 'A necessary stockrecord field is missing or incorrectly set for entitlement {entitlement}'.format(
-                entitlement=title
-            )
-            logger.warning(msg)
-            return None
+        stock_record = stockrecords[0]
+        currency_code = stock_record['price_currency']
+        price = Decimal(stock_record['price_excl_tax'])
+        sku = stock_record['partner_sku']
 
         try:
             course = Course.objects.get(uuid=course_uuid)
         except Course.DoesNotExist:
-            msg = 'Could not find course {uuid} while loading entitlement {entitlement} with sku {sku}'.format(
-                uuid=course_uuid, entitlement=title, sku=sku
+            msg = 'Could not find course {uuid} while loading entitlement {title} with sku {sku}'.format(
+                uuid=course_uuid, title=title, sku=sku
             )
             logger.warning(msg)
             return None
@@ -423,8 +522,8 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         try:
             currency = Currency.objects.get(code=currency_code)
         except Currency.DoesNotExist:
-            msg = 'Could not find currency {code} while loading entitlement {entitlement} with sku {sku}'.format(
-                code=currency_code, entitlement=title, sku=sku
+            msg = 'Could not find currency {code} while loading entitlement {title} with sku {sku}'.format(
+                code=currency_code, title=title, sku=sku
             )
             logger.warning(msg)
             return None
@@ -433,8 +532,8 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         try:
             mode = SeatType.objects.get(slug=mode_name)
         except SeatType.DoesNotExist:
-            msg = 'Could not find mode {mode} while loading entitlement {entitlement} with sku {sku}'.format(
-                mode=mode_name, entitlement=title, sku=sku
+            msg = 'Could not find mode {mode} while loading entitlement {title} with sku {sku}'.format(
+                mode=mode_name, title=title, sku=sku
             )
             logger.warning(msg)
             return None
@@ -446,11 +545,58 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             'sku': sku,
             'expires': self.parse_date(body['expires'])
         }
-        msg = 'Creating entitlement {entitlement} with sku {sku} for partner {partner}'.format(
-            entitlement=title, sku=sku, partner=self.partner
+        msg = 'Creating entitlement {title} with sku {sku} for partner {partner}'.format(
+            title=title, sku=sku, partner=self.partner
         )
         logger.info(msg)
         course.entitlements.update_or_create(mode=mode, defaults=defaults)
+        return sku
+
+    def update_enrollment_code(self, body):
+        """
+        Argument:
+            body (dict): enrollment code product data from ecommerce
+        Returns:
+            enrollment code product sku if no exceptions, else None
+        """
+        attributes = {attribute['code']: attribute['value'] for attribute in body['attribute_values']}
+        course_key = attributes.get('course_key')
+        title = body['title']
+        stockrecords = body['stockrecords']
+
+        if not self.validate_stockrecord(stockrecords, title, "enrollment_code"):
+            return None
+
+        stock_record = stockrecords[0]
+        sku = stock_record['partner_sku']
+
+        try:
+            course_run = CourseRun.objects.get(key=course_key)
+        except CourseRun.DoesNotExist:
+            msg = 'Could not find course run {key} while loading enrollment code {title} with sku {sku}'.format(
+                key=course_key, title=title, sku=sku
+            )
+            logger.warning(msg)
+            return None
+
+        seat_type = attributes.get('seat_type')
+        try:
+            Seat.objects.get(course_run=course_run, type=seat_type)
+        except Seat.DoesNotExist:
+            msg = 'Could not find seat type {type} while loading enrollment code {title} with sku {sku}'.format(
+                type=seat_type, title=title, sku=sku
+            )
+            logger.warning(msg)
+            return None
+
+        defaults = {
+            'bulk_sku': sku
+        }
+        msg = 'Creating enrollment code {title} with sku {sku} for partner {partner}'.format(
+            title=title, sku=sku, partner=self.partner
+        )
+        logger.info(msg)
+        course_run.seats.update_or_create(type=seat_type, defaults=defaults)
         return sku
 
     def get_certificate_type(self, product):
