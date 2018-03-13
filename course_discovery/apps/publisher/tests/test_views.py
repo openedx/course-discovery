@@ -3180,9 +3180,10 @@ class CourseEditViewTests(SiteMixin, TestCase):
         self.assertEqual(verified_seat.type, Seat.VERIFIED)
         self.assertEqual(verified_seat.price, 1000)
 
-    def test_entitlement_published_run_failure(self):
+    def test_entitlement_published_run(self):
         """
-        Verify that a course with a published course run cannot be saved with altered enrollment-track or price fields.
+        Verify that a course with a published course run cannot be saved with altered enrollment-track or price fields,
+        but can be saved without changing the enrollment-track or price fields.
         """
         self.client.logout()
         self.client.login(username=self.course_team_role.user.username, password=USER_PASSWORD)
@@ -3190,7 +3191,9 @@ class CourseEditViewTests(SiteMixin, TestCase):
 
         self.course.version = Course.ENTITLEMENT_VERSION
         self.course.save()
-        factories.CourseEntitlementFactory(course=self.course, mode=CourseEntitlement.VERIFIED)
+        verified_entitlement = factories.CourseEntitlementFactory(
+            course=self.course, mode=CourseEntitlement.VERIFIED, price=100
+        )
         course_run = factories.CourseRunFactory.create(
             course=self.course, lms_course_id='course-v1:edxTest+Test342+2016Q1', end=datetime.now() + timedelta(days=1)
         )
@@ -3201,11 +3204,20 @@ class CourseEditViewTests(SiteMixin, TestCase):
         factories.SeatFactory.create(course_run=course_run, type=Seat.VERIFIED, price=100)
         factories.SeatFactory(course_run=course_run, type=Seat.AUDIT, price=0)
 
+        # Success case
+        post_data = self._post_data(self.organization_extension)
+        post_data['team_admin'] = self.course_team_role.user.id
+        post_data['faq'] = 'Test FAQ Content'
+        post_data['price'] = verified_entitlement.price
+        post_data['mode'] = verified_entitlement.mode
+        response = self.client.post(self.edit_page_url, data=post_data)
+        self.assertEqual(response.status_code, 302)
+
+        # Failure case
         post_data = self._post_data(self.organization_extension)
         post_data['team_admin'] = self.course_team_role.user.id
         post_data['mode'] = CourseEntitlement.PROFESSIONAL
         post_data['price'] = 100
-
         response = self.client.post(self.edit_page_url, data=post_data)
         self.assertEqual(response.status_code, 400)
 
