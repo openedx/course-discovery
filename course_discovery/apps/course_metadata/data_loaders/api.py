@@ -257,6 +257,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         super(EcommerceApiDataLoader, self).__init__(
             partner, api_url, access_token, token_type, max_workers, is_threadsafe, **kwargs
         )
+        self.enrollment_skus = []
         self.entitlement_skus = []
 
     def ingest(self):
@@ -265,11 +266,14 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         initial_page = 1
         course_runs = self._request_course_runs(initial_page)
         entitlements = self._request_entitlments(initial_page)
+        enrollment_codes = self._request_enrollment_codes(initial_page)
         count = course_runs['count'] + entitlements['count']
         pages = math.ceil(count / self.PAGE_SIZE)
         self.entitlement_skus = []
+        self.enrollment_skus = []
         self._process_course_runs(course_runs)
         self._process_entitlements(entitlements)
+        self._process_enrollment_codes(enrollment_codes)
 
         pagerange = range(initial_page + 1, pages + 1)
 
@@ -284,9 +288,13 @@ class EcommerceApiDataLoader(AbstractDataLoader):
                 for future in [executor.submit(self._request_entitlments, page) for page in pagerange]:
                     response = future.result()
                     self._process_entitlements(response)
+                for future in [executor.submit(self._request_enrollment_codes, page) for page in pagerange]:
+                    response = future.result()
+                    self._process_enrollment_codes(response)
 
-        logger.info('Retrieved %d course seats and %d course entitlements from %s.', course_runs['count'],
-                    entitlements['count'], self.partner.ecommerce_api_url)
+        logger.info('Retrieved %d course seats, %d course entitlements, and %d course enrollment codes from %s.',
+                    course_runs['count'], entitlements['count'],
+                    enrollment_codes['count'], self.partner.ecommerce_api_url)
 
         self.delete_orphans()
         self._delete_entitlements()
@@ -297,12 +305,17 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         self._process_course_runs(course_runs)
         entitlements = self._request_entitlments(page)
         self._process_entitlements(entitlements)
+        enrollment_codes = self._request_enrollment_codes(page)
+        self._process_enrollment_codes(enrollment_codes)
 
     def _request_course_runs(self, page):
         return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE, include_products=True)
 
     def _request_entitlments(self, page):
         return self.api_client.products().get(page=page, page_size=self.PAGE_SIZE, product_class='Course Entitlement')
+
+    def _request_enrollment_codes(self, page):
+        return self.api_client.products().get(page=page, page_size=self.PAGE_SIZE, product_class='Enrollment Code')
 
     def _process_course_runs(self, response):
         results = response['results']
@@ -319,6 +332,14 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         for body in results:
             body = self.clean_strings(body)
             self.entitlement_skus.append(self.update_entitlement(body))
+
+    def _process_enrollment_codes(self, response):
+        results = response['results']
+        logger.info('Retrieved %d course enrollment codes...', len(results))
+
+        for body in results:
+            body = self.clean_strings(body)
+            self.enrollment_skus.append(self.update_enrollment_code(body))
 
     def _delete_entitlements(self):
         entitlements_to_delete = CourseEntitlement.objects.filter(
@@ -452,6 +473,73 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         logger.info(msg)
         course.entitlements.update_or_create(mode=mode, defaults=defaults)
         return sku
+
+    def update_enrollment_code(self, body):
+        """
+        Argument:
+            body (dict): enrollment code product data from ecommerce
+        Returns:
+            enrollment code product sku if no exceptions, else None
+        """
+        attributes = {attribute['code']: attribute['value'] for attribute in body['attribute_values']}
+        course_key = attributes.get('course_key')
+        title = body['title']
+
+        if body['stockrecords']:
+            stock_record = body['stockrecords'][0]
+        else:
+            msg = 'Enrollment code product {title} has no stockrecords'.format(title=title)
+            logger.warning(msg)
+            return None
+
+        try:
+            currency_code = stock_record['price_currency']
+            bulk_sku = stock_record['partner_sku']
+        except (KeyError, ValueError):
+            msg = 'A necessary stockrecord field is missing or incorrectly set for enrollment code {title}'.format(
+                title=title
+            )
+            logger.warning(msg)
+            return None
+
+        try:
+            course_run = CourseRun.objects.get(key=course_key)
+        except CourseRun.DoesNotExist:
+            msg = 'Could not find course run {key} while loading enrollment code {title} with sku {sku}'.format(
+                key=course_key, title=title, sku=bulk_sku
+            )
+            logger.warning(msg)
+            return None
+
+        try:
+            Currency.objects.get(code=currency_code)
+        except Currency.DoesNotExist:
+            msg = 'Could not find currency {code} while loading enrollment code {title} with sku {sku}'.format(
+                code=currency_code, title=title, sku=bulk_sku
+            )
+            logger.warning(msg)
+            return None
+
+        seat_type = attributes.get('seat_type')
+        try:
+            Seat.objects.get(course_run=course_run, type=seat_type)
+        except SeatType.DoesNotExist:
+            msg = 'Could not find seat type {type} while loading enrollment code {title} with sku {sku}'.format(
+                type=seat_type, title=title, sku=bulk_sku
+            )
+            logger.warning(msg)
+            return None
+
+        defaults = {
+            'bulk_sku': bulk_sku
+        }
+
+        msg = 'Creating enrollment code {title} with sku {sku} for partner {partner}'.format(
+            title=title, sku=bulk_sku, partner=self.partner
+        )
+        logger.info(msg)
+        course_run.seats.update_or_create(type=seat_type, defaults=defaults)
+        return bulk_sku
 
     def get_certificate_type(self, product):
         return next(
