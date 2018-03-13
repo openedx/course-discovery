@@ -155,6 +155,7 @@ class SeatFactory(factory.DjangoModelFactory):
     currency = factory.Iterator(Currency.objects.all())
     upgrade_deadline = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
     sku = FuzzyText(length=8)
+    bulk_sku = FuzzyText(length=8)
     course_run = factory.SubFactory(CourseRunFactory)
 
     class Meta:
