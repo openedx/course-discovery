@@ -427,6 +427,16 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
     def _get_active_course_runs(self, course):
         return course.course_runs.filter(end__gt=datetime.now())
 
+    def _get_published_course_runs(self, course):
+        published_runs = set()
+        for course_run in self._get_active_course_runs(course):
+            if course_run.course_run_state.is_published:
+                published_runs.add('{type} - {start}'.format(
+                    type=course_run.get_pacing_type_display(),
+                    start=course_run.start.strftime("%B %d, %Y")
+                ))
+        return published_runs
+
     def _get_misconfigured_course_runs(self, course, price, mode):
         misconfigured_seat_type_runs = set()
         misconfigured_price_runs = set()
@@ -457,6 +467,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
                     type=course_run.get_pacing_type_display(),
                     start=course_run.start.strftime("%B %d, %Y")
                 ))
+
         return misconfigured_price_runs, misconfigured_seat_type_runs
 
     def _create_or_update_course_entitlement(self, course, entitlement_form):
@@ -470,15 +481,18 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
         return entitlement
 
     @transaction.atomic
-    def _update_seats_from_entitlement(self, course, entitlement):
+    def _update_seats_from_entitlement(self, course, entitlement, changed_by):
         for run in self._get_active_course_runs(course):
-            for seat in run.seats.all():
-                # First make sure this seat is on the "entitlement side of things" (i.e. not an audit seat or similar)
-                if seat.type in CourseEntitlement.MODE_TO_SEAT_TYPE_MAPPING.values():
-                    seat.type = CourseEntitlement.MODE_TO_SEAT_TYPE_MAPPING[entitlement.mode]
-                    seat.price = entitlement.price
-                    seat.currency = entitlement.currency
-                    seat.save()
+            run.seats.all().delete()
+            seat = Seat(
+                type=CourseEntitlement.MODE_TO_SEAT_TYPE_MAPPING[entitlement.mode],
+                price=entitlement.price,
+                currency=entitlement.currency
+            )
+
+            # Use the SeatForm here to not duplicate logic for creating seats
+            seat_form = SeatForm(instance=seat)
+            seat_form.save(commit=True, course_run=run, changed_by=changed_by)
 
     def _render_post_error(self, request, ctx_overrides=None, status=400):
         context = self.get_context_data()
@@ -495,7 +509,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
 
         if course.uses_entitlements:
             entitlement = self._create_or_update_course_entitlement(course, entitlement_form)
-            self._update_seats_from_entitlement(course, entitlement)
+            self._update_seats_from_entitlement(course, entitlement, user)
 
         return course
 
@@ -548,14 +562,29 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
                     'course_form': course_form,
                     'entitlement_form': entitlement_form
                 })
-        elif self.object.uses_entitlements and not entitlement_mode:
-            messages.error(request, _(
-                "Enrollment track cannot be unset or changed from verified or professional to audit or credit."
-            ))
-            return self._render_post_error(request, ctx_overrides={
-                'course_form': course_form,
-                'entitlement_form': entitlement_form
-            })
+        elif self.object.uses_entitlements:
+            if not entitlement_mode:
+                messages.error(request, _(
+                    "Enrollment track cannot be unset or changed from verified or professional to audit or credit."
+                ))
+                return self._render_post_error(request, ctx_overrides={
+                    'course_form': course_form,
+                    'entitlement_form': entitlement_form
+                })
+            published_runs = self._get_published_course_runs(self.object)
+            if published_runs:
+                # pylint: disable=no-member
+                error_message = _(
+                    'The following active course run(s) are published: {course_runs}. You cannot change the mode '
+                    'if there are published active runs.'
+                ).format(course_runs=', '.join(
+                    str(course_run_start) for course_run_start in published_runs
+                ))
+                messages.error(request, error_message)
+                return self._render_post_error(request, ctx_overrides={
+                    'course_form': course_form,
+                    'entitlement_form': entitlement_form
+                })
 
         version = Course.ENTITLEMENT_VERSION if entitlement_mode else Course.SEAT_VERSION
         self._update_course(course_form, entitlement_form, user, version)
