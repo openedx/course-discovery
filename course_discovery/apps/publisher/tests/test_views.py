@@ -2996,13 +2996,14 @@ class CourseEditViewTests(SiteMixin, TestCase):
             course=self.course, lms_course_id='course-v1:edxTest+Test342+2016Q1', end=datetime.now() + timedelta(days=1)
         )
 
-        factories.CourseRunStateFactory(course_run=course_run, name=CourseRunStateChoices.Published)
+        factories.CourseRunStateFactory(course_run=course_run, name=CourseRunStateChoices.Draft)
         factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.Publisher)
         factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.ProjectCoordinator)
 
         # Test that this saves without seats after resetting this to Seat version
         self.course.version = Course.SEAT_VERSION
         self.course.save()
+
         post_data['mode'] = CourseEntitlementForm.PROFESSIONAL_MODE
         post_data['price'] = 1
         response = self.client.post(self.edit_page_url, data=post_data)
@@ -3013,11 +3014,12 @@ class CourseEditViewTests(SiteMixin, TestCase):
             target_status_code=200
         )
 
-        verified_seat = factories.SeatFactory.create(course_run=course_run, type=Seat.VERIFIED, price=2)
-        factories.SeatFactory(course_run=course_run, type=Seat.AUDIT, price=0)  # Create a seat, do not need to access
-
+        # Clear out the seats created above and reset the version to test the mismatch cases
+        course_run.seats.all().delete()
         self.course.version = Course.SEAT_VERSION
         self.course.save()
+        verified_seat = factories.SeatFactory.create(course_run=course_run, type=Seat.VERIFIED, price=2)
+        factories.SeatFactory(course_run=course_run, type=Seat.AUDIT, price=0)  # Create a seat, do not need to access
 
         # Verify that we can switch between NOOP_MODES
         for noop_mode in [''] + CourseEntitlementForm.NOOP_MODES:
@@ -3048,7 +3050,9 @@ class CourseEditViewTests(SiteMixin, TestCase):
         # Modify the Course to try and create CourseEntitlement the same as the Course Run and Seat type and price
         post_data['mode'] = verified_seat.type
         post_data['price'] = verified_seat.price
+
         response = self.client.post(self.edit_page_url, data=post_data)
+
         self.assertRedirects(
             response,
             expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
@@ -3132,23 +3136,22 @@ class CourseEditViewTests(SiteMixin, TestCase):
         response = self.client.post(new_run_url, run_data)
         self.assertEqual(response.status_code, 302)
 
+        self.course.refresh_from_db()
+        course_run = self.course.course_runs.first()
+
         # Sanity check that we have the expected entitlement & seats
         self.assertEqual(CourseEntitlement.objects.count(), 1)
-        entitlement = CourseEntitlement.objects.get(mode=CourseEntitlement.VERIFIED, price=150)
         self.assertEqual(Seat.objects.count(), 2)
-        paid_seat = Seat.objects.get(type=Seat.VERIFIED, price=150)
-        audit_seat = Seat.objects.get(type=Seat.AUDIT, price=0)
-
-        def refresh_from_db():
-            entitlement.refresh_from_db()
-            paid_seat.refresh_from_db()
-            audit_seat.refresh_from_db()
 
         # Test price change
+        course_data['mode'] = CourseEntitlement.VERIFIED
         course_data['price'] = 99
         response = self.client.post(self.edit_page_url, data=course_data)
         self.assertEqual(response.status_code, 302)
-        refresh_from_db()
+        # Use this query because we delete the original records
+        entitlement = CourseEntitlement.objects.get(course=self.course)  # Should be only one entitlement for the Course
+        paid_seat = Seat.objects.get(type=Seat.VERIFIED, course_run=course_run)
+        audit_seat = Seat.objects.get(type=Seat.AUDIT, course_run=course_run)
         self.assertEqual(entitlement.price, 99)
         self.assertEqual(paid_seat.price, 99)
         self.assertEqual(audit_seat.price, 0)
@@ -3157,10 +3160,54 @@ class CourseEditViewTests(SiteMixin, TestCase):
         course_data['mode'] = CourseEntitlement.PROFESSIONAL
         response = self.client.post(self.edit_page_url, data=course_data)
         self.assertEqual(response.status_code, 302)
-        refresh_from_db()
+        paid_seat = Seat.objects.get(course_run=course_run)  # Should be only one seat now (no Audit seat)
+        entitlement = CourseEntitlement.objects.get(course=self.course)  # Should be only one entitlement for the Course
         self.assertEqual(entitlement.mode, CourseEntitlement.PROFESSIONAL)
         self.assertEqual(paid_seat.type, Seat.PROFESSIONAL)
-        self.assertEqual(audit_seat.type, Seat.AUDIT)
+
+        # Test mode and price change again after saving but BEFORE publishing
+        course_data['mode'] = CourseEntitlement.VERIFIED
+        course_data['price'] = 1000
+        response = self.client.post(self.edit_page_url, data=course_data)
+        self.assertEqual(response.status_code, 302)
+        # There should be both an audit seat and a verified seat
+        audit_seat = Seat.objects.get(course_run=course_run, type=Seat.AUDIT)
+        verified_seat = Seat.objects.get(course_run=course_run, type=Seat.VERIFIED)
+        entitlement = CourseEntitlement.objects.get(course=self.course)  # Should be only one entitlement for the Course
+        self.assertNotEqual(audit_seat, None)
+        self.assertEqual(entitlement.mode, CourseEntitlement.VERIFIED)
+        self.assertEqual(entitlement.price, 1000)
+        self.assertEqual(verified_seat.type, Seat.VERIFIED)
+        self.assertEqual(verified_seat.price, 1000)
+
+    def test_entitlement_published_run_failure(self):
+        """
+        Verify that a course with a published course run cannot be saved with altered enrollment-track or price fields.
+        """
+        self.client.logout()
+        self.client.login(username=self.course_team_role.user.username, password=USER_PASSWORD)
+        self._assign_permissions(self.organization_extension)
+
+        self.course.version = Course.ENTITLEMENT_VERSION
+        self.course.save()
+        factories.CourseEntitlementFactory(course=self.course, mode=CourseEntitlement.VERIFIED)
+        course_run = factories.CourseRunFactory.create(
+            course=self.course, lms_course_id='course-v1:edxTest+Test342+2016Q1', end=datetime.now() + timedelta(days=1)
+        )
+        factories.CourseRunStateFactory(course_run=course_run, name=CourseRunStateChoices.Published)
+        factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.Publisher)
+        factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.ProjectCoordinator)
+        # Create a Verified and Audit seat
+        factories.SeatFactory.create(course_run=course_run, type=Seat.VERIFIED, price=100)
+        factories.SeatFactory(course_run=course_run, type=Seat.AUDIT, price=0)
+
+        post_data = self._post_data(self.organization_extension)
+        post_data['team_admin'] = self.course_team_role.user.id
+        post_data['mode'] = CourseEntitlement.PROFESSIONAL
+        post_data['price'] = 100
+
+        response = self.client.post(self.edit_page_url, data=post_data)
+        self.assertEqual(response.status_code, 400)
 
     def test_course_with_published_course_run(self):
         """
