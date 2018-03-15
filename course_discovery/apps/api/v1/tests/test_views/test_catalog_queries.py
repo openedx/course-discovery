@@ -12,8 +12,8 @@ class CatalogQueryViewSetTests(APITestCase):
         super(CatalogQueryViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.force_authenticate(self.user)
-        self.course_run = CourseRunFactory(course__partner=self.partner)
         self.course = CourseFactory(partner=self.partner, key='simple_key')
+        self.course_run = CourseRunFactory(course=self.course)
         self.url_base = reverse('api:v1:catalog-query_contains')
         self.error_message = 'CatalogQueryContains endpoint requires query and identifiers list(s)'
 
@@ -55,8 +55,10 @@ class CatalogQueryViewSetTests(APITestCase):
 
     def test_contains_course_and_run(self):
         """ Verify that both the course and the run are contained in the broadest query. """
+        self.course.course_runs.add(self.course_run)
+        self.course.save()
         qs = urllib.parse.urlencode({
-            'query': 'key:*',
+            'query': 'org:*',
             'course_run_ids': self.course_run.key,
             'course_uuids': self.course.uuid,
         })
