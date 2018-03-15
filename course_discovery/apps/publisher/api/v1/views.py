@@ -154,6 +154,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             defaults=defaults
         )
         discovery_course_run.transcript_languages.add(*course_run.transcript_languages.all())
+        discovery_course_run.staff.clear()
         discovery_course_run.staff.add(*course_run.staff.all())
 
         for entitlement in publisher_course.entitlements.all():
