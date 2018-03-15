@@ -235,6 +235,33 @@ class CourseRunViewSetTests(APITestCase):
             course_run=discovery_course_run
         )
 
+    @responses.activate
+    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
+    def test_publish_with_staff_removed(self, mock_access_token):
+        """
+        Test that the publish button adds and removes staff from discovery_course_run
+        """
+        publisher_course_run = self._create_course_run_for_publication()
+
+        partner = publisher_course_run.course.organizations.first().partner
+        self._set_test_client_domain_and_login(partner)
+
+        self._mock_studio_api_success(publisher_course_run)
+        self._mock_ecommerce_api(publisher_course_run)
+
+        publish_url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
+        response = self.client.post(publish_url, {})
+        assert response.status_code == 200
+        discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
+        assert discovery_course_run.staff.all().count() == 2
+
+        publisher_course_run.staff.clear()
+        publisher_course_run.staff = PersonFactory.create_batch(1)
+        response = self.client.post(publish_url, {})
+        assert response.status_code == 200
+        discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
+        assert discovery_course_run.staff.all().count() == 1
+
     def test_publish_missing_course_run(self):
         self.client.force_login(StaffUserFactory())
         url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': 1})
