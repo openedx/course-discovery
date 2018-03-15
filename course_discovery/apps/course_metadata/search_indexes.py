@@ -119,6 +119,7 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
     model = Course
 
     uuid = indexes.CharField(model_attr='uuid')
+    org = indexes.CharField()
     course_runs = indexes.MultiValueField()
     expected_learning_items = indexes.MultiValueField()
 
@@ -135,6 +136,12 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
 
     def prepare_prerequisites(self, obj):
         return [prerequisite.name for prerequisite in obj.prerequisites.all()]
+
+    def prepare_org(self, obj):
+        course_run = obj.course_runs.all().first()
+        if course_run:
+            return CourseKey.from_string(course_run.key).org
+        return None
 
 
 class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
