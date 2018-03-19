@@ -988,7 +988,7 @@ class Program(TimeStampedModel):
         blank=True, null=True
     )
     one_click_purchase_enabled = models.BooleanField(
-        default=False,
+        default=True,
         help_text=_('Allow courses in this program to be purchased in a single transaction')
     )
     hidden = models.BooleanField(
