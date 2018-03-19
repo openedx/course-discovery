@@ -978,7 +978,6 @@ class MinimalDigitalBookBundleSerializer(serializers.ModelSerializer):
 
 
     def get_course(self, digital_book_bundle):
-        import pdb; pdb.set_trace()
         course_runs = list(digital_book_bundle.course_runs)
         logger.info(">>> course_runs: %s", course_runs)
 
