@@ -88,10 +88,6 @@ $(document).ready(function () {
 
     tinymceConfig["selector"] = "textarea";
     tinymce.init(tinymceConfig);
-
-    tinymceConfig["selector"] = "#id_title";
-
-    tinymce.init(tinymceConfig);
 });
 
 $(document).on('click', 'a#close-comparison', function(e){
