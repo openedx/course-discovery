@@ -917,9 +917,22 @@ class ProgramType(TimeStampedModel):
         return self.name
 
 
+class Pub(TimeStampedModel):
+    """" Publication model """
+    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
+    partner = models.ForeignKey(Partner)
+    key = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, default=None, null=True, blank=True)
+
+    def __str__(self):
+        return '{key}: {title}'.format(
+            key=self.key,
+            title=self.title
+        )
+
+
 class DigitalBookBundle(TimeStampedModel):
-    # TODO: is this an okay assumption to make?
-    # assumes 1 course and 1 book
+    #TODO: rename to ProductBundle
     uuid = models.UUIDField(
         blank=True,
         default=uuid4,
@@ -932,8 +945,7 @@ class DigitalBookBundle(TimeStampedModel):
         max_length=255,
         unique=True
     )
-    #TODO: replace with foreign key
-    book_key = models.CharField(max_length=255)
+    pubs = models.ManyToManyField(Pub, blank=True)
     courses = models.ManyToManyField(Course, blank=True)
 
 
