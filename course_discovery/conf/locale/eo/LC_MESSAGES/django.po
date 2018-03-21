@@ -299,11 +299,11 @@ msgstr "Ìnstrüçtör-päçéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#
 msgid "Self-paced"
 msgstr "Sélf-päçéd Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: apps/course_metadata/choices.py
+#: apps/course_metadata/choices.py apps/journal/choices.py
 msgid "Active"
 msgstr "Àçtïvé Ⱡ'σяєм ιρѕυ#"
 
-#: apps/course_metadata/choices.py
+#: apps/course_metadata/choices.py apps/journal/choices.py
 msgid "Retired"
 msgstr "Rétïréd Ⱡ'σяєм ιρѕυм #"
 
@@ -336,7 +336,8 @@ msgstr "Öthérs Ⱡ'σяєм ιρѕυ#"
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/journal/models.py
+#: apps/journal/models.py
 msgid "UUID"
 msgstr "ÛÛÌD Ⱡ'σяєм ι#"
 
@@ -668,6 +669,10 @@ msgid "The program was changed successfully."
 msgstr ""
 "Thé prögräm wäs çhängéd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
+
+#: apps/journal/choices.py
+msgid "Inactive"
+msgstr "Ìnäçtïvé Ⱡ'σяєм ιρѕυм ∂#"
 
 #: apps/publisher/api/serializers.py
 #, python-brace-format

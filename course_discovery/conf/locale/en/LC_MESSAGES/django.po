@@ -247,11 +247,11 @@ msgstr ""
 msgid "Self-paced"
 msgstr ""
 
-#: apps/course_metadata/choices.py:20
+#: apps/course_metadata/choices.py:20 apps/journal/choices.py:6
 msgid "Active"
 msgstr ""
 
-#: apps/course_metadata/choices.py:21
+#: apps/course_metadata/choices.py:21 apps/journal/choices.py:8
 msgid "Retired"
 msgstr ""
 
@@ -282,7 +282,8 @@ msgstr ""
 #: apps/course_metadata/models.py:118 apps/course_metadata/models.py:157
 #: apps/course_metadata/models.py:217 apps/course_metadata/models.py:262
 #: apps/course_metadata/models.py:340 apps/course_metadata/models.py:456
-#: apps/course_metadata/models.py:933
+#: apps/course_metadata/models.py:933 apps/journal/models.py:23
+#: apps/journal/models.py:67
 msgid "UUID"
 msgstr ""
 
@@ -524,6 +525,10 @@ msgstr ""
 
 #: apps/course_metadata/views.py:38
 msgid "The program was changed successfully."
+msgstr ""
+
+#: apps/journal/choices.py:7
+msgid "Inactive"
 msgstr ""
 
 #: apps/publisher/api/serializers.py:81
