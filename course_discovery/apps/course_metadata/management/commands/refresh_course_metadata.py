@@ -137,26 +137,26 @@ class Command(BaseCommand):
             )
 
             pipeline = (
-                (
-                    (SubjectMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
-                    (SchoolMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
-                    (SponsorMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
-                    (PersonMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
-                ),
-                (
-                    (CourseMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
-                    (OrganizationsApiDataLoader, partner.organizations_api_url, max_workers),
-                ),
-                (
-                    (CoursesApiDataLoader, partner.courses_api_url, max_workers),
-                ),
+                # (
+                #     (SubjectMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
+                #     (SchoolMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
+                #     (SponsorMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
+                #     (PersonMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
+                # ),
+                # (
+                #     (CourseMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
+                #     (OrganizationsApiDataLoader, partner.organizations_api_url, max_workers),
+                # ),
+                # (
+                #     (CoursesApiDataLoader, partner.courses_api_url, max_workers),
+                # ),
                 (
                     (PubApiDataLoader, partner.pubs_api_url, max_workers),
-                )
-                (
-                    (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),
-                    (ProgramsApiDataLoader, partner.programs_api_url, max_workers),
                 ),
+                # (
+                #     (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),
+                #     (ProgramsApiDataLoader, partner.programs_api_url, max_workers),
+                # ),
             )
 
             if waffle.switch_is_active('parallel_refresh_pipeline'):
