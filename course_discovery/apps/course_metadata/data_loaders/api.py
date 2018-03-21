@@ -14,6 +14,7 @@ from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoade
 from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, Organization, Program, ProgramType, Seat, SeatType, Video
 )
+from course_discovery.apps.journal.data_loaders.helpers import EcommerceJournalDataLoader
 
 logger = logging.getLogger(__name__)
 
@@ -258,6 +259,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             partner, api_url, access_token, token_type, max_workers, is_threadsafe, **kwargs
         )
         self.entitlement_skus = []
+        self.journal_loader = EcommerceJournalDataLoader(self)
 
     def ingest(self):
         logger.info('Refreshing course seats from %s...', self.partner.ecommerce_api_url)
@@ -265,11 +267,14 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         initial_page = 1
         course_runs = self._request_course_runs(initial_page)
         entitlements = self._request_entitlments(initial_page)
-        count = course_runs['count'] + entitlements['count']
+        journals = self.journal_loader.request_journals(initial_page)
+        count = course_runs['count'] + entitlements['count'] + journals['count']
         pages = math.ceil(count / self.PAGE_SIZE)
         self.entitlement_skus = []
         self._process_course_runs(course_runs)
         self._process_entitlements(entitlements)
+        self.journal_loader.journal_skus = []
+        self.journal_loader.process_journals(journals)
 
         pagerange = range(initial_page + 1, pages + 1)
 
@@ -284,12 +289,16 @@ class EcommerceApiDataLoader(AbstractDataLoader):
                 for future in [executor.submit(self._request_entitlments, page) for page in pagerange]:
                     response = future.result()
                     self._process_entitlements(response)
+                for future in [executor.submit(self.journal_loader.request_journals, page) for page in pagerange]:
+                    response = future.result()
+                    self.journal_loader.process_journals(response)
 
-        logger.info('Retrieved %d course seats and %d course entitlements from %s.', course_runs['count'],
-                    entitlements['count'], self.partner.ecommerce_api_url)
+        logger.info('Retrieved %d course seats, %d course entitlements and %d journals from %s.', course_runs['count'],
+                    entitlements['count'], journals['count'], self.partner.ecommerce_api_url)
 
         self.delete_orphans()
         self._delete_entitlements()
+        self.journal_loader.delete_journals()
 
     def _load_data(self, page):  # pragma: no cover
         """Make a request for the given page and process the response."""
@@ -297,6 +306,8 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         self._process_course_runs(course_runs)
         entitlements = self._request_entitlments(page)
         self._process_entitlements(entitlements)
+        journals = self.journal_loader.request_journals(page)
+        self.journal_loader.process_journals(journals)
 
     def _request_course_runs(self, page):
         return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE, include_products=True)
