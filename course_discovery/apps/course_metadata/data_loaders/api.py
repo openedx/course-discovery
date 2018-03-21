@@ -249,21 +249,6 @@ class CoursesApiDataLoader(AbstractDataLoader):
         return video
 
 
-class PubApiDataLoader(AbstractDataLoader):
-    """ Loads publications from the Pubs API """
-
-    def ingest(self):
-        api_url = self.partner.pubs_api_url
-        count =None
-        page = 1
-
-        logger.info('Refreshing publications from %s...', api_url)
-
-        while page:
-            response = self.api_client.publications.get(page=page, page_size=self.PAGE_SIZE)
-            #TODO: make publications api
-
-
 class EcommerceApiDataLoader(AbstractDataLoader):
     """ Loads course seats and entitlements from the E-Commerce API. """
 
