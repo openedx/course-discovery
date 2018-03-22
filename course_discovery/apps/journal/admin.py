@@ -22,6 +22,7 @@ class JournalBundleAdmin(admin.ModelAdmin):
         'title'
     )
     raw_id_fields = (
+        'partner',
         'journals',
         'courses'
     )
