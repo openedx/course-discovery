@@ -39,7 +39,6 @@ class EcommerceJournalDataLoader():
         attributes = {attribute['name']: attribute['value'] for attribute in body['attribute_values']}
         journal_uuid = attributes.get('UUID')
         title = body['title']
-        key = journal_uuid  # TODO, either drop this or create another attribute on the ecommerce product class
 
         if body['stockrecords']:
             stock_record = body['stockrecords'][0]
@@ -71,7 +70,6 @@ class EcommerceJournalDataLoader():
         defaults = {
             'partner': self.partner,
             'uuid': journal_uuid,
-            'key': key,
             'title': title,
             'price': price,
             'currency': currency,
