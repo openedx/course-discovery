@@ -54,5 +54,9 @@ class JournalBundle(TimeStampedModel):
         max_length=CHARFIELD_MAX_LENGTH,
         unique=True
     )
+    partner = models.ForeignKey(Partner)
     journals = models.ManyToManyField(Journal, blank=True)
     courses = models.ManyToManyField(Course, blank=True)
+
+    def __str__(self):
+        return self.title
