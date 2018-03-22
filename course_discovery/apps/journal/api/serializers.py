@@ -1,6 +1,8 @@
 """Journal API Serializers"""
 from rest_framework import serializers
-from course_discovery.apps.journal.models import Journal
+
+from course_discovery.apps.api.serializers import MinimalCourseSerializer
+from course_discovery.apps.journal.models import Journal, JournalBundle
 
 
 class JournalSerializer(serializers.HyperlinkedModelSerializer):
@@ -21,3 +23,19 @@ class JournalSerializer(serializers.HyperlinkedModelSerializer):
         model = Journal
         # TODO - add partner
         fields = ('uuid', 'title', 'price', 'currency', 'sku', 'expires')
+
+
+class JournalBundleSerializer(serializers.ModelSerializer):
+    courses = MinimalCourseSerializer(many=True, read_only=True)
+    journals = JournalSerializer(many=True, read_only=True)
+    partner = serializers.SlugRelatedField(slug_field='name', read_only=True)
+
+    class Meta:
+        model = JournalBundle
+        fields = (
+            'uuid',
+            'title',
+            'partner',
+            'journals',
+            'courses'
+        )
