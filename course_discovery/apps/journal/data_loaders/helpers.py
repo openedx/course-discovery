@@ -83,7 +83,8 @@ class EcommerceJournalDataLoader():
             journal=title, sku=sku, partner=self.partner
         )
         logger.info(msg)
-        Journal.objects.update_or_create(defaults=defaults)
+        results = Journal.objects.update_or_create(partner=self.partner, uuid=journal_uuid, defaults=defaults)
+        logger.info('results from update_or_create %s', results)
         return sku
 
     def delete_journals(self):
