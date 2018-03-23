@@ -36,7 +36,7 @@ class Journal(TimeStampedModel):
 
     class Meta:
         unique_together = (
-            ('partner', 'uuid')
+            ('partner', 'uuid'),
         )
         ordering = ('created',)
 
