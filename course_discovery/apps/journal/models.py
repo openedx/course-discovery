@@ -8,6 +8,7 @@ from course_discovery.apps.course_metadata.models import Course
 
 CHARFIELD_MAX_LENGTH = 255
 
+
 class Journal(TimeStampedModel):
     """" Journal model """
     PRICE_FIELD_CONFIG = {
@@ -35,8 +36,9 @@ class Journal(TimeStampedModel):
 
     class Meta:
         unique_together = (
-            ('partner', 'uuid'),
+            ('partner', 'uuid')
         )
+        ordering = ('created',)
 
     def __str__(self):
         return self.title
