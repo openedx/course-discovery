@@ -88,7 +88,6 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             'uuid': str(discovery_course.uuid),
             'name': course_run.title_override or course_run.course.title,
             'verification_deadline': serialize_datetime(course_run.end),
-            'create_or_activate_enrollment_code': False,
         }
 
         # NOTE: We only order here to aid testing. The E-Commerce API does NOT care about ordering.
