@@ -563,6 +563,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
                     'entitlement_form': entitlement_form
                 })
         elif self.object.uses_entitlements:
+            entitlement = self.object.entitlements.first()
             if not entitlement_mode:
                 messages.error(request, _(
                     "Enrollment track cannot be unset or changed from verified or professional to audit or credit."
@@ -572,7 +573,8 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
                     'entitlement_form': entitlement_form
                 })
             published_runs = self._get_published_course_runs(self.object)
-            if published_runs:
+            # Only update this if there are changes to the mode or price
+            if published_runs and (entitlement.mode != entitlement_mode or entitlement.price != entitlement_price):
                 # pylint: disable=no-member
                 error_message = _(
                     'The following active course run(s) are published: {course_runs}. You cannot change the mode '
