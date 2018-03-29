@@ -37,6 +37,9 @@ requirements.js: ## Install JS requirements for local development
 requirements: requirements.js ## Install Python and JS requirements for local development
 	pip install -r requirements/local.txt
 
+test-requirements: requirements.js ## Install Python and JS requirements for local development
+	pip install -r requirements/test.txt
+
 production-requirements: ## Install Python and JS requirements for production
 	pip install -r requirements.txt
 	npm install --production
