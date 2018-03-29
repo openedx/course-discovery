@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from uuid import uuid4
 
 from course_discovery.apps.core.models import Currency, Partner
-from course_discovery.apps.course_metadata.models import Course
+from course_discovery.apps.course_metadata.models import Course, Organization
 
 CHARFIELD_MAX_LENGTH = 255
 
@@ -23,16 +23,24 @@ class Journal(TimeStampedModel):
         verbose_name=_('UUID'),
     )
     partner = models.ForeignKey(Partner)
+    organization = models.ForeignKey(Organization)
     title = models.CharField(
         max_length=CHARFIELD_MAX_LENGTH,
         default=None,
         null=True,
         blank=True
     )
+
+    # ecommerce related
     price = models.DecimalField(**PRICE_FIELD_CONFIG)
     currency = models.ForeignKey(Currency)
     sku = models.CharField(max_length=128, null=True, blank=True)
-    expires = models.DateTimeField(null=True, blank=True)
+
+    # marketing related fields
+    card_image_url = models.URLField(null=True, blank=True)
+    short_description = models.CharField(max_length=350, default=None, null=False)
+    full_description = models.TextField(default=None, null=True, blank=True)
+    access_length = models.IntegerField(null=True, help_text='number of days valid after purchase', default=365)
 
     class Meta:
         unique_together = (
