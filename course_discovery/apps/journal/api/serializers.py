@@ -19,7 +19,7 @@ class JournalSerializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = Journal
-        fields = ('uuid', 'partner', 'title', 'price', 'currency', 'sku', 'expires')
+        fields = ('uuid', 'partner', 'title', 'price', 'currency', 'sku', 'card_image_url', 'short_description', 'full_description', 'access_length')
 
 
 class JournalBundleSerializer(serializers.ModelSerializer):
