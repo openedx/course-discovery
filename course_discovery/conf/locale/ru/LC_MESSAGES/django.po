@@ -3,7 +3,7 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-# Alex Leb <alex7y88@gmail.com>, 2016
+# А <alex7y88@gmail.com>, 2016
 # edX project <inactive+bhaylav@transifex.com>, 2016
 # SpaceOyster, 2016
 # Liubov Fomicheva <liubov.nelapa@gmail.com>, 2016-2017
