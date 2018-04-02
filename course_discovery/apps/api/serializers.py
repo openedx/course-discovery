@@ -267,8 +267,8 @@ class PersonSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = Person
         fields = (
-            'uuid', 'given_name', 'family_name', 'bio', 'slug', 'position', 'profile_image',
-            'partner', 'works', 'urls', 'email', 'profile_image_url',
+            'uuid', 'salutation', 'given_name', 'family_name', 'bio', 'slug', 'position',
+            'profile_image', 'partner', 'works', 'urls', 'email', 'profile_image_url',
         )
         extra_kwargs = {
             'partner': {'write_only': True}

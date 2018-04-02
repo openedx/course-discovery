@@ -262,6 +262,7 @@ class PersonMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         uuid = UUID(data['uuid'])
         slug = data['url'].split('/')[-1]
         defaults = {
+            'salutation': data['field_person_salutation'],
             'given_name': data['field_person_first_middle_name'],
             'family_name': data['field_person_last_name'],
             'bio': self.clean_html(data['field_person_resume']['value']),
@@ -274,11 +275,13 @@ class PersonMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         # NOTE (CCB): The AutoSlug field kicks in at creation time. We need to apply overrides in a separate
         # operation.
         if created:
+            person_salutation = data['field_person_salutation']
             person_given_name = data['field_person_first_middle_name']
             person_family_name = data['field_person_last_name']
 
             logger.info(
-                u'Person created in marketing data loader, %s %s with uuid: %s and slug: %s',
+                u'Person created in marketing data loader, %s %s %s with uuid: %s and slug: %s',
+                person_salutation,
                 person_family_name,
                 person_given_name,
                 uuid,

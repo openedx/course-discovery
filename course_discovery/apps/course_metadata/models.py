@@ -260,6 +260,7 @@ class Person(TimeStampedModel):
     """ Person model. """
     uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
     partner = models.ForeignKey(Partner, null=True, blank=False)
+    salutation = models.CharField(max_length=10, null=True, blank=True)
     given_name = models.CharField(max_length=255)
     family_name = models.CharField(max_length=255, null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
@@ -292,7 +293,11 @@ class Person(TimeStampedModel):
     @property
     def full_name(self):
         if self.family_name:
-            return ' '.join((self.given_name, self.family_name,))
+            full_name = ' '.join((self.given_name, self.family_name,))
+            if self.salutation:
+                return ' '.join((self.salutation, full_name,))
+
+            return full_name
         else:
             return self.given_name
 

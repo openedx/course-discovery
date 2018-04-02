@@ -1133,8 +1133,10 @@ class PersonSerializerTests(TestCase):
 
         position = PositionFactory()
         self.person = position.person
+        self.person.salutation = 'Dr.'
         self.expected = {
             'uuid': str(self.person.uuid),
+            'salutation': self.person.salutation,
             'given_name': self.person.given_name,
             'family_name': self.person.family_name,
             'bio': self.person.bio,
