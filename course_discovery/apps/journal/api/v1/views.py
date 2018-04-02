@@ -13,6 +13,8 @@ class JournalViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows journals to be viewed or edited.
     """
+    lookup_field = 'uuid'
+    lookup_value_regex = journal_constants.UUID_PATTERN
     queryset = Journal.objects.all()
     serializer_class = JournalSerializer
 
