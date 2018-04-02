@@ -431,6 +431,14 @@ class PersonTests(TestCase):
         expected = self.person.given_name + ' ' + self.person.family_name
         self.assertEqual(self.person.full_name, expected)
 
+    def test_full_name_with_salutation(self):
+        """ Verify the property returns the person's full name
+        with salutation.
+        """
+        self.person = factories.PersonFactory(salutation='Dr.')
+        expected = ' '.join((self.person.salutation, self.person.given_name, self.person.family_name))
+        self.assertEqual(self.person.full_name, expected)
+
     def test_empty_family_name(self):
         """ Verify the property returns the person's given name when family name is set None. """
         self.person.family_name = None

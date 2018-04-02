@@ -246,11 +246,11 @@ class TopicAdmin(TranslatableAdmin):
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
     inlines = (PositionInline, PersonWorkInline, PersonSocialNetworkInline)
-    list_display = ('uuid', 'family_name', 'given_name', 'slug',)
+    list_display = ('uuid', 'salutation', 'family_name', 'given_name', 'slug',)
     list_filter = ('partner',)
-    ordering = ('family_name', 'given_name', 'uuid',)
+    ordering = ('salutation', 'family_name', 'given_name', 'uuid',)
     readonly_fields = ('uuid',)
-    search_fields = ('uuid', 'family_name', 'given_name', 'slug',)
+    search_fields = ('uuid', 'salutation', 'family_name', 'given_name', 'slug',)
 
 
 @admin.register(Position)
