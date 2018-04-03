@@ -18,8 +18,6 @@ class Journal(TimeStampedModel):
         'default': 0.00,
     }
     uuid = models.UUIDField(
-        default=uuid4,
-        editable=False,
         verbose_name=_('UUID'),
     )
     partner = models.ForeignKey(Partner)
