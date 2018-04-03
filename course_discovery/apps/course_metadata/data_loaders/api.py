@@ -368,8 +368,8 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         ).exclude(sku__in=self.entitlement_skus)
 
         for entitlement in entitlements_to_delete:
-            msg = 'Deleting entitlement with sku {sku} for partner {partner}'.format(
-                sku=entitlement.sku, partner=entitlement.partner
+            msg = 'Deleting entitlement for course {course_title} with sku {sku} for partner {partner}'.format(
+                course_title=entitlement.course.title, sku=entitlement.sku, partner=entitlement.partner
             )
             logger.info(msg)
         entitlements_to_delete.delete()
