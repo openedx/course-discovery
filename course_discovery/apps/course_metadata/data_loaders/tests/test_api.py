@@ -633,8 +633,8 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
         # Ensure that only entitlements retrieved from the Ecommerce API remain in Discovery,
         # and that the sku and partner of the deleted entitlement are logged
         self.assert_entitlements_loaded(products_api_data)
-        msg = 'Deleting entitlement with sku {sku} for partner {partner}'.format(
-            sku=entitlement.sku, partner=entitlement.partner
+        msg = 'Deleting entitlement for course {course_title} with sku {sku} for partner {partner}'.format(
+            course_title=entitlement.course.title, sku=entitlement.sku, partner=entitlement.partner
         )
         mock_logger.info.assert_any_call(msg)
 
