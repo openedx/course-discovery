@@ -23,7 +23,6 @@ from django.views.generic import CreateView, DetailView, ListView, TemplateView,
 from guardian.shortcuts import get_objects_for_user
 
 from course_discovery.apps.core.models import User
-from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher import emails, mixins, serializers
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
@@ -739,29 +738,31 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
         return self.last_run
 
     def _set_last_run_data(self, new_run):
+        """
+        Copy data of last run to newly created run
+        """
         last_run = self._get_last_run(new_run.course)
         if last_run:
             last_run_data = model_to_dict(last_run)
-            # Delete all those fields which cannot be copied from previous run
+            # Delete all those fields which should not be copied over from previous run
             del (last_run_data['id'], last_run_data['start'], last_run_data['end'], last_run_data['pacing_type'],
                  last_run_data['preview_url'], last_run_data['lms_course_id'], last_run_data['changed_by'],
                  last_run_data['course'], last_run_data['sponsor'])
 
-            staff = Person.objects.filter(id__in=last_run_data.pop('staff'))
-            transcript_languages = LanguageTag.objects.filter(code__in=last_run_data.pop('transcript_languages'))
             language_code = last_run_data.pop('language')
             if language_code:
                 last_run_data['language'] = LanguageTag.objects.get(code=language_code)
+
             video_language_code = last_run_data.pop('video_language')
             if video_language_code:
                 last_run_data['video_language'] = LanguageTag.objects.get(code=video_language_code)
 
+            new_run.save()
+            new_run.staff.add(*last_run_data.pop('staff'))
+            new_run.transcript_languages.add(*last_run_data.pop('transcript_languages'))
+
             for attr, value in last_run_data.items():
                 setattr(new_run, attr, value)
-
-            new_run.save()
-            new_run.staff.add(*staff)
-            new_run.transcript_languages.add(*transcript_languages)
 
         new_run.save()
 
