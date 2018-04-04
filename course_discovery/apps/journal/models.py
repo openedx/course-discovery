@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from uuid import uuid4
 
 from course_discovery.apps.core.models import Currency, Partner
-from course_discovery.apps.course_metadata.models import Course, Organization
+from course_discovery.apps.course_metadata.models import Course, Organization, SeatType
 
 CHARFIELD_MAX_LENGTH = 255
 
@@ -67,6 +67,7 @@ class JournalBundle(TimeStampedModel):
     partner = models.ForeignKey(Partner)
     journals = models.ManyToManyField(Journal, blank=True)
     courses = models.ManyToManyField(Course, blank=True)
+    applicable_seat_types = models.ManyToManyField(SeatType, blank=True)
 
     def __str__(self):
         return self.title
