@@ -1,5 +1,6 @@
 import logging
 from collections import OrderedDict
+from datetime import date
 
 from edx_rest_api_client.client import EdxRestApiClient
 from edx_rest_framework_extensions.authentication import JwtAuthentication
@@ -60,7 +61,14 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             if not _status.startswith(self.PUBLICATION_SUCCESS_STATUS):
                 status_code = status.HTTP_502_BAD_GATEWAY
                 break
-
+        if status_code == status.HTTP_200_OK:
+            logger.info(
+                'Published course run with id: [%d] lms_course_id: [%s], user: [%s], date: [%s]',
+                course_run.id,
+                course_run.lms_course_id,
+                request.user,
+                date.today()
+            )
         return Response(publication_status, status=status_code)
 
     def publish_to_studio(self, partner, course_run):

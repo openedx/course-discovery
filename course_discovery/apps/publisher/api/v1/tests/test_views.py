@@ -1,11 +1,13 @@
 import json
 import random
+from datetime import date
 
 import mock
 import responses
 from django.test import override_settings
 from django.urls import reverse
 from rest_framework.test import APITestCase
+from testfixtures import LogCapture
 
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.core.tests.factories import StaffUserFactory, UserFactory
@@ -23,6 +25,8 @@ from course_discovery.apps.publisher.models import CourseEntitlement, Seat
 from course_discovery.apps.publisher.tests.factories import CourseEntitlementFactory, CourseRunFactory, SeatFactory
 
 PUBLISHER_UPGRADE_DEADLINE_DAYS = random.randint(1, 21)
+
+LOGGER_NAME = 'course_discovery.apps.publisher.api.v1.views'
 
 
 class CourseRunViewSetTests(APITestCase):
@@ -56,7 +60,8 @@ class CourseRunViewSetTests(APITestCase):
     def _set_test_client_domain_and_login(self, partner):
         # pylint:disable=attribute-defined-outside-init
         self.client = self.client_class(SERVER_NAME=partner.site.domain)
-        self.client.force_login(StaffUserFactory())
+        self.user = StaffUserFactory()
+        self.client.force_login(self.user)
 
     def _mock_studio_api_success(self, publisher_course_run):
         partner = publisher_course_run.course.organizations.first().partner
@@ -108,10 +113,13 @@ class CourseRunViewSetTests(APITestCase):
 
         self._mock_studio_api_success(publisher_course_run)
         self._mock_ecommerce_api(publisher_course_run)
-
-        url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
-        response = self.client.post(url, {})
-        assert response.status_code == 200
+        with LogCapture(LOGGER_NAME) as log:
+            url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
+            response = self.client.post(url, {})
+            assert response.status_code == 200
+            log.check((LOGGER_NAME, 'INFO',
+                       'Published course run with id: [{}] lms_course_id: [{}], user: [{}], date: [{}]'.format(
+                           publisher_course_run.id, publisher_course_run.lms_course_id, self.user, date.today())))
         assert len(responses.calls) == 3
         expected = {
             'discovery': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
