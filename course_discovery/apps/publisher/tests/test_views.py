@@ -510,6 +510,55 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         expected_subject = 'Studio URL requested: {title}'.format(title=self.course.title)
         self.assertEqual(str(mail.outbox[0].subject), expected_subject)
 
+    def test_data_copy_over_on_create_course_run(self):
+        """
+        Test that new course run is populated with data from previous run of same course.
+        """
+        course_run_staff = PersonFactory()
+        self.course_run.staff.add(course_run_staff)
+        language_tag = LanguageTag(code='te-st', name='Test Language')
+        language_tag.save()
+        self.course_run.transcript_languages.add(language_tag)
+
+        seat = factories.SeatFactory(course_run=self.course_run, type=Seat.AUDIT, price=0, credit_price=0)
+
+        self.assertEqual(len(self.course.course_runs), 1)
+
+        post_data = {'start': '2018-02-01 00:00:00', 'end': '2018-02-28 00:00:00', 'pacing_type': 'instructor_paced'}
+        post_data.update(**model_to_dict(seat))
+        response = self.client.post(self.create_course_run_url_new, post_data)
+
+        self.assertEqual(len(self.course.course_runs), 2)
+
+        new_run = self.course.course_runs.latest('created')
+
+        assign_perm(
+            OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
+        )
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': new_run.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
+        fields_to_assert = [
+            'title_override',
+            'min_effort',
+            'max_effort',
+            'length',
+            'notes',
+            'language',
+            'full_description_override',
+            'short_description_override'
+        ]
+
+        for field in fields_to_assert:
+            self.assertEqual(getattr(new_run, field), getattr(self.course_run, field))
+
+        self.assertEqual(list(new_run.staff.all()), list(self.course_run.staff.all()))
+        self.assertEqual(list(new_run.transcript_languages.all()), list(self.course_run.transcript_languages.all()))
+
     def test_seat_without_price(self):
         """ Verify that user cannot create a new course run without seat price. """
         new_user = factories.UserFactory()
