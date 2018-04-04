@@ -499,12 +499,15 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         """
         attributes = {attribute['name']: attribute['value'] for attribute in body['attribute_values']}
         course_uuid = attributes.get('UUID')
+
+        logger.info('HELIO_TEST: Started update for Course {uuid}...'.format(uuid=course_uuid))  # pragma: no cover
+
         detailed_logs = course_uuid == 'dd4f6e5b-8eba-4d4c-9b07-285c8a016b29'
         title = body['title']
         stockrecords = body['stockrecords']
 
+
         if detailed_logs:
-            logger.info('HELIO_TEST: Started update for Course {uuid}...'.format(uuid=course_uuid))  # pragma: no cover
             logger.info('HELIO_TEST: Course UUID Attributes {attr}'.format(attr=attributes))  # pragma: no cover
 
         if not self.validate_stockrecord(stockrecords, title, 'entitlement'):
