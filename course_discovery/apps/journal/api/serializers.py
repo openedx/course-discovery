@@ -29,6 +29,7 @@ class JournalBundleSerializer(serializers.ModelSerializer):
     courses = MinimalCourseSerializer(many=True, read_only=True)
     journals = JournalSerializer(many=True, read_only=True)
     partner = serializers.SlugRelatedField(slug_field='name', read_only=True)
+    applicable_seat_types = serializers.SlugRelatedField(slug_field='slug', read_only=True, many=True)
 
     class Meta:
         model = JournalBundle
@@ -37,5 +38,6 @@ class JournalBundleSerializer(serializers.ModelSerializer):
             'title',
             'partner',
             'journals',
-            'courses'
+            'courses',
+            'applicable_seat_types'
         )
