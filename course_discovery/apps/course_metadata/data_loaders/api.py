@@ -499,13 +499,8 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         """
         attributes = {attribute['name']: attribute['value'] for attribute in body['attribute_values']}
         course_uuid = attributes.get('UUID')
-        detailed_logs = course_uuid == 'dd4f6e5b-8eba-4d4c-9b07-285c8a016b29'
         title = body['title']
         stockrecords = body['stockrecords']
-
-        if detailed_logs:
-            logger.info('HELIO_TEST: Started update for Course {uuid}...'.format(uuid=course_uuid))  # pragma: no cover
-            logger.info('HELIO_TEST: Course UUID Attributes {attr}'.format(attr=attributes))  # pragma: no cover
 
         if not self.validate_stockrecord(stockrecords, title, 'entitlement'):
             return None
@@ -524,11 +519,6 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             logger.warning(msg)
             return None
 
-        if detailed_logs:
-            logger.info(
-                'HELIO_TEST: Course information found: {course_name}'.format(course_name=course.title)
-            )  # pragma: no cover
-
         try:
             currency = Currency.objects.get(code=currency_code)
         except Currency.DoesNotExist:
@@ -539,11 +529,6 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             return None
 
         mode_name = attributes.get('certificate_type')
-        if detailed_logs:
-            logger.info(
-                'HELIO_TEST: Course mode name found: {mode_name}'.format(mode_name=mode_name)
-            )  # pragma: no cover
-
         try:
             mode = SeatType.objects.get(slug=mode_name)
         except SeatType.DoesNotExist:
@@ -552,11 +537,6 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             )
             logger.warning(msg)
             return None
-
-        if detailed_logs:
-            logger.info(
-                'HELIO_TEST: Mode Retrieved for Course: {mode_info}'.format(mode_info=mode.slug)
-            )  # pragma: no cover
 
         defaults = {
             'partner': self.partner,
