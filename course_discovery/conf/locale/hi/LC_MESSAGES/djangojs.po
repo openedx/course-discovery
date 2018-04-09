@@ -1,6 +1,7 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# #-#-#-#-#  djangojs.po (course-discovery)  #-#-#-#-#
+# edX translation file
+# Copyright (C) 2018 edX
+# This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
 # 
 # Translators:
 # Gawrav Mehta <gewgawrav@gmail.com>, 2017
@@ -8,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-06 14:34+0000\n"
+"POT-Creation-Date: 2018-03-15 20:13+0000\n"
 "PO-Revision-Date: 2017-12-30 08:35+0000\n"
 "Last-Translator: Gawrav Mehta <gewgawrav@gmail.com>\n"
 "Language-Team: Hindi (http://www.transifex.com/open-edx/edx-platform/language/hi/)\n"

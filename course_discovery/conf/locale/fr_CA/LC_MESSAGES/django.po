@@ -1,6 +1,7 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# #-#-#-#-#  django.po (course-discovery)  #-#-#-#-#
+# edX translation file
+# Copyright (C) 2018 edX
+# This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
 # 
 # Translators:
 # Alexandre Armougom <aav974@hotmail.fr>, 2016
@@ -67,9 +68,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-12 11:58+0000\n"
-"PO-Revision-Date: 2018-01-29 18:12+0000\n"
-"Last-Translator: Pierre Mailhot <pierre.mailhot@gmail.com>\n"
+"POT-Creation-Date: 2018-03-15 20:13+0000\n"
+"PO-Revision-Date: 2018-04-09 10:40+0000\n"
+"Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: French (Canada) (http://www.transifex.com/open-edx/edx-platform/language/fr_CA/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -465,7 +466,7 @@ msgstr "Audit"
 msgid "Verified"
 msgstr "Vérifié"
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Professional"
 msgstr "Professionnel"
 
@@ -883,13 +884,22 @@ msgid "Professional education"
 msgstr "Formation professionnelle"
 
 #: apps/publisher/forms.py
+#: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Enrollment Track"
 msgstr "Parcours d'inscription"
 
 #: apps/publisher/forms.py
+msgid "Price must be greater than or equal to 0.01"
+msgstr ""
+
+#: apps/publisher/forms.py
 msgid "Only audit seat can be without price."
 msgstr "Seules les places de cours en mode audit peuvent être sans prix."
+
+#: apps/publisher/forms.py
+msgid "Price is required."
+msgstr ""
 
 #: apps/publisher/forms.py
 msgid "This field is required."
@@ -1321,7 +1331,6 @@ msgstr "Accepter tout"
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
-#: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "(Optional) Not yet added"
 msgstr "(Facultatif) Pas encore ajouté"
 
@@ -1449,6 +1458,22 @@ msgid "BIO1.1x; BIO1.2x etc."
 msgstr "BIO1.1x; BIO1.2x etc."
 
 #: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/add_courserun_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "CERTIFICATE TYPE AND PRICE"
+msgstr "TYPE D'ATTESTATION ET PRIX"
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/add_courserun_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid ""
+"If the course offers a verified or professional education certificate, "
+"select the certificate type and enter the price for the certificate."
+msgstr "Si le cours propose une attestation d'études vérifiée ou professionnelle, sélectionnez le type d'attestation et entrez le prix de l'attestation."
+
+#: apps/publisher/templates/publisher/add_course_form.html
 msgid "I want to add a run to this course at this time"
 msgstr "Je souhaite ajouter une instance à ce cours à ce moment-ci"
 
@@ -1535,18 +1560,6 @@ msgid ""
 msgstr "Indiquez un mois, un jour et une année. Si vous n'êtes pas sûr de la date exacte, spécifiez un jour proche de la date de fin estimée. Par exemple, si votre cours se termine vers la fin du mois de mars, spécifiez le 31 mars."
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html
-msgid "CERTIFICATE TYPE AND PRICE"
-msgstr "TYPE D'ATTESTATION ET PRIX"
-
-#: apps/publisher/templates/publisher/add_courserun_form.html
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html
-msgid ""
-"If the course offers a verified or professional education certificate, "
-"select the certificate type and enter the price for the certificate."
-msgstr "Si le cours propose une attestation d'études vérifiée ou professionnelle, sélectionnez le type d'attestation et entrez le prix de l'attestation."
-
-#: apps/publisher/templates/publisher/add_courserun_form.html
 msgid "Create New Course Run"
 msgstr "Créer une instance de cours"
 
@@ -1599,6 +1612,11 @@ msgstr "ÉDITER"
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "Course Team Admin"
 msgstr "Administrateur de l'équipe pédagogique"
+
+#: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+msgid "Certificate Price"
+msgstr "Coût de l'attestation"
 
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
@@ -2083,6 +2101,14 @@ msgid "500 character limit, including spaces."
 msgstr "500 caractères maximum, espaces compris."
 
 #: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"If you are transitioning the certificate type and price from the course run "
+"level to the course level, please be informed that this is a permanent "
+"change and you will be maintaining this information at the course level from"
+" now on."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Update Course"
 msgstr "Mise à jour du cours"
 
@@ -2265,10 +2291,6 @@ msgstr "Date de début (temps UTC)"
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "End Date (time in UTC)"
 msgstr "Date de fin (temps UTC)"
-
-#: apps/publisher/templates/publisher/course_run_detail/_all.html
-msgid "Certificate Price"
-msgstr "Coût de l'attestation"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Credit Price"
@@ -2578,14 +2600,6 @@ msgstr "Date de délivrance de l'attestation"
 #: apps/publisher/templates/publisher/course_run_detail/_seats.html
 msgid "Enrollment Type"
 msgstr "Type d'inscription"
-
-#: apps/publisher/templates/publisher/course_run_detail/_studio.html
-msgid "Enrollment Start Date (time in UTC)"
-msgstr "Date de début des inscriptions (temps UTC)"
-
-#: apps/publisher/templates/publisher/course_run_detail/_studio.html
-msgid "Enrollment End Date (time in UTC)"
-msgstr "Date de fin des inscriptions (temps UTC)"
 
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "Pacing Type"
@@ -3362,8 +3376,37 @@ msgid ""
 msgstr "La page n'a pas pu être mise à jour. Assurez-vous que toutes les valeurs sont correctes, puis réessayez."
 
 #: apps/publisher/views.py
-msgid "Course  updated successfully."
-msgstr "Cours mis à jour avec succès."
+#, python-brace-format
+msgid ""
+"The entered price does not match the price for the following course run(s): "
+"{course_runs}. The price that you enter must match the price of all active "
+"and future course runs."
+msgstr ""
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid ""
+"The entered seat type does not match the seat type for the following course "
+"run(s): {course_runs}. The seat type that you enter must match the seat type"
+" of all active and future course runs."
+msgstr ""
+
+#: apps/publisher/views.py
+msgid ""
+"Enrollment track cannot be unset or changed from verified or professional to"
+" audit or credit."
+msgstr ""
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid ""
+"The following active course run(s) are published: {course_runs}. You cannot "
+"change the mode if there are published active runs."
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "Course updated successfully."
+msgstr ""
 
 #: apps/publisher/views.py
 msgid "course"
@@ -3374,20 +3417,25 @@ msgid "marketing"
 msgstr "marketing"
 
 #: apps/publisher/views.py
-#, python-brace-format
-msgid "You have successfully created a course run for {course_title}."
-msgstr "Vous avez créé avec succès une instance de cours pour {course_title}."
+msgid "There was an error saving this course run:"
+msgstr ""
 
 #: apps/publisher/views.py
-#, python-brace-format
-msgid "There was an error saving this course run: {error}"
-msgstr "Une erreur s'est produite lors de l'enregistrement de cette instance de cours : {error}"
+msgid ""
+"The certificate configuration for this course is incorrect. Please fix it, "
+"then try again."
+msgstr ""
 
 #: apps/publisher/views.py
 msgid ""
 "Your organization does not have default roles to review/approve this course-"
 "run. Please contact your partner manager to create default roles."
 msgstr "Votre organisation n'a pas de rôles par défaut pour réviser / approuver cette instance de cours. Veuillez contacter votre responsable de partenaire pour créer des rôles par défaut."
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid "You have successfully created a course run for {course_title}."
+msgstr "Vous avez créé avec succès une instance de cours pour {course_title}."
 
 #: apps/publisher/views.py
 msgid "Course run updated successfully."

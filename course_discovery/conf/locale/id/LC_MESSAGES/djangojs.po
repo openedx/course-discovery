@@ -1,16 +1,18 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# #-#-#-#-#  djangojs.po (course-discovery)  #-#-#-#-#
+# edX translation file
+# Copyright (C) 2018 edX
+# This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
 # 
 # Translators:
+# Aprisa Chrysantina <aprisa.chrysantina@gmail.com>, 2018
 # Rizky Ariestiyansyah <ariestiyansyah.rizky@gmail.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-06 14:34+0000\n"
-"PO-Revision-Date: 2017-11-02 21:35+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2018-03-15 20:13+0000\n"
+"PO-Revision-Date: 2018-03-07 06:22+0000\n"
+"Last-Translator: Aprisa Chrysantina <aprisa.chrysantina@gmail.com>\n"
 "Language-Team: Indonesian (http://www.transifex.com/open-edx/edx-platform/language/id/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,86 +22,86 @@ msgstr ""
 
 #: static/js/catalogs-change-form.js
 msgid "Preview"
-msgstr ""
+msgstr "Pratinjau"
 
 #: static/js/publisher/change-state.js
 msgid "Something went wrong! please try again later."
-msgstr ""
+msgstr "Terjadi kesalahan! Silakan coba beberapa saat lagi."
 
 #: static/js/publisher/comparing-objects.js
 msgid "Hide changes"
-msgstr ""
+msgstr "Sembunyikan perubahan"
 
 #: static/js/publisher/comparing-objects.js
 msgid "Show changes"
-msgstr ""
+msgstr "Tampilkan perubahan"
 
 #: static/js/publisher/image-validation.js
 msgid "The image file size cannot exceed 1 MB."
-msgstr ""
+msgstr "Ukuran berkas gambar tidak boleh melebihi 1 MB."
 
 #: static/js/publisher/instructors.js
 msgid "New Instructor"
-msgstr ""
+msgstr "Instruktur Baru"
 
 #: static/js/publisher/instructors.js
 msgid "Add staff member"
-msgstr ""
+msgstr "Tambahkan anggota staf baru"
 
 #: static/js/publisher/instructors.js
 msgid "Please upload a instructor image."
-msgstr ""
+msgstr "Silakan unggah gambar instruktur."
 
 #: static/js/publisher/instructors.js static/js/publisher/preview-url.js
 msgid "Something went wrong!"
-msgstr ""
+msgstr "Terjadi kesalahan!"
 
 #: static/js/publisher/instructors.js
 msgid "The image size must be smaller than 256kb"
-msgstr ""
+msgstr "Ukuran gambar harus lebih kecil daripada 256kb"
 
 #: static/js/publisher/instructors.js
 msgid "The image dimensions must be less than 110 x 110"
-msgstr ""
+msgstr "Dimensi gambar harus kurang dari 110 x 110"
 
 #: static/js/publisher/instructors.js
 msgid " Unsupported Image extension"
-msgstr ""
+msgstr "Ekstensi gambar tidak didukung"
 
 #: static/js/publisher/instructors.js
 msgid "Update staff member"
-msgstr ""
+msgstr "Perbarui anggota staf"
 
 #: static/js/publisher/instructors.js
 msgid "Update Instructor"
-msgstr ""
+msgstr "Perbarui Instruktur"
 
 #: static/js/publisher/preview-url.js
 msgid "Save"
-msgstr ""
+msgstr "Simpan"
 
 #: static/js/publisher/preview-url.js
 msgid "Please enter a valid URL."
-msgstr ""
+msgstr "Masukkan URL yang valid."
 
 #: static/js/publisher/views/courserun_list.js
 msgid ""
 "You have successfully created a Studio URL ({studioLinkTag}) for "
 "{courseRunDetail} with a start date of {startDate}"
-msgstr ""
+msgstr "Anda telah berhasil membuat Studio URL ({studioLinkTag}) untuk {courseRunDetail} dengan tanggal mulai {startDate}"
 
 #: static/js/publisher/views/courserun_list.js
 msgid "There was an error in saving your data."
-msgstr ""
+msgstr "Terdapat kesalahan dalam menyimpan data Anda."
 
 #: static/js/publisher/views/courses.js
 msgid "No courses have been created."
-msgstr ""
+msgstr "Tidak ada kursus yang telah dibuat."
 
 #: static/js/publisher/views/navbar.js
 msgid "OFF"
-msgstr ""
+msgstr "OFF"
 
 #: static/js/publisher/views/navbar.js
 msgid "ON"
-msgstr ""
+msgstr "ON"
