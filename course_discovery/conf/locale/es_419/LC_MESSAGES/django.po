@@ -1,6 +1,7 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# #-#-#-#-#  django.po (course-discovery)  #-#-#-#-#
+# edX translation file
+# Copyright (C) 2018 edX
+# This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
 # 
 # Translators:
 # Albeiro Gonzalez <albeiro.gonzalez@edunext.co>, 2018
@@ -11,7 +12,7 @@
 # Diego Rojas <diego.rojas@edunext.co>, 2017
 # Poxtic <erandelle@outlook.com>, 2017
 # José Miguel Henao <josem.henao@gmail.com>, 2017
-# Juan Camilo Montoya Franco <juan.montoya@edunext.co>, 2016-2017
+# Juan Camilo Montoya Franco <juan.montoya@edunext.co>, 2016-2018
 # Laura Silva <lingison@edx.org>, 2016
 # luisa rivero zambrano <luisarz11@hotmail.com>, 2016
 # Luis Benites <lbenitesanchez@gmail.com>, 2016
@@ -24,9 +25,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-12 11:58+0000\n"
-"PO-Revision-Date: 2018-02-12 06:26+0000\n"
-"Last-Translator: Albeiro Gonzalez <albeiro.gonzalez@edunext.co>\n"
+"POT-Creation-Date: 2018-03-15 20:13+0000\n"
+"PO-Revision-Date: 2018-04-09 11:07+0000\n"
+"Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -213,7 +214,7 @@ msgstr "URL de Studio"
 
 #: apps/core/models.py
 msgid "LMS URL"
-msgstr ""
+msgstr "Dirección LMS"
 
 #: apps/core/models.py
 msgid "Partner"
@@ -309,17 +310,17 @@ msgstr "Deje este campo vacío para que el valor sea generado automáticamente."
 
 #: apps/course_metadata/models.py
 msgid "Subject model translations"
-msgstr ""
+msgstr "Traducciones modelo para el tema."
 
 #: apps/course_metadata/models.py
 msgid "Topic model translations"
-msgstr ""
+msgstr "Traducciones modelo para el tema."
 
 #: apps/course_metadata/models.py
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen. This key will be used in the course's course key."
-msgstr ""
+msgstr "Por favor no usar ningún espacio o caracteres especiales diferentes a punto, guion bajo o guion. Esta llave será usada en la llave del curso del curso creado."
 
 #: apps/course_metadata/models.py
 msgid ""
@@ -337,7 +338,7 @@ msgstr "Elija una etiqueta de las sugerencias. Para crear una nueva etiqueta, a�
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen in the key field."
-msgstr ""
+msgstr "Por favor no usar ningún espacio o caracteres especiales diferentes a punto, guion bajo o guion en el campo llave del curso."
 
 #: apps/course_metadata/models.py
 msgid "People"
@@ -345,7 +346,7 @@ msgstr "Personas"
 
 #: apps/course_metadata/models.py
 msgid "Add the course image"
-msgstr ""
+msgstr "Añada la imagen del curso."
 
 #: apps/course_metadata/models.py
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
@@ -391,7 +392,7 @@ msgstr "Indica si la relación del curso ha sido reemplazada manualmente."
 msgid ""
 "'What You Will Learn' description for this particular course run. Leave this"
 " value blank to default to the parent course's Outcome attribute."
-msgstr ""
+msgstr "Descripción de \"Lo que aprenderá\" para la ejecución de este curso en particular. Deje este valor en blanco por defecto para el atributo resultante del curso principal."
 
 #: apps/course_metadata/models.py
 msgid "Archived"
@@ -422,7 +423,7 @@ msgstr "Tomar como asistente"
 msgid "Verified"
 msgstr "Verificado"
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Professional"
 msgstr "Profesional"
 
@@ -492,7 +493,7 @@ msgid ""
 "This field can be used by API clients to determine the order in which "
 "instructors will be displayed on program pages. Instructors in this list "
 "should appear before all others associated with this programs courses runs."
-msgstr ""
+msgstr "Este campo puede ser usado por clientes API para determinar el orden en el cual los instructores serán mostrados en las páginas del programa. Los instructores en esta lista deberían aparecer antes que todos los otros asociados con la ejecución de los programas de los cursos."
 
 #: apps/course_metadata/models.py
 msgid "The description of credit redemption for courses in program"
@@ -734,7 +735,7 @@ msgstr "Temario"
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen."
-msgstr ""
+msgstr "Por favor no usar ningún espacio o caracteres especiales diferentes a punto, guion bajo o guion."
 
 #: apps/publisher/forms.py
 msgid "This course title already exists"
@@ -813,7 +814,7 @@ msgstr "El esfuerzo mínimo y esfuerzo máximo no pueden ser lo mismo"
 
 #: apps/publisher/forms.py
 msgid "Maximum effort can not be empty"
-msgstr ""
+msgstr "Esfuerzo máximo no puede estar vacío"
 
 #: apps/publisher/forms.py
 msgid "Enter XSeries program name"
@@ -840,13 +841,22 @@ msgid "Professional education"
 msgstr "Educación profesional"
 
 #: apps/publisher/forms.py
+#: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Enrollment Track"
 msgstr "Modo de inscripción"
 
 #: apps/publisher/forms.py
+msgid "Price must be greater than or equal to 0.01"
+msgstr ""
+
+#: apps/publisher/forms.py
 msgid "Only audit seat can be without price."
 msgstr "Solamente las plazas de asistente no verificado pueden ser gratuitas."
+
+#: apps/publisher/forms.py
+msgid "Price is required."
+msgstr ""
 
 #: apps/publisher/forms.py
 msgid "This field is required."
@@ -858,15 +868,15 @@ msgstr "Clave de curso no válida."
 
 #: apps/publisher/forms.py
 msgid "Owner role can not be publisher if the state is draft or review"
-msgstr ""
+msgstr "La función de propietario no puede ser editor si el estado es borrador o revisión."
 
 #: apps/publisher/forms.py
 msgid "Please create {} course user role before assigning it owner role"
-msgstr ""
+msgstr "Por favor cree {} rol de usuario de curso antes de asignar rol de propietario."
 
 #: apps/publisher/forms.py
 msgid "Create initial run for the course"
-msgstr ""
+msgstr "Cree el lanzamiento inicial para el curso."
 
 #: apps/publisher/models.py
 msgid "Course title"
@@ -960,7 +970,7 @@ msgstr "Profesional (Con verificación de ID)"
 
 #: apps/publisher/models.py
 msgid "Professional (no ID verification)"
-msgstr ""
+msgstr "Profesional (Sin verificación de identidad)"
 
 #: apps/publisher/models.py
 msgid "Organization Role"
@@ -972,37 +982,37 @@ msgstr "Rol en el curso"
 
 #: apps/publisher/models.py
 msgid "Automatically create a run in Studio"
-msgstr ""
+msgstr "Cree automáticamente una ejecución en Studio"
 
 #: apps/publisher/models.py
 msgid ""
 "When this flag is enabled, creation of a new course run in Publisher will "
 "also create a corresponding course run in Studio."
-msgstr ""
+msgstr "Cuando esta bandera este habilitada la creación de un nuevo curso en el editor también creará un correspondiente lanzamiento del curso en Studio."
 
 #: apps/publisher/models.py
 msgid "Submitted for Marketing Review"
-msgstr ""
+msgstr "Enviado para revisión de Marketing"
 
 #: apps/publisher/models.py
 msgid "Approved by Course Team"
-msgstr ""
+msgstr "Aprobado por el equipo del curso"
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "Awaiting Course Team Review"
-msgstr ""
+msgstr "En espera de la revisión del equipo del curso"
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "N/A"
-msgstr ""
+msgstr "N/A"
 
 #: apps/publisher/models.py
 msgid "Awaiting Marketing Review"
-msgstr ""
+msgstr "En espera de la revisión de Marketing"
 
 #: apps/publisher/models.py
 msgid "Approved by Marketing"
-msgstr ""
+msgstr "Aprobado por Marketing"
 
 #: apps/publisher/serializers.py
 #: apps/publisher/templates/publisher/_approval_widget.html
@@ -1069,7 +1079,7 @@ msgstr "Organización"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Enter a different organization"
-msgstr ""
+msgstr "Ingrese una organización diferente"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
@@ -1144,7 +1154,7 @@ msgstr "Enviado para revisión"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Preview Declined"
-msgstr ""
+msgstr "Vista previa rechazada"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 #: apps/publisher/templates/publisher/seat_form.html
@@ -1278,7 +1288,6 @@ msgstr "Aceptar Todos"
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
-#: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "(Optional) Not yet added"
 msgstr "(Opcional) No añadido aún"
 
@@ -1387,7 +1396,7 @@ msgstr "NÚMERO DEL CURSO"
 msgid ""
 "Maximum 50 characters. Characters can be letters, numbers, periods, "
 "underscores or hyphens."
-msgstr ""
+msgstr "Máximo 50 caracteres. Caracteres pueden ser letras, números, puntos, guiones bajos o guiones."
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
@@ -1404,6 +1413,22 @@ msgstr "CS002x"
 #: apps/publisher/templates/publisher/add_course_form.html
 msgid "BIO1.1x; BIO1.2x etc."
 msgstr "BIO1.1x; BIO1.2x etc."
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/add_courserun_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "CERTIFICATE TYPE AND PRICE"
+msgstr "TIPO Y PRECIO DEL CERTIFICADO"
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/add_courserun_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid ""
+"If the course offers a verified or professional education certificate, "
+"select the certificate type and enter the price for the certificate."
+msgstr "Si el curso ofrece un certificado de educación verificado o profesional, seleccione el tipo de certificado e ingrese el precio del certificado."
 
 #: apps/publisher/templates/publisher/add_course_form.html
 msgid "I want to add a run to this course at this time"
@@ -1492,18 +1517,6 @@ msgid ""
 msgstr "Especifique un mes, día y año. Si no está seguro de la fecha exacta, especifique un día cercano a la fecha de finalización estimada. Por ejemplo, si su curso finalizará cerca del final de marzo, especifique el 31 de marzo."
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html
-msgid "CERTIFICATE TYPE AND PRICE"
-msgstr "TIPO Y PRECIO DEL CERTIFICADO"
-
-#: apps/publisher/templates/publisher/add_courserun_form.html
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html
-msgid ""
-"If the course offers a verified or professional education certificate, "
-"select the certificate type and enter the price for the certificate."
-msgstr "Si el curso ofrece un certificado de educación verificado o profesional, seleccione el tipo de certificado e ingrese el precio del certificado."
-
-#: apps/publisher/templates/publisher/add_courserun_form.html
 msgid "Create New Course Run"
 msgstr "Crea un nuevo curso"
 
@@ -1556,6 +1569,11 @@ msgstr "EDITAR"
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "Course Team Admin"
 msgstr "Administrador de Equipo del curso"
+
+#: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+msgid "Certificate Price"
+msgstr "Costo del certificado"
 
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
@@ -1811,11 +1829,11 @@ msgstr "Pautas de la imagen del curso:"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "New course images must be 1134 X 675 pixels in size. "
-msgstr ""
+msgstr "Las nuevas imágenes del curso deben ser de un tamaño de 1134 X 675  píxeles."
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Learn more."
-msgstr ""
+msgstr "Aprender más"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Each course in a sequence must have a unique image."
@@ -2040,6 +2058,14 @@ msgid "500 character limit, including spaces."
 msgstr "500 caracteres como máximo, incluyendo espacios."
 
 #: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"If you are transitioning the certificate type and price from the course run "
+"level to the course level, please be informed that this is a permanent "
+"change and you will be maintaining this information at the course level from"
+" now on."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Update Course"
 msgstr "Curso Actualizado"
 
@@ -2058,7 +2084,7 @@ msgstr "Versiones"
 
 #: apps/publisher/templates/publisher/course_list.html
 msgid "Course Team Status"
-msgstr ""
+msgstr "Estado del equipo del curso"
 
 #: apps/publisher/templates/publisher/course_list.html
 #, python-format
@@ -2068,7 +2094,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_list.html
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "Last Handoff"
-msgstr ""
+msgstr "Último lanzamiento"
 
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Revision History"
@@ -2152,19 +2178,19 @@ msgstr "Instructor principal o instructores para este curso."
 msgid ""
 "Make sure that you search for an instructor before you create a new "
 "instructor."
-msgstr ""
+msgstr "Asegúrese de buscar un instructor antes de crear uno nuevo."
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "Search for Instructor:"
-msgstr ""
+msgstr "Buscar instructor:"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "Create new"
-msgstr ""
+msgstr "Crear nuevo"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "instructor"
-msgstr ""
+msgstr "instructor"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "ESTIMATED EFFORT"
@@ -2222,10 +2248,6 @@ msgstr "Fecha de Inicio (tiempo en UTC)"
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "End Date (time in UTC)"
 msgstr "Fecha de Finalización (tiempo en UTC)"
-
-#: apps/publisher/templates/publisher/course_run_detail/_all.html
-msgid "Certificate Price"
-msgstr "Costo del certificado"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Credit Price"
@@ -2429,7 +2451,7 @@ msgstr "La fecha de inicio y finalización del curso."
 
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "The course card image."
-msgstr "Imagen del mosaico del curso"
+msgstr "Imagen de portada para el curso"
 
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Names, titles, and signature images for all certificate signatories."
@@ -2537,14 +2559,6 @@ msgid "Enrollment Type"
 msgstr "TIpo de Inscripción"
 
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
-msgid "Enrollment Start Date (time in UTC)"
-msgstr "Fecha Inicio de Inscripción (tiempo en UTC)"
-
-#: apps/publisher/templates/publisher/course_run_detail/_studio.html
-msgid "Enrollment End Date (time in UTC)"
-msgstr "Fecha Fin de Inscripción (tiempo en UTC)"
-
-#: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "Pacing Type"
 msgstr "Tipo de Ritmo del curso"
 
@@ -2584,11 +2598,11 @@ msgstr "DRUPAL"
 
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "Successfully published to Studio, E-Commerce, and Discovery."
-msgstr ""
+msgstr "Publicado con éxito en Studio, E-commerce y Discovery."
 
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "Publication failed."
-msgstr ""
+msgstr "Falló la publicación."
 
 #: apps/publisher/templates/publisher/courserun_list.html
 msgid "Course About Pages"
@@ -2737,7 +2751,7 @@ msgstr "No hay cursos que actualmente estén listos para URL Studio."
 msgid ""
 "%(user_name)s made the following comment on %(course_name)s on %(date)s at "
 "%(time)s"
-msgstr ""
+msgstr "%(user_name)s comentó en %(course_name)s el%(date)s a las%(time)s"
 
 #: apps/publisher/templates/publisher/email/comment.html
 #: apps/publisher/templates/publisher/email/comment.txt
@@ -2759,7 +2773,7 @@ msgstr "El equipo de edX"
 msgid ""
 "%(user_name)s made the following comment on %(course_name)s %(date)s at "
 "%(time)s."
-msgstr ""
+msgstr "%(user_name)s comentó en %(course_name)s %(date)s a las%(time)s."
 
 #: apps/publisher/templates/publisher/email/course/mark_as_reviewed.html
 #: apps/publisher/templates/publisher/email/course/mark_as_reviewed.txt
@@ -2985,12 +2999,12 @@ msgstr "%(course_team)sha revisado la vista previa de la página de introducció
 #: apps/publisher/templates/publisher/email/course_run/preview_available.txt
 #, python-format
 msgid "A preview is now available for the %(run)s run of %(title)s."
-msgstr ""
+msgstr "Una vista previa está ahora disponible para el %(run)s del lanzamiento de  %(title)s."
 
 #: apps/publisher/templates/publisher/email/course_run/preview_available.html
 #: apps/publisher/templates/publisher/email/course_run/preview_available.txt
 msgid "Follow these steps to move forward with publishing the course run."
-msgstr ""
+msgstr "Siga estos pasos para avanzar con la publicación del lanzamiento del curso."
 
 #: apps/publisher/templates/publisher/email/course_run/preview_available.html
 #: apps/publisher/templates/publisher/email/course_run/preview_available.txt
@@ -2998,17 +3012,17 @@ msgid ""
 "Please do not share the preview URL publicly or use it in your own "
 "advertising. The finalized public URL will be available after the page is "
 "fully published."
-msgstr ""
+msgstr "Por favor no compartir la vista previa de la URL públicamente o usarla en propia publicidad. La URL completa estará disponible después de que la página este totalmente publicada."
 
 #: apps/publisher/templates/publisher/email/course_run/preview_available.html
 #: apps/publisher/templates/publisher/email/course_run/preview_available.txt
 msgid "Preview the about page"
-msgstr ""
+msgstr "Vista previa de la página de introducción al curso"
 
 #: apps/publisher/templates/publisher/email/course_run/preview_available.html
 #: apps/publisher/templates/publisher/email/course_run/preview_available.txt
 msgid "Submit feedback in Publisher"
-msgstr ""
+msgstr "Enviar comentario en editor."
 
 #: apps/publisher/templates/publisher/email/course_run/preview_available.html
 #, python-format
@@ -3016,7 +3030,7 @@ msgid ""
 "Note: This email address is unable to receive replies. For questions or "
 "comments, contact <a "
 "href=\"mailto:%(contact_us_email)s\">%(contact_us_email)s</a>."
-msgstr ""
+msgstr "Nota: Esta dirección de correo no puede recibir respuestas. Para preguntas o comentarios, contacte con <a href=\"mailto:%(contact_us_email)s\">%(contact_us_email)s</a>"
 
 #: apps/publisher/templates/publisher/email/course_run/published.html
 #: apps/publisher/templates/publisher/email/course_run/published.txt
@@ -3248,7 +3262,7 @@ msgstr "La imagen que subiste no tiene la resolución correcta. Los archivos de 
 msgid ""
 "Invalid image size. The recommended image size is %(preferred)s. Older "
 "courses also support image sizes of %(supported)s."
-msgstr ""
+msgstr "Tamaño de imagen no valido. El tamaño recomendado es %(preferred)s. Cursos antiguos soportan también tamaños de %(supported)s."
 
 #: apps/publisher/validators.py
 #, python-brace-format
@@ -3319,8 +3333,37 @@ msgid ""
 msgstr "La página no pudo ser actualizada. Asegúrate que todo los valores estén correctos, luego intenta otra vez."
 
 #: apps/publisher/views.py
-msgid "Course  updated successfully."
-msgstr "Curso actualizado correctamente."
+#, python-brace-format
+msgid ""
+"The entered price does not match the price for the following course run(s): "
+"{course_runs}. The price that you enter must match the price of all active "
+"and future course runs."
+msgstr ""
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid ""
+"The entered seat type does not match the seat type for the following course "
+"run(s): {course_runs}. The seat type that you enter must match the seat type"
+" of all active and future course runs."
+msgstr ""
+
+#: apps/publisher/views.py
+msgid ""
+"Enrollment track cannot be unset or changed from verified or professional to"
+" audit or credit."
+msgstr ""
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid ""
+"The following active course run(s) are published: {course_runs}. You cannot "
+"change the mode if there are published active runs."
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "Course updated successfully."
+msgstr ""
 
 #: apps/publisher/views.py
 msgid "course"
@@ -3331,14 +3374,14 @@ msgid "marketing"
 msgstr "marketing"
 
 #: apps/publisher/views.py
-#, python-brace-format
-msgid "You have successfully created a course run for {course_title}."
-msgstr "Has creado exitosamente un curso para {course_title}."
+msgid "There was an error saving this course run:"
+msgstr ""
 
 #: apps/publisher/views.py
-#, python-brace-format
-msgid "There was an error saving this course run: {error}"
-msgstr "Hubo un error guardando la instancia del curso, {error}"
+msgid ""
+"The certificate configuration for this course is incorrect. Please fix it, "
+"then try again."
+msgstr ""
 
 #: apps/publisher/views.py
 msgid ""
@@ -3347,20 +3390,25 @@ msgid ""
 msgstr "Tu organización no tiene roles por defecto para revisar/aprobar este curso en ejecución. Por favor contacte a su socio para crear roles por defecto."
 
 #: apps/publisher/views.py
+#, python-brace-format
+msgid "You have successfully created a course run for {course_title}."
+msgstr "Has creado exitosamente un curso para {course_title}."
+
+#: apps/publisher/views.py
 msgid "Course run updated successfully."
 msgstr "Versión del curso actualizada correctamente."
 
 #: apps/publisher/wrappers.py
 msgid "Submitted for Project Coordinator Review"
-msgstr ""
+msgstr "Enviado para la revisión del Coordinador del Proyecto"
 
 #: apps/publisher/wrappers.py
 msgid "Awaiting Project Coordinator Review"
-msgstr ""
+msgstr "En espera de la revisión del Coordinador del Proyecto"
 
 #: apps/publisher/wrappers.py
 msgid "Approved by Project Coordinator"
-msgstr ""
+msgstr "Aprovado por el Coordinador del Proyecto"
 
 #: apps/publisher_comments/emails.py
 msgid "Comment added:"
@@ -3408,4 +3456,4 @@ msgstr "modificado"
 
 #: urls.py
 msgid "Discovery Service Administration"
-msgstr ""
+msgstr "Administración del servicio Discovery"
