@@ -1,17 +1,19 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# #-#-#-#-#  django.po (course-discovery)  #-#-#-#-#
+# edX translation file
+# Copyright (C) 2018 edX
+# This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
 # 
 # Translators:
 # Kyoto University <edxkyotoux@gmail.com>, 2017
 # Sotaro OMURA <omoon@lamolabo.com>, 2017
+# Toshiboumi Ohta <ohta@securesky-tech.com>, 2018
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-12 11:58+0000\n"
-"PO-Revision-Date: 2018-01-12 20:48+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2018-03-15 20:13+0000\n"
+"PO-Revision-Date: 2018-04-09 10:40+0000\n"
+"Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: Japanese (Japan) (http://www.transifex.com/open-edx/edx-platform/language/ja_JP/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -407,7 +409,7 @@ msgstr "聴講"
 msgid "Verified"
 msgstr "認証付き"
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Professional"
 msgstr "Professional"
 
@@ -825,13 +827,22 @@ msgid "Professional education"
 msgstr "Professional education"
 
 #: apps/publisher/forms.py
+#: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Enrollment Track"
 msgstr "受講登録トラック"
 
 #: apps/publisher/forms.py
+msgid "Price must be greater than or equal to 0.01"
+msgstr ""
+
+#: apps/publisher/forms.py
 msgid "Only audit seat can be without price."
 msgstr "聴講生は無料です。"
+
+#: apps/publisher/forms.py
+msgid "Price is required."
+msgstr ""
 
 #: apps/publisher/forms.py
 msgid "This field is required."
@@ -1263,7 +1274,6 @@ msgstr "すべて承認"
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
-#: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "(Optional) Not yet added"
 msgstr "(オプション) 未入力"
 
@@ -1391,6 +1401,22 @@ msgid "BIO1.1x; BIO1.2x etc."
 msgstr "BIO1.1x; BIO1.2x など"
 
 #: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/add_courserun_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "CERTIFICATE TYPE AND PRICE"
+msgstr "修了証の種類と価格"
+
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/add_courserun_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid ""
+"If the course offers a verified or professional education certificate, "
+"select the certificate type and enter the price for the certificate."
+msgstr "認証付きあるいはprofessional education certificateを発行する講座の場合は、修了証の種類を選択し、価格を入力してください。"
+
+#: apps/publisher/templates/publisher/add_course_form.html
 msgid "I want to add a run to this course at this time"
 msgstr "今回この講座にrunの追加を希望"
 
@@ -1477,18 +1503,6 @@ msgid ""
 msgstr "年月日を特定してください。正確な日付が分からない場合は、終了予定日に近い日付を入力してください。たとえば、講座が３月末ごろ終了するなら、3月31日と入力してください。"
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html
-msgid "CERTIFICATE TYPE AND PRICE"
-msgstr "修了証の種類と価格"
-
-#: apps/publisher/templates/publisher/add_courserun_form.html
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html
-msgid ""
-"If the course offers a verified or professional education certificate, "
-"select the certificate type and enter the price for the certificate."
-msgstr "認証付きあるいはprofessional education certificateを発行する講座の場合は、修了証の種類を選択し、価格を入力してください。"
-
-#: apps/publisher/templates/publisher/add_courserun_form.html
 msgid "Create New Course Run"
 msgstr "新規course runを作成"
 
@@ -1541,6 +1555,11 @@ msgstr "編集"
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "Course Team Admin"
 msgstr "講座チーム管理者"
+
+#: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+msgid "Certificate Price"
+msgstr "修了証価格"
 
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
@@ -2025,6 +2044,14 @@ msgid "500 character limit, including spaces."
 msgstr "スペースを含め500文字まで。"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"If you are transitioning the certificate type and price from the course run "
+"level to the course level, please be informed that this is a permanent "
+"change and you will be maintaining this information at the course level from"
+" now on."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Update Course"
 msgstr "講座アップデート"
 
@@ -2207,10 +2234,6 @@ msgstr "開始日時(UTC)"
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "End Date (time in UTC)"
 msgstr "終了日時(UTC)"
-
-#: apps/publisher/templates/publisher/course_run_detail/_all.html
-msgid "Certificate Price"
-msgstr "修了証価格"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Credit Price"
@@ -2520,14 +2543,6 @@ msgstr "修了証発行日"
 #: apps/publisher/templates/publisher/course_run_detail/_seats.html
 msgid "Enrollment Type"
 msgstr "受講登録タイプ"
-
-#: apps/publisher/templates/publisher/course_run_detail/_studio.html
-msgid "Enrollment Start Date (time in UTC)"
-msgstr "受講登録開始日(UTC)"
-
-#: apps/publisher/templates/publisher/course_run_detail/_studio.html
-msgid "Enrollment End Date (time in UTC)"
-msgstr "受講登録終了日(UTC)"
 
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "Pacing Type"
@@ -3304,8 +3319,37 @@ msgid ""
 msgstr "ページが更新できませんでした。すべての値が正しいか確認して、再試行してください。"
 
 #: apps/publisher/views.py
-msgid "Course  updated successfully."
-msgstr "アップデート完了。"
+#, python-brace-format
+msgid ""
+"The entered price does not match the price for the following course run(s): "
+"{course_runs}. The price that you enter must match the price of all active "
+"and future course runs."
+msgstr ""
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid ""
+"The entered seat type does not match the seat type for the following course "
+"run(s): {course_runs}. The seat type that you enter must match the seat type"
+" of all active and future course runs."
+msgstr ""
+
+#: apps/publisher/views.py
+msgid ""
+"Enrollment track cannot be unset or changed from verified or professional to"
+" audit or credit."
+msgstr ""
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid ""
+"The following active course run(s) are published: {course_runs}. You cannot "
+"change the mode if there are published active runs."
+msgstr ""
+
+#: apps/publisher/views.py
+msgid "Course updated successfully."
+msgstr ""
 
 #: apps/publisher/views.py
 msgid "course"
@@ -3316,20 +3360,25 @@ msgid "marketing"
 msgstr "マーケティング"
 
 #: apps/publisher/views.py
-#, python-brace-format
-msgid "You have successfully created a course run for {course_title}."
-msgstr "{course_title}のcourse runは作成完了です。"
+msgid "There was an error saving this course run:"
+msgstr ""
 
 #: apps/publisher/views.py
-#, python-brace-format
-msgid "There was an error saving this course run: {error}"
-msgstr "course runを保存する際にエラーが発生しました: {error}"
+msgid ""
+"The certificate configuration for this course is incorrect. Please fix it, "
+"then try again."
+msgstr ""
 
 #: apps/publisher/views.py
 msgid ""
 "Your organization does not have default roles to review/approve this course-"
 "run. Please contact your partner manager to create default roles."
 msgstr "あなたの組織にはこのcourse-runをレビューまたは承認するデフォルト権限がありません。デフォルト権限を作成するには、partner managerに連絡してください。"
+
+#: apps/publisher/views.py
+#, python-brace-format
+msgid "You have successfully created a course run for {course_title}."
+msgstr "{course_title}のcourse runは作成完了です。"
 
 #: apps/publisher/views.py
 msgid "Course run updated successfully."
