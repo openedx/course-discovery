@@ -32,7 +32,8 @@ class JournalSerializer(serializers.ModelSerializer):
             'card_image_url',
             'short_description',
             'full_description',
-            'access_length'
+            'access_length',
+            'status'
         )
 
 
