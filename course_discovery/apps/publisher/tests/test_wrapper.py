@@ -225,6 +225,18 @@ class CourseRunWrapperTests(TestCase):
         course_run_state.change_owner_role(PublisherUserRole.CourseTeam)
         assert self.wrapped_course_run.course_team_status == 'Awaiting Course Team Review'
 
+    def test_owner_role_is_publisher(self):
+        """
+        Verify that owner_role_is_publisher returns true if owner is publisher and false otherwise
+        """
+        course_run_state = factories.CourseRunStateFactory(
+            course_run=self.course_run, owner_role=PublisherUserRole.Publisher
+        )
+        self.assertEqual(self.wrapped_course_run.owner_role_is_publisher, True)
+
+        course_run_state.change_owner_role(PublisherUserRole.CourseTeam)
+        self.assertEqual(self.wrapped_course_run.owner_role_is_publisher, False)
+
     def test_internal_user_status(self):
         """
         Verify that internal_user_status returns right statuses.
