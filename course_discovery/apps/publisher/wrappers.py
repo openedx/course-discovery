@@ -264,6 +264,10 @@ class CourseRunWrapper(BaseWrapper):
             return self.ApprovedByProjectCoordinator
 
     @property
+    def owner_role_is_publisher(self):
+        return self.wrapped_obj.course_run_state.owner_role == PublisherUserRole.Publisher
+
+    @property
     def owner_role_modified(self):
         return self.wrapped_obj.course_run_state.owner_role_modified
 
