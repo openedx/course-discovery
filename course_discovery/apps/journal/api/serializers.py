@@ -33,7 +33,8 @@ class JournalSerializer(serializers.ModelSerializer):
             'short_description',
             'full_description',
             'access_length',
-            'status'
+            'status',
+            'slug'
         )
 
 
