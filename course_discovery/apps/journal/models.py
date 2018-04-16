@@ -41,9 +41,15 @@ class Journal(TimeStampedModel):
     full_description = models.TextField(default=None, null=True, blank=True)
     access_length = models.IntegerField(null=True, help_text='number of days valid after purchase', default=365)
     status = models.CharField(
-        help_text=_('Used to determine whether journal is marketed or not.'), max_length=24, null=False, blank=False, db_index=True,
-        choices=JournalStatus.choices, validators=[JournalStatus.validator], default=JournalStatus.Active
+        help_text=_('Used to determine whether journal is marketed or not.'),
+        max_length=24,
+        null=False,
+        blank=False,
+        db_index=True,
+        choices=JournalStatus.choices, validators=[JournalStatus.validator],
+        default=JournalStatus.Active
     )
+    slug = models.CharField(max_length=255, blank=False, null=False)
 
     class Meta:
         unique_together = (
