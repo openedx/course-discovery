@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import JournalBundle, Journal
+
+from .models import Journal, JournalBundle
 
 
 @admin.register(Journal)

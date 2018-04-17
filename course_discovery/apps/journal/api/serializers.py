@@ -2,9 +2,9 @@
 from rest_framework import serializers
 
 from course_discovery.apps.api.serializers import MinimalCourseSerializer
-from course_discovery.apps.journal.models import Journal, JournalBundle
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata.models import Organization
+from course_discovery.apps.journal.models import Journal, JournalBundle
 
 
 class JournalSerializer(serializers.ModelSerializer):
