@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-15 20:13+0000\n"
+"POT-Creation-Date: 2018-04-25 19:32+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -298,7 +298,7 @@ msgstr "Ìnstrüçtör-päçéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#
 msgid "Self-paced"
 msgstr "Sélf-päçéd Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: apps/course_metadata/choices.py
+#: apps/course_metadata/choices.py apps/journal/choices.py
 msgid "Active"
 msgstr "Àçtïvé Ⱡ'σяєм ιρѕυ#"
 
@@ -332,7 +332,7 @@ msgstr "Blög Ⱡ'σяєм ι#"
 msgid "Others"
 msgstr "Öthérs Ⱡ'σяєм ιρѕυ#"
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/journal/models.py
 msgid "UUID"
 msgstr "ÛÛÌD Ⱡ'σяєм ι#"
 
@@ -659,6 +659,22 @@ msgid "The program was changed successfully."
 msgstr ""
 "Thé prögräm wäs çhängéd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
+
+#: apps/journal/choices.py
+msgid "Inactive"
+msgstr "Ìnäçtïvé Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/journal/models.py
+msgid "Used to determine whether journal is marketed or not."
+msgstr ""
+"Ûséd tö détérmïné whéthér jöürnäl ïs märkétéd ör nöt. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
+" αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/journal/models.py
+msgid "The user-facing display title for this Journal Bundle"
+msgstr ""
+"Thé üsér-fäçïng dïspläý tïtlé för thïs Jöürnäl Bündlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
+" αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/api/serializers.py
 #, python-brace-format
