@@ -5,6 +5,7 @@ from rest_framework_extensions.cache.mixins import CacheResponseMixin
 from rest_framework.permissions import IsAuthenticated
 
 from course_discovery.apps.journal.models import Journal, JournalBundle
+from course_discovery.apps.journal.api.filters import JournalFilter
 from course_discovery.apps.journal.api.serializers import JournalSerializer, JournalBundleSerializer
 from course_discovery.apps.journal import constants as journal_constants
 
@@ -15,8 +16,10 @@ class JournalViewSet(viewsets.ModelViewSet):
     """
     lookup_field = 'uuid'
     lookup_value_regex = journal_constants.UUID_PATTERN
-    queryset = Journal.objects.all()
+    queryset = Journal.objects.all().order_by('-created')
     serializer_class = JournalSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = JournalFilter
 
 
 class JournalBundleViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
