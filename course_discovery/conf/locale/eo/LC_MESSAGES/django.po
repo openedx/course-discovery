@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-15 20:13+0000\n"
+"POT-Creation-Date: 2018-04-18 11:01+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -282,7 +282,7 @@ msgstr "Ìnçlüdéd çöürsé rüns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт
 msgid "Published"
 msgstr "Püßlïshéd Ⱡ'σяєм ιρѕυм ∂σł#"
 
-#: apps/course_metadata/choices.py
+#: apps/course_metadata/choices.py apps/course_metadata/choices.py
 msgid "Unpublished"
 msgstr "Ûnpüßlïshéd Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
@@ -333,10 +333,14 @@ msgstr "Blög Ⱡ'σяєм ι#"
 msgid "Others"
 msgstr "Öthérs Ⱡ'σяєм ιρѕυ#"
 
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py
 msgid "UUID"
 msgstr "ÛÛÌD Ⱡ'σяєм ι#"
 
+#: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py
 msgid "Leave this field blank to have the value generated automatically."
 msgstr ""
@@ -373,7 +377,7 @@ msgstr ""
 "Lögö tö ßé dïspläýéd ön çértïfïçätés. Ìf thïs lögö ïs thé sämé äs "
 "lögö_ïmägé_ürl, çöpý änd pästé thé sämé välüé tö ßöth fïélds. Ⱡ'σяє#"
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
 msgid ""
 "Pick a tag from the suggestions. To make a new tag, add a comma after the "
 "tag name."
@@ -504,7 +508,7 @@ msgid "Audit"
 msgstr "Àüdït Ⱡ'σяєм ιρѕ#"
 
 #: apps/course_metadata/models.py apps/publisher/forms.py
-#: apps/publisher/models.py
+#: apps/publisher/forms.py apps/publisher/models.py apps/publisher/models.py
 msgid "Verified"
 msgstr "Vérïfïéd Ⱡ'σяєм ιρѕυм ∂#"
 
@@ -513,7 +517,7 @@ msgid "Professional"
 msgstr "Pröféssïönäl Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/course_metadata/models.py apps/publisher/forms.py
-#: apps/publisher/models.py
+#: apps/publisher/forms.py apps/publisher/models.py
 msgid "Credit"
 msgstr "Çrédït Ⱡ'σяєм ιρѕυ#"
 
@@ -671,7 +675,7 @@ msgstr "Ìnvälïd çöürsé kéý \"{lms_course_id}\" Ⱡ'σяєм ιρѕυм 
 msgid "Invalid URL format \"{preview_url}\""
 msgstr "Ìnvälïd ÛRL förmät \"{preview_url}\" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
-#: apps/publisher/api/serializers.py
+#: apps/publisher/api/serializers.py apps/publisher/api/serializers.py
 #, python-brace-format
 msgid "Cannot switch from state `{state}` to `{target_state}`"
 msgstr ""
@@ -740,7 +744,7 @@ msgid "Review requested: {title} {run_number}"
 msgstr ""
 "Révïéw réqüéstéd: {title} {run_number} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
-#: apps/publisher/emails.py
+#: apps/publisher/emails.py apps/publisher/emails.py
 #, python-brace-format
 msgid "Review complete: {course_name} {run_number}"
 msgstr ""
@@ -845,7 +849,7 @@ msgstr "Örgänïzätïön Çöürsé Àdmïn Ⱡ'σяєм ιρѕυм ∂σłσ�
 msgid "Primary"
 msgstr "Prïmärý Ⱡ'σяєм ιρѕυм #"
 
-#: apps/publisher/forms.py
+#: apps/publisher/forms.py apps/publisher/forms.py
 msgid "Additional Subject (optional)"
 msgstr "Àddïtïönäl Süßjéçt (öptïönäl) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
@@ -981,27 +985,27 @@ msgstr ""
 msgid "Choose enrollment track"
 msgstr "Çhöösé énröllmént träçk Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
-#: apps/publisher/forms.py
+#: apps/publisher/forms.py apps/publisher/forms.py
 msgid "Audit only"
 msgstr "Àüdït önlý Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: apps/publisher/forms.py
+#: apps/publisher/forms.py apps/publisher/forms.py
 msgid "Professional education"
 msgstr "Pröféssïönäl édüçätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
-#: apps/publisher/forms.py
+#: apps/publisher/forms.py apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Enrollment Track"
 msgstr "Énröllmént Träçk Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
-#: apps/publisher/forms.py
+#: apps/publisher/forms.py apps/publisher/forms.py
 msgid "Price must be greater than or equal to 0.01"
 msgstr ""
 "Prïçé müst ßé gréätér thän ör éqüäl tö 0.01 Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
 
-#: apps/publisher/forms.py
+#: apps/publisher/forms.py apps/publisher/forms.py
 msgid "Only audit seat can be without price."
 msgstr ""
 "Önlý äüdït séät çän ßé wïthöüt prïçé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
@@ -1218,6 +1222,10 @@ msgid "First Name"
 msgstr "Fïrst Nämé Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "required"
 msgstr "réqüïréd Ⱡ'σяєм ιρѕυм ∂#"
 
@@ -1270,6 +1278,8 @@ msgstr "réqüïréd (1-2 pärägräphs) Ⱡ'σяєм ιρѕυм ∂σłσя ѕ�
 msgid "Facebook URL"
 msgstr "Fäçéßöök ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "optional"
 msgstr "öptïönäl Ⱡ'σяєм ιρѕυм ∂#"
@@ -1409,6 +1419,7 @@ msgstr ""
 "∂σł#"
 
 #: apps/publisher/templates/publisher/_footer.html
+#: apps/publisher/templates/publisher/_footer.html
 msgid "Powered by Open edX"
 msgstr "Pöwéréd ßý Öpén édX Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
@@ -1480,12 +1491,16 @@ msgstr "Àççépt Àll Ⱡ'σяєм ιρѕυм ∂σłσ#"
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "(Optional) Not yet added"
 msgstr "(Öptïönäl) Nöt ýét äddéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: apps/publisher/templates/publisher/_render_required_field.html
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 #: apps/publisher/templates/publisher/course_run_detail/_seats.html
@@ -1505,6 +1520,8 @@ msgstr ""
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_list.html
 msgid "Create New Course"
 msgstr "Çréäté Néw Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
@@ -1515,11 +1532,29 @@ msgid "COURSE TITLE"
 msgstr "ÇÖÛRSÉ TÌTLÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Best Practices"
 msgstr "Bést Präçtïçés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Examples"
 msgstr "Éxämplés Ⱡ'σяєм ιρѕυм ∂#"
@@ -1551,6 +1586,8 @@ msgstr ""
 "αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Targets a global audience."
 msgstr "Tärgéts ä glößäl äüdïénçé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
@@ -1651,6 +1688,7 @@ msgstr ""
 "Ì wänt tö ädd ä rün tö thïs çöürsé ät thïs tïmé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
 " ¢σηѕє¢тєтυя α#"
 
+#: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid "New Course Run"
 msgstr "Néw Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
@@ -1796,6 +1834,7 @@ msgstr "Däshßöärd Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: apps/publisher/templates/publisher/base.html
 #: apps/publisher/templates/publisher/course_list.html apps/publisher/views.py
+#: apps/publisher/views.py
 msgid "Courses"
 msgstr "Çöürsés Ⱡ'σяєм ιρѕυм #"
 
@@ -1837,12 +1876,17 @@ msgid "Primary Subject"
 msgstr "Prïmärý Süßjéçt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
+#: apps/publisher/templates/publisher/course_revision_history.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Additional Subject"
 msgstr "Àddïtïönäl Süßjéçt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
 #: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Course Image"
 msgstr "Çöürsé Ìmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
@@ -1890,6 +1934,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_detail/_widgets.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "STUDIO URL"
 msgstr "STÛDÌÖ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
@@ -1903,6 +1948,7 @@ msgstr ""
 "Nö çöürsé rüns éxïst för thïs çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
 
+#: apps/publisher/templates/publisher/course_edit_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Edit Course"
 msgstr "Édït Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя #"
@@ -1931,6 +1977,7 @@ msgstr ""
 msgid "Sequence Courses:"
 msgstr "Séqüénçé Çöürsés: Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
+#: apps/publisher/templates/publisher/course_edit_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "255 character limit, including spaces."
 msgstr ""
@@ -1963,6 +2010,7 @@ msgstr ""
 "Çönvéýs çömpéllïng réäsöns tö täké thé çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя α#"
 
+#: apps/publisher/templates/publisher/course_edit_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Follows SEO guidelines."
 msgstr "Föllöws SÉÖ güïdélïnés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
@@ -2067,6 +2115,9 @@ msgstr ""
 "éqüïtïés ör fïxéd ïnçömé çän üsé thïs çöürsé tö élïmïnäté skïll gäps. Ⱡ'σяєм"
 " ιρѕυм ∂σłσя #"
 
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "2500 character limit, including spaces."
 msgstr ""
@@ -2500,6 +2551,7 @@ msgid "Last Handoff"
 msgstr "Läst Händöff Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/publisher/templates/publisher/course_revision_history.html
+#: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Revision History"
 msgstr "Révïsïön Hïstörý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
@@ -2516,6 +2568,7 @@ msgstr "Shöw çhängés Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 msgid "Expected Learning"
 msgstr "Éxpéçtéd Léärnïng Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "Edit Course Run"
 msgstr "Édït Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
@@ -2704,6 +2757,8 @@ msgid "Estimated Effort"
 msgstr "Éstïmätéd Éffört Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "hours per week"
 msgstr "höürs pér wéék Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
@@ -3925,6 +3980,7 @@ msgstr ""
 "ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αт#"
 
 #: apps/publisher/templates/publisher/seat_form.html
+#: apps/publisher/templates/publisher/seat_form.html
 msgid "Seat Form"
 msgstr "Séät Förm Ⱡ'σяєм ιρѕυм ∂σł#"
 
@@ -3984,11 +4040,11 @@ msgstr "Sénd för Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 msgid "Mark as Reviewed"
 msgstr "Märk äs Révïéwéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
-#: apps/publisher/views.py
+#: apps/publisher/views.py apps/publisher/views.py
 msgid "course team"
 msgstr "çöürsé téäm Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
-#: apps/publisher/views.py
+#: apps/publisher/views.py apps/publisher/views.py
 msgid "project coordinator"
 msgstr "pröjéçt çöördïnätör Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
@@ -4016,13 +4072,15 @@ msgstr ""
 "∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα"
 " ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση#"
 
-#: apps/publisher/views.py
+#: apps/publisher/views.py apps/publisher/views.py
 #, python-brace-format
 msgid "An error occurred while saving your changes. {error}"
 msgstr ""
 "Àn érrör öççürréd whïlé sävïng ýöür çhängés. {error} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
+#: apps/publisher/views.py apps/publisher/views.py apps/publisher/views.py
+#: apps/publisher/views.py apps/publisher/views.py apps/publisher/views.py
 #: apps/publisher/views.py
 msgid ""
 "The page could not be updated. Make sure that all values are correct, then "
@@ -4084,11 +4142,11 @@ msgstr ""
 msgid "Course updated successfully."
 msgstr "Çöürsé üpdätéd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
-#: apps/publisher/views.py
+#: apps/publisher/views.py apps/publisher/views.py
 msgid "course"
 msgstr "çöürsé Ⱡ'σяєм ιρѕυ#"
 
-#: apps/publisher/views.py
+#: apps/publisher/views.py apps/publisher/views.py
 msgid "marketing"
 msgstr "märkétïng Ⱡ'σяєм ιρѕυм ∂σł#"
 

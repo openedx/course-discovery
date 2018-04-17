@@ -64,8 +64,8 @@ html_coverage: ## Generate and view HTML coverage report
 
 extract_translations: ## Extract strings to be translated, outputting .mo files
 	# NOTE: We need PYTHONPATH defined to avoid ImportError(s) on Travis CI.
-	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" i18n_tool extract --verbose
-	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" i18n_tool generate --verbose
+	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin.py makemessages -l en -v1 --ignore="assets/*" --ignore="static/bower_components/*" --ignore="static/build/*" -d django
+	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin.py makemessages -l en -v1 --ignore="assets/*" --ignore="static/bower_components/*" --ignore="static/build/*" -d djangojs
 
 dummy_translations: ## Generate dummy translation (.po) files
 	cd course_discovery && i18n_tool dummy
@@ -76,7 +76,10 @@ compile_translations: ## Compile translation files, outputting .po files for eac
 fake_translations: extract_translations dummy_translations compile_translations ## Generate and compile dummy translation files
 
 pull_translations: ## Pull translations from Transifex
-	tx pull -af --mode reviewed
+	tx pull -af --mode reviewed --minimum-perc=1
+
+push_translations: ## push source translation files (.po) from Transifex
+	tx push -s
 
 start-devstack: ## Run a local development copy of the server
 	docker-compose up
