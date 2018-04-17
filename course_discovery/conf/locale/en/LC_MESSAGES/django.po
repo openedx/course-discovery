@@ -248,6 +248,7 @@ msgid "Self-paced"
 msgstr ""
 
 #: apps/course_metadata/choices.py:20
+#: apps/course_metadata/choices.py apps/journal/choices.py
 msgid "Active"
 msgstr ""
 
@@ -283,6 +284,7 @@ msgstr ""
 #: apps/course_metadata/models.py:217 apps/course_metadata/models.py:261
 #: apps/course_metadata/models.py:338 apps/course_metadata/models.py:453
 #: apps/course_metadata/models.py:927
+#: apps/course_metadata/models.py apps/journal/models.py
 msgid "UUID"
 msgstr ""
 
@@ -523,6 +525,19 @@ msgid "The program was changed successfully."
 msgstr ""
 
 #: apps/publisher/api/serializers.py:80
+#: apps/journal/choices.py
+msgid "Inactive"
+msgstr ""
+
+#: apps/journal/models.py
+msgid "Used to determine whether journal is marketed or not."
+msgstr ""
+
+#: apps/journal/models.py
+msgid "The user-facing display title for this Journal Bundle"
+msgstr ""
+
+#: apps/publisher/api/serializers.py
 #, python-brace-format
 msgid "Invalid course key \"{lms_course_id}\""
 msgstr ""

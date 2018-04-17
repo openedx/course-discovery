@@ -1,7 +1,7 @@
 """ API v1 URLs. """
 from rest_framework.routers import DefaultRouter
 
-from .views import JournalViewSet, JournalBundleViewSet
+from .views import JournalBundleViewSet, JournalViewSet
 
 router = DefaultRouter()
 router.register(r'journals', JournalViewSet, base_name='journal')

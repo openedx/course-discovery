@@ -1,7 +1,8 @@
-from django.db import models
-from django_extensions.db.models import TimeStampedModel
-from django.utils.translation import ugettext_lazy as _
 from uuid import uuid4
+
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
+from django_extensions.db.models import TimeStampedModel
 
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata.models import Course, Organization, SeatType

@@ -1,7 +1,8 @@
 '''Filter class for Journals'''
-from course_discovery.apps.journal.models import Journal
-from course_discovery.apps.journal.choices import JournalStatus
 from django_filters import rest_framework as filters
+
+from course_discovery.apps.journal.choices import JournalStatus
+from course_discovery.apps.journal.models import Journal
 
 
 class CharListFilter(filters.CharFilter):
