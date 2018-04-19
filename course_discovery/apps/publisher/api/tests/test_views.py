@@ -22,8 +22,9 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api import views
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.constants import ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME
-from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState,
-                                                    OrganizationExtension, Seat)
+from course_discovery.apps.publisher.models import (
+    Course, CourseRun, CourseRunState, CourseState, OrganizationExtension, Seat
+)
 from course_discovery.apps.publisher.tests import JSON_CONTENT_TYPE, factories
 
 

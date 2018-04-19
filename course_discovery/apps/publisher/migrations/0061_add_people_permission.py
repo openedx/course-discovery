@@ -4,8 +4,10 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-from course_discovery.apps.publisher.constants import (INTERNAL_USER_GROUP_NAME, PARTNER_COORDINATOR_GROUP_NAME,
-                                                       PUBLISHER_GROUP_NAME, REVIEWER_GROUP_NAME)
+from course_discovery.apps.publisher.constants import (
+    INTERNAL_USER_GROUP_NAME, PARTNER_COORDINATOR_GROUP_NAME, PUBLISHER_GROUP_NAME, REVIEWER_GROUP_NAME
+)
+
 GROUPS = [INTERNAL_USER_GROUP_NAME, PARTNER_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME, PUBLISHER_GROUP_NAME]
 
 

@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 from django.db.models.query import Prefetch
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
-from drf_haystack.serializers import HaystackFacetSerializer, HaystackSerializer
+from drf_haystack.serializers import HaystackFacetSerializer, HaystackSerializer, HaystackSerializerMixin
 from rest_framework import serializers
 from rest_framework.fields import DictField
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
@@ -18,68 +18,18 @@ from taggit_serializer.serializers import TaggitSerializer, TagListSerializerFie
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
+from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, Endorsement, Image, Organization, Person,
     PersonSocialNetwork, PersonWork, Position, Prerequisite, Program, ProgramType, Seat, SeatType, Subject, Topic,
     Video
 )
-from course_discovery.apps.course_metadata.search_indexes import CourseIndex, CourseRunIndex, ProgramIndex
 
 User = get_user_model()
 
 COMMON_IGNORED_FIELDS = ('text',)
-COMMON_SEARCH_FIELD_ALIASES = {
-    'q': 'text',
-}
-COURSE_RUN_FACET_FIELD_OPTIONS = {
-    'level_type': {},
-    'organizations': {'size': settings.SEARCH_FACET_LIMIT},
-    'prerequisites': {},
-    'subjects': {},
-    'language': {},
-    'transcript_languages': {},
-    'pacing_type': {},
-    'content_type': {},
-    'type': {},
-    'seat_types': {},
-    'mobile_available': {},
-}
-
-COURSE_RUN_FACET_FIELD_QUERIES = {
-    'availability_current': {'query': 'start:<now AND end:>now'},
-    'availability_starting_soon': {'query': 'start:[now TO now+60d]'},
-    'availability_upcoming': {'query': 'start:[now+60d TO *]'},
-    'availability_archived': {'query': 'end:<=now'},
-}
-COURSE_RUN_SEARCH_FIELDS = (
-    'text', 'key', 'title', 'short_description', 'full_description', 'start', 'end', 'enrollment_start',
-    'enrollment_end', 'pacing_type', 'language', 'transcript_languages', 'marketing_url', 'content_type', 'org',
-    'number', 'seat_types', 'image_url', 'type', 'level_type', 'availability', 'published', 'partner', 'program_types',
-    'authoring_organization_uuids', 'subject_uuids', 'staff_uuids', 'mobile_available', 'logo_image_urls',
-    'aggregation_key', 'min_effort', 'max_effort', 'weeks_to_complete', 'has_enrollable_seats',
-    'first_enrollable_paid_seat_sku'
-)
-
-PROGRAM_FACET_FIELD_OPTIONS = {
-    'status': {},
-    'type': {},
-    'seat_types': {},
-}
-
-BASE_PROGRAM_FIELDS = (
-    'text', 'uuid', 'title', 'subtitle', 'type', 'marketing_url', 'content_type', 'status', 'card_image_url',
-    'published', 'partner', 'language',
-)
-
-PROGRAM_SEARCH_FIELDS = BASE_PROGRAM_FIELDS + (
-    'aggregation_key', 'authoring_organizations', 'authoring_organization_uuids', 'subject_uuids', 'staff_uuids',
-    'weeks_to_complete_min', 'weeks_to_complete_max', 'min_hours_effort_per_week', 'max_hours_effort_per_week',
-    'hidden', 'is_program_eligible_for_one_click_purchase',
-)
-
-PROGRAM_FACET_FIELDS = BASE_PROGRAM_FIELDS + ('organizations',)
-
+COMMON_SEARCH_FIELD_ALIASES = {'q': 'text'}
 PREFETCH_FIELDS = {
     'course_run': [
         'course__level_type',
@@ -176,6 +126,17 @@ def get_utm_source_for_user(partner, user):
 class TimestampModelSerializer(serializers.ModelSerializer):
     """Serializer for timestamped models."""
     modified = serializers.DateTimeField()
+
+
+class ContentTypeSerializer(serializers.Serializer):
+    """Serializer for retrieving the type of content. Useful in views returning multiple serialized models."""
+    content_type = serializers.SerializerMethodField()
+
+    def get_content_type(self, obj):
+        return obj._meta.model_name
+
+    class Meta(object):
+        fields = ('content_type',)
 
 
 class NamedModelSerializer(serializers.ModelSerializer):
@@ -904,7 +865,7 @@ class ProgramSerializer(MinimalProgramSerializer):
         """
         Prefetch the related objects that will be serialized with a `Program`.
 
-        We use Pefetch objects so that we can prefetch and select all the way down the
+        We use Prefetch objects so that we can prefetch and select all the way down the
         chain of related fields from programs to course runs (i.e., we want control over
         the querysets that we're prefetching).
         """
@@ -1155,6 +1116,7 @@ class QueryFacetFieldSerializer(serializers.Serializer):
 
 class BaseHaystackFacetSerializer(HaystackFacetSerializer):
     _abstract = True
+    serialize_objects = True
 
     def get_fields(self):
         query_facet_counts = self.instance.pop('queries', {})
@@ -1186,27 +1148,28 @@ class BaseHaystackFacetSerializer(HaystackFacetSerializer):
 
 
 class CourseSearchSerializer(HaystackSerializer):
-    content_type = serializers.CharField(source='model_name')
-
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        fields = ('key', 'title', 'short_description', 'full_description', 'text', 'aggregation_key',)
         ignore_fields = COMMON_IGNORED_FIELDS
-        index_classes = [CourseIndex]
+        index_classes = [search_indexes.CourseIndex]
+        fields = search_indexes.BASE_SEARCH_INDEX_FIELDS + (
+            'full_description',
+            'key',
+            'short_description',
+            'title',
+        )
 
 
 class CourseFacetSerializer(BaseHaystackFacetSerializer):
-    serialize_objects = True
-
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        ignore_fields = COMMON_IGNORED_FIELDS
         field_options = {
             'level_type': {},
             'organizations': {},
             'prerequisites': {},
             'subjects': {},
         }
-        ignore_fields = COMMON_IGNORED_FIELDS
 
 
 class CourseRunSearchSerializer(HaystackSerializer):
@@ -1217,19 +1180,68 @@ class CourseRunSearchSerializer(HaystackSerializer):
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        fields = COURSE_RUN_SEARCH_FIELDS
         ignore_fields = COMMON_IGNORED_FIELDS
-        index_classes = [CourseRunIndex]
+        index_classes = [search_indexes.CourseRunIndex]
+        fields = search_indexes.BASE_SEARCH_INDEX_FIELDS + (
+            'authoring_organization_uuids',
+            'availability',
+            'end',
+            'enrollment_end',
+            'enrollment_start',
+            'first_enrollable_paid_seat_sku',
+            'full_description',
+            'has_enrollable_seats',
+            'image_url',
+            'key',
+            'language',
+            'level_type',
+            'logo_image_urls',
+            'marketing_url',
+            'max_effort',
+            'min_effort',
+            'mobile_available',
+            'number',
+            'org',
+            'pacing_type',
+            'partner',
+            'program_types',
+            'published',
+            'seat_types',
+            'short_description',
+            'staff_uuids',
+            'start',
+            'subject_uuids',
+            'text',
+            'title',
+            'transcript_languages',
+            'type',
+            'weeks_to_complete'
+        )
 
 
 class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
-    serialize_objects = True
-
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        field_options = COURSE_RUN_FACET_FIELD_OPTIONS
-        field_queries = COURSE_RUN_FACET_FIELD_QUERIES
         ignore_fields = COMMON_IGNORED_FIELDS
+        field_options = {
+            'content_type': {},
+            'language': {},
+            'level_type': {},
+            'mobile_available': {},
+            'organizations': {'size': settings.SEARCH_FACET_LIMIT},
+            'pacing_type': {},
+            'prerequisites': {},
+            'seat_types': {},
+            'subjects': {},
+            'transcript_languages': {},
+            'type': {},
+        }
+        field_queries = {
+            'availability_current': {'query': 'start:<now AND end:>now'},
+            'availability_starting_soon': {'query': 'start:[now TO now+60d]'},
+            'availability_upcoming': {'query': 'start:[now+60d TO *]'},
+            'availability_archived': {'query': 'end:<=now'},
+        }
 
 
 class ProgramSearchSerializer(HaystackSerializer):
@@ -1241,32 +1253,86 @@ class ProgramSearchSerializer(HaystackSerializer):
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        field_options = PROGRAM_FACET_FIELD_OPTIONS
-        fields = PROGRAM_SEARCH_FIELDS
         ignore_fields = COMMON_IGNORED_FIELDS
-        index_classes = [ProgramIndex]
+        index_classes = [search_indexes.ProgramIndex]
+        fields = search_indexes.BASE_SEARCH_INDEX_FIELDS + search_indexes.BASE_PROGRAM_FIELDS + (
+            'authoring_organization_uuids',
+            'authoring_organizations',
+            'hidden',
+            'is_program_eligible_for_one_click_purchase',
+            'max_hours_effort_per_week',
+            'min_hours_effort_per_week',
+            'staff_uuids',
+            'subject_uuids',
+            'weeks_to_complete_max',
+            'weeks_to_complete_min',
+        )
 
 
 class ProgramFacetSerializer(BaseHaystackFacetSerializer):
-    serialize_objects = True
-
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        field_options = PROGRAM_FACET_FIELD_OPTIONS
-        fields = PROGRAM_FACET_FIELDS
         ignore_fields = COMMON_IGNORED_FIELDS
-        index_classes = [ProgramIndex]
+        index_classes = [search_indexes.ProgramIndex]
+        field_options = {
+            'status': {},
+            'type': {},
+            'seat_types': {},
+        }
+        fields = search_indexes.BASE_PROGRAM_FIELDS + (
+            'organizations',
+        )
 
 
 class AggregateSearchSerializer(HaystackSerializer):
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        fields = COURSE_RUN_SEARCH_FIELDS + PROGRAM_SEARCH_FIELDS
         ignore_fields = COMMON_IGNORED_FIELDS
+        fields = CourseRunSearchSerializer.Meta.fields + ProgramSearchSerializer.Meta.fields
         serializers = {
-            CourseRunIndex: CourseRunSearchSerializer,
-            CourseIndex: CourseSearchSerializer,
-            ProgramIndex: ProgramSearchSerializer,
+            search_indexes.CourseRunIndex: CourseRunSearchSerializer,
+            search_indexes.CourseIndex: CourseSearchSerializer,
+            search_indexes.ProgramIndex: ProgramSearchSerializer,
+        }
+
+
+class AggregateFacetSearchSerializer(BaseHaystackFacetSerializer):
+    class Meta:
+        field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        ignore_fields = COMMON_IGNORED_FIELDS
+        field_queries = CourseRunFacetSerializer.Meta.field_queries
+        field_options = {
+            **CourseRunFacetSerializer.Meta.field_options,
+            **ProgramFacetSerializer.Meta.field_options
+        }
+        serializers = {
+            search_indexes.CourseRunIndex: CourseRunFacetSerializer,
+            search_indexes.CourseIndex: CourseFacetSerializer,
+            search_indexes.ProgramIndex: ProgramFacetSerializer,
+        }
+
+
+class CourseSearchModelSerializer(HaystackSerializerMixin, ContentTypeSerializer, CourseWithProgramsSerializer):
+    class Meta(CourseWithProgramsSerializer.Meta):
+        fields = ContentTypeSerializer.Meta.fields + CourseWithProgramsSerializer.Meta.fields
+
+
+class CourseRunSearchModelSerializer(HaystackSerializerMixin, ContentTypeSerializer, CourseRunWithProgramsSerializer):
+    class Meta(CourseRunWithProgramsSerializer.Meta):
+        fields = ContentTypeSerializer.Meta.fields + CourseRunWithProgramsSerializer.Meta.fields
+
+
+class ProgramSearchModelSerializer(HaystackSerializerMixin, ContentTypeSerializer, ProgramSerializer):
+    class Meta(ProgramSerializer.Meta):
+        fields = ContentTypeSerializer.Meta.fields + ProgramSerializer.Meta.fields
+
+
+class AggregateSearchModelSerializer(HaystackSerializer):
+    class Meta:
+        serializers = {
+            search_indexes.CourseRunIndex: CourseRunSearchModelSerializer,
+            search_indexes.CourseIndex: CourseSearchModelSerializer,
+            search_indexes.ProgramIndex: ProgramSearchModelSerializer,
         }
 
 
@@ -1292,21 +1358,6 @@ class TypeaheadProgramSearchSerializer(TypeaheadBaseSearchSerializer):
 class TypeaheadSearchSerializer(serializers.Serializer):
     course_runs = TypeaheadCourseRunSearchSerializer(many=True)
     programs = TypeaheadProgramSearchSerializer(many=True)
-
-
-class AggregateFacetSearchSerializer(BaseHaystackFacetSerializer):
-    serialize_objects = True
-
-    class Meta:
-        field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        field_options = {**COURSE_RUN_FACET_FIELD_OPTIONS, **PROGRAM_FACET_FIELD_OPTIONS}
-        field_queries = COURSE_RUN_FACET_FIELD_QUERIES
-        ignore_fields = COMMON_IGNORED_FIELDS
-        serializers = {
-            CourseRunIndex: CourseRunFacetSerializer,
-            CourseIndex: CourseFacetSerializer,
-            ProgramIndex: ProgramFacetSerializer,
-        }
 
 
 class TopicSerializer(serializers.ModelSerializer):

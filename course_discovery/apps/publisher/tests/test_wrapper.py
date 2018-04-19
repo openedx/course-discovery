@@ -6,8 +6,9 @@ import ddt
 from django.test import TestCase
 
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
-from course_discovery.apps.course_metadata.tests.factories import (OrganizationFactory, PersonFactory,
-                                                                   PersonSocialNetworkFactory, PositionFactory)
+from course_discovery.apps.course_metadata.tests.factories import (
+    OrganizationFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory
+)
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.models import Seat
 from course_discovery.apps.publisher.tests import factories

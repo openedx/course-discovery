@@ -11,14 +11,17 @@ from rest_framework.views import APIView
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.api.paginations import LargeResultsSetPagination
-from course_discovery.apps.publisher.api.permissions import (CanViewAssociatedCourse, InternalUserPermission,
-                                                             PublisherUserPermission)
-from course_discovery.apps.publisher.api.serializers import (CourseRevisionSerializer, CourseRunSerializer,
-                                                             CourseRunStateSerializer, CourseStateSerializer,
-                                                             CourseUserRoleSerializer, GroupUserSerializer)
+from course_discovery.apps.publisher.api.permissions import (
+    CanViewAssociatedCourse, InternalUserPermission, PublisherUserPermission
+)
+from course_discovery.apps.publisher.api.serializers import (
+    CourseRevisionSerializer, CourseRunSerializer, CourseRunStateSerializer, CourseStateSerializer,
+    CourseUserRoleSerializer, GroupUserSerializer
+)
 from course_discovery.apps.publisher.forms import CourseForm
-from course_discovery.apps.publisher.models import (Course, CourseRun, CourseRunState, CourseState, CourseUserRole,
-                                                    OrganizationExtension, PublisherUser)
+from course_discovery.apps.publisher.models import (
+    Course, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension, PublisherUser
+)
 
 logger = logging.getLogger(__name__)
 

@@ -1,9 +1,6 @@
-from django.conf import settings
 from django.contrib.auth import get_user_model
 
 from course_discovery.apps.api import serializers
-from course_discovery.apps.api.exceptions import InvalidPartnerError
-from course_discovery.apps.core.models import Partner
 
 User = get_user_model()
 

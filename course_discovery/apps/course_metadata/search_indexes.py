@@ -6,6 +6,26 @@ from opaque_keys.edx.keys import CourseKey
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 
+BASE_SEARCH_INDEX_FIELDS = (
+    'aggregation_key',
+    'content_type',
+    'text',
+)
+
+BASE_PROGRAM_FIELDS = (
+    'card_image_url',
+    'language',
+    'marketing_url',
+    'partner',
+    'published',
+    'status',
+    'subtitle',
+    'text',
+    'title',
+    'type',
+    'uuid'
+)
+
 # http://django-haystack.readthedocs.io/en/v2.5.0/boost.html#field-boost
 # Boost title over all other parameters (multiplicative)
 # The max boost received from our boosting functions is ~6.

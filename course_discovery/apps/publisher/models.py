@@ -29,7 +29,6 @@ from course_discovery.apps.publisher.choices import (
     CourseRunStateChoices, CourseStateChoices, InternalUserRole, PublisherUserRole
 )
 from course_discovery.apps.publisher.utils import is_email_notification_enabled, is_internal_user, is_publisher_admin
-
 from course_discovery.apps.publisher.validators import ImageMultiSizeValidator
 
 logger = logging.getLogger(__name__)

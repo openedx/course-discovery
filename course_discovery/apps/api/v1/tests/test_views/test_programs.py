@@ -115,7 +115,7 @@ class TestProgramViewSet(SerializationMixin):
             partner=self.partner)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
-        with django_assert_num_queries(38):
+        with django_assert_num_queries(39):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
         assert course_list == list(program.courses.all())  # pylint: disable=no-member
@@ -124,7 +124,7 @@ class TestProgramViewSet(SerializationMixin):
         """ Verify the endpoint returns data for a program even if the program's courses have no course runs. """
         course = CourseFactory(partner=self.partner)
         program = ProgramFactory(courses=[course], partner=self.partner)
-        with django_assert_num_queries(25):
+        with django_assert_num_queries(26):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
 

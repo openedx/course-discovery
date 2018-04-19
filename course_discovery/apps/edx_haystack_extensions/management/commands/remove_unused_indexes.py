@@ -4,7 +4,6 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from haystack import connections as haystack_connections
 
-
 logger = logging.getLogger(__name__)
 
 
