@@ -954,6 +954,23 @@ class ContainedCoursesSerializerTests(TestCase):
 
 
 @ddt.ddt
+class ContentTypeSerializerTests(TestCase):
+    @ddt.data(
+        (CourseFactory, 'course'),
+        (CourseRunFactory, 'courserun'),
+        (ProgramFactory, 'program'),
+    )
+    @ddt.unpack
+    def test_data(self, factory_class, expected_content_type):
+        obj = factory_class()
+        serializer = ContentTypeSerializer(obj)
+        expected = {
+            'content_type': expected_content_type
+        }
+        assert serializer.data == expected
+
+
+@ddt.ddt
 class NamedModelSerializerTests(TestCase):
     @ddt.data(
         (PrerequisiteFactory, PrerequisiteSerializer),
@@ -1252,6 +1269,16 @@ class CourseSearchSerializerTests(TestCase):
         }
 
 
+class CourseSearchModelSerializerTests(CourseSearchSerializerTests):
+    serializer_class = CourseSearchModelSerializer
+
+    @classmethod
+    def get_expected_data(cls, course, request):
+        expected_data = CourseWithProgramsSerializerTests.get_expected_data(course, request)
+        expected_data.update({'content_type': 'course'})
+        return expected_data
+
+
 class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
     serializer_class = CourseRunSearchSerializer
 
@@ -1318,6 +1345,15 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
         }
 
 
+class CourseRunSearchModelSerializerTests(CourseRunSearchSerializerTests):
+    serializer_class = CourseRunSearchModelSerializer
+
+    @classmethod
+    def get_expected_data(cls, course_run, request):
+        expected_data = CourseRunWithProgramsSerializerTests.get_expected_data(course_run, request)
+        expected_data.update({'content_type': 'courserun'})
+        # This explicit conversion needs to happen, apparently because the real type is DRF's 'ReturnDict'. It's weird.
+        return dict(expected_data)
 
 
 @pytest.mark.django_db
@@ -1398,6 +1434,15 @@ class TestProgramSearchSerializer(TestCase):
         else:
             assert expected['languages'] == ['en-us', 'zh-cmn']
 
+
+class ProgramSearchModelSerializerTest(TestProgramSearchSerializer):
+    serializer_class = ProgramSearchModelSerializer
+
+    @classmethod
+    def get_expected_data(cls, program, request):
+        expected = ProgramSerializerTests.get_expected_data(program, request)
+        expected.update({'content_type': 'program'})
+        return expected
 
 
 @pytest.mark.django_db
