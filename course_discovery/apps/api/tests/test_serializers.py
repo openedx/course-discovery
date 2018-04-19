@@ -1432,7 +1432,7 @@ class TestProgramSearchSerializer(TestCase):
         if 'language' in expected:
             assert {'English', 'Chinese - Mandarin'} == {*expected['language']}
         else:
-            assert expected['languages'] == ['en-us', 'zh-cmn']
+            assert set(expected['languages']) == {'en-us', 'zh-cmn'}
 
 
 class ProgramSearchModelSerializerTest(TestProgramSearchSerializer):
