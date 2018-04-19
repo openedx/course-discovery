@@ -11,12 +11,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from course_discovery.apps.api import filters, serializers
+from course_discovery.apps.api import filters, mixins, serializers
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 
 
-class BaseHaystackViewSet(FacetMixin, HaystackViewSet):
+class BaseHaystackViewSet(mixins.DetailMixin, FacetMixin, HaystackViewSet):
     document_uid_field = 'key'
     facet_filter_backends = [filters.HaystackFacetFilterWithQueries, filters.HaystackFilter, OrderingFilter]
     ordering_fields = ('start',)
