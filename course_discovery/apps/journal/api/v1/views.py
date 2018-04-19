@@ -2,7 +2,7 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAdminUser
 
 from course_discovery.apps.journal.models import Journal, JournalBundle
 from course_discovery.apps.journal.api.filters import JournalFilter
@@ -20,13 +20,14 @@ class JournalViewSet(viewsets.ModelViewSet):
     serializer_class = JournalSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_class = JournalFilter
+    permission_classes = (IsAdminUser,)
 
 
 class JournalBundleViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
     """ Journal Bundle"""
     lookup_field = 'uuid'
     lookup_value_regex = journal_constants.UUID_PATTERN
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAdminUser,)
     filter_backends = (DjangoFilterBackend,)
 
     queryset = JournalBundle.objects.all()
