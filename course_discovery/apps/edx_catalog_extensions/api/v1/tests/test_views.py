@@ -4,10 +4,10 @@ import urllib.parse
 import pytz
 from django.urls import reverse
 
-from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase
-from course_discovery.apps.api.v1.tests.test_views.test_search import (
-    ElasticsearchTestMixin, LoginMixin, SerializationMixin, SynonymTestMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import (
+    APITestCase, LoginMixin, SerializationMixin, SynonymTestMixin
 )
+from course_discovery.apps.api.v1.tests.test_views.test_search import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory, ProgramFactory
 from course_discovery.apps.edx_catalog_extensions.api.serializers import DistinctCountsAggregateFacetSearchSerializer
@@ -125,9 +125,9 @@ class DistinctCountsAggregateSearchViewSetTests(SerializationMixin, LoginMixin,
 
         for record in objects['results']:
             if record['content_type'] == 'courserun':
-                assert record == self.serialize_course_run(course_runs[str(record['key'])])
+                assert record == self.serialize_course_run_search(course_runs[str(record['key'])])
             else:
-                assert record == self.serialize_program(programs[str(record['uuid'])])
+                assert record == self.serialize_program_search(programs[str(record['uuid'])])
 
     def test_response_with_search_query(self):
         """ Verify that the response is accurate when a search query is passed."""

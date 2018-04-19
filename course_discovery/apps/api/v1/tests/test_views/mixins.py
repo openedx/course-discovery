@@ -4,16 +4,15 @@ import json
 
 import responses
 from django.conf import settings
+from haystack.query import SearchQuerySet
 from rest_framework.test import APITestCase as RestAPITestCase
 from rest_framework.test import APIRequestFactory
 
-from course_discovery.apps.api.serializers import (
-    CatalogCourseSerializer, CatalogSerializer, CourseRunWithProgramsSerializer,
-    CourseWithProgramsSerializer, FlattenedCourseRunWithCourseSerializer, MinimalProgramSerializer,
-    OrganizationSerializer, PersonSerializer, ProgramSerializer, ProgramTypeSerializer, SubjectSerializer,
-    TopicSerializer
-)
+from course_discovery.apps.api import serializers
 from course_discovery.apps.api.tests.mixins import SiteMixin
+from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
+from course_discovery.apps.course_metadata.models import CourseRun, Program
+from course_discovery.apps.course_metadata.tests import factories
 
 
 class SerializationMixin:
@@ -32,47 +31,69 @@ class SerializationMixin:
         context = {'request': self._get_request(format)}
         if extra_context:
             context.update(extra_context)
-
         return serializer(obj, many=many, context=context).data
 
+    def _get_search_result(self, model, **kwargs):
+        return SearchQuerySet().models(model).filter(**kwargs)[0]
+
     def serialize_catalog(self, catalog, many=False, format=None, extra_context=None):
-        return self._serialize_object(CatalogSerializer, catalog, many, format, extra_context)
+        return self._serialize_object(serializers.CatalogSerializer, catalog, many, format, extra_context)
 
     def serialize_course(self, course, many=False, format=None, extra_context=None):
-        return self._serialize_object(CourseWithProgramsSerializer, course, many, format, extra_context)
+        return self._serialize_object(serializers.CourseWithProgramsSerializer, course, many, format, extra_context)
 
     def serialize_course_run(self, run, many=False, format=None, extra_context=None):
-        return self._serialize_object(CourseRunWithProgramsSerializer, run, many, format, extra_context)
+        return self._serialize_object(serializers.CourseRunWithProgramsSerializer, run, many, format, extra_context)
+
+    def serialize_course_run_search(self, run, serializer=None):
+        obj = self._get_search_result(CourseRun, key=run.key)
+        return self._serialize_object(serializer or serializers.CourseRunSearchSerializer, obj)
 
     def serialize_person(self, person, many=False, format=None, extra_context=None):
-        return self._serialize_object(PersonSerializer, person, many, format, extra_context)
+        return self._serialize_object(serializers.PersonSerializer, person, many, format, extra_context)
 
     def serialize_program(self, program, many=False, format=None, extra_context=None):
         return self._serialize_object(
-            MinimalProgramSerializer if many else ProgramSerializer,
+            serializers.MinimalProgramSerializer if many else serializers.ProgramSerializer,
             program,
             many,
             format,
             extra_context
         )
 
+    def serialize_program_search(self, program, serializer=None):
+        obj = self._get_search_result(Program, uuid=program.uuid)
+        return self._serialize_object(serializer or serializers.ProgramSearchSerializer, obj)
+
     def serialize_program_type(self, program_type, many=False, format=None, extra_context=None):
-        return self._serialize_object(ProgramTypeSerializer, program_type, many, format, extra_context)
+        return self._serialize_object(serializers.ProgramTypeSerializer, program_type, many, format, extra_context)
 
     def serialize_catalog_course(self, course, many=False, format=None, extra_context=None):
-        return self._serialize_object(CatalogCourseSerializer, course, many, format, extra_context)
+        return self._serialize_object(serializers.CatalogCourseSerializer, course, many, format, extra_context)
 
     def serialize_catalog_flat_course_run(self, course_run, many=False, format=None, extra_context=None):
-        return self._serialize_object(FlattenedCourseRunWithCourseSerializer, course_run, many, format, extra_context)
+        return self._serialize_object(
+            serializers.FlattenedCourseRunWithCourseSerializer, course_run, many, format, extra_context
+        )
 
     def serialize_organization(self, organization, many=False, format=None, extra_context=None):
-        return self._serialize_object(OrganizationSerializer, organization, many, format, extra_context)
+        return self._serialize_object(serializers.OrganizationSerializer, organization, many, format, extra_context)
 
     def serialize_subject(self, subject, many=False, format=None, extra_context=None):
-        return self._serialize_object(SubjectSerializer, subject, many, format, extra_context)
+        return self._serialize_object(serializers.SubjectSerializer, subject, many, format, extra_context)
 
     def serialize_topic(self, topic, many=False, format=None, extra_context=None):
-        return self._serialize_object(TopicSerializer, topic, many, format, extra_context)
+        return self._serialize_object(serializers.TopicSerializer, topic, many, format, extra_context)
+
+
+class TypeaheadSerializationMixin:
+    def serialize_course_run_search(self, run):
+        obj = SearchQuerySet().models(CourseRun).filter(key=run.key)[0]
+        return serializers.TypeaheadCourseRunSearchSerializer(obj).data
+
+    def serialize_program_search(self, program):
+        obj = SearchQuerySet().models(Program).filter(uuid=program.uuid)[0]
+        return serializers.TypeaheadProgramSearchSerializer(obj).data
 
 
 class OAuth2Mixin(object):
@@ -97,6 +118,55 @@ class OAuth2Mixin(object):
             content_type='application/json',
             status=status
         )
+
+
+class SynonymTestMixin:
+
+    def test_org_synonyms(self):
+        """ Test that synonyms work for organization names """
+        title = 'UniversityX'
+        authoring_organizations = [factories.OrganizationFactory(name='University')]
+        factories.CourseRunFactory(
+            title=title,
+            course__partner=self.partner,
+            authoring_organizations=authoring_organizations
+        )
+        factories.ProgramFactory(title=title, partner=self.partner, authoring_organizations=authoring_organizations)
+        response1 = self.process_response({'q': title})
+        response2 = self.process_response({'q': 'University'})
+        assert response1 == response2
+
+    def test_title_synonyms(self):
+        """ Test that synonyms work for terms in the title """
+        factories.CourseRunFactory(title='HTML', course__partner=self.partner)
+        factories.ProgramFactory(title='HTML', partner=self.partner)
+        response1 = self.process_response({'q': 'HTML5'})
+        response2 = self.process_response({'q': 'HTML'})
+        assert response1 == response2
+
+    def test_special_character_synonyms(self):
+        """ Test that synonyms work with special characters (non ascii) """
+        factories.ProgramFactory(title='spanish', partner=self.partner)
+        response1 = self.process_response({'q': 'spanish'})
+        response2 = self.process_response({'q': 'español'})
+        assert response1 == response2
+
+    def test_stemmed_synonyms(self):
+        """ Test that synonyms work with stemming from the snowball analyzer """
+        title = 'Running'
+        factories.ProgramFactory(title=title, partner=self.partner)
+        response1 = self.process_response({'q': 'running'})
+        response2 = self.process_response({'q': 'jogging'})
+        assert response1 == response2
+
+
+class LoginMixin:
+    def setUp(self):
+        super(LoginMixin, self).setUp()
+        self.user = UserFactory()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        if getattr(self, 'request'):
+            self.request.user = self.user
 
 
 class APITestCase(SiteMixin, RestAPITestCase):
