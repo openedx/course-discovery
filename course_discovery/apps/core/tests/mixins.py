@@ -3,7 +3,6 @@ import logging
 
 import pytest
 import responses
-
 from django.conf import settings
 from haystack import connections as haystack_connections
 

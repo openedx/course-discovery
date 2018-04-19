@@ -6,16 +6,18 @@ from simple_history.admin import SimpleHistoryAdmin
 
 from course_discovery.apps.publisher.assign_permissions import assign_permissions
 from course_discovery.apps.publisher.choices import InternalUserRole
-from course_discovery.apps.publisher.constants import (INTERNAL_USER_GROUP_NAME, PARTNER_MANAGER_GROUP_NAME,
-                                                       PROJECT_COORDINATOR_GROUP_NAME, PUBLISHER_GROUP_NAME,
-                                                       REVIEWER_GROUP_NAME)
+from course_discovery.apps.publisher.constants import (
+    INTERNAL_USER_GROUP_NAME, PARTNER_MANAGER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME, PUBLISHER_GROUP_NAME,
+    REVIEWER_GROUP_NAME
+)
 from course_discovery.apps.publisher.forms import (
     CourseRunAdminForm, CourseRunStateAdminForm, CourseStateAdminForm, OrganizationExtensionForm,
     PublisherUserCreationForm, UserAttributesAdminForm
 )
-from course_discovery.apps.publisher.models import (Course, CourseEntitlement, CourseRun, CourseRunState, CourseState,
-                                                    CourseUserRole, OrganizationExtension, OrganizationUserRole,
-                                                    PublisherUser, Seat, UserAttributes)
+from course_discovery.apps.publisher.models import (
+    Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension,
+    OrganizationUserRole, PublisherUser, Seat, UserAttributes
+)
 
 
 @admin.register(CourseUserRole)

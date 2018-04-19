@@ -16,8 +16,9 @@ from course_discovery.apps.course_metadata.tests.factories import OrganizationFa
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.mixins import check_course_organization_permission
-from course_discovery.apps.publisher.models import (Course, CourseUserRole, OrganizationExtension,
-                                                    OrganizationUserRole, Seat)
+from course_discovery.apps.publisher.models import (
+    Course, CourseUserRole, OrganizationExtension, OrganizationUserRole, Seat
+)
 from course_discovery.apps.publisher.tests import factories
 
 

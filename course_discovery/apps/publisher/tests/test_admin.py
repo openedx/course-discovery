@@ -8,8 +8,9 @@ from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.choices import PublisherUserRole
-from course_discovery.apps.publisher.constants import (PARTNER_MANAGER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME,
-                                                       PUBLISHER_GROUP_NAME, REVIEWER_GROUP_NAME)
+from course_discovery.apps.publisher.constants import (
+    PARTNER_MANAGER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME, PUBLISHER_GROUP_NAME, REVIEWER_GROUP_NAME
+)
 from course_discovery.apps.publisher.forms import CourseRunAdminForm
 from course_discovery.apps.publisher.models import CourseRun, OrganizationExtension
 from course_discovery.apps.publisher.tests import factories

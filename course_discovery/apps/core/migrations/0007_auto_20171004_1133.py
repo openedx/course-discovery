@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-
 SWITCH = 'use_company_name_as_utm_source_value'
 
 

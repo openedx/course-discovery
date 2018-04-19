@@ -2,7 +2,6 @@ import datetime
 
 import ddt
 import pytz
-
 from django.core.cache import cache
 from django.db.models.functions import Lower
 from rest_framework.reverse import reverse

@@ -270,6 +270,7 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     banner_image_url = FuzzyText(prefix='https://example.com/program/banner')
     card_image_url = FuzzyText(prefix='https://example.com/program/card')
     partner = factory.SubFactory(PartnerFactory)
+    video = factory.SubFactory(VideoFactory)
     overview = FuzzyText()
     total_hours_of_effort = FuzzyInteger(2)
     weeks_to_complete = FuzzyInteger(1)
