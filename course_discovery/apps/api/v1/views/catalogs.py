@@ -1,3 +1,4 @@
+import ast
 import datetime
 
 from django.db import transaction
@@ -32,13 +33,13 @@ class CatalogViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         """ Create a new catalog. """
-        data = request.data.copy()
+        data = dict(request.data.copy())
         usernames = request.data.get('viewers', ())
 
         # Add support for parsing a comma-separated list from Swagger
         if isinstance(usernames, str):
-            usernames = usernames.split(',')
-            data.setlist('viewers', usernames)
+            usernames = ast.literal_eval(usernames)
+            data['viewers'] = usernames
 
         # Ensure the users exist
         for username in usernames:
