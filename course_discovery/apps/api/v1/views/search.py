@@ -93,27 +93,31 @@ class BaseHaystackViewSet(FacetMixin, HaystackViewSet):
 
 
 class CourseSearchViewSet(BaseHaystackViewSet):
-    facet_serializer_class = serializers.CourseFacetSerializer
     index_models = (Course,)
+    detail_serializer_class = serializers.CourseSearchModelSerializer
+    facet_serializer_class = serializers.CourseFacetSerializer
     serializer_class = serializers.CourseSearchSerializer
 
 
 class CourseRunSearchViewSet(BaseHaystackViewSet):
-    facet_serializer_class = serializers.CourseRunFacetSerializer
     index_models = (CourseRun,)
+    detail_serializer_class = serializers.CourseRunSearchModelSerializer
+    facet_serializer_class = serializers.CourseRunFacetSerializer
     serializer_class = serializers.CourseRunSearchSerializer
 
 
 class ProgramSearchViewSet(BaseHaystackViewSet):
     document_uid_field = 'uuid'
     lookup_field = 'uuid'
-    facet_serializer_class = serializers.ProgramFacetSerializer
     index_models = (Program,)
+    detail_serializer_class = serializers.ProgramSearchModelSerializer
+    facet_serializer_class = serializers.ProgramFacetSerializer
     serializer_class = serializers.ProgramSearchSerializer
 
 
 class AggregateSearchViewSet(BaseHaystackViewSet):
     """ Search all content types. """
+    detail_serializer_class = serializers.AggregateSearchModelSerializer
     facet_serializer_class = serializers.AggregateFacetSearchSerializer
     serializer_class = serializers.AggregateSearchSerializer
 

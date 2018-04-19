@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 from django.db.models.query import Prefetch
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
-from drf_haystack.serializers import HaystackFacetSerializer, HaystackSerializer
+from drf_haystack.serializers import HaystackFacetSerializer, HaystackSerializer, HaystackSerializerMixin
 from rest_framework import serializers
 from rest_framework.fields import DictField
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
@@ -126,6 +126,17 @@ def get_utm_source_for_user(partner, user):
 class TimestampModelSerializer(serializers.ModelSerializer):
     """Serializer for timestamped models."""
     modified = serializers.DateTimeField()
+
+
+class ContentTypeSerializer(serializers.Serializer):
+    """Serializer for retrieving the type of content. Useful in views returning multiple serialized models."""
+    content_type = serializers.SerializerMethodField()
+
+    def get_content_type(self, obj):
+        return obj._meta.model_name
+
+    class Meta(object):
+        fields = ('content_type',)
 
 
 class NamedModelSerializer(serializers.ModelSerializer):
@@ -1300,6 +1311,28 @@ class AggregateFacetSearchSerializer(BaseHaystackFacetSerializer):
             search_indexes.ProgramIndex: ProgramFacetSerializer,
         }
 
+
+class CourseSearchModelSerializer(HaystackSerializerMixin, ContentTypeSerializer, CourseWithProgramsSerializer):
+    class Meta(CourseWithProgramsSerializer.Meta):
+        fields = ContentTypeSerializer.Meta.fields + CourseWithProgramsSerializer.Meta.fields
+
+
+class CourseRunSearchModelSerializer(HaystackSerializerMixin, ContentTypeSerializer, CourseRunWithProgramsSerializer):
+    class Meta(CourseRunWithProgramsSerializer.Meta):
+        fields = ContentTypeSerializer.Meta.fields + CourseRunWithProgramsSerializer.Meta.fields
+
+
+class ProgramSearchModelSerializer(HaystackSerializerMixin, ContentTypeSerializer, ProgramSerializer):
+    class Meta(ProgramSerializer.Meta):
+        fields = ContentTypeSerializer.Meta.fields + ProgramSerializer.Meta.fields
+
+
+class AggregateSearchModelSerializer(HaystackSerializer):
+    class Meta:
+        serializers = {
+            search_indexes.CourseRunIndex: CourseRunSearchModelSerializer,
+            search_indexes.CourseIndex: CourseSearchModelSerializer,
+            search_indexes.ProgramIndex: ProgramSearchModelSerializer,
         }
 
 
