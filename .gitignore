@@ -33,6 +33,7 @@ assets/
 
 # Unit test / coverage reports
 .coverage
+.coverage.*
 htmlcov
 .tox
 nosetests.xml
