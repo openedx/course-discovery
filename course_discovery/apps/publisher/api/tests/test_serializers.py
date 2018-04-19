@@ -11,14 +11,16 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.api.serializers import (CourseRevisionSerializer, CourseRunSerializer,
-                                                             CourseRunStateSerializer, CourseStateSerializer,
-                                                             CourseUserRoleSerializer, GroupUserSerializer)
+from course_discovery.apps.publisher.api.serializers import (
+    CourseRevisionSerializer, CourseRunSerializer, CourseRunStateSerializer, CourseStateSerializer,
+    CourseUserRoleSerializer, GroupUserSerializer
+)
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.models import CourseRun, CourseState, Seat
-from course_discovery.apps.publisher.tests.factories import (CourseFactory, CourseRunFactory, CourseRunStateFactory,
-                                                             CourseStateFactory, CourseUserRoleFactory,
-                                                             OrganizationExtensionFactory, SeatFactory)
+from course_discovery.apps.publisher.tests.factories import (
+    CourseFactory, CourseRunFactory, CourseRunStateFactory, CourseStateFactory, CourseUserRoleFactory,
+    OrganizationExtensionFactory, SeatFactory
+)
 
 
 class CourseUserRoleSerializerTests(SiteMixin, TestCase):

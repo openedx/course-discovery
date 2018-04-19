@@ -32,8 +32,8 @@ from course_discovery.apps.publisher.forms import (
     AdminImportCourseForm, CourseEntitlementForm, CourseForm, CourseRunForm, CourseSearchForm, SeatForm
 )
 from course_discovery.apps.publisher.models import (
-    Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole,
-    OrganizationExtension, PublisherUser, Seat, UserAttributes
+    Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension,
+    PublisherUser, Seat, UserAttributes
 )
 from course_discovery.apps.publisher.utils import (
     get_internal_users, has_role_for_course, is_internal_user, is_project_coordinator_user, is_publisher_admin,

@@ -1,5 +1,6 @@
 from django.conf import settings
 from haystack.query import SearchQuerySet
+
 from course_discovery.apps.edx_haystack_extensions.distinct_counts.backends import DistinctCountsSearchQuery
 
 
