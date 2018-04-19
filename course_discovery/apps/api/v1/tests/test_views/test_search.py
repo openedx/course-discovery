@@ -1,212 +1,62 @@
 import datetime
-import json
 import urllib.parse
 
 import ddt
 import pytz
 from django.urls import reverse
-from haystack.query import SearchQuerySet
 
-from course_discovery.apps.api.serializers import (CourseRunSearchSerializer, ProgramSearchSerializer,
-                                                   TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer)
-from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase
+from course_discovery.apps.api import serializers
+from course_discovery.apps.api.v1.tests.test_views import mixins
 from course_discovery.apps.api.v1.views.search import TypeaheadSearchView
-from course_discovery.apps.core.tests.factories import USER_PASSWORD, PartnerFactory, UserFactory
+from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import CourseRun, Program
-from course_discovery.apps.course_metadata.tests.factories import (CourseFactory, CourseRunFactory, OrganizationFactory,
-                                                                   ProgramFactory)
-
-
-class SerializationMixin:
-    def serialize_course_run(self, course_run):
-        result = SearchQuerySet().models(CourseRun).filter(key=course_run.key)[0]
-        return CourseRunSearchSerializer(result).data
-
-    def serialize_program(self, program):
-        result = SearchQuerySet().models(Program).filter(uuid=program.uuid)[0]
-        return ProgramSearchSerializer(result).data
-
-
-class TypeaheadSerializationMixin:
-    def serialize_course_run(self, course_run):
-        result = SearchQuerySet().models(CourseRun).filter(key=course_run.key)[0]
-        data = TypeaheadCourseRunSearchSerializer(result).data
-        return data
-
-    def serialize_program(self, program):
-        result = SearchQuerySet().models(Program).filter(uuid=program.uuid)[0]
-        data = TypeaheadProgramSearchSerializer(result).data
-        return data
-
-
-class LoginMixin:
-    def setUp(self):
-        super(LoginMixin, self).setUp()
-        self.user = UserFactory()
-        self.client.login(username=self.user.username, password=USER_PASSWORD)
-
-
-class SynonymTestMixin:
-
-    def test_org_synonyms(self):
-        """ Test that synonyms work for organization names """
-        title = 'UniversityX'
-        authoring_organizations = [OrganizationFactory(name='University')]
-        CourseRunFactory(
-            title=title,
-            course__partner=self.partner,
-            authoring_organizations=authoring_organizations
-        )
-        ProgramFactory(title=title, partner=self.partner, authoring_organizations=authoring_organizations)
-        response1 = self.process_response({'q': title})
-        response2 = self.process_response({'q': 'University'})
-        self.assertDictEqual(response1, response2)
-
-    def test_title_synonyms(self):
-        """ Test that synonyms work for terms in the title """
-        CourseRunFactory(title='HTML', course__partner=self.partner)
-        ProgramFactory(title='HTML', partner=self.partner)
-        response1 = self.process_response({'q': 'HTML5'})
-        response2 = self.process_response({'q': 'HTML'})
-        self.assertDictEqual(response1, response2)
-
-    def test_special_character_synonyms(self):
-        """ Test that synonyms work with special characters (non ascii) """
-        ProgramFactory(title='spanish', partner=self.partner)
-        response1 = self.process_response({'q': 'spanish'})
-        response2 = self.process_response({'q': 'español'})
-        self.assertDictEqual(response1, response2)
-
-    def test_stemmed_synonyms(self):
-        """ Test that synonyms work with stemming from the snowball analyzer """
-        title = 'Running'
-        ProgramFactory(title=title, partner=self.partner)
-        response1 = self.process_response({'q': 'running'})
-        response2 = self.process_response({'q': 'jogging'})
-        self.assertDictEqual(response1, response2)
+from course_discovery.apps.course_metadata.models import CourseRun
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory
+)
 
 
 @ddt.ddt
-class CourseRunSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchTestMixin,
-                                  APITestCase):
+class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, ElasticsearchTestMixin,
+                                  mixins.APITestCase):
     """ Tests for CourseRunSearchViewSet. """
+    detailed_path = reverse('api:v1:search-course_runs-details')
     faceted_path = reverse('api:v1:search-course_runs-facets')
     list_path = reverse('api:v1:search-course_runs-list')
 
-    def get_response(self, query=None, faceted=False):
-        qs = ''
-
-        if query:
-            qs = urllib.parse.urlencode({'q': query})
-
-        path = self.faceted_path if faceted else self.list_path
+    def get_response(self, query=None, path=None):
+        qs = urllib.parse.urlencode({'q': query}) if query else ''
+        path = path or self.list_path
         url = '{path}?{qs}'.format(path=path, qs=qs)
         return self.client.get(url)
-
-    def process_response(self, response):
-        response = self.get_response(response).json()
-        self.assertTrue(response['objects']['count'])
-        return response['objects']
-
-    @ddt.data(True, False)
-    def test_authentication(self, faceted):
-        """ Verify the endpoint requires authentication. """
-        self.client.logout()
-        response = self.get_response(faceted=faceted)
-        self.assertEqual(response.status_code, 403)
-
-    def test_search(self):
-        """ Verify the view returns search results. """
-        self.assert_successful_search(faceted=False)
-
-    def test_faceted_search(self):
-        """ Verify the view returns results and facets. """
-        course_run, response_data = self.assert_successful_search(faceted=True)
-
-        # Validate the pacing facet
-        expected = {
-            'text': course_run.pacing_type,
-            'count': 1,
-        }
-        self.assertDictContainsSubset(expected, response_data['fields']['pacing_type'][0])
-
-    def assert_successful_search(self, faceted=False):
-        """ Asserts the search functionality returns results for a generated query. """
-
-        # Generate data that should be indexed and returned by the query
-        course_run = CourseRunFactory(course__partner=self.partner, course__title='Software Testing',
-                                      status=CourseRunStatus.Published)
-        response = self.get_response('software', faceted=faceted)
-
-        self.assertEqual(response.status_code, 200)
-        response_data = json.loads(response.content.decode('utf-8'))
-
-        # Validate the search results
-        expected = {
-            'count': 1,
-            'results': [
-                self.serialize_course_run(course_run)
-            ]
-        }
-        actual = response_data['objects'] if faceted else response_data
-        self.assertDictContainsSubset(expected, actual)
-
-        return course_run, response_data
 
     def build_facet_url(self, params):
         return 'http://testserver.fake{path}?{query}'.format(
             path=self.faceted_path, query=urllib.parse.urlencode(params)
         )
 
-    def test_invalid_query_facet(self):
-        """ Verify the endpoint returns HTTP 400 if an invalid facet is requested. """
-        facet = 'not-a-facet'
-        url = '{path}?selected_query_facets={facet}'.format(path=self.faceted_path, facet=facet)
+    def assert_successful_search(self, path=None, serializer=None):
+        """ Asserts the search functionality returns results for a generated query. """
+        # Generate data that should be indexed and returned by the query
+        course_run = CourseRunFactory(course__partner=self.partner, course__title='Software Testing',
+                                      status=CourseRunStatus.Published)
+        response = self.get_response('software', path=path)
 
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 400)
+        assert response.status_code == 200
+        response_data = response.json()
 
-        response_data = json.loads(response.content.decode('utf-8'))
-        expected = {'detail': 'The selected query facet [{facet}] is not valid.'.format(facet=facet)}
-        self.assertEqual(response_data, expected)
+        # Validate the search results
+        expected = {
+            'count': 1,
+            'results': [
+                self.serialize_course_run_search(course_run, serializer=serializer)
+            ]
+        }
+        actual = response_data['objects'] if path == self.faceted_path else response_data
+        self.assertDictContainsSubset(expected, actual)
 
-    def test_availability_faceting(self):
-        """ Verify the endpoint returns availability facets with the results. """
-        now = datetime.datetime.now(pytz.UTC)
-        archived = CourseRunFactory(course__partner=self.partner, start=now - datetime.timedelta(weeks=2),
-                                    end=now - datetime.timedelta(weeks=1), status=CourseRunStatus.Published)
-        current = CourseRunFactory(course__partner=self.partner, start=now - datetime.timedelta(weeks=2),
-                                   end=now + datetime.timedelta(weeks=1), status=CourseRunStatus.Published)
-        starting_soon = CourseRunFactory(course__partner=self.partner, start=now + datetime.timedelta(days=10),
-                                         end=now + datetime.timedelta(days=90), status=CourseRunStatus.Published)
-        upcoming = CourseRunFactory(course__partner=self.partner, start=now + datetime.timedelta(days=61),
-                                    end=now + datetime.timedelta(days=90), status=CourseRunStatus.Published)
-
-        response = self.get_response(faceted=True)
-        self.assertEqual(response.status_code, 200)
-        response_data = json.loads(response.content.decode('utf-8'))
-
-        # Verify all course runs are returned
-        self.assertEqual(response_data['objects']['count'], 4)
-
-        for run in [archived, current, starting_soon, upcoming]:
-            serialized = self.serialize_course_run(run)
-            # Force execution of lazy function.
-            serialized['availability'] = serialized['availability'].strip()
-            self.assertIn(serialized, response_data['objects']['results'])
-
-        self.assert_response_includes_availability_facets(response_data)
-
-        # Verify the results can be filtered based on availability
-        url = '{path}?page=1&selected_query_facets={facet}'.format(
-            path=self.faceted_path, facet='availability_archived'
-        )
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        response_data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(response_data['objects']['results'], [self.serialize_course_run(archived)])
+        return course_run, response_data
 
     def assert_response_includes_availability_facets(self, response_data):
         """ Verifies the query facet counts/URLs are properly rendered. """
@@ -230,13 +80,119 @@ class CourseRunSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
         }
         self.assertDictContainsSubset(expected, response_data['queries'])
 
-    def test_exclude_deleted_program_types(self):
-        """ Verify the deleted programs do not show in the program_types representation. """
-        self._test_exclude_program_types(ProgramStatus.Deleted)
+    @ddt.data(faceted_path, list_path, detailed_path)
+    def test_authentication(self, path):
+        """ Verify the endpoint requires authentication. """
+        self.client.logout()
+        response = self.get_response(path=path)
+        assert response.status_code == 403
 
-    def test_exclude_unpublished_program_types(self):
-        """ Verify the unpublished programs do not show in the program_types representation. """
-        self._test_exclude_program_types(ProgramStatus.Unpublished)
+    @ddt.data(
+        (list_path, serializers.CourseRunSearchSerializer,),
+        (detailed_path, serializers.CourseRunSearchModelSerializer,),
+    )
+    @ddt.unpack
+    def test_search(self, path, serializer):
+        """ Verify the view returns search results. """
+        self.assert_successful_search(path=path, serializer=serializer)
+
+    def test_faceted_search(self):
+        """ Verify the view returns results and facets. """
+        course_run, response_data = self.assert_successful_search(path=self.faceted_path)
+
+        # Validate the pacing facet
+        expected = {
+            'text': course_run.pacing_type,
+            'count': 1,
+        }
+        self.assertDictContainsSubset(expected, response_data['fields']['pacing_type'][0])
+
+    def test_invalid_query_facet(self):
+        """ Verify the endpoint returns HTTP 400 if an invalid facet is requested. """
+        facet = 'not-a-facet'
+        url = '{path}?selected_query_facets={facet}'.format(path=self.faceted_path, facet=facet)
+
+        response = self.client.get(url)
+        assert response.status_code == 400
+
+        response_data = response.json()
+        expected = {'detail': 'The selected query facet [{facet}] is not valid.'.format(facet=facet)}
+        assert response_data == expected
+
+    def test_availability_faceting(self):
+        """ Verify the endpoint returns availability facets with the results. """
+        now = datetime.datetime.now(pytz.UTC)
+        archived = CourseRunFactory(course__partner=self.partner, start=now - datetime.timedelta(weeks=2),
+                                    end=now - datetime.timedelta(weeks=1), status=CourseRunStatus.Published)
+        current = CourseRunFactory(course__partner=self.partner, start=now - datetime.timedelta(weeks=2),
+                                   end=now + datetime.timedelta(weeks=1), status=CourseRunStatus.Published)
+        starting_soon = CourseRunFactory(course__partner=self.partner, start=now + datetime.timedelta(days=10),
+                                         end=now + datetime.timedelta(days=90), status=CourseRunStatus.Published)
+        upcoming = CourseRunFactory(course__partner=self.partner, start=now + datetime.timedelta(days=61),
+                                    end=now + datetime.timedelta(days=90), status=CourseRunStatus.Published)
+
+        response = self.get_response(path=self.faceted_path)
+        assert response.status_code == 200
+        response_data = response.json()
+
+        # Verify all course runs are returned
+        assert response_data['objects']['count'] == 4
+
+        for run in [archived, current, starting_soon, upcoming]:
+            serialized = self.serialize_course_run_search(run)
+            # Force execution of lazy function.
+            serialized['availability'] = serialized['availability'].strip()
+            assert serialized in response_data['objects']['results']
+
+        self.assert_response_includes_availability_facets(response_data)
+
+        # Verify the results can be filtered based on availability
+        url = '{path}?page=1&selected_query_facets={facet}'.format(
+            path=self.faceted_path, facet='availability_archived'
+        )
+        response = self.client.get(url)
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data['objects']['results'] == [self.serialize_course_run_search(archived)]
+
+    @ddt.data(
+        (list_path, serializers.CourseRunSearchSerializer,
+         ['results', 0, 'program_types', 0], ProgramStatus.Deleted, 6),
+        (list_path, serializers.CourseRunSearchSerializer,
+         ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 6),
+        (detailed_path, serializers.CourseRunSearchModelSerializer,
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 35),
+        (detailed_path, serializers.CourseRunSearchModelSerializer,
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 36),
+    )
+    @ddt.unpack
+    def test_exclude_unavailable_program_types(self, path, serializer, result_location_keys, program_status,
+                                               expected_queries):
+        """ Verify that unavailable programs do not show in the program_types representation. """
+        course_run = CourseRunFactory(course__partner=self.partner, course__title='Software Testing',
+                                      status=CourseRunStatus.Published)
+        active_program = ProgramFactory(courses=[course_run.course], status=ProgramStatus.Active)
+        ProgramFactory(courses=[course_run.course], status=program_status)
+        self.reindex_courses(active_program)
+
+        with self.assertNumQueries(expected_queries):
+            response = self.get_response('software', path=path)
+            assert response.status_code == 200
+            response_data = response.json()
+
+            # Validate the search results
+            expected = {
+                'count': 1,
+                'results': [
+                    self.serialize_course_run_search(course_run, serializer=serializer)
+                ]
+            }
+            self.assertDictContainsSubset(expected, response_data)
+
+            # Check that the program is indeed the active one.
+            for key in result_location_keys:
+                response_data = response_data[key]
+            assert response_data == active_program.type.name
 
     @ddt.data(
         [{'title': 'Software Testing', 'excluded': True}],
@@ -268,49 +224,25 @@ class CourseRunSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
         self.reindex_courses(program)
 
         with self.assertNumQueries(5):
-            response = self.get_response('software', faceted=False)
+            response = self.get_response('software', path=self.list_path)
 
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         response_data = response.json()
 
-        self.assertEqual(response_data['count'], len(course_run_list))
+        assert response_data['count'] == len(course_run_list)
         for result in response_data['results']:
             for course_run in excluded_course_run_list:
                 if result.get('title') == course_run.title:
-                    self.assertEqual(result.get('program_types'), [])
+                    assert result.get('program_types') == []
 
             for course_run in non_excluded_course_run_list:
                 if result.get('title') == course_run.title:
-                    self.assertEqual(result.get('program_types'), course_run.program_types)
-
-    def _test_exclude_program_types(self, program_status):
-        """ Verify that programs with the provided type do not show in the program_types representation. """
-        course_run = CourseRunFactory(course__partner=self.partner, course__title='Software Testing',
-                                      status=CourseRunStatus.Published)
-        active_program = ProgramFactory(courses=[course_run.course], status=ProgramStatus.Active)
-        ProgramFactory(courses=[course_run.course], status=program_status)
-        self.reindex_courses(active_program)
-
-        with self.assertNumQueries(6):
-            response = self.get_response('software', faceted=False)
-
-            self.assertEqual(response.status_code, 200)
-            response_data = json.loads(response.content.decode('utf-8'))
-
-            # Validate the search results
-            expected = {
-                'count': 1,
-                'results': [
-                    self.serialize_course_run(course_run)
-                ]
-            }
-            self.assertDictContainsSubset(expected, response_data)
-            self.assertEqual(response_data['results'][0].get('program_types'), [active_program.type.name])
+                    assert result.get('program_types') == course_run.program_types
 
 
 @ddt.ddt
-class AggregateSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchTestMixin,
-                                  SynonymTestMixin, APITestCase):
+class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, ElasticsearchTestMixin,
+                                  mixins.SynonymTestMixin, mixins.APITestCase):
     path = reverse('api:v1:search-all-facets')
 
     def get_response(self, query=None):
@@ -338,26 +270,21 @@ class AggregateSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
         program = ProgramFactory(partner=self.partner, status=ProgramStatus.Active)
 
         response = self.get_response()
-        self.assertEqual(response.status_code, 200)
-        response_data = json.loads(response.content.decode('utf-8'))
-        self.assertListEqual(
-            response_data['objects']['results'],
-            [self.serialize_program(program), self.serialize_course_run(course_run)]
-        )
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data['objects']['results'] == \
+            [self.serialize_program_search(program), self.serialize_course_run_search(course_run)]
 
     def test_hidden_runs_excluded(self):
         """Search results should not include hidden runs."""
         visible_run = CourseRunFactory(course__partner=self.partner)
         hidden_run = CourseRunFactory(course__partner=self.partner, hidden=True)
 
-        self.assertEqual(CourseRun.objects.get(hidden=True), hidden_run)
+        assert CourseRun.objects.get(hidden=True) == hidden_run
 
         response = self.get_response()
-        data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(
-            data['objects']['results'],
-            [self.serialize_course_run(visible_run)]
-        )
+        data = response.json()
+        assert data['objects']['results'] == [self.serialize_course_run_search(visible_run)]
 
     def test_results_filtered_by_default_partner(self):
         """ Verify the search results only include items related to the default partner if no partner is
@@ -369,23 +296,21 @@ class AggregateSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
         other_partner = PartnerFactory()
         other_course_run = CourseRunFactory(course__partner=other_partner, status=CourseRunStatus.Published)
         other_program = ProgramFactory(partner=other_partner, status=ProgramStatus.Active)
-        self.assertNotEqual(other_program.partner.short_code, self.partner.short_code)
-        self.assertNotEqual(other_course_run.course.partner.short_code, self.partner.short_code)
+        assert other_program.partner.short_code != self.partner.short_code
+        assert other_course_run.course.partner.short_code != self.partner.short_code
 
         response = self.get_response()
-        self.assertEqual(response.status_code, 200)
-        response_data = json.loads(response.content.decode('utf-8'))
-        self.assertListEqual(
-            response_data['objects']['results'],
-            [self.serialize_program(program), self.serialize_course_run(course_run)]
-        )
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data['objects']['results'] == \
+            [self.serialize_program_search(program), self.serialize_course_run_search(course_run)]
 
         # Filter results by partner
         response = self.get_response({'partner': other_partner.short_code})
-        self.assertEqual(response.status_code, 200)
-        response_data = json.loads(response.content.decode('utf-8'))
-        self.assertListEqual(response_data['objects']['results'],
-                             [self.serialize_program(other_program), self.serialize_course_run(other_course_run)])
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data['objects']['results'] == \
+            [self.serialize_program_search(other_program), self.serialize_course_run_search(other_course_run)]
 
     def test_empty_query(self):
         """ Verify, when the query (q) parameter is empty, the endpoint behaves as if the parameter
@@ -394,10 +319,10 @@ class AggregateSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
         program = ProgramFactory(partner=self.partner, status=ProgramStatus.Active)
 
         response = self.get_response({'q': '', 'content_type': ['courserun', 'program']})
-        self.assertEqual(response.status_code, 200)
-        response_data = json.loads(response.content.decode('utf-8'))
-        self.assertListEqual(response_data['objects']['results'],
-                             [self.serialize_program(program), self.serialize_course_run(course_run)])
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data['objects']['results'] == \
+            [self.serialize_program_search(program), self.serialize_course_run_search(course_run)]
 
     @ddt.data('start', '-start')
     def test_results_ordered_by_start_date(self, ordering):
@@ -410,12 +335,12 @@ class AggregateSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
         course_run_keys = [course_run.key for course_run in [archived, current, starting_soon, upcoming]]
 
         response = self.get_response({"ordering": ordering})
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data['objects']['count'], 4)
+        assert response.status_code == 200
+        assert response.data['objects']['count'] == 4
 
         course_runs = CourseRun.objects.filter(key__in=course_run_keys).order_by(ordering)
-        expected = [self.serialize_course_run(course_run) for course_run in course_runs]
-        self.assertEqual(response.data['objects']['results'], expected)
+        expected = [self.serialize_course_run_search(course_run) for course_run in course_runs]
+        assert response.data['objects']['results'] == expected
 
     def test_results_include_aggregation_key(self):
         """ Verify the search results only include the aggregation_key for each document. """
@@ -424,7 +349,7 @@ class AggregateSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
 
         response = self.get_response()
         assert response.status_code == 200
-        response_data = json.loads(response.content.decode('utf-8'))
+        response_data = response.json()
 
         expected = sorted(
             ['courserun:{}'.format(course_run.course.key), 'program:{}'.format(program.uuid)]
@@ -435,8 +360,8 @@ class AggregateSearchViewSetTests(SerializationMixin, LoginMixin, ElasticsearchT
         assert expected == actual
 
 
-class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, ElasticsearchTestMixin,
-                               SynonymTestMixin, APITestCase):
+class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginMixin, ElasticsearchTestMixin,
+                               mixins.SynonymTestMixin, mixins.APITestCase):
     path = reverse('api:v1:search-typeahead')
 
     def get_response(self, query=None, partner=None):
@@ -460,8 +385,8 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, Elastics
         response = self.get_response({'q': title})
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
-        self.assertDictEqual(response_data, {'course_runs': [self.serialize_course_run(course_run)],
-                                             'programs': [self.serialize_program(program)]})
+        self.assertDictEqual(response_data, {'course_runs': [self.serialize_course_run_search(course_run)],
+                                             'programs': [self.serialize_program_search(program)]})
 
     def test_typeahead_multiple_results(self):
         """ Verify the typeahead responses always returns a limited number of results, even if there are more hits. """
@@ -512,8 +437,8 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, Elastics
         response = self.get_response({'q': title})
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
-        self.assertDictEqual(response_data, {'course_runs': [self.serialize_course_run(course_run)],
-                                             'programs': [self.serialize_program(program)]})
+        self.assertDictEqual(response_data, {'course_runs': [self.serialize_course_run_search(course_run)],
+                                             'programs': [self.serialize_program_search(program)]})
 
     def test_partial_term_search(self):
         """ Test typeahead response with partial term search. """
@@ -525,8 +450,8 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, Elastics
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
         expected_response_data = {
-            'course_runs': [self.serialize_course_run(course_run)],
-            'programs': [self.serialize_program(program)]
+            'course_runs': [self.serialize_course_run_search(course_run)],
+            'programs': [self.serialize_program_search(program)]
         }
         self.assertDictEqual(response_data, expected_response_data)
 
@@ -544,8 +469,8 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, Elastics
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
         expected_response_data = {
-            'course_runs': [self.serialize_course_run(course_run)],
-            'programs': [self.serialize_program(program)]
+            'course_runs': [self.serialize_course_run_search(course_run)],
+            'programs': [self.serialize_program_search(program)]
         }
         self.assertDictEqual(response_data, expected_response_data)
 
@@ -559,7 +484,7 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, Elastics
         response_data = response.json()
         expected_response_data = {
             'course_runs': [],
-            'programs': [self.serialize_program(program)]
+            'programs': [self.serialize_program_search(program)]
         }
         self.assertDictEqual(response_data, expected_response_data)
 
@@ -579,8 +504,8 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, Elastics
         response = self.get_response({'q': partial_key})
         self.assertEqual(response.status_code, 200)
         expected = {
-            'course_runs': [self.serialize_course_run(course_run)],
-            'programs': [self.serialize_program(program)]
+            'course_runs': [self.serialize_course_run_search(course_run)],
+            'programs': [self.serialize_program_search(program)]
         }
         self.assertDictEqual(response.data, expected)
 
@@ -611,9 +536,9 @@ class TypeaheadSearchViewTests(TypeaheadSerializationMixin, LoginMixin, Elastics
         response = self.get_response({'q': 'mit'})
         self.assertEqual(response.status_code, 200)
         expected = {
-            'course_runs': [self.serialize_course_run(mit_run),
-                            self.serialize_course_run(harvard_run)],
-            'programs': [self.serialize_program(mit_program),
-                         self.serialize_program(harvard_program)]
+            'course_runs': [self.serialize_course_run_search(mit_run),
+                            self.serialize_course_run_search(harvard_run)],
+            'programs': [self.serialize_program_search(mit_program),
+                         self.serialize_program_search(harvard_program)]
         }
         self.assertDictEqual(response.data, expected)

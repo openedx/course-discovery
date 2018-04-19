@@ -1,4 +1,5 @@
 from course_discovery.settings.devstack import *
+
 # noinspection PyUnresolvedReferences
 from course_discovery.settings.shared.test import *     # isort:skip
 

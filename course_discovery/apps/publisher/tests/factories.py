@@ -12,9 +12,10 @@ from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import PublisherUserRole
-from course_discovery.apps.publisher.models import (Course, CourseEntitlement, CourseRun, CourseRunState, CourseState,
-                                                    CourseUserRole, OrganizationExtension, OrganizationUserRole, Seat,
-                                                    UserAttributes)
+from course_discovery.apps.publisher.models import (
+    Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension,
+    OrganizationUserRole, Seat, UserAttributes
+)
 
 
 class CourseFactory(factory.DjangoModelFactory):

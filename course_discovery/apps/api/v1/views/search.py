@@ -11,12 +11,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from course_discovery.apps.api import filters, serializers
+from course_discovery.apps.api import filters, mixins, serializers
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 
 
-class BaseHaystackViewSet(FacetMixin, HaystackViewSet):
+class BaseHaystackViewSet(mixins.DetailMixin, FacetMixin, HaystackViewSet):
     document_uid_field = 'key'
     facet_filter_backends = [filters.HaystackFacetFilterWithQueries, filters.HaystackFilter, OrderingFilter]
     ordering_fields = ('start',)
@@ -93,27 +93,31 @@ class BaseHaystackViewSet(FacetMixin, HaystackViewSet):
 
 
 class CourseSearchViewSet(BaseHaystackViewSet):
-    facet_serializer_class = serializers.CourseFacetSerializer
     index_models = (Course,)
+    detail_serializer_class = serializers.CourseSearchModelSerializer
+    facet_serializer_class = serializers.CourseFacetSerializer
     serializer_class = serializers.CourseSearchSerializer
 
 
 class CourseRunSearchViewSet(BaseHaystackViewSet):
-    facet_serializer_class = serializers.CourseRunFacetSerializer
     index_models = (CourseRun,)
+    detail_serializer_class = serializers.CourseRunSearchModelSerializer
+    facet_serializer_class = serializers.CourseRunFacetSerializer
     serializer_class = serializers.CourseRunSearchSerializer
 
 
 class ProgramSearchViewSet(BaseHaystackViewSet):
     document_uid_field = 'uuid'
     lookup_field = 'uuid'
-    facet_serializer_class = serializers.ProgramFacetSerializer
     index_models = (Program,)
+    detail_serializer_class = serializers.ProgramSearchModelSerializer
+    facet_serializer_class = serializers.ProgramFacetSerializer
     serializer_class = serializers.ProgramSearchSerializer
 
 
 class AggregateSearchViewSet(BaseHaystackViewSet):
     """ Search all content types. """
+    detail_serializer_class = serializers.AggregateSearchModelSerializer
     facet_serializer_class = serializers.AggregateFacetSearchSerializer
     serializer_class = serializers.AggregateSearchSerializer
 

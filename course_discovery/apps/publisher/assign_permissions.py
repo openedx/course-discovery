@@ -1,9 +1,10 @@
 from django.contrib.auth.models import Group
 from guardian.shortcuts import assign_perm
 
-from course_discovery.apps.publisher.constants import (GENERAL_STAFF_GROUP_NAME, LEGAL_TEAM_GROUP_NAME,
-                                                       PARTNER_SUPPORT_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME,
-                                                       REVIEWER_GROUP_NAME)
+from course_discovery.apps.publisher.constants import (
+    GENERAL_STAFF_GROUP_NAME, LEGAL_TEAM_GROUP_NAME, PARTNER_SUPPORT_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME,
+    REVIEWER_GROUP_NAME
+)
 from course_discovery.apps.publisher.models import OrganizationExtension
 
 

@@ -8,12 +8,7 @@ from django.utils.text import slugify
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.exceptions import (
-    AliasCreateError,
-    AliasDeleteError,
-    FormRetrievalError,
-    NodeCreateError,
-    NodeDeleteError,
-    NodeEditError,
+    AliasCreateError, AliasDeleteError, FormRetrievalError, NodeCreateError, NodeDeleteError, NodeEditError,
     NodeLookupError
 )
 from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient

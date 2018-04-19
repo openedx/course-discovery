@@ -13,9 +13,10 @@ from rest_framework import serializers
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.choices import PublisherUserRole
-from course_discovery.apps.publisher.emails import (send_change_role_assignment_email,
-                                                    send_email_for_studio_instance_created, send_email_preview_accepted,
-                                                    send_email_preview_page_is_available)
+from course_discovery.apps.publisher.emails import (
+    send_change_role_assignment_email, send_email_for_studio_instance_created, send_email_preview_accepted,
+    send_email_preview_page_is_available
+)
 from course_discovery.apps.publisher.models import CourseRun, CourseRunState, CourseState, CourseUserRole
 
 

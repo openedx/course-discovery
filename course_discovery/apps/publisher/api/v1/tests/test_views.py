@@ -18,8 +18,9 @@ from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
 from course_discovery.apps.course_metadata.models import CourseRun, SeatType, Video
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.api.utils import (serialize_entitlement_for_ecommerce_api,
-                                                       serialize_seat_for_ecommerce_api)
+from course_discovery.apps.publisher.api.utils import (
+    serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api
+)
 from course_discovery.apps.publisher.api.v1.views import CourseRunViewSet
 from course_discovery.apps.publisher.models import CourseEntitlement, Seat
 from course_discovery.apps.publisher.tests.factories import CourseEntitlementFactory, CourseRunFactory, SeatFactory

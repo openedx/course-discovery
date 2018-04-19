@@ -7,18 +7,11 @@ import responses
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.exceptions import (
-    AliasCreateError,
-    AliasDeleteError,
-    FormRetrievalError,
-    NodeCreateError,
-    NodeDeleteError,
-    NodeEditError,
+    AliasCreateError, AliasDeleteError, FormRetrievalError, NodeCreateError, NodeDeleteError, NodeEditError,
     NodeLookupError
 )
 from course_discovery.apps.course_metadata.publishers import (
-    BaseMarketingSitePublisher,
-    CourseRunMarketingSitePublisher,
-    ProgramMarketingSitePublisher
+    BaseMarketingSitePublisher, CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory
