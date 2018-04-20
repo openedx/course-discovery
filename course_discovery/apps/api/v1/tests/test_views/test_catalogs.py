@@ -129,10 +129,11 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         data = {
             'name': 'Test Catalog',
             'query': '*:*',
-            'viewers': str(viewers),
+            'viewers': ','.join(viewers)
         }
 
-        response = self.client.post(self.catalog_list_url, data, format='json')
+        # NOTE: We explicitly avoid using the JSON data type so that we properly test string parsing.
+        response = self.client.post(self.catalog_list_url, data)
         self.assertEqual(response.status_code, 201)
 
         catalog = Catalog.objects.latest()
@@ -144,10 +145,10 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         """ Verify no users are created if an error occurs while processing a create request. """
         # The missing name and query fields should trigger an error
         data = {
-            'viewers': str(['new-guy'])
+            'viewers': ['new-guy']
         }
         original_user_count = User.objects.count()
-        response = self.client.post(self.catalog_list_url, data, format='json')
+        response = self.client.post(self.catalog_list_url, data)
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(User.objects.count(), original_user_count)
