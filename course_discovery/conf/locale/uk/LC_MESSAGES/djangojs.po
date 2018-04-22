@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-15 20:13+0000\n"
+"POT-Creation-Date: 2018-04-18 11:01+0000\n"
 "PO-Revision-Date: 2018-01-26 11:56+0000\n"
 "Last-Translator: Dmytro Halko <dgalko@edpro.com.ua>\n"
 "Language-Team: Ukrainian (http://www.transifex.com/open-edx/edx-platform/language/uk/)\n"
@@ -21,88 +21,88 @@ msgstr ""
 "Language: uk\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: static/js/catalogs-change-form.js
+#: static/js/catalogs-change-form.js:17
 msgid "Preview"
 msgstr "Попередній перегляд"
 
-#: static/js/publisher/change-state.js
+#: static/js/publisher/change-state.js:15
 msgid "Something went wrong! please try again later."
 msgstr ""
 
-#: static/js/publisher/comparing-objects.js
+#: static/js/publisher/comparing-objects.js:7
 msgid "Hide changes"
 msgstr "Сховати зміни"
 
-#: static/js/publisher/comparing-objects.js
+#: static/js/publisher/comparing-objects.js:12
 msgid "Show changes"
 msgstr "Показати зміни"
 
-#: static/js/publisher/image-validation.js
+#: static/js/publisher/image-validation.js:9
 msgid "The image file size cannot exceed 1 MB."
 msgstr ""
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:28
 msgid "New Instructor"
 msgstr "Новий викладач"
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:30
 msgid "Add staff member"
 msgstr "Додати члена персоналу"
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:41
 msgid "Please upload a instructor image."
 msgstr ""
 
-#: static/js/publisher/instructors.js static/js/publisher/preview-url.js
+#: static/js/publisher/instructors.js:96 static/js/publisher/preview-url.js:12
 msgid "Something went wrong!"
 msgstr ""
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:129
 msgid "The image size must be smaller than 256kb"
 msgstr ""
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:139
 msgid "The image dimensions must be less than 110 x 110"
 msgstr ""
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:151
 msgid " Unsupported Image extension"
 msgstr ""
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:269
 msgid "Update staff member"
 msgstr ""
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:270
 msgid "Update Instructor"
 msgstr ""
 
-#: static/js/publisher/preview-url.js
+#: static/js/publisher/preview-url.js:25
 msgid "Save"
 msgstr "Зберегти"
 
-#: static/js/publisher/preview-url.js
+#: static/js/publisher/preview-url.js:57
 msgid "Please enter a valid URL."
 msgstr ""
 
-#: static/js/publisher/views/courserun_list.js
+#: static/js/publisher/views/courserun_list.js:22
 msgid ""
 "You have successfully created a Studio URL ({studioLinkTag}) for "
 "{courseRunDetail} with a start date of {startDate}"
 msgstr ""
 
-#: static/js/publisher/views/courserun_list.js
+#: static/js/publisher/views/courserun_list.js:52
 msgid "There was an error in saving your data."
 msgstr ""
 
-#: static/js/publisher/views/courses.js
+#: static/js/publisher/views/courses.js:83
 msgid "No courses have been created."
 msgstr ""
 
-#: static/js/publisher/views/navbar.js
+#: static/js/publisher/views/navbar.js:33
 msgid "OFF"
 msgstr ""
 
-#: static/js/publisher/views/navbar.js
+#: static/js/publisher/views/navbar.js:42
 msgid "ON"
 msgstr ""
