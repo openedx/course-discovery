@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-15 20:13+0000\n"
+"POT-Creation-Date: 2018-04-18 11:01+0000\n"
 "PO-Revision-Date: 2018-03-08 04:28+0000\n"
 "Last-Translator: Toshiboumi Ohta <ohta@securesky-tech.com>\n"
 "Language-Team: Japanese (Japan) (http://www.transifex.com/open-edx/edx-platform/language/ja_JP/)\n"
@@ -21,88 +21,88 @@ msgstr ""
 "Language: ja_JP\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: static/js/catalogs-change-form.js
+#: static/js/catalogs-change-form.js:17
 msgid "Preview"
 msgstr "プレビュー"
 
-#: static/js/publisher/change-state.js
+#: static/js/publisher/change-state.js:15
 msgid "Something went wrong! please try again later."
 msgstr "問題が発生しました！後ほど再試行してください。"
 
-#: static/js/publisher/comparing-objects.js
+#: static/js/publisher/comparing-objects.js:7
 msgid "Hide changes"
 msgstr "変更を非表示"
 
-#: static/js/publisher/comparing-objects.js
+#: static/js/publisher/comparing-objects.js:12
 msgid "Show changes"
 msgstr "変更を表示"
 
-#: static/js/publisher/image-validation.js
+#: static/js/publisher/image-validation.js:9
 msgid "The image file size cannot exceed 1 MB."
 msgstr "画像ファイルサイズは1MBを超えてはいけません。"
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:28
 msgid "New Instructor"
 msgstr "新しい講師"
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:30
 msgid "Add staff member"
 msgstr "スタッフを追加"
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:41
 msgid "Please upload a instructor image."
 msgstr ""
 
-#: static/js/publisher/instructors.js static/js/publisher/preview-url.js
+#: static/js/publisher/instructors.js:96 static/js/publisher/preview-url.js:12
 msgid "Something went wrong!"
 msgstr "問題が発生しました！"
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:129
 msgid "The image size must be smaller than 256kb"
 msgstr ""
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:139
 msgid "The image dimensions must be less than 110 x 110"
 msgstr ""
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:151
 msgid " Unsupported Image extension"
 msgstr ""
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:269
 msgid "Update staff member"
 msgstr "スタッフをアップデート"
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:270
 msgid "Update Instructor"
 msgstr "講師をアップデート"
 
-#: static/js/publisher/preview-url.js
+#: static/js/publisher/preview-url.js:25
 msgid "Save"
 msgstr "保存"
 
-#: static/js/publisher/preview-url.js
+#: static/js/publisher/preview-url.js:57
 msgid "Please enter a valid URL."
 msgstr "正しいURLを入力してください。"
 
-#: static/js/publisher/views/courserun_list.js
+#: static/js/publisher/views/courserun_list.js:22
 msgid ""
 "You have successfully created a Studio URL ({studioLinkTag}) for "
 "{courseRunDetail} with a start date of {startDate}"
 msgstr "{startDate} 開始の{courseRunDetail} のStudio URL ({studioLinkTag}) が作成されました"
 
-#: static/js/publisher/views/courserun_list.js
+#: static/js/publisher/views/courserun_list.js:52
 msgid "There was an error in saving your data."
 msgstr "データ保存の際、エラーが発生しました。"
 
-#: static/js/publisher/views/courses.js
+#: static/js/publisher/views/courses.js:83
 msgid "No courses have been created."
 msgstr "コースが作成されていません。"
 
-#: static/js/publisher/views/navbar.js
+#: static/js/publisher/views/navbar.js:33
 msgid "OFF"
 msgstr "オフ"
 
-#: static/js/publisher/views/navbar.js
+#: static/js/publisher/views/navbar.js:42
 msgid "ON"
 msgstr "オン"

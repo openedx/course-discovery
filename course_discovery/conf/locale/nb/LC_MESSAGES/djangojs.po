@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-15 20:13+0000\n"
+"POT-Creation-Date: 2018-04-18 11:01+0000\n"
 "PO-Revision-Date: 2017-11-02 21:35+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Norwegian Bokmål (http://www.transifex.com/open-edx/edx-platform/language/nb/)\n"
@@ -19,88 +19,88 @@ msgstr ""
 "Language: nb\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: static/js/catalogs-change-form.js
+#: static/js/catalogs-change-form.js:17
 msgid "Preview"
 msgstr "Forhåndsvis"
 
-#: static/js/publisher/change-state.js
+#: static/js/publisher/change-state.js:15
 msgid "Something went wrong! please try again later."
 msgstr "Noe gikk feil! vennligst forsøk igjen senere."
 
-#: static/js/publisher/comparing-objects.js
+#: static/js/publisher/comparing-objects.js:7
 msgid "Hide changes"
 msgstr "Skjul endringer"
 
-#: static/js/publisher/comparing-objects.js
+#: static/js/publisher/comparing-objects.js:12
 msgid "Show changes"
 msgstr "Vis endringer"
 
-#: static/js/publisher/image-validation.js
+#: static/js/publisher/image-validation.js:9
 msgid "The image file size cannot exceed 1 MB."
 msgstr "Bildets filstørrelse kan ikke overskride 1 MB."
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:28
 msgid "New Instructor"
 msgstr "Ny kursansvarlig"
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:30
 msgid "Add staff member"
 msgstr "Legg til kursstab"
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:41
 msgid "Please upload a instructor image."
 msgstr ""
 
-#: static/js/publisher/instructors.js static/js/publisher/preview-url.js
+#: static/js/publisher/instructors.js:96 static/js/publisher/preview-url.js:12
 msgid "Something went wrong!"
 msgstr "Noe gikk feil!"
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:129
 msgid "The image size must be smaller than 256kb"
 msgstr ""
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:139
 msgid "The image dimensions must be less than 110 x 110"
 msgstr ""
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:151
 msgid " Unsupported Image extension"
 msgstr ""
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:269
 msgid "Update staff member"
 msgstr "Oppdater personell"
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:270
 msgid "Update Instructor"
 msgstr "Oppdater instruktør"
 
-#: static/js/publisher/preview-url.js
+#: static/js/publisher/preview-url.js:25
 msgid "Save"
 msgstr "Lagre"
 
-#: static/js/publisher/preview-url.js
+#: static/js/publisher/preview-url.js:57
 msgid "Please enter a valid URL."
 msgstr "Vennligst legg til en gyldig URL."
 
-#: static/js/publisher/views/courserun_list.js
+#: static/js/publisher/views/courserun_list.js:22
 msgid ""
 "You have successfully created a Studio URL ({studioLinkTag}) for "
 "{courseRunDetail} with a start date of {startDate}"
 msgstr ""
 
-#: static/js/publisher/views/courserun_list.js
+#: static/js/publisher/views/courserun_list.js:52
 msgid "There was an error in saving your data."
 msgstr "Det oppstod en feil ved forsøk på å lagre dine data."
 
-#: static/js/publisher/views/courses.js
+#: static/js/publisher/views/courses.js:83
 msgid "No courses have been created."
 msgstr "Ingen kurs er opprettet."
 
-#: static/js/publisher/views/navbar.js
+#: static/js/publisher/views/navbar.js:33
 msgid "OFF"
 msgstr "AV"
 
-#: static/js/publisher/views/navbar.js
+#: static/js/publisher/views/navbar.js:42
 msgid "ON"
 msgstr "PÅ"

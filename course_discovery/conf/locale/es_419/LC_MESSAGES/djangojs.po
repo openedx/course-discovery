@@ -16,7 +16,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-15 20:13+0000\n"
+"POT-Creation-Date: 2018-04-18 11:01+0000\n"
 "PO-Revision-Date: 2018-02-16 22:21+0000\n"
 "Last-Translator: Juan Camilo Montoya Franco <juan.montoya@edunext.co>\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
@@ -26,88 +26,88 @@ msgstr ""
 "Language: es_419\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: static/js/catalogs-change-form.js
+#: static/js/catalogs-change-form.js:17
 msgid "Preview"
 msgstr "Vista previa"
 
-#: static/js/publisher/change-state.js
+#: static/js/publisher/change-state.js:15
 msgid "Something went wrong! please try again later."
 msgstr "Algo falló! Por favor reintente más tarde."
 
-#: static/js/publisher/comparing-objects.js
+#: static/js/publisher/comparing-objects.js:7
 msgid "Hide changes"
 msgstr "Ocultar cambios"
 
-#: static/js/publisher/comparing-objects.js
+#: static/js/publisher/comparing-objects.js:12
 msgid "Show changes"
 msgstr "Mostrar cambios"
 
-#: static/js/publisher/image-validation.js
+#: static/js/publisher/image-validation.js:9
 msgid "The image file size cannot exceed 1 MB."
 msgstr "El tamaño del archivo de imagen no puede ser más de 1 MB."
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:28
 msgid "New Instructor"
 msgstr "Nuevo instructor"
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:30
 msgid "Add staff member"
 msgstr "Agregar miembro del equipo del curso"
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:41
 msgid "Please upload a instructor image."
 msgstr "Por favor cargue una imagen del instructor"
 
-#: static/js/publisher/instructors.js static/js/publisher/preview-url.js
+#: static/js/publisher/instructors.js:96 static/js/publisher/preview-url.js:12
 msgid "Something went wrong!"
 msgstr "Algo falló!"
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:129
 msgid "The image size must be smaller than 256kb"
 msgstr "El tamaño de la imagen debe ser inferior a 256 kb"
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:139
 msgid "The image dimensions must be less than 110 x 110"
 msgstr "Las dimensiones de la imagen deben ser inferiores a 110 x 110"
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:151
 msgid " Unsupported Image extension"
 msgstr "Extensión de imagen no admitida"
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:269
 msgid "Update staff member"
 msgstr "Actualizar miembro del equipo"
 
-#: static/js/publisher/instructors.js
+#: static/js/publisher/instructors.js:270
 msgid "Update Instructor"
 msgstr "Actualizar Instructor"
 
-#: static/js/publisher/preview-url.js
+#: static/js/publisher/preview-url.js:25
 msgid "Save"
 msgstr "Guardar"
 
-#: static/js/publisher/preview-url.js
+#: static/js/publisher/preview-url.js:57
 msgid "Please enter a valid URL."
 msgstr "Por favor, ingrese una URL válida."
 
-#: static/js/publisher/views/courserun_list.js
+#: static/js/publisher/views/courserun_list.js:22
 msgid ""
 "You have successfully created a Studio URL ({studioLinkTag}) for "
 "{courseRunDetail} with a start date of {startDate}"
 msgstr "Ha creado exitosamente una dirección URL de Studio ({studioLinkTag}) para {courseRunDetail} con fecha de inicio {startDate}"
 
-#: static/js/publisher/views/courserun_list.js
+#: static/js/publisher/views/courserun_list.js:52
 msgid "There was an error in saving your data."
 msgstr "Ocurrió un error al guardar sus datos."
 
-#: static/js/publisher/views/courses.js
+#: static/js/publisher/views/courses.js:83
 msgid "No courses have been created."
 msgstr "No se han creado cursos."
 
-#: static/js/publisher/views/navbar.js
+#: static/js/publisher/views/navbar.js:33
 msgid "OFF"
 msgstr "OFF"
 
-#: static/js/publisher/views/navbar.js
+#: static/js/publisher/views/navbar.js:42
 msgid "ON"
 msgstr "ON"
