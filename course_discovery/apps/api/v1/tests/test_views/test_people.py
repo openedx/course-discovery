@@ -99,7 +99,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
                             (
                                 people_logger.name,
                                 'ERROR',
-                                'An error occurred while adding the person [{}]-[{}]-[{}].'.format(
+                                'An error occurred while adding the person [{}]-[{}]-[{}] in discovery.'.format(
                                     data['given_name'], data['family_name'], self.expected_node['id']
                                 )
                             )
@@ -178,11 +178,8 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
             }
         }
 
-    def test_update(self):
-        """Verify that people data can be updated using endpoint."""
-        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
-
-        data = {
+    def _update_person_data(self):
+        return {
             'given_name': "updated",
             'family_name': "name",
             'bio': "updated bio",
@@ -197,8 +194,64 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
             }
         }
 
-        response = self.client.patch(url, data, format='json')
-        self.assertEqual(response.status_code, 200)
+    def test_update_without_drupal_client_settings(self):
+        """ Verify that if credentials are missing api will return the error. """
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
+        self.partner.marketing_site_api_username = None
+        self.partner.save()
+        data = self._update_person_data()
+
+        with LogCapture(people_logger.name) as log_capture:
+            response = self.client.patch(url, data, format='json')
+            self.assertEqual(response.status_code, 400)
+            log_capture.check(
+                (
+                    people_logger.name,
+                    'ERROR',
+                    'An error occurred while updating the person [{}]-[{}] on the marketing site.'.format(
+                        data['given_name'], data['family_name']
+                    )
+                )
+            )
+
+    def test_update_with_api_exception(self):
+        """ Verify that if the serializer fails, error message is logged and update fails"""
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
+        data = self._update_person_data()
+        with mock.patch.object(MarketingSitePeople, 'update_person', return_value={}):
+            with mock.patch(
+                'course_discovery.apps.api.v1.views.people.PersonViewSet.perform_update',
+                side_effect=IntegrityError
+            ):
+                with LogCapture(people_logger.name) as log_capture:
+                    response = self.client.patch(url, self._update_person_data(), format='json')
+                    self.assertEqual(response.status_code, 400)
+                    log_capture.check(
+                        (
+                            people_logger.name,
+                            'ERROR',
+                            'An error occurred while updating the person [{}]-[{}] in discovery.'.format(
+                                data['given_name'], data['family_name']
+                            )
+                        )
+                    )
+
+    def test_update_without_waffle_switch(self):
+        """ Verify update endpoint shows error message if waffle switch is disabled. """
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
+        toggle_switch('publish_person_to_marketing_site', False)
+        response = self.client.patch(url, self._update_person_data(), format='json')
+        self.assertEqual(response.status_code, 400)
+
+    def test_update(self):
+        """Verify that people data can be updated using endpoint."""
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
+
+        data = self._update_person_data()
+
+        with mock.patch.object(MarketingSitePeople, 'update_person', return_value={}):
+            response = self.client.patch(url, data, format='json')
+            self.assertEqual(response.status_code, 200)
 
         updated_person = Person.objects.get(id=self.person.id)
 
