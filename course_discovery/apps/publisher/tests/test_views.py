@@ -3262,6 +3262,11 @@ class CourseEditViewTests(SiteMixin, TestCase):
         response = self.client.post(self.edit_page_url, data=post_data)
         self.assertEqual(response.status_code, 302)
 
+        # Verify that when start date is None it didn't raise server error
+        self.course.course_runs.update(start=None)
+        response = self.client.post(self.edit_page_url, data=post_data)
+        self.assertEqual(response.status_code, 302)
+
         # Failure case
         post_data = self._post_data(self.organization_extension)
         post_data['team_admin'] = self.course_team_role.user.id
