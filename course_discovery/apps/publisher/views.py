@@ -430,9 +430,10 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
         published_runs = set()
         for course_run in self._get_active_course_runs(course):
             if course_run.course_run_state.is_published:
+                start_date = course_run.start.strftime("%B %d, %Y") if course_run.start else None
                 published_runs.add('{type} - {start}'.format(
                     type=course_run.get_pacing_type_display(),
-                    start=course_run.start.strftime("%B %d, %Y")
+                    start=start_date
                 ))
         return published_runs
 
