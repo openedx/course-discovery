@@ -121,7 +121,7 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
             'course_runs': MinimalCourseRunSerializer(course.course_runs, many=True, context=context).data,
             'entitlements': [],
             'owners': MinimalOrganizationSerializer(course.authoring_organizations, many=True, context=context).data,
-            'image': ImageField().to_representation(course.image_url),
+            'image': ImageField().to_representation(course.card_image_url),
             'short_description': course.short_description
         }
 
@@ -235,7 +235,7 @@ class MinimalCourseRunSerializerTests(TestCase):
             'uuid': str(course_run.uuid),
             'title': course_run.title,
             'short_description': course_run.short_description,
-            'image': ImageField().to_representation(course_run.image_url),
+            'image': ImageField().to_representation(course_run.card_image_url),
             'marketing_url': '{url}?{params}'.format(
                 url=course_run.marketing_url,
                 params=urlencode({
@@ -1328,7 +1328,7 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
             'org': CourseKey.from_string(course_run.key).org,
             'number': CourseKey.from_string(course_run.key).course,
             'seat_types': course_run.seat_types,
-            'image_url': course_run.image_url,
+            'image_url': course_run.card_image_url,
             'type': course_run.type,
             'level_type': course_run.level_type.name,
             'availability': course_run.availability,
