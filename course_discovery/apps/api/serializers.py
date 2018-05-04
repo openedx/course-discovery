@@ -475,7 +475,7 @@ class NestedProgramSerializer(serializers.ModelSerializer):
 
 
 class MinimalCourseRunSerializer(TimestampModelSerializer):
-    image = ImageField(read_only=True, source='image_url')
+    image = ImageField(read_only=True, source='card_image_url')
     marketing_url = serializers.SerializerMethodField()
     seats = SeatSerializer(many=True)
 
