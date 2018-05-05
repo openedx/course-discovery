@@ -600,7 +600,7 @@ class CourseSerializer(MinimalCourseSerializer):
         fields = MinimalCourseSerializer.Meta.fields + (
             'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites', 'prerequisites_raw',
             'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url', 'syllabus_raw', 'outcome',
-            'original_image',
+            'original_image', 'card_image_url',
         )
 
     def get_marketing_url(self, obj):
@@ -1148,6 +1148,7 @@ class BaseHaystackFacetSerializer(HaystackFacetSerializer):
 
 
 class CourseSearchSerializer(HaystackSerializer):
+
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
         ignore_fields = COMMON_IGNORED_FIELDS
@@ -1157,6 +1158,7 @@ class CourseSearchSerializer(HaystackSerializer):
             'key',
             'short_description',
             'title',
+            'card_image_url'
         )
 
 
