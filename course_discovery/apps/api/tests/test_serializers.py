@@ -165,6 +165,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'syllabus_raw': course.syllabus_raw,
             'outcome': course.outcome,
             'original_image': ImageField().to_representation(course.original_image_url),
+            'card_image_url': course.card_image_url,
         })
 
         return expected
@@ -1266,6 +1267,7 @@ class CourseSearchSerializerTests(TestCase):
             'full_description': course.full_description,
             'content_type': 'course',
             'aggregation_key': 'course:{}'.format(course.key),
+            'card_image_url': course.card_image_url,
         }
 
 
