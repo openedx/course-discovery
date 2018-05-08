@@ -1158,7 +1158,7 @@ class CourseSearchSerializer(HaystackSerializer):
             'key',
             'short_description',
             'title',
-            'card_image_url'
+            'card_image_url',
         )
 
 
