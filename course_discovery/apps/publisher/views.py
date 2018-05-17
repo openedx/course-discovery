@@ -574,7 +574,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
                 })
             published_runs = self._get_published_course_runs(self.object)
             # Only check published runs if there are changes to the mode or price
-            if published_runs and (entitlement.mode != entitlement_mode or entitlement.price != entitlement_price):
+            if published_runs and entitlement.mode != entitlement_mode:
                 # pylint: disable=no-member
                 error_message = _(
                     'The following active course run(s) are published: {course_runs}. You cannot change the mode '

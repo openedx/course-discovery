@@ -14,6 +14,7 @@ from django.core import mail
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.forms import model_to_dict
+from django.http import Http404
 from django.test import TestCase
 from django.urls import reverse
 from guardian.shortcuts import assign_perm
@@ -177,6 +178,21 @@ class CreateCourseViewTests(SiteMixin, TestCase):
             response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=data['image'])
 
         self.assertEqual(response.status_code, 400)
+        self._assert_records(1)
+
+    def test_create_with_exception(self):
+        """
+        Verify that in case of any error transactions rollback and no object is created in db.
+        """
+        self._assert_records(1)
+        data = {'number': 'course_2', 'image': make_image_file('test_banner.jpg')}
+        course_dict = self._post_data(data, self.course)
+        with mock.patch.object(Course, "save") as mock_method:
+            mock_method.side_effect = Exception('test')
+            response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=data['image'])
+
+        self.assertEqual(response.status_code, 400)
+        self.assertRaises(Exception)
         self._assert_records(1)
 
     def test_create_form_with_single_organization(self):
@@ -3251,8 +3267,8 @@ class CourseEditViewTests(SiteMixin, TestCase):
 
     def test_entitlement_published_run(self):
         """
-        Verify that a course with a published course run cannot be saved with altered enrollment-track or price fields,
-        but can be saved without changing the enrollment-track or price fields.
+        Verify that a course with a published course run cannot be saved with altered enrollment-track,
+        but only price can be saved without changing the enrollment-track.
         """
         self.client.logout()
         self.client.login(username=self.course_team_role.user.username, password=USER_PASSWORD)
@@ -3273,11 +3289,11 @@ class CourseEditViewTests(SiteMixin, TestCase):
         factories.SeatFactory.create(course_run=course_run, type=Seat.VERIFIED, price=100)
         factories.SeatFactory(course_run=course_run, type=Seat.AUDIT, price=0)
 
-        # Success case
+        # Success case, price can be updated without changing enrollment track
         post_data = self._post_data(self.organization_extension)
         post_data['team_admin'] = self.course_team_role.user.id
         post_data['faq'] = 'Test FAQ Content'
-        post_data['price'] = verified_entitlement.price
+        post_data['price'] = 50
         post_data['mode'] = verified_entitlement.mode
         response = self.client.post(self.edit_page_url, data=post_data)
         self.assertEqual(response.status_code, 302)
@@ -3287,11 +3303,10 @@ class CourseEditViewTests(SiteMixin, TestCase):
         response = self.client.post(self.edit_page_url, data=post_data)
         self.assertEqual(response.status_code, 302)
 
-        # Failure case
+        # Failure case when enrollment track is tried to change
         post_data = self._post_data(self.organization_extension)
         post_data['team_admin'] = self.course_team_role.user.id
         post_data['mode'] = CourseEntitlement.PROFESSIONAL
-        post_data['price'] = 100
         response = self.client.post(self.edit_page_url, data=post_data)
         self.assertEqual(response.status_code, 400)
 
@@ -4367,6 +4382,13 @@ class CreateAdminImportCourseTest(SiteMixin, TestCase):
     def test_page_with_superuser_without_waffle(self):
         """ Verify that user can't access page when not logged in. """
         response = self._make_users_valid(False)
+        self.assertRaises(Http404)
+        self.assertEqual(response.status_code, 404)
+
+    def test_page_with_waffle_without_superuser(self):
+        """ Verify that user can't access page if not he is not superuser. """
+        response = self._make_users_valid(True, False)
+        self.assertRaises(Http404)
         self.assertEqual(response.status_code, 404)
 
     def test_page_with_post(self):
@@ -4430,10 +4452,10 @@ class CreateAdminImportCourseTest(SiteMixin, TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Course Imported')
 
-    def _make_users_valid(self, switch):
+    def _make_users_valid(self, switch, is_superuser=True):
         """ make user eligible for the page."""
         self.client.logout()
-        self.user.is_superuser = True
+        self.user.is_superuser = is_superuser
         self.user.save()
 
         toggle_switch('publisher_enable_course_import', switch)
