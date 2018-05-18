@@ -2211,6 +2211,26 @@ class CourseListViewPaginationTests(PaginationMixin, TestCase):
                                     reverse=self.sort_directions[direction]),
                              internal_users_statuses)
 
+    @ddt.data(
+        {'direction': 'asc'},
+        {'direction': 'desc'},
+    )
+    @ddt.unpack
+    def test_ordering_with_course_number_column(self, direction):
+        """
+        Verify that ordering by course number column is working as expected.
+        """
+
+        for page in (1, 2, 3):
+            courses = self.get_courses(
+                query_params={'sortColumn': 1, 'sortDirection': direction, 'pageSize': 4, 'page': page}
+            )
+            course_numbers = [course['number'] for course in courses]
+            self.assertEqual(sorted(course_numbers,
+                                    key=lambda number: number.lower(),
+                                    reverse=self.sort_directions[direction]),
+                             course_numbers)
+
 
 class CourseDetailViewTests(TestCase):
     """ Tests for the course detail view. """

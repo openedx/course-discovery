@@ -1138,7 +1138,7 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
         # record can be returned multiple times. We are not doing ordering for these fields
         ordering_fields = {
             0: 'title',
-            # 1: 'organizations__key',
+            1: 'number',
             # 2: 'course_user_roles__user__full_name',
             3: 'course_runs_count',
             4: 'course_state__owner_role_modified',
