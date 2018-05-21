@@ -131,6 +131,7 @@ class Subject(TranslatableModel, TimeStampedModel):
             ('partner', 'slug'),
             ('partner', 'uuid'),
         )
+        ordering = ['created']
 
     def validate_unique(self, *args, **kwargs):  # pylint: disable=arguments-differ
         super(Subject, self).validate_unique(*args, **kwargs)
@@ -168,6 +169,7 @@ class Topic(TranslatableModel, TimeStampedModel):
             ('partner', 'slug'),
             ('partner', 'uuid'),
         )
+        ordering = ['created']
 
     def validate_unique(self, *args, **kwargs):  # pylint: disable=arguments-differ
         super(Topic, self).validate_unique(*args, **kwargs)
@@ -242,6 +244,7 @@ class Organization(TimeStampedModel):
             ('partner', 'key'),
             ('partner', 'uuid'),
         )
+        ordering = ['created']
 
     def __str__(self):
         return '{key}: {name}'.format(key=self.key, name=self.name)
@@ -280,6 +283,7 @@ class Person(TimeStampedModel):
             ('partner', 'uuid'),
         )
         verbose_name_plural = _('People')
+        ordering = ['created']
 
     def __str__(self):
         return self.full_name
@@ -378,6 +382,7 @@ class Course(TimeStampedModel):
             ('partner', 'uuid'),
             ('partner', 'key'),
         )
+        ordering = ['id']
 
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
@@ -841,6 +846,7 @@ class Seat(TimeStampedModel):
         unique_together = (
             ('course_run', 'type', 'currency', 'credit_provider')
         )
+        ordering = ['created']
 
 
 class CourseEntitlement(TimeStampedModel):
@@ -863,6 +869,7 @@ class CourseEntitlement(TimeStampedModel):
         unique_together = (
             ('course', 'mode')
         )
+        ordering = ['created']
 
 
 class Endorsement(TimeStampedModel):
@@ -890,6 +897,7 @@ class FAQ(TimeStampedModel):
     class Meta:
         verbose_name = _('FAQ')
         verbose_name_plural = _('FAQs')
+        ordering = ['created']
 
     def __str__(self):
         return self.question
@@ -1276,6 +1284,7 @@ class PersonSocialNetwork(AbstractSocialNetworkModel):
         unique_together = (
             ('person', 'type'),
         )
+        ordering = ['created']
 
 
 class CourseRunSocialNetwork(AbstractSocialNetworkModel):
@@ -1288,6 +1297,7 @@ class CourseRunSocialNetwork(AbstractSocialNetworkModel):
         unique_together = (
             ('course_run', 'type'),
         )
+        ordering = ['created']
 
 
 class PersonWork(AbstractValueModel):
