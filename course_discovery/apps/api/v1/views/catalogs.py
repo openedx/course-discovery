@@ -1,7 +1,7 @@
 import datetime
 
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import StreamingHttpResponse
 from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import status, viewsets
 from rest_framework.decorators import detail_route
@@ -167,7 +167,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
         )
         data = CourseRunCSVRenderer().render(serializer.data)
 
-        response = HttpResponse(data, content_type='text/csv')
+        response = StreamingHttpResponse(data, content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="catalog_{id}_{date}.csv"'.format(
             id=id, date=datetime.datetime.utcnow().strftime('%Y-%m-%d-%H-%M')
         )
