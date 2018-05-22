@@ -1,6 +1,8 @@
 # pylint: disable=redefined-builtin,no-member
+import csv
 import datetime
 import urllib
+from io import StringIO
 
 import ddt
 import pytest
@@ -228,7 +230,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             response = self.client.get(url)
 
         course_run = self.serialize_catalog_flat_course_run(self.course_run)
-        expected = ','.join([
+        expected = [
             course_run['key'],
             course_run['title'],
             course_run['pacing_type'],
@@ -269,17 +271,28 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             str(course_run['seats']['verified']['price']),
             course_run['seats']['verified']['currency'],
             course_run['seats']['verified']['upgrade_deadline'],
-            '"{}"'.format(course_run['seats']['credit']['type']),
-            '"{}"'.format(str(course_run['seats']['credit']['price'])),
-            '"{}"'.format(course_run['seats']['credit']['currency']),
-            '"{}"'.format(course_run['seats']['credit']['upgrade_deadline']),
-            '"{}"'.format(course_run['seats']['credit']['credit_provider']),
-            '"{}"'.format(course_run['seats']['credit']['credit_hours']),
+            '{}'.format(course_run['seats']['credit']['type']),
+            '{}'.format(str(course_run['seats']['credit']['price'])),
+            '{}'.format(course_run['seats']['credit']['currency']),
+            '{}'.format(course_run['seats']['credit']['upgrade_deadline']),
+            '{}'.format(course_run['seats']['credit']['credit_provider']),
+            '{}'.format(course_run['seats']['credit']['credit_hours']),
             course_run['modified'],
-        ])
+            course_run['course_key'],
+        ]
+
+        # collect streamed content
+        received_content = b''
+        for item in response.streaming_content:
+            received_content += item
+
+        # convert received content to csv for comparison
+        f = StringIO(received_content.decode('utf-8'))
+        reader = csv.reader(f)
+        content = list(reader)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn(expected, response.content.decode('utf-8'))
+        self.assertEqual(set(expected), set(content[1]))
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single catalog. """

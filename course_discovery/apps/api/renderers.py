@@ -1,4 +1,4 @@
-from rest_framework_csv.renderers import CSVRenderer
+from rest_framework_csv.renderers import CSVStreamingRenderer
 from rest_framework_xml.renderers import XMLRenderer
 
 
@@ -12,7 +12,7 @@ class AffiliateWindowXMLRenderer(XMLRenderer):
     root_tag_name = 'merchant'
 
 
-class CourseRunCSVRenderer(CSVRenderer):
+class CourseRunCSVRenderer(CSVStreamingRenderer):
     """ CSV renderer for course runs. """
     header = [
         'key',
