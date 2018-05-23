@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-18 11:01+0000\n"
+"POT-Creation-Date: 2018-05-24 15:22+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -94,11 +94,10 @@ msgstr "Pléäsé éntér ä välïd ÛRL. Ⱡ'σяєм ιρѕυм ∂σłσя �
 #: static/js/publisher/views/courserun_list.js
 msgid ""
 "You have successfully created a Studio URL ({studioLinkTag}) for "
-"{courseRunDetail} with a start date of {startDate}"
+"{courseRunDetail}"
 msgstr ""
 "Ýöü hävé süççéssfüllý çréätéd ä Stüdïö ÛRL ({studioLinkTag}) för "
-"{courseRunDetail} wïth ä stärt däté öf {startDate} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
-"αмєт, ¢σηѕє¢тє#"
+"{courseRunDetail} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: static/js/publisher/views/courserun_list.js
 msgid "There was an error in saving your data."

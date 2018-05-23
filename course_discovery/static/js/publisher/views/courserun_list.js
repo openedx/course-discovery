@@ -15,15 +15,13 @@ $(document).ready(function() {
         var updateCourseKeyURL = $(this).data('update-course-key-url'),
             courseKeyValue = courseKeyInput.val().trim(),
             courseTitleTag = $courseRunParentTag.find("#course-title").html().trim(),
-            startDateTag = $courseRunParentTag.find("#course-start").html().trim(),
             $studioInstanceSuccess = $(".studio-instance-success"),
             $studioInstanceError = $(".studio-instance-error"),
             successMessage = interpolateString(
-                gettext("You have successfully created a Studio URL ({studioLinkTag}) for {courseRunDetail} with a start date of {startDate}"),
+                gettext("You have successfully created a Studio URL ({studioLinkTag}) for {courseRunDetail}"),
                 {
                     "studioLinkTag": "<a href=''>"+ courseKeyValue +"</a>",
-                    "courseRunDetail": courseTitleTag,
-                    "startDate": startDateTag
+                    "courseRunDetail": courseTitleTag
                 }
             );
         e.preventDefault();
