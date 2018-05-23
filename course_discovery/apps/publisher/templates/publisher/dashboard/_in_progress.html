@@ -27,10 +27,7 @@
                     {% trans "Organization" %}
                 </th>
                 <th role="button">
-                    {% trans "Start" %}
-                </th>
-                <th role="button">
-                    {% trans "End" %}
+                    {% trans "Modified" %}
                 </th>
                 <th role="button">
                     {% trans "Course Team" %}
@@ -53,8 +50,7 @@
                     </td>
                     <td>{{ course_run.number }}</td>
                     <td>{{ course_run.course.organization_name }}</td>
-                    <td>{{ course_run.start|date:"Y-m-d" }}</td>
-                    <td>{{ course_run.end|date:"Y-m-d" }}</td>
+                    <td>{{ course_run.modified|date:"Y-m-d" }}</td>
                     <td>{{ course_run.course_team_status }}</td>
                     <td>{{ course_run.internal_user_status }}</td>
                     <td>{{ course_run.owner_role_last_modified }}</td>

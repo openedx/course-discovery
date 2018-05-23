@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-18 11:01+0000\n"
+"POT-Creation-Date: 2018-05-24 15:22+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -3052,7 +3052,6 @@ msgid "MDC Submission Due Date"
 msgstr "MDÇ Süßmïssïön Düé Däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
-#: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Start Date"
 msgstr "Stärt Däté Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
@@ -3207,10 +3206,10 @@ msgid "Status"
 msgstr "Stätüs Ⱡ'σяєм ιρѕυ#"
 
 #: apps/publisher/templates/publisher/dashboard/_in_preview.html
-#: apps/publisher/templates/publisher/email/studio_instance_created.html
-#: apps/publisher/templates/publisher/email/studio_instance_created.txt
-msgid "Course start date"
-msgstr "Çöürsé stärt däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
+#: apps/publisher/templates/publisher/dashboard/_studio_requests.html
+msgid "Modified"
+msgstr "Mödïfïéd Ⱡ'σяєм ιρѕυм ∂#"
 
 #: apps/publisher/templates/publisher/dashboard/_in_preview.html
 msgid "Approved since "
@@ -3245,16 +3244,6 @@ msgstr "Wïth Çöürsé Téäm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "With"
 msgstr "Wïth Ⱡ'σяєм ι#"
-
-#: apps/publisher/templates/publisher/dashboard/_in_progress.html
-#: apps/publisher/templates/publisher/dashboard/_published.html
-msgid "Start"
-msgstr "Stärt Ⱡ'σяєм ιρѕ#"
-
-#: apps/publisher/templates/publisher/dashboard/_in_progress.html
-#: apps/publisher/templates/publisher/dashboard/_published.html
-msgid "End"
-msgstr "Énd Ⱡ'σяєм#"
 
 #: apps/publisher/templates/publisher/dashboard/_published.html
 msgid "No About pages have been published yet."
@@ -3898,6 +3887,11 @@ msgid ""
 msgstr ""
 "Béföré édX çän püßlïsh thé Àßöüt pägé för thïs çöürsé rün, ýöü müst älsö ädd"
 " thé föllöwïng ïtéms för thïs çöürsé rün ïn Stüdïö. Ⱡ'σяє#"
+
+#: apps/publisher/templates/publisher/email/studio_instance_created.html
+#: apps/publisher/templates/publisher/email/studio_instance_created.txt
+msgid "Course start date"
+msgstr "Çöürsé stärt däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: apps/publisher/templates/publisher/email/studio_instance_created.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.txt

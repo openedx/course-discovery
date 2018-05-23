@@ -21,7 +21,7 @@
                         {% trans "Organization" %}
                     </th>
                     <th role="button">
-                        {% trans "Start Date" %}
+                        {% trans "Modified" %}
                     </th>
                     <th role="button">
                         {% trans "Course Number" %}
@@ -41,8 +41,8 @@
                             <td>
                                 {{ course_run.course.organization_name }}
                             </td>
-                            <td id="course-start">
-                                 {{ course_run.start|date:"Y-m-d" }}
+                            <td id="course-modified">
+                                 {{ course_run.modified|date:"Y-m-d" }}
                             </td>
                             <td>
                                 {{ course_run.number }}

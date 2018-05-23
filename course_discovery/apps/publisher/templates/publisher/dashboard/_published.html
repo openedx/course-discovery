@@ -20,12 +20,6 @@
                     {% trans "Organization" %}
                 </th>
                 <th role="button">
-                    {% trans "Start" %}
-                </th>
-                <th role="button">
-                    {% trans "End" %}
-                </th>
-                <th role="button">
                     {% trans "Published Date" %}
                 </th>
             </tr>
@@ -41,12 +35,6 @@
                     </td>
                     <td>
                         {{ course_run.course.organization_name }}
-                    </td>
-                    <td>
-                         {{ course_run.start|date:"Y-m-d" }}
-                    </td>
-                    <td>
-                        {{ course_run.end|date:"Y-m-d" }}
                     </td>
                     <td>
                         {{ course_run.course_run_state.modified|date:"Y-m-d" }}
