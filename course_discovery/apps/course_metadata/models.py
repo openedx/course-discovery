@@ -929,6 +929,38 @@ class ProgramType(TimeStampedModel):
         return self.name
 
 
+class Pub(TimeStampedModel):
+    """" Publication model """
+    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
+    partner = models.ForeignKey(Partner)
+    key = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, default=None, null=True, blank=True)
+
+    def __str__(self):
+        return '{key}: {title}'.format(
+            key=self.key,
+            title=self.title
+        )
+
+
+class DigitalBookBundle(TimeStampedModel):
+    #TODO: rename to ProductBundle
+    uuid = models.UUIDField(
+        blank=True,
+        default=uuid4,
+        editable=False,
+        unique=True,
+        verbose_name=_('UUID')
+    )
+    title = models.CharField(
+        help_text=_('The user-facing display title for this Digital Book Bundle'),
+        max_length=255,
+        unique=True
+    )
+    pubs = models.ManyToManyField(Pub, blank=True)
+    courses = models.ManyToManyField(Course, blank=True)
+
+
 class Program(TimeStampedModel):
     uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     title = models.CharField(

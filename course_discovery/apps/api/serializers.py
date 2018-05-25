@@ -22,9 +22,12 @@ from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, Endorsement, Image, Organization, Person,
-    PersonSocialNetwork, PersonWork, Position, Prerequisite, Program, ProgramType, Seat, SeatType, Subject, Topic,
+    PersonSocialNetwork, PersonWork, Position, Prerequisite, Program, ProgramType, DigitalBookBundle, Seat, SeatType, Subject, Topic,
     Video
 )
+
+import logging
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -915,6 +918,32 @@ class ProgramTypeSerializer(serializers.ModelSerializer):
         model = ProgramType
         fields = ('name', 'logo_image', 'applicable_seat_types', 'slug',)
 
+
+class MinimalDigitalBookBundleSerializer(serializers.ModelSerializer):
+    courses = MinimalCourseSerializer(many=True, read_only=True)
+
+    @classmethod
+    def prefetch_queryset(cls):
+        #TODO: optimize this
+        return DigitalBookBundle.objects.prefetch_related(
+            Prefetch('courses', queryset=MinimalCourseSerializer.prefetch_queryset())
+        )
+
+    class Meta:
+        model = DigitalBookBundle
+        fields = (
+            'uuid',
+            'title',
+            'book_key',
+            'courses'
+        )
+
+
+    def get_course(self, digital_book_bundle):
+        course_runs = list(digital_book_bundle.course_runs)
+        logger.info(">>> course_runs: %s", course_runs)
+
+        return MinimalCourseSerializer()
 
 class AffiliateWindowSerializer(serializers.ModelSerializer):
     """ Serializer for Affiliate Window product feeds. """

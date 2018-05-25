@@ -12,6 +12,7 @@ from course_discovery.apps.api.v1.views.currency import CurrencyView
 from course_discovery.apps.api.v1.views.organizations import OrganizationViewSet
 from course_discovery.apps.api.v1.views.people import PersonViewSet
 from course_discovery.apps.api.v1.views.program_types import ProgramTypeViewSet
+from course_discovery.apps.api.v1.views.digital_book_bundles import DigitalBookBundleViewSet
 from course_discovery.apps.api.v1.views.programs import ProgramViewSet
 from course_discovery.apps.api.v1.views.subjects import SubjectViewSet
 from course_discovery.apps.api.v1.views.topics import TopicViewSet
@@ -36,6 +37,7 @@ router.register(r'subjects', SubjectViewSet, base_name='subject')
 router.register(r'topics', TopicViewSet, base_name='topic')
 router.register(r'programs', ProgramViewSet, base_name='program')
 router.register(r'program_types', ProgramTypeViewSet, base_name='program_type')
+router.register(r'digital_book_bundles', DigitalBookBundleViewSet, base_name='digital_book_bundle')
 router.register(r'search/all', search_views.AggregateSearchViewSet, base_name='search-all')
 router.register(r'search/courses', search_views.CourseSearchViewSet, base_name='search-courses')
 router.register(r'search/course_runs', search_views.CourseRunSearchViewSet, base_name='search-course_runs')

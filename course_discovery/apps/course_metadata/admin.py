@@ -109,6 +109,16 @@ class CourseRunAdmin(admin.ModelAdmin):
             messages.add_message(request, messages.ERROR, msg)
 
 
+@admin.register(DigitalBookBundle)
+class DigitalBookBundleAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'uuid',
+        'title'
+    )
+    raw_id_fields = ('courses','pubs')
+
+
 @admin.register(Program)
 class ProgramAdmin(admin.ModelAdmin):
     form = ProgramAdminForm

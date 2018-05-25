@@ -30,7 +30,8 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
         return serializers.ProgramSerializer
 
     def get_queryset(self):
-        # This method prevents prefetches on the program queryset from "stacking,"
+        # This method prevents prefetc
+        # hes on the program queryset from "stacking,"
         # which happens when the queryset is stored in a class property.
         partner = self.request.site.partner
         return self.get_serializer_class().prefetch_queryset(partner)
