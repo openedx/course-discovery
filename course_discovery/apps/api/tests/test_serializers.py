@@ -335,6 +335,7 @@ class CourseRunWithProgramsSerializerTests(TestCase):
         """
         ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Deleted)
         serializer = CourseRunWithProgramsSerializer(self.course_run, context=self.serializer_context)
+
         self.assertEqual(serializer.data['programs'], [])
 
     def test_include_deleted_programs(self):

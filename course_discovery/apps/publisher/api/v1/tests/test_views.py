@@ -121,7 +121,7 @@ class CourseRunViewSetTests(APITestCase):
             log.check((LOGGER_NAME, 'INFO',
                        'Published course run with id: [{}] lms_course_id: [{}], user: [{}], date: [{}]'.format(
                            publisher_course_run.id, publisher_course_run.lms_course_id, self.user, date.today())))
-        assert len(responses.calls) == 3
+        assert len(responses.calls) == 5
         expected = {
             'discovery': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
             'ecommerce': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
@@ -130,7 +130,7 @@ class CourseRunViewSetTests(APITestCase):
         assert response.data == expected
 
         # Verify the correct deadlines were sent to the E-Commerce API
-        ecommerce_body = json.loads(responses.calls[2].request.body)
+        ecommerce_body = json.loads(responses.calls[4].request.body)
         expected = [
             serialize_seat_for_ecommerce_api(audit_seat),
             serialize_seat_for_ecommerce_api(professional_seat),
@@ -289,13 +289,16 @@ class CourseRunViewSetTests(APITestCase):
             root=partner.studio_url.strip('/'),
             key=publisher_course_run.lms_course_id
         )
+
         responses.add(responses.PATCH, url, json=expected_error, status=500)
         self._mock_ecommerce_api(publisher_course_run)
 
         url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
         response = self.client.post(url, {})
+
         assert response.status_code == 502
-        assert len(responses.calls) == 2
+
+        assert len(responses.calls) == 4
         expected = {
             'discovery': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
             'ecommerce': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
@@ -317,7 +320,7 @@ class CourseRunViewSetTests(APITestCase):
         url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
         response = self.client.post(url, {})
         assert response.status_code == 502
-        assert len(responses.calls) == 3
+        assert len(responses.calls) == 5
         expected = {
             'discovery': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
             'ecommerce': 'FAILED: ' + json.dumps(expected_error),
