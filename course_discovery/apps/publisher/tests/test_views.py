@@ -43,7 +43,7 @@ from course_discovery.apps.publisher.models import (
     Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, OrganizationExtension, Seat
 )
 from course_discovery.apps.publisher.tests import factories
-from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
+from course_discovery.apps.publisher.tests.utils import MockedStartEndDateTestCase, create_non_staff_user_and_login
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
 from course_discovery.apps.publisher.views import logger as publisher_views_logger
 from course_discovery.apps.publisher.views import (
@@ -55,7 +55,7 @@ from course_discovery.apps.publisher_comments.tests.factories import CommentFact
 
 
 @ddt.ddt
-class CreateCourseViewTests(SiteMixin, TestCase):
+class CreateCourseViewTests(SiteMixin, MockedStartEndDateTestCase):
     """ Tests for the publisher `CreateCourseView`. """
 
     def setUp(self):
@@ -359,7 +359,7 @@ class CreateCourseViewTests(SiteMixin, TestCase):
 
 
 @ddt.ddt
-class CreateCourseRunViewTests(SiteMixin, TestCase):
+class CreateCourseRunViewTests(SiteMixin, MockedStartEndDateTestCase):
     """ Tests for the publisher `CreateCourseRunView`. """
 
     def setUp(self):
@@ -840,7 +840,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
 
 
 @ddt.ddt
-class CourseRunDetailTests(SiteMixin, TestCase):
+class CourseRunDetailTests(SiteMixin, MockedStartEndDateTestCase):
     """ Tests for the course-run detail view. """
 
     def setUp(self):
@@ -1185,7 +1185,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         self.assertContains(
             response, '{type}: {start}'.format(
                 type=course_run.get_pacing_type_display(),
-                start=course_run.start.strftime("%B %d, %Y")
+                start=course_run.lms_start.strftime("%B %d, %Y")
             )
         )
 
@@ -1534,7 +1534,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
 
 # pylint: disable=attribute-defined-outside-init
 @ddt.ddt
-class CourseRunListViewTests(SiteMixin, TestCase):
+class CourseRunListViewTests(SiteMixin, MockedStartEndDateTestCase):
     def setUp(self):
         super(CourseRunListViewTests, self).setUp()
         Site.objects.exclude(id=self.site.id).delete()
@@ -2671,7 +2671,7 @@ class CourseDetailViewTests(TestCase):
 
 
 @ddt.ddt
-class CourseEditViewTests(SiteMixin, TestCase):
+class CourseEditViewTests(SiteMixin, MockedStartEndDateTestCase):
     """ Tests for the course edit view. """
 
     def setUp(self):
@@ -3357,7 +3357,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
 
 
 @ddt.ddt
-class CourseRunEditViewTests(SiteMixin, TestCase):
+class CourseRunEditViewTests(SiteMixin, MockedStartEndDateTestCase):
     """ Tests for the course run edit view. """
 
     def setUp(self):
@@ -4075,7 +4075,7 @@ class CourseRevisionViewTests(SiteMixin, TestCase):
 
 
 @ddt.ddt
-class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
+class CreateRunFromDashboardViewTests(SiteMixin, MockedStartEndDateTestCase):
     """ Tests for the publisher `CreateRunFromDashboardView`. """
 
     def setUp(self):

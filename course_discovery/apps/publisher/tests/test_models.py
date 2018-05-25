@@ -20,21 +20,22 @@ from course_discovery.apps.publisher.models import (
     Course, CourseUserRole, OrganizationExtension, OrganizationUserRole, Seat
 )
 from course_discovery.apps.publisher.tests import factories
+from course_discovery.apps.publisher.tests.utils import MockedStartEndDateTestCase
 
 
 @ddt.ddt
-class CourseRunTests(TestCase):
+class CourseRunTests(MockedStartEndDateTestCase):
     @classmethod
     def setUpClass(cls):
         super(CourseRunTests, cls).setUpClass()
         cls.course_run = factories.CourseRunFactory()
 
     def test_str(self):
-        """ Verify casting an instance to a string returns a string containing the course title and start date. """
+        """ Verify casting an instance to a string returns a string containing the course title and LMS ID. """
         self.assertEqual(
             str(self.course_run),
-            '{title}: {date}'.format(
-                title=self.course_run.course.title, date=self.course_run.start
+            '{title}: {lms_course_id}'.format(
+                title=self.course_run.course.title, lms_course_id=self.course_run.lms_course_id
             )
         )
 
@@ -368,7 +369,7 @@ class CourseTests(TestCase):
 
 
 @pytest.mark.django_db
-class TestSeatModel:
+class TestSeatModel():
     def test_str(self):
         seat = factories.SeatFactory()
         assert str(seat) == '{course}: {type}'.format(course=seat.course_run.course.title, type=seat.type)
@@ -383,6 +384,7 @@ class TestSeatModel:
         settings.PUBLISHER_UPGRADE_DEADLINE_DAYS = random.randint(1, 21)
         now = datetime.datetime.utcnow()
         seat = factories.SeatFactory(type=Seat.VERIFIED, upgrade_deadline=None, course_run__end=now)
+
         expected = now - datetime.timedelta(days=settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
         expected = expected.replace(hour=23, minute=59, second=59, microsecond=99999)
         assert seat.calculated_upgrade_deadline == expected
@@ -626,7 +628,7 @@ class CourseStateTests(TestCase):
 
 
 @ddt.ddt
-class CourseRunStateTests(TestCase):
+class CourseRunStateTests:
     """ Tests for the publisher `CourseRunState` model. """
 
     @classmethod

@@ -8,7 +8,9 @@ from django.db import DatabaseError, connection, transaction
 from django.http import Http404, JsonResponse
 from django.shortcuts import redirect
 from django.views.generic import View
+
 from course_discovery.apps.core.constants import Status
+
 try:
     import newrelic.agent
 except ImportError:  # pragma: no cover
