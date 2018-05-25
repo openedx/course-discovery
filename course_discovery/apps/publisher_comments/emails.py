@@ -43,12 +43,12 @@ def send_email_for_comment(comment, created=False):
                 subject_desc=subject_desc,
                 title=course.title,
                 pacing_type=publisher_obj.get_pacing_type_display(),
-                start=publisher_obj.start.strftime('%B %d, %Y') if publisher_obj.start else ''
+                start=publisher_obj.lms_start.strftime('%B %d, %Y') if publisher_obj.lms_start else ''
             )
             course_name = '{title} {start} - {pacing_type}'.format(
                 title=course.title,
                 pacing_type=publisher_obj.get_pacing_type_display(),
-                start=publisher_obj.start.strftime('%B %d, %Y') if publisher_obj.start else ''
+                start=publisher_obj.lms_start.strftime('%B %d, %Y') if publisher_obj.lms_start else ''
             )
         else:
             course = publisher_obj

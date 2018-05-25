@@ -24,25 +24,32 @@ from course_discovery.apps.publisher.api.utils import (
 from course_discovery.apps.publisher.api.v1.views import CourseRunViewSet
 from course_discovery.apps.publisher.models import CourseEntitlement, Seat
 from course_discovery.apps.publisher.tests.factories import CourseEntitlementFactory, CourseRunFactory, SeatFactory
+from course_discovery.apps.publisher.tests.utils import MockedStartEndDateTestCase
 
 PUBLISHER_UPGRADE_DEADLINE_DAYS = random.randint(1, 21)
 
 LOGGER_NAME = 'course_discovery.apps.publisher.api.v1.views'
 
 
-class CourseRunViewSetTests(APITestCase):
+class CourseRunViewSetTests(APITestCase, MockedStartEndDateTestCase):
 
     def test_without_authentication(self):
         self.client.logout()
         url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': 1})
-        response = self.client.post(url, {})
+        response = self.client.post(
+            url,
+            {'start': self.start_date_mock.return_value, 'end': self.end_date_mock.return_value}
+        )
         assert response.status_code == 401
 
     def test_without_authorization(self):
         user = UserFactory()
         self.client.force_login(user)
         url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': 1})
-        response = self.client.post(url, {})
+        response = self.client.post(
+            url,
+            {'start': self.start_date_mock.return_value, 'end': self.end_date_mock.return_value}
+        )
         assert response.status_code == 403
 
     def _create_course_run_for_publication(self):
@@ -116,7 +123,10 @@ class CourseRunViewSetTests(APITestCase):
         self._mock_ecommerce_api(publisher_course_run)
         with LogCapture(LOGGER_NAME) as log:
             url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
-            response = self.client.post(url, {})
+            response = self.client.post(
+                url,
+                {'start': self.start_date_mock.return_value, 'end': self.end_date_mock.return_value}
+            )
             assert response.status_code == 200
             log.check((LOGGER_NAME, 'INFO',
                        'Published course run with id: [{}] lms_course_id: [{}], user: [{}], date: [{}]'.format(
@@ -139,7 +149,7 @@ class CourseRunViewSetTests(APITestCase):
             serialize_entitlement_for_ecommerce_api(verified_entitlement),
         ]
         assert ecommerce_body['products'] == expected
-        assert ecommerce_body['verification_deadline'] == serialize_datetime(publisher_course_run.end)
+        assert ecommerce_body['verification_deadline'] == serialize_datetime(publisher_course_run.lms_end)
 
         discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
         publisher_course = publisher_course_run.course
@@ -152,8 +162,6 @@ class CourseRunViewSetTests(APITestCase):
         assert discovery_course_run.title_override == publisher_course_run.title_override
         assert discovery_course_run.short_description_override is None
         assert discovery_course_run.full_description_override is None
-        assert discovery_course_run.start == publisher_course_run.start
-        assert discovery_course_run.end == publisher_course_run.end
         assert discovery_course_run.pacing_type == publisher_course_run.pacing_type
         assert discovery_course_run.min_effort == publisher_course_run.min_effort
         assert discovery_course_run.max_effort == publisher_course_run.max_effort
@@ -233,7 +241,10 @@ class CourseRunViewSetTests(APITestCase):
         self._mock_ecommerce_api(publisher_course_run)
 
         url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
-        response = self.client.post(url, {})
+        response = self.client.post(
+            url,
+            {'start': self.start_date_mock.return_value, 'end': self.end_date_mock.return_value}
+        )
         assert response.status_code == 200
 
         discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
@@ -259,7 +270,11 @@ class CourseRunViewSetTests(APITestCase):
         self._mock_ecommerce_api(publisher_course_run)
 
         publish_url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
-        response = self.client.post(publish_url, {})
+
+        response = self.client.post(
+            publish_url,
+            {'start': self.start_date_mock.return_value, 'end': self.end_date_mock.return_value}
+        )
         assert response.status_code == 200
         discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
         assert discovery_course_run.staff.all().count() == 2
@@ -289,12 +304,18 @@ class CourseRunViewSetTests(APITestCase):
             root=partner.studio_url.strip('/'),
             key=publisher_course_run.lms_course_id
         )
+
         responses.add(responses.PATCH, url, json=expected_error, status=500)
         self._mock_ecommerce_api(publisher_course_run)
 
         url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
-        response = self.client.post(url, {})
+        response = self.client.post(
+            url,
+            {'start': self.start_date_mock.return_value, 'end': self.end_date_mock.return_value}
+        )
+
         assert response.status_code == 502
+
         assert len(responses.calls) == 2
         expected = {
             'discovery': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,

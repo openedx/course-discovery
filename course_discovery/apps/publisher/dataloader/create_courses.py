@@ -123,7 +123,6 @@ def create_course_runs(meta_data_course, publisher_course):
         if canonical_course_run and canonical_course_run.key:
             defaults = {
                 'course': publisher_course,
-                'start': canonical_course_run.start, 'end': canonical_course_run.end,
                 'min_effort': canonical_course_run.min_effort, 'max_effort': canonical_course_run.max_effort,
                 'language': canonical_course_run.language, 'pacing_type': canonical_course_run.pacing_type,
                 'length': canonical_course_run.weeks_to_complete,

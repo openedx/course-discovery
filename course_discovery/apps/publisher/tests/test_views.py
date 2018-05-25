@@ -19,7 +19,6 @@ from django.test import TestCase
 from django.urls import reverse
 from guardian.shortcuts import assign_perm
 from opaque_keys.edx.keys import CourseKey
-from pytz import timezone
 from testfixtures import LogCapture
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
@@ -43,7 +42,7 @@ from course_discovery.apps.publisher.models import (
     Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, OrganizationExtension, Seat
 )
 from course_discovery.apps.publisher.tests import factories
-from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
+from course_discovery.apps.publisher.tests.utils import MockedStartEndDateTestCase, create_non_staff_user_and_login
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
 from course_discovery.apps.publisher.views import logger as publisher_views_logger
 from course_discovery.apps.publisher.views import (
@@ -55,7 +54,7 @@ from course_discovery.apps.publisher_comments.tests.factories import CommentFact
 
 
 @ddt.ddt
-class CreateCourseViewTests(SiteMixin, TestCase):
+class CreateCourseViewTests(SiteMixin, MockedStartEndDateTestCase):
     """ Tests for the publisher `CreateCourseView`. """
 
     def setUp(self):
@@ -359,7 +358,7 @@ class CreateCourseViewTests(SiteMixin, TestCase):
 
 
 @ddt.ddt
-class CreateCourseRunViewTests(SiteMixin, TestCase):
+class CreateCourseRunViewTests(SiteMixin, MockedStartEndDateTestCase):
     """ Tests for the publisher `CreateCourseRunView`. """
 
     def setUp(self):
@@ -385,14 +384,15 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         self.user.groups.add(self.organization_extension.group)
 
         self.course_run_dict = model_to_dict(self.course_run)
-        self.course_run_dict.update({'is_self_paced': True})
+        self.course_run_dict.update({
+            'is_self_paced': True,
+            'start': self.start_date_mock.return_value,
+            'end': self.end_date_mock.return_value
+        })
         self._pop_valuse_from_dict(
             self.course_run_dict,
-            ['end', 'priority', 'certificate_generation', 'id']
+            ['priority', 'certificate_generation', 'id']
         )
-        current_datetime = datetime.now(timezone('US/Central'))
-        self.course_run_dict['start'] = (current_datetime + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
-        self.course_run_dict['end'] = (current_datetime + timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S')
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.create_course_run_url_new = reverse(
             'publisher:publisher_course_runs_new',
@@ -463,7 +463,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         post_data = self.course_run_dict
         post_data.update(factory.build(dict, FACTORY_CLASS=factories.SeatFactory))
         self._pop_valuse_from_dict(
-            post_data, ['upgrade_deadline', 'start']
+            post_data, ['upgrade_deadline']
         )
 
         response = self.client.post(self.create_course_run_url_new, post_data)
@@ -744,8 +744,6 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         self.assertTrue(num_courseruns_after > num_courseruns_before)
 
         new_courserun = self.course.course_runs.latest('created')
-        self.assertEqual(new_courserun.start.strftime('%Y-%m-%d %H:%M:%S'), post_data['start'])
-        self.assertEqual(new_courserun.end.strftime('%Y-%m-%d %H:%M:%S'), post_data['end'])
         self.assertEqual(new_courserun.pacing_type, post_data['pacing_type'])
 
         self.assertRedirects(
@@ -824,8 +822,6 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
             OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
         )
         post_data = {
-            'start': '2018-02-01 00:00:00',
-            'end': '2018-02-28 00:00:00',
             'pacing_type': 'instructor_paced',
             'type': Seat.VERIFIED,
             'price': 2
@@ -840,7 +836,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
 
 
 @ddt.ddt
-class CourseRunDetailTests(SiteMixin, TestCase):
+class CourseRunDetailTests(SiteMixin, MockedStartEndDateTestCase):
     """ Tests for the course-run detail view. """
 
     def setUp(self):
@@ -1027,7 +1023,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
 
     def _assert_dates(self, response):
         """ Helper method to test all dates. """
-        for value in [self.course_run.start, self.course_run.end]:
+        for value in [self.course_run.lms_start, self.course_run.lms_end]:
             self.assertContains(response, value.strftime(self.date_format))
 
     def test_course_run_with_version(self):
@@ -1185,7 +1181,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         self.assertContains(
             response, '{type}: {start}'.format(
                 type=course_run.get_pacing_type_display(),
-                start=course_run.start.strftime("%B %d, %Y")
+                start=course_run.lms_start.strftime("%B %d, %Y")
             )
         )
 
@@ -1534,7 +1530,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
 
 # pylint: disable=attribute-defined-outside-init
 @ddt.ddt
-class CourseRunListViewTests(SiteMixin, TestCase):
+class CourseRunListViewTests(SiteMixin, MockedStartEndDateTestCase):
     def setUp(self):
         super(CourseRunListViewTests, self).setUp()
         Site.objects.exclude(id=self.site.id).delete()
@@ -2248,7 +2244,7 @@ class CourseListViewPaginationTests(PaginationMixin, TestCase):
                              course_numbers)
 
 
-class CourseDetailViewTests(TestCase):
+class CourseDetailViewTests(MockedStartEndDateTestCase):
     """ Tests for the course detail view. """
 
     def setUp(self):
@@ -2671,7 +2667,7 @@ class CourseDetailViewTests(TestCase):
 
 
 @ddt.ddt
-class CourseEditViewTests(SiteMixin, TestCase):
+class CourseEditViewTests(SiteMixin, MockedStartEndDateTestCase):
     """ Tests for the course edit view. """
 
     def setUp(self):
@@ -3070,6 +3066,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         Verify that a SEAT_VERSION Course that has course runs associated with it can be updated without changing
         the version, and can change the version as long as the Course Run Seat prices and types match the Course
         """
+        self.end_date_mock.return_value = datetime.now() + timedelta(days=1)
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         self.course.version = Course.SEAT_VERSION
         self.course.save()
@@ -3078,7 +3075,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         post_data['mode'] = ''
 
         course_run = factories.CourseRunFactory.create(
-            course=self.course, lms_course_id='course-v1:edxTest+Test342+2016Q1', end=datetime.now() + timedelta(days=1)
+            course=self.course, lms_course_id='course-v1:edxTest+Test342+2016Q1',
         )
 
         factories.CourseRunStateFactory(course_run=course_run, name=CourseRunStateChoices.Draft)
@@ -3187,7 +3184,10 @@ class CourseEditViewTests(SiteMixin, TestCase):
         response = self.client.post(self.edit_page_url, data=post_data)
         self.assertRedirects(
             response,
-            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
+            expected_url=reverse(
+                'publisher:publisher_course_detail',
+                kwargs={'pk': self.course.id}
+            ),
             status_code=302,
             target_status_code=200
         )
@@ -3196,6 +3196,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         """
         Verify that an entitlement course's type or price changes take effect correctly
         """
+        self.end_date_mock.return_value = datetime.now() + timedelta(days=1)
         toggle_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True)
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.Publisher)
@@ -3212,11 +3213,8 @@ class CourseEditViewTests(SiteMixin, TestCase):
 
         # New course run via form
         new_run_url = reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id})
-        current_datetime = datetime.now(timezone('US/Central'))
         run_data = {
             'pacing_type': 'self_paced',
-            'start': (current_datetime + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S'),
-            'end': (current_datetime + timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S'),
         }
         response = self.client.post(new_run_url, run_data)
         self.assertEqual(response.status_code, 302)
@@ -3280,7 +3278,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
             course=self.course, mode=CourseEntitlement.VERIFIED, price=100
         )
         course_run = factories.CourseRunFactory.create(
-            course=self.course, lms_course_id='course-v1:edxTest+Test342+2016Q1', end=datetime.now() + timedelta(days=1)
+            course=self.course, lms_course_id='course-v1:edxTest+Test342+2016Q1',
         )
         factories.CourseRunStateFactory(course_run=course_run, name=CourseRunStateChoices.Published)
         factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.Publisher)
@@ -3295,11 +3293,6 @@ class CourseEditViewTests(SiteMixin, TestCase):
         post_data['faq'] = 'Test FAQ Content'
         post_data['price'] = 50
         post_data['mode'] = verified_entitlement.mode
-        response = self.client.post(self.edit_page_url, data=post_data)
-        self.assertEqual(response.status_code, 302)
-
-        # Verify that when start date is None it didn't raise server error
-        self.course.course_runs.update(start=None)
         response = self.client.post(self.edit_page_url, data=post_data)
         self.assertEqual(response.status_code, 302)
 
@@ -3357,7 +3350,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
 
 
 @ddt.ddt
-class CourseRunEditViewTests(SiteMixin, TestCase):
+class CourseRunEditViewTests(SiteMixin, MockedStartEndDateTestCase):
     """ Tests for the course run edit view. """
 
     def setUp(self):
@@ -3375,9 +3368,6 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         self.seat = factories.SeatFactory(course_run=self.course_run, type=Seat.VERIFIED, price=2)
 
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        current_datetime = datetime.now(timezone('US/Central'))
-        self.start_date_time = (current_datetime + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
-        self.end_date_time = (current_datetime + timedelta(days=60)).strftime('%Y-%m-%d %H:%M:%S')
 
         # creating default organizations roles
         factories.OrganizationUserRoleFactory(
@@ -3484,11 +3474,8 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         if course_run:
             course_dict.update(**model_to_dict(course_run))
             course_dict.pop('video_language')
-            course_dict.pop('end')
             course_dict.pop('priority')
             course_dict['lms_course_id'] = ''
-            course_dict['start'] = self.start_date_time
-            course_dict['end'] = self.end_date_time
             course_dict['organization'] = self.organization_extension.organization.id
             if seat:
                 course_dict.update(**model_to_dict(seat))
@@ -3532,8 +3519,7 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Edit Course')
 
-    @ddt.data('start', 'end', 'pacing_type')
-    def test_update_with_errors(self, field):
+    def test_update_with_errors(self):
         """ Verify that course run edit page throws error in case of missing required field."""
         self.client.logout()
         user, __ = create_non_staff_user_and_login(self)
@@ -3541,7 +3527,7 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         self.assertNotEqual(self.course_run.changed_by, user)
         user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
 
-        self.updated_dict.pop(field)
+        self.updated_dict.pop('pacing_type')
 
         response = self.client.post(self.edit_page_url, self.updated_dict)
 
@@ -3670,11 +3656,11 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
 
     def test_logging(self):
         """ Verify view logs the errors in case of errors. """
+        self.end_date_mock.return_value = datetime.now() + timedelta(days=1)
         with mock.patch('django.forms.models.BaseModelForm.is_valid') as mocked_is_valid:
             mocked_is_valid.return_value = True
+            self.updated_dict.pop('pacing_type')
             with LogCapture(publisher_views_logger.name) as log_capture:
-                # pop the
-                self.updated_dict.pop('start')
                 response = self.client.post(self.edit_page_url, self.updated_dict)
                 self.assertEqual(response.status_code, 400)
                 log_capture.check(
@@ -4075,7 +4061,7 @@ class CourseRevisionViewTests(SiteMixin, TestCase):
 
 
 @ddt.ddt
-class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
+class CreateRunFromDashboardViewTests(SiteMixin, MockedStartEndDateTestCase):
     """ Tests for the publisher `CreateRunFromDashboardView`. """
 
     def setUp(self):
@@ -4130,11 +4116,8 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
         self.assertEqual(response.status_code, 200)
 
     def _post_data(self):
-        current_datetime = datetime.now(timezone('US/Central'))
         return {
             'course': self.course.id,
-            'start': (current_datetime + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S'),
-            'end': (current_datetime + timedelta(days=60)).strftime('%Y-%m-%d %H:%M:%S'),
             'pacing_type': 'self_paced',
             'type': Seat.VERIFIED,
             'price': 450
@@ -4224,20 +4207,17 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
 
         self.course.entitlements.create(mode=entitlement_mode, price=entitlement_price)
         post_data = {
-            'start': '2018-02-01 00:00:00',
-            'end': '2018-02-28 00:00:00',
             'pacing_type': 'instructor_paced',
-            'course': self.course.id
+            'course': self.course.id,
         }
 
         num_courseruns_before = self.course.course_runs.count()
+
         response = self.client.post(self.create_course_run_url, post_data)
         num_courseruns_after = self.course.course_runs.count()
         self.assertTrue(num_courseruns_after > num_courseruns_before)
 
         new_courserun = self.course.course_runs.latest('created')
-        self.assertEqual(new_courserun.start.strftime('%Y-%m-%d %H:%M:%S'), post_data['start'])
-        self.assertEqual(new_courserun.end.strftime('%Y-%m-%d %H:%M:%S'), post_data['end'])
         self.assertEqual(new_courserun.pacing_type, post_data['pacing_type'])
 
         self.assertRedirects(
@@ -4264,8 +4244,6 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
             OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
         )
         post_data = {
-            'start': '2018-02-01 00:00:00',
-            'end': '2018-02-28 00:00:00',
             'pacing_type': 'instructor_paced',
             'course': self.course.id
         }
@@ -4298,8 +4276,6 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
             OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
         )
         post_data = {
-            'start': '2018-02-01 00:00:00',
-            'end': '2018-02-28 00:00:00',
             'pacing_type': 'instructor_paced',
             'course': self.course.id
         }
@@ -4326,8 +4302,6 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
             OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
         )
         post_data = {
-            'start': '2018-02-01 00:00:00',
-            'end': '2018-02-28 00:00:00',
             'pacing_type': 'instructor_paced',
             'course': self.course.id,
             'type': Seat.VERIFIED,

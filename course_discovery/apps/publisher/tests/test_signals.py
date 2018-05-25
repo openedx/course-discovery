@@ -1,4 +1,3 @@
-import datetime
 import json
 
 import mock
@@ -14,11 +13,12 @@ from course_discovery.apps.course_metadata.tests.factories import CourseRunFacto
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI
 from course_discovery.apps.publisher.tests.factories import CourseRunFactory, OrganizationExtensionFactory
+from course_discovery.apps.publisher.tests.utils import MockedStartEndDateTestCase
 
 
 @freeze_time('2017-01-01T00:00:00Z')
 @pytest.mark.django_db
-class TestCreateCourseRunInStudio:
+class TestCreateCourseRunInStudio(MockedStartEndDateTestCase):
     @override_switch('enable_publisher_create_course_run_in_studio', active=True)
     def test_create_course_run_in_studio_without_partner(self):
         with mock.patch('course_discovery.apps.publisher.signals.logger.error') as mock_logger:
@@ -54,7 +54,6 @@ class TestCreateCourseRunInStudio:
     def test_create_course_run_in_studio(self, mock_access_token):  # pylint: disable=unused-argument
         organization = OrganizationFactory()
         partner = organization.partner
-        start = datetime.datetime.utcnow()
         course_run_key = 'course-v1:TestX+Testing101x+1T2017'
 
         body = {'id': course_run_key}
@@ -70,7 +69,6 @@ class TestCreateCourseRunInStudio:
         responses.add(responses.POST, url, json=body, status=200)
         with mock.patch('course_discovery.apps.publisher.signals.logger.exception') as mock_logger:
             publisher_course_run = CourseRunFactory(
-                start=start,
                 lms_course_id=None,
                 course__organizations=[organization]
             )
@@ -94,7 +92,6 @@ class TestCreateCourseRunInStudio:
         partner = organization.partner
         course_key = '{org}+{number}'.format(org=organization.key, number=number)
         discovery_course_run = DiscoveryCourseRunFactory(course__partner=partner, course__key=course_key)
-        start = datetime.datetime.utcnow()
         course_run_key = 'course-v1:TestX+Testing101x+1T2017'
 
         body = {'id': course_run_key}
@@ -113,7 +110,6 @@ class TestCreateCourseRunInStudio:
         responses.add(responses.POST, url, json=body, status=200)
 
         publisher_course_run = CourseRunFactory(
-            start=start,
             lms_course_id=None,
             course__organizations=[organization],
             course__number=number
@@ -132,7 +128,6 @@ class TestCreateCourseRunInStudio:
     def test_create_course_run_in_studio_with_image_failure(self, __, ___):  # pylint: disable=unused-argument
         organization = OrganizationFactory()
         partner = organization.partner
-        start = datetime.datetime.utcnow()
         course_run_key = 'course-v1:TestX+Testing101x+1T2017'
 
         body = {'id': course_run_key}
@@ -142,7 +137,6 @@ class TestCreateCourseRunInStudio:
 
         with mock.patch('course_discovery.apps.publisher.signals.logger.exception') as mock_logger:
             publisher_course_run = CourseRunFactory(
-                start=start,
                 lms_course_id=None,
                 course__organizations=[organization]
             )
@@ -159,7 +153,6 @@ class TestCreateCourseRunInStudio:
     def test_create_course_run_in_studio_with_image_api_failure(self, mock_access_token):
         organization = OrganizationFactory()
         partner = organization.partner
-        start = datetime.datetime.utcnow()
         course_run_key = 'course-v1:TestX+Testing101x+1T2017'
 
         body = {'id': course_run_key}
@@ -176,7 +169,6 @@ class TestCreateCourseRunInStudio:
 
         with mock.patch('course_discovery.apps.publisher.signals.logger.exception') as mock_logger:
             publisher_course_run = CourseRunFactory(
-                start=start,
                 lms_course_id=None,
                 course__organizations=[organization]
             )

@@ -25,8 +25,7 @@ class StudioAPI:
         return candidate
 
     @classmethod
-    def calculate_course_run_key_run_value(cls, course_run):
-        start = course_run.start
+    def calculate_course_run_key_run_value(cls, course_run, start):
         trimester = math.ceil(start.month / 4.)
         run = '{trimester}T{year}'.format(trimester=trimester, year=start.year)
 
@@ -41,7 +40,7 @@ class StudioAPI:
         return cls._get_next_run(run, '', related_course_runs)
 
     @classmethod
-    def generate_data_for_studio_api(cls, publisher_course_run):
+    def generate_data_for_studio_api(cls, publisher_course_run, start=None, end=None):
         course = publisher_course_run.course
         course_team_admin = course.course_team_admin
         team = []
@@ -57,18 +56,25 @@ class StudioAPI:
             logger.warning('No course team admin specified for course [%s]. This may result in a Studio '
                            'course run being created without a course team.', course.number)
 
-        return {
+        data = {
             'title': publisher_course_run.title_override or course.title,
             'org': course.organizations.first().key,
             'number': course.number,
-            'run': cls.calculate_course_run_key_run_value(publisher_course_run),
-            'schedule': {
-                'start': serialize_datetime(publisher_course_run.start),
-                'end': serialize_datetime(publisher_course_run.end),
-            },
+            # this should raise an error if no start is provided and no lms course run exists
+            'run': cls.calculate_course_run_key_run_value(
+                publisher_course_run, start if start else publisher_course_run.lms_start
+            ),
             'team': team,
             'pacing_type': publisher_course_run.pacing_type,
         }
+
+        if start or end:
+            data['schedule'] = {
+                'start': serialize_datetime(start),
+                'end': serialize_datetime(end),
+            }
+
+        return data
 
     def create_course_rerun_in_studio(self, publisher_course_run, discovery_course_run):
         data = self.generate_data_for_studio_api(publisher_course_run)
@@ -92,7 +98,7 @@ class StudioAPI:
                 course.id
             )
 
-    def update_course_run_details_in_studio(self, publisher_course_run):
-        data = self.generate_data_for_studio_api(publisher_course_run)
+    def update_course_run_details_in_studio(self, publisher_course_run, start, end):
+        data = self.generate_data_for_studio_api(publisher_course_run, start, end)
         # NOTE: We use PATCH to avoid overwriting existing team data that may have been manually input in Studio.
         return self._api.course_runs(publisher_course_run.lms_course_id).patch(data)

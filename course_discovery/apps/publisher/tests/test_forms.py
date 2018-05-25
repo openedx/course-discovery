@@ -1,11 +1,8 @@
-from datetime import datetime, timedelta
-
 import ddt
 import pytest
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from guardian.shortcuts import assign_perm
-from pytz import timezone
 from waffle.testutils import override_switch
 
 from course_discovery.apps.core.models import User
@@ -179,22 +176,6 @@ class PublisherCourseRunEditFormTests(TestCase):
 
         self.assertEqual(str(err.exception), "{'max_effort': ['Maximum effort can not be empty']}")
         run_form.cleaned_data['max_effort'] = 5
-        self.assertEqual(run_form.clean(), run_form.cleaned_data)
-
-    def test_course_run_dates(self):
-        """
-        Verify that 'clean' raises 'ValidationError' if the Start date is in the past
-        Or if the Start date is after the End date
-        """
-        run_form = CourseRunForm()
-        current_datetime = datetime.now(timezone('US/Central'))
-        run_form.cleaned_data = {'start': current_datetime + timedelta(days=3),
-                                 'end': current_datetime + timedelta(days=1)}
-        with self.assertRaises(ValidationError):
-            run_form.clean()
-
-        run_form.cleaned_data['start'] = current_datetime + timedelta(days=1)
-        run_form.cleaned_data['end'] = current_datetime + timedelta(days=3)
         self.assertEqual(run_form.clean(), run_form.cleaned_data)
 
     def test_course_run_xseries(self):
