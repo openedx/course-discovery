@@ -23,11 +23,11 @@ class CreateSitesAndPartnersTests(TestCase):
         """
         checks that all the sites and partners are valid.
         """
-        sites = Site.objects.all()
+        sites = Site.objects.filter(domain__contains=self.dns_name)
         partners = Partner.objects.all()
 
         # there is an extra default site.
-        self.assertEqual(len(sites), len(SITES) + 1)
+        self.assertEqual(len(sites), len(SITES))
         self.assertEqual(len(partners), len(SITES))
 
         for site in sites:
@@ -107,4 +107,13 @@ class CreateSitesAndPartnersTests(TestCase):
             "--theme-path", self.theme_path
         )
         # if we run command with same dns then it will not duplicates the sites and partners.
+        self._assert_site_and_partner_are_valid()
+
+        self.dns_name = "new-dns"
+        call_command(
+            "create_sites_and_partners",
+            "--dns-name", self.dns_name,
+            "--theme-path", self.theme_path
+        )
+        # if we run command with new dns then it should still create sites and partners without breaking.
         self._assert_site_and_partner_are_valid()
