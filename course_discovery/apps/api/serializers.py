@@ -266,10 +266,7 @@ class PersonSerializer(serializers.ModelSerializer):
         works_data = validated_data.pop('works', [])
         urls_data = validated_data.pop('urls', {})
 
-        instance.position.title = position_data['title']
-        instance.position.organization = position_data.get('organization')
-        instance.position.organization_override = position_data.get('organization_override')
-        instance.position.save()
+        Position.objects.update_or_create(person=instance, defaults=position_data)
 
         for url_type in [PersonSocialNetwork.FACEBOOK, PersonSocialNetwork.TWITTER, PersonSocialNetwork.BLOG]:
             value = urls_data.get(url_type)

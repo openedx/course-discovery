@@ -9,7 +9,7 @@ from testfixtures import LogCapture
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
 from course_discovery.apps.api.v1.views.people import logger as people_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
-from course_discovery.apps.course_metadata.models import Person
+from course_discovery.apps.course_metadata.models import Person, Position
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory, PositionFactory
@@ -264,3 +264,20 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(updated_person.person_networks.get(type='facebook').value, data['urls']['facebook'])
         self.assertEqual(updated_person.person_networks.get(type='twitter').value, data['urls']['twitter'])
         self.assertFalse(updated_person.person_networks.filter(type='blog').exists())
+
+    def test_update_without_position(self):
+        """
+        Verify that if the people has no position a new position is created while updating people
+        """
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
+
+        data = self._update_person_data()
+        Position.objects.all().delete()
+
+        with mock.patch.object(MarketingSitePeople, 'update_person', return_value={}):
+            response = self.client.patch(url, data, format='json')
+            self.assertEqual(response.status_code, 200)
+
+        updated_person = Person.objects.get(id=self.person.id)
+
+        self.assertEqual(updated_person.position.title, data['position']['title'])
