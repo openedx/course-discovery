@@ -119,8 +119,6 @@ class ProgramAdmin(admin.ModelAdmin):
     raw_id_fields = ('video',)
     search_fields = ('uuid', 'title', 'marketing_slug')
 
-    filter_horizontal = ('job_outlook_items', 'expected_learning_items', 'instructor_ordering')
-
     # ordering the field display on admin page.
     fields = (
         'uuid', 'title', 'subtitle', 'status', 'type', 'partner', 'banner_image', 'banner_image_url', 'card_image_url',
@@ -128,9 +126,9 @@ class ProgramAdmin(admin.ModelAdmin):
         'weeks_to_complete', 'min_hours_effort_per_week', 'max_hours_effort_per_week', 'courses',
         'order_courses_by_start_date', 'custom_course_runs_display', 'excluded_course_runs', 'authoring_organizations',
         'credit_backing_organizations', 'one_click_purchase_enabled', 'hidden', 'corporate_endorsements', 'faq',
-        'individual_endorsements',
+        'individual_endorsements', 'job_outlook_items', 'expected_learning_items', 'instructor_ordering',
     )
-    fields += filter_horizontal
+
     save_error = False
 
     def custom_course_runs_display(self, obj):
