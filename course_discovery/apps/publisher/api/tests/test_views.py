@@ -26,7 +26,6 @@ from course_discovery.apps.publisher.models import (
     Course, CourseRun, CourseRunState, CourseState, OrganizationExtension, Seat
 )
 from course_discovery.apps.publisher.tests import JSON_CONTENT_TYPE, factories
-from course_discovery.apps.publisher.tests.utils import MockedStartEndDateTestCase
 
 
 @ddt.ddt
@@ -589,7 +588,7 @@ class ChangeCourseStateViewTests(SiteMixin, TestCase):
         self._assert_email_sent(course_team_user, subject)
 
 
-class ChangeCourseRunStateViewTests(SiteMixin, MockedStartEndDateTestCase):
+class ChangeCourseRunStateViewTests(SiteMixin, TestCase):
 
     def setUp(self):
         super(ChangeCourseRunStateViewTests, self).setUp()

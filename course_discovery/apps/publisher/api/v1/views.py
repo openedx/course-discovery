@@ -95,7 +95,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             'id': course_run.lms_course_id,
             'uuid': str(discovery_course.uuid),
             'name': course_run.title_override or course_run.course.title,
-            'verification_deadline': serialize_datetime(course_run.lms_end),
+            'verification_deadline': serialize_datetime(course_run.end),
         }
 
         # NOTE: We only order here to aid testing. The E-Commerce API does NOT care about ordering.
@@ -146,7 +146,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
 
         defaults = {
             'start': course_run.start,
-            'end': course_run.lms_end,
+            'end': course_run.end,
             'pacing_type': course_run.pacing_type,
             'title_override': course_run.title_override,
             'min_effort': course_run.min_effort,
