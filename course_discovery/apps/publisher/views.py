@@ -1020,7 +1020,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
 
     def post(self, request, *args, **kwargs):
         user = request.user
-
+        staff = request.POST.getlist('staff')
         context = self.get_context_data()
         course_run = context.get('course_run')
         lms_course_id = course_run.lms_course_id
@@ -1044,7 +1044,8 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
             try:
                 with transaction.atomic():
                     course_run = run_form.save(changed_by=user)
-                    run_form.save_m2m()
+                    course_run.staff.clear()
+                    course_run.staff.add(*staff)
 
                     # If price-type comes with request then save the seat object.
                     if seat_form and request.POST.get('type'):
