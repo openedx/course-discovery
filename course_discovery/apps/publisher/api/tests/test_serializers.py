@@ -21,7 +21,6 @@ from course_discovery.apps.publisher.tests.factories import (
     CourseFactory, CourseRunFactory, CourseRunStateFactory, CourseStateFactory, CourseUserRoleFactory,
     OrganizationExtensionFactory, SeatFactory
 )
-from course_discovery.apps.publisher.tests.utils import MockedStartEndDateTestCase
 
 
 class CourseUserRoleSerializerTests(SiteMixin, TestCase):
@@ -293,7 +292,7 @@ class CourseStateSerializerTests(SiteMixin, TestCase):
             serializer.update(self.course_state, data)
 
 
-class CourseRunStateSerializerTests(SiteMixin, MockedStartEndDateTestCase):
+class CourseRunStateSerializerTests(SiteMixin, TestCase):
     serializer_class = CourseRunStateSerializer
 
     def setUp(self):

@@ -195,7 +195,7 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
             if history_object:
                 context['publish_date'] = history_object.modified
 
-        start_date = course_run.lms_start.strftime("%B %d, %Y") if course_run.lms_start else None
+        start_date = course_run.start.strftime("%B %d, %Y") if course_run.start else None
         context['breadcrumbs'] = make_bread_crumbs(
             [
                 (reverse('publisher:publisher_courses'), _('Courses')),
@@ -430,7 +430,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
         published_runs = set()
         for course_run in self._get_active_course_runs(course):
             if course_run.course_run_state.is_published:
-                start_date = course_run.lms_start.strftime("%B %d, %Y") if course_run.lms_start else None
+                start_date = course_run.start.strftime("%B %d, %Y") if course_run.start else None
                 published_runs.add('{type} - {start}'.format(
                     type=course_run.get_pacing_type_display(),
                     start=start_date
@@ -460,12 +460,12 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
             if not type_is_valid:
                 misconfigured_seat_type_runs.add('{type} - {start}'.format(
                     type=course_run.get_pacing_type_display(),
-                    start=course_run.lms_start.strftime("%B %d, %Y")
+                    start=course_run.start.strftime("%B %d, %Y")
                 ))
             if not price_is_valid:
                 misconfigured_price_runs.add('{type} - {start}'.format(
                     type=course_run.get_pacing_type_display(),
-                    start=course_run.lms_start.strftime("%B %d, %Y")
+                    start=course_run.start.strftime("%B %d, %Y")
                 ))
 
         return misconfigured_price_runs, misconfigured_seat_type_runs
@@ -1005,7 +1005,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
             course_run_seat = self.get_latest_course_run_seat(course_run)
             context['seat_form'] = self.seat_form(instance=course_run_seat)
 
-        start_date = course_run.lms_start.strftime("%B %d, %Y") if course_run.lms_start else None
+        start_date = course_run.start.strftime("%B %d, %Y") if course_run.start else None
         context['breadcrumbs'] = make_bread_crumbs(
             [
                 (reverse('publisher:publisher_courses'), 'Courses'),
