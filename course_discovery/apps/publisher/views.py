@@ -1044,6 +1044,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
             try:
                 with transaction.atomic():
                     course_run = run_form.save(changed_by=user)
+                    run_form.save_m2m()
                     course_run.staff.clear()
                     course_run.staff.add(*staff)
 
