@@ -6,6 +6,7 @@ from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
 from course_discovery.apps.journal import constants as journal_constants
 from course_discovery.apps.journal.api.filters import JournalFilter
+from course_discovery.apps.journal.api.paginations import LargeResultsSetPagination
 from course_discovery.apps.journal.api.serializers import JournalBundleSerializer, JournalSerializer
 from course_discovery.apps.journal.models import Journal, JournalBundle
 
@@ -21,6 +22,7 @@ class JournalViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = JournalFilter
     permission_classes = (IsAdminUser,)
+    pagination_class = LargeResultsSetPagination
 
 
 class JournalBundleViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
@@ -32,3 +34,4 @@ class JournalBundleViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
 
     queryset = JournalBundle.objects.all()
     serializer_class = JournalBundleSerializer
+    pagination_class = LargeResultsSetPagination
