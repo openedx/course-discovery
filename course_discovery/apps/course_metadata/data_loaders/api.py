@@ -1,6 +1,7 @@
 import concurrent.futures
 import logging
 import math
+import time
 from decimal import Decimal
 from io import BytesIO
 
@@ -84,9 +85,21 @@ class CoursesApiDataLoader(AbstractDataLoader):
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:  # pragma: no cover
             if self.is_threadsafe:
                 for page in pagerange:
+                    # This time.sleep is to make it very likely that this method does not encounter a 429 status
+                    # code by increasing the amount of time between each code. More details at LEARNER-5560
+                    # The current crude estimation is for ~3000 courses with a PAGE_SIZE=50 which means this method
+                    # will take ~30 minutes.
+                    # TODO Ticket to gracefully handle 429 https://openedx.atlassian.net/browse/LEARNER-5565
+                    time.sleep(30)
                     executor.submit(self._load_data, page)
             else:
                 for future in [executor.submit(self._make_request, page) for page in pagerange]:
+                    # This time.sleep is to make it very likely that this method does not encounter a 429 status
+                    # code by increasing the amount of time between each code. More details at LEARNER-5560
+                    # The current crude estimation is for ~3000 courses with a PAGE_SIZE=50 which means this method
+                    # will take ~30 minutes.
+                    # TODO Ticket to gracefully handle 429 https://openedx.atlassian.net/browse/LEARNER-5565
+                    time.sleep(30)
                     response = future.result()
                     self._process_response(response)
 
