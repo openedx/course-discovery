@@ -42,7 +42,7 @@ class Journal(TimeStampedModel):
     full_description = models.TextField(default=None, null=True, blank=True)
     access_length = models.IntegerField(null=True, help_text='number of days valid after purchase', default=365)
     status = models.CharField(
-        help_text=_('Used to determine whether journal is marketed or not.'),
+        help_text='Used to determine whether journal is marketed or not.',
         max_length=24,
         null=False,
         blank=False,
@@ -53,9 +53,6 @@ class Journal(TimeStampedModel):
     slug = models.CharField(max_length=255, blank=False, null=False)
 
     class Meta:
-        unique_together = (
-            ('partner', 'uuid'),
-        )
         ordering = ('created',)
 
     def __str__(self):
@@ -70,7 +67,7 @@ class JournalBundle(TimeStampedModel):
         verbose_name=_('UUID')
     )
     title = models.CharField(
-        help_text=_('The user-facing display title for this Journal Bundle'),
+        help_text='The user-facing display title for this Journal Bundle',
         max_length=CHARFIELD_MAX_LENGTH,
         unique=True
     )
