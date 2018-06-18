@@ -34,9 +34,16 @@ class JournalSerializer(serializers.ModelSerializer):
             'full_description',
             'access_length',
             'status',
-            'slug'
+            'slug',
         )
 
+    @classmethod
+    def prefetch_queryset(cls, queryset):
+        return queryset.select_related(
+            'partner',
+            'organization',
+            'currency',
+        )
 
 class JournalBundleSerializer(serializers.ModelSerializer):
     """
@@ -55,5 +62,15 @@ class JournalBundleSerializer(serializers.ModelSerializer):
             'partner',
             'journals',
             'courses',
-            'applicable_seat_types'
+            'applicable_seat_types',
+        )
+
+    @classmethod
+    def prefetch_queryset(cls, queryset):
+        return queryset.select_related(
+            'partner',
+        ).prefetch_related(
+            'journals',
+            'courses',
+            'applicable_seat_types',
         )

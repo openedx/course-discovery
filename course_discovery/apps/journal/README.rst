@@ -2,15 +2,15 @@
 Journal
 =======
 
-The Journal app in discovery is meant to the source of truth for most journal related information. It includes two models: Journal and JournalBundle.
+The Journal app in discovery is meant to be the source of truth for most journal related information. It includes two models: Journal and JournalBundle.
 
 **Journal**:
 
-The journal product is similar to a course run in the fact that it has content is linked to an organization and you can purchase/receive access to it. One notable difference is that a Journal will have an access_length, which determines the amount of time the learner will have access to it post-purchase. This is our first stage towards a subscription model.
+The journal product is similar to a course run in the fact that it has content, is linked to an organization, and you can purchase/receive access to it. One notable difference is that a Journal will have an access_length, which determines the amount of time the learner will have access to it post-purchase. This is our first stage towards a subscription model. Unlike a course run however, it does not have "run"s and is perpetual.
 
 **JournalBundle**:
 
-The journal bundle is a collection of journals and courses. It works similar to a program in the bundling aspect, the difference lies in the fact that it doesn't necessarily constitute a progression of courses. The first (and possibly most common) use case that will use this is bundling a single course with a single journal.
+The journal bundle is a collection of journals and courses. It works similar to a program in the bundling aspect, the difference lies in the fact that it doesn't necessarily constitute a progression of courses. The first (and possibly most common) use case that will use this is bundling a single course with a single journal. Future options may include 1 or more courses, 1 or more journals, and/or 1 or more programs.
 
 **Things to note**:
 

@@ -17,7 +17,7 @@ class JournalViewSet(viewsets.ModelViewSet):
     """
     lookup_field = 'uuid'
     lookup_value_regex = journal_constants.UUID_PATTERN
-    queryset = Journal.objects.all().order_by('-created')
+    queryset = JournalSerializer.prefetch_queryset(Journal.objects.all())
     serializer_class = JournalSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_class = JournalFilter
@@ -32,6 +32,6 @@ class JournalBundleViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
     permission_classes = (IsAdminUser,)
     filter_backends = (DjangoFilterBackend,)
 
-    queryset = JournalBundle.objects.all()
+    queryset = JournalBundleSerializer.prefetch_queryset(JournalBundle.objects.all())
     serializer_class = JournalBundleSerializer
     pagination_class = LargeResultsSetPagination
