@@ -45,6 +45,7 @@ class JournalSerializer(serializers.ModelSerializer):
             'currency',
         )
 
+
 class JournalBundleSerializer(serializers.ModelSerializer):
     """
     Serializer for the ``JournalBundle`` model.
