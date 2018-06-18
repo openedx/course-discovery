@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-24 15:22+0000\n"
+"POT-Creation-Date: 2018-06-18 20:44+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -247,12 +247,11 @@ msgstr ""
 msgid "Self-paced"
 msgstr ""
 
-#: apps/course_metadata/choices.py:20
-#: apps/course_metadata/choices.py apps/journal/choices.py
+#: apps/course_metadata/choices.py:20 apps/journal/choices.py:6
 msgid "Active"
 msgstr ""
 
-#: apps/course_metadata/choices.py:21
+#: apps/course_metadata/choices.py:21 apps/journal/choices.py:8
 msgid "Retired"
 msgstr ""
 
@@ -283,8 +282,8 @@ msgstr ""
 #: apps/course_metadata/models.py:118 apps/course_metadata/models.py:157
 #: apps/course_metadata/models.py:217 apps/course_metadata/models.py:262
 #: apps/course_metadata/models.py:340 apps/course_metadata/models.py:456
-#: apps/course_metadata/models.py:933
-#: apps/course_metadata/models.py apps/journal/models.py
+#: apps/course_metadata/models.py:933 apps/journal/models.py:23
+#: apps/journal/models.py:67
 msgid "UUID"
 msgstr ""
 
@@ -524,16 +523,8 @@ msgstr ""
 msgid "The program was changed successfully."
 msgstr ""
 
-#: apps/journal/choices.py
+#: apps/journal/choices.py:7
 msgid "Inactive"
-msgstr ""
-
-#: apps/journal/models.py
-msgid "Used to determine whether journal is marketed or not."
-msgstr ""
-
-#: apps/journal/models.py
-msgid "The user-facing display title for this Journal Bundle"
 msgstr ""
 
 #: apps/publisher/api/serializers.py:81
