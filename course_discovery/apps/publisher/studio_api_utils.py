@@ -76,12 +76,12 @@ class StudioAPI:
 
         return data
 
-    def create_course_rerun_in_studio(self, publisher_course_run, discovery_course_run):
-        data = self.generate_data_for_studio_api(publisher_course_run)
+    def create_course_rerun_in_studio(self, publisher_course_run, discovery_course_run, start, end):
+        data = self.generate_data_for_studio_api(publisher_course_run, start, end)
         return self._api.course_runs(discovery_course_run.key).rerun.post(data)
 
-    def create_course_run_in_studio(self, publisher_course_run):
-        data = self.generate_data_for_studio_api(publisher_course_run)
+    def create_course_run_in_studio(self, publisher_course_run, start, end):
+        data = self.generate_data_for_studio_api(publisher_course_run, start, end)
         return self._api.course_runs.post(data)
 
     def update_course_run_image_in_studio(self, publisher_course_run):
@@ -98,7 +98,7 @@ class StudioAPI:
                 course.id
             )
 
-    def update_course_run_details_in_studio(self, publisher_course_run, start, end):
-        data = self.generate_data_for_studio_api(publisher_course_run, start, end)
+    def update_course_run_details_in_studio(self, publisher_course_run):
+        data = self.generate_data_for_studio_api(publisher_course_run)
         # NOTE: We use PATCH to avoid overwriting existing team data that may have been manually input in Studio.
         return self._api.course_runs(publisher_course_run.lms_course_id).patch(data)
