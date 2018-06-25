@@ -364,7 +364,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
 
     @property
     def lms_start(self):
-        if self.course.partner and self.course.partner.site:
+        if self.course.partner and self.course.partner.site and self.lms_course_id:
             lms = LMSAPIClient(self.course.partner.site)
             details = lms.get_course_details(self.lms_course_id)
             if details and details['start']:
@@ -374,7 +374,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
 
     @property
     def lms_end(self):
-        if self.course.partner and self.course.partner.site:
+        if self.course.partner and self.course.partner.site and self.lms_course_id:
             lms = LMSAPIClient(self.course.partner.site)
             details = lms.get_course_details(self.lms_course_id)
             if details and details['end']:
