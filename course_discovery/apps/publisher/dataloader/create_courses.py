@@ -6,6 +6,7 @@ from django.core.files import File
 
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.models import Course, CourseRun, CourseRunState, CourseState, Seat
+from course_discovery.apps.publisher.signals import PUBLISHER_COURSE_RUN_CREATED
 
 logger = logging.getLogger(__name__)
 
@@ -142,6 +143,11 @@ def create_course_runs(meta_data_course, publisher_course):
 
             # Initialize workflow for Course-run.
             if created:
+                PUBLISHER_COURSE_RUN_CREATED.send(
+                    model=publisher_course_run,
+                    start=canonical_course_run.start,
+                    end=canonical_course_run.end
+                )
                 state, created = CourseRunState.objects.get_or_create(course_run=publisher_course_run)
                 if created:
                     state.approved_by_role = PublisherUserRole.ProjectCoordinator
