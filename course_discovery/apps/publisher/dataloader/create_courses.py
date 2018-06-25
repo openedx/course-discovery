@@ -136,6 +136,12 @@ def create_course_runs(meta_data_course, publisher_course):
                 lms_course_id=canonical_course_run.key, defaults=defaults
             )
 
+            PUBLISHER_COURSE_RUN_CREATED.send(
+                model=publisher_course_run,
+                start=canonical_course_run.start,
+                end=canonical_course_run.end
+            )
+            
             # add many to many fields.
             publisher_course_run.transcript_languages.add(*canonical_course_run.transcript_languages.all())
             publisher_course_run.staff.add(*canonical_course_run.staff.all())
@@ -143,11 +149,6 @@ def create_course_runs(meta_data_course, publisher_course):
 
             # Initialize workflow for Course-run.
             if created:
-                PUBLISHER_COURSE_RUN_CREATED.send(
-                    model=publisher_course_run,
-                    start=canonical_course_run.start,
-                    end=canonical_course_run.end
-                )
                 state, created = CourseRunState.objects.get_or_create(course_run=publisher_course_run)
                 if created:
                     state.approved_by_role = PublisherUserRole.ProjectCoordinator
