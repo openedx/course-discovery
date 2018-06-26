@@ -230,8 +230,8 @@ class CourseSearchForm(forms.Form):
 
 
 class CourseRunForm(BaseForm):
-    start = forms.DateTimeField(label=_('Course Start Date'), required=False)
-    end = forms.DateTimeField(label=_('Course End Date'), required=False)
+    start = forms.DateTimeField(label=_('Course Start Date'), required=True)
+    end = forms.DateTimeField(label=_('Course End Date'), required=True)
     staff = forms.ModelMultipleChoiceField(
         label=_('Instructor'),
         queryset=Person.objects.all(),
@@ -292,7 +292,7 @@ class CourseRunForm(BaseForm):
         model = CourseRun
         fields = (
             'length', 'transcript_languages', 'language', 'min_effort', 'max_effort', 'target_content', 'pacing_type',
-            'video_language', 'staff', 'is_xseries', 'xseries_name', 'is_professional_certificate',
+            'video_language', 'staff', 'start', 'end', 'is_xseries', 'xseries_name', 'is_professional_certificate',
             'professional_certificate_name', 'is_micromasters', 'micromasters_name', 'lms_course_id',
         )
 

@@ -25,7 +25,8 @@ class StudioAPI:
         return candidate
 
     @classmethod
-    def calculate_course_run_key_run_value(cls, course_run, start):
+    def calculate_course_run_key_run_value(cls, course_run):
+        start = course_run.start
         trimester = math.ceil(start.month / 4.)
         run = '{trimester}T{year}'.format(trimester=trimester, year=start.year)
 
@@ -40,7 +41,7 @@ class StudioAPI:
         return cls._get_next_run(run, '', related_course_runs)
 
     @classmethod
-    def generate_data_for_studio_api(cls, publisher_course_run, start=None, end=None):
+    def generate_data_for_studio_api(cls, publisher_course_run, include_schedule=False):
         course = publisher_course_run.course
         course_team_admin = course.course_team_admin
         team = []
@@ -60,28 +61,23 @@ class StudioAPI:
             'title': publisher_course_run.title_override or course.title,
             'org': course.organizations.first().key,
             'number': course.number,
-            # this should raise an error if no start is provided and no lms course run exists
-            'run': cls.calculate_course_run_key_run_value(
-                publisher_course_run, start if start else publisher_course_run.lms_start
-            ),
+            'run': cls.calculate_course_run_key_run_value(publisher_course_run),
             'team': team,
             'pacing_type': publisher_course_run.pacing_type,
         }
 
-        if start or end:
+        if include_schedule:
             data['schedule'] = {
-                'start': serialize_datetime(start),
-                'end': serialize_datetime(end),
-            }
+                'start': serialize_datetime(publisher_course_run.start),
+                'end': serialize_datetime(publisher_course_run.end),
+            },
 
-        return data
-
-    def create_course_rerun_in_studio(self, publisher_course_run, discovery_course_run, start, end):
-        data = self.generate_data_for_studio_api(publisher_course_run, start, end)
+    def create_course_rerun_in_studio(self, publisher_course_run, discovery_course_run):
+        data = self.generate_data_for_studio_api(publisher_course_run, include_schedule=True)
         return self._api.course_runs(discovery_course_run.key).rerun.post(data)
 
-    def create_course_run_in_studio(self, publisher_course_run, start, end):
-        data = self.generate_data_for_studio_api(publisher_course_run, start, end)
+    def create_course_run_in_studio(self, publisher_course_run):
+        data = self.generate_data_for_studio_api(publisher_course_run, include_schedule=True)
         return self._api.course_runs.post(data)
 
     def update_course_run_image_in_studio(self, publisher_course_run):

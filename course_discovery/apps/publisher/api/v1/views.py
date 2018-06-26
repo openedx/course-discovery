@@ -1,7 +1,6 @@
 import logging
 from collections import OrderedDict
 from datetime import date
-import pytz
 
 from edx_rest_api_client.client import EdxRestApiClient
 from edx_rest_framework_extensions.authentication import JwtAuthentication
@@ -21,7 +20,6 @@ from course_discovery.apps.publisher.api.utils import (
 )
 from course_discovery.apps.publisher.models import CourseRun, Seat
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI
-from course_discovery.apps.publisher.utils import parse_datetime_field
 
 logger = logging.getLogger(__name__)
 
@@ -43,17 +41,12 @@ class CourseRunViewSet(viewsets.GenericViewSet):
     def publish(self, request, pk=None):
         course_run = self.get_object()
         partner = request.site.partner
-        start = None
-        end = None
-        if 'start' in request.data:
-            start = pytz.utc.localize(parse_datetime_field(request.data['start']))
-        if 'end' in request.data:
-            end = pytz.utc.localize(parse_datetime_field(request.data['end']))
 
         publication_status = {}
+
         try:
-            publication_status['studio'] = self.publish_to_studio(partner, course_run, start, end)
-            publication_status['discovery'] = self.publish_to_discovery(partner, course_run, start, end)
+            publication_status['studio'] = self.publish_to_studio(partner, course_run)
+            publication_status['discovery'] = self.publish_to_discovery(partner, course_run)
             # Publish to ecommerce last because it needs the just-created UUID from discovery
             publication_status['ecommerce'] = self.publish_to_ecommerce(partner, course_run)
         except SlumberBaseException as ex:
@@ -78,11 +71,11 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             )
         return Response(publication_status, status=status_code)
 
-    def publish_to_studio(self, partner, course_run, start, end):
+    def publish_to_studio(self, partner, course_run):
         api = StudioAPI(partner.studio_api_client)
 
         try:
-            api.update_course_run_details_in_studio(course_run, start, end)
+            api.update_course_run_details_in_studio(course_run)
             api.update_course_run_image_in_studio(course_run)
             return self.PUBLICATION_SUCCESS_STATUS
         except SlumberBaseException as ex:
@@ -102,7 +95,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             'id': course_run.lms_course_id,
             'uuid': str(discovery_course.uuid),
             'name': course_run.title_override or course_run.course.title,
-            'verification_deadline': serialize_datetime(course_run.lms_end),
+            'verification_deadline': serialize_datetime(course_run.end),
         }
 
         # NOTE: We only order here to aid testing. The E-Commerce API does NOT care about ordering.
@@ -120,7 +113,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             logger.exception('Failed to publish course run [%d] to E-Commerce! Error was: [%s]', course_run.pk, content)
             return 'FAILED: ' + content
 
-    def publish_to_discovery(self, partner, course_run, start, end):
+    def publish_to_discovery(self, partner, course_run):
         publisher_course = course_run.course
         course_key = self.get_course_key(publisher_course)
 
@@ -150,7 +143,10 @@ class CourseRunViewSet(viewsets.GenericViewSet):
         subjects = list(OrderedDict.fromkeys(subjects))
         discovery_course.subjects.clear()
         discovery_course.subjects.add(*subjects)
+
         defaults = {
+            'start': course_run.start,
+            'end': course_run.end,
             'pacing_type': course_run.pacing_type,
             'title_override': course_run.title_override,
             'min_effort': course_run.min_effort,
@@ -159,10 +155,6 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             'weeks_to_complete': course_run.length,
             'learner_testimonials': publisher_course.learner_testimonial,
         }
-        if start or end:
-            defaults['start'] = start
-            defaults['end'] = end
-
         discovery_course_run, __ = DiscoveryCourseRun.objects.update_or_create(
             course=discovery_course,
             key=course_run.lms_course_id,

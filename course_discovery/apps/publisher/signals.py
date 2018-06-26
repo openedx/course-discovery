@@ -4,7 +4,7 @@ import waffle
 from django.contrib.auth.models import Permission
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import post_save
-from django.dispatch import receiver, Signal
+from django.dispatch import receiver
 from slumber.exceptions import SlumberBaseException
 
 from course_discovery.apps.publisher.models import CourseRun, OrganizationExtension
@@ -12,7 +12,6 @@ from course_discovery.apps.publisher.studio_api_utils import StudioAPI
 
 logger = logging.getLogger(__name__)
 
-PUBLISHER_COURSE_RUN_CREATED = Signal(providing_args=['model', 'start', 'end'])
 
 def get_related_discovery_course_run(publisher_course_run):
     try:
@@ -22,7 +21,7 @@ def get_related_discovery_course_run(publisher_course_run):
         return
 
 
-@receiver(PUBLISHER_COURSE_RUN_CREATED, sender=CourseRun)
+@receiver(post_save, sender=CourseRun)
 def create_course_run_in_studio_receiver(sender, instance, created, **kwargs):  # pylint: disable=unused-argument
     if created and waffle.switch_is_active('enable_publisher_create_course_run_in_studio'):
         course = instance.course

@@ -279,6 +279,8 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     course = models.ForeignKey(Course, related_name='publisher_course_runs')
     lms_course_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
 
+    start = models.DateTimeField(null=True, blank=True)
+    end = models.DateTimeField(null=True, blank=True)
     certificate_generation = models.DateTimeField(null=True, blank=True)
     pacing_type = models.CharField(
         max_length=255, db_index=True, null=True, blank=True, choices=CourseRunPacing.choices,
@@ -356,7 +358,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     history = HistoricalRecords()
 
     def __str__(self):
-        return '{course}: {lms_course_id}'.format(course=self.course.title, lms_course_id=self.lms_course_id)
+        return '{course}: {start_date}'.format(course=self.course.title, start_date=self.start)
 
     @property
     def post_back_url(self):

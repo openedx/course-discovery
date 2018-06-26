@@ -6,7 +6,6 @@ from django.core.files import File
 
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.models import Course, CourseRun, CourseRunState, CourseState, Seat
-from course_discovery.apps.publisher.signals import PUBLISHER_COURSE_RUN_CREATED
 
 logger = logging.getLogger(__name__)
 
@@ -124,6 +123,7 @@ def create_course_runs(meta_data_course, publisher_course):
         if canonical_course_run and canonical_course_run.key:
             defaults = {
                 'course': publisher_course,
+                'start': canonical_course_run.start, 'end': canonical_course_run.end,
                 'min_effort': canonical_course_run.min_effort, 'max_effort': canonical_course_run.max_effort,
                 'language': canonical_course_run.language, 'pacing_type': canonical_course_run.pacing_type,
                 'length': canonical_course_run.weeks_to_complete,
@@ -136,12 +136,6 @@ def create_course_runs(meta_data_course, publisher_course):
                 lms_course_id=canonical_course_run.key, defaults=defaults
             )
 
-            PUBLISHER_COURSE_RUN_CREATED.send(
-                model=publisher_course_run,
-                start=canonical_course_run.start,
-                end=canonical_course_run.end
-            )
-            
             # add many to many fields.
             publisher_course_run.transcript_languages.add(*canonical_course_run.transcript_languages.all())
             publisher_course_run.staff.add(*canonical_course_run.staff.all())
