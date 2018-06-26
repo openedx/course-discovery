@@ -18,6 +18,7 @@ from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
 from taggit.managers import TaggableManager
 
+from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.core.models import Currency, User
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import Course as DiscoveryCourse
@@ -28,7 +29,9 @@ from course_discovery.apps.publisher import emails
 from course_discovery.apps.publisher.choices import (
     CourseRunStateChoices, CourseStateChoices, InternalUserRole, PublisherUserRole
 )
-from course_discovery.apps.publisher.utils import is_email_notification_enabled, is_internal_user, is_publisher_admin
+from course_discovery.apps.publisher.utils import (
+    is_email_notification_enabled, is_internal_user, is_publisher_admin, parse_datetime_field
+)
 from course_discovery.apps.publisher.validators import ImageMultiSizeValidator
 
 logger = logging.getLogger(__name__)
@@ -362,6 +365,26 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         return reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.id})
 
     @property
+    def lms_start(self):
+        if self.course.partner and self.course.partner.site and self.lms_course_id:
+            lms = LMSAPIClient(self.course.partner.site)
+            details = lms.get_course_details(self.lms_course_id)
+            if details and details['start']:
+                return parse_datetime_field(details['start'])
+
+        return None
+
+    @property
+    def lms_end(self):
+        if self.course.partner and self.course.partner.site and self.lms_course_id:
+            lms = LMSAPIClient(self.course.partner.site)
+            details = lms.get_course_details(self.lms_course_id)
+            if details and details['end']:
+                return parse_datetime_field(details['end'])
+
+        return None
+
+    @property
     def created_by(self):
         history_user = self.history.order_by('history_date').first().history_user  # pylint: disable=no-member
         if history_user:
@@ -497,7 +520,7 @@ class Seat(TimeStampedModel, ChangedByMixin):
             if self.upgrade_deadline:
                 return self.upgrade_deadline
 
-            deadline = self.course_run.end - datetime.timedelta(days=settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
+            deadline = self.course_run.lms_end - datetime.timedelta(days=settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
             deadline = deadline.replace(hour=23, minute=59, second=59, microsecond=99999)
             return deadline
 
@@ -800,8 +823,8 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
         """
         course_run = self.course_run
         return all([
-            course_run.course.course_state.is_approved, course_run.has_valid_seats, course_run.start, course_run.end,
-            course_run.pacing_type, course_run.has_valid_staff, course_run.is_valid_micromasters,
+            course_run.course.course_state.is_approved, course_run.has_valid_seats, course_run.lms_start,
+            course_run.lms_end, course_run.pacing_type, course_run.has_valid_staff, course_run.is_valid_micromasters,
             course_run.is_valid_professional_certificate, course_run.is_valid_xseries, course_run.language,
             course_run.transcript_languages.all(), course_run.lms_course_id, course_run.min_effort,
             course_run.video_language, course_run.length

@@ -86,13 +86,13 @@
             {% trans "Start Date (time in UTC)" %}
            {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ course_run.start|date:"Y-m-d" }}</div>
+        <div class="copy">{{ course_run.lms_start|date:"Y-m-d" }}</div>
     </div>
     <div class="info-item">
         <div class="heading">{% trans "End Date (time in UTC)" %}
             {% include "publisher/course_run_detail/_clipboard.html" %}
         </div>
-        <div class="copy">{{ course_run.end|date:"Y-m-d" }}</div>
+        <div class="copy">{{ course_run.lms_end|date:"Y-m-d" }}</div>
     </div>
     <div class="info-item">
         <div class="heading">

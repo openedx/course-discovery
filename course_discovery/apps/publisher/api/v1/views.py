@@ -145,8 +145,8 @@ class CourseRunViewSet(viewsets.GenericViewSet):
         discovery_course.subjects.add(*subjects)
 
         defaults = {
-            'start': course_run.start,
-            'end': course_run.end,
+            'start': course_run.lms_start if course_run.lms_start else course_run.start,
+            'end': course_run.lms_end if course_run.lms_end else course_run.end,
             'pacing_type': course_run.pacing_type,
             'title_override': course_run.title_override,
             'min_effort': course_run.min_effort,

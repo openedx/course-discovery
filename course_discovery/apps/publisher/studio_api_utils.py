@@ -41,7 +41,7 @@ class StudioAPI:
         return cls._get_next_run(run, '', related_course_runs)
 
     @classmethod
-    def generate_data_for_studio_api(cls, publisher_course_run):
+    def generate_data_for_studio_api(cls, publisher_course_run, include_schedule=False):
         course = publisher_course_run.course
         course_team_admin = course.course_team_admin
         team = []
@@ -57,25 +57,27 @@ class StudioAPI:
             logger.warning('No course team admin specified for course [%s]. This may result in a Studio '
                            'course run being created without a course team.', course.number)
 
-        return {
+        data = {
             'title': publisher_course_run.title_override or course.title,
             'org': course.organizations.first().key,
             'number': course.number,
             'run': cls.calculate_course_run_key_run_value(publisher_course_run),
-            'schedule': {
-                'start': serialize_datetime(publisher_course_run.start),
-                'end': serialize_datetime(publisher_course_run.end),
-            },
             'team': team,
             'pacing_type': publisher_course_run.pacing_type,
         }
 
+        if include_schedule:
+            data['schedule'] = {
+                'start': serialize_datetime(publisher_course_run.start),
+                'end': serialize_datetime(publisher_course_run.end),
+            },
+
     def create_course_rerun_in_studio(self, publisher_course_run, discovery_course_run):
-        data = self.generate_data_for_studio_api(publisher_course_run)
+        data = self.generate_data_for_studio_api(publisher_course_run, include_schedule=True)
         return self._api.course_runs(discovery_course_run.key).rerun.post(data)
 
     def create_course_run_in_studio(self, publisher_course_run):
-        data = self.generate_data_for_studio_api(publisher_course_run)
+        data = self.generate_data_for_studio_api(publisher_course_run, include_schedule=True)
         return self._api.course_runs.post(data)
 
     def update_course_run_image_in_studio(self, publisher_course_run):

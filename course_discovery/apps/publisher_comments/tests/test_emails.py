@@ -1,7 +1,6 @@
 import ddt
 import mock
 from django.core import mail
-from django.test import TestCase
 from django.urls import reverse
 from opaque_keys.edx.keys import CourseKey
 from testfixtures import LogCapture
@@ -13,13 +12,14 @@ from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.models import CourseRun, CourseUserRole
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.factories import UserAttributeFactory
+from course_discovery.apps.publisher.tests.utils import MockedStartEndDateTestCase
 from course_discovery.apps.publisher_comments.emails import log as comments_email_logger
 from course_discovery.apps.publisher_comments.models import CommentTypeChoices
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
 
 
 @ddt.ddt
-class CommentsEmailTests(SiteMixin, TestCase):
+class CommentsEmailTests(SiteMixin, MockedStartEndDateTestCase):
     """ Tests for the e-mail functionality for course, course-run and seats. """
 
     def setUp(self):
@@ -77,7 +77,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
         subject = 'Comment added: {title} {start} - {pacing_type}'.format(
             title=self.course_run.course.title,
             pacing_type=self.course_run.get_pacing_type_display(),
-            start=self.course_run.start.strftime('%B %d, %Y')
+            start=self.course_run.lms_start.strftime('%B %d, %Y')
         )
         self.assert_comment_email_sent(
             self.course_run, comment,
@@ -107,8 +107,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
 
     def test_course_run_without_start_date(self):
         """ Verify that emails works properly even if course-run does not have a start date."""
-        self.course_run.start = None
-        self.course_run.save()
+        self.start_date_mock.return_value = None
         comment = self.create_comment(content_object=self.course_run)
         subject = 'Comment added: {title} {start} - {pacing_type}'.format(
             title=self.course_run.course.title,
@@ -130,7 +129,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
             course_name = '{title} {start} - {pacing_type}'.format(
                 title=content_object.course.title,
                 pacing_type=content_object.get_pacing_type_display(),
-                start=content_object.start.strftime('%B %d, %Y') if content_object.start else ''
+                start=content_object.lms_start.strftime('%B %d, %Y') if content_object.lms_start else ''
             )
         else:
             course_name = content_object.title
@@ -200,7 +199,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
         subject = 'Comment updated: {title} {start} - {pacing_type}'.format(
             title=self.course_run.course.title,
             pacing_type=self.course_run.get_pacing_type_display(),
-            start=self.course_run.start.strftime('%B %d, %Y')
+            start=self.course_run.lms_start.strftime('%B %d, %Y')
         )
         self.assertEqual(str(mail.outbox[1].subject), subject)
         self.assertIn(comment.comment, str(mail.outbox[1].body.strip()), 'Update the comment')

@@ -36,46 +36,39 @@
     <div class="course-form">
         <div class="course-information">
             <fieldset class="form-group grid-container grid-manual">
-                <div class="field-title">{% trans "COURSE START DATE" %} <span class="required float-right">* Required for review</span></div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        <ul>
-                            <li>
-                                {% trans "Note that times use UTC." %}
-                            </li>
-                            <li>
-                                {% trans "Start on a Tuesday, Wednesday, or Thursday." %}
-                            </li>
-                            <li>
-                                {% trans "Avoid major U.S. holidays." %}
-                            </li>
-                            <li>
-                                {% trans "Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated start date. For example, if your course will start near the end of March, specify March 31." %}
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="col col-6">
-                        <label class="field-label ">{{ run_form.start.label_tag }}  <span class="required">*</span></label>
-                        {{ run_form.start }}
-                        {% if run_form.start.errors %}
-                            <div class="field-message-content">
-                            {{ run_form.start.errors|escape }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="field-title">{% trans "COURSE END DATE" %} <span class="required float-right">* Required for review</span></div>
-                <div class="row">
-                    <div class="col col-6 help-text">
-                        {% trans "Note that times use UTC. Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated end date. For example, if your course will end near the end of March, specify March 31." %}
-                    </div>
-                    <div class="col col-6">
-                        <label class="field-label ">{{ run_form.end.label_tag }}  <span class="required">*</span></label>
-                        {{ run_form.end }}
-                    </div>
-                </div>
-
+              <div class="field-title">{% trans "START DATE" %} <span class="required float-right">* Required for review</span></div>
+              <div class="row">
+                  <div class="col col-6 help-text">
+                      <p>
+                        {% trans "The start and end dates for this course." %}
+                        <a class="studio-schedule-link" href="{{ course_run.studio_url }}" target="_blank">{% trans "You can edit these dates in Studio." %}</a> </p>
+                  </div>
+                  <div class="col col-6">
+                      <label class="field-label ">{{ course_run.lms_start }}  <span class="required">*</span></label>
+                      <div class="start-date">
+                          <span class="start-date-heading">{% trans "START DATE" %} - </span>
+                          {% if course_run.lms_start %}
+                              {{ course_run.lms_start }}
+                          {% else %}
+                              {% trans "Not yet created" %}
+                          {% endif %}
+                      </div>
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="col col-6 help-text"></div>
+                  <div class="col col-6">
+                      <label class="field-label ">{{ course_run.lms_start }}  <span class="required">*</span></label>
+                      <div class="end-date">
+                          <span class="end-date-heading">{% trans "END DATE" %} - </span>
+                          {% if course_run.lms_end %}
+                              {{ course_run.lms_end }}
+                          {% else %}
+                              {% trans "Not yet created" %}
+                          {% endif %}
+                      </div>
+                  </div>
+              </div>
                 <div class="field-title">{% trans "COURSE PACING" %} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">

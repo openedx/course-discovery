@@ -195,7 +195,7 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
             if history_object:
                 context['publish_date'] = history_object.modified
 
-        start_date = course_run.start.strftime("%B %d, %Y") if course_run.start else None
+        start_date = course_run.lms_start.strftime("%B %d, %Y") if course_run.lms_start else None
         context['breadcrumbs'] = make_bread_crumbs(
             [
                 (reverse('publisher:publisher_courses'), _('Courses')),
@@ -424,13 +424,14 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
         return render(request, self.template_name, context)
 
     def _get_active_course_runs(self, course):
-        return course.course_runs.filter(end__gt=datetime.now())
+        runs = course.course_runs
+        return [run for run in runs if run.lms_end > datetime.now()]
 
     def _get_published_course_runs(self, course):
         published_runs = set()
         for course_run in self._get_active_course_runs(course):
             if course_run.course_run_state.is_published:
-                start_date = course_run.start.strftime("%B %d, %Y") if course_run.start else None
+                start_date = course_run.lms_start.strftime("%B %d, %Y") if course_run.lms_start else None
                 published_runs.add('{type} - {start}'.format(
                     type=course_run.get_pacing_type_display(),
                     start=start_date
@@ -460,12 +461,12 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
             if not type_is_valid:
                 misconfigured_seat_type_runs.add('{type} - {start}'.format(
                     type=course_run.get_pacing_type_display(),
-                    start=course_run.start.strftime("%B %d, %Y")
+                    start=course_run.lms_start.strftime("%B %d, %Y")
                 ))
             if not price_is_valid:
                 misconfigured_price_runs.add('{type} - {start}'.format(
                     type=course_run.get_pacing_type_display(),
-                    start=course_run.start.strftime("%B %d, %Y")
+                    start=course_run.lms_start.strftime("%B %d, %Y")
                 ))
 
         return misconfigured_price_runs, misconfigured_seat_type_runs
@@ -572,6 +573,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
                     'course_form': course_form,
                     'entitlement_form': entitlement_form
                 })
+
             published_runs = self._get_published_course_runs(self.object)
             # Only check published runs if there are changes to the mode or price
             if published_runs and entitlement.mode != entitlement_mode:
@@ -746,7 +748,7 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
         if last_run:
             last_run_data = model_to_dict(last_run)
             # Delete all those fields which should not be copied over from previous run
-            del (last_run_data['id'], last_run_data['start'], last_run_data['end'], last_run_data['pacing_type'],
+            del (last_run_data['id'], last_run_data['pacing_type'],
                  last_run_data['preview_url'], last_run_data['lms_course_id'], last_run_data['changed_by'],
                  last_run_data['course'], last_run_data['sponsor'])
 
@@ -887,6 +889,8 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
         try:
             with transaction.atomic():
                 user = request.user
+                start = run_form.cleaned_data['start']
+                end = run_form.cleaned_data['end']
                 course_run = run_form.save(commit=False, course=parent_course, changed_by=user)
                 self._set_last_run_data(course_run)
                 seat_form.save(course_run=course_run, changed_by=user)
@@ -901,7 +905,10 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
                 messages.success(request, success_msg)
 
                 emails.send_email_for_course_creation(parent_course, course_run, request.site)
-                return HttpResponseRedirect(reverse(self.success_url, kwargs={'pk': course_run.id}))
+                return HttpResponseRedirect(
+                    reverse(self.success_url, kwargs={'pk': course_run.id}),
+                    {'start': start, 'end': end}
+                )
         except Exception as ex:  # pylint: disable=broad-except
             # pylint: disable=no-member
             error_msg = self._format_post_exception_message(ex)
@@ -1005,7 +1012,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
             course_run_seat = self.get_latest_course_run_seat(course_run)
             context['seat_form'] = self.seat_form(instance=course_run_seat)
 
-        start_date = course_run.start.strftime("%B %d, %Y") if course_run.start else None
+        start_date = course_run.lms_start.strftime("%B %d, %Y") if course_run.lms_start else None
         context['breadcrumbs'] = make_bread_crumbs(
             [
                 (reverse('publisher:publisher_courses'), 'Courses'),
