@@ -15,13 +15,12 @@ from course_discovery.apps.publisher.forms import CourseRunAdminForm
 from course_discovery.apps.publisher.models import CourseRun, OrganizationExtension
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.factories import CourseFactory
-from course_discovery.apps.publisher.tests.utils import MockedStartEndDateTestCase
 
 USER_PASSWORD = 'password'
 
 
 # pylint: disable=no-member
-class AdminTests(SiteMixin, MockedStartEndDateTestCase):
+class AdminTests(SiteMixin, TestCase):
     """ Tests Admin page."""
 
     def setUp(self):
@@ -68,10 +67,10 @@ class AdminTests(SiteMixin, MockedStartEndDateTestCase):
             'lms_course_id': '',
             'pacing_type': course_run.pacing_type,
             'course': course_run.course.id,
-            'start_0': course_run.lms_start.date(),
-            'start_1': course_run.lms_start.time(),
-            'end_0': course_run.lms_end.date(),
-            'end_1': course_run.lms_end.time(),
+            'start_0': course_run.start.date(),
+            'start_1': course_run.start.time(),
+            'end_0': course_run.end.date(),
+            'end_1': course_run.end.time(),
             'state': self.run_state.id,
             'contacted_partner_manager': course_run.contacted_partner_manager,
             'changed_by': self.user.id,

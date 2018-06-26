@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from unittest import mock
 
 import ddt
+from django.test import TestCase
 
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.tests.factories import (
@@ -11,12 +12,11 @@ from course_discovery.apps.course_metadata.tests.factories import (
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.models import Seat
 from course_discovery.apps.publisher.tests import factories
-from course_discovery.apps.publisher.tests.utils import MockedStartEndDateTestCase
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
 
 @ddt.ddt
-class CourseRunWrapperTests(MockedStartEndDateTestCase):
+class CourseRunWrapperTests(TestCase):
     """ Tests for the publisher `BaseWrapper` model. """
 
     def setUp(self):
@@ -135,7 +135,7 @@ class CourseRunWrapperTests(MockedStartEndDateTestCase):
         """ Verify that the wrapper return the mdc_submission_due_date. """
         current_date = datetime.today()
         expected_date = current_date - timedelta(days=10)
-        self.start_date_mock.return_value = current_date
+        self.course_run.start = current_date
         self.course_run.save()
         self.assertEqual(self.wrapped_course_run.mdc_submission_due_date, expected_date)
 

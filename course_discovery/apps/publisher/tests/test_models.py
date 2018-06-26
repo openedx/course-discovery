@@ -629,7 +629,7 @@ class CourseStateTests(TestCase):
 
 
 @ddt.ddt
-class CourseRunStateTests:
+class CourseRunStateTests(TestCase):
     """ Tests for the publisher `CourseRunState` model. """
 
     @classmethod

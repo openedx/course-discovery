@@ -19,7 +19,6 @@ from course_discovery.apps.publisher.dataloader.update_course_runs import logger
 from course_discovery.apps.publisher.models import Course as Publisher_Course
 from course_discovery.apps.publisher.models import CourseRun as Publisher_CourseRun
 from course_discovery.apps.publisher.tests import factories
-from course_discovery.apps.publisher.tests.utils import MockedStartEndDateTestCase
 
 
 @ddt.ddt
@@ -108,7 +107,7 @@ class ImportCoursesTests(TestCase):
 
 # pylint: disable=no-member
 @ddt.ddt
-class CreateCoursesTests(MockedStartEndDateTestCase):
+class CreateCoursesTests(TestCase):
     def setUp(self):
         super(CreateCoursesTests, self).setUp()
 
@@ -348,6 +347,8 @@ class CreateCoursesTests(MockedStartEndDateTestCase):
     def _assert_course_run(self, publisher_course_run, metadata_course_run):
         """ Verify that publisher course-run and metadata course run has correct values."""
 
+        self.assertEqual(publisher_course_run.start, metadata_course_run.start)
+        self.assertEqual(publisher_course_run.end, metadata_course_run.end)
         self.assertEqual(publisher_course_run.min_effort, metadata_course_run.min_effort)
         self.assertEqual(publisher_course_run.max_effort, metadata_course_run.max_effort)
         self.assertEqual(publisher_course_run.length, metadata_course_run.weeks_to_complete)
