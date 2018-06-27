@@ -6,6 +6,7 @@ from mock import mock
 from rest_framework.reverse import reverse
 from testfixtures import LogCapture
 
+from course_discovery.apps.api.permissions import ReadByStaffOnly
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
 from course_discovery.apps.api.v1.views.people import logger as people_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
@@ -27,6 +28,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.target_permissions = Permission.objects.filter(
             codename__in=['add_person', 'change_person', 'delete_person']
         )
+        self.permisson_class = ReadByStaffOnly()
         internal_test_group = Group.objects.create(name='internal-test')
         internal_test_group.permissions.add(*self.target_permissions)
         self.user.groups.add(internal_test_group)
@@ -125,10 +127,17 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         assert response.status_code == 403
         assert Person.objects.count() == current_people_count
 
-    def test_get(self):
+    def test_get_single_person_without_staff_access(self):
+        """ Verify the endpoint shows permission error for the details for a single person. """
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_single_person_with_staff_access(self):
         """ Verify the endpoint returns the details for a single person. """
         url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
-
+        self.user.is_staff = True
+        self.user.save()
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, self.serialize_person(self.person))
@@ -140,16 +149,25 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
 
-    def test_list(self):
-        """ Verify the endpoint returns a list of all people. """
+    def test_list_with_staff_user(self):
+        """ Verify the endpoint returns a list of all people with the staff user accesss """
+        self.user.is_staff = True
+        self.user.save()
         response = self.client.get(self.people_list_url)
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(response.data['results'], self.serialize_person(Person.objects.all(), many=True))
+
+    def test_list_without_staff_user(self):
+        """ Verify the endpoint shows permission error when non-staff user acccessed """
+        response = self.client.get(self.people_list_url)
+        self.assertEqual(response.status_code, 403)
 
     def test_list_filter_by_slug(self):
         """ Verify the endpoint allows people to be filtered by slug. """
         person = PersonFactory()
         url = '{root}?slug={slug}'.format(root=self.people_list_url, slug=person.slug)
+        self.user.is_staff = True
+        self.user.save()
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(response.data['results'], self.serialize_person([person], many=True))
