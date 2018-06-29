@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-24 15:22+0000\n"
+"POT-Creation-Date: 2018-07-05 12:03+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -28,31 +28,31 @@ msgid ""
 "parameter."
 msgstr ""
 
-#: apps/api/serializers.py:404
+#: apps/api/serializers.py:401
 msgid "Number of courses contained in this catalog"
 msgstr ""
 
-#: apps/api/serializers.py:407
+#: apps/api/serializers.py:404
 msgid "Usernames of users with explicit access to view this catalog"
 msgstr ""
 
-#: apps/api/serializers.py:473
+#: apps/api/serializers.py:470
 msgid "Language in which the course is administered"
 msgstr ""
 
-#: apps/api/serializers.py:542
+#: apps/api/serializers.py:539
 msgid "Dictionary mapping course run IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:697
+#: apps/api/serializers.py:694
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:852
+#: apps/api/serializers.py:849
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:856
+#: apps/api/serializers.py:853
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -224,7 +224,7 @@ msgstr ""
 msgid "No"
 msgstr ""
 
-#: apps/course_metadata/admin.py:139
+#: apps/course_metadata/admin.py:137
 msgid "Included course runs"
 msgstr ""
 
@@ -259,7 +259,7 @@ msgstr ""
 msgid "Deleted"
 msgstr ""
 
-#: apps/course_metadata/forms.py:71
+#: apps/course_metadata/forms.py:78
 msgid "Programs can only be activated if they have a banner image."
 msgstr ""
 
@@ -998,8 +998,20 @@ msgstr ""
 msgid "Approved by Marketing"
 msgstr ""
 
+#: apps/publisher/models.py:915
+msgid "Submitted for review"
+msgstr ""
+
+#: apps/publisher/models.py:917
+msgid "Preview Accepted"
+msgstr ""
+
+#: apps/publisher/models.py:918
+msgid "Preview Declined"
+msgstr ""
+
 #: apps/publisher/serializers.py:73
-#: apps/publisher/templates/publisher/_approval_widget.html:47
+#: apps/publisher/templates/publisher/_approval_widget.html:43
 #: apps/publisher/templates/publisher/course_detail/_edit_warning_popup.html:16
 #: apps/publisher/templates/publisher/course_run_detail/_edit_warning.html:17
 msgid "Edit"
@@ -1138,56 +1150,48 @@ msgstr ""
 msgid "Publish"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_approval_widget.html:43
-msgid "Submitted for review"
-msgstr ""
-
-#: apps/publisher/templates/publisher/_approval_widget.html:45
-msgid "Preview Declined"
-msgstr ""
-
-#: apps/publisher/templates/publisher/_approval_widget.html:50
+#: apps/publisher/templates/publisher/_approval_widget.html:46
 #: apps/publisher/templates/publisher/seat_form.html:20
 msgid "Save"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_approval_widget.html:55
+#: apps/publisher/templates/publisher/_approval_widget.html:51
 msgid "ABOUT PAGE PREVIEW"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_approval_widget.html:59
+#: apps/publisher/templates/publisher/_approval_widget.html:55
 msgid "Preview URL"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_approval_widget.html:60
+#: apps/publisher/templates/publisher/_approval_widget.html:56
 msgid "View About page preview"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_approval_widget.html:66
+#: apps/publisher/templates/publisher/_approval_widget.html:62
 msgid "Not available"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_approval_widget.html:88
+#: apps/publisher/templates/publisher/_approval_widget.html:84
 msgid "Sent for Review"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_approval_widget.html:94
+#: apps/publisher/templates/publisher/_approval_widget.html:90
 msgid "Reviewed"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_approval_widget.html:107
+#: apps/publisher/templates/publisher/_approval_widget.html:103
 msgid "day in ownership"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_approval_widget.html:109
+#: apps/publisher/templates/publisher/_approval_widget.html:105
 msgid "days in ownership"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_approval_widget.html:124
+#: apps/publisher/templates/publisher/_approval_widget.html:120
 msgid "change"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_approval_widget.html:144
+#: apps/publisher/templates/publisher/_approval_widget.html:140
 msgid "CHANGE"
 msgstr ""
 
@@ -3352,7 +3356,7 @@ msgid ""
 "the course to edX marketing for review. "
 msgstr ""
 
-#: apps/publisher/views.py:335 apps/publisher/views.py:1080
+#: apps/publisher/views.py:335 apps/publisher/views.py:1082
 #, python-brace-format
 msgid "An error occurred while saving your changes. {error}"
 msgstr ""
@@ -3360,7 +3364,7 @@ msgstr ""
 #: apps/publisher/views.py:340 apps/publisher/views.py:527
 #: apps/publisher/views.py:601 apps/publisher/views.py:838
 #: apps/publisher/views.py:883 apps/publisher/views.py:951
-#: apps/publisher/views.py:1086
+#: apps/publisher/views.py:1088
 msgid ""
 "The page could not be updated. Make sure that all values are correct, then "
 "try again."
@@ -3428,7 +3432,7 @@ msgstr ""
 msgid "You have successfully created a course run for {course_title}."
 msgstr ""
 
-#: apps/publisher/views.py:1064
+#: apps/publisher/views.py:1066
 msgid "Course run updated successfully."
 msgstr ""
 

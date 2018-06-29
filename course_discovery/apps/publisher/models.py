@@ -906,6 +906,17 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
         """ Check that course run is in Review state or not."""
         return self.name == CourseRunStateChoices.Review
 
+    @property
+    def preview_status_for_publisher(self):
+        """
+        Calculate the preview status review, accepted or decline for publisher user
+        """
+        if self.owner_role == PublisherUserRole.CourseTeam:
+            return _('Submitted for review')
+        elif self.owner_role == PublisherUserRole.Publisher and self.preview_accepted:
+            return _('Preview Accepted')
+        return _('Preview Declined')
+
 
 class PublisherUser(User):
     """ Publisher User Proxy Model. """
