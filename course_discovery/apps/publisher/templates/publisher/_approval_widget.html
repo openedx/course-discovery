@@ -39,11 +39,7 @@
                                 </button>
                             {% endif %}
                         {% elif course_run.course.publisher == request.user %}
-                            {% if course_run.course_run_state.owner_role == 'course_team' %}
-                                <span class="preview-status">{% trans "Submitted for review" %}</span>
-                            {% else %}
-                                <span class="preview-status">{% trans "Preview Declined" %}</span>
-                            {% endif %}
+                            <span class="preview-status">{{course_run.course_run_state.preview_status_for_publisher}}</span>
                                 <button data-url="{% url 'publisher:api:update_course_run' course_run.id %}" class="btn btn-neutral btn-edit-preview-url">{% trans "Edit" %}</button>
                         {% endif %}
                     {% elif course_run.course.publisher == request.user %}

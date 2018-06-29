@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-24 15:22+0000\n"
+"POT-Creation-Date: 2018-07-05 12:03+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1190,6 +1190,18 @@ msgstr "Àwäïtïng Märkétïng Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя 
 msgid "Approved by Marketing"
 msgstr "Àpprövéd ßý Märkétïng Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
+#: apps/publisher/models.py
+msgid "Submitted for review"
+msgstr "Süßmïttéd för révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/publisher/models.py
+msgid "Preview Accepted"
+msgstr "Prévïéw Àççéptéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: apps/publisher/models.py
+msgid "Preview Declined"
+msgstr "Prévïéw Déçlïnéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
 #: apps/publisher/serializers.py
 #: apps/publisher/templates/publisher/_approval_widget.html
 #: apps/publisher/templates/publisher/course_detail/_edit_warning_popup.html
@@ -1342,14 +1354,6 @@ msgstr "Àççéptéd Ⱡ'σяєм ιρѕυм ∂#"
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "Publish"
 msgstr "Püßlïsh Ⱡ'σяєм ιρѕυм #"
-
-#: apps/publisher/templates/publisher/_approval_widget.html
-msgid "Submitted for review"
-msgstr "Süßmïttéd för révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
-
-#: apps/publisher/templates/publisher/_approval_widget.html
-msgid "Preview Declined"
-msgstr "Prévïéw Déçlïnéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 #: apps/publisher/templates/publisher/seat_form.html

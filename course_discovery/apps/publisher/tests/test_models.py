@@ -787,6 +787,23 @@ class CourseRunStateTests(TestCase):
         self.course_run_state.save()
         self.assertTrue(self.course_run_state.is_published)
 
+    def test_preview_status_for_publisher(self):
+        """
+        Verify that the method returns the correct status
+        """
+        self.course_run_state.owner_role = PublisherUserRole.CourseTeam
+        self.course_run_state.save()
+        self.assertEqual(self.course_run_state.preview_status_for_publisher, 'Submitted for review')
+
+        self.course_run_state.owner_role = PublisherUserRole.Publisher
+        self.course_run_state.preview_accepted = True
+        self.course_run_state.save()
+        self.assertEqual(self.course_run_state.preview_status_for_publisher, 'Preview Accepted')
+
+        self.course_run_state.preview_accepted = False
+        self.course_run_state.save()
+        self.assertEqual(self.course_run_state.preview_status_for_publisher, 'Preview Declined')
+
     def test_is_draft(self):
         """
         Verify that method return is_draft status.
