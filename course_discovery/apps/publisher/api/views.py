@@ -38,7 +38,7 @@ class CourseRoleAssignmentView(UpdateAPIView):
 class OrganizationGroupUserView(ListAPIView):
     """ List view for Users filtered by group """
     serializer_class = GroupUserSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, PublisherUserPermission)
     pagination_class = LargeResultsSetPagination
 
     def get_queryset(self):
