@@ -331,6 +331,15 @@ class ProgramFactory(factory.django.DjangoModelFactory):
             add_m2m_data(self.instructor_ordering, extracted)
 
 
+class CreditPathwayFactory(factory.DjangoModelFactory):
+    name = FuzzyText()
+    org_name = FuzzyText()
+    email = factory.Sequence(lambda n: 'test-email-{}@test.com'.format(n))  # pylint: disable=unnecessary-lambda
+
+    class Meta:
+        model = CreditPathway
+
+
 class AbstractSocialNetworkModelFactory(factory.DjangoModelFactory):
     type = FuzzyChoice([name for name, __ in AbstractSocialNetworkModel.SOCIAL_NETWORK_CHOICES])
     value = FuzzyText()

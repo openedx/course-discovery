@@ -1274,6 +1274,20 @@ class Program(TimeStampedModel):
             super(Program, self).save(*args, **kwargs)
 
 
+class CreditPathway(TimeStampedModel):
+    """ Credit Pathway model """
+    name = models.CharField(max_length=255)
+    org_name = models.CharField(max_length=255, verbose_name=_("Organization name"))
+    email = models.EmailField(max_length=255)
+    programs = SortedManyToManyField(Program)
+
+    def __str__(self):
+        return "{org_name}: {name}".format(org_name=self.org_name, name=self.name)
+
+    class Meta(object):
+        unique_together = ('name', 'org_name')
+
+
 class PersonSocialNetwork(AbstractSocialNetworkModel):
     """ Person Social Network model. """
     person = models.ForeignKey(Person, related_name='person_networks')

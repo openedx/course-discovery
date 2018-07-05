@@ -1110,6 +1110,15 @@ class ProgramTests(TestCase):
             assert mock_delete_obj.called
 
 
+class CreditPathwayTests(TestCase):
+    """ Tests of the CreditPathway model."""
+
+    def test_str(self):
+        credit_pathway = factories.CreditPathwayFactory()
+        self.assertEqual(str(credit_pathway),
+                         '{org_name}: {name}'.format(org_name=credit_pathway.org_name, name=credit_pathway.name))
+
+
 class PersonSocialNetworkTests(TestCase):
     """Tests of the PersonSocialNetwork model."""
 
