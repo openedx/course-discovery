@@ -176,6 +176,11 @@ class ProgramAdmin(admin.ModelAdmin):
               'js/sortable_select.js')
 
 
+@admin.register(CreditPathway)
+class CreditPathwayAdmin(admin.ModelAdmin):
+    list_display = ('name', 'org_name', 'email')
+
+
 @admin.register(ProgramType)
 class ProgramTypeAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug',)
