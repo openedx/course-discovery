@@ -1115,8 +1115,7 @@ class CreditPathwayTests(TestCase):
 
     def test_str(self):
         credit_pathway = factories.CreditPathwayFactory()
-        self.assertEqual(str(credit_pathway),
-                         '{org_name}: {name}'.format(org_name=credit_pathway.org_name, name=credit_pathway.name))
+        self.assertEqual(str(credit_pathway), credit_pathway.name)
 
 
 class PersonSocialNetworkTests(TestCase):

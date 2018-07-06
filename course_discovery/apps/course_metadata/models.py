@@ -1276,16 +1276,15 @@ class Program(TimeStampedModel):
 
 class CreditPathway(TimeStampedModel):
     """ Credit Pathway model """
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
+    # this field doesn't necessarily map to our normal org models, it's just a convenience field for pathways
+    # while we figure them out
     org_name = models.CharField(max_length=255, verbose_name=_("Organization name"))
-    email = models.EmailField(max_length=255)
+    email = models.EmailField()
     programs = SortedManyToManyField(Program)
 
     def __str__(self):
-        return "{org_name}: {name}".format(org_name=self.org_name, name=self.name)
-
-    class Meta(object):
-        unique_together = ('name', 'org_name')
+        return self.name
 
 
 class PersonSocialNetwork(AbstractSocialNetworkModel):
