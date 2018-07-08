@@ -13,9 +13,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-18 11:01+0000\n"
-"PO-Revision-Date: 2018-04-24 12:34+0000\n"
-"Last-Translator: Abstract Technology <stefania.trabucchi@abstract-technology.de>\n"
+"POT-Creation-Date: 2018-07-06 12:57+0000\n"
+"PO-Revision-Date: 2018-05-25 20:03+0000\n"
+"Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: German (Germany) (http://www.transifex.com/open-edx/edx-platform/language/de_DE/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -87,13 +87,13 @@ msgstr "Speichern"
 msgid "Please enter a valid URL."
 msgstr "Bitte geben Sie eine gültige URL ein"
 
-#: static/js/publisher/views/courserun_list.js:22
+#: static/js/publisher/views/courserun_list.js:21
 msgid ""
 "You have successfully created a Studio URL ({studioLinkTag}) for "
-"{courseRunDetail} with a start date of {startDate}"
-msgstr "Sie haben erfolgreich eine Studio URL ({studioLinkTag})  für {courseRunDetail}  mit dem Start Termin {startDate} angelegt."
+"{courseRunDetail}"
+msgstr ""
 
-#: static/js/publisher/views/courserun_list.js:52
+#: static/js/publisher/views/courserun_list.js:50
 msgid "There was an error in saving your data."
 msgstr "Beim Speichern Ihrer Daten ist ein Fehler aufgetreten."
 
