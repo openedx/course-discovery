@@ -85,6 +85,9 @@ class SerializationMixin:
     def serialize_topic(self, topic, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.TopicSerializer, topic, many, format, extra_context)
 
+    def serialize_credit_pathway(self, credit_pathway, many=False, format=None, extra_context=None):
+        return self._serialize_object(serializers.CreditPathwaySerializer, credit_pathway, many, format, extra_context)
+
 
 class TypeaheadSerializationMixin:
     def serialize_course_run_search(self, run):

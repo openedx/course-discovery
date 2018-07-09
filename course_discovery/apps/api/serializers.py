@@ -21,9 +21,9 @@ from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, Endorsement, Image, Organization, Person,
-    PersonSocialNetwork, PersonWork, Position, Prerequisite, Program, ProgramType, Seat, SeatType, Subject, Topic,
-    Video
+    FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, CreditPathway, Endorsement, Image,
+    Organization, Person, PersonSocialNetwork, PersonWork, Position, Prerequisite, Program, ProgramType,
+    Seat, SeatType, Subject, Topic, Video
 )
 
 User = get_user_model()
@@ -897,6 +897,18 @@ class ProgramSerializer(MinimalProgramSerializer):
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering'
         )
+
+
+class CreditPathwaySerializer(serializers.ModelSerializer):
+    """ Serializer for CreditPathway. """
+    name = serializers.CharField()
+    org_name = serializers.CharField()
+    email = serializers.EmailField()
+    programs = MinimalProgramSerializer(many=True)
+
+    class Meta:
+        model = CreditPathway
+        fields = ('id', 'name', 'org_name', 'email', 'programs')
 
 
 class ProgramTypeSerializer(serializers.ModelSerializer):
