@@ -1006,7 +1006,6 @@ class Program(TimeStampedModel):
     hidden = models.BooleanField(
         default=False, db_index=True,
         help_text=_('Hide program on marketing site landing and search pages. This program MAY have a detail page.'))
-
     objects = ProgramQuerySet.as_manager()
 
     def __str__(self):
@@ -1272,6 +1271,43 @@ class Program(TimeStampedModel):
                 publisher.publish_obj(self, previous_obj=previous_obj)
         else:
             super(Program, self).save(*args, **kwargs)
+
+
+class Degree(TimeStampedModel):
+    """
+    Degree 'master' model linking requirements and templates
+    """
+    name = models.CharField(max_length=255, unique=True)
+    program = models.OneToOneField(
+        Program,
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class DegreeMarketing(TimeStampedModel):
+    """
+    Marketing model for degree landing pages
+    """
+    degree = models.OneToOneField(
+        Degree,
+        on_delete=models.CASCADE
+    )
+    application_deadline = models.CharField(
+        help_text=_('String-based deadline field (e.g. FALL 2020)'),
+        max_length=255,
+        unique=True
+    )
+    apply_url = models.CharField(
+        help_text=_('Callback URL to partner application flow'), max_length=255, blank=True)
+
+    class Meta(object):
+        verbose_name_plural = "degrees marketing"
+
+    def __str__(self):
+        return str(self.uuid)
 
 
 class CreditPathway(TimeStampedModel):

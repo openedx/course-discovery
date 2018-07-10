@@ -283,6 +283,16 @@ class NamedModelAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
+@admin.register(Degree)
+class DegreeAdmin(admin.ModelAdmin):
+    list_display = ('program', 'name')
+
+
+@admin.register(DegreeMarketing)
+class DegreeMarketingeAdmin(admin.ModelAdmin):
+    list_display = ('degree', 'application_deadline', 'apply_url')
+
+
 # Register children of AbstractNamedModel
 for model in (LevelType, Prerequisite,):
     admin.site.register(model, NamedModelAdmin)

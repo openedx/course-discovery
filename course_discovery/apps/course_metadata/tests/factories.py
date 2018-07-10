@@ -1,3 +1,4 @@
+
 from datetime import datetime
 
 import factory
@@ -388,3 +389,20 @@ class CourseEntitlementFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = CourseEntitlement
+
+
+class DegreeFactory(factory.DjangoModelFactory):
+    name = FuzzyText()
+    program = factory.SubFactory(ProgramFactory)
+
+    class Meta:
+        model = Degree
+
+
+class DegreeMarketingFactory(factory.DjangoModelFactory):
+    degree = factory.SubFactory(DegreeFactory)
+    application_deadline = FuzzyText()
+    apply_url = FuzzyText()
+
+    class Meta:
+        model = DegreeMarketing

@@ -38,9 +38,10 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSA
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import (
-    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, EndorsementFactory, ExpectedLearningItemFactory,
-    ImageFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, PositionFactory, PrerequisiteFactory,
-    ProgramFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
+    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, DegreeFactory, DegreeMarketingFactory,
+    EndorsementFactory, ExpectedLearningItemFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory,
+    PersonFactory, PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory, SeatFactory,
+    SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -657,7 +658,8 @@ class MinimalProgramSerializerTests(TestCase):
                 }).data,
             'authoring_organizations': MinimalOrganizationSerializer(program.authoring_organizations, many=True).data,
             'card_image_url': program.card_image_url,
-            'is_program_eligible_for_one_click_purchase': program.is_program_eligible_for_one_click_purchase
+            'is_program_eligible_for_one_click_purchase': program.is_program_eligible_for_one_click_purchase,
+            'degree': None
         }
 
     def test_data(self):
@@ -665,6 +667,24 @@ class MinimalProgramSerializerTests(TestCase):
         program = self.create_program()
         serializer = self.serializer_class(program, context={'request': request})
         expected = self.get_expected_data(program, request)
+        self.assertDictEqual(serializer.data, expected)
+
+    def test_degree_marketing_data(self):
+        request = make_request()
+        program = self.create_program()
+        degree = DegreeFactory.create(program=program)
+        degree_marketing = DegreeMarketingFactory.create(degree=degree)
+        serializer = self.serializer_class(program, context={'request': request})
+        expected = self.get_expected_data(program, request)
+
+        # Tack in degree data
+        expected['degree'] = {
+            'name': degree.name,
+            'degreemarketing': {
+                'application_deadline': degree_marketing.application_deadline,
+                'apply_url': degree_marketing.apply_url
+            }
+        }
         self.assertDictEqual(serializer.data, expected)
 
 

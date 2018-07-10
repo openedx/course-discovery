@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-06 12:57+0000\n"
+"POT-Creation-Date: 2018-07-13 20:21+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -48,11 +48,11 @@ msgstr ""
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:849
+#: apps/api/serializers.py:867
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:853
+#: apps/api/serializers.py:871
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -494,7 +494,15 @@ msgid ""
 "have a detail page."
 msgstr ""
 
-#: apps/course_metadata/models.py:1280
+#: apps/course_metadata/models.py:1299
+msgid "String-based deadline field (e.g. FALL 2020)"
+msgstr ""
+
+#: apps/course_metadata/models.py:1304
+msgid "Callback URL to partner application flow"
+msgstr ""
+
+#: apps/course_metadata/models.py:1318
 msgid "Organization name"
 msgstr ""
 

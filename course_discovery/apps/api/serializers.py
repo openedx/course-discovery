@@ -21,9 +21,9 @@ from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, CreditPathway, Endorsement, Image,
-    Organization, Person, PersonSocialNetwork, PersonWork, Position, Prerequisite, Program, ProgramType,
-    Seat, SeatType, Subject, Topic, Video
+    FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, CreditPathway, Degree, DegreeMarketing,
+    Endorsement, Image, Organization, Person, PersonSocialNetwork, PersonWork, Position, Prerequisite, Program,
+    ProgramType, Seat, SeatType, Subject, Topic, Video
 )
 
 User = get_user_model()
@@ -725,11 +725,28 @@ class MinimalProgramCourseSerializer(MinimalCourseSerializer):
         ).data
 
 
+class DegreeMarketingSerializer(serializers.ModelSerializer):
+    """ DegreeMarketing serializer """
+    class Meta:
+        model = DegreeMarketing
+        fields = ('application_deadline', 'apply_url')
+
+
+class DegreeSerializer(serializers.ModelSerializer):
+    """ Degree model serializer """
+    degreemarketing = DegreeMarketingSerializer()
+
+    class Meta:
+        model = Degree
+        fields = ('name', 'degreemarketing')
+
+
 class MinimalProgramSerializer(serializers.ModelSerializer):
     authoring_organizations = MinimalOrganizationSerializer(many=True)
     banner_image = StdImageSerializerField()
     courses = serializers.SerializerMethodField()
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
+    degree = DegreeSerializer()
 
     @classmethod
     def prefetch_queryset(cls, partner):
@@ -748,6 +765,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
         fields = (
             'uuid', 'title', 'subtitle', 'type', 'status', 'marketing_slug', 'marketing_url', 'banner_image', 'hidden',
             'courses', 'authoring_organizations', 'card_image_url', 'is_program_eligible_for_one_click_purchase',
+            'degree'
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 
