@@ -770,6 +770,7 @@ class CourseRun(TimeStampedModel):
         return '{key}: {title}'.format(key=self.key, title=self.title)
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        is_new_course_run = not self.pk
         suppress_publication = kwargs.pop('suppress_publication', False)
         is_publishable = (
             self.course.partner.has_marketing_site and
@@ -793,6 +794,11 @@ class CourseRun(TimeStampedModel):
         else:
             logger.info('Course run [%s] is not publishable.', self.key)
             super(CourseRun, self).save(*args, **kwargs)
+
+        if is_new_course_run:
+            retired_programs = self.programs.filter(status=ProgramStatus.Retired)
+            for program in retired_programs:
+                program.excluded_course_runs.add(self)
 
 
 class SeatType(TimeStampedModel):

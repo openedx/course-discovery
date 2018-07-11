@@ -209,6 +209,20 @@ class CourseRunTests(TestCase):
         factories.ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Deleted)
         self.assertEqual(self.course_run.program_types, [active_program.type.name])
 
+    def test_new_course_run_excluded_in_retired_programs(self):
+        """ Verify the newly created course run must be excluded in associated retired programs"""
+        course = factories.CourseFactory()
+        course_run = factories.CourseRunFactory(course=course)
+        program = factories.ProgramFactory(
+            courses=[course], status=ProgramStatus.Retired,
+        )
+        course_run.weeks_to_complete = 2
+        course_run.save()
+        new_course_run = factories.CourseRunFactory(course=course)
+        new_course_run.save()
+        self.assertEqual(program.excluded_course_runs.count(), 1)
+        self.assertEqual(len(list(program.course_runs)), 1)
+
     @ddt.data(
         # Case 1: Return False when there are no paid Seats.
         ([('audit', 0)], False),
