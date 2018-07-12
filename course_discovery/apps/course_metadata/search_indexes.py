@@ -142,21 +142,17 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
     card_image_url = indexes.CharField(model_attr='card_image_url', null=True)
     org = indexes.CharField()
 
-    coruserun_status = indexes.CharField(model_attr='course_runs__status')
-    coruserun_start = indexes.DateTimeField(model_attr='course_runs__start', null=True)
-    coruserun_end = indexes.DateTimeField(model_attr='course_runs__end', null=True)
-    coruserun_enrollment_start = indexes.DateTimeField(model_attr='course_runs__enrollment_start', null=True)
-    coruserun_enrollment_end = indexes.DateTimeField(model_attr='course_runs__enrollment_end', null=True)
-    coruserun_availability = indexes.CharField(model_attr='course_runs__availability')
-    has_courseruns = indexes.BooleanField(null=False)
+    status = indexes.CharField(model_attr='course_runs__status')
+    start = indexes.DateTimeField(model_attr='course_runs__start', null=True)
+    end = indexes.DateTimeField(model_attr='course_runs__end', null=True)
+    enrollment_start = indexes.DateTimeField(model_attr='course_runs__enrollment_start', null=True)
+    enrollment_end = indexes.DateTimeField(model_attr='course_runs__enrollment_end', null=True)
+    availability = indexes.CharField(model_attr='course_runs__availability')
 
     course_runs = indexes.MultiValueField()
     expected_learning_items = indexes.MultiValueField()
 
     prerequisites = indexes.MultiValueField(faceted=True)
-
-    def prepare_has_courseruns(self, obj):
-        return obj.course_runs.all().exists()
 
     def prepare_aggregation_key(self, obj):
         return 'course:{}'.format(obj.key)
