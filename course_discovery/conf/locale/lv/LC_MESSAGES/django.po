@@ -4,195 +4,191 @@
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
 # 
 # Translators:
-# Giorgi Goderdzishvili <biggeorgian@gmail.com>, 2016
-# Renzo Lucioni <rlucioni@edx.org>, 2016
-# Tamta Tchumburidze <tamtatioon@gmail.com>, 2016
-# ზაზა ქარსაულიძე <zaza.karsaulidze@gmail.com>, 2018
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-15 20:13+0000\n"
-"PO-Revision-Date: 2018-04-17 09:37+0000\n"
-"Last-Translator: ზაზა ქარსაულიძე <zaza.karsaulidze@gmail.com>\n"
-"Language-Team: Georgian (http://www.transifex.com/open-edx/edx-platform/language/ka/)\n"
+"PO-Revision-Date: 2018-06-11 08:17+0000\n"
+"Last-Translator: Zane Mičule <ltmc.training@gmail.com>\n"
+"Language-Team: Latvian (http://www.transifex.com/open-edx/edx-platform/language/lv/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ka\n"
-"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+"Language: lv\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);\n"
 
 #: apps/api/filters.py
 #, python-brace-format
 msgid "No user with the username [{username}] exists."
-msgstr "მომხმარებელი მომხმარებლის სახელით [{username}] არ არსებობს."
+msgstr ""
 
 #: apps/api/filters.py
 msgid ""
 "Only staff users are permitted to filter by username. Remove the username "
 "parameter."
-msgstr "მომხმარებლის სახელით გაფილტვრის უფლება მხოლოდ თანამშრომლებს აქვთ. წაშალეთ მომხმარებლის სახელის პარამეტრები."
+msgstr ""
 
 #: apps/api/serializers.py
 msgid "Number of courses contained in this catalog"
-msgstr "კატალოგში არსებული კურსების რაოდენობა"
+msgstr ""
 
 #: apps/api/serializers.py
 msgid "Usernames of users with explicit access to view this catalog"
-msgstr "იმ მომხმარებლების მომხმარებლის სახელები, რომლებსაც ამ კატალოგზე აქვთ წვდომა"
+msgstr ""
 
 #: apps/api/serializers.py
 msgid "Language in which the course is administered"
-msgstr "ენა, რომლითაც იმართება კურსი"
+msgstr ""
 
 #: apps/api/serializers.py
 msgid "Dictionary mapping course run IDs to boolean values"
-msgstr "კურსის გაშვების ლექსიკური იდენტიფიკატორების ბულის მნიშვნელობებად ასახვა"
+msgstr ""
 
 #: apps/api/serializers.py
 msgid "Dictionary mapping course IDs to boolean values"
-msgstr "კურსის ლექსიკური იდენტიფიკატორების ბულის მნიშვნელობებად ასახვა"
+msgstr ""
 
 #: apps/api/serializers.py
 msgid "Languages that course runs in this program are offered in."
-msgstr "კურსის გაშვების ამ პროგრამაში შემოთავაზებულია ენები."
+msgstr ""
 
 #: apps/api/serializers.py
 msgid ""
 "Languages that course runs in this program have available transcripts in."
-msgstr "ენები რომლებიც კურსის გაშვებაშია ამ პროგრამაში, ხელმისაწვდომია სუბტიტრებით. "
+msgstr ""
 
 #: apps/api/views.py
 msgid "You are not permitted to access the API documentation."
-msgstr "თქვენ არ გაქვთ დაშვება API-ს დოკუმენტებზე წვდომასთან."
+msgstr ""
 
 #: apps/catalogs/models.py
 msgid "Catalog name"
-msgstr "კატალოგის სახელი"
+msgstr ""
 
 #: apps/catalogs/models.py
 msgid "Query to retrieve catalog contents"
-msgstr "კატალოგის შინაარსის მოსაძიებელი მოთხოვნა"
+msgstr ""
 
 #: apps/core/admin.py
 msgid "Personal info"
-msgstr "პირადი ინფორმაცია"
+msgstr ""
 
 #: apps/core/admin.py
 msgid "Permissions"
-msgstr "უფლებები"
+msgstr ""
 
 #: apps/core/admin.py
 msgid "Important dates"
-msgstr "მნიშვნელოვანი თარიღები"
+msgstr ""
 
 #: apps/core/admin.py
 msgid "OpenID Connect"
-msgstr "ღია საიდენტიფიკაციო კავშირი"
+msgstr ""
 
 #: apps/core/admin.py
 msgid ""
 "OpenID Connect is used for front-end authentication as well as getting "
 "access to the APIs."
-msgstr "ღია საიდენტიფიკაციო კავშირი გამოიყენება ფრონტ ენდიდან ავტორიზაციისთვის ისევე როგორც API-ებზე წვდომის მოსაპოვებლად."
+msgstr ""
 
 #: apps/core/admin.py
 msgid "API Configuration"
-msgstr "API-ს კონფიგურაცია"
+msgstr ""
 
 #: apps/core/admin.py
 msgid "Configure the APIs that will be used to retrieve data."
-msgstr "დააკონფიგურირე API-ები რომლებსაც გამოიყენებთ მონაცემების მოსაძიებლად."
+msgstr ""
 
 #: apps/core/admin.py
 msgid "Marketing Site Configuration"
-msgstr "მარკეტინგული გვერდის კონფიგურაცია"
+msgstr ""
 
 #: apps/core/admin.py
 msgid ""
 "Configure the marketing site URLs that will be used to retrieve data and "
 "create URLs."
-msgstr "დააკონფიგურირეთ მარკეტინგული გვერდის URL-ები, რომლებსაც მონაცემების მოსაძიებლად გამოიყენებთ და შექმენით URL-ები."
+msgstr ""
 
 #. Translators: 'period_choices' is a list of possible values, like ('second',
 #. 'minute', 'hour')
 #: apps/core/forms.py
 #, python-brace-format
 msgid "period must be one of {period_choices}."
-msgstr "პერიოდი უნდა იყოს ერთ-ერთი {period_choices}."
+msgstr ""
 
 #: apps/core/forms.py
 msgid "'rate' must be in the format defined by DRF, such as '100/hour'."
-msgstr "\"სიხშირე\" DRF-ით განსაზღვრულ ფორმატში უნდა იყოს, როგორიცაა \"100/საათი\"."
+msgstr ""
 
 #: apps/core/models.py
 msgid "Full Name"
-msgstr "სრული სახელი"
+msgstr "Pilns vārds"
 
 #: apps/core/models.py
 msgid "Referral Tracking ID"
-msgstr "რეფერალის მიდევნების ID"
+msgstr ""
 
 #: apps/core/models.py
 msgid ""
 "The rate of requests to limit this user to. The format is specified by "
 "Django Rest Framework (see http://www.django-rest-framework.org/api-"
 "guide/throttling/)."
-msgstr "მოთხოვნების სიხშირე ამ მომხმარებლის შესაზღუდად. ფორმატი განსაზღვრულია Django Rest Framework-ის მიერ (იხ. http://www.django-rest-framework.org/api-guide/throttling/)."
+msgstr ""
 
 #: apps/core/models.py
 msgid "Short Code"
-msgstr "მოკლე კოდი"
+msgstr ""
 
 #: apps/core/models.py
 msgid ""
 "Convenient code/slug used to identify this Partner (e.g. for management "
 "commands.)"
-msgstr "შესაბამისი კოდი/ამ პარტნიორის საიდენტიფიკაციო სლოგანი (მაგ: სამართავი ბრძანებებისთვის.)"
+msgstr ""
 
 #: apps/core/models.py
 msgid "Courses API URL"
-msgstr "კურსების API-ის URL"
+msgstr ""
 
 #: apps/core/models.py
 msgid "E-Commerce API URL"
-msgstr "ელექტრონული კომერციის API-ის URL"
+msgstr ""
 
 #: apps/core/models.py
 msgid "Organizations API URL"
-msgstr "ორგანიზაციების API-ის URL"
+msgstr ""
 
 #: apps/core/models.py
 msgid "Programs API URL"
-msgstr "პროგრამების API-ის URL"
+msgstr ""
 
 #: apps/core/models.py
 msgid "Marketing Site API URL"
-msgstr "მარკეტინგის საიტის API-ის URL"
+msgstr ""
 
 #: apps/core/models.py
 msgid "Marketing Site URL"
-msgstr "მარკეტინგის გვერდის URL"
+msgstr ""
 
 #: apps/core/models.py
 msgid "Marketing Site API Username"
-msgstr "მარკეტინგის  გვერდის API-ის მომხმარებლის სახელი"
+msgstr ""
 
 #: apps/core/models.py
 msgid "Marketing Site API Password"
-msgstr "მარკეტინგის გვერდის API-ის პაროლი"
+msgstr ""
 
 #: apps/core/models.py
 msgid "OpenID Connect URL"
-msgstr "OpenID Connect-ის URL"
+msgstr ""
 
 #: apps/core/models.py
 msgid "OpenID Connect Key"
-msgstr "OpenID Connect-ის გასაღები"
+msgstr ""
 
 #: apps/core/models.py
 msgid "OpenID Connect Secret"
-msgstr "OpenID Connect-ის საიდუმლო"
+msgstr ""
 
 #: apps/core/models.py apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
@@ -205,11 +201,11 @@ msgstr ""
 
 #: apps/core/models.py
 msgid "Partner"
-msgstr "პარტნიორი"
+msgstr ""
 
 #: apps/core/models.py
 msgid "Partners"
-msgstr "პარტნიორები"
+msgstr ""
 
 #: apps/course_metadata/admin.py
 #, python-brace-format
@@ -224,48 +220,48 @@ msgstr ""
 
 #: apps/course_metadata/admin.py apps/publisher/forms.py
 msgid "Yes"
-msgstr "დიახ"
+msgstr "Jā"
 
 #: apps/course_metadata/admin.py apps/publisher/forms.py
 msgid "No"
-msgstr "არა"
+msgstr "Nē"
 
 #: apps/course_metadata/admin.py
 msgid "Included course runs"
-msgstr "შესული კურსის გაშვებები"
+msgstr ""
 
 #: apps/course_metadata/choices.py apps/publisher/choices.py
 msgid "Published"
-msgstr "გამოქვეყნებული"
+msgstr ""
 
 #: apps/course_metadata/choices.py
 msgid "Unpublished"
-msgstr "გამოუქვეყნებელი"
+msgstr ""
 
 #. Translators: Instructor-paced refers to course runs that operate on a
 #. schedule set by the instructor,
 #. similar to a normal university course.
 #: apps/course_metadata/choices.py
 msgid "Instructor-paced"
-msgstr "ინსტრუქტირებული"
+msgstr ""
 
 #. Translators: Self-paced refers to course runs that operate on the student's
 #. schedule.
 #: apps/course_metadata/choices.py
 msgid "Self-paced"
-msgstr "თვითრეგულირებული"
+msgstr ""
 
 #: apps/course_metadata/choices.py
 msgid "Active"
-msgstr "აქტიური"
+msgstr ""
 
 #: apps/course_metadata/choices.py
 msgid "Retired"
-msgstr "გადამდგარი"
+msgstr ""
 
 #: apps/course_metadata/choices.py
 msgid "Deleted"
-msgstr "წაშლილი"
+msgstr "Dzēsts"
 
 #: apps/course_metadata/forms.py
 msgid "Programs can only be activated if they have a banner image."
@@ -273,27 +269,27 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Facebook"
-msgstr "ფეისბუკი"
+msgstr "Facebook"
 
 #: apps/course_metadata/models.py
 msgid "Twitter"
-msgstr "ტვიტერი"
+msgstr "Twitter"
 
 #: apps/course_metadata/models.py
 msgid "Blog"
-msgstr "ბლოგი"
+msgstr "Emuārs"
 
 #: apps/course_metadata/models.py
 msgid "Others"
-msgstr "სხვები"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "UUID"
-msgstr "UUID"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Leave this field blank to have the value generated automatically."
-msgstr "დატოვეთ ეს ველი ცარიელი, რომ მნიშვნელობა ავტომატურად გენერირდეს."
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Subject model translations"
@@ -329,7 +325,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "People"
-msgstr "ხალხი"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Add the course image"
@@ -337,39 +333,39 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
-msgstr "კურსის ნომრის ფორმატი, მაგ.: CS002x, BIO1.1x, BIO1.2x"
+msgstr ""
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid ""
 "Title specific for this run of a course. Leave this value blank to default "
 "to the parent course's title."
-msgstr "კურსის ამ გაშვების სპეციფიკური სათაური. მშობელი კურსის ნაგულისხმევი სათაურის გამოსაყენებლად ეს ველი დატოვეთ ცარიელი."
+msgstr ""
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid ""
 "Short description specific for this run of a course. Leave this value blank "
 "to default to the parent course's short_description attribute."
-msgstr "კურსის ამ გაშვებას მორგებული მოკლე აღწერა. მშობელი კურსის ნაგულისხმევი short_description  ატრიბუტის გამოსაყენებლად დატოვეთ ეს ველი ცარიელი."
+msgstr ""
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid ""
 "Full description specific for this run of a course. Leave this value blank "
 "to default to the parent course's full_description attribute."
-msgstr "კურსის ამ გაშვების სპეციფიკური სრული აღწერა. მშობელი კურსის ნაგულისხმევი full_description  ატრიბუტის გამოსაყენებლად დატოვეთ ეს ველი ცარიელი."
+msgstr ""
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid ""
 "Estimated minimum number of hours per week needed to complete a course run."
-msgstr "გაშვებული კურსის დასრულებისთვის საჭირო სავარაუდო მინიმუმი რაოდენობის საათები კვირაში."
+msgstr ""
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid ""
 "Estimated maximum number of hours per week needed to complete a course run."
-msgstr "გაშვებული კურსის დასრულებისთვის საჭირო სავარაუდო მაქსიმუმი რაოდენობის საათები კვირაში."
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Estimated number of weeks needed to complete this course run."
-msgstr "გაშვებული კურსის დასრულებისთვის საჭირო სავარაუდო კვირების რაოდენობა."
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Indicates whether the course relation has been manually overridden."
@@ -383,41 +379,41 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Archived"
-msgstr "დაარქივებული"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Current"
-msgstr "მიმდინარე"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Starting Soon"
-msgstr "მალე დაიწყება"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Upcoming"
-msgstr "მოახლოებული"
+msgstr "Gaidāms"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Honor"
-msgstr "წარჩინებით"
+msgstr "Gods"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Audit"
-msgstr "აუდიტი"
+msgstr "Audita"
 
 #: apps/course_metadata/models.py apps/publisher/forms.py
 #: apps/publisher/models.py
 msgid "Verified"
-msgstr "შემოწმებული"
+msgstr "Verificēts"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Professional"
-msgstr "პროფესიული"
+msgstr "Profesionālais"
 
 #: apps/course_metadata/models.py apps/publisher/forms.py
 #: apps/publisher/models.py
 msgid "Credit"
-msgstr "კრედიტი"
+msgstr ""
 
 #: apps/course_metadata/models.py apps/publisher/forms.py
 #: apps/publisher/models.py
@@ -425,11 +421,11 @@ msgstr "კრედიტი"
 #: apps/publisher/templates/publisher/course_revision_history.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "FAQ"
-msgstr "ხშირად დასმული კითხვები"
+msgstr "BUJ"
 
 #: apps/course_metadata/models.py
 msgid "FAQs"
-msgstr "ხშირად დასმული კითხვები"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid ""
@@ -437,43 +433,43 @@ msgid ""
 "completing associated courses, but enrolled in other seat types, will NOT "
 "have their completion of the course counted toward the completion of the "
 "program."
-msgstr "ადგილის ტიპები, რომლებსაც ამ სახის პროგრამების დასრულების უფლება აქვთ. მსმენელები, რომლებმაც ასოცირებული კურსები დაასრულეს, მაგრამ ჩაირიცხნენ სხვა ტიპის ადგილებზე, კურსის დასრულება პროგრამის დასრულებად არ ჩაეთვლებათ."
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Please provide an image file with transparent background"
-msgstr "გთხოვთ, ატვირთოთ გამოსახულების ფაილი გამჭვირვალე ფონით"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "The user-facing display title for this Program."
-msgstr "ამ პროგრამის მომხმარებელთან ასახული სათაური."
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "A brief, descriptive subtitle for the Program."
-msgstr "პროგრამის მოკლე, აღწერითი  ქვესათაური"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "The lifecycle status of this Program."
-msgstr "პროგრამის სიცოცხლის ციკლის სტატუსი."
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Slug used to generate links to the marketing site"
-msgstr "სლოგანი გამოიყენება მარკეტინგულ გვერდზე ბმულების გენერაციითვის"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid ""
 "If this box is not checked, courses will be ordered as in the courses select"
 " box above."
-msgstr "თუ ეს ველი არ არის მონიშნული, კურსები ზედა მონიშნული ველის კურსების მსგავსი თანმიმდევრობით დალაგდება."
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid ""
 "This field is now deprecated (ECOM-6021).Estimated number of weeks needed to"
 " complete a course run belonging to this program."
-msgstr "ახლა ეს ველი მოძველებულია (ECOM-6021). კვირების სავარაუდო რაოდენობა, რომელიც ამ პროგრამის კურსის გაშვების დასრულებისთვის არის საჭირო."
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Image used for discovery cards"
-msgstr "დისქავერი ბარათებისთვის გამოყენებული გამოსახულება"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid ""
@@ -484,7 +480,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "The description of credit redemption for courses in program"
-msgstr "პროგრამის კურსის კრედიტებით გადახდის აღწერა"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Allow courses in this program to be purchased in a single transaction"
@@ -507,15 +503,15 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_edit_warning.html
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Cancel"
-msgstr "გაუქმება"
+msgstr "Atcelt"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html
 msgid "Back to Program"
-msgstr "პროგრამაში დაბრუნება"
+msgstr ""
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html
 msgid "Save Course Run"
-msgstr "კურსის გაშვების შენახვა"
+msgstr ""
 
 #: apps/course_metadata/views.py
 msgid "Update excluded course runs"
@@ -551,29 +547,29 @@ msgstr ""
 
 #: apps/publisher/choices.py
 msgid "Marketing Reviewer"
-msgstr "მარკეტინგის შემოწმება"
+msgstr ""
 
 #: apps/publisher/choices.py
 msgid "Publisher"
-msgstr "გამომცემელი"
+msgstr ""
 
 #: apps/publisher/choices.py
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "Course Team"
-msgstr "კურსის გუნდი"
+msgstr ""
 
 #: apps/publisher/choices.py apps/publisher/models.py
 #: apps/publisher/wrappers.py
 msgid "Draft"
-msgstr "მონახაზი"
-
-#: apps/publisher/choices.py
-msgid "Review"
 msgstr ""
 
 #: apps/publisher/choices.py
+msgid "Review"
+msgstr "Pārskatīt"
+
+#: apps/publisher/choices.py
 msgid "Approved"
-msgstr "დამტკიცებული"
+msgstr "Apstiprināts"
 
 #: apps/publisher/emails.py
 #, python-brace-format
@@ -650,13 +646,13 @@ msgstr ""
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "Organization Name"
-msgstr ""
+msgstr "Organizācijas nosaukums"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Course Title"
-msgstr "კურსის სათაური"
+msgstr ""
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
@@ -666,7 +662,7 @@ msgstr "კურსის სათაური"
 #: apps/publisher/templates/publisher/dashboard/_published.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Course Number"
-msgstr "კურსის ნომერი"
+msgstr "Kursa numurs"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
@@ -685,7 +681,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_revision_history.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Prerequisites"
-msgstr "წინაპირობები"
+msgstr "Priekšnosacījumi"
 
 #: apps/publisher/forms.py
 msgid "Organization Course Admin"
@@ -693,7 +689,7 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Primary"
-msgstr ""
+msgstr "Pamatskola"
 
 #: apps/publisher/forms.py
 msgid "Additional Subject (optional)"
@@ -702,7 +698,7 @@ msgstr ""
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Level"
-msgstr "დონე"
+msgstr ""
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
@@ -716,7 +712,7 @@ msgstr ""
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "Syllabus"
-msgstr ""
+msgstr "Mācību programma"
 
 #: apps/publisher/forms.py
 msgid ""
@@ -738,15 +734,15 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Course Start Date"
-msgstr "კურსის დაწყების თარიღი"
+msgstr "Kursa sākuma datums"
 
 #: apps/publisher/forms.py
 msgid "Course End Date"
-msgstr "კურსის დამთავრების თარიღი"
+msgstr "Kursa beigu datums"
 
 #: apps/publisher/forms.py
 msgid "Instructor"
-msgstr ""
+msgstr "testing testing"
 
 #: apps/publisher/forms.py
 msgid "Pacing"
@@ -754,12 +750,12 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Transcript Languages"
-msgstr ""
+msgstr "Noraksta valodas"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "XSeries"
-msgstr "XSeries"
+msgstr ""
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
@@ -867,32 +863,32 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Course title"
-msgstr "კურსის სათაური"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Course number"
-msgstr "კურსის ნომერი"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Brief Description"
-msgstr "მოკლე აღწერა"
+msgstr ""
 
 #: apps/publisher/models.py
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Full Description"
-msgstr "სრული აღწერა"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Partner Name"
-msgstr "პარტნიორის სახელი"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Level Type"
-msgstr "დონის ტიპი"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Expected Learnings"
-msgstr "მოსალოდნელი შედეგები"
+msgstr ""
 
 #: apps/publisher/models.py
 #: apps/publisher/templates/publisher/course_detail.html
@@ -911,49 +907,49 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Level 1"
-msgstr "1 დონე"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Level 2"
-msgstr "2 დონე"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Level 3"
-msgstr "3 დონე"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Level 4"
-msgstr "4 დონე"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Level 5"
-msgstr "5 დონე"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Content Language"
-msgstr "შინაარსის ენა"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Length of course, in number of weeks"
-msgstr "კურსის ხანგრძლივობა კვირების რაოდენობის მიხედვით"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid ""
 "Please add any additional notes or special instructions for the course About"
 " Page."
-msgstr "გთხოვთ დაამატოთ დამატებითი შენიშვნები ან სპეციალური ინსტრუქციები კურსს \"გვერდის შესახებ\"."
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Comma separated list of edX usernames or emails of admins."
-msgstr "edX-ის მომხმარებელთა სახელების ან ადმინისტრატორების ელფოსტების მძიმეებით გამოყოფილი სია."
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Comma separated list of edX usernames or emails of additional staff."
-msgstr "edX-ის მომხმარებელთა სახელების ან დამატებითი პერსონალის ელფოსტების მძიმეებით გამოყოფილი სია."
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Professional (with ID verification)"
-msgstr "სპეციალისტი (ID-ს დამოწმებით)"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Professional (no ID verification)"
@@ -961,11 +957,11 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Organization Role"
-msgstr "როლი ორგანიზაციაში"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Course Role"
-msgstr "როლი კურსში"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Automatically create a run in Studio"
@@ -991,7 +987,7 @@ msgstr ""
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "N/A"
-msgstr ""
+msgstr "N/A"
 
 #: apps/publisher/models.py
 msgid "Awaiting Marketing Review"
@@ -1006,7 +1002,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_detail/_edit_warning_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_edit_warning.html
 msgid "Edit"
-msgstr "შესწორება"
+msgstr "Labot"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "New Instructor"
@@ -1026,27 +1022,27 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "First Name"
-msgstr ""
+msgstr "Vārds"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "required"
-msgstr "სავალდებულო"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Last Name"
-msgstr ""
+msgstr "Uzvārds"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Title"
-msgstr "სათაური"
+msgstr "Virsraksts"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Email"
-msgstr ""
+msgstr "E-pasts"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Institution email is preferred"
@@ -1062,7 +1058,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/dashboard/_published.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Organization"
-msgstr "ორგანიზაცია"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Enter a different organization"
@@ -1146,7 +1142,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/_approval_widget.html
 #: apps/publisher/templates/publisher/seat_form.html
 msgid "Save"
-msgstr "შენახვა"
+msgstr "Saglabāt"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "ABOUT PAGE PREVIEW"
@@ -1154,7 +1150,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Preview URL"
-msgstr "გადახედვის URL"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "View About page preview"
@@ -1186,63 +1182,63 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "CHANGE"
-msgstr "შეცვლა"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_footer.html
 msgid "Terms of Service"
-msgstr "მომსახურების პირობები"
+msgstr "Pakalpojumu sniegšanas noteikumi"
 
 #: apps/publisher/templates/publisher/_footer.html
 msgid "Privacy Policy"
-msgstr "კონფიდენციალურობის პოლიტიკა"
+msgstr "Privātuma politika"
 
 #: apps/publisher/templates/publisher/_footer.html
 msgid "Legal"
-msgstr "იურიდიული"
+msgstr "Juridiskā informācija"
 
 #: apps/publisher/templates/publisher/_footer.html
 #, python-format
 msgid ""
 "EdX, Open edX, Publisher, and the edX and Open edX logos are registered "
 "trademarks or trademarks of %(link_start)sedX Inc.%(link_end)s"
-msgstr "edX, open edX, Publisher და edX-ისა და Open edx-ის ლოგოები დარეგისტრირებული სავაჭრო ნიშნებია ან  %(link_start)sedX კორპორაციის. %(link_end)s სავაჭრო ნიშნებია"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_footer.html
 msgid "Powered by Open edX"
-msgstr "Open edX-ით მომუშავე"
+msgstr "Darbību nodrošina Open edX"
 
 #: apps/publisher/templates/publisher/_header.html
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Account"
-msgstr "ანგარიში"
+msgstr "Konts"
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Account Navigation"
-msgstr "ანგარიშის ნავიგაცია"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Contextual Online Help"
-msgstr "კონტექსტუალური ონლაინ დახმარება"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Help"
-msgstr "დახმარება"
+msgstr "Palīdzība"
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Email notifications"
-msgstr "ელფოსტის შეტყობინებები"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "ON"
-msgstr "ჩართული"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "OFF"
-msgstr "გამორთული"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Sign Out"
-msgstr "გასვლა"
+msgstr "Izrakstīties"
 
 #: apps/publisher/templates/publisher/_history_widget.html
 msgid "REVISION HISTORY"
@@ -1305,17 +1301,17 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "COURSE TITLE"
-msgstr "კურსის სათაური"
+msgstr ""
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Best Practices"
-msgstr "საუკეთესო გამოცდილება"
+msgstr ""
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Examples"
-msgstr ""
+msgstr "Piemēri"
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
@@ -1357,7 +1353,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "English Grammar and Essay Writing"
-msgstr "ინგლისური გრამატიკა და ესეს წერა"
+msgstr ""
 
 #: apps/publisher/templates/publisher/add_course_form.html
 msgid "Sequence Courses"
@@ -1366,17 +1362,17 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Statistics: Inference"
-msgstr "სტატისტიკა: დასკვნა"
+msgstr ""
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Statistics: Probability"
-msgstr "სტატისტიკა: ვარაუდი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "COURSE NUMBER"
-msgstr "კურსის ნომერი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
@@ -1406,7 +1402,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_edit_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "CERTIFICATE TYPE AND PRICE"
-msgstr "სერტიფიკატის ტიპი და ფასი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/add_courserun_form.html
@@ -1423,7 +1419,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid "New Course Run"
-msgstr "ახალი კურსის გაშვება"
+msgstr ""
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid ""
@@ -1452,7 +1448,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "COURSE START DATE"
-msgstr "კურსის დაწყების თარიღი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
@@ -1494,7 +1490,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "COURSE END DATE"
-msgstr "კურსის დასრულების თარიღი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid ""
@@ -1524,12 +1520,12 @@ msgstr ""
 #: apps/publisher/templates/publisher/base.html
 #: apps/publisher/templates/publisher/courserun_list.html
 msgid "Dashboard"
-msgstr "მართვის დაფა"
+msgstr "Informācijas panelis"
 
 #: apps/publisher/templates/publisher/base.html
 #: apps/publisher/templates/publisher/course_list.html apps/publisher/views.py
 msgid "Courses"
-msgstr "კურსები"
+msgstr "Kursi"
 
 #: apps/publisher/templates/publisher/comments/add_auth_comments.html
 msgid "Comment:"
@@ -1538,11 +1534,11 @@ msgstr ""
 #: apps/publisher/templates/publisher/comments/add_auth_comments.html
 #: apps/publisher/templates/publisher/course_run_detail/_widgets.html
 msgid "Submit"
-msgstr ""
+msgstr "Iesniegt"
 
 #: apps/publisher/templates/publisher/comments/add_auth_comments.html
 msgid "Add comment"
-msgstr ""
+msgstr "Pievienot komentāru"
 
 #: apps/publisher/templates/publisher/comments/comments_list.html
 msgid "Submitted by"
@@ -1551,7 +1547,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_widgets.html
 msgid "EDIT"
-msgstr "შესწორება"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "Course Team Admin"
@@ -1583,7 +1579,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_revision_history.html
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Level"
-msgstr "კურსის დონე"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
@@ -1649,7 +1645,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Sequence Courses:"
-msgstr "თანმიმდევრობითი კურსები:"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "255 character limit, including spaces."
@@ -1789,7 +1785,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "SUBJECT FIELD"
-msgstr "საგნის ველი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "The subject of the course."
@@ -1803,7 +1799,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "COURSE IMAGE"
-msgstr "კურსის გამოსახულება"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
@@ -1838,7 +1834,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "PREREQUISITES"
-msgstr "წინაპირობები"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Maximum 200 characters."
@@ -2063,7 +2059,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/dashboard/_published.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Course Name"
-msgstr "კურსის სახელი"
+msgstr "Kursa nosaukums"
 
 #: apps/publisher/templates/publisher/course_list.html
 msgid "Runs"
@@ -2155,7 +2151,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "COURSE STAFF"
-msgstr "კურსის პერსონალი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "The primary instructor or instructors for the course."
@@ -2181,7 +2177,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "ESTIMATED EFFORT"
-msgstr "სავარაუდო ძალისხმევა"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid ""
@@ -2191,15 +2187,15 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "Min Effort"
-msgstr "მინიმალური ძალისხმევა"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "Max Effort"
-msgstr "მაქსიმალური ძალისხმევა"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "LANGUAGE(S)"
-msgstr "ენა(ები)"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid ""
@@ -2209,7 +2205,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "LENGTH"
-msgstr "სიგრძე"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid ""
@@ -2242,7 +2238,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Course Staff"
-msgstr ""
+msgstr "Kursa personāls"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
@@ -2252,12 +2248,12 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Estimated Effort"
-msgstr "სავარაუდო ძალისხმევა"
+msgstr "Aptuvenā grūtība"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "hours per week"
-msgstr "საათები თითო კვირაზე"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Course Content Language"
@@ -2291,7 +2287,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_cat.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Course ID"
-msgstr "კურსის საიდენტიფიკაციო ნომერი"
+msgstr "Kursa ID"
 
 #: apps/publisher/templates/publisher/course_run_detail/_cat.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
@@ -2300,25 +2296,25 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
 msgid "Credit Seats"
-msgstr "საკრედიტო ადგილები"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
 msgid "Credit Provider"
-msgstr "კრედიტ პროვაიდერი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
 #: apps/publisher/templates/publisher/course_run_detail/_seats.html
 msgid "Price"
-msgstr "ფასი"
+msgstr "Cena"
 
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
 #: apps/publisher/templates/publisher/course_run_detail/_seats.html
 msgid "Currency"
-msgstr "ვალუტა"
+msgstr "Valūta"
 
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
 msgid "Credit Hours"
-msgstr "საკრედიტო საათები"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
 #: apps/publisher/templates/publisher/course_run_detail/_seats.html
@@ -2329,7 +2325,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "Number"
-msgstr "რიცხვი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Subtitle"
@@ -2337,19 +2333,19 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Self Paced"
-msgstr "თვითრეგულირებადი"
+msgstr "Savā tempā"
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Staff"
-msgstr "პერსონალი"
+msgstr "Personāls"
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "to"
-msgstr "ვის"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Languages"
-msgstr "ენები"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Video Transcript Languages"
@@ -2357,7 +2353,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "What You'll Learn"
-msgstr ""
+msgstr "Ko Jūs iemācīsieties"
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
@@ -2366,11 +2362,11 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Keywords"
-msgstr "საკვანძო სიტყვები"
+msgstr "Atslēgvārdi"
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Sponsors"
-msgstr "სპონსორები"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Course Syllabus"
@@ -2382,7 +2378,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Seats"
-msgstr "ადგილები"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_edit_warning.html
 #, python-format
@@ -2394,7 +2390,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Name"
-msgstr ""
+msgstr "Vārds"
 
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Profile URL "
@@ -2414,7 +2410,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Close"
-msgstr ""
+msgstr "Aizvērt"
 
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Accept About Page Preview"
@@ -2446,71 +2442,71 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Course"
-msgstr "კურსი"
+msgstr "Kurss"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Authored in Studio?"
-msgstr "სტუდიოში ავტორიზებული?"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Multiple Partner Course?"
-msgstr "მრავალრიცხოვანი პარტნიორი კურსი?"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Subject Area"
-msgstr "საგნის არე"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Language: Course Text"
-msgstr "ენა: კურსის ტექსტი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Language: Transcripts"
-msgstr "ენა: სუბტიტრები"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Language: Video"
-msgstr "ენა: ვიდეო"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Run"
-msgstr "კურსის გაშვება"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "New or Rerun?"
-msgstr "ახალი თუ თავიდან გაშვებული?"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Platform"
-msgstr "პლატფორმა"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Faculty"
-msgstr "ფაკულტეტი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Run Display Name"
-msgstr "კურსის გაშვების ხილვადი სახელი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Run Number"
-msgstr "კურსის გაშვების ნომერი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "edX Course Run ID"
-msgstr "edX კურსის გაშვების ID"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Certificate Type"
-msgstr "სერტიფიკატის ტიპი"
+msgstr "Sertifikāta veids"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Course $ (minimum)"
-msgstr "კურსი $ (მინიმუმი)"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Credit $ (minimum)"
@@ -2518,28 +2514,28 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Self Paced?"
-msgstr "თვითრეგულირებადი?"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "MDC Submission Due Date"
-msgstr "MDC გაგზავნის თარიღი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Start Date"
-msgstr "დაწყების თარიღი"
+msgstr "Sākuma datums"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "End Date"
-msgstr "დასრულების თარიღი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Verified Registration Expiration Date"
-msgstr "შემოწმებული რეგისტრაციის ვადის ამოწურვის თარიღი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Certificate Issued Date"
-msgstr "სერტიფიკატის გაცემის თარიღი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_seats.html
 msgid "Enrollment Type"
@@ -2547,7 +2543,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "Pacing Type"
-msgstr "მსვლელობის ტიპი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_widgets.html
 msgid "Reason for declining preview"
@@ -2566,22 +2562,22 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "All"
-msgstr "ყველა"
+msgstr "Visi"
 
 #. Translators: Studio is an edX tool for course creation.
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "STUDIO"
-msgstr "studio"
+msgstr ""
 
 #. Translators: CAT is an acronym for Course Administration Tool.
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "CAT"
-msgstr "CAT"
+msgstr ""
 
 #. Translators: DRUPAL is an edX marketing site.
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "DRUPAL"
-msgstr "DRUPAL"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "Successfully published to Studio, E-Commerce, and Discovery."
@@ -2618,7 +2614,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/courserun_list.html
 msgid "Course runs"
-msgstr "კურსის გაშვებები"
+msgstr ""
 
 #: apps/publisher/templates/publisher/courserun_list.html
 msgid "In Development"
@@ -2652,13 +2648,13 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/dashboard/_in_preview.html
 msgid "Status"
-msgstr ""
+msgstr "Statuss"
 
 #: apps/publisher/templates/publisher/dashboard/_in_preview.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.txt
 msgid "Course start date"
-msgstr "კურსის დაწყების თარიღი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/dashboard/_in_preview.html
 msgid "Approved since "
@@ -2695,12 +2691,12 @@ msgstr ""
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 #: apps/publisher/templates/publisher/dashboard/_published.html
 msgid "Start"
-msgstr "დაწყება"
+msgstr "Sākums"
 
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 #: apps/publisher/templates/publisher/dashboard/_published.html
 msgid "End"
-msgstr "დასასრული"
+msgstr "Beigas"
 
 #: apps/publisher/templates/publisher/dashboard/_published.html
 msgid "No About pages have been published yet."
@@ -2715,7 +2711,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/dashboard/_published.html
 msgid "Published Date"
-msgstr "გამოქვეყნების თარიღი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "The following courses are ready for a Studio URL."
@@ -2723,11 +2719,11 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Studio Course Run Key"
-msgstr "სტუდიოს კურსის გაშვების გასაღები"
+msgstr ""
 
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Add"
-msgstr "დამატება"
+msgstr ""
 
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "No courses are currently ready for a Studio URL."
@@ -2753,7 +2749,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/decline_preview.html
 #: apps/publisher/templates/publisher/email/decline_preview.txt
 msgid "The edX team"
-msgstr "edX გუნდი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/email/comment.txt
 #, python-format
@@ -2833,7 +2829,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/studio_instance_created.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.txt
 msgid "Thanks,"
-msgstr ""
+msgstr "Paldies,"
 
 #: apps/publisher/templates/publisher/email/course/mark_as_reviewed.html
 #: apps/publisher/templates/publisher/email/course/send_for_review.html
@@ -3076,7 +3072,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/course_run/send_for_review.html
 #: apps/publisher/templates/publisher/email/course_run/send_for_review.txt
 msgid "Thank you,"
-msgstr ""
+msgstr "Paldies Jums,"
 
 #: apps/publisher/templates/publisher/email/course_run/send_for_review.txt
 #, python-format
@@ -3183,7 +3179,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/studio_instance_created.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.txt
 msgid "Course end date"
-msgstr "კურსის დასრულების თარიღი"
+msgstr ""
 
 #: apps/publisher/templates/publisher/email/studio_instance_created.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.txt
@@ -3235,7 +3231,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/seat_form.html
 msgid "Seat Form"
-msgstr "ადგილის ფორმა"
+msgstr ""
 
 #: apps/publisher/validators.py
 #, python-format
@@ -3268,11 +3264,11 @@ msgstr ""
 
 #: apps/publisher/views.py
 msgid "MARKETING"
-msgstr "მარკეტინგი"
+msgstr ""
 
 #: apps/publisher/views.py
 msgid "PUBLISHER"
-msgstr "გამომქვეყნებელი"
+msgstr ""
 
 #: apps/publisher/views.py
 msgid "COURSE TEAM"
@@ -3431,7 +3427,7 @@ msgstr ""
 
 #: apps/publisher_comments/models.py
 msgid "Default"
-msgstr ""
+msgstr "Pēc noklusējuma"
 
 #: apps/publisher_comments/models.py
 msgid "Decline Preview"
@@ -3439,7 +3435,7 @@ msgstr ""
 
 #: apps/publisher_comments/models.py
 msgid "modified"
-msgstr "მოდიფიცირებული"
+msgstr ""
 
 #: urls.py
 msgid "Discovery Service Administration"
