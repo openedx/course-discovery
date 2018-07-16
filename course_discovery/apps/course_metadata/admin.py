@@ -108,6 +108,21 @@ class CourseRunAdmin(admin.ModelAdmin):
             msg = PUBLICATION_FAILURE_MSG_TPL.format(model='course run')  # pylint: disable=no-member
             messages.add_message(request, messages.ERROR, msg)
 
+@admin.register(Degree)
+class DegreeInline(admin.ModelAdmin):
+    list_display = ('program', 'name')
+    fields = ('name', 'program')
+
+
+class DegreeMarketingInline(admin.StackedInline):
+    model = DegreeMarketing
+    list_display = (
+        'degree',
+        'application_deadline',
+        'apply_url'
+    )
+    fields = ('degree', 'application_deadline', 'apply_url')
+
 
 @admin.register(Program)
 class ProgramAdmin(admin.ModelAdmin):
@@ -119,7 +134,7 @@ class ProgramAdmin(admin.ModelAdmin):
     raw_id_fields = ('video',)
     search_fields = ('uuid', 'title', 'marketing_slug')
     inlines = [
-        'DegreeInline',
+        DegreeMarketingInline
     ]
     # ordering the field display on admin page.
     fields = (
@@ -283,17 +298,6 @@ class NamedModelAdmin(admin.ModelAdmin):
     list_display = ('name',)
     ordering = ('name',)
     search_fields = ('name',)
-
-
-@admin.register(Degree)
-class DegreeInline(admin.TabularInline):
-    list_display = ('name', )
-    fields = ('name', )
-
-
-@admin.register(DegreeMarketing)
-class DegreeMarketingeAdmin(admin.ModelAdmin):
-    list_display = ('degree', 'application_deadline', 'apply_url')
 
 
 # Register children of AbstractNamedModel

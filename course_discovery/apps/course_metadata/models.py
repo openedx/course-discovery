@@ -1295,10 +1295,17 @@ class DegreeMarketing(TimeStampedModel):
         Degree,
         on_delete=models.CASCADE
     )
+
+    # This is redundant, but necessary for the cascading admin model
+    program = models.OneToOneField(
+        Program,
+        on_delete=models.CASCADE
+    )
+
     application_deadline = models.CharField(
         help_text=_('String-based deadline field (e.g. FALL 2020)'),
         max_length=255,
-        unique=True
+        blank=True
     )
     apply_url = models.CharField(
         help_text=_('Callback URL to partner application flow'), max_length=255, blank=True)
@@ -1307,7 +1314,7 @@ class DegreeMarketing(TimeStampedModel):
         verbose_name_plural = "degrees marketing"
 
     def __str__(self):
-        return str(self.uuid)
+        return str(self.degree.name)
 
 
 class CreditPathway(TimeStampedModel):
