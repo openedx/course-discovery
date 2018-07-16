@@ -118,7 +118,9 @@ class ProgramAdmin(admin.ModelAdmin):
     readonly_fields = ('uuid', 'custom_course_runs_display', 'excluded_course_runs',)
     raw_id_fields = ('video',)
     search_fields = ('uuid', 'title', 'marketing_slug')
-
+    inlines = [
+        'DegreeInline',
+    ]
     # ordering the field display on admin page.
     fields = (
         'uuid', 'title', 'subtitle', 'status', 'type', 'partner', 'banner_image', 'banner_image_url', 'card_image_url',
@@ -284,8 +286,9 @@ class NamedModelAdmin(admin.ModelAdmin):
 
 
 @admin.register(Degree)
-class DegreeAdmin(admin.ModelAdmin):
-    list_display = ('program', 'name')
+class DegreeInline(admin.TabularInline):
+    list_display = ('name', )
+    fields = ('name', )
 
 
 @admin.register(DegreeMarketing)
