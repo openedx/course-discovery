@@ -923,10 +923,12 @@ class CreditPathwaySerializer(serializers.ModelSerializer):
     org_name = serializers.CharField()
     email = serializers.EmailField()
     programs = MinimalProgramSerializer(many=True)
+    description = serializers.CharField()
+    destination_url = serializers.CharField()
 
     class Meta:
         model = CreditPathway
-        fields = ('id', 'name', 'org_name', 'email', 'programs')
+        fields = ('id', 'name', 'org_name', 'email', 'programs', 'description', 'destination_url')
 
 
 class ProgramTypeSerializer(serializers.ModelSerializer):

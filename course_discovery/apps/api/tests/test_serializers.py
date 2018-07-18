@@ -21,13 +21,13 @@ from course_discovery.apps.api.serializers import (
     AffiliateWindowSerializer, CatalogSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer,
     ContentTypeSerializer, CorporateEndorsementSerializer, CourseEntitlementSerializer, CourseRunSearchModelSerializer,
     CourseRunSearchSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer, CourseSearchModelSerializer,
-    CourseSearchSerializer, CourseSerializer, CourseWithProgramsSerializer, EndorsementSerializer, FAQSerializer,
-    FlattenedCourseRunWithCourseSerializer, ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer,
-    MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
-    OrganizationSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer, ProgramSearchModelSerializer,
-    ProgramSearchSerializer, ProgramSerializer, ProgramTypeSerializer, SeatSerializer, SubjectSerializer,
-    TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
-    get_utm_source_for_user
+    CourseSearchSerializer, CourseSerializer, CourseWithProgramsSerializer, CreditPathwaySerializer,
+    EndorsementSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer, ImageSerializer,
+    MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalProgramCourseSerializer,
+    MinimalProgramSerializer, NestedProgramSerializer, OrganizationSerializer, PersonSerializer, PositionSerializer,
+    PrerequisiteSerializer, ProgramSearchModelSerializer, ProgramSearchSerializer, ProgramSerializer,
+    ProgramTypeSerializer, SeatSerializer, SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
+    TypeaheadProgramSearchSerializer, VideoSerializer, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
@@ -38,10 +38,10 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSA
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import (
-    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, DegreeFactory, DegreeMarketingFactory,
-    EndorsementFactory, ExpectedLearningItemFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory,
-    PersonFactory, PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory, SeatFactory,
-    SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
+    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CreditPathwayFactory, DegreeFactory,
+    DegreeMarketingFactory, EndorsementFactory, ExpectedLearningItemFactory, ImageFactory, JobOutlookItemFactory,
+    OrganizationFactory, PersonFactory, PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory,
+    SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -924,6 +924,23 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         assert len(expected[0]['course_runs']) == 1
         assert sorted(serializer.data['courses'][0]['course_runs'], key=lambda x: x['key']) == \
             sorted(expected[0]['course_runs'], key=lambda x: x['key'])
+
+
+class CreditPathwaySerialzerTests(TestCase):
+    def test_data(self):
+        credit_pathway = CreditPathwayFactory()
+        serializer = CreditPathwaySerializer(credit_pathway)
+
+        expected = {
+            'id': credit_pathway.id,
+            'name': credit_pathway.name,
+            'org_name': credit_pathway.org_name,
+            'email': credit_pathway.email,
+            'programs': MinimalProgramSerializer(credit_pathway.programs, many=True).data,
+            'description': credit_pathway.description,
+            'destination_url': credit_pathway.destination_url,
+        }
+        self.assertDictEqual(serializer.data, expected)
 
 
 class ProgramTypeSerializerTests(TestCase):
