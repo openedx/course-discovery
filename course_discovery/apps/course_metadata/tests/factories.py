@@ -336,6 +336,8 @@ class CreditPathwayFactory(factory.DjangoModelFactory):
     name = FuzzyText()
     org_name = FuzzyText()
     email = factory.Sequence(lambda n: 'test-email-{}@test.com'.format(n))  # pylint: disable=unnecessary-lambda
+    description = FuzzyText()
+    destination_url = FuzzyURL()
 
     class Meta:
         model = CreditPathway

@@ -178,7 +178,7 @@ class ProgramAdmin(admin.ModelAdmin):
 
 @admin.register(CreditPathway)
 class CreditPathwayAdmin(admin.ModelAdmin):
-    list_display = ('name', 'org_name', 'email')
+    list_display = ('name', 'org_name', 'email', 'destination_url')
 
 
 @admin.register(ProgramType)

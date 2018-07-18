@@ -1324,6 +1324,8 @@ class CreditPathway(TimeStampedModel):
     org_name = models.CharField(max_length=255, verbose_name=_("Organization name"))
     email = models.EmailField()
     programs = SortedManyToManyField(Program)
+    description = models.TextField(null=True, blank=True)
+    destination_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return self.name
