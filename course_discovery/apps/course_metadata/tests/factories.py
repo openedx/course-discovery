@@ -408,3 +408,19 @@ class DegreeMarketingFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = DegreeMarketing
+
+
+class DegreeProgramCurriculumFactory(factory.DjangoModelFactory):
+    program = factory.SubFactory(ProgramFactory)
+    degree = factory.SubFactory(DegreeFactory)
+
+    class Meta:
+        model = DegreeProgramCurriculum
+
+
+class DegreeCourseCurriculumFactory(factory.DjangoModelFactory):
+    degree = factory.SubFactory(DegreeFactory)
+    course = factory.SubFactory(CourseFactory)
+
+    class Meta:
+        model = DegreeCourseCurriculum
