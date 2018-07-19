@@ -1283,14 +1283,34 @@ class Degree(TimeStampedModel):
     """
     Degree 'master' model linking requirements and templates
     """
+    uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     name = models.CharField(max_length=255, unique=True)
-    program = models.OneToOneField(
-        Program,
-        on_delete=models.CASCADE
+    program = models.OneToOneField(Program, on_delete=models.CASCADE, related_name='degree')
+    program_curriculum = models.ManyToManyField(
+        Program, through='course_metadata.DegreeProgramCurriculum', related_name='degree_program_curricula'
+    )
+    course_curriculum = models.ManyToManyField(
+        Course, through='course_metadata.DegreeCourseCurriculum', related_name='degree_course_curricula'
     )
 
     def __str__(self):
         return self.name
+
+
+class DegreeProgramCurriculum(TimeStampedModel):
+    """
+    Represents the Programs that compose the curriculum of a degree.
+    """
+    program = models.ForeignKey(Program, on_delete=models.CASCADE)
+    degree = models.ForeignKey(Degree, on_delete=models.CASCADE)
+
+
+class DegreeCourseCurriculum(TimeStampedModel):
+    """
+    Represents the Courses that compose the curriculum of a degree.
+    """
+    degree = models.ForeignKey(Degree, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
 
 
 class DegreeMarketing(TimeStampedModel):
@@ -1313,7 +1333,7 @@ class DegreeMarketing(TimeStampedModel):
         verbose_name_plural = "degrees marketing"
 
     def __str__(self):
-        return str(self.uuid)
+        return str('Marketing-specific fields for {}'.format(self.degree))
 
 
 class CreditPathway(TimeStampedModel):

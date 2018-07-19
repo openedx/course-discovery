@@ -283,9 +283,34 @@ class NamedModelAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
+class DegreeProgramCurriculumInline(admin.TabularInline):
+    model = DegreeProgramCurriculum
+    extra = 1
+
+
+class DegreeCourseCurriculumInline(admin.TabularInline):
+    model = DegreeCourseCurriculum
+    extra = 1
+
+
+class DegreeMarketingInline(admin.TabularInline):
+    model = DegreeMarketing
+
+
 @admin.register(Degree)
 class DegreeAdmin(admin.ModelAdmin):
-    list_display = ('program', 'name')
+    list_display = ('name', 'program')
+    inlines = (DegreeMarketingInline, DegreeProgramCurriculumInline, DegreeCourseCurriculumInline)
+
+
+@admin.register(DegreeProgramCurriculum)
+class DegreeProgramCurriculumAdmin(admin.ModelAdmin):
+    list_display = ('degree', 'program')
+
+
+@admin.register(DegreeCourseCurriculum)
+class DegreeCourseCurriculumAdmin(admin.ModelAdmin):
+    list_display = ('degree', 'course')
 
 
 @admin.register(DegreeMarketing)
