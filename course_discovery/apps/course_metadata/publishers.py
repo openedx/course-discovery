@@ -398,6 +398,7 @@ class ProgramMarketingSitePublisher(BaseMarketingSitePublisher):
             'XSeries',
             'MicroMasters',
             'Professional Certificate',
+            'Masters',
         }
 
         if obj.type.name in types_to_publish:
