@@ -63,4 +63,5 @@ SYNONYMS = [
     ['vba', 'excel'],
     ['usa', 'united states of america', 'america', 'murika'],
     ['virtual reality', 'VR'],
+    ['chemistri', 'chemistry']
 ]
