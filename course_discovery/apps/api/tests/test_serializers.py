@@ -682,7 +682,11 @@ class MinimalProgramSerializerTests(TestCase):
             'name': degree.name,
             'degreemarketing': {
                 'application_deadline': degree_marketing.application_deadline,
-                'apply_url': degree_marketing.apply_url
+                'apply_url': degree_marketing.apply_url,
+                'overall_ranking': degree_marketing.overall_ranking,
+                'campus_image_mobile': degree_marketing.campus_image_mobile,
+                'campus_image_tablet': degree_marketing.campus_image_tablet,
+                'campus_image_desktop': degree_marketing.campus_image_desktop,
             }
         }
         self.assertDictEqual(serializer.data, expected)

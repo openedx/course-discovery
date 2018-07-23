@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-13 20:21+0000\n"
+"POT-Creation-Date: 2018-07-25 20:49+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -336,8 +336,8 @@ msgstr "Öthérs Ⱡ'σяєм ιρѕυ#"
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
-#: apps/course_metadata/models.py apps/journal/models.py
-#: apps/journal/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/journal/models.py apps/journal/models.py
 msgid "UUID"
 msgstr "ÛÛÌD Ⱡ'σяєм ι#"
 
@@ -646,6 +646,30 @@ msgid "Callback URL to partner application flow"
 msgstr ""
 "Çällßäçk ÛRL tö pärtnér äpplïçätïön flöw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя#"
+
+#: apps/course_metadata/models.py
+msgid "Overall program ranking (e.g. \"#1 in the U.S.\")"
+msgstr ""
+"Övéräll prögräm ränkïng (é.g. \"#1 ïn thé Û.S.\") Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Provide a campus image to display on mobile displays"
+msgstr ""
+"Prövïdé ä çämpüs ïmägé tö dïspläý ön mößïlé dïspläýs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Provide a campus image to display on tablet displays"
+msgstr ""
+"Prövïdé ä çämpüs ïmägé tö dïspläý ön täßlét dïspläýs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Provide a campus image to display on desktop displays"
+msgstr ""
+"Prövïdé ä çämpüs ïmägé tö dïspläý ön désktöp dïspläýs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
+" αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/models.py
 msgid "Organization name"

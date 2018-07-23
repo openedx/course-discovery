@@ -315,7 +315,10 @@ class DegreeCourseCurriculumAdmin(admin.ModelAdmin):
 
 @admin.register(DegreeMarketing)
 class DegreeMarketingeAdmin(admin.ModelAdmin):
-    list_display = ('degree', 'application_deadline', 'apply_url')
+    list_display = (
+        'degree', 'application_deadline', 'apply_url', 'overall_ranking',
+        'campus_image_mobile', 'campus_image_tablet', 'campus_image_desktop',
+    )
 
 
 # Register children of AbstractNamedModel

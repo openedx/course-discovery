@@ -405,6 +405,7 @@ class DegreeMarketingFactory(factory.DjangoModelFactory):
     degree = factory.SubFactory(DegreeFactory)
     application_deadline = FuzzyText()
     apply_url = FuzzyText()
+    overall_ranking = FuzzyText()
 
     class Meta:
         model = DegreeMarketing
