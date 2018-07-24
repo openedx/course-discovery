@@ -2699,6 +2699,27 @@ class CourseEditViewTests(SiteMixin, TestCase):
         response = self.client.get(self.edit_page_url)
         self.assertEqual(response.status_code, 403)
 
+    def test_edit_page_number_with_course_run(self):
+        """
+        Verify that the course team cannot edit course number if course has atleast one course run
+        """
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.EDIT_COURSE, self.organization_extension.group, self.organization_extension)
+        factories.CourseRunFactory.create(
+            course=self.course, lms_course_id='course-v1:edxTest+Test342+2016Q1', end=datetime.now() + timedelta(days=1)
+        )
+        response = self.client.get(self.edit_page_url)
+        self.assertEqual(response.context['has_course_run'], True)
+
+    def test_edit_page_number_without_course_run(self):
+        """
+        Verify that the course team can edit course number if course has no run
+        """
+        self.user.groups.add(self.organization_extension.group)
+        assign_perm(OrganizationExtension.EDIT_COURSE, self.organization_extension.group, self.organization_extension)
+        response = self.client.get(self.edit_page_url)
+        self.assertEqual(response.context['has_course_run'], False)
+
     def test_edit_page_with_edit_permission(self):
         """
         Verify that user can access course edit page with edit permission.

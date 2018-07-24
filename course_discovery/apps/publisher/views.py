@@ -379,7 +379,8 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
             {
                 'course': self.get_object(),
                 'is_internal_user': is_internal_user(self.request.user),
-                'history_object': history_object
+                'history_object': history_object,
+                'has_course_run': self.object.course_runs.exists()
             }
         )
 

@@ -144,11 +144,16 @@
                                     </div>
                                     <div class="col col-6">
                                         <label class="field-label ">{{ form.number.label_tag }} <span class="required">*</span></label>
+                                        {% if has_course_run %}
+                                            <span class="read-only-field">{{ course.number }}</span>
+                                            <input name="number" type="hidden" value="{{ course.number }}">
+                                        {% else %}
                                         {{ form.number }}
-                                        {% if form.number.errors %}
-                                            <div class="field-message-content">
-                                                {{ form.number.errors|escape }}
-                                            </div>
+                                            {% if form.number.errors %}
+                                                <div class="field-message-content">
+                                                    {{ form.number.errors|escape }}
+                                                </div>
+                                            {% endif %}
                                         {% endif %}
                                     </div>
                                 </div>
