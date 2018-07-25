@@ -11,4 +11,6 @@ from course_discovery.apps.course_metadata.models import CreditPathway
 class CreditPathwayViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
     permission_classes = (ReadOnlyByPublisherUser,)
     serializer_class = serializers.CreditPathwaySerializer
-    queryset = CreditPathway.objects.all()
+
+    def get_queryset(self):
+        return CreditPathway.objects.filter(partner=self.request.site.partner).order_by('created')

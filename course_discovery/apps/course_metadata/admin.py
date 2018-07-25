@@ -8,7 +8,7 @@ from parler.admin import TranslatableAdmin
 from course_discovery.apps.course_metadata.exceptions import (
     MarketingSiteAPIClientException, MarketingSitePublisherException
 )
-from course_discovery.apps.course_metadata.forms import CourseAdminForm, ProgramAdminForm
+from course_discovery.apps.course_metadata.forms import CourseAdminForm, CreditPathwayAdminForm, ProgramAdminForm
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 
 PUBLICATION_FAILURE_MSG_TPL = _(
@@ -178,7 +178,8 @@ class ProgramAdmin(admin.ModelAdmin):
 
 @admin.register(CreditPathway)
 class CreditPathwayAdmin(admin.ModelAdmin):
-    list_display = ('name', 'org_name', 'email', 'destination_url')
+    form = CreditPathwayAdminForm
+    list_display = ('name', 'org_name', 'partner', 'email', 'destination_url')
 
 
 @admin.register(ProgramType)

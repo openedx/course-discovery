@@ -5,7 +5,7 @@ from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.course_metadata.choices import ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, CreditPathway, Program
 
 
 def filter_choices_to_render_with_order_preserved(self, selected_choices):
@@ -114,3 +114,19 @@ class CourseAdminForm(forms.ModelForm):
                 }
             ),
         }
+
+
+class CreditPathwayAdminForm(forms.ModelForm):
+    class Meta:
+        model = CreditPathway
+        fields = '__all__'
+
+    def clean(self):
+        partner = self.cleaned_data.get('partner')
+        programs = self.cleaned_data.get('programs')
+
+        # partner and programs are required. If they are missing, skip this check and just show the required error
+        if partner and programs:
+            CreditPathway.validate_partner_programs(partner, programs)
+
+        return self.cleaned_data
