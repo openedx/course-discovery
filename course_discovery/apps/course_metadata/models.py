@@ -1279,13 +1279,32 @@ class Program(TimeStampedModel):
             super(Program, self).save(*args, **kwargs)
 
 
-class Degree(TimeStampedModel):
+class Degree(Program):
     """
-    Degree 'master' model linking requirements and templates
+    Marketing model for degree landing pages
+    Program inheritance model
+    """
+    application_deadline = models.CharField(
+        help_text=_('String-based deadline field (e.g. FALL 2020)'),
+        max_length=255,
+    )
+    apply_url = models.CharField(
+        help_text=_('Callback URL to partner application flow'), max_length=255, blank=True)
+
+    class Meta(object):
+        verbose_name_plural = "degree marketing data"
+
+    def __str__(self):
+        return str('Marketing-specific fields for {}'.format(self.title))
+
+
+class Curriculum(TimeStampedModel):
+    """
+    Curriculum 'master' model linking degree requirements and templates
     """
     uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
-    name = models.CharField(max_length=255, unique=True)
-    program = models.OneToOneField(Program, on_delete=models.CASCADE, related_name='degree')
+    name = models.CharField(max_length=255)
+    degree = models.OneToOneField(Degree, on_delete=models.CASCADE, related_name='curriculum')
     program_curriculum = models.ManyToManyField(
         Program, through='course_metadata.DegreeProgramCurriculum', related_name='degree_program_curricula'
     )
@@ -1302,38 +1321,15 @@ class DegreeProgramCurriculum(TimeStampedModel):
     Represents the Programs that compose the curriculum of a degree.
     """
     program = models.ForeignKey(Program, on_delete=models.CASCADE)
-    degree = models.ForeignKey(Degree, on_delete=models.CASCADE)
+    curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE)
 
 
 class DegreeCourseCurriculum(TimeStampedModel):
     """
     Represents the Courses that compose the curriculum of a degree.
     """
-    degree = models.ForeignKey(Degree, on_delete=models.CASCADE)
+    curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-
-
-class DegreeMarketing(TimeStampedModel):
-    """
-    Marketing model for degree landing pages
-    """
-    degree = models.OneToOneField(
-        Degree,
-        on_delete=models.CASCADE
-    )
-    application_deadline = models.CharField(
-        help_text=_('String-based deadline field (e.g. FALL 2020)'),
-        max_length=255,
-        unique=True
-    )
-    apply_url = models.CharField(
-        help_text=_('Callback URL to partner application flow'), max_length=255, blank=True)
-
-    class Meta(object):
-        verbose_name_plural = "degrees marketing"
-
-    def __str__(self):
-        return str('Marketing-specific fields for {}'.format(self.degree))
 
 
 class CreditPathway(TimeStampedModel):

@@ -21,9 +21,9 @@ from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, CreditPathway, Degree, DegreeMarketing,
-    Endorsement, Image, Organization, Person, PersonSocialNetwork, PersonWork, Position, Prerequisite, Program,
-    ProgramType, Seat, SeatType, Subject, Topic, Video
+    FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, CreditPathway, Degree, Endorsement, Image,
+    Organization, Person, PersonSocialNetwork, PersonWork, Position, Prerequisite, Program, ProgramType, Seat, SeatType,
+    Subject, Topic, Video
 )
 
 User = get_user_model()
@@ -725,20 +725,14 @@ class MinimalProgramCourseSerializer(MinimalCourseSerializer):
         ).data
 
 
-class DegreeMarketingSerializer(serializers.ModelSerializer):
-    """ DegreeMarketing serializer """
-    class Meta:
-        model = DegreeMarketing
-        fields = ('application_deadline', 'apply_url')
-
-
 class DegreeSerializer(serializers.ModelSerializer):
     """ Degree model serializer """
-    degreemarketing = DegreeMarketingSerializer()
 
     class Meta:
         model = Degree
-        fields = ('name', 'degreemarketing')
+        fields = (
+            'application_deadline', 'apply_url',
+        )
 
 
 class MinimalProgramSerializer(serializers.ModelSerializer):
