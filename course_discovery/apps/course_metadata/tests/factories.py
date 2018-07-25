@@ -332,6 +332,49 @@ class ProgramFactory(factory.django.DjangoModelFactory):
             add_m2m_data(self.instructor_ordering, extracted)
 
 
+class DegreeFactory(ProgramFactory):
+    application_deadline = FuzzyText()
+    apply_url = FuzzyURL()
+
+    class Meta(object):
+        model = Degree
+
+
+class CurriculumFactory(factory.DjangoModelFactory):
+    class Meta(object):
+        model = Curriculum
+
+    uuid = factory.LazyFunction(uuid4)
+    name = FuzzyText()
+    degree = factory.SubFactory(DegreeFactory)
+
+    @factory.post_generation
+    def program_curriculum(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.program_curriculum, extracted)
+
+    @factory.post_generation
+    def course_curriculum(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.course_curriculum, extracted)
+
+
+class DegreeProgramCurriculumFactory(factory.DjangoModelFactory):
+    class Meta(object):
+        model = DegreeProgramCurriculum
+
+    program = factory.SubFactory(ProgramFactory)
+    curriculum = factory.SubFactory(CurriculumFactory)
+
+
+class DegreeCourseCurriculumFactory(factory.DjangoModelFactory):
+    class Meta(object):
+        model = DegreeCourseCurriculum
+
+    course = factory.SubFactory(CourseFactory)
+    curriculum = factory.SubFactory(CurriculumFactory)
+
+
 class CreditPathwayFactory(factory.DjangoModelFactory):
     partner = factory.SubFactory(PartnerFactory)
     name = FuzzyText()
@@ -392,36 +435,3 @@ class CourseEntitlementFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = CourseEntitlement
-
-
-class DegreeFactory(factory.DjangoModelFactory):
-    name = FuzzyText()
-    program = factory.SubFactory(ProgramFactory)
-
-    class Meta:
-        model = Degree
-
-
-class DegreeMarketingFactory(factory.DjangoModelFactory):
-    degree = factory.SubFactory(DegreeFactory)
-    application_deadline = FuzzyText()
-    apply_url = FuzzyText()
-
-    class Meta:
-        model = DegreeMarketing
-
-
-class DegreeProgramCurriculumFactory(factory.DjangoModelFactory):
-    program = factory.SubFactory(ProgramFactory)
-    degree = factory.SubFactory(DegreeFactory)
-
-    class Meta:
-        model = DegreeProgramCurriculum
-
-
-class DegreeCourseCurriculumFactory(factory.DjangoModelFactory):
-    degree = factory.SubFactory(DegreeFactory)
-    course = factory.SubFactory(CourseFactory)
-
-    class Meta:
-        model = DegreeCourseCurriculum

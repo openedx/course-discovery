@@ -39,9 +39,9 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus, Progr
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import (
     CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CreditPathwayFactory, DegreeFactory,
-    DegreeMarketingFactory, EndorsementFactory, ExpectedLearningItemFactory, ImageFactory, JobOutlookItemFactory,
-    OrganizationFactory, PersonFactory, PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory,
-    SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
+    EndorsementFactory, ExpectedLearningItemFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory,
+    PersonFactory, PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory, SeatFactory,
+    SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -671,19 +671,15 @@ class MinimalProgramSerializerTests(TestCase):
 
     def test_degree_marketing_data(self):
         request = make_request()
-        program = self.create_program()
-        degree = DegreeFactory.create(program=program)
-        degree_marketing = DegreeMarketingFactory.create(degree=degree)
-        serializer = self.serializer_class(program, context={'request': request})
-        expected = self.get_expected_data(program, request)
+        degree = DegreeFactory.create()
+
+        serializer = self.serializer_class(degree, context={'request': request})
+        expected = self.get_expected_data(degree, request)
 
         # Tack in degree data
         expected['degree'] = {
-            'name': degree.name,
-            'degreemarketing': {
-                'application_deadline': degree_marketing.application_deadline,
-                'apply_url': degree_marketing.apply_url
-            }
+            'application_deadline': degree.application_deadline,
+            'apply_url': degree.apply_url
         }
         self.assertDictEqual(serializer.data, expected)
 

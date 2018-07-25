@@ -294,30 +294,42 @@ class DegreeCourseCurriculumInline(admin.TabularInline):
     extra = 1
 
 
-class DegreeMarketingInline(admin.TabularInline):
-    model = DegreeMarketing
-
-
-@admin.register(Degree)
-class DegreeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'program')
-    inlines = (DegreeMarketingInline, DegreeProgramCurriculumInline, DegreeCourseCurriculumInline)
-
-
 @admin.register(DegreeProgramCurriculum)
 class DegreeProgramCurriculumAdmin(admin.ModelAdmin):
-    list_display = ('degree', 'program')
+    list_display = ('curriculum', 'program')
 
 
 @admin.register(DegreeCourseCurriculum)
 class DegreeCourseCurriculumAdmin(admin.ModelAdmin):
-    list_display = ('degree', 'course')
+    list_display = ('curriculum', 'course')
 
 
-@admin.register(DegreeMarketing)
-class DegreeMarketingeAdmin(admin.ModelAdmin):
-    list_display = ('degree', 'application_deadline', 'apply_url')
+@admin.register(Curriculum)
+class CurriculumAdmin(admin.ModelAdmin):
+    list_display = ('name', 'degree')
+    inlines = (DegreeProgramCurriculumInline, DegreeCourseCurriculumInline)
 
+
+@admin.register(Degree)
+class DegreeAdmin(admin.ModelAdmin):
+    """
+    This is an inheritance model from Program
+
+    """
+    list_display = ('title', 'partner', 'status', 'hidden')
+    ordering = ('title', 'status')
+    readonly_fields = ('uuid', )
+    search_fields = ('title', 'partner', 'marketing_slug')
+
+    # ordering the field display on admin page.
+    fields = (
+        'type', 'uuid', 'title', 'subtitle', 'status', 'partner', 'banner_image', 'banner_image_url', 'card_image_url',
+        'marketing_slug', 'overview', 'total_hours_of_effort', 'weeks_to_complete', 'min_hours_effort_per_week',
+        'max_hours_effort_per_week', 'authoring_organizations', 'hidden', 'faq', 'individual_endorsements',
+        'job_outlook_items', 'expected_learning_items', 'instructor_ordering',
+        # The fields below are explicitly on the 'DegreeMarketingData' model
+        'application_deadline', 'apply_url'
+    )
 
 # Register children of AbstractNamedModel
 for model in (LevelType, Prerequisite,):
