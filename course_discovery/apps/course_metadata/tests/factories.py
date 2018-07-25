@@ -333,6 +333,7 @@ class ProgramFactory(factory.django.DjangoModelFactory):
 
 
 class CreditPathwayFactory(factory.DjangoModelFactory):
+    partner = factory.SubFactory(PartnerFactory)
     name = FuzzyText()
     org_name = FuzzyText()
     email = factory.Sequence(lambda n: 'test-email-{}@test.com'.format(n))  # pylint: disable=unnecessary-lambda

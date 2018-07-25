@@ -41,10 +41,21 @@ class TestCreditPathwayViewSet(SerializationMixin):
     def test_pathway_list(self):
         pathways = []
         for _ in range(4):
-            pathway = CreditPathwayFactory()
-            program = ProgramFactory()
+            pathway = CreditPathwayFactory(partner=self.partner)
+            program = ProgramFactory(partner=pathway.partner)
             pathway.programs.add(program)
-            pathways.insert(0, pathway)
+            pathways.append(pathway)
         response = self.client.get(self.list_path)
         assert response.status_code == 200
         assert response.data['results'] == self.serialize_credit_pathway(pathways, many=True)
+
+    def test_only_matching_partner(self):
+        pathway = CreditPathwayFactory(partner=self.partner)
+        pathway.programs.add(ProgramFactory(partner=pathway.partner))
+
+        non_partner_pathway = CreditPathwayFactory()
+        non_partner_pathway.programs.add(ProgramFactory(partner=non_partner_pathway.partner))
+
+        response = self.client.get(self.list_path)
+        assert response.status_code == 200
+        assert response.data['results'] == self.serialize_credit_pathway([pathway], many=True)

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-13 20:21+0000\n"
+"POT-Creation-Date: 2018-07-25 20:58+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -336,8 +336,8 @@ msgstr "Öthérs Ⱡ'σяєм ιρѕυ#"
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
-#: apps/course_metadata/models.py apps/journal/models.py
-#: apps/journal/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/journal/models.py apps/journal/models.py
 msgid "UUID"
 msgstr "ÛÛÌD Ⱡ'σяєм ι#"
 
@@ -650,6 +650,12 @@ msgstr ""
 #: apps/course_metadata/models.py
 msgid "Organization name"
 msgstr "Örgänïzätïön nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: apps/course_metadata/models.py
+msgid "These programs are for a different partner than the pathway itself: {}"
+msgstr ""
+"Thésé prögräms äré för ä dïfférént pärtnér thän thé päthwäý ïtsélf: {} "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
