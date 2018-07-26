@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-13 20:21+0000\n"
+"POT-Creation-Date: 2018-07-25 20:49+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -48,11 +48,11 @@ msgstr ""
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:867
+#: apps/api/serializers.py:874
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:871
+#: apps/api/serializers.py:878
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -282,13 +282,13 @@ msgstr ""
 #: apps/course_metadata/models.py:118 apps/course_metadata/models.py:157
 #: apps/course_metadata/models.py:217 apps/course_metadata/models.py:262
 #: apps/course_metadata/models.py:340 apps/course_metadata/models.py:456
-#: apps/course_metadata/models.py:933 apps/journal/models.py:23
-#: apps/journal/models.py:67
+#: apps/course_metadata/models.py:939 apps/course_metadata/models.py:1286
+#: apps/journal/models.py:23 apps/journal/models.py:67
 msgid "UUID"
 msgstr ""
 
 #: apps/course_metadata/models.py:122 apps/course_metadata/models.py:160
-#: apps/course_metadata/models.py:926
+#: apps/course_metadata/models.py:932
 msgid "Leave this field blank to have the value generated automatically."
 msgstr ""
 
@@ -394,30 +394,30 @@ msgstr ""
 msgid "Upcoming"
 msgstr ""
 
-#: apps/course_metadata/models.py:821 apps/publisher/models.py:450
+#: apps/course_metadata/models.py:827 apps/publisher/models.py:450
 msgid "Honor"
 msgstr ""
 
-#: apps/course_metadata/models.py:822 apps/publisher/models.py:451
+#: apps/course_metadata/models.py:828 apps/publisher/models.py:451
 msgid "Audit"
 msgstr ""
 
-#: apps/course_metadata/models.py:823 apps/publisher/forms.py:382
+#: apps/course_metadata/models.py:829 apps/publisher/forms.py:382
 #: apps/publisher/forms.py:491 apps/publisher/models.py:452
 #: apps/publisher/models.py:512
 msgid "Verified"
 msgstr ""
 
-#: apps/course_metadata/models.py:824 apps/publisher/models.py:513
+#: apps/course_metadata/models.py:830 apps/publisher/models.py:513
 msgid "Professional"
 msgstr ""
 
-#: apps/course_metadata/models.py:825 apps/publisher/forms.py:384
+#: apps/course_metadata/models.py:831 apps/publisher/forms.py:384
 #: apps/publisher/forms.py:493 apps/publisher/models.py:455
 msgid "Credit"
 msgstr ""
 
-#: apps/course_metadata/models.py:898 apps/publisher/forms.py:136
+#: apps/course_metadata/models.py:904 apps/publisher/forms.py:136
 #: apps/publisher/models.py:91
 #: apps/publisher/templates/publisher/course_detail.html:211
 #: apps/publisher/templates/publisher/course_revision_history.html:147
@@ -425,11 +425,11 @@ msgstr ""
 msgid "FAQ"
 msgstr ""
 
-#: apps/course_metadata/models.py:899
+#: apps/course_metadata/models.py:905
 msgid "FAQs"
 msgstr ""
 
-#: apps/course_metadata/models.py:909
+#: apps/course_metadata/models.py:915
 msgid ""
 "Seat types that qualify for completion of programs of this type. Learners "
 "completing associated courses, but enrolled in other seat types, will NOT "
@@ -437,72 +437,88 @@ msgid ""
 "program."
 msgstr ""
 
-#: apps/course_metadata/models.py:923
+#: apps/course_metadata/models.py:929
 msgid "Please provide an image file with transparent background"
 msgstr ""
 
-#: apps/course_metadata/models.py:935
+#: apps/course_metadata/models.py:941
 msgid "The user-facing display title for this Program."
 msgstr ""
 
-#: apps/course_metadata/models.py:937
+#: apps/course_metadata/models.py:943
 msgid "A brief, descriptive subtitle for the Program."
 msgstr ""
 
-#: apps/course_metadata/models.py:940
+#: apps/course_metadata/models.py:946
 msgid "The lifecycle status of this Program."
 msgstr ""
 
-#: apps/course_metadata/models.py:944
+#: apps/course_metadata/models.py:950
 msgid "Slug used to generate links to the marketing site"
 msgstr ""
 
-#: apps/course_metadata/models.py:948
+#: apps/course_metadata/models.py:954
 msgid ""
 "If this box is not checked, courses will be ordered as in the courses select "
 "box above."
 msgstr ""
 
-#: apps/course_metadata/models.py:962
+#: apps/course_metadata/models.py:968
 msgid ""
 "This field is now deprecated (ECOM-6021).Estimated number of weeks needed to "
 "complete a course run belonging to this program."
 msgstr ""
 
-#: apps/course_metadata/models.py:980
+#: apps/course_metadata/models.py:986
 msgid "Image used for discovery cards"
 msgstr ""
 
-#: apps/course_metadata/models.py:987
+#: apps/course_metadata/models.py:993
 msgid ""
 "This field can be used by API clients to determine the order in which "
 "instructors will be displayed on program pages. Instructors in this list "
 "should appear before all others associated with this programs courses runs."
 msgstr ""
 
-#: apps/course_metadata/models.py:999
+#: apps/course_metadata/models.py:1005
 msgid "The description of credit redemption for courses in program"
 msgstr ""
 
-#: apps/course_metadata/models.py:1004
+#: apps/course_metadata/models.py:1010
 msgid "Allow courses in this program to be purchased in a single transaction"
 msgstr ""
 
-#: apps/course_metadata/models.py:1008
+#: apps/course_metadata/models.py:1014
 msgid ""
 "Hide program on marketing site landing and search pages. This program MAY "
 "have a detail page."
 msgstr ""
 
-#: apps/course_metadata/models.py:1299
+#: apps/course_metadata/models.py:1322
 msgid "String-based deadline field (e.g. FALL 2020)"
 msgstr ""
 
-#: apps/course_metadata/models.py:1304
+#: apps/course_metadata/models.py:1326
 msgid "Callback URL to partner application flow"
 msgstr ""
 
-#: apps/course_metadata/models.py:1318
+#: apps/course_metadata/models.py:1328
+msgid "Overall program ranking (e.g. \"#1 in the U.S.\")"
+msgstr ""
+
+#: apps/course_metadata/models.py:1336
+msgid "Provide a campus image to display on mobile displays"
+msgstr ""
+
+#: apps/course_metadata/models.py:1342
+msgid "Provide a campus image to display on tablet displays"
+msgstr ""
+
+#: apps/course_metadata/models.py:1348
+msgid "Provide a campus image to display on desktop displays"
+msgstr ""
+
+#: apps/course_metadata/models.py:1363
 msgid "Organization name"
 msgstr ""
 

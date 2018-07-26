@@ -1317,17 +1317,36 @@ class DegreeMarketing(TimeStampedModel):
     """
     Marketing model for degree landing pages
     """
-    degree = models.OneToOneField(
-        Degree,
-        on_delete=models.CASCADE
-    )
+    degree = models.OneToOneField(Degree, on_delete=models.CASCADE)
     application_deadline = models.CharField(
         help_text=_('String-based deadline field (e.g. FALL 2020)'),
         max_length=255,
         unique=True
     )
-    apply_url = models.CharField(
-        help_text=_('Callback URL to partner application flow'), max_length=255, blank=True)
+    apply_url = models.CharField(help_text=_('Callback URL to partner application flow'), max_length=255, blank=True)
+    overall_ranking = models.CharField(
+        help_text=_('Overall program ranking (e.g. "#1 in the U.S.")'),
+        max_length=255,
+        blank=True
+    )
+    campus_image_mobile = models.ImageField(
+        upload_to='media/degree_marketing/campus_images/',
+        blank=True,
+        null=True,
+        help_text=_('Provide a campus image to display on mobile displays'),
+    )
+    campus_image_tablet = models.ImageField(
+        upload_to='media/degree_marketing/campus_images/',
+        blank=True,
+        null=True,
+        help_text=_('Provide a campus image to display on tablet displays'),
+    )
+    campus_image_desktop = models.ImageField(
+        upload_to='media/degree_marketing/campus_images/',
+        blank=True,
+        null=True,
+        help_text=_('Provide a campus image to display on desktop displays'),
+    )
 
     class Meta(object):
         verbose_name_plural = "degrees marketing"
