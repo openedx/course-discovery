@@ -1,5 +1,5 @@
-1. Update Program Structure to Include Masters
-----------------------------------
+1. Update Program Structure to Include Degrees
+----------------------------------------------
 
 Status
 ------
@@ -9,43 +9,55 @@ Accepted
 Context
 -------
 
-Masters project need this decision to make sure we can realize the marketing requirements
-as fast as possible, and at the same time, make sure we can scale. 
-We should also be aware that it's impact to existing program and course structure so,
-whatever decision we make, it should be backward compatible and minimize risks to existing offerings.
+The second phase of the Master's Theme requires us to support the persistence of metadata about different
+Master's Degree programs in the course-discovery service.  The data is later surfaced on our marketing site in the
+corresponding "product pages" for these degree programs.  We need this decision to make sure we can realize the
+marketing requirements as fast as possible, and at the same time, make sure we can scale - both out to a variety of
+Master's degree programs, but possibly to different types of degree's as well (e.g. Bachelor's).
+See the OnlineMasters_ page for more information.
 
-
-
-.. _Online Masters: https://openedx.atlassian.net/wiki/spaces/EDUCATOR/pages/762642493/Online+Masters
-
+.. _OnlineMasters: https://openedx.atlassian.net/wiki/spaces/EDUCATOR/pages/762642493/Online+Masters
 
 Decision
 --------
 
-For the Fall 2018 phase of the Master project, we are going with the extension model design.
-All the parties talked to have given support for this solution.
+For the Fall 2018 phase of the Master's project, we are utilizing a design of a Degree model extending
+the existing Program model. All the parties talked to have given support for this solution.
 
 The design
 ===========
-Extension model to existing Programs model. Basically, add a new table with a foreign key to the existing
-Programs table to store and define the Masters. 
+The ``Degree`` model extends existing ``Program`` model. We'll add a new table with a foreign key to the existing
+``Program`` table to store and define new Master's degrees.  We'll create a new ``ProgramType`` with the name "Masters"
+to indicate that a degree is specifically a Master's degree.  The information required for the marketing product
+page for a Master's degree will be stored in the union of the set of fields from ``Program`` and ``Degree``.  The
+``Degree`` table will contain fields that are only relevant in the context of a degree (e.g. an application deadline
+or application URL).
+
+We will also create a ``Curriculum`` model which captures the relationship between a degree and the ``Courses``
+and ``Programs`` that compose that degree's curriculum.
 
 Why
 ===
-1. With the extension model, we can leverage the existing software to index and serve Master program like 
-any other programs since program table will have a row for each Master. It helps us capture the unique requirements for Masters. 
+#. With the extension model, we can leverage the existing software to index and serve Master's program data via
+   the course-discovery API like any other program, since the program table will have a row for each Master's
+   degree instance.  The ``Degree`` table will help us capture the unique requirements for Masters
+   (mostly marketing product page requirements at this time).
 
-2. When the relationship between Master and Micromasters
-are defined through the extension model, it avoided the nested program to program relationship that can
-be super confusing.
+#. We can utilize existing code that relies on the ``ProgramType`` model to make Master's degrees that are newly-created
+   in the course discovery service to automatically populate a new Drupal page of the Master's content type.
 
-3. Another benefit with this choice is, if we eventually want to have a whole new Degrees
-grouping. We can easily turn the extension model into Degrees. The work there will not be prohibitively large.
+#. Similarly, there is already code in place that uses ``ProgramType`` to control search facets.  We would
+   like Master's to be a facet of course/program search.
 
-4. We don't believe the generalized content relationship model is needed at the moment for we don't yet have all clear and complete requirements for how Masters would relate to other programs and courses.
+#. The separation of marketing-centric data from curriculum-centric data will make management of degrees
+   easier and less error-prone for users (e.g. the marketing team).
 
-Choices
--------
+#. Having the relationship between degrees and Micromasters defined this way avoids the nested
+   program to program relationship that can be super confusing.
+
+
+All Choices we Considered
+-------------------------
 
 1. As part of Programs model: We can insert Master data into the existing program model. With this approach, we can satisfy the search and facets requirement, as well as affiliate api requirement pretty easily. However, existing program model fields do not map well to the content needs of Master program page design. The relationship between Masters and Micromasters programs would need new models. 
 
@@ -68,4 +80,4 @@ Requirements
 * Should be part of the affiliate API return
 * Must be able to be consist of 1 to N Micromaster programs
 * Must be able to be consist of 0 to N courses in addition to Micromaster programs
-* Need to include electives?
+* Need to include electives (probably)
