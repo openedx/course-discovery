@@ -679,7 +679,11 @@ class MinimalProgramSerializerTests(TestCase):
         # Tack in degree data
         expected['degree'] = {
             'application_deadline': degree.application_deadline,
-            'apply_url': degree.apply_url
+            'apply_url': degree.apply_url,
+            'overall_ranking': degree.overall_ranking,
+            'campus_image_mobile': degree.campus_image_mobile,
+            'campus_image_tablet': degree.campus_image_tablet,
+            'campus_image_desktop': degree.campus_image_desktop,
         }
         self.assertDictEqual(serializer.data, expected)
 

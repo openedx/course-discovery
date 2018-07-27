@@ -1281,26 +1281,51 @@ class Program(TimeStampedModel):
 
 class Degree(Program):
     """
-    Marketing model for degree landing pages
-    Program inheritance model
+    This model captures information about a Degree (e.g. a Master's Degree).
+    It mostly stores information relevant to the marketing site's product page for this degree.
     """
     application_deadline = models.CharField(
         help_text=_('String-based deadline field (e.g. FALL 2020)'),
         max_length=255,
     )
     apply_url = models.CharField(
-        help_text=_('Callback URL to partner application flow'), max_length=255, blank=True)
+        help_text=_('Callback URL to partner application flow'), max_length=255, blank=True
+    )
+    overall_ranking = models.CharField(
+        help_text=_('Overall program ranking (e.g. "#1 in the U.S.")'),
+        max_length=255,
+        blank=True
+    )
+    campus_image_mobile = models.ImageField(
+        upload_to='media/degree_marketing/campus_images/',
+        blank=True,
+        null=True,
+        help_text=_('Provide a campus image to display on mobile displays'),
+    )
+    campus_image_tablet = models.ImageField(
+        upload_to='media/degree_marketing/campus_images/',
+        blank=True,
+        null=True,
+        help_text=_('Provide a campus image to display on tablet displays'),
+    )
+    campus_image_desktop = models.ImageField(
+        upload_to='media/degree_marketing/campus_images/',
+        blank=True,
+        null=True,
+        help_text=_('Provide a campus image to display on desktop displays'),
+    )
 
     class Meta(object):
-        verbose_name_plural = "degree marketing data"
+        verbose_name_plural = "Degrees"
 
     def __str__(self):
-        return str('Marketing-specific fields for {}'.format(self.title))
+        return str('Degree: {}'.format(self.title))
 
 
 class Curriculum(TimeStampedModel):
     """
-    Curriculum 'master' model linking degree requirements and templates
+    This model links a degree to the curriculum associated with that degree, that is, the
+    courses and programs that compose the degree.
     """
     uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     name = models.CharField(max_length=255)

@@ -1302,3 +1302,20 @@ class TopicTests(SiteMixin, TestCase):
         name = "name"
         topic = Topic.objects.create(name=name, partner_id=self.partner.id)
         self.assertEqual(topic.__str__(), name)
+
+
+class DegreeTests(TestCase):
+    """ Tests of the Degree, Curriculum and related models. """
+
+    def setUp(self):
+        super(DegreeTests, self).setUp()
+        self.course_run = factories.CourseRunFactory()
+        self.courses = [self.course_run.course]
+        self.degree = factories.DegreeFactory(courses=self.courses)
+        self.curriculum = factories.CurriculumFactory(degree=self.degree)
+
+    def test_basic_degree(self):
+        assert self.degree.application_deadline is not None
+        assert self.degree.curriculum is not None
+        assert self.curriculum.program_curriculum is not None
+        assert self.curriculum.course_curriculum is not None

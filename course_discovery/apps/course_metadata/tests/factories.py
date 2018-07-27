@@ -335,6 +335,7 @@ class ProgramFactory(factory.django.DjangoModelFactory):
 class DegreeFactory(ProgramFactory):
     application_deadline = FuzzyText()
     apply_url = FuzzyURL()
+    overall_ranking = FuzzyText()
 
     class Meta(object):
         model = Degree

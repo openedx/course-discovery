@@ -727,11 +727,15 @@ class MinimalProgramCourseSerializer(MinimalCourseSerializer):
 
 class DegreeSerializer(serializers.ModelSerializer):
     """ Degree model serializer """
+    campus_image_mobile = serializers.ImageField()
+    campus_image_tablet = serializers.ImageField()
+    campus_image_desktop = serializers.ImageField()
 
     class Meta:
         model = Degree
         fields = (
-            'application_deadline', 'apply_url',
+            'application_deadline', 'apply_url', 'overall_ranking',
+            'campus_image_mobile', 'campus_image_tablet', 'campus_image_desktop',
         )
 
 
