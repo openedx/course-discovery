@@ -24,6 +24,16 @@ class JournalViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminUser,)
     pagination_class = LargeResultsSetPagination
 
+    def list(self, request, *args, **kwargs):
+        organization = request.GET.get('organization')
+        if organization:
+            self.queryset = self.get_queryset().filter(organization__key=organization)
+        uuid = request.GET.get('uuid')  # uuid can be one or many separated by commas
+        if uuid:
+            self.queryset = self.get_queryset().filter(uuid__in=uuid.split(','))
+
+        return super(JournalViewSet, self).list(request, *args, **kwargs)
+
 
 class JournalBundleViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
     """ Journal Bundle"""

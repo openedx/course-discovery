@@ -63,7 +63,7 @@ class PartnerFactory(factory.DjangoModelFactory):
 
 
 class CurrencyFactory(factory.DjangoModelFactory):
-    code = factory.fuzzy.FuzzyText()
+    code = factory.fuzzy.FuzzyText(length=6)
     name = factory.fuzzy.FuzzyText()
 
     class Meta(object):
