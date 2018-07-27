@@ -327,8 +327,9 @@ class DegreeAdmin(admin.ModelAdmin):
         'marketing_slug', 'overview', 'total_hours_of_effort', 'weeks_to_complete', 'min_hours_effort_per_week',
         'max_hours_effort_per_week', 'authoring_organizations', 'hidden', 'faq', 'individual_endorsements',
         'job_outlook_items', 'expected_learning_items', 'instructor_ordering',
-        # The fields below are explicitly on the 'DegreeMarketingData' model
-        'application_deadline', 'apply_url'
+        # The fields below are explicitly on the ``Degree`` model
+        'application_deadline', 'apply_url', 'overall_ranking',
+        'campus_image_mobile', 'campus_image_tablet', 'campus_image_desktop',
     )
 
 # Register children of AbstractNamedModel
