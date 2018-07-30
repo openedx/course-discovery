@@ -1,6 +1,5 @@
 import pytest
 from django.contrib.auth.models import Group
-from django.core.cache import cache
 from django.test import RequestFactory
 from django.urls import reverse
 
@@ -36,7 +35,6 @@ class TestCreditPathwayViewSet(SerializationMixin):
         self.django_assert_num_queries = django_assert_num_queries
         self.partner = partner
         self.request = request
-        cache.clear()
 
     def test_pathway_list(self):
         pathways = []

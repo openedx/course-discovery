@@ -157,7 +157,7 @@ class AdminTests(SiteMixin, TestCase):
                 (False, False),
                 (True, True)
             ),
-            ProgramStatus.labels
+            sorted(ProgramStatus.labels)  # We need a consistent ordering to distribute tests with pytest-xdist
         )
     )
     @ddt.unpack

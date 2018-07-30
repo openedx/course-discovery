@@ -1,12 +1,11 @@
 import urllib.parse
 
 import pytest
-from django.core.cache import cache
 from django.test import RequestFactory
 from django.urls import reverse
 
 from course_discovery.apps.api.serializers import MinimalProgramSerializer
-from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt, SerializationMixin
 from course_discovery.apps.api.v1.views.programs import ProgramViewSet
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
@@ -42,7 +41,6 @@ class TestProgramViewSet(SerializationMixin):
         self.django_assert_num_queries = django_assert_num_queries
         self.partner = partner
         self.request = request
-        cache.clear()
 
     def create_program(self):
         organizations = [OrganizationFactory(partner=self.partner)]
@@ -89,15 +87,12 @@ class TestProgramViewSet(SerializationMixin):
     def test_retrieve(self, django_assert_num_queries):
         """ Verify the endpoint returns the details for a single program. """
         program = self.create_program()
-        with django_assert_num_queries(57):
+
+        with django_assert_num_queries(FuzzyInt(57, 2)):
             response = self.assert_retrieve_success(program)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
         assert response.data == self.serialize_program(program)
-
-        # Verify that repeated retrieve requests use the cache.
-        with django_assert_num_queries(4):
-            self.assert_retrieve_success(program)
 
         # Verify that requests including querystring parameters are cached separately.
         response = self.assert_retrieve_success(program, querystring={'use_full_course_serializer': 1})
@@ -115,7 +110,7 @@ class TestProgramViewSet(SerializationMixin):
             partner=self.partner)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
-        with django_assert_num_queries(40):
+        with django_assert_num_queries(FuzzyInt(40, 2)):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
         assert course_list == list(program.courses.all())  # pylint: disable=no-member
@@ -124,7 +119,7 @@ class TestProgramViewSet(SerializationMixin):
         """ Verify the endpoint returns data for a program even if the program's courses have no course runs. """
         course = CourseFactory(partner=self.partner)
         program = ProgramFactory(courses=[course], partner=self.partner)
-        with django_assert_num_queries(27):
+        with django_assert_num_queries(FuzzyInt(27, 2)):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
 
@@ -142,7 +137,7 @@ class TestProgramViewSet(SerializationMixin):
         Returns:
             None
         """
-        with self.django_assert_num_queries(expected_query_count):
+        with self.django_assert_num_queries(FuzzyInt(expected_query_count, 2)):
             response = self.client.get(url)
 
         assert response.data['results'] == self.serialize_program(expected, many=True, extra_context=extra_context)
@@ -151,10 +146,8 @@ class TestProgramViewSet(SerializationMixin):
         """ Verify the endpoint returns a list of all programs. """
         expected = [self.create_program() for __ in range(3)]
         expected.reverse()
-        self.assert_list_results(self.list_path, expected, 28)
 
-        # Verify that repeated list requests use the cache.
-        self.assert_list_results(self.list_path, expected, 4)
+        self.assert_list_results(self.list_path, expected, 28)
 
     def test_uuids_only(self):
         """

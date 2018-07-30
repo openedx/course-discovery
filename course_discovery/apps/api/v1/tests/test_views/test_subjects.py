@@ -27,6 +27,7 @@ class SubjectViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of all subjects. """
         SubjectFactory.create_batch(8)
         expected = Subject.objects.all()
+
         with self.assertNumQueries(5):
             response = self.client.get(self.list_path)
 

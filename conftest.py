@@ -33,11 +33,7 @@ def django_cache_add_xdist_key_prefix(request):
 @pytest.fixture
 def django_cache(django_cache_add_xdist_key_prefix):  # pylint: disable=redefined-outer-name,unused-argument
     skip_if_no_django()
-    cache.clear()
-
     yield cache
-
-    cache.clear()
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -96,3 +92,7 @@ def client():
     skip_if_no_django()
 
     return Client(SERVER_NAME=TEST_DOMAIN)
+
+
+def pytest_sessionstart(session):  # pylint: disable=unused-argument
+    cache.clear()

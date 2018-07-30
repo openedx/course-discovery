@@ -25,7 +25,11 @@ CACHES = {
     'default': {
         'BACKEND': os.environ.get('CACHE_BACKEND', 'django.core.cache.backends.locmem.LocMemCache'),
         'LOCATION': os.environ.get('CACHE_LOCATION', ''),
-    }
+    },
+    'throttling': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'throttling',
+    },
 }
 
 DATABASES = {
