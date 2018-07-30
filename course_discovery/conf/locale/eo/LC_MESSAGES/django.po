@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-27 19:28+0000\n"
+"POT-Creation-Date: 2018-07-30 18:18+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -634,6 +634,18 @@ msgid ""
 msgstr ""
 "Hïdé prögräm ön märkétïng sïté ländïng änd séärçh pägés. Thïs prögräm MÀÝ "
 "hävé ä détäïl pägé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: apps/course_metadata/models.py
+msgid "The actual rank number"
+msgstr "Thé äçtüäl ränk nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: apps/course_metadata/models.py
+msgid "What does the rank number mean"
+msgstr "Whät döés thé ränk nümßér méän Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/course_metadata/models.py
+msgid "From where the rank is obtained"
+msgstr "Fröm whéré thé ränk ïs ößtäïnéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: apps/course_metadata/models.py
 msgid "String-based deadline field (e.g. FALL 2020)"

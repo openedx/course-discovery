@@ -22,8 +22,8 @@ from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, CreditPathway, Degree, Endorsement, Image,
-    Organization, Person, PersonSocialNetwork, PersonWork, Position, Prerequisite, Program, ProgramType, Seat, SeatType,
-    Subject, Topic, Video
+    Organization, Person, PersonSocialNetwork, PersonWork, Position, Prerequisite, Program, ProgramType, Ranking,
+    Seat, SeatType, Subject, Topic, Video
 )
 
 User = get_user_model()
@@ -725,17 +725,27 @@ class MinimalProgramCourseSerializer(MinimalCourseSerializer):
         ).data
 
 
+class RankingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ranking
+        fields = (
+            'rank', 'description', 'source',
+        )
+
+
 class DegreeSerializer(serializers.ModelSerializer):
     """ Degree model serializer """
     campus_image_mobile = serializers.ImageField()
     campus_image_tablet = serializers.ImageField()
     campus_image_desktop = serializers.ImageField()
+    rankings = RankingSerializer(many=True)
 
     class Meta:
         model = Degree
         fields = (
             'application_deadline', 'apply_url', 'overall_ranking',
             'campus_image_mobile', 'campus_image_tablet', 'campus_image_desktop',
+            'rankings',
         )
 
 

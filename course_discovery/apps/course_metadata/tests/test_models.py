@@ -21,7 +21,7 @@ from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractMediaModel, AbstractNamedModel, AbstractValueModel, CorporateEndorsement, Course, CourseRun,
-    Endorsement, Seat, SeatType, Subject, Topic
+    Endorsement, Ranking, Seat, SeatType, Subject, Topic
 )
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -1249,6 +1249,15 @@ class FAQTests(TestCase):
         question = 'test question'
         faq = FAQ.objects.create(question=question, answer='test')
         self.assertEqual(str(faq), question)
+
+
+class RankingTests(TestCase):
+    """ Tests of the Ranking model. """
+
+    def test_str(self):
+        description = 'test rank'
+        ranking = Ranking.objects.create(rank='#1', description=description, source='test')
+        self.assertEqual(str(ranking), description)
 
 
 class SubjectTests(SiteMixin, TestCase):
