@@ -1279,6 +1279,18 @@ class Program(TimeStampedModel):
             super(Program, self).save(*args, **kwargs)
 
 
+class Ranking(TimeStampedModel):
+    """
+    Represents the rankings of a program
+    """
+    rank = models.CharField(max_length=10, verbose_name=_('The actual rank number'))
+    description = models.CharField(max_length=255, verbose_name=_('What does the rank number mean'))
+    source = models.CharField(max_length=100, verbose_name=_('From where the rank is obtained'))
+
+    def __str__(self):
+        return self.description
+
+
 class Degree(Program):
     """
     This model captures information about a Degree (e.g. a Master's Degree).
@@ -1314,6 +1326,8 @@ class Degree(Program):
         null=True,
         help_text=_('Provide a campus image to display on desktop displays'),
     )
+
+    rankings = SortedManyToManyField(Ranking, blank=True)
 
     class Meta(object):
         verbose_name_plural = "Degrees"

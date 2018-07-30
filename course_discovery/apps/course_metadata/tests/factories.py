@@ -258,6 +258,15 @@ class ExpectedLearningItemFactory(factory.django.DjangoModelFactory):
     value = FuzzyText()
 
 
+class RankingFactory(factory.django.DjangoModelFactory):
+    class Meta(object):
+        model = Ranking
+
+    rank = FuzzyText(length=9)
+    description = FuzzyText(length=255)
+    source = FuzzyText(length=99)
+
+
 class ProgramFactory(factory.django.DjangoModelFactory):
     class Meta(object):
         model = Program
@@ -333,12 +342,17 @@ class ProgramFactory(factory.django.DjangoModelFactory):
 
 
 class DegreeFactory(ProgramFactory):
+    class Meta(object):
+        model = Degree
+
     application_deadline = FuzzyText()
     apply_url = FuzzyURL()
     overall_ranking = FuzzyText()
 
-    class Meta(object):
-        model = Degree
+    @factory.post_generation
+    def rankings(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.rankings, extracted)
 
 
 class CurriculumFactory(factory.DjangoModelFactory):

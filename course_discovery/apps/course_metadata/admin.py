@@ -213,6 +213,11 @@ class FAQAdmin(admin.ModelAdmin):
     list_display = ('question',)
 
 
+@admin.register(Ranking)
+class RankingAdmin(admin.ModelAdmin):
+    list_display = ('rank', 'description', 'source')
+
+
 class OrganizationUserRoleInline(admin.TabularInline):
     # course-meta-data models are importing in publisher app. So just for safe side
     # to avoid any circular issue importing the publisher model here.
@@ -330,6 +335,7 @@ class DegreeAdmin(admin.ModelAdmin):
         # The fields below are explicitly on the ``Degree`` model
         'application_deadline', 'apply_url', 'overall_ranking',
         'campus_image_mobile', 'campus_image_tablet', 'campus_image_desktop',
+        'rankings',
     )
 
 # Register children of AbstractNamedModel

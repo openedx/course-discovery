@@ -26,8 +26,8 @@ from course_discovery.apps.api.serializers import (
     MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalProgramCourseSerializer,
     MinimalProgramSerializer, NestedProgramSerializer, OrganizationSerializer, PersonSerializer, PositionSerializer,
     PrerequisiteSerializer, ProgramSearchModelSerializer, ProgramSearchSerializer, ProgramSerializer,
-    ProgramTypeSerializer, SeatSerializer, SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
-    TypeaheadProgramSearchSerializer, VideoSerializer, get_utm_source_for_user
+    ProgramTypeSerializer, RankingSerializer, SeatSerializer, SubjectSerializer, TopicSerializer,
+    TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
@@ -40,8 +40,8 @@ from course_discovery.apps.course_metadata.models import Course, CourseRun, Prog
 from course_discovery.apps.course_metadata.tests.factories import (
     CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CreditPathwayFactory, DegreeFactory,
     EndorsementFactory, ExpectedLearningItemFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory,
-    PersonFactory, PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory, SeatFactory,
-    SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
+    PersonFactory, PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory, RankingFactory,
+    SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -671,10 +671,12 @@ class MinimalProgramSerializerTests(TestCase):
 
     def test_degree_marketing_data(self):
         request = make_request()
-        degree = DegreeFactory.create()
+        rankings = RankingFactory.create_batch(3)
+        degree = DegreeFactory.create(rankings=rankings)
 
         serializer = self.serializer_class(degree, context={'request': request})
         expected = self.get_expected_data(degree, request)
+        expected_rankings = RankingSerializer(rankings, many=True).data
 
         # Tack in degree data
         expected['degree'] = {
@@ -684,6 +686,7 @@ class MinimalProgramSerializerTests(TestCase):
             'campus_image_mobile': degree.campus_image_mobile,
             'campus_image_tablet': degree.campus_image_tablet,
             'campus_image_desktop': degree.campus_image_desktop,
+            'rankings': expected_rankings
         }
         self.assertDictEqual(serializer.data, expected)
 
