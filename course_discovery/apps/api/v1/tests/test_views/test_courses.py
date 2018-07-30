@@ -1,8 +1,8 @@
 import datetime
 
 import ddt
+import pytest
 import pytz
-from django.core.cache import cache
 from django.db.models.functions import Lower
 from rest_framework.reverse import reverse
 
@@ -16,16 +16,14 @@ from course_discovery.apps.course_metadata.tests.factories import (
 
 
 @ddt.ddt
+@pytest.mark.usefixtures('django_cache')
 class CourseViewSetTests(SerializationMixin, APITestCase):
-    maxDiff = None
-
     def setUp(self):
         super(CourseViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.request.user = self.user
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.course = CourseFactory(partner=self.partner)
-        cache.clear()
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single course. """

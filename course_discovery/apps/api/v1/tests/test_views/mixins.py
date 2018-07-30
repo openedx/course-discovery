@@ -172,5 +172,34 @@ class LoginMixin:
             self.request.user = self.user
 
 
+class FuzzyInt(int):
+    """
+    An integer that is equal to another number as long as it is within some threshold.
+
+    See: https://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/
+    """
+    def __new__(cls, value, threshold):
+        obj = super(FuzzyInt, cls).__new__(cls, value)
+        obj.value = value
+        obj.threshold = threshold
+        return obj
+
+    def __eq__(self, other):
+        return (self.value - self.threshold) <= other <= (self.value + self.threshold)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __str__(self):
+        return 'FuzzyInt(value={}, threshold={})'.format(self.value, self.threshold)
+
+
 class APITestCase(SiteMixin, RestAPITestCase):
-    pass
+    def assertNumQueries(self, expected, threshold=2):
+        """
+        Overridden method to allow a number of queries within a constant range, rather than
+        an exact amount of queries.  This allows us to make changes to views and models that
+        may slightly modify the query count without having to update expected counts in tests,
+        while still ensuring that we don't inflate the number of queries by an order of magnitude.
+        """
+        return super(APITestCase, self).assertNumQueries(FuzzyInt(expected, threshold))

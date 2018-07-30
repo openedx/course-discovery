@@ -53,7 +53,7 @@ def api_change_receiver(sender, **kwargs):  # pylint: disable=unused-argument
     """
     timestamp = time.time()
 
-    logger.info(
+    logger.debug(
         '{model_name} model changed. Updating API timestamp to {timestamp}.'.format(
             model_name=sender.__name__,
             timestamp=timestamp

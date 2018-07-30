@@ -1,23 +1,26 @@
 import mock
 import pytest
+from django.core.cache import cache
 from django.urls import reverse
 
-from course_discovery.apps.api.v1.views.currency import CurrencyView
+from course_discovery.apps.api.v1.views.currency import CurrencyView, exchange_rate_cache_key
 
 
-# NOTE: All of the tests that make authenticated requests result in the response being cached. We
-# force the use of a fixture here to ensure the cache is cleared after each test.
 @pytest.mark.usefixtures('django_cache')
 @pytest.mark.django_db
 class TestCurrencyCurrencyView:
     list_path = reverse('api:v1:currency')
 
+    def setup_method(self, method):  # pylint: disable=unused-argument
+        cache.delete(exchange_rate_cache_key())
+
     def test_authentication_required(self, client):
         response = client.get(self.list_path)
         assert response.status_code == 403
 
-    def test_get(self, admin_client, django_cache, responses, settings):
+    def test_get(self, admin_client, django_cache, responses, settings):  # pylint: disable=unused-argument
         settings.OPENEXCHANGERATES_API_KEY = 'test'
+
         rates = {
             'GBP': 0.766609,
             'CAD': 1.222252,
@@ -34,6 +37,7 @@ class TestCurrencyCurrencyView:
         responses.add(responses.GET, CurrencyView.EXTERNAL_API_URL, json={'rates': rates})
 
         response = admin_client.get(self.list_path)
+
         assert all(item in response.data.items() for item in expected.items())
         assert len(responses.calls) == 1
 
@@ -43,7 +47,7 @@ class TestCurrencyCurrencyView:
         assert len(responses.calls) == 1
 
         # Clearing the cache should result in the external service being called again
-        django_cache.clear()
+        cache.delete(exchange_rate_cache_key())
         response = admin_client.get(self.list_path)
         assert all(item in response.data.items() for item in expected.items())
         assert len(responses.calls) == 2
@@ -59,6 +63,7 @@ class TestCurrencyCurrencyView:
 
     def test_get_with_external_error(self, admin_client, responses, settings):
         settings.OPENEXCHANGERATES_API_KEY = 'test'
+
         status = 500
         responses.add(responses.GET, CurrencyView.EXTERNAL_API_URL, json={}, status=status)
 
