@@ -21,9 +21,9 @@ from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, CreditPathway, Degree, Endorsement, Image,
-    Organization, Person, PersonSocialNetwork, PersonWork, Position, Prerequisite, Program, ProgramType, Ranking,
-    Seat, SeatType, Subject, Topic, Video
+    FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, CreditPathway, Curriculum, Degree, Endorsement,
+    Image, Organization, Person, PersonSocialNetwork, PersonWork, Position, Prerequisite, Program, ProgramType,
+    Ranking, Seat, SeatType, Subject, Topic, Video
 )
 
 User = get_user_model()
@@ -726,11 +726,19 @@ class MinimalProgramCourseSerializer(MinimalCourseSerializer):
 
 
 class RankingSerializer(serializers.ModelSerializer):
+    """ Ranking model serializer """
     class Meta:
         model = Ranking
         fields = (
             'rank', 'description', 'source',
         )
+
+
+class CurriculumSerializer(serializers.ModelSerializer):
+    """ Curriculum model serializer """
+    class Meta:
+        model = Curriculum
+        fields = ('marketing_text',)
 
 
 class DegreeSerializer(serializers.ModelSerializer):
@@ -739,13 +747,14 @@ class DegreeSerializer(serializers.ModelSerializer):
     campus_image_tablet = serializers.ImageField()
     campus_image_desktop = serializers.ImageField()
     rankings = RankingSerializer(many=True)
+    curriculum = CurriculumSerializer()
 
     class Meta:
         model = Degree
         fields = (
             'application_deadline', 'apply_url', 'overall_ranking',
             'campus_image_mobile', 'campus_image_tablet', 'campus_image_desktop',
-            'rankings',
+            'curriculum', 'rankings',
         )
 
 

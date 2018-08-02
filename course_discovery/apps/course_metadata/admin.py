@@ -311,8 +311,13 @@ class DegreeCourseCurriculumAdmin(admin.ModelAdmin):
 
 @admin.register(Curriculum)
 class CurriculumAdmin(admin.ModelAdmin):
-    list_display = ('name', 'degree')
+    list_display = ('uuid', 'degree')
     inlines = (DegreeProgramCurriculumInline, DegreeCourseCurriculumInline)
+
+
+class CurriculumAdminInline(admin.StackedInline):
+    model = Curriculum
+    extra = 1
 
 
 @admin.register(Degree)
@@ -325,7 +330,7 @@ class DegreeAdmin(admin.ModelAdmin):
     ordering = ('title', 'status')
     readonly_fields = ('uuid', )
     search_fields = ('title', 'partner', 'marketing_slug')
-
+    inlines = (CurriculumAdminInline, )
     # ordering the field display on admin page.
     fields = (
         'type', 'uuid', 'title', 'subtitle', 'status', 'partner', 'banner_image', 'banner_image_url', 'card_image_url',

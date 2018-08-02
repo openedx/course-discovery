@@ -1342,8 +1342,8 @@ class Curriculum(TimeStampedModel):
     courses and programs that compose the degree.
     """
     uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
-    name = models.CharField(max_length=255)
     degree = models.OneToOneField(Degree, on_delete=models.CASCADE, related_name='curriculum')
+    marketing_text = models.TextField(null=True, blank=True)
     program_curriculum = models.ManyToManyField(
         Program, through='course_metadata.DegreeProgramCurriculum', related_name='degree_program_curricula'
     )
@@ -1352,7 +1352,7 @@ class Curriculum(TimeStampedModel):
     )
 
     def __str__(self):
-        return self.name
+        return str(self.uuid)
 
 
 class DegreeProgramCurriculum(TimeStampedModel):
