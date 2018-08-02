@@ -1,5 +1,6 @@
 import datetime
 import itertools
+import uuid
 from decimal import Decimal
 
 import ddt
@@ -21,7 +22,7 @@ from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractMediaModel, AbstractNamedModel, AbstractValueModel, CorporateEndorsement, Course, CourseRun,
-    Endorsement, Ranking, Seat, SeatType, Subject, Topic
+    Curriculum, Endorsement, Ranking, Seat, SeatType, Subject, Topic
 )
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -1260,6 +1261,19 @@ class RankingTests(TestCase):
         self.assertEqual(str(ranking), description)
 
 
+class CurriculumTests(TestCase):
+    """ Tests of the Curriculum model. """
+    def setUp(self):
+        self.course_run = factories.CourseRunFactory()
+        self.courses = [self.course_run.course]
+        self.degree = factories.DegreeFactory(courses=self.courses)
+
+    def test_str(self):
+        uuid_string = uuid.uuid4()
+        curriculum = Curriculum.objects.create(degree=self.degree, uuid=uuid_string)
+        self.assertEqual(str(curriculum), str(uuid_string))
+
+
 class SubjectTests(SiteMixin, TestCase):
     """ Tests of the Multilingual Subject (and SubjectTranslation) model. """
 
@@ -1328,3 +1342,4 @@ class DegreeTests(TestCase):
         assert self.degree.curriculum is not None
         assert self.curriculum.program_curriculum is not None
         assert self.curriculum.course_curriculum is not None
+        assert self.curriculum.marketing_text is not None

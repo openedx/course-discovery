@@ -360,7 +360,7 @@ class CurriculumFactory(factory.DjangoModelFactory):
         model = Curriculum
 
     uuid = factory.LazyFunction(uuid4)
-    name = FuzzyText()
+    marketing_text = FuzzyText()
     degree = factory.SubFactory(DegreeFactory)
 
     @factory.post_generation

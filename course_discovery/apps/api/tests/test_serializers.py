@@ -22,7 +22,7 @@ from course_discovery.apps.api.serializers import (
     ContentTypeSerializer, CorporateEndorsementSerializer, CourseEntitlementSerializer, CourseRunSearchModelSerializer,
     CourseRunSearchSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer, CourseSearchModelSerializer,
     CourseSearchSerializer, CourseSerializer, CourseWithProgramsSerializer, CreditPathwaySerializer,
-    EndorsementSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer, ImageSerializer,
+    CurriculumSerializer, EndorsementSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer, ImageSerializer,
     MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalProgramCourseSerializer,
     MinimalProgramSerializer, NestedProgramSerializer, OrganizationSerializer, PersonSerializer, PositionSerializer,
     PrerequisiteSerializer, ProgramSearchModelSerializer, ProgramSearchSerializer, ProgramSerializer,
@@ -38,10 +38,10 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSA
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import (
-    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CreditPathwayFactory, DegreeFactory,
-    EndorsementFactory, ExpectedLearningItemFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory,
-    PersonFactory, PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory, RankingFactory,
-    SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
+    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CreditPathwayFactory, CurriculumFactory,
+    DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory, ImageFactory, JobOutlookItemFactory,
+    OrganizationFactory, PersonFactory, PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory,
+    RankingFactory, SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -673,10 +673,13 @@ class MinimalProgramSerializerTests(TestCase):
         request = make_request()
         rankings = RankingFactory.create_batch(3)
         degree = DegreeFactory.create(rankings=rankings)
+        curriculum = CurriculumFactory.create(degree=degree)
+        degree.curriculum = curriculum
 
         serializer = self.serializer_class(degree, context={'request': request})
         expected = self.get_expected_data(degree, request)
         expected_rankings = RankingSerializer(rankings, many=True).data
+        expected_curriculum = CurriculumSerializer(curriculum).data
 
         # Tack in degree data
         expected['degree'] = {
@@ -686,6 +689,7 @@ class MinimalProgramSerializerTests(TestCase):
             'campus_image_mobile': degree.campus_image_mobile,
             'campus_image_tablet': degree.campus_image_tablet,
             'campus_image_desktop': degree.campus_image_desktop,
+            'curriculum': expected_curriculum,
             'rankings': expected_rankings
         }
         self.assertDictEqual(serializer.data, expected)
