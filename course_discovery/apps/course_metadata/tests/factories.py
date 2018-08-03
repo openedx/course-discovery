@@ -267,6 +267,13 @@ class RankingFactory(factory.django.DjangoModelFactory):
     source = FuzzyText(length=99)
 
 
+class IconTextPairingFactory(factory.django.DjangoModelFactory):
+    class Meta(object):
+        model = IconTextPairing
+    icon = FuzzyText(length=25)
+    text = FuzzyText(length=255)
+
+
 class ProgramFactory(factory.django.DjangoModelFactory):
     class Meta(object):
         model = Program
@@ -353,6 +360,11 @@ class DegreeFactory(ProgramFactory):
     def rankings(self, create, extracted, **kwargs):
         if create:  # pragma: no cover
             add_m2m_data(self.rankings, extracted)
+
+    @factory.post_generation
+    def quick_facts(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.quick_facts, extracted)
 
 
 class CurriculumFactory(factory.DjangoModelFactory):

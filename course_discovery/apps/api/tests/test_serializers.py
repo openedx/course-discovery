@@ -22,12 +22,13 @@ from course_discovery.apps.api.serializers import (
     ContentTypeSerializer, CorporateEndorsementSerializer, CourseEntitlementSerializer, CourseRunSearchModelSerializer,
     CourseRunSearchSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer, CourseSearchModelSerializer,
     CourseSearchSerializer, CourseSerializer, CourseWithProgramsSerializer, CreditPathwaySerializer,
-    CurriculumSerializer, EndorsementSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer, ImageSerializer,
-    MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalProgramCourseSerializer,
-    MinimalProgramSerializer, NestedProgramSerializer, OrganizationSerializer, PersonSerializer, PositionSerializer,
-    PrerequisiteSerializer, ProgramSearchModelSerializer, ProgramSearchSerializer, ProgramSerializer,
-    ProgramTypeSerializer, RankingSerializer, SeatSerializer, SubjectSerializer, TopicSerializer,
-    TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer, get_utm_source_for_user
+    CurriculumSerializer, EndorsementSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer,
+    IconTextPairingSerializer, ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer,
+    MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
+    OrganizationSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer, ProgramSearchModelSerializer,
+    ProgramSearchSerializer, ProgramSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer,
+    SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer,
+    VideoSerializer, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
@@ -39,9 +40,9 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus, Progr
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import (
     CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CreditPathwayFactory, CurriculumFactory,
-    DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory, ImageFactory, JobOutlookItemFactory,
-    OrganizationFactory, PersonFactory, PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory,
-    RankingFactory, SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
+    DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory, IconTextPairingFactory, ImageFactory,
+    JobOutlookItemFactory, OrganizationFactory, PersonFactory, PositionFactory, PrerequisiteFactory, ProgramFactory,
+    ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -672,14 +673,16 @@ class MinimalProgramSerializerTests(TestCase):
     def test_degree_marketing_data(self):
         request = make_request()
         rankings = RankingFactory.create_batch(3)
-        degree = DegreeFactory.create(rankings=rankings)
+        quick_facts = IconTextPairingFactory.create_batch(3)
+        degree = DegreeFactory.create(rankings=rankings, quick_facts=quick_facts)
         curriculum = CurriculumFactory.create(degree=degree)
         degree.curriculum = curriculum
-
         serializer = self.serializer_class(degree, context={'request': request})
+
         expected = self.get_expected_data(degree, request)
         expected_rankings = RankingSerializer(rankings, many=True).data
         expected_curriculum = CurriculumSerializer(curriculum).data
+        expected_quick_facts = IconTextPairingSerializer(quick_facts, many=True).data
 
         # Tack in degree data
         expected['degree'] = {
@@ -690,7 +693,8 @@ class MinimalProgramSerializerTests(TestCase):
             'campus_image_tablet': degree.campus_image_tablet,
             'campus_image_desktop': degree.campus_image_desktop,
             'curriculum': expected_curriculum,
-            'rankings': expected_rankings
+            'rankings': expected_rankings,
+            'quick_facts': expected_quick_facts
         }
         self.assertDictEqual(serializer.data, expected)
 
