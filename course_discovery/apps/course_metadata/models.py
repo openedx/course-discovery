@@ -1378,7 +1378,7 @@ class CreditPathway(TimeStampedModel):
     # this field doesn't necessarily map to our normal org models, it's just a convenience field for pathways
     # while we figure them out
     org_name = models.CharField(max_length=255, verbose_name=_("Organization name"))
-    email = models.EmailField()
+    email = models.EmailField(blank=True)
     programs = SortedManyToManyField(Program)
     description = models.TextField(null=True, blank=True)
     destination_url = models.URLField(null=True, blank=True)
