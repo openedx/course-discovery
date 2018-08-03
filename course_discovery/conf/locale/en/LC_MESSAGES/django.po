@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-30 18:18+0000\n"
+"POT-Creation-Date: 2018-08-03 19:29+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -48,11 +48,11 @@ msgstr ""
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:875
+#: apps/api/serializers.py:884
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:879
+#: apps/api/serializers.py:888
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -282,7 +282,7 @@ msgstr ""
 #: apps/course_metadata/models.py:118 apps/course_metadata/models.py:157
 #: apps/course_metadata/models.py:217 apps/course_metadata/models.py:262
 #: apps/course_metadata/models.py:340 apps/course_metadata/models.py:456
-#: apps/course_metadata/models.py:939 apps/course_metadata/models.py:1344
+#: apps/course_metadata/models.py:939 apps/course_metadata/models.py:1353
 #: apps/journal/models.py:23 apps/journal/models.py:67
 msgid "UUID"
 msgstr ""
@@ -506,35 +506,43 @@ msgstr ""
 msgid "From where the rank is obtained"
 msgstr ""
 
-#: apps/course_metadata/models.py:1300
+#: apps/course_metadata/models.py:1298
+msgid "Icon URL or fa class"
+msgstr ""
+
+#: apps/course_metadata/models.py:1299
+msgid "Paired text"
+msgstr ""
+
+#: apps/course_metadata/models.py:1308
 msgid "String-based deadline field (e.g. FALL 2020)"
 msgstr ""
 
-#: apps/course_metadata/models.py:1304
+#: apps/course_metadata/models.py:1312
 msgid "Callback URL to partner application flow"
 msgstr ""
 
-#: apps/course_metadata/models.py:1307
+#: apps/course_metadata/models.py:1315
 msgid "Overall program ranking (e.g. \"#1 in the U.S.\")"
 msgstr ""
 
-#: apps/course_metadata/models.py:1315
+#: apps/course_metadata/models.py:1323
 msgid "Provide a campus image to display on mobile displays"
 msgstr ""
 
-#: apps/course_metadata/models.py:1321
+#: apps/course_metadata/models.py:1329
 msgid "Provide a campus image to display on tablet displays"
 msgstr ""
 
-#: apps/course_metadata/models.py:1327
+#: apps/course_metadata/models.py:1335
 msgid "Provide a campus image to display on desktop displays"
 msgstr ""
 
-#: apps/course_metadata/models.py:1380
+#: apps/course_metadata/models.py:1389
 msgid "Organization name"
 msgstr ""
 
-#: apps/course_metadata/models.py:1402
+#: apps/course_metadata/models.py:1411
 msgid "These programs are for a different partner than the pathway itself: {}"
 msgstr ""
 

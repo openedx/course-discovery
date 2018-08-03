@@ -1291,6 +1291,14 @@ class Ranking(TimeStampedModel):
         return self.description
 
 
+class IconTextPairing(TimeStampedModel):
+    """
+    Represents an icon:text model
+    """
+    icon = models.CharField(max_length=100, verbose_name=_('Icon URL or fa class'))
+    text = models.CharField(max_length=255, verbose_name=_('Paired text'))
+
+
 class Degree(Program):
     """
     This model captures information about a Degree (e.g. a Master's Degree).
@@ -1328,6 +1336,7 @@ class Degree(Program):
     )
 
     rankings = SortedManyToManyField(Ranking, blank=True)
+    quick_facts = SortedManyToManyField(IconTextPairing, blank=True)
 
     class Meta(object):
         verbose_name_plural = "Degrees"
