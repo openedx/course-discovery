@@ -4,9 +4,9 @@
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
 # 
 # Translators:
-# abdurrahmantufekci <map.tufekci@gmail.com>, 2016
+# e3b3f2a569bf1a7e02f24d7ea86f47f5, 2016
 # Ali Işıngör <ali@artistanbul.io>, 2017-2018
-# abdurrahmantufekci <map.tufekci@gmail.com>, 2016
+# e3b3f2a569bf1a7e02f24d7ea86f47f5, 2016
 # Nilgün Güleç <gulecnilgun@gmail.com>, 2016
 msgid ""
 msgstr ""
