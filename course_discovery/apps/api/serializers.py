@@ -517,6 +517,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'course', 'full_description', 'announcement', 'video', 'seats', 'content_language', 'license', 'outcome',
             'transcript_languages', 'instructors', 'staff', 'min_effort', 'max_effort', 'weeks_to_complete', 'modified',
             'level_type', 'availability', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
+            'first_enrollable_paid_seat_price',
         )
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
@@ -1281,9 +1282,13 @@ class CourseFacetSerializer(BaseHaystackFacetSerializer):
 
 class CourseRunSearchSerializer(HaystackSerializer):
     availability = serializers.SerializerMethodField()
+    first_enrollable_paid_seat_price = serializers.SerializerMethodField()
 
     def get_availability(self, result):
         return result.object.availability
+
+    def get_first_enrollable_paid_seat_price(self, result):
+        return result.object.first_enrollable_paid_seat_price
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
@@ -1296,6 +1301,7 @@ class CourseRunSearchSerializer(HaystackSerializer):
             'enrollment_end',
             'enrollment_start',
             'first_enrollable_paid_seat_sku',
+            'first_enrollable_paid_seat_price',
             'full_description',
             'has_enrollable_seats',
             'image_url',
@@ -1337,6 +1343,7 @@ class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
             'mobile_available': {},
             'organizations': {'size': settings.SEARCH_FACET_LIMIT},
             'pacing_type': {},
+            'first_enrollable_paid_seat_price': {},
             'prerequisites': {},
             'seat_types': {},
             'subjects': {},
