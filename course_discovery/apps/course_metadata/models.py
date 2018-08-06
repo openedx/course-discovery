@@ -529,6 +529,7 @@ class CourseRun(TimeStampedModel):
         """
         return self.seats.exclude(type__in=Seat.SEATS_WITH_PREREQUISITES).filter(price__gt=0.0)
 
+    @property
     def first_enrollable_paid_seat_price(self):
         seats = list(self._enrollable_paid_seats().order_by('upgrade_deadline'))
         if not seats:

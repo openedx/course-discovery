@@ -223,7 +223,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
         return obj.first_enrollable_paid_seat_sku()
 
     def prepare_first_enrollable_paid_seat_price(self, obj):
-        return obj.first_enrollable_paid_seat_price()
+        return obj.first_enrollable_paid_seat_price
 
     def prepare_is_current_and_still_upgradeable(self, obj):
         return obj.is_current_and_still_upgradeable()
