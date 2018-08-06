@@ -761,7 +761,7 @@ class DegreeSerializer(serializers.ModelSerializer):
         fields = (
             'application_deadline', 'apply_url', 'overall_ranking',
             'campus_image_mobile', 'campus_image_tablet', 'campus_image_desktop',
-            'curriculum', 'rankings', 'quick_facts'
+            'curriculum', 'lead_capture_list_name', 'quick_facts', 'rankings',
         )
 
 

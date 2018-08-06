@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-07 17:55+0000\n"
+"POT-Creation-Date: 2018-08-08 15:20+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -684,6 +684,12 @@ msgstr ""
 " αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/models.py
+msgid "The sailthru email list name to capture leads"
+msgstr ""
+"Thé säïlthrü émäïl lïst nämé tö çäptüré léäds Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
 msgid "Award"
 msgstr "Àwärd Ⱡ'σяєм ιρѕ#"
 
@@ -724,8 +730,8 @@ msgid "Mortar Board"
 msgstr "Mörtär Böärd Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/course_metadata/models.py
-msgid "Icon URL or fa class"
-msgstr "Ìçön ÛRL ör fä çläss Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+msgid "Icon FA class"
+msgstr "Ìçön FÀ çläss Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: apps/course_metadata/models.py
 msgid "Paired text"

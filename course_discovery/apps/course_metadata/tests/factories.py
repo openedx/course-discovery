@@ -348,6 +348,7 @@ class DegreeFactory(ProgramFactory):
     application_deadline = FuzzyText()
     apply_url = FuzzyURL()
     overall_ranking = FuzzyText()
+    lead_capture_list_name = FuzzyText()
 
     @factory.post_generation
     def rankings(self, create, extracted, **kwargs):
