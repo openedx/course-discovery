@@ -1223,8 +1223,13 @@ class CourseFacetSerializer(BaseHaystackFacetSerializer):
 class CourseRunSearchSerializer(HaystackSerializer):
     availability = serializers.SerializerMethodField()
 
+    # first_enrollable_paid_seat_price = serializers.SerializerMethodField()
+
     def get_availability(self, result):
         return result.object.availability
+
+    # def get_first_enrollable_paid_seat_price(self, result):
+    #     return result.object.first_enrollable_paid_seat_price
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
@@ -1237,6 +1242,7 @@ class CourseRunSearchSerializer(HaystackSerializer):
             'enrollment_end',
             'enrollment_start',
             'first_enrollable_paid_seat_sku',
+            'first_enrollable_paid_seat_price',
             'full_description',
             'has_enrollable_seats',
             'image_url',
