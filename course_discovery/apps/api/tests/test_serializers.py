@@ -229,7 +229,7 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
         self.assertEqual(serializer.data, self.get_expected_data(self.course, self.request))
 
 
-class MinimalCourseRunSerializerTests(TestCase):
+class MinimalCourseRunBaseTestSerializer(TestCase):
     serializer_class = MinimalCourseRunSerializer
 
     @classmethod
@@ -257,12 +257,15 @@ class MinimalCourseRunSerializerTests(TestCase):
             'status': course_run.status,
         }
 
+
+class MinimalCourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
+
     def test_data(self):
         request = make_request()
         course_run = CourseRunFactory()
         serializer = self.serializer_class(course_run, context={'request': request})
         expected = self.get_expected_data(course_run, request)
-        self.assertDictEqual(serializer.data, expected)
+        assert serializer.data == expected
 
     def test_get_lms_course_url(self):
         partner = PartnerFactory()
@@ -275,7 +278,7 @@ class MinimalCourseRunSerializerTests(TestCase):
         self.assertEqual(lms_course_url, expected_url)
 
 
-class CourseRunSerializerTests(MinimalCourseRunSerializerTests):
+class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
     serializer_class = CourseRunSerializer
 
     @classmethod
@@ -1419,6 +1422,7 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
             'aggregation_key': 'courserun:{}'.format(course_run.course.key),
             'has_enrollable_seats': course_run.has_enrollable_seats,
             'first_enrollable_paid_seat_sku': course_run.first_enrollable_paid_seat_sku(),
+            'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price,
         }
 
 

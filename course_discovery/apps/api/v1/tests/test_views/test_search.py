@@ -157,13 +157,13 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
 
     @ddt.data(
         (list_path, serializers.CourseRunSearchSerializer,
-         ['results', 0, 'program_types', 0], ProgramStatus.Deleted, 6),
+         ['results', 0, 'program_types', 0], ProgramStatus.Deleted, 8),
         (list_path, serializers.CourseRunSearchSerializer,
-         ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 6),
+         ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 8),
         (detailed_path, serializers.CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 35),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 37),
         (detailed_path, serializers.CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 36),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 38),
     )
     @ddt.unpack
     def test_exclude_unavailable_program_types(self, path, serializer, result_location_keys, program_status,
@@ -195,13 +195,14 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             assert response_data == active_program.type.name
 
     @ddt.data(
-        [{'title': 'Software Testing', 'excluded': True}],
-        [{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True}],
-        [{'title': 'Software Testing', 'excluded': False}, {'title': 'Software Testing 2', 'excluded': False}],
-        [{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True},
-         {'title': 'Software Testing 3', 'excluded': False}],
+        ([{'title': 'Software Testing', 'excluded': True}], 6),
+        ([{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True}], 7),
+        ([{'title': 'Software Testing', 'excluded': False}, {'title': 'Software Testing 2', 'excluded': False}], 7),
+        ([{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True},
+         {'title': 'Software Testing 3', 'excluded': False}], 8),
     )
-    def test_excluded_course_run(self, course_runs):
+    @ddt.unpack
+    def test_excluded_course_run(self, course_runs, expected_queries):
         course_list = []
         course_run_list = []
         excluded_course_run_list = []
@@ -223,7 +224,7 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         )
         self.reindex_courses(program)
 
-        with self.assertNumQueries(5):
+        with self.assertNumQueries(expected_queries):
             response = self.get_response('software', path=self.list_path)
 
         assert response.status_code == 200
