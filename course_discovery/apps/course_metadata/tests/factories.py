@@ -355,6 +355,15 @@ class DegreeFactory(ProgramFactory):
             add_m2m_data(self.rankings, extracted)
 
 
+class IconTextPairingFactory(factory.django.DjangoModelFactory):
+    class Meta(object):
+        model = IconTextPairing
+
+    degree = factory.SubFactory(DegreeFactory)
+    icon = FuzzyText(length=25)
+    text = FuzzyText(length=255)
+
+
 class CurriculumFactory(factory.DjangoModelFactory):
     class Meta(object):
         model = Curriculum

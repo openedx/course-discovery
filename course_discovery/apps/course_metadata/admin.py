@@ -320,6 +320,13 @@ class CurriculumAdminInline(admin.StackedInline):
     extra = 1
 
 
+class IconTextPairingInline(admin.StackedInline):
+    model = IconTextPairing
+    extra = 3
+    verbose_name = "Quick Fact"
+    verbose_name_plural = "Quick Facts"
+
+
 @admin.register(Degree)
 class DegreeAdmin(admin.ModelAdmin):
     """
@@ -330,7 +337,7 @@ class DegreeAdmin(admin.ModelAdmin):
     ordering = ('title', 'status')
     readonly_fields = ('uuid', )
     search_fields = ('title', 'partner', 'marketing_slug')
-    inlines = (CurriculumAdminInline, )
+    inlines = (CurriculumAdminInline, IconTextPairingInline)
     # ordering the field display on admin page.
     fields = (
         'type', 'uuid', 'title', 'subtitle', 'status', 'partner', 'banner_image', 'banner_image_url', 'card_image_url',

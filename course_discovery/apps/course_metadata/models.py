@@ -1336,6 +1336,45 @@ class Degree(Program):
         return str('Degree: {}'.format(self.title))
 
 
+class IconTextPairing(TimeStampedModel):
+    """
+    Represents an icon:text model
+    """
+    AWARD = 'fa-award'
+    BELL = 'fa-bell'
+    CERTIFICATE = 'fa-certificate'
+    CHECK = 'fa-check-circle'
+    INFO = 'fa-info-circle'
+    SITEMAP = 'fa-sitemap'
+    USER = 'fa-user'
+    DOLLAR = 'fa-dollar'
+    BOOK = 'fa-book'
+    MORTARBOARD = 'fa-mortar-board'
+
+    ICON_CHOICES = (
+        (AWARD, _('Award')),
+        (BELL, _('Bell')),
+        (CERTIFICATE, _('Certificate')),
+        (CHECK, _('Checkmark')),
+        (INFO, _('Info')),
+        (SITEMAP, _('Sitemap')),
+        (USER, _('User')),
+        (DOLLAR, _('Dollar')),
+        (BOOK, _('Book')),
+        (MORTARBOARD, _('Mortar Board')),
+    )
+
+    degree = models.ForeignKey(Degree, related_name='quick_facts', on_delete=models.CASCADE)
+    icon = models.CharField(max_length=100, verbose_name=_('Icon URL or fa class'), choices=ICON_CHOICES)
+    text = models.CharField(max_length=255, verbose_name=_('Paired text'))
+
+    class Meta(object):
+        verbose_name_plural = "IconTextPairings"
+
+    def __str__(self):
+        return str('IconTextPairing: {}'.format(self.text))
+
+
 class Curriculum(TimeStampedModel):
     """
     This model links a degree to the curriculum associated with that degree, that is, the

@@ -22,8 +22,8 @@ from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, CreditPathway, Curriculum, Degree, Endorsement,
-    Image, Organization, Person, PersonSocialNetwork, PersonWork, Position, Prerequisite, Program, ProgramType,
-    Ranking, Seat, SeatType, Subject, Topic, Video
+    IconTextPairing, Image, Organization, Person, PersonSocialNetwork, PersonWork, Position, Prerequisite, Program,
+    ProgramType, Ranking, Seat, SeatType, Subject, Topic, Video
 )
 
 User = get_user_model()
@@ -741,6 +741,12 @@ class CurriculumSerializer(serializers.ModelSerializer):
         fields = ('marketing_text',)
 
 
+class IconTextPairingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IconTextPairing
+        fields = ('text', 'icon',)
+
+
 class DegreeSerializer(serializers.ModelSerializer):
     """ Degree model serializer """
     campus_image_mobile = serializers.ImageField()
@@ -748,13 +754,14 @@ class DegreeSerializer(serializers.ModelSerializer):
     campus_image_desktop = serializers.ImageField()
     rankings = RankingSerializer(many=True)
     curriculum = CurriculumSerializer()
+    quick_facts = IconTextPairingSerializer(many=True)
 
     class Meta:
         model = Degree
         fields = (
             'application_deadline', 'apply_url', 'overall_ranking',
             'campus_image_mobile', 'campus_image_tablet', 'campus_image_desktop',
-            'curriculum', 'rankings',
+            'curriculum', 'rankings', 'quick_facts'
         )
 
 
