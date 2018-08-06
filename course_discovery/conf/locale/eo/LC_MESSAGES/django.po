@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-30 18:18+0000\n"
+"POT-Creation-Date: 2018-08-07 17:55+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -682,6 +682,54 @@ msgid "Provide a campus image to display on desktop displays"
 msgstr ""
 "Prövïdé ä çämpüs ïmägé tö dïspläý ön désktöp dïspläýs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
 " αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Award"
+msgstr "Àwärd Ⱡ'σяєм ιρѕ#"
+
+#: apps/course_metadata/models.py
+msgid "Bell"
+msgstr "Béll Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/models.py
+msgid "Certificate"
+msgstr "Çértïfïçäté Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: apps/course_metadata/models.py
+msgid "Checkmark"
+msgstr "Çhéçkmärk Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/course_metadata/models.py
+msgid "Info"
+msgstr "Ìnfö Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/models.py
+msgid "Sitemap"
+msgstr "Sïtémäp Ⱡ'σяєм ιρѕυм #"
+
+#: apps/course_metadata/models.py
+msgid "User"
+msgstr "Ûsér Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/models.py
+msgid "Dollar"
+msgstr "Döllär Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/models.py
+msgid "Book"
+msgstr "Böök Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/models.py
+msgid "Mortar Board"
+msgstr "Mörtär Böärd Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/models.py
+msgid "Icon URL or fa class"
+msgstr "Ìçön ÛRL ör fä çläss Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/models.py
+msgid "Paired text"
+msgstr "Päïréd téxt Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: apps/course_metadata/models.py
 msgid "Organization name"
