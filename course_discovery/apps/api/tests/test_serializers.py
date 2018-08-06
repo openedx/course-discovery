@@ -693,8 +693,9 @@ class MinimalProgramSerializerTests(TestCase):
             'campus_image_tablet': degree.campus_image_tablet,
             'campus_image_desktop': degree.campus_image_desktop,
             'curriculum': expected_curriculum,
+            'quick_facts': expected_quick_facts,
+            'lead_capture_list_name': degree.lead_capture_list_name,
             'rankings': expected_rankings,
-            'quick_facts': expected_quick_facts
         }
         self.assertDictEqual(serializer.data, expected)
 

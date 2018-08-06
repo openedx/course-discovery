@@ -1329,6 +1329,13 @@ class Degree(Program):
 
     rankings = SortedManyToManyField(Ranking, blank=True)
 
+    lead_capture_list_name = models.CharField(
+        help_text=_('The sailthru email list name to capture leads'),
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+
     class Meta(object):
         verbose_name_plural = "Degrees"
 
@@ -1365,7 +1372,7 @@ class IconTextPairing(TimeStampedModel):
     )
 
     degree = models.ForeignKey(Degree, related_name='quick_facts', on_delete=models.CASCADE)
-    icon = models.CharField(max_length=100, verbose_name=_('Icon URL or fa class'), choices=ICON_CHOICES)
+    icon = models.CharField(max_length=100, verbose_name=_('Icon FA class'), choices=ICON_CHOICES)
     text = models.CharField(max_length=255, verbose_name=_('Paired text'))
 
     class Meta(object):
