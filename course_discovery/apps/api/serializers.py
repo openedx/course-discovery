@@ -96,6 +96,24 @@ def get_marketing_url_for_user(partner, user, marketing_url, exclude_utm=False):
         return '{url}?{params}'.format(url=marketing_url, params=params)
 
 
+def get_lms_course_url_for_archived(partner, course_key):
+    """
+    Return the LMS course home URL for archived course runs.
+
+    Arguments:
+        partner (Partner): Partner instance containing information.
+        course_key (String): course key string
+
+    Returns:
+        str | None
+    """
+    lms_url = partner.lms_url
+    if not course_key or not lms_url:
+        return None
+
+    return '{lms_url}/courses/{course_key}/course/'.format(lms_url=lms_url, course_key=course_key)
+
+
 def get_utm_source_for_user(partner, user):
     """
     Return the utm source for the user.
@@ -454,12 +472,19 @@ class MinimalCourseRunSerializer(TimestampModelSerializer):
                   'start', 'end', 'enrollment_start', 'enrollment_end', 'pacing_type', 'type', 'status',)
 
     def get_marketing_url(self, obj):
-        return get_marketing_url_for_user(
-            obj.course.partner,
-            self.context['request'].user,
-            obj.marketing_url,
-            exclude_utm=self.context.get('exclude_utm')
-        )
+        include_archived = self.context.get('include_archived')
+        now = datetime.datetime.now(pytz.UTC)
+        if include_archived and obj.end and obj.end <= now:
+            marketing_url = get_lms_course_url_for_archived(obj.course.partner, obj.key)
+        else:
+            marketing_url = get_marketing_url_for_user(
+                obj.course.partner,
+                self.context['request'].user,
+                obj.marketing_url,
+                exclude_utm=self.context.get('exclude_utm')
+            )
+
+        return marketing_url
 
 
 class CourseRunSerializer(MinimalCourseRunSerializer):

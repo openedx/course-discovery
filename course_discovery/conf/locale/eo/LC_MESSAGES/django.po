@@ -91,6 +91,10 @@ msgid "Query to retrieve catalog contents"
 msgstr ""
 "Qüérý tö rétrïévé çätälög çönténts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
 
+#: apps/catalogs/models.py
+msgid "Include archived courses"
+msgstr "Ìnçlüdé ärçhïvéd çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
 #: apps/core/admin.py
 msgid "Personal info"
 msgstr "Pérsönäl ïnfö Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"

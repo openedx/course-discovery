@@ -14,6 +14,7 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
     VIEW_PERMISSION = 'view_catalog'
     name = models.CharField(max_length=255, null=False, blank=False, help_text=_('Catalog name'))
     query = models.TextField(null=False, blank=False, help_text=_('Query to retrieve catalog contents'))
+    include_archived = models.BooleanField(default=False, help_text=_('Include archived courses'))
 
     def __str__(self):
         return 'Catalog #{id}: {name}'.format(id=self.id, name=self.name)  # pylint: disable=no-member

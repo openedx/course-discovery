@@ -92,6 +92,9 @@ class CatalogViewSet(viewsets.ModelViewSet):
         catalog = self.get_object()
         queryset = catalog.courses().available()
         course_runs = CourseRun.objects.active().enrollable().marketable()
+        if catalog.include_archived:
+            queryset = catalog.courses()
+            course_runs = CourseRun.objects.all()
 
         queryset = serializers.CatalogCourseSerializer.prefetch_queryset(
             self.request.site.partner,
@@ -100,7 +103,9 @@ class CatalogViewSet(viewsets.ModelViewSet):
         )
 
         page = self.paginate_queryset(queryset)
-        serializer = serializers.CatalogCourseSerializer(page, many=True, context={'request': request})
+        serializer = serializers.CatalogCourseSerializer(
+            page, many=True, context={'request': request, 'include_archived': catalog.include_archived}
+        )
         return self.get_paginated_response(serializer.data)
 
     @detail_route()
