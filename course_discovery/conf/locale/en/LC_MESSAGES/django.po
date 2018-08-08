@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-08 15:20+0000\n"
+"POT-Creation-Date: 2018-08-08 19:52+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -48,11 +48,11 @@ msgstr ""
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:891
+#: apps/api/serializers.py:893
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:895
+#: apps/api/serializers.py:897
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -282,7 +282,7 @@ msgstr ""
 #: apps/course_metadata/models.py:118 apps/course_metadata/models.py:157
 #: apps/course_metadata/models.py:217 apps/course_metadata/models.py:262
 #: apps/course_metadata/models.py:340 apps/course_metadata/models.py:456
-#: apps/course_metadata/models.py:939 apps/course_metadata/models.py:1390
+#: apps/course_metadata/models.py:939 apps/course_metadata/models.py:1402
 #: apps/journal/models.py:23 apps/journal/models.py:67
 msgid "UUID"
 msgstr ""
@@ -534,59 +534,63 @@ msgstr ""
 msgid "The sailthru email list name to capture leads"
 msgstr ""
 
-#: apps/course_metadata/models.py:1362
+#: apps/course_metadata/models.py:1348
+msgid "Please provide an image file for the lead capture banner."
+msgstr ""
+
+#: apps/course_metadata/models.py:1374
 msgid "Award"
 msgstr ""
 
-#: apps/course_metadata/models.py:1363
+#: apps/course_metadata/models.py:1375
 msgid "Bell"
 msgstr ""
 
-#: apps/course_metadata/models.py:1364
+#: apps/course_metadata/models.py:1376
 msgid "Certificate"
 msgstr ""
 
-#: apps/course_metadata/models.py:1365
+#: apps/course_metadata/models.py:1377
 msgid "Checkmark"
 msgstr ""
 
-#: apps/course_metadata/models.py:1366
+#: apps/course_metadata/models.py:1378
 msgid "Info"
 msgstr ""
 
-#: apps/course_metadata/models.py:1367
+#: apps/course_metadata/models.py:1379
 msgid "Sitemap"
 msgstr ""
 
-#: apps/course_metadata/models.py:1368
+#: apps/course_metadata/models.py:1380
 msgid "User"
 msgstr ""
 
-#: apps/course_metadata/models.py:1369
+#: apps/course_metadata/models.py:1381
 msgid "Dollar"
 msgstr ""
 
-#: apps/course_metadata/models.py:1370
+#: apps/course_metadata/models.py:1382
 msgid "Book"
 msgstr ""
 
-#: apps/course_metadata/models.py:1371
+#: apps/course_metadata/models.py:1383
 msgid "Mortar Board"
 msgstr ""
 
-#: apps/course_metadata/models.py:1375
+#: apps/course_metadata/models.py:1387
 msgid "Icon FA class"
 msgstr ""
 
-#: apps/course_metadata/models.py:1376
+#: apps/course_metadata/models.py:1388
 msgid "Paired text"
 msgstr ""
 
-#: apps/course_metadata/models.py:1426
+#: apps/course_metadata/models.py:1438
 msgid "Organization name"
 msgstr ""
 
-#: apps/course_metadata/models.py:1448
+#: apps/course_metadata/models.py:1460
 msgid "These programs are for a different partner than the pathway itself: {}"
 msgstr ""
 

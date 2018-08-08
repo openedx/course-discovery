@@ -1335,6 +1335,18 @@ class Degree(Program):
         blank=True,
         null=True,
     )
+    lead_capture_image = StdImageField(
+        upload_to=UploadToAutoSlug(populate_from='uuid', path='media/degree_marketing/lead_capture_images/'),
+        blank=True,
+        null=True,
+        variations={
+            'large': (1440, 480),
+            'medium': (726, 242),
+            'small': (435, 145),
+            'x-small': (348, 116),
+        },
+        help_text=_('Please provide an image file for the lead capture banner.'),
+    )
 
     class Meta(object):
         verbose_name_plural = "Degrees"
