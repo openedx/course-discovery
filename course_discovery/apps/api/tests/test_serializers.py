@@ -670,35 +670,6 @@ class MinimalProgramSerializerTests(TestCase):
         expected = self.get_expected_data(program, request)
         self.assertDictEqual(serializer.data, expected)
 
-    def test_degree_marketing_data(self):
-        request = make_request()
-        rankings = RankingFactory.create_batch(3)
-        degree = DegreeFactory.create(rankings=rankings)
-        curriculum = CurriculumFactory.create(degree=degree)
-        degree.curriculum = curriculum
-        quick_facts = IconTextPairingFactory.create_batch(3, degree=degree)
-
-        serializer = self.serializer_class(degree, context={'request': request})
-        expected = self.get_expected_data(degree, request)
-        expected_rankings = RankingSerializer(rankings, many=True).data
-        expected_curriculum = CurriculumSerializer(curriculum).data
-        expected_quick_facts = IconTextPairingSerializer(quick_facts, many=True).data
-
-        # Tack in degree data
-        expected['degree'] = {
-            'application_deadline': degree.application_deadline,
-            'apply_url': degree.apply_url,
-            'overall_ranking': degree.overall_ranking,
-            'campus_image_mobile': degree.campus_image_mobile,
-            'campus_image_tablet': degree.campus_image_tablet,
-            'campus_image_desktop': degree.campus_image_desktop,
-            'curriculum': expected_curriculum,
-            'quick_facts': expected_quick_facts,
-            'lead_capture_list_name': degree.lead_capture_list_name,
-            'rankings': expected_rankings,
-        }
-        self.assertDictEqual(serializer.data, expected)
-
 
 class ProgramSerializerTests(MinimalProgramSerializerTests):
     serializer_class = ProgramSerializer
@@ -936,6 +907,40 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         assert len(expected[0]['course_runs']) == 1
         assert sorted(serializer.data['courses'][0]['course_runs'], key=lambda x: x['key']) == \
             sorted(expected[0]['course_runs'], key=lambda x: x['key'])
+
+    def test_degree_marketing_data(self):
+        request = make_request()
+
+        lead_capture_image_field = StdImageSerializerField()
+        lead_capture_image_field._context = {'request': request}  # pylint: disable=protected-access
+
+        rankings = RankingFactory.create_batch(3)
+        degree = DegreeFactory.create(rankings=rankings)
+        curriculum = CurriculumFactory.create(degree=degree)
+        degree.curriculum = curriculum
+        quick_facts = IconTextPairingFactory.create_batch(3, degree=degree)
+
+        serializer = self.serializer_class(degree, context={'request': request})
+        expected = self.get_expected_data(degree, request)
+        expected_rankings = RankingSerializer(rankings, many=True).data
+        expected_curriculum = CurriculumSerializer(curriculum).data
+        expected_quick_facts = IconTextPairingSerializer(quick_facts, many=True).data
+
+        # Tack in degree data
+        expected['degree'] = {
+            'application_deadline': degree.application_deadline,
+            'apply_url': degree.apply_url,
+            'overall_ranking': degree.overall_ranking,
+            'campus_image_mobile': degree.campus_image_mobile,
+            'campus_image_tablet': degree.campus_image_tablet,
+            'campus_image_desktop': degree.campus_image_desktop,
+            'curriculum': expected_curriculum,
+            'quick_facts': expected_quick_facts,
+            'rankings': expected_rankings,
+            'lead_capture_list_name': degree.lead_capture_list_name,
+            'lead_capture_image': lead_capture_image_field.to_representation(degree.lead_capture_image),
+        }
+        self.assertDictEqual(serializer.data, expected)
 
 
 class CreditPathwaySerialzerTests(TestCase):

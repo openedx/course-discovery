@@ -755,6 +755,7 @@ class DegreeSerializer(serializers.ModelSerializer):
     rankings = RankingSerializer(many=True)
     curriculum = CurriculumSerializer()
     quick_facts = IconTextPairingSerializer(many=True)
+    lead_capture_image = StdImageSerializerField()
 
     class Meta:
         model = Degree
@@ -762,6 +763,7 @@ class DegreeSerializer(serializers.ModelSerializer):
             'application_deadline', 'apply_url', 'overall_ranking',
             'campus_image_mobile', 'campus_image_tablet', 'campus_image_desktop',
             'curriculum', 'lead_capture_list_name', 'quick_facts', 'rankings',
+            'lead_capture_image',
         )
 
 
