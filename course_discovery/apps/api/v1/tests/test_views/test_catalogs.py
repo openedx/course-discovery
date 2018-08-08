@@ -199,6 +199,40 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             assert response.status_code == 200
             assert response.data['results'] == []
 
+    def test_courses_with_include_archived(self):
+        """
+        Verify the endpoint returns the list of available and archived courses if include archived
+        is True in catalog.
+        """
+        url = reverse('api:v1:catalog-courses', kwargs={'id': self.catalog.id})
+        Course.objects.all().delete()
+
+        now = datetime.datetime.now(pytz.UTC)
+        future = now + datetime.timedelta(days=30)
+        past = now - datetime.timedelta(days=30)
+
+        course_run = CourseRunFactory.create(
+            course__title='ABC Test Course With Archived', end=future, enrollment_end=future
+        )
+        SeatFactory.create(course_run=course_run)
+        # Create an archived course run
+        CourseRunFactory.create(course=course_run.course, end=past)
+
+        response = self.client.get(url)
+
+        assert response.status_code == 200
+        # The course appearing in response should have on 1 course run
+        assert len(response.data['results'][0]['course_runs']) == 1
+
+        # Mark include archived True in catalog
+        self.catalog.include_archived = True
+        self.catalog.save()
+        response = self.client.get(url)
+
+        assert response.status_code == 200
+        # The course appearing in response should include archived course run
+        assert len(response.data['results'][0]['course_runs']) == 2
+
     def test_contains_for_course_key(self):
         """
         Verify the endpoint returns a filtered list of courses contained in

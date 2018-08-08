@@ -28,7 +28,7 @@ from course_discovery.apps.api.serializers import (
     NestedProgramSerializer, OrganizationSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
     ProgramSearchModelSerializer, ProgramSearchSerializer, ProgramSerializer, ProgramTypeSerializer, RankingSerializer,
     SeatSerializer, SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
-    TypeaheadProgramSearchSerializer, VideoSerializer, get_utm_source_for_user
+    TypeaheadProgramSearchSerializer, VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
@@ -263,6 +263,16 @@ class MinimalCourseRunSerializerTests(TestCase):
         serializer = self.serializer_class(course_run, context={'request': request})
         expected = self.get_expected_data(course_run, request)
         self.assertDictEqual(serializer.data, expected)
+
+    def test_get_lms_course_url(self):
+        partner = PartnerFactory()
+        course_key = 'course-v1:testX+test1.23+2018T1'
+        lms_course_url = get_lms_course_url_for_archived(partner, '')
+        self.assertIsNone(lms_course_url)
+
+        lms_course_url = get_lms_course_url_for_archived(partner, course_key)
+        expected_url = '{lms_url}/courses/{course_key}/course/'.format(lms_url=partner.lms_url, course_key=course_key)
+        self.assertEqual(lms_course_url, expected_url)
 
 
 class CourseRunSerializerTests(MinimalCourseRunSerializerTests):

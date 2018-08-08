@@ -28,31 +28,31 @@ msgid ""
 "parameter."
 msgstr ""
 
-#: apps/api/serializers.py:401
+#: apps/api/serializers.py:419
 msgid "Number of courses contained in this catalog"
 msgstr ""
 
-#: apps/api/serializers.py:404
+#: apps/api/serializers.py:422
 msgid "Usernames of users with explicit access to view this catalog"
 msgstr ""
 
-#: apps/api/serializers.py:470
+#: apps/api/serializers.py:495
 msgid "Language in which the course is administered"
 msgstr ""
 
-#: apps/api/serializers.py:539
+#: apps/api/serializers.py:564
 msgid "Dictionary mapping course run IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:694
+#: apps/api/serializers.py:719
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:918
+#: apps/api/serializers.py:943
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:922
+#: apps/api/serializers.py:947
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -67,6 +67,10 @@ msgstr ""
 
 #: apps/catalogs/models.py:16
 msgid "Query to retrieve catalog contents"
+msgstr ""
+
+#: apps/catalogs/models.py:17
+msgid "Include archived courses"
 msgstr ""
 
 #: apps/core/admin.py:17
