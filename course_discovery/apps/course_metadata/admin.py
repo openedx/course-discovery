@@ -367,7 +367,7 @@ class DegreeAdmin(admin.ModelAdmin):
         # The fields below are explicitly on the ``Degree`` model
         'overall_ranking', 'campus_image_mobile', 'campus_image_tablet', 'campus_image_desktop',
         'rankings', 'apply_url', 'application_requirements', 'prerequisite_coursework', 'lead_capture_list_name',
-        'lead_capture_image',
+        'lead_capture_image', 'micromasters_long_title', 'micromasters_long_description', 'micromasters_url'
     )
 
 # Register children of AbstractNamedModel
