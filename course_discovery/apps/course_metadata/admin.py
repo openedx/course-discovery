@@ -327,6 +327,26 @@ class IconTextPairingInline(admin.StackedInline):
     verbose_name_plural = "Quick Facts"
 
 
+@admin.register(DegreeDeadline)
+class DegreeDeadlineAdmin(admin.ModelAdmin):
+    list_display = ('degree', 'semester', 'name', 'date', 'time')
+
+
+@admin.register(DegreeCost)
+class DegreeCostAdmin(admin.ModelAdmin):
+    list_display = ('degree', 'description', 'amount')
+
+
+class DegreeDeadlineInlineAdmin(admin.StackedInline):
+    model = DegreeDeadline
+    extra = 1
+
+
+class DegreeCostInlineAdmin(admin.StackedInline):
+    model = DegreeCost
+    extra = 1
+
+
 @admin.register(Degree)
 class DegreeAdmin(admin.ModelAdmin):
     """
@@ -337,7 +357,7 @@ class DegreeAdmin(admin.ModelAdmin):
     ordering = ('title', 'status')
     readonly_fields = ('uuid', )
     search_fields = ('title', 'partner', 'marketing_slug')
-    inlines = (CurriculumAdminInline, IconTextPairingInline)
+    inlines = (CurriculumAdminInline, DegreeDeadlineInlineAdmin, DegreeCostInlineAdmin, IconTextPairingInline)
     # ordering the field display on admin page.
     fields = (
         'type', 'uuid', 'title', 'subtitle', 'status', 'partner', 'banner_image', 'banner_image_url', 'card_image_url',
@@ -345,9 +365,9 @@ class DegreeAdmin(admin.ModelAdmin):
         'max_hours_effort_per_week', 'authoring_organizations', 'hidden', 'faq', 'individual_endorsements',
         'job_outlook_items', 'expected_learning_items', 'instructor_ordering',
         # The fields below are explicitly on the ``Degree`` model
-        'application_deadline', 'apply_url', 'overall_ranking',
-        'campus_image_mobile', 'campus_image_tablet', 'campus_image_desktop',
-        'lead_capture_list_name', 'lead_capture_image', 'rankings',
+        'overall_ranking', 'campus_image_mobile', 'campus_image_tablet', 'campus_image_desktop',
+        'rankings', 'apply_url', 'application_requirements', 'prerequisite_coursework', 'lead_capture_list_name',
+        'lead_capture_image',
     )
 
 # Register children of AbstractNamedModel

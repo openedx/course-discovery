@@ -22,13 +22,13 @@ from course_discovery.apps.api.serializers import (
     ContentTypeSerializer, CorporateEndorsementSerializer, CourseEntitlementSerializer, CourseRunSearchModelSerializer,
     CourseRunSearchSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer, CourseSearchModelSerializer,
     CourseSearchSerializer, CourseSerializer, CourseWithProgramsSerializer, CreditPathwaySerializer,
-    CurriculumSerializer, EndorsementSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer,
-    IconTextPairingSerializer, ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer,
-    MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
-    OrganizationSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer, ProgramSearchModelSerializer,
-    ProgramSearchSerializer, ProgramSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer,
-    SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer,
-    VideoSerializer, get_utm_source_for_user
+    CurriculumSerializer, DegreeCostSerializer, DegreeDeadlineSerializer, EndorsementSerializer, FAQSerializer,
+    FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer, ImageSerializer, MinimalCourseRunSerializer,
+    MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer,
+    NestedProgramSerializer, OrganizationSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
+    ProgramSearchModelSerializer, ProgramSearchSerializer, ProgramSerializer, ProgramTypeSerializer, RankingSerializer,
+    SeatSerializer, SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
+    TypeaheadProgramSearchSerializer, VideoSerializer, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
@@ -40,9 +40,10 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus, Progr
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import (
     CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CreditPathwayFactory, CurriculumFactory,
-    DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory, IconTextPairingFactory, ImageFactory,
-    JobOutlookItemFactory, OrganizationFactory, PersonFactory, PositionFactory, PrerequisiteFactory, ProgramFactory,
-    ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
+    DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory,
+    IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, PositionFactory,
+    PrerequisiteFactory, ProgramFactory, ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory,
+    SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -670,6 +671,47 @@ class MinimalProgramSerializerTests(TestCase):
         expected = self.get_expected_data(program, request)
         self.assertDictEqual(serializer.data, expected)
 
+    def test_degree_marketing_data(self):
+        request = make_request()
+
+        lead_capture_image_field = StdImageSerializerField()
+        lead_capture_image_field._context = {'request': request}  # pylint: disable=protected-access
+
+        rankings = RankingFactory.create_batch(3)
+        degree = DegreeFactory.create(rankings=rankings)
+        curriculum = CurriculumFactory.create(degree=degree)
+        degree.curriculum = curriculum
+        quick_facts = IconTextPairingFactory.create_batch(3, degree=degree)
+        degree.deadline = DegreeDeadlineFactory.create_batch(size=3, degree=degree)
+        degree.cost = DegreeCostFactory.create_batch(size=3, degree=degree)
+
+        serializer = self.serializer_class(degree, context={'request': request})
+        expected = self.get_expected_data(degree, request)
+        expected_rankings = RankingSerializer(rankings, many=True).data
+        expected_curriculum = CurriculumSerializer(curriculum).data
+        expected_quick_facts = IconTextPairingSerializer(quick_facts, many=True).data
+        expected_degree_deadlines = DegreeDeadlineSerializer(degree.deadline, many=True).data
+        expected_degree_costs = DegreeCostSerializer(degree.cost, many=True).data
+
+        # Tack in degree data
+        expected['degree'] = {
+            'application_requirements': degree.application_requirements,
+            'apply_url': degree.apply_url,
+            'overall_ranking': degree.overall_ranking,
+            'campus_image_mobile': degree.campus_image_mobile,
+            'campus_image_tablet': degree.campus_image_tablet,
+            'campus_image_desktop': degree.campus_image_desktop,
+            'costs': expected_degree_costs,
+            'curriculum': expected_curriculum,
+            'deadlines': expected_degree_deadlines,
+            'quick_facts': expected_quick_facts,
+            'prerequisite_coursework': degree.prerequisite_coursework,
+            'rankings': expected_rankings,
+            'lead_capture_list_name': degree.lead_capture_list_name,
+            'lead_capture_image': lead_capture_image_field.to_representation(degree.lead_capture_image),
+        }
+        self.assertDictEqual(serializer.data, expected)
+
 
 class ProgramSerializerTests(MinimalProgramSerializerTests):
     serializer_class = ProgramSerializer
@@ -919,23 +961,30 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         curriculum = CurriculumFactory.create(degree=degree)
         degree.curriculum = curriculum
         quick_facts = IconTextPairingFactory.create_batch(3, degree=degree)
+        degree.deadline = DegreeDeadlineFactory.create_batch(size=3, degree=degree)
+        degree.cost = DegreeCostFactory.create_batch(size=3, degree=degree)
 
         serializer = self.serializer_class(degree, context={'request': request})
         expected = self.get_expected_data(degree, request)
         expected_rankings = RankingSerializer(rankings, many=True).data
         expected_curriculum = CurriculumSerializer(curriculum).data
         expected_quick_facts = IconTextPairingSerializer(quick_facts, many=True).data
+        expected_degree_deadlines = DegreeDeadlineSerializer(degree.deadline, many=True).data
+        expected_degree_costs = DegreeCostSerializer(degree.cost, many=True).data
 
         # Tack in degree data
         expected['degree'] = {
-            'application_deadline': degree.application_deadline,
+            'application_requirements': degree.application_requirements,
             'apply_url': degree.apply_url,
             'overall_ranking': degree.overall_ranking,
             'campus_image_mobile': degree.campus_image_mobile,
             'campus_image_tablet': degree.campus_image_tablet,
             'campus_image_desktop': degree.campus_image_desktop,
+            'costs': expected_degree_costs,
             'curriculum': expected_curriculum,
+            'deadlines': expected_degree_deadlines,
             'quick_facts': expected_quick_facts,
+            'prerequisite_coursework': degree.prerequisite_coursework,
             'rankings': expected_rankings,
             'lead_capture_list_name': degree.lead_capture_list_name,
             'lead_capture_image': lead_capture_image_field.to_representation(degree.lead_capture_image),

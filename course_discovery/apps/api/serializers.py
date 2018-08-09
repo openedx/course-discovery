@@ -21,9 +21,9 @@ from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, CreditPathway, Curriculum, Degree, Endorsement,
-    IconTextPairing, Image, Organization, Person, PersonSocialNetwork, PersonWork, Position, Prerequisite, Program,
-    ProgramType, Ranking, Seat, SeatType, Subject, Topic, Video
+    FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, CreditPathway, Curriculum, Degree, DegreeCost,
+    DegreeDeadline, Endorsement, IconTextPairing, Image, Organization, Person, PersonSocialNetwork, PersonWork,
+    Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Video
 )
 
 User = get_user_model()
@@ -734,6 +734,28 @@ class RankingSerializer(serializers.ModelSerializer):
         )
 
 
+class DegreeDeadlineSerializer(serializers.ModelSerializer):
+    """ DegreeDeadline model serializer """
+    class Meta:
+        model = DegreeDeadline
+        fields = (
+            'semester',
+            'name',
+            'date',
+            'time',
+        )
+
+
+class DegreeCostSerializer(serializers.ModelSerializer):
+    """ DegreeCost model serializer """
+    class Meta:
+        model = DegreeCost
+        fields = (
+            'description',
+            'amount',
+        )
+
+
 class CurriculumSerializer(serializers.ModelSerializer):
     """ Curriculum model serializer """
     class Meta:
@@ -749,20 +771,23 @@ class IconTextPairingSerializer(serializers.ModelSerializer):
 
 class DegreeSerializer(serializers.ModelSerializer):
     """ Degree model serializer """
+    campus_image_desktop = serializers.ImageField()
     campus_image_mobile = serializers.ImageField()
     campus_image_tablet = serializers.ImageField()
-    campus_image_desktop = serializers.ImageField()
-    rankings = RankingSerializer(many=True)
+    costs = DegreeCostSerializer(many=True)
     curriculum = CurriculumSerializer()
     quick_facts = IconTextPairingSerializer(many=True)
     lead_capture_image = StdImageSerializerField()
+    deadlines = DegreeDeadlineSerializer(many=True)
+    rankings = RankingSerializer(many=True)
 
     class Meta:
         model = Degree
         fields = (
-            'application_deadline', 'apply_url', 'overall_ranking',
-            'campus_image_mobile', 'campus_image_tablet', 'campus_image_desktop',
-            'curriculum', 'lead_capture_list_name', 'quick_facts', 'rankings',
+            'application_requirements', 'apply_url',
+            'campus_image_desktop', 'campus_image_mobile', 'campus_image_tablet',
+            'costs', 'curriculum', 'deadlines', 'lead_capture_list_name', 'quick_facts',
+            'overall_ranking', 'prerequisite_coursework', 'rankings',
             'lead_capture_image',
         )
 

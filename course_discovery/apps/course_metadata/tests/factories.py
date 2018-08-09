@@ -345,10 +345,11 @@ class DegreeFactory(ProgramFactory):
     class Meta(object):
         model = Degree
 
-    application_deadline = FuzzyText()
     apply_url = FuzzyURL()
     overall_ranking = FuzzyText()
     lead_capture_list_name = FuzzyText()
+    application_requirements = FuzzyText()
+    prerequisite_coursework = FuzzyText()
 
     @factory.post_generation
     def rankings(self, create, extracted, **kwargs):
@@ -382,6 +383,26 @@ class CurriculumFactory(factory.DjangoModelFactory):
     def course_curriculum(self, create, extracted, **kwargs):
         if create:  # pragma: no cover
             add_m2m_data(self.course_curriculum, extracted)
+
+
+class DegreeDeadlineFactory(factory.DjangoModelFactory):
+    class Meta(object):
+        model = DegreeDeadline
+
+    degree = factory.SubFactory(DegreeFactory)
+    semester = FuzzyText()
+    name = FuzzyText()
+    date = FuzzyText()
+    time = FuzzyText()
+
+
+class DegreeCostFactory(factory.DjangoModelFactory):
+    class Meta(object):
+        model = DegreeCost
+
+    degree = factory.SubFactory(DegreeFactory)
+    description = FuzzyText()
+    amount = FuzzyText()
 
 
 class DegreeProgramCurriculumFactory(factory.DjangoModelFactory):

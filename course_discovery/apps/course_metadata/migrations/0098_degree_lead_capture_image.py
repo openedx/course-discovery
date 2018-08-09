@@ -10,7 +10,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('course_metadata', '0096_degree_lead_capture_list_name'),
+        ('course_metadata', '0097_masters_details'),
     ]
 
     operations = [
