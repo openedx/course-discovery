@@ -1518,6 +1518,7 @@ class DegreeCourseCurriculum(TimeStampedModel):
 
 class CreditPathway(TimeStampedModel):
     """ Credit Pathway model """
+    uuid = models.UUIDField(default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     partner = models.ForeignKey(Partner, null=True, blank=False)
     name = models.CharField(max_length=255)
     # this field doesn't necessarily map to our normal org models, it's just a convenience field for pathways
@@ -1527,11 +1528,6 @@ class CreditPathway(TimeStampedModel):
     programs = SortedManyToManyField(Program)
     description = models.TextField(null=True, blank=True)
     destination_url = models.URLField(null=True, blank=True)
-
-    class Meta(object):
-        unique_together = (
-            ('partner', 'name'),
-        )
 
     def __str__(self):
         return self.name
