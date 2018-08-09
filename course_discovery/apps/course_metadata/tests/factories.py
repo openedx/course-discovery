@@ -425,6 +425,7 @@ class DegreeCourseCurriculumFactory(factory.DjangoModelFactory):
 
 
 class CreditPathwayFactory(factory.DjangoModelFactory):
+    uuid = factory.LazyFunction(uuid4)
     partner = factory.SubFactory(PartnerFactory)
     name = FuzzyText()
     org_name = FuzzyText()

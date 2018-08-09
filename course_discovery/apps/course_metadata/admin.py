@@ -179,7 +179,9 @@ class ProgramAdmin(admin.ModelAdmin):
 @admin.register(CreditPathway)
 class CreditPathwayAdmin(admin.ModelAdmin):
     form = CreditPathwayAdminForm
-    list_display = ('name', 'org_name', 'partner', 'email', 'destination_url')
+    readonly_fields = ('uuid',)
+    list_display = ('name', 'uuid', 'org_name', 'partner', 'email', 'destination_url',)
+    search_fields = ('uuid', 'name', 'email', 'destination_url',)
 
 
 @admin.register(ProgramType)

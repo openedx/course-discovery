@@ -976,6 +976,7 @@ class CreditPathwaySerialzerTests(TestCase):
 
         expected = {
             'id': credit_pathway.id,
+            'uuid': str(credit_pathway.uuid),
             'name': credit_pathway.name,
             'org_name': credit_pathway.org_name,
             'email': credit_pathway.email,
