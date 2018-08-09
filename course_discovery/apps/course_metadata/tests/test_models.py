@@ -22,7 +22,7 @@ from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractMediaModel, AbstractNamedModel, AbstractValueModel, CorporateEndorsement, Course, CourseRun,
-    Curriculum, Endorsement, Ranking, Seat, SeatType, Subject, Topic
+    Curriculum, DegreeCost, DegreeDeadline, Endorsement, Ranking, Seat, SeatType, Subject, Topic
 )
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -1274,6 +1274,42 @@ class CurriculumTests(TestCase):
         self.assertEqual(str(curriculum), str(uuid_string))
 
 
+class DegreeDeadlineTests(TestCase):
+    """ Tests the DegreeDeadline model."""
+    def setUp(self):
+        self.course_run = factories.CourseRunFactory()
+        self.courses = [self.course_run.course]
+        self.degree = factories.DegreeFactory(courses=self.courses)
+
+    def test_str(self):
+        deadline_name = "A test deadline"
+        deadline_date = "January 1, 2019"
+        degree_deadline = DegreeDeadline.objects.create(
+            degree=self.degree,
+            name=deadline_name,
+            date=deadline_date,
+        )
+        self.assertEqual(str(degree_deadline), "{} {}".format(deadline_name, deadline_date))
+
+
+class DegreeCostTests(TestCase):
+    """ Tests the DegreeCost model."""
+    def setUp(self):
+        self.course_run = factories.CourseRunFactory()
+        self.courses = [self.course_run.course]
+        self.degree = factories.DegreeFactory(courses=self.courses)
+
+    def test_str(self):
+        cost_name = "A test deadline"
+        cost_amount = "January 1, 2019"
+        degree_cost = DegreeCost.objects.create(
+            degree=self.degree,
+            description=cost_name,
+            amount=cost_amount,
+        )
+        self.assertEqual(str(degree_cost), str('{}, {}').format(cost_name, cost_amount))
+
+
 class SubjectTests(SiteMixin, TestCase):
     """ Tests of the Multilingual Subject (and SubjectTranslation) model. """
 
@@ -1328,7 +1364,7 @@ class TopicTests(SiteMixin, TestCase):
 
 
 class DegreeTests(TestCase):
-    """ Tests of the Degree, Curriculum and related models. """
+    """ Tests of the Degree, Curriculum, and related models. """
 
     def setUp(self):
         super(DegreeTests, self).setUp()
@@ -1338,7 +1374,6 @@ class DegreeTests(TestCase):
         self.curriculum = factories.CurriculumFactory(degree=self.degree)
 
     def test_basic_degree(self):
-        assert self.degree.application_deadline is not None
         assert self.degree.curriculum is not None
         assert self.curriculum.program_curriculum is not None
         assert self.curriculum.course_curriculum is not None

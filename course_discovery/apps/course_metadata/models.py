@@ -1296,10 +1296,6 @@ class Degree(Program):
     This model captures information about a Degree (e.g. a Master's Degree).
     It mostly stores information relevant to the marketing site's product page for this degree.
     """
-    application_deadline = models.CharField(
-        help_text=_('String-based deadline field (e.g. FALL 2020)'),
-        max_length=255,
-    )
     apply_url = models.CharField(
         help_text=_('Callback URL to partner application flow'), max_length=255, blank=True
     )
@@ -1326,7 +1322,14 @@ class Degree(Program):
         null=True,
         help_text=_('Provide a campus image to display on desktop displays'),
     )
-
+    prerequisite_coursework = models.TextField(
+        null=True,
+        blank=True,
+    )
+    application_requirements = models.TextField(
+        null=True,
+        blank=True,
+    )
     rankings = SortedManyToManyField(Ranking, blank=True)
 
     lead_capture_list_name = models.CharField(
@@ -1392,6 +1395,58 @@ class IconTextPairing(TimeStampedModel):
 
     def __str__(self):
         return str('IconTextPairing: {}'.format(self.text))
+
+
+class DegreeDeadline(TimeStampedModel):
+    """
+    DegreeDeadline stores a Degree's important dates. Each DegreeDeadline
+    displays in the Degree product page's "Details" section.
+    """
+    class Meta:
+        ordering = ['created']
+
+    degree = models.ForeignKey(Degree, on_delete=models.CASCADE, related_name='deadlines', null=True)
+    semester = models.CharField(
+        help_text=_('Deadline applies for this semester (e.g. Spring 2019'),
+        max_length=255,
+    )
+    name = models.CharField(
+        help_text=_('Describes the deadline (e.g. Early Admission Deadline)'),
+        max_length=255,
+    )
+    date = models.CharField(
+        help_text=_('The date after which the deadline expires (e.g. January 1, 2019)'),
+        max_length=255,
+    )
+    time = models.CharField(
+        help_text=_('The time after which the deadline expires (e.g. 11:59 PM EST).'),
+        max_length=255,
+    )
+
+    def __str__(self):
+        return "{} {}".format(self.name, self.date)
+
+
+class DegreeCost(TimeStampedModel):
+    """
+    Degree cost stores a Degree's associated costs. Each DegreeCost displays in
+    a Degree product page's "Details" section.
+    """
+    class Meta:
+        ordering = ['created']
+
+    degree = models.ForeignKey(Degree, on_delete=models.CASCADE, related_name='costs', null=True)
+    description = models.CharField(
+        help_text=_('Describes what the cost is for (e.g. Tuition)'),
+        max_length=255,
+    )
+    amount = models.CharField(
+        help_text=_('String-based field stating how much the cost is (e.g. $1000).'),
+        max_length=255,
+    )
+
+    def __str__(self):
+        return str('{}, {}'.format(self.description, self.amount))
 
 
 class Curriculum(TimeStampedModel):

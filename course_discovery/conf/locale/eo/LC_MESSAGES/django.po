@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-08 19:52+0000\n"
+"POT-Creation-Date: 2018-08-09 15:54+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -648,12 +648,6 @@ msgid "From where the rank is obtained"
 msgstr "Fröm whéré thé ränk ïs ößtäïnéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: apps/course_metadata/models.py
-msgid "String-based deadline field (e.g. FALL 2020)"
-msgstr ""
-"Strïng-ßäséd déädlïné fïéld (é.g. FÀLL 2020) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя #"
-
-#: apps/course_metadata/models.py
 msgid "Callback URL to partner application flow"
 msgstr ""
 "Çällßäçk ÛRL tö pärtnér äpplïçätïön flöw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
@@ -742,6 +736,42 @@ msgstr "Ìçön FÀ çläss Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 #: apps/course_metadata/models.py
 msgid "Paired text"
 msgstr "Päïréd téxt Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: apps/course_metadata/models.py
+msgid "Deadline applies for this semester (e.g. Spring 2019"
+msgstr ""
+"Déädlïné äpplïés för thïs séméstér (é.g. Sprïng 2019 Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Describes the deadline (e.g. Early Admission Deadline)"
+msgstr ""
+"Désçrïßés thé déädlïné (é.g. Éärlý Àdmïssïön Déädlïné) Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The date after which the deadline expires (e.g. January 1, 2019)"
+msgstr ""
+"Thé däté äftér whïçh thé déädlïné éxpïrés (é.g. Jänüärý 1, 2019) Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The time after which the deadline expires (e.g. 11:59 PM EST)."
+msgstr ""
+"Thé tïmé äftér whïçh thé déädlïné éxpïrés (é.g. 11:59 PM ÉST). Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Describes what the cost is for (e.g. Tuition)"
+msgstr ""
+"Désçrïßés whät thé çöst ïs för (é.g. Tüïtïön) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid "String-based field stating how much the cost is (e.g. $1000)."
+msgstr ""
+"Strïng-ßäséd fïéld stätïng höw müçh thé çöst ïs (é.g. $1000). Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/models.py
 msgid "Organization name"
