@@ -5,6 +5,7 @@ import waffle
 from dal import autocomplete
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxLengthValidator
 from django.db.models.functions import Lower
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
@@ -22,7 +23,6 @@ from course_discovery.apps.publisher.models import (
     OrganizationUserRole, PublisherUser, Seat, User
 )
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY, is_internal_user
-from course_discovery.apps.publisher.validators import validate_text_count
 
 logger = logging.getLogger(__name__)
 
@@ -75,22 +75,27 @@ class CourseForm(BaseForm):
         label=_('Organization Name'),
         required=True
     )
-    title = forms.CharField(label=_('Course Title'), required=True)
+    title = forms.CharField(
+        label=_('Course Title'), required=True,
+        validators=[MaxLengthValidator(255)]
+    )
     number = forms.CharField(
         label=_('Course Number'), required=True,
-        validators=[validate_text_count(max_length=50)]
+        validators=[MaxLengthValidator(50)]
     )
     short_description = forms.CharField(
         label=_('Short Description'),
-        widget=forms.Textarea, required=False, validators=[validate_text_count(max_length=255)]
+        widget=forms.Textarea,
+        required=False,
+        validators=[MaxLengthValidator(350)]
     )
     full_description = forms.CharField(
         label=_('Long Description'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=2500)]
+        validators=[MaxLengthValidator(2500)]
     )
     prerequisites = forms.CharField(
         label=_('Prerequisites'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=1000)]
+        validators=[MaxLengthValidator(1000)]
     )
 
     # users will be loaded through AJAX call based on organization
@@ -124,22 +129,22 @@ class CourseForm(BaseForm):
 
     expected_learnings = forms.CharField(
         label=_('What You Will Learn'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=2500)]
+        validators=[MaxLengthValidator(2500)]
     )
 
     learner_testimonial = forms.CharField(
         label=_('Learner Testimonial'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=500)]
+        validators=[MaxLengthValidator(500)]
     )
 
     faq = forms.CharField(
         label=_('FAQ'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=2500)]
+        validators=[MaxLengthValidator(2500)]
     )
 
     syllabus = forms.CharField(
         label=_('Syllabus'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=2500)]
+        validators=[MaxLengthValidator(2500)]
     )
 
     add_new_run = forms.BooleanField(required=False)
