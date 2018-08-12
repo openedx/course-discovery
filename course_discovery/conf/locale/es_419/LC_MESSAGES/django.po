@@ -11,7 +11,7 @@
 # Christopher Lee <clee@edx.org>, 2017
 # Diego Rojas <diego.rojas@edunext.co>, 2017
 # Poxtic <erandelle@outlook.com>, 2017
-# José Miguel Henao <josem.henao@gmail.com>, 2017
+# d708d71c59e877c881227089ff727163, 2017
 # Juan Camilo Montoya Franco <juan.montoya@edunext.co>, 2016-2018
 # Laura Silva <lingison@edx.org>, 2016
 # luisa rivero zambrano <luisarz11@hotmail.com>, 2016
