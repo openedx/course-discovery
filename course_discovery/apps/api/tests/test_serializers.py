@@ -671,47 +671,6 @@ class MinimalProgramSerializerTests(TestCase):
         expected = self.get_expected_data(program, request)
         self.assertDictEqual(serializer.data, expected)
 
-    def test_degree_marketing_data(self):
-        request = make_request()
-
-        lead_capture_image_field = StdImageSerializerField()
-        lead_capture_image_field._context = {'request': request}  # pylint: disable=protected-access
-
-        rankings = RankingFactory.create_batch(3)
-        degree = DegreeFactory.create(rankings=rankings)
-        curriculum = CurriculumFactory.create(degree=degree)
-        degree.curriculum = curriculum
-        quick_facts = IconTextPairingFactory.create_batch(3, degree=degree)
-        degree.deadline = DegreeDeadlineFactory.create_batch(size=3, degree=degree)
-        degree.cost = DegreeCostFactory.create_batch(size=3, degree=degree)
-
-        serializer = self.serializer_class(degree, context={'request': request})
-        expected = self.get_expected_data(degree, request)
-        expected_rankings = RankingSerializer(rankings, many=True).data
-        expected_curriculum = CurriculumSerializer(curriculum).data
-        expected_quick_facts = IconTextPairingSerializer(quick_facts, many=True).data
-        expected_degree_deadlines = DegreeDeadlineSerializer(degree.deadline, many=True).data
-        expected_degree_costs = DegreeCostSerializer(degree.cost, many=True).data
-
-        # Tack in degree data
-        expected['degree'] = {
-            'application_requirements': degree.application_requirements,
-            'apply_url': degree.apply_url,
-            'overall_ranking': degree.overall_ranking,
-            'campus_image_mobile': degree.campus_image_mobile,
-            'campus_image_tablet': degree.campus_image_tablet,
-            'campus_image_desktop': degree.campus_image_desktop,
-            'costs': expected_degree_costs,
-            'curriculum': expected_curriculum,
-            'deadlines': expected_degree_deadlines,
-            'quick_facts': expected_quick_facts,
-            'prerequisite_coursework': degree.prerequisite_coursework,
-            'rankings': expected_rankings,
-            'lead_capture_list_name': degree.lead_capture_list_name,
-            'lead_capture_image': lead_capture_image_field.to_representation(degree.lead_capture_image),
-        }
-        self.assertDictEqual(serializer.data, expected)
-
 
 class ProgramSerializerTests(MinimalProgramSerializerTests):
     serializer_class = ProgramSerializer
@@ -988,6 +947,9 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'rankings': expected_rankings,
             'lead_capture_list_name': degree.lead_capture_list_name,
             'lead_capture_image': lead_capture_image_field.to_representation(degree.lead_capture_image),
+            'micromasters_url': degree.micromasters_url,
+            'micromasters_long_title': degree.micromasters_long_title,
+            'micromasters_long_description': degree.micromasters_long_description
         }
         self.assertDictEqual(serializer.data, expected)
 
