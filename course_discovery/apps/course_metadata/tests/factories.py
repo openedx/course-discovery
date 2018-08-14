@@ -350,6 +350,9 @@ class DegreeFactory(ProgramFactory):
     lead_capture_list_name = FuzzyText()
     application_requirements = FuzzyText()
     prerequisite_coursework = FuzzyText()
+    micromasters_url = FuzzyText()
+    micromasters_long_title = FuzzyText()
+    micromasters_long_description = FuzzyText()
 
     @factory.post_generation
     def rankings(self, create, extracted, **kwargs):

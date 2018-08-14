@@ -1351,6 +1351,24 @@ class Degree(Program):
         help_text=_('Please provide an image file for the lead capture banner.'),
     )
 
+    micromasters_url = models.URLField(
+        help_text=_('URL to micromasters landing page'),
+        max_length=255,
+        blank=True,
+        null=True
+    )
+    micromasters_long_title = models.CharField(
+        help_text=_('Micromasters verbose title'),
+        max_length=255,
+        blank=True,
+        null=True
+    )
+    micromasters_long_description = models.TextField(
+        help_text=_('Micromasters descriptive paragraph'),
+        blank=True,
+        null=True
+    )
+
     class Meta(object):
         verbose_name_plural = "Degrees"
 
