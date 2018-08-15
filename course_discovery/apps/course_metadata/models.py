@@ -1332,14 +1332,8 @@ class Degree(Program):
         null=True,
         help_text=_('Provide a campus image to display on desktop displays'),
     )
-    prerequisite_coursework = models.TextField(
-        null=True,
-        blank=True,
-    )
-    application_requirements = models.TextField(
-        null=True,
-        blank=True,
-    )
+    prerequisite_coursework = models.TextField()
+    application_requirements = models.TextField()
     costs_fine_print = models.TextField(
         help_text=_('The fine print that displays at the Tuition section\'s bottom'),
         null=True,
