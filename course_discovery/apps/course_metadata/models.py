@@ -1340,6 +1340,16 @@ class Degree(Program):
         null=True,
         blank=True,
     )
+    costs_fine_print = models.TextField(
+        help_text=_('The fine print that displays at the Tuition section\'s bottom'),
+        null=True,
+        blank=True,
+    )
+    deadlines_fine_print = models.TextField(
+        help_text=_('The fine print that displays at the Deadline section\'s bottom'),
+        null=True,
+        blank=True,
+    )
     rankings = SortedManyToManyField(Ranking, blank=True)
 
     lead_capture_list_name = models.CharField(
