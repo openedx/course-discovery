@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-13 15:20+0000\n"
+"POT-Creation-Date: 2018-08-15 18:00+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -680,6 +680,18 @@ msgid "Provide a campus image to display on desktop displays"
 msgstr ""
 "Prövïdé ä çämpüs ïmägé tö dïspläý ön désktöp dïspläýs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
 " αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The fine print that displays at the Tuition section's bottom"
+msgstr ""
+"Thé fïné prïnt thät dïspläýs ät thé Tüïtïön séçtïön's ßöttöm Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The fine print that displays at the Deadline section's bottom"
+msgstr ""
+"Thé fïné prïnt thät dïspläýs ät thé Déädlïné séçtïön's ßöttöm Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/models.py
 msgid "The sailthru email list name to capture leads"

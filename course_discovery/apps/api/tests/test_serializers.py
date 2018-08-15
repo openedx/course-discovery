@@ -962,7 +962,9 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'lead_capture_image': lead_capture_image_field.to_representation(degree.lead_capture_image),
             'micromasters_url': degree.micromasters_url,
             'micromasters_long_title': degree.micromasters_long_title,
-            'micromasters_long_description': degree.micromasters_long_description
+            'micromasters_long_description': degree.micromasters_long_description,
+            'costs_fine_print': degree.costs_fine_print,
+            'deadlines_fine_print': degree.deadlines_fine_print,
         }
         self.assertDictEqual(serializer.data, expected)
 
