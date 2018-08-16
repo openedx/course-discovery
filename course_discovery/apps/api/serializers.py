@@ -1266,6 +1266,7 @@ class CourseSearchSerializer(HaystackSerializer):
             'short_description',
             'title',
             'card_image_url',
+            'first_enrollable_paid_seat_price'
         )
 
 
