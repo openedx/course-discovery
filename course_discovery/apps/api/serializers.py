@@ -1256,6 +1256,10 @@ class BaseHaystackFacetSerializer(HaystackFacetSerializer):
 
 
 class CourseSearchSerializer(HaystackSerializer):
+    first_enrollable_paid_seat_price = serializers.SerializerMethodField()
+
+    def get_first_enrollable_paid_seat_price(self, result):
+        return result.object.first_enrollable_paid_seat_price
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
@@ -1267,6 +1271,7 @@ class CourseSearchSerializer(HaystackSerializer):
             'short_description',
             'title',
             'card_image_url',
+            'first_enrollable_paid_seat_price'
         )
 
 
@@ -1279,6 +1284,7 @@ class CourseFacetSerializer(BaseHaystackFacetSerializer):
             'organizations': {},
             'prerequisites': {},
             'subjects': {},
+            'first_enrollable_paid_seat_price': {},
         }
 
 
