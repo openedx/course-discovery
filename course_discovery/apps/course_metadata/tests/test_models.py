@@ -60,6 +60,35 @@ class TestCourse:
         course.image = None
         assert course.original_image_url is None
 
+    def test_first_enrollable_paid_seat_price(self):
+        """
+        Verify that `first_enrollable_paid_seat_price` property for a course
+        returns price of first paid seat of first active course run.
+        """
+        now = datetime.datetime.now(pytz.UTC)
+        active_course_end = now + datetime.timedelta(days=60)
+        open_enrollment_end = now + datetime.timedelta(days=30)
+
+        course = factories.CourseFactory()
+        # Create and active course run with end date in future and enrollment_end in future.
+        course_run = CourseRunFactory(
+            course=course,
+            end=active_course_end,
+            enrollment_end=open_enrollment_end
+        )
+        # Create a seat with 0 price and verify that the course field
+        # `first_enrollable_paid_seat_price` returns None
+        factories.SeatFactory.create(course_run=course_run, type='verified', price=0, sku='ABCDEF')
+        assert course_run.first_enrollable_paid_seat_price is None
+        assert course.first_enrollable_paid_seat_price is None
+
+        # Now create a seat with some price and verify that the course field
+        # `first_enrollable_paid_seat_price` now returns the price of that
+        # payable seat
+        factories.SeatFactory.create(course_run=course_run, type='verified', price=100, sku='ABCDEF')
+        assert course_run.first_enrollable_paid_seat_price == 100
+        assert course.first_enrollable_paid_seat_price == 100
+
 
 @ddt.ddt
 class CourseRunTests(TestCase):
