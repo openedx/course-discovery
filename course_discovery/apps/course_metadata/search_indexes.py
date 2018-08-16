@@ -1,5 +1,6 @@
 import json
 
+from django.db.models.functions import Lower
 from haystack import indexes
 from opaque_keys.edx.keys import CourseKey
 
@@ -148,6 +149,7 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
     enrollment_start = indexes.DateTimeField(model_attr='course_runs__enrollment_start', null=True)
     enrollment_end = indexes.DateTimeField(model_attr='course_runs__enrollment_end', null=True)
     availability = indexes.CharField(model_attr='course_runs__availability')
+    first_enrollable_paid_seat_price = indexes.IntegerField(null=True)
 
     course_runs = indexes.MultiValueField()
     expected_learning_items = indexes.MultiValueField()
@@ -170,6 +172,13 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
         course_run = obj.course_runs.all().first()
         if course_run:
             return CourseKey.from_string(course_run.key).org
+        return None
+
+    def prepare_first_enrollable_paid_seat_price(self, obj):
+        for course_run in obj.active_course_runs.order_by(Lower('key')):
+            if course_run.has_enrollable_paid_seats():
+                return course_run.first_enrollable_paid_seat_price
+
         return None
 
 
