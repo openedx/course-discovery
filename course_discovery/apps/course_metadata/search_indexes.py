@@ -148,6 +148,7 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
     enrollment_start = indexes.DateTimeField(model_attr='course_runs__enrollment_start', null=True)
     enrollment_end = indexes.DateTimeField(model_attr='course_runs__enrollment_end', null=True)
     availability = indexes.CharField(model_attr='course_runs__availability')
+    first_enrollable_paid_seat_price = indexes.IntegerField(null=True)
 
     course_runs = indexes.MultiValueField()
     expected_learning_items = indexes.MultiValueField()
@@ -171,6 +172,9 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
         if course_run:
             return CourseKey.from_string(course_run.key).org
         return None
+
+    def prepare_first_enrollable_paid_seat_price(self, obj):
+        return obj.first_enrollable_paid_seat_price
 
 
 class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
