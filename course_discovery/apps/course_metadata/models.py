@@ -9,6 +9,7 @@ import pytz
 import waffle
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
+from django.db.models.functions import Lower
 from django.db.models.query_utils import Q
 from django.utils.functional import cached_property
 from django.utils.text import slugify
@@ -428,6 +429,14 @@ class Course(TimeStampedModel):
                 Q(enrollment_end__isnull=True)
             )
         )
+
+    @property
+    def first_enrollable_paid_seat_price(self):
+        for course_run in self.active_course_runs.order_by(Lower('key')):
+            if course_run.has_enrollable_paid_seats():
+                return course_run.first_enrollable_paid_seat_price
+
+        return None
 
     @classmethod
     def search(cls, query):
