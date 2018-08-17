@@ -9,6 +9,7 @@ import pytz
 import waffle
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
+from django.db.models.functions import Lower
 from django.db.models.query_utils import Q
 from django.utils.functional import cached_property
 from django.utils.text import slugify
@@ -427,6 +428,14 @@ class Course(TimeStampedModel):
                 Q(enrollment_end__isnull=True)
             )
         )
+
+    @property
+    def first_enrollable_paid_seat_price(self):
+        for course_run in self.active_course_runs.order_by(Lower('key')):
+            if course_run.has_enrollable_paid_seats():
+                return course_run.first_enrollable_paid_seat_price
+
+        return None
 
     @classmethod
     def search(cls, query):
@@ -1332,14 +1341,8 @@ class Degree(Program):
         null=True,
         help_text=_('Provide a campus image to display on desktop displays'),
     )
-    prerequisite_coursework = models.TextField(
-        null=True,
-        blank=True,
-    )
-    application_requirements = models.TextField(
-        null=True,
-        blank=True,
-    )
+    prerequisite_coursework = models.TextField()
+    application_requirements = models.TextField()
     costs_fine_print = models.TextField(
         help_text=_('The fine print that displays at the Tuition section\'s bottom'),
         null=True,
@@ -1524,6 +1527,7 @@ class DegreeCourseCurriculum(TimeStampedModel):
 
 class CreditPathway(TimeStampedModel):
     """ Credit Pathway model """
+    uuid = models.UUIDField(default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     partner = models.ForeignKey(Partner, null=True, blank=False)
     name = models.CharField(max_length=255)
     # this field doesn't necessarily map to our normal org models, it's just a convenience field for pathways
@@ -1533,11 +1537,6 @@ class CreditPathway(TimeStampedModel):
     programs = SortedManyToManyField(Program)
     description = models.TextField(null=True, blank=True)
     destination_url = models.URLField(null=True, blank=True)
-
-    class Meta(object):
-        unique_together = (
-            ('partner', 'name'),
-        )
 
     def __str__(self):
         return self.name

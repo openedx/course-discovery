@@ -175,11 +175,7 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
         return None
 
     def prepare_first_enrollable_paid_seat_price(self, obj):
-        for course_run in obj.active_course_runs.order_by(Lower('key')):
-            if course_run.has_enrollable_paid_seats():
-                return course_run.first_enrollable_paid_seat_price
-
-        return None
+        return obj.first_enrollable_paid_seat_price
 
 
 class CourseRunIndex(BaseCourseIndex, indexes.Indexable):

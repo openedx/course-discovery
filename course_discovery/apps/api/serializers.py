@@ -997,6 +997,7 @@ class ProgramSerializer(MinimalProgramSerializer):
 
 class CreditPathwaySerializer(serializers.ModelSerializer):
     """ Serializer for CreditPathway. """
+    uuid = serializers.CharField()
     name = serializers.CharField()
     org_name = serializers.CharField()
     email = serializers.EmailField()
@@ -1006,7 +1007,7 @@ class CreditPathwaySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CreditPathway
-        fields = ('id', 'name', 'org_name', 'email', 'programs', 'description', 'destination_url')
+        fields = ('id', 'uuid', 'name', 'org_name', 'email', 'programs', 'description', 'destination_url')
 
 
 class ProgramTypeSerializer(serializers.ModelSerializer):
@@ -1255,6 +1256,10 @@ class BaseHaystackFacetSerializer(HaystackFacetSerializer):
 
 
 class CourseSearchSerializer(HaystackSerializer):
+    first_enrollable_paid_seat_price = serializers.SerializerMethodField()
+
+    def get_first_enrollable_paid_seat_price(self, result):
+        return result.object.first_enrollable_paid_seat_price
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
@@ -1279,6 +1284,7 @@ class CourseFacetSerializer(BaseHaystackFacetSerializer):
             'organizations': {},
             'prerequisites': {},
             'subjects': {},
+            'first_enrollable_paid_seat_price': {},
         }
 
 
