@@ -437,6 +437,19 @@ class CreditPathwayFactory(factory.DjangoModelFactory):
         model = CreditPathway
 
 
+class PathwayFactory(factory.DjangoModelFactory):
+    uuid = factory.LazyFunction(uuid4)
+    partner = factory.SubFactory(PartnerFactory)
+    name = FuzzyText()
+    org_name = FuzzyText()
+    email = factory.Sequence(lambda n: 'test-email-{}@test.com'.format(n))  # pylint: disable=unnecessary-lambda
+    description = FuzzyText()
+    destination_url = FuzzyURL()
+
+    class Meta:
+        model = Pathway
+
+
 class AbstractSocialNetworkModelFactory(factory.DjangoModelFactory):
     type = FuzzyChoice([name for name, __ in AbstractSocialNetworkModel.SOCIAL_NETWORK_CHOICES])
     value = FuzzyText()
