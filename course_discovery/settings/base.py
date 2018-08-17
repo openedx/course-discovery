@@ -90,6 +90,7 @@ MIDDLEWARE_CLASSES = (
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'waffle.middleware.WaffleMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
+    'edx_rest_framework_extensions.middleware.RequestMetricsMiddleware',
 )
 
 ROOT_URLCONF = 'course_discovery.urls'
