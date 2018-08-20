@@ -1477,7 +1477,8 @@ class TestProgramSearchSerializer(TestCase):
             'max_hours_effort_per_week': program.max_hours_effort_per_week,
             'language': [serialize_language(language) for language in program.languages],
             'hidden': program.hidden,
-            'is_program_eligible_for_one_click_purchase': program.is_program_eligible_for_one_click_purchase
+            'is_program_eligible_for_one_click_purchase': program.is_program_eligible_for_one_click_purchase,
+            'quick_facts': []
         }
 
     def serialize_program(self, program, request):
@@ -1517,6 +1518,10 @@ class TestProgramSearchSerializer(TestCase):
             assert {'English', 'Chinese - Mandarin'} == {*expected['language']}
         else:
             assert {'en-us', 'zh-cmn'} == {*expected['languages']}
+
+    def test_degree_program_search(self):
+        print('TEST GOES HERE')
+        assert True == False
 
 
 class ProgramSearchModelSerializerTest(TestProgramSearchSerializer):
