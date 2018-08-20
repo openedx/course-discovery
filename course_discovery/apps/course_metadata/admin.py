@@ -367,8 +367,8 @@ class DegreeAdmin(admin.ModelAdmin):
         'max_hours_effort_per_week', 'authoring_organizations', 'hidden', 'faq', 'individual_endorsements',
         'job_outlook_items', 'expected_learning_items', 'instructor_ordering',
         # The fields below are explicitly on the ``Degree`` model
-        'overall_ranking', 'campus_image_mobile', 'campus_image_tablet', 'campus_image_desktop',
-        'rankings', 'apply_url', 'application_requirements', 'prerequisite_coursework', 'lead_capture_list_name',
+        'overall_ranking', 'campus_image', 'title_background_image', 'rankings', 'apply_url', 'application_requirements',
+         'prerequisite_coursework', 'lead_capture_list_name',
         'lead_capture_image', 'micromasters_long_title', 'micromasters_long_description', 'micromasters_url',
         'costs_fine_print', 'deadlines_fine_print',
     )

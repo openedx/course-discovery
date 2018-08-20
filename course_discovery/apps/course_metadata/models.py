@@ -1314,23 +1314,19 @@ class Degree(Program):
         max_length=255,
         blank=True
     )
-    campus_image_mobile = models.ImageField(
+
+    campus_image = models.ImageField(
         upload_to='media/degree_marketing/campus_images/',
         blank=True,
         null=True,
-        help_text=_('Provide a campus image to display on mobile displays'),
+        help_text=_('Provide a campus image for the header of the degree')
     )
-    campus_image_tablet = models.ImageField(
-        upload_to='media/degree_marketing/campus_images/',
+
+    title_background_image = models.ImageField(
+        upload_to='media/degree_marketing/campus_images',
         blank=True,
         null=True,
-        help_text=_('Provide a campus image to display on tablet displays'),
-    )
-    campus_image_desktop = models.ImageField(
-        upload_to='media/degree_marketing/campus_images/',
-        blank=True,
-        null=True,
-        help_text=_('Provide a campus image to display on desktop displays'),
+        help_text=_('Provide a background image for the title section of the degree')
     )
     prerequisite_coursework = models.TextField(default='TBD')
     application_requirements = models.TextField(default='TBD')
