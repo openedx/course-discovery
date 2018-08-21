@@ -797,9 +797,11 @@ class IconTextPairingSerializer(serializers.ModelSerializer):
 
 class DegreeSerializer(serializers.ModelSerializer):
     """ Degree model serializer """
+    campus_image = serializers.ImageField()
     campus_image_desktop = serializers.ImageField()
     campus_image_mobile = serializers.ImageField()
     campus_image_tablet = serializers.ImageField()
+    title_background_image = serializers.ImageField()
     costs = DegreeCostSerializer(many=True)
     curriculum = CurriculumSerializer()
     quick_facts = IconTextPairingSerializer(many=True)
@@ -810,7 +812,7 @@ class DegreeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Degree
         fields = (
-            'application_requirements', 'apply_url',
+            'application_requirements', 'apply_url', 'campus_image', 'title_background_image',
             'campus_image_desktop', 'campus_image_mobile', 'campus_image_tablet',
             'costs', 'curriculum', 'deadlines', 'lead_capture_list_name', 'quick_facts',
             'overall_ranking', 'prerequisite_coursework', 'rankings',

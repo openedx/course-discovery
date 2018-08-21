@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-20 07:02+0000\n"
+"POT-Creation-Date: 2018-08-21 17:03+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -341,8 +341,8 @@ msgstr "Öthérs Ⱡ'σяєм ιρѕυ#"
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
-#: apps/course_metadata/models.py apps/journal/models.py
-#: apps/journal/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/journal/models.py apps/journal/models.py
 msgid "UUID"
 msgstr "ÛÛÌD Ⱡ'σяєм ι#"
 
@@ -683,6 +683,18 @@ msgstr ""
 " αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/models.py
+msgid "Provide a campus image for the header of the degree"
+msgstr ""
+"Prövïdé ä çämpüs ïmägé för thé héädér öf thé dégréé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Provide a background image for the title section of the degree"
+msgstr ""
+"Prövïdé ä ßäçkgröünd ïmägé för thé tïtlé séçtïön öf thé dégréé Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
 msgid "The fine print that displays at the Tuition section's bottom"
 msgstr ""
 "Thé fïné prïnt thät dïspläýs ät thé Tüïtïön séçtïön's ßöttöm Ⱡ'σяєм ιρѕυм "
@@ -804,11 +816,11 @@ msgstr ""
 "Strïng-ßäséd fïéld stätïng höw müçh thé çöst ïs (é.g. $1000). Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
 msgid "Organization name"
 msgstr "Örgänïzätïön nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
 msgid "These programs are for a different partner than the pathway itself: {}"
 msgstr ""
 "Thésé prögräms äré för ä dïfférént pärtnér thän thé päthwäý ïtsélf: {} "

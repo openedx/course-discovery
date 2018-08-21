@@ -1332,6 +1332,18 @@ class Degree(Program):
         null=True,
         help_text=_('Provide a campus image to display on desktop displays'),
     )
+    campus_image = models.ImageField(
+        upload_to='media/degree_marketing/campus_images/',
+        blank=True,
+        null=True,
+        help_text=_('Provide a campus image for the header of the degree'),
+    )
+    title_background_image = models.ImageField(
+        upload_to='media/degree_marketing/campus_images/',
+        blank=True,
+        null=True,
+        help_text=_('Provide a background image for the title section of the degree'),
+    )
     prerequisite_coursework = models.TextField(default='TBD')
     application_requirements = models.TextField(default='TBD')
     costs_fine_print = models.TextField(
