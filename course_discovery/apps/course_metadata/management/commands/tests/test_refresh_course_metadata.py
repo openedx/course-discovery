@@ -188,9 +188,8 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
         with mock.patch('edx_rest_api_client.client.EdxRestApiClient.get_oauth_access_token', side_effect=Exception):
             logger = 'course_discovery.apps.course_metadata.management.commands.refresh_course_metadata.logger'
             with mock.patch(logger) as mock_logger:
-                with self.assertRaises(Exception):
-                    call_command('refresh_course_metadata')
-            expected_calls = [mock.call('No access token acquired through client_credential flow.')]
+                call_command('refresh_course_metadata')
+            expected_calls = [mock.call('Failed to retrieve access token through client_credential flow.')]
             mock_logger.exception.assert_has_calls(expected_calls)
 
     def test_refresh_course_metadata_with_loader_exception(self):
