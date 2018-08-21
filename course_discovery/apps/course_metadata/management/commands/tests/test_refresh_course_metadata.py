@@ -189,7 +189,9 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
             logger = 'course_discovery.apps.course_metadata.management.commands.refresh_course_metadata.logger'
             with mock.patch(logger) as mock_logger:
                 call_command('refresh_course_metadata')
-            expected_calls = [mock.call('Failed to retrieve access token through client_credential flow.')]
+            expected_calls = [mock.call(
+                '[{name}] Failed to retrieve access token through client_credential flow.'.format(self.partner.name)
+            )]
             mock_logger.exception.assert_has_calls(expected_calls)
 
     def test_refresh_course_metadata_with_loader_exception(self):
