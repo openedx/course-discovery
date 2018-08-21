@@ -94,9 +94,12 @@ class Command(BaseCommand):
                     partner.oidc_secret,
                     token_type=token_type
                 )
-            except Exception:
-                logger.exception('No access token acquired through client_credential flow.')
-                raise
+            except Exception:  # pylint: disable=broad-except
+                message = '[{name}] Failed to retrieve access token through client_credential flow.'.format(
+                    name=partner.name
+                )
+                logger.exception(message)
+                continue
             username = jwt.decode(access_token, verify=False)['preferred_username']
             kwargs = {'username': username} if username else {}
 
