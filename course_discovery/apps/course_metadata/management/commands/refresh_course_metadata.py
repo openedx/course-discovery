@@ -95,7 +95,7 @@ class Command(BaseCommand):
                     token_type=token_type
                 )
             except Exception:  # pylint: disable=broad-except
-                message = '[{name}] Failed to retrieve access token through client_credential flow.'.format(
+                message = 'Failed to retrieve access token through client_credential flow for Partner [{name}]'.format(
                     name=partner.name
                 )
                 logger.exception(message)

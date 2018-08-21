@@ -190,7 +190,9 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
             with mock.patch(logger) as mock_logger:
                 call_command('refresh_course_metadata')
             expected_calls = [mock.call(
-                '[{name}] Failed to retrieve access token through client_credential flow.'.format(self.partner.name)
+                'Failed to retrieve access token through client_credential flow for Partner [{name}]'.format(
+                    self.partner.name
+                )
             )]
             mock_logger.exception.assert_has_calls(expected_calls)
 
