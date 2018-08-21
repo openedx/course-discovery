@@ -73,6 +73,17 @@ class CourseAdmin(admin.ModelAdmin):
     readonly_fields = ('uuid',)
     search_fields = ('uuid', 'key', 'title',)
 
+@admin.register(CourseEntitlement)
+class CourseEntitlementAdmin(admin.ModelAdmin):
+        list_display = ['course', 'get_course_number', 'mode']
+
+        def get_course_number(self, obj):
+            return obj.course.number
+
+        get_course_number.short_description = 'Course number'
+
+        raw_id_fields = ['course']
+        search_fields = ['course__title', 'course__number']
 
 @admin.register(CourseRun)
 class CourseRunAdmin(admin.ModelAdmin):
