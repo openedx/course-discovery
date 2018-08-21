@@ -952,6 +952,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'campus_image_mobile': degree.campus_image_mobile,
             'campus_image_tablet': degree.campus_image_tablet,
             'campus_image_desktop': degree.campus_image_desktop,
+            'campus_image': degree.campus_image,
             'costs': expected_degree_costs,
             'curriculum': expected_curriculum,
             'deadlines': expected_degree_deadlines,
@@ -965,6 +966,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'micromasters_long_description': degree.micromasters_long_description,
             'costs_fine_print': degree.costs_fine_print,
             'deadlines_fine_print': degree.deadlines_fine_print,
+            'title_background_image': degree.title_background_image,
         }
         self.assertDictEqual(serializer.data, expected)
 

@@ -1388,3 +1388,5 @@ class DegreeTests(TestCase):
         assert self.curriculum.marketing_text is not None
         assert self.degree.lead_capture_list_name is not None
         assert self.degree.lead_capture_image is not None
+        assert self.degree.campus_image is not None
+        assert self.degree.title_background_image is not None
