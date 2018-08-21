@@ -4,7 +4,7 @@ from haystack import indexes
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Program, IconTextPairing
+from course_discovery.apps.course_metadata.models import Course, CourseRun, IconTextPairing, Program, Degree
 
 BASE_SEARCH_INDEX_FIELDS = (
     'aggregation_key',
@@ -321,6 +321,15 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
 
     def prepare_language(self, obj):
         return [self._prepare_language(language) for language in obj.languages]
+
+    def prepare_quick_facts(self, obj):
+        return [fact.text for fact in IconTextPairing.objects.filter(degree=obj)]
+
+
+class DegreeIndex(ProgramIndex):
+    model = Degree
+
+    quick_facts = indexes.MultiValueField()
 
     def prepare_quick_facts(self, obj):
         return [fact.text for fact in IconTextPairing.objects.filter(degree=obj)]

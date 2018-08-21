@@ -344,7 +344,6 @@ class ProgramFactory(factory.django.DjangoModelFactory):
 class DegreeFactory(ProgramFactory):
     class Meta(object):
         model = Degree
-
     apply_url = FuzzyURL()
     overall_ranking = FuzzyText()
     lead_capture_list_name = FuzzyText()
@@ -353,6 +352,7 @@ class DegreeFactory(ProgramFactory):
     micromasters_url = FuzzyText()
     micromasters_long_title = FuzzyText()
     micromasters_long_description = FuzzyText()
+
 
     @factory.post_generation
     def rankings(self, create, extracted, **kwargs):

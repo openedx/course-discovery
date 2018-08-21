@@ -37,7 +37,7 @@ from course_discovery.apps.core.tests.factories import PartnerFactory, UserFacto
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSAPIClientMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Program, Degree
 from course_discovery.apps.course_metadata.tests.factories import (
     CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CreditPathwayFactory, CurriculumFactory,
     DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory,
@@ -1520,23 +1520,37 @@ class TestProgramSearchSerializer(TestCase):
             assert {'en-us', 'zh-cmn'} == {*expected['languages']}
 
     def test_degree_program_search(self):
-        degree = DegreeFactory(authoring_organizations=[], credit_backing_organizations=[])
-        quick_facts = IconTextPairingFactory.create_batch(3, degree=degree)
-        expected_quick_facts = IconTextPairingSerializer(quick_facts, many=True).data
-        expected = self.get_expected_data(degree, self.request)
+        """
+        Verify that degree data is serialized
+        Fields = [quick_facts]
 
-        expected['quick_facts'] = expected_quick_facts,
-        serializer = self.serialize_program(degree, self.request)
-        print('****')
-        print(expected_quick_facts)
-        print('****')
-        print(serializer)
-        print('****')
+        """
+        course_run = CourseRunFactory(language=LanguageTag.objects.get(code='en-us'),
+                                      authoring_organizations=[OrganizationFactory()])
+        CourseRunFactory(course=course_run.course, language=LanguageTag.objects.get(code='zh-cmn'))
+
+        program = DegreeFactory(courses=[course_run.course], authoring_organizations=[], credit_backing_organizations=[])
+        # quick_facts = IconTextPairingFactory.create_batch(3)
+        # expected_quick_facts = IconTextPairingSerializer(quick_facts, many=True).data
+        # program.quick_facts = [entry['text'] for entry in expected_quick_facts]
+
+        result = SearchQuerySet().models(Degree).filter(uuid=program.uuid)[0]
+        serializer = self.serializer_class(result, context={'request': self.request})
+
+
+
+        # serializer = self.serialize_program(program, self.request)
+
+        expected = self.get_expected_data(program, self.request)
+        # expected['quick_facts'] = [entry['text'] for entry in expected_quick_facts],
+
+        # print('****')
+        # print(expected['quick_facts'])
+        # print('****')
+        # print(serializer.data['quick_facts'])
+        # print('****')
 
         assert serializer.data == expected
-        #
-        # print('TEST GOES HERE')
-        # assert True == False
 
 
 class ProgramSearchModelSerializerTest(TestProgramSearchSerializer):
