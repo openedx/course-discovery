@@ -1520,8 +1520,23 @@ class TestProgramSearchSerializer(TestCase):
             assert {'en-us', 'zh-cmn'} == {*expected['languages']}
 
     def test_degree_program_search(self):
-        print('TEST GOES HERE')
-        assert True == False
+        degree = DegreeFactory(authoring_organizations=[], credit_backing_organizations=[])
+        quick_facts = IconTextPairingFactory.create_batch(3, degree=degree)
+        expected_quick_facts = IconTextPairingSerializer(quick_facts, many=True).data
+        expected = self.get_expected_data(degree, self.request)
+
+        expected['quick_facts'] = expected_quick_facts,
+        serializer = self.serialize_program(degree, self.request)
+        print('****')
+        print(expected_quick_facts)
+        print('****')
+        print(serializer)
+        print('****')
+
+        assert serializer.data == expected
+        #
+        # print('TEST GOES HERE')
+        # assert True == False
 
 
 class ProgramSearchModelSerializerTest(TestProgramSearchSerializer):
