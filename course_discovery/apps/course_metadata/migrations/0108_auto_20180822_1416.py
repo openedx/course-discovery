@@ -9,17 +9,17 @@ def seed_pathway(apps, schema_editor):
     CreditPathway = apps.get_model('course_metadata', 'CreditPathway')
     Pathway = apps.get_model('course_metadata', 'Pathway')
     for cp in CreditPathway.objects.all():
-        Pathway.objects.update_or_create(
+        pathway, _ = Pathway.objects.update_or_create(
             uuid=cp.uuid,
             partner=cp.partner,
             name=cp.name,
             org_name=cp.org_name,
             email=cp.email,
-            programs=cp.programs,
             description=cp.description,
             destination_url=cp.destination_url,
         )
-
+        pathway.programs = cp.programs.all()
+        pathway.save()
 
 class Migration(migrations.Migration):
 
