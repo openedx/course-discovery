@@ -175,6 +175,9 @@ class ProgramAdmin(admin.ModelAdmin):
         js = ('bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
               'js/sortable_select.js')
 
+    def get_search_results(self, request, queryset, search_term):
+        search_term.strip("-")
+        return super(ProgramAdmin, self).get_search_results(request, queryset, search_term)
 
 @admin.register(CreditPathway)
 class CreditPathwayAdmin(admin.ModelAdmin):
