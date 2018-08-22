@@ -32,6 +32,20 @@ Is the build failing because translations are out of date?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Run ``make check_translations_up_to_date`` and check in the generated *.mo & *.po files to your PR.
 
+Running Tests Locally, Fast
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There is a test settings file ``course_discovery.settings.test_local`` that allows you to persist the test
+database between runs of the unittests (as long as you don't restart your container).  It stores the SQLite
+database file at ``/dev/shm``, which is a filesystem backed by RAM.  Using this test file in conjunction with
+pytest's ``--reuse-db`` option can significantly cut down on local testing iteration time.  You can use this
+as follows: ``pytest course_discovery/apps/course_metadata/tests/test_utils.py --ds=course_discovery.settings.test_local --reuse-db``
+
+The first run will incur the normal cost of database creation (typically around 30 seconds), but the second run
+will completely skip that startup cost, since the ``--reuse-db`` option causes pytest to use the already persisted
+database in the ``/dev/shm`` directory.  If you need to change models or create databases between runs, you can tell
+pytest to recreate the database with ``-recreate-db``.
+
 
 Reporting Security Issues
 -------------------------
