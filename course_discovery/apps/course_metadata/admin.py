@@ -8,7 +8,7 @@ from parler.admin import TranslatableAdmin
 from course_discovery.apps.course_metadata.exceptions import (
     MarketingSiteAPIClientException, MarketingSitePublisherException
 )
-from course_discovery.apps.course_metadata.forms import CourseAdminForm, CreditPathwayAdminForm, ProgramAdminForm
+from course_discovery.apps.course_metadata.forms import CourseAdminForm, PathwayAdminForm, ProgramAdminForm
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 
 PUBLICATION_FAILURE_MSG_TPL = _(
@@ -176,9 +176,9 @@ class ProgramAdmin(admin.ModelAdmin):
               'js/sortable_select.js')
 
 
-@admin.register(CreditPathway)
-class CreditPathwayAdmin(admin.ModelAdmin):
-    form = CreditPathwayAdminForm
+@admin.register(Pathway)
+class PathwayAdmin(admin.ModelAdmin):
+    form = PathwayAdminForm
     readonly_fields = ('uuid',)
     list_display = ('name', 'uuid', 'org_name', 'partner', 'email', 'destination_url',)
     search_fields = ('uuid', 'name', 'email', 'destination_url',)

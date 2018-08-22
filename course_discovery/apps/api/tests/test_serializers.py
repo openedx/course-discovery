@@ -21,11 +21,11 @@ from course_discovery.apps.api.serializers import (
     AffiliateWindowSerializer, CatalogSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer,
     ContentTypeSerializer, CorporateEndorsementSerializer, CourseEntitlementSerializer, CourseRunSearchModelSerializer,
     CourseRunSearchSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer, CourseSearchModelSerializer,
-    CourseSearchSerializer, CourseSerializer, CourseWithProgramsSerializer, CreditPathwaySerializer,
-    CurriculumSerializer, DegreeCostSerializer, DegreeDeadlineSerializer, EndorsementSerializer, FAQSerializer,
-    FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer, ImageSerializer, MinimalCourseRunSerializer,
-    MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer,
-    NestedProgramSerializer, OrganizationSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
+    CourseSearchSerializer, CourseSerializer, CourseWithProgramsSerializer, CurriculumSerializer, DegreeCostSerializer,
+    DegreeDeadlineSerializer, EndorsementSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer,
+    IconTextPairingSerializer, ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer,
+    MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
+    OrganizationSerializer, PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
     ProgramSearchModelSerializer, ProgramSearchSerializer, ProgramSerializer, ProgramTypeSerializer, RankingSerializer,
     SeatSerializer, SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
     TypeaheadProgramSearchSerializer, VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
@@ -39,9 +39,9 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSA
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import (
-    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CreditPathwayFactory, CurriculumFactory,
-    DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory,
-    IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, PositionFactory,
+    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CurriculumFactory, DegreeCostFactory,
+    DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory, IconTextPairingFactory,
+    ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory, PersonFactory, PositionFactory,
     PrerequisiteFactory, ProgramFactory, ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory,
     SubjectFactory, TopicFactory, VideoFactory
 )
@@ -971,20 +971,20 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         self.assertDictEqual(serializer.data, expected)
 
 
-class CreditPathwaySerialzerTests(TestCase):
+class PathwaySerialzerTests(TestCase):
     def test_data(self):
-        credit_pathway = CreditPathwayFactory()
-        serializer = CreditPathwaySerializer(credit_pathway)
+        pathway = PathwayFactory()
+        serializer = PathwaySerializer(pathway)
 
         expected = {
-            'id': credit_pathway.id,
-            'uuid': str(credit_pathway.uuid),
-            'name': credit_pathway.name,
-            'org_name': credit_pathway.org_name,
-            'email': credit_pathway.email,
-            'programs': MinimalProgramSerializer(credit_pathway.programs, many=True).data,
-            'description': credit_pathway.description,
-            'destination_url': credit_pathway.destination_url,
+            'id': pathway.id,
+            'uuid': str(pathway.uuid),
+            'name': pathway.name,
+            'org_name': pathway.org_name,
+            'email': pathway.email,
+            'programs': MinimalProgramSerializer(pathway.programs, many=True).data,
+            'description': pathway.description,
+            'destination_url': pathway.destination_url,
         }
         self.assertDictEqual(serializer.data, expected)
 
