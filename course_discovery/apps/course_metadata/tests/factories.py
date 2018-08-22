@@ -424,19 +424,6 @@ class DegreeCourseCurriculumFactory(factory.DjangoModelFactory):
     curriculum = factory.SubFactory(CurriculumFactory)
 
 
-class CreditPathwayFactory(factory.DjangoModelFactory):
-    uuid = factory.LazyFunction(uuid4)
-    partner = factory.SubFactory(PartnerFactory)
-    name = FuzzyText()
-    org_name = FuzzyText()
-    email = factory.Sequence(lambda n: 'test-email-{}@test.com'.format(n))  # pylint: disable=unnecessary-lambda
-    description = FuzzyText()
-    destination_url = FuzzyURL()
-
-    class Meta:
-        model = CreditPathway
-
-
 class PathwayFactory(factory.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
     partner = factory.SubFactory(PartnerFactory)
@@ -448,6 +435,19 @@ class PathwayFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = Pathway
+
+
+class CreditPathwayFactory(factory.DjangoModelFactory):
+    uuid = factory.LazyFunction(uuid4)
+    partner = factory.SubFactory(PartnerFactory)
+    name = FuzzyText()
+    org_name = FuzzyText()
+    email = factory.Sequence(lambda n: 'test-email-{}@test.com'.format(n))  # pylint: disable=unnecessary-lambda
+    description = FuzzyText()
+    destination_url = FuzzyURL()
+
+    class Meta:
+        model = CreditPathway
 
 
 class AbstractSocialNetworkModelFactory(factory.DjangoModelFactory):
