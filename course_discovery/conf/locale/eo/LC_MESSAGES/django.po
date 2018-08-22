@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-21 17:03+0000\n"
+"POT-Creation-Date: 2018-08-23 21:06+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -731,6 +731,24 @@ msgstr "Mïçrömästérs vérßösé tïtlé Ⱡ'σяєм ιρѕυм ∂σłσ�
 msgid "Micromasters descriptive paragraph"
 msgstr ""
 "Mïçrömästérs désçrïptïvé pärägräph Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/models.py
+msgid "Ranking display for search card (e.g. \"#1 in the U.S.\""
+msgstr ""
+"Ränkïng dïspläý för séärçh çärd (é.g. \"#1 ïn thé Û.S.\" Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Cost display for search card (e.g. \"$9,999\""
+msgstr ""
+"Çöst dïspläý för séärçh çärd (é.g. \"$9,999\" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid "Number of courses for search card (e.g. \"11 Courses\""
+msgstr ""
+"Nümßér öf çöürsés för séärçh çärd (é.g. \"11 Çöürsés\" Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/models.py
 msgid "Award"

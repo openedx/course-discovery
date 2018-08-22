@@ -1,0 +1,4 @@
+
+{{ object.search_card_ranking }}
+{{ object.search_card_cost }}
+{{ object.search_card_courses }}
