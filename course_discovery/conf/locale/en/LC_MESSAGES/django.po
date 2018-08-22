@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-21 17:03+0000\n"
+"POT-Creation-Date: 2018-08-23 21:06+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -228,7 +228,7 @@ msgstr ""
 msgid "No"
 msgstr ""
 
-#: apps/course_metadata/admin.py:137
+#: apps/course_metadata/admin.py:150
 msgid "Included course runs"
 msgstr ""
 
@@ -286,8 +286,8 @@ msgstr ""
 #: apps/course_metadata/models.py:118 apps/course_metadata/models.py:157
 #: apps/course_metadata/models.py:217 apps/course_metadata/models.py:262
 #: apps/course_metadata/models.py:340 apps/course_metadata/models.py:456
-#: apps/course_metadata/models.py:949 apps/course_metadata/models.py:1501
-#: apps/course_metadata/models.py:1533 apps/course_metadata/models.py:1565
+#: apps/course_metadata/models.py:949 apps/course_metadata/models.py:1519
+#: apps/course_metadata/models.py:1551 apps/course_metadata/models.py:1583
 #: apps/journal/models.py:23 apps/journal/models.py:67
 msgid "UUID"
 msgstr ""
@@ -567,83 +567,95 @@ msgstr ""
 msgid "Micromasters descriptive paragraph"
 msgstr ""
 
-#: apps/course_metadata/models.py:1421
+#: apps/course_metadata/models.py:1398
+msgid "Ranking display for search card (e.g. \"#1 in the U.S.\""
+msgstr ""
+
+#: apps/course_metadata/models.py:1404
+msgid "Cost display for search card (e.g. \"$9,999\""
+msgstr ""
+
+#: apps/course_metadata/models.py:1410
+msgid "Number of courses for search card (e.g. \"11 Courses\""
+msgstr ""
+
+#: apps/course_metadata/models.py:1439
 msgid "Award"
 msgstr ""
 
-#: apps/course_metadata/models.py:1422
+#: apps/course_metadata/models.py:1440
 msgid "Bell"
 msgstr ""
 
-#: apps/course_metadata/models.py:1423
+#: apps/course_metadata/models.py:1441
 msgid "Certificate"
 msgstr ""
 
-#: apps/course_metadata/models.py:1424
+#: apps/course_metadata/models.py:1442
 msgid "Checkmark"
 msgstr ""
 
-#: apps/course_metadata/models.py:1425
+#: apps/course_metadata/models.py:1443
 msgid "Info"
 msgstr ""
 
-#: apps/course_metadata/models.py:1426
+#: apps/course_metadata/models.py:1444
 msgid "Sitemap"
 msgstr ""
 
-#: apps/course_metadata/models.py:1427
+#: apps/course_metadata/models.py:1445
 msgid "User"
 msgstr ""
 
-#: apps/course_metadata/models.py:1428
+#: apps/course_metadata/models.py:1446
 msgid "Dollar"
 msgstr ""
 
-#: apps/course_metadata/models.py:1429
+#: apps/course_metadata/models.py:1447
 msgid "Book"
 msgstr ""
 
-#: apps/course_metadata/models.py:1430
+#: apps/course_metadata/models.py:1448
 msgid "Mortar Board"
 msgstr ""
 
-#: apps/course_metadata/models.py:1434
+#: apps/course_metadata/models.py:1452
 msgid "Icon FA class"
 msgstr ""
 
-#: apps/course_metadata/models.py:1435
+#: apps/course_metadata/models.py:1453
 msgid "Paired text"
 msgstr ""
 
-#: apps/course_metadata/models.py:1454
+#: apps/course_metadata/models.py:1472
 msgid "Deadline applies for this semester (e.g. Spring 2019"
 msgstr ""
 
-#: apps/course_metadata/models.py:1458
+#: apps/course_metadata/models.py:1476
 msgid "Describes the deadline (e.g. Early Admission Deadline)"
 msgstr ""
 
-#: apps/course_metadata/models.py:1462
+#: apps/course_metadata/models.py:1480
 msgid "The date after which the deadline expires (e.g. January 1, 2019)"
 msgstr ""
 
-#: apps/course_metadata/models.py:1466
+#: apps/course_metadata/models.py:1484
 msgid "The time after which the deadline expires (e.g. 11:59 PM EST)."
 msgstr ""
 
-#: apps/course_metadata/models.py:1484
+#: apps/course_metadata/models.py:1502
 msgid "Describes what the cost is for (e.g. Tuition)"
 msgstr ""
 
-#: apps/course_metadata/models.py:1488
+#: apps/course_metadata/models.py:1506
 msgid "String-based field stating how much the cost is (e.g. $1000)."
 msgstr ""
 
-#: apps/course_metadata/models.py:1538 apps/course_metadata/models.py:1570
+#: apps/course_metadata/models.py:1556 apps/course_metadata/models.py:1588
 msgid "Organization name"
 msgstr ""
 
-#: apps/course_metadata/models.py:1555 apps/course_metadata/models.py:1587
+#: apps/course_metadata/models.py:1573 apps/course_metadata/models.py:1605
 msgid "These programs are for a different partner than the pathway itself: {}"
 msgstr ""
 

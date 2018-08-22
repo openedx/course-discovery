@@ -1,12 +1,14 @@
 # pylint: disable=no-member,test-inherits-tests
 import datetime
 import itertools
+from collections import OrderedDict
 from urllib.parse import urlencode
 
 import ddt
 import mock
 import pytest
 import responses
+from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from django.utils.text import slugify
 from haystack.query import SearchQuerySet
@@ -37,7 +39,7 @@ from course_discovery.apps.core.tests.factories import PartnerFactory, UserFacto
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSAPIClientMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Degree, Program
 from course_discovery.apps.course_metadata.tests.factories import (
     CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CurriculumFactory, DegreeCostFactory,
     DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory, IconTextPairingFactory,
@@ -1479,7 +1481,8 @@ class TestProgramSearchSerializer(TestCase):
             'max_hours_effort_per_week': program.max_hours_effort_per_week,
             'language': [serialize_language(language) for language in program.languages],
             'hidden': program.hidden,
-            'is_program_eligible_for_one_click_purchase': program.is_program_eligible_for_one_click_purchase
+            'is_program_eligible_for_one_click_purchase': program.is_program_eligible_for_one_click_purchase,
+            'search_card_display': []
         }
 
     def serialize_program(self, program, request):
@@ -1520,14 +1523,68 @@ class TestProgramSearchSerializer(TestCase):
         else:
             assert {'en-us', 'zh-cmn'} == {*expected['languages']}
 
+    def test_data_degree(self):
+        """
+        Verify that degree data is serialized
+        Fields = [quick_facts]
+        """
+        degree = DegreeFactory()
+        result = SearchQuerySet().models(Degree).filter(uuid=degree.uuid)[0]
+        serializer = self.serializer_class(result, context={'request': self.request})
+
+        expected = self.get_expected_data(degree, self.request)
+
+        if expected['content_type'] != 'degree':
+            # Handler for inhereted test ProgramSearchModelSerializerTest
+            expected['content_type'] = 'degree'
+            expected['search_card_display'] = [
+                degree.search_card_ranking,
+                degree.search_card_cost,
+                degree.search_card_courses
+            ]
+        assert serializer.data == expected
+
 
 class ProgramSearchModelSerializerTest(TestProgramSearchSerializer):
     serializer_class = ProgramSearchModelSerializer
 
     @classmethod
     def get_expected_data(cls, program, request):
+
         expected = ProgramSerializerTests.get_expected_data(program, request)
-        expected.update({'content_type': 'program'})
+        try:
+            program.degree
+        except ObjectDoesNotExist:
+            expected.update({'content_type': 'program'})
+            return expected
+
+        expected.update({
+            'content_type': 'degree',
+            'degree': OrderedDict([
+                ('application_requirements', program.degree.application_requirements),
+                ('apply_url', program.degree.apply_url),
+                ('campus_image', None),
+                ('title_background_image', None),
+                ('campus_image_desktop', None),
+                ('campus_image_mobile', None),
+                ('campus_image_tablet', None),
+                ('costs', []),
+                ('curriculum', None),
+                ('deadlines', []),
+                ('lead_capture_list_name', program.degree.lead_capture_list_name),
+                ('quick_facts', []),
+                ('overall_ranking', program.degree.overall_ranking),
+                ('prerequisite_coursework', program.degree.prerequisite_coursework),
+                ('rankings', []),
+                ('lead_capture_image', {}),
+                ('micromasters_url', program.degree.micromasters_url),
+                ('micromasters_long_title', program.degree.micromasters_long_title),
+                ('micromasters_long_description', program.degree.micromasters_long_description),
+                ('costs_fine_print', program.degree.costs_fine_print),
+                ('deadlines_fine_print', program.degree.deadlines_fine_print)
+            ])
+        })
+        expected['video']['src'] = program.video.src
         return expected
 
 

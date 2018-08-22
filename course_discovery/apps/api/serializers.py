@@ -1384,6 +1384,7 @@ class ProgramSearchSerializer(HaystackSerializer):
             'subject_uuids',
             'weeks_to_complete_max',
             'weeks_to_complete_min',
+            'search_card_display'
         )
 
 
