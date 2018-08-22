@@ -1,0 +1,4 @@
+
+{% for quick_facts in object.quick_facts.all %}
+    {{ quick_facts.text }}: {{ quick_facts.icon }}
+{% endfor %}
