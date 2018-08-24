@@ -8,7 +8,6 @@ import ddt
 import mock
 import pytest
 import responses
-from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from django.utils.text import slugify
 from haystack.query import SearchQuerySet
@@ -1485,6 +1484,19 @@ class TestProgramSearchSerializer(TestCase):
             'search_card_display': []
         }
 
+    @classmethod
+    def get_expected_degree_data(cls, degree, request):  # pylint: disable=unused-argument
+        expected = cls.get_expected_data(degree, request)
+        if expected['content_type'] != 'degree':
+            # Handler for inhereted test ProgramSearchModelSerializerTest
+            expected['content_type'] = 'degree'
+            expected['search_card_display'] = [
+                degree.search_card_ranking,
+                degree.search_card_cost,
+                degree.search_card_courses
+            ]
+        return expected
+
     def serialize_program(self, program, request):
         """ Serializes the given `Program` as a search result. """
         result = SearchQuerySet().models(Program).filter(uuid=program.uuid)[0]
@@ -1532,16 +1544,8 @@ class TestProgramSearchSerializer(TestCase):
         result = SearchQuerySet().models(Degree).filter(uuid=degree.uuid)[0]
         serializer = self.serializer_class(result, context={'request': self.request})
 
-        expected = self.get_expected_data(degree, self.request)
+        expected = self.get_expected_degree_data(degree, self.request)
 
-        if expected['content_type'] != 'degree':
-            # Handler for inhereted test ProgramSearchModelSerializerTest
-            expected['content_type'] = 'degree'
-            expected['search_card_display'] = [
-                degree.search_card_ranking,
-                degree.search_card_cost,
-                degree.search_card_courses
-            ]
         assert serializer.data == expected
 
 
@@ -1550,19 +1554,18 @@ class ProgramSearchModelSerializerTest(TestProgramSearchSerializer):
 
     @classmethod
     def get_expected_data(cls, program, request):
-
         expected = ProgramSerializerTests.get_expected_data(program, request)
-        try:
-            program.degree
-        except ObjectDoesNotExist:
-            expected.update({'content_type': 'program'})
-            return expected
+        expected.update({'content_type': 'program'})
+        return expected
 
+    @classmethod
+    def get_expected_degree_data(cls, degree, request):
+        expected = cls.get_expected_data(degree, request)
         expected.update({
             'content_type': 'degree',
             'degree': OrderedDict([
-                ('application_requirements', program.degree.application_requirements),
-                ('apply_url', program.degree.apply_url),
+                ('application_requirements', degree.application_requirements),
+                ('apply_url', degree.apply_url),
                 ('campus_image', None),
                 ('title_background_image', None),
                 ('campus_image_desktop', None),
@@ -1571,20 +1574,20 @@ class ProgramSearchModelSerializerTest(TestProgramSearchSerializer):
                 ('costs', []),
                 ('curriculum', None),
                 ('deadlines', []),
-                ('lead_capture_list_name', program.degree.lead_capture_list_name),
+                ('lead_capture_list_name', degree.lead_capture_list_name),
                 ('quick_facts', []),
-                ('overall_ranking', program.degree.overall_ranking),
-                ('prerequisite_coursework', program.degree.prerequisite_coursework),
+                ('overall_ranking', degree.overall_ranking),
+                ('prerequisite_coursework', degree.prerequisite_coursework),
                 ('rankings', []),
                 ('lead_capture_image', {}),
-                ('micromasters_url', program.degree.micromasters_url),
-                ('micromasters_long_title', program.degree.micromasters_long_title),
-                ('micromasters_long_description', program.degree.micromasters_long_description),
-                ('costs_fine_print', program.degree.costs_fine_print),
-                ('deadlines_fine_print', program.degree.deadlines_fine_print)
+                ('micromasters_url', degree.micromasters_url),
+                ('micromasters_long_title', degree.micromasters_long_title),
+                ('micromasters_long_description', degree.micromasters_long_description),
+                ('costs_fine_print', degree.costs_fine_print),
+                ('deadlines_fine_print', degree.deadlines_fine_print)
             ])
         })
-        expected['video']['src'] = program.video.src
+        expected['video']['src'] = degree.video.src
         return expected
 
 
