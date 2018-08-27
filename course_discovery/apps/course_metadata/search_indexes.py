@@ -148,6 +148,7 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
     enrollment_start = indexes.DateTimeField(model_attr='course_runs__enrollment_start', null=True)
     enrollment_end = indexes.DateTimeField(model_attr='course_runs__enrollment_end', null=True)
     availability = indexes.CharField(model_attr='course_runs__availability')
+    subjects = indexes.CharField(model_attr='subjects__uuid')
 
     course_runs = indexes.MultiValueField()
     expected_learning_items = indexes.MultiValueField()
