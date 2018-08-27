@@ -1403,6 +1403,21 @@ class ProgramFacetSerializer(BaseHaystackFacetSerializer):
         )
 
 
+class DegreeFacetSerializer(BaseHaystackFacetSerializer):
+    class Meta:
+        field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        ignore_fields = COMMON_IGNORED_FIELDS
+        index_classes = [search_indexes.DegreeIndex]
+        field_options = {
+            'status': {},
+            'type': {},
+            'seat_types': {},
+        }
+        fields = search_indexes.BASE_PROGRAM_FIELDS + (
+            'organizations',
+        )
+
+
 class AggregateSearchSerializer(HaystackSerializer):
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
@@ -1412,6 +1427,7 @@ class AggregateSearchSerializer(HaystackSerializer):
             search_indexes.CourseRunIndex: CourseRunSearchSerializer,
             search_indexes.CourseIndex: CourseSearchSerializer,
             search_indexes.ProgramIndex: ProgramSearchSerializer,
+            search_indexes.DegreeIndex: ProgramSearchSerializer
         }
 
 
@@ -1428,6 +1444,7 @@ class AggregateFacetSearchSerializer(BaseHaystackFacetSerializer):
             search_indexes.CourseRunIndex: CourseRunFacetSerializer,
             search_indexes.CourseIndex: CourseFacetSerializer,
             search_indexes.ProgramIndex: ProgramFacetSerializer,
+            search_indexes.DegreeIndex: ProgramSearchSerializer
         }
 
 
