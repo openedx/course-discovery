@@ -333,8 +333,6 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
 class DegreeIndex(ProgramIndex):
     model = Degree
     search_card_display = indexes.MultiValueField()
-    card_image_url = indexes.CharField(model_attr='card_image_url', null=True)
-    type = indexes.CharField(model_attr='type__name', faceted=True)
 
     def prepare_search_card_display(self, obj):
         return [obj.search_card_ranking, obj.search_card_cost, obj.search_card_courses]
