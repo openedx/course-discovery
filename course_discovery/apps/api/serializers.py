@@ -1444,7 +1444,6 @@ class AggregateFacetSearchSerializer(BaseHaystackFacetSerializer):
             search_indexes.CourseRunIndex: CourseRunFacetSerializer,
             search_indexes.CourseIndex: CourseFacetSerializer,
             search_indexes.ProgramIndex: ProgramFacetSerializer,
-            search_indexes.DegreeIndex: ProgramSearchSerializer
         }
 
 
