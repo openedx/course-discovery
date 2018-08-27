@@ -375,16 +375,12 @@ class DegreeAdmin(admin.ModelAdmin):
     inlines = (CurriculumAdminInline, DegreeDeadlineInlineAdmin, DegreeCostInlineAdmin, IconTextPairingInline)
     # ordering the field display on admin page.
     fields = (
-        'type', 'uuid', 'title', 'subtitle', 'status', 'partner', 'banner_image', 'banner_image_url', 'card_image_url',
-        'marketing_slug', 'overview', 'total_hours_of_effort', 'weeks_to_complete', 'min_hours_effort_per_week',
-        'max_hours_effort_per_week', 'authoring_organizations', 'hidden', 'faq', 'individual_endorsements',
-        'job_outlook_items', 'expected_learning_items', 'instructor_ordering',
-        # The fields below are explicitly on the ``Degree`` model
-        'overall_ranking', 'search_card_ranking', 'search_card_cost', 'search_card_courses', 'campus_image',
-        'title_background_image', 'banner_border_color', 'campus_image_mobile', 'campus_image_tablet',
-        'campus_image_desktop', 'rankings', 'apply_url', 'application_requirements', 'prerequisite_coursework',
-        'lead_capture_list_name', 'lead_capture_image', 'micromasters_long_title', 'micromasters_long_description',
-        'micromasters_url', 'costs_fine_print', 'deadlines_fine_print',
+        'type', 'uuid', 'status', 'hidden', 'partner', 'marketing_slug', 'card_image_url', 'search_card_ranking',
+        'search_card_cost', 'search_card_courses', 'overall_ranking', 'campus_image',
+        'campus_image_mobile', 'campus_image_tablet', 'campus_image_desktop', 'title', 'title_background_image',
+        'banner_border_color', 'apply_url', 'overview', 'rankings', 'application_requirements',
+        'prerequisite_coursework', 'lead_capture_image', 'lead_capture_list_name', 'micromasters_long_title',
+        'micromasters_long_description', 'micromasters_url', 'faq', 'costs_fine_print', 'deadlines_fine_print'
     )
 
 # Register children of AbstractNamedModel
