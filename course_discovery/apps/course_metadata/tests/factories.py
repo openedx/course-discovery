@@ -7,6 +7,7 @@ from pytz import UTC
 
 from course_discovery.apps.core.tests.factories import PartnerFactory, add_m2m_data
 from course_discovery.apps.core.tests.utils import FuzzyURL
+from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -435,6 +436,7 @@ class PathwayFactory(factory.DjangoModelFactory):
     email = factory.Sequence(lambda n: 'test-email-{}@test.com'.format(n))  # pylint: disable=unnecessary-lambda
     description = FuzzyText()
     destination_url = FuzzyURL()
+    pathway_type = FuzzyChoice((path_type.value for path_type in PathwayType))
 
     class Meta:
         model = Pathway

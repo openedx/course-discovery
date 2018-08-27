@@ -1006,10 +1006,21 @@ class PathwaySerializer(serializers.ModelSerializer):
     programs = MinimalProgramSerializer(many=True)
     description = serializers.CharField()
     destination_url = serializers.CharField()
+    pathway_type = serializers.CharField()
 
     class Meta:
         model = Pathway
-        fields = ('id', 'uuid', 'name', 'org_name', 'email', 'programs', 'description', 'destination_url')
+        fields = (
+            'id',
+            'uuid',
+            'name',
+            'org_name',
+            'email',
+            'programs',
+            'description',
+            'destination_url',
+            'pathway_type',
+        )
 
 
 class ProgramTypeSerializer(serializers.ModelSerializer):

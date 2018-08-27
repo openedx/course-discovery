@@ -25,6 +25,7 @@ from taggit_autosuggest.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus, ProgramStatus, ReportingType
+from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
@@ -1560,6 +1561,11 @@ class Pathway(TimeStampedModel):
     programs = SortedManyToManyField(Program)
     description = models.TextField(null=True, blank=True)
     destination_url = models.URLField(null=True, blank=True)
+    pathway_type = models.CharField(
+        max_length=32,
+        choices=[(tag.value, tag.value) for tag in PathwayType],
+        default=PathwayType.CREDIT.value,
+    )
 
     def __str__(self):
         return self.name

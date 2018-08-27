@@ -986,6 +986,7 @@ class PathwaySerialzerTests(TestCase):
             'programs': MinimalProgramSerializer(pathway.programs, many=True).data,
             'description': pathway.description,
             'destination_url': pathway.destination_url,
+            'pathway_type': pathway.pathway_type,
         }
         self.assertDictEqual(serializer.data, expected)
 
