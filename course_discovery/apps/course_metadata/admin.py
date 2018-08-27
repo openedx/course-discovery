@@ -8,7 +8,7 @@ from parler.admin import TranslatableAdmin
 from course_discovery.apps.course_metadata.exceptions import (
     MarketingSiteAPIClientException, MarketingSitePublisherException
 )
-from course_discovery.apps.course_metadata.forms import CourseAdminForm, CreditPathwayAdminForm, ProgramAdminForm
+from course_discovery.apps.course_metadata.forms import CourseAdminForm, PathwayAdminForm, ProgramAdminForm
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 
 PUBLICATION_FAILURE_MSG_TPL = _(
@@ -72,6 +72,19 @@ class CourseAdmin(admin.ModelAdmin):
     ordering = ('key', 'title',)
     readonly_fields = ('uuid',)
     search_fields = ('uuid', 'key', 'title',)
+
+
+@admin.register(CourseEntitlement)
+class CourseEntitlementAdmin(admin.ModelAdmin):
+    list_display = ['course', 'get_course_number', 'mode']
+
+    def get_course_number(self, obj):
+        return obj.course.number
+
+    get_course_number.short_description = 'Course number'
+
+    raw_id_fields = ['course']
+    search_fields = ['course__title', 'course__number']
 
 
 @admin.register(CourseRun)
@@ -176,9 +189,9 @@ class ProgramAdmin(admin.ModelAdmin):
               'js/sortable_select.js')
 
 
-@admin.register(CreditPathway)
-class CreditPathwayAdmin(admin.ModelAdmin):
-    form = CreditPathwayAdminForm
+@admin.register(Pathway)
+class PathwayAdmin(admin.ModelAdmin):
+    form = PathwayAdminForm
     readonly_fields = ('uuid',)
     list_display = ('name', 'uuid', 'org_name', 'partner', 'email', 'destination_url',)
     search_fields = ('uuid', 'name', 'email', 'destination_url',)
@@ -367,8 +380,9 @@ class DegreeAdmin(admin.ModelAdmin):
         'max_hours_effort_per_week', 'authoring_organizations', 'hidden', 'faq', 'individual_endorsements',
         'job_outlook_items', 'expected_learning_items', 'instructor_ordering',
         # The fields below are explicitly on the ``Degree`` model
-        'overall_ranking', 'campus_image_mobile', 'campus_image_tablet', 'campus_image_desktop',
-        'rankings', 'apply_url', 'application_requirements', 'prerequisite_coursework', 'lead_capture_list_name',
+        'overall_ranking', 'search_card_ranking', 'search_card_cost', 'search_card_courses', 'campus_image',
+        'title_background_image', 'campus_image_mobile', 'campus_image_tablet', 'campus_image_desktop', 'rankings',
+        'apply_url', 'application_requirements', 'prerequisite_coursework', 'lead_capture_list_name',
         'lead_capture_image', 'micromasters_long_title', 'micromasters_long_description', 'micromasters_url',
         'costs_fine_print', 'deadlines_fine_print',
     )

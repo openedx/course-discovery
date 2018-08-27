@@ -353,6 +353,9 @@ class DegreeFactory(ProgramFactory):
     micromasters_url = FuzzyText()
     micromasters_long_title = FuzzyText()
     micromasters_long_description = FuzzyText()
+    search_card_ranking = FuzzyText()
+    search_card_cost = FuzzyText()
+    search_card_courses = FuzzyText()
 
     @factory.post_generation
     def rankings(self, create, extracted, **kwargs):
@@ -422,6 +425,19 @@ class DegreeCourseCurriculumFactory(factory.DjangoModelFactory):
 
     course = factory.SubFactory(CourseFactory)
     curriculum = factory.SubFactory(CurriculumFactory)
+
+
+class PathwayFactory(factory.DjangoModelFactory):
+    uuid = factory.LazyFunction(uuid4)
+    partner = factory.SubFactory(PartnerFactory)
+    name = FuzzyText()
+    org_name = FuzzyText()
+    email = factory.Sequence(lambda n: 'test-email-{}@test.com'.format(n))  # pylint: disable=unnecessary-lambda
+    description = FuzzyText()
+    destination_url = FuzzyURL()
+
+    class Meta:
+        model = Pathway
 
 
 class CreditPathwayFactory(factory.DjangoModelFactory):

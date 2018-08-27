@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-15 18:00+0000\n"
+"POT-Creation-Date: 2018-08-23 21:06+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -337,6 +337,7 @@ msgstr "Blög Ⱡ'σяєм ι#"
 msgid "Others"
 msgstr "Öthérs Ⱡ'σяєм ιρѕυ#"
 
+#: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
@@ -682,6 +683,18 @@ msgstr ""
 " αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/models.py
+msgid "Provide a campus image for the header of the degree"
+msgstr ""
+"Prövïdé ä çämpüs ïmägé för thé héädér öf thé dégréé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Provide a background image for the title section of the degree"
+msgstr ""
+"Prövïdé ä ßäçkgröünd ïmägé för thé tïtlé séçtïön öf thé dégréé Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
 msgid "The fine print that displays at the Tuition section's bottom"
 msgstr ""
 "Thé fïné prïnt thät dïspläýs ät thé Tüïtïön séçtïön's ßöttöm Ⱡ'σяєм ιρѕυм "
@@ -718,6 +731,24 @@ msgstr "Mïçrömästérs vérßösé tïtlé Ⱡ'σяєм ιρѕυм ∂σłσ�
 msgid "Micromasters descriptive paragraph"
 msgstr ""
 "Mïçrömästérs désçrïptïvé pärägräph Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/models.py
+msgid "Ranking display for search card (e.g. \"#1 in the U.S.\""
+msgstr ""
+"Ränkïng dïspläý för séärçh çärd (é.g. \"#1 ïn thé Û.S.\" Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Cost display for search card (e.g. \"$9,999\""
+msgstr ""
+"Çöst dïspläý för séärçh çärd (é.g. \"$9,999\" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid "Number of courses for search card (e.g. \"11 Courses\""
+msgstr ""
+"Nümßér öf çöürsés för séärçh çärd (é.g. \"11 Çöürsés\" Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/models.py
 msgid "Award"
@@ -803,11 +834,11 @@ msgstr ""
 "Strïng-ßäséd fïéld stätïng höw müçh thé çöst ïs (é.g. $1000). Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
 msgid "Organization name"
 msgstr "Örgänïzätïön nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
 msgid "These programs are for a different partner than the pathway itself: {}"
 msgstr ""
 "Thésé prögräms äré för ä dïfférént pärtnér thän thé päthwäý ïtsélf: {} "
@@ -2165,7 +2196,6 @@ msgid "Sequence Courses:"
 msgstr "Séqüénçé Çöürsés: Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
-#: apps/publisher/templates/publisher/course_edit_form.html
 msgid "255 character limit, including spaces."
 msgstr ""
 "255 çhäräçtér lïmït, ïnçlüdïng späçés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
@@ -2209,6 +2239,12 @@ msgid ""
 msgstr ""
 "Thé fïrst MÖÖÇ tö téäçh pösïtïvé psýçhölögý. Léärn sçïénçé-ßäséd prïnçïplés "
 "änd präçtïçés för ä häppý, méänïngfül lïfé. Ⱡ'σяєм ιρѕυм#"
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "350 character limit, including spaces and html."
+msgstr ""
+"350 çhäräçtér lïmït, ïnçlüdïng späçés änd html. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
+" ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "LONG DESCRIPTION"
@@ -2306,10 +2342,10 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_edit_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
-msgid "2500 character limit, including spaces."
+msgid "2500 character limit, including spaces and html."
 msgstr ""
-"2500 çhäräçtér lïmït, ïnçlüdïng späçés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя#"
+"2500 çhäräçtér lïmït, ïnçlüdïng späçés änd html. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "WHAT YOU WILL LEARN"
@@ -2417,8 +2453,8 @@ msgid "PREREQUISITES"
 msgstr "PRÉRÉQÛÌSÌTÉS Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
-msgid "Maximum 200 characters."
-msgstr "Mäxïmüm 200 çhäräçtérs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+msgid "Maximum 1000 characters."
+msgstr "Mäxïmüm 1000 çhäräçtérs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
@@ -2445,10 +2481,10 @@ msgid "Basic algebra"
 msgstr "Bäsïç älgéßrä Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
-msgid "200 character limit, including spaces."
+msgid "1000 character limit, including spaces and html."
 msgstr ""
-"200 çhäräçtér lïmït, ïnçlüdïng späçés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя#"
+"1000 çhäräçtér lïmït, ïnçlüdïng späçés änd html. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "SYLLABUS"
@@ -2685,10 +2721,10 @@ msgstr ""
 "ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
-msgid "500 character limit, including spaces."
+msgid "500 character limit, including spaces and html."
 msgstr ""
-"500 çhäräçtér lïmït, ïnçlüdïng späçés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя#"
+"500 çhäräçtér lïmït, ïnçlüdïng späçés änd html. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
+" ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""

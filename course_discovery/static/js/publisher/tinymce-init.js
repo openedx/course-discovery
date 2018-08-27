@@ -77,6 +77,9 @@ $(document).ready(function () {
                     }
                 }
             });
+            editor.on('GetContent', function (e) {
+                e.content = e.content.replace(/\n|\r/g, "");
+            });
         }
     };
 

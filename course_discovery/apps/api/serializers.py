@@ -21,9 +21,9 @@ from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, CreditPathway, Curriculum, Degree, DegreeCost,
-    DegreeDeadline, Endorsement, IconTextPairing, Image, Organization, Person, PersonSocialNetwork, PersonWork,
-    Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Video
+    FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, Curriculum, Degree, DegreeCost, DegreeDeadline,
+    Endorsement, IconTextPairing, Image, Organization, Pathway, Person, PersonSocialNetwork, PersonWork, Position,
+    Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Video
 )
 
 User = get_user_model()
@@ -797,9 +797,11 @@ class IconTextPairingSerializer(serializers.ModelSerializer):
 
 class DegreeSerializer(serializers.ModelSerializer):
     """ Degree model serializer """
+    campus_image = serializers.ImageField()
     campus_image_desktop = serializers.ImageField()
     campus_image_mobile = serializers.ImageField()
     campus_image_tablet = serializers.ImageField()
+    title_background_image = serializers.ImageField()
     costs = DegreeCostSerializer(many=True)
     curriculum = CurriculumSerializer()
     quick_facts = IconTextPairingSerializer(many=True)
@@ -810,7 +812,7 @@ class DegreeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Degree
         fields = (
-            'application_requirements', 'apply_url',
+            'application_requirements', 'apply_url', 'campus_image', 'title_background_image',
             'campus_image_desktop', 'campus_image_mobile', 'campus_image_tablet',
             'costs', 'curriculum', 'deadlines', 'lead_capture_list_name', 'quick_facts',
             'overall_ranking', 'prerequisite_coursework', 'rankings',
@@ -995,8 +997,8 @@ class ProgramSerializer(MinimalProgramSerializer):
         )
 
 
-class CreditPathwaySerializer(serializers.ModelSerializer):
-    """ Serializer for CreditPathway. """
+class PathwaySerializer(serializers.ModelSerializer):
+    """ Serializer for Pathway. """
     uuid = serializers.CharField()
     name = serializers.CharField()
     org_name = serializers.CharField()
@@ -1006,7 +1008,7 @@ class CreditPathwaySerializer(serializers.ModelSerializer):
     destination_url = serializers.CharField()
 
     class Meta:
-        model = CreditPathway
+        model = Pathway
         fields = ('id', 'uuid', 'name', 'org_name', 'email', 'programs', 'description', 'destination_url')
 
 
@@ -1388,6 +1390,7 @@ class ProgramSearchSerializer(HaystackSerializer):
             'subject_uuids',
             'weeks_to_complete_max',
             'weeks_to_complete_min',
+            'search_card_display'
         )
 
 

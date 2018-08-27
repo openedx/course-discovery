@@ -1,6 +1,7 @@
 # pylint: disable=no-member,test-inherits-tests
 import datetime
 import itertools
+from collections import OrderedDict
 from urllib.parse import urlencode
 
 import ddt
@@ -21,11 +22,11 @@ from course_discovery.apps.api.serializers import (
     AffiliateWindowSerializer, CatalogSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer,
     ContentTypeSerializer, CorporateEndorsementSerializer, CourseEntitlementSerializer, CourseRunSearchModelSerializer,
     CourseRunSearchSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer, CourseSearchModelSerializer,
-    CourseSearchSerializer, CourseSerializer, CourseWithProgramsSerializer, CreditPathwaySerializer,
-    CurriculumSerializer, DegreeCostSerializer, DegreeDeadlineSerializer, EndorsementSerializer, FAQSerializer,
-    FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer, ImageSerializer, MinimalCourseRunSerializer,
-    MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer,
-    NestedProgramSerializer, OrganizationSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
+    CourseSearchSerializer, CourseSerializer, CourseWithProgramsSerializer, CurriculumSerializer, DegreeCostSerializer,
+    DegreeDeadlineSerializer, EndorsementSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer,
+    IconTextPairingSerializer, ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer,
+    MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
+    OrganizationSerializer, PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
     ProgramSearchModelSerializer, ProgramSearchSerializer, ProgramSerializer, ProgramTypeSerializer, RankingSerializer,
     SeatSerializer, SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
     TypeaheadProgramSearchSerializer, VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
@@ -37,11 +38,11 @@ from course_discovery.apps.core.tests.factories import PartnerFactory, UserFacto
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSAPIClientMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Degree, Program
 from course_discovery.apps.course_metadata.tests.factories import (
-    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CreditPathwayFactory, CurriculumFactory,
-    DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory,
-    IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, PositionFactory,
+    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CurriculumFactory, DegreeCostFactory,
+    DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory, IconTextPairingFactory,
+    ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory, PersonFactory, PositionFactory,
     PrerequisiteFactory, ProgramFactory, ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory,
     SubjectFactory, TopicFactory, VideoFactory
 )
@@ -952,6 +953,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'campus_image_mobile': degree.campus_image_mobile,
             'campus_image_tablet': degree.campus_image_tablet,
             'campus_image_desktop': degree.campus_image_desktop,
+            'campus_image': degree.campus_image,
             'costs': expected_degree_costs,
             'curriculum': expected_curriculum,
             'deadlines': expected_degree_deadlines,
@@ -965,24 +967,25 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'micromasters_long_description': degree.micromasters_long_description,
             'costs_fine_print': degree.costs_fine_print,
             'deadlines_fine_print': degree.deadlines_fine_print,
+            'title_background_image': degree.title_background_image,
         }
         self.assertDictEqual(serializer.data, expected)
 
 
-class CreditPathwaySerialzerTests(TestCase):
+class PathwaySerialzerTests(TestCase):
     def test_data(self):
-        credit_pathway = CreditPathwayFactory()
-        serializer = CreditPathwaySerializer(credit_pathway)
+        pathway = PathwayFactory()
+        serializer = PathwaySerializer(pathway)
 
         expected = {
-            'id': credit_pathway.id,
-            'uuid': str(credit_pathway.uuid),
-            'name': credit_pathway.name,
-            'org_name': credit_pathway.org_name,
-            'email': credit_pathway.email,
-            'programs': MinimalProgramSerializer(credit_pathway.programs, many=True).data,
-            'description': credit_pathway.description,
-            'destination_url': credit_pathway.destination_url,
+            'id': pathway.id,
+            'uuid': str(pathway.uuid),
+            'name': pathway.name,
+            'org_name': pathway.org_name,
+            'email': pathway.email,
+            'programs': MinimalProgramSerializer(pathway.programs, many=True).data,
+            'description': pathway.description,
+            'destination_url': pathway.destination_url,
         }
         self.assertDictEqual(serializer.data, expected)
 
@@ -1477,8 +1480,22 @@ class TestProgramSearchSerializer(TestCase):
             'max_hours_effort_per_week': program.max_hours_effort_per_week,
             'language': [serialize_language(language) for language in program.languages],
             'hidden': program.hidden,
-            'is_program_eligible_for_one_click_purchase': program.is_program_eligible_for_one_click_purchase
+            'is_program_eligible_for_one_click_purchase': program.is_program_eligible_for_one_click_purchase,
+            'search_card_display': []
         }
+
+    @classmethod
+    def get_expected_degree_data(cls, degree, request):  # pylint: disable=unused-argument
+        expected = cls.get_expected_data(degree, request)
+        if expected['content_type'] != 'degree':
+            # Handler for inhereted test ProgramSearchModelSerializerTest
+            expected['content_type'] = 'degree'
+            expected['search_card_display'] = [
+                degree.search_card_ranking,
+                degree.search_card_cost,
+                degree.search_card_courses
+            ]
+        return expected
 
     def serialize_program(self, program, request):
         """ Serializes the given `Program` as a search result. """
@@ -1518,6 +1535,19 @@ class TestProgramSearchSerializer(TestCase):
         else:
             assert {'en-us', 'zh-cmn'} == {*expected['languages']}
 
+    def test_data_degree(self):
+        """
+        Verify that degree data is serialized
+        Fields = [quick_facts]
+        """
+        degree = DegreeFactory()
+        result = SearchQuerySet().models(Degree).filter(uuid=degree.uuid)[0]
+        serializer = self.serializer_class(result, context={'request': self.request})
+
+        expected = self.get_expected_degree_data(degree, self.request)
+
+        assert serializer.data == expected
+
 
 class ProgramSearchModelSerializerTest(TestProgramSearchSerializer):
     serializer_class = ProgramSearchModelSerializer
@@ -1526,6 +1556,38 @@ class ProgramSearchModelSerializerTest(TestProgramSearchSerializer):
     def get_expected_data(cls, program, request):
         expected = ProgramSerializerTests.get_expected_data(program, request)
         expected.update({'content_type': 'program'})
+        return expected
+
+    @classmethod
+    def get_expected_degree_data(cls, degree, request):
+        expected = cls.get_expected_data(degree, request)
+        expected.update({
+            'content_type': 'degree',
+            'degree': OrderedDict([
+                ('application_requirements', degree.application_requirements),
+                ('apply_url', degree.apply_url),
+                ('campus_image', None),
+                ('title_background_image', None),
+                ('campus_image_desktop', None),
+                ('campus_image_mobile', None),
+                ('campus_image_tablet', None),
+                ('costs', []),
+                ('curriculum', None),
+                ('deadlines', []),
+                ('lead_capture_list_name', degree.lead_capture_list_name),
+                ('quick_facts', []),
+                ('overall_ranking', degree.overall_ranking),
+                ('prerequisite_coursework', degree.prerequisite_coursework),
+                ('rankings', []),
+                ('lead_capture_image', {}),
+                ('micromasters_url', degree.micromasters_url),
+                ('micromasters_long_title', degree.micromasters_long_title),
+                ('micromasters_long_description', degree.micromasters_long_description),
+                ('costs_fine_print', degree.costs_fine_print),
+                ('deadlines_fine_print', degree.deadlines_fine_print)
+            ])
+        })
+        expected['video']['src'] = degree.video.src
         return expected
 
 

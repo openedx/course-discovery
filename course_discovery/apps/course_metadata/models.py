@@ -1341,8 +1341,20 @@ class Degree(Program):
         null=True,
         help_text=_('Provide a campus image to display on desktop displays'),
     )
-    prerequisite_coursework = models.TextField()
-    application_requirements = models.TextField()
+    campus_image = models.ImageField(
+        upload_to='media/degree_marketing/campus_images/',
+        blank=True,
+        null=True,
+        help_text=_('Provide a campus image for the header of the degree'),
+    )
+    title_background_image = models.ImageField(
+        upload_to='media/degree_marketing/campus_images/',
+        blank=True,
+        null=True,
+        help_text=_('Provide a background image for the title section of the degree'),
+    )
+    prerequisite_coursework = models.TextField(default='TBD')
+    application_requirements = models.TextField(default='TBD')
     costs_fine_print = models.TextField(
         help_text=_('The fine print that displays at the Tuition section\'s bottom'),
         null=True,
@@ -1388,6 +1400,24 @@ class Degree(Program):
     )
     micromasters_long_description = models.TextField(
         help_text=_('Micromasters descriptive paragraph'),
+        blank=True,
+        null=True
+    )
+    search_card_ranking = models.CharField(
+        help_text=_('Ranking display for search card (e.g. "#1 in the U.S."'),
+        max_length=50,
+        blank=True,
+        null=True
+    )
+    search_card_cost = models.CharField(
+        help_text=_('Cost display for search card (e.g. "$9,999"'),
+        max_length=50,
+        blank=True,
+        null=True
+    )
+    search_card_courses = models.CharField(
+        help_text=_('Number of courses for search card (e.g. "11 Courses"'),
+        max_length=50,
         blank=True,
         null=True
     )
@@ -1527,6 +1557,38 @@ class DegreeCourseCurriculum(TimeStampedModel):
 
 class CreditPathway(TimeStampedModel):
     """ Credit Pathway model """
+    uuid = models.UUIDField(default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
+    partner = models.ForeignKey(Partner, null=True, blank=False)
+    name = models.CharField(max_length=255)
+    # this field doesn't necessarily map to our normal org models, it's just a convenience field for pathways
+    # while we figure them out
+    org_name = models.CharField(max_length=255, verbose_name=_("Organization name"))
+    email = models.EmailField(blank=True)
+    programs = SortedManyToManyField(Program)
+    description = models.TextField(null=True, blank=True)
+    destination_url = models.URLField(null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    # Define a validation method to be used elsewhere - we can't use it in normal model validation flow because
+    # ManyToMany fields are hard to validate (doesn't support validators field kwarg, can't be referenced before
+    # first save(), etc). Instead, this method is used in form validation and we rely on that.
+    @classmethod
+    def validate_partner_programs(cls, partner, programs):
+        """ Throws a ValidationError if any program has a different partner than 'partner' """
+        bad_programs = [str(x) for x in programs if x.partner != partner]
+        if bad_programs:
+            msg = _('These programs are for a different partner than the pathway itself: {}')
+            raise ValidationError(msg.format(', '.join(bad_programs)))  # pylint: disable=no-member
+
+
+class Pathway(TimeStampedModel):
+    """
+    Pathway model
+
+    Currently just a copy of CreditPathway and will supercede that one when possible.
+    """
     uuid = models.UUIDField(default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     partner = models.ForeignKey(Partner, null=True, blank=False)
     name = models.CharField(max_length=255)

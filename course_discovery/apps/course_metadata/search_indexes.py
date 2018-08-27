@@ -1,11 +1,10 @@
 import json
 
-from django.db.models.functions import Lower
 from haystack import indexes
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Degree, Program
 
 BASE_SEARCH_INDEX_FIELDS = (
     'aggregation_key',
@@ -279,6 +278,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     subtitle = indexes.CharField(model_attr='subtitle')
     type = indexes.CharField(model_attr='type__name', faceted=True)
     marketing_url = indexes.CharField(null=True)
+    search_card_display = indexes.MultiValueField()
     organizations = indexes.MultiValueField(faceted=True)
     authoring_organizations = indexes.MultiValueField(faceted=True)
     authoring_organizations_autocomplete = indexes.NgramField(boost=ORG_FIELD_BOOST)
@@ -326,3 +326,18 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
 
     def prepare_language(self, obj):
         return [self._prepare_language(language) for language in obj.languages]
+
+    def prepare_search_card_display(self, obj):
+        try:
+            degree = Degree.objects.get(uuid=obj.uuid)
+        except Degree.DoesNotExist:
+            return []
+        return [degree.search_card_ranking, degree.search_card_cost, degree.search_card_courses]
+
+
+class DegreeIndex(ProgramIndex):
+    model = Degree
+    search_card_display = indexes.MultiValueField()
+
+    def prepare_search_card_display(self, obj):
+        return [obj.search_card_ranking, obj.search_card_cost, obj.search_card_courses]
