@@ -1545,7 +1545,6 @@ class TestProgramSearchSerializer(TestCase):
         degree = DegreeFactory()
         result = SearchQuerySet().models(Degree).filter(uuid=degree.uuid)[0]
         serializer = self.serializer_class(result, context={'request': self.request})
-
         expected = self.get_expected_degree_data(degree, self.request)
 
         assert serializer.data == expected
