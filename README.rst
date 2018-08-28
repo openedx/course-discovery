@@ -46,6 +46,21 @@ will completely skip that startup cost, since the ``--reuse-db`` option causes p
 database in the ``/dev/shm`` directory.  If you need to change models or create databases between runs, you can tell
 pytest to recreate the database with ``-recreate-db``.
 
+Debugging Tests Locally
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Pytest in this repository uses the `pytest-xdist <https://github.com/pytest-dev/pytest-xdist>`_ package for distributed testing. This is configured in the `pytest.ini file`_. However, `pytest-xdist does not support pdb.set_trace()`_.
+In order to use `pdb <https://docs.python.org/3/library/pdb.html>`_ when debugging Python unit tests, you can use the `pytest-no-xdist.ini file`_ instead. Use the ``-c`` option to the pytest command to specify which ini file to use.
+
+For example,
+
+.. code-block:: shell
+
+   pytest -c pytest-no-xdist.ini --ds=course_discovery.settings.test --durations=25 course_discovery/apps/publisher/tests/test_views.py::CourseRunDetailTests::test_detail_page_with_comments
+
+.. _pytest.ini file: https://github.com/edx/course-discovery/blob/master/pytest.ini
+.. _pytest-xdist does not support pdb.set_trace(): https://github.com/pytest-dev/pytest/issues/390#issuecomment-112203885
+.. _pytest-no-xdist.ini file: https://github.com/edx/course-discovery/blob/master/pytest=no-xdist.ini
 
 Reporting Security Issues
 -------------------------
