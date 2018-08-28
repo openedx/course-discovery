@@ -149,6 +149,7 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
     enrollment_end = indexes.DateTimeField(model_attr='course_runs__enrollment_end', null=True)
     availability = indexes.CharField(model_attr='course_runs__availability')
     first_enrollable_paid_seat_price = indexes.IntegerField(null=True)
+    subject_uuids = indexes.MultiValueField()
 
     course_runs = indexes.MultiValueField()
     expected_learning_items = indexes.MultiValueField()
@@ -175,6 +176,9 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
 
     def prepare_first_enrollable_paid_seat_price(self, obj):
         return obj.first_enrollable_paid_seat_price
+
+    def prepare_subject_uuids(self, obj):
+        return [str(subject.uuid) for subject in obj.subjects.all()]
 
 
 class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
