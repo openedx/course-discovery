@@ -812,7 +812,7 @@ class DegreeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Degree
         fields = (
-            'application_requirements', 'apply_url', 'campus_image', 'title_background_image',
+            'application_requirements', 'apply_url', 'banner_border_color', 'campus_image', 'title_background_image',
             'campus_image_desktop', 'campus_image_mobile', 'campus_image_tablet',
             'costs', 'curriculum', 'deadlines', 'lead_capture_list_name', 'quick_facts',
             'overall_ranking', 'prerequisite_coursework', 'rankings',
