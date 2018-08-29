@@ -381,10 +381,10 @@ class DegreeAdmin(admin.ModelAdmin):
         'job_outlook_items', 'expected_learning_items', 'instructor_ordering',
         # The fields below are explicitly on the ``Degree`` model
         'overall_ranking', 'search_card_ranking', 'search_card_cost', 'search_card_courses', 'campus_image',
-        'title_background_image', 'campus_image_mobile', 'campus_image_tablet', 'campus_image_desktop', 'rankings',
-        'apply_url', 'application_requirements', 'prerequisite_coursework', 'lead_capture_list_name',
-        'lead_capture_image', 'micromasters_long_title', 'micromasters_long_description', 'micromasters_url',
-        'costs_fine_print', 'deadlines_fine_print',
+        'title_background_image', 'banner_border_color', 'campus_image_mobile', 'campus_image_tablet',
+        'campus_image_desktop', 'rankings', 'apply_url', 'application_requirements', 'prerequisite_coursework',
+        'lead_capture_list_name', 'lead_capture_image', 'micromasters_long_title', 'micromasters_long_description',
+        'micromasters_url', 'costs_fine_print', 'deadlines_fine_print',
     )
 
 # Register children of AbstractNamedModel

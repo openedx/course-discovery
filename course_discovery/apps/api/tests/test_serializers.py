@@ -950,6 +950,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'application_requirements': degree.application_requirements,
             'apply_url': degree.apply_url,
             'overall_ranking': degree.overall_ranking,
+            'banner_border_color': degree.banner_border_color,
             'campus_image_mobile': degree.campus_image_mobile,
             'campus_image_tablet': degree.campus_image_tablet,
             'campus_image_desktop': degree.campus_image_desktop,
@@ -1567,6 +1568,7 @@ class ProgramSearchModelSerializerTest(TestProgramSearchSerializer):
             'degree': OrderedDict([
                 ('application_requirements', degree.application_requirements),
                 ('apply_url', degree.apply_url),
+                ('banner_border_color', degree.banner_border_color),
                 ('campus_image', None),
                 ('title_background_image', None),
                 ('campus_image_desktop', None),

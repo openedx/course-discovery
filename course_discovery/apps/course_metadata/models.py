@@ -1324,6 +1324,12 @@ class Degree(Program):
         max_length=255,
         blank=True
     )
+    banner_border_color = models.CharField(
+        help_text=_("""The 6 character hex value of the color to make the banner borders
+            (e.g. "#ff0000" which equals red) No need to provide the `#`"""),
+        max_length=6,
+        blank=True
+    )
     campus_image_mobile = models.ImageField(
         upload_to='media/degree_marketing/campus_images/',
         blank=True,
