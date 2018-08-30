@@ -334,13 +334,6 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
         try:
             degree = Degree.objects.get(uuid=obj.uuid)
         except Degree.DoesNotExist:
+
             return []
         return [degree.search_card_ranking, degree.search_card_cost, degree.search_card_courses]
-
-
-class DegreeIndex(ProgramIndex):
-    model = Degree
-    search_card_display = indexes.MultiValueField()
-
-    def prepare_search_card_display(self, obj):
-        return [obj.search_card_ranking, obj.search_card_cost, obj.search_card_courses]
