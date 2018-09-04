@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-04 20:26+0000\n"
+"POT-Creation-Date: 2018-09-05 14:27+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -48,11 +48,11 @@ msgstr ""
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:947
+#: apps/api/serializers.py:943
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:951
+#: apps/api/serializers.py:947
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -286,8 +286,8 @@ msgstr ""
 #: apps/course_metadata/models.py:120 apps/course_metadata/models.py:159
 #: apps/course_metadata/models.py:219 apps/course_metadata/models.py:264
 #: apps/course_metadata/models.py:342 apps/course_metadata/models.py:466
-#: apps/course_metadata/models.py:959 apps/course_metadata/models.py:1535
-#: apps/course_metadata/models.py:1579 apps/journal/models.py:23
+#: apps/course_metadata/models.py:959 apps/course_metadata/models.py:1517
+#: apps/course_metadata/models.py:1565 apps/journal/models.py:23
 #: apps/journal/models.py:67
 msgid "UUID"
 msgstr ""
@@ -526,152 +526,142 @@ msgid ""
 msgstr ""
 
 #: apps/course_metadata/models.py:1337
-msgid "Provide a campus image to display on mobile displays"
-msgstr ""
-
-#: apps/course_metadata/models.py:1343
-msgid "Provide a campus image to display on tablet displays"
-msgstr ""
-
-#: apps/course_metadata/models.py:1349
-msgid "Provide a campus image to display on desktop displays"
-msgstr ""
-
-#: apps/course_metadata/models.py:1355
 msgid "Provide a campus image for the header of the degree"
 msgstr ""
 
-#: apps/course_metadata/models.py:1361
+#: apps/course_metadata/models.py:1343
 msgid "Provide a background image for the title section of the degree"
 msgstr ""
 
-#: apps/course_metadata/models.py:1366
+#: apps/course_metadata/models.py:1348
 msgid "The fine print that displays at the Tuition section's bottom"
 msgstr ""
 
-#: apps/course_metadata/models.py:1371
+#: apps/course_metadata/models.py:1353
 msgid "The fine print that displays at the Deadline section's bottom"
 msgstr ""
 
-#: apps/course_metadata/models.py:1378
+#: apps/course_metadata/models.py:1360
 msgid "The sailthru email list name to capture leads"
 msgstr ""
 
-#: apps/course_metadata/models.py:1393
+#: apps/course_metadata/models.py:1375
 msgid "Please provide an image file for the lead capture banner."
 msgstr ""
 
-#: apps/course_metadata/models.py:1397
+#: apps/course_metadata/models.py:1379
 msgid "URL to micromasters landing page"
 msgstr ""
 
-#: apps/course_metadata/models.py:1403
+#: apps/course_metadata/models.py:1385
 msgid "Micromasters verbose title"
 msgstr ""
 
-#: apps/course_metadata/models.py:1409
+#: apps/course_metadata/models.py:1391
 msgid "Micromasters descriptive paragraph"
 msgstr ""
 
-#: apps/course_metadata/models.py:1414
+#: apps/course_metadata/models.py:1396
 msgid "Ranking display for search card (e.g. \"#1 in the U.S.\""
 msgstr ""
 
-#: apps/course_metadata/models.py:1420
+#: apps/course_metadata/models.py:1402
 msgid "Cost display for search card (e.g. \"$9,999\""
 msgstr ""
 
-#: apps/course_metadata/models.py:1426
+#: apps/course_metadata/models.py:1408
 msgid "Number of courses for search card (e.g. \"11 Courses\""
 msgstr ""
 
-#: apps/course_metadata/models.py:1455
+#: apps/course_metadata/models.py:1437
 msgid "Award"
 msgstr ""
 
-#: apps/course_metadata/models.py:1456
+#: apps/course_metadata/models.py:1438
 msgid "Bell"
 msgstr ""
 
-#: apps/course_metadata/models.py:1457
+#: apps/course_metadata/models.py:1439
 msgid "Certificate"
 msgstr ""
 
-#: apps/course_metadata/models.py:1458
+#: apps/course_metadata/models.py:1440
 msgid "Checkmark"
 msgstr ""
 
-#: apps/course_metadata/models.py:1459
+#: apps/course_metadata/models.py:1441
 msgid "Info"
 msgstr ""
 
-#: apps/course_metadata/models.py:1460
+#: apps/course_metadata/models.py:1442
 msgid "Sitemap"
 msgstr ""
 
-#: apps/course_metadata/models.py:1461
+#: apps/course_metadata/models.py:1443
 msgid "User"
 msgstr ""
 
-#: apps/course_metadata/models.py:1462
+#: apps/course_metadata/models.py:1444
 msgid "Dollar"
 msgstr ""
 
-#: apps/course_metadata/models.py:1463
+#: apps/course_metadata/models.py:1445
 msgid "Book"
 msgstr ""
 
-#: apps/course_metadata/models.py:1464
+#: apps/course_metadata/models.py:1446
 msgid "Mortar Board"
 msgstr ""
 
-#: apps/course_metadata/models.py:1468
+#: apps/course_metadata/models.py:1450
 msgid "Icon FA class"
 msgstr ""
 
-#: apps/course_metadata/models.py:1469
+#: apps/course_metadata/models.py:1451
 msgid "Paired text"
 msgstr ""
 
-#: apps/course_metadata/models.py:1488
+#: apps/course_metadata/models.py:1470
 msgid "Deadline applies for this semester (e.g. Spring 2019"
 msgstr ""
 
-#: apps/course_metadata/models.py:1492
+#: apps/course_metadata/models.py:1474
 msgid "Describes the deadline (e.g. Early Admission Deadline)"
 msgstr ""
 
-#: apps/course_metadata/models.py:1496
+#: apps/course_metadata/models.py:1478
 msgid "The date after which the deadline expires (e.g. January 1, 2019)"
 msgstr ""
 
-#: apps/course_metadata/models.py:1500
+#: apps/course_metadata/models.py:1482
 msgid "The time after which the deadline expires (e.g. 11:59 PM EST)."
 msgstr ""
 
-#: apps/course_metadata/models.py:1518
+#: apps/course_metadata/models.py:1500
 msgid "Describes what the cost is for (e.g. Tuition)"
 msgstr ""
 
-#: apps/course_metadata/models.py:1522
+#: apps/course_metadata/models.py:1504
 msgid "String-based field stating how much the cost is (e.g. $1000)."
 msgstr ""
 
-#: apps/course_metadata/models.py:1541
+#: apps/course_metadata/models.py:1524
 msgid ""
-"A high-level overview of the degree's courseware. The \"brief\" text is the "
-"first 300 characters of \"marketing_text\" and must be valid HTML."
+"A high-level overview of the degree's courseware. The \"brief\"\n"
+"            text is the first 300 characters of \"marketing_text\" and must "
+"be\n"
+"            valid HTML."
 msgstr ""
 
-#: apps/course_metadata/models.py:1546
+#: apps/course_metadata/models.py:1532
 msgid "A high-level overview of the degree's courseware."
 msgstr ""
 
-#: apps/course_metadata/models.py:1584
+#: apps/course_metadata/models.py:1570
 msgid "Organization name"
 msgstr ""
 
-#: apps/course_metadata/models.py:1606
+#: apps/course_metadata/models.py:1592
 msgid "These programs are for a different partner than the pathway itself: {}"
 msgstr ""
 
