@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-29 15:30+0000\n"
+"POT-Creation-Date: 2018-09-04 20:26+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -48,11 +48,11 @@ msgstr ""
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:948
+#: apps/api/serializers.py:947
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:952
+#: apps/api/serializers.py:951
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -287,7 +287,7 @@ msgstr ""
 #: apps/course_metadata/models.py:219 apps/course_metadata/models.py:264
 #: apps/course_metadata/models.py:342 apps/course_metadata/models.py:466
 #: apps/course_metadata/models.py:959 apps/course_metadata/models.py:1535
-#: apps/course_metadata/models.py:1569 apps/journal/models.py:23
+#: apps/course_metadata/models.py:1579 apps/journal/models.py:23
 #: apps/journal/models.py:67
 msgid "UUID"
 msgstr ""
@@ -657,11 +657,21 @@ msgstr ""
 msgid "String-based field stating how much the cost is (e.g. $1000)."
 msgstr ""
 
-#: apps/course_metadata/models.py:1574
+#: apps/course_metadata/models.py:1541
+msgid ""
+"A high-level overview of the degree's courseware. The \"brief\" text is the "
+"first 300 characters of \"marketing_text\" and must be valid HTML."
+msgstr ""
+
+#: apps/course_metadata/models.py:1546
+msgid "A high-level overview of the degree's courseware."
+msgstr ""
+
+#: apps/course_metadata/models.py:1584
 msgid "Organization name"
 msgstr ""
 
-#: apps/course_metadata/models.py:1596
+#: apps/course_metadata/models.py:1606
 msgid "These programs are for a different partner than the pathway itself: {}"
 msgstr ""
 

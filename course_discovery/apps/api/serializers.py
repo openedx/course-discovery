@@ -786,7 +786,7 @@ class CurriculumSerializer(serializers.ModelSerializer):
     """ Curriculum model serializer """
     class Meta:
         model = Curriculum
-        fields = ('marketing_text',)
+        fields = ('marketing_text', 'marketing_text_brief')
 
 
 class IconTextPairingSerializer(serializers.ModelSerializer):
