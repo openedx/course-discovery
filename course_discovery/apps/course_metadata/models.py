@@ -1534,7 +1534,21 @@ class Curriculum(TimeStampedModel):
     """
     uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     degree = models.OneToOneField(Degree, on_delete=models.CASCADE, related_name='curriculum')
-    marketing_text = models.TextField(null=True, blank=True)
+    marketing_text_brief = models.TextField(
+        null=True,
+        blank=True,
+        max_length=300,
+        help_text=_(
+            """A high-level overview of the degree\'s courseware. The "brief"
+            text is the first 300 characters of "marketing_text" and must be
+            valid HTML."""
+        ),
+    )
+    marketing_text = models.TextField(
+        null=True,
+        blank=False,
+        help_text=_('A high-level overview of the degree\'s courseware.'),
+    )
     program_curriculum = models.ManyToManyField(
         Program, through='course_metadata.DegreeProgramCurriculum', related_name='degree_program_curricula'
     )
