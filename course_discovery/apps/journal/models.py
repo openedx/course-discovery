@@ -50,7 +50,7 @@ class Journal(TimeStampedModel):
         choices=JournalStatus.choices, validators=[JournalStatus.validator],
         default=JournalStatus.Inactive
     )
-    slug = models.CharField(max_length=255, blank=False, null=False)
+    about_page_id = models.IntegerField(blank=False, null=False, default=0)
 
     class Meta:
         ordering = ('created',)

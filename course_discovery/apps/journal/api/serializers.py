@@ -34,7 +34,7 @@ class JournalSerializer(serializers.ModelSerializer):
             'full_description',
             'access_length',
             'status',
-            'slug',
+            'about_page_id',
         )
 
     @classmethod
