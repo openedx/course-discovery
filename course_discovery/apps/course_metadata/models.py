@@ -1330,24 +1330,6 @@ class Degree(Program):
         max_length=6,
         blank=True
     )
-    campus_image_mobile = models.ImageField(
-        upload_to='media/degree_marketing/campus_images/',
-        blank=True,
-        null=True,
-        help_text=_('Provide a campus image to display on mobile displays'),
-    )
-    campus_image_tablet = models.ImageField(
-        upload_to='media/degree_marketing/campus_images/',
-        blank=True,
-        null=True,
-        help_text=_('Provide a campus image to display on tablet displays'),
-    )
-    campus_image_desktop = models.ImageField(
-        upload_to='media/degree_marketing/campus_images/',
-        blank=True,
-        null=True,
-        help_text=_('Provide a campus image to display on desktop displays'),
-    )
     campus_image = models.ImageField(
         upload_to='media/degree_marketing/campus_images/',
         blank=True,

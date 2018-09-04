@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-04 20:26+0000\n"
+"POT-Creation-Date: 2018-09-05 14:27+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -673,24 +673,6 @@ msgstr ""
 "            (é.g. \"#ff0000\" whïçh éqüäls réd) Nö nééd tö prövïdé thé `#` Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαв#"
 
 #: apps/course_metadata/models.py
-msgid "Provide a campus image to display on mobile displays"
-msgstr ""
-"Prövïdé ä çämpüs ïmägé tö dïspläý ön mößïlé dïspläýs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
-"αмєт, ¢σηѕє¢тєтυя α#"
-
-#: apps/course_metadata/models.py
-msgid "Provide a campus image to display on tablet displays"
-msgstr ""
-"Prövïdé ä çämpüs ïmägé tö dïspläý ön täßlét dïspläýs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
-"αмєт, ¢σηѕє¢тєтυя α#"
-
-#: apps/course_metadata/models.py
-msgid "Provide a campus image to display on desktop displays"
-msgstr ""
-"Prövïdé ä çämpüs ïmägé tö dïspläý ön désktöp dïspläýs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
-" αмєт, ¢σηѕє¢тєтυя α#"
-
-#: apps/course_metadata/models.py
 msgid "Provide a campus image for the header of the degree"
 msgstr ""
 "Prövïdé ä çämpüs ïmägé för thé héädér öf thé dégréé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
@@ -844,17 +826,13 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid ""
-"A high-level overview of the degree's courseware. The \"brief\" text is the "
-"first 300 characters of \"marketing_text\" and must be valid HTML."
+"A high-level overview of the degree's courseware. The \"brief\"\n"
+"            text is the first 300 characters of \"marketing_text\" and must be\n"
+"            valid HTML."
 msgstr ""
-"À hïgh-lévél övérvïéw öf thé dégréé's çöürséwäré. Thé \"ßrïéf\" téxt ïs thé "
-"fïrst 300 çhäräçtérs öf \"märkétïng_téxt\" änd müst ßé välïd HTML. Ⱡ'σяєм "
-"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
-"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
-"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
-"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
-"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
-"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαв#"
+"À hïgh-lévél övérvïéw öf thé dégréé's çöürséwäré. Thé \"ßrïéf\"\n"
+"            téxt ïs thé fïrst 300 çhäräçtérs öf \"märkétïng_téxt\" änd müst ßé\n"
+"            välïd HTML. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕ#"
 
 #: apps/course_metadata/models.py
 msgid "A high-level overview of the degree's courseware."
