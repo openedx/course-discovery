@@ -375,9 +375,9 @@ class DegreeAdmin(admin.ModelAdmin):
     inlines = (CurriculumAdminInline, DegreeDeadlineInlineAdmin, DegreeCostInlineAdmin, IconTextPairingInline)
     # ordering the field display on admin page.
     fields = (
-        'type', 'uuid', 'status', 'hidden', 'partner', 'marketing_slug', 'card_image_url', 'search_card_ranking',
-        'search_card_cost', 'search_card_courses', 'overall_ranking', 'campus_image', 'title', 'subtitle',
-        'title_background_image', 'banner_border_color', 'apply_url', 'overview', 'rankings',
+        'type', 'uuid', 'status', 'hidden', 'partner', 'authoring_organizations', 'marketing_slug', 'card_image_url',
+        'search_card_ranking', 'search_card_cost', 'search_card_courses', 'overall_ranking', 'campus_image', 'title',
+        'subtitle', 'title_background_image', 'banner_border_color', 'apply_url', 'overview', 'rankings',
         'application_requirements', 'prerequisite_coursework', 'lead_capture_image', 'lead_capture_list_name',
         'micromasters_long_title', 'micromasters_long_description', 'micromasters_url', 'faq', 'costs_fine_print',
         'deadlines_fine_print'
