@@ -1519,10 +1519,10 @@ class Curriculum(TimeStampedModel):
     marketing_text_brief = models.TextField(
         null=True,
         blank=True,
-        max_length=300,
+        max_length=750,
         help_text=_(
             """A high-level overview of the degree\'s courseware. The "brief"
-            text is the first 300 characters of "marketing_text" and must be
+            text is the first 750 characters of "marketing_text" and must be
             valid HTML."""
         ),
     )
