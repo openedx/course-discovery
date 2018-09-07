@@ -8,7 +8,7 @@ SYNONYMS = [
     ['ACLU', 'American Civil Liberties Union'],
     ['ASU', 'ASUx', 'Arizona State', 'Arizona State University'],
     ['Berkeley', 'UC BerkeleyX', 'UCBerkeleyX'],
-    ['Georgia Institute of Technology', 'Georgia Tech', 'GTx'],
+    ['Georgia Institute of Technology', 'Georgia Tech', 'GTx', 'GT'],
     ['GFA', 'Global Freshman Academy'],
     ['Instituto Tecnologico y De Estudios Superiores De Monterrey', 'Monterrey', 'TecdeMonterreyX'],
     ['Microsoft', 'MicrosoftX', 'msft'],
@@ -22,6 +22,11 @@ SYNONYMS = [
     ['University of Pennsylvania', 'PennX', 'UPennX', 'UPenn'],
     ['Universitat Politècnica de València', 'València', 'Valencia'],
     ['Wharton', 'WhartonX'],
+
+    # Master's specific
+
+    ['masters', 'oms', 'ms'],
+    ['masters degree', 'masters program'],
 
     # Common Mispellings
 
