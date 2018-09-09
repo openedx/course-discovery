@@ -19,7 +19,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-15 20:13+0000\n"
-"PO-Revision-Date: 2018-07-24 09:53+0000\n"
+"PO-Revision-Date: 2018-09-05 14:13+0000\n"
 "Last-Translator: Abstract Technology <stefania.trabucchi@abstract-technology.de>\n"
 "Language-Team: German (Germany) (http://www.transifex.com/open-edx/edx-platform/language/de_DE/)\n"
 "MIME-Version: 1.0\n"
@@ -955,7 +955,7 @@ msgstr "Komma getrennte Liste der edx Nutzernamen oder E-Mail-Adressen der Admin
 
 #: apps/publisher/models.py
 msgid "Comma separated list of edX usernames or emails of additional staff."
-msgstr ""
+msgstr "Komma getrennte Liste der edx Nutzernamen oder E-Mail-Adressen der Mitarbeiter."
 
 #: apps/publisher/models.py
 msgid "Professional (with ID verification)"
@@ -2157,7 +2157,7 @@ msgstr "Programm Verbindung"
 msgid ""
 "If this course is part of a program, select the program type, and then enter"
 " the name of the program."
-msgstr ""
+msgstr "Wenn Sie diesen Kurs im Rahmen eines Programmes belegen müssen, wählen Sie die Programmart und geben Sie den Namen des Programmes ein."
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "COURSE STAFF"
@@ -2244,7 +2244,7 @@ msgstr "End Datum (Zeit in UTC)"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Credit Price"
-msgstr ""
+msgstr "Preis"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Course Staff"
@@ -2306,11 +2306,11 @@ msgstr "Einschreib Möglichkeiten"
 
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
 msgid "Credit Seats"
-msgstr ""
+msgstr "Plätze"
 
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
 msgid "Credit Provider"
-msgstr ""
+msgstr "Anbieter"
 
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
 #: apps/publisher/templates/publisher/course_run_detail/_seats.html
@@ -2324,7 +2324,7 @@ msgstr "Währung"
 
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
 msgid "Credit Hours"
-msgstr ""
+msgstr "Stunden"
 
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
 #: apps/publisher/templates/publisher/course_run_detail/_seats.html
@@ -2909,7 +2909,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/course_created.html
 #, python-format
 msgid "Dear %(project_coordinator_name)s,"
-msgstr ""
+msgstr "Sehr geehrte/-er Frau/Herr %(project_coordinator_name)s,"
 
 #: apps/publisher/templates/publisher/email/course_created.html
 #, python-format
