@@ -1331,8 +1331,11 @@ class CourseSearchSerializerTests(TestCase):
     def test_data(self):
         request = make_request()
         course = CourseFactory()
+        course_run = CourseRunFactory(course=course)
+        course.course_runs.add(course_run)
+        course.save()
         serializer = self.serialize_course(course, request)
-        assert serializer.data == self.get_expected_data(course, request)
+        assert serializer.data == self.get_expected_data(course, course_run, request)
 
     def serialize_course(self, course, request):
         """ Serializes the given `Course` as a search result. """
@@ -1341,7 +1344,7 @@ class CourseSearchSerializerTests(TestCase):
         return serializer
 
     @classmethod
-    def get_expected_data(cls, course, request):  # pylint: disable=unused-argument
+    def get_expected_data(cls, course, course_run, request):  # pylint: disable=unused-argument
         return {
             'key': course.key,
             'title': course.title,
@@ -1350,6 +1353,13 @@ class CourseSearchSerializerTests(TestCase):
             'content_type': 'course',
             'aggregation_key': 'course:{}'.format(course.key),
             'card_image_url': course.card_image_url,
+            'course_runs': [{
+                'key': course_run.key,
+                'enrollment_start': course_run.enrollment_start,
+                'enrollment_end': course_run.enrollment_end,
+                'start': course_run.start,
+                'end': course_run.end,
+            }],
         }
 
 
@@ -1357,7 +1367,7 @@ class CourseSearchModelSerializerTests(CourseSearchSerializerTests):
     serializer_class = CourseSearchModelSerializer
 
     @classmethod
-    def get_expected_data(cls, course, request):
+    def get_expected_data(cls, course, course_run, request):  # pylint: disable=unused-argument
         expected_data = CourseWithProgramsSerializerTests.get_expected_data(course, request)
         expected_data.update({'content_type': 'course'})
         return expected_data
