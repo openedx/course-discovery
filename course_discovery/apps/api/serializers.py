@@ -1265,6 +1265,19 @@ class BaseHaystackFacetSerializer(HaystackFacetSerializer):
 
 
 class CourseSearchSerializer(HaystackSerializer):
+    course_runs = serializers.SerializerMethodField()
+
+    def get_course_runs(self, result):
+        return [
+            {
+                'key': course_run.key,
+                'enrollment_start': course_run.enrollment_start,
+                'enrollment_end': course_run.enrollment_end,
+                'start': course_run.start,
+                'end': course_run.end,
+            }
+            for course_run in result.object.course_runs.all()
+        ]
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
@@ -1276,6 +1289,7 @@ class CourseSearchSerializer(HaystackSerializer):
             'short_description',
             'title',
             'card_image_url',
+            'course_runs',
         )
 
 
