@@ -2673,7 +2673,6 @@ class CourseDetailViewTests(TestCase):
 @ddt.ddt
 class CourseEditViewTests(SiteMixin, TestCase):
     """ Tests for the course edit view. """
-    course_error_message = 'The page could not be updated. Make sure that all values are correct, then try again.'
 
     def setUp(self):
         super(CourseEditViewTests, self).setUp()
@@ -2692,7 +2691,6 @@ class CourseEditViewTests(SiteMixin, TestCase):
         self.organization_extension.group.user_set.add(*(self.user, self.course_team_user))
 
         self.edit_page_url = reverse('publisher:publisher_courses_edit', args=[self.course.id])
-        self.course_detail_url = reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id})
 
     def test_edit_page_without_permission(self):
         """
@@ -2760,7 +2758,15 @@ class CourseEditViewTests(SiteMixin, TestCase):
 
         self.assertNotEqual(self.course.title, updated_course_title)
         self.assertNotEqual(self.course.changed_by, self.user)
-        self.AssertEditCourseSuccess(post_data)
+
+        response = self.client.post(self.edit_page_url, data=post_data)
+
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
+            status_code=302,
+            target_status_code=200
+        )
 
         course = Course.objects.get(id=self.course.id)
         # Assert that course is updated.
@@ -2778,7 +2784,9 @@ class CourseEditViewTests(SiteMixin, TestCase):
         user.groups.add(self.organization_extension.group)
 
         post_data = self._post_data(self.organization_extension)
+
         response = self.client.post(self.edit_page_url, data=post_data)
+
         self.assertEqual(response.status_code, 403)
 
     def test_update_course_team_admin(self):
@@ -2786,9 +2794,18 @@ class CourseEditViewTests(SiteMixin, TestCase):
         Verify that publisher user can update course team admin.
         """
         self._assign_permissions(self.organization_extension)
+
         self.assertEqual(self.course.course_team_admin, self.course_team_role.user)
 
-        self.AssertEditCourseSuccess(self._post_data(self.organization_extension))
+        response = self.client.post(self.edit_page_url, data=self._post_data(self.organization_extension))
+
+        self.assertRedirects(
+            response,
+            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
+            status_code=302,
+            target_status_code=200
+        )
+
         self.assertEqual(self.course.course_team_admin, self.course_team_user)
 
     def test_update_course_organization(self):
