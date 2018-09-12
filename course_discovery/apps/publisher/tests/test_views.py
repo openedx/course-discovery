@@ -2821,15 +2821,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
 
         self.assertEqual(self.course.organizations.first(), self.organization_extension.organization)
 
-        response = self.client.post(self.edit_page_url, data=self._post_data(organization_extension))
-
-        self.assertRedirects(
-            response,
-            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
-            status_code=302,
-            target_status_code=200
-        )
-
+        self.AssertEditCourseSuccess(post_data=self._post_data(organization_extension))
         self.assertEqual(self.course.organizations.first(), organization_extension.organization)
 
     def _assign_permissions(self, organization_extension):
@@ -2864,15 +2856,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         post_data = self._post_data(self.organization_extension)
         post_data['team_admin'] = self.course_team_role.user.id
 
-        response = self.client.post(self.edit_page_url, data=post_data)
-
-        self.assertRedirects(
-            response,
-            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
-            status_code=302,
-            target_status_code=200
-        )
-
+        self.AssertEditCourseSuccess(post_data)
         course_state = CourseState.objects.get(id=self.course.course_state.id)
         self.assertEqual(course_state.name, CourseStateChoices.Draft)
 
@@ -2897,15 +2881,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         post_data = self._post_data(self.organization_extension)
         post_data['team_admin'] = self.course_team_role.user.id
 
-        response = self.client.post(self.edit_page_url, data=post_data)
-
-        self.assertRedirects(
-            response,
-            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
-            status_code=302,
-            target_status_code=200
-        )
-
+        self.AssertEditCourseSuccess(post_data)
         course_state = CourseState.objects.get(id=self.course.course_state.id)
         self.assertEqual(course_state.name, CourseStateChoices.Review)
         self.assertEqual(course_state.owner_role, PublisherUserRole.MarketingReviewer)
@@ -2926,15 +2902,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         post_data = self._post_data(self.organization_extension)
         post_data['team_admin'] = self.course_team_role.user.id
 
-        response = self.client.post(self.edit_page_url, data=post_data)
-
-        self.assertRedirects(
-            response,
-            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
-            status_code=302,
-            target_status_code=200
-        )
-
+        self.AssertEditCourseSuccess(post_data)
         course_state = CourseState.objects.get(id=self.course.course_state.id)
         self.assertEqual(course_state.name, CourseStateChoices.Draft)
         self.assertEqual(course_state.owner_role, PublisherUserRole.CourseTeam)
@@ -2956,15 +2924,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         post_data = self._post_data(self.organization_extension)
         post_data['team_admin'] = self.course_team_role.user.id
 
-        response = self.client.post(self.edit_page_url, data=post_data)
-
-        self.assertRedirects(
-            response,
-            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
-            status_code=302,
-            target_status_code=200
-        )
-
+        self.AssertEditCourseSuccess(post_data)
         course_state = CourseState.objects.get(id=self.course.course_state.id)
         self.assertEqual(course_state.name, CourseStateChoices.Review)
         self.assertEqual(course_state.owner_role, PublisherUserRole.CourseTeam)
@@ -2984,80 +2944,60 @@ class CourseEditViewTests(SiteMixin, TestCase):
         response = self.client.get(self.edit_page_url)
         self.assertNotContains(response, 'VIDEO LINK')
 
-    def test_update_with_errors(self):
+    def test_update_course_with_empty_title(self):
         """
-        Verify that page shows error if any required field data is missing.
+        Verify that page shows error if title field is empty.
         """
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         post_data = self._post_data(self.organization_extension)
+        self.AssertEditCourseSuccess(post_data)
 
         post_data['title'] = ''
-        response = self.client.post(self.edit_page_url, data=post_data)
-        self.assertContains(response, 'The page could not be updated. Make sure that')
+        self.AssertEditFailedWithError(post_data, error='This field is required')
 
-    def test_text_area_max_length_error(self):
+    @ddt.data(
+        ('short_description', 350),
+        ('full_description', 2500),
+        ('prerequisites', 1000),
+        ('expected_learnings', 2500),
+        ('learner_testimonial', 500),
+        ('faq', 2500),
+        ('syllabus', 2500)
+    )
+    @ddt.unpack
+    def test_max_length_exceed_error(self, field, max_length):
         """
-        Verify that page shows error if any text area exceeds the max length.
+        Verify that page shows error if short description exceeds the max length.
         """
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         post_data = self._post_data(self.organization_extension)
-        post_data['title'] = 'test'
-        post_data['short_description'] = '''
-            <html>
-                <body>
-                <h2>An Unordered HTML List</h2>
-                <ul>
-                  <li>An Unordered HTML List. An Unordered HTML List</li>
-                  <li>An Unordered HTML List. An Unordered HTML List</li>
-                  <li>An Unordered HTML List</li>
-                </ul>
-                <ul>
-                  <li>An Unordered HTML List</li>
-                  <li>An Unordered HTML List</li>
-                  <li>An Unordered HTML List</li>
-                </ul>
-                <ul>
-                  <li>An Unordered HTML List</li>
-                  <li>An Unordered HTML List</li>
-                  <li>An Unordered HTML List</li>
-                </ul>
-                </body>
-            </html>
-        '''
-        response = self.client.post(self.edit_page_url, data=post_data)
 
-        self.assertContains(response, 'Ensure this value has at most 255 characters')
+        post_data[field] = self._generate_random_html(max_length + 10)
+        self.AssertEditFailedWithError(
+            post_data,
+            'Ensure this value has at most {} characters'.format(max_length)
+        )
+        post_data[field] = self._generate_random_html(max_length)
+        self.AssertEditCourseSuccess(post_data)
 
     @ddt.data(
-        'short_description', 'full_description', 'prerequisites', 'expected_learnings',
-        'learner_testimonial', 'faq', 'syllabus'
+        ('short_description', 350),
+        ('full_description', 2500),
+        ('prerequisites', 1000),
+        ('expected_learnings', 2500),
+        ('learner_testimonial', 500),
+        ('faq', 2500),
+        ('syllabus', 2500)
     )
-    def test_text_area_post_with_html(self, field):
+    @ddt.unpack
+    def test_max_length_validation_pass(self, field, max_length):
         """
         Verify that page saves the text area html in db.
         """
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         post_data = self._post_data(self.organization_extension)
-        post_data['title'] = 'test'
-        post_data[field] = '''
-            <html>
-                <body>
-                <h2>An Unordered HTML List</h2>
-                <ul>
-                  <li>Coffee</li>
-                  <li>Tea</li>
-                </ul>
-                </body>
-            </html>
-        '''
-
-        response = self.client.post(self.edit_page_url, data=post_data)
-        self.assertRedirects(
-            response,
-            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
-            status_code=302,
-            target_status_code=200
-        )
+        post_data[field] = self._generate_random_html(max_length)
+        self.AssertEditCourseSuccess(post_data)
         course = Course.objects.get(id=self.course.id)
         self.assertEqual(post_data[field].strip(), getattr(course, field).strip())
 
@@ -3112,13 +3052,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
 
         post_data['mode'] = CourseEntitlementForm.PROFESSIONAL_MODE
         post_data['price'] = 1
-        response = self.client.post(self.edit_page_url, data=post_data)
-        self.assertRedirects(
-            response,
-            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
-            status_code=302,
-            target_status_code=200
-        )
+        self.AssertEditCourseSuccess(post_data)
 
         # Clear out the seats created above and reset the version to test the mismatch cases
         course_run.seats.all().delete()
@@ -3131,13 +3065,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         for noop_mode in [''] + CourseEntitlementForm.NOOP_MODES:
             post_data['mode'] = noop_mode
             post_data['price'] = 0
-            response = self.client.post(self.edit_page_url, data=post_data)
-            self.assertRedirects(
-                response,
-                expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
-                status_code=302,
-                target_status_code=200
-            )
+            self.AssertEditCourseSuccess(post_data)
 
         # Modify the Course to try and create CourseEntitlements differing from the CourseRun and Seat type
         post_data['mode'] = CourseEntitlementForm.PROFESSIONAL_MODE
@@ -3156,15 +3084,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         # Modify the Course to try and create CourseEntitlement the same as the Course Run and Seat type and price
         post_data['mode'] = verified_seat.type
         post_data['price'] = verified_seat.price
-
-        response = self.client.post(self.edit_page_url, data=post_data)
-
-        self.assertRedirects(
-            response,
-            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
-            status_code=302,
-            target_status_code=200
-        )
+        self.AssertEditCourseSuccess(post_data)
 
     def test_entitlement_version_course_edit_page(self):
         """
@@ -3178,15 +3098,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         post_data['mode'] = CourseEntitlementForm.VERIFIED_MODE
         post_data['price'] = 150
 
-        response = self.client.post(self.edit_page_url, data=post_data)
-        # Assert that this saves for an ENTITLEMENT_VERSION
-        self.assertRedirects(
-            response,
-            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
-            status_code=302,
-            target_status_code=200
-        )
-
+        self.AssertEditCourseSuccess(post_data)
         # Assert that trying to switch to Audit/Credit Course (and thus allowing Course Run Seat configuration) fails
         for noop_mode in [''] + CourseEntitlementForm.NOOP_MODES:
             post_data['mode'] = noop_mode
@@ -3205,13 +3117,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         factories.CourseEntitlementFactory(course=new_course, mode=CourseEntitlement.VERIFIED)
         post_data['mode'] = CourseEntitlementForm.VERIFIED_MODE
         post_data['price'] = 1
-        response = self.client.post(self.edit_page_url, data=post_data)
-        self.assertRedirects(
-            response,
-            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
-            status_code=302,
-            target_status_code=200
-        )
+        self.AssertEditCourseSuccess(post_data)
 
     def test_entitlement_changes(self):
         """
@@ -3228,8 +3134,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         course_data['team_admin'] = self.user.id
         course_data['mode'] = CourseEntitlement.VERIFIED
         course_data['price'] = 150
-        response = self.client.post(self.edit_page_url, data=course_data)
-        self.assertEqual(response.status_code, 302)
+        self.AssertEditCourseSuccess(course_data)
 
         # New course run via form
         new_run_url = reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': self.course.id})
@@ -3252,8 +3157,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         # Test price change
         course_data['mode'] = CourseEntitlement.VERIFIED
         course_data['price'] = 99
-        response = self.client.post(self.edit_page_url, data=course_data)
-        self.assertEqual(response.status_code, 302)
+        self.AssertEditCourseSuccess(course_data)
         # Use this query because we delete the original records
         entitlement = CourseEntitlement.objects.get(course=self.course)  # Should be only one entitlement for the Course
         paid_seat = Seat.objects.get(type=Seat.VERIFIED, course_run=course_run)
@@ -3264,8 +3168,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
 
         # Test mode change
         course_data['mode'] = CourseEntitlement.PROFESSIONAL
-        response = self.client.post(self.edit_page_url, data=course_data)
-        self.assertEqual(response.status_code, 302)
+        self.AssertEditCourseSuccess(course_data)
         paid_seat = Seat.objects.get(course_run=course_run)  # Should be only one seat now (no Audit seat)
         entitlement = CourseEntitlement.objects.get(course=self.course)  # Should be only one entitlement for the Course
         self.assertEqual(entitlement.mode, CourseEntitlement.PROFESSIONAL)
@@ -3274,8 +3177,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         # Test mode and price change again after saving but BEFORE publishing
         course_data['mode'] = CourseEntitlement.VERIFIED
         course_data['price'] = 1000
-        response = self.client.post(self.edit_page_url, data=course_data)
-        self.assertEqual(response.status_code, 302)
+        self.AssertEditCourseSuccess(course_data)
         # There should be both an audit seat and a verified seat
         audit_seat = Seat.objects.get(course_run=course_run, type=Seat.AUDIT)
         verified_seat = Seat.objects.get(course_run=course_run, type=Seat.VERIFIED)
@@ -3316,13 +3218,11 @@ class CourseEditViewTests(SiteMixin, TestCase):
         post_data['faq'] = 'Test FAQ Content'
         post_data['price'] = 50
         post_data['mode'] = verified_entitlement.mode
-        response = self.client.post(self.edit_page_url, data=post_data)
-        self.assertEqual(response.status_code, 302)
+        self.AssertEditCourseSuccess(post_data)
 
         # Verify that when start date is None it didn't raise server error
         self.course.course_runs.update(start=None)
-        response = self.client.post(self.edit_page_url, data=post_data)
-        self.assertEqual(response.status_code, 302)
+        self.AssertEditCourseSuccess(post_data)
 
         # Failure case when enrollment track is tried to change
         post_data = self._post_data(self.organization_extension)
@@ -3352,15 +3252,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         post_data = self._post_data(self.organization_extension)
         post_data['number'] = 'testX654'
 
-        response = self.client.post(self.edit_page_url, data=post_data)
-
-        self.assertRedirects(
-            response,
-            expected_url=reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id}),
-            status_code=302,
-            target_status_code=200
-        )
-
+        self.AssertEditCourseSuccess(post_data)
         course_state = CourseState.objects.get(id=self.course.course_state.id)
         self.assertEqual(course_state.name, CourseStateChoices.Approved)
 
@@ -3375,6 +3267,36 @@ class CourseEditViewTests(SiteMixin, TestCase):
         )
 
         self.assertEqual(str(mail.outbox[0].subject), expected_subject)
+
+    def AssertEditCourseSuccess(self, post_data):
+        """Helper method to assert the course edit was successful"""
+        response = self.client.post(self.edit_page_url, data=post_data)
+        self.assertRedirects(response, expected_url=self.course_detail_url, status_code=302, target_status_code=200)
+        self.assertNotContains(response, text=self.course_error_message, status_code=302)
+
+    def AssertEditFailedWithError(self, post_data, error):
+        """Helper method to assert the course edit was unsuccessful and with with an error"""
+        response = self.client.post(self.edit_page_url, data=post_data)
+        self.assertContains(response, self.course_error_message)
+        self.assertContains(response, error)
+
+    def _generate_random_html(self, max_length):
+        """
+        Generates a random html of specified length.
+        """
+        random_html = """
+        <html>
+            <body>
+                <h2>An Unordered HTML List</h2>
+                <ul>
+                    {}
+                </ul>
+            </body>
+        </html>
+        """.strip()
+        while len(random_html) < max_length:
+            random_html = random_html.format('<li>Random LI</li>{}')
+        return random_html[:max_length]
 
 
 @ddt.ddt
