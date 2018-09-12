@@ -198,7 +198,7 @@
                                         <input id="id_short_description_revision" type="hidden" value="{{ history_object.short_description }}" class="history">
                                         <label class="field-label ">{{ form.short_description.label_tag }} <span class="required">*</span></label>
                                         {{ form.short_description }}
-                                        <p>{% trans "350 character limit, including spaces and html." %}</p>
+                                        <p>{% trans "255 character limit, including spaces." %}</p>
                                             {% if form.short_description.errors %}
                                                 <div class="field-message has-error">
                                                     <span class="field-message-content">
@@ -250,7 +250,7 @@
                                         <label class="field-label ">{{ form.full_description.label_tag }} <span class="required">*</span></label>
                                         <input id="id_full_description_revision" type="hidden" value="{{ history_object.full_description }}" class="history">
                                         {{ form.full_description }}
-                                        <p>{% trans "2500 character limit, including spaces and html." %}</p>
+                                        <p>{% trans "2500 character limit, including spaces." %}</p>
                                             {% if form.full_description.errors %}
                                                 <div class="field-message has-error">
                                                     <span class="field-message-content">
@@ -298,7 +298,7 @@
                                         <label class="field-label ">{{ form.expected_learnings.label_tag }} <span class="required">*</span></label>
                                         <input id="id_expected_learnings_revision" type="hidden" value="{{ history_object.expected_learnings }}" class="history">
                                         {{ form.expected_learnings }}
-                                        <p>{% trans "2500 character limit, including spaces and html." %}</p>
+                                        <p>{% trans "2500 character limit, including spaces." %}</p>
                                             {% if form.expected_learnings.errors %}
                                                 <div class="field-message has-error">
                                                     <span class="field-message-content">
@@ -391,7 +391,7 @@
                                         </div>
                                         <div id="tab-practices" class="content active">
                                             <ul>
-                                                <li>{% trans "Maximum 1000 characters." %}</li>
+                                                <li>{% trans "Maximum 200 characters." %}</li>
                                                 <li>{% trans "Specific knowledge learners must have to be successful in the course. If the course has no prerequisites, enter \"None\"." %}</li>
                                             </ul>
 
@@ -408,7 +408,7 @@
                                         <label class="field-label ">{{ form.prerequisites.label_tag }}</label>
                                         <input id="id_prerequisites_revision" type="hidden" value="{{ history_object.prerequisites }}" class="history">
                                         {{ form.prerequisites }}
-                                        <p>{% trans "1000 character limit, including spaces and html." %}</p>
+                                        <p>{% trans "200 character limit, including spaces." %}</p>
                                             {% if form.prerequisites.errors %}
                                                 <div class="field-message has-error">
                                                     <span class="field-message-content">
@@ -459,7 +459,7 @@
                                         <label class="field-label ">{{ form.syllabus.label_tag }}</label>
                                         <input id="id_syllabus_revision" type="hidden" value="{{ history_object.syllabus }}" class="history">
                                         {{ form.syllabus }}
-                                        <p>{% trans "2500 character limit, including spaces and html." %}</p>
+                                        <p>{% trans "2500 character limit, including spaces." %}</p>
                                             {% if form.syllabus.errors %}
                                                 <div class="field-message has-error">
                                                     <span class="field-message-content">
@@ -498,7 +498,7 @@
                                         <label class="field-label ">{{ form.faq.label }}</label>
                                         <input id="id_faq_revision" type="hidden" value="{{ history_object.faq }}" class="history">
                                         {{ form.faq }}
-                                        <p>{% trans "2500 character limit, including spaces and html." %}</p>
+                                        <p>{% trans "2500 character limit, including spaces." %}</p>
                                             {% if form.faq.errors %}
                                                 <div class="field-message has-error">
                                                     <span class="field-message-content">
@@ -601,7 +601,7 @@
                                         <label class="field-label ">{{ form.learner_testimonial.label }}</label>
                                          <input id="id_learner_testimonial_revision" type="hidden" value="{{ history_object.learner_testimonial }}" class="history">
                                         {{ form.learner_testimonial }}
-                                        <p>{% trans "500 character limit, including spaces and html." %}</p>
+                                        <p>{% trans "500 character limit, including spaces." %}</p>
                                             {% if form.learner_testimonial.errors %}
                                                 <div class="field-message has-error">
                                                     <span class="field-message-content">

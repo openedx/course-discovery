@@ -631,6 +631,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
                     self.object.course_state.change_state(
                         state=CourseStateChoices.Draft, user=user, site=self.request.site
                     )
+
                 # Change ownership if user role not equal to owner role.
                 if user_role not in (self.object.course_state.owner_role, PublisherUserRole.ProjectCoordinator):
                     self.object.course_state.change_owner_role(user_role)
