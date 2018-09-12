@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-07 16:30+0000\n"
+"POT-Creation-Date: 2018-09-12 07:50+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -2202,6 +2202,7 @@ msgid "Sequence Courses:"
 msgstr "Séqüénçé Çöürsés: Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
 msgid "255 character limit, including spaces."
 msgstr ""
 "255 çhäräçtér lïmït, ïnçlüdïng späçés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
@@ -2245,12 +2246,6 @@ msgid ""
 msgstr ""
 "Thé fïrst MÖÖÇ tö téäçh pösïtïvé psýçhölögý. Léärn sçïénçé-ßäséd prïnçïplés "
 "änd präçtïçés för ä häppý, méänïngfül lïfé. Ⱡ'σяєм ιρѕυм#"
-
-#: apps/publisher/templates/publisher/course_edit_form.html
-msgid "350 character limit, including spaces and html."
-msgstr ""
-"350 çhäräçtér lïmït, ïnçlüdïng späçés änd html. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
-" ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "LONG DESCRIPTION"
@@ -2348,10 +2343,10 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_edit_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
-msgid "2500 character limit, including spaces and html."
+msgid "2500 character limit, including spaces."
 msgstr ""
-"2500 çhäräçtér lïmït, ïnçlüdïng späçés änd html. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
-"αмєт, ¢σηѕє¢тєтυя α#"
+"2500 çhäräçtér lïmït, ïnçlüdïng späçés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "WHAT YOU WILL LEARN"
@@ -2459,8 +2454,8 @@ msgid "PREREQUISITES"
 msgstr "PRÉRÉQÛÌSÌTÉS Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
-msgid "Maximum 1000 characters."
-msgstr "Mäxïmüm 1000 çhäräçtérs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+msgid "Maximum 200 characters."
+msgstr "Mäxïmüm 200 çhäräçtérs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
@@ -2487,10 +2482,10 @@ msgid "Basic algebra"
 msgstr "Bäsïç älgéßrä Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
-msgid "1000 character limit, including spaces and html."
+msgid "200 character limit, including spaces."
 msgstr ""
-"1000 çhäräçtér lïmït, ïnçlüdïng späçés änd html. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
-"αмєт, ¢σηѕє¢тєтυя α#"
+"200 çhäräçtér lïmït, ïnçlüdïng späçés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "SYLLABUS"
@@ -2727,10 +2722,10 @@ msgstr ""
 "ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
-msgid "500 character limit, including spaces and html."
+msgid "500 character limit, including spaces."
 msgstr ""
-"500 çhäräçtér lïmït, ïnçlüdïng späçés änd html. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
-" ¢σηѕє¢тєтυя α#"
+"500 çhäräçtér lïmït, ïnçlüdïng späçés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
