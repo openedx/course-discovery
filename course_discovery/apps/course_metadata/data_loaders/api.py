@@ -1,12 +1,14 @@
 import concurrent.futures
 import logging
 import math
+import threading
 import time
 from decimal import Decimal
 from io import BytesIO
 
 import requests
 from django.core.files import File
+from django.core.management import CommandError
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.core.models import Currency
@@ -265,6 +267,8 @@ class CoursesApiDataLoader(AbstractDataLoader):
 class EcommerceApiDataLoader(AbstractDataLoader):
     """ Loads course seats, entitlements, and enrollment codes from the E-Commerce API. """
 
+    LOADER_MAX_RETRY = 2
+
     def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None,
                  is_threadsafe=False, **kwargs):
         super(EcommerceApiDataLoader, self).__init__(
@@ -273,14 +277,53 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         self.initial_page = 1
         self.enrollment_skus = []
         self.entitlement_skus = []
+        self.processing_failure_occurred = False
+        self.course_run_count = 0
+        self.entitlement_count = 0
+        self.enrollment_code_count = 0
+
+        # Thread locks to protect access to the counts
+        self.course_run_count_lock = threading.Lock()
+        self.entitlement_count_lock = threading.Lock()
+        self.enrollment_code_lock = threading.Lock()
 
     def ingest(self):
-        logger.info('Refreshing course seats from %s...', self.partner.ecommerce_api_url)
+        attempt_count = 0
+
+        while (attempt_count == 0 or
+               (self.processing_failure_occurred and attempt_count < EcommerceApiDataLoader.LOADER_MAX_RETRY)):
+            attempt_count += 1
+            if self.processing_failure_occurred and attempt_count > 1:  # pragma: no cover
+                logger.info('Processing failure occurred attempting {attempt_count} of {max}...'.format(
+                    attempt_count=attempt_count,
+                    max=EcommerceApiDataLoader.LOADER_MAX_RETRY
+                ))
+
+            logger.info('Refreshing ecommerce data from %s...', self.partner.ecommerce_api_url)
+            self._load_ecommerce_data()
+
+            if self.processing_failure_occurred:  # pragma: no cover
+                logger.warning('Processing failure occurred caused by an exception on at least on of the threads, '
+                               'blocking deletes.')
+                if attempt_count >= EcommerceApiDataLoader.LOADER_MAX_RETRY:
+                    raise CommandError('Max retries exceeded and Ecommerce Data Loader failed to successfully load')
+            else:
+                # If no errors were detected clean up Orphans
+                self.delete_orphans()
+                self._delete_entitlements()
+
+    def _load_ecommerce_data(self):
         course_runs = self._request_course_runs(self.initial_page)
         entitlements = self._request_entitlments(self.initial_page)
         enrollment_codes = self._request_enrollment_codes(self.initial_page)
+
         self.entitlement_skus = []
         self.enrollment_skus = []
+
+        self.processing_failure_occurred = False
+        self.course_run_count = 0
+        self.entitlement_count = 0
+        self.enrollment_code_count = 0
         self._process_course_runs(course_runs)
         self._process_entitlements(entitlements)
         self._process_enrollment_codes(enrollment_codes)
@@ -301,46 +344,89 @@ class EcommerceApiDataLoader(AbstractDataLoader):
                 for page in pageranges['enrollment_codes']:
                     executor.submit(self._load_enrollment_codes_data, page)
             else:
+                # Process in batches and wait for the result from the futures
                 pagerange = pageranges['course_runs']
                 for future in [executor.submit(self._request_course_runs, page) for page in pagerange]:
-                    response = future.result()
-                    self._process_course_runs(response)
+                    check_exception = future.exception()
+                    if check_exception is None:
+                        response = future.result()
+                        self._process_course_runs(response)
+                    else:
+                        logger.exception(check_exception)
+                        # Protect against deletes if exceptions occurred
+                        self.processing_failure_occurred = True
 
                 pagerange = pageranges['entitlements']
                 for future in [executor.submit(self._request_entitlments, page) for page in pagerange]:
-                    response = future.result()
-                    self._process_entitlements(response)
+                    check_exception = future.exception()
+                    if check_exception is None:
+                        response = future.result()
+                        self._process_entitlements(response)
+                    else:
+                        logger.exception(check_exception)
+                        # Protect against deletes if exceptions occurred
+                        self.processing_failure_occurred = True
 
                 pagerange = pageranges['enrollment_codes']
                 for future in [executor.submit(self._request_enrollment_codes, page) for page in pagerange]:
-                    response = future.result()
-                    self._process_enrollment_codes(response)
+                    check_exception = future.exception()
+                    if check_exception is None:
+                        response = future.result()
+                        self._process_enrollment_codes(response)
+                    else:
+                        logger.exception(check_exception)
+                        # Protect against deletes if exceptions occurred
+                        self.processing_failure_occurred = True
 
-        logger.info('Retrieved %d course seats, %d course entitlements, and %d course enrollment codes from %s.',
+        logger.info('Expected %d course seats, %d course entitlements, and %d enrollment codes from %s.',
                     course_runs['count'], entitlements['count'],
                     enrollment_codes['count'], self.partner.ecommerce_api_url)
 
-        self.delete_orphans()
-        self._delete_entitlements()
+        logger.info('Actually Received %d course seats, %d course entitlements, and %d enrollment codes from %s.',
+                    self.course_run_count,
+                    self.entitlement_count,
+                    self.enrollment_code_count,
+                    self.partner.ecommerce_api_url)
+
+        if (self.course_run_count != course_runs['count'] or
+                self.entitlement_count != entitlements['count'] or
+                self.enrollment_code_count != enrollment_codes['count']):  # pragma: no cover
+            # The count expected should match the count received
+            logger.warning('There is a mismatch in the expected count of results and the actual results.')
+            self.processing_failure_occurred = True
 
     def _pagerange(self, count):
-        pages = math.ceil(count / self.PAGE_SIZE)
+        pages = int(math.ceil(count / self.PAGE_SIZE))
         return range(self.initial_page + 1, pages + 1)
 
     def _load_course_runs_data(self, page):  # pragma: no cover
         """Make a request for the given page and process the response."""
-        course_runs = self._request_course_runs(page)
-        self._process_course_runs(course_runs)
+        try:
+            course_runs = self._request_course_runs(page)
+            self._process_course_runs(course_runs)
+
+        except requests.exceptions.RequestException as ex:
+            logger.exception(ex)
+            self.processing_failure_occurred = True
 
     def _load_entitlements_data(self, page):  # pragma: no cover
         """Make a request for the given page and process the response."""
-        entitlements = self._request_entitlments(page)
-        self._process_entitlements(entitlements)
+        try:
+            entitlements = self._request_entitlments(page)
+            self._process_entitlements(entitlements)
+
+        except requests.exceptions.RequestException as ex:
+            logger.exception(ex)
+            self.processing_failure_occurred = True
 
     def _load_enrollment_codes_data(self, page):  # pragma: no cover
         """Make a request for the given page and process the response."""
-        enrollment_codes = self._request_enrollment_codes(page)
-        self._process_enrollment_codes(enrollment_codes)
+        try:
+            enrollment_codes = self._request_enrollment_codes(page)
+            self._process_enrollment_codes(enrollment_codes)
+        except requests.exceptions.RequestException as ex:
+            logger.exception(ex)
+            self.processing_failure_occurred = True
 
     def _request_course_runs(self, page):
         return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE, include_products=True)
@@ -354,7 +440,10 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     def _process_course_runs(self, response):
         results = response['results']
         logger.info('Retrieved %d course seats...', len(results))
-
+        # Add to the collected count
+        self.course_run_count_lock.acquire()
+        self.course_run_count += len(results)
+        self.course_run_count_lock.release()
         for body in results:
             body = self.clean_strings(body)
             self.update_seats(body)
@@ -362,6 +451,10 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     def _process_entitlements(self, response):
         results = response['results']
         logger.info('Retrieved %d course entitlements...', len(results))
+        # Add to the collected count
+        self.entitlement_count_lock.acquire()
+        self.entitlement_count += len(results)
+        self.entitlement_count_lock.release()
 
         for body in results:
             body = self.clean_strings(body)
@@ -370,6 +463,9 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     def _process_enrollment_codes(self, response):
         results = response['results']
         logger.info('Retrieved %d course enrollment codes...', len(results))
+        self.enrollment_code_lock.acquire()
+        self.enrollment_code_count += len(results)
+        self.enrollment_code_lock.release()
 
         for body in results:
             body = self.clean_strings(body)
