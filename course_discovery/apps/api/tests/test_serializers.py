@@ -1357,6 +1357,8 @@ class CourseSearchSerializerTests(TestCase):
                 'key': course_run.key,
                 'enrollment_start': course_run.enrollment_start,
                 'enrollment_end': course_run.enrollment_end,
+                'start': course_run.start,
+                'end': course_run.end,
             }],
         }
 

@@ -1272,7 +1272,9 @@ class CourseSearchSerializer(HaystackSerializer):
             {
                 'key': course_run.key,
                 'enrollment_start': course_run.enrollment_start,
-                'enrollment_end': course_run.enrollment_end
+                'enrollment_end': course_run.enrollment_end,
+                'start': course_run.start,
+                'end': course_run.end,
             }
             for course_run in result.object.course_runs.all()
         ]
