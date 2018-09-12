@@ -391,7 +391,7 @@
                                         </div>
                                         <div id="tab-practices" class="content active">
                                             <ul>
-                                                <li>{% trans "Maximum 200 characters." %}</li>
+                                                <li>{% trans "Maximum 1000 characters." %}</li>
                                                 <li>{% trans "Specific knowledge learners must have to be successful in the course. If the course has no prerequisites, enter \"None\"." %}</li>
                                             </ul>
 
@@ -408,7 +408,7 @@
                                         <label class="field-label ">{{ form.prerequisites.label_tag }}</label>
                                         <input id="id_prerequisites_revision" type="hidden" value="{{ history_object.prerequisites }}" class="history">
                                         {{ form.prerequisites }}
-                                        <p>{% trans "200 character limit, including spaces." %}</p>
+                                        <p>{% trans "1000 character limit, including spaces." %}</p>
                                             {% if form.prerequisites.errors %}
                                                 <div class="field-message has-error">
                                                     <span class="field-message-content">
