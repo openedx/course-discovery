@@ -5,6 +5,7 @@ import waffle
 from dal import autocomplete
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxLengthValidator
 from django.db.models.functions import Lower
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
@@ -75,7 +76,10 @@ class CourseForm(BaseForm):
         label=_('Organization Name'),
         required=True
     )
-    title = forms.CharField(label=_('Course Title'), required=True)
+    title = forms.CharField(
+        label=_('Course Title'), required=True,
+        validators=[MaxLengthValidator(255)]
+    )
     number = forms.CharField(
         label=_('Course Number'), required=True,
         validators=[validate_text_count(max_length=50)]
