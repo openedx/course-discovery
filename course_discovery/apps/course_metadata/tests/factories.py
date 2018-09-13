@@ -87,6 +87,7 @@ class CourseFactory(factory.DjangoModelFactory):
     syllabus_raw = FuzzyText()
     outcome = FuzzyText()
     image = factory.django.ImageField()
+    canonical_course_run = None
 
     class Meta:
         model = Course
