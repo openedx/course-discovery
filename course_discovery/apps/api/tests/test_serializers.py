@@ -169,6 +169,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'outcome': course.outcome,
             'original_image': ImageField().to_representation(course.original_image_url),
             'card_image_url': course.card_image_url,
+            'canonical_course_run_key': None
         })
 
         return expected
@@ -176,10 +177,21 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
     def test_exclude_utm(self):
         request = make_request()
         course = CourseFactory()
-        CourseRunFactory.create_batch(3, course=course)
+        course_runs = CourseRunFactory.create_batch(3, course=course)
+        course.canonical_course_run = course_runs[0]
         serializer = self.serializer_class(course, context={'request': request, 'exclude_utm': 1})
 
         self.assertEqual(serializer.data['marketing_url'], course.marketing_url)
+
+    def test_canonical_course_run_key(self):
+        request = make_request()
+        course = CourseFactory()
+        course_runs = CourseRunFactory.create_batch(3, course=course)
+        course.course_runs = course_runs
+        course.canonical_course_run = course_runs[0]
+        serializer = self.serializer_class(course, context={'request': request, 'exclude_utm': 1})
+
+        self.assertEqual(serializer.data['canonical_course_run_key'], course_runs[0].key)
 
 
 @ddt.ddt

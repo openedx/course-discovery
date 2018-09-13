@@ -600,6 +600,7 @@ class CourseSerializer(MinimalCourseSerializer):
     sponsors = OrganizationSerializer(many=True, source='sponsoring_organizations')
     course_runs = CourseRunSerializer(many=True)
     marketing_url = serializers.SerializerMethodField()
+    canonical_course_run_key = serializers.SerializerMethodField()
     original_image = ImageField(read_only=True, source='original_image_url')
 
     @classmethod
@@ -621,9 +622,9 @@ class CourseSerializer(MinimalCourseSerializer):
     class Meta(MinimalCourseSerializer.Meta):
         model = Course
         fields = MinimalCourseSerializer.Meta.fields + (
-            'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites', 'prerequisites_raw',
-            'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url', 'syllabus_raw', 'outcome',
-            'original_image', 'card_image_url',
+            'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites',
+            'prerequisites_raw', 'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url',
+            'syllabus_raw', 'outcome', 'original_image', 'card_image_url', 'canonical_course_run_key',
         )
 
     def get_marketing_url(self, obj):
@@ -633,6 +634,11 @@ class CourseSerializer(MinimalCourseSerializer):
             obj.marketing_url,
             exclude_utm=self.context.get('exclude_utm')
         )
+
+    def get_canonical_course_run_key(self, obj):
+        if obj.canonical_course_run:
+            return obj.canonical_course_run.key
+        return None
 
 
 class CourseWithProgramsSerializer(CourseSerializer):
