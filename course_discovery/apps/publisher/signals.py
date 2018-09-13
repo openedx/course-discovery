@@ -18,6 +18,11 @@ def get_related_discovery_course_run(publisher_course_run):
         discovery_course = publisher_course_run.course.discovery_counterpart
         return discovery_course.course_runs.latest('start')
     except ObjectDoesNotExist:
+        logger.info(
+            'Related discovery course run not found for [%s] with partner [%s] ',
+            publisher_course_run.course.key,
+            publisher_course_run.course.partner
+        )
         return
 
 
