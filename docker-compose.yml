@@ -36,7 +36,7 @@ services:
     image: edxops/discovery:latest
 
     # Uncomment the next two lines to build from a local configuration repo
-    # build: ../configuration/docker/build/discovery/
+    build: .
 
     container_name: course-discovery
     volumes:

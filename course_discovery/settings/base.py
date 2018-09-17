@@ -93,6 +93,7 @@ MIDDLEWARE_CLASSES = (
     'simple_history.middleware.HistoryRequestMiddleware',
     'edx_django_utils.cache.middleware.TieredCacheMiddleware',
     'edx_rest_framework_extensions.middleware.RequestMetricsMiddleware',
+    'yet_another_django_profiler.middleware.ProfilerMiddleware',  # keep at bottom so it can profile other middleware
 )
 
 ROOT_URLCONF = 'course_discovery.urls'
@@ -515,6 +516,8 @@ TAGGIT_CASE_INSENSITIVE = True
 # django-solo configuration (https://github.com/lazybird/django-solo#settings)
 SOLO_CACHE = 'default'
 SOLO_CACHE_TIMEOUT = 3600
+
+YADP_ENABLED = True
 
 PUBLISHER_FROM_EMAIL = None
 
