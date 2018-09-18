@@ -124,10 +124,10 @@ class CourseRunWrapperTests(TestCase):
 
     def test_is_self_paced(self):
         """ Verify that the wrapper return the is_self_paced. """
-        self.course_run.pacing_type = CourseRunPacing.Instructor
+        self.course_run.pacing_type_temporary = CourseRunPacing.Instructor
         self.course_run.save()
         self.assertFalse(self.wrapped_course_run.is_self_paced)
-        self.course_run.pacing_type = CourseRunPacing.Self
+        self.course_run.pacing_type_temporary = CourseRunPacing.Self
         self.course_run.save()
         self.assertTrue(self.wrapped_course_run.is_self_paced)
 

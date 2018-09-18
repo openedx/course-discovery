@@ -204,7 +204,7 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
                     '{number}: {title}'.format(number=course_run.course.number, title=course_run.course.title)
                 ),
                 (None, '{type}: {start}'.format(
-                    type=course_run.get_pacing_type_display(), start=start_date
+                    type=course_run.get_pacing_type_temporary_display(), start=start_date
                 ))
             ]
         )
@@ -433,7 +433,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
             if course_run.course_run_state.is_published:
                 start_date = course_run.start.strftime("%B %d, %Y") if course_run.start else None
                 published_runs.add('{type} - {start}'.format(
-                    type=course_run.get_pacing_type_display(),
+                    type=course_run.get_pacing_type_temporary_display(),
                     start=start_date
                 ))
         return published_runs
@@ -460,12 +460,12 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
 
             if not type_is_valid:
                 misconfigured_seat_type_runs.add('{type} - {start}'.format(
-                    type=course_run.get_pacing_type_display(),
+                    type=course_run.get_pacing_type_temporary_display(),
                     start=course_run.start.strftime("%B %d, %Y")
                 ))
             if not price_is_valid:
                 misconfigured_price_runs.add('{type} - {start}'.format(
-                    type=course_run.get_pacing_type_display(),
+                    type=course_run.get_pacing_type_temporary_display(),
                     start=course_run.start.strftime("%B %d, %Y")
                 ))
 
@@ -801,7 +801,7 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
     def _initialize_run_form(self, last_run=None):
         run_initial_data = {}
         if last_run:
-            run_initial_data = {'pacing_type': last_run.pacing_type}
+            run_initial_data = {'pacing_type': last_run.pacing_type_temporary}
         return self.run_form(initial=run_initial_data)
 
     def _entitlement_is_valid_for_seat_creation(self, entitlement):
@@ -1012,7 +1012,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
                 (reverse('publisher:publisher_courses'), 'Courses'),
                 (reverse('publisher:publisher_course_detail', kwargs={'pk': course.id}), course.title),
                 (None, '{type}: {start}'.format(
-                    type=course_run.get_pacing_type_display(), start=start_date
+                    type=course_run.get_pacing_type_temporary_display(), start=start_date
                 ))
             ]
         )

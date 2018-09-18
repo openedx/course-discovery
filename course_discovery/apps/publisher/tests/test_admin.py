@@ -65,7 +65,7 @@ class AdminTests(SiteMixin, TestCase):
     def _post_data(self, course_run):
         return {
             'lms_course_id': '',
-            'pacing_type': course_run.pacing_type,
+            'pacing_type': course_run.pacing_type_temporary,
             'course': course_run.course.id,
             'start_0': course_run.start.date(),
             'start_1': course_run.start.time(),

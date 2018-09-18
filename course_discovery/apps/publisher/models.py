@@ -281,7 +281,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     certificate_generation = models.DateTimeField(null=True, blank=True)
     pacing_type = models.CharField(
         max_length=255, db_index=True, null=True, blank=True, choices=CourseRunPacing.choices,
-        validators=[CourseRunPacing.validator]
+        validators=[CourseRunPacing.validator],
     )
     staff = SortedManyToManyField(Person, blank=True, related_name='publisher_course_runs_staffed')
     min_effort = models.PositiveSmallIntegerField(
@@ -434,6 +434,30 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
 
     def get_absolute_url(self):
         return reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.id})
+
+    @property
+    def pacing_type_temporary(self):
+        """
+            This property serves as a temporary intemediary in order to support a waffle
+            switch that will toggle between the original database backed pacing_type value
+            and a new read-only value that is pulled from course_discovery.
+
+            Once the switch is no longer needed, the pacing_type field will be removed,
+            and this property will be renamed appropriately.
+
+            The progress of the above work will be tracked in the following ticket:
+            https://openedx.atlassian.net/browse/EDUCATOR-3488.
+        """
+        return self.pacing_type
+
+    @pacing_type_temporary.setter
+    def pacing_type_temporary(self, value):
+        # Treat empty strings as NULL
+        value = value or None
+        self.pacing_type = value
+
+    def get_pacing_type_temporary_display(self):
+        return self.get_pacing_type_display()
 
 
 class Seat(TimeStampedModel, ChangedByMixin):
