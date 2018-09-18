@@ -8,10 +8,12 @@ from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 from django_fsm import TransitionNotAllowed
+from factory.fuzzy import FuzzyChoice
 from guardian.shortcuts import assign_perm
 
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
+from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
@@ -150,6 +152,29 @@ class CourseRunTests(TestCase):
         course_run = factories.CourseRunFactory()
         expected = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
         assert course_run.get_absolute_url() == expected
+
+    def test_pacing_type_temporary(self):
+        """ Verify that pacing_type_temporary property returns the value of the pacing_type field. """
+        course_run = factories.CourseRunFactory()
+
+        assert course_run.pacing_type_temporary == course_run.pacing_type
+
+    def test_pacing_type_temporary_setter(self):
+        """ Verify that modifying the pacing_type_temporary property also modified the pacing_type field. """
+        course_run = factories.CourseRunFactory()
+
+        course_run.pacing_type_temporary = FuzzyChoice(CourseRunPacing.values.keys())
+
+        assert course_run.pacing_type_temporary == course_run.pacing_type
+
+    def test_pacing_type_temporary_display(self):
+        """
+        Verify that pacing_type_temporary display function returns the
+        same value as the pacing_type field display function.
+        """
+        course_run = factories.CourseRunFactory()
+
+        assert course_run.get_pacing_type_temporary_display() == course_run.get_pacing_type_display()
 
 
 class CourseTests(TestCase):

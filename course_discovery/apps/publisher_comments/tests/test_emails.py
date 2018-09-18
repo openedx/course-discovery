@@ -76,7 +76,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
         comment = self.create_comment(content_object=self.course_run)
         subject = 'Comment added: {title} {start} - {pacing_type}'.format(
             title=self.course_run.course.title,
-            pacing_type=self.course_run.get_pacing_type_display(),
+            pacing_type=self.course_run.get_pacing_type_temporary_display(),
             start=self.course_run.start.strftime('%B %d, %Y')
         )
         self.assert_comment_email_sent(
@@ -112,7 +112,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
         comment = self.create_comment(content_object=self.course_run)
         subject = 'Comment added: {title} {start} - {pacing_type}'.format(
             title=self.course_run.course.title,
-            pacing_type=self.course_run.get_pacing_type_display(),
+            pacing_type=self.course_run.get_pacing_type_temporary_display(),
             start=''
         )
         self.assert_comment_email_sent(
@@ -129,7 +129,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
         if isinstance(content_object, CourseRun):
             course_name = '{title} {start} - {pacing_type}'.format(
                 title=content_object.course.title,
-                pacing_type=content_object.get_pacing_type_display(),
+                pacing_type=content_object.get_pacing_type_temporary_display(),
                 start=content_object.start.strftime('%B %d, %Y') if content_object.start else ''
             )
         else:
@@ -199,7 +199,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
 
         subject = 'Comment updated: {title} {start} - {pacing_type}'.format(
             title=self.course_run.course.title,
-            pacing_type=self.course_run.get_pacing_type_display(),
+            pacing_type=self.course_run.get_pacing_type_temporary_display(),
             start=self.course_run.start.strftime('%B %d, %Y')
         )
         self.assertEqual(str(mail.outbox[1].subject), subject)

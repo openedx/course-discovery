@@ -58,7 +58,7 @@ def assert_data_generated_correctly(course_run, expected_team_data):
             'end': serialize_datetime(course_run.end),
         },
         'team': expected_team_data,
-        'pacing_type': course_run.pacing_type,
+        'pacing_type': course_run.pacing_type_temporary,
     }
     assert StudioAPI.generate_data_for_studio_api(course_run) == expected
 

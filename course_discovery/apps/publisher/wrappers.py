@@ -189,7 +189,7 @@ class CourseRunWrapper(BaseWrapper):
 
     @property
     def is_self_paced(self):
-        if self.wrapped_obj.pacing_type == CourseRunPacing.Self:
+        if self.wrapped_obj.pacing_type_temporary == CourseRunPacing.Self:
             return True
 
         return False

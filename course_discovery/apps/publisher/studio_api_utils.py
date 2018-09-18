@@ -67,7 +67,7 @@ class StudioAPI:
                 'end': serialize_datetime(publisher_course_run.end),
             },
             'team': team,
-            'pacing_type': publisher_course_run.pacing_type,
+            'pacing_type': publisher_course_run.pacing_type_temporary,
         }
 
     def create_course_rerun_in_studio(self, publisher_course_run, discovery_course_run):
