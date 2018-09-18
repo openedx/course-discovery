@@ -15,5 +15,6 @@ PARTNER_SUPPORT_GROUP_NAME = 'Partner Support Members'
 # Being used in old migration `0019_create_user_groups`.
 PARTNER_COORDINATOR_GROUP_NAME = 'Partner Coordinators'
 
-# Waffle flags
+# Waffle switches
 PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS = 'publisher_create_audit_seats_for_verified_course_runs'
+PUBLISHER_REMOVE_PACING_TYPE_EDITING = 'publisher_remove_pacing_type_editing'

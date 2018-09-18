@@ -3,13 +3,15 @@ from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.urls import reverse
 from guardian.shortcuts import get_group_perms
+from waffle.testutils import override_switch
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.constants import (
-    PARTNER_MANAGER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME, PUBLISHER_GROUP_NAME, REVIEWER_GROUP_NAME
+    PARTNER_MANAGER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME,
+    PUBLISHER_GROUP_NAME, PUBLISHER_REMOVE_PACING_TYPE_EDITING, REVIEWER_GROUP_NAME
 )
 from course_discovery.apps.publisher.forms import CourseRunAdminForm
 from course_discovery.apps.publisher.models import CourseRun, OrganizationExtension
@@ -36,8 +38,12 @@ class AdminTests(SiteMixin, TestCase):
 
         self.assertFalse(CourseRun.objects.filter(lms_course_id__isnull=True).exists())
 
+    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
     def test_update_course_form(self):
         """ Verify that admin save the none in case of empty lms-course-id."""
+
+        organization = OrganizationFactory()
+        self.course_run.course.organizations.add(organization)
 
         # in case of empty string no data appears.
         data = self._post_data(self.course_run)

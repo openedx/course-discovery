@@ -8,15 +8,18 @@ from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 from django_fsm import TransitionNotAllowed
-from factory.fuzzy import FuzzyChoice
 from guardian.shortcuts import assign_perm
+from waffle.testutils import override_switch
 
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
-from course_discovery.apps.course_metadata.choices import CourseRunPacing
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory as DiscoveryCourseFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
+from course_discovery.apps.publisher.constants import PUBLISHER_REMOVE_PACING_TYPE_EDITING
+from course_discovery.apps.publisher.exceptions import CourseRunEditException
 from course_discovery.apps.publisher.mixins import check_course_organization_permission
 from course_discovery.apps.publisher.models import (
     Course, CourseUserRole, OrganizationExtension, OrganizationUserRole, Seat
@@ -69,6 +72,19 @@ class CourseRunTests(TestCase):
         actual = '{url}/course/{id}'.format(url=self.course_run.course.partner.studio_url.strip('/'),
                                             id=self.course_run.lms_course_id)
         assert actual == self.course_run.studio_url
+
+    def test_studio_schedule_and_details_url(self):
+        assert self.course_run.studio_schedule_and_details_url is None
+
+        self.course_run.lms_course_id = 'test'
+        self.course_run.save()
+        organization = OrganizationFactory()
+        self.course_run.course.organizations.add(organization)
+        assert self.course_run.course.partner == organization.partner
+
+        actual = '{url}/settings/details/{id}'.format(url=self.course_run.course.partner.studio_url.strip('/'),
+                                                      id=self.course_run.lms_course_id)
+        assert actual == self.course_run.studio_schedule_and_details_url
 
     def test_has_valid_staff(self):
         """ Verify that property returns True if course-run must have a staff member
@@ -153,28 +169,243 @@ class CourseRunTests(TestCase):
         expected = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
         assert course_run.get_absolute_url() == expected
 
-    def test_pacing_type_temporary(self):
-        """ Verify that pacing_type_temporary property returns the value of the pacing_type field. """
+    def test_discovery_counterpart_success(self):
+        """
+        Verify that CourseRun discovery_counterpart property returns
+        corresponding Discovery CourseRun object.
+        """
+        pacing_type_test_value = 'test_pacing_type_value'
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+        organization = OrganizationFactory()
+
+        discovery_course = self.create_discovery_course_with_partner(organization.partner)
+        discovery_course_run = self.create_discovery_course_run_with_course_and_pacing_type(
+            discovery_course, pacing_type_test_value
+        )
+
+        self.add_organization_to_course(course_run.course, organization)
+
+        # make sure Publisher course key and Course Metadata course key match
+        course_run.course.key = discovery_course.key
+
+        assert course_run.discovery_counterpart == discovery_course_run
+
+    def test_discovery_counterpart_failure_without_course_run(self):
+        """
+        Verify that CourseRun discovery_counterpart property returns None if the
+        discovery_counterpart course has no course run associated with it.
+        """
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+        organization = OrganizationFactory()
+
+        discovery_course = self.create_discovery_course_with_partner(organization.partner)
+
+        self.add_organization_to_course(course_run.course, organization)
+
+        # make sure Publisher course key and Course Metadata course key match
+        course_run.course.key = discovery_course.key
+
+        assert course_run.discovery_counterpart is None
+
+    def test_discovery_counterpart_failure_without_course(self):
+        """
+        Verify that CourseRun discovery_counterpart property returns None if the
+        discovery_counterpart does not exist.
+        """
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+        organization = OrganizationFactory()
+
+        self.add_organization_to_course(course_run.course, organization)
+
+        assert course_run.discovery_counterpart is None
+
+    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=False)
+    def test_pacing_type_temporary_without_switch(self):
+        """
+        Verify that pacing_type_temporary property returns the value of the pacing_type field
+        when waffle switch is disabled.
+        """
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
         course_run = factories.CourseRunFactory()
 
         assert course_run.pacing_type_temporary == course_run.pacing_type
 
+    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
+    def test_pacing_type_temporary_success_with_switch(self):
+        """
+        Verify that pacing_type_temporary property returns the value of the corresponding Discovery
+        course run's pacing type when waffle switch is enabled.
+        """
+        pacing_type_test_value = 'test_pacing_type_value'
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+        organization = OrganizationFactory()
+
+        discovery_course = self.create_discovery_course_with_partner(organization.partner)
+        self.create_discovery_course_run_with_course_and_pacing_type(discovery_course, pacing_type_test_value)
+
+        self.add_organization_to_course(course_run.course, organization)
+
+        # make sure Publisher course key and Course Metadata course key match
+        course_run.course.key = discovery_course.key
+
+        assert course_run.pacing_type_temporary == course_run.discovery_counterpart.pacing_type
+
+    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
+    def test_pacing_type_temporary_failure_with_switch(self):
+        """
+        Verify that pacing_type_temporary property returns the default value for course run pacing
+        type when corresponding Discovery course run does not exist and waffle switch is enabled.
+        """
+        pacing_type_test_value = None
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+        organization = OrganizationFactory()
+
+        discovery_course = self.create_discovery_course_with_partner(organization.partner)
+        self.create_discovery_course_run_with_course_and_pacing_type(discovery_course, pacing_type_test_value)
+
+        self.add_organization_to_course(course_run.course, organization)
+
+        # make sure Publisher course key and Course Metadata course key match
+        course_run.course.key = discovery_course.key
+
+        assert course_run.pacing_type_temporary == 'instructor_paced'
+
+    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=False)
     def test_pacing_type_temporary_setter(self):
-        """ Verify that modifying the pacing_type_temporary property also modified the pacing_type field. """
+        """
+        Verify that modifying the pacing_type_temporary property also modifies the pacing_type field
+        when waffle switch is disabled.
+        """
+        pacing_type_test_value = 'test_pacing_type_value'
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
         course_run = factories.CourseRunFactory()
 
-        course_run.pacing_type_temporary = FuzzyChoice(CourseRunPacing.values.keys())
+        course_run.pacing_type_temporary = pacing_type_test_value
 
         assert course_run.pacing_type_temporary == course_run.pacing_type
 
+    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
+    def test_pacing_type_temporary_setter_with_switch(self):
+        """
+        Verify that modifying the pacing_type_temporary property throws CourseRunEditException
+        when waffle switch is enabled.
+        """
+        pacing_type_test_value = 'test_pacing_type_value'
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+
+        with self.assertRaises(CourseRunEditException):
+            course_run.pacing_type_temporary = pacing_type_test_value
+
+    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=False)
     def test_pacing_type_temporary_display(self):
         """
         Verify that pacing_type_temporary display function returns the
-        same value as the pacing_type field display function.
+        value of the pacing_type field display function when waffle switch is disabled.
         """
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
         course_run = factories.CourseRunFactory()
 
         assert course_run.get_pacing_type_temporary_display() == course_run.get_pacing_type_display()
+
+    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
+    def test_pacing_type_temporary_display_success_with_switch(self):
+        """
+        Verify that pacing_type_temporary display function returns the
+        value of the corresponding Discovery course run's pacing_type display function when waffle switch is enabled.
+        """
+        pacing_type_test_value = 'test_pacing_type_value'
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+        organization = OrganizationFactory()
+
+        discovery_course = self.create_discovery_course_with_partner(organization.partner)
+        discovery_course_run = self.create_discovery_course_run_with_course_and_pacing_type(
+            discovery_course, pacing_type_test_value
+        )
+
+        self.add_organization_to_course(course_run.course, organization)
+
+        # make sure Publisher course key and Course Metadata course key match
+        course_run.course.key = discovery_course.key
+        assert course_run.get_pacing_type_temporary_display() == discovery_course_run.get_pacing_type_display()
+
+    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
+    def test_pacing_type_temporary_display_failure_with_switch(self):
+        """
+        Verify that pacing_type_temporary display function returns the
+        value of the default course runs's pacing_type display function when corresponding Discovery
+        course run does not exist and waffle switch is enabled.
+        """
+        pacing_type_test_value = None
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+        organization = OrganizationFactory()
+
+        discovery_course = self.create_discovery_course_with_partner(organization.partner)
+        self.create_discovery_course_run_with_course_and_pacing_type(discovery_course, pacing_type_test_value)
+
+        self.add_organization_to_course(course_run.course, organization)
+
+        # make sure Publisher course key and Course Metadata course key match
+        course_run.course.key = discovery_course.key
+
+        assert course_run.get_pacing_type_temporary_display() == 'Instructor-paced'
+
+    @staticmethod
+    def create_discovery_course_with_partner(partner):
+        """
+        Creates and returns a Discovery Course object with a partner field.
+
+        Arguments:
+            partner: a Partner object to assign to the created Discovery Course.partner field
+
+        Returns:
+            a Discovery Course object
+        """
+        discovery_course = DiscoveryCourseFactory(partner=partner)
+        discovery_course.save()
+        return discovery_course
+
+    @staticmethod
+    def create_discovery_course_run_with_course_and_pacing_type(course, pacing_type):
+        """
+        Creates and returns a Discovery CourseRun object with course and pacing_type fields.
+
+        Arguments:
+            course: a Course object to assign to the created Discovery CourseRun.course field
+            pacing_type: a pacing_type to assign to the created Discovery CourseRun.pacing_type field
+
+        Returns:
+            a Discovery CourseRun object
+        """
+        discovery_course_run = DiscoveryCourseRunFactory(course=course, pacing_type=pacing_type)
+        discovery_course_run.save()
+        return discovery_course_run
+
+    @staticmethod
+    def add_organization_to_course(course, organization):
+        """
+        Add an organization to a Course's organization field
+
+        Arguments:
+            course: a Course object to which to assign an organization the Course.organizations field
+            organization: an Organization object to assign to the Course.organizations field
+        """
+        course.organizations.add(organization)
+        course.save()
 
 
 class CourseTests(TestCase):

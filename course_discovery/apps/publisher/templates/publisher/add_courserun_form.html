@@ -82,17 +82,19 @@
                                 </div>
                             </div>
 
-                            <div class="field-title">{% trans "PACING TYPE" %}<span class="required float-right">* Required</span></div>
-                            <div class="row">
-                                <div class="col col-6 help-text">
-                                    <p>{% trans "Instructor-paced courses include individual assignments that have specific due dates before the course end date." %} </p>
-                                    <p>{% trans "Self-paced courses do not have individual assignments that have specific due dates before the course end date. All assignments are due on the course end date." %}</p>
+                            {% if not publisher_remove_pacing_type_editing %}
+                                <div class="field-title">{% trans "PACING TYPE" %}<span class="required float-right">* Required</span></div>
+                                <div class="row">
+                                    <div class="col col-6 help-text">
+                                        <p>{% trans "Instructor-paced courses include individual assignments that have specific due dates before the course end date." %} </p>
+                                        <p>{% trans "Self-paced courses do not have individual assignments that have specific due dates before the course end date. All assignments are due on the course end date." %}</p>
+                                    </div>
+                                    <div class="col col-6">
+                                        <label class="field-label">{{ run_form.pacing_type.label_tag }}  <span class="required">*</span></label>
+                                        <div class="checkbox-inline">{{ run_form.pacing_type }}</div>
+                                    </div>
                                 </div>
-                                <div class="col col-6">
-                                    <label class="field-label">{{ run_form.pacing_type.label_tag }}  <span class="required">*</span></label>
-                                    <div class="checkbox-inline">{{ run_form.pacing_type }}</div>
-                                </div>
-                            </div>
+                            {% endif %}
 
                             <div class="field-title">{% trans "COURSE END DATE" %} <span class="required float-right">* Required</span></div>
                             <div class="row">

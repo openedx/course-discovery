@@ -5,6 +5,7 @@ from urllib.parse import urljoin
 import waffle
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -28,6 +29,8 @@ from course_discovery.apps.publisher import emails
 from course_discovery.apps.publisher.choices import (
     CourseRunStateChoices, CourseStateChoices, InternalUserRole, PublisherUserRole
 )
+from course_discovery.apps.publisher.constants import PUBLISHER_REMOVE_PACING_TYPE_EDITING
+from course_discovery.apps.publisher.exceptions import CourseRunEditException
 from course_discovery.apps.publisher.utils import is_email_notification_enabled, is_internal_user, is_publisher_admin
 from course_discovery.apps.publisher.validators import ImageMultiSizeValidator
 
@@ -273,6 +276,8 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         (PRIORITY_LEVEL_5, _('Level 5')),
     )
 
+    DEFAULT_PACING_TYPE = CourseRunPacing.Instructor
+
     course = models.ForeignKey(Course, related_name='publisher_course_runs')
     lms_course_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
 
@@ -281,7 +286,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     certificate_generation = models.DateTimeField(null=True, blank=True)
     pacing_type = models.CharField(
         max_length=255, db_index=True, null=True, blank=True, choices=CourseRunPacing.choices,
-        validators=[CourseRunPacing.validator],
+        validators=[CourseRunPacing.validator], default=DEFAULT_PACING_TYPE
     )
     staff = SortedManyToManyField(Person, blank=True, related_name='publisher_course_runs_staffed')
     min_effort = models.PositiveSmallIntegerField(
@@ -378,6 +383,12 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         return None
 
     @property
+    def studio_schedule_and_details_url(self):
+        if self.lms_course_id and self.course.partner and self.course.partner.studio_url:
+            path = 'settings/details/{lms_course_id}'.format(lms_course_id=self.lms_course_id)
+            return urljoin(self.course.partner.studio_url, path)
+
+    @property
     def has_valid_staff(self):
         """ Check that each staff member has his bio data and image."""
         staff_members = self.staff.all()
@@ -438,7 +449,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     @property
     def pacing_type_temporary(self):
         """
-            This property serves as a temporary intemediary in order to support a waffle
+            This property serves as a temporary intermediary in order to support a waffle
             switch that will toggle between the original database backed pacing_type value
             and a new read-only value that is pulled from course_discovery.
 
@@ -448,16 +459,49 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
             The progress of the above work will be tracked in the following ticket:
             https://openedx.atlassian.net/browse/EDUCATOR-3488.
         """
-        return self.pacing_type
+        if waffle.switch_is_active(PUBLISHER_REMOVE_PACING_TYPE_EDITING):
+            discovery_counterpart = self.discovery_counterpart
+
+            if discovery_counterpart and discovery_counterpart.pacing_type:
+                return discovery_counterpart.pacing_type
+            else:
+                return self.DEFAULT_PACING_TYPE
+        else:
+            return self.pacing_type
 
     @pacing_type_temporary.setter
     def pacing_type_temporary(self, value):
-        # Treat empty strings as NULL
-        value = value or None
-        self.pacing_type = value
+        if waffle.switch_is_active(PUBLISHER_REMOVE_PACING_TYPE_EDITING):
+            raise CourseRunEditException
+        else:
+            # Treat empty strings as NULL
+            value = value or None
+            self.pacing_type = value
 
     def get_pacing_type_temporary_display(self):
-        return self.get_pacing_type_display()
+        if waffle.switch_is_active(PUBLISHER_REMOVE_PACING_TYPE_EDITING):
+            discovery_counterpart = self.discovery_counterpart
+
+            if discovery_counterpart and discovery_counterpart.pacing_type:
+                return discovery_counterpart.get_pacing_type_display()
+
+            return _('Instructor-paced')
+
+        else:
+            return self.get_pacing_type_display()
+
+    @cached_property
+    def discovery_counterpart(self):
+        try:
+            discovery_course = self.course.discovery_counterpart
+            return discovery_course.course_runs.latest('start')
+        except ObjectDoesNotExist:
+            logger.info(
+                'Related discovery course run not found for [%s] with partner [%s] ',
+                self.course.key,
+                self.course.partner
+            )
+            return None
 
 
 class Seat(TimeStampedModel, ChangedByMixin):
