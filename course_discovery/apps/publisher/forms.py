@@ -245,11 +245,12 @@ class CourseRunForm(BaseForm):
         widget=forms.RadioSelect(
             choices=((1, _("Yes")), (0, _("No")))), initial=0, required=False
     )
+
     pacing_type = forms.ChoiceField(
         label=_('Pacing'),
         widget=forms.RadioSelect,
         choices=CourseRunPacing.choices,
-        required=True
+        required=False
     )
 
     transcript_languages = forms.ModelMultipleChoiceField(

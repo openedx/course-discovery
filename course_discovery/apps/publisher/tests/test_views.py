@@ -21,6 +21,7 @@ from guardian.shortcuts import assign_perm
 from opaque_keys.edx.keys import CourseKey
 from pytz import timezone
 from testfixtures import LogCapture
+from waffle.testutils import override_switch
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import Currency, User
@@ -36,7 +37,8 @@ from course_discovery.apps.publisher.choices import (
 )
 from course_discovery.apps.publisher.constants import (
     ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME,
-    PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, REVIEWER_GROUP_NAME
+    PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, PUBLISHER_REMOVE_PACING_TYPE_EDITING,
+    REVIEWER_GROUP_NAME
 )
 from course_discovery.apps.publisher.forms import CourseEntitlementForm
 from course_discovery.apps.publisher.models import (
@@ -615,7 +617,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
 
         Create a course run with a verified seat (for a verified and credit seat, audit seat
         is automatically created), then try to create a new run of the same course and verify
-        the previous course run's seats and pacing is automatically populated.
+        the previous course run's seats are automatically populated.
         """
         verified_seat_price = 550.0
         latest_run = self.course.course_runs.latest('created')
@@ -627,17 +629,12 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         response = self.client.get(self.create_course_run_url_new)
         response_content = BeautifulSoup(response.content)
 
-        pacing_type_attribute = response_content.find(
-            "input", {"value": latest_run.pacing_type, "type": "radio", "name": "pacing_type"}
-        )
         seat_type_attribute = response_content.find("option", {"value": verified_seat.type})
         price_attribute = response_content.find(
             "input", {"value": verified_seat.price, "id": "id_price", "step": "0.01", "type": "number"}
         )
 
         # Verify that existing course run and seat values auto populated on form.
-        self.assertIsNotNone(pacing_type_attribute)
-        self.assertIn('checked=""', str(pacing_type_attribute))
         self.assertIsNotNone(seat_type_attribute)
         self.assertIn('selected=""', str(seat_type_attribute))
         self.assertIsNotNone(price_attribute)
@@ -884,6 +881,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
             target_status_code=302
         )
 
+    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
     def test_page_without_data(self):
         """ Verify that user can access detail page without any data
         available for that course-run.
@@ -913,6 +911,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         """ Helper method to add credit seat for a course-run. """
         factories.SeatFactory(type='credit', course_run=self.course_run, credit_provider='ASU', credit_hours=9)
 
+    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
     def test_course_run_detail_page_staff(self):
         """ Verify that detail page contains all the data for drupal, studio and
         cat with publisher admin user.
@@ -977,7 +976,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
 
         values = [
             self.wrapped_course_run.title, self.wrapped_course_run.number,
-            self.course_run.pacing_type
+            self.course_run.pacing_type_temporary
         ]
         for value in values:
             self.assertContains(response, value)
@@ -1000,7 +999,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
             self.wrapped_course_run.title, self.wrapped_course_run.lms_course_id,
             self.wrapped_course_run.seat_price,
             self.wrapped_course_run.min_effort,
-            self.wrapped_course_run.pacing_type, self.wrapped_course_run.persons,
+            self.wrapped_course_run.pacing_type_temporary, self.wrapped_course_run.persons,
             self.wrapped_course_run.max_effort, self.wrapped_course_run.language.name,
             self.wrapped_course_run.transcript_languages, self.wrapped_course_run.level_type,
             self.wrapped_course_run.expected_learnings, self.wrapped_course_run.course.learner_testimonial,
@@ -1052,6 +1051,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'Enrollment Track')
 
+    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
     def test_detail_page_with_comments(self):
         """ Verify that detail page contains all the data along with comments
         for course.
@@ -1184,7 +1184,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         self.assertContains(response, '<li class="breadcrumb-item active">')
         self.assertContains(
             response, '{type}: {start}'.format(
-                type=course_run.get_pacing_type_display(),
+                type=course_run.get_pacing_type_temporary_display(),
                 start=course_run.start.strftime("%B %d, %Y")
             )
         )
@@ -3904,7 +3904,8 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
 
     def test_course_key_not_getting_blanked(self):
         """
-        Verify that `lms_course_id` not getting blanked if course team updates with empty value.
+        Verify that `lms_course_id` notest_course_run_detail_page_stafft getting blanked if course
+        team updates with empty value.
         """
         self.client.logout()
         user = self.new_course.course_team_admin

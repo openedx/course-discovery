@@ -26,6 +26,7 @@ from course_discovery.apps.core.models import User
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher import emails, mixins, serializers
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
+from course_discovery.apps.publisher.constants import PUBLISHER_REMOVE_PACING_TYPE_EDITING
 from course_discovery.apps.publisher.dataloader.create_courses import process_course
 from course_discovery.apps.publisher.emails import send_email_for_published_course_run_editing
 from course_discovery.apps.publisher.forms import (
@@ -196,6 +197,7 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
                 context['publish_date'] = history_object.modified
 
         start_date = course_run.start.strftime("%B %d, %Y") if course_run.start else None
+
         context['breadcrumbs'] = make_bread_crumbs(
             [
                 (reverse('publisher:publisher_courses'), _('Courses')),
@@ -208,7 +210,6 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
                 ))
             ]
         )
-
         context['can_view_all_tabs'] = mixins.check_roles_access(user)
         context['publisher_hide_features_for_pilot'] = waffle.switch_is_active('publisher_hide_features_for_pilot')
         context['publisher_comment_widget_feature'] = waffle.switch_is_active('publisher_comment_widget_feature')
@@ -234,7 +235,6 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
         context['is_in_preview_review'] = course_run.is_in_preview_review
         context['is_seat_version'] = course_run.is_seat_version
         context['is_entitlement_version'] = course_run.is_entitlement_version
-
         return context
 
 
@@ -432,6 +432,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
         for course_run in self._get_active_course_runs(course):
             if course_run.course_run_state.is_published:
                 start_date = course_run.start.strftime("%B %d, %Y") if course_run.start else None
+
                 published_runs.add('{type} - {start}'.format(
                     type=course_run.get_pacing_type_temporary_display(),
                     start=start_date
@@ -445,6 +446,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
             seats = course_run.seats.all()
             type_is_valid = True
             price_is_valid = True
+            pacing_type = course_run.get_pacing_type_temporary_display()
 
             if seats:
                 if mode == Seat.VERIFIED:
@@ -460,12 +462,12 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
 
             if not type_is_valid:
                 misconfigured_seat_type_runs.add('{type} - {start}'.format(
-                    type=course_run.get_pacing_type_temporary_display(),
+                    type=pacing_type,
                     start=course_run.start.strftime("%B %d, %Y")
                 ))
             if not price_is_valid:
                 misconfigured_price_runs.add('{type} - {start}'.format(
-                    type=course_run.get_pacing_type_temporary_display(),
+                    type=pacing_type,
                     start=course_run.start.strftime("%B %d, %Y")
                 ))
 
@@ -680,6 +682,7 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
         context['role_widgets'] = get_course_role_widgets_data(
             user, course, course.course_state, 'publisher:api:change_course_state', parent_course=True
         )
+        context['publisher_remove_pacing_type_editing'] = waffle.switch_is_active(PUBLISHER_REMOVE_PACING_TYPE_EDITING)
 
         # Add warning popup information if user can edit the course but does not own it.
         if context['can_edit'] and not waffle.switch_is_active('disable_publisher_permissions'):
@@ -709,7 +712,6 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
                             current_owner_role.role == PublisherUserRole.CourseTeam and
                             current_owner_role.user == self.request.user
                         )
-
         return context
 
 
@@ -920,7 +922,8 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
             'cancel_url': reverse('publisher:publisher_course_detail', kwargs={'pk': parent_course.pk}),
             'run_form': run_form,
             'seat_form': seat_form,
-            'hide_seat_form': parent_course.uses_entitlements
+            'hide_seat_form': parent_course.uses_entitlements,
+            'publisher_remove_pacing_type_editing': waffle.switch_is_active(PUBLISHER_REMOVE_PACING_TYPE_EDITING)
         }
         return context
 
@@ -941,7 +944,8 @@ class CreateRunFromDashboardView(CreateCourseRunView):
             'course_form': self.course_form(),
             'run_form': self.run_form(),
             'seat_form': self.seat_form(),
-            'hide_seat_form': False
+            'hide_seat_form': False,
+            'publisher_remove_pacing_type_editing': waffle.switch_is_active(PUBLISHER_REMOVE_PACING_TYPE_EDITING)
         }
         return context
 
@@ -972,13 +976,15 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
 
     def get_context_data(self):
         user = self.request.user
+
         return {
             'course_run': self.get_object(),
             'publisher_hide_features_for_pilot': waffle.switch_is_active('publisher_hide_features_for_pilot'),
             'publisher_add_instructor_feature': waffle.switch_is_active('publisher_add_instructor_feature'),
             'is_internal_user': mixins.check_roles_access(user),
             'is_project_coordinator': is_project_coordinator_user(user),
-            'organizations': mixins.get_user_organizations(user)
+            'organizations': mixins.get_user_organizations(user),
+            'publisher_remove_pacing_type_editing': waffle.switch_is_active(PUBLISHER_REMOVE_PACING_TYPE_EDITING)
         }
 
     def get_latest_course_run_seat(self, course_run):
@@ -1007,6 +1013,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
             context['seat_form'] = self.seat_form(instance=course_run_seat)
 
         start_date = course_run.start.strftime("%B %d, %Y") if course_run.start else None
+
         context['breadcrumbs'] = make_bread_crumbs(
             [
                 (reverse('publisher:publisher_courses'), 'Courses'),

@@ -8,6 +8,7 @@ from django.test import override_settings
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from testfixtures import LogCapture
+from waffle.testutils import override_switch
 
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.core.tests.factories import StaffUserFactory, UserFactory
@@ -22,6 +23,7 @@ from course_discovery.apps.publisher.api.utils import (
     serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api
 )
 from course_discovery.apps.publisher.api.v1.views import CourseRunViewSet
+from course_discovery.apps.publisher.constants import PUBLISHER_REMOVE_PACING_TYPE_EDITING
 from course_discovery.apps.publisher.models import CourseEntitlement, Seat
 from course_discovery.apps.publisher.tests.factories import CourseEntitlementFactory, CourseRunFactory, SeatFactory
 
@@ -86,6 +88,7 @@ class CourseRunViewSetTests(APITestCase):
 
     @responses.activate
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
+    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
     def test_publish(self, mock_access_token):  # pylint: disable=unused-argument,too-many-statements
         publisher_course_run = self._create_course_run_for_publication()
         currency = Currency.objects.get(code='USD')
@@ -121,6 +124,7 @@ class CourseRunViewSetTests(APITestCase):
             log.check((LOGGER_NAME, 'INFO',
                        'Published course run with id: [{}] lms_course_id: [{}], user: [{}], date: [{}]'.format(
                            publisher_course_run.id, publisher_course_run.lms_course_id, self.user, date.today())))
+
         assert len(responses.calls) == 3
         expected = {
             'discovery': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
@@ -154,7 +158,7 @@ class CourseRunViewSetTests(APITestCase):
         assert discovery_course_run.full_description_override is None
         assert discovery_course_run.start == publisher_course_run.start
         assert discovery_course_run.end == publisher_course_run.end
-        assert discovery_course_run.pacing_type == publisher_course_run.pacing_type
+        assert discovery_course_run.pacing_type == publisher_course_run.pacing_type_temporary
         assert discovery_course_run.min_effort == publisher_course_run.min_effort
         assert discovery_course_run.max_effort == publisher_course_run.max_effort
         assert discovery_course_run.language == publisher_course_run.language

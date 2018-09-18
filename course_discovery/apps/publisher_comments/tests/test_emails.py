@@ -5,11 +5,13 @@ from django.test import TestCase
 from django.urls import reverse
 from opaque_keys.edx.keys import CourseKey
 from testfixtures import LogCapture
+from waffle.testutils import override_switch
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.constants import PUBLISHER_REMOVE_PACING_TYPE_EDITING
 from course_discovery.apps.publisher.models import CourseRun, CourseUserRole
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.factories import UserAttributeFactory
@@ -69,6 +71,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
             subject
         )
 
+    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
     def test_course_run_comment_email(self):
         """ Verify that after adding a comment against a course-run emails send to multiple users
         depending upon the parent course related group.
@@ -105,6 +108,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
         self.create_comment(content_object=self.course)
         self.assertEqual(len(mail.outbox), 0)
 
+    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
     def test_course_run_without_start_date(self):
         """ Verify that emails works properly even if course-run does not have a start date."""
         self.course_run.start = None
@@ -171,6 +175,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
         self.create_comment(content_object=self.course)
         self.assertEqual(len(mail.outbox), 1)
 
+    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
     def test_email_with_course_comment_editing(self):
         """ Verify that after editing a comment against a course emails send
         to multiple users.
@@ -186,6 +191,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
         self.assertEqual(str(mail.outbox[1].subject), subject)
         self.assertIn(comment.comment, str(mail.outbox[1].body.strip()), 'update the comment')
 
+    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
     def test_email_with_course_run_comment_editing(self):
         """ Verify that after editing a comment against a course emails send
         to multiple users.
