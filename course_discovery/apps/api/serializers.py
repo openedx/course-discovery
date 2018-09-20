@@ -805,6 +805,7 @@ class DegreeSerializer(serializers.ModelSerializer):
     lead_capture_image = StdImageSerializerField()
     deadlines = DegreeDeadlineSerializer(many=True)
     rankings = RankingSerializer(many=True)
+    micromasters_background_image = StdImageSerializerField()
 
     class Meta:
         model = Degree
@@ -813,7 +814,7 @@ class DegreeSerializer(serializers.ModelSerializer):
             'costs', 'curriculum', 'deadlines', 'lead_capture_list_name', 'quick_facts',
             'overall_ranking', 'prerequisite_coursework', 'rankings',
             'lead_capture_image', 'micromasters_url', 'micromasters_long_title', 'micromasters_long_description',
-            'costs_fine_print', 'deadlines_fine_print',
+            'micromasters_background_image', 'costs_fine_print', 'deadlines_fine_print',
         )
 
 

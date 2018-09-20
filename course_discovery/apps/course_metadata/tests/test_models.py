@@ -1431,3 +1431,4 @@ class DegreeTests(TestCase):
         assert self.degree.campus_image is not None
         assert self.degree.banner_border_color is not None
         assert self.degree.title_background_image is not None
+        assert self.degree.micromasters_background_image is not None

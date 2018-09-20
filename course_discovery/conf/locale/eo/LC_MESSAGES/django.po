@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-12 12:14+0000\n"
+"POT-Creation-Date: 2018-09-20 16:08+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -721,6 +721,12 @@ msgstr "Mïçrömästérs vérßösé tïtlé Ⱡ'σяєм ιρѕυм ∂σłσ�
 msgid "Micromasters descriptive paragraph"
 msgstr ""
 "Mïçrömästérs désçrïptïvé pärägräph Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/models.py
+msgid "Customized background image for the MicroMasters section."
+msgstr ""
+"Çüstömïzéd ßäçkgröünd ïmägé för thé MïçröMästérs séçtïön. Ⱡ'σяєм ιρѕυм ∂σłσя"
+" ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/models.py
 msgid "Ranking display for search card (e.g. \"#1 in the U.S.\""
