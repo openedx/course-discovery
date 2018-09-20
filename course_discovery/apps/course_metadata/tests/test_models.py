@@ -46,6 +46,10 @@ class TestCourse:
         query = 'title:' + title
         assert set(Course.search(query)) == expected
 
+    def test_wildcard_search(self):
+        expected = set(factories.CourseFactory.create_batch(3))
+        assert set(Course.search('*')) == expected
+
     def test_image_url(self):
         course = factories.CourseFactory()
         assert course.image_url == course.image.small.url
@@ -156,6 +160,13 @@ class CourseRunTests(TestCase):
         query = 'title:' + title
         actual_sorted = sorted(SearchQuerySetWrapper(CourseRun.search(query)), key=lambda course_run: course_run.key)
         expected_sorted = sorted(course_runs, key=lambda course_run: course_run.key)
+        self.assertEqual(actual_sorted, expected_sorted)
+
+    def test_wildcard_search(self):
+        """ Verify the method returns an unfiltered queryset of course runs. """
+        course_runs = factories.CourseRunFactory.create_batch(3)
+        actual_sorted = sorted(SearchQuerySetWrapper(CourseRun.search('*')), key=lambda course_run: course_run.key)
+        expected_sorted = sorted(course_runs + [self.course_run], key=lambda course_run: course_run.key)
         self.assertEqual(actual_sorted, expected_sorted)
 
     def test_seat_types(self):

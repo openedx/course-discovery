@@ -449,6 +449,13 @@ class Course(TimeStampedModel):
             QuerySet
         """
         query = clean_query(query)
+
+        if query == '(*)':
+            # Early-exit optimization. Wildcard searching is very expensive in elasticsearch. And since we just
+            # want everything, we don't need to actually query elasticsearch at all.
+            # No point logging if log_course_search_queries is enabled for this wildcard, so skip that too.
+            return cls.objects.all()
+
         results = SearchQuerySet().models(cls).raw_search(query)
         ids = {result.pk for result in results}
 
@@ -784,7 +791,14 @@ class CourseRun(TimeStampedModel):
             SearchQuerySet
         """
         query = clean_query(query)
-        return SearchQuerySet().models(cls).raw_search(query).load_all()
+        queryset = SearchQuerySet().models(cls)
+
+        if query == '(*)':
+            # Early-exit optimization. Wildcard searching is very expensive in elasticsearch. And since we just
+            # want everything, we don't need to actually query elasticsearch at all.
+            return queryset.load_all()
+
+        return queryset.raw_search(query).load_all()
 
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)

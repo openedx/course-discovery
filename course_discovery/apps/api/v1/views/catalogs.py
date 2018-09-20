@@ -90,11 +90,12 @@ class CatalogViewSet(viewsets.ModelViewSet):
         serializer: serializers.CatalogCourseSerializer
         """
         catalog = self.get_object()
-        queryset = catalog.courses().available()
-        course_runs = CourseRun.objects.active().enrollable().marketable()
-        if catalog.include_archived:
-            queryset = catalog.courses()
-            course_runs = CourseRun.objects.all()
+
+        queryset = catalog.courses()
+        course_runs = CourseRun.objects.all()
+        if not catalog.include_archived:
+            queryset = queryset.available()
+            course_runs = course_runs.active().enrollable().marketable()
 
         queryset = serializers.CatalogCourseSerializer.prefetch_queryset(
             self.request.site.partner,
