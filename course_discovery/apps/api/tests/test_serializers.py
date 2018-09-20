@@ -928,6 +928,9 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         lead_capture_image_field = StdImageSerializerField()
         lead_capture_image_field._context = {'request': request}  # pylint: disable=protected-access
 
+        mm_background_image_field = StdImageSerializerField()
+        mm_background_image_field._context = {'request': request}  # pylint: disable=protected-access
+
         rankings = RankingFactory.create_batch(3)
         degree = DegreeFactory.create(rankings=rankings)
         curriculum = CurriculumFactory.create(degree=degree)
@@ -962,6 +965,9 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'micromasters_url': degree.micromasters_url,
             'micromasters_long_title': degree.micromasters_long_title,
             'micromasters_long_description': degree.micromasters_long_description,
+            'micromasters_background_image': mm_background_image_field.to_representation(
+                degree.micromasters_background_image
+            ),
             'costs_fine_print': degree.costs_fine_print,
             'deadlines_fine_print': degree.deadlines_fine_print,
             'title_background_image': degree.title_background_image,

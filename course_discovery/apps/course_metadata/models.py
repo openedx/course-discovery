@@ -1406,6 +1406,17 @@ class Degree(Program):
         blank=True,
         null=True
     )
+    micromasters_background_image = StdImageField(
+        upload_to=UploadToAutoSlug(populate_from='uuid', path='media/degree_marketing/mm_images/'),
+        blank=True,
+        null=True,
+        variations={
+            'large': (1440, 480),
+            'medium': (726, 242),
+            'small': (435, 145),
+        },
+        help_text=_('Customized background image for the MicroMasters section.'),
+    )
     search_card_ranking = models.CharField(
         help_text=_('Ranking display for search card (e.g. "#1 in the U.S."'),
         max_length=50,

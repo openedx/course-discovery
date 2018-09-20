@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-12 12:14+0000\n"
+"POT-Creation-Date: 2018-09-20 16:08+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -48,11 +48,11 @@ msgstr ""
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:943
+#: apps/api/serializers.py:944
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:947
+#: apps/api/serializers.py:948
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -286,8 +286,8 @@ msgstr ""
 #: apps/course_metadata/models.py:120 apps/course_metadata/models.py:159
 #: apps/course_metadata/models.py:219 apps/course_metadata/models.py:264
 #: apps/course_metadata/models.py:342 apps/course_metadata/models.py:466
-#: apps/course_metadata/models.py:959 apps/course_metadata/models.py:1517
-#: apps/course_metadata/models.py:1565 apps/journal/models.py:23
+#: apps/course_metadata/models.py:959 apps/course_metadata/models.py:1523
+#: apps/course_metadata/models.py:1571 apps/journal/models.py:23
 #: apps/journal/models.py:67
 msgid "UUID"
 msgstr ""
@@ -399,26 +399,26 @@ msgstr ""
 msgid "Upcoming"
 msgstr ""
 
-#: apps/course_metadata/models.py:847 apps/publisher/models.py:450
+#: apps/course_metadata/models.py:847 apps/publisher/models.py:474
 msgid "Honor"
 msgstr ""
 
-#: apps/course_metadata/models.py:848 apps/publisher/models.py:451
+#: apps/course_metadata/models.py:848 apps/publisher/models.py:475
 msgid "Audit"
 msgstr ""
 
 #: apps/course_metadata/models.py:849 apps/publisher/forms.py:386
-#: apps/publisher/forms.py:495 apps/publisher/models.py:452
-#: apps/publisher/models.py:512
+#: apps/publisher/forms.py:495 apps/publisher/models.py:476
+#: apps/publisher/models.py:536
 msgid "Verified"
 msgstr ""
 
-#: apps/course_metadata/models.py:850 apps/publisher/models.py:513
+#: apps/course_metadata/models.py:850 apps/publisher/models.py:537
 msgid "Professional"
 msgstr ""
 
 #: apps/course_metadata/models.py:851 apps/publisher/forms.py:388
-#: apps/publisher/forms.py:497 apps/publisher/models.py:455
+#: apps/publisher/forms.py:497 apps/publisher/models.py:479
 msgid "Credit"
 msgstr ""
 
@@ -561,91 +561,95 @@ msgstr ""
 msgid "Micromasters descriptive paragraph"
 msgstr ""
 
-#: apps/course_metadata/models.py:1396
-msgid "Ranking display for search card (e.g. \"#1 in the U.S.\""
+#: apps/course_metadata/models.py:1399
+msgid "Customized background image for the MicroMasters section."
 msgstr ""
 
 #: apps/course_metadata/models.py:1402
-msgid "Cost display for search card (e.g. \"$9,999\""
+msgid "Ranking display for search card (e.g. \"#1 in the U.S.\""
 msgstr ""
 
 #: apps/course_metadata/models.py:1408
+msgid "Cost display for search card (e.g. \"$9,999\""
+msgstr ""
+
+#: apps/course_metadata/models.py:1414
 msgid "Number of courses for search card (e.g. \"11 Courses\""
 msgstr ""
 
-#: apps/course_metadata/models.py:1437
+#: apps/course_metadata/models.py:1443
 msgid "Award"
 msgstr ""
 
-#: apps/course_metadata/models.py:1438
+#: apps/course_metadata/models.py:1444
 msgid "Bell"
 msgstr ""
 
-#: apps/course_metadata/models.py:1439
+#: apps/course_metadata/models.py:1445
 msgid "Certificate"
 msgstr ""
 
-#: apps/course_metadata/models.py:1440
+#: apps/course_metadata/models.py:1446
 msgid "Checkmark"
 msgstr ""
 
-#: apps/course_metadata/models.py:1441
+#: apps/course_metadata/models.py:1447
 msgid "Info"
 msgstr ""
 
-#: apps/course_metadata/models.py:1442
+#: apps/course_metadata/models.py:1448
 msgid "Sitemap"
 msgstr ""
 
-#: apps/course_metadata/models.py:1443
+#: apps/course_metadata/models.py:1449
 msgid "User"
 msgstr ""
 
-#: apps/course_metadata/models.py:1444
+#: apps/course_metadata/models.py:1450
 msgid "Dollar"
 msgstr ""
 
-#: apps/course_metadata/models.py:1445
+#: apps/course_metadata/models.py:1451
 msgid "Book"
 msgstr ""
 
-#: apps/course_metadata/models.py:1446
+#: apps/course_metadata/models.py:1452
 msgid "Mortar Board"
 msgstr ""
 
-#: apps/course_metadata/models.py:1450
+#: apps/course_metadata/models.py:1456
 msgid "Icon FA class"
 msgstr ""
 
-#: apps/course_metadata/models.py:1451
+#: apps/course_metadata/models.py:1457
 msgid "Paired text"
 msgstr ""
 
-#: apps/course_metadata/models.py:1470
+#: apps/course_metadata/models.py:1476
 msgid "Deadline applies for this semester (e.g. Spring 2019"
 msgstr ""
 
-#: apps/course_metadata/models.py:1474
+#: apps/course_metadata/models.py:1480
 msgid "Describes the deadline (e.g. Early Admission Deadline)"
 msgstr ""
 
-#: apps/course_metadata/models.py:1478
+#: apps/course_metadata/models.py:1484
 msgid "The date after which the deadline expires (e.g. January 1, 2019)"
 msgstr ""
 
-#: apps/course_metadata/models.py:1482
+#: apps/course_metadata/models.py:1488
 msgid "The time after which the deadline expires (e.g. 11:59 PM EST)."
 msgstr ""
 
-#: apps/course_metadata/models.py:1500
+#: apps/course_metadata/models.py:1506
 msgid "Describes what the cost is for (e.g. Tuition)"
 msgstr ""
 
-#: apps/course_metadata/models.py:1504
+#: apps/course_metadata/models.py:1510
 msgid "String-based field stating how much the cost is (e.g. $1000)."
 msgstr ""
 
-#: apps/course_metadata/models.py:1524
+#: apps/course_metadata/models.py:1530
 msgid ""
 "A high-level overview of the degree's courseware. The \"brief\"\n"
 "            text is the first 750 characters of \"marketing_text\" and must "
@@ -653,15 +657,15 @@ msgid ""
 "            valid HTML."
 msgstr ""
 
-#: apps/course_metadata/models.py:1532
+#: apps/course_metadata/models.py:1538
 msgid "A high-level overview of the degree's courseware."
 msgstr ""
 
-#: apps/course_metadata/models.py:1570
+#: apps/course_metadata/models.py:1576
 msgid "Organization name"
 msgstr ""
 
-#: apps/course_metadata/models.py:1592
+#: apps/course_metadata/models.py:1598
 msgid "These programs are for a different partner than the pathway itself: {}"
 msgstr ""
 
@@ -735,7 +739,7 @@ msgstr ""
 msgid "Course Team"
 msgstr ""
 
-#: apps/publisher/choices.py:17 apps/publisher/models.py:664
+#: apps/publisher/choices.py:17 apps/publisher/models.py:688
 #: apps/publisher/wrappers.py:31
 msgid "Draft"
 msgstr ""
@@ -1124,65 +1128,65 @@ msgstr ""
 msgid "Comma separated list of edX usernames or emails of additional staff."
 msgstr ""
 
-#: apps/publisher/models.py:453
+#: apps/publisher/models.py:477
 msgid "Professional (with ID verification)"
 msgstr ""
 
-#: apps/publisher/models.py:454
+#: apps/publisher/models.py:478
 msgid "Professional (no ID verification)"
 msgstr ""
 
-#: apps/publisher/models.py:559
+#: apps/publisher/models.py:583
 msgid "Organization Role"
 msgstr ""
 
-#: apps/publisher/models.py:582
+#: apps/publisher/models.py:606
 msgid "Course Role"
 msgstr ""
 
-#: apps/publisher/models.py:628
+#: apps/publisher/models.py:652
 msgid "Automatically create a run in Studio"
 msgstr ""
 
-#: apps/publisher/models.py:630
+#: apps/publisher/models.py:654
 msgid ""
 "When this flag is enabled, creation of a new course run in Publisher will "
 "also create a corresponding course run in Studio."
 msgstr ""
 
-#: apps/publisher/models.py:665
+#: apps/publisher/models.py:689
 msgid "Submitted for Marketing Review"
 msgstr ""
 
-#: apps/publisher/models.py:666
+#: apps/publisher/models.py:690
 msgid "Approved by Course Team"
 msgstr ""
 
-#: apps/publisher/models.py:667 apps/publisher/wrappers.py:33
+#: apps/publisher/models.py:691 apps/publisher/wrappers.py:33
 msgid "Awaiting Course Team Review"
 msgstr ""
 
-#: apps/publisher/models.py:670 apps/publisher/wrappers.py:36
+#: apps/publisher/models.py:694 apps/publisher/wrappers.py:36
 msgid "N/A"
 msgstr ""
 
-#: apps/publisher/models.py:671
+#: apps/publisher/models.py:695
 msgid "Awaiting Marketing Review"
 msgstr ""
 
-#: apps/publisher/models.py:672
+#: apps/publisher/models.py:696
 msgid "Approved by Marketing"
 msgstr ""
 
-#: apps/publisher/models.py:915
+#: apps/publisher/models.py:939
 msgid "Submitted for review"
 msgstr ""
 
-#: apps/publisher/models.py:917
+#: apps/publisher/models.py:941
 msgid "Preview Accepted"
 msgstr ""
 
-#: apps/publisher/models.py:918
+#: apps/publisher/models.py:942
 msgid "Preview Declined"
 msgstr ""
 
