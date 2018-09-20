@@ -7,7 +7,7 @@ from django.conf import settings
 from haystack import connections as haystack_connections
 
 from course_discovery.apps.core.utils import ElasticsearchUtils
-from course_discovery.apps.course_metadata.models import Course, CourseRun
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Person
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +38,10 @@ class ElasticsearchTestMixin(object):
         for course in program.courses.all():
             index.update_object(course)
             self.reindex_course_runs(course)
+
+    def reindex_people(self, person):
+        index = haystack_connections['default'].get_unified_index().get_index(Person)
+        index.update_object(person)
 
 
 class LMSAPIClientMixin(object):

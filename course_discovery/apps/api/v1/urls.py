@@ -42,5 +42,6 @@ router.register(r'search/all', search_views.AggregateSearchViewSet, base_name='s
 router.register(r'search/courses', search_views.CourseSearchViewSet, base_name='search-courses')
 router.register(r'search/course_runs', search_views.CourseRunSearchViewSet, base_name='search-course_runs')
 router.register(r'search/programs', search_views.ProgramSearchViewSet, base_name='search-programs')
+router.register(r'search/people', search_views.PersonSearchViewSet, base_name='search-people')
 
 urlpatterns += router.urls

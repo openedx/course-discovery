@@ -1,0 +1,6 @@
+{{ object.uuid }}
+{{ object.full_name }}
+{{ object.partner }}
+{{ object.bio }}
+{{ object.bio_language }}
+{{ object.get_profile_image_url }}

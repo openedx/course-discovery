@@ -13,7 +13,7 @@ from rest_framework.views import APIView
 
 from course_discovery.apps.api import filters, mixins, serializers
 from course_discovery.apps.course_metadata.choices import ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Person, Program
 
 
 class BaseHaystackViewSet(mixins.DetailMixin, FacetMixin, HaystackViewSet):
@@ -120,6 +120,16 @@ class AggregateSearchViewSet(BaseHaystackViewSet):
     detail_serializer_class = serializers.AggregateSearchModelSerializer
     facet_serializer_class = serializers.AggregateFacetSearchSerializer
     serializer_class = serializers.AggregateSearchSerializer
+
+
+class PersonSearchViewSet(BaseHaystackViewSet):
+    """
+    Generic person search
+    """
+    index_models = (Person,)
+    detail_serializer_class = serializers.PersonSearchModelSerializer
+    facet_serializer_class = serializers.PersonFacetSerializer
+    serializer_class = serializers.PersonSearchSerializer
 
 
 class TypeaheadSearchView(APIView):

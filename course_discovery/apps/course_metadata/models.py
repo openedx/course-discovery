@@ -267,6 +267,7 @@ class Person(TimeStampedModel):
     given_name = models.CharField(max_length=255)
     family_name = models.CharField(max_length=255, null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
+    bio_language = models.ForeignKey(LanguageTag, null=True, blank=True)
     profile_image_url = models.URLField(null=True, blank=True)
     profile_image = StdImageField(
         upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/people/profile_images'),
