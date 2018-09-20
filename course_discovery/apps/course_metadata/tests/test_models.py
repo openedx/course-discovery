@@ -21,8 +21,9 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    FAQ, AbstractMediaModel, AbstractNamedModel, AbstractValueModel, CorporateEndorsement, Course, CourseRun,
-    Curriculum, DegreeCost, DegreeDeadline, Endorsement, Ranking, Seat, SeatType, Subject, Topic
+    FAQ, AbstractMediaModel, AbstractNamedModel, AbstractTitleDescriptionModel, AbstractValueModel,
+    CorporateEndorsement, Course, CourseRun, Curriculum, DegreeCost, DegreeDeadline, Endorsement,
+    Ranking, Seat, SeatType, Subject, Topic
 )
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -592,6 +593,23 @@ class AbstractValueModelTests(TestCase):
         value = 'abc'
         instance = TestAbstractValueModel(value=value)
         self.assertEqual(str(instance), value)
+
+
+class AbstractTitleDescriptionModelTests(TestCase):
+    """ Tests for AbstractTitleDescriptionModel. """
+
+    def test_str(self):
+        class TestAbstractTitleDescriptionModel(AbstractTitleDescriptionModel):
+            pass
+
+        title = 'test title'
+        description = 'Description'
+
+        instance = TestAbstractTitleDescriptionModel(title=None, description=description)
+        self.assertEqual(str(instance), description)
+
+        instance = TestAbstractTitleDescriptionModel(title=title, description=description)
+        self.assertEqual(str(instance), title)
 
 
 @ddt.ddt

@@ -212,7 +212,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         query = 'title:' + title
         url = '{root}?q={query}'.format(root=reverse('api:v1:course-list'), query=query)
 
-        with self.assertNumQueries(47):
+        with self.assertNumQueries(50):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -223,7 +223,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         keys = ','.join([course.key for course in courses])
         url = '{root}?keys={keys}'.format(root=reverse('api:v1:course-list'), keys=keys)
 
-        with self.assertNumQueries(46):
+        with self.assertNumQueries(49):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -234,7 +234,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         uuids = ','.join([str(course.uuid) for course in courses])
         url = '{root}?uuids={uuids}'.format(root=reverse('api:v1:course-list'), uuids=uuids)
 
-        with self.assertNumQueries(46):
+        with self.assertNumQueries(49):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
