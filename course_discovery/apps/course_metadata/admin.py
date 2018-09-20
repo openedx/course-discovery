@@ -270,8 +270,8 @@ class TopicAdmin(TranslatableAdmin):
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
     inlines = (PositionInline, PersonWorkInline, PersonSocialNetworkInline)
-    list_display = ('uuid', 'salutation', 'family_name', 'given_name', 'slug',)
-    list_filter = ('partner',)
+    list_display = ('uuid', 'salutation', 'family_name', 'given_name', 'bio_language', 'slug',)
+    list_filter = ('partner', 'bio_language')
     ordering = ('salutation', 'family_name', 'given_name', 'uuid',)
     readonly_fields = ('uuid',)
     search_fields = ('uuid', 'salutation', 'family_name', 'given_name', 'slug',)
