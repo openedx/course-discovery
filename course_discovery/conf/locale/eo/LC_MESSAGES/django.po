@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-20 16:08+0000\n"
+"POT-Creation-Date: 2018-09-21 15:34+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -747,10 +747,6 @@ msgstr ""
 "ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/models.py
-msgid "Award"
-msgstr "Àwärd Ⱡ'σяєм ιρѕ#"
-
-#: apps/course_metadata/models.py
 msgid "Bell"
 msgstr "Béll Ⱡ'σяєм ι#"
 
@@ -785,6 +781,14 @@ msgstr "Böök Ⱡ'σяєм ι#"
 #: apps/course_metadata/models.py
 msgid "Mortar Board"
 msgstr "Mörtär Böärd Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/models.py
+msgid "Star"
+msgstr "Stär Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/models.py
+msgid "Trophy"
+msgstr "Tröphý Ⱡ'σяєм ιρѕυ#"
 
 #: apps/course_metadata/models.py
 msgid "Icon FA class"
