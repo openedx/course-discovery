@@ -1447,7 +1447,6 @@ class IconTextPairing(TimeStampedModel):
     """
     Represents an icon:text model
     """
-    AWARD = 'fa-award'
     BELL = 'fa-bell'
     CERTIFICATE = 'fa-certificate'
     CHECK = 'fa-check-circle'
@@ -1457,9 +1456,10 @@ class IconTextPairing(TimeStampedModel):
     DOLLAR = 'fa-dollar'
     BOOK = 'fa-book'
     MORTARBOARD = 'fa-mortar-board'
+    STAR = 'fa-star'
+    TROPHY = 'fa-trophy'
 
     ICON_CHOICES = (
-        (AWARD, _('Award')),
         (BELL, _('Bell')),
         (CERTIFICATE, _('Certificate')),
         (CHECK, _('Checkmark')),
@@ -1469,6 +1469,8 @@ class IconTextPairing(TimeStampedModel):
         (DOLLAR, _('Dollar')),
         (BOOK, _('Book')),
         (MORTARBOARD, _('Mortar Board')),
+        (STAR, _('Star')),
+        (TROPHY, _('Trophy')),
     )
 
     degree = models.ForeignKey(Degree, related_name='quick_facts', on_delete=models.CASCADE)
