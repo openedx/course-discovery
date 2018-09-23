@@ -4,14 +4,15 @@
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
 # 
 # Translators:
-# Frode Arntsen <frode.arntsen@bibsys.no>, 2017
+# Frode Arntsen <frode.arntsen@unit.no>, 2017
+# Frode Arntsen <frode.arntsen@unit.no>, 2018
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-07 16:30+0000\n"
-"PO-Revision-Date: 2018-05-25 20:03+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2018-09-21 15:34+0000\n"
+"PO-Revision-Date: 2018-09-10 13:41+0000\n"
+"Last-Translator: Frode Arntsen <frode.arntsen@unit.no>\n"
 "Language-Team: Norwegian Bokmål (http://www.transifex.com/open-edx/edx-platform/language/nb/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -49,7 +50,7 @@ msgstr "Legg til kursstab"
 
 #: static/js/publisher/instructors.js:41
 msgid "Please upload a instructor image."
-msgstr ""
+msgstr "Vær vennlig å laste opp bilde av instruktøren."
 
 #: static/js/publisher/instructors.js:96 static/js/publisher/preview-url.js:12
 msgid "Something went wrong!"
@@ -57,19 +58,19 @@ msgstr "Noe gikk feil!"
 
 #: static/js/publisher/instructors.js:129
 msgid "The image size must be smaller than 256kb"
-msgstr ""
+msgstr "Størrelsen på bildefilen må være mindre enn 256kb"
 
 #: static/js/publisher/instructors.js:139
 msgid "The image dimensions must be less than 110 x 110"
-msgstr ""
+msgstr "Formatet på bildet må være mindre enn 110 x 110"
 
 #: static/js/publisher/instructors.js:151
 msgid " Unsupported Image extension"
-msgstr ""
+msgstr "Bildeformat støttes ikke"
 
 #: static/js/publisher/instructors.js:269
 msgid "Update staff member"
-msgstr "Oppdater personell"
+msgstr "Oppdater kursstab"
 
 #: static/js/publisher/instructors.js:270
 msgid "Update Instructor"
@@ -87,7 +88,7 @@ msgstr "Vennligst legg til en gyldig URL."
 msgid ""
 "You have successfully created a Studio URL ({studioLinkTag}) for "
 "{courseRunDetail}"
-msgstr ""
+msgstr "Du har en vellykket opprettelse av Studio URL ({studioLinkTag}) for {courseRunDetail}"
 
 #: static/js/publisher/views/courserun_list.js:50
 msgid "There was an error in saving your data."

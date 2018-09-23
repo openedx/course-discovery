@@ -19,7 +19,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-15 20:13+0000\n"
-"PO-Revision-Date: 2018-09-05 14:13+0000\n"
+"PO-Revision-Date: 2018-09-21 14:54+0000\n"
 "Last-Translator: Abstract Technology <stefania.trabucchi@abstract-technology.de>\n"
 "Language-Team: German (Germany) (http://www.transifex.com/open-edx/edx-platform/language/de_DE/)\n"
 "MIME-Version: 1.0\n"
@@ -3345,7 +3345,7 @@ msgstr ""
 msgid ""
 "Enrollment track cannot be unset or changed from verified or professional to"
 " audit or credit."
-msgstr ""
+msgstr "Einschreibungs Modus kann nicht von Verifiziert/Professional zu Gasthörer/Credit zurückgesetzt werden."
 
 #: apps/publisher/views.py
 #, python-brace-format
