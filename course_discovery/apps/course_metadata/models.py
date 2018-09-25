@@ -1373,8 +1373,7 @@ class Degree(Program):
     lead_capture_list_name = models.CharField(
         help_text=_('The sailthru email list name to capture leads'),
         max_length=255,
-        blank=True,
-        null=True,
+        default='Master_default',
     )
     lead_capture_image = StdImageField(
         upload_to=UploadToAutoSlug(populate_from='uuid', path='media/degree_marketing/lead_capture_images/'),
