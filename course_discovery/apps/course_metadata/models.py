@@ -1376,7 +1376,7 @@ class Degree(Program):
         default='Master_default',
     )
     lead_capture_image = StdImageField(
-        upload_to=UploadToAutoSlug(populate_from='uuid', path='media/degree_marketing/lead_capture_images/'),
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/degree_marketing/lead_capture_images/'),
         blank=True,
         null=True,
         variations={
@@ -1406,7 +1406,7 @@ class Degree(Program):
         null=True
     )
     micromasters_background_image = StdImageField(
-        upload_to=UploadToAutoSlug(populate_from='uuid', path='media/degree_marketing/mm_images/'),
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/degree_marketing/mm_images/'),
         blank=True,
         null=True,
         variations={
