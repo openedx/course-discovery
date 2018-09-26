@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-21 15:34+0000\n"
+"POT-Creation-Date: 2018-09-26 14:42+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -286,8 +286,8 @@ msgstr ""
 #: apps/course_metadata/models.py:120 apps/course_metadata/models.py:159
 #: apps/course_metadata/models.py:219 apps/course_metadata/models.py:264
 #: apps/course_metadata/models.py:342 apps/course_metadata/models.py:473
-#: apps/course_metadata/models.py:973 apps/course_metadata/models.py:1544
-#: apps/course_metadata/models.py:1592 apps/journal/models.py:23
+#: apps/course_metadata/models.py:973 apps/course_metadata/models.py:1547
+#: apps/course_metadata/models.py:1595 apps/journal/models.py:23
 #: apps/journal/models.py:67
 msgid "UUID"
 msgstr ""
@@ -545,115 +545,123 @@ msgstr ""
 msgid "The sailthru email list name to capture leads"
 msgstr ""
 
-#: apps/course_metadata/models.py:1389
+#: apps/course_metadata/models.py:1388
 msgid "Please provide an image file for the lead capture banner."
 msgstr ""
 
-#: apps/course_metadata/models.py:1393
+#: apps/course_metadata/models.py:1392
 msgid "URL to micromasters landing page"
 msgstr ""
 
-#: apps/course_metadata/models.py:1399
+#: apps/course_metadata/models.py:1398
 msgid "Micromasters verbose title"
 msgstr ""
 
-#: apps/course_metadata/models.py:1405
+#: apps/course_metadata/models.py:1404
 msgid "Micromasters descriptive paragraph"
 msgstr ""
 
-#: apps/course_metadata/models.py:1418
+#: apps/course_metadata/models.py:1417
 msgid "Customized background image for the MicroMasters section."
 msgstr ""
 
-#: apps/course_metadata/models.py:1421
+#: apps/course_metadata/models.py:1420
 msgid "Ranking display for search card (e.g. \"#1 in the U.S.\""
 msgstr ""
 
-#: apps/course_metadata/models.py:1427
+#: apps/course_metadata/models.py:1426
 msgid "Cost display for search card (e.g. \"$9,999\""
 msgstr ""
 
-#: apps/course_metadata/models.py:1433
+#: apps/course_metadata/models.py:1432
 msgid "Number of courses for search card (e.g. \"11 Courses\""
 msgstr ""
 
-#: apps/course_metadata/models.py:1463
+#: apps/course_metadata/models.py:1464
 msgid "Bell"
 msgstr ""
 
-#: apps/course_metadata/models.py:1464
+#: apps/course_metadata/models.py:1465
 msgid "Certificate"
 msgstr ""
 
-#: apps/course_metadata/models.py:1465
+#: apps/course_metadata/models.py:1466
 msgid "Checkmark"
 msgstr ""
 
-#: apps/course_metadata/models.py:1466
-msgid "Info"
-msgstr ""
-
 #: apps/course_metadata/models.py:1467
-msgid "Sitemap"
+msgid "Clock"
 msgstr ""
 
 #: apps/course_metadata/models.py:1468
-msgid "User"
+msgid "Desktop"
 msgstr ""
 
 #: apps/course_metadata/models.py:1469
-msgid "Dollar"
+msgid "Info"
 msgstr ""
 
 #: apps/course_metadata/models.py:1470
-msgid "Book"
+msgid "Sitemap"
 msgstr ""
 
 #: apps/course_metadata/models.py:1471
-msgid "Mortar Board"
+msgid "User"
 msgstr ""
 
 #: apps/course_metadata/models.py:1472
-msgid "Star"
+msgid "Dollar"
 msgstr ""
 
 #: apps/course_metadata/models.py:1473
+msgid "Book"
+msgstr ""
+
+#: apps/course_metadata/models.py:1474
+msgid "Mortar Board"
+msgstr ""
+
+#: apps/course_metadata/models.py:1475
+msgid "Star"
+msgstr ""
+
+#: apps/course_metadata/models.py:1476
 msgid "Trophy"
 msgstr ""
 
-#: apps/course_metadata/models.py:1477
+#: apps/course_metadata/models.py:1480
 msgid "Icon FA class"
 msgstr ""
 
-#: apps/course_metadata/models.py:1478
+#: apps/course_metadata/models.py:1481
 msgid "Paired text"
 msgstr ""
 
-#: apps/course_metadata/models.py:1497
+#: apps/course_metadata/models.py:1500
 msgid "Deadline applies for this semester (e.g. Spring 2019"
 msgstr ""
 
-#: apps/course_metadata/models.py:1501
+#: apps/course_metadata/models.py:1504
 msgid "Describes the deadline (e.g. Early Admission Deadline)"
 msgstr ""
 
-#: apps/course_metadata/models.py:1505
+#: apps/course_metadata/models.py:1508
 msgid "The date after which the deadline expires (e.g. January 1, 2019)"
 msgstr ""
 
-#: apps/course_metadata/models.py:1509
+#: apps/course_metadata/models.py:1512
 msgid "The time after which the deadline expires (e.g. 11:59 PM EST)."
 msgstr ""
 
-#: apps/course_metadata/models.py:1527
+#: apps/course_metadata/models.py:1530
 msgid "Describes what the cost is for (e.g. Tuition)"
 msgstr ""
 
-#: apps/course_metadata/models.py:1531
+#: apps/course_metadata/models.py:1534
 msgid "String-based field stating how much the cost is (e.g. $1000)."
 msgstr ""
 
-#: apps/course_metadata/models.py:1551
+#: apps/course_metadata/models.py:1554
 msgid ""
 "A high-level overview of the degree's courseware. The \"brief\"\n"
 "            text is the first 750 characters of \"marketing_text\" and must "
@@ -661,15 +669,15 @@ msgid ""
 "            valid HTML."
 msgstr ""
 
-#: apps/course_metadata/models.py:1559
+#: apps/course_metadata/models.py:1562
 msgid "A high-level overview of the degree's courseware."
 msgstr ""
 
-#: apps/course_metadata/models.py:1597
+#: apps/course_metadata/models.py:1600
 msgid "Organization name"
 msgstr ""
 
-#: apps/course_metadata/models.py:1619
+#: apps/course_metadata/models.py:1622
 msgid "These programs are for a different partner than the pathway itself: {}"
 msgstr ""
 

@@ -1449,6 +1449,8 @@ class IconTextPairing(TimeStampedModel):
     BELL = 'fa-bell'
     CERTIFICATE = 'fa-certificate'
     CHECK = 'fa-check-circle'
+    CLOCK = 'fa-clock-o'
+    DESKTOP = 'fa-desktop'
     INFO = 'fa-info-circle'
     SITEMAP = 'fa-sitemap'
     USER = 'fa-user'
@@ -1462,6 +1464,8 @@ class IconTextPairing(TimeStampedModel):
         (BELL, _('Bell')),
         (CERTIFICATE, _('Certificate')),
         (CHECK, _('Checkmark')),
+        (CLOCK, _('Clock')),
+        (DESKTOP, _('Desktop')),
         (INFO, _('Info')),
         (SITEMAP, _('Sitemap')),
         (USER, _('User')),
