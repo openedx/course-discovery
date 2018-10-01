@@ -26,7 +26,7 @@ class StudioAPI:
 
     @classmethod
     def calculate_course_run_key_run_value(cls, course_run):
-        start = course_run.start
+        start = course_run.start_date_temporary
         trimester = math.ceil(start.month / 4.)
         run = '{trimester}T{year}'.format(trimester=trimester, year=start.year)
 
@@ -63,7 +63,7 @@ class StudioAPI:
             'number': course.number,
             'run': cls.calculate_course_run_key_run_value(publisher_course_run),
             'schedule': {
-                'start': serialize_datetime(publisher_course_run.start),
+                'start': serialize_datetime(publisher_course_run.start_date_temporary),
                 'end': serialize_datetime(publisher_course_run.end),
             },
             'team': team,

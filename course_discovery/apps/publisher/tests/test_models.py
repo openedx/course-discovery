@@ -39,7 +39,7 @@ class CourseRunTests(TestCase):
         self.assertEqual(
             str(self.course_run),
             '{title}: {date}'.format(
-                title=self.course_run.course.title, date=self.course_run.start
+                title=self.course_run.course.title, date=self.course_run.start_date_temporary
             )
         )
 
@@ -317,6 +317,20 @@ class CourseRunTests(TestCase):
         course_run = factories.CourseRunFactory()
 
         assert course_run.get_pacing_type_temporary_display() == course_run.get_pacing_type_display()
+
+    def test_start_date_temporary(self):
+        """ Verify that pacing_type_temporary property returns the value of the pacing_type field. """
+        course_run = factories.CourseRunFactory()
+
+        assert course_run.start_date_temporary == course_run.start
+
+    def test_start_date_temporary_setter(self):
+        """ Verify that modifying the pacing_type_temporary property also modified the pacing_type field. """
+        course_run = factories.CourseRunFactory()
+
+        course_run.start_date_temporary = datetime.datetime.now()
+
+        assert course_run.start_date_temporary == course_run.start
 
     @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
     def test_pacing_type_temporary_display_success_with_switch(self):

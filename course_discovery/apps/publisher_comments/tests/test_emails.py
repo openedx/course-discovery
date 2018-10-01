@@ -80,7 +80,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
         subject = 'Comment added: {title} {start} - {pacing_type}'.format(
             title=self.course_run.course.title,
             pacing_type=self.course_run.get_pacing_type_temporary_display(),
-            start=self.course_run.start.strftime('%B %d, %Y')
+            start=self.course_run.start_date_temporary.strftime('%B %d, %Y')
         )
         self.assert_comment_email_sent(
             self.course_run, comment,
@@ -111,7 +111,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
     @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
     def test_course_run_without_start_date(self):
         """ Verify that emails works properly even if course-run does not have a start date."""
-        self.course_run.start = None
+        self.course_run.start_date_temporary = None
         self.course_run.save()
         comment = self.create_comment(content_object=self.course_run)
         subject = 'Comment added: {title} {start} - {pacing_type}'.format(
@@ -206,7 +206,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
         subject = 'Comment updated: {title} {start} - {pacing_type}'.format(
             title=self.course_run.course.title,
             pacing_type=self.course_run.get_pacing_type_temporary_display(),
-            start=self.course_run.start.strftime('%B %d, %Y')
+            start=self.course_run.start_date_temporary.strftime('%B %d, %Y')
         )
         self.assertEqual(str(mail.outbox[1].subject), subject)
         self.assertIn(comment.comment, str(mail.outbox[1].body.strip()), 'Update the comment')

@@ -5,7 +5,7 @@
 {% load static %}
 
 {% block title %}
-    {{ course_run.course.number }} - {{ course_run.start|date:'M Y' }}
+    {{ course_run.course.number }} - {{ course_run.start_date_temporary|date:'M Y' }}
 {% endblock title %}
 
 {% block page_content %}

@@ -145,7 +145,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
         discovery_course.subjects.add(*subjects)
 
         defaults = {
-            'start': course_run.start,
+            'start': course_run.start_date_temporary,
             'end': course_run.end,
             'pacing_type': course_run.pacing_type_temporary,
             'title_override': course_run.title_override,
