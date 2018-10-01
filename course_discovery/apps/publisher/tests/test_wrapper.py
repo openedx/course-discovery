@@ -135,7 +135,7 @@ class CourseRunWrapperTests(TestCase):
         """ Verify that the wrapper return the mdc_submission_due_date. """
         current_date = datetime.today()
         expected_date = current_date - timedelta(days=10)
-        self.course_run.start = current_date
+        self.course_run.start_date_temporary = current_date
         self.course_run.save()
         self.assertEqual(self.wrapped_course_run.mdc_submission_due_date, expected_date)
 

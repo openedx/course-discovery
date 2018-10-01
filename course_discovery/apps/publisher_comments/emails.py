@@ -35,6 +35,7 @@ def send_email_for_comment(comment, created=False):
         if comment_class == CourseRun:
             course = publisher_obj.course
             object_path = reverse('publisher:publisher_course_run_detail', args=[publisher_obj.id])
+            start_date_temporary = publisher_obj.start_date_temporary
 
             # Translators: subject_desc will be choice from ('New comment added', 'Comment updated'),
             # 'pacing_type' will be choice from ('instructor-paced', 'self-paced'),
@@ -45,12 +46,12 @@ def send_email_for_comment(comment, created=False):
                 subject_desc=subject_desc,
                 title=course.title,
                 pacing_type=pacing_type,
-                start=publisher_obj.start.strftime('%B %d, %Y') if publisher_obj.start else ''
+                start=start_date_temporary.strftime('%B %d, %Y') if start_date_temporary else ''
             )
             course_name = '{title} {start} - {pacing_type}'.format(
                 title=course.title,
                 pacing_type=pacing_type,
-                start=publisher_obj.start.strftime('%B %d, %Y') if publisher_obj.start else ''
+                start=start_date_temporary.strftime('%B %d, %Y') if start_date_temporary else ''
             )
         else:
             course = publisher_obj

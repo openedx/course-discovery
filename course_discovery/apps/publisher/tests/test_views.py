@@ -1026,7 +1026,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
 
     def _assert_dates(self, response):
         """ Helper method to test all dates. """
-        for value in [self.course_run.start, self.course_run.end]:
+        for value in [self.course_run.start_date_temporary, self.course_run.end]:
             self.assertContains(response, value.strftime(self.date_format))
 
     def test_course_run_with_version(self):
@@ -1185,7 +1185,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         self.assertContains(
             response, '{type}: {start}'.format(
                 type=course_run.get_pacing_type_temporary_display(),
-                start=course_run.start.strftime("%B %d, %Y")
+                start=course_run.start_date_temporary.strftime("%B %d, %Y")
             )
         )
 
