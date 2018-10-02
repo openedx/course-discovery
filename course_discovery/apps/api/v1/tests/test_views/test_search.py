@@ -361,6 +361,33 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         assert expected == actual
 
 
+class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, ElasticsearchTestMixin,
+                                         mixins.APITestCase):
+    path = reverse('api:v1:search-all-list')
+
+    def test_post(self):
+        """
+        Verify that POST request works as expected for `AggregateSearchViewSet`
+        """
+        CourseFactory(key='course:edX+DemoX', title='ABCs of Ͳҽʂէìղց')
+        data = {'content_type': 'course', 'aggregation_key': ['course:edX+DemoX']}
+        expected = {'previous': None, 'results': [], 'next': None, 'count': 0}
+        response = self.client.post(self.path, data=data, format='json')
+        assert response.json() == expected
+
+    def test_get(self):
+        """
+        Verify that GET request works as expected for `AggregateSearchViewSet`
+        """
+        CourseFactory(key='course:edX+DemoX', title='ABCs of Ͳҽʂէìղց')
+        expected = {'previous': None, 'results': [], 'next': None, 'count': 0}
+        query = {'content_type': 'course', 'aggregation_key': ['course:edX+DemoX']}
+        qs = urllib.parse.urlencode(query)
+        url = '{path}?{qs}'.format(path=self.path, qs=qs)
+        response = self.client.get(url)
+        assert response.json() == expected
+
+
 class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginMixin, ElasticsearchTestMixin,
                                mixins.SynonymTestMixin, mixins.APITestCase):
     path = reverse('api:v1:search-typeahead')
