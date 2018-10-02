@@ -1,9 +1,11 @@
+from django.http import QueryDict
+from drf_haystack.filters import HaystackFilter
 from drf_haystack.mixins import FacetMixin
 from drf_haystack.viewsets import HaystackViewSet
 from haystack.backends import SQ
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.decorators import list_route
 from rest_framework.exceptions import ParseError, ValidationError
 from rest_framework.filters import OrderingFilter
@@ -92,6 +94,25 @@ class BaseHaystackViewSet(mixins.DetailMixin, FacetMixin, HaystackViewSet):
         return queryset
 
 
+class CatalogDataFilterBackend(HaystackFilter):
+
+    @staticmethod
+    def get_request_filters(request):
+        request_filters = QueryDict(mutable=True)
+        for param, value in request.data.items():
+            request_filters[param] = ','.join(value) if type(value) is list else value
+
+        return request_filters
+
+
+class CatalogDataViewSet(viewsets.GenericViewSet):
+    permission_classes = (IsAuthenticated,)
+    filter_backends = (CatalogDataFilterBackend,)
+
+    def create(self, request):
+        return self.list(request)
+
+
 class CourseSearchViewSet(BaseHaystackViewSet):
     index_models = (Course,)
     detail_serializer_class = serializers.CourseSearchModelSerializer
@@ -115,7 +136,7 @@ class ProgramSearchViewSet(BaseHaystackViewSet):
     serializer_class = serializers.ProgramSearchSerializer
 
 
-class AggregateSearchViewSet(BaseHaystackViewSet):
+class AggregateSearchViewSet(CatalogDataViewSet, BaseHaystackViewSet):
     """ Search all content types. """
     detail_serializer_class = serializers.AggregateSearchModelSerializer
     facet_serializer_class = serializers.AggregateFacetSearchSerializer
