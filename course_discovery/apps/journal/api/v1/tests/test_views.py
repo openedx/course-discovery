@@ -26,6 +26,31 @@ class JournalViewSetTests(APITestCase):
         response = self.client.get(self.journal_url)
         self.assertEqual(response.status_code, 403)
 
+    def test_create_journal(self):
+        # create a second journal
+        journal = JournalFactory()
+        self.assertEqual(Journal.objects.count(), 2)
+
+        data = {
+            'uuid': str(uuid.uuid4()),
+            'partner': journal.organization.partner.short_code,
+            'organization': journal.organization.key,
+            'title': 'API Created Journal',
+            'price': '50.0',
+            'currency': 'USD',
+            'sku': 'ABC-111',
+            'access_length': '365',
+            'card_image_url': '',
+            'short_description': 'A short desc',
+            'full_description': 'A long desc',
+            'status': 'active',
+            'about_page_id': 66,
+        }
+
+        response = self.client.post(self.journal_url, data, format='json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Journal.objects.count(), 3)
+
     def test_list(self):
         """ Verify response on list view. """
         response = self.client.get(self.journal_url)
