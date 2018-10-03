@@ -233,6 +233,17 @@ class RankingAdmin(admin.ModelAdmin):
     list_display = ('rank', 'description', 'source')
 
 
+@admin.register(AdditionalPromoArea)
+class AdditionalPromoAreaAdmin(admin.ModelAdmin):
+    list_display = ('title', 'description', 'courses')
+    search_fields = ('description',)
+
+    def courses(self, obj):
+        return ', '.join([
+            course.key for course in obj.extra_description.all()
+        ])
+
+
 class OrganizationUserRoleInline(admin.TabularInline):
     # course-meta-data models are importing in publisher app. So just for safe side
     # to avoid any circular issue importing the publisher model here.

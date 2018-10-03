@@ -72,6 +72,20 @@ class AbstractMediaModel(TimeStampedModel):
         abstract = True
 
 
+class AbstractTitleDescriptionModel(TimeStampedModel):
+    """ Abstract base class for models with a title and description pair. """
+    title = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        if self.title:
+            return self.title
+        return self.description
+
+    class Meta(object):
+        abstract = True
+
+
 class AbstractSocialNetworkModel(TimeStampedModel):
     """ SocialNetwork model. """
     FACEBOOK = 'facebook'
@@ -213,6 +227,11 @@ class SyllabusItem(AbstractValueModel):
     parent = models.ForeignKey('self', blank=True, null=True, related_name='children')
 
 
+class AdditionalPromoArea(AbstractTitleDescriptionModel):
+    """ Additional Promo Area Model """
+    pass
+
+
 class Organization(TimeStampedModel):
     """ Organization model. """
     partner = models.ForeignKey(Partner, null=True, blank=False)
@@ -348,6 +367,9 @@ class Course(TimeStampedModel):
     title = models.CharField(max_length=255, default=None, null=True, blank=True)
     short_description = models.TextField(default=None, null=True, blank=True)
     full_description = models.TextField(default=None, null=True, blank=True)
+    extra_description = models.ForeignKey(
+        AdditionalPromoArea, default=None, null=True, blank=True, related_name='extra_description'
+    )
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_courses')
     sponsoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='sponsored_courses')
     subjects = SortedManyToManyField(Subject, blank=True)
