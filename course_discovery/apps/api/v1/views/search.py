@@ -100,7 +100,7 @@ class CatalogDataFilterBackend(HaystackFilter):
     def get_request_filters(request):
         request_filters = QueryDict(mutable=True)
         for param, value in request.data.items():
-            request_filters[param] = ','.join(value) if type(value) is list else value
+            request_filters[param] = ','.join(value) if isinstance(value, list) else value
 
         return request_filters
 
@@ -138,9 +138,9 @@ class ProgramSearchViewSet(BaseHaystackViewSet):
 
 class AggregateSearchViewSet(CatalogDataViewSet, BaseHaystackViewSet):
     """ Search all content types. """
-    detail_serializer_class = serializers.AggregateSearchModelSerializer
-    facet_serializer_class = serializers.AggregateFacetSearchSerializer
-    serializer_class = serializers.AggregateSearchSerializer
+    detail_serializer_class = serializers.ProgramSearchModelSerializer
+    facet_serializer_class = serializers.ProgramFacetSerializer
+    serializer_class = serializers.ProgramSearchSerializer
 
 
 class PersonSearchViewSet(BaseHaystackViewSet):
