@@ -24,6 +24,11 @@ class AbstractNamedModelFactory(factory.DjangoModelFactory):
     name = FuzzyText()
 
 
+class AbstractTitleDescriptionFactory(factory.DjangoModelFactory):
+    title = FuzzyText(length=255)
+    description = FuzzyText()
+
+
 class ImageFactory(AbstractMediaModelFactory):
     height = 100
     width = 100
@@ -73,6 +78,11 @@ class PrerequisiteFactory(AbstractNamedModelFactory):
         model = Prerequisite
 
 
+class AdditionalPromoAreaFactory(AbstractTitleDescriptionFactory):
+    class Meta:
+        model = AdditionalPromoArea
+
+
 class CourseFactory(factory.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
     key = FuzzyText(prefix='course-id/')
@@ -88,6 +98,7 @@ class CourseFactory(factory.DjangoModelFactory):
     outcome = FuzzyText()
     image = factory.django.ImageField()
     canonical_course_run = None
+    extra_description = factory.SubFactory(AdditionalPromoAreaFactory)
 
     class Meta:
         model = Course
