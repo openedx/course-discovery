@@ -104,7 +104,7 @@ class CatalogDataFilterBackend(HaystackFilter):
         request_filters = QueryDict(mutable=True)
         for param, value in request.data.items():
             if isinstance(value, list):
-                request_filters.setlist(value)
+                request_filters.setlist(param, value)
             else:
                 request_filters[param] = value
 

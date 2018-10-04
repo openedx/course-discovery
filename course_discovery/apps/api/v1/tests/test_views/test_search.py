@@ -369,11 +369,11 @@ class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.Login
         """
         Verify that POST request works as expected for `AggregateSearchViewSet`
         """
-        course = CourseFactory(key='course:edX+DemoX', title='ABCs of Ͳҽʂէìղց')
+        CourseFactory(key='course:edX+DemoX', title='ABCs of Ͳҽʂէìղց')
         data = {'content_type': 'course', 'aggregation_key': ['course:edX+DemoX']}
         expected = {'previous': None, 'results': [], 'next': None, 'count': 0}
         response = self.client.post(self.path, data=data)
-        assert response == expected
+        assert response.json() == expected
 
 
 class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginMixin, ElasticsearchTestMixin,
