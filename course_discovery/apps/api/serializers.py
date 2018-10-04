@@ -21,9 +21,9 @@ from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, Curriculum, Degree, DegreeCost, DegreeDeadline,
-    Endorsement, IconTextPairing, Image, Organization, Pathway, Person, PersonSocialNetwork, PersonWork, Position,
-    Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Video
+    FAQ, AdditionalPromoArea, CorporateEndorsement, Course, CourseEntitlement, CourseRun, Curriculum, Degree,
+    DegreeCost, DegreeDeadline, Endorsement, IconTextPairing, Image, Organization, Pathway, Person, PersonSocialNetwork,
+    PersonWork, Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Video
 )
 
 User = get_user_model()
@@ -163,6 +163,18 @@ class NamedModelSerializer(serializers.ModelSerializer):
 
     class Meta(object):
         fields = ('name',)
+
+
+class TitleDescriptionSerializer(serializers.ModelSerializer):
+    """Serializer for models inheriting from ``AbstractTitleDescription``."""
+    class Meta(object):
+        fields = ('title', 'description',)
+
+
+class AdditionalPromoAreaSerializer(TitleDescriptionSerializer):
+    """Serializer for AdditionalPromoArea """
+    class Meta(TitleDescriptionSerializer.Meta):
+        model = AdditionalPromoArea
 
 
 class FAQSerializer(serializers.ModelSerializer):
@@ -602,6 +614,7 @@ class CourseSerializer(MinimalCourseSerializer):
     marketing_url = serializers.SerializerMethodField()
     canonical_course_run_key = serializers.SerializerMethodField()
     original_image = ImageField(read_only=True, source='original_image_url')
+    extra_description = AdditionalPromoAreaSerializer()
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, course_runs=None):
@@ -609,7 +622,7 @@ class CourseSerializer(MinimalCourseSerializer):
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
 
-        return queryset.select_related('level_type', 'video', 'partner').prefetch_related(
+        return queryset.select_related('level_type', 'video', 'partner', 'extra_description').prefetch_related(
             'expected_learning_items',
             'prerequisites',
             'subjects',
@@ -625,6 +638,7 @@ class CourseSerializer(MinimalCourseSerializer):
             'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites',
             'prerequisites_raw', 'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url',
             'syllabus_raw', 'outcome', 'original_image', 'card_image_url', 'canonical_course_run_key',
+            'extra_description',
         )
 
     def get_marketing_url(self, obj):

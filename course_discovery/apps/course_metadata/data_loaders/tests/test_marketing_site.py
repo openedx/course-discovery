@@ -351,6 +351,29 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         name = 'Advanced'
         self.assertEqual(self.loader.get_level_type(name).name, name)
 
+    def test_get_extra_description(self):
+        self.assertIsNone(self.loader.get_extra_description({}))
+
+        extra_description_raw = {
+            'field_course_extra_desc_title': 'null',
+            'field_course_extra_description': {}
+        }
+
+        extra_description = self.loader.get_extra_description(extra_description_raw)
+        self.assertIsNone(extra_description)
+
+        title = 'additional'
+        description = 'promo'
+        extra_description_raw = {
+            'field_course_extra_desc_title': title,
+            'field_course_extra_description': {
+                'value': description
+            }
+        }
+        extra_description = self.loader.get_extra_description(extra_description_raw)
+        self.assertEqual(extra_description.title, title)
+        self.assertEqual(extra_description.description, description)
+
     @ddt.unpack
     @ddt.data(
         ('0', CourseRunStatus.Unpublished),
