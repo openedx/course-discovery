@@ -45,7 +45,7 @@ def create_course_run_in_studio_receiver(sender, instance, created, **kwargs):  
         logger.info('Publishing course run [%d] to Studio...', instance.id)
         api = StudioAPI(instance.course.partner.studio_api_client)
 
-        discovery_course_run = instance.discovery_counterpart
+        discovery_course_run = instance.discovery_counterpart_latest_by_start_date
 
         if discovery_course_run:
             try:
