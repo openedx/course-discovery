@@ -507,7 +507,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     def start_date_temporary(self):
         """
             This property serves as a temporary intermediary in order to support a waffle
-            switch that will toggle between the original database backed pacing_type value
+            switch that will toggle between the original database backed start value
             and a new read-only value that is pulled from course_discovery.
 
             The start date will need to continue to exist for the write on create,
@@ -521,6 +521,25 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     @start_date_temporary.setter
     def start_date_temporary(self, value):
         self.start = value
+
+    @property
+    def end_date_temporary(self):
+        """
+            This property serves as a temporary intermediary in order to support a waffle
+            switch that will toggle between the original database backed end value
+            and a new read-only value that is pulled from course_discovery.
+
+            The end date will need to continue to exist for the write on create,
+            until that functionality is officially moved to Studio creation.
+
+            The progress of the above work will be tracked in the following ticket:
+            https://openedx.atlassian.net/browse/EDUCATOR-3525.
+        """
+        return self.end
+
+    @end_date_temporary.setter
+    def end_date_temporary(self, value):
+        self.end = value
 
 
 class Seat(TimeStampedModel, ChangedByMixin):
