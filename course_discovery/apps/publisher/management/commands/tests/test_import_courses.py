@@ -348,7 +348,7 @@ class CreateCoursesTests(TestCase):
         """ Verify that publisher course-run and metadata course run has correct values."""
 
         self.assertEqual(publisher_course_run.start_date_temporary, metadata_course_run.start)
-        self.assertEqual(publisher_course_run.end, metadata_course_run.end)
+        self.assertEqual(publisher_course_run.end_date_temporary, metadata_course_run.end)
         self.assertEqual(publisher_course_run.min_effort, metadata_course_run.min_effort)
         self.assertEqual(publisher_course_run.max_effort, metadata_course_run.max_effort)
         self.assertEqual(publisher_course_run.length, metadata_course_run.weeks_to_complete)

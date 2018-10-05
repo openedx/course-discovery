@@ -741,9 +741,9 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         self.assertTrue(num_courseruns_after > num_courseruns_before)
 
         new_courserun = self.course.course_runs.latest('created')
-        self.assertEqual(new_courserun.start.strftime('%Y-%m-%d %H:%M:%S'), post_data['start'])
-        self.assertEqual(new_courserun.end.strftime('%Y-%m-%d %H:%M:%S'), post_data['end'])
-        self.assertEqual(new_courserun.pacing_type, post_data['pacing_type'])
+        self.assertEqual(new_courserun.start_date_temporary.strftime('%Y-%m-%d %H:%M:%S'), post_data['start'])
+        self.assertEqual(new_courserun.end_date_temporary.strftime('%Y-%m-%d %H:%M:%S'), post_data['end'])
+        self.assertEqual(new_courserun.pacing_type_temporary, post_data['pacing_type'])
 
         self.assertRedirects(
             response,
@@ -1026,7 +1026,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
 
     def _assert_dates(self, response):
         """ Helper method to test all dates. """
-        for value in [self.course_run.start_date_temporary, self.course_run.end]:
+        for value in [self.course_run.start_date_temporary, self.course_run.end_date_temporary]:
             self.assertContains(response, value.strftime(self.date_format))
 
     def test_course_run_with_version(self):
@@ -4193,9 +4193,9 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
         self.assertTrue(num_courseruns_after > num_courseruns_before)
 
         new_courserun = self.course.course_runs.latest('created')
-        self.assertEqual(new_courserun.start.strftime('%Y-%m-%d %H:%M:%S'), post_data['start'])
-        self.assertEqual(new_courserun.end.strftime('%Y-%m-%d %H:%M:%S'), post_data['end'])
-        self.assertEqual(new_courserun.pacing_type, post_data['pacing_type'])
+        self.assertEqual(new_courserun.start_date_temporary.strftime('%Y-%m-%d %H:%M:%S'), post_data['start'])
+        self.assertEqual(new_courserun.end_date_temporary.strftime('%Y-%m-%d %H:%M:%S'), post_data['end'])
+        self.assertEqual(new_courserun.pacing_type_temporary, post_data['pacing_type'])
 
         self.assertRedirects(
             response,

@@ -64,7 +64,7 @@ class StudioAPI:
             'run': cls.calculate_course_run_key_run_value(publisher_course_run),
             'schedule': {
                 'start': serialize_datetime(publisher_course_run.start_date_temporary),
-                'end': serialize_datetime(publisher_course_run.end),
+                'end': serialize_datetime(publisher_course_run.end_date_temporary),
             },
             'team': team,
             'pacing_type': publisher_course_run.pacing_type_temporary,

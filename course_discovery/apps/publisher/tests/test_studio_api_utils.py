@@ -57,7 +57,7 @@ def assert_data_generated_correctly(course_run, expected_team_data):
         'run': StudioAPI.calculate_course_run_key_run_value(course_run),
         'schedule': {
             'start': serialize_datetime(course_run.start_date_temporary),
-            'end': serialize_datetime(course_run.end),
+            'end': serialize_datetime(course_run.end_date_temporary),
         },
         'team': expected_team_data,
         'pacing_type': course_run.pacing_type_temporary,

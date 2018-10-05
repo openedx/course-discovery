@@ -143,7 +143,7 @@ class CourseRunViewSetTests(APITestCase):
             serialize_entitlement_for_ecommerce_api(verified_entitlement),
         ]
         assert ecommerce_body['products'] == expected
-        assert ecommerce_body['verification_deadline'] == serialize_datetime(publisher_course_run.end)
+        assert ecommerce_body['verification_deadline'] == serialize_datetime(publisher_course_run.end_date_temporary)
 
         discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
         publisher_course = publisher_course_run.course
@@ -156,8 +156,8 @@ class CourseRunViewSetTests(APITestCase):
         assert discovery_course_run.title_override == publisher_course_run.title_override
         assert discovery_course_run.short_description_override is None
         assert discovery_course_run.full_description_override is None
-        assert discovery_course_run.start == publisher_course_run.start
-        assert discovery_course_run.end == publisher_course_run.end
+        assert discovery_course_run.start == publisher_course_run.start_date_temporary
+        assert discovery_course_run.end == publisher_course_run.end_date_temporary
         assert discovery_course_run.pacing_type == publisher_course_run.pacing_type_temporary
         assert discovery_course_run.min_effort == publisher_course_run.min_effort
         assert discovery_course_run.max_effort == publisher_course_run.max_effort
