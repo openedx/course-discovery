@@ -29,7 +29,9 @@ from course_discovery.apps.publisher import emails
 from course_discovery.apps.publisher.choices import (
     CourseRunStateChoices, CourseStateChoices, InternalUserRole, PublisherUserRole
 )
-from course_discovery.apps.publisher.constants import PUBLISHER_REMOVE_PACING_TYPE_EDITING
+from course_discovery.apps.publisher.constants import (
+    PUBLISHER_REMOVE_PACING_TYPE_EDITING, PUBLISHER_REMOVE_START_DATE_EDITING
+)
 from course_discovery.apps.publisher.exceptions import CourseRunEditException
 from course_discovery.apps.publisher.utils import is_email_notification_enabled, is_internal_user, is_publisher_admin
 from course_discovery.apps.publisher.validators import ImageMultiSizeValidator
@@ -491,10 +493,23 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
             return self.get_pacing_type_display()
 
     @cached_property
-    def discovery_counterpart(self):
+    def discovery_counterpart_latest_by_start_date(self):
         try:
             discovery_course = self.course.discovery_counterpart
             return discovery_course.course_runs.latest('start')
+        except ObjectDoesNotExist:
+            logger.info(
+                'Related discovery course run not found for [%s] with partner [%s] ',
+                self.course.key,
+                self.course.partner
+            )
+            return None
+
+    @cached_property
+    def discovery_counterpart(self):
+        try:
+            discovery_course = self.course.discovery_counterpart
+            return discovery_course.course_runs.get(key=self.lms_course_id)
         except ObjectDoesNotExist:
             logger.info(
                 'Related discovery course run not found for [%s] with partner [%s] ',
@@ -516,11 +531,22 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
             The progress of the above work will be tracked in the following ticket:
             https://openedx.atlassian.net/browse/EDUCATOR-3524.
         """
-        return self.start
+        start_date = self.start
+
+        if waffle.switch_is_active(PUBLISHER_REMOVE_START_DATE_EDITING):
+            discovery_counterpart = self.discovery_counterpart
+
+            if discovery_counterpart and discovery_counterpart.start:
+                start_date = discovery_counterpart.start
+
+        return start_date
 
     @start_date_temporary.setter
     def start_date_temporary(self, value):
-        self.start = value
+        if waffle.switch_is_active(PUBLISHER_REMOVE_START_DATE_EDITING):
+            raise CourseRunEditException
+        else:
+            self.start = value
 
     @property
     def end_date_temporary(self):

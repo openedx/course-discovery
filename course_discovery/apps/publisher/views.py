@@ -26,7 +26,9 @@ from course_discovery.apps.core.models import User
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher import emails, mixins, serializers
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
-from course_discovery.apps.publisher.constants import PUBLISHER_REMOVE_PACING_TYPE_EDITING
+from course_discovery.apps.publisher.constants import (
+    PUBLISHER_REMOVE_PACING_TYPE_EDITING, PUBLISHER_REMOVE_START_DATE_EDITING
+)
 from course_discovery.apps.publisher.dataloader.create_courses import process_course
 from course_discovery.apps.publisher.emails import send_email_for_published_course_run_editing
 from course_discovery.apps.publisher.forms import (
@@ -803,7 +805,7 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
         run_initial_data = {}
         if last_run:
             run_initial_data = {'pacing_type': last_run.pacing_type_temporary}
-        return self.run_form(initial=run_initial_data)
+        return self.run_form(initial=run_initial_data, hide_start_date_field=False)
 
     def _entitlement_is_valid_for_seat_creation(self, entitlement):
         if entitlement is None:
@@ -983,7 +985,8 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
             'is_internal_user': mixins.check_roles_access(user),
             'is_project_coordinator': is_project_coordinator_user(user),
             'organizations': mixins.get_user_organizations(user),
-            'publisher_remove_pacing_type_editing': waffle.switch_is_active(PUBLISHER_REMOVE_PACING_TYPE_EDITING)
+            'publisher_remove_pacing_type_editing': waffle.switch_is_active(PUBLISHER_REMOVE_PACING_TYPE_EDITING),
+            'publisher_remove_start_date_editing': waffle.switch_is_active(PUBLISHER_REMOVE_START_DATE_EDITING),
         }
 
     def get_latest_course_run_seat(self, course_run):
@@ -1004,7 +1007,10 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
 
         context['course_user_role'] = course_user_role
         context['run_form'] = self.run_form(
-            instance=course_run, is_project_coordinator=context.get('is_project_coordinator')
+            instance=course_run,
+            is_project_coordinator=context.get('is_project_coordinator'),
+            hide_start_date_field=True,
+            initial={'start': course_run.start_date_temporary}
         )
 
         if not course.uses_entitlements:

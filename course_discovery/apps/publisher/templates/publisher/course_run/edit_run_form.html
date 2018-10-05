@@ -39,23 +39,37 @@
                 <div class="field-title">{% trans "COURSE START DATE" %} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
-                        <ul>
-                            <li>
-                                {% trans "Note that times use UTC." %}
-                            </li>
-                            <li>
-                                {% trans "Start on a Tuesday, Wednesday, or Thursday." %}
-                            </li>
-                            <li>
-                                {% trans "Avoid major U.S. holidays." %}
-                            </li>
-                            <li>
-                                {% trans "Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated start date. For example, if your course will start near the end of March, specify March 31." %}
-                            </li>
-                        </ul>
+                        {% if publisher_remove_start_date_editing %}
+                            <p>
+                                {% trans "The start date for this course." %}
+                                {% blocktrans with link_start='<a class="studio-start-date-link" target="_blank" href="' link_middle='">' link_end='</a>' url=course_run.studio_schedule_and_details_url %}
+                                For the most accurate information, and to make any edits to start date, please visit {{ link_start }}{{ url }}{{ link_middle }}Studio{{ link_end }}.
+                                {% endblocktrans %}
+                            </p>
+                        {% else %}
+                            <ul>
+                                <li>
+                                    {% trans "Note that times use UTC." %}
+                                </li>
+                                <li>
+                                    {% trans "Start on a Tuesday, Wednesday, or Thursday." %}
+                                </li>
+                                <li>
+                                    {% trans "Avoid major U.S. holidays." %}
+                                </li>
+                                <li>
+                                    {% trans "Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated start date. For example, if your course will start near the end of March, specify March 31." %}
+                                </li>
+                            </ul>
+                        {% endif %}
                     </div>
                     <div class="col col-6">
-                        <label class="field-label ">{{ run_form.start.label_tag }}  <span class="required">*</span></label>
+                        {% if publisher_remove_start_date_editing %}
+                            <label class="field-label ">{% trans "Course Start Date (time in UTC)" %}  <span class="required">*</span></label>
+                            <div>{{ course_run.start_date_temporary| date:"M d, Y, H:i:s A" }}</div>
+                        {% else %}
+                            <label class="field-label ">{{ run_form.start.label_tag }}  <span class="required">*</span></label>
+                        {% endif %}
                         {{ run_form.start }}
                         {% if run_form.start.errors %}
                             <div class="field-message-content">
