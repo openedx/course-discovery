@@ -25,11 +25,11 @@ from course_discovery.apps.api.serializers import (
     CurriculumSerializer, DegreeCostSerializer, DegreeDeadlineSerializer, EndorsementSerializer, FAQSerializer,
     FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer, ImageSerializer, MinimalCourseRunSerializer,
     MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer,
-    NestedProgramSerializer, OrganizationSerializer, PathwaySerializer, PersonSearchModelSerializer,
-    PersonSearchSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer, ProgramSearchModelSerializer,
+    NestedProgramSerializer, OrganizationSerializer, PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer, ProgramSearchModelSerializer,
     ProgramSearchSerializer, ProgramSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer,
     SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer,
     VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
+
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
@@ -38,7 +38,7 @@ from course_discovery.apps.core.tests.factories import PartnerFactory, UserFacto
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSAPIClientMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Person, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalPromoAreaFactory, CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CurriculumFactory,
     DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory,
@@ -1482,62 +1482,6 @@ class CourseRunSearchModelSerializerTests(CourseRunSearchSerializerTests):
         expected_data.update({'content_type': 'courserun'})
         # This explicit conversion needs to happen, apparently because the real type is DRF's 'ReturnDict'. It's weird.
         return dict(expected_data)
-
-
-class PersonSearchSerializerTest(ElasticsearchTestMixin, TestCase):
-    serializer_class = PersonSearchSerializer
-
-    @classmethod
-    def get_expected_data(cls, person, request):  # pylint: disable=unused-argument
-        return {
-            'salutation': person.salutation,
-            'position': [person.position.title, person.position.organization_override],
-            'uuid': str(person.uuid),
-            'bio': person.bio,
-            'bio_language': person.bio_language,
-            'get_profile_image_url': person.get_profile_image_url,
-            'full_name': person.full_name
-        }
-
-    def test_data(self):
-        request = make_request()
-        position = PositionFactory()
-        person = position.person
-        self.reindex_people(person)
-
-        result = SearchQuerySet().models(Person)[0]
-        serializer = self.serializer_class(result, context={'request': request})
-        # Get data
-        assert serializer.data == self.get_expected_data(person, request)
-
-
-class PersonSearchModelSerializerTests(PersonSearchSerializerTest):
-    serializer_class = PersonSearchModelSerializer
-
-    @classmethod
-    def get_expected_data(cls, person, request):
-        context = {'request': request}
-        image_field = StdImageSerializerField()
-        image_field._context = context  # pylint: disable=protected-access
-
-        return {
-            'uuid': str(person.uuid),
-            'salutation': person.salutation,
-            'given_name': person.given_name,
-            'family_name': person.family_name,
-            'bio': person.bio,
-            'profile_image': image_field.to_representation(person.profile_image),
-            'profile_image_url': person.profile_image.url,
-            'position': PositionSerializer(person.position).data,
-            'works': [work.value for work in person.person_works.all()],
-            'urls': {
-                'facebook': None,
-                'twitter': None,
-                'blog': None
-            },
-            'slug': person.slug,
-            'email': person.email,
-        }
 
 
 @pytest.mark.django_db

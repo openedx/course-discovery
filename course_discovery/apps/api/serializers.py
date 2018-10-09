@@ -1404,35 +1404,6 @@ class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
         }
 
 
-class PersonSearchSerializer(HaystackSerializer):
-    class Meta:
-        field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        ignore_fields = COMMON_IGNORED_FIELDS
-        index_classes = [search_indexes.PersonIndex]
-        fields = (
-            'uuid',
-            'salutation',
-            'full_name',
-            'bio',
-            'bio_language',
-            'get_profile_image_url',
-            'position',
-        )
-
-
-class PersonSearchModelSerializer(HaystackSerializerMixin, PersonSerializer):
-    class Meta(PersonSerializer.Meta):
-        fields = PersonSerializer.Meta.fields
-
-
-class PersonFacetSerializer(BaseHaystackFacetSerializer):
-    class Meta:
-        field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        ignore_fields = COMMON_IGNORED_FIELDS
-        index_classes = [search_indexes.PersonIndex]
-        fields = ()
-
-
 class ProgramSearchSerializer(HaystackSerializer):
     authoring_organizations = serializers.SerializerMethodField()
 

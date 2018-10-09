@@ -4,7 +4,7 @@ from haystack import indexes
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Degree, Person, Position, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Degree, Program
 
 BASE_SEARCH_INDEX_FIELDS = (
     'aggregation_key',
@@ -337,27 +337,3 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
 
             return []
         return [degree.search_card_ranking, degree.search_card_cost, degree.search_card_courses]
-
-
-class PersonIndex(BaseIndex, indexes.Indexable):
-    model = Person
-    uuid = indexes.CharField(model_attr='uuid')
-    salutation = indexes.CharField(model_attr='salutation', null=True)
-    full_name = indexes.CharField(model_attr='full_name')
-    partner = indexes.CharField(null=True)
-    bio = indexes.CharField(model_attr='bio', null=True)
-    bio_language = indexes.CharField(model_attr='bio_language', null=True)
-    get_profile_image_url = indexes.CharField(model_attr='get_profile_image_url', null=True)
-    position = indexes.MultiValueField()
-
-    def prepare_position(self, obj):
-        try:
-            position = Position.objects.get(person=obj)
-        except Position.DoesNotExist:
-            return []
-        return [position.title, position.organization_override]
-
-    def prepare_bio_language(self, obj):
-        if obj.bio_language:
-            return obj.bio_language.name
-        return
