@@ -50,7 +50,7 @@ class Command(HaystackCommand):
             if not options.get('disable_change_limit', False):
                 record_count_is_sane, index_info_string = self.sanity_check_new_index(backend.conn, index, record_count)
                 if not record_count_is_sane:
-                    raise CommandError('Sanity check failed for new index. ' + index_info_string)
+                    logger.info('Sanity check warning for new index. ' + index_info_string)
 
             self.set_alias(backend, alias, index)
 
