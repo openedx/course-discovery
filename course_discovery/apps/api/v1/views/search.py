@@ -5,7 +5,7 @@ from drf_haystack.viewsets import HaystackViewSet
 from haystack.backends import SQ
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
-from rest_framework import status, viewsets
+from rest_framework import renderers, status, viewsets
 from rest_framework.decorators import list_route
 from rest_framework.exceptions import ParseError, ValidationError
 from rest_framework.filters import OrderingFilter
@@ -111,7 +111,20 @@ class CatalogDataFilterBackend(HaystackFilter):
         return request_filters
 
 
+class BrowsableAPIRendererWithoutPost(renderers.BrowsableAPIRenderer):
+    """Renders the browsable api, but excludes the form for POST."""
+
+    def show_form_for_method(self, view, method, request, obj):
+        """Disable the form for POST"""
+
+        if method == 'POST':
+            return False
+
+        return super(BrowsableAPIRendererWithoutPost, self).show_form_for_method(view, method, request, obj)
+
+
 class CatalogDataViewSet(viewsets.GenericViewSet):
+    renderer_classes = [BrowsableAPIRendererWithoutPost, renderers.JSONRenderer]
     permission_classes = (IsAuthenticated,)
     filter_backends = (CatalogDataFilterBackend,)
 
@@ -142,7 +155,7 @@ class ProgramSearchViewSet(BaseHaystackViewSet):
     serializer_class = serializers.ProgramSearchSerializer
 
 
-class AggregateSearchViewSet(CatalogDataViewSet, BaseHaystackViewSet):
+class AggregateSearchViewSet(BaseHaystackViewSet, CatalogDataViewSet):
     """ Search all content types. """
     detail_serializer_class = serializers.AggregateSearchModelSerializer
     facet_serializer_class = serializers.AggregateFacetSearchSerializer
