@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-15 20:13+0000\n"
-"PO-Revision-Date: 2018-09-25 07:57+0000\n"
+"PO-Revision-Date: 2018-10-04 10:03+0000\n"
 "Last-Translator: Ali Işıngör <ali@artistanbul.io>\n"
 "Language-Team: Turkish (Turkey) (http://www.transifex.com/open-edx/edx-platform/language/tr_TR/)\n"
 "MIME-Version: 1.0\n"
@@ -2418,7 +2418,7 @@ msgstr "Kapat"
 
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Accept About Page Preview"
-msgstr ""
+msgstr "Hakkında Sayfası Önizlemesini Kabul Et"
 
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid ""
@@ -2551,7 +2551,7 @@ msgstr "Eğitim Şekli"
 
 #: apps/publisher/templates/publisher/course_run_detail/_widgets.html
 msgid "Reason for declining preview"
-msgstr ""
+msgstr "Önizlemeyi reddetme nedeni"
 
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 #, python-format
