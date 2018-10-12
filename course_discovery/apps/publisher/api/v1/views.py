@@ -3,7 +3,7 @@ from collections import OrderedDict
 from datetime import date
 
 from edx_rest_api_client.client import EdxRestApiClient
-from edx_rest_framework_extensions.authentication import JwtAuthentication
+from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from rest_framework import permissions, serializers, status, viewsets
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import detail_route

@@ -36,7 +36,7 @@ edx-ccx-keys==0.2.0
 edx-django-release-util==0.3.1
 edx-django-sites-extensions==2.3.0
 edx-django-utils==1.0.1
-edx-drf-extensions==1.10.0
+edx-drf-extensions==2.0.0
 edx-opaque-keys==0.3.1
 edx-rest-api-client==1.8.2
 elasticsearch>=1.0.0,<2.0.0
