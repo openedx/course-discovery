@@ -12,7 +12,9 @@ from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, PublisherUserRole
-from course_discovery.apps.publisher.constants import ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME
+from course_discovery.apps.publisher.constants import (
+    ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PUBLISHER_ENABLE_READ_ONLY_FIELDS
+)
 from course_discovery.apps.publisher.forms import (
     CourseEntitlementForm, CourseForm, CourseRunForm, CourseRunStateAdminForm, CourseSearchForm, CourseStateAdminForm,
     PublisherUserCreationForm, SeatForm
@@ -135,6 +137,7 @@ class CourseStateAdminFormTests(TestCase):
         self.assertEqual(course_state_form.clean(), course_state_form.cleaned_data)
 
 
+@ddt.ddt
 class PublisherCourseRunEditFormTests(TestCase):
     """
     Tests for the publisher 'CourseRunForm'.
@@ -235,6 +238,16 @@ class PublisherCourseRunEditFormTests(TestCase):
 
         run_form.cleaned_data['professional_certificate_name'] = "Test Name"
         self.assertEqual(run_form.clean(), run_form.cleaned_data)
+
+    @ddt.data(True, False)
+    def test_date_fields_are_hidden_when_switch_enabled(self, is_switch_enabled):
+        with override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=is_switch_enabled):
+            run_form = CourseRunForm(
+                hide_start_date_field=is_switch_enabled,
+                hide_end_date_field=is_switch_enabled
+            )
+            self.assertEqual(run_form.fields['start'].widget.is_hidden, is_switch_enabled)
+            self.assertEqual(run_form.fields['end'].widget.is_hidden, is_switch_enabled)
 
 
 @ddt.ddt

@@ -17,5 +17,4 @@ PARTNER_COORDINATOR_GROUP_NAME = 'Partner Coordinators'
 
 # Waffle switches
 PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS = 'publisher_create_audit_seats_for_verified_course_runs'
-PUBLISHER_REMOVE_PACING_TYPE_EDITING = 'publisher_remove_pacing_type_editing'
-PUBLISHER_REMOVE_START_DATE_EDITING = 'publisher_remove_start_date_editing'
+PUBLISHER_ENABLE_READ_ONLY_FIELDS = 'publisher_enable_read_only_fields'

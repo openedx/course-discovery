@@ -37,8 +37,7 @@ from course_discovery.apps.publisher.choices import (
 )
 from course_discovery.apps.publisher.constants import (
     ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME,
-    PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, PUBLISHER_REMOVE_PACING_TYPE_EDITING,
-    REVIEWER_GROUP_NAME
+    PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, PUBLISHER_ENABLE_READ_ONLY_FIELDS, REVIEWER_GROUP_NAME
 )
 from course_discovery.apps.publisher.forms import CourseEntitlementForm
 from course_discovery.apps.publisher.models import (
@@ -881,7 +880,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
             target_status_code=302
         )
 
-    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
     def test_page_without_data(self):
         """ Verify that user can access detail page without any data
         available for that course-run.
@@ -911,7 +910,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         """ Helper method to add credit seat for a course-run. """
         factories.SeatFactory(type='credit', course_run=self.course_run, credit_provider='ASU', credit_hours=9)
 
-    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
     def test_course_run_detail_page_staff(self):
         """ Verify that detail page contains all the data for drupal, studio and
         cat with publisher admin user.
@@ -1051,7 +1050,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'Enrollment Track')
 
-    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
     def test_detail_page_with_comments(self):
         """ Verify that detail page contains all the data along with comments
         for course.
