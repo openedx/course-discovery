@@ -389,7 +389,6 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
                         course = self.update_course(course_run.course, data)
                         self.set_subjects(course, data)
                         self.set_authoring_organizations(course, data)
-                        self.set_extra_descriptions(course, data)
                         logger.info(
                             'Processed course with key [%s] based on the data from courserun [%s]',
                             course.key,
