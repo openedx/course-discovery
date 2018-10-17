@@ -29,9 +29,7 @@ from course_discovery.apps.publisher import emails
 from course_discovery.apps.publisher.choices import (
     CourseRunStateChoices, CourseStateChoices, InternalUserRole, PublisherUserRole
 )
-from course_discovery.apps.publisher.constants import (
-    PUBLISHER_REMOVE_PACING_TYPE_EDITING, PUBLISHER_REMOVE_START_DATE_EDITING
-)
+from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
 from course_discovery.apps.publisher.exceptions import CourseRunEditException
 from course_discovery.apps.publisher.utils import is_email_notification_enabled, is_internal_user, is_publisher_admin
 from course_discovery.apps.publisher.validators import ImageMultiSizeValidator
@@ -448,50 +446,6 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     def get_absolute_url(self):
         return reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.id})
 
-    @property
-    def pacing_type_temporary(self):
-        """
-            This property serves as a temporary intermediary in order to support a waffle
-            switch that will toggle between the original database backed pacing_type value
-            and a new read-only value that is pulled from course_discovery.
-
-            Once the switch is no longer needed, the pacing_type field will be removed,
-            and this property will be renamed appropriately.
-
-            The progress of the above work will be tracked in the following ticket:
-            https://openedx.atlassian.net/browse/EDUCATOR-3488.
-        """
-        if waffle.switch_is_active(PUBLISHER_REMOVE_PACING_TYPE_EDITING):
-            discovery_counterpart = self.discovery_counterpart
-
-            if discovery_counterpart and discovery_counterpart.pacing_type:
-                return discovery_counterpart.pacing_type
-            else:
-                return self.DEFAULT_PACING_TYPE
-        else:
-            return self.pacing_type
-
-    @pacing_type_temporary.setter
-    def pacing_type_temporary(self, value):
-        if waffle.switch_is_active(PUBLISHER_REMOVE_PACING_TYPE_EDITING):
-            raise CourseRunEditException
-        else:
-            # Treat empty strings as NULL
-            value = value or None
-            self.pacing_type = value
-
-    def get_pacing_type_temporary_display(self):
-        if waffle.switch_is_active(PUBLISHER_REMOVE_PACING_TYPE_EDITING):
-            discovery_counterpart = self.discovery_counterpart
-
-            if discovery_counterpart and discovery_counterpart.pacing_type:
-                return discovery_counterpart.get_pacing_type_display()
-
-            return _('Instructor-paced')
-
-        else:
-            return self.get_pacing_type_display()
-
     @cached_property
     def discovery_counterpart_latest_by_start_date(self):
         try:
@@ -519,6 +473,50 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
             return None
 
     @property
+    def pacing_type_temporary(self):
+        """
+            This property serves as a temporary intermediary in order to support a waffle
+            switch that will toggle between the original database backed pacing_type value
+            and a new read-only value that is pulled from course_discovery.
+
+            Once the switch is no longer needed, the pacing_type field will be removed,
+            and this property will be renamed appropriately.
+
+            The progress of the above work will be tracked in the following ticket:
+            https://openedx.atlassian.net/browse/EDUCATOR-3488.
+        """
+        if waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS):
+            discovery_counterpart = self.discovery_counterpart
+
+            if discovery_counterpart and discovery_counterpart.pacing_type:
+                return discovery_counterpart.pacing_type
+            else:
+                return self.DEFAULT_PACING_TYPE
+        else:
+            return self.pacing_type
+
+    @pacing_type_temporary.setter
+    def pacing_type_temporary(self, value):
+        if waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS):
+            raise CourseRunEditException
+        else:
+            # Treat empty strings as NULL
+            value = value or None
+            self.pacing_type = value
+
+    def get_pacing_type_temporary_display(self):
+        if waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS):
+            discovery_counterpart = self.discovery_counterpart
+
+            if discovery_counterpart and discovery_counterpart.pacing_type:
+                return discovery_counterpart.get_pacing_type_display()
+
+            return _('Instructor-paced')
+
+        else:
+            return self.get_pacing_type_display()
+
+    @property
     def start_date_temporary(self):
         """
             This property serves as a temporary intermediary in order to support a waffle
@@ -533,7 +531,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         """
         start_date = self.start
 
-        if waffle.switch_is_active(PUBLISHER_REMOVE_START_DATE_EDITING):
+        if waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS):
             discovery_counterpart = self.discovery_counterpart
 
             if discovery_counterpart and discovery_counterpart.start:
@@ -543,7 +541,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
 
     @start_date_temporary.setter
     def start_date_temporary(self, value):
-        if waffle.switch_is_active(PUBLISHER_REMOVE_START_DATE_EDITING):
+        if waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS):
             raise CourseRunEditException
         else:
             self.start = value
@@ -561,11 +559,22 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
             The progress of the above work will be tracked in the following ticket:
             https://openedx.atlassian.net/browse/EDUCATOR-3525.
         """
-        return self.end
+        end_date = self.end
+
+        if waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS):
+            discovery_counterpart = self.discovery_counterpart
+
+            if discovery_counterpart and discovery_counterpart.end:
+                end_date = discovery_counterpart.end
+
+        return end_date
 
     @end_date_temporary.setter
     def end_date_temporary(self, value):
-        self.end = value
+        if waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS):
+            raise CourseRunEditException
+        else:
+            self.end = value
 
 
 class Seat(TimeStampedModel, ChangedByMixin):

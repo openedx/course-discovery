@@ -23,7 +23,7 @@ from course_discovery.apps.publisher.api.utils import (
     serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api
 )
 from course_discovery.apps.publisher.api.v1.views import CourseRunViewSet
-from course_discovery.apps.publisher.constants import PUBLISHER_REMOVE_PACING_TYPE_EDITING
+from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
 from course_discovery.apps.publisher.models import CourseEntitlement, Seat
 from course_discovery.apps.publisher.tests.factories import CourseEntitlementFactory, CourseRunFactory, SeatFactory
 
@@ -88,7 +88,7 @@ class CourseRunViewSetTests(APITestCase):
 
     @responses.activate
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    @override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
     def test_publish(self, mock_access_token):  # pylint: disable=unused-argument,too-many-statements
         publisher_course_run = self._create_course_run_for_publication()
         currency = Currency.objects.get(code='USD')

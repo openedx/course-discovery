@@ -26,9 +26,7 @@ from course_discovery.apps.core.models import User
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher import emails, mixins, serializers
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
-from course_discovery.apps.publisher.constants import (
-    PUBLISHER_REMOVE_PACING_TYPE_EDITING, PUBLISHER_REMOVE_START_DATE_EDITING
-)
+from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
 from course_discovery.apps.publisher.dataloader.create_courses import process_course
 from course_discovery.apps.publisher.emails import send_email_for_published_course_run_editing
 from course_discovery.apps.publisher.forms import (
@@ -683,7 +681,7 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
         context['role_widgets'] = get_course_role_widgets_data(
             user, course, course.course_state, 'publisher:api:change_course_state', parent_course=True
         )
-        context['publisher_remove_pacing_type_editing'] = waffle.switch_is_active(PUBLISHER_REMOVE_PACING_TYPE_EDITING)
+        context['publisher_enable_read_only_fields'] = waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS)
 
         # Add warning popup information if user can edit the course but does not own it.
         if context['can_edit'] and not waffle.switch_is_active('disable_publisher_permissions'):
@@ -805,7 +803,11 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
         run_initial_data = {}
         if last_run:
             run_initial_data = {'pacing_type': last_run.pacing_type_temporary}
-        return self.run_form(initial=run_initial_data, hide_start_date_field=False)
+        return self.run_form(
+            initial=run_initial_data,
+            hide_start_date_field=False,
+            hide_end_date_field=False
+        )
 
     def _entitlement_is_valid_for_seat_creation(self, entitlement):
         if entitlement is None:
@@ -924,7 +926,7 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
             'run_form': run_form,
             'seat_form': seat_form,
             'hide_seat_form': parent_course.uses_entitlements,
-            'publisher_remove_pacing_type_editing': waffle.switch_is_active(PUBLISHER_REMOVE_PACING_TYPE_EDITING)
+            'publisher_enable_read_only_fields': waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS)
         }
         return context
 
@@ -946,7 +948,7 @@ class CreateRunFromDashboardView(CreateCourseRunView):
             'run_form': self.run_form(),
             'seat_form': self.seat_form(),
             'hide_seat_form': False,
-            'publisher_remove_pacing_type_editing': waffle.switch_is_active(PUBLISHER_REMOVE_PACING_TYPE_EDITING)
+            'publisher_enable_read_only_fields': waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS)
         }
         return context
 
@@ -985,8 +987,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
             'is_internal_user': mixins.check_roles_access(user),
             'is_project_coordinator': is_project_coordinator_user(user),
             'organizations': mixins.get_user_organizations(user),
-            'publisher_remove_pacing_type_editing': waffle.switch_is_active(PUBLISHER_REMOVE_PACING_TYPE_EDITING),
-            'publisher_remove_start_date_editing': waffle.switch_is_active(PUBLISHER_REMOVE_START_DATE_EDITING),
+            'publisher_enable_read_only_fields': waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS)
         }
 
     def get_latest_course_run_seat(self, course_run):
@@ -1010,7 +1011,8 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
             instance=course_run,
             is_project_coordinator=context.get('is_project_coordinator'),
             hide_start_date_field=True,
-            initial={'start': course_run.start_date_temporary}
+            hide_end_date_field=True,
+            initial={'start': course_run.start_date_temporary, 'end': course_run.end_date_temporary}
         )
 
         if not course.uses_entitlements:
@@ -1038,7 +1040,12 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
         lms_course_id = course_run.lms_course_id
 
         run_form = self.run_form(
-            request.POST, instance=course_run, is_project_coordinator=context.get('is_project_coordinator')
+            request.POST,
+            instance=course_run,
+            is_project_coordinator=context.get('is_project_coordinator'),
+            hide_start_date_field=True,
+            hide_end_date_field=True,
+            initial={'start': course_run.start_date_temporary, 'end': course_run.end_date_temporary}
         )
         context['run_form'] = run_form
         form_data_is_valid = run_form.is_valid()

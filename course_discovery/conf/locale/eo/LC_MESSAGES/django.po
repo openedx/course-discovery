@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-11 15:42+0000\n"
+"POT-Creation-Date: 2018-10-17 19:26+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -2865,6 +2865,21 @@ msgid "Course Start Date (time in UTC)"
 msgstr "Çöürsé Stärt Däté (tïmé ïn ÛTÇ) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "The end date for this course."
+msgstr "Thé énd däté för thïs çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+#, python-format
+msgid ""
+"\n"
+"                                For the most accurate information, and to make any edits to end date, please visit %(link_start)s%(url)s%(link_middle)sStudio%(link_end)s.\n"
+"                                "
+msgstr ""
+"\n"
+"                                För thé möst äççüräté ïnförmätïön, änd tö mäké äný édïts tö énd däté, pléäsé vïsït %(link_start)s%(url)s%(link_middle)sStüdïö%(link_end)s.\n"
+"                                 Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒ#"
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid ""
 "Note that times use UTC. Specify a month, day, and year. If you are unsure "
 "of the exact date, specify a day that is close to the estimated end date. "
@@ -2879,6 +2894,10 @@ msgstr ""
 " νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα "
 "¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт"
 " єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυg#"
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid "Course End Date (time in UTC)"
+msgstr "Çöürsé Énd Däté (tïmé ïn ÛTÇ) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "COURSE PACING"

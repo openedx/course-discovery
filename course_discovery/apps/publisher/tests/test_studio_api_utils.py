@@ -10,7 +10,7 @@ from course_discovery.apps.course_metadata.tests.factories import CourseFactory 
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.choices import PublisherUserRole
-from course_discovery.apps.publisher.constants import PUBLISHER_REMOVE_PACING_TYPE_EDITING
+from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI
 from course_discovery.apps.publisher.tests.factories import CourseRunFactory, CourseUserRoleFactory
 
@@ -66,7 +66,7 @@ def assert_data_generated_correctly(course_run, expected_team_data):
 
 
 @pytest.mark.django_db
-@override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
+@override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
 def test_generate_data_for_studio_api():
     course_run = CourseRunFactory(course__organizations=[OrganizationFactory()])
     course = course_run.course
@@ -81,7 +81,7 @@ def test_generate_data_for_studio_api():
 
 
 @pytest.mark.django_db
-@override_switch(PUBLISHER_REMOVE_PACING_TYPE_EDITING, active=True)
+@override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
 def test_generate_data_for_studio_api_without_team():
     course_run = CourseRunFactory(course__organizations=[OrganizationFactory()])
 
