@@ -18,8 +18,8 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-15 20:13+0000\n"
-"PO-Revision-Date: 2018-10-05 12:54+0000\n"
-"Last-Translator: Roman Polin <descello@gmail.com>\n"
+"PO-Revision-Date: 2018-10-17 17:41+0000\n"
+"Last-Translator: Michael Savin <m.savin.ru@gmail.com>\n"
 "Language-Team: Russian (http://www.transifex.com/open-edx/edx-platform/language/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -93,31 +93,31 @@ msgstr "Важные даты"
 
 #: apps/core/admin.py
 msgid "OpenID Connect"
-msgstr ""
+msgstr "OpenID Connect"
 
 #: apps/core/admin.py
 msgid ""
 "OpenID Connect is used for front-end authentication as well as getting "
 "access to the APIs."
-msgstr ""
+msgstr "OpenID Connect используется для фронт-энд аутентификации и для получения доступа к API."
 
 #: apps/core/admin.py
 msgid "API Configuration"
-msgstr ""
+msgstr "Настройки API"
 
 #: apps/core/admin.py
 msgid "Configure the APIs that will be used to retrieve data."
-msgstr ""
+msgstr "Настроить API, которые будут использоваться для доступа к данным."
 
 #: apps/core/admin.py
 msgid "Marketing Site Configuration"
-msgstr ""
+msgstr "Настройки Маркетингового Сайта"
 
 #: apps/core/admin.py
 msgid ""
 "Configure the marketing site URLs that will be used to retrieve data and "
 "create URLs."
-msgstr ""
+msgstr "Настроить URL-адреса маркетингового сайта, которые будут использоваться для сбора данных и создания URL-адресов."
 
 #. Translators: 'period_choices' is a list of possible values, like ('second',
 #. 'minute', 'hour')
@@ -157,43 +157,43 @@ msgstr ""
 
 #: apps/core/models.py
 msgid "Courses API URL"
-msgstr ""
+msgstr "URL-адрес API Курсов"
 
 #: apps/core/models.py
 msgid "E-Commerce API URL"
-msgstr ""
+msgstr "URL-адрес API Эл. Коммерции"
 
 #: apps/core/models.py
 msgid "Organizations API URL"
-msgstr ""
+msgstr "URL-адрес API Организаций"
 
 #: apps/core/models.py
 msgid "Programs API URL"
-msgstr ""
+msgstr "URL-адрес API Программ"
 
 #: apps/core/models.py
 msgid "Marketing Site API URL"
-msgstr ""
+msgstr "URL-адрес API Маркетингового Сайта"
 
 #: apps/core/models.py
 msgid "Marketing Site URL"
-msgstr ""
+msgstr "URL-адрес Маркетингового Сайта"
 
 #: apps/core/models.py
 msgid "Marketing Site API Username"
-msgstr ""
+msgstr "Имя пользователя API Маркетингового Сайта"
 
 #: apps/core/models.py
 msgid "Marketing Site API Password"
-msgstr ""
+msgstr "Пароль пользователя API Маркетингового Сайта"
 
 #: apps/core/models.py
 msgid "OpenID Connect URL"
-msgstr ""
+msgstr "URL-адрес OpenID Connect"
 
 #: apps/core/models.py
 msgid "OpenID Connect Key"
-msgstr ""
+msgstr "OpenID Connect Key"
 
 #: apps/core/models.py
 msgid "OpenID Connect Secret"
@@ -210,11 +210,11 @@ msgstr ""
 
 #: apps/core/models.py
 msgid "Partner"
-msgstr ""
+msgstr "Партнёр"
 
 #: apps/core/models.py
 msgid "Partners"
-msgstr ""
+msgstr "Партнеры"
 
 #: apps/course_metadata/admin.py
 #, python-brace-format
@@ -225,15 +225,15 @@ msgstr ""
 
 #: apps/course_metadata/admin.py
 msgid "eligible for one-click purchase"
-msgstr ""
+msgstr "доступно для покупки в один клик"
 
 #: apps/course_metadata/admin.py apps/publisher/forms.py
 msgid "Yes"
-msgstr ""
+msgstr "Да"
 
 #: apps/course_metadata/admin.py apps/publisher/forms.py
 msgid "No"
-msgstr ""
+msgstr "Нет"
 
 #: apps/course_metadata/admin.py
 msgid "Included course runs"
@@ -241,11 +241,11 @@ msgstr ""
 
 #: apps/course_metadata/choices.py apps/publisher/choices.py
 msgid "Published"
-msgstr ""
+msgstr "Опубликовано"
 
 #: apps/course_metadata/choices.py
 msgid "Unpublished"
-msgstr ""
+msgstr "Не опубликовано"
 
 #. Translators: Instructor-paced refers to course runs that operate on a
 #. schedule set by the instructor,
@@ -262,7 +262,7 @@ msgstr "самостоятельное обучение"
 
 #: apps/course_metadata/choices.py
 msgid "Active"
-msgstr ""
+msgstr "Активный"
 
 #: apps/course_metadata/choices.py
 msgid "Retired"
@@ -270,7 +270,7 @@ msgstr ""
 
 #: apps/course_metadata/choices.py
 msgid "Deleted"
-msgstr ""
+msgstr "Удалено"
 
 #: apps/course_metadata/forms.py
 msgid "Programs can only be activated if they have a banner image."
@@ -278,27 +278,27 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Facebook"
-msgstr ""
+msgstr "Facebook"
 
 #: apps/course_metadata/models.py
 msgid "Twitter"
-msgstr ""
+msgstr "Twitter"
 
 #: apps/course_metadata/models.py
 msgid "Blog"
-msgstr ""
+msgstr "Блог"
 
 #: apps/course_metadata/models.py
 msgid "Others"
-msgstr ""
+msgstr "Другое"
 
 #: apps/course_metadata/models.py
 msgid "UUID"
-msgstr ""
+msgstr "UUID"
 
 #: apps/course_metadata/models.py
 msgid "Leave this field blank to have the value generated automatically."
-msgstr ""
+msgstr "Оставьте это поле пустым, чтобы получить автоматически сгенерированное значение."
 
 #: apps/course_metadata/models.py
 msgid "Subject model translations"
@@ -334,7 +334,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "People"
-msgstr ""
+msgstr "Люди"
 
 #: apps/course_metadata/models.py
 msgid "Add the course image"
@@ -342,7 +342,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
-msgstr ""
+msgstr "Примеры формата номера курса: CS002x, BIO1.1x, BIO1.2x"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid ""
@@ -374,7 +374,7 @@ msgstr "Максимальное количество часов в неделю
 
 #: apps/course_metadata/models.py
 msgid "Estimated number of weeks needed to complete this course run."
-msgstr ""
+msgstr "Предполагаемое количество недель, необходимое для завершения данного курса."
 
 #: apps/course_metadata/models.py
 msgid "Indicates whether the course relation has been manually overridden."
@@ -388,11 +388,11 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Archived"
-msgstr ""
+msgstr "Сохранено в Архив"
 
 #: apps/course_metadata/models.py
 msgid "Current"
-msgstr ""
+msgstr "Текущий"
 
 #: apps/course_metadata/models.py
 msgid "Starting Soon"
@@ -400,7 +400,7 @@ msgstr "Скоро начнётся"
 
 #: apps/course_metadata/models.py
 msgid "Upcoming"
-msgstr ""
+msgstr "Скоро"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Honor"
@@ -430,7 +430,7 @@ msgstr "Баллы"
 #: apps/publisher/templates/publisher/course_revision_history.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "FAQ"
-msgstr ""
+msgstr "Вопросы и ответы"
 
 #: apps/course_metadata/models.py
 msgid "FAQs"
@@ -512,7 +512,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_edit_warning.html
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Cancel"
-msgstr ""
+msgstr "Отмена"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html
 msgid "Back to Program"
@@ -533,12 +533,12 @@ msgstr ""
 #: apps/publisher/api/serializers.py
 #, python-brace-format
 msgid "Invalid course key \"{lms_course_id}\""
-msgstr ""
+msgstr "Неправильный ключ course \"{lms_course_id}\""
 
 #: apps/publisher/api/serializers.py
 #, python-brace-format
 msgid "Invalid URL format \"{preview_url}\""
-msgstr ""
+msgstr "Неправильный формат URL \"{preview_url}\""
 
 #: apps/publisher/api/serializers.py
 #, python-brace-format
@@ -552,7 +552,7 @@ msgstr ""
 #: apps/publisher/choices.py
 #: apps/publisher/templates/publisher/course_list.html
 msgid "Project Coordinator"
-msgstr ""
+msgstr "Координатор проекта"
 
 #: apps/publisher/choices.py
 msgid "Marketing Reviewer"
@@ -570,7 +570,7 @@ msgstr ""
 #: apps/publisher/choices.py apps/publisher/models.py
 #: apps/publisher/wrappers.py
 msgid "Draft"
-msgstr ""
+msgstr "Черновик"
 
 #: apps/publisher/choices.py
 msgid "Review"
@@ -637,7 +637,7 @@ msgstr ""
 
 #: apps/publisher/emails.py
 msgid "Course team"
-msgstr ""
+msgstr "Команда курса"
 
 #: apps/publisher/emails.py
 msgid "Legal Team"
@@ -650,18 +650,18 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Remove Image"
-msgstr ""
+msgstr "Удалить изображение"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "Organization Name"
-msgstr ""
+msgstr "Название организации"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Course Title"
-msgstr ""
+msgstr "Название курса"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
@@ -671,19 +671,19 @@ msgstr ""
 #: apps/publisher/templates/publisher/dashboard/_published.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Course Number"
-msgstr ""
+msgstr "Номер курса"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Short Description"
-msgstr ""
+msgstr "Краткое описание"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Long Description"
-msgstr ""
+msgstr "Полное описание"
 
 #: apps/publisher/forms.py apps/publisher/models.py
 #: apps/publisher/templates/publisher/course_detail.html
@@ -707,12 +707,12 @@ msgstr ""
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Level"
-msgstr ""
+msgstr "Уровень"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "What You Will Learn"
-msgstr ""
+msgstr "Что вы будете изучать"
 
 #: apps/publisher/forms.py
 msgid "Learner Testimonial"
@@ -739,19 +739,19 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Find Course"
-msgstr ""
+msgstr "Найти курс"
 
 #: apps/publisher/forms.py
 msgid "Course Start Date"
-msgstr ""
+msgstr "Дата начала курса"
 
 #: apps/publisher/forms.py
 msgid "Course End Date"
-msgstr ""
+msgstr "Дата окончания курса"
 
 #: apps/publisher/forms.py
 msgid "Instructor"
-msgstr ""
+msgstr "Инструктор"
 
 #: apps/publisher/forms.py
 msgid "Pacing"
@@ -790,11 +790,11 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Video Language"
-msgstr ""
+msgstr "Язык видео"
 
 #: apps/publisher/forms.py
 msgid "Start date cannot be after the End date"
-msgstr ""
+msgstr "Дата начала не может быть позже даты окончания"
 
 #: apps/publisher/forms.py
 msgid "Minimum effort cannot be greater than Maximum effort"
@@ -852,7 +852,7 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "This field is required."
-msgstr ""
+msgstr "Это обязательное поле."
 
 #: apps/publisher/forms.py
 msgid "Invalid course key."
@@ -872,20 +872,20 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Course title"
-msgstr ""
+msgstr "Название курса"
 
 #: apps/publisher/models.py
 msgid "Course number"
-msgstr ""
+msgstr "Номер курса"
 
 #: apps/publisher/models.py
 msgid "Brief Description"
-msgstr ""
+msgstr "Краткое описание"
 
 #: apps/publisher/models.py
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Full Description"
-msgstr ""
+msgstr "Полное описание"
 
 #: apps/publisher/models.py
 msgid "Partner Name"
@@ -916,23 +916,23 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Level 1"
-msgstr ""
+msgstr "Уровень 1"
 
 #: apps/publisher/models.py
 msgid "Level 2"
-msgstr ""
+msgstr "Уровень 2"
 
 #: apps/publisher/models.py
 msgid "Level 3"
-msgstr ""
+msgstr "Уровень 3"
 
 #: apps/publisher/models.py
 msgid "Level 4"
-msgstr ""
+msgstr "Уровень 4"
 
 #: apps/publisher/models.py
 msgid "Level 5"
-msgstr ""
+msgstr "Уровень 5"
 
 #: apps/publisher/models.py
 msgid "Content Language"
@@ -996,7 +996,7 @@ msgstr ""
 
 #: apps/publisher/models.py apps/publisher/wrappers.py
 msgid "N/A"
-msgstr ""
+msgstr "Нет данных"
 
 #: apps/publisher/models.py
 msgid "Awaiting Marketing Review"
@@ -1011,7 +1011,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_detail/_edit_warning_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_edit_warning.html
 msgid "Edit"
-msgstr ""
+msgstr "Редактировать"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "New Instructor"
@@ -1031,7 +1031,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "First Name"
-msgstr ""
+msgstr "Имя"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "required"
@@ -1039,7 +1039,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Last Name"
-msgstr ""
+msgstr "Фамилия"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
@@ -1076,7 +1076,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Bio"
-msgstr ""
+msgstr "Биография"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "required (1-2 paragraphs)"
@@ -1125,11 +1125,11 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Decline"
-msgstr ""
+msgstr "Отклонить"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Accept"
-msgstr ""
+msgstr "Принять"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Accepted"
@@ -1151,7 +1151,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/_approval_widget.html
 #: apps/publisher/templates/publisher/seat_form.html
 msgid "Save"
-msgstr ""
+msgstr "Сохранить"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "ABOUT PAGE PREVIEW"
@@ -1199,7 +1199,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_footer.html
 msgid "Privacy Policy"
-msgstr ""
+msgstr "Политика конфиденциальности"
 
 #: apps/publisher/templates/publisher/_footer.html
 msgid "Legal"
@@ -1219,7 +1219,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/_header.html
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Account"
-msgstr ""
+msgstr "Учётная запись"
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Account Navigation"
@@ -1231,7 +1231,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Help"
-msgstr ""
+msgstr "Помощь"
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Email notifications"
@@ -1239,15 +1239,15 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "ON"
-msgstr ""
+msgstr "ВКЛ"
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "OFF"
-msgstr ""
+msgstr "ВЫКЛ"
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Sign Out"
-msgstr ""
+msgstr "Выйти"
 
 #: apps/publisher/templates/publisher/_history_widget.html
 msgid "REVISION HISTORY"
@@ -1543,7 +1543,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/comments/add_auth_comments.html
 #: apps/publisher/templates/publisher/course_run_detail/_widgets.html
 msgid "Submit"
-msgstr ""
+msgstr "Отправить"
 
 #: apps/publisher/templates/publisher/comments/add_auth_comments.html
 msgid "Add comment"
@@ -1644,7 +1644,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Note:"
-msgstr ""
+msgstr "Примечание:"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
@@ -1825,7 +1825,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Learn more."
-msgstr ""
+msgstr "Узнать больше."
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Each course in a sequence must have a unique image."
@@ -2068,7 +2068,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/dashboard/_published.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Course Name"
-msgstr ""
+msgstr "Название курса"
 
 #: apps/publisher/templates/publisher/course_list.html
 msgid "Runs"
@@ -2182,7 +2182,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "instructor"
-msgstr ""
+msgstr "Преподаватель"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "ESTIMATED EFFORT"
@@ -2233,13 +2233,13 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "Start Date (time in UTC)"
-msgstr ""
+msgstr "Дата начала (время по UTC)"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "End Date (time in UTC)"
-msgstr ""
+msgstr "Дата окончания (время по UTC)"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Credit Price"
@@ -2252,7 +2252,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "New"
-msgstr ""
+msgstr "Новый"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
@@ -2262,11 +2262,11 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "hours per week"
-msgstr ""
+msgstr "часов в неделю"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Course Content Language"
-msgstr ""
+msgstr "Язык курса"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Video Transcript Language"
@@ -2279,7 +2279,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Course Length (Weeks)"
-msgstr ""
+msgstr "Длительность курса (недель)"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "MicroMasters Program Name"
@@ -2296,7 +2296,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_cat.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Course ID"
-msgstr ""
+msgstr "Идентификатор курса"
 
 #: apps/publisher/templates/publisher/course_run_detail/_cat.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
@@ -2314,12 +2314,12 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
 #: apps/publisher/templates/publisher/course_run_detail/_seats.html
 msgid "Price"
-msgstr ""
+msgstr "Цена"
 
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
 #: apps/publisher/templates/publisher/course_run_detail/_seats.html
 msgid "Currency"
-msgstr ""
+msgstr "Валюта"
 
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
 msgid "Credit Hours"
@@ -2346,7 +2346,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Staff"
-msgstr ""
+msgstr "Сотрудник"
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "to"
@@ -2354,7 +2354,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Languages"
-msgstr ""
+msgstr "Языки"
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Video Transcript Languages"
@@ -2362,7 +2362,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "What You'll Learn"
-msgstr ""
+msgstr "Чему вы научитесь"
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
@@ -2371,7 +2371,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Keywords"
-msgstr ""
+msgstr "Ключевые слова"
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Sponsors"
@@ -2399,7 +2399,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Name"
-msgstr ""
+msgstr "Имя"
 
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Profile URL "
@@ -2419,7 +2419,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Close"
-msgstr ""
+msgstr "Закрыть"
 
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Accept About Page Preview"
@@ -2443,7 +2443,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "The course card image."
-msgstr ""
+msgstr "Изображение для \"визитной карточки\" курса."
 
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Names, titles, and signature images for all certificate signatories."
@@ -2451,11 +2451,11 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "OK"
-msgstr ""
+msgstr "ОК"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Course"
-msgstr ""
+msgstr "Курс"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Authored in Studio?"
@@ -2491,7 +2491,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Platform"
-msgstr ""
+msgstr "Платформа"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Faculty"
@@ -2532,11 +2532,11 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Start Date"
-msgstr ""
+msgstr "Дата начала"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "End Date"
-msgstr ""
+msgstr "Дата окончания"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Verified Registration Expiration Date"
@@ -2594,7 +2594,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "Publication failed."
-msgstr ""
+msgstr "Ошибка публикации."
 
 #: apps/publisher/templates/publisher/courserun_list.html
 msgid "Course About Pages"
@@ -2615,7 +2615,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/courserun_list.html
 msgid "Add a New Course"
-msgstr ""
+msgstr "Добавить новый курс"
 
 #: apps/publisher/templates/publisher/courserun_list.html
 msgid "Add a Course Run"
@@ -2627,7 +2627,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/courserun_list.html
 msgid "In Development"
-msgstr ""
+msgstr "В разработке"
 
 #: apps/publisher/templates/publisher/courserun_list.html
 msgid "In Preview"
@@ -2657,13 +2657,13 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/dashboard/_in_preview.html
 msgid "Status"
-msgstr ""
+msgstr "Статус"
 
 #: apps/publisher/templates/publisher/dashboard/_in_preview.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.txt
 msgid "Course start date"
-msgstr ""
+msgstr "Дата начала курса"
 
 #: apps/publisher/templates/publisher/dashboard/_in_preview.html
 msgid "Approved since "
@@ -2687,7 +2687,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "Filter by"
-msgstr ""
+msgstr "Фильтровать по"
 
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "With Course Team"
@@ -2700,12 +2700,12 @@ msgstr ""
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 #: apps/publisher/templates/publisher/dashboard/_published.html
 msgid "Start"
-msgstr ""
+msgstr "Начало"
 
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 #: apps/publisher/templates/publisher/dashboard/_published.html
 msgid "End"
-msgstr ""
+msgstr "Окончание"
 
 #: apps/publisher/templates/publisher/dashboard/_published.html
 msgid "No About pages have been published yet."
@@ -2720,7 +2720,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/dashboard/_published.html
 msgid "Published Date"
-msgstr ""
+msgstr "Дата публикации"
 
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "The following courses are ready for a Studio URL."
@@ -2732,7 +2732,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Add"
-msgstr ""
+msgstr "Добавить"
 
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "No courses are currently ready for a Studio URL."
@@ -2758,7 +2758,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/decline_preview.html
 #: apps/publisher/templates/publisher/email/decline_preview.txt
 msgid "The edX team"
-msgstr ""
+msgstr "Команда edX"
 
 #: apps/publisher/templates/publisher/email/comment.txt
 #, python-format
@@ -2788,7 +2788,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/decline_preview.txt
 #, python-format
 msgid "Dear %(recipient_name)s,"
-msgstr ""
+msgstr "Уважаемый/ая %(recipient_name)s"
 
 #: apps/publisher/templates/publisher/email/course/mark_as_reviewed.html
 #: apps/publisher/templates/publisher/email/course/mark_as_reviewed.txt
@@ -2838,7 +2838,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/studio_instance_created.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.txt
 msgid "Thanks,"
-msgstr ""
+msgstr "С благодарностью,"
 
 #: apps/publisher/templates/publisher/email/course/mark_as_reviewed.html
 #: apps/publisher/templates/publisher/email/course/send_for_review.html
@@ -2908,7 +2908,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/course_created.html
 #, python-format
 msgid "Dear %(project_coordinator_name)s,"
-msgstr ""
+msgstr "Уважаемый/ая %(project_coordinator_name)s"
 
 #: apps/publisher/templates/publisher/email/course_created.html
 #, python-format
