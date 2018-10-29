@@ -392,6 +392,8 @@ class Course(TimeStampedModel):
     )
     slug = AutoSlugField(populate_from='key', editable=True)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
+    faq = models.TextField(default=None, null=True, blank=True, verbose_name=_('FAQ'))
+    learner_testimonials = models.TextField(default=None, null=True, blank=True)
 
     # TODO Remove this field.
     number = models.CharField(

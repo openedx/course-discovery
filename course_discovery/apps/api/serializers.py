@@ -638,7 +638,7 @@ class CourseSerializer(MinimalCourseSerializer):
             'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites',
             'prerequisites_raw', 'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url',
             'syllabus_raw', 'outcome', 'original_image', 'card_image_url', 'canonical_course_run_key',
-            'extra_description',
+            'extra_description', 'faq', 'learner_testimonials',
         )
 
     def get_marketing_url(self, obj):

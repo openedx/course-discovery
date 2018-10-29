@@ -130,6 +130,8 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             'outcome': publisher_course.expected_learnings,
             'prerequisites_raw': publisher_course.prerequisites,
             'syllabus_raw': publisher_course.syllabus,
+            'faq': publisher_course.faq,
+            'learner_testimonials': publisher_course.learner_testimonial,
         }
         discovery_course, created = Course.objects.update_or_create(partner=partner, key=course_key, defaults=defaults)
         discovery_course.image.save(publisher_course.image.name, publisher_course.image.file)
@@ -153,7 +155,6 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             'max_effort': course_run.max_effort,
             'language': course_run.language,
             'weeks_to_complete': course_run.length,
-            'learner_testimonials': publisher_course.learner_testimonial,
         }
         discovery_course_run, __ = DiscoveryCourseRun.objects.update_or_create(
             course=discovery_course,

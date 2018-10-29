@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-17 19:26+0000\n"
+"POT-Creation-Date: 2018-10-29 18:48+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -407,6 +407,14 @@ msgstr "Péöplé Ⱡ'σяєм ιρѕυ#"
 msgid "Add the course image"
 msgstr "Àdd thé çöürsé ïmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/publisher/forms.py apps/publisher/models.py
+#: apps/publisher/templates/publisher/course_detail.html
+#: apps/publisher/templates/publisher/course_revision_history.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+msgid "FAQ"
+msgstr "FÀQ Ⱡ'σяєм#"
+
 #: apps/course_metadata/models.py
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
 msgstr ""
@@ -526,14 +534,6 @@ msgstr "Pröféssïönäl Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 #: apps/publisher/forms.py apps/publisher/models.py
 msgid "Credit"
 msgstr "Çrédït Ⱡ'σяєм ιρѕυ#"
-
-#: apps/course_metadata/models.py apps/publisher/forms.py
-#: apps/publisher/models.py
-#: apps/publisher/templates/publisher/course_detail.html
-#: apps/publisher/templates/publisher/course_revision_history.html
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
-msgid "FAQ"
-msgstr "FÀQ Ⱡ'σяєм#"
 
 #: apps/course_metadata/models.py
 msgid "FAQs"

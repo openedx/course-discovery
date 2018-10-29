@@ -163,7 +163,6 @@ class CourseRunViewSetTests(APITestCase):
         assert discovery_course_run.max_effort == publisher_course_run.max_effort
         assert discovery_course_run.language == publisher_course_run.language
         assert discovery_course_run.weeks_to_complete == publisher_course_run.length
-        assert discovery_course_run.learner_testimonials == publisher_course.learner_testimonial
         expected = set(publisher_course_run.transcript_languages.all())
         assert set(discovery_course_run.transcript_languages.all()) == expected
         assert set(discovery_course_run.staff.all()) == set(publisher_course_run.staff.all())
@@ -183,6 +182,8 @@ class CourseRunViewSetTests(APITestCase):
         assert discovery_course.outcome == publisher_course.expected_learnings
         assert discovery_course.prerequisites_raw == publisher_course.prerequisites
         assert discovery_course.syllabus_raw == publisher_course.syllabus
+        assert discovery_course.learner_testimonials == publisher_course.learner_testimonial
+        assert discovery_course.faq == publisher_course.faq
         expected = list(publisher_course_run.course.organizations.all())
         assert list(discovery_course.authoring_organizations.all()) == expected
         expected = {publisher_course.primary_subject, publisher_course.secondary_subject}
