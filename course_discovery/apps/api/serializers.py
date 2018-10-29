@@ -1405,24 +1405,29 @@ class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
 
 
 class PersonSearchSerializer(HaystackSerializer):
+    profile_image_url = serializers.SerializerMethodField()
+
+    def get_profile_image_url(self, result):
+        return result.object.get_profile_image_url
+
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
         ignore_fields = COMMON_IGNORED_FIELDS
         index_classes = [search_indexes.PersonIndex]
-        fields = (
+        fields = search_indexes.BASE_SEARCH_INDEX_FIELDS + (
             'uuid',
             'salutation',
             'full_name',
             'bio',
             'bio_language',
-            'get_profile_image_url',
+            'profile_image_url',
             'position',
         )
 
 
-class PersonSearchModelSerializer(HaystackSerializerMixin, PersonSerializer):
+class PersonSearchModelSerializer(HaystackSerializerMixin, ContentTypeSerializer, PersonSerializer):
     class Meta(PersonSerializer.Meta):
-        fields = PersonSerializer.Meta.fields
+        fields = ContentTypeSerializer.Meta.fields + PersonSerializer.Meta.fields
 
 
 class PersonFacetSerializer(BaseHaystackFacetSerializer):
@@ -1483,6 +1488,7 @@ class AggregateSearchSerializer(HaystackSerializer):
             search_indexes.CourseRunIndex: CourseRunSearchSerializer,
             search_indexes.CourseIndex: CourseSearchSerializer,
             search_indexes.ProgramIndex: ProgramSearchSerializer,
+            search_indexes.PersonIndex: PersonSearchSerializer,
         }
 
 
@@ -1498,7 +1504,8 @@ class AggregateFacetSearchSerializer(BaseHaystackFacetSerializer):
         serializers = {
             search_indexes.CourseRunIndex: CourseRunFacetSerializer,
             search_indexes.CourseIndex: CourseFacetSerializer,
-            search_indexes.ProgramIndex: ProgramFacetSerializer
+            search_indexes.ProgramIndex: ProgramFacetSerializer,
+            search_indexes.PersonIndex: PersonFacetSerializer,
         }
 
 

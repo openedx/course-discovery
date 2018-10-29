@@ -1498,7 +1498,9 @@ class PersonSearchSerializerTest(ElasticsearchTestMixin, TestCase):
             'uuid': str(person.uuid),
             'bio': person.bio,
             'bio_language': person.bio_language,
-            'get_profile_image_url': person.get_profile_image_url,
+            'content_type': 'person',
+            'aggregation_key': 'person:' + str(person.uuid),
+            'profile_image_url': person.get_profile_image_url,
             'full_name': person.full_name
         }
 
@@ -1540,6 +1542,7 @@ class PersonSearchModelSerializerTests(PersonSearchSerializerTest):
             },
             'slug': person.slug,
             'email': person.email,
+            'content_type': 'person',
         }
 
 
