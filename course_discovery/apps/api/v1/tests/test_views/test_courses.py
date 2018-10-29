@@ -196,7 +196,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of all courses. """
         url = reverse('api:v1:course-list')
 
-        with self.assertNumQueries(29):
+        with self.assertNumQueries(32):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertListEqual(
