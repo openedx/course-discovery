@@ -172,6 +172,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'original_image': ImageField().to_representation(course.original_image_url),
             'card_image_url': course.card_image_url,
             'canonical_course_run_key': None,
+            'additional_information': course.additional_information,
             'faq': course.faq,
             'learner_testimonials': course.learner_testimonials,
         })

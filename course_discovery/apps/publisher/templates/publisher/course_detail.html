@@ -219,6 +219,18 @@
             </div>
 
             <div class="info-item history-field-container">
+                <div class="heading">{% trans "Additional Information" %}
+                </div>
+                <div class="current additional_information">
+                    {% with  object.additional_information as field %}
+                        {% include "publisher/_render_optional_field.html" %}
+                    {% endwith %}
+                </div>
+                <div class="show-diff"></div>
+            </div>
+
+
+            <div class="info-item history-field-container">
                 <div class="heading">{% trans "Syllabus" %}
                 </div>
                 <div class="current faq">

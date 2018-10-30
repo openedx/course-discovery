@@ -2954,8 +2954,6 @@ class CourseEditViewTests(SiteMixin, TestCase):
         ('full_description', 2500),
         ('prerequisites', 1000),
         ('expected_learnings', 2500),
-        ('learner_testimonial', 500),
-        ('faq', 2500),
         ('syllabus', 2500)
     )
     @ddt.unpack
